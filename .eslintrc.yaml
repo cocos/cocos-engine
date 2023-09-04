@@ -71,6 +71,7 @@ rules:
     import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
     import/prefer-default-export: off # prefer named exports
+    import/no-extraneous-dependencies: [error]
     indent: [error, 4, {
       SwitchCase: 0,
       ignoredNodes: [ # https://stackoverflow.com/a/72897089

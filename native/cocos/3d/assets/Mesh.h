@@ -197,6 +197,12 @@ public:
          */
         ccstd::optional<IDynamicStruct> dynamic;
 
+        ccstd::optional<bool> encoded;
+
+        ccstd::optional<bool> compressed;
+
+        ccstd::optional<bool> quantized;
+
         /**
          * @en Whether to support GPU Scene
          * @zh 是否支持 GPU Scene

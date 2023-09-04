@@ -49,6 +49,19 @@ module.exports = link(mixin({
                     },
                 },
             },
+            CurveRange: {
+                properties: {
+                    spline: {
+                        displayName: 'Spline',
+                    },
+                    splineMin: {
+                        displayName: 'Spline Min',
+                    },
+                    splineMax: {
+                        displayName: 'Spline Max',
+                    },
+                },
+            },
         },
     },
 
@@ -1292,6 +1305,8 @@ module.exports = link(mixin({
         needBlur: 'Turn on for a softer effect with less noise, but it consumes some performance.',
     },
     bloom: {
+        enableAlphaMask: 'Transparent channel flag bit, if you turn on this function, please also reduce the object material intrinsic color a channel output, a value of less than 1 object will not have a flood light',
+        useHdrIlluminance: 'To use scene HDR brightness to filter flooded areas, both HDR mode and the CC_USE_FLOAT_OUTPUT macro must be enabled.',
         threshold: 'The brightness threshold, brighter area will produce bloom, this value unit is the LDR brightness seen by the human eye, independent of exposure.',
         iterations: 'The number of blur iterations, the higher the value that results in a larger and softer flare range, but with reduced performance.',
         intensity: 'Flood intensity, the higher the value, the brighter the halo, please adjust it moderately.',

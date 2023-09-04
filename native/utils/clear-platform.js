@@ -14,7 +14,7 @@ const child_process = require('child_process');
 const fetch = require('node-fetch');
 
 // usage: npm run clear-platform
-let externalDir = path.join(__dirname, "../external");
+let externalDir = process.env.ENGINE_PATH ? path.join(process.env.ENGINE_PATH, "./native/external")  : path.join(__dirname, "../external");
 let failed = false;
 
 let macUsefulDirs = ['android', 'cmake', 'emscripten', 'ios', 'ios-m1-simulator', 'mac', 'ohos', 'sources', 'openharmony'];
@@ -95,7 +95,7 @@ function cleanPlatform(platform) {
     } else { // others
         console.log(chalk.red(`Platform ${platform} is not supported, skip`));
     }
-    // abnormal exit 
+    // abnormal exit
     if (failed) {
         process.exit(-1);
     }
@@ -185,7 +185,7 @@ async function minimizeBoost() {
     const BOOST_VERSION_DOTTED = BOOST_VERSION.join('.');
     const BOOST_VERSION_UNDERSCORE = BOOST_VERSION.join('_');
     const BOOST_ZIP_FILE = `boost_${BOOST_VERSION_UNDERSCORE}.tar.gz`;
-    const EXTERNAL_SOURCE_DIR = path.join(__dirname, '..', 'external', 'sources');
+    const EXTERNAL_SOURCE_DIR = path.join(externalDir, 'sources');
     const BOOST_DOWNLOAD = path.join(EXTERNAL_SOURCE_DIR, 'boost-download');
     const BOOST_ORIG_PATH = path.join(EXTERNAL_SOURCE_DIR, 'boost');
     const BOOST_DEST = path.join(EXTERNAL_SOURCE_DIR, 'boost-minimized');
@@ -195,7 +195,7 @@ async function minimizeBoost() {
     const BOOST_URL_LOCAL = `http://ftp.cocos.org/TestBuilds/Editor-3d/tools/boost_${BOOST_VERSION_UNDERSCORE}.tar.gz`
 
     const BCP_PATH = path.join(BOOST_DECOMPRESSED_PATH, 'dist', 'bin', execName('bcp'));
-    const ENGINE_ROOT = path.normalize(path.join(__dirname, '../../'));
+    const ENGINE_ROOT = path.normalize(path.join(externalDir, '../../'));
 
     let headersUsedByEngine = [];
 

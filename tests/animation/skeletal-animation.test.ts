@@ -224,6 +224,26 @@ describe('Skeletal animation component', () => {
         expect(state.isPlaying && !state.isPaused).toBe(true);
     });
 
+    test('Bugfix - Inactivated skeletal animation components shall not affect skinned mesh renderers', () => {
+        const node = new Node();
+        const skeletalAnimation = node.addComponent(SkeletalAnimation) as SkeletalAnimation;
+        skeletalAnimation.enabled = false;
+        const skinnedMeshRenderer = node.addComponent(SkinnedMeshRenderer) as SkinnedMeshRenderer;
+        skinnedMeshRenderer.skinningRoot = node;
+
+        const scene = new Scene('');
+        scene.addChild(node);
+
+        director.runSceneImmediate(scene);
+        // The skinned mesh renderer shall not being in baked mode.
+        expect(skinnedMeshRenderer.model).not.toBeInstanceOf(BakedSkinningModel);
+
+        // While skeletal animation is activated, the skinned mesh renderer should be turned into baked mode.
+        skeletalAnimation.enabled = true;
+        director.tick(0.2);
+        expect(skinnedMeshRenderer.model).toBeInstanceOf(BakedSkinningModel);
+    });
+  
     describe(`useBakedAnimation`, () => {
         test.each([
             [true],

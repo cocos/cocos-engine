@@ -98,7 +98,7 @@ public:
     void removePointLight(PointLight *);
     void removePointLights();
 
-    void addRangedDirlLight(RangedDirectionalLight *);
+    void addRangedDirLight(RangedDirectionalLight *);
     void removeRangedDirLight(RangedDirectionalLight *);
     void removeRangedDirLights();
 

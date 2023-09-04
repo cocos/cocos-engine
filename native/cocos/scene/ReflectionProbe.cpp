@@ -25,9 +25,9 @@
 #include "scene/ReflectionProbe.h"
 #include "Define.h"
 #include "core/scene-graph/Scene.h"
+#include "core/scene-graph/SceneGlobals.h"
 #include "math/Quaternion.h"
 #include "scene/ReflectionProbeManager.h"
-#include "core/scene-graph/SceneGlobals.h"
 #include "scene/Skybox.h"
 namespace cc {
 namespace scene {
@@ -101,7 +101,6 @@ void ReflectionProbe::syncCameraParams(const Camera* camera) {
     _camera->setNearClip(camera->getNearClip());
     _camera->setFarClip(camera->getFarClip());
     _camera->setFov(camera->getFov());
-    _camera->setVisibility(camera->getVisibility());
     _camera->setClearFlag(camera->getClearFlag());
     _camera->setClearColor(camera->getClearColor());
     _camera->setPriority(camera->getPriority() - 1);
@@ -146,7 +145,7 @@ void ReflectionProbe::transformReflectionCamera(const Camera* sourceCamera) {
     _camera->update(true);
 
     // Transform the plane from world space to reflection camera space use the inverse transpose matrix
-    Vec4 viewSpaceProbe{ _node->getUp().x, _node->getUp().y, _node->getUp().z, -Vec3::dot(_node->getUp(), _node->getWorldPosition())};
+    Vec4 viewSpaceProbe{_node->getUp().x, _node->getUp().y, _node->getUp().z, -Vec3::dot(_node->getUp(), _node->getWorldPosition())};
     Mat4 matView = _camera->getMatView();
     matView.inverse();
     matView.transpose();
@@ -267,7 +266,7 @@ void ReflectionProbe::updateCameraDir(int32_t faceIdx) {
     _camera->update(true);
 }
 
-Vec2 ReflectionProbe::getRenderArea() const {
+Vec2 ReflectionProbe::renderArea() const {
     if (_probeType == ProbeType::PLANAR) {
         return Vec2(_realtimePlanarTexture->getWidth(), _realtimePlanarTexture->getHeight());
     }

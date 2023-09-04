@@ -1,6 +1,7 @@
 'use strict';
 
 const { trackEventWithTimer } = require('../../utils/metrics');
+const { getMessageProtocolScene } = require('../../utils/prop');
 
 exports.template = `
 <div>
@@ -114,7 +115,7 @@ exports.methods = {
     resetMultiObjectSize() {
         const that = this;
         that.dump.value.uuid.values.forEach((uuid) => {
-            Editor.Message.send('scene', 'execute-component-method', {
+            Editor.Message.send(getMessageProtocolScene(that.$el), 'execute-component-method', {
                 uuid: uuid,
                 name: 'resetObjectSize',
                 args: [],

@@ -6,7 +6,8 @@
             "description": "i18n:ENGINE.features.core.description",
             "required": true,
             "default": ["base"],
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "graphcis": {
             "label": "i18n:ENGINE.features.graphics.label",
@@ -18,12 +19,14 @@
                     "required": true,
                     "label": "i18n:ENGINE.features.gfx_webgl.label",
                     "description": "i18n:ENGINE.features.gfx_webgl.description",
-                    "wechatPlugin": true
+                    "wechatPlugin": true,
+                    "taobaoMinigamePlugin": true
                 },
                 "gfx-webgl2": {
                     "label": "i18n:ENGINE.features.gfx_webgl2.label",
                     "description": "i18n:ENGINE.features.gfx_webgl2.description",
-                    "wechatPlugin": true
+                    "wechatPlugin": true,
+                    "taobaoMinigamePlugin": true
                 }
             }
         },
@@ -44,6 +47,7 @@
             "label": "i18n:ENGINE.features.base_3d.label",
             "description": "i18n:ENGINE.features.base_3d.description",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "3d"
         },
         "2d": {
@@ -51,27 +55,31 @@
             "label": "i18n:ENGINE.features.base_2d.label",
             "description": "i18n:ENGINE.features.base_2d.description",
             "category": "2d",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "xr": {
             "default": [],
             "label": "i18n:ENGINE.features.xr.label",
             "description": "i18n:ENGINE.features.xr.description",
-            "wechatPlugin": false
+            "wechatPlugin": false,
+            "taobaoMinigamePlugin": false
         },
         "ui": {
             "default": ["ui"],
             "label": "i18n:ENGINE.features.ui.label",
             "description": "i18n:ENGINE.features.ui.description",
             "category": "2d",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "particle": {
             "default": ["particle"],
             "label": "i18n:ENGINE.features.particle.label",
             "description": "i18n:ENGINE.features.particle.description",
             "category": "3d",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "physics": {
             "label": "i18n:ENGINE.features.physics.label",
@@ -119,6 +127,7 @@
             "label": "i18n:ENGINE.features.intersection_2d.label",
             "description": "i18n:ENGINE.features.intersection_2d.description",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "2d"
         },
         "primitive": {
@@ -126,13 +135,15 @@
             "label": "i18n:ENGINE.features.primitives.label",
             "description": "i18n:ENGINE.features.primitives.description",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "3d"
         },
         "profiler": {
             "default": ["profiler"],
             "label": "i18n:ENGINE.features.profiler.label",
             "description": "i18n:ENGINE.features.profiler.description",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "occlusion-query": {
             "default": [],
@@ -140,6 +151,7 @@
             "description": "i18n:ENGINE.features.occlusion_query.description",
             "native": "USE_OCCLUSION_QUERY",
             "wechatPlugin": false,
+            "taobaoMinigamePlugin": false,
             "category": "3d"
         },
         "geometry-renderer": {
@@ -148,6 +160,7 @@
             "description": "i18n:ENGINE.features.geometry_renderer.description",
             "native": "USE_GEOMETRY_RENDERER",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "3d"
         },
         "debug-renderer": {
@@ -156,6 +169,7 @@
             "description": "i18n:ENGINE.features.debug_renderer.description",
             "native": "USE_DEBUG_RENDERER",
             "wechatPlugin": false,
+            "taobaoMinigamePlugin": false,
             "category": "3d"
         },
         "particle-2d": {
@@ -163,6 +177,7 @@
             "label": "i18n:ENGINE.features.particle_2d.label",
             "description": "i18n:ENGINE.features.particle_2d.description",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "2d"
         },
         "audio": {
@@ -170,27 +185,31 @@
             "label": "i18n:ENGINE.features.audio.label",
             "description": "i18n:ENGINE.features.audio.description",
             "native": "USE_AUDIO",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "video": {
             "default": ["video"],
             "label": "i18n:ENGINE.features.video.label",
             "description": "i18n:ENGINE.features.video.description",
             "native": "USE_VIDEO",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "webview": {
             "default": ["webview"],
             "label": "i18n:ENGINE.features.webview.label",
             "description": "i18n:ENGINE.features.webview.description",
             "native": "USE_WEBVIEW",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "tween": {
             "default": ["tween"],
             "label": "i18n:ENGINE.features.tween.label",
             "description": "i18n:ENGINE.features.tween.description",
-            "wechatPlugin": true
+            "wechatPlugin": true,
+            "taobaoMinigamePlugin": true
         },
         "websocket": {
             "default": ["websocket"],
@@ -198,6 +217,7 @@
             "description": "i18n:ENGINE.features.websocket.description",
             "native": "USE_SOCKET",
             "wechatPlugin": false,
+            "taobaoMinigamePlugin": false,
             "category": "network"
         },
         "websocket-server": {
@@ -206,6 +226,7 @@
             "description": "i18n:ENGINE.features.websocket_server.description",
             "native": "USE_WEBSOCKET_SERVER",
             "wechatPlugin": false,
+            "taobaoMinigamePlugin": false,
             "category": "network"
         },
         "terrain": {
@@ -213,6 +234,7 @@
             "label": "i18n:ENGINE.features.terrain.label",
             "description": "i18n:ENGINE.features.terrain.description",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "3d"
         },
         "light-probe": {
@@ -220,6 +242,7 @@
             "label": "i18n:ENGINE.features.light_probe.label",
             "description": "i18n:ENGINE.features.light_probe.description",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "3d"
         },
         "tiled-map": {
@@ -227,6 +250,7 @@
             "label": "i18n:ENGINE.features.tiled_map.label",
             "description": "i18n:ENGINE.features.tiled_map.description",
             "wechatPlugin": true,
+            "taobaoMinigamePlugin": true,
             "category": "2d"
         },
         "spine": {
@@ -234,7 +258,8 @@
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
             "native": "USE_SPINE",
-	        "wechatPlugin": false,
+	        "wechatPlugin": true,
+	        "taobaoMinigamePlugin": false,
             "category": "2d"
         },
         "dragon-bones": {
@@ -243,6 +268,7 @@
             "description": "i18n:ENGINE.features.dragon_bones.description",
             "native": "USE_DRAGONBONES",
 	        "wechatPlugin": true,
+	        "taobaoMinigamePlugin": true,
             "category": "2d"
         },
         "marionette": {
@@ -250,6 +276,7 @@
             "label": "i18n:ENGINE.features.marionette.label",
             "description": "i18n:ENGINE.features.marionette.description",
             "wechatPlugin": false,
+            "taobaoMinigamePlugin": false,
             "category": "animation"
         },
         "procedural-animation": {
@@ -257,13 +284,15 @@
             "label": "i18n:ENGINE.features.procedural_animation.label",
             "description": "i18n:ENGINE.features.procedural_animation.description",
             "wechatPlugin": false,
+            "taobaoMinigamePlugin": false,
             "category": "animation"
         },
         "custom-pipeline": {
             "default": [],
             "label": "i18n:ENGINE.features.custom_pipeline.label",
             "description": "i18n:ENGINE.features.custom_pipeline.description",
-            "wechatPlugin": false
+            "wechatPlugin": false,
+            "taobaoMinigamePlugin": false
         }
     },
     "categories": {

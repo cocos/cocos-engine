@@ -65,6 +65,9 @@ void printLayoutGraphData(
     const LayoutGraphData& lg, std::ostream& oss,
     boost::container::pmr::memory_resource* scratch);
 
+gfx::TextureType getTextureType(ResourceDimension dimension, uint32_t arraySize);
+ResourceDimension getResourceDimension(gfx::TextureType type);
+
 } // namespace render
 
 } // namespace cc

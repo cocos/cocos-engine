@@ -18,13 +18,16 @@
 
 package com.cocos.lib;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
+import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.PlaybackParams;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
@@ -32,8 +35,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
-import android.app.Activity;
-import android.graphics.Point;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -161,6 +162,33 @@ public class CocosVideoView extends SurfaceView {
         mKeepRatio = enabled;
         fixSize();
     }
+
+    public void playbackRate(float value) {
+        if (mMediaPlayer != null) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                PlaybackParams params = new PlaybackParams();
+                params.setSpeed(value);
+                mMediaPlayer.setPlaybackParams(params);
+            }
+        }
+    }
+
+    public void setMute(boolean enabled) {
+        if (mMediaPlayer != null) {
+            if (enabled) {
+                mMediaPlayer.setVolume(0f, 0f);
+            } else {
+                mMediaPlayer.setVolume(1f, 1f);
+            }
+        }
+    }
+
+    public void setLoop(boolean enabled) {
+        if (mMediaPlayer != null) {
+            mMediaPlayer.setLooping(enabled);
+        }
+    }
+
 
     public void setVideoURL(String url) {
         mIsAssetResource = false;

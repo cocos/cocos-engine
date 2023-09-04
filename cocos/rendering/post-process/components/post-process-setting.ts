@@ -6,14 +6,6 @@ import { PostProcess } from './post-process';
 @requireComponent(PostProcess)
 @executeInEditMode
 export class PostProcessSetting extends Component {
-    protected static _default: PostProcessSetting | undefined;
-    static get default (): PostProcessSetting {
-        if (!this._default) {
-            this._default = new this();
-        }
-        return this._default;
-    }
-
     onEnable (): void {
         const pp = this.getComponent(PostProcess);
         pp?.addSetting(this);

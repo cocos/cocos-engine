@@ -209,13 +209,13 @@ float HorizonOcclusion(vec2 deltaUV,
         vec3 S = FetchEyePos(uv);
         float tanS = Tangent(P, S);
         float d2 = Length2(S - P);
-  
+
         if ((d2 < g_R2) && (tanS > tanH))
         {
           // Accumulate AO between the horizon and the sample
           float sinS = tanS / sqrt(1.0 + tanS*tanS);
           ao += Falloff(d2) * (sinS - sinH);
-  
+
           // Update the current horizon angle
           tanH = tanS;
           sinH = sinS;
@@ -261,8 +261,8 @@ float CalculateAO(vec2 uv)
     // Multiply by 0.5 to scale from [-1,1]^2 to [0,1]^2
     vec2 ray_radius_uv = 0.5 * g_R * g_FocalLen / P.z;
     float ray_radius_pix = ray_radius_uv.x * g_AOResolution.x;
-    
-    if (ray_radius_pix < 1.0) 
+
+    if (ray_radius_pix < 1.0)
     {
       return 1.0;
     }

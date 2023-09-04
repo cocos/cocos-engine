@@ -422,8 +422,7 @@ public:
             if (actionMasked == AMOTION_EVENT_ACTION_DOWN ||
                 actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
                 if (actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN) {
-                    eventChangedIndex = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)
-                            >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
+                    eventChangedIndex = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
                 } else {
                     eventChangedIndex = 0;
                 }
@@ -432,8 +431,7 @@ public:
                        actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
                 touchEvent.type = cc::TouchEvent::Type::ENDED;
                 if (actionMasked == AMOTION_EVENT_ACTION_POINTER_UP) {
-                    eventChangedIndex = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)
-                            >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
+                    eventChangedIndex = ((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT);
                 } else {
                     eventChangedIndex = 0;
                 }
@@ -843,9 +841,7 @@ int32_t AndroidPlatform::loop() {
         if (xr && !xr->platformLoopStart()) continue;
         _inputProxy->handleInput();
         if (_inputProxy->isAnimating() && (xr ? xr->getXRConfig(xr::XRConfigKey::SESSION_RUNNING).getBool() : true)) {
-            if (xr) xr->beginRenderFrame();
             runTask();
-            if (xr) xr->endRenderFrame();
             if (_inputProxy->isActive()) {
                 flushTasksOnGameThreadAtForegroundJNI();
             }

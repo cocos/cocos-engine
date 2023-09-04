@@ -203,7 +203,7 @@ const legacyBuiltinEffectNames = [
     'geometry-renderer',
     'debug-renderer',
     'ssss-blur',
-    'tone-mapping',
+    'float-output-process',
 ];
 
 /**

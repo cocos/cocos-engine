@@ -1,4 +1,6 @@
-/lib
+lib/
+.turbo/
+node_modules/
 /bin
 /web.config
 .idea
@@ -6,7 +8,6 @@
 .DS_Store
 build
 aspnet_client
-node_modules
 /tools/jsdoc_toolkit-2.4.0
 /package
 /tools/jsdoc_toolkit/jsdoc_toolkit-2.4.0
@@ -18,10 +19,6 @@ DebugInfos.json
 playground/library
 /declarations
 3d-api-docs
-scripts/build-engine/node_modules
-scripts/build-engine/dist
-scripts/native-pack-tool/dist
-scripts/native-pack-tool/node_modules
 
 tests/core/serialization/ccob-serialized-gallery
 
@@ -44,7 +41,6 @@ scripts/runtime-web-adapter
 
 native/external/
 
-scripts/typedoc-plugin/lib/
 !templates/**/*
 templates/**/.DS_Store
 

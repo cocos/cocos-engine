@@ -1540,14 +1540,16 @@ static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
     auto width = gpuFbo->width;
     auto height = gpuFbo->height;
 
-    if (cache->glReadFramebuffer != gpuFbo->framebuffer.handle) {
-        GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, gpuFbo->framebuffer.handle));
-        cache->glReadFramebuffer = gpuFbo->framebuffer.handle;
+    const auto fbHandle = gpuFbo->framebuffer.getHandle();
+    if (cache->glReadFramebuffer != fbHandle) {
+        GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, fbHandle));
+        cache->glReadFramebuffer = fbHandle;
     }
 
-    if (cache->glDrawFramebuffer != gpuFbo->resolveFramebuffer.handle) {
-        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, gpuFbo->resolveFramebuffer.handle));
-        cache->glDrawFramebuffer = gpuFbo->resolveFramebuffer.handle;
+    const auto rsvHandle = gpuFbo->resolveFramebuffer.getHandle();
+    if (cache->glDrawFramebuffer != rsvHandle) {
+        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rsvHandle));
+        cache->glDrawFramebuffer = rsvHandle;
     }
 
     gpuFbo->resolveFramebuffer.processLoad(GL_DRAW_FRAMEBUFFER);
@@ -1558,7 +1560,7 @@ static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
         for (auto &[src, dst] : gpuFbo->colorBlitPairs) {
             drawBuffers[dst] = GL_COLOR_ATTACHMENT0 + dst;
             GL_CHECK(glReadBuffer(GL_COLOR_ATTACHMENT0 + src));
-            if (gpuFbo->resolveFramebuffer.handle != 0) {
+            if (rsvHandle != 0) {
                 GL_CHECK(glDrawBuffers(resolveColorNum, drawBuffers.data()));
             }
 
@@ -1569,7 +1571,7 @@ static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
             drawBuffers[dst] = GL_NONE;
         }
     }
-    if (gpuFbo->dsResolveMask != 0 && gpuFbo->resolveFramebuffer.handle != 0) {
+    if (gpuFbo->dsResolveMask != 0 && rsvHandle != 0) {
         GL_CHECK(glBlitFramebuffer(
             0, 0, width, height,
             0, 0, width, height,
@@ -1860,9 +1862,10 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
             device->context()->makeCurrent(framebuffer.swapchain);
         }
 
-        if (cache->glDrawFramebuffer != framebuffer.handle) {
-            GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer.handle));
-            cache->glDrawFramebuffer = framebuffer.handle;
+        const auto fbHandle = framebuffer.getHandle();
+        if (cache->glDrawFramebuffer != fbHandle) {
+            GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbHandle));
+            cache->glDrawFramebuffer = fbHandle;
         }
 
         if (cache->viewport.left != renderArea->x ||
@@ -1894,7 +1897,7 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                 }
 
                 const Color &color = clearColors[attachmentIndex];
-                if (framebuffer.handle) {
+                if (fbHandle) {
                     fColors[0] = color.x;
                     fColors[1] = color.y;
                     fColors[2] = color.z;
@@ -3118,7 +3121,7 @@ void GLES3GPUFramebufferObject::bindColorMultiSample(const GLES3GPUTextureView *
     if (colorIndex >= colors.size()) {
         colors.resize(colorIndex + 1);
     }
-    bool isDefaultFb = swapchain != nullptr;
+    bool isDefaultFb = swapchain != nullptr && !swapchain->isXR;
 
     if (attachment.loadOp == LoadOp::DISCARD) {
         loadInvalidates.emplace_back(isDefaultFb ? GL_COLOR : GL_COLOR_ATTACHMENT0 + colorIndex);
@@ -3136,7 +3139,7 @@ void GLES3GPUFramebufferObject::bindDepthStencil(const GLES3GPUTextureView *text
 void GLES3GPUFramebufferObject::bindDepthStencilMultiSample(const GLES3GPUTextureView *texture, GLint samples, const DepthStencilAttachment &attachment) {
     const FormatInfo &info = GFX_FORMAT_INFOS[toNumber(texture->gpuTexture->format)];
 
-    bool isDefaultFb = swapchain != nullptr;
+    bool isDefaultFb = swapchain != nullptr && !swapchain->isXR;
     bool hasDepth = info.hasDepth;
     bool hasStencil = info.hasStencil;
 

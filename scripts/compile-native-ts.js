@@ -25,9 +25,11 @@ function normalizePath (path) {
 
 async function buildTsEngine () {
     console.log(chalk.green('building TS engine ...\n'));
-    const engineBuilder = new ccbuild.EngineBuilder();
-    await engineBuilder.build({
-        root: engineRoot,
+    await ccbuild.buildEngine({
+        // NOTE: for now only OH platform supports building TS engine
+        platform: 'OPEN_HARMONY',
+        preserveType: true,
+        engine: engineRoot,
         // TODO: some modules still cannot be compile
         features: [
             "base",
@@ -67,12 +69,11 @@ async function buildTsEngine () {
             "custom-pipeline",
             // "light-probe",
         ],
-        platform: 'NATIVE',
         mode: 'BUILD',
         flagConfig: {
             DEBUG: true,
         },
-        outDir: buildOutput,
+        out: buildOutput,
     });
 }
 
@@ -105,6 +106,7 @@ async function compileTsEngine () {
             "./@types/pal/input",
             "./@types/pal/env",
             "./@types/pal/pacer",
+            "./@types/pal/wasm",
         ].map(typePath => normalizePath(ps.join(buildOutput, typePath))),
         skipLibCheck: true,
         rootDir: buildOutput,

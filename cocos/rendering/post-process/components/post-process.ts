@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { property } from '../../../core/data/class-decorator';
+import { property, serializable } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, help, range, slide, tooltip } from '../../../core/data/decorators';
 import { Director, director } from '../../../game';
 import { Component } from '../../../scene-graph';
@@ -14,9 +14,10 @@ export class PostProcess extends Component {
 
     @tooltip('i18n:postprocess.global')
     @property
+    @serializable
     global = true;
 
-    @property
+    @serializable
     protected _shadingScale = 1;
     @tooltip('i18n:postprocess.shadingScale')
     @slide
@@ -36,6 +37,7 @@ export class PostProcess extends Component {
 
     @tooltip('i18n:postprocess.enableShadingScaleInEditor')
     @property
+    @serializable
     enableShadingScaleInEditor = false;
 
     settings: Map<typeof PostProcessSetting, PostProcessSetting> = new Map();

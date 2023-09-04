@@ -35,7 +35,7 @@ const { join } = require('path');
     const root = join(__dirname, '../node_modules');
     step(root);
 
-    const xcode = join(__dirname, './native-pack-tool/xcode/node_modules');
+    const xcode = join(__dirname, '../packages/native-pack-tool/xcode/node_modules');
     step(xcode);
 
     console.log(`${total} - ${m}`);

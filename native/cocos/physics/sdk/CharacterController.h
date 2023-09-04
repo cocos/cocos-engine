@@ -27,53 +27,55 @@
 #include <memory>
 #include "base/Macros.h"
 #include "core/scene-graph/Node.h"
-#include "physics/spec/IShape.h"
 #include "physics/spec/ICharacterController.h"
+#include "physics/spec/IShape.h"
 
-#define CC_PHYSICS_CCT_CLASS(CLASS)                                     \
-    class CC_DLL CLASS final : public I##CLASS {                        \
-    protected:                                                          \
-        std::unique_ptr<I##CLASS> _impl;                                \
-                                                                        \
-    public:                                                             \
-        CLASS();                                                        \
-        ~CLASS() override;                                              \
-        bool initialize(Node *node) override;                           \
-        void onEnable() override;                                       \
-        void onDisable() override;                                      \
-        void onDestroy() override;                                      \
-        virtual cc::Vec3 getPosition() override;                        \
-        virtual void setPosition(float x, float y, float z) override;   \
-        virtual bool onGround() override;                               \
-        virtual void move(float x, float y, float z, float minDist,     \
-        float elapsedTime) override;                                    \
-        virtual void setStepOffset(float v) override;                   \
-        virtual float getStepOffset() override;                         \
-        virtual void setSlopeLimit(float v) override;                   \
-        virtual float getSlopeLimit() override;                         \
-        virtual void setContactOffset(float v) override;                \
-        virtual float getContactOffset()  override;                     \
-        virtual void setDetectCollisions(bool v) override;              \
-        virtual void setOverlapRecovery(bool v) override;               \
-        virtual void setCenter(float x, float y, float z) override;     \
-        uint32_t getGroup() override;                                   \
-        void setGroup(uint32_t g) override;                             \
-        uint32_t getMask() override;                                    \
-        void setMask(uint32_t m) override;                              \
-        void updateEventListener(EShapeFilterFlag flag) override;       \
+#define CC_PHYSICS_CCT_CLASS(CLASS)                                   \
+    class CC_DLL CLASS final : public I##CLASS {                      \
+    protected:                                                        \
+        std::unique_ptr<I##CLASS> _impl;                              \
+                                                                      \
+    public:                                                           \
+        CLASS();                                                      \
+        ~CLASS() override;                                            \
+        bool initialize(Node *node) override;                         \
+        void onEnable() override;                                     \
+        void onDisable() override;                                    \
+        void onDestroy() override;                                    \
+        virtual cc::Vec3 getPosition() override;                      \
+        virtual void setPosition(float x, float y, float z) override; \
+        virtual bool onGround() override;                             \
+        virtual void move(float x, float y, float z, float minDist,   \
+                          float elapsedTime) override;                \
+        void syncPhysicsToScene() override;                           \
+        virtual void setStepOffset(float v) override;                 \
+        virtual float getStepOffset() override;                       \
+        virtual void setSlopeLimit(float v) override;                 \
+        virtual float getSlopeLimit() override;                       \
+        virtual void setContactOffset(float v) override;              \
+        virtual float getContactOffset() override;                    \
+        virtual void setDetectCollisions(bool v) override;            \
+        virtual void setOverlapRecovery(bool v) override;             \
+        virtual void setCenter(float x, float y, float z) override;   \
+        uint32_t getGroup() override;                                 \
+        void setGroup(uint32_t g) override;                           \
+        uint32_t getMask() override;                                  \
+        void setMask(uint32_t m) override;                            \
+        void updateEventListener(EShapeFilterFlag flag) override;     \
         uint32_t getObjectID() const override;
 
 namespace cc {
 namespace physics {
-        CC_PHYSICS_CCT_CLASS(CapsuleCharacterController)
-        void setRadius(float v) override;
-        void setHeight(float v) override;
-        };
-
-        CC_PHYSICS_CCT_CLASS(BoxCharacterController)
-        void setHalfHeight(float v) override;
-        void setHalfSideExtent(float v) override;
-        void setHalfForwardExtent(float v) override;
+CC_PHYSICS_CCT_CLASS(CapsuleCharacterController)
+void setRadius(float v) override;
+void setHeight(float v) override;
 };
-}; // namespace physics
+
+CC_PHYSICS_CCT_CLASS(BoxCharacterController)
+void setHalfHeight(float v) override;
+void setHalfSideExtent(float v) override;
+void setHalfForwardExtent(float v) override;
+};
+}
+; // namespace physics
 } // namespace cc

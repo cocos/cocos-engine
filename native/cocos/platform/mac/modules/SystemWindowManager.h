@@ -23,7 +23,6 @@
 ****************************************************************************/
 
 #pragma once
-
 #include <AppKit/AppKit.h>
 #include "base/std/container/unordered_map.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -36,15 +35,16 @@ class ISystemWindow;
 
 class SystemWindowManager : public ISystemWindowManager {
 public:
-    explicit SystemWindowManager() = default;
+    SystemWindowManager() = default;
 
-    int init() override { return 0; }
-    void processEvent() override {}
+    int init() override;
+    void processEvent() override;
 
     ISystemWindow *createWindow(const ISystemWindowInfo &info) override;
     ISystemWindow *getWindow(uint32_t windowId) const override;
     const SystemWindowMap &getWindows() const override { return _windows; }
 
+    ISystemWindow *getWindowFromSDLWindow(SDL_Window *window) const;
     ISystemWindow *getWindowFromNSWindow(NSWindow *window) const;
 
 private:
