@@ -46,7 +46,7 @@ export type EnumType = Record<string, string | number>;
  * @zh 包含枚举名和值的 JavaScript literal 对象，或者是一个 TypeScript enum 类型。
  * @return @en The defined enum type. @zh 定义的枚举类型。
  */
-export function Enum<T> (obj: T): T {
+export function Enum<T extends object> (obj: T): T {
     if ('__enums__' in obj) {
         return obj;
     }
@@ -61,7 +61,7 @@ export function Enum<T> (obj: T): T {
  * 更新枚举对象的属性列表。
  * @param obj @en The enum object to update. @zh 需要更新的枚举对象。
  */
-Enum.update = <T> (obj: T): T => {
+Enum.update = <T extends object> (obj: T): T => {
     let lastIndex = -1;
     const keys: string[] = Object.keys(obj);
 
