@@ -6,7 +6,7 @@ import { deserialize } from '../../../cocos/serialization/deserialize';
 @ccclass('Foo')
 class Foo { @property foo!: Foo | null; }
 
-const EXPECTED_CAPACITY = 900;
+const EXPECTED_CAPACITY = 750;
 
 test(`Deserialization capacity`, () => {
     const fooSerialized = createVeryDeepFoo(EXPECTED_CAPACITY);

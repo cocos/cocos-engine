@@ -21,18 +21,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/* eslint @typescript-eslint/no-explicit-any: "off" */
 
 declare namespace spine {
     class Animation {
+        constructor(name: string, timelines: Array<Timeline>, duration: number);
+        duration: number;
         name: string;
         timelines: Array<Timeline>;
-        timelineIds: Array<boolean>;
-        duration: number;
-        constructor(name: string, timelines: Array<Timeline>, duration: number);
-        hasTimeline(id: number): boolean;
         apply(skeleton: Skeleton, lastTime: number, time: number, loop: boolean, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
-        static binarySearch(values: ArrayLike<number>, target: number, step?: number): number;
-        static linearSearch(values: ArrayLike<number>, target: number, step: number): number;
+        hasTimeline(id: number): boolean;
     }
     interface Timeline {
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
@@ -66,11 +64,10 @@ declare namespace spine {
         twoColor = 14
     }
     abstract class CurveTimeline implements Timeline {
-        static LINEAR: number;
-        static STEPPED: number;
-        static BEZIER: number;
-        static BEZIER_SIZE: number;
-        private curves;
+        static readonly LINEAR: number;
+        static readonly STEPPED: number;
+        static readonly BEZIER: number;
+        static readonly BEZIER_SIZE: number;
         abstract getPropertyId(): number;
         constructor(frameCount: number);
         getFrameCount(): number;
@@ -94,13 +91,7 @@ declare namespace spine {
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class TranslateTimeline extends CurveTimeline {
-        static ENTRIES: number;
-        static PREV_TIME: number;
-        static PREV_X: number;
-        static PREV_Y: number;
-        static X: number;
-        static Y: number;
-        boneIndex: number;
+        static readonly ENTRIES: number;
         frames: ArrayLike<number>;
         constructor(frameCount: number);
         getPropertyId(): number;
@@ -119,43 +110,23 @@ declare namespace spine {
     }
     class ColorTimeline extends CurveTimeline {
         static ENTRIES: number;
-        static PREV_TIME: number;
-        static PREV_R: number;
-        static PREV_G: number;
-        static PREV_B: number;
-        static PREV_A: number;
-        static R: number;
-        static G: number;
-        static B: number;
-        static A: number;
         slotIndex: number;
         frames: ArrayLike<number>;
         constructor(frameCount: number);
         getPropertyId(): number;
+        getSlotIndex(): number;
+        setSlotIndex(inValue: number): void;
         setFrame(frameIndex: number, time: number, r: number, g: number, b: number, a: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class TwoColorTimeline extends CurveTimeline {
-        static ENTRIES: number;
-        static PREV_TIME: number;
-        static PREV_R: number;
-        static PREV_G: number;
-        static PREV_B: number;
-        static PREV_A: number;
-        static PREV_R2: number;
-        static PREV_G2: number;
-        static PREV_B2: number;
-        static R: number;
-        static G: number;
-        static B: number;
-        static A: number;
-        static R2: number;
-        static G2: number;
-        static B2: number;
+        static readonly ENTRIES: number;
         slotIndex: number;
         frames: ArrayLike<number>;
         constructor(frameCount: number);
         getPropertyId(): number;
+        getSlotIndex(): number;
+        setSlotIndex(inValue: number): void;
         setFrame(frameIndex: number, time: number, r: number, g: number, b: number, a: number, r2: number, g2: number, b2: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
@@ -166,9 +137,11 @@ declare namespace spine {
         constructor(frameCount: number);
         getPropertyId(): number;
         getFrameCount(): number;
+        getSlotIndex(): number;
+        setSlotIndex(inValue: number): void;
+        getAttachmentNames(): Array<string>;
         setFrame(frameIndex: number, time: number, attachmentName: string): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, events: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
-        setAttachment(skeleton: Skeleton, slot: Slot, attachmentName: string): void;
     }
     class DeformTimeline extends CurveTimeline {
         slotIndex: number;
@@ -198,20 +171,8 @@ declare namespace spine {
         setFrame(frameIndex: number, time: number, drawOrder: Array<number>): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
-    class IkConstraintTimeline extends CurveTimeline {
-        static ENTRIES: number;
-        static PREV_TIME: number;
-        static PREV_MIX: number;
-        static PREV_SOFTNESS: number;
-        static PREV_BEND_DIRECTION: number;
-        static PREV_COMPRESS: number;
-        static PREV_STRETCH: number;
-        static MIX: number;
-        static SOFTNESS: number;
-        static BEND_DIRECTION: number;
-        static COMPRESS: number;
-        static STRETCH: number;
-        ikConstraintIndex: number;
+    class IkConstraintTimeline extends Updatable {
+        static readonly ENTRIES: number;
         frames: ArrayLike<number>;
         constructor(frameCount: number);
         getPropertyId(): number;
@@ -220,29 +181,13 @@ declare namespace spine {
     }
     class TransformConstraintTimeline extends CurveTimeline {
         static ENTRIES: number;
-        static PREV_TIME: number;
-        static PREV_ROTATE: number;
-        static PREV_TRANSLATE: number;
-        static PREV_SCALE: number;
-        static PREV_SHEAR: number;
-        static ROTATE: number;
-        static TRANSLATE: number;
-        static SCALE: number;
-        static SHEAR: number;
-        transformConstraintIndex: number;
-        frames: ArrayLike<number>;
         constructor(frameCount: number);
         getPropertyId(): number;
         setFrame(frameIndex: number, time: number, rotateMix: number, translateMix: number, scaleMix: number, shearMix: number): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class PathConstraintPositionTimeline extends CurveTimeline {
-        static ENTRIES: number;
-        static PREV_TIME: number;
-        static PREV_VALUE: number;
-        static VALUE: number;
-        pathConstraintIndex: number;
-        frames: ArrayLike<number>;
+        static readonly ENTRIES: number;
         constructor(frameCount: number);
         getPropertyId(): number;
         setFrame(frameIndex: number, time: number, value: number): void;
@@ -254,13 +199,7 @@ declare namespace spine {
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class PathConstraintMixTimeline extends CurveTimeline {
-        static ENTRIES: number;
-        static PREV_TIME: number;
-        static PREV_ROTATE: number;
-        static PREV_TRANSLATE: number;
-        static ROTATE: number;
-        static TRANSLATE: number;
-        pathConstraintIndex: number;
+        static readonly ENTRIES: number;
         frames: ArrayLike<number>;
         constructor(frameCount: number);
         getPropertyId(): number;
@@ -268,36 +207,17 @@ declare namespace spine {
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class AnimationState {
-        static emptyAnimation: Animation;
-        static SUBSEQUENT: number;
-        static FIRST: number;
-        static HOLD_SUBSEQUENT: number;
-        static HOLD_FIRST: number;
-        static HOLD_MIX: number;
-        static SETUP: number;
-        static CURRENT: number;
         data: AnimationStateData;
         tracks: TrackEntry[];
         timeScale: number;
-        unkeyedState: number;
-        events: Event[];
-        listeners: AnimationStateListener[];
-        queue: EventQueue;
-        propertyIDs: IntSet;
-        animationsChanged: boolean;
-        trackEntryPool: Pool<TrackEntry>;
         constructor(data: AnimationStateData);
         update(delta: number): void;
-        updateMixingFrom(to: TrackEntry, delta: number): boolean;
         apply(skeleton: Skeleton): boolean;
-        applyMixingFrom(to: TrackEntry, skeleton: Skeleton, blend: MixBlend): number;
         applyAttachmentTimeline(timeline: AttachmentTimeline, skeleton: Skeleton, time: number, blend: MixBlend, attachments: boolean): void;
         setAttachment(skeleton: Skeleton, slot: Slot, attachmentName: string, attachments: boolean): void;
         applyRotateTimeline(timeline: Timeline, skeleton: Skeleton, time: number, alpha: number, blend: MixBlend, timelinesRotation: Array<number>, i: number, firstFrame: boolean): void;
-        queueEvents(entry: TrackEntry, animationTime: number): void;
         clearTracks(): void;
         clearTrack(trackIndex: number): void;
-        setCurrent(index: number, current: TrackEntry, interrupt: boolean): void;
         setAnimation(trackIndex: number, animationName: string, loop: boolean): TrackEntry;
         setAnimationWith(trackIndex: number, animation: Animation, loop: boolean): TrackEntry;
         addAnimation(trackIndex: number, animationName: string, loop: boolean, delay: number): TrackEntry;
@@ -305,16 +225,10 @@ declare namespace spine {
         setEmptyAnimation(trackIndex: number, mixDuration: number): TrackEntry;
         addEmptyAnimation(trackIndex: number, mixDuration: number, delay: number): TrackEntry;
         setEmptyAnimations(mixDuration: number): void;
-        expandToIndex(index: number): TrackEntry;
         trackEntry(trackIndex: number, animation: Animation, loop: boolean, last: TrackEntry): TrackEntry;
-        disposeNext(entry: TrackEntry): void;
-        _animationsChanged(): void;
-        computeHold(entry: TrackEntry): void;
         getCurrent(trackIndex: number): TrackEntry;
-        addListener(listener: AnimationStateListener): void;
-        removeListener(listener: AnimationStateListener): void;
+        setListener(listener: AnimationStateListener): void;
         clearListeners(): void;
-        clearListenerNotifications(): void;
     }
     class TrackEntry {
         animation: Animation;
@@ -480,7 +394,6 @@ declare namespace spine {
         getWorldRotationY(): number;
         getWorldScaleX(): number;
         getWorldScaleY(): number;
-        updateAppliedTransform(): void;
         worldToLocal(world: Vector2): Vector2;
         localToWorld(local: Vector2): Vector2;
         worldToLocalRotation(worldRotation: number): number;
@@ -501,7 +414,6 @@ declare namespace spine {
         shearY: number;
         transformMode: TransformMode;
         skinRequired: boolean;
-        color: Color;
         constructor(index: number, name: string, parent: BoneData);
     }
     enum TransformMode {
@@ -588,10 +500,6 @@ declare namespace spine {
         isActive(): boolean;
         apply(): void;
         update(): void;
-        computeWorldPositions(path: PathAttachment, spacesCount: number, tangents: boolean, percentPosition: boolean, percentSpacing: boolean): number[];
-        addBeforePosition(p: number, temp: Array<number>, i: number, out: Array<number>, o: number): void;
-        addAfterPosition(p: number, temp: Array<number>, i: number, out: Array<number>, o: number): void;
-        addCurvePosition(p: number, x1: number, y1: number, cx1: number, cy1: number, cx2: number, cy2: number, x2: number, y2: number, out: Array<number>, o: number, tangents: boolean): void;
     }
     class PathConstraintData extends ConstraintData {
         bones: BoneData[];
@@ -657,13 +565,6 @@ declare namespace spine {
         y: number;
         constructor(data: SkeletonData);
         updateCache(): void;
-        sortIkConstraint(constraint: IkConstraint): void;
-        sortPathConstraint(constraint: PathConstraint): void;
-        sortTransformConstraint(constraint: TransformConstraint): void;
-        sortPathConstraintAttachment(skin: Skin, slotIndex: number, slotBone: Bone): void;
-        sortPathConstraintAttachmentWith(attachment: Attachment, slotBone: Bone): void;
-        sortBone(bone: Bone): void;
-        sortReset(bones: Array<Bone>): void;
         updateWorldTransform(): void;
         setToSetupPose(): void;
         setBonesToSetupPose(): void;
@@ -681,7 +582,7 @@ declare namespace spine {
         findIkConstraint(constraintName: string): IkConstraint;
         findTransformConstraint(constraintName: string): TransformConstraint;
         findPathConstraint(constraintName: string): PathConstraint;
-        getBounds(offset: Vector2, size: Vector2, temp?: Array<number>): void;
+        //getBounds(offset: Vector2, size: Vector2, temp?: Array<number>): void;
         update(delta: number): void;
     }
     class SkeletonBinary {
@@ -719,15 +620,7 @@ declare namespace spine {
         setCurve(timeline: CurveTimeline, frameIndex: number, cx1: number, cy1: number, cx2: number, cy2: number): void;
     }
     class SkeletonBounds {
-        minX: number;
-        minY: number;
-        maxX: number;
-        maxY: number;
-        boundingBoxes: BoundingBoxAttachment[];
-        polygons: ArrayLike<number>[];
-        private polygonPool;
         update(skeleton: Skeleton, updateAabb: boolean): void;
-        aabbCompute(): void;
         aabbContainsPoint(x: number, y: number): boolean;
         aabbIntersectsSegment(x1: number, y1: number, x2: number, y2: number): boolean;
         aabbIntersectsSkeleton(bounds: SkeletonBounds): boolean;
@@ -745,6 +638,7 @@ declare namespace spine {
         private clipOutput;
         clippedVertices: number[];
         clippedTriangles: number[];
+        clippedUVs: number[];
         private scratch;
         private clipAttachment;
         private clippingPolygons;
@@ -753,8 +647,6 @@ declare namespace spine {
         clipEnd(): void;
         isClipping(): boolean;
         clipTriangles(vertices: ArrayLike<number>, verticesLength: number, triangles: ArrayLike<number>, trianglesLength: number, uvs: ArrayLike<number>, light: Color, dark: Color, twoColor: boolean, strideFloat?: number, offsetV?: number, offsetI?: number): void;
-        clip(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, clippingArea: Array<number>, output: Array<number>): boolean;
-        static makeClockwise(polygon: ArrayLike<number>): void;
     }
     class SkeletonData {
         name: string;
@@ -820,12 +712,13 @@ declare namespace spine {
         setAttachment(slotIndex: number, name: string, attachment: Attachment): void;
         addSkin(skin: Skin): void;
         copySkin(skin: Skin): void;
+        findNamesForSlot(slotIndex: number, names: Array<string>): void;
+        getBones(): Array<Bone>;
+        getConstraints(): Array<ConstraintData>;
         getAttachment(slotIndex: number, name: string): Attachment;
         removeAttachment(slotIndex: number, name: string): void;
         getAttachments(): Array<SkinEntry>;
         getAttachmentsForSlot(slotIndex: number, attachments: Array<SkinEntry>): void;
-        clear(): void;
-        attachAll(skeleton: Skeleton, oldSkin: Skin): void;
     }
     class Slot {
         data: SlotData;
@@ -933,16 +826,11 @@ declare namespace spine {
         translateMix: number;
         scaleMix: number;
         shearMix: number;
-        temp: Vector2;
         active: boolean;
         constructor(data: TransformConstraintData, skeleton: Skeleton);
         isActive(): boolean;
         apply(): void;
         update(): void;
-        applyAbsoluteWorld(): void;
-        applyRelativeWorld(): void;
-        applyAbsoluteLocal(): void;
-        applyRelativeLocal(): void;
     }
     class TransformConstraintData extends ConstraintData {
         bones: BoneData[];
@@ -1015,20 +903,28 @@ declare namespace spine {
         static rgb888ToColor(color: Color, value: number): void;
     }
     class MathUtils {
-        static PI: number;
-        static PI2: number;
-        static radiansToDegrees: number;
-        static radDeg: number;
-        static degreesToRadians: number;
-        static degRad: number;
-        static clamp(value: number, min: number, max: number): number;
-        static cosDeg(degrees: number): number;
-        static sinDeg(degrees: number): number;
+        static readonly PI: number;
+        static readonly PI2: number;
+        static readonly radiansToDegrees: number;
+        static readonly radDeg: number;
+        static readonly degreesToRadians: number;
+        static readonly degRad: number;
+        static abs(value: number): number;
         static signum(value: number): number;
-        static toInt(x: number): number;
-        static cbrt(x: number): number;
+        static clamp(value: number, min: number, max: number): number;
+        static fmod(a: number, b: number): number;
+        static atan2(y: number, x: number): number;
+        static cos(radians: number): number;
+        static sin(radians: number): number;
+        static sqrt(value: number): number;
+        static acos(value: number): number;
+        static sinDeg(degrees: number): number;
+        static cosDeg(degrees: number): number;
+        static isNan(value: number): number;
+        static random(): number;
         static randomTriangular(min: number, max: number): number;
         static randomTriangularWith(min: number, max: number, mode: number): number;
+        static pow(a: number, b: number): number;
     }
     abstract class Interpolation {
         protected abstract applyInternal(a: number): number;
@@ -1103,7 +999,7 @@ declare namespace spine {
     }
     abstract class VertexEffect {
         begin(skeleton: Skeleton): void;
-        transform(position: Vector2, uv: Vector2, light: Color, dark: Color): void;
+        transform(x: number, y: number): void;
         end(): void;
     }
     // interface Math {
@@ -1143,18 +1039,15 @@ declare namespace spine {
         Clipping = 6
     }
     class BoundingBoxAttachment extends VertexAttachment {
-        color: Color;
         constructor(name: string);
         copy(): Attachment;
     }
     class ClippingAttachment extends VertexAttachment {
         endSlot: SlotData;
-        color: Color;
         constructor(name: string);
         copy(): Attachment;
     }
     class MeshAttachment extends VertexAttachment {
-        region: TextureRegion;
         path: string;
         regionUVs: ArrayLike<number>;
         uvs: ArrayLike<number>;
@@ -1165,7 +1058,6 @@ declare namespace spine {
         hullLength: number;
         edges: Array<number>;
         private parentMesh;
-        tempColor: Color;
         constructor(name: string);
         updateUVs(): void;
         getParentMesh(): MeshAttachment;
@@ -1177,7 +1069,6 @@ declare namespace spine {
         lengths: Array<number>;
         closed: boolean;
         constantSpeed: boolean;
-        color: Color;
         constructor(name: string);
         copy(): Attachment;
     }
@@ -1185,7 +1076,6 @@ declare namespace spine {
         x: number;
         y: number;
         rotation: number;
-        color: Color;
         constructor(name: string);
         computeWorldPosition(bone: Bone, point: Vector2): Vector2;
         computeWorldRotation(bone: Bone): number;
@@ -1248,7 +1138,6 @@ declare namespace spine {
         tempColor: Color;
         constructor(name: string);
         updateOffset(): void;
-        setRegion(region: TextureRegion): void;
         computeWorldVertices(bone: Bone, worldVertices: ArrayLike<number>, offset: number, stride: number): void;
         copy(): Attachment;
     }
@@ -1257,7 +1146,7 @@ declare namespace spine {
         jitterY: number;
         constructor(jitterX: number, jitterY: number);
         begin(skeleton: Skeleton): void;
-        transform(position: Vector2, uv: Vector2, light: Color, dark: Color): void;
+        transform(x: number, y: number): void;
         end(): void;
     }
     class SwirlEffect implements VertexEffect {
@@ -1266,11 +1155,11 @@ declare namespace spine {
         centerY: number;
         radius: number;
         angle: number;
-        private worldX;
-        private worldY;
+        worldX;
+        worldY;
         constructor(radius: number, interpolation?: Interpolation);
         begin(skeleton: Skeleton): void;
-        transform(position: Vector2, uv: Vector2, light: Color, dark: Color): void;
+        transform(x: number, y: number): void;
         end(): void;
     }
 

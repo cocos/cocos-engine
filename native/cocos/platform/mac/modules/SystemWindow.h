@@ -28,19 +28,24 @@
 #include <iostream>
 #include "platform/interfaces/modules/ISystemWindow.h"
 
+struct SDL_Window;
 namespace cc {
+class SDLHelper;
+class CC_DLL SystemWindow : public ISystemWindow {
+    friend class SystemWindowManager;
 
-class SystemWindow : public ISystemWindow {
 public:
     explicit SystemWindow(uint32_t windowId, void* externalHandle);
     ~SystemWindow() override;
 
     bool createWindow(const char* title,
+                      int w, int h, int flags) override;
+    bool createWindow(const char* title,
                       int x, int y, int w,
                       int h, int flags) override;
-    bool createWindow(const char* title,
-                      int w, int h, int flags) override;
     void closeWindow() override;
+
+    virtual uint32_t getWindowId() const override { return _windowId; }
     uintptr_t getWindowHandle() const override;
 
     Size getViewSize() const override;
@@ -48,27 +53,21 @@ public:
         _width = w;
         _height = h;
     }
-
-    uint32_t getWindowId() const override;
-    NSWindow* getNSWindow() const { return _window; }
-
     /*
      @brief enable/disable(lock) the cursor, default is enabled
      */
     void setCursorEnabled(bool value) override;
-
-    bool isPointerLock() const;
-    void setLastMousePos(float x, float y);
+    NSWindow* getNSWindow() const;
 
 private:
-    bool _pointerLock{false};
-    float _lastMousePosX{0.0F};
-    float _lastMousePosY{0.0F};
-    int32_t _width{0};
-    int32_t _height{0};
+    SDL_Window* getSDLWindow() const { return _window; }
+    void initWindowProperty(SDL_Window* window, const char* title, int x, int y, int w, int h);
+    uint32_t _width{0};
+    uint32_t _height{0};
 
     uint32_t _windowId{0};
     uintptr_t _windowHandle{0};
-    NSWindow* _window{nullptr};
+    SDL_Window* _window{nullptr};
 };
+
 } // namespace cc

@@ -381,7 +381,7 @@ bool native_ptr_to_seval(T *vp, se::Class *cls, se::Value *ret, bool *isReturnCa
     using DecayT_ = typename std::decay<typename std::remove_const<T>::type>::type;
     constexpr bool isVirtualInheritBase = std::is_base_of_v<cc::VirtualInheritBase, DecayT_>;
     using DecayT = std::conditional_t<isVirtualInheritBase, cc::VirtualInheritBase, DecayT_>;
-    
+
     auto *v_ = const_cast<DecayT_ *>(vp);
     auto *v = static_cast<DecayT *>(v_);
     CC_ASSERT_NOT_NULL(ret);
@@ -1441,6 +1441,36 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<T *> *ret, se::Object *
         }
 
         T *nativeObj = static_cast<T *>(tmp.toObject()->getPrivateData());
+        ret->add(nativeObj);
+    }
+
+    return true;
+}
+
+template <typename T, typename = std::enable_if<std::is_arithmetic_v<T>>>
+bool sevalue_to_native(const se::Value &v, spine::Vector<T> *ret, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
+    CC_ASSERT_NOT_NULL(ret);
+    CC_ASSERT(v.isObject());
+    se::Object *obj = v.toObject();
+    CC_ASSERT(obj->isArray());
+
+    bool ok = true;
+    uint32_t len = 0;
+    ok = obj->getArrayLength(&len);
+    if (!ok) {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i) {
+        ok = obj->getArrayElement(i, &tmp);
+        if (!ok || !tmp.isNumber()) {
+            ret->clear();
+            return false;
+        }
+
+        T nativeObj = static_cast<T>(tmp.toDouble());
         ret->add(nativeObj);
     }
 

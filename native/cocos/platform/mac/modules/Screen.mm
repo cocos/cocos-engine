@@ -31,7 +31,9 @@
 
 #include "base/Macros.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
-
+#include "platform/interfaces/modules/ISystemWindowManager.h"
+#include "platform/interfaces/modules/ISystemWindow.h"
+#include "application/ApplicationManager.h"
 namespace cc {
 
 int Screen::getDPI() const {
@@ -50,7 +52,9 @@ float Screen::getDevicePixelRatio() const {
     global->getProperty("devicePixelRatio", &devicePixelRatioVal);
     return devicePixelRatioVal.isNumber() ? devicePixelRatioVal.toFloat() : 1.F;
 #else
-    return [[[[NSApplication sharedApplication] delegate] getWindow] backingScaleFactor];
+    auto* window = CC_GET_MAIN_SYSTEM_WINDOW();
+    NSWindow* nsWindow = reinterpret_cast<NSWindow*>(window->getWindowHandle()) ;
+    return [nsWindow backingScaleFactor];
 #endif
 }
 

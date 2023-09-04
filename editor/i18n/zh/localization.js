@@ -50,6 +50,19 @@ module.exports = link(mixin({
                 },
             },
         },
+        CurveRange: {
+            properties: {
+                spline: {
+                    displayName: 'Spline',
+                },
+                splineMin: {
+                    displayName: 'Spline Min',
+                },
+                splineMax: {
+                    displayName: 'Spline Max',
+                },
+            },
+        },
     },
 
     help: {
@@ -1266,6 +1279,8 @@ module.exports = link(mixin({
         needBlur: '开启可以获得更柔和的效果，噪点更少，但会耗费一些性能',
     },
     bloom: {
+        enableAlphaMask: '透明通道标志位，如果开启此功能，请同时降低物体材质的固有色a通道输出，a 值小于 1 的物体将不会有泛光',
+        useHdrIlluminance: '使用场景 HDR 亮度来筛选泛光区域，必须同时开启 HDR 模式和 CC_USE_FLOAT_OUTPUT 宏',
         threshold: '光晕的亮度阈值，大于此亮度的区域才会产生泛光，该值单位是人眼所见的 LDR 亮度，和曝光无关',
         iterations: '模糊迭代次数，该值越大则光晕范围越大、越柔和，但性能也会有所降低',
         intensity: '泛光强度，该值越大则光晕越亮，请适度调节',

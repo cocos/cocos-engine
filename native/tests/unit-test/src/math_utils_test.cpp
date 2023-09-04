@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 #include <math.h>
+#include <stdlib.h>
 #include <vector>
 #include "cocos/math/Math.h"
 #include "cocos/math/MathUtil.h"

@@ -20,7 +20,7 @@ CCProgram wireframe-vs %{
         vec4 lineColor;
     };
 
-    
+
 
     out vec2 bary;
     out vec4 lineCol;
@@ -40,7 +40,7 @@ CCProgram wireframe-vs %{
 CCProgram wireframe-fs %{
     precision mediump float;
     #include <legacy/output>
-    
+
     in vec2 bary;
 
     in vec4 lineCol;

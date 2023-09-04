@@ -1,5 +1,5 @@
 {
-    "$schema": "./cc.config.schema.json",
+    "$schema": "./schemas/cc.config.schema.json",
 
     "features": {
         "base": {
@@ -98,6 +98,9 @@
         "physics-2d-builtin": {
             "modules": ["physics-2d-builtin", "physics-2d-framework"]
         },
+        "physics-2d-box2d-wasm": {
+            "modules": ["physics-2d-box2d-wasm", "physics-2d-framework"]
+        },
         "intersection-2d": {
             "modules": ["intersection-2d"]
         },
@@ -184,6 +187,7 @@
             "modules": ["custom-pipeline"],
             "dependentAssets": [
                 "15049ccd-4dd7-451e-a8ae-af66735c929e",
+                "521c5f6e-1a26-42e2-8108-4400c912d9bf",
                 "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3",
                 "4361db28-3f24-44cc-8e51-32ee5fd651ac",
                 "cafd95c9-c558-46f9-9812-1224b65c09ee",
