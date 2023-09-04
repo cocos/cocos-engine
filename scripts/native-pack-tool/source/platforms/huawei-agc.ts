@@ -22,8 +22,10 @@ export class HuaweiAGCPackTool extends AndroidPackTool {
             // 拷贝 lite 仓库的 templates/android/template 文件到构建输出目录
             await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this._platform, 'template'), this.paths.platformTemplateDirInPrj, { overwrite: false });
             this.writeEngineVersion();
+            super.firstTimeBuild = true;
         } else {
             this.validateNativeDir();
+            super.firstTimeBuild = false;
         }
     }
 
