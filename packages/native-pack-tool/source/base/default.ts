@@ -518,7 +518,7 @@ export abstract class NativePackTool {
             config.encrypted = true;
             fs.writeJSONSync(configPath, config);
 
-            const relativePath = ps.relative(this.paths.buildAssetsDir, scriptDest).replace(/^\.\.(\/|\\)?/, '');;
+            const relativePath = ps.relative(this.paths.buildAssetsDir, scriptDest).replace(/^\.\.(\/|\\)?/, '');
             fs.copySync(scriptDest, ps.join(backupPath, relativePath));
             fs.removeSync(scriptDest);
         }
