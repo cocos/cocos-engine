@@ -5,9 +5,7 @@ import fs from 'fs-extra';
 import ps from 'path';
 import { cullEngineInternal } from './cull-engine-internal';
 
-const TAG_NAME_CC_CATEGORY = 'ccCategory';
-
-const TAG_NAME_LEGACY_PUBLIC = 'legacyPublic'.toLowerCase();
+const TAG_NAME_CC_CATEGORY = '@ccCategory';
 
 const CATEGORY_CONFIG_FILE_NAME = 'category.json';
 
@@ -70,20 +68,17 @@ export function load (app: Application) {
 
     const categoryMap: CategoryMap = {};
 
-    class CategoryMapSerializerComponent extends SerializerComponent<ProjectReflection> {
-        serializeGroup (instance: Reflection): boolean {
+    class CategoryMapSerializerComponent implements SerializerComponent<ProjectReflection> {
+        readonly priority: number = 0;
+
+        supports (instance: Reflection): boolean {
             // Note: `instance instanceof ProjectReflection` can not be used!
-            return instance
-                && typeof instance === 'object'
-                && typeof instance.isProject === 'function'
-                && instance.isProject();
+                return instance
+                    && typeof instance === 'object'
+                    && typeof instance.isProject === 'function'
+                    && instance.isProject();;
         }
 
-        supports (item: unknown): boolean {
-            return true;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/ban-types
         toObject (projectReflect: ProjectReflection, obj = {}): any & {
             ccCategories: CategoryInfo[];
         } {
@@ -111,20 +106,18 @@ export function load (app: Application) {
         }
     }
 
-    app.serializer.addSerializer(new CategoryMapSerializerComponent(app.serializer));
+    app.serializer.addSerializer(new CategoryMapSerializerComponent());
 
-    function onCreateReflection (_context: Context, reflection: Reflection, node?: ts.Node) {
-        handleDeclarationCategory(_context, reflection, node);
-        handleTagLegacyPublic(_context, reflection, node);
+    function onCreateReflection (_context: Context, reflection: Reflection) {
+        handleDeclarationCategory(_context, reflection);
     }
 
-    function onCreateSignature (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
-        fixTypeArguments(_context, reflection, node);
-        handleTagLegacyPublic(_context, reflection, node);
+    function onCreateSignature (_context: Context, reflection: SignatureReflection) {
+        fixTypeArguments(_context, reflection);
     }
 
-    function handleDeclarationCategory (_context: Context, reflection: Reflection, node?: ts.Node) {
-        if (!node) {
+    function handleDeclarationCategory (_context: Context, reflection: Reflection) {
+        if (!reflection.sources) {
             return;
         }
 
@@ -141,12 +134,11 @@ export function load (app: Application) {
         }
 
         // Prefer the already existing category tag.
-        if (reflection.comment?.hasTag(TAG_NAME_CC_CATEGORY)) {
+        if (reflection.comment?.getTag(TAG_NAME_CC_CATEGORY)) {
             return;
         }
 
-        const sourceFile = node.getSourceFile();
-        const sourceFileName = sourceFile.fileName;
+        const sourceFileName = reflection.sources[0].fileName;
         const category = queryCategory(sourceFileName);
         if (!category) {
             return;
@@ -155,23 +147,9 @@ export function load (app: Application) {
         setCategory(reflection.id, category.id, category.config);
     }
 
-    function handleTagLegacyPublic (_context: Context, reflection: Reflection, node?: ts.Node) {
-        const { comment } = reflection;
-        if (!comment) {
-            return;
-        }
-
-        if (!comment.hasTag(TAG_NAME_LEGACY_PUBLIC)) {
-            return;
-        }
-
-        comment.removeTags(TAG_NAME_LEGACY_PUBLIC);
-        comment.tags.push(new CommentTag('deprecated', undefined, 'This key is reserved for internal usage.'));
-    }
-
     // NOTE: this is a bug on typedoc, we fix in this plugin.
     // should not generate typeArguments field in typeParameters' type field.
-    function fixTypeArguments (_context: Context, reflection: SignatureReflection, node?: ts.Node) {
+    function fixTypeArguments (_context: Context, reflection: SignatureReflection) {
         if (reflection.typeParameters) {
             for (const typeParam of reflection.typeParameters) {
                 // @ts-ignore
@@ -260,24 +238,19 @@ export function load (app: Application) {
         }
 
         {
-            const text = handleText(comment.text);
-            if (text) {
-                comment.text = text;
-            }
-        }
-
-        {
-            const text = handleText(comment.shortText);
-            if (text) {
-                comment.shortText = text;
-            }
-        }
-
-        if (comment.tags) {
-            for (const tag of comment.tags) {
-                const text = handleText(tag.text);
+            for (const commentDisplayPart of comment.summary) {
+                const text = commentDisplayPart.text;
                 if (text) {
-                    tag.text = text;
+                    commentDisplayPart.text = text;
+                }
+            }
+        }
+
+        if (comment.blockTags) {
+            for (const tag of comment.blockTags) {
+                const text = handleText(tag.tag) as `@${string}`;
+                if (text) {
+                    tag.tag = text;
                 }
             }
         }

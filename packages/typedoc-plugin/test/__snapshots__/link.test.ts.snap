@@ -9,12 +9,11 @@ Object {
       "categories": undefined,
       "children": undefined,
       "comment": undefined,
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": undefined,
       "id": 30,
       "implementationOf": undefined,
@@ -25,7 +24,9 @@ Object {
       "kind": 4,
       "kindString": "Namespace",
       "name": "NamespaceOverriddenByMember",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -35,7 +36,7 @@ Object {
         },
       ],
       "type": undefined,
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
@@ -44,12 +45,11 @@ Object {
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 28,
           "implementationOf": undefined,
@@ -60,12 +60,12 @@ Object {
           "kind": 64,
           "kindString": "Function",
           "name": "fn_",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": Array [
             Object {
               "comment": undefined,
-              "decorates": undefined,
-              "decorators": undefined,
               "flags": Object {},
               "id": 29,
               "implementationOf": undefined,
@@ -73,6 +73,7 @@ Object {
               "kind": 4096,
               "kindString": "Call signature",
               "name": "fn_",
+              "originalName": undefined,
               "overwrites": undefined,
               "parameters": undefined,
               "type": Object {
@@ -90,10 +91,12 @@ Object {
             },
           ],
           "type": undefined,
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
       ],
       "comment": Object {
+        "blockTags": undefined,
+        "modifierTags": undefined,
         "shortText": "Namespace comment",
         "text": "Short text
 Class [[1]] Class [[1]]
@@ -109,14 +112,14 @@ TypeAlias [[26]]
 NamespaceOverriddenByMember [[30]]
 ",
       },
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": Array [
         Object {
+          "categories": undefined,
           "children": Array [
             28,
           ],
@@ -133,7 +136,9 @@ NamespaceOverriddenByMember [[30]]
       "kind": 4,
       "kindString": "Namespace",
       "name": "Namespace_",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -143,7 +148,7 @@ NamespaceOverriddenByMember [[30]]
         },
       ],
       "type": undefined,
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
@@ -152,12 +157,11 @@ NamespaceOverriddenByMember [[30]]
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
-          "defaultValue": "1",
+          "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 23,
           "implementationOf": undefined,
@@ -168,7 +172,9 @@ NamespaceOverriddenByMember [[30]]
           "kind": 16,
           "kindString": "Enumeration member",
           "name": "BLUE",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": undefined,
           "sources": Array [
             Object {
@@ -177,13 +183,18 @@ NamespaceOverriddenByMember [[30]]
               "line": 129,
             },
           ],
-          "type": undefined,
-          "typeParameter": undefined,
+          "type": Object {
+            "type": "literal",
+            "value": 1,
+          },
+          "typeParameters": undefined,
         },
         Object {
           "categories": undefined,
           "children": undefined,
           "comment": Object {
+            "blockTags": undefined,
+            "modifierTags": undefined,
             "shortText": "Enum member  comment",
             "text": "Short text
 Class [[1]] Class [[1]]
@@ -201,12 +212,11 @@ NamespaceOverriddenByMember [[30]]
 SelfMember [[22]]
 ",
           },
-          "decorates": undefined,
-          "decorators": undefined,
-          "defaultValue": "0",
+          "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 22,
           "implementationOf": undefined,
@@ -217,7 +227,9 @@ SelfMember [[22]]
           "kind": 16,
           "kindString": "Enumeration member",
           "name": "RED",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": undefined,
           "sources": Array [
             Object {
@@ -226,11 +238,16 @@ SelfMember [[22]]
               "line": 127,
             },
           ],
-          "type": undefined,
-          "typeParameter": undefined,
+          "type": Object {
+            "type": "literal",
+            "value": 0,
+          },
+          "typeParameters": undefined,
         },
       ],
       "comment": Object {
+        "blockTags": undefined,
+        "modifierTags": undefined,
         "shortText": "Enum  comment",
         "text": "Short text
 Class [[1]] Class [[1]]
@@ -248,14 +265,14 @@ NamespaceOverriddenByMember [[30]]
 SelfMember [[22]]
 ",
       },
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": Array [
         Object {
+          "categories": undefined,
           "children": Array [
             23,
             22,
@@ -273,7 +290,9 @@ SelfMember [[22]]
       "kind": 8,
       "kindString": "Enumeration",
       "name": "Enum_",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -283,7 +302,7 @@ SelfMember [[22]]
         },
       ],
       "type": undefined,
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
@@ -292,12 +311,11 @@ SelfMember [[22]]
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 11,
           "implementationOf": undefined,
@@ -308,12 +326,12 @@ SelfMember [[22]]
           "kind": 512,
           "kindString": "Constructor",
           "name": "constructor",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": Array [
             Object {
               "comment": undefined,
-              "decorates": undefined,
-              "decorators": undefined,
               "flags": Object {},
               "id": 12,
               "implementationOf": undefined,
@@ -321,30 +339,32 @@ SelfMember [[22]]
               "kind": 16384,
               "kindString": "Constructor signature",
               "name": "new Bar",
+              "originalName": undefined,
               "overwrites": undefined,
               "parameters": undefined,
               "type": Object {
+                "externalUrl": undefined,
                 "id": 10,
                 "name": "Bar",
                 "type": "reference",
+                "typeArguments": undefined,
               },
               "typeParameter": undefined,
             },
           ],
           "sources": undefined,
           "type": undefined,
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
         Object {
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": "1",
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 20,
           "implementationOf": undefined,
@@ -355,7 +375,9 @@ SelfMember [[22]]
           "kind": 1024,
           "kindString": "Property",
           "name": "NamespaceOverriddenByMember",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": undefined,
           "sources": Array [
             Object {
@@ -368,12 +390,14 @@ SelfMember [[22]]
             "name": "number",
             "type": "intrinsic",
           },
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
         Object {
           "categories": undefined,
           "children": undefined,
           "comment": Object {
+            "blockTags": undefined,
+            "modifierTags": undefined,
             "shortText": "Class comment",
             "text": "Short text
 Class [[1]] Class [[1]]
@@ -392,12 +416,11 @@ Text
 Property [[13]] Method: [[14]]
 ",
           },
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": "0",
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 13,
           "implementationOf": undefined,
@@ -408,7 +431,9 @@ Property [[13]] Method: [[14]]
           "kind": 1024,
           "kindString": "Property",
           "name": "p",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": undefined,
           "sources": Array [
             Object {
@@ -421,14 +446,12 @@ Property [[13]] Method: [[14]]
             "name": "number",
             "type": "intrinsic",
           },
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
         Object {
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
@@ -436,6 +459,8 @@ Property [[13]] Method: [[14]]
           "getSignature": Array [
             Object {
               "comment": Object {
+                "blockTags": undefined,
+                "modifierTags": undefined,
                 "shortText": "Class accessor comment",
                 "text": "Short text
 Class [[1]] Class [[1]]
@@ -454,8 +479,6 @@ Text
 Property [[13]] Method: [[14]]
 ",
               },
-              "decorates": undefined,
-              "decorators": undefined,
               "flags": Object {},
               "id": 17,
               "implementationOf": undefined,
@@ -463,6 +486,7 @@ Property [[13]] Method: [[14]]
               "kind": 524288,
               "kindString": "Get signature",
               "name": "a",
+              "originalName": undefined,
               "overwrites": undefined,
               "parameters": undefined,
               "type": Object {
@@ -482,10 +506,13 @@ Property [[13]] Method: [[14]]
           "kind": 262144,
           "kindString": "Accessor",
           "name": "a",
+          "originalName": undefined,
           "overwrites": undefined,
           "setSignature": Array [
             Object {
               "comment": Object {
+                "blockTags": undefined,
+                "modifierTags": undefined,
                 "shortText": "Class accessor comment",
                 "text": "Short text
 Class [[1]] Class [[1]]
@@ -504,8 +531,6 @@ Text
 Property [[13]] Method: [[14]]
 ",
               },
-              "decorates": undefined,
-              "decorators": undefined,
               "flags": Object {},
               "id": 18,
               "implementationOf": undefined,
@@ -513,18 +538,18 @@ Property [[13]] Method: [[14]]
               "kind": 1048576,
               "kindString": "Set signature",
               "name": "a",
+              "originalName": undefined,
               "overwrites": undefined,
               "parameters": Array [
                 Object {
                   "comment": undefined,
-                  "decorates": undefined,
-                  "decorators": undefined,
                   "defaultValue": undefined,
                   "flags": Object {},
                   "id": 19,
                   "kind": 32768,
                   "kindString": "Parameter",
                   "name": "v",
+                  "originalName": undefined,
                   "type": Object {
                     "name": "void",
                     "type": "intrinsic",
@@ -545,20 +570,24 @@ Property [[13]] Method: [[14]]
               "fileName": "bar.ts",
               "line": 83,
             },
+            Object {
+              "character": 8,
+              "fileName": "bar.ts",
+              "line": 85,
+            },
           ],
           "type": undefined,
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
         Object {
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 14,
           "implementationOf": undefined,
@@ -569,10 +598,14 @@ Property [[13]] Method: [[14]]
           "kind": 2048,
           "kindString": "Method",
           "name": "m",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": Array [
             Object {
               "comment": Object {
+                "blockTags": undefined,
+                "modifierTags": undefined,
                 "shortText": "Class method comment",
                 "text": "Short text
 Class [[1]] Class [[1]]
@@ -588,11 +621,9 @@ TypeAlias [[26]]
 NamespaceOverriddenByMember [[20]]
 
 Text
-Property [[13]] Method: [[14]]
+Property [[13]] Method: [[15]]
 ",
               },
-              "decorates": undefined,
-              "decorators": undefined,
               "flags": Object {},
               "id": 15,
               "implementationOf": undefined,
@@ -600,6 +631,7 @@ Property [[13]] Method: [[14]]
               "kind": 4096,
               "kindString": "Call signature",
               "name": "m",
+              "originalName": undefined,
               "overwrites": undefined,
               "parameters": undefined,
               "type": Object {
@@ -617,10 +649,12 @@ Property [[13]] Method: [[14]]
             },
           ],
           "type": undefined,
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
       ],
       "comment": Object {
+        "blockTags": undefined,
+        "modifierTags": undefined,
         "shortText": "Class comment",
         "text": "Short text
 Class [[1]] Class [[1]]
@@ -639,14 +673,14 @@ Text
 Property [[13]] Method: [[14]]
 ",
       },
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": Array [
         Object {
+          "categories": undefined,
           "children": Array [
             11,
           ],
@@ -654,6 +688,7 @@ Property [[13]] Method: [[14]]
           "title": "Constructors",
         },
         Object {
+          "categories": undefined,
           "children": Array [
             20,
             13,
@@ -662,6 +697,7 @@ Property [[13]] Method: [[14]]
           "title": "Properties",
         },
         Object {
+          "categories": undefined,
           "children": Array [
             16,
           ],
@@ -669,6 +705,7 @@ Property [[13]] Method: [[14]]
           "title": "Accessors",
         },
         Object {
+          "categories": undefined,
           "children": Array [
             14,
           ],
@@ -685,7 +722,9 @@ Property [[13]] Method: [[14]]
       "kind": 128,
       "kindString": "Class",
       "name": "Bar",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -695,7 +734,7 @@ Property [[13]] Method: [[14]]
         },
       ],
       "type": undefined,
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
@@ -704,12 +743,11 @@ Property [[13]] Method: [[14]]
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 2,
           "implementationOf": undefined,
@@ -720,12 +758,12 @@ Property [[13]] Method: [[14]]
           "kind": 512,
           "kindString": "Constructor",
           "name": "constructor",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": Array [
             Object {
               "comment": undefined,
-              "decorates": undefined,
-              "decorators": undefined,
               "flags": Object {},
               "id": 3,
               "implementationOf": undefined,
@@ -733,32 +771,34 @@ Property [[13]] Method: [[14]]
               "kind": 16384,
               "kindString": "Constructor signature",
               "name": "new Foo",
+              "originalName": undefined,
               "overwrites": undefined,
               "parameters": undefined,
               "type": Object {
+                "externalUrl": undefined,
                 "id": 1,
                 "name": "Foo",
                 "type": "reference",
+                "typeArguments": undefined,
               },
               "typeParameter": undefined,
             },
           ],
           "sources": undefined,
           "type": undefined,
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
         Object {
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": "2",
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {
             "isPublic": true,
           },
+          "getSignature": undefined,
           "groups": undefined,
           "id": 4,
           "implementationOf": undefined,
@@ -769,7 +809,9 @@ Property [[13]] Method: [[14]]
           "kind": 1024,
           "kindString": "Property",
           "name": "member",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": undefined,
           "sources": Array [
             Object {
@@ -782,20 +824,19 @@ Property [[13]] Method: [[14]]
             "name": "number",
             "type": "intrinsic",
           },
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
         Object {
           "categories": undefined,
           "children": undefined,
           "comment": undefined,
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {
             "isPublic": true,
           },
+          "getSignature": undefined,
           "groups": undefined,
           "id": 5,
           "implementationOf": undefined,
@@ -806,12 +847,12 @@ Property [[13]] Method: [[14]]
           "kind": 2048,
           "kindString": "Method",
           "name": "m",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": Array [
             Object {
-              "comment": Object {},
-              "decorates": undefined,
-              "decorators": undefined,
+              "comment": undefined,
               "flags": Object {},
               "id": 6,
               "implementationOf": undefined,
@@ -819,21 +860,23 @@ Property [[13]] Method: [[14]]
               "kind": 4096,
               "kindString": "Call signature",
               "name": "m",
+              "originalName": undefined,
               "overwrites": undefined,
               "parameters": Array [
                 Object {
                   "comment": Object {
-                    "shortText": "Test param [[1]]
-",
+                    "blockTags": undefined,
+                    "modifierTags": undefined,
+                    "shortText": "Test param [[1]]",
+                    "text": "",
                   },
-                  "decorates": undefined,
-                  "decorators": undefined,
                   "defaultValue": undefined,
                   "flags": Object {},
                   "id": 7,
                   "kind": 32768,
                   "kindString": "Parameter",
                   "name": "p",
+                  "originalName": undefined,
                   "type": Object {
                     "name": "number",
                     "type": "intrinsic",
@@ -855,29 +898,31 @@ Property [[13]] Method: [[14]]
             },
           ],
           "type": undefined,
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
       ],
       "comment": Object {
-        "shortText": "Test quoted [[1]]",
+        "modifierTags": undefined,
+        "shortText": "Test quoted [[\`Foo\`]]",
         "tags": Array [
           Object {
+            "name": undefined,
             "tag": "en",
             "text": "Test link tag text [[1]]
 ",
           },
         ],
-        "text": "Test link text [[1 | How are you]]
+        "text": "Test link text [[1]]
 ",
       },
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": Array [
         Object {
+          "categories": undefined,
           "children": Array [
             2,
           ],
@@ -885,6 +930,7 @@ Property [[13]] Method: [[14]]
           "title": "Constructors",
         },
         Object {
+          "categories": undefined,
           "children": Array [
             4,
           ],
@@ -892,6 +938,7 @@ Property [[13]] Method: [[14]]
           "title": "Properties",
         },
         Object {
+          "categories": undefined,
           "children": Array [
             5,
           ],
@@ -908,7 +955,9 @@ Property [[13]] Method: [[14]]
       "kind": 128,
       "kindString": "Class",
       "name": "Foo",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -918,7 +967,7 @@ Property [[13]] Method: [[14]]
         },
       ],
       "type": undefined,
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
@@ -927,6 +976,8 @@ Property [[13]] Method: [[14]]
           "categories": undefined,
           "children": undefined,
           "comment": Object {
+            "blockTags": undefined,
+            "modifierTags": undefined,
             "shortText": "Interface member comment",
             "text": "Short text
 Class [[1]] Class [[1]]
@@ -944,12 +995,11 @@ NamespaceOverriddenByMember [[30]]
 SelfMember [[25]]
 ",
           },
-          "decorates": undefined,
-          "decorators": undefined,
           "defaultValue": undefined,
           "extendedBy": undefined,
           "extendedTypes": undefined,
           "flags": Object {},
+          "getSignature": undefined,
           "groups": undefined,
           "id": 25,
           "implementationOf": undefined,
@@ -960,7 +1010,9 @@ SelfMember [[25]]
           "kind": 1024,
           "kindString": "Property",
           "name": "a",
+          "originalName": undefined,
           "overwrites": undefined,
+          "setSignature": undefined,
           "signatures": undefined,
           "sources": Array [
             Object {
@@ -973,10 +1025,12 @@ SelfMember [[25]]
             "name": "number",
             "type": "intrinsic",
           },
-          "typeParameter": undefined,
+          "typeParameters": undefined,
         },
       ],
       "comment": Object {
+        "blockTags": undefined,
+        "modifierTags": undefined,
         "shortText": "Interface  comment",
         "text": "Short text
 Class [[1]] Class [[1]]
@@ -994,14 +1048,14 @@ NamespaceOverriddenByMember [[30]]
 SelfMember [[25]]
 ",
       },
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": Array [
         Object {
+          "categories": undefined,
           "children": Array [
             25,
           ],
@@ -1018,7 +1072,9 @@ SelfMember [[25]]
       "kind": 256,
       "kindString": "Interface",
       "name": "Interface_",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -1028,12 +1084,14 @@ SelfMember [[25]]
         },
       ],
       "type": undefined,
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
       "children": undefined,
       "comment": Object {
+        "blockTags": undefined,
+        "modifierTags": undefined,
         "shortText": "Type alias comment",
         "text": "Short text
 Class [[1]] Class [[1]]
@@ -1049,12 +1107,11 @@ TypeAlias [[26]]
 NamespaceOverriddenByMember [[30]]
 ",
       },
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": undefined,
       "id": 26,
       "implementationOf": undefined,
@@ -1065,7 +1122,9 @@ NamespaceOverriddenByMember [[30]]
       "kind": 4194304,
       "kindString": "Type alias",
       "name": "Type_",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -1078,12 +1137,14 @@ NamespaceOverriddenByMember [[30]]
         "name": "number",
         "type": "intrinsic",
       },
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
       "children": undefined,
       "comment": Object {
+        "blockTags": undefined,
+        "modifierTags": undefined,
         "shortText": "Variable comment",
         "text": "Short text
 Class [[1]] Class [[1]]
@@ -1099,14 +1160,13 @@ TypeAlias [[26]]
 NamespaceOverriddenByMember [[30]]
 ",
       },
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": "''",
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {
         "isConst": true,
       },
+      "getSignature": undefined,
       "groups": undefined,
       "id": 31,
       "implementationOf": undefined,
@@ -1117,7 +1177,9 @@ NamespaceOverriddenByMember [[30]]
       "kind": 32,
       "kindString": "Variable",
       "name": "variable_",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": undefined,
       "sources": Array [
         Object {
@@ -1130,18 +1192,17 @@ NamespaceOverriddenByMember [[30]]
         "type": "literal",
         "value": "",
       },
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
     Object {
       "categories": undefined,
       "children": undefined,
       "comment": undefined,
-      "decorates": undefined,
-      "decorators": undefined,
       "defaultValue": undefined,
       "extendedBy": undefined,
       "extendedTypes": undefined,
       "flags": Object {},
+      "getSignature": undefined,
       "groups": undefined,
       "id": 8,
       "implementationOf": undefined,
@@ -1152,10 +1213,14 @@ NamespaceOverriddenByMember [[30]]
       "kind": 64,
       "kindString": "Function",
       "name": "function_",
+      "originalName": undefined,
       "overwrites": undefined,
+      "setSignature": undefined,
       "signatures": Array [
         Object {
           "comment": Object {
+            "blockTags": undefined,
+            "modifierTags": undefined,
             "shortText": "Function comment",
             "text": "Short text
 Class [[1]] Class [[1]]
@@ -1163,7 +1228,7 @@ ClassMember [[4]]
 Enumeration [[21]]
 EnumMember [[22]]
 Variable [[31]]
-Function [[8]]
+Function [[9]]
 Namespace [[27]]
 NamespaceMember [[28]]
 Interface [[24]]
@@ -1171,8 +1236,6 @@ TypeAlias [[26]]
 NamespaceOverriddenByMember [[30]]
 ",
           },
-          "decorates": undefined,
-          "decorators": undefined,
           "flags": Object {},
           "id": 9,
           "implementationOf": undefined,
@@ -1180,6 +1243,7 @@ NamespaceOverriddenByMember [[30]]
           "kind": 4096,
           "kindString": "Call signature",
           "name": "function_",
+          "originalName": undefined,
           "overwrites": undefined,
           "parameters": undefined,
           "type": Object {
@@ -1197,15 +1261,14 @@ NamespaceOverriddenByMember [[30]]
         },
       ],
       "type": undefined,
-      "typeParameter": undefined,
+      "typeParameters": undefined,
     },
   ],
   "comment": undefined,
-  "decorates": undefined,
-  "decorators": undefined,
   "flags": Object {},
   "groups": Array [
     Object {
+      "categories": undefined,
       "children": Array [
         30,
         27,
@@ -1214,6 +1277,7 @@ NamespaceOverriddenByMember [[30]]
       "title": "Namespaces",
     },
     Object {
+      "categories": undefined,
       "children": Array [
         21,
       ],
@@ -1221,6 +1285,7 @@ NamespaceOverriddenByMember [[30]]
       "title": "Enumerations",
     },
     Object {
+      "categories": undefined,
       "children": Array [
         10,
         1,
@@ -1229,6 +1294,7 @@ NamespaceOverriddenByMember [[30]]
       "title": "Classes",
     },
     Object {
+      "categories": undefined,
       "children": Array [
         24,
       ],
@@ -1236,6 +1302,7 @@ NamespaceOverriddenByMember [[30]]
       "title": "Interfaces",
     },
     Object {
+      "categories": undefined,
       "children": Array [
         26,
       ],
@@ -1243,6 +1310,7 @@ NamespaceOverriddenByMember [[30]]
       "title": "Type aliases",
     },
     Object {
+      "categories": undefined,
       "children": Array [
         31,
       ],
@@ -1250,6 +1318,7 @@ NamespaceOverriddenByMember [[30]]
       "title": "Variables",
     },
     Object {
+      "categories": undefined,
       "children": Array [
         8,
       ],
