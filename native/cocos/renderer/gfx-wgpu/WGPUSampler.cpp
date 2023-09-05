@@ -47,7 +47,7 @@ CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : Sampler(info) {
         .addressModeW = toWGPUAddressMode(info.addressW),
         .magFilter = toWGPUFilterMode(info.magFilter),
         .minFilter = toWGPUFilterMode(info.minFilter),
-        .mipmapFilter = toWGPUFilterMode(info.mipFilter),
+        .mipmapFilter = toWGPUMipmapFilterMode(info.mipFilter),
         .lodMinClamp = 0.0f,
         .lodMaxClamp = std::numeric_limits<float>::max(),
         .compare = WGPUCompareFunction_Undefined, // toWGPUCompareFunction(info.cmpFunc),

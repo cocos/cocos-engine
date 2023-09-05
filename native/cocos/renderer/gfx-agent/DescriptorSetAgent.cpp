@@ -98,16 +98,17 @@ void DescriptorSetAgent::forceUpdate() {
         });
 }
 
-void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
+void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index, AccessFlags flags) {
     DescriptorSet::bindBuffer(binding, buffer, index);
 
-    ENQUEUE_MESSAGE_4(
+    ENQUEUE_MESSAGE_5(
         DeviceAgent::getInstance()->getMessageQueue(),
         DescriptorSetBindBuffer,
         actor, getActor(),
         binding, binding,
         buffer, static_cast<BufferAgent *>(buffer)->getActor(),
         index, index,
+        flags, flags,
         {
             actor->bindBuffer(binding, buffer, index);
         });

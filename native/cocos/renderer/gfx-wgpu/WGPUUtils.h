@@ -309,6 +309,19 @@ static WGPUAddressMode toWGPUAddressMode(Address addrMode) {
     }
 }
 
+static WGPUMipmapFilterMode toWGPUMipmapFilterMode(Filter filter) {
+    switch (filter) {
+        case Filter::NONE:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Nearest;
+        case Filter::POINT:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Nearest;
+        case Filter::LINEAR:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Linear;
+        case Filter::ANISOTROPIC:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Linear;
+    }
+}
+
 static WGPUFilterMode toWGPUFilterMode(Filter filter) {
     switch (filter) {
         case Filter::NONE:
@@ -644,7 +657,7 @@ void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t
 class DescriptorSet;
 class PipelineLayout;
 // descriptor set layout in descriptor set not consistent with the binding in pipeline layout.
-void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout);
+void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout, bool skipEmpty = false);
 
 class Texture;
 class CommandBuffer;
