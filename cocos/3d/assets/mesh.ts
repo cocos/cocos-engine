@@ -1507,11 +1507,6 @@ export function decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
         return mesh;
     }
 
-    // decode the mesh
-    if (!MeshoptDecoder.supported) {
-        return mesh;
-    }
-
     const res_checker = (res: number): void => {
         if (res < 0) {
             errorID(14204, res);
