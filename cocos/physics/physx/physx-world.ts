@@ -142,12 +142,12 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     private _debugLineCount = 0;
     private _MAX_DEBUG_LINE_COUNT = 16384;
 
-    _debugDrawFlags = 0;
-    get debugDrawFlags (): number {
+    _debugDrawFlags = EPhysicsDrawFlags.None;
+    get debugDrawFlags (): EPhysicsDrawFlags {
         return this._debugDrawFlags;
     }
 
-    set debugDrawFlags (v) {
+    set debugDrawFlags (v: EPhysicsDrawFlags) {
         this._debugDrawFlags = v;
         this._setDebugDrawMode();
     }

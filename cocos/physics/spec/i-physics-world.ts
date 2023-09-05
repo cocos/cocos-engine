@@ -24,7 +24,7 @@
 
 import { IVec3Like, RecyclePool, geometry, IQuatLike } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
-import { PhysicsMaterial } from '../framework';
+import { EPhysicsDrawFlags, PhysicsMaterial } from '../framework';
 
 export interface IRaycastOptions {
     mask: number;
@@ -35,7 +35,7 @@ export interface IRaycastOptions {
 
 export interface IPhysicsWorld {
     readonly impl: any;
-    debugDrawFlags: number;
+    debugDrawFlags: EPhysicsDrawFlags;
     debugDrawConstraintSize: number;
     setGravity: (v: IVec3Like) => void;
     setAllowSleep: (v: boolean) => void;
