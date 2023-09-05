@@ -41,21 +41,19 @@ import java.lang.reflect.Field;
 public class CocosActivity extends GameActivity {
     private static final String TAG = "CocosActivity";
     private CocosEngine mCocosEngine;
-    private IGamePlayer mGamePlayer;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mCocosEngine = new CocosEngine();
         String libName = getLibraryName();
-        mCocosEngine.init(this, libName);
+        mCocosEngine = new CocosEngine(this, libName);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         getIntent().putExtra(GameActivity.META_DATA_LIB_NAME, libName);
         super.onCreate(savedInstanceState);
-        mGamePlayer = mCocosEngine.createGamePlayer(findViewById(contentViewId));
+        initView();
+        mCocosEngine.init(findViewById(contentViewId));
 
         setImmersiveMode();
         Utils.hideVirtualButton();
@@ -87,8 +85,13 @@ public class CocosActivity extends GameActivity {
         }
     }
 
+    //Deprecated, for compatibility, keep this interface for now
+    protected void initView() {
+        //
+    }
+
     public SurfaceView getSurfaceView() {
-        return this.mSurfaceView;
+        return mSurfaceView;
     }
 
     @Override
@@ -100,32 +103,32 @@ public class CocosActivity extends GameActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mGamePlayer.pause();
+        mCocosEngine.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Utils.hideVirtualButton();
-        mGamePlayer.resume();
+        mCocosEngine.resume();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mGamePlayer.stop();
+        mCocosEngine.stop();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mGamePlayer.start();
+        mCocosEngine.start();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        mGamePlayer.setFocus(hasFocus);
+        mCocosEngine.setAudioFocus(hasFocus);
     }
 
     private String getLibraryName() {

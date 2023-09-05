@@ -13,163 +13,128 @@ import java.util.List;
 
 
 public class CocosEngine {
-
-    private static WeakReference<GamePlayer> mRefGamePlayer;
-
+    private static WeakReference<CocosEngine> mRefCocosEngine;
     private Activity mActivity;
+
+    private CocosSensorHandler mSensorHandler;
+
+    private CocosWebViewHelper mWebViewHelper = null;
+    private CocosVideoHelper mVideoHelper = null;
+    private FrameLayout mRootLayout;
+
+    private List<CocosSurfaceView> mSurfaceViewArray;
+    private SurfaceView mSurfaceView;
 
     private native void initEnvNative(Activity activity);
 
-    void init(Activity activity, String libName) {
+    public CocosEngine(Activity activity, String libName) {
+        mRefCocosEngine = new WeakReference<>(this);
         mActivity = activity;
         System.loadLibrary(libName);
         initEnvNative(activity);
     }
 
-    IGamePlayer createGamePlayer(FrameLayout engineParentView) {
-        GamePlayer player = new GamePlayer(mActivity, engineParentView);
-        mRefGamePlayer = new WeakReference<>(player);
-        return player;
+    public void destroy() {
+        mRefCocosEngine.clear();
+        CocosHelper.unregisterBatteryLevelReceiver(mActivity);
+        CocosAudioFocusManager.unregisterAudioFocusListener(mActivity);
+        CanvasRenderingContext2DImpl.destroy();
+        GlobalObject.destroy();
+        mActivity = null;
     }
 
-    void destroy() {
-        GamePlayer player = mRefGamePlayer.get();
-        if (null != player) {
-            player.destroy();
-            mRefGamePlayer.clear();
+    public void init(FrameLayout parentView) {
+        mRootLayout = parentView;
+
+        // GlobalObject.init should be initialized at first.
+        GlobalObject.init(mActivity, mActivity);
+
+        CocosHelper.registerBatteryLevelReceiver(mActivity);
+        CocosHelper.init();
+        CocosAudioFocusManager.registerAudioFocusListener(mActivity);
+        CanvasRenderingContext2DImpl.init(mActivity);
+        mActivity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        initView();
+        mSensorHandler = new CocosSensorHandler(mActivity);
+    }
+
+    public void start() {
+        mSurfaceView.setVisibility(View.VISIBLE);
+        if (null != mSurfaceViewArray) {
+            for (CocosSurfaceView surfaceView : mSurfaceViewArray) {
+                surfaceView.setVisibility(View.VISIBLE);
+            }
         }
-        mActivity = null;
+    }
+
+    public void stop() {
+        mSurfaceView.setVisibility(View.INVISIBLE);
+        if (null != mSurfaceViewArray) {
+            for (CocosSurfaceView surfaceView : mSurfaceViewArray) {
+                surfaceView.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
+
+    public void pause() {
+        mSensorHandler.onPause();
+    }
+
+    public void resume() {
+        mSensorHandler.onResume();
+        Utils.hideVirtualButton();
+        if (CocosAudioFocusManager.isAudioFocusLoss()) {
+            CocosAudioFocusManager.registerAudioFocusListener(mActivity);
+        }
+    }
+
+    public SurfaceView getRenderView() {
+        return mSurfaceView;
+    }
+
+    public void setAudioFocus(boolean hasFocus) {
+        if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
+            CocosAudioFocusManager.registerAudioFocusListener(mActivity);
+        }
+    }
+
+    private void initView() {
+        if (mActivity instanceof CocosActivity) {
+            CocosActivity cocosActivity = (CocosActivity) mActivity;
+            mSurfaceView = cocosActivity.getSurfaceView();
+        } else {
+            // todo: create surfaceView
+        }
+
+        if (mWebViewHelper == null) {
+            mWebViewHelper = new CocosWebViewHelper(mRootLayout);
+        }
+
+        if (mVideoHelper == null) {
+            mVideoHelper = new CocosVideoHelper(mActivity, mRootLayout);
+        }
     }
 
     // invoke from native code
     @SuppressWarnings({"UnusedDeclaration"})
     private static void createSurface(int x, int y, int width, int height, int windowId) {
-        GamePlayer player = mRefGamePlayer.get();
-        if (null != player) {
-            player.createSurface(x, y, width, height, windowId);
-        }
-    }
-
-    static class GamePlayer implements IGamePlayer {
-
-        private CocosSensorHandler mSensorHandler;
-
-        private CocosWebViewHelper mWebViewHelper = null;
-        private CocosVideoHelper mVideoHelper = null;
-        private FrameLayout mRootLayout;
-
-        private WeakReference<Activity> mRefActivity;
-
-        private List<CocosSurfaceView> mSurfaceViewArray;
-        private SurfaceView mSurfaceView;
-
-        GamePlayer(Activity activity, FrameLayout parentView) {
-            mRefActivity = new WeakReference<>(activity);
-            mRootLayout = parentView;
-
-            // GlobalObject.init should be initialized at first.
-            GlobalObject.init(activity, activity);
-
-            CocosHelper.registerBatteryLevelReceiver(activity);
-            CocosHelper.init();
-            CocosAudioFocusManager.registerAudioFocusListener(activity);
-            CanvasRenderingContext2DImpl.init(activity);
-            activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-            initView();
-            mSensorHandler = new CocosSensorHandler(activity);
-        }
-
-        @Override
-        public void start() {
-            mSurfaceView.setVisibility(View.VISIBLE);
-            if (null != mSurfaceViewArray) {
-                for (CocosSurfaceView surfaceView : mSurfaceViewArray) {
-                    surfaceView.setVisibility(View.VISIBLE);
-                }
+        CocosEngine cocosEngine = mRefCocosEngine.get();
+        if (cocosEngine == null) return;
+        Activity activity = cocosEngine.mActivity;
+        activity.runOnUiThread(() -> {
+            CocosSurfaceView view = new CocosSurfaceView(activity, windowId);
+            view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
+            params.leftMargin = x;
+            params.topMargin = y;
+            //mSubsurfaceView.setBackgroundColor(Color.BLUE);
+            cocosEngine.mRootLayout.addView(view, params);
+            if (null == cocosEngine.mSurfaceViewArray) {
+                cocosEngine.mSurfaceViewArray = new ArrayList<>();
             }
-        }
-
-        @Override
-        public void stop() {
-            mSurfaceView.setVisibility(View.INVISIBLE);
-            if (null != mSurfaceViewArray) {
-                for (CocosSurfaceView surfaceView : mSurfaceViewArray) {
-                    surfaceView.setVisibility(View.INVISIBLE);
-                }
-            }
-        }
-
-        @Override
-        public void pause() {
-            mSensorHandler.onPause();
-        }
-
-        @Override
-        public void resume() {
-            mSensorHandler.onResume();
-            Utils.hideVirtualButton();
-            if (CocosAudioFocusManager.isAudioFocusLoss()) {
-                CocosAudioFocusManager.registerAudioFocusListener(mRefActivity.get());
-            }
-        }
-
-        @Override
-        public SurfaceView getRenderView() {
-            return null;
-        }
-
-        @Override
-        public void setFocus(boolean hasFocus) {
-            if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
-                CocosAudioFocusManager.registerAudioFocusListener(mRefActivity.get());
-            }
-        }
-
-        private void destroy() {
-            CocosHelper.unregisterBatteryLevelReceiver(mRefActivity.get());
-            CocosAudioFocusManager.unregisterAudioFocusListener(mRefActivity.get());
-            CanvasRenderingContext2DImpl.destroy();
-            GlobalObject.destroy();
-        }
-
-        private void initView() {
-            Activity activity = mRefActivity.get();
-            if (activity instanceof CocosActivity) {
-                CocosActivity cocosActivity = (CocosActivity) activity;
-                mSurfaceView = cocosActivity.getSurfaceView();
-            } else {
-                // todo: create surfaceView
-            }
-
-            if (mWebViewHelper == null) {
-                mWebViewHelper = new CocosWebViewHelper(mRootLayout);
-            }
-
-            if (mVideoHelper == null) {
-                mVideoHelper = new CocosVideoHelper(activity, mRootLayout);
-            }
-        }
-
-        // invoke from native code
-        @SuppressWarnings({"UnusedDeclaration"})
-        private void createSurface(int x, int y, int width, int height, int windowId) {
-            Activity activity = mRefActivity.get();
-            if (activity == null) return;
-            activity.runOnUiThread(() -> {
-                CocosSurfaceView view = new CocosSurfaceView(mRefActivity.get(), windowId);
-                view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
-                params.leftMargin = x;
-                params.topMargin = y;
-                //mSubsurfaceView.setBackgroundColor(Color.BLUE);
-                mRootLayout.addView(view, params);
-                if (null == mSurfaceViewArray) {
-                    mSurfaceViewArray = new ArrayList<>();
-                }
-                mSurfaceViewArray.add(view);
-            });
-        }
+            cocosEngine.mSurfaceViewArray.add(view);
+        });
     }
 }
 
