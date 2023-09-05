@@ -11,8 +11,15 @@ if (argv2 === '--no-clean') {
     clean = false;
 }
 
+
 const engineRoot = normalizePath(ps.join(__dirname, '..'));
 const buildOutput = normalizePath(ps.join(__dirname, '__TS_ENGINE__'));
+
+const ModuleQuery = ccbuild.Modularize.ModuleQuery;
+const mq = new ModuleQuery({
+    engine: engineRoot,
+    platform: 'OPEN_HARMONY',
+});
 
 function normalizePath (path) {
     return path.replace(/\\/g, '/');
@@ -25,6 +32,8 @@ function normalizePath (path) {
 
 async function buildTsEngine () {
     console.log(chalk.green('building TS engine ...\n'));
+
+    const typesModuleRoot = await mq.resolvePackageJson('@type')
     await ccbuild.buildEngine({
         // NOTE: for now only OH platform supports building TS engine
         platform: 'OPEN_HARMONY',
