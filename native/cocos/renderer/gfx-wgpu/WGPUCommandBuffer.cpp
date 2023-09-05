@@ -435,9 +435,10 @@ void CCWGPUCommandBuffer::bindStates() {
 #endif
         const auto *indexBuffer = static_cast<CCWGPUBuffer *>(ia->getIndexBuffer());
         if (indexBuffer) {
+            CC_ASSERT(indexBuffer->getStride() >= 2);
             wgpuRenderPassEncoderSetIndexBuffer(_gpuCommandBufferObj->wgpuRenderPassEncoder,
                                                 indexBuffer->gpuBufferObject()->wgpuBuffer,
-                                                indexBuffer->getStride() <= 2 ? WGPUIndexFormat::WGPUIndexFormat_Uint16 : WGPUIndexFormat_Uint32,
+                                                indexBuffer->getStride() == 2 ? WGPUIndexFormat::WGPUIndexFormat_Uint16 : WGPUIndexFormat_Uint32,
                                                 indexBuffer->getOffset(),
                                                 indexBuffer->getSize());
         }
