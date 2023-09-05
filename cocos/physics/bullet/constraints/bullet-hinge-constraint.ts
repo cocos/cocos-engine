@@ -102,6 +102,7 @@ export class BulletHingeConstraint extends BulletConstraint implements IHingeCon
         this.setMotorVelocity(this.constraint.motorVelocity);
         this.setMotorForceLimit(this.constraint.motorForceLimit);
         this.updateFrames();
+        this.updateDebugDrawSize();
     }
 
     updateFrames (): void {

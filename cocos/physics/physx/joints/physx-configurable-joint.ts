@@ -359,6 +359,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         this._updateDriveSettings();
 
         this.updateFrames();
+        this.enableDebugVisualization(true);
     }
 
     updateFrames (): void {
@@ -422,9 +423,9 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
     private static _drive_x: any = null;
     private static _drive_y: any = null;
     private static _drive_z: any = null;
-    private static _drive_twist: any=  null;
-    private static _drive_swing1: any= null;
-    private static _drive_swing2: any= null;
+    private static _drive_twist: any =  null;
+    private static _drive_swing1: any = null;
+    private static _drive_swing2: any = null;
     private static _drive: any[] = [];
     private static _initCache (): void {
         if (!PhysXConfigurableJoint._jointToleranceScale) {

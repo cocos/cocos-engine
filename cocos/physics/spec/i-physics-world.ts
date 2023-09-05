@@ -35,6 +35,8 @@ export interface IRaycastOptions {
 
 export interface IPhysicsWorld {
     readonly impl: any;
+    debugDrawFlags: number;
+    debugDrawConstraintSize: number;
     setGravity: (v: IVec3Like) => void;
     setAllowSleep: (v: boolean) => void;
     setDefaultMaterial: (v: PhysicsMaterial) => void;

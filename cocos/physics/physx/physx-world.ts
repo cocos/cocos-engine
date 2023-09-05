@@ -25,13 +25,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterTriggerEventType,
-    CharacterControllerContact } from '../framework';
-import { error, RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
+    CharacterControllerContact,
+    EPhysicsDrawFlags } from '../framework';
+import { error, RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat, Color } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll,
+    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll, getColorPXColor,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
@@ -42,9 +43,14 @@ import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
+import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { director } from '../../game';
 
 const CC_QUAT_0 = new Quat();
-
+const CC_V3_0 = new Vec3();
+const CC_V3_1 = new Vec3();
+const CC_V3_2 = new Vec3();
+const CC_COLOR_0 = new Color(0, 0, 0, 0);
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
     setDefaultMaterial (_v: PhysicsMaterial): void { }
@@ -86,6 +92,8 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
                 body.syncPhysicsToScene();
             }
         }
+
+        this._debugDraw();
     }
 
     private _simulate (dt: number): void {
@@ -128,6 +136,104 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         for (let i = 0; i < this.wrappedBodies.length; i++) {
             const body = this.wrappedBodies[i];
             body.syncSceneWithCheck();
+        }
+    }
+
+    private _debugLineCount = 0;
+    private _MAX_DEBUG_LINE_COUNT = 16384;
+
+    _debugDrawFlags = 0;
+    get debugDrawFlags (): number {
+        return this._debugDrawFlags;
+    }
+
+    set debugDrawFlags (v) {
+        this._debugDrawFlags = v;
+        this._setDebugDrawMode();
+    }
+
+    _debugConstraintSize = 0.3;
+    get debugDrawConstraintSize (): number {
+        return this._debugConstraintSize;
+    }
+
+    set debugDrawConstraintSize (v) {
+        this._debugConstraintSize = v;
+        this._setDebugDrawMode();
+    }
+
+    _setDebugDrawMode (): void {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.WireFrame) {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 1);
+        } else {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 0);
+        }
+
+        const drawConstraint = Boolean(this._debugDrawFlags & EPhysicsDrawFlags.Constraint);
+        const internalConstraintSize = drawConstraint ? this._debugConstraintSize : 0;
+        this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eJOINT_LOCAL_FRAMES, internalConstraintSize);
+        this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eJOINT_LIMITS, internalConstraintSize);
+
+        if (this._debugDrawFlags & EPhysicsDrawFlags.Aabb) {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_AABBS, 1);
+        } else {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_AABBS, 0);
+        }
+    }
+
+    _getDebugRenderer (): GeometryRenderer|null {
+        const cameras = director.root!.cameraList;
+        if (!cameras) return null;
+        if (cameras.length === 0) return null;
+        if (!cameras[0]) return null;
+        cameras[0].initGeometryRenderer();
+
+        return cameras[0].geometryRenderer;
+    }
+
+    private _debugDraw (): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (!debugRenderer) return;
+
+        this._debugLineCount = 0;
+        const rb = this.scene.getRenderBuffer();//PxRenderBuffer
+        for (let i = 0; i < rb.getNbPoints(); i++) {
+            const point = rb.getPointAt(i);//PxDebugPoint
+            Vec3.copy(CC_V3_0, point.pos);
+            getColorPXColor(CC_COLOR_0, point.color0 as number);
+            debugRenderer.addSphere(CC_V3_0, 0.1, CC_COLOR_0);
+        }
+        for (let i = 0; i < rb.getNbLines(); i++) {
+            const line = rb.getLineAt(i);//PxDebugLine
+            this._onDebugDrawLine(line);
+        }
+        for (let i = 0; i < rb.getNbTriangles(); i++) {
+            const triangle = rb.getTriangleAt(i);//PxDebugTriangle
+            this._onDebugDrawTriangle(triangle);
+        }
+    }
+
+    private _onDebugDrawLine (line: PX.PxDebugLine): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (debugRenderer && this._debugLineCount < this._MAX_DEBUG_LINE_COUNT) {
+            this._debugLineCount++;
+            Vec3.copy(CC_V3_0, line.pos0);
+            Vec3.copy(CC_V3_1, line.pos1);
+            getColorPXColor(CC_COLOR_0, line.color0 as number);
+            debugRenderer.addLine(CC_V3_0, CC_V3_1, CC_COLOR_0);
+        }
+    }
+    private _onDebugDrawTriangle (triangle: PX.PxDebugTriangle): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (debugRenderer && (this._MAX_DEBUG_LINE_COUNT - this._debugLineCount) >= 3) {
+            this._debugLineCount += 3;
+            Vec3.copy(CC_V3_0, triangle.pos0);
+            Vec3.copy(CC_V3_1, triangle.pos1);
+            Vec3.copy(CC_V3_2, triangle.pos2);
+            getColorPXColor(CC_COLOR_0, triangle.color0 as number);
+            debugRenderer.addLine(CC_V3_0, CC_V3_1, CC_COLOR_0);
+            debugRenderer.addLine(CC_V3_1, CC_V3_2, CC_COLOR_0);
+            debugRenderer.addLine(CC_V3_2, CC_V3_0, CC_COLOR_0);
         }
     }
 
@@ -177,8 +283,14 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return raycastClosest(this, worldRay, options, result);
     }
 
-    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepBox (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         if (!PhysXWorld._sweepBoxGeometry) {
             PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
         }
@@ -186,8 +298,13 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepAll(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, pool, results);
     }
 
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepBoxClosest (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         if (!PhysXWorld._sweepBoxGeometry) {
             PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
         }
@@ -195,8 +312,13 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepClosest(this, worldRay, PhysXWorld._sweepBoxGeometry, orientation, options, result);
     }
 
-    sweepSphere (worldRay: geometry.Ray, radius: number,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepSphere (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         if (!PhysXWorld._sweepSphereGeometry) {
             PhysXWorld._sweepSphereGeometry = new PX.SphereGeometry(radius);
         }
@@ -204,8 +326,12 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepAll(this, worldRay, PhysXWorld._sweepSphereGeometry, Quat.IDENTITY, options, pool, results);
     }
 
-    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepSphereClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         if (!PhysXWorld._sweepSphereGeometry) {
             PhysXWorld._sweepSphereGeometry = new PX.SphereGeometry(radius);
         }
@@ -213,8 +339,15 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepClosest(this, worldRay, PhysXWorld._sweepSphereGeometry, Quat.IDENTITY, options, result);
     }
 
-    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepCapsule (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         if (!PhysXWorld._sweepCapsuleGeometry) {
             PhysXWorld._sweepCapsuleGeometry = new PX.CapsuleGeometry(radius, height / 2);
         }
@@ -227,8 +360,14 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         return sweepAll(this, worldRay, PhysXWorld._sweepCapsuleGeometry, finalOrientation, options, pool, results);
     }
 
-    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepCapsuleClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         if (!PhysXWorld._sweepCapsuleGeometry) {
             PhysXWorld._sweepCapsuleGeometry = new PX.CapsuleGeometry(radius, height / 2);
         }
@@ -518,8 +657,11 @@ const PhysXCallback = {
                 const motionDir = new Vec3();
                 motionDir.set(hit.dir.x, hit.dir.y, hit.dir.z);
                 const motionLength = hit.length;
-                item = cctShapeEventDic.set(hit.getCurrentController(), hit.getTouchedShape(),
-                    { PhysXCharacterController: cct, PhysXShape: s, worldPos, worldNormal, motionDir, motionLength });
+                item = cctShapeEventDic.set(
+                    hit.getCurrentController(),
+                    hit.getTouchedShape(),
+                    { PhysXCharacterController: cct, PhysXShape: s, worldPos, worldNormal, motionDir, motionLength },
+                );
             }
         },
         onControllerHit (hit: any): void { //PX.ControllersHit

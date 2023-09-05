@@ -360,6 +360,7 @@ export class BulletConfigurableConstraint extends BulletConstraint implements IC
         this.setBreakTorque(this.constraint.breakTorque);
 
         this.updateFrames();
+        this.updateDebugDrawSize();
     }
 
     updateFrames (): void {

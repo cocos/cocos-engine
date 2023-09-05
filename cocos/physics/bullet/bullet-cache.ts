@@ -23,7 +23,7 @@
 */
 
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation, CharacterController } from '../../../exports/physics-framework';
-import { Vec3, Quat, Mat4 } from '../../core';
+import { Vec3, Quat, Mat4, Color } from '../../core';
 import { CharacterTriggerEventType } from '../framework';
 import { bt } from './instantiated';
 
@@ -88,5 +88,6 @@ export const CC_QUAT_0 = new Quat();
 export const CC_QUAT_1 = new Quat();
 export const CC_MAT4_0 = new Mat4();
 export const CC_MAT4_1 = new Mat4();
+export const CC_COLOR_0 = new Color();
 
 bt.CACHE = BulletCache;

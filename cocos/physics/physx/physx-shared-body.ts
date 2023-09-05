@@ -149,6 +149,7 @@ export class PhysXSharedBody {
         if (this._staticActor) return;
         const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
         this._staticActor = PhysXInstance.physics.createRigidStatic(t);
+        this._staticActor.setActorFlag(PX.ActorFlag.eVISUALIZATION, true);
         if (this._staticActor.$$) PX.IMPL_PTR[this._staticActor.$$.ptr] = this;
     }
 
@@ -161,6 +162,7 @@ export class PhysXSharedBody {
         if (wb) {
             const rb = wb.rigidBody;
             this._dynamicActor.setMass(rb.mass);
+            this._dynamicActor.setActorFlag(PX.ActorFlag.eVISUALIZATION, true);
             this._dynamicActor.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
             this.setLinearDamping(rb.linearDamping);
             this.setAngularDamping(rb.angularDamping);

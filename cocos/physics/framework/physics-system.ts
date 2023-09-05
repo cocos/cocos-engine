@@ -339,7 +339,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
         mask: -1,
         queryTrigger: true,
         maxDistance: 10000000,
-    }
+    };
 
     private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
     private readonly sweepResultPool = new RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
@@ -460,6 +460,22 @@ export class PhysicsSystem extends System implements IWorldInitData {
      */
     emitEvents (): void {
         if (this.physicsWorld) this.physicsWorld.emitEvents();
+    }
+
+    get debugDrawFlags (): number {
+        return this.physicsWorld.debugDrawFlags;
+    }
+
+    set debugDrawFlags (v) {
+        this.physicsWorld.debugDrawFlags = v;
+    }
+
+    get debugDrawConstraintSize (): number {
+        return this.physicsWorld.debugDrawConstraintSize;
+    }
+
+    set debugDrawConstraintSize (v) {
+        this.physicsWorld.debugDrawConstraintSize = v;
     }
 
     /**
@@ -607,16 +623,28 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    sweepBox (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        mask = 0xffffffff,
+        maxDistance = 10000000,
+        queryTrigger = true,
+    ): boolean {
         if (!this.physicsWorld) return false;
         this.sweepResultPool.reset();
         this.sweepCastResults.length = 0;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.sweepBox(worldRay, halfExtent, orientation,
-            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+        return this.physicsWorld.sweepBox(
+            worldRay,
+            halfExtent,
+            orientation,
+            this.raycastOptions,
+            this.sweepResultPool,
+            this.sweepCastResults,
+        );
     }
 
     /**
@@ -634,14 +662,25 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    sweepBoxClosest (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        mask = 0xffffffff,
+        maxDistance = 10000000,
+        queryTrigger = true,
+    ): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.sweepBoxClosest(worldRay, halfExtent, orientation,
-            this.raycastOptions, this.sweepCastClosestResult);
+        return this.physicsWorld.sweepBoxClosest(
+            worldRay,
+            halfExtent,
+            orientation,
+            this.raycastOptions,
+            this.sweepCastClosestResult,
+        );
     }
 
     /**
@@ -658,16 +697,26 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    sweepSphere (worldRay: geometry.Ray, radius: number,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    sweepSphere (
+        worldRay: geometry.Ray,
+        radius: number,
+        mask = 0xffffffff,
+        maxDistance = 10000000,
+        queryTrigger = true,
+    ): boolean {
         if (!this.physicsWorld) return false;
         this.sweepResultPool.reset();
         this.sweepCastResults.length = 0;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.sweepSphere(worldRay, radius,
-            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+        return this.physicsWorld.sweepSphere(
+            worldRay,
+            radius,
+            this.raycastOptions,
+            this.sweepResultPool,
+            this.sweepCastResults,
+        );
     }
 
     /**
@@ -684,14 +733,23 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    sweepSphereClosest (worldRay: geometry.Ray, radius: number,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    sweepSphereClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        mask = 0xffffffff,
+        maxDistance = 10000000,
+        queryTrigger = true,
+    ): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.sweepSphereClosest(worldRay, radius,
-            this.raycastOptions, this.sweepCastClosestResult);
+        return this.physicsWorld.sweepSphereClosest(
+            worldRay,
+            radius,
+            this.raycastOptions,
+            this.sweepCastClosestResult,
+        );
     }
 
     /**
@@ -712,16 +770,30 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    sweepCapsule (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        mask = 0xffffffff,
+        maxDistance = 10000000,
+        queryTrigger = true,
+    ): boolean {
         if (!this.physicsWorld) return false;
         this.sweepResultPool.reset();
         this.sweepCastResults.length = 0;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.sweepCapsule(worldRay, radius, height, orientation,
-            this.raycastOptions, this.sweepResultPool, this.sweepCastResults);
+        return this.physicsWorld.sweepCapsule(
+            worldRay,
+            radius,
+            height,
+            orientation,
+            this.raycastOptions,
+            this.sweepResultPool,
+            this.sweepCastResults,
+        );
     }
 
     /**
@@ -742,14 +814,27 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @param queryTrigger @zh 是否检测触发器 @en Whether to detect triggers
      * @return {boolean} @zh 表示是否有检测到碰撞 @en Indicates whether a collision has been detected
      */
-    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+    sweepCapsuleClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        mask = 0xffffffff,
+        maxDistance = 10000000,
+        queryTrigger = true,
+    ): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
-        return this.physicsWorld.sweepCapsuleClosest(worldRay, radius, height, orientation,
-            this.raycastOptions, this.sweepCastClosestResult);
+        return this.physicsWorld.sweepCapsuleClosest(
+            worldRay,
+            radius,
+            height,
+            orientation,
+            this.raycastOptions,
+            this.sweepCastClosestResult,
+        );
     }
 
     private _updateMaterial (): void {
