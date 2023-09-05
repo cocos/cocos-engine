@@ -237,6 +237,7 @@ export class PostProcessBuilder implements PipelineBuilder  {
             }
 
             if (pass.name === 'BloomPass') {
+                // for override post-process builder
                 (pass as BloomPass).hdrInputName = (floatOutputPass === undefined || floatOutputPass === null)
                     ? '' :  floatOutputPass.getHDRInputName();
             }
