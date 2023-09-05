@@ -1,19 +1,24 @@
 'use strict';
 
+const previewParams = {
+    shape: 'sphere',
+    light: true,
+};
+
 exports.template = /* html */`
 <div class="section">
     <canvas></canvas>
     <div class="tools">
-        <ui-select value="box" class="primitive">
-            <option>box</option>
+        <ui-select class="primitive">
             <option>sphere</option>
+            <option>box</option>
             <option>capsule</option>
             <option>cylinder</option>
             <option>torus</option>
             <option>cone</option>
             <option>quad</option>
         </ui-select>
-        <ui-checkbox checked>Light</ui-checkbox>
+        <ui-checkbox>Light</ui-checkbox>
     </div>
 </div>
 `;
@@ -96,15 +101,20 @@ exports.ready = async function() {
     const panel = this;
 
     callMaterialPreviewFunction('resetCamera');
-    callMaterialPreviewFunction('setLightEnable', true);
-    panel.$.light.addEventListener('confirm', async () => {
-        await callMaterialPreviewFunction('setLightEnable', this.$.light.checked);
+
+    panel.$.light.value = previewParams.light;
+    callMaterialPreviewFunction('setLightEnable', previewParams.light);
+    panel.$.light.addEventListener('confirm', async (event) => {
+        previewParams.light = event.target.value;
+        await callMaterialPreviewFunction('setLightEnable', previewParams.light);
         panel.isPreviewDataDirty = true;
     });
 
-    callMaterialPreviewFunction('setPrimitive', 'box');
-    panel.$.primitive.addEventListener('confirm', async () => {
-        await callMaterialPreviewFunction('setPrimitive', this.$.primitive.value);
+    panel.$.primitive.value = previewParams.shape;
+    callMaterialPreviewFunction('setPrimitive', previewParams.shape);
+    panel.$.primitive.addEventListener('confirm', async (event) => {
+        previewParams.shape = event.target.value;
+        await callMaterialPreviewFunction('setPrimitive', previewParams.shape);
         panel.isPreviewDataDirty = true;
     });
 
@@ -140,7 +150,7 @@ exports.ready = async function() {
     panel.$.canvas.addEventListener('wheel', async (event) => {
         await callMaterialPreviewFunction('onMouseWheel', {
             wheelDeltaY: event.wheelDeltaY,
-            wheelDeltaX: event.wheelDeltaX
+            wheelDeltaX: event.wheelDeltaX,
         });
         panel.isPreviewDataDirty = true;
     });
