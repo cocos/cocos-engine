@@ -237,7 +237,8 @@ export class PostProcessBuilder implements PipelineBuilder  {
             }
 
             if (pass.name === 'BloomPass') {
-                (pass as BloomPass).hdrInputName = floatOutputPass.getHDRInputName();
+                (pass as BloomPass).hdrInputName = (floatOutputPass === undefined || floatOutputPass === null)
+                    ? '' :  floatOutputPass.getHDRInputName();
             }
 
             pass.lastPass = lastPass;
