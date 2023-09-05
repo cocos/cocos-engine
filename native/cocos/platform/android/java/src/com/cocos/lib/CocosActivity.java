@@ -26,61 +26,38 @@ package com.cocos.lib;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import com.google.androidgamesdk.GameActivity;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 public class CocosActivity extends GameActivity {
     private static final String TAG = "CocosActivity";
-    private CocosWebViewHelper mWebViewHelper = null;
-    private CocosVideoHelper mVideoHelper = null;
+    private CocosEngine mCocosEngine;
+    private IGamePlayer mGamePlayer;
 
-    private CocosSensorHandler mSensorHandler;
-    private List<CocosSurfaceView> mSurfaceViewArray;
-    private FrameLayout mRootLayout;
-
-
-
-    private native void onCreateNative();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        onLoadNativeLibraries();
-        onCreateNative();
+        mCocosEngine = new CocosEngine();
+        String libName = getLibraryName();
+        mCocosEngine.init(this, libName);
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        super.onCreate(savedInstanceState);
-
-        // GlobalObject.init should be initialized at first.
-        GlobalObject.init(this, this);
-
-        CocosHelper.registerBatteryLevelReceiver(this);
-        CocosHelper.init();
-        CocosAudioFocusManager.registerAudioFocusListener(this);
-        CanvasRenderingContext2DImpl.init(this);
-        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
-        initView();
-
-
-        mSensorHandler = new CocosSensorHandler(this);
+        getIntent().putExtra(GameActivity.META_DATA_LIB_NAME, libName);
+        super.onCreate(savedInstanceState);
+        mGamePlayer = mCocosEngine.createGamePlayer(findViewById(contentViewId));
 
         setImmersiveMode();
-
         Utils.hideVirtualButton();
 
         mSurfaceView.setOnTouchListener((v, event) -> processMotionEvent(event));
@@ -110,19 +87,6 @@ public class CocosActivity extends GameActivity {
         }
     }
 
-    protected void initView() {
-        mRootLayout = findViewById(contentViewId);
-        if (mWebViewHelper == null) {
-            mWebViewHelper = new CocosWebViewHelper(mRootLayout);
-        }
-
-        if (mVideoHelper == null) {
-            mVideoHelper = new CocosVideoHelper(this, mRootLayout);
-        }
-    }
-
-
-
     public SurfaceView getSurfaceView() {
         return this.mSurfaceView;
     }
@@ -130,80 +94,41 @@ public class CocosActivity extends GameActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        CocosHelper.unregisterBatteryLevelReceiver(this);
-        CocosAudioFocusManager.unregisterAudioFocusListener(this);
-        CanvasRenderingContext2DImpl.destroy();
-        GlobalObject.destroy();
+        mCocosEngine.destroy();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        mSensorHandler.onPause();
+        mGamePlayer.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mSensorHandler.onResume();
         Utils.hideVirtualButton();
-        if (CocosAudioFocusManager.isAudioFocusLoss()) {
-            CocosAudioFocusManager.registerAudioFocusListener(this);
-        }
+        mGamePlayer.resume();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mSurfaceView.setVisibility(View.INVISIBLE);
-        if (null != mSurfaceViewArray) {
-            for (CocosSurfaceView surfaceView : mSurfaceViewArray) {
-                surfaceView.setVisibility(View.INVISIBLE);
-            }
-        }
+        mGamePlayer.stop();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mSurfaceView.setVisibility(View.VISIBLE);
-        if (null != mSurfaceViewArray) {
-            for (CocosSurfaceView surfaceView : mSurfaceViewArray) {
-                surfaceView.setVisibility(View.VISIBLE);
-            }
-        }
+        mGamePlayer.start();
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
-            CocosAudioFocusManager.registerAudioFocusListener(this);
-        }
+        mGamePlayer.setFocus(hasFocus);
     }
 
-    // invoke from native code
-    @SuppressWarnings({"UnusedDeclaration"})
-    private void createSurface(int x, int y, int width, int height, int windowId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                CocosSurfaceView view = new CocosSurfaceView(CocosActivity.this, windowId);
-                view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
-                params.leftMargin = x;
-                params.topMargin = y;
-                //mSubsurfaceView.setBackgroundColor(Color.BLUE);
-                mRootLayout.addView(view, params);
-                if (null == mSurfaceViewArray) {
-                    mSurfaceViewArray = new ArrayList<>();
-                }
-                mSurfaceViewArray.add(view);
-            }
-        });
-    }
-
-    private void onLoadNativeLibraries() {
+    private String getLibraryName() {
         try {
             ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
 
@@ -212,11 +137,10 @@ public class CocosActivity extends GameActivity {
             if (TextUtils.isEmpty(libName)) {
                 Log.e(TAG, "can not find library, please config android.app.lib_name at AndroidManifest.xml");
             }
-            assert libName != null;
-            System.loadLibrary(libName);
-            getIntent().putExtra(GameActivity.META_DATA_LIB_NAME, libName);
+            return libName;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 }
