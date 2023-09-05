@@ -24,9 +24,10 @@
 
 /* eslint-disable new-cap */
 import { IBaseConstraint } from '../../spec/i-physics-constraint';
-import { Constraint, RigidBody } from '../../framework';
+import { Constraint, PhysicsSystem, RigidBody } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { bt, EBulletType } from '../instantiated';
+import { BulletWorld } from '../bullet-world';
 
 export abstract class BulletConstraint implements IBaseConstraint {
     setConnectedBody (v: RigidBody | null): void {
@@ -98,6 +99,13 @@ export abstract class BulletConstraint implements IBaseConstraint {
         this._collided = v.enableCollision;
         this.onComponentSet();
         this.setEnableCollision(this._collided);
+    }
+
+    updateDebugDrawSize (): void {
+        if (this.impl) {
+            const size = (PhysicsSystem.instance.physicsWorld as BulletWorld).debugDrawConstraintSize;
+            bt.TypedConstraint_setDbgDrawSize(this.impl, size);
+        }
     }
 
     // virtual

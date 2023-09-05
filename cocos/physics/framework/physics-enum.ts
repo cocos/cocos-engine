@@ -402,3 +402,35 @@ export enum PhysicsGroup {
     DEFAULT = 1,
 }
 Enum(PhysicsGroup);
+
+export enum EPhysicsDrawFlags {
+    /**
+     * @en
+     * Draw nothing.
+     * @zh
+     * 不绘制。
+    */
+    None = 0,
+    /**
+     * @en
+     * Draw wireframe
+     * @zh
+     * 绘制线框。
+    */
+    WireFrame = 0x0001,
+    /**
+     * @en
+     * Draw Constraint.
+     * @zh
+     * 绘制约束
+    */
+    Constraint = 0x0002,
+    /**
+     * @en
+     * Draw AABB.
+     * @zh
+     * 绘制包围盒。
+    */
+    Aabb = 0x0004,
+}
+Enum(EPhysicsDrawFlags);

@@ -28,21 +28,24 @@ import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
 import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { TupleDictionary } from '../utils/tuple-dictionary';
-import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, BulletCache, CharacterTriggerEventObject } from './bullet-cache';
+import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, CC_COLOR_0, BulletCache, CharacterTriggerEventObject } from './bullet-cache';
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3 } from './bullet-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
-import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact } from '../framework';
-import { error, RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike, Quat } from '../../core';
+import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact, EPhysicsDrawFlags } from '../framework';
+import { error, RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike, Quat, Color } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { BulletCharacterController } from './character-controllers/bullet-character-controller';
-import { bt, EBulletType, EBulletTriangleRaycastFlag } from './instantiated';
+import { bt, EBulletType, EBulletTriangleRaycastFlag, EBulletDebugDrawModes } from './instantiated';
 import { Node } from '../../scene-graph';
+import { director } from '../../game';
+import { GeometryRenderer } from '../../rendering/geometry-renderer';
 
 const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
 const v3_2 = CC_V3_2;
+const c_0 = CC_COLOR_0;
 const emitHit = new CharacterControllerContact();
 export class BulletWorld implements IPhysicsWorld {
     setDefaultMaterial (v: PhysicsMaterial): void {
@@ -115,6 +118,9 @@ export class BulletWorld implements IPhysicsWorld {
     private readonly _broadphase: Bullet.ptr;
     private readonly _solver: Bullet.ptr;
     private readonly _dispatcher: Bullet.ptr;
+    private readonly _debugDraw: Bullet.ptr;
+    private _debugLineCount = 0;
+    private _MAX_DEBUG_LINE_COUNT = 16384;
 
     private _needEmitEvents = false;
     private _needSyncAfterEvents = false;
@@ -136,10 +142,23 @@ export class BulletWorld implements IPhysicsWorld {
     private static _sweepCapsuleGeometry: number;
 
     constructor () {
+        bt.CACHE.world = this;
         this._broadphase = bt.DbvtBroadphase_new();
         this._dispatcher = bt.CollisionDispatcher_new();
         this._solver = bt.SequentialImpulseConstraintSolver_new();
+        this._debugDraw = bt.DebugDraw_new();
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
+        bt.CollisionWorld_setDebugDrawer(this._world, this._debugDraw);
+
+        bt.DebugDraw_setAABBColor(this._debugDraw, 0, 1, 1);
+        // set color for all shapes
+        bt.DebugDraw_setActiveObjectColor(this._debugDraw, 1, 0, 1);
+        bt.DebugDraw_setDeactiveObjectColor(this._debugDraw, 1, 0, 1);
+        bt.DebugDraw_setWantsDeactivationObjectColor(this._debugDraw, 1, 0, 1);
+        bt.DebugDraw_setDisabledDeactivationObjectColor(this._debugDraw, 1, 0, 1);
+        bt.DebugDraw_setDisabledSimulationObjectColor(this._debugDraw, 1, 0, 1);
+        // set color for all shapes END
+        bt.DebugDraw_setConstraintLimitColor(this._debugDraw, 0.5, 0.5, 0.5);
     }
 
     destroy (): void {
@@ -148,6 +167,7 @@ export class BulletWorld implements IPhysicsWorld {
         bt._safe_delete(this._broadphase, EBulletType.EBulletTypeDbvtBroadPhase);
         bt._safe_delete(this._dispatcher, EBulletType.EBulletTypeCollisionDispatcher);
         bt._safe_delete(this._solver, EBulletType.EBulletTypeSequentialImpulseConstraintSolver);
+        bt._safe_delete(this._debugDraw, EBulletType.EBulletTypeDebugDraw);
         (this as any).bodies = null;
         (this as any).ghosts = null;
         (this as any).ccts = null;
@@ -165,6 +185,7 @@ export class BulletWorld implements IPhysicsWorld {
         if (!this.bodies.length && !this.ghosts.length) return;
         if (timeSinceLastCalled === undefined) timeSinceLastCalled = deltaTime;
         bt.DynamicsWorld_stepSimulation(this._world, timeSinceLastCalled, maxSubStep, deltaTime);
+        bt.CollisionWorld_debugDrawWorld(this._world);
     }
 
     syncSceneToPhysics (): void {
@@ -807,5 +828,73 @@ export class BulletWorld implements IPhysicsWorld {
                 }
             }
         }
+    }
+
+    _debugDrawFlags = 0;
+    get debugDrawFlags (): number {
+        return this._debugDrawFlags;
+    }
+
+    set debugDrawFlags (v) {
+        this._debugDrawFlags = v;
+        if (this._debugDraw) {
+            this._setDebugDrawMode();
+        }
+    }
+
+    _debugConstraintSize = 0.3; //B3_DEFAULT_DEBUGDRAW_SIZE
+    get debugDrawConstraintSize (): number {
+        return this._debugConstraintSize;
+    }
+
+    set debugDrawConstraintSize (v) {
+        this._debugConstraintSize = v;
+        for (let i = 0; i < this.constraints.length; i++) {
+            this.constraints[i].updateDebugDrawSize();
+        }
+    }
+
+    _setDebugDrawMode (): void {
+        let btDrawMode = 0;
+        if (this._debugDrawFlags & EPhysicsDrawFlags.WireFrame) {
+            btDrawMode |= EBulletDebugDrawModes.DBG_DrawWireframe;
+        }
+
+        if (this._debugDrawFlags & EPhysicsDrawFlags.Constraint) {
+            btDrawMode |= EBulletDebugDrawModes.DBG_DrawConstraints;
+            btDrawMode |= EBulletDebugDrawModes.DBG_DrawConstraintLimits;
+        }
+
+        if (this._debugDrawFlags & EPhysicsDrawFlags.Aabb) {
+            btDrawMode |= EBulletDebugDrawModes.DBG_DrawAabb;
+        }
+
+        bt.DebugDraw_setDebugMode(this._debugDraw, btDrawMode);
+    }
+
+    _getDebugRenderer (): GeometryRenderer|null {
+        const cameras = director.root!.cameraList;
+        if (!cameras) return null;
+        if (cameras.length === 0) return null;
+        if (!cameras[0]) return null;
+        cameras[0].initGeometryRenderer();
+
+        return cameras[0].geometryRenderer;
+    }
+
+    onDebugDrawLine (from: number, to: number, color: number): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (debugRenderer && this._debugLineCount < this._MAX_DEBUG_LINE_COUNT) {
+            this._debugLineCount++;
+            bullet2CocosVec3(v3_0, from);
+            bullet2CocosVec3(v3_1, to);
+            bullet2CocosVec3(v3_2, color);
+            c_0.set(v3_2.x * 255, v3_2.y * 255, v3_2.z * 255, 255);
+            debugRenderer.addLine(v3_0, v3_1, c_0);
+        }
+    }
+
+    onClearLines (): void {
+        this._debugLineCount = 0;
     }
 }
