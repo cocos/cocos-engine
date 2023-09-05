@@ -196,43 +196,60 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         if (!debugRenderer) return;
 
         this._debugLineCount = 0;
-        const rb = this.scene.getRenderBuffer();//PxRenderBuffer
-        for (let i = 0; i < rb.getNbPoints(); i++) {
-            const point = rb.getPointAt(i);//PxDebugPoint
-            Vec3.copy(CC_V3_0, point.pos);
-            getColorPXColor(CC_COLOR_0, point.color0 as number);
-            debugRenderer.addSphere(CC_V3_0, 0.1, CC_COLOR_0);
+        const rbPtr = this.scene.getRenderBufferPtr();//PxRenderBuffer
+        const nbLine = PX.PxRenderBuffer_GetNbLines(rbPtr);
+        for (let i = 0; i < nbLine; i++) {
+            const linePtr = PX.PxRenderBuffer_GetLineAt(rbPtr, i) as number;//PxDebugLine
+            this._onDebugDrawLine(linePtr);
         }
-        for (let i = 0; i < rb.getNbLines(); i++) {
-            const line = rb.getLineAt(i);//PxDebugLine
-            this._onDebugDrawLine(line);
-        }
-        for (let i = 0; i < rb.getNbTriangles(); i++) {
-            const triangle = rb.getTriangleAt(i);//PxDebugTriangle
-            this._onDebugDrawTriangle(triangle);
+        const nbTriangle = PX.PxRenderBuffer_GetNbTriangles(rbPtr);
+        for (let i = 0; i < nbTriangle; i++) {
+            const trianglePtr = PX.PxRenderBuffer_GetTriangleAt(rbPtr, i) as number;//PxDebugTriangle
+            this._onDebugDrawTriangle(trianglePtr);
         }
     }
 
-    private _onDebugDrawLine (line: PX.PxDebugLine): void {
+    private _onDebugDrawLine (linePtr: number): void {
         const debugRenderer = this._getDebugRenderer();
         if (debugRenderer && this._debugLineCount < this._MAX_DEBUG_LINE_COUNT) {
             this._debugLineCount++;
-            Vec3.copy(CC_V3_0, line.pos0);
-            Vec3.copy(CC_V3_1, line.pos1);
-            getColorPXColor(CC_COLOR_0, line.color0 as number);
+            const f32RawPtr = PX.HEAPF32.subarray(linePtr / 4, linePtr / 4 + 3 * 8);
+            const u32RawPtr = PX.HEAPU32.subarray(linePtr / 4, linePtr / 4 + 3 * 8);
+            CC_V3_0.x = f32RawPtr[0];
+            CC_V3_0.y = f32RawPtr[1];
+            CC_V3_0.z = f32RawPtr[2];
+            const color0 = u32RawPtr[3] as number;
+            CC_V3_1.x = f32RawPtr[4];
+            CC_V3_1.y = f32RawPtr[5];
+            CC_V3_1.z = f32RawPtr[6];
+            getColorPXColor(CC_COLOR_0, color0);
             debugRenderer.addLine(CC_V3_0, CC_V3_1, CC_COLOR_0);
         }
     }
-    private _onDebugDrawTriangle (triangle: PX.PxDebugTriangle): void {
+
+    private _onDebugDrawTriangle (trianglePtr: number): void {
         const debugRenderer = this._getDebugRenderer();
         if (debugRenderer && (this._MAX_DEBUG_LINE_COUNT - this._debugLineCount) >= 3) {
             this._debugLineCount += 3;
-            Vec3.copy(CC_V3_0, triangle.pos0);
-            Vec3.copy(CC_V3_1, triangle.pos1);
-            Vec3.copy(CC_V3_2, triangle.pos2);
-            getColorPXColor(CC_COLOR_0, triangle.color0 as number);
+            const f32RawPtr = PX.HEAPF32.subarray(trianglePtr / 4, trianglePtr / 4 + 3 * 12);
+            const u32RawPtr = PX.HEAPU32.subarray(trianglePtr / 4, trianglePtr / 4 + 3 * 12);
+            CC_V3_0.x = f32RawPtr[0];
+            CC_V3_0.y = f32RawPtr[1];
+            CC_V3_0.z = f32RawPtr[2];
+            const color0 = u32RawPtr[3] as number;
+            CC_V3_1.x = f32RawPtr[4];
+            CC_V3_1.y = f32RawPtr[5];
+            CC_V3_1.z = f32RawPtr[6];
+            // const color1 = u32RawPtr[7] as number;
+            CC_V3_2.x = f32RawPtr[8];
+            CC_V3_2.y = f32RawPtr[9];
+            CC_V3_2.z = f32RawPtr[10];
+            // const color2 = u32RawPtr[11] as number;
+            getColorPXColor(CC_COLOR_0, color0);
             debugRenderer.addLine(CC_V3_0, CC_V3_1, CC_COLOR_0);
+            // getColorPXColor(CC_COLOR_0, color1);
             debugRenderer.addLine(CC_V3_1, CC_V3_2, CC_COLOR_0);
+            // getColorPXColor(CC_COLOR_0, color2);
             debugRenderer.addLine(CC_V3_2, CC_V3_0, CC_COLOR_0);
         }
     }

@@ -48,7 +48,7 @@ import { Director, director, game } from '../../game';
 import { degreesToRadians } from '../../core/utils/misc';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
 
-export const PX = {} as any;
+export let PX = {} as any;
 const globalThis = cclegacy._global;
 // Use bytedance native or js physics if nativePhysX is not null.
 const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
@@ -87,7 +87,7 @@ function initASM (): any {
             if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
-            Object.assign(PX, Instance);
+            PX = Instance;
         }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX asm load failed: ${reason}`); });
     } else {
         if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX js libs, package may be not found.');
@@ -113,7 +113,7 @@ function initWASM (): any {
             if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
-            Object.assign(PX, Instance);
+            PX = Instance;
         }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX wasm load failed: ${reason}`); });
     } else {
         if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX wasm libs, package may be not found.');
