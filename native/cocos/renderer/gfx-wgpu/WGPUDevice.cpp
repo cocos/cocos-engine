@@ -132,8 +132,7 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
         .type = CommandBufferType::PRIMARY,
     };
     _cmdBuff = this->Device::createCommandBuffer(cmdInfo);
-    // Sept 6th 2022: not implemented by emscripten
-    // _gpuDeviceObj->instance.wgpuInstance = wgpuCreateInstance({});
+    _gpuDeviceObj->instance.wgpuInstance = wgpuCreateInstance({});
 
 #ifdef CC_WGPU_WASM
     WGPUSurfaceDescriptorFromCanvasHTMLSelector canvDesc = {};
@@ -142,7 +141,7 @@ bool CCWGPUDevice::doInit(const DeviceInfo &info) {
 
     WGPUSurfaceDescriptor surfDesc = {};
     surfDesc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&canvDesc);
-    _gpuDeviceObj->instance.wgpuSurface = wgpuInstanceCreateSurface(nullptr, &surfDesc);
+    _gpuDeviceObj->instance.wgpuSurface = wgpuInstanceCreateSurface(_gpuDeviceObj->instance.wgpuInstance, &surfDesc);
 
 #elif defined(CC_WGPU_DAWN)
     _gpuDeviceObj->instance.wgpuInstance = wgpuCreateInstance({});
@@ -486,7 +485,7 @@ void CCWGPUDevice::debug() {
 }
 
 void CCWGPUDevice::initConfigs() {
-    WGPUAdapterProperties props;
+    WGPUAdapterProperties props{};
     wgpuAdapterGetProperties(_gpuDeviceObj->instance.wgpuAdapter, &props);
     // _deviceName = props.name;
     // _vendor = props.driverDescription;
