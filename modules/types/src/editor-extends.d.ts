@@ -35,7 +35,7 @@ interface EditorExtendsNode {
 }
 
 interface EditorExtendsPrefabUtils {
-    addPrefabInstance(node: import('cocos/scene-graph/node').Node);
+    addPrefabInstance(node: import('../../../cocos/scene-graph/node').Node);
 }
 
 interface EditorExtendsComponent {

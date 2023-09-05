@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/module-config.schema.json",
+  "name": "@cocos/types",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/index.d.ts",
+  "types": "./src/index.d.ts",
+  "scripts": {
+    "build": "node ./scripts/build-consts.js"
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "node": "./package.json",
+      "types": "./src/index.d.ts"
+    }
+  },
+  "devDependencies": {
+    "@cocos/build-engine": "*"
+  }
+}

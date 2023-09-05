@@ -1,12 +1,12 @@
 // TODO: some interface need to be designed in a module called 'Application' and 'Network'
 declare module 'pal/system-info' {
-    type Feature = import('../../pal/system-info/enum-type').Feature;
-    type NetworkType = import('../../pal/system-info/enum-type').NetworkType;
-    type Platform = import('../../pal/system-info/enum-type').Platform;
-    type Language = import('../../pal/system-info/enum-type').Language;
-    type OS = import('../../pal/system-info/enum-type').OS;
-    type BrowserType = import('../../pal/system-info/enum-type').BrowserType;
-    type PalSystemEvent = import('../../pal/system-info/enum-type').PalSystemEvent;
+    type Feature = import('../../../../pal/system-info/enum-type').Feature;
+    type NetworkType = import('../../../../pal/system-info/enum-type').NetworkType;
+    type Platform = import('../../../../pal/system-info/enum-type').Platform;
+    type Language = import('../../../../pal/system-info/enum-type').Language;
+    type OS = import('../../../../pal/system-info/enum-type').OS;
+    type BrowserType = import('../../../../pal/system-info/enum-type').BrowserType;
+    type PalSystemEvent = import('../../../../pal/system-info/enum-type').PalSystemEvent;
 
     export type IFeatureMap = {
         [feature in Feature]: boolean;

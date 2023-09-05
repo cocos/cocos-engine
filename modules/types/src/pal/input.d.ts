@@ -1,11 +1,11 @@
 declare module 'pal/input' {
-    type InputSourceButton = import('pal/input/input-source').InputSourceButton;
-    type InputSourceStick = import('pal/input/input-source').InputSourceStick;
-    type InputSourceDpad = import('pal/input/input-source').InputSourceDpad;
-    type InputSourcePosition = import('pal/input/input-source').InputSourcePosition;
-    type InputSourceOrientation = import('pal/input/input-source').InputSourceOrientation;
+    type InputSourceButton = import('../../../../pal/input/input-source').InputSourceButton;
+    type InputSourceStick = import('../../../../pal/input/input-source').InputSourceStick;
+    type InputSourceDpad = import('../../../../pal/input/input-source').InputSourceDpad;
+    type InputSourcePosition = import('../../../../pal/input/input-source').InputSourcePosition;
+    type InputSourceOrientation = import('../../../../pal/input/input-source').InputSourceOrientation;
 
-    type TouchCallback = (res: import('cocos/input/types').EventTouch) => void;
+    type TouchCallback = (res: import('../../../../cocos/input/types').EventTouch) => void;
     /**
      * Class designed for touch input.
      */
@@ -13,10 +13,10 @@ declare module 'pal/input' {
         /**
          * Register the touch event callback.
          */
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: TouchCallback, target?: any);
+        public on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, callback: TouchCallback, target?: any);
     }
 
-    type MouseCallback = (res: import('cocos/input/types').EventMouse) => void;
+    type MouseCallback = (res: import('../../../../cocos/input/types').EventMouse) => void;
     /**
      * Class designed for mouse input.
      */
@@ -24,7 +24,7 @@ declare module 'pal/input' {
         /**
          * Register the mouse event callback.
          */
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: MouseCallback, target?: any);
+        public on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, callback: MouseCallback, target?: any);
 
         public dispatchMouseDownEvent? (nativeMouseEvent: any);
         public dispatchMouseMoveEvent? (nativeMouseEvent: any);
@@ -32,7 +32,7 @@ declare module 'pal/input' {
         public dispatchScrollEvent? (nativeMouseEvent: any);
     }
 
-    type KeyboardCallback = (res: import('cocos/input/types').EventKeyboard) => void;
+    type KeyboardCallback = (res: import('../../../../cocos/input/types').EventKeyboard) => void;
     /**
      * Class Designed for keyboard input.
      */
@@ -40,13 +40,13 @@ declare module 'pal/input' {
         /**
          * Register the keyboard event callback.
          */
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: KeyboardCallback, target?: any);
+        public on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, callback: KeyboardCallback, target?: any);
 
         public dispatchKeyboardDownEvent? (nativeKeyboardEvent: any);
         public dispatchKeyboardUpEvent? (nativeKeyboardEvent: any);
     }
 
-    type GamepadCallback = (res: import('cocos/input/types/event').EventGamepad) => void;
+    type GamepadCallback = (res: import('../../../../cocos/input/types/event').EventGamepad) => void;
 
     /**
      * Class designed for gamepad input
@@ -60,7 +60,7 @@ declare module 'pal/input' {
         /**
          * @engineInternal
          */
-        public static _on (eventType: import('cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any);
+        public static _on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, cb: GamepadCallback, target?: any);
 
         public static all: GamepadInputDevice[];
         public static xr: (GamepadInputDevice | null);
@@ -216,7 +216,7 @@ declare module 'pal/input' {
         public get aimRightOrientation (): InputSourceOrientation;
     }
 
-    type AccelerometerCallback = (res: import('cocos/input/types').EventAcceleration) => void;
+    type AccelerometerCallback = (res: import('../../../../cocos/input/types').EventAcceleration) => void;
     /**
      * Class designed for accelerometer input
      */
@@ -240,10 +240,10 @@ declare module 'pal/input' {
         /**
          * Register the acceleration event callback.
          */
-        public on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: AccelerometerCallback, target?: any);
+        public on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, callback: AccelerometerCallback, target?: any);
     }
 
-    type HandleCallback = (res: import('cocos/input/types').EventHandle) => void;
+    type HandleCallback = (res: import('../../../../cocos/input/types').EventHandle) => void;
     /**
      * Class designed for handle input.
      */
@@ -252,7 +252,7 @@ declare module 'pal/input' {
          * Register the handle event callback.
          * @engineInternal
          */
-        public _on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HandleCallback, target?: any);
+        public _on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, callback: HandleCallback, target?: any);
 
         /**
          * @en  The control button in the north direction which is generally the button Y
@@ -382,7 +382,7 @@ declare module 'pal/input' {
         public get aimRightOrientation (): InputSourceOrientation;
     }
 
-    type HMDCallback = (res: import('cocos/input/types').EventHMD) => void;
+    type HMDCallback = (res: import('../../../../cocos/input/types').EventHMD) => void;
     /**
      * Class designed for HMD input.
      */
@@ -391,7 +391,7 @@ declare module 'pal/input' {
          * Register the hmd event callback.
          * @engineInternal
          */
-        public _on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HMDCallback, target?: any);
+        public _on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, callback: HMDCallback, target?: any);
 
         /**
          * @en The position Left view
@@ -425,7 +425,7 @@ declare module 'pal/input' {
         public get headMiddleOrientation (): InputSourceOrientation;
     }
 
-    type HandheldCallback = (res: import('cocos/input/types').EventHandheld) => void;
+    type HandheldCallback = (res: import('../../../../cocos/input/types').EventHandheld) => void;
     /**
      * Class designed for Handheld input.
      */
@@ -434,7 +434,7 @@ declare module 'pal/input' {
          * Register the handheld event callback.
          * @engineInternal
          */
-        public _on (eventType: import('cocos/input/types/event-enum').InputEventType, callback: HandheldCallback, target?: any);
+        public _on (eventType: import('../../../../cocos/input/types/event-enum').InputEventType, callback: HandheldCallback, target?: any);
         /**
          * @en The position handheld
          * @zh 手持设备相机位置

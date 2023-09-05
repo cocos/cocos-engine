@@ -3,8 +3,9 @@ const ps = require('path');
 const fsExt = require('fs-extra');
 const chalk = require('chalk').default;
 
-const engineRoot = ps.join(__dirname, '../');
-const targetConstFile = ps.join(engineRoot, `./@types/consts.d.ts`);
+const engineRoot = ps.join(__dirname, '../../../');
+const pkgRoot = ps.join(__dirname, '../');
+const targetConstFile = ps.join(pkgRoot, `./lib/consts.d.ts`);
 
 console.log(chalk.green(`\nGenerate consts.d.ts: ${targetConstFile}\n`));
 
