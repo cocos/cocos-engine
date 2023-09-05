@@ -830,12 +830,12 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    _debugDrawFlags = 0;
-    get debugDrawFlags (): number {
+    _debugDrawFlags = EPhysicsDrawFlags.None;
+    get debugDrawFlags (): EPhysicsDrawFlags {
         return this._debugDrawFlags;
     }
 
-    set debugDrawFlags (v) {
+    set debugDrawFlags (v: EPhysicsDrawFlags) {
         this._debugDrawFlags = v;
         if (this._debugDraw) {
             this._setDebugDrawMode();
