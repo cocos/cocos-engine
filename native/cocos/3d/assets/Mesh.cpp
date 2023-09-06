@@ -32,7 +32,11 @@
 #include "core/assets/RenderingSubMesh.h"
 #include "core/platform/Debug.h"
 #include "math/Quaternion.h"
+#include "math/Utils.h"
 #include "renderer/gfx-base/GFXDevice.h"
+
+#include <algorithm>
+#include <numeric>
 
 #define CC_OPTIMIZE_MESH_DATA 0
 
@@ -247,6 +251,138 @@ void convertRG32FToRG16F(const float *src, uint16_t *dst) {
 
 } // namespace
 
+void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
+    BufferBlob bufferBlob;
+    bufferBlob.setNextAlignment(0);
+
+    using DataReaderCallback = std::function<TypedArrayElementType(uint32_t)>;
+    using DataWritterCallback = std::function<void(uint32_t, TypedArrayElementType)>;
+
+    const auto transformVertex =
+        [](DataReaderCallback reader,
+           DataWritterCallback writer,
+           uint32_t count,
+           uint32_t components,
+           uint32_t componentSize,
+           uint32_t readerStride,
+           uint32_t writerStride) -> void {
+        for (uint32_t i = 0; i < count; ++i) {
+            for (uint32_t j = 0; j < components; ++j) {
+                const auto inputOffset = readerStride * i + componentSize * j;
+                const auto outputOffset = writerStride * i + componentSize * j;
+                writer(outputOffset, reader(inputOffset));
+            }
+        }
+    };
+
+    const auto dequantizeHalf =
+        [](DataReaderCallback reader,
+           DataWritterCallback writer,
+           uint32_t count,
+           uint32_t components,
+           uint32_t readerStride,
+           uint32_t writerStride) -> void {
+        for (uint32_t i = 0; i < count; ++i) {
+            for (uint32_t j = 0; j < components; ++j) {
+                const auto inputOffset = readerStride * i + 2 * j;
+                const auto outputOffset = writerStride * i + 4 * j;
+                const auto val = mathutils::halfToFloat(ccstd::get<uint16_t>(reader(inputOffset)));
+                writer(outputOffset, reader(inputOffset));
+            }
+        }
+    };
+
+    for (auto &bundle : structInfo.vertexBundles) {
+        auto &view = bundle.view;
+        auto &attrs = bundle.attributes;
+        auto oldAttrs = attrs;
+        std::vector<uint32_t> strides;
+        std::vector<bool> dequantizes;
+        std::vector<DataReaderCallback> readers;
+        for (uint32_t i = 0; i < attrs.size(); ++i) {
+            auto &attr = attrs[i];
+            auto inputView = DataView(data.buffer(), view.offset + getOffset(oldAttrs, i));
+            auto reader = getReader(inputView, attr.format);
+            auto dequantize = true;
+            switch (attr.format) {
+                case gfx::Format::R16F:
+                    attr.format = gfx::Format::R32F;
+                    break;
+                case gfx::Format::RG16F:
+                    attr.format = gfx::Format::RG32F;
+                    break;
+                case gfx::Format::RGB16F:
+                    attr.format = gfx::Format::RGB32F;
+                    break;
+                case gfx::Format::RGBA16F:
+                    attr.format = gfx::Format::RGBA32F;
+                    break;
+                default:
+                    dequantize = false;
+                    break;
+            }
+            strides.push_back(gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)].size);
+            dequantizes.push_back(dequantize);
+            readers.push_back(reader);
+        }
+        auto netStride = std::accumulate(strides.begin(), strides.end(), 0);
+        auto *buffer = ccnew ArrayBuffer(view.count * netStride);
+        for (uint32_t i = 0; i < attrs.size(); i++) {
+            const auto &attr = attrs[i];
+            const auto &reader = readers[i];
+            auto outputView = DataView(buffer, getOffset(attrs, i));
+            auto writer = getWriter(outputView, attr.format);
+            const auto &dequantize = dequantizes[i];
+            const auto &formatInfo = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
+            if (dequantize) {
+                dequantizeHalf(
+                    reader,
+                    writer,
+                    view.count,
+                    formatInfo.count,
+                    view.stride,
+                    netStride);
+            } else {
+                transformVertex(
+                    reader,
+                    writer,
+                    view.count,
+                    formatInfo.count,
+                    formatInfo.size / formatInfo.count,
+                    view.stride,
+                    netStride);
+            }
+        }
+
+        bufferBlob.setNextAlignment(netStride);
+        Mesh::IBufferView vertexView;
+        vertexView.offset = bufferBlob.getLength();
+        vertexView.length = view.count * netStride;
+        vertexView.count = view.count;
+        vertexView.stride = netStride;
+        bundle.view = vertexView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    for (auto &primitive : structInfo.primitives) {
+        if (!primitive.indexView.has_value()) {
+            continue;
+        }
+        auto &view = *primitive.indexView;
+        auto *buffer = ccnew ArrayBuffer(data.buffer()->getData() + view.offset, view.length);
+        bufferBlob.setNextAlignment(view.stride);
+        Mesh::IBufferView indexView;
+        indexView.offset = bufferBlob.getLength();
+        indexView.length = view.length;
+        indexView.count = view.count;
+        indexView.stride = view.stride;
+        primitive.indexView = indexView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    data = Uint8Array(bufferBlob.getCombined());
+}
+
 Mesh::~Mesh() = default;
 
 ccstd::any Mesh::getNativeAsset() const {
@@ -313,6 +449,9 @@ void Mesh::initialize() {
     if (_struct.encoded) {
         // decode
         MeshUtils::decodeMesh(_struct, _data);
+    }
+    if (_struct.quantized && !hasFlag(gfx::Device::getInstance()->getFormatFeatures(gfx::Format::RG16F), gfx::FormatFeature::VERTEX_ATTRIBUTE)) {
+        MeshUtils::dequantizeMesh(_struct, _data);
     }
 
     if (_struct.dynamic.has_value()) {
