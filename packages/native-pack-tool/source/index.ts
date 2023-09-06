@@ -17,4 +17,5 @@ nativePackToolMg.register('ohos', new OHOSPackTool());
 nativePackToolMg.register('huawei-agc', new HuaweiAGCPackTool());
 
 export * from './base/manager';
+export * from './base/process-manager';
 export * from './base/default';
