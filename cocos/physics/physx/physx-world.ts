@@ -72,6 +72,11 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     private static _sweepSphereGeometry: any;
     private static _sweepCapsuleGeometry: any;
 
+    private _debugLineCount = 0;
+    private _MAX_DEBUG_LINE_COUNT = 16384;
+    private _debugDrawFlags = EPhysicsDrawFlags.None;
+    private _debugConstraintSize = 0.3;
+
     constructor () {
         super();
         initializeWorld(this);
@@ -139,10 +144,6 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         }
     }
 
-    private _debugLineCount = 0;
-    private _MAX_DEBUG_LINE_COUNT = 16384;
-
-    _debugDrawFlags = EPhysicsDrawFlags.None;
     get debugDrawFlags (): EPhysicsDrawFlags {
         return this._debugDrawFlags;
     }
@@ -152,7 +153,6 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         this._setDebugDrawMode();
     }
 
-    _debugConstraintSize = 0.3;
     get debugDrawConstraintSize (): number {
         return this._debugConstraintSize;
     }
@@ -162,7 +162,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         this._setDebugDrawMode();
     }
 
-    _setDebugDrawMode (): void {
+    private _setDebugDrawMode (): void {
         if (this._debugDrawFlags & EPhysicsDrawFlags.WireFrame) {
             this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 1);
         } else {
@@ -181,7 +181,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         }
     }
 
-    _getDebugRenderer (): GeometryRenderer|null {
+    private _getDebugRenderer (): GeometryRenderer|null {
         const cameras = director.root!.cameraList;
         if (!cameras) return null;
         if (cameras.length === 0) return null;
