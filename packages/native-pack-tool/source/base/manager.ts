@@ -1,6 +1,6 @@
 
 import { Paths } from "../utils";
-import { CocosParams, NativePackTool } from "./default";
+import { NativePackTool } from "./default";
 
 export type ISupportPlatform = 'mac-os' | 'mac' | 'ios' | 'android' | 'ohos';
 
