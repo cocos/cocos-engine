@@ -85,7 +85,11 @@ endif()
 
 # Fix the issue: https://github.com/cocos/cocos-engine/issues/16190
 # std::unary_function was removed since clang 15
-add_definitions(-DBOOST_NO_CXX98_FUNCTION_BASE)
+# The macro has already been defined in boost/config/stdlib/dinkumware.hpp(258,1),
+# so no need to define it again to avoid 'macro redefinition' error.
+if(NOT WINDOWS)
+    add_definitions(-DBOOST_NO_CXX98_FUNCTION_BASE)
+endif()
 
 add_definitions(-DCC_NETMODE_CLIENT=0)
 add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
