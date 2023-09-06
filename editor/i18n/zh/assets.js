@@ -135,7 +135,6 @@ module.exports = {
         },
         spriteFrame: {
             label: '精灵帧资源（SpriteFrame）',
-            description: 'SpriteFrame 是 UI 渲染基础图形的容器。其本身管理图像的裁剪和九宫格信息，默认持有一个与其同级的 Texture2D 资源引用',
             packable: 'Packable',
             packableTip: '是否参与动态合图或者自动图集的构建处理',
             rotated: 'Rotated',
