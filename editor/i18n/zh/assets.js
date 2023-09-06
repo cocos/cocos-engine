@@ -93,7 +93,7 @@ module.exports = {
             propertyTips: {
                 // macros
                 USE_DITHERED_ALPHA_TEST: '使用抖动透贴的方式来实现半透明效果，最好同时开启 TAA',
-                USE_TWOSIDE: '双面材质，通常用于单面物体，正面和背面的法线相反。还需将 Cull Mode 设为 None',
+                USE_TWOSIDE: '双面材质，仅影响光照，通常用于单面物体，正面和背面的法线会自动取反。还需将 Cull Mode 设为 None',
                 IS_ANISOTROPY: '各向异性材质，通常用于头发、光碟、拉丝金属等',
                 USE_VERTEX_COLOR: '使用顶点色，如果模型本身没有顶点色可能会发黑',
                 FIX_ANISOTROPIC_ROTATION_MAP: '修复各向异性旋转图黑白相接处的异常接缝，遇到此问题再开启',

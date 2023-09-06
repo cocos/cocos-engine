@@ -30,6 +30,15 @@ std::vector<T> VECTOR_SP2STD(Vector<T> &container) {
     return stdVector;
 }
 
+std::vector<float> VECTOR_SP2STD_SIZE_T(Vector<size_t> &container) {
+    int count = container.size();
+    std::vector<float> stdVector(count);
+    for (int i = 0; i < count; i++) {
+        stdVector[i] = container[i];
+    }
+    return stdVector;
+}
+
 const std::vector<std::string> VECTOR_SP2STD_STRING(Vector<String> &container) {
     int count = container.size();
     std::vector<std::string> stdVector(count);
@@ -316,7 +325,7 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<Event>("Event")
         .constructor<float, const EventData &>()
         .function("getData", optional_override([](Event &obj) {
-            return &obj.getData(); }), allow_raw_pointers())
+            return const_cast<EventData*>(&obj.getData()); }), allow_raw_pointers())
         .function("getIntValue", &Event::getIntValue)
         .function("setIntValue", &Event::setIntValue)
         .function("getFloatValue", &Event::getFloatValue)
@@ -358,9 +367,9 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     // pure_virtual and raw pointer
     class_<VertexAttachment, base<Attachment>>("VertexAttachment")
-        .function("id", &VertexAttachment::getId)
+        .function("getId", &VertexAttachment::getId)
         .function("getBones", optional_override([](VertexAttachment &obj) {
-            return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
+            return VECTOR_SP2STD_SIZE_T(obj.getBones()); }), allow_raw_pointers())
         .function("getVertices", optional_override([](VertexAttachment &obj) {
             return VECTOR_SP2STD(obj.getVertices()); }), allow_raw_pointers())
         .function("getWorldVerticesLength", &VertexAttachment::getWorldVerticesLength)
@@ -390,7 +399,9 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<const String &>()
         .function("getPath", optional_override([](MeshAttachment &obj) {
             return STRING_SP2STD(obj.getPath()); }))
-        .function("setPath", &MeshAttachment::setPath)
+        .function("setPath", optional_override([](MeshAttachment &obj, const std::string &path) {
+            const String &pathSP = STRING_STD2SP(path);
+            obj.setPath(pathSP); }))
         .function("getRegionUVs", optional_override([](MeshAttachment &obj) {
             return VECTOR_SP2STD(obj.getRegionUVs());}))
         .function("getUVs", optional_override([](MeshAttachment &obj) {
@@ -456,9 +467,12 @@ EMSCRIPTEN_BINDINGS(spine) {
             return &obj.getColor(); }), allow_raw_pointers())
         .function("getPath", optional_override([](RegionAttachment &obj) {
             return STRING_SP2STD(obj.getPath()); }))
-        .function("setPath", &RegionAttachment::setPath)
+        .function("setPath", optional_override([](RegionAttachment &obj, const std::string &path) {
+            const String &pathSP = STRING_STD2SP(path);
+            obj.setPath(pathSP); }))
         .function("getRendererObject", &RegionAttachment::getRendererObject, allow_raw_pointers())
-        .function("getOffset", &RegionAttachment::getOffset)
+        .function("getOffset", optional_override([](RegionAttachment &obj) {
+            return VECTOR_SP2STD(obj.getOffset());}), allow_raw_pointers())
         .function("setUVs", optional_override([](RegionAttachment &obj, std::vector<float> &data) {
             auto uvs = obj.getUVs();
             int count = data.size();
