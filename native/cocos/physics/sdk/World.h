@@ -40,6 +40,10 @@ public:
     void emitEvents() override;
     void syncSceneToPhysics() override;
     void syncSceneWithCheck() override;
+    void setDebugDrawFlags(EPhysicsDrawFlags flags) override;
+    EPhysicsDrawFlags getDebugDrawFlags() override;
+    void setDebugDrawConstraintSize(float size) override;
+    float getDebugDrawConstraintSize() override;
     void setCollisionMatrix(uint32_t i, uint32_t m) override;
     ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override;
     ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() override;

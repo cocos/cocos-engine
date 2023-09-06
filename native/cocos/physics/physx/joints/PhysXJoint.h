@@ -45,6 +45,7 @@ public:
     void onDestroy() override;
     void setConnectedBody(uint32_t rigidBodyID) override;
     void setEnableCollision(bool v) override;
+    void setEnableDebugVisualization(bool v);
     virtual void updateScale0() = 0;
     virtual void updateScale1() = 0;
     static physx::PxRigidActor &getTempRigidActor();
@@ -56,6 +57,7 @@ protected:
     PhysXSharedBody *_mSharedBody{nullptr};
     PhysXSharedBody *_mConnectedBody{nullptr};
     bool _mEnableCollision{false};
+    bool _mEnableDebugVisualization{ false };
     virtual void onComponentSet() = 0;
     uint32_t _mObjectID{0};
 

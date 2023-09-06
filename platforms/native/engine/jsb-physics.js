@@ -192,6 +192,22 @@ class PhysicsWorld {
         this._impl.step(f);
     }
 
+    set debugDrawFlags (v) {
+        this._impl.setDebugDrawFlags(v);
+    }
+
+    get debugDrawFlags () {
+        return this._impl.getDebugDrawFlags();
+    }
+
+    set debugDrawConstraintSize (v) {
+        this._impl.setDebugDrawConstraintSize(v);
+    }
+
+    get debugDrawConstraintSize () {
+        return this._impl.getDebugDrawConstraintSize();
+    }
+
     raycast (r, o, p, rs) {
         raycastOptions.origin = r.o;
         raycastOptions.unitDir = r.d;

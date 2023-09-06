@@ -39,6 +39,13 @@ enum class ETouchState : uint8_t {
     EXIT = 2,
 };
 
+enum class EPhysicsDrawFlags : uint32_t {
+    None = 0,
+    WireFrame = 0x0001,
+    Constraint = 0x0002,
+    Aabb = 0x0004
+};
+
 struct TriggerEventPair {
     uint32_t shapeA; //wrapper object ID
     uint32_t shapeB; //wrapper object ID
@@ -145,6 +152,10 @@ public:
     virtual void syncSceneToPhysics() = 0;
     virtual void syncSceneWithCheck() = 0;
     virtual void destroy() = 0;
+    virtual void setDebugDrawFlags(EPhysicsDrawFlags f) = 0;
+    virtual EPhysicsDrawFlags getDebugDrawFlags() = 0;
+    virtual void setDebugDrawConstraintSize(float s) = 0;
+    virtual float getDebugDrawConstraintSize() = 0;
     virtual void setCollisionMatrix(uint32_t i, uint32_t m) = 0;
     virtual ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() = 0;
     virtual ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() = 0;
