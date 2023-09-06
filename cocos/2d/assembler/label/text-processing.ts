@@ -24,7 +24,7 @@
 import { ANDROID, JSB } from 'internal:constants';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
-import { cclegacy, Color, Pool, Rect, Vec2 } from '../../../core';
+import { Color, Rect, Vec2 } from '../../../core';
 import { log, logID, warn } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
@@ -764,7 +764,7 @@ export class TextProcessing {
                 lineIndex++;
                 nextTokenX = 0;
                 nextTokenY -= layout.lineHeight * this._getFontScale(style, layout) + _lineSpacing;
-                this._recordPlaceholderInfo(index, character);
+                this._recordPlaceholderInfo(index, character, style.hash);
                 index++;
                 continue;
             }
@@ -781,18 +781,18 @@ export class TextProcessing {
                 const letterIndex = index + tmp;
                 character = _string.charAt(letterIndex);
                 if (character === '\r') {
-                    this._recordPlaceholderInfo(letterIndex, character);
+                    this._recordPlaceholderInfo(letterIndex, character, style.hash);
                     continue;
                 }
-                letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
+                letterDef = style.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo, style.hash);
                 if (!letterDef) {
-                    this._recordPlaceholderInfo(letterIndex, character);
+                    this._recordPlaceholderInfo(letterIndex, character, style.hash);
                     log(`Can't find letter definition in texture atlas ${
-                        style.fntConfig!.atlasName} for letter:${character}`);
+                        style.fntConfig!.atlasName} for letter:${character}`); // char 模式没有 fntConfig
                     continue;
                 }
 
-                const letterX = nextLetterX + letterDef.offsetX * style.bmfontScale - shareLabelInfo.margin;
+                const letterX = nextLetterX + letterDef.offsetX * style.bmfontScale - style.outlineWidth;
 
                 if (layout.wrapping
                     && layout.maxLineWidth > 0
@@ -811,7 +811,7 @@ export class TextProcessing {
                 }
 
                 letterPosition.y = nextTokenY - letterDef.offsetY * style.bmfontScale;
-                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
+                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex, style.hash, style.fontAtlas);
 
                 if (letterIndex + 1 < layout.horizontalKerning.length && letterIndex < textLen - 1) {
                     nextLetterX += layout.horizontalKerning[letterIndex + 1] * style.bmfontScale;
@@ -859,10 +859,10 @@ export class TextProcessing {
         outputLayoutData.nodeContentSize.width = layout.textWidthTemp;
         outputLayoutData.nodeContentSize.height = layout.textHeightTemp;
         if (layout.textWidthTemp <= 0) {
-            outputLayoutData.nodeContentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
+            outputLayoutData.nodeContentSize.width = parseFloat(longestLine.toFixed(2)) + style.outlineWidth * 2;
         }
         if (layout.textHeightTemp <= 0) {
-            outputLayoutData.nodeContentSize.height = parseFloat(layout.textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
+            outputLayoutData.nodeContentSize.height = parseFloat(layout.textDesiredHeight.toFixed(2)) + style.outlineWidth * 2;
         }
 
         layout.tailoredTopY = outputLayoutData.nodeContentSize.height;
@@ -877,30 +877,32 @@ export class TextProcessing {
         return true;
     }
 
-    private _recordPlaceholderInfo (letterIndex: number, char: string): void {
+    private _recordPlaceholderInfo (letterIndex: number, char: string, hash: string): void {
         if (letterIndex >= this._lettersInfo.length) {
             const tmpInfo = new LetterInfo();
             this._lettersInfo.push(tmpInfo);
         }
 
+        // 可保留，但怎么传递 char 的信息？
         this._lettersInfo[letterIndex].char = char;
-        this._lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
+        this._lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${hash}`;
         this._lettersInfo[letterIndex].valid = false;
     }
 
-    private _recordLetterInfo (letterPosition: Vec2, character: string, letterIndex: number, lineIndex: number): void {
+    // 临时变量，每次处理过程中都会被修改
+    private _recordLetterInfo (letterPosition: Vec2, character: string, letterIndex: number, lineIndex: number, hash: string, fontAtlas): void {
         if (letterIndex >= this._lettersInfo.length) {
             const tmpInfo = new LetterInfo();
             this._lettersInfo.push(tmpInfo);
         }
 
         const char = character.charCodeAt(0);
-        const key = `${char}${shareLabelInfo.hash}`;
+        const key = `${char}${hash}`;
 
         this._lettersInfo[letterIndex].line = lineIndex;
         this._lettersInfo[letterIndex].char = character;
         this._lettersInfo[letterIndex].hash = key;
-        this._lettersInfo[letterIndex].valid = shareLabelInfo.fontAtlas!.getLetter(key).valid;
+        this._lettersInfo[letterIndex].valid = fontAtlas.getLetter(key).valid;
         this._lettersInfo[letterIndex].x = letterPosition.x;
         this._lettersInfo[letterIndex].y = letterPosition.y;
     }
@@ -915,7 +917,7 @@ export class TextProcessing {
         }
 
         let len = 1;
-        let letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
+        let letterDef = style.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo, style.hash);
         if (!letterDef) {
             return len;
         }
@@ -924,7 +926,7 @@ export class TextProcessing {
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
 
-            letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
+            letterDef = style.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo, style.hash);
             if (!letterDef) {
                 break;
             }
@@ -1016,7 +1018,7 @@ export class TextProcessing {
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
             const letterInfo = process._lettersInfo[ctr];
             if (letterInfo.valid) {
-                const letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo);
+                const letterDef = style.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo, style.hash);
                 if (!letterDef) {
                     continue;
                 }
@@ -1115,7 +1117,7 @@ export class TextProcessing {
         inputString: string,
         callback,
     ): boolean {
-        const texture =  style.spriteFrame ? style.spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
+        const texture =  style.spriteFrame ? style.spriteFrame.texture : style.fontAtlas!.getTexture(); // ？？ 有点奇怪
 
         const appX = outputRenderData.uiTransAnchorX * outputLayoutData.nodeContentSize.width;
         const appY = outputRenderData.uiTransAnchorY * outputLayoutData.nodeContentSize.height;
@@ -1124,7 +1126,7 @@ export class TextProcessing {
         for (let ctr = 0, l = inputString.length; ctr < l; ++ctr) {
             const letterInfo = this._lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
-            const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
+            const letterDef = style.fontAtlas!.getLetter(letterInfo.hash);
             if (!letterDef) {
                 warn('Can\'t find letter in this bitmap-font');
                 continue;

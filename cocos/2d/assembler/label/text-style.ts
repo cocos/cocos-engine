@@ -23,8 +23,9 @@
 */
 
 import { Color } from '../../../core';
-import { IConfig } from '../../assets/bitmap-font';
+import { FontAtlas, IConfig } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
+import { LetterAtlas } from './font-utils';
 
 export class TextStyle {
     // ---------------ttf extra part-----------------
@@ -67,6 +68,8 @@ export class TextStyle {
     // font info // todo remove
     public fntConfig: IConfig | null = null; // For char mode,not have asset
     public spriteFrame: SpriteFrame | null = null; // For char mode,not have spriteFrame in asset
+    public hash = ''; // For char mode,not have hash in asset
+    public fontAtlas: FontAtlas | LetterAtlas | null = null; // Just for bm & char
 
     public fontScale = 1;
 

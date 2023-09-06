@@ -87,8 +87,6 @@ export class CanvasPool {
 
 interface ILabelInfo {
     fontSize: number;
-    lineHeight: number;
-    hash: string;
     fontFamily: string;
     fontDesc: string;
     hAlign: number;
@@ -130,10 +128,10 @@ class LetterTexture {
     public height = 0;
     public offsetY = 0;
     public hash: string;
-    constructor (char: string, labelInfo: ILabelInfo) {
+    constructor (char: string, labelInfo: ILabelInfo, hash: string) {
         this.char = char;
         this.labelInfo = labelInfo;
-        this.hash = `${char.charCodeAt(0)}${labelInfo.hash}`;
+        this.hash = `${char.charCodeAt(0)}${hash}`;
     }
 
     public updateRenderData (): void {
@@ -399,11 +397,12 @@ export class LetterAtlas {
         return this.fontDefDictionary.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
-        const hash = char.charCodeAt(0).toString() + labelInfo.hash;
+    // 核心方法，需要改造
+    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo, styleHash: string): any { // 主要是这里在用 // 传入的是字符集 hash，
+        const hash = char.charCodeAt(0).toString() + styleHash; // 这是单个字的 hash
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
-            const temp = new LetterTexture(char, labelInfo);
+            const temp = new LetterTexture(char, labelInfo, styleHash); // 这里会关系到 hash 的使用，初步可以单纯的拆进去
             temp.updateRenderData();
             letter = this.insertLetterTexture(temp);
             temp.destroy();
@@ -414,12 +413,9 @@ export class LetterAtlas {
 }
 
 export interface IShareLabelInfo {
-    fontAtlas: FontAtlas | LetterAtlas | null;
     fontSize: number;
-    lineHeight: number;
     hAlign: number;
     vAlign: number;
-    hash: string;
     fontFamily: string;
     fontDesc: string;
     color: Color;
@@ -430,12 +426,9 @@ export interface IShareLabelInfo {
 }
 
 export const shareLabelInfo: IShareLabelInfo = {
-    fontAtlas: null,
     fontSize: 0,
-    lineHeight: 0,
     hAlign: 0,
     vAlign: 0,
-    hash: '',
     fontFamily: '',
     fontDesc: 'Arial',
     color: Color.WHITE.clone(),
@@ -449,7 +442,7 @@ export function computeHash (labelInfo: IShareLabelInfo): string {
     const hashData = '';
     const color = labelInfo.color.toHEX();
     let out = '';
-    if (labelInfo.isOutlined && labelInfo.margin > 0) {
+    if (labelInfo.isOutlined && labelInfo.margin > 0) { // todo: outline
         out = out + labelInfo.margin.toString() + labelInfo.out.toHEX();
     }
 
