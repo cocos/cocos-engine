@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
     const frame = document.querySelector('#GameDiv') as HTMLDivElement;
@@ -65,4 +65,4 @@ export function loadJsFile (path: string): Promise<void> {
     });
 }
 
-checkPalIntegrity<typeof import('pal/env')>(withImpl<typeof import('./env')>());
+checkPalIntegrity<typeof import('@pal/env')>(withImpl<typeof import('./env')>());

@@ -304,7 +304,6 @@
                 "pal/system-info": "pal/system-info/web/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
-                "pal/env": "pal/env/web/env.ts",
                 "pal/pacer": "pal/pacer/pacer-web.ts",
                 "pal/wasm": "pal/wasm/wasm-web.ts",
                 "pal/image":"pal/image/web/image-data.ts"
@@ -319,7 +318,6 @@
                 "pal/system-info": "pal/system-info/native/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
-                "pal/env": "pal/env/native/env.ts",
                 "pal/pacer": "pal/pacer/pacer-native.ts",
                 "pal/wasm": "pal/wasm/wasm-native.ts",
                 "pal/image":"pal/image/native/image-data.ts"
@@ -334,7 +332,6 @@
                 "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
-                "pal/env": "pal/env/minigame/env.ts",
                 "pal/pacer": "pal/pacer/pacer-minigame.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
                 "pal/image":"pal/image/minigame/image-data.ts"
@@ -349,7 +346,6 @@
                 "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
-                "pal/env": "pal/env/runtime/env.ts",
                 "pal/pacer": "pal/pacer/pacer-minigame.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
                 "pal/image":"pal/image/minigame/image-data.ts"

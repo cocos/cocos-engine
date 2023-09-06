@@ -3,6 +3,7 @@
     "target": "es6",
     "lib": ["es2015", "es2017", "dom"],
     "module": "commonjs",
+    "moduleResolution": "Node16",
     "sourceMap": true,
     "outDir": "./bin/.ts",
     "rootDir": "./",
@@ -14,6 +15,7 @@
     "experimentalDecorators": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
+    "preserveSymlinks": false,
     "baseUrl": "./",
     "paths": {
         "cc.decorator": [
@@ -45,7 +47,6 @@
       "./@types/pal/minigame",
       "./@types/pal/audio",
       "./@types/pal/input",
-      "./@types/pal/env",
       "./@types/pal/pacer",
       "./@types/pal/wasm",
       "./@types/pal/image",

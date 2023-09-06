@@ -44,8 +44,14 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/env',
-    () => jest.requireActual('../pal/env/web/env'),
+    '@pal/env',
+    () => jest.requireActual('../modules/pal/env/src/web/env.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@pal/utils',
+    () => jest.requireActual('../modules/pal/utils/src/index.ts'),
     { virtual: true, },
 );
 

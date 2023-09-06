@@ -23,9 +23,8 @@
 */
 
 import { IMiniGame, SystemInfo } from 'pal/minigame';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
+import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill, versionCompare } from '@pal/utils';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 
 declare let wx: any;
 // NOTE: getApp is defined on wechat miniprogram platform
@@ -187,8 +186,18 @@ gl.texSubImage2D = function (...args): void {
             const texOffsetX = args[2];
             const texOffsetY = args[3];
             const imgData = ctx.getImageData(texOffsetX, texOffsetY, canvas.width, canvas.height);
-            oldTexSubImage2D.call(gl, args[0], args[1], texOffsetX, texOffsetY,
-                canvas.width, canvas.height, args[4], args[5], new Uint8Array(imgData.data));
+            oldTexSubImage2D.call(
+                gl,
+                args[0],
+                args[1],
+                texOffsetX,
+                texOffsetY,
+                canvas.width,
+                canvas.height,
+                args[4],
+                args[5],
+                new Uint8Array(imgData.data),
+            );
         } else {
             oldTexSubImage2D.apply(gl, args);
         }

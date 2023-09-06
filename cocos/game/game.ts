@@ -25,7 +25,7 @@
 
 import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { findCanvas, loadJsFile } from 'pal/env';
+import { findCanvas, loadJsFile } from '@pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';

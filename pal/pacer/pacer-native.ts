@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 declare const jsb: any;
 export class Pacer {

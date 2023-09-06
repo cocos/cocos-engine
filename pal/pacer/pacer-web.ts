@@ -23,8 +23,8 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 const FRAME_RESET_TIME = 2000;
 
