@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-
 import { EDITOR } from 'internal:constants';
 
 declare const guard: unique symbol;
