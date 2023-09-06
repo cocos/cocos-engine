@@ -286,27 +286,22 @@ exports.methods = {
     },
 
     changeMipFilter(targetSubMetaKey) {
-        let dirty = false;
         if (this.originImageType === 'sprite-frame') {
             // spriteFrame -> any 
             this.metaList.forEach((meta) => {
                 if (meta.subMetas[targetSubMetaKey].mipfilter !== 'none') {
                     meta.subMetas[targetSubMetaKey].userData.mipfilter = 'nearest';
-                    dirty = true;
                 }
             });
         } else if (this.meta.type === 'sprite-frame') {
             // any -> sprite，disabled mipmaps
             this.metaList.forEach((meta) => {
                 meta.subMetas[targetSubMetaKey].userData.mipfilter = 'none';
-                dirty = true;
             });
         }
-        return dirty;
     },
 
     async changeSubMetaWithType() {
-        let dirty = false;
         // any -> texture : texture.wrapMode -> Repeat
         // any -> sprite : texture.wrapMode -> Clamp
         if (['sprite-frame', 'texture'].includes(this.meta.userData.type)) {
@@ -320,7 +315,6 @@ exports.methods = {
                 // use default wrapMode if not changed
                 const wrapModeName = this.meta.userData.type === 'texture' ? 'Repeat' : 'Clamp';
                 this.metaList.forEach((meta) => {
-                    dirty = true;
                     const data = ModeMap.wrap[wrapModeName];
                     if (!meta.subMetas[textureKey]) {
                         meta.subMetas[textureKey] = {
@@ -336,9 +330,8 @@ exports.methods = {
         if (this.originImageType === 'sprite-frame' || this.meta.type === 'sprite-frame') {
             const targetSubMetaKey = Object.keys(this.meta.subMetas).find((key) => this.meta.subMetas[key].importer === imageTypeToImporter[this.meta.userData.type])
             // sprite -> any : mipfilter = 'nearest'
-            dirty = dirty || this.changeMipFilter(targetSubMetaKey);
+            this.changeMipFilter(targetSubMetaKey);
         }
-        return dirty;
     }
 };
 
