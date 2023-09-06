@@ -339,7 +339,8 @@ float computeSortingDepth(const scene::Camera& camera, const scene::Model& model
     if (model.getNode()) {
         const auto* node = model.getTransform();
         Vec3 position;
-        Vec3::subtract(node->getWorldPosition(), camera.getPosition(), &position);
+        const auto* bounds = model.getWorldBounds();
+        Vec3::subtract(bounds ? bounds->center : node->getWorldPosition(), camera.getPosition(), &position);
         depth = position.dot(camera.getForward());
     }
     return depth;
