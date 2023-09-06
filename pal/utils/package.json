@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../schemas/module-config.schema.json",
+  "$schema": "../../schemas/module-config.schema.json",
   "name": "@pal/utils",
   "version": "1.0.0",
   "description": "",
