@@ -119,6 +119,7 @@ module.exports = {
             },
         },
         image: {
+            label: 'Image',
             type: 'Type',
             typeTip: 'Type',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
@@ -133,6 +134,7 @@ module.exports = {
             flipGreenChannel: 'Flip Green Channel',
         },
         spriteFrame: {
+            label: 'SpriteFrame',
             packable: 'Packable',
             packableTip: 'Whether to participate in dynamic atlas or automatic atlas in build processes.',
             rotated: 'Rotated',

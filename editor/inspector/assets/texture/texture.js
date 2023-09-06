@@ -174,7 +174,7 @@ const ModeMap = {
         },
     },
 };
-
+exports.ModeMap = ModeMap;
 const Elements = {
     anisotropy: {
         ready() {
@@ -407,6 +407,8 @@ const Elements = {
             panel.$.wrapModeSelect.addEventListener('change', (event) => {
                 // 根据 wrapModeSelect 组合值同步相应的 wrapModeS/wrapModeT 到 userData
                 const value = event.target.value;
+                // 临时记录用户的修改配置
+                Editor.Profile.setConfig('inspector', `${this.meta.uuid}.texture.wrapMode`, 'Clamp', 'temp');
                 if (ModeMap.wrap[value]) {
                     panel.userDataList.forEach((userData) => {
                         const data = ModeMap.wrap[value];
