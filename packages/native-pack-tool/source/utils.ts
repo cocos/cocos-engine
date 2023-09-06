@@ -315,11 +315,14 @@ export class cchelper {
     static async runCmd(cmd: string, args: string[], slient: boolean, cwd?: string) {
         return new Promise<void>((resolve, reject) => {
             console.log(`[runCmd]: ${cmd} ${args.join(' ')}`);
+            const addChild = processMg.getAddChild();
+            const removeChild = processMg.getRemoveChild();
             const cp = spawn(cmd, args, {
                 shell: true,
                 env: process.env,
                 cwd: cwd! || process.cwd(),
             });
+            addChild && addChild(cp);
             if (!slient) {
                 cp.stdout.on(`data`, (chunk) => {
                     console.log(`[runCmd ${cmd}] ${chunk}`);
@@ -329,6 +332,7 @@ export class cchelper {
                 });
             }
             cp.on('exit', (code, signal) => {
+                removeChild && removeChild(cp);
                 if (code !== 0 && !slient) {
                     reject(`failed to exec ${cmd} ${args.join(' ')}`);
                 } else {
@@ -336,9 +340,11 @@ export class cchelper {
                 }
             });
             cp.on('error', (err: Error) => {
+                removeChild && removeChild(cp);
                 reject(err);
             });
             cp.on('close', (code, signal) => {
+                removeChild && removeChild(cp);
                 if (code !== 0 && !slient) {
                     reject(`failed to exec ${cmd} ${args.join(' ')}`);
                 } else {
