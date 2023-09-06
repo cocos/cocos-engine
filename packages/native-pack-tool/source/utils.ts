@@ -12,11 +12,12 @@ export const EXT_LIST = ['.js', '.ccc', '.ccd', '.jsg', '.jsc'];
 
 export class cchelper {
 
+    static handleMessage: Function | null = null;
+
     static replaceEnvVariables(str: string): string {
         return str.replace(/\$\{([^}]*)\}/g, (_, n) => process.env[n] === undefined ? _ : process.env[n]!)
             .replace(/(~)/g, (_, n) => process.env.HOME!);
     }
-
 
     static fixPath(p: string): string {
         p = this.replaceEnvVariables(p);
@@ -297,7 +298,6 @@ export class cchelper {
         await fs.writeFile(filepath, newContent);
     }
 
-
     static exactValueFromFile(regexp: RegExp, filename: string, idx: number): string | undefined {
         if (!(fs.existsSync(filename))) {
             console.error(`file ${filename} not exist!`);
@@ -326,6 +326,8 @@ export class cchelper {
             if (!slient) {
                 cp.stdout.on(`data`, (chunk) => {
                     console.log(`[runCmd ${cmd}] ${chunk}`);
+                    // TODO: 此处是在 cchelper 里示例，需要自定义消息过滤
+                    this.handleMessage && this.handleMessage(chunk);
                 });
                 cp.stderr.on(`data`, (chunk) => {
                     console.log(`[runCmd ${cmd} - error] ${chunk}`);
@@ -423,7 +425,7 @@ export class cchelper {
 }
 
 export const toolHelper = {
-    handleMessage(message: string) {},
+    handleMessage: null as ((msg: string) => void) | null,
 
     getXcodeMajorVerion(): number {
         try {
@@ -491,7 +493,7 @@ export const toolHelper = {
                     console.log(`[cmake] ${msg}`);
                     // TODO: 此处是在 toolHelper 里示例
                     // 自定义过滤日志信息, 但目前 cmake 并没有抛出什么信息
-                    toolHelper.handleMessage(msg);
+                    toolHelper.handleMessage && toolHelper.handleMessage(msg);
                 }
             });
             cp.stderr.on('data', (data: any) => {

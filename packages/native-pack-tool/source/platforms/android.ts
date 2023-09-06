@@ -115,13 +115,15 @@ export class AndroidPackTool extends NativePackTool {
         const originDir = process.cwd();
         try {
             process.chdir(projDir);
-            // TODO: cchelper 内还要添加 handleMessage 方法实例
+            // cchelper 需要先设置监听消息的方法，才能够在执行 runCmake 时传递消息
+            cchelper.handleMessage = this.handleMessage.bind(this);
             await cchelper.runCmd(gradle, [buildMode], false, projDir);
         } catch (e) {
             throw e;
         } finally {
             // popd
             process.chdir(originDir);
+            cchelper.handleMessage = null;
         }
 
 
