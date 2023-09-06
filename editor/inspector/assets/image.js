@@ -293,7 +293,7 @@ exports.methods = {
                     meta.subMetas[targetSubMetaKey].userData.mipfilter = 'nearest';
                 }
             });
-        } else if (this.meta.type === 'sprite-frame') {
+        } else if (this.meta.userData.type === 'sprite-frame') {
             // any -> sprite，disabled mipmaps
             this.metaList.forEach((meta) => {
                 meta.subMetas[targetSubMetaKey].userData.mipfilter = 'none';
@@ -327,10 +327,10 @@ exports.methods = {
                 });
             }
         }
-        if (this.originImageType === 'sprite-frame' || this.meta.type === 'sprite-frame') {
-            const targetSubMetaKey = Object.keys(this.meta.subMetas).find((key) => this.meta.subMetas[key].importer === imageTypeToImporter[this.meta.userData.type])
-            // sprite -> any : mipfilter = 'nearest'
-            this.changeMipFilter(targetSubMetaKey);
+        if (this.originImageType === 'sprite-frame' || this.meta.userData.type === 'sprite-frame') {
+            const targetImporter = this.meta.userData.type === 'sprite-frame' ? 'texture' : this.meta.userData.type;
+            const targetSubMetaKey = Object.keys(this.meta.subMetas).find((key) => this.meta.subMetas[key].importer === imageTypeToImporter[targetImporter])
+            targetSubMetaKey && this.changeMipFilter(targetSubMetaKey);
         }
     }
 };
