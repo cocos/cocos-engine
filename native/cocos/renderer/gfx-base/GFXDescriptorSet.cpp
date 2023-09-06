@@ -85,6 +85,17 @@ void DescriptorSet::bindTexture(uint32_t binding, Texture *texture, uint32_t ind
     }
 }
 
+void DescriptorSet::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index, AccessFlags flags) {
+    const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding] + index;
+    const uint32_t newId = getObjectID(buffer);
+    if (_buffers[descriptorIndex].id != newId) {
+        _buffers[descriptorIndex].ptr = buffer;
+        _buffers[descriptorIndex].id = newId;
+        _buffers[descriptorIndex].flags = flags;
+        _isDirty = true;
+    }
+}
+
 void DescriptorSet::bindSampler(uint32_t binding, Sampler *sampler, uint32_t index) {
     const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding] + index;
     const uint32_t newId = getObjectID(sampler);

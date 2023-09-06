@@ -101,6 +101,7 @@ struct CCWGPUTextureObject {
     WGPUTexture wgpuTexture = wgpuDefaultHandle;
     WGPUTextureView wgpuTextureView = wgpuDefaultHandle;
     WGPUTextureView selfView = wgpuDefaultHandle;
+    std::vector<WGPUTextureView> planeViews;
 };
 
 // The indirect drawIndexed parameters encoded in the buffer must be a tightly packed block
@@ -161,13 +162,14 @@ struct CCWGPUSamplerObject {
 
 struct CCWGPUBindGroupLayoutObject {
     WGPUBindGroupLayout bindGroupLayout = wgpuDefaultHandle;
-    ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
+    ccstd::map<uint32_t, WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
 };
 
 struct CCWGPUBindGroupObject {
     WGPUBindGroup bindgroup = wgpuDefaultHandle;
     ccstd::vector<WGPUBindGroupEntry> bindGroupEntries;
-    ccstd::set<uint8_t> bindingSet;
+    ccstd::set<uint8_t> bindingSet;      // bindingInDesc
+    ccstd::set<uint8_t> bindingInShader; // bindingInShader
 };
 
 struct CCWGPUPipelineLayoutObject {
@@ -182,11 +184,14 @@ struct CCWGPUPipelineStateObject {
     uint32_t maxAttrLength = 0;
 };
 
+using BindingList = ccstd::vector<uint8_t>;
 struct CCWGPUShaderObject {
     ccstd::string name;
     WGPUShaderModule wgpuShaderVertexModule = wgpuDefaultHandle;
     WGPUShaderModule wgpuShaderFragmentModule = wgpuDefaultHandle;
     WGPUShaderModule wgpuShaderComputeModule = wgpuDefaultHandle;
+
+    ccstd::vector<BindingList> bindings;
 };
 
 struct CCWGPUInputAssemblerObject {
@@ -244,6 +249,7 @@ struct CCWGPUCommandBufferObject {
     WGPURenderPassDescriptor renderPassDescriptor;
     CCWGPUStateCache stateCache;
 
+    ccstd::vector<WGPUCommandBuffer> computeCmdBuffs;
     ccstd::unordered_map<uint32_t, CCWGPUBuffer *> redundantVertexBufferMap;
 };
 
