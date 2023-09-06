@@ -565,6 +565,11 @@ export class Mesh extends Asset {
             return;
         }
 
+        if (primitiveIndex >= this._struct.primitives.length) {
+            warnID(14201);
+            return;
+        }
+
         const buffers: Float32Array[] = [];
         if (dynamicGeometry.positions.length > 0) {
             buffers.push(dynamicGeometry.positions);
