@@ -259,8 +259,8 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
     using DataWritterCallback = std::function<void(uint32_t, TypedArrayElementType)>;
 
     const auto transformVertex =
-        [](DataReaderCallback reader,
-           DataWritterCallback writer,
+        [](const DataReaderCallback &reader,
+           const DataWritterCallback &writer,
            uint32_t count,
            uint32_t components,
            uint32_t componentSize,
@@ -276,8 +276,8 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
     };
 
     const auto dequantizeHalf =
-        [](DataReaderCallback reader,
-           DataWritterCallback writer,
+        [](const DataReaderCallback &reader,
+           const DataWritterCallback &writer,
            uint32_t count,
            uint32_t components,
            uint32_t readerStride,
@@ -325,7 +325,7 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
             dequantizes.push_back(dequantize);
             readers.push_back(reader);
         }
-        auto netStride = std::accumulate(strides.begin(), strides.end(), 0);
+        auto netStride = std::accumulate(strides.begin(), strides.end(), 0U);
         auto *buffer = ccnew ArrayBuffer(view.count * netStride);
         for (uint32_t i = 0; i < attrs.size(); i++) {
             const auto &attr = attrs[i];
