@@ -115,6 +115,7 @@ export class AndroidPackTool extends NativePackTool {
         const originDir = process.cwd();
         try {
             process.chdir(projDir);
+            // TODO: cchelper 内还要添加 handleMessage 方法实例
             await cchelper.runCmd(gradle, [buildMode], false, projDir);
         } catch (e) {
             throw e;

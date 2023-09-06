@@ -9,6 +9,8 @@ export class NativePackToolManager {
 
     private PackToolMap: Record<string, NativePackTool> = {};
 
+    private updateMessage: Function | null = null;
+
     private getPackTool(platform: string): NativePackTool {
         const handler = this.PackToolMap[platform];
         if (!handler) {
@@ -53,6 +55,12 @@ export class NativePackToolManager {
         if (!tool.make) {
             return false;
         }
+        // 监听平台执行时的日志信息
+        tool.on('update-message', (message: string) => {
+            if (this.updateMessage) {
+                this.updateMessage(message);
+            }
+        });
         await tool.make();
         return true;
     }
@@ -64,6 +72,14 @@ export class NativePackToolManager {
         }
         await tool.run();
         return true;
+    }
+
+    setUpdateMessage(func: Function) {
+        this.updateMessage = func;
+    }
+
+    getUpdateMessage(): Function | null {
+        return this.updateMessage;
     }
 }
 

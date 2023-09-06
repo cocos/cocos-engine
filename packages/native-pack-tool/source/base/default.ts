@@ -3,6 +3,7 @@ import * as fs from 'fs-extra';
 import { cchelper, Paths } from "../utils";
 import { CocosProjectTasks } from './cocosProjectTypes';
 import { gzipSync } from 'zlib';
+import { EventEmitter } from 'events';
 const globby = require('globby');
 const xxtea = require('xxtea-node');
 
@@ -68,7 +69,7 @@ export interface INativePlatformOptions {
     init: (params: CocosParams<Object>) => void;
 }
 
-export abstract class NativePackTool {
+export abstract class NativePackTool extends EventEmitter {
     // 传入的打包参数
     params!: CocosParams<Object>;
     // 收集初始化的一些路径信息
@@ -533,6 +534,11 @@ export abstract class NativePackTool {
         for (const templatTask of Object.values(templatTaskMap)) {
             await this.excuteTemplateTask(templatTask);
         }
+    }
+
+    // 平台统一更新日志消息
+    protected handleMessage(message: string) {
+        this.emit('update-message', message);
     }
 
     abstract create(): Promise<boolean>;

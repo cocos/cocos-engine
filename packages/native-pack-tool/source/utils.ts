@@ -416,6 +416,8 @@ export class cchelper {
 }
 
 export const toolHelper = {
+    handleMessage(message: string) {},
+
     getXcodeMajorVerion(): number {
         try {
             const output = execSync('xcrun xcodebuild -version').toString('utf8');
@@ -468,6 +470,9 @@ export const toolHelper = {
                     console.log(`[cmake-warn] ${msg}`);
                 } else {
                     console.log(`[cmake] ${msg}`);
+                    // TODO: 此处是在 toolHelper 里示例
+                    // 自定义过滤日志信息, 但目前 cmake 并没有抛出什么信息
+                    toolHelper.handleMessage(msg);
                 }
             });
             cp.stderr.on('data', (data: any) => {

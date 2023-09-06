@@ -60,6 +60,8 @@ export class WindowsPackTool extends NativePackTool {
 
     async make() {
         const nativePrjDir = this.paths.nativePrjDir;
+        // toolHelper 需要先设置监听消息的方法，才能够在执行 runCmake 时传递消息
+        toolHelper.handleMessage = this.handleMessage.bind(this);
         await toolHelper.runCmake(['--build', `"${cchelper.fixPath(nativePrjDir)}"`, '--config', this.params.debug ? 'Debug' : 'Release', '--', '-verbosity:quiet']);
         return true;
     }
