@@ -14,7 +14,7 @@
   },
   "workspaces": [
     "packages/*",
-    "modules/pal/*"
+    "pal/*"
   ],
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
