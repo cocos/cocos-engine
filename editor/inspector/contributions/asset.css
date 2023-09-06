@@ -101,6 +101,25 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
+}
+
+:host > .container > .content > section > .resize-ns {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    height: 1px;
+    background-color: var(--color-normal-border);
+    cursor: ns-resize;
+}
+
+:host > .container > .content > section > .resize-ns[for="header"] {
+    bottom: 0;
+}
+
+:host > .container > .content > section > .resize-ns[for="footer"] {
+    top: 0;
 }
 
 :host > .container > .content > .content-section {

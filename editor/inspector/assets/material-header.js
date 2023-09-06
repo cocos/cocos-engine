@@ -25,7 +25,6 @@ exports.style = /* css */`
     box-sizing: border-box;
     display: flex;
     background: var(--color-normal-fill);
-    border-bottom: 1px solid var(--color-normal-border);
 }
 :host > .section > canvas { flex: 1; min-width: 0; }
 :host > .section > .tools { display: flex; flex-direction: column; padding: 0 4px; }
@@ -140,7 +139,7 @@ exports.ready = async function() {
     panel.$.canvas.addEventListener('wheel', async (event) => {
         await callMaterialPreviewFunction('onMouseWheel', {
             wheelDeltaY: event.wheelDeltaY,
-            wheelDeltaX: event.wheelDeltaX
+            wheelDeltaX: event.wheelDeltaX,
         });
         panel.isPreviewDataDirty = true;
     });

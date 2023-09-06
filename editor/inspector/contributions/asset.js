@@ -29,9 +29,13 @@ exports.template = `
         </ui-link>
     </header>
     <section class="content">
-        <section class="content-header"></section>
+        <section class="content-header">
+            <div class="resize-ns" for="header"></div>
+        </section>
         <section class="content-section"></section>
-        <section class="content-footer"></section>
+        <section class="content-footer">
+            <div class="resize-ns" for="footer"></div>
+        </section>
     </section>
 </div>
 `;
@@ -49,8 +53,10 @@ exports.$ = {
     reset: '.reset',
 
     contentHeader: '.content-header',
+    contentHeaderResize: '.resize-ns[for="header"]',
     contentSection: '.content-section',
     contentFooter: '.content-footer',
+    contentFooterResize: '.resize-ns[for="footer"]',
 };
 
 const Elements = {
@@ -72,6 +78,8 @@ const Elements = {
 
             Elements.panel.i18nChangeBind = Elements.panel.i18nChange.bind(panel);
             Editor.Message.addBroadcastListener('i18n:change', Elements.panel.i18nChangeBind);
+
+
 
             panel.history = new History();
         },
@@ -161,6 +169,9 @@ const Elements = {
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
+            panel.$.contentHeaderResize.removeEventListener('mousedown', Elements.panel.layoutResize);
+            panel.$.contentFooterResize.removeEventListener('mousedown', Elements.panel.layoutResize);
+
             delete panel.history;
         },
         i18nChange() {
@@ -168,6 +179,43 @@ const Elements = {
 
             const $links = panel.$.container.querySelectorAll('ui-link');
             $links.forEach($link => panel.setHelpUrl($link));
+        },
+        layoutResize:{
+            config:{
+                header:{
+                    value: 200,
+                    min: 200,
+                },
+                footer:{
+                    value: 200,
+                    min: 200,
+                },
+            },
+            ready() {
+                panel.$.contentHeaderResize.addEventListener('mousedown', Elements.panel.layoutResize);
+                panel.$.contentFooterResize.addEventListener('mousedown', Elements.panel.layoutResize);
+            },
+            close() {},
+        },
+        layoutResize3(event) {
+            const element = event.target;
+            if (!element) {
+                return;
+            }
+
+            const resizeFor = element.getAttribute('for');
+
+            function mousemove(event) {
+
+
+            }
+
+            function mouseup() {
+                document.removeEventListener('mousemove', mousemove);
+                document.removeEventListener('mouseup', mouseup);
+            }
+            document.addEventListener('mousemove', mousemove);
+            document.addEventListener('mouseup', mouseup);
         },
     },
     header: {
@@ -314,7 +362,7 @@ const Elements = {
 
             for (const renderName in panel.contentRenders) {
                 const { list, contentRender } = panel.contentRenders[renderName];
-                contentRender.__panels__ = Array.from(contentRender.children);
+                contentRender.__panels__ = Array.from(contentRender.children).filter((el) => el.tagName === 'UI-PANEL');
                 let i = 0;
                 for (i; i < list.length; i++) {
                     const file = list[i];
@@ -337,7 +385,6 @@ const Elements = {
                     contentRender.removeChild(contentRender.__panels__[i]);
                 }
 
-                contentRender.__panels__ = Array.from(contentRender.children);
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
