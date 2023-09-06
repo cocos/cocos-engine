@@ -25,7 +25,7 @@
 import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
 import { SystemInfo, IMiniGame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
-
+import { warn } from '../../cocos/core/platform/debug';
 import { Orientation } from '../screen-adapter/enum-type';
 
 declare let ral: any;
@@ -137,7 +137,7 @@ minigame.getSafeArea = function (): SafeArea {
     if (locSystemInfo.safeArea) {
         return locSystemInfo.safeArea;
     } else {
-        console.warn('getSafeArea is not supported on this platform');
+        warn('getSafeArea is not supported on this platform');
         const systemInfo =  minigame.getSystemInfoSync();
         return {
             top: 0,

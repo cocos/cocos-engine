@@ -30,8 +30,7 @@ declare let wx: any;
 // NOTE: getApp is defined on wechat miniprogram platform
 declare const getApp: any;
 
-// @ts-expect-error can't init minigame when it's declared
-const minigame: IMiniGame = {};
+const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, wx);
 
 // #region platform related
@@ -46,8 +45,7 @@ minigame.wx.onWheel = wx.onWheel?.bind(wx);
 
 // #region SystemInfo
 let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
-// @ts-expect-error TODO: move into minigame.d.ts
-minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterval: number): void {
+function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
     let successfullyTestTimes = 0;
     let intervalTimer: number | null = null;
     function testCachedSystemInfo (): void {
@@ -63,9 +61,8 @@ minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterv
         _cachedSystemInfo = currentSystemInfo;
     }
     intervalTimer = setInterval(testCachedSystemInfo, testInterval);
-};
-// @ts-expect-error TODO: update when view resize
-minigame.testAndUpdateSystemInfoCache(10, 500);
+}
+testAndUpdateSystemInfoCache(10, 500);
 minigame.onWindowResize?.((): void => {
     // update cached system info
     _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
@@ -162,8 +159,7 @@ minigame.getSafeArea = function (): SafeArea {
 
 // HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
 if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '2.16.0') < 0) {
-    // @ts-expect-error canvas defined in global
-    const locCanvas = canvas;
+    const locCanvas = window.canvas;
     if (locCanvas) {
         const webglRC = locCanvas.getContext('webgl');
         const originalUseProgram = webglRC.useProgram.bind(webglRC);
@@ -180,11 +176,12 @@ const gl = getApp().GameGlobal.canvas.getContext('webgl');
 const oldTexSubImage2D = gl.texSubImage2D;
 gl.texSubImage2D = function (...args): void {
     if (args.length === 7) {
-        const canvas = args[6];
-        if (typeof canvas.type !== 'undefined' && canvas.type === 'canvas') {
-            const ctx = canvas.getContext('2d');
-            const texOffsetX = args[2];
-            const texOffsetY = args[3];
+        const canvas = args[6] as HTMLCanvasElement;
+        // NOTE: type property is not web standard
+        if (typeof (canvas as any).type !== 'undefined' && (canvas as any).type === 'canvas') {
+            const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+            const texOffsetX: number = args[2];
+            const texOffsetY: number = args[3];
             const imgData = ctx.getImageData(texOffsetX, texOffsetY, canvas.width, canvas.height);
             oldTexSubImage2D.call(
                 gl,

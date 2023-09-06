@@ -25,6 +25,7 @@
 import { IMiniGame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { Orientation } from '../screen-adapter/enum-type';
+import { warn } from '../../cocos/core/platform/debug';
 
 declare let qg: any;
 
@@ -136,7 +137,7 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
 
 // #region SafeArea
 minigame.getSafeArea = function (): SafeArea {
-    console.warn('getSafeArea is not supported on this platform');
+    warn('getSafeArea is not supported on this platform');
     const systemInfo =  minigame.getSystemInfoSync();
     return {
         top: 0,
