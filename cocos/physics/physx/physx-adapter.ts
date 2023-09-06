@@ -60,7 +60,7 @@ game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 export function InitPhysXLibs (): any {
     if (USE_BYTEDANCE) {
         if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
-        Object.assign(PX, globalThis.nativePhysX);
+        PX = globalThis.nativePhysX;
         Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
         _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
         _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);

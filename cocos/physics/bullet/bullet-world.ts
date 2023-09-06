@@ -119,8 +119,11 @@ export class BulletWorld implements IPhysicsWorld {
     private readonly _solver: Bullet.ptr;
     private readonly _dispatcher: Bullet.ptr;
     private readonly _debugDraw: Bullet.ptr;
+
     private _debugLineCount = 0;
     private _MAX_DEBUG_LINE_COUNT = 16384;
+    private _debugDrawFlags = EPhysicsDrawFlags.None;
+    private _debugConstraintSize = 0.3; //B3_DEFAULT_DEBUGDRAW_SIZE
 
     private _needEmitEvents = false;
     private _needSyncAfterEvents = false;
@@ -830,7 +833,6 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    _debugDrawFlags = EPhysicsDrawFlags.None;
     get debugDrawFlags (): EPhysicsDrawFlags {
         return this._debugDrawFlags;
     }
@@ -842,7 +844,6 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    _debugConstraintSize = 0.3; //B3_DEFAULT_DEBUGDRAW_SIZE
     get debugDrawConstraintSize (): number {
         return this._debugConstraintSize;
     }
@@ -854,7 +855,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    _setDebugDrawMode (): void {
+    private _setDebugDrawMode (): void {
         let btDrawMode = 0;
         if (this._debugDrawFlags & EPhysicsDrawFlags.WireFrame) {
             btDrawMode |= EBulletDebugDrawModes.DBG_DrawWireframe;
@@ -872,7 +873,7 @@ export class BulletWorld implements IPhysicsWorld {
         bt.DebugDraw_setDebugMode(this._debugDraw, btDrawMode);
     }
 
-    _getDebugRenderer (): GeometryRenderer|null {
+    private _getDebugRenderer (): GeometryRenderer|null {
         const cameras = director.root!.cameraList;
         if (!cameras) return null;
         if (cameras.length === 0) return null;
@@ -882,7 +883,8 @@ export class BulletWorld implements IPhysicsWorld {
         return cameras[0].geometryRenderer;
     }
 
-    onDebugDrawLine (from: number, to: number, color: number): void {
+    // callback function called by bullet wasm
+    public onDebugDrawLine (from: number, to: number, color: number): void {
         const debugRenderer = this._getDebugRenderer();
         if (debugRenderer && this._debugLineCount < this._MAX_DEBUG_LINE_COUNT) {
             this._debugLineCount++;
@@ -894,7 +896,7 @@ export class BulletWorld implements IPhysicsWorld {
         }
     }
 
-    onClearLines (): void {
+    public onClearLines (): void {
         this._debugLineCount = 0;
     }
 }
