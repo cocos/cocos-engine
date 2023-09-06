@@ -45,13 +45,13 @@ jest.mock(
 
 jest.mock(
     '@pal/env',
-    () => jest.requireActual('../modules/pal/env/src/web/env.ts'),
+    () => jest.requireActual('../pal/env/src/web/env.ts'),
     { virtual: true, },
 );
 
 jest.mock(
     '@pal/utils',
-    () => jest.requireActual('../modules/pal/utils/src/index.ts'),
+    () => jest.requireActual('../pal/utils/src/index.ts'),
     { virtual: true, },
 );
 
