@@ -13,6 +13,9 @@
     ".": {
       "node": "./package.json",
       "types": "./src/index.d.ts"
+    },
+    "./query": {
+      "node": "./scripts/query.js"
     }
   },
   "devDependencies": {

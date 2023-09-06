@@ -33,7 +33,8 @@ function normalizePath (path) {
 async function buildTsEngine () {
     console.log(chalk.green('building TS engine ...\n'));
 
-    const typesModuleRoot = await mq.resolvePackageJson('@type')
+    const typeFiles = require('@cocos/types/query').getTypeFiles();
+    console.log(typeFiles)
     await ccbuild.buildEngine({
         // NOTE: for now only OH platform supports building TS engine
         platform: 'OPEN_HARMONY',
