@@ -28,6 +28,7 @@
 #include "base/Macros.h"
 #include "base/std/container/vector.h"
 #include "core/scene-graph/Node.h"
+#include "renderer/pipeline/GeometryRenderer.h"
 #include "physics/physx/PhysXEventManager.h"
 #include "physics/physx/PhysXFilterShader.h"
 #include "physics/physx/PhysXInc.h"
@@ -124,6 +125,17 @@ public:
     float getFixedTimeStep() const override { return _fixedTimeStep; }
     void setFixedTimeStep(float fixedTimeStep) override { _fixedTimeStep = fixedTimeStep; }
 
+    virtual void setDebugDrawFlags(EPhysicsDrawFlags flags) override;
+    virtual EPhysicsDrawFlags getDebugDrawFlags() override;
+
+    virtual void setDebugDrawConstraintSize(float size) override;
+    virtual float getDebugDrawConstraintSize() override;
+
+private:
+    pipeline::GeometryRenderer* getDebugRenderer();
+    void debugDraw();
+    void setDebugDrawMode();
+
 private:
     static PhysXWorld *instance;
     physx::PxFoundation *_mFoundation;
@@ -147,6 +159,11 @@ private:
     ccstd::unordered_map<uint32_t, uintptr_t> _mWrapperObjects;
 
     float _fixedTimeStep{1 / 60.0F};
+
+    uint32_t _debugLineCount = 0;
+    uint32_t _MAX_DEBUG_LINE_COUNT = 16384;
+    EPhysicsDrawFlags _debugDrawFlags = EPhysicsDrawFlags::None;
+    float _debugConstraintSize = 0.3;
 };
 
 } // namespace physics
