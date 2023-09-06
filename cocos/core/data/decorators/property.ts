@@ -32,7 +32,7 @@ import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-s
 import { getClassName, mixin } from '../../utils/js-typed';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
+export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCBoolean;
 
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
 
@@ -80,7 +80,7 @@ export function property (
             target,
             propertyKey,
         );
-        const classConstructor = target.constructor;
+        const classConstructor = target.constructor as new () => unknown;
         mergePropertyOptions(
             classStash,
             propertyStash,
@@ -133,7 +133,8 @@ function extractActualDefaultValues (classConstructor: new () => unknown): unkno
         dummyObj = new classConstructor();
     } catch (e) {
         if (DEV) {
-            warnID(3652, getClassName(classConstructor), e);
+            // NOTE: here we use unknown e as a string, or sometheing supports toString() method.
+            warnID(3652, getClassName(classConstructor), e as string);
         }
         return {};
     }
@@ -188,7 +189,7 @@ export function getOrCreatePropertyStash (
 function mergePropertyOptions (
     cache: ClassStash,
     propertyStash: PropertyStash,
-    ctor,
+    ctor: new () => unknown,
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
     options,
     descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2] | undefined,

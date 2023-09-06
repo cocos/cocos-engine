@@ -72,7 +72,7 @@
 
 namespace {
 
-bool setCanvasCallback(se::Object * /*global*/) {
+bool setCanvasCallback(se::Object *global) {
     se::AutoHandleScope scope;
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
     auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
@@ -80,21 +80,32 @@ bool setCanvasCallback(se::Object * /*global*/) {
     auto viewSize = window->getViewSize();
     auto dpr = cc::BasePlatform::getPlatform()->getInterface<cc::IScreen>()->getDevicePixelRatio();
 
-    std::stringstream ss;
-    {
-        ss << "globalThis.jsb = globalThis.jsb || {}; " << std::endl;
-        ss << "jsb.window = jsb.window || {}; " << std::endl;
-        ss << "jsb.window.innerWidth = " << static_cast<int>(viewSize.width / dpr) << ";" << std::endl;
-        ss << "jsb.window.innerHeight = " << static_cast<int>(viewSize.height / dpr) << ";" << std::endl;
-        ss << "jsb.window.windowHandler = ";
-        if (sizeof(handler) == 8) { // use bigint
-            ss << static_cast<uint64_t>(handler) << "n;";
-        }
-        if (sizeof(handler) == 4) {
-            ss << static_cast<uint32_t>(handler) << ";";
-        }
+    se::Value jsbVal;
+    bool ok = global->getProperty("jsb", &jsbVal);
+    if (!jsbVal.isObject()) {
+        se::HandleObject jsbObj(se::Object::createPlainObject());
+        global->setProperty("jsb", se::Value(jsbObj));
+        jsbVal.setObject(jsbObj, true);
     }
-    se->evalString(ss.str().c_str());
+
+    se::Value windowVal;
+    jsbVal.toObject()->getProperty("window", &windowVal);
+    if (!windowVal.isObject()) {
+        se::HandleObject windowObj(se::Object::createPlainObject());
+        jsbVal.toObject()->setProperty("window", se::Value(windowObj));
+        windowVal.setObject(windowObj, true);
+    }
+
+    int width = static_cast<int>(viewSize.width / dpr);
+    int height = static_cast<int>(viewSize.height / dpr);
+    windowVal.toObject()->setProperty("innerWidth", se::Value(width));
+    windowVal.toObject()->setProperty("innerHeight", se::Value(height));
+
+    if (sizeof(handler) == 8) { // use bigint
+        windowVal.toObject()->setProperty("windowHandle", se::Value(static_cast<uint64_t>(handler)));
+    } else {
+        windowVal.toObject()->setProperty("windowHandle", se::Value(static_cast<uint32_t>(handler)));
+    }
 
     return true;
 }

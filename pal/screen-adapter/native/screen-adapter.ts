@@ -79,10 +79,8 @@ class ScreenAdapter extends EventTarget {
     public get windowSize (): Size {
         const dpr = this.devicePixelRatio;
         // NOTE: fix precision issue on Metal render end.
-        // TODO: interface for OH only, we need a unified interface @qiuguohua
-        const width = globalThis.oh ? (jsb.device as any).getInnerWidth() : jsb.window.innerWidth;
-        // TODO: interface for OH only, we need a unified interface @qiuguohua
-        const height = globalThis.oh ? (jsb.device as any).getInnerHeight() : jsb.window.innerHeight;
+        const width = jsb.window.innerWidth;
+        const height = jsb.window.innerHeight;
         // NOTE: fix precision issue on Metal render end.
         const roundWidth = Math.round(width);
         const roundHeight = Math.round(height);

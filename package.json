@@ -1,6 +1,6 @@
 {
   "name": "cocos-creator",
-  "version": "3.8.1",
+  "version": "3.8.2",
   "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in C++ and TypeScript, licensed under MIT.",
   "homepage": "http://www.cocos.com",
   "license": "MIT",
@@ -8,6 +8,9 @@
     "AUTHORS.txt"
   ],
   "module": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
     "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
@@ -79,7 +82,7 @@
     "tar": "^6.1.15",
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.0",
-    "ts-jest": "^26.5.4",
+    "ts-jest": "^28.0.8",
     "typedoc": "^0.22.13",
     "typedoc-plugin-cc": "file:scripts/typedoc-plugin",
     "typescript": "^4.3.5",
@@ -92,7 +95,7 @@
   "dependencies": {
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
-    "@cocos/ccbuild": "^1.0.0-alpha.7",
+    "@cocos/ccbuild": "2.0.3-alpha.7",
     "@cocos/dragonbones-js": "^1.0.1"
   }
 }

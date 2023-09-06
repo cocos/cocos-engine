@@ -22,7 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos/math/Utils.h"
+#include "math/Utils.h"
 
 #include <algorithm>
 #include <cmath>

@@ -27,10 +27,12 @@ require('./jsb-assets-manager.js');
 require('./jsb-game.js');
 require('./jsb-gfx.js');
 require('./jsb-loader.js');
-if(window.oh)
+
+if (window.oh) {
     require('./jsb-videoplayer-openharmony.js');
-else 
+} else {
     require('./jsb-videoplayer.js');
+}
 require('./jsb-webview.js');
 require('./jsb-editbox.js');
 require('./jsb-editor-support.js');

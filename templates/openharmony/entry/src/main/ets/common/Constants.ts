@@ -33,6 +33,7 @@ export enum ContextType {
     EDITBOX_UTILS,
     WEBVIEW_UTILS,
     UV_ASYNC_SEND,
+    VIDEO_UTILS,
 }
 
 export class Constants {

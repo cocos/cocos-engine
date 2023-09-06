@@ -156,6 +156,21 @@ public:
      */
     virtual void setFrame(float x, float y, float width, float height);
 
+    /**
+     * Set playback rate of VideoPlayer.
+     */
+    virtual void setPlaybackRate(float value);
+
+    /**
+     * Set mute of VideoPlayer.
+     */
+    virtual void setMute(bool enable);
+
+    /**
+     * Set loop of VideoPlayer.
+     */
+    virtual void setLoop(bool enable);
+
 protected:
     enum class Source {
         FILENAME = 0,

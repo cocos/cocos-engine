@@ -193,11 +193,17 @@ jobs:
 
           # To speedup CI, compile arm64-v8a only
           # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
-          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a@g" gradle.properties
+          df -h
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
 
           echo "Compile Android - cmake ..."
           echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
           ./gradlew :CocosGame:assembleDebug --quiet
+          df -h
+          ./gradlew clean
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a@g" gradle.properties
+          ./gradlew :CocosGame:assembleDebug --quiet
+          df -h
           echo "Compile Android Debug Done!"
 
   compile_openharmony:
@@ -306,6 +312,8 @@ jobs:
           echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> build-oh/proj/cfg.cmake
           echo "set(COCOS_X_PATH $NATIVE_ROOT)" >> build-oh/proj/cfg.cmake
           echo "set(CC_EXECUTABLE_NAME \"\")" >> build-oh/proj/cfg.cmake
+          echo "set(USE_SE_V8 OFF)" >> build-oh/proj/cfg.cmake
+          echo "set(USE_SE_NAPI ON)" >> build-oh/proj/cfg.cmake
 
           echo "=============== cat build-oh/proj/cfg.cmake ==============="
           cat build-oh/proj/cfg.cmake
@@ -339,9 +347,7 @@ jobs:
           echo "{\"hvigorVersion\":\"3.0.2\",\"dependencies\":{\"@ohos/hvigor-ohos-plugin\":\"3.0.2\"}}" > ./hvigor/hvigor-config.json5
 
           echo "=============== Do not import game.ts for cocos_worker.ts ==============="
-          sed -i "s@import . launchEngine .@const window = globalThis;//@g" ./entry/src/main/ets/workers/cocos_worker.ts
-          sed -i 's@launchEngine().then@/*@g' ./entry/src/main/ets/workers/cocos_worker.ts
-          sed -i 's@window.oh.postMessage@*/window.oh.postMessage@g' ./entry/src/main/ets/workers/cocos_worker.ts
+          sed -i '/<% if(!useV8) { %>/,/<% } %>/d' ./entry/src/main/ets/workers/cocos_worker.ts
 
           echo "=============== EXECUTE hvigorw ==============="
           ./hvigorw clean -i

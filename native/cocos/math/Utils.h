@@ -26,7 +26,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include "cocos/math/Vec3.h"
+#include "math/Vec3.h"
 
 namespace cc {
 

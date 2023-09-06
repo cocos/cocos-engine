@@ -22,7 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include "cocos/platform/openharmony/FileUtils-OpenHarmony.h"
+#include "platform/openharmony/FileUtils-OpenHarmony.h"
+
 #include <hilog/log.h>
 #include <sys/stat.h>
 #include <cstdio>
@@ -31,18 +32,13 @@
 #include <string>
 #include <sys/syscall.h>
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <unistd.h>
+
 #include "base/memory/Memory.h"
-
-#include "cocos/base/Log.h"
-
-#include "bindings/jswrapper/napi/HelperMacros.h"
-#define ASSETS_FOLDER_WRITEABLE_PATH "/data/accounts/account_0/applications/ohos.example.xcomponent1/ohos.example.xcomponent1/writeable_path"
-#include "rawfile/raw_file_manager.h"
+#include "base/Log.h"
 
 namespace cc {
 
