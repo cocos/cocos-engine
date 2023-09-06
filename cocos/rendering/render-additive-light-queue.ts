@@ -27,7 +27,7 @@ import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color, Pool, geometry, cclegacy } from '../core';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer, deviceManager } from '../gfx';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
 import { SpotLight } from '../render-scene/scene/spot-light';
@@ -490,7 +490,7 @@ export class RenderAdditiveLightQueue {
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstLightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+            this._firstLightBufferView = deviceManager.gfxDevice.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
         for (let l = 0, offset = 0; l < validPunctualLights.length; l++, offset += this._lightBufferElementCount) {

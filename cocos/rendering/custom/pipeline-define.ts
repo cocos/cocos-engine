@@ -67,6 +67,9 @@ export function prepareResource (ppl: BasicPipeline, camera: Camera,
             height = 1;
         }
         const windowID = prepareRenderWindow(camera);
+        info.width = width;
+        info.height = height;
+        info.windowID = windowID;
         updateResourceFunc(ppl, info);
         return info;
     }
@@ -235,7 +238,7 @@ export function updateForwardRes (ppl: BasicPipeline, cameraInfo: CameraInfo, is
     ppl.updateDepthStencil(`ForwardDepthStencil${cameraInfo.id}`, width, height);
 }
 
-export function setupDeferredForward (ppl: BasicPipeline, cameraInfo: CameraInfo, inputColor: string): void {
+export function setupDeferredForward(ppl: BasicPipeline, cameraInfo: CameraInfo, inputColor: string, clusterLighting?: boolean): void {
     const area = getRenderArea(cameraInfo.camera, cameraInfo.camera.window.width, cameraInfo.camera.window.height);
     const width = area.width;
     const height = area.height;
@@ -255,10 +258,12 @@ export function setupDeferredForward (ppl: BasicPipeline, cameraInfo: CameraInfo
         }
     }
 
+    let sceneFlags = SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
+        | SceneFlags.DRAW_INSTANCING;
+    sceneFlags |= clusterLighting ? SceneFlags.CLUSTERED_LIGHTING : SceneFlags.DEFAULT_LIGHTING;
+
     forwardPass.addQueue(QueueHint.RENDER_OPAQUE, 'deferred-forward')
-        .addSceneOfCamera(camera, new LightInfo(),
-            SceneFlags.OPAQUE_OBJECT | SceneFlags.PLANAR_SHADOW | SceneFlags.CUTOUT_OBJECT
-            | SceneFlags.DEFAULT_LIGHTING | SceneFlags.DRAW_INSTANCING);
+        .addSceneOfCamera(camera, new LightInfo(), sceneFlags);
     forwardPass.addQueue(QueueHint.RENDER_TRANSPARENT, 'deferred-forward')
         .addSceneOfCamera(camera, new LightInfo(), SceneFlags.TRANSPARENT_OBJECT | SceneFlags.GEOMETRY);
 }

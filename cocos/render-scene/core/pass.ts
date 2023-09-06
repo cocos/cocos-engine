@@ -39,7 +39,7 @@ import {
     MacroRecord, MaterialProperty, customizeType, getBindingFromHandle, getDefaultFromType, getStringFromType,
     getOffsetFromHandle, getTypeFromHandle, type2reader, type2writer, getCountFromHandle, type2validator,
 } from './pass-utils';
-import { RenderPassStage, RenderPriority } from '../../rendering/define';
+import { RenderPassStage, RenderPriority, SetIndex } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { ProgramLibrary } from '../../rendering/custom/private';
 
@@ -469,10 +469,19 @@ export class Pass {
      * @zh 重置所有 texture 和 sampler 为初始默认值。
      */
     public resetTextures (): void {
-        for (let i = 0; i < this._shaderInfo.samplerTextures.length; i++) {
-            const u = this._shaderInfo.samplerTextures[i];
-            for (let j = 0; j < u.count; j++) {
-                this.resetTexture(u.name, j);
+        if (cclegacy.rendering) {
+            const set = this._shaderInfo.descriptors[SetIndex.MATERIAL];
+            for (const combined of set.samplerTextures) {
+                for (let j = 0; j < combined.count; ++j) {
+                    this.resetTexture(combined.name, j);
+                }
+            }
+        } else {
+            for (let i = 0; i < this._shaderInfo.samplerTextures.length; i++) {
+                const u = this._shaderInfo.samplerTextures[i];
+                for (let j = 0; j < u.count; j++) {
+                    this.resetTexture(u.name, j);
+                }
             }
         }
     }
