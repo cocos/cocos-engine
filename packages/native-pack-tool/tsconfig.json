@@ -6,7 +6,7 @@
       "esModuleInterop": true,
       "sourceMap": true,
       "declaration": true,
-      "rootDir": "./source",
+      "rootDir": "./src",
       "outDir": "./lib"
     },
     "exclude": [
