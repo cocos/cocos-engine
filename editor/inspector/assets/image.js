@@ -289,6 +289,11 @@ exports.methods = {
         if (this.originImageType === 'sprite-frame') {
             // spriteFrame -> any 
             this.metaList.forEach((meta) => {
+                if (!meta.subMetas[targetSubMetaKey]) {
+                    meta.subMetas[targetSubMetaKey] = {
+                        userData: {},
+                    }
+                }
                 if (meta.subMetas[targetSubMetaKey].mipfilter !== 'none') {
                     meta.subMetas[targetSubMetaKey].userData.mipfilter = 'nearest';
                 }
@@ -296,6 +301,11 @@ exports.methods = {
         } else if (this.meta.userData.type === 'sprite-frame') {
             // any -> sprite，disabled mipmaps
             this.metaList.forEach((meta) => {
+                if (!meta.subMetas[targetSubMetaKey]) {
+                    meta.subMetas[targetSubMetaKey] = {
+                        userData: {},
+                    }
+                }
                 meta.subMetas[targetSubMetaKey].userData.mipfilter = 'none';
             });
         }
@@ -305,7 +315,7 @@ exports.methods = {
         // any -> texture : texture.wrapMode -> Repeat
         // any -> sprite : texture.wrapMode -> Clamp
         if (['sprite-frame', 'texture'].includes(this.meta.userData.type)) {
-            const textureKey = Object.keys(this.meta.subMetas).find((key) => this.meta.subMetas[key].importer === imageTypeToImporter.texture)
+            const textureKey = Editor.Utils.UUID.nameToSubId('texture');
             let wrapModeCache;
             if (this.meta.subMetas[textureKey]) {
                 const textureUUID = this.meta.subMetas[textureKey].uuid;
@@ -328,8 +338,15 @@ exports.methods = {
             }
         }
         if (this.originImageType === 'sprite-frame' || this.meta.userData.type === 'sprite-frame') {
-            const targetImporter = this.meta.userData.type === 'sprite-frame' ? 'texture' : this.meta.userData.type;
-            const targetSubMetaKey = Object.keys(this.meta.subMetas).find((key) => this.meta.subMetas[key].importer === imageTypeToImporter[targetImporter])
+            const changeTypes = ['texture', 'normal map', 'texture cube', 'sprite-frame'];
+            if (changeTypes.includes(this.meta.userData.type)) {
+                return;
+            }
+            let targetImporter = imageTypeToImporter[this.meta.userData.type];
+            if (targetImporter === 'sprite-frame') {
+                targetImporter = 'texture';
+            }
+            const targetSubMetaKey = Editor.Utils.UUID.nameToSubId(imageTypeToImporter[targetImporter]);
             targetSubMetaKey && this.changeMipFilter(targetSubMetaKey);
         }
     }
