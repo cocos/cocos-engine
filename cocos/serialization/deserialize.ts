@@ -415,8 +415,10 @@ type IPackedFileSection = [
 
     /**
      * This section's binary storage span into packed binary buffer.
+     * Or `undefined`(the section array has no such element)
+     * if this section does not have an associated binary storage.
      */
-    binaryStorage: [byteOffset: number, byteLength: number] | Empty,
+    binaryStorage: [byteOffset: number, byteLength: number] | undefined,
 ];
 
 const PACKED_SECTION_BINARY_STORAGE_INDEX = 6;
@@ -1104,7 +1106,7 @@ export function unpackJSONs (
         const section = sections[i];
         const binaryStorageSpan = section[PACKED_SECTION_BINARY_STORAGE_INDEX];
         (section as any[]).unshift(version, sharedUuids, sharedStrings, sharedClasses, sharedMasks);
-        if (binaryStorageSpan !== EMPTY_PLACEHOLDER) {
+        if (typeof binaryStorageSpan !== 'undefined') {
             if (!binaryChunk) {
                 // Bad data: there's section requiring binary storage but the incoming data didn't provide one. 
                 throw new Error(`Bad data: there's section requiring binary storage but the incoming data didn't provide one`);
