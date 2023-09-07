@@ -62,8 +62,12 @@ void CCMTLSwapchain::doInit(const SwapchainInfo& info) {
         layer.device = MTLCreateSystemDefaultDevice();
     }
 #else
+    CAMetalLayer *layer = nullptr;
     auto *view = (CCView *)info.windowHandle;
-    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+    if(view && view.subviews.count > 0) {
+        NSView* subView = view.subviews[0];
+        layer = static_cast<CAMetalLayer *>(subView.layer);
+    }
 #endif
 
     if (layer.pixelFormat == MTLPixelFormatInvalid) {
