@@ -9,7 +9,6 @@
 
 // node_modules types
 /// <reference path="../../../node_modules/@cocos/cannon/CANNON.d.ts"/>
-/// <reference path="../../../node_modules/@types/jest/index.d.ts"/>
 
 // pal types
 /// <reference path="./pal/audio.d.ts"/>

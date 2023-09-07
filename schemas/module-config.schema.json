@@ -391,6 +391,10 @@
                 "types"
               ],
               "type": "object"
+            },
+            "./query": {
+              "description": "This export provide a the path of javascript module which exports some method to query the info of module.",
+              "type": "string"
             }
           },
           "required": [

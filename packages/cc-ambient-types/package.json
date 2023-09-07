@@ -12,7 +12,8 @@
     ".": {
       "node": "./src/index.d.ts",
       "types": "./src/index.d.ts"
-    }
+    },
+    "./query": "./scripts/query.js"
   },
   "devDependencies": {
     "@cocos/ccbuild": "*"
