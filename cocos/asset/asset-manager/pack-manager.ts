@@ -80,7 +80,7 @@ export class PackManager {
      *
      */
     public unpackJson (
-        pack: string[],
+        pack: readonly string[],
         json: any,
         options: Record<string, any>,
         onComplete: ((err: Error | null, data?: Record<string, any> | null) => void),
