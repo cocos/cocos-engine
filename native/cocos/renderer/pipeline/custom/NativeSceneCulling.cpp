@@ -30,7 +30,7 @@ bool NativeRenderQueue::empty() const noexcept {
            transparentInstancingQueue.empty();
 }
 
-uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) {
+FrustumCullingID SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) {
     const auto* const scene = sceneData.scene;
     // get or add scene to queries
     auto& queries = sceneQueries[scene];
@@ -53,21 +53,21 @@ uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) 
     if (iter == queries.culledResultIndex.end()) {
         // create query source
         // make query source id
-        const auto sourceID = numCullingQueries++;
-        if (numCullingQueries > culledResults.size()) {
+        const FrustumCullingID frustomCulledResultID{numCullingQueries++};
+        if (numCullingQueries > frustumCulledResults.size()) {
             // space is not enough, create query source
-            CC_EXPECTS(numCullingQueries == culledResults.size() + 1);
-            culledResults.emplace_back();
+            CC_EXPECTS(numCullingQueries == frustumCulledResults.size() + 1);
+            frustumCulledResults.emplace_back();
         }
         // add query source to query index
         bool added = false;
-        std::tie(iter, added) = queries.culledResultIndex.emplace(key, sourceID);
+        std::tie(iter, added) = queries.culledResultIndex.emplace(key, frustomCulledResultID);
         CC_ENSURES(added);
     }
     return iter->second;
 }
 
-uint32_t SceneCulling::createRenderQueue(
+DrawQueueID SceneCulling::createRenderQueue(
     SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID) {
     const auto targetID = numRenderQueues++;
     if (numRenderQueues > renderQueues.size()) {
@@ -81,7 +81,7 @@ uint32_t SceneCulling::createRenderQueue(
     CC_EXPECTS(rq.subpassOrPassLayoutID == 0xFFFFFFFF);
     rq.sceneFlags = sceneFlags;
     rq.subpassOrPassLayoutID = subpassOrPassLayoutID;
-    return targetID;
+    return DrawQueueID{targetID};
 }
 
 void SceneCulling::collectCullingQueries(
@@ -95,7 +95,7 @@ void SceneCulling::collectCullingQueries(
             CC_EXPECTS(false);
             continue;
         }
-        const auto sourceID = getOrCreateSceneCullingQuery(sceneData);
+        const auto frustomCulledResultID = getOrCreateSceneCullingQuery(sceneData);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
         const auto targetID = createRenderQueue(sceneData.flags, layoutID);
         const auto lightType = sceneData.light.light
@@ -103,7 +103,13 @@ void SceneCulling::collectCullingQueries(
                                    : scene::LightType::UNKNOWN;
 
         // add render queue to query source
-        sceneQueryIndex.emplace(vertID, NativeRenderQueueDesc(sourceID, targetID, lightType));
+        sceneQueryIndex.emplace(
+            vertID,
+            NativeRenderQueueDesc{
+                frustomCulledResultID,
+                LightBoundsCullingID{},
+                targetID,
+                lightType});
     }
 }
 
@@ -246,7 +252,7 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
 
     for (const auto& [scene, queries] : sceneQueries) {
         CC_ENSURES(scene);
-        for (const auto& [key, sourceID] : queries.culledResultIndex) {
+        for (const auto& [key, frustomCulledResultID] : queries.culledResultIndex) {
             CC_EXPECTS(key.camera);
             CC_EXPECTS(key.camera->getScene() == scene);
             const auto* light = key.light;
@@ -254,8 +260,8 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
             const auto bCastShadow = key.castShadow;
             const auto* probe = key.probe;
             const auto& camera = probe ? *probe->getCamera() : *key.camera;
-            CC_EXPECTS(sourceID < culledResults.size());
-            auto& models = culledResults[sourceID];
+            CC_EXPECTS(frustomCulledResultID.value < frustumCulledResults.size());
+            auto& models = frustumCulledResults[frustomCulledResultID.value];
 
             if (probe) {
                 sceneCulling(
@@ -414,7 +420,7 @@ void SceneCulling::fillRenderQueues(
     const auto* const skybox = pplSceneData.getSkybox();
     for (auto&& [sceneID, desc] : sceneQueryIndex) {
         CC_EXPECTS(holds<SceneTag>(sceneID, rg));
-        const auto sourceID = desc.culledSource;
+        const auto frustomCulledResultID = desc.frustumCulledResultID;
         const auto targetID = desc.renderQueueTarget;
         const auto& sceneData = get(SceneTag{}, sceneID, rg);
 
@@ -436,12 +442,12 @@ void SceneCulling::fillRenderQueues(
         CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
 
         // culling source
-        CC_EXPECTS(sourceID < culledResults.size());
-        const auto& sourceModels = culledResults[sourceID];
+        CC_EXPECTS(frustomCulledResultID.value < frustumCulledResults.size());
+        const auto& sourceModels = frustumCulledResults[frustomCulledResultID.value];
 
         // native queue target
-        CC_EXPECTS(targetID < renderQueues.size());
-        auto& nativeQueue = renderQueues[targetID];
+        CC_EXPECTS(targetID.value < renderQueues.size());
+        auto& nativeQueue = renderQueues[targetID.value];
         CC_EXPECTS(nativeQueue.empty());
 
         // skybox
@@ -472,7 +478,7 @@ void SceneCulling::buildRenderQueues(
 
 void SceneCulling::clear() noexcept {
     sceneQueries.clear();
-    for (auto& c : culledResults) {
+    for (auto& c : frustumCulledResults) {
         c.clear();
     }
     for (auto& q : renderQueues) {

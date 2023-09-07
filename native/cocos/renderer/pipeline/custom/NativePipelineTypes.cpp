@@ -180,15 +180,28 @@ CullingQueries::CullingQueries(CullingQueries&& rhs, const allocator_type& alloc
 CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& alloc)
 : culledResultIndex(rhs.culledResultIndex, alloc) {}
 
+LightBoundsCullingQueries::LightBoundsCullingQueries(const allocator_type& alloc) noexcept
+: lightCulledResultIndex(alloc) {}
+
+LightBoundsCullingQueries::LightBoundsCullingQueries(LightBoundsCullingQueries&& rhs, const allocator_type& alloc)
+: lightCulledResultIndex(std::move(rhs.lightCulledResultIndex), alloc) {}
+
+LightBoundsCullingQueries::LightBoundsCullingQueries(LightBoundsCullingQueries const& rhs, const allocator_type& alloc)
+: lightCulledResultIndex(rhs.lightCulledResultIndex, alloc) {}
+
 SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
 : sceneQueries(alloc),
-  culledResults(alloc),
+  frustumCulledResults(alloc),
+  lightCulledQueries(alloc),
+  lightCulledResults(alloc),
   renderQueues(alloc),
   sceneQueryIndex(alloc) {}
 
 SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
 : sceneQueries(std::move(rhs.sceneQueries), alloc),
-  culledResults(std::move(rhs.culledResults), alloc),
+  frustumCulledResults(std::move(rhs.frustumCulledResults), alloc),
+  lightCulledQueries(std::move(rhs.lightCulledQueries), alloc),
+  lightCulledResults(std::move(rhs.lightCulledResults), alloc),
   renderQueues(std::move(rhs.renderQueues), alloc),
   sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
   numCullingQueries(rhs.numCullingQueries),

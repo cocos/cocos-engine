@@ -30,12 +30,12 @@
 #include "LayoutGraphUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
+#include "NativeRenderGraphUtils.h"
 #include "NativeUtils.h"
 #include "PrivateTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "RenderingModule.h"
-#include "NativeRenderGraphUtils.h"
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -64,7 +64,7 @@ constexpr gfx::Color RASTER_UPLOAD_COLOR{1.0, 1.0, 0.0, 1.0};
 constexpr gfx::Color RENDER_QUEUE_COLOR{0.0, 0.5, 0.5, 1.0};
 constexpr gfx::Color COMPUTE_COLOR{0.0, 0.0, 1.0, 1.0};
 
-gfx::MarkerInfo makeMarkerInfo(const char *str, const gfx::Color &color) {
+gfx::MarkerInfo makeMarkerInfo(const char* str, const gfx::Color& color) {
     return gfx::MarkerInfo{str, color};
 }
 
@@ -1180,7 +1180,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (subpass.subpassID) {
             ctx.cmdBuff->nextSubpass();
         }
-        //ctx.cmdBuff->setViewport(subpass);
+        // ctx.cmdBuff->setViewport(subpass);
         tryBindPerPassDescriptorSet(vertID);
         ctx.subpassIndex = subpass.subpassID;
         // noop
@@ -1381,16 +1381,16 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         const auto* scene = camera->getScene();
         const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
-        const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget];
+        const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
         queue.opaqueQueue.recordCommandBuffer(
             ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
         queue.opaqueInstancingQueue.recordCommandBuffer(
             ctx.currentPass, ctx.cmdBuff);
         queue.transparentQueue.recordCommandBuffer(
-        ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
+            ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
         queue.transparentInstancingQueue.recordCommandBuffer(
             ctx.currentPass, ctx.cmdBuff);
-        if(any(sceneData.flags & SceneFlags::REFLECTION_PROBE)) {
+        if (any(sceneData.flags & SceneFlags::REFLECTION_PROBE)) {
             queue.probeQueue.removeMacro();
         }
         if (any(sceneData.flags & SceneFlags::UI)) {
@@ -1674,7 +1674,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             vertID, ctx.g,
             [&](const RasterPass& pass) {
 #if CC_DEBUG
-        ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
+                ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
 #endif
                 mountResources(pass);
                 {
@@ -1685,13 +1685,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 // update UniformBuffers and DescriptorSets in all children
                 {
 #if CC_DEBUG
-        ctx.cmdBuff->beginMarker(makeMarkerInfo("Upload", RASTER_UPLOAD_COLOR));
+                    ctx.cmdBuff->beginMarker(makeMarkerInfo("Upload", RASTER_UPLOAD_COLOR));
 #endif
                     auto colors = ctx.g.colors(ctx.scratch);
                     RenderGraphUploadVisitor visitor{{}, ctx};
                     boost::depth_first_visit(gv, vertID, visitor, get(colors, ctx.g));
 #if CC_DEBUG
-        ctx.cmdBuff->endMarker();
+                    ctx.cmdBuff->endMarker();
 #endif
                 }
                 if (pass.showStatistics) {
@@ -1799,7 +1799,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 end(pass, vertID);
                 rearBarriers(vertID);
 #if CC_DEBUG
-        ctx.cmdBuff->endMarker();
+                ctx.cmdBuff->endMarker();
 #endif
             },
             [&](const RasterSubpass& subpass) {

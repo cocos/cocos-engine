@@ -75,11 +75,13 @@ struct QuadResource;
 enum class ResourceType;
 
 struct SceneResource;
-
-using CullingTarget = ccstd::variant<std::monostate, const scene::ReflectionProbe *, const scene::Light *>;
-
 struct CullingKey;
+struct FrustumCullingID;
 struct CullingQueries;
+struct LightBoundsCullingID;
+struct LightBoundsCullingKey;
+struct LightBoundsCullingQueries;
+struct DrawQueueID;
 struct NativeRenderQueueDesc;
 struct SceneCulling;
 struct NativeRenderContext;
@@ -98,6 +100,11 @@ namespace ccstd {
 template <>
 struct hash<cc::render::CullingKey> {
     hash_t operator()(const cc::render::CullingKey& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::LightBoundsCullingKey> {
+    hash_t operator()(const cc::render::LightBoundsCullingKey& val) const noexcept;
 };
 
 } // namespace ccstd
