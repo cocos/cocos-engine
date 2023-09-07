@@ -98,8 +98,8 @@ function decodeTypedArray (data: IRuntimeFileData, value: TypedArrayData): Array
             ??= new DataView(attachedBinary.buffer, attachedBinary.byteOffset, attachedBinary.byteLength));
 
         let p = value;
-        const header = dataView.getUint32(p, true);
-        p += 4;
+        const header = dataView.getUint8(p);
+        p += 1;
         const length = dataView.getUint32(p, true);
         p += 4;
 
