@@ -287,7 +287,7 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
                 const auto inputOffset = readerStride * i + 2 * j;
                 const auto outputOffset = writerStride * i + 4 * j;
                 const auto val = mathutils::halfToFloat(ccstd::get<uint16_t>(reader(inputOffset)));
-                writer(outputOffset, reader(inputOffset));
+                writer(outputOffset, val);
             }
         }
     };
@@ -329,11 +329,11 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
             readers.push_back(reader);
         }
         auto netStride = std::accumulate(strides.begin(), strides.end(), 0U);
-        auto *buffer = ccnew ArrayBuffer(view.count * netStride);
+        auto vertData = Uint8Array(view.count * netStride);
         for (uint32_t i = 0; i < attrs.size(); i++) {
             const auto &attr = attrs[i];
             const auto &reader = readers[i];
-            auto outputView = DataView(buffer, getOffset(attrs, i));
+            auto outputView = DataView(vertData.buffer(), getOffset(attrs, i));
             auto writer = getWriter(outputView, attr.format);
             const auto &dequantize = dequantizes[i];
             const auto &formatInfo = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attr.format)];
@@ -364,7 +364,7 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
         vertexView.count = view.count;
         vertexView.stride = netStride;
         bundle.view = vertexView;
-        bufferBlob.addBuffer(buffer);
+        bufferBlob.addBuffer(vertData.buffer());
     }
 
     for (auto &primitive : structInfo.primitives) {
