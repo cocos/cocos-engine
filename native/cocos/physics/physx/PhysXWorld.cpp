@@ -31,7 +31,9 @@
 #include "physics/spec/IWorld.h"
 #include "core/Root.h"
 #include "scene/Camera.h"
+#include "scene/RenderWindow.h"
 #include "renderer/pipeline/Define.h"
+#include "renderer/pipeline/RenderPipeline.h"
 
 namespace cc {
 namespace physics {
@@ -127,16 +129,14 @@ void PhysXWorld::step(float fixedTimeStep) {
 }
 
 pipeline::GeometryRenderer* PhysXWorld::getDebugRenderer () {
-    auto cameras = Root::getInstance()->getCameraList();
+    auto cameras = Root::getInstance()->getMainWindow()->getCameras();
     scene::Camera* camera = nullptr;
     for (int c = 0; c < cameras.size(); c++) {
-        if (!cameras[c]) continue;
-        
+        if (!cameras[c])
+            continue;
         const bool defaultCamera = cameras[c]->getVisibility() & static_cast<uint32_t>(pipeline::LayerList::DEFAULT);
-        bool validPointer = cameras[c]->getRefCount() < 10000;
-        if (defaultCamera && validPointer) {
+        if (defaultCamera) {
             camera = cameras[c];
-            //CC_LOG_WARNING("use camera %d\n", c);
             break;
         }
     }
@@ -149,27 +149,19 @@ pipeline::GeometryRenderer* PhysXWorld::getDebugRenderer () {
     return nullptr;
 }
 
-static void getColorPXColor (gfx::Color& color, physx::PxU32 rgba) {
-    color.z = ((rgba >> 16) & 0xff);
-    color.y = ((rgba >> 8)  & 0xff);
-    color.x = ((rgba)     & 0xff);
-    color.w = 255;
-}
-
 void PhysXWorld::debugDraw () {
     pipeline::GeometryRenderer* debugRenderer = getDebugRenderer();
     if (!debugRenderer) return;
-    auto cameras = Root::getInstance()->getCameraList();
     _debugLineCount = 0;
     static Vec3 v0, v1;
     static gfx::Color c;
-    auto& rb = _mScene->getRenderBuffer();//PxRenderBuffer
+    auto& rb = _mScene->getRenderBuffer();
     // lines
     for (int i = 0; i < rb.getNbLines(); i++) {
         if (_debugLineCount < _MAX_DEBUG_LINE_COUNT){
             _debugLineCount++;
             const physx::PxDebugLine& line = rb.getLines()[i];
-            getColorPXColor(c, line.color0);
+            pxSetColor(c, line.color0);
             pxSetVec3Ext(v0, line.pos0);
             pxSetVec3Ext(v1, line.pos1);
             debugRenderer->addLine(v0, v1, c);
@@ -180,7 +172,7 @@ void PhysXWorld::debugDraw () {
         if (_debugLineCount < _MAX_DEBUG_LINE_COUNT - 3) {
             _debugLineCount = _debugLineCount + 3;
             const physx::PxDebugTriangle& triangle = rb.getTriangles()[i];
-            getColorPXColor(c, triangle.color0);
+            pxSetColor(c, triangle.color0);
             pxSetVec3Ext(v0, triangle.pos0);
             pxSetVec3Ext(v1, triangle.pos1);
             debugRenderer->addLine(v0, v1, c);

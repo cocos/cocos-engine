@@ -27,6 +27,7 @@
 #include "base/Macros.h"
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
+#include "renderer/pipeline/Define.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
 #include "physics/physx/PhysXFilterShader.h"
@@ -114,6 +115,13 @@ inline void pxSetVec3Ext(cc::Vec3 &v, const physx::PxVec3 &cv) {
 template <typename T1 = physx::PxQuat, typename T2 = cc::Vec4>
 inline void pxSetQuatExt(T1 &p, const T2 &cp) {
     p = T1(cp.x, cp.y, cp.z, cp.w);
+}
+
+inline void pxSetColor(gfx::Color& color, physx::PxU32 rgba) {
+    color.z = ((rgba >> 16) & 0xff);
+    color.y = ((rgba >> 8) & 0xff);
+    color.x = ((rgba) & 0xff);
+    color.w = 255;
 }
 
 template <typename T>
