@@ -26,11 +26,11 @@
 /* eslint-disable no-new-func */
 
 import { DEV } from 'internal:constants';
+import { setTimeoutRAF } from '@pal/utils';
 import { getClassName, getset, isEmptyObject } from './js';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
-import { setTimeoutRAF } from '../../../pal/utils';
 import type { Component } from '../../scene-graph';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
@@ -53,31 +53,31 @@ export const BASE64_VALUES = values;
  * @engineInternal
  */
 export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets): void {
-    function define (np, propName, getter, setter): void {
+    function define (np: object, propName: string, getter: string, setter: string): void {
         const pd = Object.getOwnPropertyDescriptor(np, propName);
         if (pd) {
             if (pd.get) { np[getter] = pd.get; }
             if (pd.set && setter) { np[setter] = pd.set; }
         } else {
-            const getterFunc = np[getter];
+            const getterFunc: Getter = np[getter];
             if (DEV && !getterFunc) {
-                const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor))
+                const clsName: string = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor))
                     || ctor.name
                     || '(anonymous class)';
                 warnID(5700, propName, getter, clsName);
             } else {
-                getset(np, propName, getterFunc, np[setter]);
+                getset(np, propName, getterFunc, np[setter] as Setter);
             }
         }
     }
-    let propName; const np = ctor.prototype;
+    let propName: string; const np: object = ctor.prototype;
     for (let i = 0; i < sameNameGetSets.length; i++) {
         propName = sameNameGetSets[i];
-        const suffix = (propName[0].toUpperCase() as string) + (propName.slice(1) as string);
+        const suffix = propName[0].toUpperCase() + propName.slice(1);
         define(np, propName, `get${suffix}`, `set${suffix}`);
     }
     for (propName in diffNameGetSets) {
-        const gs = diffNameGetSets[propName];
+        const gs: string[] = diffNameGetSets[propName];
         define(np, propName, gs[0], gs[1]);
     }
 }
@@ -182,13 +182,15 @@ export function callInNextTick (callback, p1?: any, p2?: any): void {
  */
 export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => void {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    return Function('target',
+    return Function(
+        'target',
         `${'try {\n'
         + '  target.'}${funcName}();\n`
         + `}\n`
         + `catch (e) {\n`
         + `  cc._throw(e);\n`
-        + `}`) as (comp: Component) => void;
+        + `}`,
+    ) as (comp: Component) => void;
 }
 
 /**

@@ -25,9 +25,10 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { EventTarget } from '../../../cocos/core/event';
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+import { warn } from '../../../cocos/core/platform/debug';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -188,7 +189,7 @@ class SystemInfo extends EventTarget {
                 img.onerror = function onerror (err): void {
                     clearTimeout(timer);
                     if (DEBUG) {
-                        console.warn('Create Webp image failed, message: '.concat(err.toString()));
+                        warn('Create Webp image failed, message: ', err);
                     }
                     resolve(false);
                 };
@@ -228,7 +229,7 @@ class SystemInfo extends EventTarget {
     }
     public openURL (url: string): void {
         if (DEBUG) {
-            console.warn('openURL is not supported');
+            warn('openURL is not supported');
         }
     }
     public now (): number {
@@ -240,7 +241,7 @@ class SystemInfo extends EventTarget {
     }
     public restartJSVM (): void {
         if (DEBUG) {
-            console.warn('restartJSVM is not supported.');
+            warn('restartJSVM is not supported.');
         }
     }
 

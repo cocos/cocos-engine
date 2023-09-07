@@ -23,10 +23,10 @@
 */
 
 import { IMiniGame, SystemInfo } from 'pal/minigame';
+import { cloneObject, createInnerAudioContextPolyfill, versionCompare, checkPalIntegrity, withImpl } from '@pal/utils';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 import { Language } from '../system-info/enum-type';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
+import { error, warn } from '../../cocos/core/platform/debug';
 
 //taobao IDE language   ("Chinese")
 //taobao phone language (Andrond: "cn", iPad: 'zh_CN')
@@ -80,7 +80,7 @@ function detectLandscapeSupport (): void {
     const locSysInfo = minigame.getSystemInfoSync();
     if (typeof locSysInfo.deviceOrientation === 'string' && locSysInfo.deviceOrientation.startsWith('landscape')) {
         if (versionCompare(locSysInfo.version, '10.15.10') < 0) {
-            console.warn('The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10');
+            warn('The current Taobao client version does not support Landscape, the minimum requirement is 10.15.10');
         }
     }
 }
@@ -149,7 +149,7 @@ minigame.startAccelerometer = function (res: any): void {
         my.onAccelerometerChange(_accelerometerCb);
     } else {
         // my.startAccelerometer() is not implemented.
-        console.error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform');
+        error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on taobao platform');
     }
 };
 // eslint-disable-next-line func-names
@@ -167,7 +167,7 @@ minigame.getSafeArea = function (): any {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return systemInfo.safeArea;
     }
-    console.warn('getSafeArea is not supported on this platform');
+    warn('getSafeArea is not supported on this platform');
     return {
         top: 0,
         left: 0,

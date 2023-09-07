@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-/* eslint-disable import/no-dynamic-require */
 import { BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT, WECHAT_MINI_PROGRAM, XIAOMI } from 'internal:constants';
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 
 declare const require: (path: string) => any;
 declare const __baiduRequire: (path: string) => any;
@@ -56,4 +55,4 @@ export function loadJsFile (path: string): any {
     return require(`../${path}`);
 }
 
-checkPalIntegrity<typeof import('pal/env')>(withImpl<typeof import('./env')>());
+checkPalIntegrity<typeof import('@pal/env')>(withImpl<typeof import('./env')>());

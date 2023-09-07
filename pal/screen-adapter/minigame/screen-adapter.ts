@@ -26,12 +26,12 @@ import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
-import { warnID } from '../../../cocos/core/platform/debug';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
+import { error, warn, warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 declare const my: any;
 
@@ -47,12 +47,12 @@ try {
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',
                 encoding: 'utf8',
-            }).data).screenOrientation;
+            }).data as string).screenOrientation;
             rotateLandscape = (screenOrientation === 'landscape');
         }
     }
 } catch (e) {
-    console.error(e);
+    error(e);
 }
 
 class ScreenAdapter extends EventTarget {
@@ -111,7 +111,7 @@ class ScreenAdapter extends EventTarget {
         return minigame.orientation;
     }
     public set orientation (value: Orientation) {
-        console.warn('Setting orientation is not supported yet.');
+        warn('Setting orientation is not supported yet.');
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
@@ -148,7 +148,7 @@ class ScreenAdapter extends EventTarget {
     public get isProportionalToFrame (): boolean {
         return this._isProportionalToFrame;
     }
-    public set isProportionalToFrame (v: boolean) { }
+    public set isProportionalToFrame (v: boolean) { /* not support setting */ }
 
     private _cbToUpdateFrameBuffer?: () => void;
     private _resolutionScale = 1;

@@ -104,7 +104,6 @@ async function compileTsEngine () {
             "./@types/pal/minigame",
             "./@types/pal/audio",
             "./@types/pal/input",
-            "./@types/pal/env",
             "./@types/pal/pacer",
             "./@types/pal/wasm",
         ].map(typePath => normalizePath(ps.join(buildOutput, typePath))),
