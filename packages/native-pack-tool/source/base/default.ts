@@ -497,7 +497,7 @@ export abstract class NativePackTool {
 
         const allBundleConfigs: string[] = await globby([
             ps.join(this.paths.buildAssetsDir, 'assets/*/cc.config*.json'),
-            ps.join(this.paths.buildAssetsDir, 'remote/*/cc.config*.json'),
+            ps.join(this.paths.buildAssetsDir, '../remote/*/cc.config*.json'),
         ]);
         for (const configPath of allBundleConfigs) {
             const config = await fs.readJSON(configPath);
@@ -518,7 +518,8 @@ export abstract class NativePackTool {
             config.encrypted = true;
             fs.writeJSONSync(configPath, config);
 
-            fs.copySync(scriptDest, ps.join(backupPath, ps.relative(this.paths.buildAssetsDir, scriptDest)));
+            const relativePath = ps.relative(this.paths.buildAssetsDir, scriptDest).replace(/^\.\.(\/|\\)?/, '');
+            fs.copySync(scriptDest, ps.join(backupPath, relativePath));
             fs.removeSync(scriptDest);
         }
         await this.generateCMakeConfig();
