@@ -6,7 +6,6 @@
   "scripts": {
   },
   "license": "MIT",
-  "main": "./src/index.d.ts",
   "exports": {
     ".": {
       "node": "./package.json",

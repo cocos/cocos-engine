@@ -398,10 +398,6 @@
           ],
           "type": "object"
         },
-        "main": {
-          "description": "Please specify this field because we need this for the eslint rule 'import/no-extraneous-dependencies'.",
-          "type": "string"
-        },
         "name": {
           "description": "The module name.",
           "type": "string"
@@ -421,7 +417,6 @@
       "required": [
         "name",
         "version",
-        "main",
         "exports"
       ],
       "type": "object"
