@@ -44,7 +44,7 @@
     "@pal/utils": "*",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
-    "@cocos/ccbuild": "2.0.3-alpha.13",
+    "@cocos/ccbuild": "2.0.3-alpha.14",
     "@cocos/dragonbones-js": "^1.0.1"
   },
   "devDependencies": {

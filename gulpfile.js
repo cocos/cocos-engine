@@ -106,14 +106,11 @@ gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
 
 gulp.task('build-declarations', async () => {
     const outDir = ps.join('bin', '.declarations');
-    const { build } = require('@cocos/build-engine/lib/build-declarations');
+    const { dtsBundler } = require('@cocos/ccbuild');
     await fs.emptyDir(outDir);
-    return await build({
+    return await dtsBundler.build({
         engine: __dirname,
         outDir,
-        withIndex: true,
-        withExports: false,
-        withEditorExports: true,
     });
 });
 

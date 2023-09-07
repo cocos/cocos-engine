@@ -50,7 +50,7 @@ declare module 'pal/audio' {
          * @param opts Load options.
          * @returns The audio player.
          */
-        static load (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<AudioPlayer>;
+        static load (url: string, opts?: import('../../../../pal/audio/type').AudioLoadOptions): Promise<AudioPlayer>;
 
         /**
          * Asynchronously load a native audio for playing one shot.
@@ -59,7 +59,7 @@ declare module 'pal/audio' {
          * @param opts Load options.
          * @returns The native audio such as `HTMLAudioElement` or `AudioBuffer`.
          */
-        static loadNative (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<unknown>;
+        static loadNative (url: string, opts?: import('../../../../pal/audio/type').AudioLoadOptions): Promise<unknown>;
 
         /**
          * Asynchronously load an OneShotAudio instance.
@@ -68,7 +68,7 @@ declare module 'pal/audio' {
          * @param opts Load options.
          * @returns The OneShotAudio instance.
          */
-        static loadOneShotAudio (url: string, volume: number, opts?: import('pal/audio/type').AudioLoadOptions): Promise<OneShotAudio>;
+        static loadOneShotAudio (url: string, volume: number, opts?: import('../../../../pal/audio/type').AudioLoadOptions): Promise<OneShotAudio>;
 
         /**
          * Max audio channel count allowed on current platform.
@@ -86,13 +86,13 @@ declare module 'pal/audio' {
          * The type of this player.
          * For WEB platform, it can be `WEB_AUDIO` or `DOM_AUDIO`.
          */
-        get type (): import('pal/audio/type').AudioType;
+        get type (): import('../../../../pal/audio/type').AudioType;
 
         /**
          * The state of this player.
          * The state would be restored to `INIT` when the audio finished its playing.
          */
-        get state (): import('pal/audio/type').AudioState;
+        get state (): import('../../../../pal/audio/type').AudioState;
 
         /**
          * Gets or sets whether if the playing audio should be looped.
@@ -126,7 +126,7 @@ declare module 'pal/audio' {
          * Get pcm data view from specified channel.
          * @param channelIndex The channel index. 0 is left channel, 1 is right channel.
          */
-        public getPCMData (channelIndex: number): import('pal/audio/type').AudioPCMDataView | undefined;
+        public getPCMData (channelIndex: number): import('../../../../pal/audio/type').AudioPCMDataView | undefined;
 
         /**
          * Asynchronously seeks the player's playing time onto specified location.
