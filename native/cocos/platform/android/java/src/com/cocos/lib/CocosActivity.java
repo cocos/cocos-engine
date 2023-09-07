@@ -49,7 +49,6 @@ public class CocosActivity extends GameActivity {
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
         getIntent().putExtra(GameActivity.META_DATA_LIB_NAME, libName);
         super.onCreate(savedInstanceState);
         initView();
