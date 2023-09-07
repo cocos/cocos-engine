@@ -115,7 +115,7 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
         _gpuBufferObject->indirectObjs.resize(drawInfoCount);
     }
 
-    _size = boost::alignment::align_up(_size, BUFFER_ALIGNMENT);
+    _size = boost::alignment::align_up(size, BUFFER_ALIGNMENT);
 
     WGPUBufferDescriptor descriptor = {
         .nextInChain = nullptr,
