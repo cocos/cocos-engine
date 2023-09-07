@@ -77,10 +77,10 @@ enum class ResourceType;
 struct SceneResource;
 struct FrustumCullingKey;
 struct FrustumCullingID;
-struct FrustumCullingQueries;
+struct FrustumCulling;
 struct LightBoundsCullingID;
 struct LightBoundsCullingKey;
-struct LightBoundsCullingQueries;
+struct LightBoundsCulling;
 struct NativeRenderQueueID;
 struct NativeRenderQueueDesc;
 struct SceneCulling;
@@ -100,6 +100,11 @@ namespace ccstd {
 template <>
 struct hash<cc::render::FrustumCullingKey> {
     hash_t operator()(const cc::render::FrustumCullingKey& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::FrustumCullingID> {
+    hash_t operator()(const cc::render::FrustumCullingID& val) const noexcept;
 };
 
 template <>

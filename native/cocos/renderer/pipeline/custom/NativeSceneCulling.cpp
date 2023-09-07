@@ -33,7 +33,7 @@ bool NativeRenderQueue::empty() const noexcept {
 FrustumCullingID SceneCulling::getOrCreateFrustumCulling(const SceneData& sceneData) {
     const auto* const scene = sceneData.scene;
     // get or add scene to queries
-    auto& queries = sceneQueries[scene];
+    auto& queries = frustumCullings[scene];
 
     // check cast shadow
     const bool bCastShadow = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
@@ -53,15 +53,55 @@ FrustumCullingID SceneCulling::getOrCreateFrustumCulling(const SceneData& sceneD
     if (iter == queries.culledResultIndex.end()) {
         // create query source
         // make query source id
-        const FrustumCullingID frustomCulledResultID{numCullingQueries++};
-        if (numCullingQueries > frustumCulledResults.size()) {
+        const FrustumCullingID frustomCulledResultID{numFrustumCulling++};
+        if (numFrustumCulling > frustumCullingResults.size()) {
             // space is not enough, create query source
-            CC_EXPECTS(numCullingQueries == frustumCulledResults.size() + 1);
-            frustumCulledResults.emplace_back();
+            CC_EXPECTS(numFrustumCulling == frustumCullingResults.size() + 1);
+            frustumCullingResults.emplace_back();
         }
         // add query source to query index
         bool added = false;
         std::tie(iter, added) = queries.culledResultIndex.emplace(key, frustomCulledResultID);
+        CC_ENSURES(added);
+    }
+    return iter->second;
+}
+
+LightBoundsCullingID SceneCulling::getOrCreateLightBoundsCulling(
+    const SceneData& sceneData, FrustumCullingID frustumCullingID) {
+    if (!any(sceneData.cullingFlags & CullingFlags::LIGHT_BOUNDS)) {
+        return {};
+    }
+
+    CC_EXPECTS(sceneData.light.light);
+    const auto* const scene = sceneData.scene;
+    CC_EXPECTS(scene);
+
+    auto& queries = lightBoundsCullings[scene];
+
+    // get or create query source
+    // make query key
+    const auto key = LightBoundsCullingKey{
+        frustumCullingID,
+        sceneData.camera,
+        sceneData.light.probe,
+        sceneData.light.light,
+    };
+
+    // find query source
+    auto iter = queries.resultIndex.find(key);
+    if (iter == queries.resultIndex.end()) {
+        // create query source
+        // make query source id
+        const LightBoundsCullingID lightBoundsCullingID{numLightBoundsCulling++};
+        if (numLightBoundsCulling > lightBoundsCullingResults.size()) {
+            // space is not enough, create query source
+            CC_EXPECTS(numLightBoundsCulling == lightBoundsCullingResults.size() + 1);
+            lightBoundsCullingResults.emplace_back();
+        }
+        // add query source to query index
+        bool added = false;
+        std::tie(iter, added) = queries.resultIndex.emplace(key, lightBoundsCullingID);
         CC_ENSURES(added);
     }
     return iter->second;
@@ -251,7 +291,7 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
     const auto* const skybox = pplSceneData.getSkybox();
     const auto* const skyboxModel = skybox && skybox->isEnabled() ? skybox->getModel() : nullptr;
 
-    for (const auto& [scene, queries] : sceneQueries) {
+    for (const auto& [scene, queries] : frustumCullings) {
         CC_ENSURES(scene);
         for (const auto& [key, frustomCulledResultID] : queries.culledResultIndex) {
             CC_EXPECTS(key.camera);
@@ -261,8 +301,8 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
             const auto bCastShadow = key.castShadow;
             const auto* probe = key.probe;
             const auto& camera = probe ? *probe->getCamera() : *key.camera;
-            CC_EXPECTS(frustomCulledResultID.value < frustumCulledResults.size());
-            auto& models = frustumCulledResults[frustomCulledResultID.value];
+            CC_EXPECTS(frustomCulledResultID.value < frustumCullingResults.size());
+            auto& models = frustumCullingResults[frustomCulledResultID.value];
 
             if (probe) {
                 sceneCulling(
@@ -443,8 +483,8 @@ void SceneCulling::fillRenderQueues(
         CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
 
         // culling source
-        CC_EXPECTS(frustomCulledResultID.value < frustumCulledResults.size());
-        const auto& sourceModels = frustumCulledResults[frustomCulledResultID.value];
+        CC_EXPECTS(frustomCulledResultID.value < frustumCullingResults.size());
+        const auto& sourceModels = frustumCullingResults[frustomCulledResultID.value];
 
         // native queue target
         CC_EXPECTS(targetID.value < renderQueues.size());
@@ -478,15 +518,27 @@ void SceneCulling::buildRenderQueues(
 }
 
 void SceneCulling::clear() noexcept {
-    sceneQueries.clear();
-    for (auto& c : frustumCulledResults) {
+    // frustum culling
+    frustumCullings.clear();
+    for (auto& c : frustumCullingResults) {
         c.clear();
     }
+    // light bounds culling
+    lightBoundsCullings.clear();
+    for (auto& c : lightBoundsCullingResults) {
+        c.clear();
+    }
+    // native render queues
     for (auto& q : renderQueues) {
         q.clear();
     }
+
+    // clear render graph scene vertex query index
     sceneQueryIndex.clear();
-    numCullingQueries = 0;
+
+    // reset all counters
+    numFrustumCulling = 0;
+    numLightBoundsCulling = 0;
     numRenderQueues = 0;
 }
 

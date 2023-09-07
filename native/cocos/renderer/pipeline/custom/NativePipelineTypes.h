@@ -1203,20 +1203,29 @@ struct FrustumCullingID {
     uint32_t value{0xFFFFFFFF};
 };
 
-struct FrustumCullingQueries {
+inline bool operator==(const FrustumCullingID& lhs, const FrustumCullingID& rhs) noexcept {
+    return std::forward_as_tuple(lhs.value) ==
+           std::forward_as_tuple(rhs.value);
+}
+
+inline bool operator!=(const FrustumCullingID& lhs, const FrustumCullingID& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+struct FrustumCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {culledResultIndex.get_allocator().resource()};
     }
 
-    FrustumCullingQueries(const allocator_type& alloc) noexcept; // NOLINT
-    FrustumCullingQueries(FrustumCullingQueries&& rhs, const allocator_type& alloc);
-    FrustumCullingQueries(FrustumCullingQueries const& rhs, const allocator_type& alloc);
+    FrustumCulling(const allocator_type& alloc) noexcept; // NOLINT
+    FrustumCulling(FrustumCulling&& rhs, const allocator_type& alloc);
+    FrustumCulling(FrustumCulling const& rhs, const allocator_type& alloc);
 
-    FrustumCullingQueries(FrustumCullingQueries&& rhs) noexcept = default;
-    FrustumCullingQueries(FrustumCullingQueries const& rhs) = delete;
-    FrustumCullingQueries& operator=(FrustumCullingQueries&& rhs) = default;
-    FrustumCullingQueries& operator=(FrustumCullingQueries const& rhs) = default;
+    FrustumCulling(FrustumCulling&& rhs) noexcept = default;
+    FrustumCulling(FrustumCulling const& rhs) = delete;
+    FrustumCulling& operator=(FrustumCulling&& rhs) = default;
+    FrustumCulling& operator=(FrustumCulling const& rhs) = default;
 
     ccstd::pmr::unordered_map<FrustumCullingKey, FrustumCullingID> culledResultIndex;
 };
@@ -1230,36 +1239,37 @@ struct LightBoundsCullingID {
 };
 
 struct LightBoundsCullingKey {
-    const scene::Camera* cameraTarget{nullptr};
-    const scene::ReflectionProbe* probeTarget{nullptr};
+    FrustumCullingID frustumCullingID;
+    const scene::Camera* camera{nullptr};
+    const scene::ReflectionProbe* probe{nullptr};
     const scene::Light* cullingLight{nullptr};
 };
 
 inline bool operator==(const LightBoundsCullingKey& lhs, const LightBoundsCullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.cameraTarget, lhs.probeTarget, lhs.cullingLight) ==
-           std::forward_as_tuple(rhs.cameraTarget, rhs.probeTarget, rhs.cullingLight);
+    return std::forward_as_tuple(lhs.frustumCullingID, lhs.camera, lhs.probe, lhs.cullingLight) ==
+           std::forward_as_tuple(rhs.frustumCullingID, rhs.camera, rhs.probe, rhs.cullingLight);
 }
 
 inline bool operator!=(const LightBoundsCullingKey& lhs, const LightBoundsCullingKey& rhs) noexcept {
     return !(lhs == rhs);
 }
 
-struct LightBoundsCullingQueries {
+struct LightBoundsCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {lightCulledResultIndex.get_allocator().resource()};
+        return {resultIndex.get_allocator().resource()};
     }
 
-    LightBoundsCullingQueries(const allocator_type& alloc) noexcept; // NOLINT
-    LightBoundsCullingQueries(LightBoundsCullingQueries&& rhs, const allocator_type& alloc);
-    LightBoundsCullingQueries(LightBoundsCullingQueries const& rhs, const allocator_type& alloc);
+    LightBoundsCulling(const allocator_type& alloc) noexcept; // NOLINT
+    LightBoundsCulling(LightBoundsCulling&& rhs, const allocator_type& alloc);
+    LightBoundsCulling(LightBoundsCulling const& rhs, const allocator_type& alloc);
 
-    LightBoundsCullingQueries(LightBoundsCullingQueries&& rhs) noexcept = default;
-    LightBoundsCullingQueries(LightBoundsCullingQueries const& rhs) = delete;
-    LightBoundsCullingQueries& operator=(LightBoundsCullingQueries&& rhs) = default;
-    LightBoundsCullingQueries& operator=(LightBoundsCullingQueries const& rhs) = default;
+    LightBoundsCulling(LightBoundsCulling&& rhs) noexcept = default;
+    LightBoundsCulling(LightBoundsCulling const& rhs) = delete;
+    LightBoundsCulling& operator=(LightBoundsCulling&& rhs) = default;
+    LightBoundsCulling& operator=(LightBoundsCulling const& rhs) = default;
 
-    ccstd::pmr::unordered_map<LightBoundsCullingKey, LightBoundsCullingID> lightCulledResultIndex;
+    ccstd::pmr::unordered_map<LightBoundsCullingKey, LightBoundsCullingID> resultIndex;
 };
 
 struct NativeRenderQueueID {
@@ -1280,7 +1290,7 @@ struct NativeRenderQueueDesc {
 struct SceneCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {sceneQueries.get_allocator().resource()};
+        return {frustumCullings.get_allocator().resource()};
     }
 
     SceneCulling(const allocator_type& alloc) noexcept; // NOLINT
@@ -1295,18 +1305,20 @@ struct SceneCulling {
     void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg, const pipeline::PipelineSceneData& pplSceneData);
 private:
     FrustumCullingID getOrCreateFrustumCulling(const SceneData& sceneData);
+    LightBoundsCullingID getOrCreateLightBoundsCulling(const SceneData& sceneData, FrustumCullingID frustumCullingID);
     NativeRenderQueueID createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
     void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
     void batchCulling(const pipeline::PipelineSceneData& pplSceneData);
     void fillRenderQueues(const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData);
 public:
-    ccstd::pmr::unordered_map<const scene::RenderScene*, FrustumCullingQueries> sceneQueries;
-    ccstd::pmr::vector<ccstd::vector<const scene::Model*>> frustumCulledResults;
-    ccstd::pmr::unordered_map<const scene::RenderScene*, LightBoundsCullingQueries> lightCulledQueries;
-    ccstd::pmr::vector<ccstd::vector<const scene::Model*>> lightCulledResults;
+    ccstd::pmr::unordered_map<const scene::RenderScene*, FrustumCulling> frustumCullings;
+    ccstd::pmr::vector<ccstd::vector<const scene::Model*>> frustumCullingResults;
+    ccstd::pmr::unordered_map<const scene::RenderScene*, LightBoundsCulling> lightBoundsCullings;
+    ccstd::pmr::vector<ccstd::vector<const scene::Model*>> lightBoundsCullingResults;
     ccstd::pmr::vector<NativeRenderQueue> renderQueues;
     PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> sceneQueryIndex;
-    uint32_t numCullingQueries{0};
+    uint32_t numFrustumCulling{0};
+    uint32_t numLightBoundsCulling{0};
     uint32_t numRenderQueues{0};
     uint32_t gpuCullingPassID{0xFFFFFFFF};
 };
@@ -1561,10 +1573,17 @@ inline hash_t hash<cc::render::FrustumCullingKey>::operator()(const cc::render::
     return seed;
 }
 
+inline hash_t hash<cc::render::FrustumCullingID>::operator()(const cc::render::FrustumCullingID& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.value);
+    return seed;
+}
+
 inline hash_t hash<cc::render::LightBoundsCullingKey>::operator()(const cc::render::LightBoundsCullingKey& val) const noexcept {
     hash_t seed = 0;
-    hash_combine(seed, val.cameraTarget);
-    hash_combine(seed, val.probeTarget);
+    hash_combine(seed, val.frustumCullingID);
+    hash_combine(seed, val.camera);
+    hash_combine(seed, val.probe);
     hash_combine(seed, val.cullingLight);
     return seed;
 }
