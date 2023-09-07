@@ -182,7 +182,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     private _getDebugRenderer (): GeometryRenderer|null {
-        const cameras = director.root!.cameraList;
+        const cameras = director.root!.mainWindow?.cameras;
         if (!cameras) return null;
         if (cameras.length === 0) return null;
         if (!cameras[0]) return null;
