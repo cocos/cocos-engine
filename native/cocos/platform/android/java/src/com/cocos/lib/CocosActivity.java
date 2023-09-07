@@ -53,7 +53,7 @@ public class CocosActivity extends GameActivity {
         getIntent().putExtra(GameActivity.META_DATA_LIB_NAME, libName);
         super.onCreate(savedInstanceState);
         initView();
-        mCocosEngine.init(findViewById(contentViewId));
+        mCocosEngine.init();
 
         setImmersiveMode();
         Utils.hideVirtualButton();
@@ -87,7 +87,7 @@ public class CocosActivity extends GameActivity {
 
     //Deprecated, for compatibility, keep this interface for now
     protected void initView() {
-        //
+        mCocosEngine.initView(findViewById(contentViewId));
     }
 
     public SurfaceView getSurfaceView() {
