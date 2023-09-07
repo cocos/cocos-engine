@@ -2178,7 +2178,7 @@ export function buildHBAOPasses (
     return { rtName: haboCombined.rtName, dsName: inputDS };
 }
 
-export const MAX_LIGHTS_PER_CLUSTER = 100;
+export const MAX_LIGHTS_PER_CLUSTER = 200;
 export const CLUSTERS_X = 16;
 export const CLUSTERS_Y = 8;
 export const CLUSTERS_Z = 24;
