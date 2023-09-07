@@ -262,7 +262,7 @@ public class CocosHelper {
     }
 
     public static boolean openURL(String url) {
-        if (GlobalObject.getActivity() == null) {
+        if (GlobalObject.getContext() == null) {
             Log.e(TAG, "activity is null");
             return false;
         }
@@ -271,7 +271,7 @@ public class CocosHelper {
         try {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse(url));
-            GlobalObject.getActivity().startActivity(i);
+            GlobalObject.getContext().startActivity(i);
             ret = true;
         } catch (Exception e) {
         }

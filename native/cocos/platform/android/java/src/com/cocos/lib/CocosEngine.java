@@ -1,7 +1,9 @@
 package com.cocos.lib;
 
 import android.app.Activity;
+import android.content.Context;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,49 +16,55 @@ import java.util.List;
 
 public class CocosEngine {
     private static WeakReference<CocosEngine> mRefCocosEngine;
-    private Activity mActivity;
+    private Context mContext;
 
     private CocosSensorHandler mSensorHandler;
 
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
     private FrameLayout mRootLayout;
+    private final Handler mHandler;
 
     private List<CocosSurfaceView> mSurfaceViewArray;
     private SurfaceView mSurfaceView;
 
-    private native void initEnvNative(Activity activity);
+    private native void initEnvNative(Context context);
 
-    public CocosEngine(Activity activity, String libName) {
+    public CocosEngine(Context context, String libName) {
         mRefCocosEngine = new WeakReference<>(this);
-        mActivity = activity;
+        mContext = context;
+        mHandler = new Handler(context.getMainLooper());
         System.loadLibrary(libName);
-        initEnvNative(activity);
+        initEnvNative(context);
     }
 
     public void destroy() {
         mRefCocosEngine.clear();
-        CocosHelper.unregisterBatteryLevelReceiver(mActivity);
-        CocosAudioFocusManager.unregisterAudioFocusListener(mActivity);
+        CocosHelper.unregisterBatteryLevelReceiver(mContext);
+        CocosAudioFocusManager.unregisterAudioFocusListener(mContext);
         CanvasRenderingContext2DImpl.destroy();
         GlobalObject.destroy();
-        mActivity = null;
+        mContext = null;
     }
 
-    public void init(FrameLayout parentView) {
-        mRootLayout = parentView;
+    public void init() {
+        Activity activity = null;
+        if (mContext instanceof Activity) {
+            activity = (Activity) mContext;
+        }
 
         // GlobalObject.init should be initialized at first.
-        GlobalObject.init(mActivity, mActivity);
+        GlobalObject.init(mContext, activity);
 
-        CocosHelper.registerBatteryLevelReceiver(mActivity);
+        CocosHelper.registerBatteryLevelReceiver(mContext);
         CocosHelper.init();
-        CocosAudioFocusManager.registerAudioFocusListener(mActivity);
-        CanvasRenderingContext2DImpl.init(mActivity);
-        mActivity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        CocosAudioFocusManager.registerAudioFocusListener(mContext);
+        CanvasRenderingContext2DImpl.init(mContext);
+        if (activity != null) {
+            activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        }
 
-        initView();
-        mSensorHandler = new CocosSensorHandler(mActivity);
+        mSensorHandler = new CocosSensorHandler(mContext);
     }
 
     public void start() {
@@ -85,7 +93,7 @@ public class CocosEngine {
         mSensorHandler.onResume();
         Utils.hideVirtualButton();
         if (CocosAudioFocusManager.isAudioFocusLoss()) {
-            CocosAudioFocusManager.registerAudioFocusListener(mActivity);
+            CocosAudioFocusManager.registerAudioFocusListener(mContext);
         }
     }
 
@@ -95,13 +103,15 @@ public class CocosEngine {
 
     public void setAudioFocus(boolean hasFocus) {
         if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
-            CocosAudioFocusManager.registerAudioFocusListener(mActivity);
+            CocosAudioFocusManager.registerAudioFocusListener(mContext);
         }
     }
 
-    private void initView() {
-        if (mActivity instanceof CocosActivity) {
-            CocosActivity cocosActivity = (CocosActivity) mActivity;
+    void initView(FrameLayout parentView) {
+        mRootLayout = parentView;
+        CocosActivity cocosActivity = null;
+        if (mContext instanceof CocosActivity) {
+            cocosActivity = (CocosActivity) mContext;
             mSurfaceView = cocosActivity.getSurfaceView();
         } else {
             // todo: create surfaceView
@@ -112,7 +122,7 @@ public class CocosEngine {
         }
 
         if (mVideoHelper == null) {
-            mVideoHelper = new CocosVideoHelper(mActivity, mRootLayout);
+            mVideoHelper = new CocosVideoHelper(cocosActivity, mRootLayout);
         }
     }
 
@@ -121,9 +131,8 @@ public class CocosEngine {
     private static void createSurface(int x, int y, int width, int height, int windowId) {
         CocosEngine cocosEngine = mRefCocosEngine.get();
         if (cocosEngine == null) return;
-        Activity activity = cocosEngine.mActivity;
-        activity.runOnUiThread(() -> {
-            CocosSurfaceView view = new CocosSurfaceView(activity, windowId);
+        cocosEngine.mHandler.post(() -> {
+            CocosSurfaceView view = new CocosSurfaceView(cocosEngine.mContext, windowId);
             view.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(width, height);
             params.leftMargin = x;
