@@ -336,7 +336,6 @@ export class SubModel {
             if (this._globalPatches) {
                 const globalPatches = Object.entries(this._globalPatches);
                 if (pipelinePatches.length === globalPatches.length) {
-                    const globalPatches = Object.entries(this._globalPatches);
                     const patchesStateUnchanged = JSON.stringify(pipelinePatches.sort()) === JSON.stringify(globalPatches.sort());
                     if (patchesStateUnchanged) return;
                 }
