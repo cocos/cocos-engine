@@ -195,7 +195,7 @@ SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
   lightBoundsCullings(alloc),
   lightBoundsCullingResults(alloc),
   renderQueues(alloc),
-  sceneQueryIndex(alloc) {}
+  renderQueueIndex(alloc) {}
 
 SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
 : frustumCullings(std::move(rhs.frustumCullings), alloc),
@@ -203,7 +203,7 @@ SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
   lightBoundsCullings(std::move(rhs.lightBoundsCullings), alloc),
   lightBoundsCullingResults(std::move(rhs.lightBoundsCullingResults), alloc),
   renderQueues(std::move(rhs.renderQueues), alloc),
-  sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
+  renderQueueIndex(std::move(rhs.renderQueueIndex), alloc),
   numFrustumCulling(rhs.numFrustumCulling),
   numLightBoundsCulling(rhs.numLightBoundsCulling),
   numRenderQueues(rhs.numRenderQueues),

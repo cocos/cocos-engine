@@ -1316,7 +1316,7 @@ public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, LightBoundsCulling> lightBoundsCullings;
     ccstd::pmr::vector<ccstd::vector<const scene::Model*>> lightBoundsCullingResults;
     ccstd::pmr::vector<NativeRenderQueue> renderQueues;
-    PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> sceneQueryIndex;
+    PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> renderQueueIndex;
     uint32_t numFrustumCulling{0};
     uint32_t numLightBoundsCulling{0};
     uint32_t numRenderQueues{0};

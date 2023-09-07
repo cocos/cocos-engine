@@ -136,6 +136,7 @@ void SceneCulling::collectCullingQueries(
             continue;
         }
         const auto frustomCulledResultID = getOrCreateFrustumCulling(sceneData);
+        const auto lightBoundsCullingID = getOrCreateLightBoundsCulling(sceneData, frustomCulledResultID);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
         const auto targetID = createRenderQueue(sceneData.flags, layoutID);
         const auto lightType = sceneData.light.light
@@ -143,11 +144,11 @@ void SceneCulling::collectCullingQueries(
                                    : scene::LightType::UNKNOWN;
 
         // add render queue to query source
-        sceneQueryIndex.emplace(
+        renderQueueIndex.emplace(
             vertID,
             NativeRenderQueueDesc{
                 frustomCulledResultID,
-                LightBoundsCullingID{},
+                lightBoundsCullingID,
                 targetID,
                 lightType,
             });
@@ -459,7 +460,7 @@ void addRenderObject(
 void SceneCulling::fillRenderQueues(
     const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData) {
     const auto* const skybox = pplSceneData.getSkybox();
-    for (auto&& [sceneID, desc] : sceneQueryIndex) {
+    for (auto&& [sceneID, desc] : renderQueueIndex) {
         CC_EXPECTS(holds<SceneTag>(sceneID, rg));
         const auto frustomCulledResultID = desc.frustumCulledResultID;
         const auto targetID = desc.renderQueueTarget;
@@ -534,7 +535,8 @@ void SceneCulling::clear() noexcept {
     }
 
     // clear render graph scene vertex query index
-    sceneQueryIndex.clear();
+    renderQueueIndex.clear();
+    // do not clear this->renderQueues, it is reused to avoid memory allocation
 
     // reset all counters
     numFrustumCulling = 0;

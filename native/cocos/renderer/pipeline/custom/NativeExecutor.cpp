@@ -1380,7 +1380,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             tryBindPerPassDescriptorSet(sceneID);
         }
         const auto* scene = camera->getScene();
-        const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
+        const auto& queueDesc = ctx.context.sceneCulling.renderQueueIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
         queue.opaqueQueue.recordCommandBuffer(
             ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
