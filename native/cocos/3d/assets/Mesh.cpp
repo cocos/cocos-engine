@@ -380,6 +380,8 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
         bufferBlob.addBuffer(buffer);
     }
 
+    structInfo.quantized = false;
+
     data = Uint8Array(bufferBlob.getCombined());
 }
 

@@ -1719,6 +1719,8 @@ export function dequantizeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
 
     const data = new Uint8Array(bufferBlob.getCombined());
 
+    struct.quantized = false;
+
     return {
         struct,
         data,
