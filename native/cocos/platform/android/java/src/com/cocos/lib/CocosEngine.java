@@ -17,7 +17,7 @@ import java.util.List;
 class CocosEngine {
     private static WeakReference<CocosEngine> mRefCocosEngine;
 
-    private Audio mAudio;
+    private CocosAudio mAudio;
     private Context mContext;
 
     private CocosSensorHandler mSensorHandler;
@@ -32,24 +32,10 @@ class CocosEngine {
 
     private native void initEnvNative(Context context);
 
-    static class Audio {
-        private WeakReference<Context> mRefContext;
-        Audio(Context context) {
-            mRefContext = new WeakReference<>(context);
-        }
-
-        void setFocus(boolean hasFocus) {
-            Context context = mRefContext.get();
-            if (context != null && hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
-                CocosAudioFocusManager.registerAudioFocusListener(context);
-            }
-        }
-    }
-
     CocosEngine(Context context, String libName) {
         mRefCocosEngine = new WeakReference<>(this);
         mContext = context;
-        mAudio = new Audio(context);
+        mAudio = new CocosAudio(context);
         mHandler = new Handler(context.getMainLooper());
         System.loadLibrary(libName);
         initEnvNative(context);
@@ -58,9 +44,10 @@ class CocosEngine {
     void destroy() {
         mRefCocosEngine.clear();
         CocosHelper.unregisterBatteryLevelReceiver(mContext);
-        CocosAudioFocusManager.unregisterAudioFocusListener(mContext);
+        mAudio.unregisterAudioFocusListener(mContext);
         CanvasRenderingContext2DImpl.destroy();
         GlobalObject.destroy();
+        mAudio = null;
         mContext = null;
     }
 
@@ -93,8 +80,8 @@ class CocosEngine {
     void resume() {
         mSensorHandler.onResume();
         Utils.hideVirtualButton();
-        if (CocosAudioFocusManager.isAudioFocusLoss()) {
-            CocosAudioFocusManager.registerAudioFocusListener(mContext);
+        if (mAudio.isAudioFocusLoss()) {
+            mAudio.registerAudioFocusListener(mContext);
         }
     }
 
@@ -102,7 +89,7 @@ class CocosEngine {
         return mSurfaceView;
     }
 
-    Audio getAudio() {
+    CocosAudio getAudio() {
         return mAudio;
     }
 
@@ -117,7 +104,7 @@ class CocosEngine {
 
         CocosHelper.registerBatteryLevelReceiver(mContext);
         CocosHelper.init();
-        CocosAudioFocusManager.registerAudioFocusListener(mContext);
+        mAudio.registerAudioFocusListener(mContext);
         CanvasRenderingContext2DImpl.init(mContext);
         if (activity != null) {
             activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);

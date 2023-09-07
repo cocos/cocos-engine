@@ -32,10 +32,11 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.util.Log;
 
-class CocosAudioFocusManager {
+public class CocosAudio {
 
-    private static final String _TAG = "CocosAudioFocusManager";
+    private static final String _TAG = "CocosAudio";
     private static boolean isAudioFocusLost = true;
+    private Context mApplicationContext;
 
     private final static AudioManager.OnAudioFocusChangeListener sAfChangeListener = focusChange -> {
         Log.d(_TAG, "onAudioFocusChange: " + focusChange + ", thread: " + Thread.currentThread().getName());
@@ -65,7 +66,17 @@ class CocosAudioFocusManager {
         }
     };
 
-    static void registerAudioFocusListener(Context context) {
+    CocosAudio(Context context) {
+        mApplicationContext = context.getApplicationContext();
+    }
+
+    public void setFocus(boolean hasFocus) {
+        if (hasFocus && isAudioFocusLoss()) {
+            registerAudioFocusListener(mApplicationContext);
+        }
+    }
+
+    void registerAudioFocusListener(Context context) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         assert am != null;
         int result;
@@ -102,7 +113,7 @@ class CocosAudioFocusManager {
         Log.e(_TAG, "requestAudioFocus failed!");
     }
 
-    static void unregisterAudioFocusListener(Context context) {
+    void unregisterAudioFocusListener(Context context) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         assert am != null;
         int result = am.abandonAudioFocus(sAfChangeListener);
@@ -113,7 +124,7 @@ class CocosAudioFocusManager {
         }
     }
 
-    static boolean isAudioFocusLoss() {
+    boolean isAudioFocusLoss() {
         return isAudioFocusLost;
     }
 

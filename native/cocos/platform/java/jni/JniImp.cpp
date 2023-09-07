@@ -42,10 +42,10 @@
     #define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
 #endif
 
-#ifndef COM_AUDIOFOCUS_CLASS_NAME
-    #define COM_AUDIOFOCUS_CLASS_NAME com_cocos_lib_CocosAudioFocusManager
+#ifndef COM_COCOSAUDIO_CLASS_NAME
+    #define COM_COCOSAUDIO_CLASS_NAME com_cocos_lib_CocosAudio
 #endif
-#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_AUDIOFOCUS_CLASS_NAME, FUNC)
+#define JNI_AUDIO(FUNC) JNI_METHOD1(COM_COCOSAUDIO_CLASS_NAME, FUNC)
 
 
 /***********************************************************
