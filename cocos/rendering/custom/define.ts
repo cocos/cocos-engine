@@ -45,7 +45,7 @@ import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData, RenderGraph } from './render-graph';
-import { WebPipeline } from './web-pipeline';
+import { WebComputePassBuilder, WebPipeline } from './web-pipeline';
 import { DescriptorSetData, LayoutGraph, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
@@ -2240,6 +2240,9 @@ export function buildLightClusterBuildPass (
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    if ('setCurrConstant' in clusterPass) { // web-pipeline
+        (clusterPass as WebComputePassBuilder).addConstant('CCConst', 'cluster-build-cs');
+    }
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0));
     clusterPass.setVec4('cc_viewPort', new Vec4(0, 0, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));
@@ -2280,6 +2283,9 @@ export function buildLightClusterCullingPass (
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    if ('setCurrConstant' in clusterPass) { // web-pipeline
+        (clusterPass as WebComputePassBuilder).addConstant('CCConst', 'cluster-build-cs');
+    }
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0));
     clusterPass.setVec4('cc_viewPort', new Vec4(width, height, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));

@@ -28,9 +28,11 @@ import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
-import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
+import {
+    Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView,
-    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView } from './render-graph';
+    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView,
+} from './render-graph';
 import { AccessType, ResourceResidency, SceneFlags } from './types';
 import { hashCombineNum, hashCombineStr } from './define';
 
@@ -83,10 +85,11 @@ class PassVisitor implements RenderGraphVisitor {
     public queueID = 0xFFFFFFFF;
     public sceneID = 0xFFFFFFFF;
     public passID = 0xFFFFFFFF;
+    public dispatchID = 0xFFFFFFFF;
     // output resourcetexture id
     public resID = 0xFFFFFFFF;
     public context: CompilerContext;
-    private _currPass: RasterPass | CopyPass | null = null;
+    private _currPass: RasterPass | CopyPass | ComputePass | null = null;
     private _resVisitor: ResourceVisitor;
     constructor (context: CompilerContext) {
         this.context = context;
@@ -97,6 +100,12 @@ class PassVisitor implements RenderGraphVisitor {
     }
     protected _isCopyPass (u: number): boolean {
         return !!this.context.renderGraph.tryGetCopy(u);
+    }
+    protected _isCompute (u: number): boolean {
+        return !!this.context.renderGraph.tryGetCompute(u);
+    }
+    protected _isDispatch (u: number): boolean {
+        return !!this.context.renderGraph.tryGetDispatch(u);
     }
     protected _isQueue (u: number): boolean {
         return !!this.context.renderGraph.tryGetQueue(u);
@@ -242,12 +251,14 @@ class PassVisitor implements RenderGraphVisitor {
     }
     applyID (id: number, resId: number): void {
         this.resID = resId;
-        if (this._isRasterPass(id) || this._isCopyPass(id)) {
+        if (this._isRasterPass(id) || this._isCopyPass(id) || this._isCompute(id)) {
             this.passID = id;
         } else if (this._isQueue(id)) {
             this.queueID = id;
         } else if (this._isScene(id) || this._isBlit(id)) {
             this.sceneID = id;
+        } else if (this._isDispatch(id)) {
+            this.dispatchID = id;
         }
     }
     rasterPass (pass: RasterPass): void {
@@ -258,10 +269,14 @@ class PassVisitor implements RenderGraphVisitor {
         // }
         this._currPass = pass;
     }
-    rasterSubpass (value: RasterSubpass): void {}
-    computeSubpass (value: ComputeSubpass): void {}
-    compute (value: ComputePass): void {}
-    resolve (value: ResolvePass): void {}
+    rasterSubpass (value: RasterSubpass): void { }
+    computeSubpass (value: ComputeSubpass): void { }
+    compute (value: ComputePass): void {
+        this._currPass = value;
+        const rg = context.renderGraph;
+        rg.setValid(this.passID, true);
+    }
+    resolve (value: ResolvePass): void { }
     copy (value: CopyPass): void {
         const rg = context.renderGraph;
         if (rg.getValid(this.passID)) {
@@ -283,18 +298,22 @@ class PassVisitor implements RenderGraphVisitor {
             }
         }
     }
-    move (value: MovePass): void {}
-    raytrace (value: RaytracePass): void {}
-    queue (value: RenderQueue): void {}
+    move (value: MovePass): void { }
+    raytrace (value: RaytracePass): void { }
+    queue (value: RenderQueue): void { }
     scene (value: SceneData): void {
         this._fetchValidPass();
     }
     blit (value: Blit): void {
         this._fetchValidPass();
     }
-    dispatch (value: Dispatch): void {}
-    clear (value: ClearView[]): void {}
-    viewport (value: Viewport): void {}
+    dispatch (value: Dispatch): void {
+        const rg = this.context.renderGraph;
+        rg.setValid(this.queueID, true);
+        rg.setValid(this.dispatchID, true);
+    }
+    clear (value: ClearView[]): void { }
+    viewport (value: Viewport): void { }
 }
 
 class PassManagerVisitor extends DefaultVisitor {
@@ -347,7 +366,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
 
     dependency (): void {
         if (!this._passManagerVis) {
-            this._passManagerVis  = new PassManagerVisitor(this._context, this.resID);
+            this._passManagerVis = new PassManagerVisitor(this._context, this.resID);
         } else {
             this._passManagerVis.resId = this.resID;
         }
