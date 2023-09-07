@@ -237,7 +237,7 @@ jobs:
         id: cache-oh-sdk
         uses: actions/cache@v3
         env:
-          cache-name: cache-oh-sdk-2
+          cache-name: cache-oh-sdk-9
         with:
           path: ${{ steps.oh-sdk-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-build-${{ env.cache-name }}
