@@ -171,13 +171,13 @@ SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
   storageBuffers(std::move(rhs.storageBuffers), alloc),
   storageImages(std::move(rhs.storageImages), alloc) {}
 
-CullingQueries::CullingQueries(const allocator_type& alloc) noexcept
+FrustumCullingQueries::FrustumCullingQueries(const allocator_type& alloc) noexcept
 : culledResultIndex(alloc) {}
 
-CullingQueries::CullingQueries(CullingQueries&& rhs, const allocator_type& alloc)
+FrustumCullingQueries::FrustumCullingQueries(FrustumCullingQueries&& rhs, const allocator_type& alloc)
 : culledResultIndex(std::move(rhs.culledResultIndex), alloc) {}
 
-CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& alloc)
+FrustumCullingQueries::FrustumCullingQueries(FrustumCullingQueries const& rhs, const allocator_type& alloc)
 : culledResultIndex(rhs.culledResultIndex, alloc) {}
 
 LightBoundsCullingQueries::LightBoundsCullingQueries(const allocator_type& alloc) noexcept

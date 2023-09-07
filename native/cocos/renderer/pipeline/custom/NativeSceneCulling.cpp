@@ -30,7 +30,7 @@ bool NativeRenderQueue::empty() const noexcept {
            transparentInstancingQueue.empty();
 }
 
-FrustumCullingID SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) {
+FrustumCullingID SceneCulling::getOrCreateFrustumCulling(const SceneData& sceneData) {
     const auto* const scene = sceneData.scene;
     // get or add scene to queries
     auto& queries = sceneQueries[scene];
@@ -40,7 +40,7 @@ FrustumCullingID SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sce
 
     // get or create query source
     // make query key
-    const auto key = CullingKey{
+    const auto key = FrustumCullingKey{
         sceneData.camera,
         sceneData.light.probe,
         sceneData.light.light,
@@ -67,7 +67,7 @@ FrustumCullingID SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sce
     return iter->second;
 }
 
-DrawQueueID SceneCulling::createRenderQueue(
+NativeRenderQueueID SceneCulling::createRenderQueue(
     SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID) {
     const auto targetID = numRenderQueues++;
     if (numRenderQueues > renderQueues.size()) {
@@ -81,7 +81,7 @@ DrawQueueID SceneCulling::createRenderQueue(
     CC_EXPECTS(rq.subpassOrPassLayoutID == 0xFFFFFFFF);
     rq.sceneFlags = sceneFlags;
     rq.subpassOrPassLayoutID = subpassOrPassLayoutID;
-    return DrawQueueID{targetID};
+    return NativeRenderQueueID{targetID};
 }
 
 void SceneCulling::collectCullingQueries(
@@ -95,7 +95,7 @@ void SceneCulling::collectCullingQueries(
             CC_EXPECTS(false);
             continue;
         }
-        const auto frustomCulledResultID = getOrCreateSceneCullingQuery(sceneData);
+        const auto frustomCulledResultID = getOrCreateFrustumCulling(sceneData);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
         const auto targetID = createRenderQueue(sceneData.flags, layoutID);
         const auto lightType = sceneData.light.light
@@ -109,7 +109,8 @@ void SceneCulling::collectCullingQueries(
                 frustomCulledResultID,
                 LightBoundsCullingID{},
                 targetID,
-                lightType});
+                lightType,
+            });
     }
 }
 

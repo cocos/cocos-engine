@@ -75,13 +75,13 @@ struct QuadResource;
 enum class ResourceType;
 
 struct SceneResource;
-struct CullingKey;
+struct FrustumCullingKey;
 struct FrustumCullingID;
-struct CullingQueries;
+struct FrustumCullingQueries;
 struct LightBoundsCullingID;
 struct LightBoundsCullingKey;
 struct LightBoundsCullingQueries;
-struct DrawQueueID;
+struct NativeRenderQueueID;
 struct NativeRenderQueueDesc;
 struct SceneCulling;
 struct NativeRenderContext;
@@ -98,8 +98,8 @@ class NativeRenderingModule;
 namespace ccstd {
 
 template <>
-struct hash<cc::render::CullingKey> {
-    hash_t operator()(const cc::render::CullingKey& val) const noexcept;
+struct hash<cc::render::FrustumCullingKey> {
+    hash_t operator()(const cc::render::FrustumCullingKey& val) const noexcept;
 };
 
 template <>
