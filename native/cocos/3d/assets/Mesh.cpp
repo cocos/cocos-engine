@@ -299,6 +299,9 @@ void MeshUtils::dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {
         std::vector<uint32_t> strides;
         std::vector<bool> dequantizes;
         std::vector<DataReaderCallback> readers;
+        strides.reserve(attrs.size());
+        dequantizes.reserve(attrs.size());
+        readers.reserve(attrs.size());
         for (uint32_t i = 0; i < attrs.size(); ++i) {
             auto &attr = attrs[i];
             auto inputView = DataView(data.buffer(), view.offset + getOffset(oldAttrs, i));
