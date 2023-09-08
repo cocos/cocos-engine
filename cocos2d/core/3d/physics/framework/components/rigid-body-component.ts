@@ -33,6 +33,7 @@ const {
     executionOrder,
     menu,
     property,
+    help,
 } = cc._decorator;
 const Vec3 = cc.Vec3;
 
@@ -47,6 +48,7 @@ const Vec3 = cc.Vec3;
 @ccclass('cc.RigidBody3D')
 @executionOrder(99)
 @menu('i18n:MAIN_MENU.component.physics/Rigid Body 3D')
+@help('i18n:COMPONENT.help_url.physics-rigidbody')
 @executeInEditMode
 @disallowMultiple
 export class RigidBody3D extends cc.Component {

@@ -97,6 +97,7 @@ let MeshRenderer = cc.Class({
     
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.mesh/MeshRenderer',
+        help: 'i18n:COMPONENT.help_url.mesh-renderer',
     },
 
     properties: {

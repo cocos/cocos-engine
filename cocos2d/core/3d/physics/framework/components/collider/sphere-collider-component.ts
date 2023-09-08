@@ -33,6 +33,7 @@ const {
     executionOrder,
     menu,
     property,
+    help,
 } = cc._decorator;
 
 /**
@@ -46,6 +47,7 @@ const {
 @ccclass('cc.SphereCollider3D')
 @executionOrder(98)
 @menu('i18n:MAIN_MENU.component.physics/Collider/Sphere 3D')
+@help('i18n:COMPONENT.help_url.physics-collider')
 @executeInEditMode
 export class SphereCollider3D extends Collider3D {
 

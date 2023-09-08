@@ -49,6 +49,7 @@ var RevoluteJoint = cc.Class({
     
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.physics/Joint/Revolute',
+        help: 'i18n:COMPONENT.help_url.joint-component',
         inspector: 'packages://inspector/inspectors/comps/physics/joint.js',
     },
 

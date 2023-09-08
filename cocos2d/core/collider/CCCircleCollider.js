@@ -99,7 +99,8 @@ var CircleCollider = cc.Class({
     mixins: [cc.Collider.Circle],
 
     editor: CC_EDITOR && {
-        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider'
+        menu: 'i18n:MAIN_MENU.component.collider/Circle Collider',
+        help: 'i18n:COMPONENT.help_url.collider',
     },
 });
 

@@ -46,6 +46,7 @@ let SkinnedMeshRenderer = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.mesh/Skinned Mesh Renderer',
+        help: 'i18n:COMPONENT.help_url.skinned-mesh-renderer',
     },
 
     ctor () {

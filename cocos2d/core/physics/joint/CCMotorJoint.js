@@ -44,6 +44,7 @@ var MotorJoint = cc.Class({
     
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.physics/Joint/Motor',
+        help: 'i18n:COMPONENT.help_url.joint-component',
         inspector: 'packages://inspector/inspectors/comps/physics/joint.js',
     },
 

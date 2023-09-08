@@ -99,6 +99,7 @@ var PolygonCollider = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.collider/Polygon Collider',
         inspector: 'packages://inspector/inspectors/comps/physics/points-base-collider.js',
+        help: 'i18n:COMPONENT.help_url.collider',
     },
 });
 
