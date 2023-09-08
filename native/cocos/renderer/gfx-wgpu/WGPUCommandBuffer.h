@@ -96,8 +96,8 @@ public:
         void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size);)
 
 protected:
-    virtual void doInit(const CommandBufferInfo &info);
-    virtual void doDestroy();
+    void doInit(const CommandBufferInfo &info) override;
+    void doDestroy() override;
 
     // delay binding.
     void bindStates();

@@ -22,7 +22,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include <boost/preprocessor/cat.hpp>
