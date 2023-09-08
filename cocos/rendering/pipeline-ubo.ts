@@ -566,4 +566,7 @@ export class PipelineUBO {
             Color.toArray(this._shadowUBO, data, offset);
         }
     }
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    public destroy (): void {}
 }
