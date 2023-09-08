@@ -1985,7 +1985,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     {
         auto& context = ppl.nativeContext;
         auto& sceneCulling = context.sceneCulling;
-        sceneCulling.buildRenderQueues(rg, lg, *ppl.pipelineSceneData);
+        sceneCulling.buildRenderQueues(rg, lg, ppl);
         auto& group = ppl.nativeContext.resourceGroups[context.nextFenceValue];
         // notice: we cannot use ranged-for of sceneCulling.renderQueues
         CC_EXPECTS(sceneCulling.numRenderQueues <= sceneCulling.renderQueues.size());

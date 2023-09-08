@@ -28,12 +28,15 @@
 #include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/scene/Camera.h"
+#include "cocos/scene/DirectionalLight.h"
 #include "cocos/scene/Fog.h"
+#include "cocos/scene/Shadow.h"
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
 
@@ -390,11 +393,11 @@ void setShadowUBOLightView(
     gfx::Device *device,
     const LayoutGraphData &layoutGraph,
     const pipeline::PipelineSceneData &sceneData,
+    const BuiltinCascadedShadowMap *csm,
     const scene::Light &light,
     uint32_t level,
     RenderData &data) {
     const auto &shadowInfo = *sceneData.getShadows();
-    const auto &csmLayers = *sceneData.getCSMLayers();
     const auto &packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
     const auto &cap = device->getCapabilities();
     Vec4 vec4ShadowInfo{};
@@ -411,29 +414,31 @@ void setShadowUBOLightView(
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
                     scene::CSMLevel levelCount{};
+                    CC_EXPECTS(csm);
                     if (mainLight.isShadowFixedArea() || mainLight.getCSMLevel() == scene::CSMLevel::LEVEL_1) {
-                        matShadowView = csmLayers.getSpecialLayer()->getMatShadowView();
-                        matShadowProj = csmLayers.getSpecialLayer()->getMatShadowProj();
-                        matShadowViewProj = csmLayers.getSpecialLayer()->getMatShadowViewProj();
+                        matShadowView = csm->specialLayer.shadowView;
+                        matShadowProj = csm->specialLayer.shadowProj;
+                        matShadowViewProj = csm->specialLayer.shadowViewProj;
                         if (mainLight.isShadowFixedArea()) {
                             near = mainLight.getShadowNear();
                             far = mainLight.getShadowFar();
                             levelCount = static_cast<scene::CSMLevel>(0);
                         } else {
                             near = 0.1F;
-                            far = csmLayers.getSpecialLayer()->getShadowCameraFar();
+                            far = csm->specialLayer.shadowCameraFar;
                             levelCount = scene::CSMLevel::LEVEL_1;
                         }
                         vec4ShadowInfo.set(static_cast<float>(scene::LightType::DIRECTIONAL), packing, mainLight.getShadowNormalBias(), 0);
                         setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
                     } else {
-                        const auto &layer = *csmLayers.getLayers()[level];
-                        matShadowView = layer.getMatShadowView();
-                        matShadowProj = layer.getMatShadowProj();
-                        matShadowViewProj = layer.getMatShadowViewProj();
+                        CC_EXPECTS(level < csm->layers.size());
+                        const auto &layer = csm->layers[level];
+                        matShadowView = layer.shadowView;
+                        matShadowProj = layer.shadowProj;
+                        matShadowViewProj = layer.shadowViewProj;
 
-                        near = layer.getSplitCameraNear();
-                        far = layer.getSplitCameraFar();
+                        near = layer.splitCameraNear;
+                        far = layer.splitCameraFar;
                         levelCount = mainLight.getCSMLevel();
                     }
                     setMat4Impl(data, layoutGraph, "cc_matLightView", matShadowView);
@@ -550,6 +555,114 @@ void setLegacyTextureUBOView(
     // setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setSamplerImpl(data, layoutGraph, "cc_spotShadowMap", pointSampler);
     // setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+}
+
+const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
+    const PipelineRuntime &pplRuntime,
+    const scene::Camera &camera,
+    const scene::DirectionalLight *mainLight) {
+    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
+    // no main light
+    if (!mainLight) {
+        return nullptr;
+    }
+    // not attached to a node
+    if (!mainLight->getNode()) {
+        return nullptr;
+    }
+    const pipeline::PipelineSceneData &pplSceneData = *pplRuntime.getPipelineSceneData();
+    auto &csmLayers = *pplSceneData.getCSMLayers();
+    const auto &shadows = *pplSceneData.getShadows();
+    // shadow not enabled
+    if (!shadows.isEnabled()) {
+        return nullptr;
+    }
+    // shadow type is planar
+    if (shadows.getType() == scene::ShadowType::PLANAR) {
+        return nullptr;
+    }
+
+    // find csm
+    const BuiltinCascadedShadowMapKey key{&camera, mainLight};
+    auto iter = ppl.builtinCSMs.find(key);
+    if (iter != ppl.builtinCSMs.end()) {
+        return &iter->second;
+    }
+
+    // add new csm info
+    bool added = false;
+    std::tie(iter, added) = ppl.builtinCSMs.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(key),
+        std::forward_as_tuple());
+    CC_ENSURES(added);
+
+    auto &csm = iter->second;
+
+    // update csm layers
+    csmLayers.update(&pplSceneData, &camera);
+
+    // copy csm data
+    CC_EXPECTS(csm.layers.size() == csmLayers.getLayers().size());
+    for (uint32_t i = 0; i != csm.layers.size(); ++i) {
+        const auto &src = *csmLayers.getLayers()[i];
+        auto &dst = csm.layers[i];
+        dst.shadowView = src.getMatShadowView();
+        dst.shadowProj = src.getMatShadowProj();
+        dst.shadowViewProj = src.getMatShadowViewProj();
+        dst.validFrustum = src.getValidFrustum();
+        dst.splitFrustum = src.getSplitFrustum();
+        dst.lightViewFrustum = src.getLightViewFrustum();
+        dst.castLightViewBoundingBox = src.getCastLightViewBoundingBox();
+        dst.shadowCameraFar = src.getShadowCameraFar();
+        dst.splitCameraNear = src.getSplitCameraNear();
+        dst.splitCameraFar = src.getSplitCameraFar();
+        dst.csmAtlas = src.getCSMAtlas();
+    }
+
+    {
+        const auto &src = *csmLayers.getSpecialLayer();
+        auto &dst = csm.specialLayer;
+        dst.shadowView = src.getMatShadowView();
+        dst.shadowProj = src.getMatShadowProj();
+        dst.shadowViewProj = src.getMatShadowViewProj();
+        dst.validFrustum = src.getValidFrustum();
+        dst.splitFrustum = src.getSplitFrustum();
+        dst.lightViewFrustum = src.getLightViewFrustum();
+        dst.castLightViewBoundingBox = src.getCastLightViewBoundingBox();
+        dst.shadowCameraFar = src.getShadowCameraFar();
+    }
+
+    csm.shadowDistance = mainLight->getShadowDistance();
+
+    return &csm;
+}
+
+const geometry::Frustum &getBuiltinShadowFrustum(
+    const PipelineRuntime &pplRuntime,
+    const scene::Camera &camera,
+    const scene::DirectionalLight *mainLight,
+    uint32_t level) {
+    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
+
+    const auto &shadows = *ppl.pipelineSceneData->getShadows();
+    if (shadows.getType() == scene::ShadowType::PLANAR) {
+        return camera.getFrustum();
+    }
+
+    BuiltinCascadedShadowMapKey key{&camera, mainLight};
+    auto iter = ppl.builtinCSMs.find(key);
+    if (iter == ppl.builtinCSMs.end()) {
+        throw std::runtime_error("Builtin shadow CSM not found");
+    }
+
+    const auto &csmLevel = mainLight->getCSMLevel();
+    const auto &csm = iter->second;
+
+    if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
+        return csm.specialLayer.validFrustum;
+    }
+    return csm.layers[level].validFrustum;
 }
 
 } // namespace render

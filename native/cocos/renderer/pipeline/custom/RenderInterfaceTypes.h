@@ -460,10 +460,10 @@ public:
     virtual void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) = 0;
     virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
     virtual void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) = 0;
-    virtual void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) = 0;
     virtual void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) = 0;
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light) {
-        setBuiltinDirectionalLightViewConstants(light, 0);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light) {
+        setBuiltinDirectionalLightViewConstants(camera, light, 0);
     }
 };
 
@@ -488,9 +488,9 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
-    virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) = 0;
-    virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
-    virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
+    virtual Setter *addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) = 0;
+    virtual Setter *addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
+    virtual Setter *addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -528,8 +528,8 @@ public:
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
     }
-    void addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
-        addScene(camera, sceneFlags, nullptr);
+    Setter *addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+        return addScene(camera, sceneFlags, nullptr);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {
         addFullscreenQuad(material, passID, SceneFlags::NONE);

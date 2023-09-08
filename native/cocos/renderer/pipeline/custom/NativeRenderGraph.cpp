@@ -729,12 +729,18 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         *pipelineRuntime->getPipelineSceneData(),
         camera->getScene()->getMainLight(), data);
 
+    // notice: if light is not directional light, csm will be nullptr
+    const auto *csm = getBuiltinShadowCSM(
+        *pipelineRuntime, *camera,
+        dynamic_cast<const scene::DirectionalLight *>(pLight));
+
     if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
         if (pLight) {
             setShadowUBOLightView(
                 pipelineRuntime->getDevice(),
                 *layoutGraph,
                 *pipelineRuntime->getPipelineSceneData(),
+                csm, // csm might be nullptr
                 *pLight, light.level, data);
         }
     } else {
@@ -753,7 +759,7 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         data);
 }
 
-void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) {
+Setter *NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) {
     auto cullingFlags = CullingFlags::CAMERA_FRUSTUM;
     if (light) {
         cullingFlags |= CullingFlags::LIGHT_BOUNDS;
@@ -805,9 +811,16 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
             }
         }
     }
+
+    return new NativeSetterBuilder(
+        pipelineRuntime,
+        renderGraph,
+        sceneID,
+        layoutGraph,
+        layoutID);
 }
 
-void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
+Setter *NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
     const scene::Camera *camera, SceneFlags sceneFlags,
     scene::DirectionalLight *light, uint32_t level) {
     CC_EXPECTS(light);
@@ -823,9 +836,16 @@ void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
         std::forward_as_tuple(std::move(data)),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+
+    return new NativeSetterBuilder(
+        pipelineRuntime,
+        renderGraph,
+        sceneID,
+        layoutGraph,
+        layoutID);
 }
 
-void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
+Setter *NativeRenderQueueBuilder::addSceneCulledBySpotLight(
     const scene::Camera *camera, SceneFlags sceneFlags,
     scene::SpotLight *light) {
     CC_EXPECTS(light);
@@ -841,6 +861,13 @@ void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
         std::forward_as_tuple(std::move(data)),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+
+    return new NativeSetterBuilder(
+        pipelineRuntime,
+        renderGraph,
+        sceneID,
+        layoutGraph,
+        layoutID);
 }
 
 void NativeRenderQueueBuilder::addFullscreenQuad(

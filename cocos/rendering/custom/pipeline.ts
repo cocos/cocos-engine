@@ -385,7 +385,10 @@ export interface Setter extends RenderNode {
     setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
     setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
     setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
-    setBuiltinDirectionalLightViewConstants (light: DirectionalLight, level?: number): void;
+    setBuiltinDirectionalLightViewConstants (
+        camera: Camera,
+        light: DirectionalLight,
+        level?: number): void;
     setBuiltinSpotLightViewConstants (light: SpotLight): void;
 }
 
@@ -413,16 +416,16 @@ export interface RenderQueueBuilder extends Setter {
     addScene (
         camera: Camera,
         sceneFlags: SceneFlags,
-        light?: Light | null): void;
+        light?: Light | null): Setter;
     addSceneCulledByDirectionalLight (
         camera: Camera,
         sceneFlags: SceneFlags,
         light: DirectionalLight,
-        level: number): void;
+        level: number): Setter;
     addSceneCulledBySpotLight (
         camera: Camera,
         sceneFlags: SceneFlags,
-        light: SpotLight): void;
+        light: SpotLight): Setter;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形

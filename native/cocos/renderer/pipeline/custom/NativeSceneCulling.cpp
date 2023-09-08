@@ -1,4 +1,5 @@
 #include "cocos/renderer/pipeline/Define.h"
+#include "cocos/renderer/pipeline/custom/NativeBuiltinUtils.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
@@ -156,8 +157,11 @@ void SceneCulling::collectCullingQueries(
 }
 
 namespace {
-const pipeline::PipelineSceneData* pSceneData = nullptr;
-const LayoutGraphData* layoutGraph = nullptr;
+
+const pipeline::PipelineSceneData* kPipelineSceneData = nullptr;
+
+const LayoutGraphData* kLayoutGraph = nullptr;
+
 bool isNodeVisible(const Node* node, uint32_t visibility) {
     return node && ((visibility & node->getLayer()) == node->getLayer());
 }
@@ -181,7 +185,7 @@ bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustu
     }
     geometry::AABB transWorldBounds{};
     transWorldBounds.set(modelWorldBounds->getCenter(), modelWorldBounds->getHalfExtents());
-    const scene::Shadows& shadows = *pSceneData->getShadows();
+    const scene::Shadows& shadows = *kPipelineSceneData->getShadows();
     if (shadows.getType() == scene::ShadowType::PLANAR && castShadow) {
         modelWorldBounds->transform(shadows.getMatLight(), &transWorldBounds);
     }
@@ -288,7 +292,8 @@ void sceneCulling(
 
 } // namespace
 
-void SceneCulling::batchFrustumCulling(const pipeline::PipelineSceneData& pplSceneData) {
+void SceneCulling::batchFrustumCulling(const NativePipeline& ppl) {
+    const auto& pplSceneData = *ppl.getPipelineSceneData();
     const auto* const skybox = pplSceneData.getSkybox();
     const auto* const skyboxModel = skybox && skybox->isEnabled() ? skybox->getModel() : nullptr;
 
@@ -328,28 +333,12 @@ void SceneCulling::batchFrustumCulling(const pipeline::PipelineSceneData& pplSce
                             models);
                         break;
                     case scene::LightType::DIRECTIONAL: {
-                        auto& csmLayers = *pplSceneData.getCSMLayers();
                         const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
-                        const auto& csmLevel = mainLight->getCSMLevel();
-                        const geometry::Frustum* frustum = nullptr;
-                        const auto& shadows = *pplSceneData.getShadows();
-                        if (shadows.getType() == scene::ShadowType::PLANAR) {
-                            frustum = &camera.getFrustum();
-                        } else {
-                            if (shadows.isEnabled() && shadows.getType() == scene::ShadowType::SHADOW_MAP && mainLight && mainLight->getNode()) {
-                                csmLayers.update(&pplSceneData, &camera);
-                            }
-                            // const
-                            if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
-                                frustum = &csmLayers.getSpecialLayer()->getValidFrustum();
-                            } else {
-                                frustum = &csmLayers.getLayers()[level]->getValidFrustum();
-                            }
-                        }
+                        const auto& frustum = getBuiltinShadowFrustum(ppl, camera, mainLight, level);
                         sceneCulling(
                             skyboxModel,
                             *scene, camera,
-                            *frustum,
+                            frustum,
                             bCastShadow,
                             nullptr,
                             models);
@@ -509,7 +498,7 @@ void addRenderObject(
     const scene::Model& model,
     NativeRenderQueue& queue) {
     if (bDrawProbe) {
-        queue.probeQueue.applyMacro(*layoutGraph, model, phaseLayoutID);
+        queue.probeQueue.applyMacro(*kLayoutGraph, model, phaseLayoutID);
     }
     const auto& subModels = model.getSubModels();
     const auto subModelCount = subModels.size();
@@ -519,7 +508,7 @@ void addRenderObject(
         const auto passCount = passes.size();
         auto probeIt = std::find(queue.probeQueue.probeMap.begin(), queue.probeQueue.probeMap.end(), subModel.get());
         if (probeIt != queue.probeQueue.probeMap.end()) {
-            phaseLayoutID = ProbeHelperQueue::getDefaultId(*layoutGraph);
+            phaseLayoutID = ProbeHelperQueue::getDefaultId(*kLayoutGraph);
         }
         for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             auto& pass = *passes[passIdx];
@@ -626,13 +615,13 @@ void SceneCulling::fillRenderQueues(
 
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
-    const pipeline::PipelineSceneData& pplSceneData) {
-    pSceneData = &pplSceneData;
-    layoutGraph = &lg;
+    const NativePipeline& ppl) {
+    kPipelineSceneData = ppl.pipelineSceneData;
+    kLayoutGraph = &lg;
     collectCullingQueries(rg, lg);
-    batchFrustumCulling(pplSceneData);
+    batchFrustumCulling(ppl);
     batchLightBoundsCulling(); // cull frustum-culling's results by light bounds
-    fillRenderQueues(rg, pplSceneData);
+    fillRenderQueues(rg, *ppl.pipelineSceneData);
 }
 
 void SceneCulling::clear() noexcept {

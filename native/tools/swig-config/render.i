@@ -81,6 +81,9 @@ using namespace cc::render;
 %release_returned_cpp_object_in_gc(cc::render::RenderPassBuilder::addMultisampleRenderSubpass);
 %release_returned_cpp_object_in_gc(cc::render::RenderPassBuilder::addComputeSubpass);
 %release_returned_cpp_object_in_gc(cc::render::ComputePassBuilder::addQueue);
+%release_returned_cpp_object_in_gc(cc::render::RenderQueueBuilder::addScene);
+%release_returned_cpp_object_in_gc(cc::render::RenderQueueBuilder::addSceneCulledByDirectionalLight);
+%release_returned_cpp_object_in_gc(cc::render::RenderQueueBuilder::addSceneCulledBySpotLight);
 %release_returned_cpp_object_in_gc(cc::render::Pipeline::addRenderPass);
 %release_returned_cpp_object_in_gc(cc::render::Pipeline::addComputePass);
 

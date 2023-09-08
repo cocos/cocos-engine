@@ -124,12 +124,18 @@ void NativeSetter::setBuiltinCameraConstants(const scene::Camera *camera) {
 }
 
 void NativeSetter::setBuiltinDirectionalLightViewConstants(
+    const scene::Camera *camera,
     const scene::DirectionalLight *light, uint32_t level) {
     CC_EXPECTS(light);
+    // if csm is actually activated, csm is not nullptr
+    // update and get csm
+    const auto *csm = getBuiltinShadowCSM(*pipelineRuntime, *camera, light);
+
+    // set data
     auto *device = pipelineRuntime->getDevice();
     const auto &sceneData = *pipelineRuntime->getPipelineSceneData();
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-    setShadowUBOLightView(device, *layoutGraph, sceneData, *light, level, data);
+    setShadowUBOLightView(device, *layoutGraph, sceneData, csm, *light, level, data);
 }
 
 void NativeSetter::setBuiltinSpotLightViewConstants(const scene::SpotLight *light) {
@@ -137,7 +143,7 @@ void NativeSetter::setBuiltinSpotLightViewConstants(const scene::SpotLight *ligh
     auto *device = pipelineRuntime->getDevice();
     const auto &sceneData = *pipelineRuntime->getPipelineSceneData();
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-    setShadowUBOLightView(device, *layoutGraph, sceneData, *light, 0, data);
+    setShadowUBOLightView(device, *layoutGraph, sceneData, nullptr, *light, 0, data);
 }
 
 void NativeSetter::setBuiltinShadowMapConstants(

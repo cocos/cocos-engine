@@ -40,6 +40,13 @@ class ReflectionProbe;
 
 } // namespace scene
 
+namespace render {
+
+template <class T>
+using Array4 = std::array<T, 4>;
+
+} // namespace render
+
 } // namespace cc
 
 #include "cocos/base/std/hash/hash.h"
@@ -50,6 +57,7 @@ namespace render {
 
 class NativeRenderNode;
 class NativeSetter;
+class NativeSetterBuilder;
 class NativeRenderSubpassBuilderImpl;
 class NativeRenderQueueBuilder;
 class NativeRenderSubpassBuilder;
@@ -87,6 +95,9 @@ struct SceneCulling;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 struct PipelineCustomization;
+struct BuiltinShadowTransform;
+struct BuiltinCascadedShadowMapKey;
+struct BuiltinCascadedShadowMap;
 class NativePipeline;
 class NativeProgramProxy;
 class NativeRenderingModule;

@@ -123,6 +123,7 @@ PipelineCapabilities NativePipeline::getCapabilities() const {
 
 void NativePipeline::beginSetup() {
     renderGraph = RenderGraph(get_allocator());
+    builtinCSMs.clear();
 }
 
 void NativePipeline::endSetup() {

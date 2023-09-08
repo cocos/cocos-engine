@@ -33,6 +33,8 @@
 #include "cocos/base/Ptr.h"
 #include "cocos/base/std/container/string.h"
 #include "cocos/base/std/hash/hash.h"
+#include "cocos/core/geometry/AABB.h"
+#include "cocos/core/geometry/Frustum.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
@@ -94,7 +96,7 @@ public:
     void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) /*implements*/;
     void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) /*implements*/;
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) /*implements*/;
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) /*implements*/;
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) /*implements*/;
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) /*implements*/;
 
     void setVec4ArraySize(const ccstd::string& name, uint32_t sz);
@@ -105,6 +107,86 @@ public:
 
     const LayoutGraphData* layoutGraph{nullptr};
     uint32_t layoutID{LayoutGraphData::null_vertex()};
+};
+
+class NativeSetterBuilder final : public Setter, public NativeSetter {
+public:
+    NativeSetterBuilder(const PipelineRuntime* pipelineRuntimeIn, RenderGraph* renderGraphIn, uint32_t nodeIDIn, const LayoutGraphData* layoutGraphIn, uint32_t layoutIDIn) noexcept
+    : NativeSetter(pipelineRuntimeIn, renderGraphIn, nodeIDIn, layoutGraphIn, layoutIDIn) {}
+
+    ccstd::string getName() const override {
+        return NativeRenderNode::getName();
+    }
+    void setName(const ccstd::string &name) override {
+        NativeRenderNode::setName(name);
+    }
+    void setCustomBehavior(const ccstd::string &name) override {
+        NativeRenderNode::setCustomBehavior(name);
+    }
+
+    void setMat4(const ccstd::string &name, const Mat4 &mat) override {
+        NativeSetter::setMat4(name, mat);
+    }
+    void setQuaternion(const ccstd::string &name, const Quaternion &quat) override {
+        NativeSetter::setQuaternion(name, quat);
+    }
+    void setColor(const ccstd::string &name, const gfx::Color &color) override {
+        NativeSetter::setColor(name, color);
+    }
+    void setVec4(const ccstd::string &name, const Vec4 &vec) override {
+        NativeSetter::setVec4(name, vec);
+    }
+    void setVec2(const ccstd::string &name, const Vec2 &vec) override {
+        NativeSetter::setVec2(name, vec);
+    }
+    void setFloat(const ccstd::string &name, float v) override {
+        NativeSetter::setFloat(name, v);
+    }
+    void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) override {
+        NativeSetter::setArrayBuffer(name, arrayBuffer);
+    }
+    void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setBuffer(name, buffer);
+    }
+    void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setTexture(name, texture);
+    }
+    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
+        NativeSetter::setReadWriteBuffer(name, buffer);
+    }
+    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
+        NativeSetter::setReadWriteTexture(name, texture);
+    }
+    void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
+        NativeSetter::setSampler(name, sampler);
+    }
+    void setBuiltinCameraConstants(const scene::Camera *camera) override {
+        NativeSetter::setBuiltinCameraConstants(camera);
+    }
+    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
+        NativeSetter::setBuiltinShadowMapConstants(light);
+    }
+    void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSphereLightConstants(light, camera);
+    }
+    void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinSpotLightConstants(light, camera);
+    }
+    void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinPointLightConstants(light, camera);
+    }
+    void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
+        NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
+    }
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
+    }
+    void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
+        NativeSetter::setBuiltinSpotLightViewConstants(light);
+    }
 };
 
 class NativeRenderSubpassBuilderImpl : public NativeSetter {
@@ -196,17 +278,17 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
     }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
-    void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) override;
-    void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) override;
-    void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) override;
+    Setter *addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) override;
+    Setter *addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) override;
+    Setter *addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;
@@ -286,8 +368,8 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
@@ -397,8 +479,8 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
@@ -511,8 +593,8 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
@@ -598,8 +680,8 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
@@ -697,8 +779,8 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
@@ -795,8 +877,8 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
@@ -877,8 +959,8 @@ public:
     void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinRangedDirectionalLightConstants(light, camera);
     }
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) override {
-        NativeSetter::setBuiltinDirectionalLightViewConstants(light, level);
+    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) override {
+        NativeSetter::setBuiltinDirectionalLightViewConstants(camera, light, level);
     }
     void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) override {
         NativeSetter::setBuiltinSpotLightViewConstants(light);
@@ -1302,13 +1384,13 @@ struct SceneCulling {
     SceneCulling& operator=(SceneCulling const& rhs) = delete;
 
     void clear() noexcept;
-    void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg, const pipeline::PipelineSceneData& pplSceneData);
+    void buildRenderQueues(const RenderGraph& rg, const LayoutGraphData& lg, const NativePipeline& ppl);
 private:
     FrustumCullingID getOrCreateFrustumCulling(const SceneData& sceneData);
     LightBoundsCullingID getOrCreateLightBoundsCulling(const SceneData& sceneData, FrustumCullingID frustumCullingID);
     NativeRenderQueueID createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
     void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
-    void batchFrustumCulling(const pipeline::PipelineSceneData& pplSceneData);
+    void batchFrustumCulling(const NativePipeline& ppl);
     void batchLightBoundsCulling();
     void fillRenderQueues(const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData);
 public:
@@ -1412,6 +1494,36 @@ struct PipelineCustomization {
     PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomComputePass>> computePasses;
     PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderQueue>> renderQueues;
     PmrTransparentMap<ccstd::pmr::string, std::shared_ptr<CustomRenderCommand>> renderCommands;
+};
+
+struct BuiltinShadowTransform {
+    Mat4 shadowView;
+    Mat4 shadowProj;
+    Mat4 shadowViewProj;
+    geometry::Frustum validFrustum;
+    geometry::Frustum splitFrustum;
+    geometry::Frustum lightViewFrustum;
+    geometry::AABB castLightViewBoundingBox;
+    float shadowCameraFar{0};
+    float splitCameraNear{0};
+    float splitCameraFar{0};
+    Vec4 csmAtlas;
+};
+
+struct BuiltinCascadedShadowMapKey {
+    const scene::Camera* camera{nullptr};
+    const scene::DirectionalLight* light{nullptr};
+};
+
+inline bool operator<(const BuiltinCascadedShadowMapKey& lhs, const BuiltinCascadedShadowMapKey& rhs) noexcept {
+    return std::forward_as_tuple(lhs.camera, lhs.light) <
+           std::forward_as_tuple(rhs.camera, rhs.light);
+}
+
+struct BuiltinCascadedShadowMap {
+    Array4<BuiltinShadowTransform> layers;
+    BuiltinShadowTransform specialLayer;
+    float shadowDistance{0};
 };
 
 class NativePipeline final : public Pipeline {
@@ -1525,6 +1637,7 @@ public:
     NativeRenderContext nativeContext;
     ResourceGraph resourceGraph;
     RenderGraph renderGraph;
+    mutable PmrFlatMap<BuiltinCascadedShadowMapKey, BuiltinCascadedShadowMap> builtinCSMs;
     PipelineStatistics statistics;
     PipelineCustomization custom;
 };
