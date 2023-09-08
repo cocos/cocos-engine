@@ -94,7 +94,7 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
     }
 
     getAABB (v: geometry.AABB): void {
-        //capsule has not implement getBoundary
+        //capsule has not implemented getBoundary
         v.center.set(this.worldCapsule.center);
         v.halfExtents.set(0, 0, 0);
         temp0.set(this.worldCapsule.radius, this.worldCapsule.radius, this.worldCapsule.radius);
