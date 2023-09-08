@@ -426,6 +426,7 @@ var Sprite = cc.Class({
 
     onEnable () {
         this._super();
+        this._validateRender();
         this._spriteFrame && this._spriteFrame.isValid && this._spriteFrame.ensureLoadTexture();
 
         this.node.on(cc.Node.EventType.SIZE_CHANGED, this.setVertsDirty, this);
