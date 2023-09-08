@@ -25,7 +25,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, cclegacy } from '../../core';
+import { Color, cclegacy, warn } from '../../core';
 import { Label } from './label';
 
 /**
@@ -61,18 +61,18 @@ export class LabelOutline extends Component {
     @tooltip('i18n:labelOutline.color')
     // @constget
     get color (): Readonly<Color> {
-        return this._color;
+        const label = this.node.getComponent(Label);
+        if (!label) {
+            warn('Required Label component to work, please add Label component.');
+            return this._color;
+        }
+        return label.outlineColor;
     }
 
     set color (value) {
-        if (this._color === value) {
-            return;
-        }
-
-        this._color.set(value);
         const label = this.node.getComponent(Label);
         if (label) {
-            label.outlineColor = this._color;
+            label.outlineColor = value;
         }
     }
 
@@ -87,18 +87,18 @@ export class LabelOutline extends Component {
      */
     @tooltip('i18n:labelOutline.width')
     get width (): number {
-        return this._width;
+        const label = this.node.getComponent(Label);
+        if (!label) {
+            warn('Required Label component to work, please add Label component.');
+            return this._width;
+        }
+        return label.outlineWidth;
     }
 
     set width (value) {
-        if (this._width === value) {
-            return;
-        }
-
-        this._width = value;
         const label = this.node.getComponent(Label);
         if (label) {
-            label.outlineWidth = this._width;
+            label.outlineWidth = value;
         }
     }
 

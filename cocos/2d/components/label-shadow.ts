@@ -25,7 +25,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, Vec2 } from '../../core';
+import { Color, Vec2, warn } from '../../core';
 import { Label } from './label';
 
 /**
@@ -59,18 +59,18 @@ export class LabelShadow extends Component {
      */
     @tooltip('i18n:labelShadow.color')
     get color (): Readonly<Color> {
-        return this._color;
+        const label = this.node.getComponent(Label);
+        if (!label) {
+            warn('Required Label component to work, please add Label component.');
+            return this._color;
+        }
+        return label.shadowColor;
     }
 
     set color (value) {
-        if (this._color === value) {
-            return;
-        }
-
-        this._color.set(value);
         const label = this.node.getComponent(Label);
         if (label) {
-            label.shadowColor = this._color;
+            label.shadowColor = value;
         }
     }
 
@@ -85,14 +85,18 @@ export class LabelShadow extends Component {
      */
     @tooltip('i18n:labelShadow.offset')
     get offset (): Vec2 {
-        return this._offset;
+        const label = this.node.getComponent(Label);
+        if (!label) {
+            warn('Required Label component to work, please add Label component.');
+            return this._offset;
+        }
+        return label.shadowOffset;
     }
 
     set offset (value) {
-        this._offset = value;
         const label = this.node.getComponent(Label);
         if (label) {
-            label.shadowOffset = this._offset;
+            label.shadowOffset = value;
         }
     }
 
@@ -107,14 +111,18 @@ export class LabelShadow extends Component {
      */
     @tooltip('i18n:labelShadow.blur')
     get blur (): number {
-        return this._blur;
+        const label = this.node.getComponent(Label);
+        if (!label) {
+            warn('Required Label component to work, please add Label component.');
+            return this._blur;
+        }
+        return label.shadowBlur;
     }
 
     set blur (value) {
-        this._blur = value;
         const label = this.node.getComponent(Label);
         if (label) {
-            label.shadowBlur = this._blur;
+            label.shadowBlur = value;
         }
     }
 
