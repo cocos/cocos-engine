@@ -41,7 +41,7 @@ enum class ETouchState : uint8_t {
 
 enum class EPhysicsDrawFlags : uint32_t {
     None = 0,
-    WireFrame = 0x0001,
+    Wireframe = 0x0001,
     Constraint = 0x0002,
     Aabb = 0x0004
 };
