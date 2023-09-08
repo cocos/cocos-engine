@@ -93,11 +93,10 @@ export const bmfontUtils = {
         outputRenderData.uiTransAnchorX = anchor.x;
         outputRenderData.uiTransAnchorY = anchor.y;
 
-        if (comp.cacheMode !== CacheMode.CHAR) {
-            const fontAsset = comp.font! as BitmapFont;
-            style.spriteFrame = fontAsset.spriteFrame; // render only
-            // 如果最开始不显示，则不显示，应该还是数据分离后的问题
-            dynamicAtlasManager.packToDynamicAtlas(comp, style.spriteFrame); // 效果有问题，应该还是数据串了
+        if (comp.font instanceof BitmapFont) {
+            const fontAsset = comp.font;
+            style.spriteFrame = fontAsset.spriteFrame;
+            dynamicAtlasManager.packToDynamicAtlas(comp, style.spriteFrame);
         }
         style.color.set(comp.color); // render only
     },

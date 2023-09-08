@@ -26,14 +26,13 @@ import { js } from '../../../core';
 import { Label, LabelOutline, Overflow } from '../../components';
 import { UITransform } from '../../framework/ui-transform';
 import { bmfontUtils } from './bmfontUtils';
-import { shareLabelInfo, LetterAtlas, computeHash } from './font-utils';
+import { LetterAtlas, computeHash } from './font-utils';
 import { TextLayout } from './text-layout';
 import { TextOutputLayoutData } from './text-output-data';
 import { TextStyle } from './text-style';
 
 const _atlasWidth = 1024;
 const _atlasHeight = 1024;
-const _isBold = false;
 
 let _shareAtlas: LetterAtlas | null  = null;
 
@@ -59,12 +58,9 @@ export const letterFont = js.mixin(bmfontUtils, {
         return fontFamily;
     },
 
-    _getFontDesc () {
-        let fontDesc = `${shareLabelInfo.fontSize.toString()}px `;
-        fontDesc += shareLabelInfo.fontFamily;
-        if (_isBold) {
-            fontDesc = `bold ${fontDesc}`;
-        }
+    _getFontDesc (fontSize: number, fontFamily: string) {
+        let fontDesc = `${fontSize.toString()}px `;
+        fontDesc += fontFamily;
 
         return fontDesc;
     },
@@ -76,57 +72,52 @@ export const letterFont = js.mixin(bmfontUtils, {
         comp: Label,
         trans: UITransform,
     ): void {
-        style.fontSize = comp.fontSize; //both
-        style.actualFontSize = comp.fontSize; //both
-        layout.horizontalAlign = comp.horizontalAlign; //both
-        layout.verticalAlign = comp.verticalAlign; //both
-        layout.spacingX = comp.spacingX; // layout only
+        style.fontSize = comp.fontSize;
+        style.actualFontSize = comp.fontSize;
+        layout.horizontalAlign = comp.horizontalAlign;
+        layout.verticalAlign = comp.verticalAlign;
+        layout.spacingX = comp.spacingX;
         const overflow = comp.overflow;
 
         outputLayoutData.nodeContentSize.width = trans.width;
         outputLayoutData.nodeContentSize.height = trans.height;
-        layout.overFlow = overflow; // both
-        layout.lineHeight = comp.lineHeight; // both
+        layout.overFlow = overflow;
+        layout.lineHeight = comp.lineHeight;
 
         style.fontAtlas = _shareAtlas;
-        shareLabelInfo.fontFamily = this._getFontFamily(comp);
+        style.fontFamily = this._getFontFamily(comp);
 
         // outline
         let margin = 0;
         const outline = comp.getComponent(LabelOutline);
         if (outline && outline.enabled) {
-            shareLabelInfo.isOutlined = true;
+            style.isOutlined = true;
             margin = outline.width;
             style.outlineWidth = outline.width;
-            shareLabelInfo.out = outline.color.clone();
-            shareLabelInfo.out.a = outline.color.a * comp.color.a / 255.0;
+            style.outlineColor = outline.color.clone();
+            style.outlineColor.a = outline.color.a * comp.color.a / 255.0;
         } else {
-            shareLabelInfo.isOutlined = false;
             style.outlineWidth = 0;
+            style.isOutlined = false;
             margin = 0;
         }
 
         // should wrap text
         if (overflow === Overflow.NONE) {
             layout.wrapping = false; // both
-            outputLayoutData.nodeContentSize.width += margin * 2; // 用于支持 char 模式的 outline 和 shadow
-            outputLayoutData.nodeContentSize.height += margin * 2; // 用于支持 char 模式的 outline 和 shadow
+            outputLayoutData.nodeContentSize.width += margin * 2;
+            outputLayoutData.nodeContentSize.height += margin * 2;
         } else if (overflow === Overflow.RESIZE_HEIGHT) {
             layout.wrapping = true;
-            outputLayoutData.nodeContentSize.height += margin * 2; // not for bmfont
+            outputLayoutData.nodeContentSize.height += margin * 2;
         } else {
             layout.wrapping = comp.enableWrapText;
         }
-        style.originFontSize = comp.fontSize; // not for bmfont
-        shareLabelInfo.fontSize = comp.fontSize; // not for bmfont
-        style.fontFamily = shareLabelInfo.fontFamily; // layout only
+        style.originFontSize = comp.fontSize;
         style.fntConfig = null;
 
-        shareLabelInfo.fontDesc = this._getFontDesc();
-        shareLabelInfo.color = comp.color;
-        style.hash = computeHash(shareLabelInfo); // todo, 要删掉 // 实际上也是数据集合而已
-
-        // maybe useless
-        style.fontDesc = shareLabelInfo.fontDesc;
+        style.fontDesc = this._getFontDesc(style.fontSize, style.fontFamily);
+        style.color.set(comp.color);
+        style.hash = computeHash(style.color, style.isOutlined, style.outlineWidth, style.outlineColor, style.fontSize, style.fontFamily); // todo, 要删掉 // 实际上也是数据集合而已
     },
 });

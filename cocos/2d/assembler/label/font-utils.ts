@@ -30,6 +30,7 @@ import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
 import { ccwindow } from '../../../core/global-exports';
+import { TextStyle } from './text-style';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -89,8 +90,6 @@ interface ILabelInfo {
     fontSize: number;
     fontFamily: string;
     fontDesc: string;
-    hAlign: number;
-    vAlign: number;
     color: Color;
     isOutlined: boolean;
     out: Color;
@@ -119,7 +118,7 @@ const BASELINE_OFFSET = getBaselineOffset();
 
 class LetterTexture {
     public image: ImageAsset | null = null;
-    public labelInfo: ILabelInfo;
+    public labelInfo: ILabelInfo; // 传入的临时变量 // 如果说一定要一份数据的话，那只在这儿存一份就可以// 比方说在初始化的时候给一份数据
     public char: string;
     public data: ISharedLabelData | null  = null;
     public canvas: HTMLCanvasElement | null = null;
@@ -130,7 +129,7 @@ class LetterTexture {
     public hash: string;
     constructor (char: string, labelInfo: ILabelInfo, hash: string) {
         this.char = char;
-        this.labelInfo = labelInfo;
+        this.labelInfo = labelInfo; // 对象引用，不太行 // 对象集合
         this.hash = `${char.charCodeAt(0)}${hash}`;
     }
 
@@ -397,12 +396,22 @@ export class LetterAtlas {
         return this.fontDefDictionary.letterDefinitions[key];
     }
 
-    // 核心方法，需要改造
-    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo, styleHash: string): any { // 主要是这里在用 // 传入的是字符集 hash，
-        const hash = char.charCodeAt(0).toString() + styleHash; // 这是单个字的 hash
+    public getLetterDefinitionForChar (char: string, style: TextStyle, fontScale: number): any {
+        const styleHash = style.hash;
+        const hash = char.charCodeAt(0).toString() + styleHash;
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
-            const temp = new LetterTexture(char, labelInfo, styleHash); // 这里会关系到 hash 的使用，初步可以单纯的拆进去
+            let sharedLabelData: ILabelInfo = {
+                fontSize: style.fontSize,
+                fontFamily: style.fontFamily,
+                fontDesc: style.fontDesc,
+                color: style.color.clone(),
+                isOutlined: style.isOutlined,
+                out: style.outlineColor.clone(),
+                margin: style.outlineWidth,
+                fontScale: fontScale,
+            };
+            const temp = new LetterTexture(char, sharedLabelData, styleHash);
             temp.updateRenderData();
             letter = this.insertLetterTexture(temp);
             temp.destroy();
@@ -412,39 +421,13 @@ export class LetterAtlas {
     }
 }
 
-export interface IShareLabelInfo {
-    fontSize: number;
-    hAlign: number;
-    vAlign: number;
-    fontFamily: string;
-    fontDesc: string;
-    color: Color;
-    isOutlined: boolean;
-    out: Color;
-    margin: number;
-    fontScale: number;
-}
-
-export const shareLabelInfo: IShareLabelInfo = {
-    fontSize: 0,
-    hAlign: 0,
-    vAlign: 0,
-    fontFamily: '',
-    fontDesc: 'Arial',
-    color: Color.WHITE.clone(),
-    isOutlined: false,
-    out: Color.WHITE.clone(),
-    margin: 0,
-    fontScale: 1,
-};
-
-export function computeHash (labelInfo: IShareLabelInfo): string {
+export function computeHash (color: Color, isOutlined: boolean, margin: number, outlineColor: Color, fontSize: number, fontFamily: string): string {
     const hashData = '';
-    const color = labelInfo.color.toHEX();
+    const colorHex = color.toHEX();
     let out = '';
-    if (labelInfo.isOutlined && labelInfo.margin > 0) { // todo: outline
-        out = out + labelInfo.margin.toString() + labelInfo.out.toHEX();
+    if (isOutlined && margin > 0) {
+        out = out + margin.toString() + outlineColor.toHEX();
     }
 
-    return hashData + labelInfo.fontSize.toString() + labelInfo.fontFamily + color + out;
+    return hashData + fontSize.toString() + fontFamily + colorHex + out;
 }
