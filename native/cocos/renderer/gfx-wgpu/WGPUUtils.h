@@ -168,6 +168,7 @@ static WGPUTextureSampleType textureSampleTypeTrait(Format format) {
             return WGPUTextureSampleType::WGPUTextureSampleType_Depth;
         default:
             printf("unsupport texture sample type yet, github@hana-alice to fix.");
+            return WGPUTextureSampleType::WGPUTextureSampleType_Undefined;
     }
 }
 
@@ -525,6 +526,7 @@ static WGPUVertexFormat toWGPUVertexFormat(Format format) {
             return WGPUVertexFormat_Sint32x4;
         default:
             printf("usvf %d\n", format);
+            return WGPUVertexFormat_Undefined;
     }
 }
 
