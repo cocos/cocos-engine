@@ -61,7 +61,7 @@ class CocosEngine {
         mRefCocosEngine = new WeakReference<>(this);
         mContext = context;
         mAudio = new CocosAudio(context);
-        mAudio.registerAudioFocusListener(mContext);
+        mAudio.setFocus(true);
         mHandler = new Handler(context.getMainLooper());
         System.loadLibrary(libName);
         initEnvNative(context);
@@ -85,10 +85,10 @@ class CocosEngine {
     void destroy() {
         mRefCocosEngine.clear();
         CocosHelper.unregisterBatteryLevelReceiver(mContext);
-        mAudio.unregisterAudioFocusListener(mContext);
+        mAudio.destroy();
+        mAudio = null;
         CanvasRenderingContext2DImpl.destroy();
         GlobalObject.destroy();
-        mAudio = null;
         mContext = null;
     }
 
@@ -116,9 +116,7 @@ class CocosEngine {
 
     void resume() {
         mSensorHandler.onResume();
-        if (mAudio.isAudioFocusLoss()) {
-            mAudio.registerAudioFocusListener(mContext);
-        }
+        mAudio.setFocus(true);
     }
 
     SurfaceView getRenderView() {

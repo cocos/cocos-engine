@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -26,107 +26,22 @@
 package com.cocos.lib;
 
 import android.content.Context;
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
-import android.media.AudioManager;
-import android.os.Build;
-import android.util.Log;
 
 public class CocosAudio {
-
-    private static final String _TAG = "CocosAudio";
-    private static boolean isAudioFocusLost = true;
-    private Context mApplicationContext;
-
-    private final static AudioManager.OnAudioFocusChangeListener sAfChangeListener = focusChange -> {
-        Log.d(_TAG, "onAudioFocusChange: " + focusChange + ", thread: " + Thread.currentThread().getName());
-
-        if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
-            // Permanent loss of audio focus
-            // Pause playback immediately
-            Log.d(_TAG, "Pause music by AUDIOFOCUS_LOSS");
-            isAudioFocusLost = true;
-            CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(0));
-        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-            // Pause playback
-            Log.d(_TAG, "Pause music by AUDIOFOCUS_LOSS_TRANSILENT");
-            isAudioFocusLost = true;
-            CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(0));
-        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
-            // Lower the volume, keep playing
-            Log.d(_TAG, "Lower the volume, keep playing by AUDIOFOCUS_LOSS_TRANSILENT_CAN_DUCK");
-            isAudioFocusLost = false;
-            CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(0.1f));
-        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
-            // Your app has been granted audio focus again
-            // Raise volume to normal, restart playback if necessary
-            Log.d(_TAG, "Resume music by AUDIOFOCUS_GAIN");
-            isAudioFocusLost = false;
-            CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(1.0f));
-        }
-    };
+    Context mApplicationContext;
 
     CocosAudio(Context context) {
         mApplicationContext = context.getApplicationContext();
     }
 
     public void setFocus(boolean hasFocus) {
-        if (hasFocus && isAudioFocusLoss()) {
-            registerAudioFocusListener(mApplicationContext);
+        if (hasFocus && CocosAudioFocusManager.isAudioFocusLoss()) {
+            CocosAudioFocusManager.registerAudioFocusListener(mApplicationContext);
         }
     }
 
-    void registerAudioFocusListener(Context context) {
-        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        assert am != null;
-        int result;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AudioAttributes playbackAttributes = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build();
-
-            // set the playback attributes for the focus requester
-            AudioFocusRequest focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-                .setAudioAttributes(playbackAttributes)
-                .setWillPauseWhenDucked(true)
-                .setOnAudioFocusChangeListener(sAfChangeListener)
-                .build();
-
-            result = am.requestAudioFocus(focusRequest);
-        } else {
-            // Request audio focus for playback
-            result = am.requestAudioFocus(sAfChangeListener,
-                // Use the music stream.
-                AudioManager.STREAM_MUSIC,
-                // Request permanent focus.
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
-        }
-
-        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.d(_TAG, "requestAudioFocus succeed");
-            isAudioFocusLost = false;
-            CocosHelper.runOnGameThreadAtForeground(() -> nativeSetAudioVolumeFactor(1.0f));
-            return;
-        }
-
-        Log.e(_TAG, "requestAudioFocus failed!");
+    void destroy() {
+        CocosAudioFocusManager.unregisterAudioFocusListener(mApplicationContext);
+        mApplicationContext = null;
     }
-
-    void unregisterAudioFocusListener(Context context) {
-        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        assert am != null;
-        int result = am.abandonAudioFocus(sAfChangeListener);
-        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-            Log.d(_TAG, "abandonAudioFocus succeed!");
-        } else {
-            Log.e(_TAG, "abandonAudioFocus failed!");
-        }
-    }
-
-    boolean isAudioFocusLoss() {
-        return isAudioFocusLost;
-    }
-
-    private static native void nativeSetAudioVolumeFactor(float focus);
 }
