@@ -11,7 +11,7 @@ exports.template = /* html */`
 
 exports.style = /* css */`
     .image-preview {
-        height: 200px;
+        height: var(--inspector-footer-preview-height, 200px);
         background: var(--color-normal-fill-emphasis);
         display: flex;
         padding: 4px;

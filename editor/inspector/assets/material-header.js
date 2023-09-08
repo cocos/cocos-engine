@@ -20,7 +20,7 @@ exports.template = /* html */`
 
 exports.style = /* css */`
 :host > .section {
-    height: 200px;
+    height: var(--inspector-header-preview-height, 200px);
     padding: 4px 0 4px 4px;
     box-sizing: border-box;
     display: flex;

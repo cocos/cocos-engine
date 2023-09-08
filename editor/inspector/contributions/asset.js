@@ -30,11 +30,11 @@ exports.template = `
     </header>
     <section class="content">
         <section class="content-header">
-            <div class="resize-ns" for="header"></div>
+            <inspector-resize-preview area="header"></inspector-resize-preview>
         </section>
         <section class="content-section"></section>
         <section class="content-footer">
-            <div class="resize-ns" for="footer"></div>
+            <inspector-resize-preview area="footer"></inspector-resize-preview>
         </section>
     </section>
 </div>
@@ -53,10 +53,8 @@ exports.$ = {
     reset: '.reset',
 
     contentHeader: '.content-header',
-    contentHeaderResize: '.resize-ns[for="header"]',
     contentSection: '.content-section',
     contentFooter: '.content-footer',
-    contentFooterResize: '.resize-ns[for="footer"]',
 };
 
 const Elements = {
@@ -78,8 +76,6 @@ const Elements = {
 
             Elements.panel.i18nChangeBind = Elements.panel.i18nChange.bind(panel);
             Editor.Message.addBroadcastListener('i18n:change', Elements.panel.i18nChangeBind);
-
-
 
             panel.history = new History();
         },
@@ -137,7 +133,7 @@ const Elements = {
             if (panel.type === 'unknown') {
                 panel.metaList = [];
                 panel.metaListOrigin = [];
-                return false;
+                return;
             }
 
             try {
@@ -169,9 +165,6 @@ const Elements = {
 
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
-            panel.$.contentHeaderResize.removeEventListener('mousedown', Elements.panel.layoutResize);
-            panel.$.contentFooterResize.removeEventListener('mousedown', Elements.panel.layoutResize);
-
             delete panel.history;
         },
         i18nChange() {
@@ -179,43 +172,6 @@ const Elements = {
 
             const $links = panel.$.container.querySelectorAll('ui-link');
             $links.forEach($link => panel.setHelpUrl($link));
-        },
-        layoutResize:{
-            config:{
-                header:{
-                    value: 200,
-                    min: 200,
-                },
-                footer:{
-                    value: 200,
-                    min: 200,
-                },
-            },
-            ready() {
-                panel.$.contentHeaderResize.addEventListener('mousedown', Elements.panel.layoutResize);
-                panel.$.contentFooterResize.addEventListener('mousedown', Elements.panel.layoutResize);
-            },
-            close() {},
-        },
-        layoutResize3(event) {
-            const element = event.target;
-            if (!element) {
-                return;
-            }
-
-            const resizeFor = element.getAttribute('for');
-
-            function mousemove(event) {
-
-
-            }
-
-            function mouseup() {
-                document.removeEventListener('mousemove', mousemove);
-                document.removeEventListener('mouseup', mouseup);
-            }
-            document.addEventListener('mousemove', mousemove);
-            document.addEventListener('mouseup', mouseup);
         },
     },
     header: {
@@ -437,9 +393,9 @@ exports.methods = {
         }
 
         return {
-            uuidListStr:JSON.stringify(panel.uuidList),
-            metaListStr:JSON.stringify(panel.metaList),
-            renderDataStr:JSON.stringify(renderData),
+            uuidListStr: JSON.stringify(panel.uuidList),
+            metaListStr: JSON.stringify(panel.metaList),
+            renderDataStr: JSON.stringify(renderData),
         };
     },
     restore(record) {

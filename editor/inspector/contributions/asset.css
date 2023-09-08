@@ -104,27 +104,30 @@
     position: relative;
 }
 
-:host > .container > .content > section > .resize-ns {
+:host > .container > .content > section > inspector-resize-preview {
     position: absolute;
     left: 0;
     right: 0;
     z-index: 10;
-    height: 1px;
-    background-color: var(--color-normal-border);
-    cursor: ns-resize;
 }
 
-:host > .container > .content > section > .resize-ns[for="header"] {
+:host > .container > .content > section > inspector-resize-preview[area="header"] {
     bottom: 0;
 }
 
-:host > .container > .content > section > .resize-ns[for="footer"] {
+:host > .container > .content > section > inspector-resize-preview[area="footer"] {
     top: 0;
+}
+
+:host > .container > .content > .content-header,
+:host > .container > .content > .content-footer {
+    max-height: 80vh;
 }
 
 :host > .container > .content > .content-section {
     flex: 1;
     overflow: auto;
+    min-height: 200px;
 }
 
 :host > .container > .content > section > ui-panel {

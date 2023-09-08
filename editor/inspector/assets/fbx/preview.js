@@ -95,7 +95,7 @@ exports.style = /* css*/`
     margin-right: 6px;
 }
 .preview-container > .image {
-    height: 200px;
+    height: var(--inspector-footer-preview-height, 200px);
     overflow: hidden;
     display: flex;
     flex: 1;
