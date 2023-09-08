@@ -96,10 +96,10 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
              i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
             const uint32_t offset = i >> 3;
             const uint32_t bit = i % 8;
-            debugViewData[1 + offset] += (debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F) * std::powf(10.0F, static_cast<float>(bit));
+            debugViewData[1 + offset] += (debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F) * powf(10.0F, static_cast<float>(bit));
         }
-        debugViewData[3] += (debugView->isLightingWithAlbedo() ? 1.0F : 0.0F) * std::powf(10.0F, 6);
-        debugViewData[3] += (debugView->isCsmLayerColoration() ? 1.0F : 0.0F) * std::powf(10.0F, 7);
+        debugViewData[3] += (debugView->isLightingWithAlbedo() ? 1.0F : 0.0F) * powf(10.0F, static_cast<float>(6));
+        debugViewData[3] += (debugView->isCsmLayerColoration() ? 1.0F : 0.0F) * powf(10.0F, static_cast<float>(7));
     }
     setter.setVec4(
         "cc_debug_view_mode",
