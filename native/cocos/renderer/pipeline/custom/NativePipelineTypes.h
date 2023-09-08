@@ -1215,7 +1215,7 @@ inline bool operator!=(const FrustumCullingID& lhs, const FrustumCullingID& rhs)
 struct FrustumCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
-        return {culledResultIndex.get_allocator().resource()};
+        return {resultIndex.get_allocator().resource()};
     }
 
     FrustumCulling(const allocator_type& alloc) noexcept; // NOLINT
@@ -1227,7 +1227,7 @@ struct FrustumCulling {
     FrustumCulling& operator=(FrustumCulling&& rhs) = default;
     FrustumCulling& operator=(FrustumCulling const& rhs) = default;
 
-    ccstd::pmr::unordered_map<FrustumCullingKey, FrustumCullingID> culledResultIndex;
+    ccstd::pmr::unordered_map<FrustumCullingKey, FrustumCullingID> resultIndex;
 };
 
 struct LightBoundsCullingID {
@@ -1308,7 +1308,8 @@ private:
     LightBoundsCullingID getOrCreateLightBoundsCulling(const SceneData& sceneData, FrustumCullingID frustumCullingID);
     NativeRenderQueueID createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
     void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
-    void batchCulling(const pipeline::PipelineSceneData& pplSceneData);
+    void batchFrustumCulling(const pipeline::PipelineSceneData& pplSceneData);
+    void batchLightBoundsCulling();
     void fillRenderQueues(const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData);
 public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, FrustumCulling> frustumCullings;

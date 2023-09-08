@@ -172,13 +172,13 @@ SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
   storageImages(std::move(rhs.storageImages), alloc) {}
 
 FrustumCulling::FrustumCulling(const allocator_type& alloc) noexcept
-: culledResultIndex(alloc) {}
+: resultIndex(alloc) {}
 
 FrustumCulling::FrustumCulling(FrustumCulling&& rhs, const allocator_type& alloc)
-: culledResultIndex(std::move(rhs.culledResultIndex), alloc) {}
+: resultIndex(std::move(rhs.resultIndex), alloc) {}
 
 FrustumCulling::FrustumCulling(FrustumCulling const& rhs, const allocator_type& alloc)
-: culledResultIndex(rhs.culledResultIndex, alloc) {}
+: resultIndex(rhs.resultIndex, alloc) {}
 
 LightBoundsCulling::LightBoundsCulling(const allocator_type& alloc) noexcept
 : resultIndex(alloc) {}

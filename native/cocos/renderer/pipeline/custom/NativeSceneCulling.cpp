@@ -49,8 +49,8 @@ FrustumCullingID SceneCulling::getOrCreateFrustumCulling(const SceneData& sceneD
     };
 
     // find query source
-    auto iter = queries.culledResultIndex.find(key);
-    if (iter == queries.culledResultIndex.end()) {
+    auto iter = queries.resultIndex.find(key);
+    if (iter == queries.resultIndex.end()) {
         // create query source
         // make query source id
         const FrustumCullingID frustomCulledResultID{numFrustumCulling++};
@@ -61,7 +61,7 @@ FrustumCullingID SceneCulling::getOrCreateFrustumCulling(const SceneData& sceneD
         }
         // add query source to query index
         bool added = false;
-        std::tie(iter, added) = queries.culledResultIndex.emplace(key, frustomCulledResultID);
+        std::tie(iter, added) = queries.resultIndex.emplace(key, frustomCulledResultID);
         CC_ENSURES(added);
     }
     return iter->second;
@@ -288,13 +288,13 @@ void sceneCulling(
 
 } // namespace
 
-void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData) {
+void SceneCulling::batchFrustumCulling(const pipeline::PipelineSceneData& pplSceneData) {
     const auto* const skybox = pplSceneData.getSkybox();
     const auto* const skyboxModel = skybox && skybox->isEnabled() ? skybox->getModel() : nullptr;
 
     for (const auto& [scene, queries] : frustumCullings) {
         CC_ENSURES(scene);
-        for (const auto& [key, frustomCulledResultID] : queries.culledResultIndex) {
+        for (const auto& [key, frustomCulledResultID] : queries.resultIndex) {
             CC_EXPECTS(key.camera);
             CC_EXPECTS(key.camera->getScene() == scene);
             const auto* light = key.light;
@@ -372,6 +372,112 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
 }
 
 namespace {
+
+void executeSphereLightCulling(
+    const scene::SphereLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const auto& lightAABB = light.getAABB();
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || modelBounds->aabbAabb(lightAABB)) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+void executeSpotLightCulling(
+    const scene::SpotLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const auto& lightAABB = light.getAABB();
+    const auto& lightFrustum = light.getFrustum();
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || (modelBounds->aabbAabb(lightAABB) && modelBounds->aabbFrustum(lightFrustum))) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+void executePointLightCulling(
+    const scene::PointLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const auto& lightAABB = light.getAABB();
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || modelBounds->aabbAabb(lightAABB)) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+void executeRangedDirectionalLightCulling(
+    const scene::RangedDirectionalLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+    // when execute render graph, we should never update world matrix
+    // light->getNode()->updateWorldTransform();
+    geometry::AABB lightAABB{};
+    rangedDirLightBoundingBox.transform(light.getNode()->getWorldMatrix(), &lightAABB);
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || modelBounds->aabbAabb(lightAABB)) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+} // namespace
+
+void SceneCulling::batchLightBoundsCulling() {
+    for (const auto& [scene, queries] : lightBoundsCullings) {
+        CC_ENSURES(scene);
+        for (const auto& [key, cullingID] : queries.resultIndex) {
+            CC_EXPECTS(key.camera);
+            CC_EXPECTS(key.camera->getScene() == scene);
+            const auto& frustumCullingResult = frustumCullingResults.at(key.frustumCullingID.value);
+            auto& lightBoundsCullingResult = lightBoundsCullingResults.at(cullingID.value);
+            CC_EXPECTS(lightBoundsCullingResult.empty());
+            switch (key.cullingLight->getType()) {
+                case scene::LightType::SPHERE: {
+                    const auto* light = dynamic_cast<const scene::SphereLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executeSphereLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                } break;
+                case scene::LightType::SPOT: {
+                    const auto* light = dynamic_cast<const scene::SpotLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executeSpotLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                } break;
+                case scene::LightType::POINT: {
+                    const auto* light = dynamic_cast<const scene::PointLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executePointLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                } break;
+                case scene::LightType::RANGED_DIRECTIONAL: {
+                    const auto* light = dynamic_cast<const scene::RangedDirectionalLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executeRangedDirectionalLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                } break;
+                case scene::LightType::DIRECTIONAL:
+                case scene::LightType::UNKNOWN:
+                default:
+                    // noop
+                    break;
+            }
+        }
+    }
+}
+
+namespace {
+
 bool isBlend(const scene::Pass& pass) {
     bool bBlend = false;
     for (const auto& target : pass.getBlendState()->targets) {
@@ -463,6 +569,7 @@ void SceneCulling::fillRenderQueues(
     for (auto&& [sceneID, desc] : renderQueueIndex) {
         CC_EXPECTS(holds<SceneTag>(sceneID, rg));
         const auto frustomCulledResultID = desc.frustumCulledResultID;
+        const auto lightBoundsCullingID = desc.lightBoundsCulledResultID;
         const auto targetID = desc.renderQueueTarget;
         const auto& sceneData = get(SceneTag{}, sceneID, rg);
 
@@ -485,7 +592,16 @@ void SceneCulling::fillRenderQueues(
 
         // culling source
         CC_EXPECTS(frustomCulledResultID.value < frustumCullingResults.size());
-        const auto& sourceModels = frustumCullingResults[frustomCulledResultID.value];
+        const auto& sourceModels = [&]() -> const auto& {
+            // is culled by light bounds
+            if (lightBoundsCullingID.value != 0xFFFFFFFF) {
+                CC_EXPECTS(lightBoundsCullingID.value < lightBoundsCullingResults.size());
+                return lightBoundsCullingResults.at(lightBoundsCullingID.value);
+            }
+            // not culled by light bounds
+            return frustumCullingResults.at(frustomCulledResultID.value);
+        }
+        ();
 
         // native queue target
         CC_EXPECTS(targetID.value < renderQueues.size());
@@ -514,7 +630,8 @@ void SceneCulling::buildRenderQueues(
     pSceneData = &pplSceneData;
     layoutGraph = &lg;
     collectCullingQueries(rg, lg);
-    batchCulling(pplSceneData);
+    batchFrustumCulling(pplSceneData);
+    batchLightBoundsCulling(); // cull frustum-culling's results by light bounds
     fillRenderQueues(rg, pplSceneData);
 }
 
