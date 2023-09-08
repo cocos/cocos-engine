@@ -61,13 +61,7 @@ void DescriptorSet::destroy() {
 }
 
 void DescriptorSet::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
-    const uint32_t descriptorIndex = _layout->getDescriptorIndices()[binding] + index;
-    const uint32_t newId = getObjectID(buffer);
-    if (_buffers[descriptorIndex].id != newId) {
-        _buffers[descriptorIndex].ptr = buffer;
-        _buffers[descriptorIndex].id = newId;
-        _isDirty = true;
-    }
+    bindBuffer(binding, buffer, index, AccessFlagBit::NONE);
 }
 
 void DescriptorSet::bindTexture(uint32_t binding, Texture *texture, uint32_t index) {
