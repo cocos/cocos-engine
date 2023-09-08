@@ -39,9 +39,10 @@ CCWGPUSampler *dftUnfilterableSampler = nullptr;
 using namespace emscripten;
 
 CCWGPUSampler::CCWGPUSampler(const SamplerInfo &info) : Sampler(info) {
+    ccstd::string tag = std::to_string(static_cast<uint32_t>(info.minFilter)) + " " + std::to_string(static_cast<uint32_t>(info.magFilter)) + " " + std::to_string(static_cast<uint32_t>(info.mipFilter));
     WGPUSamplerDescriptor descriptor = {
         .nextInChain = nullptr,
-        .label = (std::to_string(static_cast<uint32_t>(info.minFilter)) + " " + std::to_string(static_cast<uint32_t>(info.magFilter)) + " " + std::to_string(static_cast<uint32_t>(info.mipFilter))).c_str(),
+        .label = tag.c_str(),
         .addressModeU = toWGPUAddressMode(info.addressU),
         .addressModeV = toWGPUAddressMode(info.addressV),
         .addressModeW = toWGPUAddressMode(info.addressW),

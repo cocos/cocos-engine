@@ -42,7 +42,6 @@ namespace cc {
 namespace gfx {
 
 constexpr uint8_t CC_WGPU_MAX_ATTACHMENTS = 16;
-constexpr uint8_t CC_WGPU_MAX_STREAM = 256; // not sure
 constexpr decltype(nullptr) wgpuDefaultHandle = nullptr;
 constexpr ccstd::hash_t WGPU_HASH_SEED = 0x811C9DC5;
 constexpr uint8_t CC_WGPU_MAX_FRAME_COUNT = 3;
