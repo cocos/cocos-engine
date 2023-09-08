@@ -163,7 +163,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     private _setDebugDrawMode (): void {
-        if (this._debugDrawFlags & EPhysicsDrawFlags.WireFrame) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.Wireframe) {
             this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 1);
         } else {
             this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 0);

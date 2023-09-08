@@ -27,6 +27,9 @@ import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxCollider } from '../../../../exports/physics-framework';
 
+const tempMin = new Vec3();
+const tempMax = new Vec3();
+
 export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
     get localObb (): geometry.OBB {
         return this._localShape as geometry.OBB;
@@ -54,5 +57,10 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
     onLoad (): void {
         super.onLoad();
         this.updateSize();
+    }
+
+    getAABB (v: geometry.AABB): void {
+        this.worldObb.getBoundary(tempMin, tempMax);
+        geometry.AABB.fromPoints(v, tempMin, tempMax);
     }
 }

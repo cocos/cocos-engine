@@ -187,7 +187,7 @@ void PhysXWorld::debugDraw () {
 }
 
 void PhysXWorld::setDebugDrawMode() {
-    if (uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::WireFrame)) {
+    if (uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::Wireframe)) {
         _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
     } else {
         _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 0);

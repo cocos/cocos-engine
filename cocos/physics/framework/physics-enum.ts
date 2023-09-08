@@ -417,7 +417,7 @@ export enum EPhysicsDrawFlags {
      * @zh
      * 绘制线框。
     */
-    WireFrame = 0x0001,
+    Wireframe = 0x0001,
     /**
      * @en
      * Draw Constraint.

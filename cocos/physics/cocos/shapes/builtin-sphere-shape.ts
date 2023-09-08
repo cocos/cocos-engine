@@ -22,12 +22,14 @@
  THE SOFTWARE.
 */
 
-import { geometry } from '../../../core';
+import { Vec3, geometry } from '../../../core';
 import { BuiltinShape } from './builtin-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { maxComponent } from '../../utils/util';
 import { SphereCollider } from '../../../../exports/physics-framework';
 
+const tempMin = new Vec3();
+const tempMax = new Vec3();
 export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
     updateRadius (): void {
         this.localSphere.radius = this.collider.radius;
@@ -56,5 +58,10 @@ export class BuiltinSphereShape extends BuiltinShape implements ISphereShape {
     onLoad (): void {
         super.onLoad();
         this.updateRadius();
+    }
+
+    getAABB (v: geometry.AABB): void {
+        this.worldSphere.getBoundary(tempMin, tempMax);
+        geometry.AABB.fromPoints(v, tempMin, tempMax);
     }
 }

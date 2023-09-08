@@ -857,7 +857,7 @@ export class BulletWorld implements IPhysicsWorld {
 
     private _setDebugDrawMode (): void {
         let btDrawMode = 0;
-        if (this._debugDrawFlags & EPhysicsDrawFlags.WireFrame) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.Wireframe) {
             btDrawMode |= EBulletDebugDrawModes.DBG_DrawWireframe;
         }
 
