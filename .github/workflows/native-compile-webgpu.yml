@@ -1,7 +1,7 @@
 name: <Native> Compile WebGPU
 
 on:
-  push:
+  pull_request:
     paths:
     - 'native/external-config.json'
     - 'native/cocos/base/**'
