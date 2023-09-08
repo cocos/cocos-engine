@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  compile_wgpu_mac:
+  compile_wgpu:
     name: "Emscripten"
     runs-on: ubuntu-latest
     steps:
@@ -61,4 +61,4 @@ jobs:
           cd build
           cmake .. -GNinja -DCMAKE_TOOLCHAIN_FILE=${EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Debug
           ninja
-          echo "Compile WGPU by ems on Ubuntu Done!"
+          echo "============== Compile WGPU by ems on Ubuntu Done! =============="
