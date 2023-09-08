@@ -50,7 +50,7 @@ class CocosEngine {
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
     private FrameLayout mRootLayout;
-    private final Handler mHandler;
+    private Handler mHandler;
 
     private List<CocosSurfaceView> mSurfaceViewArray;
     private SurfaceView mSurfaceView;
@@ -87,6 +87,8 @@ class CocosEngine {
         CocosHelper.unregisterBatteryLevelReceiver(mContext);
         mAudio.destroy();
         mAudio = null;
+        mHandler.removeCallbacks(null);
+        mHandler = null;
         CanvasRenderingContext2DImpl.destroy();
         GlobalObject.destroy();
         mContext = null;
