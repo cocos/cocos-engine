@@ -325,84 +325,65 @@ module.exports = {
                 name: '填充顶点色',
                 title: '如果模型没有顶点颜色属性，添加颜色属性，填充为白色。',
             },
+            meshOptimize: {
+                name: '网格优化',
+                title: '是否优化网格数据。',
+                vertexCache: {
+                    name: '顶点缓存',
+                    title: '优化顶点缓冲区以提高顶点缓存命中率。<br>建议对顶点数较高的模型启用此选项。',
+                },
+                vertexFetch: {
+                    name: '顶点提取',
+                    title: '优化顶点缓冲区以提高顶点提取效率。<br>建议对顶点数较高的模型启用此选项。',
+                },
+                overdraw: {
+                    name: '过度绘制',
+                    title: '优化顶点缓冲区以减少过度绘制。<br>建议对顶点数较高的模型启用此选项。',
+                },
+            },
             meshSimplify: {
-                name: 'Mesh 简化',
-                title: 'Mesh 简化可以被用来简化导入的模型，可以在需要模型减面时使用。<br>在一些少数情况下减面后的模型可能会出现显示异常，如发生这种情况请尝试调整参数并重试。',
-                simplification: {
-                    name: 'Simplification',
-                    title: 'Simplification',
-                    si: {
-                        name: 'Achieve The Ratio R',
-                        title: 'Achieve The Ratio R',
-                    },
-                    sa: {
-                        name: 'Aggressively Simplify',
-                        title: 'Aggressively Simplify',
-                    },
+                name: '网格简化',
+                title: '是否简化网格数据。',
+                targetRatio: {
+                    name: '目标比率',
+                    title: '简化网格数据的目标顶点数的比例。<br>建议将此值设置为 0.5。',
                 },
-                scene: {
-                    name: 'Scene',
-                    title: 'Scene',
-                    kn: {
-                        name: 'Keep Nodes Transform',
-                        title: 'Keep Nodes Transform',
-                    },
-                    ke: {
-                        name: 'Keep Extras Data',
-                        title: 'Keep Extras Data',
-                    },
+                autoErrorRate: {
+                    name: '自动误差率',
+                    title: '是否自动计算简化网格数据的误差率。',
                 },
-                miscellaneous: {
-                    name: 'Miscellaneous',
-                    title: 'Miscellaneous',
-                    noq: {
-                        name: 'Disable Quantization',
-                        title: 'Disable Quantization',
-                    },
-                    v: {
-                        name: 'Verbose Output',
-                        title: 'Verbose Output',
-                    },
+                errorRate: {
+                    name: '误差率',
+                    title: '简化网格数据的最大误差率。<br>此值还会影响结果大小。<br>建议调整直到获得良好的结果。',
                 },
-                algorithm: {
-                    name: '减面算法',
-                    simplify: 'simplify',
-                    gltfpack: 'gltfpack (已废弃)',
+                lockBoundary: {
+                    name: '锁定边界',
+                    title: '是否锁定简化网格数据的边界。',
                 },
-                simplify: {
-                    targetRatio: {
-                        name: 'LOD 压缩比例',
-                        title: '减面之后的目标面数比例，0 代表减面至最少，1 代表没有减面的原模型。',
-                    },
-                    preserveSurfaceCurvature: {
-                        name: '保留表面曲率',
-                        title: 'Preserve Surface Curvature',
-                    },
-                    preserveBorderEdges: {
-                        name: '保留边界边',
-                        title: 'Preserve Border Edges',
-                    },
-                    preserveUVSeamEdges: {
-                        name: '保留 UV 缝合边',
-                        title: 'Preserve UV Seam Edges',
-                    },
-                    preserveUVFoldoverEdges: {
-                        name: '保留 UV 折叠边',
-                        title: 'Preserve UV Foldover Edges',
-                    },
-                    agressiveness: {
-                        name: '误差距离',
-                        title: '模型减面算法的激进程度。<br>当设置数值越高时，算法的减面策略会越激进，但是过于激进的策略更有可能导致结果错误。',
-                    },
-                    maxIterationCount: {
-                        name: '计算迭代次数',
-                        title: '最大重复计数代表减面算法运行的重复次数。<br>高数值可以使算法运行结果更接近目标，但也会增加运行时间和结果错误的概率。',
-                    },
+            },
+            meshCluster: {
+                name: '网格切块',
+                title: '是否分割网格数据。',
+                generateBounding: {
+                    name: '生成包围体',
+                    title: '是否为聚类的网格数据生成包围球和法线锥。',
                 },
-                gltfpack: {
-                    warn: '当前资源使用的减面算法 gltfpack 已被废弃，请选用新的 simplify 减面算法。',
+            },
+            meshCompress:{
+                name: '网格压缩',
+                title: '是否压缩网格数据。',
+                encode: {
+                    name: '编码',
+                    title: '对网格数据进行编码以减少数据大小。',
                 },
-                warn: '警告：优化后，网格资源的数量和名称会发生改变，这将会造成组件引用的资源丢失，请及时手动更新；（另外，对于模型资源中预生成的预制体，资源同步机制会自动更新）',
+                compress: {
+                    name: '压缩',
+                    title: '对网格数据进行压缩以减少数据大小。',
+                },
+                quantize: {
+                    name: '量化',
+                    title: '对网格数据进行量化以减少数据大小。',
+                },
             },
             animationBakeRate: {
                 name: '动画烘焙速率',
