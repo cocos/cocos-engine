@@ -61,9 +61,25 @@ class CocosEngine {
         mRefCocosEngine = new WeakReference<>(this);
         mContext = context;
         mAudio = new CocosAudio(context);
+        mAudio.registerAudioFocusListener(mContext);
         mHandler = new Handler(context.getMainLooper());
         System.loadLibrary(libName);
         initEnvNative(context);
+
+        Activity activity = null;
+        if (mContext instanceof Activity) {
+            activity = (Activity) mContext;
+        }
+
+        // GlobalObject.init should be initialized at first.
+        GlobalObject.init(mContext, activity);
+        CocosHelper.registerBatteryLevelReceiver(mContext);
+        CocosHelper.init();
+        CanvasRenderingContext2DImpl.init(mContext);
+        if (activity != null) {
+            activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        }
+        mSensorHandler = new CocosSensorHandler(mContext);
     }
 
     void destroy() {
@@ -74,10 +90,6 @@ class CocosEngine {
         GlobalObject.destroy();
         mAudio = null;
         mContext = null;
-    }
-
-    void init() {
-        initWithView(null);
     }
 
     void start() {
@@ -104,7 +116,6 @@ class CocosEngine {
 
     void resume() {
         mSensorHandler.onResume();
-        Utils.hideVirtualButton();
         if (mAudio.isAudioFocusLoss()) {
             mAudio.registerAudioFocusListener(mContext);
         }
@@ -118,25 +129,7 @@ class CocosEngine {
         return mAudio;
     }
 
-    void initWithView(FrameLayout parentView) {
-        Activity activity = null;
-        if (mContext instanceof Activity) {
-            activity = (Activity) mContext;
-        }
-
-        // GlobalObject.init should be initialized at first.
-        GlobalObject.init(mContext, activity);
-
-        CocosHelper.registerBatteryLevelReceiver(mContext);
-        CocosHelper.init();
-        mAudio.registerAudioFocusListener(mContext);
-        CanvasRenderingContext2DImpl.init(mContext);
-        if (activity != null) {
-            activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
-        }
-
-        mSensorHandler = new CocosSensorHandler(mContext);
-
+    void initView(FrameLayout parentView) {
         if (parentView != null) {
             mRootLayout = parentView;
             CocosActivity cocosActivity = null;
