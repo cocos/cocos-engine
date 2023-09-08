@@ -42,7 +42,7 @@ CCProgram planar-shadow-vs %{
     CCGetWorldMatrixFull(matWorld, matWorldIT);
     vec3 worldPos = (matWorld * position).xyz;
     vec4 shadowPos = CalculatePlanarShadowPos(worldPos, cc_cameraPos.xyz, cc_mainLitDir.xyz, cc_planarNDInfo);
-    position  = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar);
+    position = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar, cc_shadowWHPBInfo.w);
     v_dist = shadowPos.w;
     return position;
   }

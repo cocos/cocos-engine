@@ -239,6 +239,7 @@ module.exports = link(mixin({
         shadowColor: '平面阴影颜色',
         planeDirection: '阴影接收平面的法线，垂直于阴影，用于调整阴影的倾斜度',
         planeHeight: '阴影接收平面距离原点的高度',
+        planeBias: '平面阴影计算中的位置偏移值',
         shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
         maxReceived: '产生阴影的有效光源数量',
     },

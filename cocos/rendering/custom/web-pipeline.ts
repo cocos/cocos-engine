@@ -621,6 +621,11 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
                 _uboVec.set(_uboVec3.x, _uboVec3.y, _uboVec3.z, -shadowInfo.distance);
                 setter.offsetVec4(_uboVec, uniformOffset);
             }
+            uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                _uboVec.set(0, 0, 0, shadowInfo.planeBias);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
         }
         if (hasCCShadow) {
             setter.setCurrConstant('CCShadow', layout);

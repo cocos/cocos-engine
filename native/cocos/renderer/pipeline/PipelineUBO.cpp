@@ -301,6 +301,8 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, ccstd::arr
             }
         } else if (mainLight && shadowInfo->getType() == scene::ShadowType::PLANAR) {
             PipelineUBO::updatePlanarNormalAndDistance(shadowInfo, shadowBufferView);
+            const float shadowWHPBInfos[4] = {0, 0, 0, shadowInfo->getPlaneBias()};
+            memcpy(sv.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
         }
 
         memcpy(sv.data() + UBOShadow::SHADOW_COLOR_OFFSET, shadowInfo->getShadowColor4f().data(), sizeof(float) * 4);
