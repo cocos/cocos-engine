@@ -67,6 +67,7 @@ let WebView = cc.Class({
 
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.ui/WebView',
+        help: 'i18n:COMPONENT.help_url.webview',
         executeInEditMode: true
     },
 

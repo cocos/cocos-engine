@@ -46,6 +46,7 @@ var WheelJoint = cc.Class({
     
     editor: CC_EDITOR && {
         inspector: 'packages://inspector/inspectors/comps/physics/joint.js',
+        help: 'i18n:COMPONENT.help_url.joint-component',
         menu: 'i18n:MAIN_MENU.component.physics/Joint/Wheel',
     },
 

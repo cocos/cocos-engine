@@ -33,6 +33,7 @@ const {
     property,
     requireComponent,
     disallowMultiple,
+    help,
 } = cc._decorator;
 const Vec3 = cc.Vec3;
 
@@ -48,6 +49,7 @@ const Vec3 = cc.Vec3;
 @executionOrder(98)
 @requireComponent(RigidBody3D)
 @menu('i18n:MAIN_MENU.component.physics/Constant Force 3D')
+@help('i18n:COMPONENT.help_url.constantforce')
 @disallowMultiple
 @executeInEditMode
 export class ConstantForce extends cc.Component {

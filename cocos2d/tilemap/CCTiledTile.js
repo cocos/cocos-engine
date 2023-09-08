@@ -40,6 +40,7 @@ let TiledTile = cc.Class({
     editor: CC_EDITOR && {
         executeInEditMode: true,
         menu: 'i18n:MAIN_MENU.component.renderers/TiledTile',
+        help: 'i18n:COMPONENT.help_url.tiledtile',
     },
 
     ctor () {

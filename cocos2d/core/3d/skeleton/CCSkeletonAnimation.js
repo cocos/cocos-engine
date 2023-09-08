@@ -43,6 +43,7 @@ let SkeletonAnimation = cc.Class({
     editor: CC_EDITOR && {
         inspector: 'packages://inspector/inspectors/comps/skeleton-animation.js',
         menu: 'i18n:MAIN_MENU.component.others/Skeleton Animation',
+        help: 'i18n:COMPONENT.help_url.skeleton-animation',
     },
 
     properties: {

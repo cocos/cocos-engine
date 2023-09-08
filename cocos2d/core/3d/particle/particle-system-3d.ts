@@ -42,7 +42,7 @@ import { particleEmitZAxis } from './particle-general-function';
 import TrailModule from './renderer/trail';
 import Mesh from '../../mesh/CCMesh';
 
-const { ccclass, menu, property, executeInEditMode, executionOrder} = require('../../platform/CCClassDecorator')
+const { ccclass, menu, property, executeInEditMode, executionOrder, help } = require('../../platform/CCClassDecorator')
 const RenderComponent = require('../../components/CCRenderComponent');
 
 const _world_mat = new Mat4();
@@ -66,6 +66,7 @@ const _module_props = CC_EDITOR && [
  */
 @ccclass('cc.ParticleSystem3D')
 @menu('i18n:MAIN_MENU.component.renderers/ParticleSystem3D')
+@help('i18n:COMPONENT.help_url.particle-system-3d')
 @executionOrder(99)
 @executeInEditMode
 export default class ParticleSystem3D extends RenderComponent {

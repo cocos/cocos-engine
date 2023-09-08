@@ -39,7 +39,7 @@ if (CC_JSB && CC_NATIVERENDERER) {
 import renderer from '../renderer/index';
 import Enum from '../platform/CCEnum';
 import CCComponent from '../components/CCComponent';
-import { ccclass, menu, inspector, property, executeInEditMode } from '../platform/CCClassDecorator';
+import { ccclass, menu, inspector, property, executeInEditMode, help } from '../platform/CCClassDecorator';
 
 /**
  * !#en The light source type
@@ -140,6 +140,7 @@ const LightShadowType = Enum({
 @menu('i18n:MAIN_MENU.component.renderers/Light')
 @executeInEditMode
 @inspector('packages://inspector/inspectors/comps/light.js')
+@help('i18n:COMPONENT.help_url.light')
 export default class Light extends CCComponent {
     @property
     _type = LightType.DIRECTIONAL;

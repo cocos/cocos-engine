@@ -142,6 +142,7 @@ let Camera = cc.Class({
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.others/Camera',
         inspector: 'packages://inspector/inspectors/comps/camera.js',
+        help: 'i18n:COMPONENT.help_url.camera',
         executeInEditMode: true
     },
 

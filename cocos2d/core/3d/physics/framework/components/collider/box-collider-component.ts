@@ -33,6 +33,7 @@ const {
     executionOrder,
     menu,
     property,
+    help,
 } = cc._decorator;
 
 const Vec3 = cc.Vec3;
@@ -49,6 +50,7 @@ const Vec3 = cc.Vec3;
 @executionOrder(98)
 @menu('i18n:MAIN_MENU.component.physics/Collider/Box 3D')
 @executeInEditMode
+@help('i18n:COMPONENT.help_url.physics-collider')
 export class BoxCollider3D extends Collider3D {
 
     /// PUBLIC PROPERTY GETTER\SETTER ///

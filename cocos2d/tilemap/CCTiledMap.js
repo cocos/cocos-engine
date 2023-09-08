@@ -296,6 +296,7 @@ let TiledMap = cc.Class({
     editor: CC_EDITOR && {
         executeInEditMode: true,
         menu: 'i18n:MAIN_MENU.component.renderers/TiledMap',
+        help: 'i18n:COMPONENT.help_url.tiledmap'
     },
 
     ctor () {
