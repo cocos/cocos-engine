@@ -71,6 +71,14 @@ ccstd::hash_t hash(const ccstd::vector<WGPUBindGroupLayoutEntry> &entries) {
     return hash;
 }
 
+bool checkInUse(uint8_t binding, const ccstd::set<uint8_t> &bindingInUse, bool samplerBinding) {
+    bool res = bindingInUse.find(binding) != bindingInUse.end();
+    if (!res && samplerBinding) {
+        res |= bindingInUse.find(binding - CC_WGPU_MAX_ATTACHMENTS) != bindingInUse.end();
+    }
+    return res;
+}
+
 } // namespace
 
 using namespace emscripten;
@@ -202,7 +210,7 @@ void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool 
     ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries{};
     bindGroupLayoutEntries.reserve(_gpuLayoutEntryObj->bindGroupLayoutEntries.size());
     for (const auto &[bd, layoutEntry] : _gpuLayoutEntryObj->bindGroupLayoutEntries) {
-        if (bindingInUse.find(static_cast<uint8_t>(bd)) != bindingInUse.end()) {
+        if(checkInUse(static_cast<uint8_t>(bd), bindingInUse, layoutEntry.sampler.type != WGPUSamplerBindingType_Undefined)) {
             bindGroupLayoutEntries.emplace_back(layoutEntry);
         }
     }
