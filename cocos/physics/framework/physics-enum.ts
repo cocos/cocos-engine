@@ -411,6 +411,7 @@ export enum EPhysicsDrawFlags {
      * 不绘制。
     */
     None = 0,
+
     /**
      * @en
      * Draw wireframe
@@ -418,6 +419,7 @@ export enum EPhysicsDrawFlags {
      * 绘制线框。
     */
     Wireframe = 0x0001,
+
     /**
      * @en
      * Draw Constraint.
@@ -425,6 +427,7 @@ export enum EPhysicsDrawFlags {
      * 绘制约束
     */
     Constraint = 0x0002,
+
     /**
      * @en
      * Draw AABB.
