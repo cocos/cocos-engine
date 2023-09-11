@@ -25,12 +25,12 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
 
 interface ICachedStyle {
     width: string;

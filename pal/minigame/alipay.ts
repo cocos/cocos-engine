@@ -23,9 +23,9 @@
 */
 
 import { IMiniGame } from 'pal/minigame';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
+import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { Orientation } from '../screen-adapter/enum-type';
-import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
+import { error, warn } from '../../cocos/core/platform/debug';
 
 declare let my: any;
 
@@ -58,22 +58,22 @@ Object.defineProperty(minigame, 'orientation', {
 // my.onTouchStart register touch event listner on body
 // need to register on canvas
 minigame.onTouchStart = function (cb): void {
-    window.canvas.addEventListener('touchstart', (res) => {
+    window.canvas.addEventListener('touchstart', (res: TouchEvent) => {
         cb && cb(res);
     });
 };
 minigame.onTouchMove = function (cb): void {
-    window.canvas.addEventListener('touchmove', (res) => {
+    window.canvas.addEventListener('touchmove', (res: TouchEvent) => {
         cb && cb(res);
     });
 };
 minigame.onTouchEnd = function (cb): void {
-    window.canvas.addEventListener('touchend', (res) => {
+    window.canvas.addEventListener('touchend', (res: TouchEvent) => {
         cb && cb(res);
     });
 };
 minigame.onTouchCancel = function (cb): void {
-    window.canvas.addEventListener('touchcancel', (res) => {
+    window.canvas.addEventListener('touchcancel', (res: TouchEvent) => {
         cb && cb(res);
     });
 };
@@ -134,7 +134,7 @@ minigame.startAccelerometer = function (res: any): void {
         my.onAccelerometerChange(_accelerometerCb);
     } else {
         // my.startAccelerometer() is not implemented.
-        console.error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on alipay platform');
+        error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on alipay platform');
     }
 };
 minigame.stopAccelerometer = function (res: any): void {
@@ -145,7 +145,7 @@ minigame.stopAccelerometer = function (res: any): void {
 
 // #region SafeArea
 minigame.getSafeArea = function (): SafeArea {
-    console.warn('getSafeArea is not supported on this platform');
+    warn('getSafeArea is not supported on this platform');
     const systemInfo =  minigame.getSystemInfoSync();
     return {
         top: 0,

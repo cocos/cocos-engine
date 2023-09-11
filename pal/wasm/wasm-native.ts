@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 import { EDITOR } from 'internal:constants';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { native } from '../../cocos/native-binding/index';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     return fetchBuffer(wasmUrl).then((arrayBuffer) => WebAssembly.instantiate(arrayBuffer, importObject));

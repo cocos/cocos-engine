@@ -25,11 +25,11 @@
 
 import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { findCanvas, loadJsFile } from 'pal/env';
+import { findCanvas, loadJsFile } from '@pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, _resetDebugSetting, log, error } from '../core';
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
@@ -41,6 +41,7 @@ import { bindingMappingInfo } from '../rendering/define';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { effectSettings } from '../core/effect-settings';
+
 /**
  * @zh
  * 游戏配置。
@@ -723,6 +724,7 @@ export class Game extends EventTarget {
             })
             .then((): void => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init Base');
                 }
                 const debugMode = config.debugMode || DebugMode.NONE;
@@ -735,6 +737,7 @@ export class Game extends EventTarget {
             .then((): Promise<void> => settings.init(config.settingsPath, config.overrideSettings))
             .then((): Promise<void[]> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init Base');
                 }
                 this.emit(Game.EVENT_POST_BASE_INIT);
@@ -748,6 +751,7 @@ export class Game extends EventTarget {
             })
             .then((): void => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init Infrastructure');
                 }
                 macro.init();
@@ -769,6 +773,7 @@ export class Game extends EventTarget {
                 Layers.init();
                 this.initPacer();
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init Infrastructure');
                 }
             })
@@ -795,13 +800,14 @@ export class Game extends EventTarget {
                 }
                 const data = effectSettings.data;
                 if (data === null) {
-                    console.error('Effect settings not found, effects will not be imported.');
+                    error('Effect settings not found, effects will not be imported.');
                     return;
                 }
                 cclegacy.rendering.init(deviceManager.gfxDevice, data);
             })
             .then((): Promise<void> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init SubSystem');
                 }
                 director.init();
@@ -809,13 +815,14 @@ export class Game extends EventTarget {
             })
             .then((): Promise<void[]> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init SubSystem');
                 }
                 this.emit(Game.EVENT_POST_SUBSYSTEM_INIT);
                 return this.onPostSubsystemInitDelegate.dispatch();
             })
             .then((): void => {
-                console.log(`Cocos Creator v${VERSION}`);
+                log(`Cocos Creator v${VERSION}`);
                 this.emit(Game.EVENT_ENGINE_INITED);
                 this._engineInited = true;
             })
@@ -827,6 +834,7 @@ export class Game extends EventTarget {
             })
             .then((): Promise<void> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init Project');
                 }
                 const jsList = settings.querySettings<string[]>(Settings.Category.PLUGINS, 'jsList');
@@ -855,6 +863,7 @@ export class Game extends EventTarget {
             })
             .then((): Promise<void[]> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init Project');
                 }
                 this.emit(Game.EVENT_POST_PROJECT_INIT);
@@ -1013,7 +1022,7 @@ export class Game extends EventTarget {
             SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
-            const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene');
+            const launchScene: string | null = settings.querySettings(Settings.Category.LAUNCH, 'launchScene');
             if (launchScene) {
                 // load scene
                 director.loadScene(launchScene, (): void => {
@@ -1098,7 +1107,7 @@ export class Game extends EventTarget {
     }
 
     private _setupRenderPipeline (): void | Promise<void> {
-        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline');
+        const renderPipeline: string | null = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline');
         if (!renderPipeline) {
             return this._setRenderPipeline();
         }
@@ -1124,7 +1133,7 @@ export class Game extends EventTarget {
         this._safeEmit(Game.EVENT_RENDERER_INITED);
     }
 
-    private _safeEmit (event): void {
+    private _safeEmit (event: string | number): void {
         if (EDITOR) {
             try {
                 this.emit(event);

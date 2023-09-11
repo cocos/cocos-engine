@@ -1,4 +1,5 @@
 {
+  "$schema": "./schemas/module-config.schema.json",
   "name": "cocos-creator",
   "version": "3.8.2",
   "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in C++ and TypeScript, licensed under MIT.",
@@ -11,9 +12,13 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "workspaces": [
+    "packages/*",
+    "pal/*"
+  ],
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
+    "postinstall": "turbo build && gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -28,22 +33,29 @@
     "clear": "node ./scripts/clear-cache.js",
     "clear-platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "update:native-external": "node ./native/utils/update-external.js",
-    "test": "gulp test",
-    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install --only=production",
-    "install:native-pack-tool": "cd ./scripts/native-pack-tool && npm install && npm run build"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cocos-creator/engine.git"
   },
+  "dependencies": {
+    "@pal/env": "*",
+    "@pal/utils": "*",
+    "@cocos/box2d": "1.0.1",
+    "@cocos/cannon": "1.2.8",
+    "@cocos/ccbuild": "2.0.3-alpha.13",
+    "@cocos/dragonbones-js": "^1.0.1"
+  },
   "devDependencies": {
+    "@types/node": "^20.5.9",
     "@babel/core": "^7.13.10",
     "@babel/plugin-proposal-export-default-from": "^7.17.12",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.4.1",
     "@types/fs-extra": "^5.0.4",
-    "@types/jest": "^24.9.1",
+    "@types/istanbul-lib-report": "^3.0.0",
+    "@types/jest": "^28.1.8",
     "@types/yargs": "^12.0.14",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -83,19 +95,13 @@
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.0",
     "ts-jest": "^28.0.8",
-    "typedoc": "^0.22.13",
-    "typedoc-plugin-cc": "file:scripts/typedoc-plugin",
-    "typescript": "^4.3.5",
+    "turbo": "^1.10.12",
+    "typedoc": "^0.23.28",
+    "typescript": "^4.9.3",
     "vconsole": "^3.3.0",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
     "which": "^2.0.2",
     "yargs": "^12.0.5"
-  },
-  "dependencies": {
-    "@cocos/box2d": "1.0.1",
-    "@cocos/cannon": "1.2.8",
-    "@cocos/ccbuild": "2.0.3-alpha.7",
-    "@cocos/dragonbones-js": "^1.0.1"
   }
 }

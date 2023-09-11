@@ -128,7 +128,7 @@ function resetDebugSettingForWebPage (mode: DebugMode): void {
             const logDiv = ccdocument.createElement('Div');
             logDiv.setAttribute('id', 'logInfoDiv');
             logDiv.setAttribute('width', '200');
-            logDiv.setAttribute('height', legacyCC.game.canvas.height);
+            logDiv.setAttribute('height', `${legacyCC.game.canvas.height}`);
             const logDivStyle = logDiv.style;
             logDivStyle.zIndex = '99999';
             logDivStyle.position = 'absolute';
@@ -157,19 +157,19 @@ function resetDebugSettingForWebPage (mode: DebugMode): void {
     // Don't change the case order.
     switch (mode) {
     case DebugMode.INFO_FOR_WEB_PAGE: {
-        ccLog = (message?: any, ...optionalParams: any[]): void => {
+        ccLog = (message?: any, ...optionalParams: unknown[]): void => {
             logToWebPage(formatString(message, ...optionalParams));
         };
     }
     // fallthrough
     case DebugMode.WARN_FOR_WEB_PAGE: {
-        ccWarn = (message?: any, ...optionalParams: any[]): void => {
+        ccWarn = (message?: any, ...optionalParams: unknown[]): void => {
             logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
         };
     }
     // fallthrough
     case DebugMode.ERROR_FOR_WEB_PAGE: {
-        ccError = (message?: any, ...optionalParams: any[]): void => {
+        ccError = (message?: any, ...optionalParams: unknown[]): void => {
             logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
         };
         break;
@@ -178,7 +178,7 @@ function resetDebugSettingForWebPage (mode: DebugMode): void {
         break;
     }
 
-    ccAssert = (condition: any, message?: any, ...optionalParams: any[]): void => {
+    ccAssert = (condition: any, message?: any, ...optionalParams: unknown[]): void => {
         if (!condition) {
             logToWebPage(`ASSERT: ${formatString(message, ...optionalParams)}`);
         }
@@ -209,7 +209,7 @@ function resetDebugSettingNormal (mode: DebugMode): void {
         if (typeof console.debug === 'function') {
             // eslint-disable-next-line no-console
             const vendorDebug = console.debug.bind(console);
-            ccDebug = (...data: any[]): void => vendorDebug(...data);
+            ccDebug = (...data: unknown[]): void => vendorDebug(...data);
         }
     }
     // fallthrough
@@ -253,7 +253,7 @@ function resetDebugSettingNormal (mode: DebugMode): void {
     // fallthrough
     case DebugMode.ERROR: {
         // eslint-disable-next-line no-console
-        if (EDITOR || console.error.bind) {
+        if (EDITOR || typeof console.error.bind === 'function') {
             // use bind to avoid pollute call stacks
             // eslint-disable-next-line no-console
             ccError = console.error.bind(console);
@@ -270,7 +270,7 @@ function resetDebugSettingNormal (mode: DebugMode): void {
         break;
     }
 
-    ccAssert = (condition: any, message?: any, ...optionalParams: any[]): void => {
+    ccAssert = (condition: any, message?: any, ...optionalParams: unknown[]): void => {
         if (!condition) {
             const errorText = formatString(message, ...optionalParams);
             if (DEV) {
@@ -287,8 +287,8 @@ function resetDebugSettingNormal (mode: DebugMode): void {
  * @engineInternal
  */
 export function _resetDebugSetting (mode: DebugMode): void {
-    // reset
     ccLog = ccWarn = ccError = ccAssert = ccDebug = (): void => {
+        // reset to empty
     };
 
     if (mode === DebugMode.NONE) {
