@@ -42,22 +42,6 @@ class TouchManager {
     }
 
     /**
-     * The original touch object can't be modified, so we need to return the cloned touch object.
-     * @param touch
-     * @returns
-     */
-    private _cloneTouch (touch: Touch): Touch {
-        const touchID = touch.getID();
-        touch.getStartLocation(tempVec2);
-        const clonedTouch = new Touch(tempVec2.x, tempVec2.y, touchID);
-        touch.getLocation(tempVec2);
-        clonedTouch.setPoint(tempVec2.x, tempVec2.y);
-        touch.getPreviousLocation(tempVec2);
-        clonedTouch.setPrevPoint(tempVec2);
-        return clonedTouch;
-    }
-
-    /**
      * Create the touch object at the touch start event callback.
      * we have some policy to create the touch object:
      * - If the number of touches doesn't exceed the max count, we create a touch object.
