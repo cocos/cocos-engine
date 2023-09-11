@@ -7,7 +7,8 @@
         "sourceMap": true,
         "esModuleInterop": true,
         "strict": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "types": []
     },
     "exclude": [
         "lib",

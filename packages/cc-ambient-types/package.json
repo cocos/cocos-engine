@@ -1,0 +1,21 @@
+{
+  "$schema": "../../schemas/module-config.schema.json",
+  "name": "@types/cc-ambient-types",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "node ./scripts/build-consts.js"
+  },
+  "license": "MIT",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "node": "./src/index.d.ts",
+      "types": "./src/index.d.ts"
+    },
+    "./query": "./scripts/query.js"
+  },
+  "devDependencies": {
+    "@cocos/ccbuild": "*"
+  }
+}
