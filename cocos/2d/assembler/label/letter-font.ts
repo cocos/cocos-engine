@@ -118,6 +118,6 @@ export const letterFont = js.mixin(bmfontUtils, {
 
         style.fontDesc = this._getFontDesc(style.fontSize, style.fontFamily);
         style.color.set(comp.color);
-        style.hash = computeHash(style.color, style.isOutlined, style.outlineWidth, style.outlineColor, style.fontSize, style.fontFamily); // todo, 要删掉 // 实际上也是数据集合而已
+        style.hash = computeHash(style.color, style.isOutlined, style.outlineWidth, style.outlineColor, style.fontSize, style.fontFamily);
     },
 });

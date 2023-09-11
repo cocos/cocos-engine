@@ -118,7 +118,7 @@ const BASELINE_OFFSET = getBaselineOffset();
 
 class LetterTexture {
     public image: ImageAsset | null = null;
-    public labelInfo: ILabelInfo; // 传入的临时变量 // 如果说一定要一份数据的话，那只在这儿存一份就可以// 比方说在初始化的时候给一份数据
+    public labelInfo: ILabelInfo;
     public char: string;
     public data: ISharedLabelData | null  = null;
     public canvas: HTMLCanvasElement | null = null;
@@ -129,7 +129,7 @@ class LetterTexture {
     public hash: string;
     constructor (char: string, labelInfo: ILabelInfo, hash: string) {
         this.char = char;
-        this.labelInfo = labelInfo; // 对象引用，不太行 // 对象集合
+        this.labelInfo = labelInfo;
         this.hash = `${char.charCodeAt(0)}${hash}`;
     }
 

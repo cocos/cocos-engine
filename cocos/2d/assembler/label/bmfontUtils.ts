@@ -70,10 +70,10 @@ export const bmfontUtils = {
         }
         const fontAsset = comp.font as BitmapFont;
         style.fntConfig = fontAsset.fntConfig; // layout only
-        style.originFontSize = fontAsset.fntConfig?.fontSize; //both // 是否需要防护？
+        style.originFontSize = fontAsset.fntConfig?.fontSize; //both
         style.fontAtlas = fontAsset.fontDefDictionary;
-        if (!style.fontAtlas) { // 为了避免后面的判断？看能不能删掉
-            style.fontAtlas = _defaultFontAtlas; // 容错？不要容错！
+        if (!style.fontAtlas) {
+            style.fontAtlas = _defaultFontAtlas;
         }
 
         style.isOutlined = false;

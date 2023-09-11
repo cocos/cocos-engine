@@ -785,7 +785,7 @@ export class TextProcessing {
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character, style.hash, outputLayoutData.lettersInfo);
                     log(`Can't find letter definition in texture atlas ${
-                        style.fntConfig!.atlasName} for letter:${character}`); // char 模式没有 fntConfig
+                        style.fntConfig!.atlasName} for letter:${character}`);
                     continue;
                 }
 
