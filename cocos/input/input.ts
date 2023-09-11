@@ -247,13 +247,10 @@ export class Input {
      * Get touch object by touch ID.
      * @zh
      * 通过 touch ID 获取 touch对象。
-     * @param touchID
-     * @param clone - Whether to clone touch object
-     * @returns
      */
-    public getTouch (touchID: number, clone?: boolean): Touch | undefined {
+    public getTouch (touchID: number): Touch | undefined {
         const touch = touchManager._touchMap.get(touchID);
-        return touch ? (clone === false ? touch : touchManager._cloneTouch(touch)) : undefined;
+        return touch;
     }
 
     /**
@@ -261,10 +258,9 @@ export class Input {
      * Get all the current touches objects as array.
      * @zh
      * 获取当前 所有touch对象 的数组。
-     * @param clone - Whether to clone touch object
      */
-    public getAllTouches (clone?: boolean): Touch[] {
-        return touchManager.getAllTouches(clone);
+    public getAllTouches (): Touch[] {
+        return touchManager.getAllTouches();
     }
 
     /**

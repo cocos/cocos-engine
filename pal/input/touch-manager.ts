@@ -32,6 +32,7 @@ const tempVec2 = new Vec2();
 class TouchManager {
     /**
      * A map from touch ID to touch object.
+     * @engineInternal
      */
     public _touchMap: Map<number, Touch>;
     private readonly _maxTouches = 8;
@@ -45,7 +46,7 @@ class TouchManager {
      * @param touch
      * @returns
      */
-    public _cloneTouch (touch: Touch): Touch {
+    private _cloneTouch (touch: Touch): Touch {
         const touchID = touch.getID();
         touch.getStartLocation(tempVec2);
         const clonedTouch = new Touch(tempVec2.x, tempVec2.y, touchID);
@@ -100,25 +101,25 @@ class TouchManager {
      * @param touchID
      * @returns
      */
-    public getTouch (touchID: number, x: number, y: number, clone?: boolean): Touch | undefined {
+    public getTouch (touchID: number, x: number, y: number): Touch | undefined {
         let touch = this._touchMap.get(touchID);
         if (!touch) {
             touch = this._createTouch(touchID, x, y);
         } else {
             this._updateTouch(touch, x, y);
         }
-        return touch ? (clone === false ? touch : this._cloneTouch(touch)) : undefined;
+        return touch;
     }
 
     /**
      * Get all the current touches objects.
      * @returns
      */
-    public getAllTouches (clone?: boolean): Touch[] {
+    public getAllTouches (): Touch[] {
         const touches: Touch[] = [];
         this._touchMap.forEach((touch) => {
             if (touch) {
-                touches.push(clone === false ? touch : this._cloneTouch(touch));
+                touches.push(touch);
             }
         });
         return touches;
