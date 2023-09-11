@@ -54,7 +54,7 @@ public:
 
     static constexpr uint32_t CLUSTER_COUNT = CLUSTERS_X * CLUSTERS_Y * CLUSTERS_Z;
 
-    static constexpr uint32_t MAX_LIGHTS_PER_CLUSTER = 100;
+    static constexpr uint32_t MAX_LIGHTS_PER_CLUSTER = 200;
 
     static constexpr uint32_t MAX_LIGHTS_GLOBAL = 1000;
 

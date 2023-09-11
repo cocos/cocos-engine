@@ -305,8 +305,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("layout", &DescriptorSet::getLayout)
         .property("objectID", select_overload<uint32_t(void) const>(&DescriptorSet::getObjectID));
     class_<CCWGPUDescriptorSet, base<DescriptorSet>>("CCWGPUDescriptorSet")
-        // .property("gpuDescriptorSet", &CCWGPUDescriptorSet::gpuDescriptors)
-        .function("updateFrom", &CCWGPUDescriptorSet::setGpuDescriptors)
+        .property("gpuDescriptorSet", &CCWGPUDescriptorSet::gpuDescriptors, &CCWGPUDescriptorSet::setGpuDescriptors)
         .constructor<>();
 
     class_<PipelineLayout>("PipelineLayout")
