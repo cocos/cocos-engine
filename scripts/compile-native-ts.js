@@ -85,28 +85,16 @@ async function compileTsEngine () {
     console.log('typescript version: ' + ts.version);
     console.log('compile source file: ', entries);
 
+    let dtsFiles = require('@types/cc-ambient-types/query').getDtsFiles();
+    dtsFiles = dtsFiles.map(file => ps.join(buildOutput, ps.relative(engineRoot, file)).slice(0, -'.d.ts'.length));
+    dtsFiles.push(ps.join(buildOutput, './@types/lib.dom'));
+
     const compilerOptions = {
         strict: true,
         noImplicitAny: false,
         experimentalDecorators: true,
         lib: ["lib.es2015.d.ts", "lib.es2017.d.ts"],
-        types: [
-            "./@types/editor-extends",
-            "./@types/globals",
-            "./@types/jsb",
-            "./@types/lib.dom",
-            "./@types/webGL.extras",
-            "./@types/webGL2.extras",
-
-            // pal
-            "./@types/pal/system-info",
-            "./@types/pal/screen-adapter",
-            "./@types/pal/minigame",
-            "./@types/pal/audio",
-            "./@types/pal/input",
-            "./@types/pal/pacer",
-            "./@types/pal/wasm",
-        ].map(typePath => normalizePath(ps.join(buildOutput, typePath))),
+        types: dtsFiles,
         skipLibCheck: true,
         rootDir: buildOutput,
         // outDir: normalizePath(ps.join(buildOutput, '__out__')),
