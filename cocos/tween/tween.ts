@@ -22,15 +22,15 @@
  THE SOFTWARE.
 */
 
-import { TweenSystem } from './tween-system';
 import { warn } from '../core';
-import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
-import { removeSelf, show, hide, callFunc } from './actions/action-instant';
-import { Action, FiniteTimeAction } from './actions/action';
-import { ITweenOption } from './export-api';
-import { TweenAction } from './tween-action';
-import { SetAction } from './set-action';
 import { legacyCC } from '../core/global-exports';
+import { Action, FiniteTimeAction } from './actions/action';
+import { callFunc, hide, removeSelf, show } from './actions/action-instant';
+import { ActionInterval, delayTime, repeat, repeatForever, reverseTime, sequence, spawn } from './actions/action-interval';
+import { ITweenOption } from './export-api';
+import { SetAction } from './set-action';
+import { TweenAction } from './tween-action';
+import { TweenSystem } from './tween-system';
 
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
@@ -59,6 +59,31 @@ export class Tween<T> {
     private _finalAction: Action | null = null;
     private _target: T | null = null;
     private _tag = Action.TAG_INVALID;
+
+    // for time scale
+    private _timeScale = 1;
+
+    /**
+     * !#en set/get time scale for tween
+     * !#zh 设置/读取 tween 的 time scale (时间缩放参数)
+     * @property timeScale
+     * @type {Number}
+     * @default 1
+     */
+    get timeScale (): number {
+        return this._timeScale;
+    }
+
+    set timeScale (value: number) {
+        if (value < 0) {
+            warn('`timeScale` cannot be less than 0.');
+            value = 1;
+        }
+        this._timeScale = value;
+        if (this._finalAction) {
+            (this._finalAction as ActionInterval).timeScale = value;
+        }
+    }
 
     constructor (target?: T | null) {
         this._target = target === undefined ? null : target;
@@ -134,6 +159,38 @@ export class Tween<T> {
     stop (): Tween<T> {
         if (this._finalAction) {
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+        }
+        return this;
+    }
+
+    /**
+     * !#en
+     * Pause this tween
+     * !#zh
+     * 暂停当前 tween
+     * @method pause
+     * @return {Tween}
+     * @typescript pause(): Tween<T>
+     */
+    pause (): Tween<T> {
+        if (this._finalAction) {
+            (this._finalAction as ActionInterval).paused = true;
+        }
+        return this;
+    }
+
+    /**
+     * !#en
+     * Resume this tween
+     * !#zh
+     * 从暂停状态恢复当前 tween
+     * @method resume
+     * @return {Tween}
+     * @typescript resume(): Tween<T>
+     */
+    resume (): Tween<T> {
+        if (this._finalAction) {
+            (this._finalAction as ActionInterval).paused = false;
         }
         return this;
     }
@@ -261,7 +318,7 @@ export class Tween<T> {
      */
     sequence (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedSequence(...args);
-        this._actions.push(action);
+        this._actions.push(action as Action);
         return this;
     }
 
@@ -275,7 +332,7 @@ export class Tween<T> {
      */
     parallel (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedParallel(...args);
-        this._actions.push(action);
+        this._actions.push(action as Action);
         return this;
     }
 
@@ -437,7 +494,7 @@ export class Tween<T> {
         if (actions.length === 1) {
             action = actions[0];
         } else {
-            action = sequence(actions);
+            action = sequence(actions) as Action;
         }
 
         return action;
@@ -449,7 +506,7 @@ export class Tween<T> {
 
     private static readonly _tmp_args: Tween<any>[] | Action[] = [];
 
-    private static _wrappedSequence (...args: Action[] | Tween<any>[]): ActionInterval {
+    private static _wrappedSequence (...args: Action[] | Tween<any>[]): ActionInterval | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
@@ -459,10 +516,10 @@ export class Tween<T> {
             }
         }
 
-        return sequence.apply(sequence, tmp_args as any);
+        return sequence(tmp_args as Action[]);
     }
 
-    private static _wrappedParallel (...args: Action[] | Tween<any>[]): FiniteTimeAction {
+    private static _wrappedParallel (...args: Action[] | Tween<any>[]): FiniteTimeAction | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
