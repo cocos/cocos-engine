@@ -302,6 +302,7 @@ exports.methods = {
                         userData: {},
                     }
                 }
+                // hack only record the configuration of the type that has been updated, not the accurate configuration of the child resources after import.
                 // If targetSubMeta does not have mipfilter or miupfilter is none, set mipfilter to nearest
                 const preMipfilter = await Editor.Profile.getConfig('inspector', `${targetSubMetaKey}.texture.mipfilter`, 'default');
                 if (!preMipfilter || preMipfilter === 'none') {
