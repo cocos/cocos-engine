@@ -843,7 +843,12 @@ static void textureStorage(GLES3Device *device, GLES3GPUTexture *gpuTexture) {
             } else {
                 auto target = hasFlag(gpuTexture->flags, TextureFlagBit::EXTERNAL_OES) ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
                 GL_CHECK(glBindTexture(target, gpuTexture->glTexture));
-                GL_CHECK(glTexStorage2D(target, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
+                if (hasFlag(gpuTexture->flags, TextureFlagBit::MUTABLE_STORAGE)) {
+                    GL_CHECK(glTexImage2D(GL_TEXTURE_2D, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h, 0,
+                                          gpuTexture->glFormat, gpuTexture->glType, nullptr));
+                } else {
+                    GL_CHECK(glTexStorage2D(GL_TEXTURE_2D, gpuTexture->mipLevel, gpuTexture->glInternalFmt, w, h));
+                }
             }
             break;
         case TextureType::TEX3D:
@@ -2736,6 +2741,16 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
                                                        gpuTexture->glFormat,
                                                        memSize,
                                                        (GLvoid *)buff));
+                } else if (hasFlag(gpuTexture->flags, TextureFlagBit::MUTABLE_STORAGE)) {
+                    GL_CHECK(glTexImage2D(GL_TEXTURE_2D,
+                                          gpuTexture->mipLevel,
+                                          gpuTexture->glInternalFmt,
+                                          destWidth,
+                                          destHeight,
+                                          0,
+                                          gpuTexture->glFormat,
+                                          gpuTexture->glType,
+                                          (GLvoid *)buff));
                 } else {
                     GL_CHECK(glTexSubImage2D(GL_TEXTURE_2D,
                                              mipLevel,

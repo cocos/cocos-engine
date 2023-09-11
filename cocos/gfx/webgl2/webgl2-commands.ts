@@ -1087,6 +1087,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
                     }
+                } else if (gpuTexture.flags & TextureFlagBit.MUTABLE_STORAGE) {
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                 } else {
                     gl.texStorage2D(gl.TEXTURE_2D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
                 }
@@ -2849,7 +2851,7 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
 
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
-        if (toUseTexImage2D(texImages, regions)) {
+        if ((gpuTexture.flags & TextureFlagBit.MUTABLE_STORAGE) || toUseTexImage2D(texImages, regions)) {
             gl.texImage2D(
                 gl.TEXTURE_2D,
                 regions[0].texSubres.mipLevel,
