@@ -13,6 +13,14 @@ const imageTypeToImporter = {
     'texture cube': 'erp-texture-cube',
 };
 
+const imageTypeToName = {
+    raw: '',
+    texture: 'texture',
+    'normal map': 'normalMap',
+    'sprite-frame': 'texture',
+    'texture cube': 'textureCube',
+}
+
 exports.template = /* html */`
 <div class="asset-image">
     <ui-prop>
@@ -278,7 +286,7 @@ exports.methods = {
 
         const asset = assetList[0];
         const $label = $section.querySelector('ui-label');
-        $label.setAttribute('value', type);
+        $label.setAttribute('value', asset.name);
         const $panel = $section.querySelector('ui-panel');
         $panel.setAttribute('src', join(__dirname, `./${asset.importer}.js`));
         $panel.injectionStyle(injectionStyle);
@@ -288,13 +296,15 @@ exports.methods = {
     changeMipFilter(targetSubMetaKey) {
         if (this.originImageType === 'sprite-frame') {
             // spriteFrame -> any 
-            this.metaList.forEach((meta) => {
+            this.metaList.forEach(async (meta) => {
                 if (!meta.subMetas[targetSubMetaKey]) {
                     meta.subMetas[targetSubMetaKey] = {
                         userData: {},
                     }
                 }
-                if (meta.subMetas[targetSubMetaKey].mipfilter !== 'none') {
+                // If targetSubMeta does not have mipfilter or miupfilter is none, set mipfilter to nearest
+                const preMipfilter = await Editor.Profile.getConfig('inspector', `${targetSubMetaKey}.texture.mipfilter`, 'default');
+                if (!preMipfilter || preMipfilter === 'none') {
                     meta.subMetas[targetSubMetaKey].userData.mipfilter = 'nearest';
                 }
             });
@@ -339,14 +349,14 @@ exports.methods = {
         }
         if (this.originImageType === 'sprite-frame' || this.meta.userData.type === 'sprite-frame') {
             const changeTypes = ['texture', 'normal map', 'texture cube', 'sprite-frame'];
-            if (changeTypes.includes(this.meta.userData.type)) {
+            if (!changeTypes.includes(this.meta.userData.type)) {
                 return;
             }
-            let targetImporter = imageTypeToImporter[this.meta.userData.type];
-            if (targetImporter === 'sprite-frame') {
-                targetImporter = 'texture';
+            let targetName = imageTypeToName[this.meta.userData.type];
+            if (targetName === 'sprite-frame') {
+                targetName = 'texture';
             }
-            const targetSubMetaKey = Editor.Utils.UUID.nameToSubId(imageTypeToImporter[targetImporter]);
+            const targetSubMetaKey = Editor.Utils.UUID.nameToSubId(targetName);
             targetSubMetaKey && this.changeMipFilter(targetSubMetaKey);
         }
     }
