@@ -301,8 +301,8 @@ void *CCWGPUDescriptorSet::defaultBindGroup() {
         WGPUBindGroupEntry bufferEntry = {
             .binding = 0,
             .buffer = buffer->gpuBufferObject()->wgpuBuffer,
-            .size = buffer->getSize(),
             .offset = buffer->getOffset(),
+            .size = buffer->getSize(),
         };
 
         WGPUBindGroupDescriptor bindGroupDesc = {

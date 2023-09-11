@@ -74,6 +74,7 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
+          local-cache: true
       - uses: actions/setup-java@v3
         id: setup-jdk
         with:
@@ -144,6 +145,7 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
+          local-cache: true
       - uses: actions/setup-java@v3
         id: setup-jdk
         with:
@@ -237,7 +239,7 @@ jobs:
         id: cache-oh-sdk
         uses: actions/cache@v3
         env:
-          cache-name: cache-oh-sdk-2
+          cache-name: cache-oh-sdk-9
         with:
           path: ${{ steps.oh-sdk-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-build-${{ env.cache-name }}
@@ -510,33 +512,3 @@ jobs:
               cmake --build . --config Debug --  -jobs $NUM_OF_CORES CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           fi
           echo "Compile iOS Done!"
-
-  compile_wgpu_mac:
-    name: "Emscripten"
-    runs-on: macos-latest
-    if: contains( github.event.pull_request.title, 'WGPU_CI_ON' )
-    steps:
-      - uses: actions/checkout@v2
-      - name: Download external libraries
-        shell: bash
-        run: |
-          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
-      - name: Setup Emscripten
-        run: |
-          NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          git clone https://github.com/emscripten-core/emsdk.git NATIVE_ROOT/../../emsdk
-          cd NATIVE_ROOT/../../emsdk
-          ./emsdk install 3.1.17
-          ./emsdk activate 3.1.17
-          source ./emsdk_env.sh
-          emcc -v
-      - name: Compile
-        env:
-          COCOS_ENGINE_DEV: 1
-        run: |
-          NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          cd $NATIVE_ROOT/cocos/renderer/gfx-wgpu
-          $NATIVE_ROOT/../../emsdk/upstream/emscripten/emcmake cmake .
-          $NATIVE_ROOT/../../emsdk/upstream/emscripten/emmake make
-          echo "Compile WGPU by ems on MacOS Done!"

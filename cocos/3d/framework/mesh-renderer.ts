@@ -899,6 +899,7 @@ export class MeshRenderer extends ModelRenderer {
             if (this._mesh) {
                 const meshStruct = this._mesh.struct;
                 this._model.createBoundingShape(meshStruct.minPosition, meshStruct.maxPosition);
+                this._model.updateWorldBound();
             }
             // Initialize lighting map before model initializing
             // because the lighting map will influence the model's shader

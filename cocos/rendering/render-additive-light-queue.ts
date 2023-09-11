@@ -170,7 +170,7 @@ export class RenderAdditiveLightQueue {
         const keys = descriptorSetMap.keys;
 
         for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
+            const key = keys[i] as Light;
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
                 const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
@@ -183,7 +183,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    private _bindForwardAddLight (validPunctualLights, passLayout = 'default'): void {
+    private _bindForwardAddLight(validPunctualLights: Light[], passLayout = 'default'): void {
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];

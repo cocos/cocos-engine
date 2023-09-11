@@ -14,9 +14,11 @@ include(${ENGINE_ROOT_DIR}/cmake/predefine.cmake)
 
 include (${ENGINE_ROOT_DIR}/external/CMakeLists.txt)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -Wextra -Wno-nonportable-include-path -fno-exceptions -v -D_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES=D_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g3 -D_DEBUG=1 -Wno-unused -O0 -std=c++17 -D_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -w -DNDEBUG=1 -O3 -std=c++17 -D_LIBCPP_ENABLE_CXX17_REMOVED_FEATURES")
+add_definitions(-DBOOST_NO_CXX98_FUNCTION_BASE)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wno-nonportable-include-path -fno-exceptions")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -D_DEBUG=1 -Wno-unused -O0 -std=c++17")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG=1 -O3 -std=c++17")
 
 message(${CMAKE_BUILD_TYPE})
 
@@ -126,7 +128,7 @@ set(EMS_LINK_FLAGS
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    string(APPEND EMS_LINK_FLAGS " -s ASSERTIONS=2")
+    string(APPEND EMS_LINK_FLAGS " -g -s ASSERTIONS=2")
 endif()
 
 set_target_properties(${APP_NAME}_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ENGINE_ROOT_DIR}/external/emscripten/webgpu)
