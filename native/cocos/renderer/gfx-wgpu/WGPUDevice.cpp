@@ -443,6 +443,7 @@ emscripten::val CCWGPUDevice::copyTextureToBuffers(Texture *src, const BufferTex
     // }
     // // wgpuBufferRelease(buffer);
     // return *bufferMapData->retBuffer;
+    return emscripten::val::undefined();
 }
 
 void CCWGPUDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) {

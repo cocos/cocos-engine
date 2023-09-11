@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   compile_wgpu:
+    if:
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     name: "Emscripten"
     runs-on: ubuntu-latest
     steps:
