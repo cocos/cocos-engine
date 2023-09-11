@@ -24,6 +24,7 @@
 
 #include "platform/mac/modules/SystemWindow.h"
 #include "platform/mac/View.h"
+
 #include "base/Log.h"
 #include "base/Macros.h"
 
@@ -57,15 +58,14 @@ SystemWindow::~SystemWindow() {
 void SystemWindow::initWindowProperty(SDL_Window* window, const char *title, int x, int y, int w, int h) {
     CC_ASSERT(window != nullptr);
     auto* nsWindow = reinterpret_cast<NSWindow*>(SDLHelper::getWindowHandle(window));
-    NSRect rect = NSMakeRect(x, y, w, h);
     NSString *astring = [NSString stringWithUTF8String:title];
     nsWindow.title = astring;
+    // contentView is created internally by sdl.
     NSView *view = nsWindow.contentView;
-    auto* newView = [[View alloc] initWithFrame:rect];
+    auto* newView = [[View alloc] initWithFrame:view.frame];
     [view addSubview:newView];
     [nsWindow.contentView setWantsBestResolutionOpenGLSurface:YES];
     [nsWindow makeKeyAndOrderFront:nil];
-    
     _windowHandle = reinterpret_cast<uintptr_t>(nsWindow.contentView) ;
 
     auto dpr = [nsWindow backingScaleFactor];
