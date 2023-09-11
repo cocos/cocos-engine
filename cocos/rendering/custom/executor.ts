@@ -1692,6 +1692,7 @@ class ExecutorPools {
     readonly computeQueuePool: RecyclePool<DeviceComputeQueue>;
     readonly graphScenePool: RecyclePool<GraphScene>;
     readonly reflectionProbe: RecyclePool<RenderReflectionProbeQueue>;
+    readonly passPool: RecyclePool<IRenderPass>;
     readonly rasterPassInfoPool: RecyclePool<RasterPassInfo>;
     readonly computePassInfoPool: RecyclePool<ComputePassInfo>;
 }
