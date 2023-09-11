@@ -31,7 +31,7 @@ import { BasicPipeline } from './pipeline';
 import {
     Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView,
-    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView,
+    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView, PersistentBuffer, PersistentTexture,
 } from './render-graph';
 import { AccessType, ResourceResidency, SceneFlags } from './types';
 import { hashCombineNum, hashCombineStr } from './define';
@@ -269,14 +269,20 @@ class PassVisitor implements RenderGraphVisitor {
         // }
         this._currPass = pass;
     }
-    rasterSubpass (value: RasterSubpass): void { }
-    computeSubpass (value: ComputeSubpass): void { }
+    rasterSubpass (value: RasterSubpass): void {
+        // noop
+    }
+    computeSubpass (value: ComputeSubpass): void {
+        // noop
+    }
     compute (value: ComputePass): void {
         this._currPass = value;
         const rg = context.renderGraph;
         rg.setValid(this.passID, true);
     }
-    resolve (value: ResolvePass): void { }
+    resolve (value: ResolvePass): void {
+        // noop
+    }
     copy (value: CopyPass): void {
         const rg = context.renderGraph;
         if (rg.getValid(this.passID)) {
@@ -298,9 +304,15 @@ class PassVisitor implements RenderGraphVisitor {
             }
         }
     }
-    move (value: MovePass): void { }
-    raytrace (value: RaytracePass): void { }
-    queue (value: RenderQueue): void { }
+    move (value: MovePass): void {
+        // noop
+    }
+    raytrace (value: RaytracePass): void {
+        // noop
+    }
+    queue (value: RenderQueue): void {
+        // noop
+    }
     scene (value: SceneData): void {
         this._fetchValidPass();
     }
@@ -312,8 +324,12 @@ class PassVisitor implements RenderGraphVisitor {
         rg.setValid(this.queueID, true);
         rg.setValid(this.dispatchID, true);
     }
-    clear (value: ClearView[]): void { }
-    viewport (value: Viewport): void { }
+    clear (value: ClearView[]): void {
+        // noop
+    }
+    viewport (value: Viewport): void {
+        // noop
+    }
 }
 
 class PassManagerVisitor extends DefaultVisitor {
@@ -361,7 +377,8 @@ class ResourceVisitor implements ResourceGraphVisitor {
     managed (value: ManagedResource): void {
         this.dependency();
     }
-    persistentBuffer (value: Buffer): void {
+    persistentBuffer (value: Buffer | PersistentBuffer): void {
+        // noop
     }
 
     dependency (): void {
@@ -373,7 +390,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
         depthFirstSearch(this._passManagerVis.graphView, this._passManagerVis, this._passManagerVis.colorMap);
     }
 
-    persistentTexture (value: Texture): void {
+    persistentTexture (value: Texture | PersistentTexture): void {
         this.dependency();
     }
     framebuffer (value: Framebuffer): void {
@@ -383,8 +400,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.dependency();
     }
     formatView (value: FormatView): void {
+        // noop
     }
     subresourceView (value: SubresourceView): void {
+        // noop
     }
 }
 
