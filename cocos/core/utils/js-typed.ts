@@ -230,6 +230,30 @@ export function createMap (forceDictMode?: boolean): any {
 }
 
 /**
+ * @internal
+ * @engineInternal
+ */
+export function transferCCClassIdAndName (
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    originalConstructor: Function,
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    newConstructor: Function,
+) {
+    const className = (originalConstructor.prototype as unknown as { [classNameTag]: string | undefined })[classNameTag];
+    const classId = getClassId(originalConstructor, false);
+
+    unregisterClass(originalConstructor);
+
+    if (className) {
+        doSetClassName(className, newConstructor as Constructor<any>);
+    }
+    if (classId) {
+        _setClassId(classId, newConstructor as Constructor<any>);
+    }
+}
+
+/**
  * @en
  * Gets class name of the object, if object is just a {} (and which class named 'Object'), it will return "".
  * (modified from <a href="http://stackoverflow.com/questions/1249531/how-to-get-a-javascript-objects-class">the code of stackoverflow post</a>)
@@ -733,10 +757,12 @@ export function unregisterClass (...constructors: Function[]): void {
         const p = constructor.prototype;
         const classId = p[classIdTag];
         if (classId) {
+            delete p[classIdTag];
             delete _idToClass[classId];
         }
         const classname = p[classNameTag];
         if (classname) {
+            delete p[classNameTag];
             delete _nameToClass[classname];
         }
         const aliases = p[aliasesTag];
@@ -746,6 +772,7 @@ export function unregisterClass (...constructors: Function[]): void {
                 delete _nameToClass[alias];
                 delete _idToClass[alias];
             }
+            delete p[aliasesTag];
         }
     }
 }
