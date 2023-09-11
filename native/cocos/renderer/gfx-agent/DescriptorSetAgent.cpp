@@ -99,7 +99,7 @@ void DescriptorSetAgent::forceUpdate() {
 }
 
 void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index, AccessFlags flags) {
-    DescriptorSet::bindBuffer(binding, buffer, index);
+    DescriptorSet::bindBuffer(binding, buffer, index, flags);
 
     ENQUEUE_MESSAGE_5(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -110,7 +110,7 @@ void DescriptorSetAgent::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t i
         index, index,
         flags, flags,
         {
-            actor->bindBuffer(binding, buffer, index);
+            actor->bindBuffer(binding, buffer, index, flags);
         });
 }
 
