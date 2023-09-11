@@ -168,7 +168,9 @@ export class UIMeshRenderer extends Component {
                 this._modelComponent._detachFromScene(); // JSB
                 // clear models
                 this._UIModelNativeProxy.clearModels();
-                this._renderEntity.clearDynamicRenderDrawInfos();
+                if (this._renderData) {
+                    this._renderData.clear();
+                }
                 for (let i = 0; i < models.length; i++) {
                     if (models[i].enabled) {
                         this._uploadRenderData(i);
@@ -182,16 +184,17 @@ export class UIMeshRenderer extends Component {
 
     private _uploadRenderData (index: number): void {
         if (JSB) {
-            const renderData = MeshRenderData.add();
-            // TODO: here we weirdly use UIMeshRenderer as UIRenderer
-            // please fix the type @holycanvas
-            // issue: https://github.com/cocos/cocos-engine/issues/14637
-            renderData.initRenderDrawInfo(this as unknown as UIRenderer, RenderDrawInfoType.MODEL);
-            // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
-            // please fix the type @holycanvas
-            // issue: https://github.com/cocos/cocos-engine/issues/14637
-            this._renderData = renderData as unknown as RenderData;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            if (!this._renderData) {
+                const renderData = MeshRenderData.add();
+                // TODO: here we weirdly use UIMeshRenderer as UIRenderer
+                // please fix the type @holycanvas
+                // issue: https://github.com/cocos/cocos-engine/issues/14637
+                renderData.initRenderDrawInfo(this as unknown as UIRenderer, RenderDrawInfoType.MODEL);
+                // TODO: MeshRenderData and RenderData are both sub class of BaseRenderData, here we weirdly use MeshRenderData as RenderData
+                // please fix the type @holycanvas
+                // issue: https://github.com/cocos/cocos-engine/issues/14637
+                this._renderData = renderData as unknown as RenderData;
+            }
             this._renderData.material = this._modelComponent!.getMaterialInstance(index);
         }
     }
