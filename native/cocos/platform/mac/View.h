@@ -28,7 +28,7 @@
 #import <MetalKit/MetalKit.h>
 
 @interface View : NSView <CALayerDelegate>
-
+- (int)getWindowId;
 @property (nonatomic, assign) id<MTLDevice> device;
 
 @end

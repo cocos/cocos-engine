@@ -45,7 +45,7 @@ import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData, RenderGraph } from './render-graph';
-import { WebPipeline } from './web-pipeline';
+import { WebComputePassBuilder, WebPipeline } from './web-pipeline';
 import { DescriptorSetData, LayoutGraph, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
@@ -1208,13 +1208,33 @@ export function updateGlobalDescBinding (data: RenderData, layoutName = 'default
     applyGlobalDescBinding(data, layoutName, true);
 }
 
-export function mergeSrcToTargetDesc (fromDesc, toDesc): number[] {
+export function mergeSrcToTargetDesc (fromDesc, toDesc, isForce = false): number[] {
     fromDesc.update();
     const fromGpuDesc = fromDesc.gpuDescriptorSet;
     const toGpuDesc = toDesc.gpuDescriptorSet;
     const extResId: number[] = [];
-    toGpuDesc.gpuDescriptors = fromGpuDesc.gpuDescriptors;
-    toGpuDesc.descriptorIndices = fromGpuDesc.descriptorIndices;
+    if (isForce) {
+        toGpuDesc.gpuDescriptors = fromGpuDesc.gpuDescriptors;
+        toGpuDesc.descriptorIndices = fromGpuDesc.descriptorIndices;
+        return extResId;
+    }
+    for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
+        const fromRes = fromGpuDesc.gpuDescriptors[i];
+        if (!fromRes) continue;
+        const currRes = toGpuDesc.gpuDescriptors[i];
+        if (!currRes.gpuBuffer && fromRes.gpuBuffer) {
+            currRes.gpuBuffer = fromRes.gpuBuffer;
+            extResId.push(i);
+        } else if ('gpuTextureView' in currRes && !currRes.gpuTextureView) {
+            currRes.gpuTextureView = fromRes.gpuTextureView;
+            currRes.gpuSampler = fromRes.gpuSampler;
+            extResId.push(i);
+        } else if ('gpuTexture' in currRes && !currRes.gpuTexture) {
+            currRes.gpuTexture = fromRes.gpuTexture;
+            currRes.gpuSampler = fromRes.gpuSampler;
+            extResId.push(i);
+        }
+    }
     return extResId;
 }
 
@@ -2160,7 +2180,7 @@ export function buildHBAOPasses (
     return { rtName: haboCombined.rtName, dsName: inputDS };
 }
 
-export const MAX_LIGHTS_PER_CLUSTER = 100;
+export const MAX_LIGHTS_PER_CLUSTER = 200;
 export const CLUSTERS_X = 16;
 export const CLUSTERS_Y = 8;
 export const CLUSTERS_Z = 24;
@@ -2222,6 +2242,9 @@ export function buildLightClusterBuildPass (
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    if ('setCurrConstant' in clusterPass) { // web-pipeline
+        (clusterPass as WebComputePassBuilder).addConstant('CCConst', 'cluster-build-cs');
+    }
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0));
     clusterPass.setVec4('cc_viewPort', new Vec4(0, 0, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));
@@ -2262,6 +2285,9 @@ export function buildLightClusterCullingPass (
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    if ('setCurrConstant' in clusterPass) { // web-pipeline
+        (clusterPass as WebComputePassBuilder).addConstant('CCConst', 'cluster-build-cs');
+    }
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0));
     clusterPass.setVec4('cc_viewPort', new Vec4(width, height, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));

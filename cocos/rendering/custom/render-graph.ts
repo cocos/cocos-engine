@@ -222,6 +222,14 @@ export class ManagedBuffer {
     fenceValue = 0;
 }
 
+export class PersistentBuffer {
+    constructor (buffer: Buffer | null = null) {
+        this.buffer = buffer;
+    }
+    /*refcount*/ buffer: Buffer | null;
+    fenceValue = 0;
+}
+
 export class ManagedTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
@@ -229,6 +237,14 @@ export class ManagedTexture {
     reset (texture: Texture | null = null): void {
         this.texture = texture;
         this.fenceValue = 0;
+    }
+    /*refcount*/ texture: Texture | null;
+    fenceValue = 0;
+}
+
+export class PersistentTexture {
+    constructor (texture: Texture | null = null) {
+        this.texture = texture;
     }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
@@ -708,8 +724,8 @@ export interface ResourceGraphValueType {
     [ResourceGraphValue.Managed]: ManagedResource
     [ResourceGraphValue.ManagedBuffer]: ManagedBuffer
     [ResourceGraphValue.ManagedTexture]: ManagedTexture
-    [ResourceGraphValue.PersistentBuffer]: Buffer
-    [ResourceGraphValue.PersistentTexture]: Texture
+    [ResourceGraphValue.PersistentBuffer]: PersistentBuffer
+    [ResourceGraphValue.PersistentTexture]: PersistentTexture
     [ResourceGraphValue.Framebuffer]: Framebuffer
     [ResourceGraphValue.Swapchain]: RenderSwapchain
     [ResourceGraphValue.FormatView]: FormatView
@@ -720,8 +736,8 @@ export interface ResourceGraphVisitor {
     managed(value: ManagedResource): unknown;
     managedBuffer(value: ManagedBuffer): unknown;
     managedTexture(value: ManagedTexture): unknown;
-    persistentBuffer(value: Buffer): unknown;
-    persistentTexture(value: Texture): unknown;
+    persistentBuffer(value: PersistentBuffer): unknown;
+    persistentTexture(value: PersistentTexture): unknown;
     framebuffer(value: Framebuffer): unknown;
     swapchain(value: RenderSwapchain): unknown;
     formatView(value: FormatView): unknown;
@@ -736,7 +752,9 @@ export type ResourceGraphObject = ManagedResource
 | Framebuffer
 | RenderSwapchain
 | FormatView
-| SubresourceView;
+| SubresourceView
+| PersistentBuffer
+| PersistentTexture;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -1181,9 +1199,9 @@ export class ResourceGraph implements BidirectionalGraph
         case ResourceGraphValue.ManagedTexture:
             return visitor.managedTexture(vert._object as ManagedTexture);
         case ResourceGraphValue.PersistentBuffer:
-            return visitor.persistentBuffer(vert._object as Buffer);
+            return visitor.persistentBuffer(vert._object as PersistentBuffer);
         case ResourceGraphValue.PersistentTexture:
-            return visitor.persistentTexture(vert._object as Texture);
+            return visitor.persistentTexture(vert._object as PersistentTexture);
         case ResourceGraphValue.Framebuffer:
             return visitor.framebuffer(vert._object as Framebuffer);
         case ResourceGraphValue.Swapchain:
@@ -1217,16 +1235,16 @@ export class ResourceGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    getPersistentBuffer (v: number): Buffer {
+    getPersistentBuffer (v: number): PersistentBuffer {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
-            return this._vertices[v]._object as Buffer;
+            return this._vertices[v]._object as PersistentBuffer;
         } else {
             throw Error('value id not match');
         }
     }
-    getPersistentTexture (v: number): Texture {
+    getPersistentTexture (v: number): PersistentTexture {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
-            return this._vertices[v]._object as Texture;
+            return this._vertices[v]._object as PersistentTexture;
         } else {
             throw Error('value id not match');
         }
@@ -1280,16 +1298,16 @@ export class ResourceGraph implements BidirectionalGraph
             return null;
         }
     }
-    tryGetPersistentBuffer (v: number): Buffer | null {
+    tryGetPersistentBuffer (v: number): PersistentBuffer | null {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
-            return this._vertices[v]._object as Buffer;
+            return this._vertices[v]._object as PersistentBuffer;
         } else {
             return null;
         }
     }
-    tryGetPersistentTexture (v: number): Texture | null {
+    tryGetPersistentTexture (v: number): PersistentTexture | null {
         if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
-            return this._vertices[v]._object as Texture;
+            return this._vertices[v]._object as PersistentTexture;
         } else {
             return null;
         }
