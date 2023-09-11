@@ -22,49 +22,51 @@
  THE SOFTWARE.
 */
 
-import { ccclass, override } from 'cc.decorator';
-import { assertIsNonNullable, cclegacy } from '../../core';
+import { ccclass, override, serializable } from 'cc.decorator';
+import { cclegacy } from '../../core';
 import { Asset } from './asset';
 
 /**
  * @en
  * `BufferAsset` is a kind of assets whose internal data is a section of memory buffer
- * that you can access through the [[BufferAsset.buffer]] function.
+ * that you can access through `BufferAsset.view`.
  * @zh
- * `BufferAsset` 是一类资产，其内部数据是一段内存缓冲，你可以通过 [[BufferAsset.buffer]] 函数获取其内部数据。
+ * `BufferAsset` 是一类资产，其内部数据是一段内存缓冲，你可以通过 `BufferAsset.view` 获取其内部数据。
  */
 @ccclass('cc.BufferAsset')
 export class BufferAsset extends Asset {
-    private _buffer: ArrayBuffer | null = null;
+    /**
+     * @zh 缓冲数据的字节视图。
+     * @en Byte view of the buffered data.
+     */
+    @serializable
+    public view = new Uint8Array();
 
     /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
+     * @zh 首次调用将 **复制** 此时的`this.view`，并返回副本的 `ArrayBuffer`；该副本会在后续调用中直接返回。
+     * @en The first invocation on this method will **clone** `this.view` and returns `ArrayBuffer` of the copy.
+     * The copy will be directly returned in following invocations.
+     *
+     * @returns @en The `ArrayBuffer`. @zh `ArrayBuffer`。
+     *
+     * @deprecated @zh 自 3.9.0，此方法废弃，调用此方法将带来可观的性能开销；请转而使用 `this.view`。
+     * @en Since 3.9.0, this method is deprecated.
+     * Invocation on this method leads to significate cost. Use `this.view` instead.
      */
-    @override
-    get _nativeAsset (): ArrayBuffer | ArrayBufferView {
-        return this._buffer as ArrayBuffer;
-    }
-    set _nativeAsset (bin: ArrayBufferView | ArrayBuffer) {
-        if (bin instanceof ArrayBuffer) {
-            this._buffer = bin;
-        } else {
-            this._buffer = bin.buffer;
+    public buffer (): ArrayBufferLike {
+        if (!this._bufferLegacy) {
+            this._bufferLegacy = new Uint8Array(this.view);
         }
+        return this._bufferLegacy.buffer;
     }
 
     /**
-     * @zh 获取此资源中的缓冲数据。
-     * @en Get the ArrayBuffer data of this asset.
-     * @returns @en The ArrayBuffer. @zh 缓冲数据。
+     * This field is preserved here for compatibility purpose:
+     * prior to 3.9.0, `buffer()` returns `ArrayBuffer`.
+     * We can't directly returns `this.view` in `this.buffer()`
+     * since `this.view` does not view entire underlying buffer.
      */
-    public buffer (): ArrayBuffer {
-        assertIsNonNullable(this._buffer);
-        return this._buffer;
-    }
-
-    public validate (): boolean {
-        return !!this._buffer;
-    }
+    private _bufferLegacy: undefined | Uint8Array = undefined;
 }
 
 cclegacy.BufferAsset = BufferAsset;

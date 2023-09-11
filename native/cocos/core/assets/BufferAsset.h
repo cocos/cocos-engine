@@ -24,7 +24,7 @@
 
 #pragma once
 
-#include "core/ArrayBuffer.h"
+#include "core/TypedArray.h"
 #include "core/assets/Asset.h"
 
 namespace cc {
@@ -34,17 +34,11 @@ public:
     BufferAsset() = default;
     ~BufferAsset() override = default;
 
-    inline ArrayBuffer *getBuffer() const { return _buffer; }
-
-    inline void setNativeAssetForJS(ArrayBuffer *buffer) { _buffer = buffer; }
-    inline ArrayBuffer *getNativeAssetForJS() const { return _buffer; }
-
-    ccstd::any getNativeAsset() const override;
-    void setNativeAsset(const ccstd::any &obj) override;
-    bool validate() const override { return _buffer != nullptr; }
+    const Uint8Array &getView() { return _view; }
+    void setView(const Uint8Array &view) { _view = view; }
 
 private:
-    ArrayBuffer::Ptr _buffer;
+    Uint8Array _view;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(BufferAsset);
 };
