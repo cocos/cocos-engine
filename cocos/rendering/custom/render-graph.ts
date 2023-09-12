@@ -35,6 +35,7 @@ import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp
 import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair, RenderCommonObjectPool } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
+import { Light } from '../../render-scene/scene';
 import { RecyclePool } from '../../core/memop';
 
 export class ClearValue {
@@ -1532,30 +1533,35 @@ export class SceneData {
         flags: SceneFlags = SceneFlags.NONE,
         light: LightInfo = new LightInfo(),
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+        shadingLight: Light | null = null,
     ) {
         this.scene = scene;
         this.camera = camera;
         this.light = light;
         this.flags = flags;
         this.cullingFlags = cullingFlags;
+        this.shadingLight = shadingLight;
     }
     reset (
         scene: RenderScene | null = null,
         camera: Camera | null = null,
         flags: SceneFlags = SceneFlags.NONE,
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+        shadingLight: Light | null = null,
     ): void {
         this.scene = scene;
         this.camera = camera;
         this.light.reset();
         this.flags = flags;
         this.cullingFlags = cullingFlags;
+        this.shadingLight = shadingLight;
     }
     /*pointer*/ scene: RenderScene | null;
     /*pointer*/ camera: Camera | null;
     readonly light: LightInfo;
     flags: SceneFlags;
     cullingFlags: CullingFlags;
+    /*refcount*/ shadingLight: Light | null;
 }
 
 export class Dispatch {
@@ -2844,9 +2850,10 @@ export class RenderGraphObjectPool {
         camera: Camera | null = null,
         flags: SceneFlags = SceneFlags.NONE,
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+        shadingLight: Light | null = null,
     ): SceneData {
         const v = this._sceneData.add();
-        v.reset(scene, camera, flags, cullingFlags);
+        v.reset(scene, camera, flags, cullingFlags, shadingLight);
         return v;
     }
     createDispatch (

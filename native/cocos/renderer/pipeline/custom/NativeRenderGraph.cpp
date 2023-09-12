@@ -710,7 +710,7 @@ CullingFlags makeCullingFlags(const LightInfo &light) {
 void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     const auto *pLight = light.light.get();
-    SceneData scene(camera->getScene(), camera, sceneFlags, light, makeCullingFlags(light));
+    SceneData scene(camera->getScene(), camera, sceneFlags, light, makeCullingFlags(light), light.light);
     auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Camera"),
@@ -768,6 +768,13 @@ void NativeSceneBuilder::useLightFrustum(
     if (optCamera) {
         sceneData.camera = optCamera;
     }
+
+    // Disable camera frustum projection
+    sceneData.cullingFlags &= ~CullingFlags::CAMERA_FRUSTUM;
+
+    // Enable light frustum projection
+    sceneData.cullingFlags |= CullingFlags::LIGHT_FRUSTUM;
+
     if (any(sceneData.flags & SceneFlags::NON_BUILTIN)) {
         return;
     }
@@ -792,10 +799,11 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
             camera->getScene(), // Scene and camera should be decoupled.
             camera,             // They are coupled for now.
             sceneFlags,
-            LightInfo{light, 0}, // When doing rendering, csmLevel is irrelevant, set to zero.
+            LightInfo{nullptr, 0},
             // Objects are projected to camera by default and are culled further if light is available.
             light ? CullingFlags::CAMERA_FRUSTUM | CullingFlags::LIGHT_BOUNDS
-                  : CullingFlags::CAMERA_FRUSTUM),
+                  : CullingFlags::CAMERA_FRUSTUM,
+            light),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 

@@ -320,6 +320,10 @@ constexpr bool operator!(SubpassCapabilities e) noexcept {
     return e == static_cast<SubpassCapabilities>(0);
 }
 
+constexpr SubpassCapabilities operator~(SubpassCapabilities e) noexcept {
+    return static_cast<SubpassCapabilities>(~static_cast<std::underlying_type_t<SubpassCapabilities>>(e));
+}
+
 constexpr bool any(SubpassCapabilities e) noexcept {
     return !!e;
 }

@@ -136,6 +136,10 @@ constexpr bool operator!(ResourceFlags e) noexcept {
     return e == static_cast<ResourceFlags>(0);
 }
 
+constexpr ResourceFlags operator~(ResourceFlags e) noexcept {
+    return static_cast<ResourceFlags>(~static_cast<std::underlying_type_t<ResourceFlags>>(e));
+}
+
 constexpr bool any(ResourceFlags e) noexcept {
     return !!e;
 }
@@ -190,6 +194,10 @@ constexpr SceneFlags& operator&=(SceneFlags& lhs, const SceneFlags rhs) noexcept
 
 constexpr bool operator!(SceneFlags e) noexcept {
     return e == static_cast<SceneFlags>(0);
+}
+
+constexpr SceneFlags operator~(SceneFlags e) noexcept {
+    return static_cast<SceneFlags>(~static_cast<std::underlying_type_t<SceneFlags>>(e));
 }
 
 constexpr bool any(SceneFlags e) noexcept {
@@ -318,6 +326,10 @@ constexpr ResolveFlags& operator&=(ResolveFlags& lhs, const ResolveFlags rhs) no
 
 constexpr bool operator!(ResolveFlags e) noexcept {
     return e == static_cast<ResolveFlags>(0);
+}
+
+constexpr ResolveFlags operator~(ResolveFlags e) noexcept {
+    return static_cast<ResolveFlags>(~static_cast<std::underlying_type_t<ResolveFlags>>(e));
 }
 
 constexpr bool any(ResolveFlags e) noexcept {

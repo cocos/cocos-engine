@@ -74,7 +74,7 @@ LightBoundsCullingID SceneCulling::getOrCreateLightBoundsCulling(
         return {};
     }
 
-    CC_EXPECTS(sceneData.light.light);
+    CC_EXPECTS(sceneData.shadingLight);
     const auto* const scene = sceneData.scene;
     CC_EXPECTS(scene);
 
@@ -86,7 +86,7 @@ LightBoundsCullingID SceneCulling::getOrCreateLightBoundsCulling(
         frustumCullingID,
         sceneData.camera,
         sceneData.light.probe,
-        sceneData.light.light,
+        sceneData.shadingLight,
     };
 
     // find query source

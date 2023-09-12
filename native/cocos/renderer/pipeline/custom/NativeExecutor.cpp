@@ -991,6 +991,9 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 updateAndCreatePerPassDescriptorSet(vertID);
                 ctx.currentProjMatrix = sceneData.camera->getMatProj();
             }
+            if (sceneData.shadingLight && !dynamic_cast<const scene::DirectionalLight*>(sceneData.shadingLight.get())) {
+
+            }
         } else if (holds<BlitTag>(vertID, ctx.g)) {
             const auto& blit = get(BlitTag{}, vertID, ctx.g);
             if (blit.camera) {

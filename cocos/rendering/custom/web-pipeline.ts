@@ -1875,15 +1875,13 @@ export class WebPipeline implements BasicPipeline {
     public get constantMacros (): string {
         return this._constantMacros;
     }
-    public get profiler (): Model | undefined {
-        return this._profiler ? this._profiler : undefined;
+    public get profiler (): Model | null {
+        return this._profiler;
     }
-    public set profiler (profiler: Model | undefined) {
-        if (profiler) {
-            this._profiler = profiler;
-        }
+    public set profiler (profiler: Model | null) {
+        this._profiler = profiler;
     }
-    public get geometryRenderer (): GeometryRenderer | undefined {
+    public get geometryRenderer (): GeometryRenderer | null {
         throw new Error('Method not implemented.');
     }
     public get shadingScale (): number {

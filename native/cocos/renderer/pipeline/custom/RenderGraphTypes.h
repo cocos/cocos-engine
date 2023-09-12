@@ -895,24 +895,30 @@ constexpr bool operator!(CullingFlags e) noexcept {
     return e == static_cast<CullingFlags>(0);
 }
 
+constexpr CullingFlags operator~(CullingFlags e) noexcept {
+    return static_cast<CullingFlags>(~static_cast<std::underlying_type_t<CullingFlags>>(e));
+}
+
 constexpr bool any(CullingFlags e) noexcept {
     return !!e;
 }
 
 struct SceneData {
     SceneData() = default;
-    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn) noexcept
+    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn, IntrusivePtr<scene::Light> shadingLightIn) noexcept
     : scene(sceneIn),
       camera(cameraIn),
       light(std::move(lightIn)),
       flags(flagsIn),
-      cullingFlags(cullingFlagsIn) {}
+      cullingFlags(cullingFlagsIn),
+      shadingLight(std::move(shadingLightIn)) {}
 
     const scene::RenderScene* scene{nullptr};
     const scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
     CullingFlags cullingFlags{CullingFlags::CAMERA_FRUSTUM};
+    IntrusivePtr<scene::Light> shadingLight;
 };
 
 struct Dispatch {
