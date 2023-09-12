@@ -245,14 +245,14 @@ export enum NodeEventType {
     LAYER_CHANGED = 'layer-changed',
 
     /**
-     * @en This event indicates that the order of child nodes has been changed."
+     * @en This event indicates that the order of child nodes has been changed.
      * @zh 该事件表示子节点的排序发生了改变。
      * @deprecated since v3.8.2 @en Please use `CHILDREN_ORDER_CHANGED`. @zh 请使用 `CHILDREN_ORDER_CHANGED`。
      */
     SIBLING_ORDER_CHANGED = 'sibling-order-changed',
 
     /**
-     * @en This event indicates that the order of child nodes has been changed."
+     * @en This event indicates that the order of child nodes has been changed.
      * @zh 该事件表示子节点的排序发生了改变。
      */
     // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
