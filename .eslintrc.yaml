@@ -85,7 +85,7 @@ rules:
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
-    no-multi-assign: off # it is handy sometimes
+
     no-nested-ternary: off # it is handy sometimes
     no-param-reassign: off # the output object is passed as parameters all the time
     no-restricted-syntax: off # for-in is a efficient choice for plain objects
@@ -177,8 +177,16 @@ rules:
 
     max-len: [warn, 250] # more lenient on max length per line
     no-console: warn # prefer the uniform logging methods
-    no-multi-spaces: [warn, {'ignoreEOLComments': true, 'exceptions': {'Property': true, 'VariableDeclarator': false } }]
+    no-multi-spaces: [warn, {
+        'ignoreEOLComments': true,
+        'exceptions': {
+            'Property': true,
+            'VariableDeclarator': false
+        }
+    }]
     no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
+    no-multi-assign: [error, { 'ignoreNonDeclaration': true }]
+    max-statements-per-line: [error, { max: 1 }]
 
     comma-dangle: [error, {
         'arrays': always-multiline,
