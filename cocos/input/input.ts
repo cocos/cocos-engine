@@ -248,9 +248,8 @@ export class Input {
      * @zh
      * 通过 touch ID 获取 touch对象。
      */
-    public getTouch (touchID: number): Touch | undefined {
-        const touch = touchManager._touchMap.get(touchID);
-        return touch;
+    public getTouch (touchID: number): Readonly<Touch> | undefined {
+        return touchManager.getTouch(touchID);
     }
 
     /**
@@ -270,7 +269,7 @@ export class Input {
      * 获取当前 touch 对象的数量。
      */
     public getTouchCount (): number {
-        return touchManager._touchMap.size;
+        return touchManager.getTouchCount();
     }
 
     /**
@@ -308,7 +307,7 @@ export class Input {
     private _simulateEventTouch (eventMouse: EventMouse): void {
         const eventType = pointerEventTypeMap[eventMouse.type];
         const touchID = 0;
-        const touch = touchManager.getTouch(touchID, eventMouse.getLocationX(), eventMouse.getLocationY());
+        const touch = touchManager.getOrCreateTouch(touchID, eventMouse.getLocationX(), eventMouse.getLocationY());
         if (!touch) {
             return;
         }
