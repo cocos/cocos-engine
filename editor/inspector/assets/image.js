@@ -304,7 +304,7 @@ exports.methods = {
                 }
                 // hack only record the configuration of the type that has been updated, not the accurate configuration of the child resources after import.
                 // If targetSubMeta does not have mipfilter or miupfilter is none, set mipfilter to nearest
-                const preMipfilter = await Editor.Profile.getConfig('inspector', `${targetSubMetaKey}.texture.mipfilter`, 'default');
+                const preMipfilter = await Editor.Profile.getConfig('inspector', `${meta.uuid}@${targetSubMetaKey}.texture.mipfilter`, 'default');
                 if (!preMipfilter || preMipfilter === 'none') {
                     meta.subMetas[targetSubMetaKey].userData.mipfilter = 'nearest';
                 }
@@ -354,9 +354,6 @@ exports.methods = {
                 return;
             }
             let targetName = imageTypeToName[this.meta.userData.type];
-            if (targetName === 'sprite-frame') {
-                targetName = 'texture';
-            }
             const targetSubMetaKey = Editor.Utils.UUID.nameToSubId(targetName);
             targetSubMetaKey && this.changeMipFilter(targetSubMetaKey);
         }
