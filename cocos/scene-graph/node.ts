@@ -1309,7 +1309,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             this._children[i]._siblingIndex = i;
         }
 
-        this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
+        this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
     }
 
     protected _instantiate (cloned, isSyncedNode): any {
