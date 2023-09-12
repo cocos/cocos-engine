@@ -57,7 +57,7 @@ namespace render {
 
 class NativeRenderNode;
 class NativeSetter;
-class NativeSetterBuilder;
+class NativeSceneBuilder;
 class NativeRenderSubpassBuilderImpl;
 class NativeRenderQueueBuilder;
 class NativeRenderSubpassBuilder;

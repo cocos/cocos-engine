@@ -123,7 +123,7 @@ void NativeSetter::setBuiltinCameraConstants(const scene::Camera *camera) {
         camera->getScene()->getMainLight(), data);
 }
 
-void NativeSetter::setBuiltinDirectionalLightViewConstants(
+void NativeSetter::setBuiltinDirectionalLightFrustumConstants(
     const scene::Camera *camera,
     const scene::DirectionalLight *light, uint32_t level) {
     CC_EXPECTS(light);
@@ -138,7 +138,7 @@ void NativeSetter::setBuiltinDirectionalLightViewConstants(
     setShadowUBOLightView(device, *layoutGraph, sceneData, csm, *light, level, data);
 }
 
-void NativeSetter::setBuiltinSpotLightViewConstants(const scene::SpotLight *light) {
+void NativeSetter::setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) {
     CC_EXPECTS(light);
     auto *device = pipelineRuntime->getDevice();
     const auto &sceneData = *pipelineRuntime->getPipelineSceneData();

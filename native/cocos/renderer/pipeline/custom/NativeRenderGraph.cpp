@@ -759,22 +759,74 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         data);
 }
 
-Setter *NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) {
-    auto cullingFlags = CullingFlags::CAMERA_FRUSTUM;
-    if (light) {
-        cullingFlags |= CullingFlags::LIGHT_BOUNDS;
+void NativeSceneBuilder::useLightFrustum(
+    IntrusivePtr<scene::Light> light, uint32_t csmLevel, const scene::Camera *optCamera) {
+    auto &sceneData = get(SceneTag{}, nodeID, *renderGraph);
+    sceneData.light.light = light;
+    sceneData.light.level = csmLevel;
+    sceneData.light.culledByLight = true;
+    if (optCamera) {
+        sceneData.camera = optCamera;
     }
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{}, cullingFlags);
+    if (any(sceneData.flags & SceneFlags::NON_BUILTIN)) {
+        return;
+    }
 
-    auto sceneID = addVertex2(
+    const auto *pLight = dynamic_cast<const scene::DirectionalLight *>(light.get());
+    if (pLight) {
+        setBuiltinDirectionalLightFrustumConstants(sceneData.camera, pLight, csmLevel);
+    } else {
+        CC_EXPECTS(false);
+    }
+}
+
+SceneBuilder *NativeRenderQueueBuilder::addScene(
+    const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) {
+    const auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Scene"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
+        std::forward_as_tuple(
+            camera->getScene(), // Scene and camera should be decoupled.
+            camera,             // They are coupled for now.
+            sceneFlags,
+            LightInfo{light, 0}, // When doing rendering, csmLevel is irrelevant, set to zero.
+            // Objects are projected to camera by default and are culled further if light is available.
+            light ? CullingFlags::CAMERA_FRUSTUM | CullingFlags::LIGHT_BOUNDS
+                  : CullingFlags::CAMERA_FRUSTUM),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
+
+    auto builder = std::make_unique<NativeSceneBuilder>(
+        pipelineRuntime,
+        renderGraph,
+        sceneID,
+        layoutGraph,
+        layoutID);
+
+    if (!any(sceneFlags & SceneFlags::NON_BUILTIN)) {
+        // objects are projected to camera, set camera ubo
+        builder->setBuiltinCameraConstants(camera);
+
+        if (const auto *pDirLight = camera->getScene()->getMainLight(); pDirLight) {
+            // light is directional
+            builder->setBuiltinDirectionalLightConstants(pDirLight, camera);
+        } else if (light) {
+            // light is non-directional
+            // builder->setBuiltinXxxLightConstants(light, camera);
+            CC_EXPECTS(false);
+        }
+
+        // set builtin legacy ubo
+        auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneID);
+        setLegacyTextureUBOView(
+            *pipelineRuntime->getDevice(),
+            *layoutGraph,
+            *pipelineRuntime->getPipelineSceneData(),
+            data);
+    }
 
     if (any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
         const auto passID = renderGraph->getPassID(nodeID);
@@ -812,62 +864,7 @@ Setter *NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFla
         }
     }
 
-    return new NativeSetterBuilder(
-        pipelineRuntime,
-        renderGraph,
-        sceneID,
-        layoutGraph,
-        layoutID);
-}
-
-Setter *NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
-    const scene::Camera *camera, SceneFlags sceneFlags,
-    scene::DirectionalLight *light, uint32_t level) {
-    CC_EXPECTS(light);
-    CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, level}, CullingFlags::LIGHT_FRUSTUM);
-
-    auto sceneID = addVertex2(
-        SceneTag{},
-        std::forward_as_tuple("Scene"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
-        *renderGraph, nodeID);
-    CC_ENSURES(sceneID != RenderGraph::null_vertex());
-
-    return new NativeSetterBuilder(
-        pipelineRuntime,
-        renderGraph,
-        sceneID,
-        layoutGraph,
-        layoutID);
-}
-
-Setter *NativeRenderQueueBuilder::addSceneCulledBySpotLight(
-    const scene::Camera *camera, SceneFlags sceneFlags,
-    scene::SpotLight *light) {
-    CC_EXPECTS(light);
-    CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, 0}, CullingFlags::LIGHT_FRUSTUM);
-
-    auto sceneID = addVertex2(
-        SceneTag{},
-        std::forward_as_tuple("Scene"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
-        *renderGraph, nodeID);
-    CC_ENSURES(sceneID != RenderGraph::null_vertex());
-
-    return new NativeSetterBuilder(
-        pipelineRuntime,
-        renderGraph,
-        sceneID,
-        layoutGraph,
-        layoutID);
+    return builder.release();
 }
 
 void NativeRenderQueueBuilder::addFullscreenQuad(

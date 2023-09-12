@@ -44,6 +44,7 @@ enum class SubpassCapabilities : uint32_t;
 struct PipelineCapabilities;
 class RenderNode;
 class Setter;
+class SceneBuilder;
 class RenderQueueBuilder;
 class BasicRenderPassBuilder;
 class BasicMultisampleRenderPassBuilder;

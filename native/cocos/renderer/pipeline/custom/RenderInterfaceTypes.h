@@ -460,10 +460,23 @@ public:
     virtual void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) = 0;
     virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
     virtual void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) = 0;
-    virtual void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t level) = 0;
-    virtual void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) = 0;
-    void setBuiltinDirectionalLightViewConstants(const scene::Camera *camera, const scene::DirectionalLight *light) {
-        setBuiltinDirectionalLightViewConstants(camera, light, 0);
+    virtual void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t csmLevel) = 0;
+    virtual void setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) = 0;
+    void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light) {
+        setBuiltinDirectionalLightFrustumConstants(camera, light, 0);
+    }
+};
+
+class SceneBuilder : public Setter {
+public:
+    SceneBuilder() noexcept = default;
+
+    virtual void useLightFrustum(IntrusivePtr<scene::Light> light, uint32_t csmLevel, const scene::Camera *optCamera) = 0;
+    void useLightFrustum(IntrusivePtr<scene::Light> light) {
+        useLightFrustum(std::move(light), 0, nullptr);
+    }
+    void useLightFrustum(IntrusivePtr<scene::Light> light, uint32_t csmLevel) {
+        useLightFrustum(std::move(light), csmLevel, nullptr);
     }
 };
 
@@ -488,9 +501,7 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
-    virtual Setter *addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) = 0;
-    virtual Setter *addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
-    virtual Setter *addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
+    virtual SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) = 0;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -528,7 +539,7 @@ public:
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
     }
-    Setter *addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+    SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
         return addScene(camera, sceneFlags, nullptr);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {

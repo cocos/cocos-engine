@@ -1523,7 +1523,7 @@ holds_alternative<ManagedTexture>(ResourceGraph::vertex_descriptor v, const Reso
 
 template <>
 inline bool
-holds_alternative<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+holds_alternative<PersistentBuffer>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -1531,7 +1531,7 @@ holds_alternative<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v,
 
 template <>
 inline bool
-holds_alternative<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
+holds_alternative<PersistentTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) noexcept { // NOLINT
     return ccstd::holds_alternative<
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -1601,8 +1601,8 @@ get<ManagedTexture>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
 }
 
 template <>
-inline IntrusivePtr<gfx::Buffer>&
-get<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+inline PersistentBuffer&
+get<PersistentBuffer>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -1610,8 +1610,8 @@ get<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, ResourceGraph
 }
 
 template <>
-inline IntrusivePtr<gfx::Texture>&
-get<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
+inline PersistentTexture&
+get<PersistentTexture>(ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -1686,8 +1686,8 @@ get<ManagedTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) 
 }
 
 template <>
-inline const IntrusivePtr<gfx::Buffer>&
-get<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+inline const PersistentBuffer&
+get<PersistentBuffer>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -1695,8 +1695,8 @@ get<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, const Resourc
 }
 
 template <>
-inline const IntrusivePtr<gfx::Texture>&
-get<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
+inline const PersistentTexture&
+get<PersistentTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
         g._vertices[v].handle);
@@ -1763,7 +1763,7 @@ get(ManagedTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph
     return g.managedTextures[handle.value];
 }
 
-inline IntrusivePtr<gfx::Buffer>&
+inline PersistentBuffer&
 get(PersistentBufferTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>>(
@@ -1771,7 +1771,7 @@ get(PersistentBufferTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGra
     return g.buffers[handle.value];
 }
 
-inline IntrusivePtr<gfx::Texture>&
+inline PersistentTexture&
 get(PersistentTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, ResourceGraph& g) {
     auto& handle = ccstd::get<
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
@@ -1835,7 +1835,7 @@ get(ManagedTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, const Resourc
     return g.managedTextures[handle.value];
 }
 
-inline const IntrusivePtr<gfx::Buffer>&
+inline const PersistentBuffer&
 get(PersistentBufferTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>>(
@@ -1843,7 +1843,7 @@ get(PersistentBufferTag /*tag*/, ResourceGraph::vertex_descriptor v, const Resou
     return g.buffers[handle.value];
 }
 
-inline const IntrusivePtr<gfx::Texture>&
+inline const PersistentTexture&
 get(PersistentTextureTag /*tag*/, ResourceGraph::vertex_descriptor v, const ResourceGraph& g) {
     const auto& handle = ccstd::get<
         impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>>(
@@ -1939,9 +1939,9 @@ get_if<ManagedTexture>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph
 }
 
 template <>
-inline IntrusivePtr<gfx::Buffer>*
-get_if<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
-    IntrusivePtr<gfx::Buffer>* ptr = nullptr;
+inline PersistentBuffer*
+get_if<PersistentBuffer>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    PersistentBuffer* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -1956,9 +1956,9 @@ get_if<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, ResourceGr
 }
 
 template <>
-inline IntrusivePtr<gfx::Texture>*
-get_if<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
-    IntrusivePtr<gfx::Texture>* ptr = nullptr;
+inline PersistentTexture*
+get_if<PersistentTexture>(ResourceGraph::vertex_descriptor v, ResourceGraph* pGraph) noexcept { // NOLINT
+    PersistentTexture* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -2096,9 +2096,9 @@ get_if<ManagedTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph* 
 }
 
 template <>
-inline const IntrusivePtr<gfx::Buffer>*
-get_if<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
-    const IntrusivePtr<gfx::Buffer>* ptr = nullptr;
+inline const PersistentBuffer*
+get_if<PersistentBuffer>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const PersistentBuffer* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -2113,9 +2113,9 @@ get_if<IntrusivePtr<gfx::Buffer>>(ResourceGraph::vertex_descriptor v, const Reso
 }
 
 template <>
-inline const IntrusivePtr<gfx::Texture>*
-get_if<IntrusivePtr<gfx::Texture>>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
-    const IntrusivePtr<gfx::Texture>* ptr = nullptr;
+inline const PersistentTexture*
+get_if<PersistentTexture>(ResourceGraph::vertex_descriptor v, const ResourceGraph* pGraph) noexcept { // NOLINT
+    const PersistentTexture* ptr = nullptr;
     if (!pGraph) {
         return ptr;
     }
@@ -2432,7 +2432,7 @@ void addVertexImpl( // NOLINT
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Buffer>>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, PersistentBuffer>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<PersistentBufferTag, ResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.buffers.size())};
     g.buffers.emplace_back(std::forward<ValueT>(val));
@@ -2441,7 +2441,7 @@ void addVertexImpl( // NOLINT
 template <class ValueT>
 void addVertexImpl( // NOLINT
     ValueT &&val, ResourceGraph &g, ResourceGraph::Vertex &vert, // NOLINT
-    std::enable_if_t<std::is_same<std::decay_t<ValueT>, IntrusivePtr<gfx::Texture>>::value>* dummy = nullptr) { // NOLINT
+    std::enable_if_t<std::is_same<std::decay_t<ValueT>, PersistentTexture>::value>* dummy = nullptr) { // NOLINT
     vert.handle = impl::ValueHandle<PersistentTextureTag, ResourceGraph::vertex_descriptor>{
         gsl::narrow_cast<ResourceGraph::vertex_descriptor>(g.textures.size())};
     g.textures.emplace_back(std::forward<ValueT>(val));

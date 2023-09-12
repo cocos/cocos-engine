@@ -119,13 +119,13 @@ export interface PipelineRuntime {
      * This model is used to render profile information in Debug mode.
      * @zh 获得分析工具(Profiler)的渲染实例，用于Debug模式下显示调试与性能检测信息
      */
-    profiler: Model | null;
+    profiler: Model | undefined;
     /**
      * @en Get geometry renderer.
      * Geometry renderer is used to render procedural geometries.
      * @zh 获得几何渲染器(GeometryRenderer)，几何渲染器用于程序化渲染基础几何图形
      */
-    readonly geometryRenderer: GeometryRenderer | null;
+    readonly geometryRenderer: GeometryRenderer | undefined;
     /**
      * @en Get shading scale.
      * Shading scale affects shading texels per pixel.
@@ -385,11 +385,18 @@ export interface Setter extends RenderNode {
     setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
     setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
     setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
-    setBuiltinDirectionalLightViewConstants (
+    setBuiltinDirectionalLightFrustumConstants (
         camera: Camera,
         light: DirectionalLight,
-        level?: number): void;
-    setBuiltinSpotLightViewConstants (light: SpotLight): void;
+        csmLevel?: number): void;
+    setBuiltinSpotLightFrustumConstants (light: SpotLight): void;
+}
+
+export interface SceneBuilder extends Setter {
+    useLightFrustum (
+        light: Light,
+        csmLevel?: number,
+        optCamera?: Camera): void;
 }
 
 /**
@@ -416,16 +423,7 @@ export interface RenderQueueBuilder extends Setter {
     addScene (
         camera: Camera,
         sceneFlags: SceneFlags,
-        light?: Light | null): Setter;
-    addSceneCulledByDirectionalLight (
-        camera: Camera,
-        sceneFlags: SceneFlags,
-        light: DirectionalLight,
-        level: number): Setter;
-    addSceneCulledBySpotLight (
-        camera: Camera,
-        sceneFlags: SceneFlags,
-        light: SpotLight): Setter;
+        light?: Light): SceneBuilder;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -518,7 +516,7 @@ export interface BasicRenderPassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add render queue.
@@ -817,7 +815,7 @@ export interface BasicPipeline extends PipelineRuntime {
     /**
      * @engineInternal
      */
-    getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
+    getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | undefined;
 }
 
 /**
@@ -880,7 +878,7 @@ export interface RenderSubpassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add storage buffer.
@@ -1024,7 +1022,7 @@ export interface ComputeSubpassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add storage buffer.
@@ -1180,7 +1178,7 @@ export interface ComputePassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add storage buffer.
@@ -1394,7 +1392,7 @@ export interface Pipeline extends BasicPipeline {
     addBuiltinGpuCullingPass (
         camera: Camera,
         hzbName?: string,
-        light?: Light | null): void;
+        light?: Light): void;
     addBuiltinHzbGenerationPass (sourceDepthStencilName: string, targetHzbName: string): void;
     /**
      * @experimental

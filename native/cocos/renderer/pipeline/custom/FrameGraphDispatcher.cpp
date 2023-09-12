@@ -314,12 +314,12 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                     CC_EXPECTS(tex.texture);
                     fbInfo.colorTextures.emplace_back(tex.texture);
                 },
-                [&](const IntrusivePtr<gfx::Buffer> &res) {
+                [&](const PersistentBuffer &res) {
                     std::ignore = res;
                     CC_EXPECTS(false);
                 },
-                [&](const IntrusivePtr<gfx::Texture> &tex) {
-                    fbInfo.colorTextures.emplace_back(tex);
+                [&](const PersistentTexture &tex) {
+                    fbInfo.colorTextures.emplace_back(tex.texture);
                 },
                 [&](const IntrusivePtr<gfx::Framebuffer> &fb) {
                     CC_EXPECTS(fb->getColorTextures().size() == 1);

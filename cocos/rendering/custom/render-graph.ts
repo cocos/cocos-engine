@@ -226,6 +226,10 @@ export class PersistentBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
     }
+    reset (buffer: Buffer | null = null): void {
+        this.buffer = buffer;
+        this.fenceValue = 0;
+    }
     /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
 }
@@ -245,6 +249,10 @@ export class ManagedTexture {
 export class PersistentTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
+    }
+    reset (texture: Texture | null = null): void {
+        this.texture = texture;
+        this.fenceValue = 0;
     }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
@@ -747,14 +755,12 @@ export interface ResourceGraphVisitor {
 export type ResourceGraphObject = ManagedResource
 | ManagedBuffer
 | ManagedTexture
-| Buffer
-| Texture
+| PersistentBuffer
+| PersistentTexture
 | Framebuffer
 | RenderSwapchain
 | FormatView
-| SubresourceView
-| PersistentBuffer
-| PersistentTexture;
+| SubresourceView;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -2514,7 +2520,9 @@ export class RenderGraphObjectPoolSettings {
         this.renderSwapchainBatchSize = batchSize;
         this.resourceStatesBatchSize = batchSize;
         this.managedBufferBatchSize = batchSize;
+        this.persistentBufferBatchSize = batchSize;
         this.managedTextureBatchSize = batchSize;
+        this.persistentTextureBatchSize = batchSize;
         this.managedResourceBatchSize = batchSize;
         this.subpassBatchSize = batchSize;
         this.subpassGraphBatchSize = batchSize;
@@ -2546,7 +2554,9 @@ export class RenderGraphObjectPoolSettings {
     renderSwapchainBatchSize = 16;
     resourceStatesBatchSize = 16;
     managedBufferBatchSize = 16;
+    persistentBufferBatchSize = 16;
     managedTextureBatchSize = 16;
+    persistentTextureBatchSize = 16;
     managedResourceBatchSize = 16;
     subpassBatchSize = 16;
     subpassGraphBatchSize = 16;
@@ -2582,7 +2592,9 @@ export class RenderGraphObjectPool {
         this._renderSwapchain = new RecyclePool<RenderSwapchain>(() => new RenderSwapchain(), settings.renderSwapchainBatchSize);
         this._resourceStates = new RecyclePool<ResourceStates>(() => new ResourceStates(), settings.resourceStatesBatchSize);
         this._managedBuffer = new RecyclePool<ManagedBuffer>(() => new ManagedBuffer(), settings.managedBufferBatchSize);
+        this._persistentBuffer = new RecyclePool<PersistentBuffer>(() => new PersistentBuffer(), settings.persistentBufferBatchSize);
         this._managedTexture = new RecyclePool<ManagedTexture>(() => new ManagedTexture(), settings.managedTextureBatchSize);
+        this._persistentTexture = new RecyclePool<PersistentTexture>(() => new PersistentTexture(), settings.persistentTextureBatchSize);
         this._managedResource = new RecyclePool<ManagedResource>(() => new ManagedResource(), settings.managedResourceBatchSize);
         this._subpass = new RecyclePool<Subpass>(() => new Subpass(), settings.subpassBatchSize);
         this._subpassGraph = new RecyclePool<SubpassGraph>(() => new SubpassGraph(), settings.subpassGraphBatchSize);
@@ -2615,7 +2627,9 @@ export class RenderGraphObjectPool {
         this._renderSwapchain.reset();
         this._resourceStates.reset();
         this._managedBuffer.reset();
+        this._persistentBuffer.reset();
         this._managedTexture.reset();
+        this._persistentTexture.reset();
         this._managedResource.reset();
         this._subpass.reset();
         this._subpassGraph.reset();
@@ -2704,10 +2718,24 @@ export class RenderGraphObjectPool {
         v.reset(buffer);
         return v;
     }
+    createPersistentBuffer (
+        buffer: Buffer | null = null,
+    ): PersistentBuffer {
+        const v = this._persistentBuffer.add();
+        v.reset(buffer);
+        return v;
+    }
     createManagedTexture (
         texture: Texture | null = null,
     ): ManagedTexture {
         const v = this._managedTexture.add();
+        v.reset(texture);
+        return v;
+    }
+    createPersistentTexture (
+        texture: Texture | null = null,
+    ): PersistentTexture {
+        const v = this._persistentTexture.add();
         v.reset(texture);
         return v;
     }
@@ -2861,7 +2889,9 @@ export class RenderGraphObjectPool {
     private readonly _renderSwapchain: RecyclePool<RenderSwapchain>;
     private readonly _resourceStates: RecyclePool<ResourceStates>;
     private readonly _managedBuffer: RecyclePool<ManagedBuffer>;
+    private readonly _persistentBuffer: RecyclePool<PersistentBuffer>;
     private readonly _managedTexture: RecyclePool<ManagedTexture>;
+    private readonly _persistentTexture: RecyclePool<PersistentTexture>;
     private readonly _managedResource: RecyclePool<ManagedResource>;
     private readonly _subpass: RecyclePool<Subpass>;
     private readonly _subpassGraph: RecyclePool<SubpassGraph>;

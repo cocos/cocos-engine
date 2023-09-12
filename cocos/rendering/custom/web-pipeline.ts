@@ -29,7 +29,7 @@ import { Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit,
 import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy, IVec4Like, IMat4Like, IVec2Like, Color as CoreColor } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, PipelineBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, PipelineBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SphereLight, PointLight, RangedDirectionalLight, ProbeType } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
@@ -275,10 +275,10 @@ export class WebSetter implements Setter {
     public setBuiltinShadowMapConstants (light: Light, numLevels?: number): void {
         // TODO
     }
-    public setBuiltinDirectionalLightViewConstants (camera: Camera, light: DirectionalLight, level = 0): void {
-        setShadowUBOLightView(this, camera, light, level);
+    public setBuiltinDirectionalLightFrustumConstants (camera: Camera, light: DirectionalLight, csmLevel = 0): void {
+        setShadowUBOLightView(this, camera, light, csmLevel);
     }
-    public setBuiltinSpotLightViewConstants (light: SpotLight): void {
+    public setBuiltinSpotLightFrustumConstants (light: SpotLight): void {
         // TODO
     }
     public setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
@@ -327,7 +327,7 @@ function setShadowUBOLightView (
     setter: WebSetter,
     camera: Camera,
     light: Light,
-    level: number,
+    csmLevel: number,
     layout = 'default',
 ): void {
     const director = cclegacy.director;
@@ -383,7 +383,7 @@ function setShadowUBOLightView (
                         setter.offsetVec4(_uboVec, uniformOffset);
                     }
                 } else {
-                    const layer = csmLayers.layers[level];
+                    const layer = csmLayers.layers[csmLevel];
                     matShadowView = layer.matShadowView;
                     matShadowProj = layer.matShadowProj;
                     matShadowViewProj = layer.matShadowViewProj;
@@ -879,6 +879,39 @@ function getResourceDimension (type: TextureType): ResourceDimension {
     return ResourceDimension.TEXTURE2D;
 }
 
+export class WebSceneBuilder extends WebSetter implements SceneBuilder {
+    constructor (
+        data: RenderData,
+        layoutGraph: LayoutGraphData,
+        rg: RenderGraph,
+        sceneId: number,
+        scene: SceneData,
+    ) {
+        super(data, layoutGraph);
+        this._renderGraph = rg;
+        this._scene = scene;
+        this._sceneId = sceneId;
+    }
+    useLightFrustum (light: Light, csmLevel = 0, optCamera: Camera | undefined = undefined): void {
+        this._scene.light.light = light;
+        this._scene.light.level = csmLevel;
+        this._scene.light.culledByLight = true;
+        if (optCamera) {
+            this._scene.camera = optCamera;
+        }
+        if (this._scene.flags & SceneFlags.NON_BUILTIN) {
+            return;
+        }
+        const queueId = this._renderGraph.getParent(this._sceneId);
+        const passId = this._renderGraph.getParent(queueId);
+        const layoutName = this._renderGraph.getLayout(passId);
+        setShadowUBOLightView(this, this._scene.camera!, light, csmLevel, layoutName);
+    }
+    private readonly _renderGraph: RenderGraph;
+    private readonly _scene: SceneData;
+    private readonly _sceneId: number;
+}
+
 export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuilder {
     constructor (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, vertID: number, queue: RenderQueue, pipeline: PipelineSceneData) {
         super(data, layoutGraph);
@@ -923,23 +956,27 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         setTextureUBOView(this, camera, this._pipeline);
         initGlobalDescBinding(this._data, layoutName);
     }
-    addScene (camera: Camera, sceneFlags = SceneFlags.NONE): Setter {
+    addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined = undefined): SceneBuilder {
         const sceneData = new SceneData(camera.scene, camera, sceneFlags);
+        if (light) {
+            sceneData.light.light = light;
+        }
         const renderData = new RenderData();
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, false, this._vertID);
-        return new WebSetter(renderData, this._lg);
-    }
-    addSceneCulledByDirectionalLight (camera: Camera, sceneFlags: SceneFlags, light: DirectionalLight, level: number): Setter {
-        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, level));
-        const renderData = new RenderData();
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, false, this._vertID);
-        return new WebSetter(renderData, this._lg);
-    }
-    addSceneCulledBySpotLight (camera: Camera, sceneFlags: SceneFlags, light: SpotLight): Setter {
-        const sceneData = new SceneData(camera.scene, camera, sceneFlags, new LightInfo(light, 0));
-        const renderData = new RenderData();
-        this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, false, this._vertID);
-        return new WebSetter(renderData, this._lg);
+        const sceneId = this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, false, this._vertID);
+        if (!(sceneFlags & SceneFlags.NON_BUILTIN)) {
+            const layoutName = this.getLayoutName();
+            setCameraUBOValues(
+                this,
+                camera,
+                this._pipeline,
+                camera.scene,
+                layoutName,
+            );
+            setShadowUBOView(this, camera, layoutName);
+            setTextureUBOView(this, camera, this._pipeline);
+            initGlobalDescBinding(this._data, layoutName);
+        }
+        return new WebSceneBuilder(renderData, this._lg, this._renderGraph, sceneId, sceneData);
     }
     addFullscreenQuad (material: Material, passID: number, sceneFlags = SceneFlags.NONE, name = 'Quad'): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
@@ -1838,13 +1875,15 @@ export class WebPipeline implements BasicPipeline {
     public get constantMacros (): string {
         return this._constantMacros;
     }
-    public get profiler (): Model | null {
-        return this._profiler;
+    public get profiler (): Model | undefined {
+        return this._profiler ? this._profiler : undefined;
     }
-    public set profiler (profiler: Model | null) {
-        this._profiler = profiler;
+    public set profiler (profiler: Model | undefined) {
+        if (profiler) {
+            this._profiler = profiler;
+        }
     }
-    public get geometryRenderer (): GeometryRenderer | null {
+    public get geometryRenderer (): GeometryRenderer | undefined {
         throw new Error('Method not implemented.');
     }
     public get shadingScale (): number {
