@@ -1509,6 +1509,7 @@ public:
      * @param pipeline @en Current render pipeline @zh 当前管线
      */
     virtual void setup(const ccstd::vector<scene::Camera*> &cameras, BasicPipeline *pipeline) = 0;
+    virtual void onGlobalPipelineStateChanged() = 0;
 };
 
 /**
