@@ -25,7 +25,7 @@
 
 import { errorID } from '../platform/debug';
 import * as js from '../utils/js';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../index';
 
 /**
  * @en The base class of all value types.
@@ -93,4 +93,4 @@ export class ValueType {
 }
 js.setClassName('cc.ValueType', ValueType);
 
-legacyCC.ValueType = ValueType;
+cclegacy.ValueType = ValueType;

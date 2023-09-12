@@ -1,5 +1,5 @@
 import { director } from "../../cocos/game";
-import { legacyCC } from "../../cocos/core/global-exports";
+import { cclegacy } from "../../cocos/core";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { ParticleSystem } from "../../exports/particle";
 
@@ -15,7 +15,7 @@ test('particle system capacity test', function () {
     particle.capacity = 0;
     particle.renderer.useGPU = false;
 
-    legacyCC.game.step();
+    cclegacy.game.step();
     
     // @ts-expect-error
     expect(!!particle.processor.getModel()._vBuffer).toBe(true);

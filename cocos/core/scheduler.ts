@@ -26,7 +26,7 @@
 import { IDGenerator } from './utils/id-generator';
 import { createMap } from './utils/js';
 import { System } from './system';
-import { legacyCC } from './global-exports';
+import { cclegacy } from './index';
 import { errorID, warnID, logID, assertID } from './platform/debug';
 
 const MAX_POOL_SIZE = 20;
@@ -246,7 +246,7 @@ class CallbackTimer {
         this._delay = delay;
         this._useDelay = (this._delay > 0);
         this._repeat = repeat;
-        this._runForever = (this._repeat === legacyCC.macro.REPEAT_FOREVER);
+        this._runForever = (this._repeat === cclegacy.macro.REPEAT_FOREVER);
         return true;
     }
     /**
@@ -591,7 +591,7 @@ export class Scheduler extends System {
         // selector, target, interval, paused
         if (arguments.length === 3 || arguments.length === 4 || arguments.length === 5) {
             paused = !!repeat;
-            repeat = legacyCC.macro.REPEAT_FOREVER;
+            repeat = cclegacy.macro.REPEAT_FOREVER;
             delay = 0;
         }
 
@@ -1179,4 +1179,4 @@ export class Scheduler extends System {
     }
 }
 
-legacyCC.Scheduler = Scheduler;
+cclegacy.Scheduler = Scheduler;

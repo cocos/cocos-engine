@@ -27,14 +27,13 @@ import { Material, Texture2D } from '../asset/assets';
 import { error, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
-import { CCObject, Color, RecyclePool, js } from '../core';
+import { CCObject, Color, RecyclePool, js, cclegacy } from '../core';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
 import { builtinResMgr } from '../asset/asset-manager';
-import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { AttachUtil } from './attach-util';
@@ -1790,4 +1789,4 @@ export class Skeleton extends UIRenderer {
     }
 }
 
-legacyCC.internal.SpineSkeleton = Skeleton;
+cclegacy.internal.SpineSkeleton = Skeleton;

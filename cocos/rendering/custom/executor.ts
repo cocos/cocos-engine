@@ -69,7 +69,6 @@ import {
     TextureUsageBit,
     Viewport,
 } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
 import { Pass } from '../../render-scene';
@@ -1588,7 +1587,7 @@ class ExecutorContext {
         this.pipelineSceneData = pipeline.pipelineSceneData;
         this.resourceGraph = resourceGraph;
         this.renderGraph = renderGraph;
-        this.root = legacyCC.director.root;
+        this.root = cclegacy.director.root;
         this.ubo = ubo;
         this.layoutGraph = layoutGraph;
         this.width = width;

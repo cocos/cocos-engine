@@ -29,7 +29,7 @@ import { OPEN_HARMONY } from 'internal:constants'
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
 import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import * as decors from '../native-binding/decorators';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { Skin } from '../render-scene/scene/skin';
@@ -403,9 +403,9 @@ postProcessStageProto.init = function (pipeline) {
 }
 
 
-legacyCC.RenderFlow = RenderFlow;
-legacyCC.RenderStage = RenderStage;
-legacyCC.RenderPipeline = RenderPipeline;
+cclegacy.RenderFlow = RenderFlow;
+cclegacy.RenderStage = RenderStage;
+cclegacy.RenderPipeline = RenderPipeline;
 
 @ccclass('RenderTextureConfig')
 class RenderTextureConfig {

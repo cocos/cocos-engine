@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { UITransform } from '../2d/framework';
 import { VideoPlayer } from './video-player';
 import { EventType } from './video-player-enums';
@@ -87,8 +87,8 @@ export abstract class VideoPlayerImpl {
             this._interrupted = false;
         };
         /* handle pause & resume */
-        legacyCC.game.on(legacyCC.Game.EVENT_PAUSE, this._onInterruptedBegin);
-        legacyCC.game.on(legacyCC.Game.EVENT_RESUME, this._onInterruptedEnd);
+        cclegacy.game.on(cclegacy.Game.EVENT_PAUSE, this._onInterruptedBegin);
+        cclegacy.game.on(cclegacy.Game.EVENT_RESUME, this._onInterruptedEnd);
     }
 
     //
@@ -253,9 +253,9 @@ export abstract class VideoPlayerImpl {
     public destroy (): void {
         this.removeVideoPlayer();
         this._componentEventList.clear();
-        legacyCC.game.off(legacyCC.Game.EVENT_PAUSE, this._onInterruptedBegin);
-        legacyCC.game.off(legacyCC.Game.EVENT_RESUME, this._onInterruptedEnd);
+        cclegacy.game.off(cclegacy.Game.EVENT_PAUSE, this._onInterruptedBegin);
+        cclegacy.game.off(cclegacy.Game.EVENT_RESUME, this._onInterruptedEnd);
     }
 }
 
-legacyCC.internal.VideoPlayerImpl = VideoPlayerImpl;
+cclegacy.internal.VideoPlayerImpl = VideoPlayerImpl;

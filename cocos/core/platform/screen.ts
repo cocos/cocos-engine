@@ -26,7 +26,7 @@
 */
 
 import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../index';
 import { Size } from '../math';
 import { Settings, settings } from '../settings';
 import { error, warn, warnID } from './debug';
@@ -44,7 +44,7 @@ export class Screen {
         const orientation = settings.querySettings(Settings.Category.SCREEN, 'orientation') ?? 'auto';
         const isHeadlessMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') === 3;
         screenAdapter.init({ exactFitScreen, configOrientation: orientation, isHeadlessMode }, (): void => {
-            const director = legacyCC.director;
+            const director = cclegacy.director;
             if (!director.root?.pipeline) {
                 warnID(1220);
                 return;
@@ -225,6 +225,6 @@ export class Screen {
 
 const screen = new Screen();
 
-legacyCC.screen = screen;
+cclegacy.screen = screen;
 
 export { screen };

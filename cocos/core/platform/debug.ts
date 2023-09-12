@@ -24,7 +24,8 @@
 
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
-import { legacyCC, ccwindow } from '../global-exports';
+import { ccwindow } from '../global-exports';
+import { cclegacy } from '../index';
 
 const ccdocument = ccwindow.document;
 
@@ -55,7 +56,7 @@ let ccDebug = ccLog;
  * Constructs a string from a sequence of js object arguments.
  */
 function formatString (...data: unknown[]): string {
-    return legacyCC.js.formatStr.apply(null, data) as string;
+    return cclegacy.js.formatStr.apply(null, data) as string;
 }
 
 /**
@@ -120,7 +121,7 @@ export function debug (...data: unknown[]): void {
 function resetDebugSettingForWebPage (mode: DebugMode): void {
     // Log to web page.
     const logToWebPage = (msg: string): void => {
-        if (!legacyCC.game.canvas) {
+        if (!cclegacy.game.canvas) {
             return;
         }
 
@@ -128,7 +129,7 @@ function resetDebugSettingForWebPage (mode: DebugMode): void {
             const logDiv = ccdocument.createElement('Div');
             logDiv.setAttribute('id', 'logInfoDiv');
             logDiv.setAttribute('width', '200');
-            logDiv.setAttribute('height', `${legacyCC.game.canvas.height}`);
+            logDiv.setAttribute('height', `${cclegacy.game.canvas.height}`);
             const logDivStyle = logDiv.style;
             logDivStyle.zIndex = '99999';
             logDivStyle.position = 'absolute';
@@ -147,7 +148,7 @@ function resetDebugSettingForWebPage (mode: DebugMode): void {
             logListStyle.margin = '0px';
 
             logDiv.appendChild(logList);
-            legacyCC.game.canvas.parentNode.appendChild(logDiv);
+            cclegacy.game.canvas.parentNode.appendChild(logDiv);
         }
 
         logList.value = `${logList.value + msg}\r\n`;
@@ -419,7 +420,7 @@ export function getError (errorId: number, ...param: StringSubstitution[]): stri
  * @deprecated @zh 从v3.6开始不再支持，请使用 profiler.isShowingStates。@en Since v3.6, Please use profiler.isShowingStates instead.
  */
 export function isDisplayStats (): boolean {
-    return legacyCC.profiler ? legacyCC.profiler.isShowingStats() as boolean : false;
+    return cclegacy.profiler ? cclegacy.profiler.isShowingStats() as boolean : false;
 }
 
 /**
@@ -428,7 +429,7 @@ export function isDisplayStats (): boolean {
  * @deprecated @zh 从v3.6开始不再支持，请使用 profiler.showStats。@en Since v3.6, Please use profiler.showStats instead.
  */
 export function setDisplayStats (displayStats: boolean): void {
-    if (legacyCC.profiler) {
-        displayStats ? legacyCC.profiler.showStats() : legacyCC.profiler.hideStats();
+    if (cclegacy.profiler) {
+        displayStats ? cclegacy.profiler.showStats() : cclegacy.profiler.hideStats();
     }
 }

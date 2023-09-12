@@ -31,20 +31,20 @@ export function patch_BloomStage(ctx: BloomStage_Context_Args, apply = defaultEx
 //---- class cc_AmbientInfo
 interface cc_AmbientInfo_Context_Args {
    AmbientInfo: any;
-   legacyCC: any;
+   cclegacy: any;
    CCFloat: any;
    Vec4: any;
    Ambient: any;
 }
 export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = defaultExec) {
-  const { AmbientInfo, legacyCC, CCFloat, Vec4, Ambient } = { ...ctx };
+  const { AmbientInfo, cclegacy, CCFloat, Vec4, Ambient } = { ...ctx };
   const skyLightingColorDescriptor = Object.getOwnPropertyDescriptor(AmbientInfo.prototype, 'skyLightingColor');
   const skyIllumDescriptor = Object.getOwnPropertyDescriptor(AmbientInfo.prototype, 'skyIllum');
   const groundLightingColorDescriptor = Object.getOwnPropertyDescriptor(AmbientInfo.prototype, 'groundLightingColor');
   apply(() => { $.tooltip('i18n:ambient.skyLightingColor')(AmbientInfo.prototype, 'skyLightingColor',  skyLightingColorDescriptor); }, 'tooltip', 'skyLightingColor');
   apply(() => { $.editable(AmbientInfo.prototype, 'skyLightingColor',  skyLightingColorDescriptor); }, 'editable', 'skyLightingColor');
   apply(() => { $.visible(() => {
-  const scene = legacyCC.director.getScene();
+  const scene = cclegacy.director.getScene();
   const skybox = scene.globals.skybox;
 
   if (skybox.useIBL && skybox.applyDiffuseMap) {
@@ -60,7 +60,7 @@ export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = d
   apply(() => { $.tooltip('i18n:ambient.groundLightingColor')(AmbientInfo.prototype, 'groundLightingColor',  groundLightingColorDescriptor); }, 'tooltip', 'groundLightingColor');
   apply(() => { $.editable(AmbientInfo.prototype, 'groundLightingColor',  groundLightingColorDescriptor); }, 'editable', 'groundLightingColor');
   apply(() => { $.visible(() => {
-  const scene = legacyCC.director.getScene();
+  const scene = cclegacy.director.getScene();
   const skybox = scene.globals.skybox;
 
   if (skybox.useIBL && skybox.applyDiffuseMap) {

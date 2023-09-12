@@ -21,7 +21,7 @@
 */
 
 import { EDITOR, TEST } from "internal:constants";
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { Node } from './node';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "./prefab/utils";
 import { assert } from "../core/platform/debug";
@@ -34,7 +34,7 @@ declare const jsb: any;
 
 export const Scene: typeof JsbScene = jsb.Scene;
 export type Scene = JsbScene;
-legacyCC.Scene = Scene;
+cclegacy.Scene = Scene;
 
 const sceneProto: any = Scene.prototype;
 
@@ -128,7 +128,7 @@ sceneProto._activate = function (active: boolean) {
         // register all nodes to editor
         this._registerIfAttached!(active);
     }
-    legacyCC.director._nodeActivator.activateNode(this, active);
+    cclegacy.director._nodeActivator.activateNode(this, active);
     // The test environment does not currently support the renderer
     if (!TEST || EDITOR) {
         this._globals.activate(this);

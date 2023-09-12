@@ -26,7 +26,7 @@ import { SUPPORT_JIT, EDITOR, TEST, JSB, EDITOR_NOT_IN_PREVIEW } from 'internal:
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../index';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 import { copyAllProperties } from '../utils/js';
 
@@ -72,7 +72,7 @@ const objectsToDestroy: CCObject[] = [];
 let deferredDestroyTimer: number | null = null;
 
 function compileDestruct (obj, ctor): Function {
-    const shouldSkipId = obj instanceof legacyCC.Node || obj instanceof legacyCC.Component;
+    const shouldSkipId = obj instanceof cclegacy.Node || obj instanceof cclegacy.Component;
     const idToSkip = shouldSkipId ? '_id' : null;
 
     let key;
@@ -98,7 +98,7 @@ function compileDestruct (obj, ctor): Function {
     }
     // Overwrite propsToReset according to Class
     if (CCClass._isCCClass(ctor)) {
-        const attrs = legacyCC.Class.Attr.getClassAttrs(ctor);
+        const attrs = cclegacy.Class.Attr.getClassAttrs(ctor);
         const propList = ctor.__props__;
 
         for (let i = 0; i < propList.length; i++) {
@@ -302,7 +302,7 @@ class CCObject implements EditorExtendableObject {
         this._objFlags |= ToDestroy;
         objectsToDestroy.push(this);
 
-        if (EDITOR && deferredDestroyTimer === null && legacyCC.engine && !legacyCC.engine._isUpdating) {
+        if (EDITOR && deferredDestroyTimer === null && cclegacy.engine && !cclegacy.engine._isUpdating) {
             // auto destroy immediate in edit mode
             deferredDestroyTimer = setTimeout(CCObject._deferredDestroy);
         }
@@ -660,7 +660,7 @@ export function isValid (value: any, strictMode?: boolean): boolean {
         return typeof value !== 'undefined';
     }
 }
-legacyCC.isValid = isValid;
+cclegacy.isValid = isValid;
 
 if (EDITOR || TEST) {
     js.value(CCObject, '_willDestroy', (obj) => !(obj._objFlags & Destroyed) && (obj._objFlags & ToDestroy) > 0);
@@ -680,5 +680,5 @@ if (JSB) {
     (CCObject as unknown as any) = jsb.CCObject;
 }
 
-legacyCC.Object = CCObject;
+cclegacy.Object = CCObject;
 export { CCObject };

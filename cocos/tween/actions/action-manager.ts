@@ -28,7 +28,7 @@
 import { errorID, logID } from '../../core/platform/debug';
 import { Action } from './action';
 import { Node } from '../../scene-graph';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { isCCObject } from '../../core/data/object';
 import type { ActionInterval } from './action-interval';
 
@@ -408,7 +408,7 @@ export class ActionManager {
      * @method purgeSharedManager
      */
     purgeSharedManager (): void {
-        legacyCC.director.getScheduler().unscheduleUpdate(this);
+        cclegacy.director.getScheduler().unscheduleUpdate(this);
     }
 
     // protected

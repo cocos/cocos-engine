@@ -33,7 +33,7 @@ import {
 } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
-import { ccwindow, legacyCC } from '../core/global-exports';
+import { ccwindow } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
 import { ImageAsset } from '../asset/assets';
 
@@ -577,7 +577,7 @@ export class SplashScreen {
                 device.flushCommands([cmdBuff]);
                 device.queue.submit([cmdBuff]);
                 device.present();
-                device.enableAutoBarrier(!legacyCC.rendering);
+                device.enableAutoBarrier(!cclegacy.rendering);
 
                 if (sys.isXR) {
                     xr.entry.renderLoopEnd(xrEye);

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { Enum } from '../core/value-types';
 
 /**
@@ -76,7 +76,7 @@ export enum TransformBit {
     TRS_MASK = ~TransformBit.TRS,
 }
 
-legacyCC.internal.TransformBit = TransformBit;
+cclegacy.internal.TransformBit = TransformBit;
 
 /**
  * @en Node's mobility

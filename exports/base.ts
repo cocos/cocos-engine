@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../cocos/core/global-exports';
+import { cclegacy } from '../cocos/core';
 // has to import predefines first
 import '../predefine';
 
@@ -50,7 +50,7 @@ export * from '../cocos/asset/assets';
 export * from '../cocos/asset/asset-manager';
 
 export { renderer };
-legacyCC.renderer = renderer;
+cclegacy.renderer = renderer;
 
 export * from '../extensions/ccpool/node-pool';
 

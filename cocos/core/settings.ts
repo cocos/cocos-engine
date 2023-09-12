@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { HTML5, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
-import { legacyCC } from './global-exports';
+import { cclegacy } from './index';
 
 declare const fsUtils: any;
 declare const require: (path: string) =>  Promise<void>;
@@ -196,4 +196,4 @@ export declare namespace Settings {
  * Settings module singleton, through this you can access the configuration data in settings.json.
  */
 export const settings = new Settings();
-legacyCC.settings = settings;
+cclegacy.settings = settings;

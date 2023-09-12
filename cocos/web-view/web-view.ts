@@ -28,7 +28,7 @@ import { UITransform } from '../2d/framework';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { WebViewImplManager } from './web-view-impl-manager';
 import { EventType } from './web-view-enums';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import type { WebViewImpl  } from './web-view-impl';
 
 /**
@@ -215,4 +215,4 @@ export class WebView extends Component {
 }
 
 // TODO Since jsb adapter does not support import cc, put it on internal first and adjust it later.
-legacyCC.internal.WebView = WebView;
+cclegacy.internal.WebView = WebView;

@@ -29,7 +29,7 @@ import { Quat } from './quat';
 import { IMat4Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../index';
 
 /**
  * @engineInternal
@@ -2508,7 +2508,7 @@ CCClass.fastDefine('cc.Mat4', Mat4, {
     m14: 0,
     m15: 1,
 });
-legacyCC.Mat4 = Mat4;
+cclegacy.Mat4 = Mat4;
 
 export function mat4(other: Mat4): Mat4;
 export function mat4(
@@ -2526,4 +2526,4 @@ export function mat4 (
     return new Mat4(m00 as any, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }
 
-legacyCC.mat4 = mat4;
+cclegacy.mat4 = mat4;

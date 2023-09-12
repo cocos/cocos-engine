@@ -1,5 +1,5 @@
 import { director } from "../../cocos/game";
-import { legacyCC } from "../../cocos/core/global-exports";
+import { cclegacy } from "../../cocos/core";
 import { ParticleSystem } from "../../exports/particle";
 import { Node, Scene } from "../../cocos/scene-graph";
 
@@ -13,5 +13,5 @@ test('particle system material test', function () {
     const particle = temp0.addComponent(ParticleSystem) as ParticleSystem;
     expect(particle.sharedMaterials).toBeDefined();
 
-    legacyCC.game.step();
+    cclegacy.game.step();
 });

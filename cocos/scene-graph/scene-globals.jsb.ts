@@ -20,7 +20,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { CCFloat, CCInteger } from '../core/data';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { Enum } from '../core/value-types';
@@ -150,41 +150,41 @@ export const ShadowType = Enum({
 
 export const AmbientInfo: typeof JsbAmbientInfo = jsb.AmbientInfo;
 export type AmbientInfo = JsbAmbientInfo;
-legacyCC.AmbientInfo = AmbientInfo;
+cclegacy.AmbientInfo = AmbientInfo;
 
 export const SkyboxInfo: typeof JsbSkyboxInfo = jsb.SkyboxInfo;
 export type SkyboxInfo = JsbSkyboxInfo;
-legacyCC.SkyboxInfo = SkyboxInfo;
+cclegacy.SkyboxInfo = SkyboxInfo;
 
 
 export const FogInfo: typeof JsbFogInfo = jsb.FogInfo;
 export type FogInfo = JsbFogInfo;
-legacyCC.FogInfo = FogInfo;
+cclegacy.FogInfo = FogInfo;
 FogInfo.FogType = FogType;
 
 export const ShadowsInfo: typeof JsbShadowsInfo = jsb.ShadowsInfo;
 export type ShadowsInfo = JsbShadowsInfo;
-legacyCC.ShadowsInfo = ShadowsInfo;
+cclegacy.ShadowsInfo = ShadowsInfo;
 
 export const OctreeInfo: typeof JsbOctreeInfo = jsb.OctreeInfo;
 export type OctreeInfo = JsbOctreeInfo;
-legacyCC.OctreeInfo = OctreeInfo;
+cclegacy.OctreeInfo = OctreeInfo;
 
 export const LightProbeInfo: typeof JsbLightProbeInfo = jsb.LightProbeInfo;
 export type LightProbeInfo = JsbLightProbeInfo;
-//legacyCC.LightProbeInfo = LightProbeInfo;
+//cclegacy.LightProbeInfo = LightProbeInfo;
 
 export const SceneGlobals: typeof JsbSceneGlobals = jsb.SceneGlobals;
 export type SceneGlobals = JsbSceneGlobals;
-legacyCC.SceneGlobals = SceneGlobals;
+cclegacy.SceneGlobals = SceneGlobals;
 
 export const SkinInfo: typeof JsbSkinInfo = jsb.SkinInfo;
 export type SkinInfo = JsbSkinInfo;
-legacyCC.SkinInfo = SkinInfo;
+cclegacy.SkinInfo = SkinInfo;
 
 export const PostSettingsInfo: typeof JsbPostSettingsInfo = jsb.PostSettingsInfo;
 export type PostSettingsInfo = JsbPostSettingsInfo;
-legacyCC.PostSettingsInfo = PostSettingsInfo;
+cclegacy.PostSettingsInfo = PostSettingsInfo;
 
 (function () {
     const sceneGlobalsProto: any = SceneGlobals.prototype;
@@ -324,7 +324,7 @@ decros.patch_cc_FogInfo({FogInfo, FogType, CCFloat, Color});
 
 decros.patch_cc_SkyboxInfo({SkyboxInfo, EnvironmentLightingType, TextureCube, CCFloat, Material });
 
-decros.patch_cc_AmbientInfo({AmbientInfo, Vec4, Ambient, CCFloat, legacyCC});
+decros.patch_cc_AmbientInfo({AmbientInfo, Vec4, Ambient, CCFloat, cclegacy});
 
 decros.patch_cc_LightProbeInfo({LightProbeInfo, CCFloat, CCInteger});
 

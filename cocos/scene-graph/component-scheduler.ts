@@ -24,9 +24,8 @@
 
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../core/data/object';
-import { js } from '../core';
+import { js, cclegacy } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
-import { legacyCC } from '../core/global-exports';
 import { error, assert } from '../core/platform/debug';
 import type { Component } from './component';
 
@@ -216,8 +215,8 @@ class ReusableInvoker extends LifeCycleInvoker {
 
 function enableInEditor (comp): void {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
-        legacyCC.engine.emit('component-enabled', comp.uuid);
-        if (!legacyCC.GAME_VIEW) {
+        cclegacy.engine.emit('component-enabled', comp.uuid);
+        if (!cclegacy.GAME_VIEW) {
             comp._objFlags |= IsEditorOnEnableCalled;
         }
     }
@@ -247,7 +246,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?): (iterato
             fastPath(iterator, dt);
         } catch (e) {
             // slow path
-            legacyCC._throw(e);
+            cclegacy._throw(e);
             const array = iterator.array;
             if (ensureFlag) {
                 array[iterator.i]._objFlags |= ensureFlag;
@@ -257,7 +256,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?): (iterato
                 try {
                     singleInvoke(array[iterator.i], dt);
                 } catch (e) {
-                    legacyCC._throw(e);
+                    cclegacy._throw(e);
                     if (ensureFlag) {
                         array[iterator.i]._objFlags |= ensureFlag;
                     }
@@ -311,7 +310,7 @@ const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', t
     );
 
 export const invokeOnEnable = EDITOR ? (iterator): void => {
-    const compScheduler = legacyCC.director._compScheduler;
+    const compScheduler = cclegacy.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
         const comp = array[iterator.i];
@@ -324,7 +323,7 @@ export const invokeOnEnable = EDITOR ? (iterator): void => {
         }
     }
 } : (iterator): void => {
-    const compScheduler = legacyCC.director._compScheduler;
+    const compScheduler = cclegacy.director._compScheduler;
     const array = iterator.array;
     for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
         const comp = array[iterator.i];
@@ -386,7 +385,7 @@ export class ComponentScheduler {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onEnabled (comp: Component): void {
-        legacyCC.director.getScheduler().resumeTarget(comp);
+        cclegacy.director.getScheduler().resumeTarget(comp);
         comp._objFlags |= IsOnEnableCalled;
 
         // schedule
@@ -401,7 +400,7 @@ export class ComponentScheduler {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onDisabled (comp: Component): void {
-        legacyCC.director.getScheduler().pauseTarget(comp);
+        cclegacy.director.getScheduler().pauseTarget(comp);
         comp._objFlags &= ~IsOnEnableCalled;
 
         // cancel schedule task
@@ -549,7 +548,7 @@ export class ComponentScheduler {
 if (EDITOR) {
     ComponentScheduler.prototype.enableComp = function (comp, invoker): void {
         // NOTE: _executeInEditMode is dynamically injected on Editor environment
-        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
+        if (cclegacy.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (!(comp._objFlags & IsOnEnableCalled)) {
                 if (comp.internalOnEnable) {
                     if (invoker) {
@@ -573,7 +572,7 @@ if (EDITOR) {
 
     ComponentScheduler.prototype.disableComp = function (comp): void {
         // NOTE: _executeInEditMode is dynamically injected on Editor environment
-        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
+        if (cclegacy.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (comp._objFlags & IsOnEnableCalled) {
                 if (comp.internalOnDisable) {
                     callOnDisableInTryCatch(comp);
@@ -582,7 +581,7 @@ if (EDITOR) {
             }
         }
         if (comp._objFlags & IsEditorOnEnableCalled) {
-            legacyCC.engine.emit('component-disabled', comp.uuid);
+            cclegacy.engine.emit('component-disabled', comp.uuid);
             comp._objFlags &= ~IsEditorOnEnableCalled;
         }
     };

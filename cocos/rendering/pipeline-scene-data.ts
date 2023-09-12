@@ -32,7 +32,7 @@ import { Light } from '../render-scene/scene/light';
 import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { Skin } from '../render-scene/scene/skin';
 import { Model } from '../render-scene/scene/model';
 import { PostSettings } from '../render-scene/scene/post-settings';
@@ -110,7 +110,7 @@ export class PipelineSceneData {
     public octree: Octree = new Octree();
     public skin: Skin = new Skin();
     public postSettings: PostSettings = new PostSettings();
-    public lightProbes = legacyCC.internal.LightProbes ? new legacyCC.internal.LightProbes() : null;
+    public lightProbes = cclegacy.internal.LightProbes ? new cclegacy.internal.LightProbes() : null;
 
     /**
       * @en The list for valid punctual Lights, only available after the scene culling of the current frame.

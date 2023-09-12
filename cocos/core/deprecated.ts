@@ -25,7 +25,7 @@
 import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
-import { legacyCC } from './global-exports';
+import { cclegacy } from './index';
 
 import { System } from './system';
 
@@ -184,7 +184,7 @@ replaceProperty(vmath, 'vmath', [
     },
 ]);
 
-legacyCC.vmath = vmath;
+cclegacy.vmath = vmath;
 
 export { vmath };
 

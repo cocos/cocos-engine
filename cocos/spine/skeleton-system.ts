@@ -23,9 +23,8 @@
 */
 
 import { director } from '../game/director';
-import { System } from '../core';
+import { System, cclegacy } from '../core';
 import { Skeleton } from './skeleton';
-import { legacyCC } from '../core/global-exports';
 
 export class SkeletonSystem extends System {
     /**
@@ -91,4 +90,4 @@ export class SkeletonSystem extends System {
         });
     }
 }
-legacyCC.internal.SpineSkeletonSystem = SkeletonSystem;
+cclegacy.internal.SpineSkeletonSystem = SkeletonSystem;

@@ -24,10 +24,10 @@
 
 import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { sys } from './sys';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../index';
 import { screen } from './screen';
 
-markAsWarning(legacyCC, 'cc', [
+markAsWarning(cclegacy, 'cc', [
     {
         name: 'winSize',
         suggest: 'please use view.getVisibleSize() instead.',

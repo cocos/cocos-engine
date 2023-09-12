@@ -27,7 +27,7 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../index';
 import { assertIsTrue } from '../data/utils/asserts';
 import { Vec4 } from './vec4';
 import { Vec3 } from './vec3';
@@ -735,7 +735,7 @@ export class Color extends ValueType {
 }
 
 CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
-legacyCC.Color = Color;
+cclegacy.Color = Color;
 
 export function color (other: Color | string): Color;
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
@@ -744,7 +744,7 @@ export function color (r?: number | Color | string, g?: number, b?: number, a?: 
     return new Color(r as any, g, b, a);
 }
 
-legacyCC.color = color;
+cclegacy.color = color;
 
 export function srgbToLinear (x: number): number {
     if (x <= 0) return 0;

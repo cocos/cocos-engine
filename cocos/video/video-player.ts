@@ -31,7 +31,7 @@ import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayerImplManager } from './video-player-impl-manager';
 import { EventType, ResourceType } from './video-player-enums';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { VideoPlayerImplWeb } from './video-player-impl-web';
 
 /**
@@ -527,4 +527,4 @@ export class VideoPlayer extends Component {
 }
 
 // TODO Since jsb adapter does not support import cc, put it on internal first and adjust it later.
-legacyCC.internal.VideoPlayer = VideoPlayer;
+cclegacy.internal.VideoPlayer = VideoPlayer;

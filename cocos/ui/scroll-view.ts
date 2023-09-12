@@ -36,7 +36,7 @@ import { ViewGroup } from './view-group';
 import { Node } from '../scene-graph/node';
 import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { NodeEventType } from '../scene-graph/node-event';
 import { Input, input } from '../input/input';
 import { DeviceType, XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';
@@ -2042,4 +2042,4 @@ export class ScrollView extends ViewGroup {
  * @param {ScrollView} scrollView - The ScrollView component.
  */
 
-legacyCC.ScrollView = ScrollView;
+cclegacy.ScrollView = ScrollView;

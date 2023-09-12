@@ -23,9 +23,9 @@
 */
 
 import * as _decorator from './class-decorator';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '../index';
 
-legacyCC._decorator = _decorator;
+cclegacy._decorator = _decorator;
 export { _decorator };
 export { CCClass, isCCClassOrFastDefined } from './class';
 export { CCObject } from './object';

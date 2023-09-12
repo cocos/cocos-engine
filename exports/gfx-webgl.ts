@@ -24,7 +24,7 @@
  */
 
 import { WebGLDevice } from '../cocos/gfx/webgl/webgl-device';
-import { legacyCC } from '../cocos/core/global-exports';
+import { cclegacy } from '../cocos/core';
 
 export { WebGLDevice };
-legacyCC.WebGLDevice = WebGLDevice;
+cclegacy.WebGLDevice = WebGLDevice;

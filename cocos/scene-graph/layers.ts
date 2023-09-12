@@ -23,9 +23,8 @@
 */
 
 import { BitMask, Enum } from '../core/value-types';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy, js } from '../core';
 import { log2 } from '../core/math/bits';
-import { js } from '../core';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { getError, warn } from '../core/platform/debug';
 import { Settings, settings } from '../core/settings';
@@ -189,4 +188,4 @@ export declare namespace Layers {
     export type BitMask = EnumAlias<typeof Layers.BitMask>;
 }
 
-legacyCC.Layers = Layers;
+cclegacy.Layers = Layers;

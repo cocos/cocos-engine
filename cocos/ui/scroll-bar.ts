@@ -32,7 +32,7 @@ import { clamp01 } from '../core/math/utils';
 import { ScrollView } from './scroll-view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../scene-graph';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 
 const GETTING_SHORTER_FACTOR = 20;
 const _tempPos_1 = new Vec3();
@@ -495,4 +495,4 @@ export class ScrollBar extends Component {
     }
 }
 
-legacyCC.ScrollBar = ScrollBar;
+cclegacy.ScrollBar = ScrollBar;

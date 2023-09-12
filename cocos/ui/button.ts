@@ -35,7 +35,7 @@ import { ccenum } from '../core/value-types/enum';
 import { lerp } from '../core/math/utils';
 import { Node } from '../scene-graph/node';
 import { Sprite } from '../2d/components/sprite';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { TransformBit } from '../scene-graph/node-enum';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEventType } from '../xr/event/xr-event-handle';
@@ -1032,4 +1032,4 @@ export class Button extends Component {
     }
 }
 
-legacyCC.Button = Button;
+cclegacy.Button = Button;

@@ -26,11 +26,10 @@
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED, JSB } from 'internal:constants';
 import { compile } from '../../serialization/instantiate-jit';
-import { js } from '../../core';
+import { js, cclegacy } from '../../core';
 import { Enum } from '../../core/value-types';
 import { Asset } from '../../asset/assets/asset';
 import { Node } from '../node';
-import { legacyCC } from '../../core/global-exports';
 import { warnID } from '../../core/platform/debug';
 import { updateChildrenForDeserialize } from '../../core/utils/jsb-utils';
 import * as utils from './utils';
@@ -122,7 +121,7 @@ export class Prefab extends Asset {
     }
 
     public createNode (cb: (err: Error | null, node: Node) => void): void {
-        const node = legacyCC.instantiate(this);
+        const node = cclegacy.instantiate(this);
         node.name = this.name;
         cb(null, node);
     }
@@ -189,7 +188,7 @@ export class Prefab extends Asset {
         super.initDefault(uuid);
         this.data = new Node();
         this.data.name = '(Missing Node)';
-        const prefabInfo = new legacyCC._PrefabInfo();
+        const prefabInfo = new cclegacy._PrefabInfo();
         prefabInfo.asset = this;
         prefabInfo.root = this.data;
         this.data._prefab = prefabInfo;
@@ -215,9 +214,9 @@ export declare namespace Prefab {
 
 js.value(Prefab, '_utils', utils);
 
-legacyCC.Prefab = Prefab;
+cclegacy.Prefab = Prefab;
 if (ALIPAY || RUNTIME_BASED) {
-    legacyCC._Prefab = Prefab;
+    cclegacy._Prefab = Prefab;
 } else {
-    js.obsolete(legacyCC, 'cc._Prefab', 'Prefab');
+    js.obsolete(cclegacy, 'cc._Prefab', 'Prefab');
 }

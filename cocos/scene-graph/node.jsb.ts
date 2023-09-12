@@ -21,7 +21,7 @@
 */
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '../core';
 import { errorID, getError } from '../core/platform/debug';
 import { Component } from './component';
 import { NodeEventType } from './node-event';
@@ -45,7 +45,7 @@ declare const jsb: any;
 
 export const Node: typeof JsbNode = jsb.Node;
 export type Node = JsbNode;
-legacyCC.Node = Node;
+cclegacy.Node = Node;
 
 const NodeCls: any = Node;
 
@@ -162,7 +162,7 @@ nodeProto.addComponent = function (typeOrClassName) {
     if (typeof typeOrClassName === 'string') {
         constructor = getClassByName(typeOrClassName);
         if (!constructor) {
-            if (legacyCC._RF.peek()) {
+            if (cclegacy._RF.peek()) {
                 errorID(3808, typeOrClassName);
             }
             throw TypeError(getError(3807, typeOrClassName));
@@ -221,7 +221,7 @@ nodeProto.addComponent = function (typeOrClassName) {
     }
     this.emit(NodeEventType.COMPONENT_ADDED, component);
     if (this._activeInHierarchy) {
-        legacyCC.director._nodeActivator.activateComp(component);
+        cclegacy.director._nodeActivator.activateComp(component);
     }
     if (EDITOR_NOT_IN_PREVIEW) {
         component.resetInEditor?.();
@@ -419,7 +419,7 @@ nodeProto._onEditorAttached = function (attached: boolean) {
 };
 
 nodeProto._onRemovePersistRootNode = function () {
-    legacyCC.game.removePersistRootNode(this);
+    cclegacy.game.removePersistRootNode(this);
 };
 
 nodeProto._onDestroyComponents = function () {
@@ -496,7 +496,7 @@ nodeProto._onSiblingOrderChanged = function () {
 };
 
 nodeProto._onActivateNode = function (shouldActiveNow) {
-    legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
+    cclegacy.director._nodeActivator.activateNode(this, shouldActiveNow);
 };
 
 nodeProto._onPostActivated = function (active: boolean) {
@@ -600,7 +600,7 @@ NodeCls._findChildComponents = function (children, constructor, components) {
 // @ts-ignore
 NodeCls.isNode = function (obj: unknown): obj is jsb.Node {
     // @ts-ignore
-    return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof legacyCC.Scene));
+    return obj instanceof jsb.Node && (obj.constructor === jsb.Node || !(obj instanceof cclegacy.Scene));
 };
 
 let _tempQuat = new Quat();
@@ -1253,7 +1253,7 @@ nodeProto[serializeTag] = function (serializationOutput: SerializationOutput, co
 };
 
 nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
-    legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
+    cclegacy.director._nodeActivator.activateNode(this, shouldActiveNow);
 };
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
@@ -1318,7 +1318,7 @@ nodeProto._onLocalPositionRotationScaleUpdated = function (px, py, pz, rx, ry, r
 
 nodeProto._instantiate = function (cloned: Node, isSyncedNode: boolean) {
     if (!cloned) {
-        cloned = legacyCC.instantiate._clone(this, this);
+        cloned = cclegacy.instantiate._clone(this, this);
     }
 
     // TODO(PP_Pro): after we support editorOnly tag, we could remove this any type assertion.
@@ -1366,7 +1366,7 @@ nodeProto._ctor = function (name?: string) {
     this.__editorExtras__ = { editorOnly: true };
 
     this._components = [];
-    this._eventProcessor = new legacyCC.NodeEventProcessor(this);
+    this._eventProcessor = new cclegacy.NodeEventProcessor(this);
     this._uiProps = new NodeUIProperties(this);
 
     const sharedArrayBuffer = this._initAndReturnSharedBuffer();

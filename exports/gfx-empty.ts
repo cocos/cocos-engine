@@ -24,7 +24,7 @@
  */
 
 import { EmptyDevice } from '../cocos/gfx/empty/empty-device';
-import { legacyCC } from '../cocos/core/global-exports';
+import { cclegacy } from '../cocos/core';
 
 export { EmptyDevice };
-legacyCC.EmptyDevice = EmptyDevice;
+cclegacy.EmptyDevice = EmptyDevice;

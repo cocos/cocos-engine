@@ -125,7 +125,7 @@ textureBaseProto.getSamplerInfo = function () {
 const oldDestroy = textureBaseProto.destroy;
 textureBaseProto.destroy = function () {
     if (cclegacy.director.root?.batcher2D) {
-        // legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
+        // cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
         cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
     }
     // dispatch into C++ virtual function CCObject::destroy

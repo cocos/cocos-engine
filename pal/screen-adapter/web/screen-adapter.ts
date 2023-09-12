@@ -30,7 +30,7 @@ import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
-import legacyCC from '../../../predefine';
+import { cclegacy } from '../../../cocos/core';
 
 interface ICachedStyle {
     width: string;
@@ -516,7 +516,7 @@ class ScreenAdapter extends EventTarget {
                 return;
             }
             // TODO: access designedResolution from Launcher module.
-            const designedResolution = legacyCC.view.getDesignResolutionSize() as Size;
+            const designedResolution = cclegacy.view.getDesignResolutionSize() as Size;
             const frame = this._gameFrame;
             const frameW = frame.clientWidth;
             const frameH = frame.clientHeight;

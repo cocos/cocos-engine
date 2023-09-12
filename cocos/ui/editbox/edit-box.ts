@@ -37,7 +37,7 @@ import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '../../core';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 
@@ -815,4 +815,4 @@ if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !
  * @return {Boolean} whether it is the first time the destroy being called
  */
 
-legacyCC.internal.EditBox = EditBox;
+cclegacy.internal.EditBox = EditBox;
