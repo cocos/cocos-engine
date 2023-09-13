@@ -133,9 +133,6 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const SharedPassArray &pPas
     CC_ASSERT(!pPasses->empty());
     gfx::DescriptorSetInfo dsInfo;
     dsInfo.layout = (*pPasses)[0]->getLocalSetLayout();
-    if (!subMesh->getIaInfo().vertexBuffers.empty()) {
-        _inputAssembler = _device->createInputAssembler(subMesh->getIaInfo());
-    }
     _descriptorSet = _device->createDescriptorSet(dsInfo);
 
     const auto *pipeline = Root::getInstance()->getPipeline();
@@ -147,6 +144,7 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const SharedPassArray &pPas
     }
 
     _subMesh = subMesh;
+    initInputAssembler();
     ccstd::vector<IMacroPatch> tmp = patches;
     std::sort(tmp.begin(), tmp.end(), IMacroPatch::compare);
     _patches = tmp;
@@ -190,6 +188,16 @@ void SubModel::initialize(RenderingSubMesh *subMesh, const SharedPassArray &pPas
         _reflectionSampler = _device->getSampler(samplerInfo);
         _descriptorSet->bindSampler(pipeline::REFLECTIONTEXTURE::BINDING, _reflectionSampler);
         _descriptorSet->bindTexture(pipeline::REFLECTIONSTORAGE::BINDING, _reflectionTex);
+    }
+}
+
+void SubModel::initInputAssembler() {
+    if (_subMesh->getVertexBuffers().empty()) {
+        return;
+    }
+
+    if (!_inputAssembler) {
+        _inputAssembler = _device->createInputAssembler(_subMesh->getIaInfo());
     }
 }
 

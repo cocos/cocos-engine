@@ -32,11 +32,13 @@
 #include "renderer/gfx-base/GFXBuffer.h"
 #include "scene/gpu-scene/Const.h"
 
+
 namespace cc {
 class Mesh;
 
 namespace scene {
 class GPUScene;
+class Model;
 
 struct SubMeshData {
     ccstd::hash_t attributesHash{0U};
@@ -68,13 +70,14 @@ public:
     void destroy();
 
     void build(const ccstd::vector<Mesh*>& meshes);
-    void addMesh(Mesh* mesh);
-
+    
     inline const SubMeshData& getSubMeshData(uint32_t index) const { return _meshes[index]; }
     inline gfx::Buffer* getVertexBuffer(ccstd::hash_t key) { return _vertexBuffers[key].get(); }
     inline gfx::Buffer* getIndexBuffer(uint32_t key) { return _indexBuffers[key].get(); }
 
 private:
+    void addMesh(Mesh* mesh);
+    void redirectMesh(Mesh* mesh);
     void updateBuffers();
 
     GPUScene* _gpuScene{nullptr};

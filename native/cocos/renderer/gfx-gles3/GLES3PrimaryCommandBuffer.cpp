@@ -92,6 +92,11 @@ void GLES3PrimaryCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, ui
     auto *glesBuffer = static_cast<GLES3Buffer *>(buffer);
     auto *gpuBuffer = glesBuffer->gpuBuffer();
     cmdFuncGLES3DrawIndirect(GLES3Device::getInstance(), gpuBuffer, offset, count, stride, false);
+    if (GLES3Device::getInstance()->constantRegistry()->multiDrawIndirect) {
+        ++_numDrawCalls;
+    } else {
+        _numDrawCalls += count;
+    }
 }
 
 void GLES3PrimaryCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
@@ -102,6 +107,11 @@ void GLES3PrimaryCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t off
     auto *glesBuffer = static_cast<GLES3Buffer *>(buffer);
     auto *gpuBuffer = glesBuffer->gpuBuffer();
     cmdFuncGLES3DrawIndirect(GLES3Device::getInstance(), gpuBuffer, offset, count, stride, true);
+    if (GLES3Device::getInstance()->constantRegistry()->multiDrawIndirect) {
+        ++_numDrawCalls;
+    } else {
+        _numDrawCalls += count;
+    }
 }
 
 void GLES3PrimaryCommandBuffer::beginMarker(const MarkerInfo &marker) {

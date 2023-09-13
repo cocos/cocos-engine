@@ -59,11 +59,6 @@ void GPUScene::build(const ccstd::vector<Mesh*>& meshes) {
     _meshPool->build(meshes);
 }
 
-void GPUScene::addMesh(Mesh* mesh) {
-    _meshPool->addMesh(mesh);
-    _meshPool->updateBuffers();
-}
-
 void GPUScene::addModel(const Model* model) {
     _objectPool->addModel(model);
     _batchPool->addModel(model);

@@ -180,6 +180,7 @@ void PipelineSceneData::initGPUDrivenMaterial() {
 
         IMaterialInfo info;
         MacroRecord macros{
+            {"CC_USE_SAMPLER_FILTER_MIN_MAX", filterMinMax},
             {"CC_SUPPORT_FIRST_INSTANCE", firstInstance},
             {"CC_USE_FRUSTUM_CULLING", frustumCulling},
             {"CC_USE_OCCLUSION_CULLING", defines[i].useOcclusion},

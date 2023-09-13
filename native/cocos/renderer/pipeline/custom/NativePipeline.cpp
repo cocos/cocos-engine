@@ -1135,8 +1135,15 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         gpuCullPass->addStorageBuffer(drawInstanceBuffer, AccessType::WRITE, "CCDrawInstanceBuffer");
         gpuCullPass->addStorageBuffer(visibilityBuffer, AccessType::READ_WRITE, "CCVisibilityBuffer");
         if (!hzbName.empty()) {
-            auto *sampler = device->getSampler({gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::NONE,
-                                                gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP});
+            gfx::Sampler *sampler = nullptr;
+            if (device->getCapabilities().supportFilterMinMax) {
+                sampler = device->getSampler({gfx::Filter::LINEAR, gfx::Filter::LINEAR, gfx::Filter::NONE,
+                                                    gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP,
+                                                    0, gfx::ComparisonFunc::ALWAYS, gfx::Reduction::MAX});
+            } else {
+                sampler = device->getSampler({gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::NONE,
+                                              gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP});
+            }
 
             gpuCullPass->addTexture(hzbName + std::to_string(cullingID), "CCDepthMap", sampler, 0);
         }

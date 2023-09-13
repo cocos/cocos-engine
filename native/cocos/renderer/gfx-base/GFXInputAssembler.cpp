@@ -43,12 +43,12 @@ void InputAssembler::initialize(const InputAssemblerInfo &info) {
     _attributesHash = computeAttributesHash(_attributes);
 
     if (_indexBuffer) {
-        _drawInfo.indexCount = _indexBuffer->getCount();
-        _drawInfo.firstIndex = 0;
+        _drawInfo.indexCount = info.indexCount > 0 ? info.indexCount : _indexBuffer->getCount();
+        _drawInfo.firstIndex = info.firstIndex;
+        _drawInfo.vertexOffset = info.vertexOffset;
     } else if (!_vertexBuffers.empty()) {
-        _drawInfo.vertexCount = _vertexBuffers[0]->getCount();
-        _drawInfo.firstVertex = 0;
-        _drawInfo.vertexOffset = 0;
+        _drawInfo.vertexCount = info.vertexCount > 0 ? info.vertexCount : _vertexBuffers[0]->getCount();
+        _drawInfo.firstVertex = info.firstVertex;
     }
 
     doInit(info);
