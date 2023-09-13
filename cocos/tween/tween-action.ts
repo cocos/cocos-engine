@@ -213,6 +213,19 @@ export class TweenAction extends ActionInterval {
                     prop.end.w = value.w;
                 }
                 prop.type = 'rect';
+            } else if (_t instanceof Quat) {
+                if (prop.start == null) {
+                    prop.start = new Quat(); prop.current = new Quat(); prop.end = new Quat();
+                }
+                prop.start.set(_t);
+                prop.current.set(_t);
+                if (relative) {
+                    Quat.multiply(prop.end, _t, value);
+                } else {
+                    prop.end.set(value);
+                }
+                prop.type = 'quat';
+                warn('Quaternion only support slerp interpolation method.');
             } else if (typeof _t === 'object') {
                 if (_t instanceof Vec2) {
                     if (prop.start == null) {
@@ -234,19 +247,14 @@ export class TweenAction extends ActionInterval {
                         prop.start = new Size(); prop.current = new Size(); prop.end = new Size();
                     }
                     prop.type = 'size';
-                } else if (_t instanceof Quat) {
-                    if (prop.start == null) {
-                        prop.start = new Quat(); prop.current = new Quat(); prop.end = new Quat();
-                    }
-                    prop.type = 'quat';
                 } else if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
 
                 for (const k in value) {
                     // filtering if it not a number
-                    // eslint-disable-next-line no-restricted-globals, @typescript-eslint/no-unsafe-argument
-                    if (isNaN(_t[k])) continue;
+                    // eslint-disable-next-line no-restricted-globals
+                    if (isNaN(_t[k] as number)) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
                     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
@@ -309,12 +317,6 @@ export class TweenAction extends ActionInterval {
                     Quat.slerp(prop.current, start, end, time as number);
                 } else {
                     for (const k in start) {
-                        // if (value[k].easing) {
-                        //     time = value[k].easing(t);
-                        // }
-                        // if (value[k].progress) {
-                        //     interpolation = value[k].easing(t);
-                        // }
                         prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
                     }
                 }
