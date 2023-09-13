@@ -33,7 +33,7 @@ import './deprecated-3.7.0';
 cclegacy.math = math;
 cclegacy.geometry = geometry;
 
-export { math, memop, geometry, VERSION };
+export { math, memop, geometry, VERSION, cclegacy };
 
 export * from './math';
 export * from './memop';
@@ -47,7 +47,6 @@ export * from './curves';
 export * from './settings';
 export * from './system';
 export * from './algorithm';
-export { cclegacy };
 export * from './curves/bezier';
 
 // TODO: should not include engine internal exports when module mechanism is implemented.
