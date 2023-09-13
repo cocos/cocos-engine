@@ -5,6 +5,11 @@ const { updateElementReadonly, updateElementInvalid, getPropValue, setPropValue 
 exports.template = /* html */`
 <div class="container">
     <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.scaleFactor.name" tooltip="i18n:ENGINE.assets.scaleFactor.title"></ui-label>
+        <ui-slider slot="content" class="scaleFactor-slider" min="0.01" max="100" step="1"></ui-slider>
+    </ui-prop>
+
+    <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.normals.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.normals.title"></ui-label>
         <ui-select slot="content" class="normals-select"></ui-select>
     </ui-prop>
@@ -241,6 +246,7 @@ exports.$ = {
     tangentsSelect: '.tangents-select',
     morphNormalsSelect: '.morphNormals-select',
     skipValidationCheckbox: '.skipValidation-checkbox',
+    scaleFactorSlider: '.scaleFactor-slider',
     disableMeshSplitCheckbox: '.disableMeshSplit-checkbox',
     allowMeshDataAccessCheckbox: '.allowMeshDataAccess-checkbox',
     addVertexColorCheckbox: '.addVertexColor-checkbox',
@@ -374,6 +380,23 @@ const Elements = {
 
             updateElementInvalid.call(panel, panel.$.skipValidationCheckbox, 'skipValidation');
             updateElementReadonly.call(panel, panel.$.skipValidationCheckbox);
+        },
+    },
+    scaleFactor: {
+        ready() {
+            const panel = this;
+            panel.$.scaleFactorSlider.addEventListener('change', panel.setProp.bind(panel, 'scaleFactor', 'number'));
+            panel.$.scaleFactorSlider.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.scaleFactorSlider.value = getPropValue.call(panel, panel.meta.userData, 1, 'scaleFactor');
+
+            updateElementInvalid.call(panel, panel.$.scaleFactorSlider, 'scaleFactor');
+            updateElementReadonly.call(panel, panel.$.scaleFactorSlider);
         },
     },
     disableMeshSplit: {
