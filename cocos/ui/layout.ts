@@ -736,7 +736,7 @@ export class Layout extends Component {
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.on(NodeEventType.CHILD_ADDED, this._childAdded, this);
         this.node.on(NodeEventType.CHILD_REMOVED, this._childRemoved, this);
-        this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
+        this.node.on(NodeEventType.CHILDREN_ORDER_CHANGED, this._childrenChanged, this);
         this.node.on('childrenSiblingOrderChanged', this.updateLayout, this);
         this._addChildrenEventListeners();
     }
@@ -747,7 +747,7 @@ export class Layout extends Component {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.off(NodeEventType.CHILD_ADDED, this._childAdded, this);
         this.node.off(NodeEventType.CHILD_REMOVED, this._childRemoved, this);
-        this.node.off(NodeEventType.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
+        this.node.off(NodeEventType.CHILDREN_ORDER_CHANGED, this._childrenChanged, this);
         this.node.off('childrenSiblingOrderChanged', this.updateLayout, this);
         this._removeChildrenEventListeners();
     }
