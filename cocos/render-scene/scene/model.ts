@@ -385,6 +385,18 @@ export class Model {
     }
 
     /**
+     * @en Whether to enable GPU Driven.
+     * @zh 是否开启 GPU Driven 。
+     */
+    get gpuDrivenEnabled (): boolean {
+        return this._gpuDrivenEnabled;
+    }
+
+    set gpuDrivenEnabled (val) {
+        this._gpuDrivenEnabled = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -576,6 +588,12 @@ export class Model {
      * @zh 反射探针类型。
      */
     protected _reflectionProbeType = ReflectionProbeType.NONE;
+
+    /**
+     * @en Whether to enable GPU Driven.
+     * @zh 是否开启 GPU Driven 。
+     */
+    protected _gpuDrivenEnabled = true;
 
     /**
      * @internal

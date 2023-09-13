@@ -1314,6 +1314,11 @@ struct InputAssemblerInfo {
     AttributeList attributes;
     BufferList vertexBuffers;
     Buffer *indexBuffer{nullptr}; // @ts-nullable
+    uint32_t vertexCount{0};
+    uint32_t firstVertex{0};
+    uint32_t indexCount{0};
+    uint32_t firstIndex{0};
+    int32_t vertexOffset{0};
 
     EXPOSE_COPY_FN(InputAssemblerInfo)
 };

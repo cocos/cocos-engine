@@ -43,6 +43,7 @@
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
+#include "cocos/renderer/pipeline/helper/Utils.h"
 #include "cocos/scene/Model.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/Pass.h"
@@ -1499,6 +1500,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
         if (pass.showStatistics) {
             submitProfilerCommands(ctx, vertID, pass);
+#if CC_USE_DEBUG_RENDERER
+            renderDebugRenderer(ctx.currentPass, ctx.cmdBuff, ctx.ppl->pipelineSceneData, nullptr);
+#endif
         }
         ctx.cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;

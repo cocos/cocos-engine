@@ -31,6 +31,7 @@
 #include "core/assets/RenderingSubMesh.h"
 #include "3d/assets/Mesh.h"
 #include "base/memory/Memory.h"
+#include "base/std/container/unordered_set.h"
 
 namespace cc {
 namespace scene {
@@ -69,11 +70,21 @@ void GPUMeshPool::destroy() {
 }
 
 void GPUMeshPool::build(const ccstd::vector<Mesh*>& meshes) {
-    for (const auto& mesh : meshes) {
+    ccstd::unordered_set<Mesh*> meshSet;
+    for (auto* mesh : meshes) {
+        meshSet.insert(mesh);
+    }
+
+    for (const auto& mesh : meshSet) {
         addMesh(mesh);
     }
 
     updateBuffers();
+
+    // Note: must redirect mesh after updateBuffers
+    for (const auto& mesh : meshSet) {
+        redirectMesh(mesh);
+    }
 }
 
 void GPUMeshPool::addMesh(Mesh* mesh) {
@@ -119,19 +130,34 @@ void GPUMeshPool::addMesh(Mesh* mesh) {
 
         vb->second.push(buffer->getData() + vertexBundle.view.offset, vertexBundle.view.length, vbCount);
         ib->second.push(buffer->getData() + indexView.offset, indexView.length, ibCount);
-
-        // Destroy subMesh's private buffers
-        subMesh->destroy();
     }
 
     mesh->setInGPUScene(true);
 
     // Release CPU side data if necessary
+#if !CC_EDITOR
     if (!mesh->isAllowDataAccess()) {
         mesh->releaseData();
     }
+#endif
 
     _dirty = true;
+}
+
+void GPUMeshPool::redirectMesh(Mesh* mesh) {
+    const auto& subMeshes = mesh->getRenderingSubMeshes();
+
+    for (const auto& subMesh : subMeshes) {
+        const auto meshIdx = subMesh->getMeshPoolIndex();
+        const auto& meshData = _meshes[meshIdx];
+
+        auto* vb = getVertexBuffer(meshData.attributesHash);
+        auto* ib = getIndexBuffer(meshData.indexStride);
+        gfx::BufferList vbs = {vb};
+
+        // Reset subMesh's buffers to GPUMeshPool.
+        subMesh->resetBuffers(vbs, ib, meshData.vertexCount, meshData.firstVertex, meshData.indexCount, meshData.firstIndex, meshData.firstVertex);
+    }
 }
 
 void GPUMeshPool::updateBuffers() {
@@ -140,7 +166,7 @@ void GPUMeshPool::updateBuffers() {
     }
 
     auto* device = gfx::Device::getInstance();
-    for (const auto& iter : _vbs) {
+    for (auto& iter : _vbs) {
         const auto size = iter.second.stride * iter.second.count;
         auto vb = _vertexBuffers.find(iter.first);
         if (vb == _vertexBuffers.cend()) {
@@ -158,9 +184,13 @@ void GPUMeshPool::updateBuffers() {
                 buffer->update(iter.second.buffer.data(), size);
             }
         }
+
+        // Release CPU side buffer
+        iter.second.buffer.clear();
+        iter.second.buffer.shrink_to_fit();
     }
 
-    for (const auto& iter : _ibs) {
+    for (auto& iter : _ibs) {
         const auto size = iter.second.stride * iter.second.count;
         auto ib = _indexBuffers.find(iter.first);
         if (ib == _indexBuffers.cend()) {
@@ -178,6 +208,10 @@ void GPUMeshPool::updateBuffers() {
                 buffer->update(iter.second.buffer.data(), size);
             }
         }
+
+        // Release CPU side buffer
+        iter.second.buffer.clear();
+        iter.second.buffer.shrink_to_fit();
     }
 
     _dirty = false;

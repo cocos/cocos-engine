@@ -194,6 +194,14 @@ public:
     inline void setMeshPoolIndex(uint32_t index) { _meshPoolIndex = index; }
     inline uint32_t getMeshPoolIndex() const { return _meshPoolIndex; }
 
+    void resetBuffers(const gfx::BufferList &vertexBuffers,
+                         gfx::Buffer *indexBuffer,
+                         uint32_t vertexCount,
+                         uint32_t firstVertex,
+                         uint32_t indexCount,
+                         uint32_t firstIndex,
+                         int32_t vertexOffset);
+
 private:
     gfx::Buffer *allocVertexIdBuffer(gfx::Device *device);
 

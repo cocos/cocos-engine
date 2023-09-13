@@ -595,6 +595,7 @@ void CCMTLCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t 
                     indirectBuffer: mtlBuffer->mtlBuffer()
               indirectBufferOffset: off];
     }
+    _numDrawCalls += count;
 }
 
 void CCMTLCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
@@ -613,6 +614,7 @@ void CCMTLCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, ui
                            indirectBuffer: mtlBuffer->mtlBuffer()
                      indirectBufferOffset: off];
     }
+    _numDrawCalls += count;
 }
 
 void CCMTLCommandBuffer::draw(const DrawInfo &info) {

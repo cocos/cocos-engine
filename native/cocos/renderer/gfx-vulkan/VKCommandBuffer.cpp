@@ -472,6 +472,7 @@ void CCVKCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t c
                           bufferOffset + offset,
                           count,
                           stride);
+        ++_numDrawCalls;
     } else {
         for (uint32_t i = 0U; i < count; ++i) {
             uint32_t currentOffset = bufferOffset + offset + i * stride;
@@ -481,6 +482,7 @@ void CCVKCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t c
                               1,
                               stride);
         }
+        _numDrawCalls += count;
     }
 }
 
@@ -501,6 +503,7 @@ void CCVKCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uin
                                  bufferOffset + offset,
                                  count,
                                  stride);
+        ++_numDrawCalls;
     } else {
         for (uint32_t i = 0U; i < count; ++i) {
             uint32_t currentOffset = bufferOffset + offset + i * stride;
@@ -510,6 +513,7 @@ void CCVKCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uin
                                      1,
                                      stride);
         }
+        _numDrawCalls += count;
     }
 }
 
