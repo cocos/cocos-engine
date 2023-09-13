@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Quat, Vec3, geometry, cclegacy } from '../../core';
+import { Mat4, Quat, Vec3, geometry } from '../../core';
+import { cclegacy } from '@base/global';
 import type { Frustum } from '../../core/geometry';
 import { Light, LightType, nt2lm } from './light';
 import { PCFType } from './shadows';

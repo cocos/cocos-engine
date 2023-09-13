@@ -24,8 +24,8 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Rect } from '../math';
-import { cclegacy } from '../index';
 
 /**
  * @zh `visibleRect` is a singleton object which defines the actual visible rect of the current view.

@@ -20,11 +20,11 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from "internal:constants";
-import { cclegacy } from '../core';
+import { EDITOR, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { Node } from './node';
-import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "./prefab/utils";
-import { assert } from "../core/platform/debug";
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';
+import { assert } from '../core/platform/debug';
 import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
 import { SceneGlobals } from './scene-globals';
 import { patch_cc_Scene } from '../native-binding/decorators';

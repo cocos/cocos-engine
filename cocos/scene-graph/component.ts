@@ -33,7 +33,7 @@ import { RenderScene } from '../render-scene/core/render-scene';
 import { Rect } from '../core/math';
 import * as RF from '../core/data/utils/requiring-frame';
 import { Node } from './node';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { errorID, warnID, assertID } from '../core/platform/debug';
 import { CompPrefabInfo } from './prefab/prefab-info';
 import { EventHandler } from './component-event-handler';

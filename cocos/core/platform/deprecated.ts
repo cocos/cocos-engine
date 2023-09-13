@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { sys } from './sys';
-import { cclegacy } from '../index';
 import { screen } from './screen';
 
 markAsWarning(cclegacy, 'cc', [

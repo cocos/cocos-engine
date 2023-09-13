@@ -31,7 +31,7 @@ import { Sprite } from '../2d/components/sprite';
 import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { EventType as ButtonEventType, Button } from './button';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 
 enum EventType {
     TOGGLE = 'toggle',

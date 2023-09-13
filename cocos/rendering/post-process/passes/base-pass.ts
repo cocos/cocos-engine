@@ -7,7 +7,8 @@ import { BasicPipeline, Pipeline, PipelineRuntime } from '../../custom/pipeline'
 import { passContext } from '../utils/pass-context';
 import { Address, Filter, Format, Sampler, SamplerInfo } from '../../../gfx';
 import { supportsRGBA16HalfFloatTexture } from '../../define';
-import { cclegacy, macro } from '../../../core';
+import { cclegacy } from '@base/global';
+import { macro } from '../../../core';
 
 let _BasePassID = 0;
 let _pointSampler: Sampler| null = null;

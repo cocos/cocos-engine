@@ -29,7 +29,7 @@ import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../asset/assets';
 import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { Pass } from '../../render-scene';
 import type { ParticleSystem } from '../particle-system';
 

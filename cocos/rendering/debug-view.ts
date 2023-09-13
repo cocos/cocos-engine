@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { Root } from '../root';
 
 const enum RenderingDebugViewType {

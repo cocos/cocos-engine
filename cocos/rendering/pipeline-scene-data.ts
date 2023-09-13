@@ -26,13 +26,12 @@ import { Skybox } from '../render-scene/scene/skybox';
 import { Shadows } from '../render-scene/scene/shadows';
 import { Octree } from '../render-scene/scene/octree';
 import { IRenderObject } from './define';
-import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo,
-    BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
+import { Device, Framebuffer, InputAssembler, InputAssemblerInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, Attribute, Format, Shader } from '../gfx';
 import { Light } from '../render-scene/scene/light';
 import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { Skin } from '../render-scene/scene/skin';
 import { Model } from '../render-scene/scene/model';
 import { PostSettings } from '../render-scene/scene/post-settings';

@@ -31,7 +31,7 @@ import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
-import { ccwindow } from '../core/global-exports';
+import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

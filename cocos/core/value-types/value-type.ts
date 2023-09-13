@@ -25,7 +25,7 @@
 
 import { errorID } from '../platform/debug';
 import * as js from '../utils/js';
-import { cclegacy } from '../index';
+import { cclegacy } from '@base/global';
 
 /**
  * @en The base class of all value types.

@@ -32,7 +32,8 @@ import { TextureCube } from '../assets/texture-cube';
 import assetManager from './asset-manager';
 import { BuiltinBundleName } from './shared';
 import Bundle from './bundle';
-import { Settings, settings, cclegacy } from '../../core';
+import { Settings, settings } from '../../core';
+import { cclegacy } from '@base/global';
 import { releaseManager } from './release-manager';
 import { Material } from '../assets';
 

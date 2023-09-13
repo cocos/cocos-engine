@@ -30,7 +30,7 @@ import { UITransform } from '../2d/framework';
 import { sys } from '../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { view } from './view';
 
 /**

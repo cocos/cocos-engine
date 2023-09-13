@@ -24,7 +24,8 @@
 
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { settings, Settings, warnID, Pool, macro, cclegacy } from './core';
+import { settings, Settings, warnID, Pool, macro } from './core';
+import { cclegacy } from '@base/global';
 import { ForwardPipeline } from './rendering';
 import type { Root as JsbRoot } from './root';
 

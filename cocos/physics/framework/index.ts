@@ -50,7 +50,7 @@ import { CharacterController } from './components/character-controllers/characte
 import { BoxCharacterController } from './components/character-controllers/box-character-controller';
 import { CapsuleCharacterController } from './components/character-controllers/capsule-character-controller';
 
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { selector } from './physics-selector';
 import * as utils from '../utils/util';
 

@@ -25,7 +25,8 @@ Permission is hereby granted, free of charge, to any person obtaining a copy
 import './audio-downloader';
 
 import { AudioSource } from './audio-source';
-import { cclegacy, js } from '../core';
+import { cclegacy } from '@base/global';
+import { js } from '../core';
 import './deprecated';
 
 export { AudioClip } from './audio-clip';

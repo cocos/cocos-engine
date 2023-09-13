@@ -23,7 +23,7 @@
 */
 
 import { minigame } from 'pal/minigame';
-import { cclegacy } from '../../../cocos/core';
+import { cclegacy } from '@base/global';
 import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
 import { AudioPlayerMinigame, OneShotAudioMinigame } from './player-minigame';
 import { AudioPlayerWeb, OneShotAudioWeb } from './player-web';

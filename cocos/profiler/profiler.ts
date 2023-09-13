@@ -33,11 +33,11 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, Settings, settings, warn } from '../core';
+import { preTransforms, System, sys, Settings, settings, warn } from '../core';
+import { cclegacy, ccwindow } from '@base/global';
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
-import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
 

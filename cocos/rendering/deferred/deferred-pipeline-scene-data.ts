@@ -27,7 +27,7 @@ import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { Material } from '../../asset/assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../core/platform/macro';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {

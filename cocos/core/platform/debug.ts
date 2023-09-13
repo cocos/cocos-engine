@@ -23,9 +23,8 @@
 */
 
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
+import { ccwindow, cclegacy } from '@base/global';
 import debugInfos from '../../../DebugInfos';
-import { ccwindow } from '../global-exports';
-import { cclegacy } from '../index';
 
 const ccdocument = ccwindow.document;
 

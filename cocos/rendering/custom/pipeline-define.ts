@@ -1,30 +1,12 @@
 import { EDITOR } from 'internal:constants';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../gfx';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Camera, Light, LightType, ProbeType, ReflectionProbe, ShadowType } from '../../render-scene/scene';
 import { supportsR32FloatTexture } from '../define';
-import {
-    GBufferInfo,
-    getCameraUniqueID,
-    getLoadOpOfClearFlag,
-    getRenderArea,
-    getRTFormatBeforeToneMapping,
-    LightingInfo,
-    PostInfo,
-    ShadowInfo,
-    updateCameraUBO,
-    validPunctualLightsCulling,
-} from './define';
+import { GBufferInfo, getCameraUniqueID, getLoadOpOfClearFlag, getRenderArea, getRTFormatBeforeToneMapping, LightingInfo, PostInfo, ShadowInfo, updateCameraUBO, validPunctualLightsCulling } from './define';
 import { BasicPipeline, Pipeline, BasicRenderPassBuilder } from './pipeline';
-import {
-    AccessType,
-    AttachmentType,
-    LightInfo,
-    QueueHint,
-    ResourceResidency,
-    SceneFlags,
-} from './types';
+import { AccessType, AttachmentType, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 
 export class CameraInfo {

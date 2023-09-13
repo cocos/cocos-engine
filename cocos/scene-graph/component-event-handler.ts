@@ -25,7 +25,7 @@
 
 import { ccclass, serializable, editable, tooltip } from 'cc.decorator';
 import type { Node } from './node';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en

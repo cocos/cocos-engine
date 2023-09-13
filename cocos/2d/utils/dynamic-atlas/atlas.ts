@@ -26,7 +26,8 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { BufferTextureCopy } from '../../../gfx';
-import { cclegacy, warn } from '../../../core';
+import { cclegacy } from '@base/global';
+import { warn } from '../../../core';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
 const space = 2;

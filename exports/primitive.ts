@@ -1,5 +1,5 @@
+import { cclegacy } from '@base/global';
 import * as primitives from '../cocos/primitive';
-import { cclegacy } from '../cocos/core';
 
 export {
     primitives,

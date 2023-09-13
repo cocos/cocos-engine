@@ -26,9 +26,9 @@ import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.de
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { director } from '../../game/director';
-import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Device, Attribute, Buffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
-import { Color, Mat4, Quat, toRadian, Vec3, Pool, warnID, cclegacy } from '../../core';
+import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
+import { Color, Mat4, Quat, toRadian, Vec3, Pool, warnID } from '../../core';
+import { cclegacy } from '@base/global';
 import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';

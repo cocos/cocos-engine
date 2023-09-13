@@ -40,7 +40,8 @@ import { PageViewIndicator } from './page-view-indicator';
 import { SafeArea } from './safe-area';
 import { warnID } from '../core/platform/debug';
 import { ccclass } from '../core/data/class-decorator';
-import { js, removeProperty, markAsWarning, cclegacy } from '../core';
+import { js, removeProperty, markAsWarning } from '../core';
+import { cclegacy } from '@base/global';
 import { View } from './view';
 
 /**

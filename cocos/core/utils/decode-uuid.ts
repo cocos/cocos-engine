@@ -24,8 +24,8 @@
 */
 
 import { TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { BASE64_VALUES } from './misc';
-import { cclegacy } from '../index';
 
 const separator = '@';
 

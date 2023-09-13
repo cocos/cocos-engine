@@ -27,7 +27,7 @@ import { TEST } from 'internal:constants';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 import { isCCObject, isValid } from '../data/object';
-import { cclegacy } from '../index';
+import { cclegacy } from '@base/global';
 
 const fastRemoveAt = array.fastRemoveAt;
 

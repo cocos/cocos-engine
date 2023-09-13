@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { cclegacy } from "../../core";
+import { cclegacy } from '@base/global';
 import type { MeshUtils as JsbMeshUtils } from './create-mesh';
 
 declare const jsb: any;

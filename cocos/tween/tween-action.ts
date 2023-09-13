@@ -25,7 +25,7 @@
 import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
-import { VERSION } from '../core/global-exports';
+import { VERSION } from '@base/global';
 
 /** adapter */
 function TweenEasingAdapter (easingName: string): string {

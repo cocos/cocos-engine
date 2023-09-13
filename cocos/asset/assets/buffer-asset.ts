@@ -23,7 +23,8 @@
 */
 
 import { ccclass, override } from 'cc.decorator';
-import { assertIsNonNullable, cclegacy } from '../../core';
+import { assertIsNonNullable } from '../../core';
+import { cclegacy } from '@base/global';
 import { Asset } from './asset';
 
 /**

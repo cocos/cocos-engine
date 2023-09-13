@@ -23,7 +23,7 @@
 */
 
 import { AttributeName, Format, FormatInfos, Attribute } from '../../gfx';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en Vertex format with vector 3 position attribute

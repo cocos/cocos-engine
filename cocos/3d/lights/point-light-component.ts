@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder,
-    serializable, formerlySerializedAs, editable, rangeMin, range } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs, editable, rangeMin, range } from 'cc.decorator';
 import { scene } from '../../render-scene';
 import { Camera, LightType } from '../../render-scene/scene';
 import { Light, PhotometricTerm } from './light-component';
-import { CCFloat, CCInteger, cclegacy } from '../../core';
+import { CCFloat, CCInteger } from '../../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en The point light component, multiple point lights can be added to one scene.

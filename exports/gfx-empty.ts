@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
+import { cclegacy } from '@base/global';
 import { EmptyDevice } from '../cocos/gfx/empty/empty-device';
-import { cclegacy } from '../cocos/core';
 
 export { EmptyDevice };
 cclegacy.EmptyDevice = EmptyDevice;

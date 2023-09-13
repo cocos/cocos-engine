@@ -28,7 +28,8 @@ import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter, deviceManager } from '../../gfx';
-import { errorID, murmurhash2_32_gc, ccenum, cclegacy, js } from '../../core';
+import { errorID, murmurhash2_32_gc, ccenum, js } from '../../core';
+import { cclegacy } from '@base/global';
 
 ccenum(Format);
 

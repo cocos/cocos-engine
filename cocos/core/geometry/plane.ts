@@ -24,7 +24,7 @@
 
 import { Mat4, Vec3, Vec4 } from '../math';
 import enums from './enums';
-import { cclegacy } from '../index';
+import { cclegacy } from '@base/global';
 
 const v1 = new Vec3(0, 0, 0);
 const v2 = new Vec3(0, 0, 0);

@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../../../core';
+import { cclegacy } from '@base/global';
 import { SystemEventTypeUnion } from '../event-enum';
 
 /**

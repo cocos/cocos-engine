@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../index';
+import { cclegacy } from '@base/global';
 import { Eventify } from './eventify';
 
 class Empty {}

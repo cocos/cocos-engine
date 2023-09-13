@@ -25,7 +25,7 @@
 import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
-import { cclegacy } from './index';
+import { cclegacy } from '@base/global';
 
 import { System } from './system';
 

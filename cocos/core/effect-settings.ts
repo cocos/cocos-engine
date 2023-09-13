@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { HTML5 } from 'internal:constants';
-import { cclegacy } from './index';
+import { cclegacy } from '@base/global';
 
 declare const fsUtils: any;
 

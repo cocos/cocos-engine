@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { HTML5, TAOBAO, TAOBAO_MINIGAME } from 'internal:constants';
-import { cclegacy } from './index';
+import { cclegacy } from '@base/global';
 
 declare const fsUtils: any;
 declare const require: (path: string) =>  Promise<void>;

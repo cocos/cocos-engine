@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import * as _decorator from './class-decorator';
-import { cclegacy } from '../index';
 
 cclegacy._decorator = _decorator;
 export { _decorator };

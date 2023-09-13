@@ -20,7 +20,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { CCFloat, CCInteger } from '../core/data';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { Enum } from '../core/value-types';
@@ -28,17 +28,7 @@ import { Ambient, EnvironmentLightingType, ToneMappingType } from '../render-sce
 import { Material } from '../asset/assets/material';
 import { Vec2, Vec3, Color, Vec4 } from '../core/math';
 import * as decros from '../native-binding/decorators';
-import type {
-    AmbientInfo as JsbAmbientInfo,
-    SkyboxInfo as JsbSkyboxInfo,
-    FogInfo as JsbFogInfo,
-    ShadowsInfo as JsbShadowsInfo,
-    OctreeInfo as JsbOctreeInfo,
-    SceneGlobals as JsbSceneGlobals,
-    LightProbeInfo as JsbLightProbeInfo,
-    SkinInfo as JsbSkinInfo,
-    PostSettingsInfo as JsbPostSettingsInfo,
-} from './scene-globals';
+import type { AmbientInfo as JsbAmbientInfo, SkyboxInfo as JsbSkyboxInfo, FogInfo as JsbFogInfo, ShadowsInfo as JsbShadowsInfo, OctreeInfo as JsbOctreeInfo, SceneGlobals as JsbSceneGlobals, LightProbeInfo as JsbLightProbeInfo, SkinInfo as JsbSkinInfo, PostSettingsInfo as JsbPostSettingsInfo } from './scene-globals';
 
 declare const jsb: any;
 

@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { removeProperty, js, cclegacy } from '../../core';
+import { removeProperty, js } from '../../core';
+import { cclegacy } from '@base/global';
 import { MeshRenderer } from './mesh-renderer';
 
 removeProperty(MeshRenderer.prototype, 'MeshRenderer.prototype', [

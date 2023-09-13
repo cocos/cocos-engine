@@ -25,11 +25,11 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Mat4 } from './mat4';
 import { Rect } from './rect';
 import { Size } from './size';
 import { Vec2 } from './vec2';
-import { cclegacy } from '../index';
 
 /**
  * @en `AffineTransform` class represent an affine transform matrix. It's composed basically by translation, rotation, scale transformations.

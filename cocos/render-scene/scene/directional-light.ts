@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3, cclegacy } from '../../core';
+import { Vec3 } from '../../core';
+import { cclegacy } from '@base/global';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 import { CSMLevel, CSMOptimizationMode, PCFType, Shadows } from './shadows';

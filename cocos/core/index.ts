@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy, VERSION } from './global-exports';
+import { cclegacy, VERSION } from '@base/global';
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';

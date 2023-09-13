@@ -31,7 +31,7 @@ import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayerImplManager } from './video-player-impl-manager';
 import { EventType, ResourceType } from './video-player-enums';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { VideoPlayerImplWeb } from './video-player-impl-web';
 
 /**

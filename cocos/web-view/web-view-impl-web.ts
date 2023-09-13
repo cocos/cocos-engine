@@ -29,7 +29,7 @@ import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
 import { mat4 } from '../core/math';
 import { contains } from '../core/utils/misc';
-import { ccwindow } from '../core/global-exports';
+import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

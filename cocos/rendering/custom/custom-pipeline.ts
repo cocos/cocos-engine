@@ -27,12 +27,11 @@ import { Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx/base/d
 import { CSMLevel, Camera, CameraUsage, Light, DirectionalLight, Shadows, SpotLight } from '../../render-scene/scene';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags } from './types';
-import { buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass,
-    buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject,
-    buildHBAOPasses, buildCopyPass, getRenderArea, buildReflectionProbePasss } from './define';
+import { buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass, buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea, buildReflectionProbePasss } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { assert, cclegacy, geometry } from '../../core';
+import { assert, geometry } from '../../core';
+import { cclegacy } from '@base/global';
 import { RenderScene } from '../../render-scene';
 import { AABB } from '../../core/geometry/aabb';
 import { PipelineSceneData } from '../pipeline-scene-data';

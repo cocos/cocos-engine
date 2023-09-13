@@ -21,10 +21,7 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep,
-    editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName,
-} from 'cc.decorator';
+import { ccclass, visible, type, displayOrder, readOnly, slide, range, rangeStep, editable, serializable, rangeMin, tooltip, formerlySerializedAs, displayName } from 'cc.decorator';
 import { BAIDU } from 'internal:constants';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { CCFloat, CCInteger } from '../core/data/utils/attribute';
@@ -37,7 +34,8 @@ import { Skin } from '../render-scene/scene/skin';
 import { Fog, FogType } from '../render-scene/scene/fog';
 import { LightProbesData, LightProbes } from '../gi/light-probe/light-probe';
 import { Node } from './node';
-import { cclegacy, macro } from '../core';
+import { cclegacy } from '@base/global';
+import { macro } from '../core';
 import { Root } from '../root';
 import { warnID } from '../core/platform/debug';
 import { Material, MaterialPropertyFull } from '../asset/assets/material';

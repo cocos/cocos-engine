@@ -23,10 +23,10 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { IDGenerator } from './utils/id-generator';
 import { createMap } from './utils/js';
 import { System } from './system';
-import { cclegacy } from './index';
 import { errorID, warnID, logID, assertID } from './platform/debug';
 
 const MAX_POOL_SIZE = 20;

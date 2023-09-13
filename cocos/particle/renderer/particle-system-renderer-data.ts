@@ -30,7 +30,8 @@ import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../game/director';
 import { Device, Format, FormatFeatureBit } from '../../gfx';
-import { errorID, warnID, cclegacy } from '../../core';
+import { errorID, warnID } from '../../core';
+import { cclegacy } from '@base/global';
 
 function isSupportGPUParticle (): boolean {
     const device: Device = director.root!.device;

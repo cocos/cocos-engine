@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { VideoPlayer } from './video-player';
 import { VideoPlayerImplWeb } from './video-player-impl-web';
 

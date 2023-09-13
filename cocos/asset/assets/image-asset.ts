@@ -30,8 +30,8 @@ import { ImageSource, IMemoryImageSource, RawDataType } from '../../../pal/image
 import { Device, Format, FormatFeatureBit, deviceManager, API } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { warnID, macro, sys, cclegacy, warn } from '../../core';
-import { ccwindow } from '../../core/global-exports';
+import { warnID, macro, sys, warn } from '../../core';
+import { cclegacy, ccwindow } from '@base/global';
 import { Enum } from '../../core/value-types/enum';
 
 // Compress mipmap constants

@@ -24,7 +24,7 @@
 
 declare var nr:any;
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import type { RenderStage as NrRenderStage } from './render-stage';
 import type { RenderQueueDesc } from './pipeline-serialization';
 export const RenderStage: typeof NrRenderStage = nr.RenderStage;

@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
@@ -29,7 +30,6 @@ import { Quat } from './quat';
 import { IMat4Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
-import { cclegacy } from '../index';
 
 /**
  * @engineInternal

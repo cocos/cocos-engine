@@ -24,7 +24,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { cclegacy } from '../../index';
+import { cclegacy } from '@base/global';
 
 /**
  *

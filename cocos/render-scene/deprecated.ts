@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { replaceProperty, removeProperty, cclegacy } from '../core';
+import { replaceProperty, removeProperty } from '../core';
+import { cclegacy } from '@base/global';
 import { RenderScene } from './core/render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Pass } from './core/pass';

@@ -25,34 +25,15 @@
 declare const nr: any;
 declare const jsb: any;
 
-import { OPEN_HARMONY } from 'internal:constants'
+import { OPEN_HARMONY } from 'internal:constants';
 import { ccenum, CCString, js } from '../core';
 import * as pipeline from './define';
 import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import * as decors from '../native-binding/decorators';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { Skin } from '../render-scene/scene/skin';
-import { 
-    RenderPipeline as NrRenderPipeline,
-    RenderFlow as NrRenderFlow,
-    RenderStage as NrRenderStage,
-    InstancedBuffer as NrInstancedBuffer,
-    PipelineStateManager as NrPipelineStateManager,
-    ForwardPipeline as NrForwardPipeline,
-    ForwardFlow as NrForwardFlow,
-    ShadowFlow as NrShadowFlow,
-    ForwardStage as NrForwardStage,
-    ShadowStage as NrShadowStage,
-    DeferredPipeline as NrDeferredPipeline,
-    MainFlow as NrMainFlow,
-    LightingStage as NrLightingStage,
-    PostProcessStage as NrPostProcessStage,
-    GbufferStage as NrGbufferStage,
-    BloomStage as NrBloomStage,
-    ReflectionProbeFlow as NrReflectionProbeFlow,
-    ReflectionProbeStage as NrReflectionProbeStage,
-} from './index';
+import { RenderPipeline as NrRenderPipeline, RenderFlow as NrRenderFlow, RenderStage as NrRenderStage, InstancedBuffer as NrInstancedBuffer, PipelineStateManager as NrPipelineStateManager, ForwardPipeline as NrForwardPipeline, ForwardFlow as NrForwardFlow, ShadowFlow as NrShadowFlow, ForwardStage as NrForwardStage, ShadowStage as NrShadowStage, DeferredPipeline as NrDeferredPipeline, MainFlow as NrMainFlow, LightingStage as NrLightingStage, PostProcessStage as NrPostProcessStage, GbufferStage as NrGbufferStage, BloomStage as NrBloomStage, ReflectionProbeFlow as NrReflectionProbeFlow, ReflectionProbeStage as NrReflectionProbeStage } from './index';
 
 export { pipeline };
 export * from './pass-phase';

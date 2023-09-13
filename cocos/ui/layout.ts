@@ -30,7 +30,8 @@ import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
 import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
-import { warn, cclegacy } from '../core';
+import { warn } from '../core';
+import { cclegacy } from '@base/global';
 import { NodeEventType } from '../scene-graph/node-event';
 import { Node } from '../scene-graph/node';
 

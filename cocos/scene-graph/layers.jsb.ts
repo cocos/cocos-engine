@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 
 export const Layers = jsb.Layers;
 export type Layers = jsb.Layers;

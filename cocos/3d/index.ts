@@ -23,7 +23,7 @@
 */
 
 import * as utils from './misc';
-import { cclegacy } from '../core/index';
+import { cclegacy } from '@base/global';
 
 export * from './misc/batch-utils';
 export * from './assets';

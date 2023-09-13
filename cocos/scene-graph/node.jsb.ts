@@ -21,7 +21,7 @@
 */
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { errorID, getError } from '../core/platform/debug';
 import { Component } from './component';
 import { NodeEventType } from './node-event';
@@ -33,7 +33,7 @@ import { Layers } from './layers';
 import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
 import { getClassByName, isChildClassOf } from '../core/utils/js-typed';
-import { syncNodeValues } from "../core/utils/jsb-utils";
+import { syncNodeValues } from '../core/utils/jsb-utils';
 import { nodePolyfill } from './node-dev';
 import * as js from '../core/utils/js';
 import { patch_cc_Node } from '../native-binding/decorators';

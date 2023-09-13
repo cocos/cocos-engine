@@ -25,15 +25,11 @@
 import { EDITOR, TAOBAO } from 'internal:constants';
 import { ImageData } from 'pal/image';
 import { Material } from '../asset/assets/material';
-import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
-import {
-    Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
-    BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain, Framebuffer,
-} from '../gfx';
+import { clamp01, Mat4, Vec2, Settings, settings, sys, easing, preTransforms } from '../core';
+import { cclegacy, ccwindow } from '@base/global';
+import { Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer, BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format, MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain, Framebuffer } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
-import { ccwindow } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
 import { ImageAsset } from '../asset/assets';
 

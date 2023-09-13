@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { getError, cclegacy } from '../core';
+import { getError } from '../core';
+import { cclegacy } from '@base/global';
 
 const VERSION = 1;
 

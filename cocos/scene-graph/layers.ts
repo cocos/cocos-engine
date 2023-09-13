@@ -23,7 +23,8 @@
 */
 
 import { BitMask, Enum } from '../core/value-types';
-import { cclegacy, js } from '../core';
+import { cclegacy } from '@base/global';
+import { js } from '../core';
 import { log2 } from '../core/math/bits';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import { getError, warn } from '../core/platform/debug';

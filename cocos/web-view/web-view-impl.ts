@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { WebView } from './web-view';
 import { EventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';

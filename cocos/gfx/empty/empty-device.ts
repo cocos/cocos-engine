@@ -37,12 +37,7 @@ import { RenderPass } from '../base/render-pass';
 import { Sampler } from '../base/states/sampler';
 import { Shader } from '../base/shader';
 import { Texture } from '../base/texture';
-import {
-    ShaderInfo,
-    QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
-    RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GeneralBarrierInfo,
-    BufferBarrierInfo, QueueType, API, BufferTextureCopy, SwapchainInfo,
-} from '../base/define';
+import { ShaderInfo, QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo, RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GeneralBarrierInfo, BufferBarrierInfo, QueueType, API, BufferTextureCopy, SwapchainInfo } from '../base/define';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
@@ -60,7 +55,8 @@ import { EmptyRenderPass } from './empty-render-pass';
 import { EmptyShader } from './empty-shader';
 import { EmptySwapchain } from './empty-swapchain';
 import { EmptyTexture } from './empty-texture';
-import { debug, cclegacy } from '../../core';
+import { debug } from '../../core';
+import { cclegacy } from '@base/global';
 import { ImageAsset } from '../../asset/assets';
 
 export class EmptyDevice extends Device {

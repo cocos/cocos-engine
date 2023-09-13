@@ -28,7 +28,7 @@ import { CCObject } from '../core/data/object';
 import { assert, getError } from '../core/platform/debug';
 import { RenderScene } from '../render-scene/core/render-scene';
 import { Node } from './node';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { Component } from './component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';

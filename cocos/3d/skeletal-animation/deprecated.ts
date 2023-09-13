@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { js, cclegacy } from '../../core';
+import { js } from '../../core';
+import { cclegacy } from '@base/global';
 import { SkeletalAnimation } from './skeletal-animation';
 /**
  * Alias of [[SkeletalAnimation]]

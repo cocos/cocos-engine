@@ -32,7 +32,7 @@ import { clamp01 } from '../core/math/utils';
 import { ScrollView } from './scroll-view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../scene-graph';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 
 const GETTING_SHORTER_FACTOR = 20;
 const _tempPos_1 = new Vec3();

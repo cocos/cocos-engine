@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { CCString, cclegacy, Mat4 } from '../../core';
+import { CCString, Mat4 } from '../../core';
+import { cclegacy } from '@base/global';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../asset/assets/asset';
 import { patch_cc_Skeleton } from '../../native-binding/decorators';

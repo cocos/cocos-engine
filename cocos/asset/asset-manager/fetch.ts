@@ -23,7 +23,8 @@
 */
 
 import { Asset } from '../assets';
-import { error, cclegacy } from '../../core';
+import { error } from '../../core';
+import { cclegacy } from '@base/global';
 import packManager from './pack-manager';
 import RequestItem from './request-item';
 import { assets, fetchPipeline } from './shared';

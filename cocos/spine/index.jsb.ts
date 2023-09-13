@@ -23,7 +23,7 @@
 */
 
 import { ccenum } from '../core';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en

@@ -23,7 +23,8 @@
 */
 
 import { director } from '../game/director';
-import { System, cclegacy } from '../core';
+import { System } from '../core';
+import { cclegacy } from '@base/global';
 import { Skeleton } from './skeleton';
 
 export class SkeletonSystem extends System {

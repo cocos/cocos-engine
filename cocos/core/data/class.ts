@@ -24,6 +24,7 @@
 */
 
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
@@ -34,7 +35,6 @@ import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
 
-import { cclegacy } from '../index';
 import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
 import { setPropertyEnumTypeOnAttrs } from './utils/attribute-internal';
 

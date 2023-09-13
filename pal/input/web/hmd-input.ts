@@ -23,12 +23,12 @@
 */
 
 import { HMDCallback } from 'pal/input';
+import { cclegacy } from '@base/global';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventHMD } from '../../../cocos/input/types';
 import { InputSourcePosition, InputSourceOrientation } from '../input-source';
 import { Vec3, Quat } from '../../../cocos/core/math';
-import { cclegacy } from '../../../cocos/core';
 
 enum Pose {
     VIEW_LEFT = 0,

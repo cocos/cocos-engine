@@ -32,7 +32,7 @@ import webgpuUrl from 'external:emscripten/webgpu/webgpu_wasm.wasm';
 import glslangUrl from 'external:emscripten/webgpu/glslang.wasm';
 import wasmDevice from 'external:emscripten/webgpu/webgpu_wasm.js';
 import glslangLoader from 'external:emscripten/webgpu/glslang.js';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { WebAssemblySupportMode } from '../misc/webassembly-support';
 import { log } from 'console';
 

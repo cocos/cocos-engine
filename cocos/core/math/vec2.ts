@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
@@ -30,7 +31,6 @@ import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 
 import { Vec3 } from './vec3';
-import { cclegacy } from '../index';
 import { warn } from '../platform/debug';
 
 /**

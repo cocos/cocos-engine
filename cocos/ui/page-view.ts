@@ -35,7 +35,7 @@ import { ScrollView, EventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
 import { warnID, logID } from '../core/platform/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { NodeEventType } from '../scene-graph/node-event';
 
 const _tempVec2 = new Vec2();

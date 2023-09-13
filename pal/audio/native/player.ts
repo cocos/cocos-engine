@@ -25,7 +25,7 @@
 import { systemInfo } from 'pal/system-info';
 import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView, AudioLoadOptions } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
-import { cclegacy, clamp01 } from '../../../cocos/core';
+import { cclegacy, clamp01 } from '@base/global';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { Platform } from '../../system-info/enum-type';
 import { Game, game } from '../../../cocos/game';

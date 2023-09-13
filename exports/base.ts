@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { cclegacy } from '../cocos/core';
+import { cclegacy } from '@base/global';
 // has to import predefines first
 import '../predefine';
 

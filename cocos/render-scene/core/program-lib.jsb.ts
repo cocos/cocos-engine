@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { API, } from '../../gfx';
-import { cclegacy } from '../../core';
+import { API } from '../../gfx';
+import { cclegacy } from '@base/global';
 import type { EffectAsset } from '../../asset/assets/effect-asset';
 import type { Attribute, ShaderInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, PipelineLayout } from '../../gfx';
 import type { IDefineRecord } from './program-lib';

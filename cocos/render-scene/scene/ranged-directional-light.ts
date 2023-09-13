@@ -19,7 +19,7 @@
  THE SOFTWARE.
  */
 
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { Vec3 } from '../../core/math/vec3';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';

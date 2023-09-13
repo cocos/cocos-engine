@@ -26,7 +26,7 @@
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
-import { cclegacy } from '../index';
+import { cclegacy } from '@base/global';
 import { Rect } from '../math/rect';
 import { Vec2 } from '../math/vec2';
 import { warnID, log } from './debug';

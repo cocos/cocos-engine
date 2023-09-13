@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../index';
+import { cclegacy } from '@base/global';
 
 export type BezierControlPoints = [ number, number, number, number ];
 

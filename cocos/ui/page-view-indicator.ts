@@ -33,7 +33,7 @@ import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 
 const _color = new Color();
 

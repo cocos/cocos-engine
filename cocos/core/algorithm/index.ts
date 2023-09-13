@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { cclegacy } from '../index';
+import { cclegacy } from '@base/global';
 import * as easing from './easing';
 
 export * from './murmurhash2_gc';

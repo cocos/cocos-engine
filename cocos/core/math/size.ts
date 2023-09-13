@@ -23,10 +23,10 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { ISizeLike } from './type-define';
-import { cclegacy } from '../index';
 
 /**
  * @en Two dimensional size type representing the width and height.

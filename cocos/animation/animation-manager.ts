@@ -23,7 +23,8 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { System, errorID, cclegacy, js } from '../core';
+import { System, errorID, js } from '../core';
+import { cclegacy } from '@base/global';
 import { director, Director } from '../game/director';
 import { Node } from '../scene-graph';
 import { LegacyBlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';

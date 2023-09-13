@@ -28,7 +28,7 @@ import { Frustum, AABB } from '../../core/geometry';
 import { IRenderObject } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { CachedArray } from '../../core/memop/cached-array';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();

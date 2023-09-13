@@ -1,7 +1,7 @@
-import { director } from "../../cocos/game";
-import { cclegacy } from "../../cocos/core";
-import { Node, Scene } from "../../cocos/scene-graph";
-import { ParticleSystem } from "../../exports/particle";
+import { director } from '../../cocos/game';
+import { cclegacy } from '@base/global';
+import { Node, Scene } from '../../cocos/scene-graph';
+import { ParticleSystem } from '../../exports/particle';
 
 test('particle system capacity test', function () {
     const scene = new Scene('test');

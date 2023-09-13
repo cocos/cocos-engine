@@ -23,7 +23,8 @@
 */
 import { Model } from '../render-scene/scene/model';
 import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { Vec3, Pool, geometry, cclegacy } from '../core';
+import { Vec3, Pool, geometry } from '../core';
+import { cclegacy } from '@base/global';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';

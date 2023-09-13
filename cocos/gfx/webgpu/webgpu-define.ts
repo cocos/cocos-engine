@@ -28,14 +28,10 @@
 
 import { WEBGPU } from 'internal:constants';
 import { gfx, webgpuAdapter, glslalgWasmModule, promiseForWebGPUInstantiation } from '../../webgpu/instantiated';
-import {
-    Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader
-} from './override';
-import {
-    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
-} from '../base/define';
+import { Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader } from './override';
+import { DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer } from '../base/define';
 
-import { ccwindow } from '../../core/global-exports';
+import { ccwindow } from '@base/global';
 import { ImageData } from 'pal/image';
 
 
