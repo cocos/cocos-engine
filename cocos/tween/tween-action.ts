@@ -225,7 +225,6 @@ export class TweenAction extends ActionInterval {
                     prop.end.set(value);
                 }
                 prop.type = 'quat';
-                warn('Quaternion only support slerp interpolation method.');
             } else if (typeof _t === 'object') {
                 if (_t instanceof Vec2) {
                     if (prop.start == null) {
@@ -315,6 +314,9 @@ export class TweenAction extends ActionInterval {
                     prop.current.height = interpolation(start.height, end.height, prop.current.height, time);
                 } else if (prop.type && prop.type === 'quat') {
                     Quat.slerp(prop.current, start, end, time as number);
+                    if (prop.progress) {
+                        warn('Quaternion only support slerp interpolation method.');
+                    }
                 } else {
                     for (const k in start) {
                         prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
