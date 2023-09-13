@@ -490,11 +490,6 @@ function initConstraintProxy (): void {
         return new selector.wrapper.HingeConstraint!();
     };
 
-    CREATE_CONSTRAINT_PROXY[EConstraintType.CONE_TWIST] = function createConeTwistConstraint (): IConeTwistConstraint {
-        if (check(selector.wrapper.ConeTwistConstraint, ECheckType.ConeTwistConstraint)) { return ENTIRE_CONSTRAINT; }
-        return new selector.wrapper.ConeTwistConstraint!();
-    };
-
     CREATE_CONSTRAINT_PROXY[EConstraintType.FIXED] = function createFixedConstraint (): IFixedConstraint {
         if (check(selector.wrapper.FixedConstraint, ECheckType.FixedConstraint)) { return ENTIRE_CONSTRAINT; }
         return new selector.wrapper.FixedConstraint!();

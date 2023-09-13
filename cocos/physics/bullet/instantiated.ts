@@ -26,8 +26,10 @@ import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
 import { game } from '../../game';
 import { debug, error, getError, sys } from '../../core';
-import { pageSize, pageCount, importFunc } from './bullet-env';
+import { importFunc } from './bullet-env';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { wasmFactory, bulletWasmUrl } from './bullet.wasmjs';
+import { asmFactory } from './bullet.asmjs';
 
 //corresponds to bulletType in bullet-compile
 export enum EBulletType{
@@ -80,94 +82,82 @@ export enum EBulletDebugDrawModes
     DBG_MAX_DEBUG_DRAW_MODE
 }
 
-interface instanceExt extends Bullet.instance {
+interface BtCache {
     CACHE: any,
     BODY_CACHE_NAME: string,
     CCT_CACHE_NAME: string,
 }
 
-export const bt: instanceExt = {} as any;
+// eslint-disable-next-line import/no-mutable-exports
+export let bt = {} as Bullet.instance;
 globalThis.Bullet = bt;
-bt.BODY_CACHE_NAME = 'body';
-bt.CCT_CACHE_NAME = 'cct';
+export const btCache = {} as BtCache;
+btCache.BODY_CACHE_NAME = 'body';
+btCache.CCT_CACHE_NAME = 'cct';
 
-function initWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<void> {
-    debug('[Physics][Bullet]: Using wasm Bullet libs.');
-    return instantiateWasm(wasmUrl, importObject).then((results) => {
-        const btInstance = results.instance.exports as Bullet.instance;
-        Object.assign(bt, btInstance);
-    });
-}
-
-function initAsmJS (asmFactory): Promise<void> {
+function initWasm (wasmUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        if (CULL_ASM_JS_MODULE) {
-            reject(getError(4601));
-            return;
-        }
-        debug('[Physics][Bullet]: Using asmjs Bullet libs.');
-        const env: any = importFunc;
-        const wasmMemory: any = {};
-        wasmMemory.buffer = new ArrayBuffer(pageSize * pageCount);
-        env.memory = wasmMemory;
-        const btInstance = asmFactory(env, wasmMemory);
-        Object.assign(bt, btInstance);
-        resolve();
+        const errorMessage = (err: any): string => `[bullet]: bullet wasm lib load failed: ${err}`;
+        wasmFactory({
+            instantiateWasm (
+                importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+            ) {
+                //import extra funcs to wasm from importFunc
+                //importObject.env for debug.wasm, a for release.wasm
+                const importObjectEnv = importObject.env ?? importObject.a;
+                for (const key in importObjectEnv) {
+                    const value = importObjectEnv[key] as any;
+                    if (typeof value === 'function') {
+                        let funcName = value.name as string;
+                        //remove all the suffice '_' of funcName
+                        while (funcName[0] === '_') {
+                            funcName = funcName.substring(1, funcName.length);
+                        }
+                        if (funcName in importFunc) {
+                            importObjectEnv[key] = importFunc[funcName];
+                        }
+                    }
+                }
+                // NOTE: the Promise return by instantiateWasm hook can't be caught.
+                instantiateWasm(wasmUrl, importObject).then((result: any) => {
+                    receiveInstance(result.instance as WebAssembly.Instance, result.module as WebAssembly.Module);
+                }).catch((err) => reject(errorMessage(err)));
+            },
+        }).then((instance: any) => {
+            debug('[bullet]:bullet wasm lib loaded.');
+            bt = instance as Bullet.instance;
+        }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }
 
-function getImportObject (): WebAssembly.Imports {
-    const infoReport = (msg: any): void => { console.info(msg); };
-    const memory = new WebAssembly.Memory({ initial: pageCount });
-    const importObject = {
-        cc: importFunc,
-        wasi_snapshot_preview1: { fd_close: infoReport, fd_seek: infoReport, fd_write: infoReport },
-        env: { memory },
-    };
-    return importObject;
-}
-
-// HACK: on iOS Wechat 8.0.9 with Wechat lib version 2.19.2
-// we cannot declare importObject in waitForAmmoInstantiation function, or the importObject would be auto released by GC,
-// which may cause the app crashing. I guess it's a BUG on their js runtime.
-let importObject: WebAssembly.Imports;
-if (!FORCE_BANNING_BULLET_WASM) {
-    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-        if (sys.hasFeature(sys.Feature.WASM)) {
-            importObject = getImportObject();
-        }
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-        importObject = getImportObject();
-    }
-}
-
-function shouldUseWasmModule (): boolean {
-    if (FORCE_BANNING_BULLET_WASM) {
-        return false;
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-        return sys.hasFeature(sys.Feature.WASM);
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-        return true;
+// todo importObject
+function initAsm (): Promise<void> {
+    if (asmFactory != null) {
+        return asmFactory().then((instance: any) => {
+            debug('[bullet]:bullet asm lib loaded.');
+            bt = instance as Bullet.instance;
+        });
     } else {
-        return false;
+        return new Promise<void>((resolve, reject) => {
+            resolve();
+        });
     }
 }
 
 export function waitForAmmoInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
-    return ensureWasmModuleReady().then(() => Promise.all([
-        import('external:emscripten/bullet/bullet.wasm'),
-        import('external:emscripten/bullet/bullet.asm.js'),
-    ]).then(([
-        { default: bulletWasmUrl },
-        { default: asmFactory  },
-    ]) => {
-        if (shouldUseWasmModule()) {
-            return initWasm(bulletWasmUrl, importObject);
+    if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        if (sys.hasFeature(sys.Feature.WASM)) {
+            return initWasm(bulletWasmUrl).catch(errorReport);
         } else {
-            return initAsmJS(asmFactory);
+            return initAsm().catch(errorReport);
         }
-    })).catch(errorReport);
+    } else if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.SUPPORT) {
+        return initWasm(bulletWasmUrl).catch(errorReport);
+    } else {
+        return initAsm().catch(errorReport);
+    }
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);

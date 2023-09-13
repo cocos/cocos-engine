@@ -34,7 +34,7 @@ import { CC_V3_0, CC_QUAT_0, BulletCache } from './bullet-cache';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { js } from '../../core';
-import { bt, EBulletType } from './instantiated';
+import { bt, btCache, EBulletType } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 
 const v3_0 = CC_V3_0;
@@ -218,7 +218,7 @@ export class BulletSharedBody {
         this._bodyStruct = {
             id: IDCounter++, body, motionState, compound: bt.ccCompoundShape_new(), wrappedShapes: [], useCompound: false,
         };
-        BulletCache.setWrapper(this.id, bt.BODY_CACHE_NAME, this);
+        BulletCache.setWrapper(this.id, btCache.BODY_CACHE_NAME, this);
         if (this._ghostStruct) bt.CollisionObject_setIgnoreCollisionCheck(this.ghost, this.body, true);
         if (this._wrappedBody) this.setBodyType(this._wrappedBody.rigidBody.type);
     }
@@ -409,7 +409,7 @@ export class BulletSharedBody {
                 // Kinematic objects must be updated using motion state
                 const ms = bt.RigidBody_getMotionState(this.body);
                 if (ms) bt.MotionState_setWorldTransform(ms, bt_transform);
-            } else if (this.isBodySleeping()) bt.CollisionObject_activate(this.body);
+            } else if (this.isBodySleeping()) bt.CollisionObject_activate(this.body, false);
         }
     }
 
@@ -444,7 +444,7 @@ export class BulletSharedBody {
             cocos2BulletQuat(bt_quat, this.node.worldRotation);
             bt.Transform_setRotation(bt_transform, bt_quat);
             if (this.node.hasChangedFlags & TransformBit.SCALE) this.syncGhostScale();
-            bt.CollisionObject_activate(this.ghost);
+            bt.CollisionObject_activate(this.ghost, false);
         }
     }
 
@@ -455,7 +455,7 @@ export class BulletSharedBody {
         cocos2BulletQuat(bt_quat, this.node.worldRotation);
         bt.Transform_setRotation(bt_transform, bt_quat);
         this.syncBodyScale();
-        bt.CollisionObject_activate(this.body);
+        bt.CollisionObject_activate(this.body, false);
     }
 
     syncInitialGhost (): void {
@@ -465,7 +465,7 @@ export class BulletSharedBody {
         cocos2BulletQuat(bt_quat, this.node.worldRotation);
         bt.Transform_setRotation(bt_transform, bt_quat);
         this.syncGhostScale();
-        bt.CollisionObject_activate(this.body);
+        bt.CollisionObject_activate(this.body, false);
     }
 
     syncBodyScale (): void {
@@ -511,7 +511,7 @@ export class BulletSharedBody {
         (this.wrappedWorld as any) = null;
         if (this._bodyStruct) {
             const bodyStruct = this._bodyStruct;
-            BulletCache.delWrapper(bodyStruct.body, bt.BODY_CACHE_NAME);
+            BulletCache.delWrapper(bodyStruct.body, btCache.BODY_CACHE_NAME);
             bt._safe_delete(bodyStruct.motionState, EBulletType.EBulletTypeMotionState);
             bt._safe_delete(bodyStruct.compound, EBulletType.EBulletTypeCollisionShape);
             bt._safe_delete(bodyStruct.body, EBulletType.EBulletTypeCollisionObject);

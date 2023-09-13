@@ -74,7 +74,7 @@ export function cocos2BulletTriMesh (out: Bullet.ptr, mesh: Mesh): any {
                     bt.Vec3_set(v0, vb[i0], vb[i0 + 1], vb[i0 + 2]);
                     bt.Vec3_set(v1, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     bt.Vec3_set(v2, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                    bt.TriangleMesh_addTriangle(out, v0, v1, v2);
+                    bt.TriangleMesh_addTriangle(out, v0, v1, v2, false);
                 }
             } else if (primitiveMode === PrimitiveMode.TRIANGLE_STRIP) {
                 const cnt = ib.length - 2;
@@ -87,7 +87,7 @@ export function cocos2BulletTriMesh (out: Bullet.ptr, mesh: Mesh): any {
                     bt.Vec3_set(v0, vb[i0], vb[i0 + 1], vb[i0 + 2]);
                     bt.Vec3_set(v1, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     bt.Vec3_set(v2, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                    bt.TriangleMesh_addTriangle(out, v0, v1, v2);
+                    bt.TriangleMesh_addTriangle(out, v0, v1, v2, false);
                 }
             } else if (primitiveMode === PrimitiveMode.TRIANGLE_FAN) {
                 const cnt = ib.length - 1;
@@ -98,7 +98,7 @@ export function cocos2BulletTriMesh (out: Bullet.ptr, mesh: Mesh): any {
                     const i2 = ib[j + 1] * 3;
                     bt.Vec3_set(v1, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                     bt.Vec3_set(v2, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                    bt.TriangleMesh_addTriangle(out, v0, v1, v2);
+                    bt.TriangleMesh_addTriangle(out, v0, v1, v2, false);
                 }
             }
         }
