@@ -9,37 +9,38 @@ import { CCFloat } from '../../../core';
 @executeInEditMode
 export class DOF extends PostProcessSetting {
     @serializable
-    protected _start = 0.0;
+    protected _focusDistance = 0.0;
     @serializable
-    protected _end = 0.0;
+    protected _focusRange = 0.0;
     @serializable
-    protected _maxRadius = 0.0;
+    protected _bokehRadius = 1.0;
 
     @rangeMin(0)
     @type(CCFloat)
-    set farStart (value: number) {
-        this._start = value;
+    set focusDistance (value: number) {
+        this._focusDistance = value;
     }
-    get farStart () {
-        return this._start;
+    get focusDistance (): number {
+        return this._focusDistance;
     }
 
     @rangeMin(0)
     @type(CCFloat)
-    set farEnd (value: number) {
-        this._end = value;
+    set focusRange (value: number) {
+        this._focusRange = value;
     }
-    get farEnd () {
-        return this._end;
+    get focusRange (): number {
+        return this._focusRange;
     }
 
     @slide
-    @range([0, 10, 0.01])
+    @range([1, 10, 0.01])
+    @rangeMin(1.0)
     @type(CCFloat)
-    set maxRadius (value: number) {
-        this._maxRadius = value;
+    set bokehRadius (value: number) {
+        this._bokehRadius = value;
     }
-    get maxRadius () {
-        return this._maxRadius;
+    get bokehRadius (): number {
+        return this._bokehRadius;
     }
 }

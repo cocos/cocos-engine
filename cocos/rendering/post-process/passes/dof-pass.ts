@@ -10,9 +10,9 @@ import { Vec4 } from '../../../core';
 import { DOF } from '../components/dof';
 
 export class DofPass extends SettingPass {
-    get setting () { return getSetting(DOF); }
+    get setting (): DOF { return getSetting(DOF); }
 
-    checkEnable (camera: Camera) {
+    checkEnable (camera: Camera): boolean {
         let enable = super.checkEnable(camera);
         if (disablePostProcessForDebugView()) {
             enable = false;
@@ -20,9 +20,9 @@ export class DofPass extends SettingPass {
         return enable;
     }
 
-    name = 'DOFPass'
+    name = 'DOFPass';
     effectName = 'pipeline/post-process/dof';
-    outputNames = ['DOFColor']
+    outputNames = ['DOFColor'];
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
@@ -36,28 +36,37 @@ export class DofPass extends SettingPass {
 
         const setting = this.setting;
 
-        const cocParams = new Vec4(setting.farStart, setting.farEnd, setting.maxRadius, 0.0);
-        const texSize = new Vec4(passViewport.width, passViewport.height, 1.0 / passViewport.width, 1.0 / passViewport.height);
+        let width = passViewport.width;
+        let height = passViewport.height;
+
+        const cocParams = new Vec4(setting.focusDistance, setting.focusRange, setting.bokehRadius, 0.0);
+        const mainTexTexelSize = new Vec4(1.0 / width, 1.0 / height, width, height);
 
         this.material.setProperty('cocParams', cocParams);
-        this.material.setProperty('texSize', texSize);
+        this.material.setProperty('mainTexTexelSize', mainTexTexelSize);
 
         const slot = this.slotName(camera, 0);
         const colorTex = this.lastPass!.slotName(camera, 0);
         const depthTex = this.lastPass!.slotName(camera, 1);
 
+        //coc
         const outputCOC = `DOF_CIRCLE_OF_CONFUSION${cameraID}`;
         passContext
             .updatePassViewPort()
             .addRenderPass('dof-coc', `dof-coc${cameraID}`)
-            .setPassInput(depthTex, 'depthTex')
+            .setPassInput(depthTex, 'DepthTex')
             .addRasterView(outputCOC, Format.RGBA8)
             .blitScreen(0)
             .version();
 
+        width *= 0.5;
+        height *= 0.5;
+        this.material.setProperty('mainTexTexelSize', new Vec4(1.0 / width, 1.0 / height, width, height));
+
+        //prefilterTex
         const outputPrefilter = `DOF_PREFILTER${cameraID}`;
         passContext
-            .updatePassViewPort()
+            .updatePassViewPort(0.5)
             .addRenderPass('dof-prefilter', `dof-prefilter${cameraID}`)
             .setPassInput(colorTex, 'colorTex')
             .setPassInput(outputCOC, 'cocTex')
@@ -65,32 +74,34 @@ export class DofPass extends SettingPass {
             .blitScreen(1)
             .version();
 
-        const outputBlur = `DOF_BLUR${cameraID}`;
+        //bokehTex
+        const outputBokeh = `DOF_BOKEH${cameraID}`;
         passContext
-            .updatePassViewPort()
-            .addRenderPass('dof-blur', `dof-blur${cameraID}`)
-            .setPassInput(colorTex, 'colorTex')
-            .addRasterView(outputBlur, Format.RGBA8)
+            .updatePassViewPort(0.5)
+            .addRenderPass('dof-bokeh', `dof-bokeh${cameraID}`)
+            .setPassInput(outputPrefilter, 'prefilterTex')
+            .addRasterView(outputBokeh, Format.RGBA8)
             .blitScreen(2)
+            .version();
+
+        //filterTex
+        const outputFilter = `DOF_FILTER${cameraID}`;
+        passContext
+            .updatePassViewPort(0.5)
+            .addRenderPass('dof-filter', `dof-filter${cameraID}`)
+            .setPassInput(outputBokeh, 'bokehTex')
+            .addRasterView(outputFilter, Format.RGBA8)
+            .blitScreen(3)
             .version();
 
         passContext
             .updatePassViewPort()
             .addRenderPass('dof-combine', `dof-combine${cameraID}`)
-            .setPassInput(outputBlur, 'blurTex')
+            .setPassInput(outputFilter, 'filterTex')
+            .setPassInput(outputCOC, 'cocTex')
             .setPassInput(colorTex, 'colorTex')
-            .setPassInput(outputPrefilter, 'prefilterTex')
             .addRasterView(slot, Format.RGBA8)
-            .blitScreen(3)
+            .blitScreen(4)
             .version();
-
-        // const outputBlurVar = `DOF_BLUR_VAR${cameraID}`;
-        // passContext
-        //     .updatePassViewPort()
-        //     .addRenderPass('dof-blur-ver', `dof-blur-ver${cameraID}`)
-        //     .setPassInput(outputBlurHor, 'outResultTex')
-        //     .addRasterView(slot, Format.RGBA8)
-        //     .blitScreen(3)
-        //     .version();
     }
 }

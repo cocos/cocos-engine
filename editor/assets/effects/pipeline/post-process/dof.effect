@@ -16,8 +16,14 @@ CCEffect %{
         depthTest: false
         depthWrite: false
     - vert: dof-vs
-      frag: dof-blur-fs
-      pass: dof-blur
+      frag: dof-bokeh-fs
+      pass: dof-bokeh
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: dof-vs
+      frag: dof-filter-fs
+      pass: dof-filter
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -27,20 +33,24 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
+    blendState:
+      targets:
+      - blend: true
+        blendSrc: zero
+        blendDst: src_alpha
+        blendSrcAlpha: zero
+        blendDstAlpha: one
 }%
 
 CCProgram ubo %{
     #include <common/common-define>
     uniform ColorGradingUBO {
         vec4 cocParams;
-        vec4 texSize;
+        vec4 mainTexTexelSize;
     };
 
     #pragma rate colorTex pass
     uniform sampler2D colorTex;
-
-    #pragma rate depthTex pass
-    uniform sampler2D depthTex;
 
     #pragma rate cocTex pass
     uniform sampler2D cocTex;
@@ -48,47 +58,55 @@ CCProgram ubo %{
     #pragma rate prefilterTex pass
     uniform sampler2D prefilterTex;
 
-    #pragma rate blurTex pass
-    uniform sampler2D blurTex;
+    #pragma rate bokehTex pass
+    uniform sampler2D bokehTex;
 
+    #pragma rate filterTex pass
+    uniform sampler2D filterTex;
     
-    
-    #define farStart        cocParams.x
-    #define farEnd          cocParams.y
-    #define maxRadius       cocParams.z
+    #define focusDistance       cocParams.x
+    #define focusRange          cocParams.y
+    #define bokehRadius         cocParams.z
 
-    const float _Spread = 1.0;
-    const int _GridSize = 3;
+    float FloatToUint8(float v) {
+      return (v * 127.0 + 128.0 + 0.5) / 255.0;
+    }
 
-    float gaussian(int x)
-    {
-      float sigmaSqu = _Spread * _Spread;
-      return (1.0 / sqrt(PI2 * sigmaSqu)) * pow(EXP_VALUE, float(-(x * x) / (2 * int(sigmaSqu))));
+    float Uint8ToFloat(float v) {
+      v *= 255.0;
+      return ((v - 128.0) / 127.0);
     }
 }%
 
-
 CCProgram dof-vs %{
-  #include <./chunks/vs>
+  precision highp float;
+  #include <legacy/decode-standard>
+  #include <builtin/uniforms/cc-global>
+  out vec2 v_uv;
+  void main () {
+    StandardVertInput In;
+    CCDecode(In);
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
+    gl_Position = In.position;
+    v_uv = a_texCoord;
+  }
+
 }%
 
 CCProgram dof-coc-fs %{
   precision highp float;
   #include <ubo>
-  #include <common/data/packing>
   #include <common/common-define>
-
-
-
+  #include <chunks/hbao>
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-    float depth = unpackRGBAToDepth(texture(depthTex, v_uv)) * 2.0 - 1.0;
-    float coc = (depth - farStart) / (farEnd - farStart);
-    fragColor = vec4(saturate(coc));
+      float depth = GetLinearDepth(v_uv);
+      float coc = (depth - focusDistance) / focusRange;
+      coc = clamp(coc, -1.0, 1.0);
+      fragColor = vec4(FloatToUint8(coc), 0.0, 0.0, 1.0);
   }
-
 }%
 
 CCProgram dof-prefilter-fs %{
@@ -99,64 +117,162 @@ CCProgram dof-prefilter-fs %{
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
+  float Weigh (vec3 c) {
+    return 1.0 / (1.0 + max(max(c.r, c.g), c.b));
+  }
+  
   void main () {
-    float farCoC = texture(cocTex, v_uv).r;
+    vec4 o = mainTexTexelSize.xyxy * vec2(-0.5, 0.5).xxyy;
 
-    vec4 color = texture(colorTex, v_uv);
-    fragColor = color * farCoC;
+    vec2 uv0 = v_uv + o.xy;
+    vec2 uv1 = v_uv + o.zy;
+    vec2 uv2 = v_uv + o.xw;
+    vec2 uv3 = v_uv + o.zw;
+
+    vec3 s0 = texture(colorTex, uv0).rgb;
+    vec3 s1 = texture(colorTex, uv1).rgb;
+    vec3 s2 = texture(colorTex, uv2).rgb;
+    vec3 s3 = texture(colorTex, uv3).rgb;
+
+    float w0 = Weigh(s0);
+    float w1 = Weigh(s1);
+    float w2 = Weigh(s2);
+    float w3 = Weigh(s3);
+
+    // get the weighted average
+    vec3 avg = s0 * w0 + s1 * w1 + s2 * w2 + s3 * w3;
+    avg /= max(w0 + w1 + w2 + s3, 0.00001);
+
+    float coc0 = Uint8ToFloat(texture(cocTex, uv0).r);
+    float coc1 = Uint8ToFloat(texture(cocTex, uv1).r);
+    float coc2 = Uint8ToFloat(texture(cocTex, uv2).r);
+    float coc3 = Uint8ToFloat(texture(cocTex, uv3).r);
+
+    //get the largest CoC value of the four texture pixels
+    float cocMin = min(min(min(coc0, coc1), coc2), coc3);
+    float cocMax = max(max(max(coc0, coc1), coc2), coc3);
+    float coc = cocMax >= -cocMin ? cocMax : cocMin;
+
+    fragColor = vec4(avg, FloatToUint8(coc));
   }
 
 }%
 
-CCProgram dof-blur-fs %{
+CCProgram dof-bokeh-fs %{
   precision highp float;
   #include <ubo>
- 
+  #include <common/common-define>
+
+  in vec2 v_uv;
+  layout(location = 0) out vec4 fragColor;
+
+  const int SAMPLE_COUNT = 22;
+  vec2 bokehKernel[SAMPLE_COUNT];
+  void initKernel()
+  {
+      bokehKernel[0] = vec2(0.0, 0.0);
+      bokehKernel[1] = vec2(0.53333336, 0.0);
+      bokehKernel[2] = vec2(0.3325279, 0.4169768);
+      bokehKernel[3] = vec2(-0.11867785, 0.5199616);
+      bokehKernel[4] = vec2(-0.48051673, 0.2314047);
+      bokehKernel[5] = vec2(-0.48051673, -0.23140468);
+      bokehKernel[6] = vec2(-0.11867763, -0.51996166);
+      bokehKernel[7] = vec2(0.33252785, -0.4169769);
+      bokehKernel[8] = vec2(1.0, 0.0);
+      bokehKernel[9] = vec2(0.90096885, 0.43388376);
+      bokehKernel[10] = vec2(0.6234898, 0.7818315);
+      bokehKernel[11] = vec2(0.22252098, 0.9749279);
+      bokehKernel[12] = vec2(-0.22252095, 0.9749279);
+      bokehKernel[13] = vec2(-0.62349, 0.7818314);
+      bokehKernel[14] = vec2(-0.90096885, 0.43388382);
+      bokehKernel[15] = vec2(-1.0, 0.0);
+      bokehKernel[16] = vec2(-0.90096885, -0.43388376);
+      bokehKernel[17] = vec2(-0.6234896, -0.7818316);
+      bokehKernel[18] = vec2(-0.22252055, -0.974928);
+      bokehKernel[19] = vec2(0.2225215, -0.9749278);
+      bokehKernel[20] = vec2(0.6234897, -0.7818316);
+      bokehKernel[21] = vec2(0.90096885, -0.43388376);
+  }
+
+
+  float Weigh (float coc, float dist) {
+    return saturate((abs(coc) - dist + 2.0) / 2.0);
+  }
+
+  void Accumulate(float coc, vec2 displacement, inout vec4 farAcc, inout vec4 nearAcc) {
+    float dist = length(displacement);
+    vec2 offset = displacement * mainTexTexelSize.xy;
+
+    vec4 prefilterColor = texture(prefilterTex, v_uv + offset);
+    prefilterColor.a = Uint8ToFloat(prefilterColor.a) * bokehRadius;
+
+    //to smooth the transition
+    float fw = Weigh(max(0.0, min(prefilterColor.a, coc)), dist);
+    farAcc.rgb += prefilterColor.rgb * fw;
+    farAcc.a += fw;
+
+    float nw = Weigh(-prefilterColor.a, dist);
+    nearAcc.rgb += prefilterColor.rgb * nw;
+    nearAcc.a += nw;
+  }
+
+  void main () {
+    initKernel();
+    
+    float coc = Uint8ToFloat(texture(prefilterTex, v_uv).a) * bokehRadius;
+    vec4 farAcc = vec4(0.0); // background
+    vec4 nearAcc = vec4(0.0); // foreground
+
+    float farWeight = 0.0;
+    float nearWeight = 0.0;
+
+    for (int k = 0; k < SAMPLE_COUNT; k++) {
+      vec2 displacement = bokehKernel[k] * bokehRadius;
+      Accumulate(coc, displacement, farAcc, nearAcc);
+    }
+
+    farAcc.rgb *= 1.0 / (farAcc.a + (farAcc.a == 0.0 ? 1.0 : 0.0));
+    nearAcc.rgb *= 1.0 / (nearAcc.a + (nearAcc.a == 0.0 ? 1.0 : 0.0));
+
+    float alpha = min(1.0, nearAcc.a * PI / float(SAMPLE_COUNT));
+    vec3 rgb = lerp(farAcc.rgb, nearAcc.rgb, alpha);
+    fragColor = vec4(rgb, alpha);
+  }
+}%
+
+CCProgram dof-filter-fs %{
+  precision highp float;
+  #include <ubo>
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-
-    
-    // GAUSSIAN BLUR SETTINGS {{{
-    const float Directions = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
-    const float Quality = 3.0; // BLUR QUALITY (Default 4.0 - More is better but slower)
-    float Size = 8.0; // BLUR SIZE (Radius)
-    // GAUSSIAN BLUR SETTINGS }}}
-   
-    vec2 Radius = Size/texSize.xy;
-    
-    // Normalized pixel coordinates (from 0 to 1)
-    vec2 uv = v_uv;
-    // Pixel colour
-    vec4 Color = texture(colorTex, uv);
-    
-    // Blur calculations
-    for( float d = 0.0; d < PI2; d += PI2 / Directions)
-    {
-        for(float i = 1.0 / Quality; i <= 1.0; i += 1.0 / Quality)
-        {
-          Color += texture(colorTex, uv + vec2(cos(d), sin(d)) * Radius * i);		
-        }
-    }
-    
-    // Output to screen
-    Color /= Quality * Directions - 15.0;
-    fragColor =  Color;
+    //use tent filter,reduce the gap between sampling points
+    vec4 o = mainTexTexelSize.xyxy * vec2(-0.5, 0.5).xxyy;
+    vec4 s =
+      texture(bokehTex, v_uv + o.xy) +
+      texture(bokehTex, v_uv + o.zy) +
+      texture(bokehTex, v_uv + o.xw) +
+      texture(bokehTex, v_uv + o.zw);
+    fragColor = s * 0.25;
   }
-
 }%
 
 CCProgram dof-combine-fs %{
   precision highp float;
   #include <ubo>
-  #include <common/data/packing>
   #include <common/common-define>
 
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-    fragColor = texture(blurTex, v_uv);
+    vec4 source = texture(colorTex, v_uv);
+    float coc = Uint8ToFloat(texture(cocTex, v_uv).r);
+    vec4 dof = texture(filterTex, v_uv);
+
+    float dofStrength = smoothstep(0.1, 1.0, abs(coc));
+    vec3 color = lerp(source.rgb, dof.rgb, dofStrength);
+    fragColor = vec4(color.rgb, source.a);
   }
 }%
