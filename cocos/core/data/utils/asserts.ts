@@ -55,3 +55,32 @@ export function assertIsTrue (expr: unknown, message?: string): asserts expr {
 export function assertsArrayIndex<T> (array: T[], index: number): void {
     assertIsTrue(index >= 0 && index < array.length, `Array index ${index} out of bounds: [0, ${array.length})`);
 }
+
+/**
+ * Asserts the caller code's reachability.
+ *
+ * @example
+ * ```ts
+ * enum Color { RED, GREEN, BLUE }
+ *
+ * function toHex(colorThatDefinitelyCannotBeRed: Color): string {
+ *     switch(colorThatDefinitelyCannotBeRed) {
+ *     case Color.GREEN: return '0x00FF00';
+ *     case Color.BLUE: return '0x0000FF';
+ *
+ *     // Without this:
+ *     // - tsc reports error ts(2366).
+ *     // - eslint reports error about 'consistent-return' and 'default-case'.
+ *     default: return assertsUnreachable();
+ *     }
+ * }
+ * ```
+ *
+ * @note This function throws in debug mode and returns `undefined` otherwise.
+ */
+export function assertsUnreachable (): never {
+    if (DEBUG) {
+        throw new Error('Here should never be reachable');
+    }
+    return undefined as never;
+}
