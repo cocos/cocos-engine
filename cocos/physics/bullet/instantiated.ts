@@ -26,7 +26,6 @@ import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
 import { game } from '../../game';
 import { debug, error, getError, sys } from '../../core';
-import { importFunc } from './bullet-env';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { wasmFactory, bulletWasmUrl } from './bullet.wasmjs';
 import { asmFactory } from './bullet.asmjs';
@@ -103,22 +102,7 @@ function initWasm (wasmUrl: string): Promise<void> {
                 importObject: WebAssembly.Imports,
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
             ) {
-                //import extra funcs to wasm from importFunc
-                //importObject.env for debug.wasm, a for release.wasm
-                const importObjectEnv = importObject.env ?? importObject.a;
-                for (const key in importObjectEnv) {
-                    const value = importObjectEnv[key] as any;
-                    if (typeof value === 'function') {
-                        let funcName = value.name as string;
-                        //remove all the suffice '_' of funcName
-                        while (funcName[0] === '_') {
-                            funcName = funcName.substring(1, funcName.length);
-                        }
-                        if (funcName in importFunc) {
-                            importObjectEnv[key] = importFunc[funcName];
-                        }
-                    }
-                }
+
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
                 instantiateWasm(wasmUrl, importObject).then((result: any) => {
                     receiveInstance(result.instance as WebAssembly.Instance, result.module as WebAssembly.Module);

@@ -31,6 +31,7 @@ import { BulletWorld } from '../bullet-world';
 import { degreesToRadians } from '../../../core/utils/misc';
 import { bt } from '../instantiated';
 import { BulletCache } from '../bullet-cache';
+import { importFunc } from '../bullet-env';
 
 const v3_0 = new Vec3(0, 0, 0);
 
@@ -49,7 +50,8 @@ export class BulletBoxCharacterController extends BulletCharacterController impl
         const up = BulletCache.instance.BT_V3_1;
         bt.Vec3_set(up, upDir.x, upDir.y, upDir.z);
 
-        const report = bt.ControllerHitReport_new();
+
+        const report = bt.ControllerHitReport.implement(importFunc).$$.ptr;
 
         const bulletWorld = (PhysicsSystem.instance.physicsWorld as BulletWorld);
         const controllerDesc = bt.BoxCharacterControllerDesc_new(

@@ -40,6 +40,7 @@ import { bt, EBulletType, EBulletTriangleRaycastFlag, EBulletDebugDrawModes, btC
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { importFunc } from './bullet-env';
 
 const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;
@@ -149,8 +150,10 @@ export class BulletWorld implements IPhysicsWorld {
         this._broadphase = bt.DbvtBroadphase_new();
         this._dispatcher = bt.CollisionDispatcher_new();
         this._solver = bt.SequentialImpulseConstraintSolver_new();
-        this._debugDraw = bt.DebugDraw_new();
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
+
+        const debugDraw = bt.DebugDraw.implement(importFunc);//new PhysicsDebugDraw();
+        this._debugDraw = debugDraw.$$.ptr;
         bt.CollisionWorld_setDebugDrawer(this._world, this._debugDraw);
 
         bt.DebugDraw_setDebugMode(this._debugDraw, EBulletDebugDrawModes.DBG_NoDebug);

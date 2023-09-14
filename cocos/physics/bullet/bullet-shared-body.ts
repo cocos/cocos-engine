@@ -36,6 +36,7 @@ import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { js } from '../../core';
 import { bt, btCache, EBulletType } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
+import { importFunc } from './bullet-env';
 
 const v3_0 = CC_V3_0;
 const quat_0 = CC_QUAT_0;
@@ -211,7 +212,9 @@ export class BulletSharedBody {
         cocos2BulletQuat(quat, this.node.worldRotation);
         bt.Transform_setRotation(trans, quat);
 
-        const motionState = bt.ccMotionState_new(this.id, trans);
+
+        const motionState = bt.MotionState.implement(importFunc).$$.ptr as number;
+        bt.ccMotionState_setup(motionState, this.id, trans);
         const body = bt.RigidBody_new(mass, motionState);
         const sleepTd = PhysicsSystem.instance.sleepThreshold;
         bt.RigidBody_setSleepingThresholds(body, sleepTd, sleepTd);

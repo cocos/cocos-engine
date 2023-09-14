@@ -40,13 +40,13 @@ export const importFunc = {
             world.onDebugDrawLine(from, to, color);
         }
     },
-    onClearLines (): void {
+    clearLines (): void {
         const world = btCache.CACHE.world;
         if (world) {
             world.onClearLines();
         }
     },
-    onFlushLines (): void {
+    flushLines (): void {
         //empty
     },
 };
