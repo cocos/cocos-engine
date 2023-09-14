@@ -198,7 +198,7 @@ module.exports = {
         },
         scaleFactor: {
             name: '缩放因子',
-            title: '调整模型导入大小',
+            tooltip: '模型缩放比例。',
         },
         fbx: {
             browse: '更换贴图',
