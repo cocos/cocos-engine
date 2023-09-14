@@ -37,17 +37,17 @@ test('labelOutline.setter', () => {
     let labelOutline = node.getComponent(LabelOutline) as LabelOutline;
     node._setActiveInHierarchy(true);
     labelOutline.onLoad();
-    expect(label.outlineUsed).toStrictEqual(true);
+    expect(label.enableOutline).toStrictEqual(true);
     labelOutline.color = new Color(255, 0, 0, 255);
     expect(label.outlineColor).toStrictEqual(new Color(255, 0, 0, 255));
     labelOutline.width = 2;
     expect(label.outlineWidth).toStrictEqual(2);
     labelOutline.enabled = false;
     labelOutline.onDisable();
-    expect(label.outlineUsed).toStrictEqual(false);
+    expect(label.enableOutline).toStrictEqual(false);
     labelOutline.enabled = true;
     labelOutline.onEnable();
-    expect(label.outlineUsed).toStrictEqual(true);
+    expect(label.enableOutline).toStrictEqual(true);
 });
 
 test('labelShadow.setter', () => {
@@ -59,7 +59,7 @@ test('labelShadow.setter', () => {
     let labelShadow = node.getComponent(LabelShadow) as LabelShadow;
     node._setActiveInHierarchy(true);
     labelShadow.onLoad();
-    expect(label.shadowUsed).toStrictEqual(true);
+    expect(label.enableShadow).toStrictEqual(true);
     labelShadow.color = new Color(255, 0, 0, 255);
     expect(label.shadowColor).toStrictEqual(new Color(255, 0, 0, 255));
     labelShadow.offset = new Vec2(2, 2);
@@ -68,8 +68,8 @@ test('labelShadow.setter', () => {
     expect(label.shadowBlur).toStrictEqual(2);
     labelShadow.enabled = false;
     labelShadow.onDisable();
-    expect(label.shadowUsed).toStrictEqual(false);
+    expect(label.enableShadow).toStrictEqual(false);
     labelShadow.enabled = true;
     labelShadow.onEnable();
-    expect(label.shadowUsed).toStrictEqual(true);
+    expect(label.enableShadow).toStrictEqual(true);
 });
