@@ -14,7 +14,6 @@ exports.style = /* css */`
         height: 200px;
         background: var(--color-normal-fill-emphasis);
         display: flex;
-        padding: 4px;
         position: relative;
         box-sizing: border-box;
     }
