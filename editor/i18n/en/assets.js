@@ -198,7 +198,7 @@ module.exports = {
         },
         scaleFactor: {
             name: 'Scale Factor',
-            title:'Adjust model size',
+            tooltip: 'Model scale factor.',
         },
         fbx: {
             browse: 'Change Target',
