@@ -5,7 +5,7 @@ const { updateElementReadonly, updateElementInvalid, getPropValue, setPropValue 
 exports.template = /* html */`
 <div class="container">
     <ui-prop>
-        <ui-label slot="label" value="i18n:ENGINE.assets.scaleFactor.name" tooltip="i18n:ENGINE.assets.scaleFactor.title"></ui-label>
+        <ui-label slot="label" value="i18n:ENGINE.assets.scaleFactor.name" tooltip="i18n:ENGINE.assets.scaleFactor.tooltip"></ui-label>
         <ui-slider slot="content" class="scaleFactor-slider" min="0.01" max="100" step="1"></ui-slider>
     </ui-prop>
 
