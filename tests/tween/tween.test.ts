@@ -51,7 +51,7 @@ test('type color', function () {
     const shadow = new Shadows();
     shadow.shadowColor.set(200, 100, 50, 250);
     const target = Color.TRANSPARENT;
-    const tweenact = tween(shadow).to(1, {shadowColor: target});
+    const tweenact = tween(shadow).to(1, {shadowColor: target}, { easing: "bounceOut" });
     tweenact.start();
 
     for (let i = 0; i < 100; ++i) {
@@ -76,7 +76,7 @@ test('type quat', function () {
 
     const node = new Node();
     const target = new Quat(1, 1, 1, 1);
-    const tweenact = tween(node).to(1, {rotation: target});
+    const tweenact = tween(node).to(1, {rotation: target}, { easing: "bounceOut" });
     tweenact.start();
 
     for (let i = 0; i < 100; ++i) {
@@ -101,7 +101,7 @@ test('type rect', function () {
 
     const camera = new CameraComponent();
     const target = new Rect(1, 1, 10, 20);
-    const tweenact = tween(camera).to(1, {rect: target});
+    const tweenact = tween(camera).to(1, {rect: target}, { easing: "bounceOut" });
     tweenact.start();
 
     for (let i = 0; i < 100; ++i) {
@@ -126,7 +126,7 @@ test('type size', function () {
 
     const rect = new Rect();
     const target = new Size(800, 600);
-    const tweenact = tween(rect).to(1, {size: target});
+    const tweenact = tween(rect).to(1, {size: target}, { easing: "bounceOut" });
     tweenact.start();
 
     for (let i = 0; i < 100; ++i) {
@@ -151,7 +151,7 @@ test('type vec2', function () {
 
     const rect = new Rect();
     const target = new Vec2(20, 10);
-    const tweenact = tween(rect).to(1, {origin: target});
+    const tweenact = tween(rect).to(1, {origin: target}, { easing: "bounceOut" });
     tweenact.start();
 
     for (let i = 0; i < 100; ++i) {
@@ -176,7 +176,7 @@ test('type vec3', function () {
 
     const node = new Node();
     const target = new Vec3(10, 20, 30);
-    const tweenact = tween(node).to(1, {position: target});
+    const tweenact = tween(node).to(1, {position: target}, { easing: "bounceOut" });
     tweenact.start();
 
     for (let i = 0; i < 100; ++i) {
@@ -201,7 +201,7 @@ test('type vec4', function () {
 
     const shadowLayer = new CSMShadowLayer(4);
     const target = new Vec4(10, 20, 30, 40);
-    const tweenact = tween(shadowLayer).to(1, {csmAtlas: target});
+    const tweenact = tween(shadowLayer).to(1, {csmAtlas: target}, { easing: "bounceOut" });
     tweenact.start();
 
     for (let i = 0; i < 100; ++i) {
