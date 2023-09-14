@@ -59,10 +59,6 @@ export class DofPass extends SettingPass {
             .blitScreen(0)
             .version();
 
-        width *= 0.5;
-        height *= 0.5;
-        this.material.setProperty('mainTexTexelSize', new Vec4(1.0 / width, 1.0 / height, width, height));
-
         //prefilterTex
         const outputPrefilter = `DOF_PREFILTER${cameraID}`;
         passContext
@@ -74,6 +70,9 @@ export class DofPass extends SettingPass {
             .blitScreen(1)
             .version();
 
+        width *= 0.5;
+        height *= 0.5;
+        this.material.setProperty('mainTexTexelSize', new Vec4(1.0 / width, 1.0 / height, width, height));
         //bokehTex
         const outputBokeh = `DOF_BOKEH${cameraID}`;
         passContext
@@ -94,6 +93,9 @@ export class DofPass extends SettingPass {
             .blitScreen(3)
             .version();
 
+        width *= 2.0;
+        height *= 2.0;
+        this.material.setProperty('mainTexTexelSize', new Vec4(1.0 / width, 1.0 / height, width, height));
         passContext
             .updatePassViewPort()
             .addRenderPass('dof-combine', `dof-combine${cameraID}`)

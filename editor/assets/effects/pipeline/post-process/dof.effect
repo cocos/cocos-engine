@@ -103,6 +103,7 @@ CCProgram dof-coc-fs %{
 
   void main () {
       float depth = GetLinearDepth(v_uv);
+      //get circle of confusion
       float coc = (depth - focusDistance) / focusRange;
       coc = clamp(coc, -1.0, 1.0);
       fragColor = vec4(FloatToUint8(coc), 0.0, 0.0, 1.0);
@@ -117,13 +118,15 @@ CCProgram dof-prefilter-fs %{
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
+  //toning down the bokeh
   float Weigh (vec3 c) {
     return 1.0 / (1.0 + max(max(c.r, c.g), c.b));
   }
   
   void main () {
+    //use lower resolution in order to cover more area
+    //downsampling
     vec4 o = mainTexTexelSize.xyxy * vec2(-0.5, 0.5).xxyy;
-
     vec2 uv0 = v_uv + o.xy;
     vec2 uv1 = v_uv + o.zy;
     vec2 uv2 = v_uv + o.xw;
@@ -195,6 +198,7 @@ CCProgram dof-bokeh-fs %{
   }
 
 
+  //smooth transition between focal areas and boken areas
   float Weigh (float coc, float dist) {
     return saturate((abs(coc) - dist + 2.0) / 2.0);
   }
@@ -206,7 +210,6 @@ CCProgram dof-bokeh-fs %{
     vec4 prefilterColor = texture(prefilterTex, v_uv + offset);
     prefilterColor.a = Uint8ToFloat(prefilterColor.a) * bokehRadius;
 
-    //to smooth the transition
     float fw = Weigh(max(0.0, min(prefilterColor.a, coc)), dist);
     farAcc.rgb += prefilterColor.rgb * fw;
     farAcc.a += fw;
@@ -220,11 +223,9 @@ CCProgram dof-bokeh-fs %{
     initKernel();
     
     float coc = Uint8ToFloat(texture(prefilterTex, v_uv).a) * bokehRadius;
+
     vec4 farAcc = vec4(0.0); // background
     vec4 nearAcc = vec4(0.0); // foreground
-
-    float farWeight = 0.0;
-    float nearWeight = 0.0;
 
     for (int k = 0; k < SAMPLE_COUNT; k++) {
       vec2 displacement = bokehKernel[k] * bokehRadius;
@@ -234,7 +235,9 @@ CCProgram dof-bokeh-fs %{
     farAcc.rgb *= 1.0 / (farAcc.a + (farAcc.a == 0.0 ? 1.0 : 0.0));
     nearAcc.rgb *= 1.0 / (nearAcc.a + (nearAcc.a == 0.0 ? 1.0 : 0.0));
 
+    //enhance foreground effects with a factor
     float alpha = min(1.0, nearAcc.a * PI / float(SAMPLE_COUNT));
+
     vec3 rgb = lerp(farAcc.rgb, nearAcc.rgb, alpha);
     fragColor = vec4(rgb, alpha);
   }
@@ -269,10 +272,11 @@ CCProgram dof-combine-fs %{
   void main () {
     vec4 source = texture(colorTex, v_uv);
     float coc = Uint8ToFloat(texture(cocTex, v_uv).r);
+    coc = (coc - 0.5) * 2.0 * bokehRadius;
     vec4 dof = texture(filterTex, v_uv);
 
-    float dofStrength = smoothstep(0.1, 1.0, abs(coc));
-    vec3 color = lerp(source.rgb, dof.rgb, dofStrength);
+    float dofStrength = smoothstep(mainTexTexelSize.w * 2.0, mainTexTexelSize.w * 4.0, coc);
+    vec3 color = lerp(source.rgb, dof.rgb, dofStrength + dof.a - dofStrength * dof.a);
     fragColor = vec4(color.rgb, source.a);
   }
 }%
