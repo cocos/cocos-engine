@@ -58,7 +58,7 @@ module.exports = {
                         tooltip: '是否使用系统默认字体，选中此项会将引用的字体资产置空。',
                     },
                     'fontFamily': {
-                        displayName: '字体集',
+                        displayName: '字体族',
                         tooltip: '文字字体名字。',
                     },
                     'font': {
