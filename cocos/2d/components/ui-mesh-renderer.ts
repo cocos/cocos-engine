@@ -79,6 +79,7 @@ export class UIMeshRenderer extends Component {
     protected declare _renderEntity: RenderEntity;
     public _dirtyVersion = -1;
     public _internalId = -1;
+    private _needRecreateInfo: boolean = true;
 
     public __preload (): void {
         this.node._uiProps.uiComp = this;
@@ -168,8 +169,9 @@ export class UIMeshRenderer extends Component {
                 this._modelComponent._detachFromScene(); // JSB
                 // clear models
                 this._UIModelNativeProxy.clearModels();
-                if (this._renderData) {
-                    this._renderData.clear();
+                this._needRecreateInfo = this.renderEntity.getDynamicRenderDrawInfosLen() !== models.length;
+                if (this._needRecreateInfo) {
+                    this._renderEntity.clearDynamicRenderDrawInfos();
                 }
                 for (let i = 0; i < models.length; i++) {
                     if (models[i].enabled) {
@@ -184,7 +186,7 @@ export class UIMeshRenderer extends Component {
 
     private _uploadRenderData (index: number): void {
         if (JSB) {
-            if (!this._renderData) {
+            if (this._needRecreateInfo) {
                 const renderData = MeshRenderData.add();
                 // TODO: here we weirdly use UIMeshRenderer as UIRenderer
                 // please fix the type @holycanvas
@@ -195,7 +197,9 @@ export class UIMeshRenderer extends Component {
                 // issue: https://github.com/cocos/cocos-engine/issues/14637
                 this._renderData = renderData as unknown as RenderData;
             }
-            this._renderData.material = this._modelComponent!.getMaterialInstance(index);
+            if (this._renderData) {
+                this._renderData.material = this._modelComponent!.getMaterialInstance(index);
+            }
         }
     }
 
