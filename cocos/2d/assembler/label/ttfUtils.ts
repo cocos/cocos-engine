@@ -68,7 +68,7 @@ export const ttfUtils =  {
         style.underlineHeight = comp.underlineHeight;
 
         // outline// both
-        const isOutlined = comp.outlineUsed && comp.outlineWidth > 0;
+        const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
         if (isOutlined) {
             style.isOutlined = true;
             style.outlineColor.set(comp.outlineColor);
@@ -78,7 +78,7 @@ export const ttfUtils =  {
         }
 
         // shadow// both
-        const isShadow = comp.shadowUsed;
+        const isShadow = comp.enableShadow && (comp.shadowBlur > 0 || comp.shadowOffset.x !== 0 || comp.shadowOffset.y !== 0);
         if (isShadow) {
             style.hasShadow = true;
             style.shadowColor.set(comp.shadowColor);

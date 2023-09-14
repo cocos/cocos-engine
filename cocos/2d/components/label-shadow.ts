@@ -25,7 +25,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, Vec2, warn } from '../../core';
+import { Color, Vec2, assertIsTrue } from '../../core';
 import { Label } from './label';
 
 /**
@@ -60,18 +60,14 @@ export class LabelShadow extends Component {
     @tooltip('i18n:labelShadow.color')
     get color (): Readonly<Color> {
         const label = this.node.getComponent(Label);
-        if (!label) {
-            warn('Required Label component to work, please add Label component.');
-            return this._color;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
         return label.shadowColor;
     }
 
     set color (value) {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.shadowColor = value;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.shadowColor = value;
     }
 
     /**
@@ -86,18 +82,14 @@ export class LabelShadow extends Component {
     @tooltip('i18n:labelShadow.offset')
     get offset (): Vec2 {
         const label = this.node.getComponent(Label);
-        if (!label) {
-            warn('Required Label component to work, please add Label component.');
-            return this._offset;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
         return label.shadowOffset;
     }
 
     set offset (value) {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.shadowOffset = value;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.shadowOffset = value;
     }
 
     /**
@@ -112,47 +104,42 @@ export class LabelShadow extends Component {
     @tooltip('i18n:labelShadow.blur')
     get blur (): number {
         const label = this.node.getComponent(Label);
-        if (!label) {
-            warn('Required Label component to work, please add Label component.');
-            return this._blur;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
         return label.shadowBlur;
     }
 
     set blur (value) {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.shadowBlur = value;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.shadowBlur = value;
     }
 
     /**
-     * @deprecated since v3.8.2, please use [[Label.shadowUsed]] instead.
+     * @deprecated since v3.8.2, please use [[Label.enableShadow]] instead.
      */
     public onEnable (): void {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.shadowUsed = true;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.enableShadow = true;
     }
 
     /**
-     * @deprecated since v3.8.2, please use [[Label.shadowUsed]] instead.
+     * @deprecated since v3.8.2, please use [[Label.enableShadow]] instead.
      */
     public onDisable (): void {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.shadowUsed = false;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.enableShadow = false;
     }
 
     /**
-     * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+     * @deprecated since v3.8.2, please use [[Label.enableShadow]] instead.
      */
     public onLoad (): void {
         const label = this.node.getComponent(Label);
-        if (label && this.enabledInHierarchy) {
-            label.shadowUsed = true;
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        if (this.enabledInHierarchy) {
+            label.enableShadow = true;
         }
     }
 }

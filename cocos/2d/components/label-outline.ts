@@ -25,7 +25,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, cclegacy, warn } from '../../core';
+import { Color, assertIsTrue, cclegacy } from '../../core';
 import { Label } from './label';
 
 /**
@@ -59,21 +59,16 @@ export class LabelOutline extends Component {
      * @deprecated since v3.8.2, please use [[Label.outlineColor]] instead.
      */
     @tooltip('i18n:labelOutline.color')
-    // @constget
     get color (): Readonly<Color> {
         const label = this.node.getComponent(Label);
-        if (!label) {
-            warn('Required Label component to work, please add Label component.');
-            return this._color;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
         return label.outlineColor;
     }
 
     set color (value) {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.outlineColor = value;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.outlineColor = value;
     }
 
     /**
@@ -88,47 +83,42 @@ export class LabelOutline extends Component {
     @tooltip('i18n:labelOutline.width')
     get width (): number {
         const label = this.node.getComponent(Label);
-        if (!label) {
-            warn('Required Label component to work, please add Label component.');
-            return this._width;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
         return label.outlineWidth;
     }
 
     set width (value) {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.outlineWidth = value;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.outlineWidth = value;
     }
 
     /**
-     * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+     * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
      */
     public onEnable (): void {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.outlineUsed = true;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.enableOutline = true;
     }
 
     /**
-     * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+     * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
      */
     public onDisable (): void {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.outlineUsed = false;
-        }
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        label.enableOutline = false;
     }
 
     /**
-     * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+     * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
      */
     public onLoad (): void {
         const label = this.node.getComponent(Label);
-        if (label && this.enabledInHierarchy) {
-            label.outlineUsed = true;
+        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        if (this.enabledInHierarchy) {
+            label.enableOutline = true;
         }
     }
 }

@@ -612,13 +612,13 @@ export class Label extends UIRenderer {
      **/
     @editable
     @displayOrder(19)
-    @tooltip('i18n:label.outline_used')
-    get outlineUsed (): boolean {
-        return this._isOutline;
+    @tooltip('i18n:label.outline_enable')
+    get enableOutline (): boolean {
+        return this._enableOutline;
     }
-    set outlineUsed (value) {
-        if (this._isOutline === value) return;
-        this._isOutline = value;
+    set enableOutline (value) {
+        if (this._enableOutline === value) return;
+        this._enableOutline = value;
         this.markForUpdateRenderData();
     }
 
@@ -630,7 +630,7 @@ export class Label extends UIRenderer {
      * 改变描边的颜色。
      */
     @editable
-    @visible(function (this: Label) { return this._isOutline; })
+    @visible(function (this: Label) { return this._enableOutline; })
     @displayOrder(20)
     @tooltip('i18n:label.outline_color')
     get outlineColor (): Color {
@@ -650,7 +650,7 @@ export class Label extends UIRenderer {
      * 改变描边的宽度。
      */
     @editable
-    @visible(function (this: Label) { return this._isOutline; })
+    @visible(function (this: Label) { return this._enableOutline; })
     @displayOrder(21)
     @tooltip('i18n:label.outline_width')
     get outlineWidth (): number {
@@ -668,13 +668,13 @@ export class Label extends UIRenderer {
      */
     @editable
     @displayOrder(22)
-    @tooltip('i18n:label.shadow_used')
-    get shadowUsed (): boolean {
-        return this._isShadow;
+    @tooltip('i18n:label.shadow_enable')
+    get enableShadow (): boolean {
+        return this._enableShadow;
     }
-    set shadowUsed (value) {
-        if (this._isShadow === value) return;
-        this._isShadow = value;
+    set enableShadow (value) {
+        if (this._enableShadow === value) return;
+        this._enableShadow = value;
         this.markForUpdateRenderData();
     }
 
@@ -686,7 +686,7 @@ export class Label extends UIRenderer {
      * 阴影的颜色。
      */
     @editable
-    @visible(function (this: Label) { return this._isShadow; })
+    @visible(function (this: Label) { return this._enableShadow; })
     @displayOrder(23)
     @tooltip('i18n:label.shadow_color')
     get shadowColor (): Color {
@@ -706,7 +706,7 @@ export class Label extends UIRenderer {
      * 字体与阴影的偏移。
      */
     @editable
-    @visible(function (this: Label) { return this._isShadow; })
+    @visible(function (this: Label) { return this._enableShadow; })
     @displayOrder(24)
     @tooltip('i18n:label.shadow_offset')
     get shadowOffset (): Vec2 {
@@ -726,7 +726,7 @@ export class Label extends UIRenderer {
      * 阴影的模糊程度。
      */
     @editable
-    @visible(function (this: Label) { return this._isShadow; })
+    @visible(function (this: Label) { return this._enableShadow; })
     @displayOrder(25)
     @tooltip('i18n:label.shadow_blur')
     get shadowBlur (): number {
@@ -841,13 +841,13 @@ export class Label extends UIRenderer {
     @serializable
     protected _cacheMode = CacheMode.NONE;
     @serializable
-    protected _isOutline = false;
+    protected _enableOutline = false;
     @serializable
     protected _outlineColor = new Color(0, 0, 0, 255);
     @serializable
     protected _outlineWidth = 2;
     @serializable
-    protected _isShadow = false;
+    protected _enableShadow = false;
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 255);
     @serializable
