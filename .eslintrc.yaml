@@ -11,7 +11,7 @@ extends:
     - plugin:@typescript-eslint/recommended
     - plugin:@typescript-eslint/recommended-requiring-type-checking
 
-plugins: ["@typescript-eslint"]
+plugins: ['@typescript-eslint']
 
 settings:
     import/resolver:
@@ -48,9 +48,8 @@ rules:
     ##### RECOMMENDED RULE OVERRIDES #####
 
     camelcase: off # underscores may come in handy in some cases
-    eqeqeq: warn # important check missing from recommended
+
     keyword-spacing: warn # we require this explicitly
-    no-multi-spaces: off # useful for manually align some expression across lines
     prefer-rest-params: off # we need ES5 to be fast too
     prefer-spread: off # we need ES5 to be fast too
     space-before-function-paren: [warn, always] # we require this explicitly
@@ -75,20 +74,19 @@ rules:
     indent: [error, 4, {
       SwitchCase: 0,
       ignoredNodes: [ # https://stackoverflow.com/a/72897089
-          "FunctionExpression > .params[decorators.length > 0]",
-          "FunctionExpression > .params > :matches(Decorator, :not(:first-child))",
-          "ClassBody.body > PropertyDefinition[decorators.length > 0] > .key",
+          'FunctionExpression > .params[decorators.length > 0]',
+          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
+          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key',
       ]
     }]
 
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
-    max-len: [warn, 150] # more lenient on max length per line
-    no-console: error # prefer the uniform logging methods
+
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
-    no-multi-assign: off # it is handy sometimes
+
     no-nested-ternary: off # it is handy sometimes
     no-param-reassign: off # the output object is passed as parameters all the time
     no-restricted-syntax: off # for-in is a efficient choice for plain objects
@@ -113,7 +111,6 @@ rules:
         'ts-nocheck': true,
         'ts-check': false,
     }]
-    '@typescript-eslint/no-unused-expressions': warn
 
     # TODO: this is just too much work
     '@typescript-eslint/explicit-module-boundary-types': off
@@ -149,8 +146,6 @@ rules:
         allowBoolean: true
     }]
 
-    '@typescript-eslint/type-annotation-spacing': warn
-
     # We choose to use style `... as foo` since it's more common.
     # In the other hand, angle bracket style can be ambiguous with j/tsx syntax.
     # For example, https://babeljs.io/docs/en/babel-plugin-transform-typescript#istsx
@@ -164,3 +159,96 @@ rules:
     '@typescript-eslint/explicit-function-return-type': [error, {
       allowIIFEs: true, # IIFEs are widely used, writing their signature twice is painful
     }]
+
+
+    # constructor-super: error
+    # curly: [error, all]
+    # no-debugger: error
+    # no-duplicate-case: error
+    # no-eval: error
+    # no-sparse-arrays: error
+    # no-trailing-spaces: error
+    # no-var: error
+    # prefer-const: error
+    # prefer-numeric-literals: off
+    # prefer-template: error
+
+
+    '@typescript-eslint/no-unsafe-argument': warn
+
+    max-len: [warn, 250] # more lenient on max length per line
+    no-console: warn # prefer the uniform logging methods
+    no-multi-spaces: [warn, {
+        'ignoreEOLComments': true,
+        'exceptions': {
+            'Property': true,
+            'VariableDeclarator': false
+        }
+    }]
+    no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
+    no-multi-assign: [error, { 'ignoreNonDeclaration': true }]
+    max-statements-per-line: [error, { max: 1 }]
+
+    comma-dangle: [error, {
+        'arrays': always-multiline,
+        'objects': always-multiline,
+        'imports': never,
+        'exports': never,
+        'functions': never
+    }]
+    quote-props: [error, consistent-as-needed]
+    function-paren-newline: off
+    space-unary-ops: error
+    key-spacing: [error, {
+        'singleLine': {
+            'beforeColon': false,
+            'afterColon': true
+        },
+        'multiLine': {
+            'beforeColon': false,
+            'afterColon': true,
+            'align': colon
+        }
+    }]
+    one-var: [error, never]
+    eqeqeq: [error, always, {'null': ignore}]
+    arrow-body-style: [error, as-needed]
+    arrow-parens: [error, always]
+    brace-style: [error, 1tbs]
+    id-denylist: [error, any, unknown, Number, number, Boolean, boolean, String, Undefined]
+    id-match: off
+    no-cond-assign: off
+    no-constant-condition: off
+    nonblock-statement-body-position: [error, below]
+    # padded-blocks: [error, {
+    #     'classes': always
+    # }]
+    '@typescript-eslint/no-extra-parens': [error, all, {
+      'conditionalAssign': false,
+      'returnAssign': false,
+      'nestedBinaryExpressions': false,
+      'enforceForArrowConditionals': false,
+      'enforceForFunctionPrototypeMethods': false,
+      'ignoreJSX': all
+    }]
+    '@typescript-eslint/no-unused-expressions': [error, {
+        'allowShortCircuit': true,
+        'allowTernary': true,
+        'allowTaggedTemplates': false
+    }]
+    '@typescript-eslint/no-duplicate-type-constituents': [error, {
+        'ignoreIntersections': false,
+        'ignoreUnions': true
+    }]
+    '@typescript-eslint/keyword-spacing': [error]
+    '@typescript-eslint/space-infix-ops': [error]
+    '@typescript-eslint/type-annotation-spacing': [error, {
+        'before': false,
+        'after': true,
+        'overrides' : {
+            'arrow': {
+                'before': true,
+                'after': true,
+            }
+        }
+     }]
