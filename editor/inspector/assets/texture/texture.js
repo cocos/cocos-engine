@@ -396,6 +396,11 @@ const Elements = {
 
             panel.$.mipfilterSelect.value = panel.userData.mipfilter || 'nearest';
 
+            // 临时记录 mipfilter 配置
+            panel.metaList && panel.metaList.forEach((meta) => {
+                Editor.Profile.setConfig('inspector', `${meta.uuid}.texture.mipfilter`, panel.userData.mipfilter, 'default');
+            });
+
             panel.updateInvalid(panel.$.mipfilterSelect, 'mipfilter');
             updateElementReadonly.call(panel, panel.$.mipfilterSelect);
         },
