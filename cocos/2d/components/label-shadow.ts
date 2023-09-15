@@ -32,7 +32,7 @@ import { Label } from './label';
  * @en Shadow effect for Label component, only for system fonts or TTF fonts.
  * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体。
  *
- * @deprecated since v3.8.2, please use [[Label.shadowUsed]] instead.
+ * @deprecated since v3.8.2, please use [[Label.enableShadow]] instead.
  */
 @ccclass('cc.LabelShadow')
 @help('i18n:cc.LabelShadow')

@@ -47,7 +47,7 @@ export const letterFont = js.mixin(bmfontUtils, {
         shareLabelInfo.fontFamily = this._getFontFamily(comp);
 
         // outline
-        const isOutlined = comp.outlineUsed && comp.outlineWidth > 0;
+        const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
         if (isOutlined) {
             shareLabelInfo.isOutlined = true;
             shareLabelInfo.margin = comp.outlineWidth;

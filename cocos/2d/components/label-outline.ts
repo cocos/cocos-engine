@@ -35,7 +35,7 @@ import { Label } from './label';
  * @zh
  * 描边效果组件,用于字体描边,只能用于系统字体。
  *
- * @deprecated since v3.8.2, please use [[Label.outlineUsed]] instead.
+ * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
  */
 @ccclass('cc.LabelOutline')
 @help('i18n:cc.LabelOutline')
