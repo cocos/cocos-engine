@@ -55,7 +55,6 @@ export class SubModel {
     protected _shaders: Shader[] | null = null;
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
-    protected _globalPatches: MacroRecord = {};
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
@@ -326,20 +325,6 @@ export class SubModel {
      * @zh 管线更新回调
      */
     public onPipelineStateChanged (): void {
-        const root = cclegacy.director.root as Root;
-        const pipeline = root.pipeline;
-        const pipelinePatches = Object.entries(pipeline.macros);
-        const globalPatches = Object.entries(this._globalPatches);
-        if (globalPatches.length === 0 && pipelinePatches.length === 0) {
-            return;
-        }
-
-        if (pipelinePatches.length === globalPatches.length) {
-            const patchesStateUnchanged = JSON.stringify(pipelinePatches.sort()) === JSON.stringify(globalPatches.sort());
-            if (patchesStateUnchanged) return;
-        }
-        overrideMacros(this._globalPatches, pipeline.macros);
-
         const passes = this._passes;
         if (!passes) { return; }
 
@@ -362,6 +347,7 @@ export class SubModel {
             return;
         } else if (patches) {
             patches = patches.sort();
+            // Sorting on shorter patches outperforms hashing, with negative optimization on longer global patches.
             if (this._patches && patches.length === this._patches.length) {
                 const patchesStateUnchanged = JSON.stringify(patches) === JSON.stringify(this._patches);
                 if (patchesStateUnchanged) return;
