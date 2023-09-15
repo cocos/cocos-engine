@@ -119,6 +119,7 @@ module.exports = {
             },
         },
         image: {
+            label: '图像资源',
             type: '类型',
             typeTip: '类型',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
@@ -133,6 +134,7 @@ module.exports = {
             flipGreenChannel: '翻转绿色通道',
         },
         spriteFrame: {
+            label: '精灵帧资源（SpriteFrame）',
             packable: 'Packable',
             packableTip: '是否参与动态合图或者自动图集的构建处理',
             rotated: 'Rotated',
