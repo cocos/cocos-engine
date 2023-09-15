@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { checkPalIntegrity, withImpl } from '@pal/utils';
+import { checkPalIntegrity, withImpl } from '../../pal/integrity-check';
 import { join } from 'node:path';
 import { readFileSync } from 'node:fs';
 
@@ -50,4 +50,4 @@ export async function ensureWasmModuleReady() {
     return Promise.resolve();
 }
 
-checkPalIntegrity<typeof import('pal/wasm')>(withImpl<typeof import('./pal-wasm-testing')>());
+checkPalIntegrity<typeof import('@pal/wasm')>(withImpl<typeof import('./pal-wasm-testing')>());
