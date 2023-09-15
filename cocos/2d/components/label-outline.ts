@@ -44,11 +44,6 @@ import { Label } from './label';
 @requireComponent(Label)
 @executeInEditMode
 export class LabelOutline extends Component {
-    @serializable
-    protected _color = new Color(0, 0, 0, 255);
-    @serializable
-    protected _width = 2;
-
     /**
      * @en
      * Outline color.

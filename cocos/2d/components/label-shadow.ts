@@ -41,13 +41,6 @@ import { Label } from './label';
 @requireComponent(Label)
 @executeInEditMode
 export class LabelShadow extends Component {
-    @serializable
-    protected _color = new Color(0, 0, 0, 255);
-    @serializable
-    protected _offset = new Vec2(2, 2);
-    @serializable
-    protected _blur = 2;
-
     /**
      * @en
      * Shadow color.

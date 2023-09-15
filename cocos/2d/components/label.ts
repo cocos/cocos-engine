@@ -608,9 +608,10 @@ export class Label extends UIRenderer {
      ** Outline effect used to change the display, only for system fonts or TTF fonts.
      **
      ** @zh
-     ** 描边效果组件,用于字体描边,只能用于系统字体。
+     ** 描边效果组件,用于字体描边,只能用于系统字体或 ttf 字体。
      **/
     @editable
+    @visible(function (this: Label) { return !(this._font instanceof BitmapFont); })
     @displayOrder(19)
     @tooltip('i18n:label.outline_enable')
     get enableOutline (): boolean {
@@ -630,7 +631,7 @@ export class Label extends UIRenderer {
      * 改变描边的颜色。
      */
     @editable
-    @visible(function (this: Label) { return this._enableOutline; })
+    @visible(function (this: Label) { return this._enableOutline && !(this._font instanceof BitmapFont); })
     @displayOrder(20)
     @tooltip('i18n:label.outline_color')
     get outlineColor (): Color {
@@ -650,7 +651,7 @@ export class Label extends UIRenderer {
      * 改变描边的宽度。
      */
     @editable
-    @visible(function (this: Label) { return this._enableOutline; })
+    @visible(function (this: Label) { return this._enableOutline && !(this._font instanceof BitmapFont); })
     @displayOrder(21)
     @tooltip('i18n:label.outline_width')
     get outlineWidth (): number {
@@ -663,10 +664,11 @@ export class Label extends UIRenderer {
     }
 
     /**
-     * @en Shadow effect for Label component, only for system fonts or TTF fonts.
-     * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体。
+     * @en Shadow effect for Label component, only for system fonts or TTF fonts. Disabled when cache mode is char.
+     * @zh 用于给 Label 组件添加阴影效果，只能用于系统字体或 ttf 字体。在缓存模式为 char 时不可用。
      */
     @editable
+    @visible(function (this: Label) { return !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(22)
     @tooltip('i18n:label.shadow_enable')
     get enableShadow (): boolean {
@@ -686,7 +688,7 @@ export class Label extends UIRenderer {
      * 阴影的颜色。
      */
     @editable
-    @visible(function (this: Label) { return this._enableShadow; })
+    @visible(function (this: Label) { return this._enableShadow && !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(23)
     @tooltip('i18n:label.shadow_color')
     get shadowColor (): Color {
@@ -706,7 +708,7 @@ export class Label extends UIRenderer {
      * 字体与阴影的偏移。
      */
     @editable
-    @visible(function (this: Label) { return this._enableShadow; })
+    @visible(function (this: Label) { return this._enableShadow && !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(24)
     @tooltip('i18n:label.shadow_offset')
     get shadowOffset (): Vec2 {
@@ -726,7 +728,7 @@ export class Label extends UIRenderer {
      * 阴影的模糊程度。
      */
     @editable
-    @visible(function (this: Label) { return this._enableShadow; })
+    @visible(function (this: Label) { return this._enableShadow && !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(25)
     @tooltip('i18n:label.shadow_blur')
     get shadowBlur (): number {
