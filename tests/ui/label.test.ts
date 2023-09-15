@@ -36,7 +36,7 @@ test('labelOutline.setter', () => {
     node.addComponent(LabelOutline);
     let labelOutline = node.getComponent(LabelOutline) as LabelOutline;
     node._setActiveInHierarchy(true);
-    labelOutline.onLoad();
+    labelOutline.onEnable();
     expect(label.enableOutline).toStrictEqual(true);
     labelOutline.color = new Color(255, 0, 0, 255);
     expect(label.outlineColor).toStrictEqual(new Color(255, 0, 0, 255));
@@ -58,7 +58,7 @@ test('labelShadow.setter', () => {
     node.addComponent(LabelShadow);
     let labelShadow = node.getComponent(LabelShadow) as LabelShadow;
     node._setActiveInHierarchy(true);
-    labelShadow.onLoad();
+    labelShadow.onEnable();
     expect(label.enableShadow).toStrictEqual(true);
     labelShadow.color = new Color(255, 0, 0, 255);
     expect(label.shadowColor).toStrictEqual(new Color(255, 0, 0, 255));

@@ -30,6 +30,7 @@ import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
 import { view } from '../../../ui/view';
+import { approx } from '../../../core';
 
 const Overflow = Label.Overflow;
 
@@ -78,7 +79,7 @@ export const ttfUtils =  {
         }
 
         // shadow// both
-        const isShadow = comp.enableShadow && (comp.shadowBlur > 0 || comp.shadowOffset.x !== 0 || comp.shadowOffset.y !== 0);
+        const isShadow = comp.enableShadow && (comp.shadowBlur > 0 || !approx(comp.shadowOffset.x, 0) || !approx(comp.shadowOffset.y, 0));
         if (isShadow) {
             style.hasShadow = true;
             style.shadowColor.set(comp.shadowColor);

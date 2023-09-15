@@ -131,15 +131,4 @@ export class LabelShadow extends Component {
         assertIsTrue(label, 'Required Label component to work, please add Label component.');
         label.enableShadow = false;
     }
-
-    /**
-     * @deprecated since v3.8.2, please use [[Label.enableShadow]] instead.
-     */
-    public onLoad (): void {
-        const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
-        if (this.enabledInHierarchy) {
-            label.enableShadow = true;
-        }
-    }
 }

@@ -110,17 +110,6 @@ export class LabelOutline extends Component {
         assertIsTrue(label, 'Required Label component to work, please add Label component.');
         label.enableOutline = false;
     }
-
-    /**
-     * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
-     */
-    public onLoad (): void {
-        const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
-        if (this.enabledInHierarchy) {
-            label.enableOutline = true;
-        }
-    }
 }
 
 cclegacy.LabelOutline = LabelOutline;
