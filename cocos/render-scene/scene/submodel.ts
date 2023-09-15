@@ -32,7 +32,6 @@ import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, Text
 import { errorID, Mat4, cclegacy } from '../../core';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
-import { MacroRecord, overrideMacros } from '../core/pass-utils';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
