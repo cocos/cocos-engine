@@ -20,8 +20,10 @@ import CharacterControllerTest from "./character-controller";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { builtinResMgr } from "../../exports/base";
 
-waitForAmmoInstantiation();
-InitPhysXLibs();
+beforeAll(async () => {
+    await waitForAmmoInstantiation();
+    await InitPhysXLibs();
+});
 
 game.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
 // Manually construct and register the system

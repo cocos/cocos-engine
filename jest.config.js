@@ -9,7 +9,10 @@ const { compilerOptions } = tsConfig.config;
 module.exports = {
     testEnvironment: './tests/test-environment.ts',
     testRegex: '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
-    moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` }),
+    moduleNameMapper: {
+        ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` }),
+        'external:(.*)': '<rootDir>/native/external/$1',
+    },
     transformIgnorePatterns: [
         // ignore everything in the node_modules EXCEPT for:
         // - @cocos/dragonbones-js
