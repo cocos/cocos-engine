@@ -56,13 +56,13 @@ export class LabelOutline extends Component {
     @tooltip('i18n:labelOutline.color')
     get color (): Readonly<Color> {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         return label.outlineColor;
     }
 
     set color (value) {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.outlineColor = value;
     }
 
@@ -78,13 +78,13 @@ export class LabelOutline extends Component {
     @tooltip('i18n:labelOutline.width')
     get width (): number {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         return label.outlineWidth;
     }
 
     set width (value) {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.outlineWidth = value;
     }
 
@@ -93,7 +93,7 @@ export class LabelOutline extends Component {
      */
     public onEnable (): void {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.enableOutline = true;
     }
 
@@ -102,7 +102,7 @@ export class LabelOutline extends Component {
      */
     public onDisable (): void {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.enableOutline = false;
     }
 }

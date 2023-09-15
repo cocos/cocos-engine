@@ -53,13 +53,13 @@ export class LabelShadow extends Component {
     @tooltip('i18n:labelShadow.color')
     get color (): Readonly<Color> {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         return label.shadowColor;
     }
 
     set color (value) {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.shadowColor = value;
     }
 
@@ -75,13 +75,13 @@ export class LabelShadow extends Component {
     @tooltip('i18n:labelShadow.offset')
     get offset (): Vec2 {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         return label.shadowOffset;
     }
 
     set offset (value) {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.shadowOffset = value;
     }
 
@@ -97,13 +97,13 @@ export class LabelShadow extends Component {
     @tooltip('i18n:labelShadow.blur')
     get blur (): number {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         return label.shadowBlur;
     }
 
     set blur (value) {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.shadowBlur = value;
     }
 
@@ -112,7 +112,7 @@ export class LabelShadow extends Component {
      */
     public onEnable (): void {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.enableShadow = true;
     }
 
@@ -121,7 +121,7 @@ export class LabelShadow extends Component {
      */
     public onDisable (): void {
         const label = this.node.getComponent(Label);
-        assertIsTrue(label, 'Required Label component to work, please add Label component.');
+        assertIsTrue(label);
         label.enableShadow = false;
     }
 }
