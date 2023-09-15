@@ -205,7 +205,7 @@ CCProgram dof-bokeh-fs %{
 
   void Accumulate(float coc, vec2 displacement, inout vec4 farAcc, inout vec4 nearAcc) {
     float dist = length(displacement);
-    vec2 offset = displacement * mainTexTexelSize.xy;
+    vec2 offset = displacement * mainTexTexelSize.xy * 2.0;
 
     vec4 prefilterColor = texture(prefilterTex, v_uv + offset);
     prefilterColor.a = Uint8ToFloat(prefilterColor.a) * bokehRadius;
@@ -251,7 +251,7 @@ CCProgram dof-filter-fs %{
 
   void main () {
     //use tent filter,reduce the gap between sampling points
-    vec4 o = mainTexTexelSize.xyxy * vec2(-0.5, 0.5).xxyy;
+    vec4 o = mainTexTexelSize.xyxy * 2.0 * vec2(-0.5, 0.5).xxyy;
     vec4 s =
       texture(bokehTex, v_uv + o.xy) +
       texture(bokehTex, v_uv + o.zy) +
@@ -271,8 +271,8 @@ CCProgram dof-combine-fs %{
 
   void main () {
     vec4 source = texture(colorTex, v_uv);
-    float coc = Uint8ToFloat(texture(cocTex, v_uv).r);
-    coc = (coc - 0.5) * 2.0 * bokehRadius;
+    float coc = Uint8ToFloat(texture(cocTex, v_uv).r) * bokehRadius;
+    coc = (coc - 0.5) * 2.0;
     vec4 dof = texture(filterTex, v_uv);
 
     float dofStrength = smoothstep(mainTexTexelSize.w * 2.0, mainTexTexelSize.w * 4.0, coc);
