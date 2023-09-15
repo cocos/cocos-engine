@@ -17,9 +17,9 @@ const imageTypeToName = {
     raw: '',
     texture: 'texture',
     'normal map': 'normalMap',
-    'sprite-frame': 'texture',
+    'sprite-frame': 'spriteFrame',
     'texture cube': 'textureCube',
-}
+};
 
 exports.template = /* html */`
 <div class="asset-image">
@@ -354,6 +354,10 @@ exports.methods = {
                 return;
             }
             let targetName = imageTypeToName[this.meta.userData.type];
+            if (targetName === 'spriteFrame') {
+                // change texture asset when import as sprite
+                targetName = 'texture';
+            }
             const targetSubMetaKey = Editor.Utils.UUID.nameToSubId(targetName);
             targetSubMetaKey && this.changeMipFilter(targetSubMetaKey);
         }
