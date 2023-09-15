@@ -212,7 +212,6 @@ export class BulletSharedBody {
         cocos2BulletQuat(quat, this.node.worldRotation);
         bt.Transform_setRotation(trans, quat);
 
-
         const motionState = bt.MotionState.implement(importFunc).$$.ptr as number;
         bt.ccMotionState_setup(motionState, this.id, trans);
         const body = bt.RigidBody_new(mass, motionState);
@@ -425,10 +424,10 @@ export class BulletSharedBody {
         if (this.isBodySleeping()) return;
         const bt_quat = BulletCache.instance.BT_QUAT_0;
         const bt_transform = BulletCache.instance.BT_TRANSFORM_0;
-        bt.MotionState_getWorldTransform(bt.RigidBody_getMotionState(this.body), bt_transform);
-        bt.Transform_getRotation(bt_transform, bt_quat);
+        bt.RigidBody_getWorldTransform(this.body, bt_transform);
+        const originPosPtr = bt.Transform_getRotationAndOrigin(bt_transform, bt_quat) as number;
         this.node.worldRotation = bullet2CocosQuat(quat_0, bt_quat);
-        this.node.worldPosition = bullet2CocosVec3(v3_0, bt.Transform_getOrigin(bt_transform));
+        this.node.worldPosition = bullet2CocosVec3(v3_0, originPosPtr);
 
         // sync node to ghost
         if (this._ghostStruct) {
@@ -530,6 +529,6 @@ export class BulletSharedBody {
     }
 
     private isBodySleeping (): boolean {
-        return bt.CollisionObject_getActivationState(this.body) === btCollisionObjectStates.ISLAND_SLEEPING;
+        return bt.CollisionObject_isSleeping(this.body);
     }
 }

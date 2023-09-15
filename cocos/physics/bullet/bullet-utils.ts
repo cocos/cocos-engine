@@ -34,9 +34,10 @@ export function cocos2BulletVec3 (out: Bullet.ptr, v: IVec3Like): Bullet.ptr {
 }
 
 export function bullet2CocosVec3<T extends IVec3Like> (out: T, v: Bullet.ptr): T {
-    out.x = bt.Vec3_x(v);
-    out.y = bt.Vec3_y(v);
-    out.z = bt.Vec3_z(v);
+    const rawVertexBuffer = bt.HEAPF32.subarray(v / 4, v / 4 + 3);
+    out.x = rawVertexBuffer[0];
+    out.y = rawVertexBuffer[1];
+    out.z = rawVertexBuffer[2];
     return out;
 }
 
@@ -46,10 +47,11 @@ export function cocos2BulletQuat (out: Bullet.ptr, q: IQuatLike): Bullet.ptr {
 }
 
 export function bullet2CocosQuat<T extends IQuatLike> (out: T, q: Bullet.ptr): T {
-    out.x = bt.Quat_x(q);
-    out.y = bt.Quat_y(q);
-    out.z = bt.Quat_z(q);
-    out.w = bt.Quat_w(q);
+    const rawVertexBuffer = bt.HEAPF32.subarray(q / 4, q / 4 + 4);
+    out.x = rawVertexBuffer[0];
+    out.y = rawVertexBuffer[1];
+    out.z = rawVertexBuffer[2];
+    out.w = rawVertexBuffer[3];
     return out;
 }
 
