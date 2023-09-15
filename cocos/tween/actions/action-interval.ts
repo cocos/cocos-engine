@@ -325,8 +325,7 @@ export class Sequence extends ActionInterval {
             for (let i = 1; i < last; i++) {
                 if (paramArray[i]) {
                     action1 = prev;
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    prev = Sequence._actionOneTwo(action1, paramArray[i]);
+                    prev = Sequence._actionOneTwo(action1 as ActionInterval, paramArray[i] as ActionInterval);
                 }
             }
             this.initWithTwoActions(prev, paramArray[last]);
@@ -349,8 +348,7 @@ export class Sequence extends ActionInterval {
         durationOne *= actionOne._repeatMethod ? actionOne._timesForRepeat : 1;
         durationTwo *= actionTwo._repeatMethod ? actionTwo._timesForRepeat : 1;
         const d = durationOne + durationTwo;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        this.initWithDuration(d);
+        this.initWithDuration(d as number);
 
         this._actions[0] = actionOne;
         this._actions[1] = actionTwo;
@@ -359,8 +357,7 @@ export class Sequence extends ActionInterval {
 
     clone (): any {
         const action = new Sequence();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        this._cloneDecoration(action as any);
+        this._cloneDecoration(action as ActionInterval);
         action.initWithTwoActions(this._actions[0].clone(), this._actions[1].clone());
         return action as any;
     }
@@ -472,14 +469,12 @@ export function sequence (/* Multiple Arguments */tempArray: any): ActionInterva
         result = paramArray[0];
         for (let i = 1; i <= last; i++) {
             if (paramArray[i]) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                result = Sequence._actionOneTwo(result, paramArray[i]);
+                result = Sequence._actionOneTwo(result as ActionInterval, paramArray[i] as ActionInterval);
             }
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return result;
+    return result as ActionInterval;
 }
 
 /*
@@ -502,8 +497,7 @@ export class Repeat extends ActionInterval {
 
     constructor (action?: any, times?: any) {
         super();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        times !== undefined && this.initWithAction(action, times);
+        times !== undefined && this.initWithAction(action as FiniteTimeAction, times as number);
     }
 
     /*
@@ -790,11 +784,9 @@ export class Spawn extends ActionInterval {
             this._two = action2;
 
             if (d1 > d2) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this._two = Sequence._actionOneTwo(action2, delayTime(d1 - d2));
+                this._two = Sequence._actionOneTwo(action2 as ActionInterval, delayTime(d1 - d2));
             } else if (d1 < d2) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this._one = Sequence._actionOneTwo(action1, delayTime(d2 - d1));
+                this._one = Sequence._actionOneTwo(action1 as ActionInterval, delayTime(d2 - d1));
             }
 
             ret = true;
@@ -919,8 +911,7 @@ export class ReverseTime extends ActionInterval {
 
     constructor (action?: any) {
         super();
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        action && this.initWithAction(action);
+        action && this.initWithAction(action as ActionInterval);
     }
 
     /*

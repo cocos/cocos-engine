@@ -39,3 +39,28 @@ test('destroySelf', function () {
     expect(onDestroy).toBeCalledTimes(1);
     director.unregisterSystem(sys);
 });
+
+test('sequence', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    const target = new Vec3(10, 20, 30);
+    const tweenact = tween(node).to(1, {position: target}, { easing: "bounceOut" });
+    tween(node).sequence(tweenact).start();
+
+    for (let i = 0; i < 100; ++i) {
+        game.step();
+    }
+    // @ts-expect-error access private property 
+    const action = tweenact._actions[0] as TweenAction;
+    // @ts-expect-error access private property 
+    const props = action._props;
+    for (const property in props) {
+        const prop = props[property];
+        expect(Vec3.equals(prop.current, target)).toBeTruthy();
+    }
+
+    director.unregisterSystem(sys);
+});
