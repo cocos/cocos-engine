@@ -14,6 +14,10 @@ exports.template = /* html */`
             <option value="60">60</option>
         </ui-select>
     </ui-prop>
+    <ui-prop readonly>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.preserveMeshInstances.name" tooltip="i18n:ENGINE.assets.fbx.preserveMeshInstances.title"></ui-label>
+        <ui-checkbox slot="content" class="preserveMeshInstances-checkbox"></ui-checkbox>
+    </ui-prop>
     <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.name" tooltip="i18n:ENGINE.assets.fbx.preferLocalTimeSpan.title"></ui-label>
         <ui-checkbox slot="content" class="preferLocalTimeSpan-checkbox"></ui-checkbox>
@@ -69,6 +73,7 @@ exports.$ = {
     legacyFbxImporterCheckbox: '.legacyFbxImporter-checkbox',
     animationBakeRateSelect: '.animationBakeRate-select',
     preferLocalTimeSpanCheckbox: '.preferLocalTimeSpan-checkbox',
+    preserveMeshInstancesCheckbox: '.preserveMeshInstances-checkbox',
     smartMaterialEnabledCheckbox: '.smartMaterialEnabled-checkbox',
     smartMaterialEnabledProp: '.smart-material-prop',
 };
@@ -132,6 +137,20 @@ const Elements = {
 
             updateElementInvalid.call(panel, panel.$.animationBakeRateSelect, 'fbx.animationBakeRate');
             updateElementReadonly.call(panel, panel.$.animationBakeRateSelect);
+        },
+    },
+    preserveMeshInstances: {
+        update() {
+            const panel = this;
+
+            let defaultValue = true;
+            if (panel.meta.userData.fbx) {
+                defaultValue = getPropValue.call(panel, panel.meta.userData.fbx.preserveMeshInstances, defaultValue);
+            }
+
+            panel.$.preserveMeshInstancesCheckbox.value = defaultValue;
+
+            updateElementInvalid.call(panel, panel.$.preserveMeshInstancesCheckbox, 'fbx.preserveMeshInstances');
         },
     },
     preferLocalTimeSpan: {
