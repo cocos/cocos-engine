@@ -177,7 +177,7 @@ inputManager.didAccelerate = function (eventData) {
         mAcceleration.y = -mAcceleration.y;
     }
     // fix android acc values are opposite
-    if (cc.sys.os === cc.sys.OS_ANDROID &&
+    if ((cc.sys.os === cc.sys.OS_ANDROID || cc.sys.os === cc.sys.OS_OPENHARMONY) &&
         cc.sys.browserType !== cc.sys.BROWSER_TYPE_MOBILE_QQ) {
         mAcceleration.x = -mAcceleration.x;
         mAcceleration.y = -mAcceleration.y;
