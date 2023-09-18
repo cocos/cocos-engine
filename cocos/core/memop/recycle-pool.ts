@@ -24,11 +24,6 @@
 
 import { ScalableContainer } from './scalable-container';
 
-export class UpdateRecyclePool {
-    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-empty-function
-    update (...args: any[]) {}
-}
-
 /**
  * @en Recyclable object pool. It's designed to be entirely reused each time.
  * There is no put and get method, each time you get the [[data]], you can use all elements as new.
@@ -41,7 +36,7 @@ export class UpdateRecyclePool {
  * @see [[Pool]]
  */
 export class RecyclePool<T = any> extends ScalableContainer {
-    private _fn: (...args: any[]) => T;
+    private _fn: () => T;
     private _dtor: ((obj: T) => void) | null = null;
     private _count = 0;
     private _data: T[];
@@ -54,7 +49,7 @@ export class RecyclePool<T = any> extends ScalableContainer {
      * @param size Initial pool size
      * @param dtor The finalizer of element, it's invoked when this container is destroyed or shrunk
      */
-    constructor (fn: (...args: any[]) => T, size: number, dtor?: (obj: T) => void) {
+    constructor (fn: () => T, size: number, dtor?: (obj: T) => void) {
         super();
         this._fn = fn;
         this._dtor = dtor || null;
@@ -113,25 +108,6 @@ export class RecyclePool<T = any> extends ScalableContainer {
         }
 
         return this._data[this._count++];
-    }
-
-    /**
-     * @en Create objects with given parameters. If object creation is parameter-based, it is recommended to start with an initial length of 0.
-     * @zh 通过给定参数构建对象，如果是通过参数构建对象的方式，建议Pool初始长度为0,并让目标类继承UpdateRecyclePool，便于更新操作。
-     */
-    public addWithArgs (...args: any[]): T {
-        const data = this._data[this._count];
-        if (data) {
-            this._count++;
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-            if (data instanceof UpdateRecyclePool) { data.update(...args); }
-            return data;
-        }
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        const newObj = this._fn(...args); // 使用传入的参数创建新对象
-        this._data[this._count++] = newObj;
-
-        return newObj;
     }
 
     /**

@@ -1664,19 +1664,19 @@ class ExecutorPools {
         }), 64);
     }
     addDeviceQueue (): DeviceRenderQueue {
-        return this.deviceQueuePool.addWithArgs();
+        return this.deviceQueuePool.add();
     }
     addComputeQueue (): DeviceComputeQueue {
         return this.computeQueuePool.add();
     }
     addGraphScene (): GraphScene {
-        return this.graphScenePool.addWithArgs();
+        return this.graphScenePool.add();
     }
     addReflectionProbe (): RenderReflectionProbeQueue {
-        return this.reflectionProbe.addWithArgs();
+        return this.reflectionProbe.add();
     }
     addRasterPassInfo (): RasterPassInfo {
-        return this.rasterPassInfoPool.addWithArgs();
+        return this.rasterPassInfoPool.add();
     }
     addComputePassInfo (): ComputePassInfo {
         return this.computePassInfoPool.add();
