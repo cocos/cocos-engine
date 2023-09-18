@@ -31,7 +31,8 @@ import { game } from '../../game';
 import { getError, error, sys, debug, IVec2Like } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
-export const B2 = {} as any;
+// eslint-disable-next-line import/no-mutable-exports
+export let B2 = {} as any;
 
 export function getImplPtr (wasmObject: any): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -113,7 +114,7 @@ function initWasm (wasmUrl: string): Promise<void> {
             },
         }).then((Instance: any) => {
             if (!EDITOR && !TEST) debug('[box2d]:box2d wasm lib loaded.');
-            Object.assign(B2, Instance);
+            B2 = Instance;
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }
@@ -122,7 +123,7 @@ function initAsm (): Promise<void> {
     if (asmFactory != null) {
         return asmFactory().then((instance: any) => {
             if (!EDITOR && !TEST) debug('[box2d]:box2d asm lib loaded.');
-            Object.assign(B2, instance);
+            B2 = instance;
         });
     } else {
         return new Promise<void>((resolve, reject) => {

@@ -30,19 +30,10 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 
 export class B2FixedJoint extends B2Joint implements IFixedJoint {
     setFrequency (v: number): void {
-        this.updateStiffnessAndDamping();
+        (this._b2joint as B2.WeldJoint).SetFrequency(v);
     }
     setDampingRatio (v: number): void {
-        this.updateStiffnessAndDamping();
-    }
-    updateStiffnessAndDamping (): void {
-        if (this._b2joint) {
-            B2.SetLinearFrequencyAndDampingRatio(
-                this._b2joint,
-                (this._jointComp as FixedJoint2D).frequency,
-                (this._jointComp as FixedJoint2D).dampingRatio,
-            );
-        }
+        (this._b2joint as B2.WeldJoint).SetDampingRatio(v);
     }
 
     _createJointDef (): any {
@@ -51,8 +42,8 @@ export class B2FixedJoint extends B2Joint implements IFixedJoint {
         def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
         def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         def.referenceAngle = 0;
-        def.damping = 0;//comp.dampingRatio;
-        def.stiffness = 1;//comp.frequency;
+        def.dampingRatio = comp.dampingRatio;
+        def.frequencyHz = comp.frequency;
         return def;
     }
 }

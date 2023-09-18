@@ -231,8 +231,15 @@ export class B2RigidBody2D implements IRigidBody2D {
     }
 
     setType (v: ERigidBody2DType): void {
-        this._body!.SetType(v as number);
+        if (v === ERigidBody2DType.Dynamic) {
+            this._body!.SetType(B2.BodyType.b2_dynamicBody);
+        } else if (v === ERigidBody2DType.Kinematic) {
+            this._body!.SetType(B2.BodyType.b2_kinematicBody);
+        } else if (v === ERigidBody2DType.Static) {
+            this._body!.SetType(B2.BodyType.b2_staticBody);
+        }
     }
+
     setLinearDamping (v: number): void {
         this._body!.SetLinearDamping(v);
     }
