@@ -81,6 +81,7 @@ jest.mock(
     'external:emscripten/physx/physx.release.wasm.wasm',
     'external:emscripten/spine/spine.wasm',
     'external:emscripten/box2d/box2d.release.wasm.wasm',
+    'external:emscripten/meshopt/meshopt_decoder.wasm.wasm',
 ].forEach(mockModuleId => {
     jest.mock(mockModuleId, 
         () => ({
@@ -90,14 +91,6 @@ jest.mock(
         { virtual: true, },
     );
 });
-
-jest.mock('external:emscripten/meshopt/meshopt_decoder.wasm.wasm', 
-    () => ({
-        __esModule: true,
-        default: 'this should be a wasm url',
-    }),
-    { virtual: true, },
-);
 
 jest.mock('../cocos/core/platform/debug', () => {
     const result = {

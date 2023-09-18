@@ -17,7 +17,10 @@ module.exports = {
         // ignore everything in the node_modules EXCEPT for:
         // - @cocos/dragonbones-js
         'node_modules/(?!(@cocos/dragonbones-js)/)',
-        'native/external/emscripten/',
+        // ignore everything in the native/external/emscripten EXCEPT for:
+        // - meshopt
+        // Since above packages are in ESM module format, whereas we currently use CJS for testing.
+        'native/external/emscripten/(?!(meshopt)/)',
     ],
     setupFilesAfterEnv: [
         "./tests/setup-after-env.ts",
