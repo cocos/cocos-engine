@@ -9,7 +9,7 @@
   "exports": {
     ".": {
       "node": "./package.json",
-      "types": "./src/index.d.ts",
+      "types": "./src/index.ts",
       "native": "./src/native/env.ts",
       "web": "./src/web/env.ts",
       "minigame": {
