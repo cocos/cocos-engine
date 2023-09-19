@@ -34,6 +34,7 @@ import { Asset } from './asset';
 import { cclegacy, warnID } from '../../core';
 import { ProgramLibrary } from '../../rendering/custom/private';
 import { addEffectDefaultProperties, getCombinationDefines } from '../../render-scene/core/program-utils';
+import { MaterialPropertyFull } from './material';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
@@ -323,6 +324,9 @@ export class EffectAsset extends Asset {
     @serializable
     @editorOnly
     public hideInEditor = false;
+
+    @serializable
+    public props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 
     /**
      * @en The loaded callback which should be invoked by the [[AssetManager]], will automatically register the effect.

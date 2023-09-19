@@ -454,12 +454,27 @@ export class Material extends Asset {
                     for (const p in props) {
                         this._uploadProperty(pass, p, props[p]);
                     }
+                    this._uploadPropertyFromEffectAsset(pass);
                 });
             } else {
                 for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
             }
         }
         this._hash = Material.getHash(this);
+    }
+
+    /**
+     * @engineInternal
+     */
+    protected _uploadPropertyFromEffectAsset (pass: Pass): void {
+        if (this._effectAsset) {
+            for (let i = 0; i < this._effectAsset.props.length; i++) {
+                const props = this._effectAsset.props[i];
+                for (const p in props) {
+                    this._uploadProperty(pass, p, props[p]);
+                }
+            }
+        }
     }
 
     /**
