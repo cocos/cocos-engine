@@ -8,7 +8,6 @@
   "license": "MIT",
   "exports": {
     ".": {
-      "node": "./package.json",
       "types": "./src/index.ts"
     }
   }

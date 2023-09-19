@@ -176,11 +176,6 @@
                   ],
                   "description": "Abstract platform export, like `web`, `native` and `minigame`. Usually this is used for PAL modules. The build tools resolve the relative platform as entry according to the build platform config.\n- The value can be a `string` or a `object` which requires a default item. eg. { \"web\": \"/path/to/index.ts\" } is equals to { \"web\": { default: \"/path/to/index.ts\" } }.\n- We can also specify the exact platform like { \"web\": {default: \"/path/to/index.ts\", \"web-desktop\": \"/path/to/index.ts\" } }."
                 },
-                "node": {
-                  "const": "./package.json",
-                  "description": "`node` should be specified as './package.json' to resolve the path of package.json for build tools.",
-                  "type": "string"
-                },
                 "types": {
                   "description": "This is the main module export condition.\n- The dts bundle tools resolve this condition as entry.\n- The API doc tools resolve this condition as entry.\n- If no platform export is specified, the build tools resolve this condition as entry.",
                   "type": "string"
@@ -217,7 +212,6 @@
                 }
               },
               "required": [
-                "node",
                 "types"
               ],
               "type": "object"
