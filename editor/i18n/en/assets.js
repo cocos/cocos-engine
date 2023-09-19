@@ -40,6 +40,7 @@ module.exports = {
         newPac: 'Auto Atlas',
         newLabelAtlas: 'Label Atlas',
         newTerrain: 'Terrain',
+        autoGenerateMaterial: '自动生成材质',
         'label-atlas': {
             SpriteFrameTip: 'Sprite Frame',
             ItemWidthTip: 'Item Width',
