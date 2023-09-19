@@ -28,8 +28,8 @@ import { EffectAsset } from './effect-asset';
 import { Texture, Type } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { IPassInfoFull, Pass, PassOverrides } from '../../render-scene/core/pass';
-import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-utils';
-import { Color, warnID, Vec4, cclegacy } from '../../core';
+import { MacroRecord, MaterialProperty, type2reader } from '../../render-scene/core/pass-utils';
+import { Color, warnID, Vec4, cclegacy, Vec2, Vec3, Mat3, Mat4 } from '../../core';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../misc/renderer';
 
@@ -351,6 +351,52 @@ export class Material extends Asset {
             if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
             const props = this._props[this._passes[passIdx].propertyIndex];
             if (name in props) { return props[name]; }
+        }
+        const passid = passIdx;
+        let pass: Pass | null = null;
+        if (passid !== undefined) {
+            pass = this._passes[passid];
+        } else {
+            for (let i = 0; i < this._passes.length; ++i) {
+                const handle = this._passes[i].getHandle(name);
+                if (handle !== 0) {
+                    pass = this._passes[i];
+                    break;
+                }
+            }
+        }
+        if (pass) {
+            const handle = pass.getHandle(name);
+            if (handle !== 0) {
+                const type = Pass.getTypeFromHandle(handle);
+                if (type2reader[type]) {
+                    if (type as Type === Type.INT || type as Type === Type.FLOAT) {
+                        const result: number = 0;
+                        pass.getUniform(handle, result);
+                        return result;
+                    } else if (type as Type === Type.INT2 || type as Type === Type.FLOAT2) {
+                        const result: Vec2 = new Vec2();
+                        pass.getUniform(handle, result);
+                        return result;
+                    } else if (type as Type === Type.INT3 || type as Type === Type.FLOAT3) {
+                        const result: Vec3 = new Vec3();
+                        pass.getUniform(handle, result);
+                        return result;
+                    } else if (type as Type === Type.INT4 || type as Type === Type.FLOAT4) {
+                        const result: Vec4 = new Vec4();
+                        pass.getUniform(handle, result);
+                        return result;
+                    } else if (type as Type === Type.MAT3) {
+                        const result: Mat3 = new Mat3();
+                        pass.getUniform(handle, result);
+                        return result;
+                    } else if (type as Type === Type.MAT4) {
+                        const result: Mat4 = new Mat4();
+                        pass.getUniform(handle, result);
+                        return result;
+                    }
+                }
+            }
         }
         return null;
     }
