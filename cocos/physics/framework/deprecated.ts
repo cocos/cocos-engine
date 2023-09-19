@@ -148,12 +148,6 @@ removeProperty(RigidBody.prototype, 'RigidBody.prototype', [
     },
 ]);
 
-removeProperty(EConstraintType, 'EConstraintType.prototype', [
-    {
-        name: 'CONE_TWIST',  
-    },
-]);
-
 /**
  * Alias of [[RigidBody]]
  * @deprecated Since v1.2
