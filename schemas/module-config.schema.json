@@ -414,8 +414,7 @@
       },
       "required": [
         "name",
-        "version",
-        "exports"
+        "version"
       ],
       "type": "object"
     }
