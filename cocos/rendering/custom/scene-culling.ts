@@ -1,9 +1,9 @@
-import { Vec3, assert, RecyclePool, UpdateRecyclePool, cclegacy } from '../../core';
+import { Vec3, assert, RecyclePool } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer } from '../../gfx';
-import { BatchingSchemes, IMacroPatch, Pass, RenderScene } from '../../render-scene';
-import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, ProbeType,
-    ReflectionProbe, SKYBOX_FLAG, ShadowType, SpotLight, SubModel } from '../../render-scene/scene';
+import { BatchingSchemes, Pass, RenderScene } from '../../render-scene';
+import { CSMLevel, Camera, DirectionalLight, LightType, Model, ProbeType,
+    ReflectionProbe, SKYBOX_FLAG, ShadowType, SpotLight } from '../../render-scene/scene';
 import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { hashCombineStr, getSubpassOrPassID, bool } from './define';
@@ -14,19 +14,12 @@ import { RenderQueue, RenderQueueDesc, instancePool } from './web-pipeline-types
 import { ObjectPool } from './utils';
 
 const vec3Pool = new ObjectPool(() => new Vec3());
-const cullingKeyRecycle = new RecyclePool((
-    sceneData: SceneData,
-    castShadows: boolean,
-    sceneId: number,
-) => new CullingKey(sceneData, castShadows, sceneId), 0);
-const cullingQueriesRecycle = new RecyclePool(() => new CullingQueries(), 0);
-const renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 0);
-const renderQueueDescRecycle = new RecyclePool((
-    culledSource: number,
-    renderQueueTarget: number,
-    lightType: LightType,
-) => new RenderQueueDesc(culledSource, renderQueueTarget, lightType), 0);
-
+class CullingPools {
+    cullingKeyRecycle = new RecyclePool(() => new CullingKey(), 8);
+    cullingQueriesRecycle = new RecyclePool(() => new CullingQueries(), 8);
+    renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 8);
+    renderQueueDescRecycle = new RecyclePool(() => new RenderQueueDesc(), 8);
+}
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D,
     Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
@@ -82,15 +75,14 @@ function computeCullingKey (
     return hashCode;
 }
 
-class CullingKey extends UpdateRecyclePool {
-    sceneData: SceneData;
+class CullingKey {
+    sceneData: SceneData | null = null;
     castShadows = false;
-    constructor (sceneData: SceneData, castShadows: boolean, verId: number) {
-        super();
+    constructor (sceneData: SceneData | null = null, castShadows: boolean = false) {
         this.sceneData = sceneData;
         this.castShadows = castShadows;
     }
-    update (sceneData: SceneData, castShadows: boolean, verId: number): void {
+    update (sceneData: SceneData, castShadows: boolean): void {
         this.sceneData = sceneData;
         this.castShadows = castShadows;
     }
@@ -98,7 +90,7 @@ class CullingKey extends UpdateRecyclePool {
 
 let pSceneData: PipelineSceneData;
 
-class CullingQueries extends UpdateRecyclePool {
+class CullingQueries {
     // key: hash val
     culledResultIndex: Map<number, number> = new Map<number, number>();
     cullingKeyResult: Map<number, CullingKey> = new Map<number, CullingKey>();
@@ -274,6 +266,7 @@ export class SceneCulling {
     culledResults: Array<Array<Model>> = new Array<Array<Model>>();
     renderQueues: Array<RenderQueue> = new Array<RenderQueue>();
     sceneQueryIndex: Map<number, RenderQueueDesc> = new Map<number, RenderQueueDesc>();
+    cullingPools = new CullingPools();
     // source id
     numCullingQueries = 0;
     // target id
@@ -281,10 +274,10 @@ export class SceneCulling {
     layoutGraph;
     renderGraph;
     resetPool (): void {
-        cullingKeyRecycle.reset();
-        cullingQueriesRecycle.reset();
-        renderQueueRecycle.reset();
-        renderQueueDescRecycle.reset();
+        this.cullingPools.cullingKeyRecycle.reset();
+        this.cullingPools.cullingQueriesRecycle.reset();
+        this.cullingPools.renderQueueRecycle.reset();
+        this.cullingPools.renderQueueDescRecycle.reset();
         instancePool.reset();
     }
     clear (): void {
@@ -311,7 +304,9 @@ export class SceneCulling {
         const scene = sceneData.scene!;
         let queries = this.sceneQueries.get(scene);
         if (!queries) {
-            this.sceneQueries.set(scene, cullingQueriesRecycle.addWithArgs());
+            const cullingQuery = this.cullingPools.cullingQueriesRecycle.add();
+            cullingQuery.update();
+            this.sceneQueries.set(scene, cullingQuery);
             queries = this.sceneQueries.get(scene);
         }
         const castShadow: boolean = bool(sceneData.flags & SceneFlags.SHADOW_CASTER);
@@ -326,11 +321,12 @@ export class SceneCulling {
             this.culledResults.push([]);
         }
         queries!.culledResultIndex.set(key, sourceID);
-        queries!.cullingKeyResult.set(key, cullingKeyRecycle.addWithArgs(
+        const cullingKey = this.cullingPools.cullingKeyRecycle.add();
+        cullingKey.update(
             sceneData,
             castShadow,
-            sceneId,
-        ));
+        );
+        queries!.cullingKeyResult.set(key, cullingKey);
         return sourceID;
     }
 
@@ -338,7 +334,9 @@ export class SceneCulling {
         const targetID = this.numRenderQueues++;
         if (this.numRenderQueues > this.renderQueues.length) {
             assert(this.numRenderQueues === (this.renderQueues.length + 1));
-            this.renderQueues.push(renderQueueRecycle.addWithArgs());
+            const renderQueue = this.cullingPools.renderQueueRecycle.add();
+            renderQueue.update();
+            this.renderQueues.push(renderQueue);
         }
         assert(targetID < this.renderQueues.length);
         const rq = this.renderQueues[targetID];
@@ -362,8 +360,10 @@ export class SceneCulling {
             const targetID = this.createRenderQueue(sceneData.flags, layoutID);
 
             const lightType = sceneData.light.light ? sceneData.light.light.type : LightType.UNKNOWN;
+            const renderQueueDesc = this.cullingPools.renderQueueDescRecycle.add();
+            renderQueueDesc.update(sourceID, targetID, lightType);
             // add render queue to query source
-            this.sceneQueryIndex.set(v, renderQueueDescRecycle.addWithArgs(sourceID, targetID, lightType));
+            this.sceneQueryIndex.set(v, renderQueueDesc);
         }
     }
 
@@ -389,7 +389,7 @@ export class SceneCulling {
             assert(!!scene);
             for (const [key, sourceID] of queries.culledResultIndex) {
                 const cullingKey = queries.cullingKeyResult.get(key)!;
-                const sceneData = cullingKey.sceneData;
+                const sceneData = cullingKey.sceneData!;
                 assert(!!sceneData.camera);
                 assert(sceneData.camera.scene === scene);
                 const camera = sceneData.camera;
