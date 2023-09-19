@@ -33,7 +33,7 @@ import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
 import { ScrollView, EventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
-import { warnID, logID } from '../core/platform/debug';
+import { warnID, logID } from '@base/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { cclegacy } from '@base/global';
 import { NodeEventType } from '../scene-graph/node-event';

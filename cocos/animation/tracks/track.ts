@@ -25,7 +25,8 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import { SUPPORT_JIT } from 'internal:constants';
 import type { Component } from '../../scene-graph/component';
-import { error, ObjectCurve, QuatCurve, RealCurve, errorID, warnID, js } from '../../core';
+import { error, errorID, warnID } from '@base/debug';
+import { ObjectCurve, QuatCurve, RealCurve, js } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 
 import { Node } from '../../scene-graph';

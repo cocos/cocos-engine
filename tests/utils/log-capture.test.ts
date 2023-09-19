@@ -1,5 +1,5 @@
-import { error, errorID, warn, warnID } from "../../cocos/core";
-import { captureErrorIDs, captureErrors, captureWarnIDs, captureWarns } from "./log-capture";
+import { error, errorID, warn, warnID } from '@base/debug';
+import { captureErrorIDs, captureErrors, captureWarnIDs, captureWarns } from './log-capture';
 
 describe('Log capture', () => {
     test.each([

@@ -31,7 +31,7 @@ import { cclegacy } from '@base/global';
 import { Enum } from '../../core/value-types';
 import { Asset } from '../../asset/assets/asset';
 import { Node } from '../node';
-import { warnID } from '../../core/platform/debug';
+import { warnID } from '@base/debug';
 import { updateChildrenForDeserialize } from '../../core/utils/jsb-utils';
 import * as utils from './utils';
 

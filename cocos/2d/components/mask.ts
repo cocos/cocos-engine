@@ -25,7 +25,8 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, serializable, range, slide, executeInEditMode } from 'cc.decorator';
 import { JSB } from 'internal:constants';
-import { clamp, Color, Mat4, Vec2, Vec3, warnID, ccenum, error } from '../../core';
+import { clamp, Color, Mat4, Vec2, Vec3, ccenum } from '../../core';
+import { warnID, error } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../scene-graph/node-enum';

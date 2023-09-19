@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
-import { error, IVec3Like, Vec3 } from '../../../core';
-import { PhysicsSystem  } from '../../framework';
+import { error } from '@base/debug';
+import { IVec3Like, Vec3 } from '../../../core';
+import { PhysicsSystem } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { getWrapShape, PX, _trans, getJsTransform } from '../physx-adapter';

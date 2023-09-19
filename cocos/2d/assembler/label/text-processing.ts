@@ -26,7 +26,7 @@ import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
 import { cclegacy } from '@base/global';
 import { Color, Pool, Rect, Vec2 } from '../../../core';
-import { log, logID, warn } from '../../../core/platform';
+import { log, logID, warn } from '@base/debug';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';

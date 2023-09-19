@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec4, Vec3, warnID } from '../../../core';
+import { Vec4, Vec3 } from '../../../core';
+import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { Camera } from '../../../render-scene/scene';
 import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';

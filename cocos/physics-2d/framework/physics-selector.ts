@@ -27,10 +27,9 @@ import { EDITOR, DEBUG, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { IBoxShape, ICircleShape, IPolygonShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID, log } from '../../core';
-import { ECollider2DType, EJoint2DType  } from './physics-types';
-import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
-    IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
+import { errorID, log } from '@base/debug';
+import { ECollider2DType, EJoint2DType } from './physics-types';
+import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint, IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
 
 // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type IPhysicsEngineId = 'builtin' | 'box2d' | 'box2d-wasm'| string;

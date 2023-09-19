@@ -25,7 +25,7 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { value } from '../utils/js';
 import { cclegacy } from '@base/global';
-import { errorID } from '../platform/debug';
+import { errorID } from '@base/debug';
 
 /**
  * @en

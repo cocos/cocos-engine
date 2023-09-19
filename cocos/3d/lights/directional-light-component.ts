@@ -26,7 +26,8 @@
 import { Light } from './light-component';
 import { scene } from '../../render-scene';
 import { cclegacy } from '@base/global';
-import { clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, CCInteger } from '../../core';
+import { clamp, CCBoolean, CCFloat, _decorator, settings, Settings, CCInteger } from '../../core';
+import { warnID } from '@base/debug';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
 import { MeshRenderer } from '../framework/mesh-renderer';

@@ -26,7 +26,7 @@ import { HUAWEI, TAOBAO_MINIGAME, WASM_SUBPACKAGE, XIAOMI } from 'internal:const
 import { minigame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { basename } from '../../cocos/core/utils/path';
-import { error, log } from '../../cocos/core/platform/debug';
+import { error, log } from '@base/debug';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
     return getPlatformBinaryUrl(wasmUrl).then((url) => WebAssembly.instantiate(url, importObject));

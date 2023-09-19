@@ -23,7 +23,7 @@
 */
 
 import { Asset } from '../assets';
-import { error } from '../../core';
+import { error } from '@base/debug';
 import { cclegacy } from '@base/global';
 import packManager from './pack-manager';
 import RequestItem from './request-item';

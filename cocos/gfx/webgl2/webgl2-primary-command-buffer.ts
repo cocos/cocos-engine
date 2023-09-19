@@ -30,15 +30,13 @@ import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
-import {
-    WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncBlitTexture, WebGL2CmdFuncCopyBuffersToTexture,
-    WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
+import { WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncBlitTexture, WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2DeviceManager } from './webgl2-define';
-import { error } from '../../core';
+import { error } from '@base/debug';
 
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     public beginRenderPass (

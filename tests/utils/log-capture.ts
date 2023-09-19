@@ -1,4 +1,4 @@
-import type { error, errorID, warn, warnID } from "../../cocos/core";
+import type { error, errorID, warn, warnID } from '@base/debug';
 
 abstract class LogWatcher<TArgs> {
     constructor(private _stop: () => void) {

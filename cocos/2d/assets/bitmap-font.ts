@@ -27,7 +27,8 @@ import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
 import { cclegacy } from '@base/global';
-import { js, warn } from '../../core';
+import { js } from '../../core';
+import { warn } from '@base/debug';
 
 export interface IConfig {
     [key: string]: any;

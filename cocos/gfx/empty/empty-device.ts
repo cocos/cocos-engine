@@ -55,7 +55,7 @@ import { EmptyRenderPass } from './empty-render-pass';
 import { EmptyShader } from './empty-shader';
 import { EmptySwapchain } from './empty-swapchain';
 import { EmptyTexture } from './empty-texture';
-import { debug } from '../../core';
+import { debug } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { ImageAsset } from '../../asset/assets';
 

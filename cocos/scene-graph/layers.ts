@@ -27,7 +27,7 @@ import { cclegacy } from '@base/global';
 import { js } from '../core';
 import { log2 } from '../core/math/bits';
 import { assertIsTrue } from '../core/data/utils/asserts';
-import { getError, warn } from '../core/platform/debug';
+import { getError, warn } from '@base/debug';
 import { Settings, settings } from '../core/settings';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.

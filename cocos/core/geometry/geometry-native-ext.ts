@@ -30,7 +30,7 @@ import { Sphere } from './sphere';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';
 import { Frustum } from './frustum';
-import { assert, error } from '../platform';
+import { assert, error } from '@base/debug';
 
 /**
  * cache jsb attributes in js, reduce cross language invokations.

@@ -25,7 +25,8 @@
 
 import { ccclass, inspector, editorOnly, serializable } from 'cc.decorator';
 import { Component } from '../scene-graph/component';
-import { warnID, error, js } from '../core';
+import { warnID, error } from '@base/debug';
+import { js } from '../core';
 import { cclegacy } from '@base/global';
 
 /**

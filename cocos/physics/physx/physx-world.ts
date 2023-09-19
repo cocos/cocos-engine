@@ -24,15 +24,12 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterTriggerEventType,
-    CharacterControllerContact } from '../framework';
-import { error, RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
+import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterTriggerEventType, CharacterControllerContact } from '../framework';
+import { error } from '@base/debug';
+import { RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
-import {
-    addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll,
-} from './physx-adapter';
+import { addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest, gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { PhysXContactEquation } from './physx-contact-equation';

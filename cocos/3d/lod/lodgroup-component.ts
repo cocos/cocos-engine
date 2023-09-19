@@ -23,7 +23,8 @@
 */
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Mat4, geometry, CCInteger, CCFloat, error, warn } from '../../core';
+import { Vec3, Mat4, geometry, CCInteger, CCFloat } from '../../core';
+import { error, warn } from '@base/debug';
 import { Node } from '../../scene-graph/node';
 import { Component } from '../../scene-graph/component';
 import { MeshRenderer } from '../framework/mesh-renderer';

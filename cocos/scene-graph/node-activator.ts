@@ -28,7 +28,7 @@ import { array, Pool } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { cclegacy } from '@base/global';
-import { assert, errorID, getError, log } from '../core/platform/debug';
+import { assert, errorID, getError, log } from '@base/debug';
 import { NodeEventType } from './node-event';
 import { assertIsTrue } from '../core/data/utils/asserts';
 import type { Component } from './component';

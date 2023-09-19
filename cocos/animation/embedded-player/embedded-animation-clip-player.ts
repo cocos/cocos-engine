@@ -23,7 +23,7 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { errorID } from '../../core';
+import { errorID } from '@base/debug';
 import type { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../animation-clip';
 import { AnimationState } from '../animation-state';

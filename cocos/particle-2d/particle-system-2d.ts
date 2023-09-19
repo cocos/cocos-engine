@@ -26,7 +26,8 @@
 import { ccclass, editable, type, displayOrder, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Vec2, warnID, errorID, error, path } from '../core';
+import { Color, Vec2, path } from '../core';
+import { warnID, errorID, error } from '@base/debug';
 import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { ImageAsset } from '../asset/assets/image-asset';

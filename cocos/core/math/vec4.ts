@@ -29,7 +29,7 @@ import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like, IColorLike } from './type-define';
 import { clamp, EPSILON, random } from './utils';
-import { warn } from '../platform/debug';
+import { warn } from '@base/debug';
 
 /**
  * @en Representation of four-dimensional vectors.

@@ -24,7 +24,8 @@
 
 import { DEBUG, EDITOR, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, tooltip, type, displayOrder, serializable, override, visible, displayName, disallowAnimation } from 'cc.decorator';
-import { Color, assert, ccenum } from '../../core';
+import { Color, ccenum } from '../../core';
+import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';

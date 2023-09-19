@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit,
-    Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
-import { debug } from '../../core';
+import { getTypedArrayConstructor, Format, FormatInfos, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../../gfx';
+import { debug } from '@base/debug';
 
 export function nearestPOT (num: number): number {
     --num;

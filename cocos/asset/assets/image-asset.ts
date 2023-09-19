@@ -30,7 +30,8 @@ import { ImageSource, IMemoryImageSource, RawDataType } from '../../../pal/image
 import { Device, Format, FormatFeatureBit, deviceManager, API } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { warnID, macro, sys, warn } from '../../core';
+import { warnID, warn } from '@base/debug';
+import { macro, sys } from '../../core';
 import { cclegacy, ccwindow } from '@base/global';
 import { Enum } from '../../core/value-types/enum';
 

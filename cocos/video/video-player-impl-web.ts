@@ -24,7 +24,8 @@
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { mat4, visibleRect } from '../core';
-import { sys, screen, warn } from '../core/platform';
+import { sys, screen } from '../core/platform';
+import { warn } from '@base/debug';
 import { game } from '../game';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';

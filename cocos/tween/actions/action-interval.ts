@@ -26,7 +26,8 @@
 */
 
 import { FiniteTimeAction, Action } from './action';
-import { macro, logID, errorID } from '../../core';
+import { macro } from '../../core';
+import { logID, errorID } from '@base/debug';
 import { ActionInstant } from './action-instant';
 
 /**

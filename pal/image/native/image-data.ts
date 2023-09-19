@@ -23,7 +23,7 @@
 */
 import { BaseImageData } from '../base-image-data';
 import { ImageSource, IMemoryImageSource, RawDataType } from '../types';
-import { getError, assert } from '../../../cocos/core/platform/debug';
+import { getError, assert } from '@base/debug';
 import { override } from  '../../../cocos/core/data/decorators/override';
 
 declare const jsb: any;

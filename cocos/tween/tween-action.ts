@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { warnID, warn, easing } from '../core';
+import { warnID, warn } from '@base/debug';
+import { easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { VERSION } from '@base/global';

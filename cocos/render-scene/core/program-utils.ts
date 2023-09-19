@@ -23,7 +23,7 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { error, warn } from '../../core';
+import { error, warn } from '@base/debug';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
 import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';

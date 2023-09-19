@@ -21,10 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { MacroRecord, MaterialProperty } from "./pass-utils";
+import { MacroRecord, MaterialProperty } from './pass-utils';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import type { Pass as JsbPass } from './pass';
-import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4, error } from '../../core';
+import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core';
+import { error } from '@base/debug';
 import { MathType } from '../../core/math/math-native-ext';
 
 declare const jsb: any;

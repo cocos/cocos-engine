@@ -37,7 +37,7 @@ import { Node } from './node';
 import { cclegacy } from '@base/global';
 import { macro } from '../core';
 import { Root } from '../root';
-import { warnID } from '../core/platform/debug';
+import { warnID } from '@base/debug';
 import { Material, MaterialPropertyFull } from '../asset/assets/material';
 import { Scene } from './scene';
 import { NodeEventType } from './node-event';

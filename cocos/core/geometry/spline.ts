@@ -24,7 +24,7 @@
 
 import { assertIsTrue } from '../data/utils/asserts';
 import { clamp, Vec3 } from '../math';
-import { warnID } from '../platform/debug';
+import { warnID } from '@base/debug';
 import enums from './enums';
 
 export enum SplineMode {

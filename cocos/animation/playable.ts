@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { getError } from '../core';
+import { getError } from '@base/debug';
 
 export class Playable {
     /**

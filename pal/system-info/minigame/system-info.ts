@@ -28,7 +28,7 @@ import { IFeatureMap } from 'pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
-import { warn } from '../../../cocos/core/platform/debug';
+import { warn } from '@base/debug';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;

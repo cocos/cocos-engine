@@ -42,7 +42,7 @@ export {
     setDisplayStats,
     getError,
     DebugMode,
-} from './debug';
+} from '@base/debug';
 
 export { screen } from './screen';
 export type { Screen } from './screen';

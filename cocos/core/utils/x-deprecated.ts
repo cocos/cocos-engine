@@ -29,7 +29,7 @@
 /* eslint-disable prefer-const */
 
 import { DEBUG } from 'internal:constants';
-import { error, errorID, warn, warnID } from '../platform/debug';
+import { error, errorID, warn, warnID } from '@base/debug';
 
 let defaultLogTimes = 10;
 

@@ -34,7 +34,7 @@ import { Rect } from '../core/math';
 import * as RF from '../core/data/utils/requiring-frame';
 import { Node } from './node';
 import { cclegacy } from '@base/global';
-import { errorID, warnID, assertID } from '../core/platform/debug';
+import { errorID, warnID, assertID } from '@base/debug';
 import { CompPrefabInfo } from './prefab/prefab-info';
 import { EventHandler } from './component-event-handler';
 

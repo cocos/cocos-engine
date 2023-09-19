@@ -23,7 +23,8 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { System, errorID, js } from '../core';
+import { System, js } from '../core';
+import { errorID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { director, Director } from '../game/director';
 import { Node } from '../scene-graph';

@@ -23,7 +23,7 @@
 */
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error } from '../../core';
+import { error } from '@base/debug';
 import { cclegacy } from '@base/global';
 import packManager from './pack-manager';
 import parser from './parser';

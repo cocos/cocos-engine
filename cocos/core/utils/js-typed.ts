@@ -23,8 +23,8 @@
 */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { warnID, error, errorID, StringSubstitution, log } from '../platform/debug';
-import { IDGenerator }  from './id-generator';
+import { warnID, error, errorID, StringSubstitution, log } from '@base/debug';
+import { IDGenerator } from './id-generator';
 
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 

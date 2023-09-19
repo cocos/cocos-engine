@@ -23,7 +23,7 @@
 */
 
 import { DEV } from 'internal:constants';
-import { warnID } from '../core/platform/debug';
+import { warnID } from '@base/debug';
 import { Node } from './node';
 import { cclegacy } from '@base/global';
 

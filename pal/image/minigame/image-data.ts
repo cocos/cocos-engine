@@ -24,7 +24,7 @@
 import { ALIPAY, XIAOMI, JSB, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { ccwindow } from '@base/global';
 import { BaseImageData } from '../base-image-data';
-import { getError } from '../../../cocos/core/platform/debug';
+import { getError } from '@base/debug';
 
 export class ImageData extends BaseImageData {
     static loadImage (url: string): Promise<ImageData> {

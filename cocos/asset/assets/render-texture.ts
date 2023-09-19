@@ -24,7 +24,8 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { clamp, errorID } from '../../core';
+import { clamp } from '../../core';
+import { errorID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager, BufferTextureCopy, TextureFlags, TextureFlagBit } from '../../gfx';
 import { RenderWindow, IRenderWindowInfo } from '../../render-scene/core/render-window';

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import * as debug from './platform/debug';
+import * as debug from '@base/debug';
 import { _normalize, basename, changeBasename, changeExtname, dirname, extname, getSeperator, join, mainFileName, stripSep } from './utils/path';
 import { cclegacy } from '@base/global';
 

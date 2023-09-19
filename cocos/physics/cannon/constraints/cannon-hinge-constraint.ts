@@ -27,7 +27,8 @@ import { CannonConstraint } from './cannon-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { HingeConstraint } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
-import { IVec3Like, Vec3, Quat, warnID } from '../../../core';
+import { IVec3Like, Vec3, Quat } from '../../../core';
+import { warnID } from '@base/debug';
 
 const v3_0 = new Vec3();
 const quat_0 = new Quat();

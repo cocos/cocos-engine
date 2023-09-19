@@ -23,7 +23,8 @@
 */
 import { ccclass, executeInEditMode, help, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCBoolean, CCObject, Color, Enum, Vec3, warn } from '../../core';
+import { CCBoolean, CCObject, Color, Enum, Vec3 } from '../../core';
+import { warn } from '@base/debug';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';

@@ -25,7 +25,8 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component, Node } from '../../scene-graph';
-import { Mat4, Rect, Size, Vec2, Vec3, geometry, warnID, visibleRect, approx, EPSILON } from '../../core';
+import { Mat4, Rect, Size, Vec2, Vec3, geometry, visibleRect, approx, EPSILON } from '../../core';
+import { warnID } from '@base/debug';
 import { Director, director } from '../../game/director';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { IMask } from '../../scene-graph/node-event-processor';

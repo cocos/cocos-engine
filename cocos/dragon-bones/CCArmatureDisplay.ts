@@ -24,7 +24,8 @@
 */
 
 import { Armature, DisplayData, IEventDispatcher, Slot } from '@cocos/dragonbones-js';
-import { Vec3, EventTarget, _decorator, warn } from '../core';
+import { Vec3, EventTarget, _decorator } from '../core';
+import { warn } from '@base/debug';
 // eslint-disable-next-line import/named
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';

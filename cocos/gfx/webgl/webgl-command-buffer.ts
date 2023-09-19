@@ -39,15 +39,13 @@ import { WebGLPipelineState } from './webgl-pipeline-state';
 import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
-import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource,
-    CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates, TextureBlit, Filter } from '../base/define';
-import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdBlitTexture, WebGLCmdCopyBufferToTexture,
-    WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
+import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates, TextureBlit, Filter } from '../base/define';
+import { WebGLCmd, WebGLCmdBeginRenderPass, WebGLCmdBindStates, WebGLCmdBlitTexture, WebGLCmdCopyBufferToTexture, WebGLCmdDraw, WebGLCmdPackage, WebGLCmdUpdateBuffer } from './webgl-commands';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGLDeviceManager } from './webgl-define';
-import { error } from '../../core';
+import { error } from '@base/debug';
 
 export class WebGLCommandBuffer extends CommandBuffer {
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();

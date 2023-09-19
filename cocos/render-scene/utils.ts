@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { error } from '../core';
+import { error } from '@base/debug';
 import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo, AttributeName, BufferUsageBit, Format, MemoryUsageBit, InputAssembler } from '../gfx';
 import { IGeometry } from '../primitive/define';
 

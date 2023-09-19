@@ -8,7 +8,7 @@ import { TransformHandle, AuxiliaryCurveHandle } from '../core/animation-handle'
 import { Transform, ZERO_DELTA_TRANSFORM } from '../core/transform';
 import { VarInstance } from './variable';
 import { AnimationMask } from './animation-mask';
-import { error } from '../../core';
+import { error } from '@base/debug';
 import { partition } from '../../core/algorithm/partition';
 import { AnimationController } from './animation-controller';
 import { TransformSpace } from './pose-graph/pose-nodes/transform-space';

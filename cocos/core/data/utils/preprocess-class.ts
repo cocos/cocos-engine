@@ -24,7 +24,7 @@
 */
 
 import { DEV, EDITOR, TEST } from 'internal:constants';
-import { error, errorID, warn, warnID } from '../../platform/debug';
+import { error, errorID, warn, warnID } from '@base/debug';
 import * as js from '../../utils/js';
 import { PrimitiveType } from './attribute';
 import { cclegacy } from '@base/global';

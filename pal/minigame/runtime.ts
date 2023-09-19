@@ -25,7 +25,7 @@
 import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
 import { SystemInfo, IMiniGame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
-import { warn } from '../../cocos/core/platform/debug';
+import { warn } from '@base/debug';
 import { Orientation } from '../screen-adapter/enum-type';
 
 declare let ral: any;
