@@ -818,13 +818,11 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
         // objects are projected to camera, set camera ubo
         builder->setBuiltinCameraConstants(camera);
 
-        if (const auto *pDirLight = camera->getScene()->getMainLight(); pDirLight) {
+        if (const auto *pDirLight = dynamic_cast<const scene::DirectionalLight *>(light); pDirLight) {
             // light is directional
             builder->setBuiltinDirectionalLightConstants(pDirLight, camera);
-        } else if (light) {
-            // light is non-directional
-            // builder->setBuiltinXxxLightConstants(light, camera);
-            CC_EXPECTS(false);
+        } else if (light) { // light is non-directional
+            // TODO(zhouzhenglong): refactor per-instance lighting
         }
 
         // set builtin legacy ubo

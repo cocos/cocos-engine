@@ -168,6 +168,7 @@ void NativeSetter::setBuiltinSphereLightConstants(const scene::SphereLight *ligh
 }
 
 void NativeSetter::setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) {
+    CC_EXPECTS(light);
     const auto &sceneData = *this->pipelineRuntime->getPipelineSceneData();
     const auto &shadowInfo = *sceneData.getShadows();
 

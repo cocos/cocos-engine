@@ -90,7 +90,8 @@ NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_ty
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
-  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
+  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID),
+  lightByteOffset(rhs.lightByteOffset) {}
 
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
@@ -209,12 +210,18 @@ SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
   numRenderQueues(rhs.numRenderQueues),
   gpuCullingPassID(rhs.gpuCullingPassID) {}
 
+LightResource::LightResource(const allocator_type& alloc) noexcept
+: cpuBuffer(alloc),
+  lights(alloc),
+  lightIndex(alloc) {}
+
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
   renderSceneResources(alloc),
-  sceneCulling(alloc) {}
+  sceneCulling(alloc),
+  lightResources(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

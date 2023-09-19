@@ -26,6 +26,7 @@
 #include <iterator>
 #include "NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/Define.h"
+#include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
@@ -131,9 +132,9 @@ void RenderDrawQueue::sortTransparent() {
 }
 
 void RenderDrawQueue::recordCommandBuffer(
-    gfx::Device * /*device*/, const scene::Camera * /*camera*/,
-    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff,
-    uint32_t subpassIndex) const {
+    gfx::RenderPass *renderPass, uint32_t subpassIndex,
+    gfx::CommandBuffer *cmdBuff,
+    uint32_t lightByteOffset) const {
     for (const auto &instance : instances) {
         const auto *subModel = instance.subModel;
 
@@ -145,7 +146,11 @@ void RenderDrawQueue::recordCommandBuffer(
 
         cmdBuff->bindPipelineState(pso);
         cmdBuff->bindDescriptorSet(pipeline::materialSet, pass->getDescriptorSet());
-        cmdBuff->bindDescriptorSet(pipeline::localSet, subModel->getDescriptorSet());
+        if (lightByteOffset != 0xFFFFFFFF) {
+            cmdBuff->bindDescriptorSet(pipeline::localSet, subModel->getDescriptorSet(), 1, &lightByteOffset);
+        } else {
+            cmdBuff->bindDescriptorSet(pipeline::localSet, subModel->getDescriptorSet());
+        }
         cmdBuff->bindInputAssembler(inputAssembler);
         cmdBuff->draw(inputAssembler);
     }
@@ -207,8 +212,9 @@ void RenderInstancingQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) const {
 }
 
 void RenderInstancingQueue::recordCommandBuffer(
-    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
-    gfx::DescriptorSet *ds, uint32_t offset, const ccstd::vector<uint32_t> *dynamicOffsets) const {
+    gfx::RenderPass *renderPass, uint32_t subpassIndex,
+    gfx::CommandBuffer *cmdBuffer,
+    uint32_t lightByteOffset) const { //
     const auto &renderQueue = sortedBatches;
     for (const auto *instanceBuffer : renderQueue) {
         if (!instanceBuffer->hasPendingModels()) {
@@ -223,16 +229,13 @@ void RenderInstancingQueue::recordCommandBuffer(
                 continue;
             }
             auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
-                drawPass, instance.shader, instance.ia, renderPass);
+                drawPass, instance.shader, instance.ia, renderPass, subpassIndex);
             if (lastPSO != pso) {
                 cmdBuffer->bindPipelineState(pso);
                 lastPSO = pso;
             }
-            if (ds) {
-                cmdBuffer->bindDescriptorSet(pipeline::globalSet, ds, 1, &offset);
-            }
-            if (dynamicOffsets) {
-                cmdBuffer->bindDescriptorSet(pipeline::localSet, instance.descriptorSet, *dynamicOffsets);
+            if (lightByteOffset != 0xFFFFFFFF) {
+                cmdBuffer->bindDescriptorSet(pipeline::localSet, instance.descriptorSet, 1, &lightByteOffset);
             } else {
                 cmdBuffer->bindDescriptorSet(pipeline::localSet, instance.descriptorSet, instanceBuffer->dynamicOffsets());
             }
@@ -247,6 +250,20 @@ void NativeRenderQueue::sort() {
     transparentQueue.sortTransparent();
     opaqueInstancingQueue.sort();
     transparentInstancingQueue.sort();
+}
+
+void NativeRenderQueue::recordCommands(
+    gfx::CommandBuffer *cmdBuffer,
+    gfx::RenderPass *renderPass,
+    uint32_t subpassIndex) const {
+    opaqueQueue.recordCommandBuffer(
+        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    opaqueInstancingQueue.recordCommandBuffer(
+        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    transparentQueue.recordCommandBuffer(
+        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
+    transparentInstancingQueue.recordCommandBuffer(
+        renderPass, subpassIndex, cmdBuffer, lightByteOffset);
 }
 
 } // namespace render

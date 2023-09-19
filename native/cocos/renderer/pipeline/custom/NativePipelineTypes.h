@@ -995,9 +995,9 @@ struct RenderInstancingQueue {
     void sort();
     void uploadBuffers(gfx::CommandBuffer *cmdBuffer) const;
     void recordCommandBuffer(
-        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
-        gfx::DescriptorSet *ds = nullptr, uint32_t offset = 0,
-        const ccstd::vector<uint32_t> *dynamicOffsets = nullptr) const;
+        gfx::RenderPass *renderPass, uint32_t subpassIndex,
+        gfx::CommandBuffer *cmdBuffer,
+        uint32_t lightByteOffset = 0xFFFFFFFF) const;
 
     ccstd::pmr::vector<pipeline::InstancedBuffer*> sortedBatches;
     PmrUnorderedMap<const scene::Pass*, uint32_t> passInstances;
@@ -1061,9 +1061,10 @@ struct RenderDrawQueue {
     void add(const scene::Model& model, float depth, uint32_t subModelIdx, uint32_t passIdx);
     void sortOpaqueOrCutout();
     void sortTransparent();
-    void recordCommandBuffer(gfx::Device *device, const scene::Camera *camera,
-        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer,
-        uint32_t subpassIndex) const;
+    void recordCommandBuffer(
+        gfx::RenderPass *renderPass, uint32_t subpassIndex,
+        gfx::CommandBuffer *cmdBuffer,
+        uint32_t lightByteOffset = 0xFFFFFFFF) const;
 
     ccstd::pmr::vector<DrawInstance> instances;
 };
@@ -1086,6 +1087,8 @@ struct NativeRenderQueue {
     void sort();
     void clear() noexcept;
     bool empty() const noexcept;
+    void recordCommands(
+        gfx::CommandBuffer *cmdBuffer, gfx::RenderPass *renderPass, uint32_t subpassIndex) const;
 
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;
@@ -1094,6 +1097,7 @@ struct NativeRenderQueue {
     RenderInstancingQueue transparentInstancingQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
     uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
+    uint32_t lightByteOffset{0xFFFFFFFF};
 };
 
 struct ResourceGroup {
@@ -1219,7 +1223,7 @@ struct LayoutGraphNodeResource {
     LayoutGraphNodeResource& operator=(LayoutGraphNodeResource const& rhs) = delete;
     void syncResources() noexcept;
 
-    PmrFlatMap<NameLocalID, UniformBlockResource> uniformBuffers;
+    ccstd::pmr::unordered_map<NameLocalID, UniformBlockResource> uniformBuffers;
     DescriptorSetPool descriptorSetPool;
     PmrTransparentMap<ccstd::pmr::string, ProgramResource> programResources;
 };
@@ -1369,6 +1373,11 @@ struct NativeRenderQueueDesc {
     scene::LightType lightType{scene::LightType::UNKNOWN};
 };
 
+struct LightBoundsCullingResult {
+    ccstd::vector<const scene::Model*> instances;
+    uint32_t lightByteOffset{0xFFFFFFFF};
+};
+
 struct SceneCulling {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -1397,13 +1406,49 @@ public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, FrustumCulling> frustumCullings;
     ccstd::pmr::vector<ccstd::vector<const scene::Model*>> frustumCullingResults;
     ccstd::pmr::unordered_map<const scene::RenderScene*, LightBoundsCulling> lightBoundsCullings;
-    ccstd::pmr::vector<ccstd::vector<const scene::Model*>> lightBoundsCullingResults;
+    ccstd::pmr::vector<LightBoundsCullingResult> lightBoundsCullingResults;
     ccstd::pmr::vector<NativeRenderQueue> renderQueues;
     PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> renderQueueIndex;
     uint32_t numFrustumCulling{0};
     uint32_t numLightBoundsCulling{0};
     uint32_t numRenderQueues{0};
     uint32_t gpuCullingPassID{0xFFFFFFFF};
+};
+
+struct LightResource {
+    using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
+    allocator_type get_allocator() const noexcept { // NOLINT
+        return {cpuBuffer.get_allocator().resource()};
+    }
+
+    LightResource(const allocator_type& alloc) noexcept; // NOLINT
+    LightResource(LightResource&& rhs) = delete;
+    LightResource(LightResource const& rhs) = delete;
+    LightResource& operator=(LightResource&& rhs) = delete;
+    LightResource& operator=(LightResource const& rhs) = delete;
+
+    void init(const NativeProgramLibrary& programLib, gfx::Device* deviceIn, uint32_t maxNumLights);
+    void buildLights(
+        SceneCulling& sceneCulling,
+        bool bHDR,
+        const scene::Shadows* shadowInfo);
+    void tryUpdateRenderSceneLocalDescriptorSet(const SceneCulling& sceneCulling);
+    void clear();
+
+    uint32_t addLight(const scene::Light* light, bool bHDR, float exposure, const scene::Shadows *shadowInfo);
+    void buildLightBuffer(gfx::CommandBuffer* cmdBuffer) const;
+
+    ccstd::pmr::vector<char> cpuBuffer;
+    const NativeProgramLibrary* programLibrary{nullptr};
+    gfx::Device* device{nullptr};
+    uint32_t elementSize{0};
+    uint32_t maxNumLights{16};
+    uint32_t binding{0xFFFFFFFF};
+    bool resized{false};
+    IntrusivePtr<gfx::Buffer> lightBuffer;
+    IntrusivePtr<gfx::Buffer> firstLightBufferView;
+    ccstd::pmr::vector<const scene::Light*> lights;
+    PmrFlatMap<const scene::Light*, uint32_t> lightIndex;
 };
 
 struct NativeRenderContext {
@@ -1427,6 +1472,7 @@ struct NativeRenderContext {
     ccstd::pmr::unordered_map<const scene::RenderScene*, SceneResource> renderSceneResources;
     QuadResource fullscreenQuad;
     SceneCulling sceneCulling;
+    LightResource lightResources;
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {

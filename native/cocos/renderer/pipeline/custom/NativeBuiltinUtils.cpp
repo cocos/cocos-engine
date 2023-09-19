@@ -26,6 +26,7 @@
 #include "cocos/application/ApplicationManager.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
@@ -535,6 +536,143 @@ void setLegacyTextureUBOView(
     // setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setSamplerImpl(data, layoutGraph, "cc_spotShadowMap", pointSampler);
     // setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+}
+
+namespace {
+
+float kLightMeterScale{10000.0F};
+
+} // namespace
+
+void setLightUBO(
+    const scene::Light *light, bool bHDR, float exposure,
+    const scene::Shadows *shadowInfo,
+    char *buffer, size_t bufferSize) {
+    CC_EXPECTS(bufferSize % sizeof(float) == 0);
+    const auto maxSize = bufferSize / sizeof(float);
+    auto *lightBufferData = reinterpret_cast<float *>(buffer);
+
+    size_t offset = 0;
+
+    Vec3 position = Vec3(0.0F, 0.0F, 0.0F);
+    float size = 0.F;
+    float range = 0.F;
+    float luminanceHDR = 0.F;
+    float luminanceLDR = 0.F;
+    if (light->getType() == scene::LightType::SPHERE) {
+        const auto *sphereLight = static_cast<const scene::SphereLight *>(light);
+        position = sphereLight->getPosition();
+        size = sphereLight->getSize();
+        range = sphereLight->getRange();
+        luminanceHDR = sphereLight->getLuminanceHDR();
+        luminanceLDR = sphereLight->getLuminanceLDR();
+    } else if (light->getType() == scene::LightType::SPOT) {
+        const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+        position = spotLight->getPosition();
+        size = spotLight->getSize();
+        range = spotLight->getRange();
+        luminanceHDR = spotLight->getLuminanceHDR();
+        luminanceLDR = spotLight->getLuminanceLDR();
+    } else if (light->getType() == scene::LightType::POINT) {
+        const auto *pointLight = static_cast<const scene::PointLight *>(light);
+        position = pointLight->getPosition();
+        size = 0.0F;
+        range = pointLight->getRange();
+        luminanceHDR = pointLight->getLuminanceHDR();
+        luminanceLDR = pointLight->getLuminanceLDR();
+    } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
+        const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+        position = rangedDirLight->getPosition();
+        size = 0.0F;
+        range = 0.0F;
+        luminanceHDR = rangedDirLight->getIlluminanceHDR();
+        luminanceLDR = rangedDirLight->getIlluminanceLDR();
+    }
+    auto index = offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET;
+    CC_EXPECTS(index + 4 < maxSize);
+    lightBufferData[index++] = position.x;
+    lightBufferData[index++] = position.y;
+    lightBufferData[index] = position.z;
+
+    index = offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET;
+    CC_EXPECTS(index + 4 < maxSize);
+    lightBufferData[index++] = size;
+    lightBufferData[index] = range;
+
+    index = offset + pipeline::UBOForwardLight::LIGHT_COLOR_OFFSET;
+    CC_EXPECTS(index + 4 < maxSize);
+    const auto &color = light->getColor();
+    if (light->isUseColorTemperature()) {
+        const auto &tempRGB = light->getColorTemperatureRGB();
+        lightBufferData[index++] = color.x * tempRGB.x;
+        lightBufferData[index++] = color.y * tempRGB.y;
+        lightBufferData[index++] = color.z * tempRGB.z;
+    } else {
+        lightBufferData[index++] = color.x;
+        lightBufferData[index++] = color.y;
+        lightBufferData[index++] = color.z;
+    }
+
+    if (bHDR) {
+        lightBufferData[index] = luminanceHDR * exposure * kLightMeterScale;
+    } else {
+        lightBufferData[index] = luminanceLDR;
+    }
+
+    switch (light->getType()) {
+        case scene::LightType::SPHERE:
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] =
+                static_cast<float>(scene::LightType::SPHERE);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+            break;
+        case scene::LightType::SPOT: {
+            const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPOT);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] =
+                (shadowInfo->isEnabled() &&
+                 spotLight->isShadowEnabled() &&
+                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP)
+                    ? 1.0F
+                    : 0.0F;
+
+            index = offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET;
+            const auto &direction = spotLight->getDirection();
+            lightBufferData[index++] = direction.x;
+            lightBufferData[index++] = direction.y;
+            lightBufferData[index] = direction.z;
+        } break;
+        case scene::LightType::POINT:
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::POINT);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+            break;
+        case scene::LightType::RANGED_DIRECTIONAL: {
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::RANGED_DIRECTIONAL);
+
+            const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+            const Vec3 &right = rangedDirLight->getRight();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+
+            const auto &direction = rangedDirLight->getDirection();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 0] = direction.x;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 1] = direction.y;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 2] = direction.z;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0;
+
+            const auto &scale = rangedDirLight->getScale();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5F;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5F;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5F;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
+        } break;
+        default:
+            break;
+    }
 }
 
 const BuiltinCascadedShadowMap *getBuiltinShadowCSM(

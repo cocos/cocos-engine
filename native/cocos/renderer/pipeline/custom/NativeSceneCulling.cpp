@@ -1,4 +1,5 @@
 #include "cocos/renderer/pipeline/Define.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphUtils.h"
 #include "cocos/renderer/pipeline/custom/NativeBuiltinUtils.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
@@ -10,10 +11,14 @@
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
 
+#include <boost/align/align_up.hpp>
+
 namespace cc {
 
 namespace render {
+
 const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(pipeline::LayerList::UI_2D) & ~static_cast<uint32_t>(pipeline::LayerList::PROFILER) & ~static_cast<uint32_t>(pipeline::LayerList::UI_3D) & ~static_cast<uint32_t>(pipeline::LayerList::GIZMOS) & ~static_cast<uint32_t>(pipeline::LayerList::SCENE_GIZMO) & ~static_cast<uint32_t>(pipeline::LayerList::EDITOR);
+
 void NativeRenderQueue::clear() noexcept {
     probeQueue.clear();
     opaqueQueue.instances.clear();
@@ -433,27 +438,27 @@ void SceneCulling::batchLightBoundsCulling() {
             CC_EXPECTS(key.camera->getScene() == scene);
             const auto& frustumCullingResult = frustumCullingResults.at(key.frustumCullingID.value);
             auto& lightBoundsCullingResult = lightBoundsCullingResults.at(cullingID.value);
-            CC_EXPECTS(lightBoundsCullingResult.empty());
+            CC_EXPECTS(lightBoundsCullingResult.instances.empty());
             switch (key.cullingLight->getType()) {
                 case scene::LightType::SPHERE: {
                     const auto* light = dynamic_cast<const scene::SphereLight*>(key.cullingLight);
                     CC_ENSURES(light);
-                    executeSphereLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                    executeSphereLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
                 } break;
                 case scene::LightType::SPOT: {
                     const auto* light = dynamic_cast<const scene::SpotLight*>(key.cullingLight);
                     CC_ENSURES(light);
-                    executeSpotLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                    executeSpotLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
                 } break;
                 case scene::LightType::POINT: {
                     const auto* light = dynamic_cast<const scene::PointLight*>(key.cullingLight);
                     CC_ENSURES(light);
-                    executePointLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                    executePointLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
                 } break;
                 case scene::LightType::RANGED_DIRECTIONAL: {
                     const auto* light = dynamic_cast<const scene::RangedDirectionalLight*>(key.cullingLight);
                     CC_ENSURES(light);
-                    executeRangedDirectionalLightCulling(*light, frustumCullingResult, lightBoundsCullingResult);
+                    executeRangedDirectionalLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
                 } break;
                 case scene::LightType::DIRECTIONAL:
                 case scene::LightType::UNKNOWN:
@@ -585,7 +590,7 @@ void SceneCulling::fillRenderQueues(
             // is culled by light bounds
             if (lightBoundsCullingID.value != 0xFFFFFFFF) {
                 CC_EXPECTS(lightBoundsCullingID.value < lightBoundsCullingResults.size());
-                return lightBoundsCullingResults.at(lightBoundsCullingID.value);
+                return lightBoundsCullingResults.at(lightBoundsCullingID.value).instances;
             }
             // not culled by light bounds
             return frustumCullingResults.at(frustomCulledResultID.value);
@@ -633,7 +638,8 @@ void SceneCulling::clear() noexcept {
     // light bounds culling
     lightBoundsCullings.clear();
     for (auto& c : lightBoundsCullingResults) {
-        c.clear();
+        c.instances.clear();
+        c.lightByteOffset = 0xFFFFFFFF;
     }
     // native render queues
     for (auto& q : renderQueues) {
@@ -648,6 +654,146 @@ void SceneCulling::clear() noexcept {
     numFrustumCulling = 0;
     numLightBoundsCulling = 0;
     numRenderQueues = 0;
+}
+
+void LightResource::init(const NativeProgramLibrary& programLib, gfx::Device* deviceIn, uint32_t maxNumLightsIn) {
+    CC_EXPECTS(!device);
+    device = deviceIn;
+    programLibrary = &programLib;
+
+    const auto& instanceLayout = programLibrary->localLayoutData;
+    const auto attrID = at(programLib.layoutGraph.attributeIndex, std::string_view{"CCForwardLight"});
+    const auto& uniformBlock = instanceLayout.uniformBlocks.at(attrID);
+
+    elementSize = boost::alignment::align_up(
+        getUniformBlockSize(uniformBlock.members),
+        device->getCapabilities().uboOffsetAlignment);
+    maxNumLights = maxNumLightsIn;
+    binding = programLib.localLayoutData.bindingMap.at(attrID);
+
+    const auto bufferSize = elementSize * maxNumLights;
+
+    lightBuffer = device->createBuffer(gfx::BufferInfo{
+        gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+        gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        bufferSize,
+        elementSize,
+    });
+    firstLightBufferView = device->createBuffer({lightBuffer, 0, elementSize});
+
+    cpuBuffer.resize(bufferSize);
+    lights.reserve(maxNumLights);
+    lightIndex.reserve(maxNumLights);
+
+    CC_ENSURES(elementSize);
+    CC_ENSURES(maxNumLights);
+
+    resized = true;
+}
+
+uint32_t LightResource::addLight(
+    const scene::Light* light,
+    bool bHDR,
+    float exposure,
+    const scene::Shadows* shadowInfo) {
+    // already added
+    auto iter = lightIndex.find(light);
+    if (iter != lightIndex.end()) {
+        return iter->second;
+    }
+
+    // resize buffer
+    if (lights.size() == maxNumLights) {
+        resized = true;
+        maxNumLights *= 2;
+        const auto bufferSize = elementSize * maxNumLights;
+        lightBuffer->resize(bufferSize);
+        firstLightBufferView = device->createBuffer({lightBuffer, 0, elementSize});
+        cpuBuffer.resize(bufferSize);
+        lights.reserve(maxNumLights);
+        lightIndex.reserve(maxNumLights);
+    }
+    CC_ENSURES(lights.size() < maxNumLights);
+
+    // add light
+    const auto lightID = static_cast<uint32_t>(lights.size());
+    lights.emplace_back(light);
+    auto res = lightIndex.emplace(light, lightID);
+    CC_ENSURES(res.second);
+
+    // update buffer
+    const auto offset = elementSize * lightID;
+    setLightUBO(light, bHDR, exposure, shadowInfo, cpuBuffer.data() + offset, elementSize);
+
+    return lightID * elementSize;
+}
+
+void LightResource::buildLights(
+    SceneCulling& sceneCulling,
+    bool bHDR,
+    const scene::Shadows* shadowInfo) {
+    // build light buffer
+    for (const auto& [scene, lightBoundsCullings] : sceneCulling.lightBoundsCullings) {
+        for (const auto& [key, lightBoundsCullingID] : lightBoundsCullings.resultIndex) {
+            float exposure = 1.0F;
+            if (key.camera) {
+                exposure = key.camera->getExposure();
+            } else if (key.probe && key.probe->getCamera()) {
+                exposure = key.probe->getCamera()->getExposure();
+            } else {
+                CC_EXPECTS(false);
+            }
+            const auto lightByteOffset = addLight(
+                key.cullingLight,
+                bHDR,
+                exposure,
+                shadowInfo);
+
+            // save light byte offset for each light bounds culling
+            auto& result = sceneCulling.lightBoundsCullingResults.at(lightBoundsCullingID.value);
+            result.lightByteOffset = lightByteOffset;
+        }
+    }
+
+    // assign light byte offset to each queue
+    for (const auto& [sceneID, desc] : sceneCulling.renderQueueIndex) {
+        if (desc.lightBoundsCulledResultID.value == 0xFFFFFFFF) {
+            continue;
+        }
+        const auto lightByteOffset = sceneCulling.lightBoundsCullingResults.at(
+                                                                               desc.lightBoundsCulledResultID.value)
+                                         .lightByteOffset;
+
+        sceneCulling.renderQueues.at(desc.renderQueueTarget.value).lightByteOffset = lightByteOffset;
+    }
+}
+
+void LightResource::clear() {
+    std::fill(cpuBuffer.begin(), cpuBuffer.end(), 0);
+    lights.clear();
+    lightIndex.clear();
+}
+
+void LightResource::buildLightBuffer(gfx::CommandBuffer* cmdBuffer) const {
+    cmdBuffer->updateBuffer(lightBuffer, cpuBuffer.data(), lights.size() * elementSize);
+}
+
+void LightResource::tryUpdateRenderSceneLocalDescriptorSet(const SceneCulling& sceneCulling) {
+    if (!resized) {
+        return;
+    }
+
+    for (const auto& [scene, culling] : sceneCulling.frustumCullings) {
+        for (const auto& model : scene->getModels()) {
+            CC_EXPECTS(model);
+            for (const auto& submodel : model->getSubModels()) {
+                auto* set = submodel->getDescriptorSet();
+                set->bindBuffer(binding, firstLightBufferView);
+                set->update();
+            }
+        }
+    }
+    resized = false;
 }
 
 } // namespace render

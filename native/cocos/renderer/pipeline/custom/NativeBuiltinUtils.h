@@ -37,6 +37,7 @@ namespace scene {
 class Camera;
 class Light;
 class DirectionalLight;
+class Shadows;
 } // namespace scene
 
 namespace geometry {
@@ -83,6 +84,12 @@ void setShadowUBOLightView(
     const scene::Light &light,
     uint32_t level,
     RenderData &data);
+
+// Additive light
+void setLightUBO(
+    const scene::Light *light, bool bHDR, float exposure,
+    const scene::Shadows *shadowInfo,
+    char *buffer, size_t bufferSize);
 
 // Render graph
 void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter);

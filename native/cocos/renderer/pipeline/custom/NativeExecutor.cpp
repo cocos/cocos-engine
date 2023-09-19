@@ -28,6 +28,7 @@
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
 #include "LayoutGraphUtils.h"
+#include "NativeBuiltinUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
 #include "NativeRenderGraphUtils.h"
@@ -991,9 +992,6 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 updateAndCreatePerPassDescriptorSet(vertID);
                 ctx.currentProjMatrix = sceneData.camera->getMatProj();
             }
-            if (sceneData.shadingLight && !dynamic_cast<const scene::DirectionalLight*>(sceneData.shadingLight.get())) {
-
-            }
         } else if (holds<BlitTag>(vertID, ctx.g)) {
             const auto& blit = get(BlitTag{}, vertID, ctx.g);
             if (blit.camera) {
@@ -1385,14 +1383,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto* scene = camera->getScene();
         const auto& queueDesc = ctx.context.sceneCulling.renderQueueIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
-        queue.opaqueQueue.recordCommandBuffer(
-            ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-        queue.opaqueInstancingQueue.recordCommandBuffer(
-            ctx.currentPass, ctx.cmdBuff);
-        queue.transparentQueue.recordCommandBuffer(
-            ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-        queue.transparentInstancingQueue.recordCommandBuffer(
-            ctx.currentPass, ctx.cmdBuff);
+
+        queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0);
+
         if (any(sceneData.flags & SceneFlags::REFLECTION_PROBE)) {
             queue.probeQueue.removeMacro();
         }
@@ -1998,6 +1991,16 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
         }
     }
 
+    // light manangement
+    {
+        auto& ctx = ppl.nativeContext;
+        ctx.lightResources.clear();
+        ctx.lightResources.buildLights(
+            ctx.sceneCulling,
+            ppl.pipelineSceneData->isHDR(),
+            ppl.pipelineSceneData->getShadows());
+    }
+
     // gpu driven
     if constexpr (ENABLE_GPU_DRIVEN) {
         // TODO(jilin): consider populating renderSceneResources here
@@ -2019,6 +2022,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 
         // upload buffers
         {
+            // scene
             const auto& sceneCulling = ppl.nativeContext.sceneCulling;
             for (uint32_t queueID = 0; queueID != sceneCulling.numRenderQueues; ++queueID) {
                 // notice: we cannot use ranged-for of sceneCulling.renderQueues
@@ -2027,6 +2031,11 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
                 queue.opaqueInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
                 queue.transparentInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
             }
+
+            // lights
+            auto& ctx = ppl.nativeContext;
+            ctx.lightResources.buildLightBuffer(submit.primaryCommandBuffer);
+            ctx.lightResources.tryUpdateRenderSceneLocalDescriptorSet(sceneCulling);
         }
 
         ccstd::pmr::unordered_map<

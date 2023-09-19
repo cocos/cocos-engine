@@ -1195,6 +1195,7 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     const auto &lg = programLibrary->layoutGraph;
     const auto numNodes = num_vertices(lg);
     nativeContext.layoutGraphResources.reserve(numNodes);
+    nativeContext.lightResources.init(*programLibrary, device, 16);
 
     for (uint32_t i = 0; i != numNodes; ++i) {
         auto &node = nativeContext.layoutGraphResources.emplace_back();
