@@ -49,7 +49,7 @@ export class DofPass extends SettingPass {
         const colorTex = this.lastPass!.slotName(camera, 0);
         const depthTex = this.lastPass!.slotName(camera, 1);
 
-        //coc
+        // compute CoC
         const outputCOC = `DOF_CIRCLE_OF_CONFUSION${cameraID}`;
         passContext
             .updatePassViewPort()
@@ -59,7 +59,7 @@ export class DofPass extends SettingPass {
             .blitScreen(0)
             .version();
 
-        //prefilterTex
+        // downscale
         const outputPrefilter = `DOF_PREFILTER${cameraID}`;
         passContext
             .updatePassViewPort(0.5)
@@ -70,7 +70,7 @@ export class DofPass extends SettingPass {
             .blitScreen(1)
             .version();
 
-        //bokehTex
+        // bokeh blur
         const outputBokeh = `DOF_BOKEH${cameraID}`;
         passContext
             .updatePassViewPort(0.5)
@@ -80,7 +80,7 @@ export class DofPass extends SettingPass {
             .blitScreen(2)
             .version();
 
-        //filterTex
+        //filtering
         const outputFilter = `DOF_FILTER${cameraID}`;
         passContext
             .updatePassViewPort(0.5)
@@ -90,6 +90,7 @@ export class DofPass extends SettingPass {
             .blitScreen(3)
             .version();
 
+        //combine
         passContext
             .updatePassViewPort()
             .addRenderPass('dof-combine', `dof-combine${cameraID}`)

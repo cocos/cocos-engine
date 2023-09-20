@@ -169,32 +169,26 @@ CCProgram dof-bokeh-fs %{
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
-  const int SAMPLE_COUNT = 22;
+  const int SAMPLE_COUNT = 16;
   vec2 bokehKernel[SAMPLE_COUNT];
   void initKernel()
   {
       bokehKernel[0] = vec2(0.0, 0.0);
-      bokehKernel[1] = vec2(0.53333336, 0.0);
-      bokehKernel[2] = vec2(0.3325279, 0.4169768);
-      bokehKernel[3] = vec2(-0.11867785, 0.5199616);
-      bokehKernel[4] = vec2(-0.48051673, 0.2314047);
-      bokehKernel[5] = vec2(-0.48051673, -0.23140468);
-      bokehKernel[6] = vec2(-0.11867763, -0.51996166);
-      bokehKernel[7] = vec2(0.33252785, -0.4169769);
-      bokehKernel[8] = vec2(1.0, 0.0);
-      bokehKernel[9] = vec2(0.90096885, 0.43388376);
-      bokehKernel[10] = vec2(0.6234898, 0.7818315);
-      bokehKernel[11] = vec2(0.22252098, 0.9749279);
-      bokehKernel[12] = vec2(-0.22252095, 0.9749279);
-      bokehKernel[13] = vec2(-0.62349, 0.7818314);
-      bokehKernel[14] = vec2(-0.90096885, 0.43388382);
-      bokehKernel[15] = vec2(-1.0, 0.0);
-      bokehKernel[16] = vec2(-0.90096885, -0.43388376);
-      bokehKernel[17] = vec2(-0.6234896, -0.7818316);
-      bokehKernel[18] = vec2(-0.22252055, -0.974928);
-      bokehKernel[19] = vec2(0.2225215, -0.9749278);
-      bokehKernel[20] = vec2(0.6234897, -0.7818316);
-      bokehKernel[21] = vec2(0.90096885, -0.43388376);
+      bokehKernel[1] = vec2(0.54545456, 0.0);
+      bokehKernel[2] = vec2(0.16855472, 0.5187581);
+      bokehKernel[3] = vec2(-0.44128203, 0.3206101);
+      bokehKernel[4] = vec2(-0.44128197, -0.3206102);
+      bokehKernel[5] = vec2(0.1685548, -0.5187581);
+      bokehKernel[6] = vec2(1.0, 0.0);
+      bokehKernel[7] = vec2(0.809017, 0.58778524);
+      bokehKernel[8] = vec2(0.30901697, 0.95105654);
+      bokehKernel[9] = vec2(-0.30901703, 0.9510565);
+      bokehKernel[10] = vec2(-0.80901706, 0.5877852);
+      bokehKernel[11] = vec2(-1.0, 0.0);
+      bokehKernel[12] = vec2(-0.80901694, -0.58778536);
+      bokehKernel[13] = vec2(-0.30901664, -0.9510566);
+      bokehKernel[14] = vec2(0.30901712, -0.9510565);
+      bokehKernel[15] = vec2(0.80901694, -0.5877853);
   }
 
 
@@ -224,7 +218,7 @@ CCProgram dof-bokeh-fs %{
     
     float coc = Uint8ToFloat(texture(prefilterTex, v_uv).a) * bokehRadius;
 
-    vec4 farAcc = vec4(0.0); // background
+    vec4 farAcc = vec4(0.0);  // background
     vec4 nearAcc = vec4(0.0); // foreground
 
     for (int k = 0; k < SAMPLE_COUNT; k++) {
