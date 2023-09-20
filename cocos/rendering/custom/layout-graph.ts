@@ -1437,9 +1437,9 @@ export class LayoutGraphObjectPool {
         this._renderPhaseData.reset();
         this._layoutGraphData.reset();
     }
-    createDescriptorDB (): DescriptorDB {
+    createDescriptorDB (isDebug = true): DescriptorDB {
         let v: DescriptorDB;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorDB();
         } else {
             v = this._descriptorDB.add();
@@ -1448,9 +1448,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createRenderPhase (): RenderPhase {
+    createRenderPhase (isDebug = true): RenderPhase {
         let v: RenderPhase;
-        if (this.debug) {
+        if (isDebug) {
             v = new RenderPhase();
         } else {
             v = this._renderPhase.add();
@@ -1459,9 +1459,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createLayoutGraph (): LayoutGraph {
+    createLayoutGraph (isDebug = true): LayoutGraph {
         let v: LayoutGraph;
-        if (this.debug) {
+        if (isDebug) {
             v = new LayoutGraph();
         } else {
             v = this._layoutGraph.add();
@@ -1474,9 +1474,10 @@ export class LayoutGraphObjectPool {
         uniformID = 0xFFFFFFFF,
         uniformType: Type = Type.UNKNOWN,
         offset = 0,
+        isDebug = true,
     ): UniformData {
         let v: UniformData;
-        if (this.debug) {
+        if (isDebug) {
             v = new UniformData();
         } else {
             v = this._uniformData.add();
@@ -1485,9 +1486,9 @@ export class LayoutGraphObjectPool {
         v.reset(uniformID, uniformType, offset);
         return v;
     }
-    createUniformBlockData (): UniformBlockData {
+    createUniformBlockData (isDebug = true): UniformBlockData {
         let v: UniformBlockData;
-        if (this.debug) {
+        if (isDebug) {
             v = new UniformBlockData();
         } else {
             v = this._uniformBlockData.add();
@@ -1500,9 +1501,10 @@ export class LayoutGraphObjectPool {
         descriptorID = 0,
         type: Type = Type.UNKNOWN,
         count = 1,
+        isDebug = true,
     ): DescriptorData {
         let v: DescriptorData;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorData();
         } else {
             v = this._descriptorData.add();
@@ -1515,9 +1517,10 @@ export class LayoutGraphObjectPool {
         type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
         capacity = 0,
+        isDebug = true,
     ): DescriptorBlockData {
         let v: DescriptorBlockData;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorBlockData();
         } else {
             v = this._descriptorBlockData.add();
@@ -1529,9 +1532,10 @@ export class LayoutGraphObjectPool {
     createDescriptorSetLayoutData (
         slot = 0xFFFFFFFF,
         capacity = 0,
+        isDebug = true,
     ): DescriptorSetLayoutData {
         let v: DescriptorSetLayoutData;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorSetLayoutData();
         } else {
             v = this._descriptorSetLayoutData.add();
@@ -1543,9 +1547,10 @@ export class LayoutGraphObjectPool {
     createDescriptorSetData (
         descriptorSetLayout: DescriptorSetLayout | null = null,
         descriptorSet: DescriptorSet | null = null,
+        isDebug = true,
     ): DescriptorSetData {
         let v: DescriptorSetData;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorSetData();
         } else {
             v = this._descriptorSetData.add();
@@ -1554,9 +1559,9 @@ export class LayoutGraphObjectPool {
         v.reset(descriptorSetLayout, descriptorSet);
         return v;
     }
-    createPipelineLayoutData (): PipelineLayoutData {
+    createPipelineLayoutData (isDebug = true): PipelineLayoutData {
         let v: PipelineLayoutData;
-        if (this.debug) {
+        if (isDebug) {
             v = new PipelineLayoutData();
         } else {
             v = this._pipelineLayoutData.add();
@@ -1565,9 +1570,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createShaderBindingData (): ShaderBindingData {
+    createShaderBindingData (isDebug = true): ShaderBindingData {
         let v: ShaderBindingData;
-        if (this.debug) {
+        if (isDebug) {
             v = new ShaderBindingData();
         } else {
             v = this._shaderBindingData.add();
@@ -1576,9 +1581,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createShaderLayoutData (): ShaderLayoutData {
+    createShaderLayoutData (isDebug = true): ShaderLayoutData {
         let v: ShaderLayoutData;
-        if (this.debug) {
+        if (isDebug) {
             v = new ShaderLayoutData();
         } else {
             v = this._shaderLayoutData.add();
@@ -1587,9 +1592,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createTechniqueData (): TechniqueData {
+    createTechniqueData (isDebug = true): TechniqueData {
         let v: TechniqueData;
-        if (this.debug) {
+        if (isDebug) {
             v = new TechniqueData();
         } else {
             v = this._techniqueData.add();
@@ -1598,9 +1603,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createEffectData (): EffectData {
+    createEffectData (isDebug = true): EffectData {
         let v: EffectData;
-        if (this.debug) {
+        if (isDebug) {
             v = new EffectData();
         } else {
             v = this._effectData.add();
@@ -1609,9 +1614,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createShaderProgramData (): ShaderProgramData {
+    createShaderProgramData (isDebug = true): ShaderProgramData {
         let v: ShaderProgramData;
-        if (this.debug) {
+        if (isDebug) {
             v = new ShaderProgramData();
         } else {
             v = this._shaderProgramData.add();
@@ -1620,9 +1625,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createRenderStageData (): RenderStageData {
+    createRenderStageData (isDebug = true): RenderStageData {
         let v: RenderStageData;
-        if (this.debug) {
+        if (isDebug) {
             v = new RenderStageData();
         } else {
             v = this._renderStageData.add();
@@ -1631,9 +1636,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createRenderPhaseData (): RenderPhaseData {
+    createRenderPhaseData (isDebug = true): RenderPhaseData {
         let v: RenderPhaseData;
-        if (this.debug) {
+        if (isDebug) {
             v = new RenderPhaseData();
         } else {
             v = this._renderPhaseData.add();
@@ -1642,9 +1647,9 @@ export class LayoutGraphObjectPool {
         v.reset();
         return v;
     }
-    createLayoutGraphData (): LayoutGraphData {
+    createLayoutGraphData (isDebug = true): LayoutGraphData {
         let v: LayoutGraphData;
-        if (this.debug) {
+        if (isDebug) {
             v = new LayoutGraphData();
         } else {
             v = this._layoutGraphData.add();

@@ -2697,9 +2697,10 @@ export class RenderGraphObjectPool {
         y = 0,
         z = 0,
         w = 0,
+        isDebug = true,
     ): ClearValue {
         let v: ClearValue;
-        if (this.debug) {
+        if (isDebug) {
             v = new ClearValue();
         } else {
             v = this._clearValue.add();
@@ -2716,9 +2717,10 @@ export class RenderGraphObjectPool {
         storeOp: StoreOp = StoreOp.STORE,
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        isDebug = true,
     ): RasterView {
         let v: RasterView;
-        if (this.debug) {
+        if (isDebug) {
             v = new RasterView();
         } else {
             v = this._rasterView.add();
@@ -2733,9 +2735,10 @@ export class RenderGraphObjectPool {
         clearFlags: ClearFlagBit = ClearFlagBit.NONE,
         clearValueType: ClearValueType = ClearValueType.NONE,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        isDebug = true,
     ): ComputeView {
         let v: ComputeView;
-        if (this.debug) {
+        if (isDebug) {
             v = new ComputeView();
         } else {
             v = this._computeView.add();
@@ -2744,9 +2747,9 @@ export class RenderGraphObjectPool {
         v.reset(name, accessType, clearFlags, clearValueType, shaderStageFlags);
         return v;
     }
-    createResourceDesc (): ResourceDesc {
+    createResourceDesc (isDebug = true): ResourceDesc {
         let v: ResourceDesc;
-        if (this.debug) {
+        if (isDebug) {
             v = new ResourceDesc();
         } else {
             v = this._resourceDesc.add();
@@ -2757,9 +2760,10 @@ export class RenderGraphObjectPool {
     }
     createResourceTraits (
         residency: ResourceResidency = ResourceResidency.MANAGED,
+        isDebug = true,
     ): ResourceTraits {
         let v: ResourceTraits;
-        if (this.debug) {
+        if (isDebug) {
             v = new ResourceTraits();
         } else {
             v = this._resourceTraits.add();
@@ -2770,9 +2774,10 @@ export class RenderGraphObjectPool {
     }
     createRenderSwapchain (
         swapchain: Swapchain | null = null,
+        isDebug = true,
     ): RenderSwapchain {
         let v: RenderSwapchain;
-        if (this.debug) {
+        if (isDebug) {
             v = new RenderSwapchain();
         } else {
             v = this._renderSwapchain.add();
@@ -2781,9 +2786,9 @@ export class RenderGraphObjectPool {
         v.reset(swapchain);
         return v;
     }
-    createResourceStates (): ResourceStates {
+    createResourceStates (isDebug = true): ResourceStates {
         let v: ResourceStates;
-        if (this.debug) {
+        if (isDebug) {
             v = new ResourceStates();
         } else {
             v = this._resourceStates.add();
@@ -2794,9 +2799,10 @@ export class RenderGraphObjectPool {
     }
     createManagedBuffer (
         buffer: Buffer | null = null,
+        isDebug = true,
     ): ManagedBuffer {
         let v: ManagedBuffer;
-        if (this.debug) {
+        if (isDebug) {
             v = new ManagedBuffer();
         } else {
             v = this._managedBuffer.add();
@@ -2807,9 +2813,10 @@ export class RenderGraphObjectPool {
     }
     createPersistentBuffer (
         buffer: Buffer | null = null,
+        isDebug = true,
     ): PersistentBuffer {
         let v: PersistentBuffer;
-        if (this.debug) {
+        if (isDebug) {
             v = new PersistentBuffer();
         } else {
             v = this._persistentBuffer.add();
@@ -2820,9 +2827,10 @@ export class RenderGraphObjectPool {
     }
     createManagedTexture (
         texture: Texture | null = null,
+        isDebug = true,
     ): ManagedTexture {
         let v: ManagedTexture;
-        if (this.debug) {
+        if (isDebug) {
             v = new ManagedTexture();
         } else {
             v = this._managedTexture.add();
@@ -2833,9 +2841,10 @@ export class RenderGraphObjectPool {
     }
     createPersistentTexture (
         texture: Texture | null = null,
+        isDebug = true,
     ): PersistentTexture {
         let v: PersistentTexture;
-        if (this.debug) {
+        if (isDebug) {
             v = new PersistentTexture();
         } else {
             v = this._persistentTexture.add();
@@ -2844,9 +2853,9 @@ export class RenderGraphObjectPool {
         v.reset(texture);
         return v;
     }
-    createManagedResource (): ManagedResource {
+    createManagedResource (isDebug = true): ManagedResource {
         let v: ManagedResource;
-        if (this.debug) {
+        if (isDebug) {
             v = new ManagedResource();
         } else {
             v = this._managedResource.add();
@@ -2855,9 +2864,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createSubpass (): Subpass {
+    createSubpass (isDebug = true): Subpass {
         let v: Subpass;
-        if (this.debug) {
+        if (isDebug) {
             v = new Subpass();
         } else {
             v = this._subpass.add();
@@ -2866,9 +2875,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createSubpassGraph (): SubpassGraph {
+    createSubpassGraph (isDebug = true): SubpassGraph {
         let v: SubpassGraph;
-        if (this.debug) {
+        if (isDebug) {
             v = new SubpassGraph();
         } else {
             v = this._subpassGraph.add();
@@ -2881,9 +2890,10 @@ export class RenderGraphObjectPool {
         subpassID = 0xFFFFFFFF,
         count = 1,
         quality = 0,
+        isDebug = true,
     ): RasterSubpass {
         let v: RasterSubpass;
-        if (this.debug) {
+        if (isDebug) {
             v = new RasterSubpass();
         } else {
             v = this._rasterSubpass.add();
@@ -2894,9 +2904,10 @@ export class RenderGraphObjectPool {
     }
     createComputeSubpass (
         subpassID = 0xFFFFFFFF,
+        isDebug = true,
     ): ComputeSubpass {
         let v: ComputeSubpass;
-        if (this.debug) {
+        if (isDebug) {
             v = new ComputeSubpass();
         } else {
             v = this._computeSubpass.add();
@@ -2905,9 +2916,9 @@ export class RenderGraphObjectPool {
         v.reset(subpassID);
         return v;
     }
-    createRasterPass (): RasterPass {
+    createRasterPass (isDebug = true): RasterPass {
         let v: RasterPass;
-        if (this.debug) {
+        if (isDebug) {
             v = new RasterPass();
         } else {
             v = this._rasterPass.add();
@@ -2919,9 +2930,10 @@ export class RenderGraphObjectPool {
     createPersistentRenderPassAndFramebuffer (
         renderPass: RenderPass | null = null,
         framebuffer: Framebuffer | null = null,
+        isDebug = true,
     ): PersistentRenderPassAndFramebuffer {
         let v: PersistentRenderPassAndFramebuffer;
-        if (this.debug) {
+        if (isDebug) {
             v = new PersistentRenderPassAndFramebuffer();
         } else {
             v = this._persistentRenderPassAndFramebuffer.add();
@@ -2930,9 +2942,9 @@ export class RenderGraphObjectPool {
         v.reset(renderPass, framebuffer);
         return v;
     }
-    createFormatView (): FormatView {
+    createFormatView (isDebug = true): FormatView {
         let v: FormatView;
-        if (this.debug) {
+        if (isDebug) {
             v = new FormatView();
         } else {
             v = this._formatView.add();
@@ -2941,9 +2953,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createSubresourceView (): SubresourceView {
+    createSubresourceView (isDebug = true): SubresourceView {
         let v: SubresourceView;
-        if (this.debug) {
+        if (isDebug) {
             v = new SubresourceView();
         } else {
             v = this._subresourceView.add();
@@ -2952,9 +2964,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createResourceGraph (): ResourceGraph {
+    createResourceGraph (isDebug = true): ResourceGraph {
         let v: ResourceGraph;
-        if (this.debug) {
+        if (isDebug) {
             v = new ResourceGraph();
         } else {
             v = this._resourceGraph.add();
@@ -2963,9 +2975,9 @@ export class RenderGraphObjectPool {
         v.clear();
         return v;
     }
-    createComputePass (): ComputePass {
+    createComputePass (isDebug = true): ComputePass {
         let v: ComputePass;
-        if (this.debug) {
+        if (isDebug) {
             v = new ComputePass();
         } else {
             v = this._computePass.add();
@@ -2974,9 +2986,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createResolvePass (): ResolvePass {
+    createResolvePass (isDebug = true): ResolvePass {
         let v: ResolvePass;
-        if (this.debug) {
+        if (isDebug) {
             v = new ResolvePass();
         } else {
             v = this._resolvePass.add();
@@ -2985,9 +2997,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createCopyPass (): CopyPass {
+    createCopyPass (isDebug = true): CopyPass {
         let v: CopyPass;
-        if (this.debug) {
+        if (isDebug) {
             v = new CopyPass();
         } else {
             v = this._copyPass.add();
@@ -2996,9 +3008,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createMovePass (): MovePass {
+    createMovePass (isDebug = true): MovePass {
         let v: MovePass;
-        if (this.debug) {
+        if (isDebug) {
             v = new MovePass();
         } else {
             v = this._movePass.add();
@@ -3007,9 +3019,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createRaytracePass (): RaytracePass {
+    createRaytracePass (isDebug = true): RaytracePass {
         let v: RaytracePass;
-        if (this.debug) {
+        if (isDebug) {
             v = new RaytracePass();
         } else {
             v = this._raytracePass.add();
@@ -3021,9 +3033,10 @@ export class RenderGraphObjectPool {
     createClearView (
         slotName = '',
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+        isDebug = true,
     ): ClearView {
         let v: ClearView;
-        if (this.debug) {
+        if (isDebug) {
             v = new ClearView();
         } else {
             v = this._clearView.add();
@@ -3035,9 +3048,10 @@ export class RenderGraphObjectPool {
     createRenderQueue (
         hint: QueueHint = QueueHint.RENDER_OPAQUE,
         phaseID = 0xFFFFFFFF,
+        isDebug = true,
     ): RenderQueue {
         let v: RenderQueue;
-        if (this.debug) {
+        if (isDebug) {
             v = new RenderQueue();
         } else {
             v = this._renderQueue.add();
@@ -3052,9 +3066,10 @@ export class RenderGraphObjectPool {
         flags: SceneFlags = SceneFlags.NONE,
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
         shadingLight: Light | null = null,
+        isDebug = true,
     ): SceneData {
         let v: SceneData;
-        if (this.debug) {
+        if (isDebug) {
             v = new SceneData();
         } else {
             v = this._sceneData.add();
@@ -3069,9 +3084,10 @@ export class RenderGraphObjectPool {
         threadGroupCountX = 0,
         threadGroupCountY = 0,
         threadGroupCountZ = 0,
+        isDebug = true,
     ): Dispatch {
         let v: Dispatch;
-        if (this.debug) {
+        if (isDebug) {
             v = new Dispatch();
         } else {
             v = this._dispatch.add();
@@ -3085,9 +3101,10 @@ export class RenderGraphObjectPool {
         passID = 0,
         sceneFlags: SceneFlags = SceneFlags.NONE,
         camera: Camera | null = null,
+        isDebug = true,
     ): Blit {
         let v: Blit;
-        if (this.debug) {
+        if (isDebug) {
             v = new Blit();
         } else {
             v = this._blit.add();
@@ -3096,9 +3113,9 @@ export class RenderGraphObjectPool {
         v.reset(material, passID, sceneFlags, camera);
         return v;
     }
-    createRenderData (): RenderData {
+    createRenderData (isDebug = true): RenderData {
         let v: RenderData;
-        if (this.debug) {
+        if (isDebug) {
             v = new RenderData();
         } else {
             v = this._renderData.add();
@@ -3107,9 +3124,9 @@ export class RenderGraphObjectPool {
         v.reset();
         return v;
     }
-    createRenderGraph (): RenderGraph {
+    createRenderGraph (isDebug = true): RenderGraph {
         let v: RenderGraph;
-        if (this.debug) {
+        if (isDebug) {
             v = new RenderGraph();
         } else {
             v = this._renderGraph.add();

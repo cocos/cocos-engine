@@ -680,9 +680,10 @@ export class RenderCommonObjectPool {
         level = 0,
         culledByLight = false,
         probe: ReflectionProbe | null = null,
+        isDebug = true,
     ): LightInfo {
         let v: LightInfo;
-        if (this.debug) {
+        if (isDebug) {
             v = new LightInfo();
         } else {
             v = this._lightInfo.add();
@@ -693,9 +694,10 @@ export class RenderCommonObjectPool {
     }
     createDescriptor (
         type: Type = Type.UNKNOWN,
+        isDebug = true,
     ): Descriptor {
         let v: Descriptor;
-        if (this.debug) {
+        if (isDebug) {
             v = new Descriptor();
         } else {
             v = this._descriptor.add();
@@ -704,9 +706,9 @@ export class RenderCommonObjectPool {
         v.reset(type);
         return v;
     }
-    createDescriptorBlock (): DescriptorBlock {
+    createDescriptorBlock (isDebug = true): DescriptorBlock {
         let v: DescriptorBlock;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorBlock();
         } else {
             v = this._descriptorBlock.add();
@@ -715,9 +717,9 @@ export class RenderCommonObjectPool {
         v.reset();
         return v;
     }
-    createDescriptorBlockFlattened (): DescriptorBlockFlattened {
+    createDescriptorBlockFlattened (isDebug = true): DescriptorBlockFlattened {
         let v: DescriptorBlockFlattened;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorBlockFlattened();
         } else {
             v = this._descriptorBlockFlattened.add();
@@ -731,9 +733,10 @@ export class RenderCommonObjectPool {
         parameterType: ParameterType = ParameterType.CONSTANTS,
         descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        isDebug = true,
     ): DescriptorBlockIndex {
         let v: DescriptorBlockIndex;
-        if (this.debug) {
+        if (isDebug) {
             v = new DescriptorBlockIndex();
         } else {
             v = this._descriptorBlockIndex.add();
@@ -751,9 +754,10 @@ export class RenderCommonObjectPool {
         resolveFlags: ResolveFlags = ResolveFlags.NONE,
         mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
         mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        isDebug = true,
     ): ResolvePair {
         let v: ResolvePair;
-        if (this.debug) {
+        if (isDebug) {
             v = new ResolvePair();
         } else {
             v = this._resolvePair.add();
@@ -773,9 +777,10 @@ export class RenderCommonObjectPool {
         targetMostDetailedMip = 0,
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
+        isDebug = true,
     ): CopyPair {
         let v: CopyPair;
-        if (this.debug) {
+        if (isDebug) {
             v = new CopyPair();
         } else {
             v = this._copyPair.add();
@@ -791,9 +796,10 @@ export class RenderCommonObjectPool {
         targetMostDetailedMip = 0,
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
+        isDebug = true,
     ): UploadPair {
         let v: UploadPair;
-        if (this.debug) {
+        if (isDebug) {
             v = new UploadPair();
         } else {
             v = this._uploadPair.add();
@@ -810,9 +816,10 @@ export class RenderCommonObjectPool {
         targetMostDetailedMip = 0,
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
+        isDebug = true,
     ): MovePair {
         let v: MovePair;
-        if (this.debug) {
+        if (isDebug) {
             v = new MovePair();
         } else {
             v = this._movePair.add();
@@ -821,9 +828,9 @@ export class RenderCommonObjectPool {
         v.reset(source, target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
-    createPipelineStatistics (): PipelineStatistics {
+    createPipelineStatistics (isDebug = true): PipelineStatistics {
         let v: PipelineStatistics;
-        if (this.debug) {
+        if (isDebug) {
             v = new PipelineStatistics();
         } else {
             v = this._pipelineStatistics.add();
