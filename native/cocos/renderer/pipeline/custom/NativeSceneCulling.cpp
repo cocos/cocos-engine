@@ -775,7 +775,10 @@ void LightResource::clear() {
 }
 
 void LightResource::buildLightBuffer(gfx::CommandBuffer* cmdBuffer) const {
-    cmdBuffer->updateBuffer(lightBuffer, cpuBuffer.data(), lights.size() * elementSize);
+    cmdBuffer->updateBuffer(
+        lightBuffer,
+        cpuBuffer.data(),
+        static_cast<uint32_t>(lights.size()) * elementSize);
 }
 
 void LightResource::tryUpdateRenderSceneLocalDescriptorSet(const SceneCulling& sceneCulling) {

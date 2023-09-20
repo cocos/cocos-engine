@@ -685,27 +685,17 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
-    addResource (
+    addBuffer (
         name: string,
-        dimension: ResourceDimension,
-        format: Format,
-        width: number,
-        height: number,
-        depth: number,
-        arraySize: number,
-        mipLevels: number,
-        sampleCount: SampleCount,
+        size: number,
         flags: ResourceFlags,
         residency: ResourceResidency): number;
-    updateResource (
+    updateBuffer (name: string, size: number): void;
+    addExternalTexture (
         name: string,
-        format: Format,
-        width: number,
-        height: number,
-        depth: number,
-        arraySize: number,
-        mipLevels: number,
-        sampleCount: SampleCount): void;
+        texture: Texture,
+        flags: ResourceFlags): number;
+    updateExternalTexture (name: string, texture: Texture): void;
     addTexture (
         name: string,
         type: TextureType,
@@ -727,17 +717,27 @@ export interface BasicPipeline extends PipelineRuntime {
         arraySize: number,
         mipLevels: number,
         sampleCount: SampleCount): void;
-    addBuffer (
+    addResource (
         name: string,
-        size: number,
+        dimension: ResourceDimension,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount,
         flags: ResourceFlags,
         residency: ResourceResidency): number;
-    updateBuffer (name: string, size: number): void;
-    addExternalTexture (
+    updateResource (
         name: string,
-        texture: Texture,
-        flags: ResourceFlags): number;
-    updateExternalTexture (name: string, texture: Texture): void;
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount): void;
     /**
      * @engineInternal
      * @en Begin rendering one frame
