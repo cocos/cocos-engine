@@ -22,14 +22,11 @@
  THE SOFTWARE.
 */
 
-export * from './label';
-export { Mask } from './mask';
-export { RichText } from './rich-text';
-export { Sprite } from './sprite';
-export { UIMeshRenderer } from './ui-mesh-renderer';
-export { LabelOutline } from './label-outline';
-export { Graphics } from './graphics';
-export { LabelShadow } from './label-shadow';
-export { UIOpacity } from './ui-opacity';
+import { deprecateModuleExportedName } from '../../core';
 
-export * from './deprecated';
+deprecateModuleExportedName({
+    UIStaticBatch: {
+        since: '3.9.0',
+        removed: true,
+    },
+});

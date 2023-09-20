@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Mask, MaskType } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';
@@ -29,10 +30,9 @@ import { RichText } from './rich-text';
 import { Sprite } from './sprite';
 import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
-import { UIStaticBatch } from './ui-static-batch';
 import { UIOpacity } from './ui-opacity';
 import { js, replaceProperty } from '../../core';
-import { cclegacy } from '@base/global';
+import './deprecated-3.9.0';
 
 /**
  * Alias of [[Mask]]
@@ -84,12 +84,6 @@ js.setClassAlias(UIMeshRenderer, 'cc.UIModelComponent');
 export { Graphics as GraphicsComponent };
 cclegacy.GraphicsComponent = Graphics;
 js.setClassAlias(Graphics, 'cc.GraphicsComponent');
-/**
- * Alias of [[UIStaticBatch]]
- * @deprecated Since v1.2
- */
-export { UIStaticBatch as UIStaticBatchComponent };
-js.setClassAlias(UIStaticBatch, 'cc.UIStaticBatchComponent');
 /**
  * Alias of [[UIOpacity]]
  * @deprecated Since v1.2
