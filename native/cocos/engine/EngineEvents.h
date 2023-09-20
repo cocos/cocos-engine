@@ -124,6 +124,12 @@ enum class StickAxisCode {
     R2,
     LEFT_GRIP,
     RIGHT_GRIP,
+    A,
+    B,
+    LEFT_TRIGGER,
+    RIGHT_TRIGGER,
+    LEFT_THUMBSTICK,
+    RIGHT_THUMBSTICK,
 };
 
 struct ControllerInfo {

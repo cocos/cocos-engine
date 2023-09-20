@@ -118,6 +118,8 @@ enum class XRConfigKey {
     EYE_RENDER_JS_CALLBACK = 54,
     ASYNC_LOAD_ASSETS_IMAGE = 55,
     ASYNC_LOAD_ASSETS_IMAGE_RESULTS = 56,
+    LEFT_CONTROLLER_ACTIVE = 57,
+    RIGHT_CONTROLLER_ACTIVE= 58,
     MAX_COUNT
 };
 
@@ -287,6 +289,14 @@ struct XRGrab : public XRControllerInfo {
         GRIP_LEFT,
         TRIGGER_RIGHT,
         GRIP_RIGHT,
+        TOUCH_A,
+        TOUCH_B,
+        TOUCH_X,
+        TOUCH_Y,
+        TOUCH_TRIGGER_LEFT,
+        TOUCH_TRIGGER_RIGHT,
+        TOUCH_THUMBSTICK_LEFT,
+        TOUCH_THUMBSTICK_RIGHT,
         UNKNOWN
     };
 

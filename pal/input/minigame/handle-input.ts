@@ -53,6 +53,14 @@ export class HandleInputDevice {
     public get aimLeftOrientation (): InputSourceOrientation { return this._aimLeftOrientation; }
     public get aimRightPosition (): InputSourcePosition { return this._aimRightPosition; }
     public get aimRightOrientation (): InputSourceOrientation { return this._aimRightOrientation; }
+    public get touchButtonA (): InputSourceButton { return this._touchButtonA; }
+    public get touchButtonB (): InputSourceButton { return this._touchButtonB; }
+    public get touchButtonX (): InputSourceButton { return this._touchButtonX; }
+    public get touchButtonY (): InputSourceButton { return this._touchButtonY; }
+    public get touchButtonTriggerLeft (): InputSourceButton { return this._touchButtonTriggerLeft; }
+    public get touchButtonTriggerRight (): InputSourceButton { return this._touchButtonTriggerRight; }
+    public get touchButtonThumbStickLeft (): InputSourceButton { return this._touchButtonThumbStickLeft; }
+    public get touchButtonThumbStickRight (): InputSourceButton { return this._touchButtonThumbStickRight; }
 
     private _eventTarget: EventTarget = new EventTarget();
 
@@ -80,6 +88,14 @@ export class HandleInputDevice {
     private _aimLeftOrientation!: InputSourceOrientation;
     private _aimRightPosition!: InputSourcePosition;
     private _aimRightOrientation!: InputSourceOrientation;
+    private _touchButtonA!: InputSourceButton;
+    private _touchButtonB!: InputSourceButton;
+    private _touchButtonX!: InputSourceButton;
+    private _touchButtonY!: InputSourceButton;
+    private _touchButtonTriggerLeft!: InputSourceButton;
+    private _touchButtonTriggerRight!: InputSourceButton;
+    private _touchButtonThumbStickLeft!: InputSourceButton;
+    private _touchButtonThumbStickRight!: InputSourceButton;
 
     constructor () {
         this._initInputSource();
@@ -163,5 +179,21 @@ export class HandleInputDevice {
         this._aimRightPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._aimRightOrientation = new InputSourceOrientation();
         this._aimRightOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
+        this._touchButtonA = new InputSourceButton();
+        this._touchButtonA.getValue = (): number => 0;
+        this._touchButtonB = new InputSourceButton();
+        this._touchButtonB.getValue = (): number => 0;
+        this._touchButtonX = new InputSourceButton();
+        this._touchButtonX.getValue = (): number => 0;
+        this._touchButtonY = new InputSourceButton();
+        this._touchButtonY.getValue = (): number => 0;
+        this._touchButtonTriggerLeft = new InputSourceButton();
+        this._touchButtonTriggerLeft.getValue = (): number => 0;
+        this._touchButtonTriggerRight = new InputSourceButton();
+        this._touchButtonTriggerRight.getValue = (): number => 0;
+        this._touchButtonThumbStickLeft = new InputSourceButton();
+        this._touchButtonThumbStickLeft.getValue = (): number => 0;
+        this._touchButtonThumbStickRight = new InputSourceButton();
+        this._touchButtonThumbStickRight.getValue = (): number => 0;
     }
 }

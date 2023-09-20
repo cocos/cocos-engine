@@ -62,12 +62,51 @@ enum Pose {
     AIM_RIGHT,
 }
 
+enum StickKeyCode {
+    UNDEFINE = 0,
+    A,
+    B,
+    X,
+    Y,
+    L1,
+    R1,
+    MINUS,
+    PLUS,
+    L3,
+    R3,
+    MENU,
+    START,
+    TRIGGER_LEFT,
+    TRIGGER_RIGHT,
+};
+
+enum StickAxisCode {
+    UNDEFINE = 0,
+    X,
+    Y,
+    LEFT_STICK_X,
+    LEFT_STICK_Y,
+    RIGHT_STICK_X,
+    RIGHT_STICK_Y,
+    L2,
+    R2,
+    LEFT_GRIP,
+    RIGHT_GRIP,
+    A,
+    B,
+    LEFT_TRIGGER,
+    RIGHT_TRIGGER,
+    LEFT_THUMBSTICK,
+    RIGHT_THUMBSTICK,
+};
+
 interface IPoseValue {
     position: Vec3;
     orientation: Quat;
 }
 
 type NativeButtonState = Record<Button, number>
+type NativeTouchState = Record<StickAxisCode, number>
 type NativePoseState = Record<Pose, IPoseValue>
 
 const _nativeButtonMap = {
@@ -113,6 +152,14 @@ export class HandleInputDevice {
     public get aimLeftOrientation (): InputSourceOrientation { return this._aimLeftOrientation; }
     public get aimRightPosition (): InputSourcePosition { return this._aimRightPosition; }
     public get aimRightOrientation (): InputSourceOrientation { return this._aimRightOrientation; }
+    public get touchButtonA (): InputSourceButton { return this._touchButtonA; }
+    public get touchButtonB (): InputSourceButton { return this._touchButtonB; }
+    public get touchButtonX (): InputSourceButton { return this._touchButtonX; }
+    public get touchButtonY (): InputSourceButton { return this._touchButtonY; }
+    public get touchButtonTriggerLeft (): InputSourceButton { return this._touchButtonTriggerLeft; }
+    public get touchButtonTriggerRight (): InputSourceButton { return this._touchButtonTriggerRight; }
+    public get touchButtonThumbStickLeft (): InputSourceButton { return this._touchButtonThumbStickLeft; }
+    public get touchButtonThumbStickRight (): InputSourceButton { return this._touchButtonThumbStickRight; }
 
     private _eventTarget: EventTarget = new EventTarget();
 
@@ -140,6 +187,14 @@ export class HandleInputDevice {
     private _aimLeftOrientation!: InputSourceOrientation;
     private _aimRightPosition!: InputSourcePosition;
     private _aimRightOrientation!: InputSourceOrientation;
+    private _touchButtonA!: InputSourceButton;
+    private _touchButtonB!: InputSourceButton;
+    private _touchButtonX!: InputSourceButton;
+    private _touchButtonY!: InputSourceButton;
+    private _touchButtonTriggerLeft!: InputSourceButton;
+    private _touchButtonTriggerRight!: InputSourceButton;
+    private _touchButtonThumbStickLeft!: InputSourceButton;
+    private _touchButtonThumbStickRight!: InputSourceButton;
 
     private _nativeButtonState: NativeButtonState = {
         [Button.BUTTON_SOUTH]: 0,
@@ -164,6 +219,26 @@ export class HandleInputDevice {
         [Button.BUTTON_RIGHT_STICK]: 0,
         [Button.ROKID_MENU]: 0,
         [Button.ROKID_START]: 0,
+    };
+
+    private _nativeTouchState: NativeTouchState = {
+        [StickAxisCode.UNDEFINE]: 0,
+        [StickAxisCode.L2]: 0,
+        [StickAxisCode.R2]: 0,
+        [StickAxisCode.LEFT_STICK_X]: 0,
+        [StickAxisCode.RIGHT_STICK_X]: 0,
+        [StickAxisCode.LEFT_STICK_Y]: 0,
+        [StickAxisCode.RIGHT_STICK_Y]: 0,
+        [StickAxisCode.LEFT_GRIP]: 0,
+        [StickAxisCode.RIGHT_GRIP]: 0,
+        [StickAxisCode.A]: 0,
+        [StickAxisCode.B]: 0,
+        [StickAxisCode.X]: 0,
+        [StickAxisCode.Y]: 0,
+        [StickAxisCode.LEFT_TRIGGER]: 0,
+        [StickAxisCode.RIGHT_TRIGGER]: 0,
+        [StickAxisCode.LEFT_THUMBSTICK]: 0,
+        [StickAxisCode.RIGHT_THUMBSTICK]: 0,
     };
 
     private _nativePoseState: NativePoseState = {
@@ -228,36 +303,49 @@ export class HandleInputDevice {
             let positiveButton: Button | undefined;
             let axisValue: IAxisValue | undefined;
             switch (code) {
-            case 3:
+            case StickAxisCode.LEFT_STICK_X:
                 negativeButton = Button.LEFT_STICK_LEFT;
                 positiveButton = Button.LEFT_STICK_RIGHT;
                 axisValue = this._axisToButtons(value);
                 break;
-            case 4:
+            case StickAxisCode.LEFT_STICK_Y:
                 negativeButton = Button.LEFT_STICK_DOWN;
                 positiveButton = Button.LEFT_STICK_UP;
                 axisValue = this._axisToButtons(value);
                 break;
-            case 5:
+            case StickAxisCode.RIGHT_STICK_X:
                 negativeButton = Button.RIGHT_STICK_LEFT;
                 positiveButton = Button.RIGHT_STICK_RIGHT;
                 axisValue = this._axisToButtons(value);
                 break;
-            case 6:
+            case StickAxisCode.RIGHT_STICK_Y:
                 negativeButton = Button.RIGHT_STICK_DOWN;
                 positiveButton = Button.RIGHT_STICK_UP;
                 axisValue = this._axisToButtons(value);
                 break;
+            case StickAxisCode.L2:
+                this._nativeButtonState[Button.TRIGGER_LEFT] = value;
+                break;
+            case StickAxisCode.R2:
+                this._nativeButtonState[Button.TRIGGER_RIGHT] = value;
+                break;
+            case StickAxisCode.LEFT_GRIP:
+                this._nativeButtonState[Button.GRIP_LEFT] = value;
+                break;
+            case StickAxisCode.RIGHT_GRIP:
+                this._nativeButtonState[Button.GRIP_RIGHT] = value;
+                break;
+            case StickAxisCode.A:
+            case StickAxisCode.B:
+            case StickAxisCode.X:
+            case StickAxisCode.Y:
+            case StickAxisCode.LEFT_TRIGGER:
+            case StickAxisCode.RIGHT_TRIGGER:
+            case StickAxisCode.LEFT_THUMBSTICK:
+            case StickAxisCode.RIGHT_THUMBSTICK:
+                this._nativeTouchState[code] = value;
+                break;
             default:
-                if (code === 7) {
-                    this._nativeButtonState[Button.TRIGGER_LEFT] = value;
-                } else if (code === 8) {
-                    this._nativeButtonState[Button.TRIGGER_RIGHT] = value;
-                } else if (code === 9) {
-                    this._nativeButtonState[Button.GRIP_LEFT] = value;
-                } else if (code === 10) {
-                    this._nativeButtonState[Button.GRIP_RIGHT] = value;
-                }
                 break;
             }
             if (negativeButton && positiveButton && axisValue) {
@@ -357,5 +445,21 @@ export class HandleInputDevice {
         this._aimRightPosition.getValue = (): Vec3 => this._nativePoseState[Pose.AIM_RIGHT].position;
         this._aimRightOrientation = new InputSourceOrientation();
         this._aimRightOrientation.getValue = (): Quat => this._nativePoseState[Pose.AIM_RIGHT].orientation;
+        this._touchButtonA = new InputSourceButton();
+        this._touchButtonA.getValue = (): number => this._nativeTouchState[StickAxisCode.A];
+        this._touchButtonB = new InputSourceButton();
+        this._touchButtonB.getValue = (): number => this._nativeTouchState[StickAxisCode.B];
+        this._touchButtonX = new InputSourceButton();
+        this._touchButtonX.getValue = (): number => this._nativeTouchState[StickAxisCode.X];
+        this._touchButtonY = new InputSourceButton();
+        this._touchButtonY.getValue = (): number => this._nativeTouchState[StickAxisCode.Y];
+        this._touchButtonTriggerLeft = new InputSourceButton();
+        this._touchButtonTriggerLeft.getValue = (): number => this._nativeTouchState[StickAxisCode.LEFT_TRIGGER];
+        this._touchButtonTriggerRight = new InputSourceButton();
+        this._touchButtonTriggerRight.getValue = (): number => this._nativeTouchState[StickAxisCode.RIGHT_TRIGGER];
+        this._touchButtonThumbStickLeft = new InputSourceButton();
+        this._touchButtonThumbStickLeft.getValue = (): number => this._nativeTouchState[StickAxisCode.LEFT_THUMBSTICK];
+        this._touchButtonThumbStickRight = new InputSourceButton();
+        this._touchButtonThumbStickRight.getValue = (): number => this._nativeTouchState[StickAxisCode.RIGHT_THUMBSTICK];
     }
 }
