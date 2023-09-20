@@ -681,6 +681,7 @@ export class WebGL2CmdDraw extends WebGL2CmdObject {
     }
 
     public clear (): void {
+        // noop
     }
 }
 
