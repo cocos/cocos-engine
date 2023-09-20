@@ -74,8 +74,9 @@ export class PhysicsDebugDraw extends b2.Draw {
     }
 
     _DrawCircle (center: b2.Vec2, radius: number): void {
-        const p = this._xf.p;
-        this._drawer!.circle((center.x + p.x) * PHYSICS_2D_PTM_RATIO, (center.y + p.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
+        b2.Transform.MulXV(this._xf, center, _tmp_vec2);
+        //scale?
+        this._drawer!.circle((_tmp_vec2.x) * PHYSICS_2D_PTM_RATIO, (_tmp_vec2.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
     }
 
     DrawCircle (center: b2.Vec2, radius: number, color): void {
