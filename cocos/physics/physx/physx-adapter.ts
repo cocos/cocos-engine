@@ -57,7 +57,7 @@ const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 // Init physx libs when engine init.
 game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
-export function InitPhysXLibs (): any {
+export function InitPhysXLibs (): Promise<void> {
     if (USE_BYTEDANCE) {
         if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
         Object.assign(PX, globalThis.nativePhysX);
@@ -65,6 +65,7 @@ export function InitPhysXLibs (): any {
         _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
         _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
         initConfigAndCacheObject(PX);
+        return Promise.resolve();
     } else {
         if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
             if (sys.hasFeature(sys.Feature.WASM)) {
@@ -80,7 +81,7 @@ export function InitPhysXLibs (): any {
     }
 }
 
-function initASM (): any {
+function initASM (): Promise<void> {
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : asmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX().then((Instance: any): void => {
@@ -88,21 +89,20 @@ function initASM (): any {
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
-        }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX asm load failed: ${reason}`); });
-    } else {
-        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX js libs, package may be not found.');
-        return new Promise<void>((resolve, reject): void => {
-            resolve();
         });
+    } else {
+        return Promise.reject(new Error('Unable to load PhysX asm.js.'));
     }
 }
 
-function initWASM (): any {
+function initWASM (): Promise<void> {
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : wasmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX({
-            instantiateWasm (importObject: WebAssembly.Imports,
-                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void): any {
+            instantiateWasm (
+                importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+            ): any {
                 return instantiateWasm(PhysXWasmUrl, importObject).then((result: any): void => {
                     receiveInstance(result.instance, result.module);
                 });
@@ -112,12 +112,9 @@ function initWASM (): any {
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
             Object.assign(PX, Instance);
-        }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX wasm load failed: ${reason}`); });
-    } else {
-        if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX wasm libs, package may be not found.');
-        return new Promise<void>((resolve, reject): void => {
-            resolve();
         });
+    } else {
+        return Promise.reject(new Error('Unable to load PhysX webassembly.'));
     }
 }
 
