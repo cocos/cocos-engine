@@ -282,6 +282,10 @@ module.exports = {
                     name: 'Depth-Write If Blending',
                     title: 'Enable depth-write if the alpha mode is set to "BLEND". ',
                 },
+                overrideExistingImages: {
+                    name: 'Override Existing Images',
+                    title: 'Whether to override existing images in assetdb. ',
+                },
                 skipValidation: {
                     name: 'Skip Validation',
                     title: 'Skip validation of the model file.',
