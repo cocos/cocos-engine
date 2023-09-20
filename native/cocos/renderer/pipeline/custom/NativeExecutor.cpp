@@ -2022,6 +2022,10 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 
         // upload buffers
         {
+            auto& ctx = ppl.nativeContext;
+#if CC_DEBUG
+            submit.primaryCommandBuffer->beginMarker(makeMarkerInfo("Internal Upload", RASTER_UPLOAD_COLOR));
+#endif
             // scene
             const auto& sceneCulling = ppl.nativeContext.sceneCulling;
             for (uint32_t queueID = 0; queueID != sceneCulling.numRenderQueues; ++queueID) {
@@ -2033,9 +2037,11 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             }
 
             // lights
-            auto& ctx = ppl.nativeContext;
             ctx.lightResources.buildLightBuffer(submit.primaryCommandBuffer);
             ctx.lightResources.tryUpdateRenderSceneLocalDescriptorSet(sceneCulling);
+#if CC_DEBUG
+            submit.primaryCommandBuffer->endMarker();
+#endif
         }
 
         ccstd::pmr::unordered_map<
