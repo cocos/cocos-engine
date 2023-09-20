@@ -35,6 +35,8 @@ import * as gfx from '../cocos/gfx';
 
 // LOAD ENGINE CORE
 export * from '../cocos/core';
+export { cclegacy, VERSION } from '@base/global';
+export { debug, log, error, warn, assert, logID, errorID, warnID, assertID, isDisplayStats, setDisplayStats, getError, DebugMode } from '@base/debug';
 
 export * from '../cocos/rendering';
 export * from '../cocos/rendering/custom/builtin-pipelines';
