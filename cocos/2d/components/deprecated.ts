@@ -32,6 +32,7 @@ import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIOpacity } from './ui-opacity';
 import { js, replaceProperty } from '../../core';
+import './deprecated-3.9.0';
 
 /**
  * Alias of [[Mask]]

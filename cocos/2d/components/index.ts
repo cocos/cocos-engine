@@ -22,8 +22,6 @@
  THE SOFTWARE.
 */
 
-import './deprecated-3.9.0';
-
 export * from './label';
 export { Mask } from './mask';
 export { RichText } from './rich-text';
