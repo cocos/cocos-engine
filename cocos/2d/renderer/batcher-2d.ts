@@ -286,10 +286,6 @@ export class Batcher2D implements IBatcher {
         } else {
             for (let i = 0; i < this._batches.length; ++i) {
                 const batch = this._batches.array[i];
-                if (batch.isStatic) {
-                    continue;
-                }
-
                 batch.clear();
                 this._drawBatchPool.free(batch);
             }
