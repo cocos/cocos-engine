@@ -32,10 +32,12 @@ export interface OutputArchive {
     writeBool (value: boolean): void;
     writeNumber (value: number): void;
     writeString (value: string): void;
+    _pool?: boolean;
 }
 
 export interface InputArchive {
     readBool (): boolean;
     readNumber (): number;
     readString (): string;
+    _pool?: boolean;
 }

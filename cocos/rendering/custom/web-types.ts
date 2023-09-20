@@ -51,9 +51,11 @@ export class ProgramInfo {
     readonly attributes: Attribute[];
     readonly blockSizes: number[];
     readonly handleMap: Record<string, number>;
+    _pool?: boolean;
 }
 
 export class ProgramGroup {
     readonly programInfos: Map<string, ProgramInfo> = new Map<string, ProgramInfo>();
     readonly programProxies: Map<string, ProgramProxy> = new Map<string, ProgramProxy>();
+    _pool?: boolean;
 }

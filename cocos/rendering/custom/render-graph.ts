@@ -55,6 +55,7 @@ export class ClearValue {
     y: number;
     z: number;
     w: number;
+    _pool?: boolean;
 }
 
 export class RasterView {
@@ -107,6 +108,7 @@ export class RasterView {
     readonly clearColor: Color;
     slotID = 0;
     shaderStageFlags: ShaderStageFlagBit;
+    _pool?: boolean;
 }
 
 export class ComputeView {
@@ -147,6 +149,7 @@ export class ComputeView {
     clearValueType: ClearValueType;
     readonly clearValue: ClearValue;
     shaderStageFlags: ShaderStageFlagBit;
+    _pool?: boolean;
 }
 
 export class ResourceDesc {
@@ -174,6 +177,7 @@ export class ResourceDesc {
     textureFlags: TextureFlagBit = TextureFlagBit.NONE;
     flags: ResourceFlags = ResourceFlags.NONE;
     viewType: TextureType = TextureType.TEX2D;
+    _pool?: boolean;
 }
 
 export class ResourceTraits {
@@ -184,6 +188,7 @@ export class ResourceTraits {
         this.residency = residency;
     }
     residency: ResourceResidency;
+    _pool?: boolean;
 }
 
 export class RenderSwapchain {
@@ -202,6 +207,7 @@ export class RenderSwapchain {
     currentID = 0;
     numBackBuffers = 0;
     generation = 0xFFFFFFFF;
+    _pool?: boolean;
 }
 
 export class ResourceStates {
@@ -209,6 +215,7 @@ export class ResourceStates {
         this.states = AccessFlagBit.NONE;
     }
     states: AccessFlagBit = AccessFlagBit.NONE;
+    _pool?: boolean;
 }
 
 export class ManagedBuffer {
@@ -221,6 +228,7 @@ export class ManagedBuffer {
     }
     /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
+    _pool?: boolean;
 }
 
 export class PersistentBuffer {
@@ -233,6 +241,7 @@ export class PersistentBuffer {
     }
     /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
+    _pool?: boolean;
 }
 
 export class ManagedTexture {
@@ -245,6 +254,7 @@ export class ManagedTexture {
     }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
+    _pool?: boolean;
 }
 
 export class PersistentTexture {
@@ -257,6 +267,7 @@ export class PersistentTexture {
     }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
+    _pool?: boolean;
 }
 
 export class ManagedResource {
@@ -264,6 +275,7 @@ export class ManagedResource {
         this.unused = 0;
     }
     unused = 0;
+    _pool?: boolean;
 }
 
 export class Subpass {
@@ -275,6 +287,7 @@ export class Subpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly resolvePairs: ResolvePair[] = [];
+    _pool?: boolean;
 }
 
 //=================================================================
@@ -576,6 +589,7 @@ export class SubpassGraph implements BidirectionalGraph
     readonly _vertices: SubpassGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _subpasses: Subpass[] = [];
+    _pool?: boolean;
 }
 
 export class RasterSubpass {
@@ -602,6 +616,7 @@ export class RasterSubpass {
     count: number;
     quality: number;
     showStatistics = false;
+    _pool?: boolean;
 }
 
 export class ComputeSubpass {
@@ -616,6 +631,7 @@ export class ComputeSubpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     subpassID: number;
+    _pool?: boolean;
 }
 
 export class RasterPass {
@@ -649,6 +665,7 @@ export class RasterPass {
     version = 0;
     hashValue = 0;
     showStatistics = false;
+    _pool?: boolean;
 }
 
 export class PersistentRenderPassAndFramebuffer {
@@ -668,6 +685,7 @@ export class PersistentRenderPassAndFramebuffer {
     readonly clearColors: Color[] = [];
     clearDepth = 0;
     clearStencil = 0;
+    _pool?: boolean;
 }
 
 export class FormatView {
@@ -675,6 +693,7 @@ export class FormatView {
         this.format = Format.UNKNOWN;
     }
     format: Format = Format.UNKNOWN;
+    _pool?: boolean;
 }
 
 export class SubresourceView {
@@ -696,6 +715,7 @@ export class SubresourceView {
     numArraySlices = 0;
     firstPlane = 0;
     numPlanes = 0;
+    _pool?: boolean;
 }
 
 //=================================================================
@@ -1447,6 +1467,7 @@ export class ResourceGraph implements BidirectionalGraph
     readonly renderPasses: Map<string, PersistentRenderPassAndFramebuffer> = new Map<string, PersistentRenderPassAndFramebuffer>();
     nextFenceValue = 0;
     version = 0;
+    _pool?: boolean;
 }
 
 export class ComputePass {
@@ -1456,6 +1477,7 @@ export class ComputePass {
     }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
+    _pool?: boolean;
 }
 
 export class ResolvePass {
@@ -1463,6 +1485,7 @@ export class ResolvePass {
         this.resolvePairs.length = 0;
     }
     readonly resolvePairs: ResolvePair[] = [];
+    _pool?: boolean;
 }
 
 export class CopyPass {
@@ -1472,6 +1495,7 @@ export class CopyPass {
     }
     readonly copyPairs: CopyPair[] = [];
     readonly uploadPairs: UploadPair[] = [];
+    _pool?: boolean;
 }
 
 export class MovePass {
@@ -1479,6 +1503,7 @@ export class MovePass {
         this.movePairs.length = 0;
     }
     readonly movePairs: MovePair[] = [];
+    _pool?: boolean;
 }
 
 export class RaytracePass {
@@ -1486,6 +1511,7 @@ export class RaytracePass {
         this.computeViews.clear();
     }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    _pool?: boolean;
 }
 
 export class ClearView {
@@ -1502,6 +1528,7 @@ export class ClearView {
     slotName: string;
     clearFlags: ClearFlagBit;
     readonly clearColor: Color;
+    _pool?: boolean;
 }
 
 export class RenderQueue {
@@ -1517,6 +1544,7 @@ export class RenderQueue {
     hint: QueueHint;
     phaseID: number;
     viewport: Viewport | null = null;
+    _pool?: boolean;
 }
 
 export enum CullingFlags {
@@ -1562,6 +1590,7 @@ export class SceneData {
     flags: SceneFlags;
     cullingFlags: CullingFlags;
     /*refcount*/ shadingLight: Light | null;
+    _pool?: boolean;
 }
 
 export class Dispatch {
@@ -1596,6 +1625,7 @@ export class Dispatch {
     threadGroupCountX: number;
     threadGroupCountY: number;
     threadGroupCountZ: number;
+    _pool?: boolean;
 }
 
 export class Blit {
@@ -1615,6 +1645,7 @@ export class Blit {
     passID: number;
     sceneFlags: SceneFlags;
     /*pointer*/ camera: Camera | null;
+    _pool?: boolean;
 }
 
 export class RenderData {
@@ -1630,6 +1661,7 @@ export class RenderData {
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
     readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
     custom = '';
+    _pool?: boolean;
 }
 
 //=================================================================
@@ -2514,6 +2546,7 @@ export class RenderGraph implements BidirectionalGraph
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
     readonly sortedVertices: number[] = [];
+    _pool?: boolean;
 }
 
 export class RenderGraphObjectPoolSettings {
@@ -2670,6 +2703,7 @@ export class RenderGraphObjectPool {
             v = new ClearValue();
         } else {
             v = this._clearValue.add();
+            v._pool = true;
         }
         v.reset(x, y, z, w);
         return v;
@@ -2688,6 +2722,7 @@ export class RenderGraphObjectPool {
             v = new RasterView();
         } else {
             v = this._rasterView.add();
+            v._pool = true;
         }
         v.reset(slotName, accessType, attachmentType, loadOp, storeOp, clearFlags, shaderStageFlags);
         return v;
@@ -2704,6 +2739,7 @@ export class RenderGraphObjectPool {
             v = new ComputeView();
         } else {
             v = this._computeView.add();
+            v._pool = true;
         }
         v.reset(name, accessType, clearFlags, clearValueType, shaderStageFlags);
         return v;
@@ -2714,6 +2750,7 @@ export class RenderGraphObjectPool {
             v = new ResourceDesc();
         } else {
             v = this._resourceDesc.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2726,6 +2763,7 @@ export class RenderGraphObjectPool {
             v = new ResourceTraits();
         } else {
             v = this._resourceTraits.add();
+            v._pool = true;
         }
         v.reset(residency);
         return v;
@@ -2738,6 +2776,7 @@ export class RenderGraphObjectPool {
             v = new RenderSwapchain();
         } else {
             v = this._renderSwapchain.add();
+            v._pool = true;
         }
         v.reset(swapchain);
         return v;
@@ -2748,6 +2787,7 @@ export class RenderGraphObjectPool {
             v = new ResourceStates();
         } else {
             v = this._resourceStates.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2760,6 +2800,7 @@ export class RenderGraphObjectPool {
             v = new ManagedBuffer();
         } else {
             v = this._managedBuffer.add();
+            v._pool = true;
         }
         v.reset(buffer);
         return v;
@@ -2772,6 +2813,7 @@ export class RenderGraphObjectPool {
             v = new PersistentBuffer();
         } else {
             v = this._persistentBuffer.add();
+            v._pool = true;
         }
         v.reset(buffer);
         return v;
@@ -2784,6 +2826,7 @@ export class RenderGraphObjectPool {
             v = new ManagedTexture();
         } else {
             v = this._managedTexture.add();
+            v._pool = true;
         }
         v.reset(texture);
         return v;
@@ -2796,6 +2839,7 @@ export class RenderGraphObjectPool {
             v = new PersistentTexture();
         } else {
             v = this._persistentTexture.add();
+            v._pool = true;
         }
         v.reset(texture);
         return v;
@@ -2806,6 +2850,7 @@ export class RenderGraphObjectPool {
             v = new ManagedResource();
         } else {
             v = this._managedResource.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2816,6 +2861,7 @@ export class RenderGraphObjectPool {
             v = new Subpass();
         } else {
             v = this._subpass.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2826,6 +2872,7 @@ export class RenderGraphObjectPool {
             v = new SubpassGraph();
         } else {
             v = this._subpassGraph.add();
+            v._pool = true;
         }
         v.clear();
         return v;
@@ -2840,6 +2887,7 @@ export class RenderGraphObjectPool {
             v = new RasterSubpass();
         } else {
             v = this._rasterSubpass.add();
+            v._pool = true;
         }
         v.reset(subpassID, count, quality);
         return v;
@@ -2852,6 +2900,7 @@ export class RenderGraphObjectPool {
             v = new ComputeSubpass();
         } else {
             v = this._computeSubpass.add();
+            v._pool = true;
         }
         v.reset(subpassID);
         return v;
@@ -2862,6 +2911,7 @@ export class RenderGraphObjectPool {
             v = new RasterPass();
         } else {
             v = this._rasterPass.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2875,6 +2925,7 @@ export class RenderGraphObjectPool {
             v = new PersistentRenderPassAndFramebuffer();
         } else {
             v = this._persistentRenderPassAndFramebuffer.add();
+            v._pool = true;
         }
         v.reset(renderPass, framebuffer);
         return v;
@@ -2885,6 +2936,7 @@ export class RenderGraphObjectPool {
             v = new FormatView();
         } else {
             v = this._formatView.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2895,6 +2947,7 @@ export class RenderGraphObjectPool {
             v = new SubresourceView();
         } else {
             v = this._subresourceView.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2905,6 +2958,7 @@ export class RenderGraphObjectPool {
             v = new ResourceGraph();
         } else {
             v = this._resourceGraph.add();
+            v._pool = true;
         }
         v.clear();
         return v;
@@ -2915,6 +2969,7 @@ export class RenderGraphObjectPool {
             v = new ComputePass();
         } else {
             v = this._computePass.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2925,6 +2980,7 @@ export class RenderGraphObjectPool {
             v = new ResolvePass();
         } else {
             v = this._resolvePass.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2935,6 +2991,7 @@ export class RenderGraphObjectPool {
             v = new CopyPass();
         } else {
             v = this._copyPass.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2945,6 +3002,7 @@ export class RenderGraphObjectPool {
             v = new MovePass();
         } else {
             v = this._movePass.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2955,6 +3013,7 @@ export class RenderGraphObjectPool {
             v = new RaytracePass();
         } else {
             v = this._raytracePass.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -2968,6 +3027,7 @@ export class RenderGraphObjectPool {
             v = new ClearView();
         } else {
             v = this._clearView.add();
+            v._pool = true;
         }
         v.reset(slotName, clearFlags);
         return v;
@@ -2981,6 +3041,7 @@ export class RenderGraphObjectPool {
             v = new RenderQueue();
         } else {
             v = this._renderQueue.add();
+            v._pool = true;
         }
         v.reset(hint, phaseID);
         return v;
@@ -2997,6 +3058,7 @@ export class RenderGraphObjectPool {
             v = new SceneData();
         } else {
             v = this._sceneData.add();
+            v._pool = true;
         }
         v.reset(scene, camera, flags, cullingFlags, shadingLight);
         return v;
@@ -3013,6 +3075,7 @@ export class RenderGraphObjectPool {
             v = new Dispatch();
         } else {
             v = this._dispatch.add();
+            v._pool = true;
         }
         v.reset(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
         return v;
@@ -3028,6 +3091,7 @@ export class RenderGraphObjectPool {
             v = new Blit();
         } else {
             v = this._blit.add();
+            v._pool = true;
         }
         v.reset(material, passID, sceneFlags, camera);
         return v;
@@ -3038,6 +3102,7 @@ export class RenderGraphObjectPool {
             v = new RenderData();
         } else {
             v = this._renderData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -3048,6 +3113,7 @@ export class RenderGraphObjectPool {
             v = new RenderGraph();
         } else {
             v = this._renderGraph.add();
+            v._pool = true;
         }
         v.clear();
         return v;

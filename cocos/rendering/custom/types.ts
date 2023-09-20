@@ -307,6 +307,7 @@ export class LightInfo {
     /*pointer*/ probe: ReflectionProbe | null;
     level: number;
     culledByLight: boolean;
+    _pool?: boolean;
 }
 
 export enum DescriptorTypeOrder {
@@ -356,6 +357,7 @@ export class Descriptor {
     }
     type: Type;
     count = 1;
+    _pool?: boolean;
 }
 
 export class DescriptorBlock {
@@ -369,6 +371,7 @@ export class DescriptorBlock {
     readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
     capacity = 0;
     count = 0;
+    _pool?: boolean;
 }
 
 export class DescriptorBlockFlattened {
@@ -386,6 +389,7 @@ export class DescriptorBlockFlattened {
     readonly uniformBlocks: UniformBlock[] = [];
     capacity = 0;
     count = 0;
+    _pool?: boolean;
 }
 
 export class DescriptorBlockIndex {
@@ -399,6 +403,7 @@ export class DescriptorBlockIndex {
     parameterType: ParameterType;
     descriptorType: DescriptorTypeOrder;
     visibility: ShaderStageFlagBit;
+    _pool?: boolean;
 }
 
 export enum ResolveFlags {
@@ -440,6 +445,7 @@ export class ResolvePair {
     resolveFlags: ResolveFlags;
     mode: ResolveMode;
     mode1: ResolveMode;
+    _pool?: boolean;
 }
 
 export class CopyPair {
@@ -499,6 +505,7 @@ export class CopyPair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
+    _pool?: boolean;
 }
 
 export class UploadPair {
@@ -542,6 +549,7 @@ export class UploadPair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
+    _pool?: boolean;
 }
 
 export class MovePair {
@@ -586,6 +594,7 @@ export class MovePair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
+    _pool?: boolean;
 }
 
 export class PipelineStatistics {
@@ -613,6 +622,7 @@ export class PipelineStatistics {
     numFreeDescriptorSets = 0;
     numInstancingBuffers = 0;
     numInstancingUniformBlocks = 0;
+    _pool?: boolean;
 }
 
 export class RenderCommonObjectPoolSettings {
@@ -676,6 +686,7 @@ export class RenderCommonObjectPool {
             v = new LightInfo();
         } else {
             v = this._lightInfo.add();
+            v._pool = true;
         }
         v.reset(light, level, culledByLight, probe);
         return v;
@@ -688,6 +699,7 @@ export class RenderCommonObjectPool {
             v = new Descriptor();
         } else {
             v = this._descriptor.add();
+            v._pool = true;
         }
         v.reset(type);
         return v;
@@ -698,6 +710,7 @@ export class RenderCommonObjectPool {
             v = new DescriptorBlock();
         } else {
             v = this._descriptorBlock.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -708,6 +721,7 @@ export class RenderCommonObjectPool {
             v = new DescriptorBlockFlattened();
         } else {
             v = this._descriptorBlockFlattened.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -723,6 +737,7 @@ export class RenderCommonObjectPool {
             v = new DescriptorBlockIndex();
         } else {
             v = this._descriptorBlockIndex.add();
+            v._pool = true;
         }
         v.updateFrequency = updateFrequency;
         v.parameterType = parameterType;
@@ -742,6 +757,7 @@ export class RenderCommonObjectPool {
             v = new ResolvePair();
         } else {
             v = this._resolvePair.add();
+            v._pool = true;
         }
         v.reset(source, target, resolveFlags, mode, mode1);
         return v;
@@ -763,6 +779,7 @@ export class RenderCommonObjectPool {
             v = new CopyPair();
         } else {
             v = this._copyPair.add();
+            v._pool = true;
         }
         v.reset(source, target, mipLevels, numSlices, sourceMostDetailedMip, sourceFirstSlice, sourcePlaneSlice, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
@@ -780,6 +797,7 @@ export class RenderCommonObjectPool {
             v = new UploadPair();
         } else {
             v = this._uploadPair.add();
+            v._pool = true;
         }
         v.reset(target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
@@ -798,6 +816,7 @@ export class RenderCommonObjectPool {
             v = new MovePair();
         } else {
             v = this._movePair.add();
+            v._pool = true;
         }
         v.reset(source, target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
@@ -808,6 +827,7 @@ export class RenderCommonObjectPool {
             v = new PipelineStatistics();
         } else {
             v = this._pipelineStatistics.add();
+            v._pool = true;
         }
         v.reset();
         return v;

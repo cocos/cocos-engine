@@ -40,6 +40,7 @@ export class DescriptorDB {
         this.blocks.clear();
     }
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
+    _pool?: boolean;
 }
 
 export class RenderPhase {
@@ -47,6 +48,7 @@ export class RenderPhase {
         this.shaders.clear();
     }
     readonly shaders: Set<string> = new Set<string>();
+    _pool?: boolean;
 }
 
 export enum RenderPassType {
@@ -586,6 +588,7 @@ export class LayoutGraph implements BidirectionalGraph
     readonly _vertices: LayoutGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descriptors: DescriptorDB[] = [];
+    _pool?: boolean;
 }
 
 export class UniformData {
@@ -604,6 +607,7 @@ export class UniformData {
     uniformType: Type;
     offset: number;
     size = 0;
+    _pool?: boolean;
 }
 
 export class UniformBlockData {
@@ -613,6 +617,7 @@ export class UniformBlockData {
     }
     bufferSize = 0;
     readonly uniforms: UniformData[] = [];
+    _pool?: boolean;
 }
 
 export class DescriptorData {
@@ -629,6 +634,7 @@ export class DescriptorData {
     descriptorID: number;
     type: Type;
     count: number;
+    _pool?: boolean;
 }
 
 export class DescriptorBlockData {
@@ -649,6 +655,7 @@ export class DescriptorBlockData {
     offset = 0;
     capacity: number;
     readonly descriptors: DescriptorData[] = [];
+    _pool?: boolean;
 }
 
 export class DescriptorSetLayoutData {
@@ -684,6 +691,7 @@ export class DescriptorSetLayoutData {
     readonly descriptorBlocks: DescriptorBlockData[];
     readonly uniformBlocks: Map<number, UniformBlock>;
     readonly bindingMap: Map<number, number>;
+    _pool?: boolean;
 }
 
 export class DescriptorSetData {
@@ -702,6 +710,7 @@ export class DescriptorSetData {
     readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
     /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
     /*refcount*/ descriptorSet: DescriptorSet | null;
+    _pool?: boolean;
 }
 
 export class PipelineLayoutData {
@@ -709,6 +718,7 @@ export class PipelineLayoutData {
         this.descriptorSets.clear();
     }
     readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
+    _pool?: boolean;
 }
 
 export class ShaderBindingData {
@@ -716,6 +726,7 @@ export class ShaderBindingData {
         this.descriptorBindings.clear();
     }
     readonly descriptorBindings: Map<number, number> = new Map<number, number>();
+    _pool?: boolean;
 }
 
 export class ShaderLayoutData {
@@ -725,6 +736,7 @@ export class ShaderLayoutData {
     }
     readonly layoutData: Map<UpdateFrequency, DescriptorSetLayoutData> = new Map<UpdateFrequency, DescriptorSetLayoutData>();
     readonly bindingData: Map<UpdateFrequency, ShaderBindingData> = new Map<UpdateFrequency, ShaderBindingData>();
+    _pool?: boolean;
 }
 
 export class TechniqueData {
@@ -732,6 +744,7 @@ export class TechniqueData {
         this.passes.length = 0;
     }
     readonly passes: ShaderLayoutData[] = [];
+    _pool?: boolean;
 }
 
 export class EffectData {
@@ -739,6 +752,7 @@ export class EffectData {
         this.techniques.clear();
     }
     readonly techniques: Map<string, TechniqueData> = new Map<string, TechniqueData>();
+    _pool?: boolean;
 }
 
 export class ShaderProgramData {
@@ -748,6 +762,7 @@ export class ShaderProgramData {
     }
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
     /*refcount*/ pipelineLayout: PipelineLayout | null = null;
+    _pool?: boolean;
 }
 
 export class RenderStageData {
@@ -755,6 +770,7 @@ export class RenderStageData {
         this.descriptorVisibility.clear();
     }
     readonly descriptorVisibility: Map<number, ShaderStageFlagBit> = new Map<number, ShaderStageFlagBit>();
+    _pool?: boolean;
 }
 
 export class RenderPhaseData {
@@ -768,6 +784,7 @@ export class RenderPhaseData {
     readonly shaderPrograms: ShaderProgramData[] = [];
     readonly shaderIndex: Map<string, number> = new Map<string, number>();
     /*refcount*/ pipelineLayout: PipelineLayout | null = null;
+    _pool?: boolean;
 }
 
 //=================================================================
@@ -1334,6 +1351,7 @@ export class LayoutGraphData implements BidirectionalGraph
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
     constantMacros = '';
+    _pool?: boolean;
 }
 
 export class LayoutGraphObjectPoolSettings {
@@ -1425,6 +1443,7 @@ export class LayoutGraphObjectPool {
             v = new DescriptorDB();
         } else {
             v = this._descriptorDB.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1435,6 +1454,7 @@ export class LayoutGraphObjectPool {
             v = new RenderPhase();
         } else {
             v = this._renderPhase.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1445,6 +1465,7 @@ export class LayoutGraphObjectPool {
             v = new LayoutGraph();
         } else {
             v = this._layoutGraph.add();
+            v._pool = true;
         }
         v.clear();
         return v;
@@ -1459,6 +1480,7 @@ export class LayoutGraphObjectPool {
             v = new UniformData();
         } else {
             v = this._uniformData.add();
+            v._pool = true;
         }
         v.reset(uniformID, uniformType, offset);
         return v;
@@ -1469,6 +1491,7 @@ export class LayoutGraphObjectPool {
             v = new UniformBlockData();
         } else {
             v = this._uniformBlockData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1483,6 +1506,7 @@ export class LayoutGraphObjectPool {
             v = new DescriptorData();
         } else {
             v = this._descriptorData.add();
+            v._pool = true;
         }
         v.reset(descriptorID, type, count);
         return v;
@@ -1497,6 +1521,7 @@ export class LayoutGraphObjectPool {
             v = new DescriptorBlockData();
         } else {
             v = this._descriptorBlockData.add();
+            v._pool = true;
         }
         v.reset(type, visibility, capacity);
         return v;
@@ -1510,6 +1535,7 @@ export class LayoutGraphObjectPool {
             v = new DescriptorSetLayoutData();
         } else {
             v = this._descriptorSetLayoutData.add();
+            v._pool = true;
         }
         v.reset(slot, capacity);
         return v;
@@ -1523,6 +1549,7 @@ export class LayoutGraphObjectPool {
             v = new DescriptorSetData();
         } else {
             v = this._descriptorSetData.add();
+            v._pool = true;
         }
         v.reset(descriptorSetLayout, descriptorSet);
         return v;
@@ -1533,6 +1560,7 @@ export class LayoutGraphObjectPool {
             v = new PipelineLayoutData();
         } else {
             v = this._pipelineLayoutData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1543,6 +1571,7 @@ export class LayoutGraphObjectPool {
             v = new ShaderBindingData();
         } else {
             v = this._shaderBindingData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1553,6 +1582,7 @@ export class LayoutGraphObjectPool {
             v = new ShaderLayoutData();
         } else {
             v = this._shaderLayoutData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1563,6 +1593,7 @@ export class LayoutGraphObjectPool {
             v = new TechniqueData();
         } else {
             v = this._techniqueData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1573,6 +1604,7 @@ export class LayoutGraphObjectPool {
             v = new EffectData();
         } else {
             v = this._effectData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1583,6 +1615,7 @@ export class LayoutGraphObjectPool {
             v = new ShaderProgramData();
         } else {
             v = this._shaderProgramData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1593,6 +1626,7 @@ export class LayoutGraphObjectPool {
             v = new RenderStageData();
         } else {
             v = this._renderStageData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1603,6 +1637,7 @@ export class LayoutGraphObjectPool {
             v = new RenderPhaseData();
         } else {
             v = this._renderPhaseData.add();
+            v._pool = true;
         }
         v.reset();
         return v;
@@ -1613,6 +1648,7 @@ export class LayoutGraphObjectPool {
             v = new LayoutGraphData();
         } else {
             v = this._layoutGraphData.add();
+            v._pool = true;
         }
         v.clear();
         return v;
