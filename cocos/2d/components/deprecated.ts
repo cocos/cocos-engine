@@ -31,40 +31,7 @@ import { Sprite } from './sprite';
 import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIOpacity } from './ui-opacity';
-import { js, replaceProperty, removeProperty, warn } from '../../core';
-import { ccclass } from '../../core/data/class-decorator';
-
-/**
- * @deprecated Since v3.4.1, We have adopted a new rendering batching policy in v3.4.1,
- * which will result in an effective performance improvement for normal dynamic batching components,
- * so manual management with the UIStaticBatch component is no longer recommended and will be removed in the future
- */
-@ccclass('cc.UIStaticBatch')
-export class UIStaticBatch {
-    constructor () {
-        warn('UIStaticBatch is deprecated, please use UIRenderer instead.');
-    }
-
-    get color (): any {
-        return null;
-    }
-    set color (value) {
-        // do nothing
-    }
-    get drawBatchList (): any {
-        return null;
-    }
-
-    public postUpdateAssembler (render): void {
-        // do nothing
-    }
-    public markAsDirty (): void {
-        // do nothing
-    }
-    public _requireDrawBatch (): any {
-        // do nothing
-    }
-}
+import { js, replaceProperty } from '../../core';
 
 /**
  * Alias of [[Mask]]
@@ -117,12 +84,6 @@ export { Graphics as GraphicsComponent };
 cclegacy.GraphicsComponent = Graphics;
 js.setClassAlias(Graphics, 'cc.GraphicsComponent');
 /**
- * Alias of [[UIStaticBatch]]
- * @deprecated Since v1.2
- */
-export { UIStaticBatch as UIStaticBatchComponent };
-js.setClassAlias(UIStaticBatch, 'cc.UIStaticBatchComponent');
-/**
  * Alias of [[UIOpacity]]
  * @deprecated Since v1.2
  */
@@ -156,28 +117,5 @@ replaceProperty(MaskType, 'MaskType', [
         newName: 'SPRITE_STENCIL',
         target: MaskType,
         targetName: 'MaskType',
-    },
-]);
-
-removeProperty(UIStaticBatch.prototype, 'UIStaticBatch.prototype', [
-    {
-        name: 'color',
-        suggest: 'UIStaticBatch is deprecated, please use UIRenderer instead.',
-    },
-    {
-        name: 'drawBatchList',
-        suggest: 'UIStaticBatch is deprecated, please use UIRenderer instead.',
-    },
-    {
-        name: 'postUpdateAssembler',
-        suggest: 'UIStaticBatch is deprecated, please use UIRenderer instead.',
-    },
-    {
-        name: 'markAsDirty',
-        suggest: 'UIStaticBatch is deprecated, please use UIRenderer instead.',
-    },
-    {
-        name: '_requireDrawBatch',
-        suggest: 'UIStaticBatch is deprecated, please use UIRenderer instead.',
     },
 ]);
