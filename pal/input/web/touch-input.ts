@@ -33,6 +33,7 @@ import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
+import { warn } from '../../../cocos/core/platform/debug';
 
 export class TouchInputSource {
     private _canvas?: HTMLCanvasElement;
@@ -42,7 +43,7 @@ export class TouchInputSource {
         if (systemInfo.hasFeature(Feature.INPUT_TOUCH)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST && !EDITOR) {
-                console.warn('failed to access canvas');
+                warn('failed to access canvas');
             }
             // In Editor, we don't receive touch event but maybe receive simulated touch event.
             if (!EDITOR) {
@@ -71,7 +72,7 @@ export class TouchInputSource {
                     continue;
                 }
                 const location = this._getLocation(changedTouch, canvasRect);
-                const touch = touchManager.getTouch(touchID, location.x, location.y);
+                const touch = touchManager.getOrCreateTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
                 }
@@ -88,8 +89,12 @@ export class TouchInputSource {
                 this._canvas?.focus();
             }
             if (handleTouches.length > 0) {
-                const eventTouch = new EventTouch(handleTouches, false, eventType,
-                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches);
+                const eventTouch = new EventTouch(
+                    handleTouches,
+                    false,
+                    eventType,
+                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches,
+                );
                 this._eventTarget.emit(eventType, eventTouch);
             }
         };
