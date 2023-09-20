@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '@base/global';
 import { Eventify } from './eventify';
 
 class Empty {}
@@ -43,4 +43,4 @@ export const EventTarget = Eventify(Empty);
 
 export type EventTarget = InstanceType<typeof EventTarget>;
 
-legacyCC.EventTarget = EventTarget;
+cclegacy.EventTarget = EventTarget;

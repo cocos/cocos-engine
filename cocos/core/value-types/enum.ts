@@ -25,7 +25,7 @@
 
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { value } from '../utils/js';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '@base/global';
 import { errorID } from '../platform/debug';
 import { assertIsTrue } from '../data/utils/asserts';
 
@@ -197,4 +197,4 @@ export function ccenum<EnumT extends object> (enumType: EnumT): void {
     }
 }
 
-legacyCC.Enum = Enum;
+cclegacy.Enum = Enum;

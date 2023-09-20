@@ -1,8 +1,8 @@
+import { cclegacy } from '@base/global';
 import * as primitives from '../cocos/primitive';
-import { legacyCC } from '../cocos/core/global-exports';
 
 export {
     primitives,
 };
-legacyCC.primitives = primitives;
+cclegacy.primitives = primitives;
 export * from '../cocos/primitive/primitive';

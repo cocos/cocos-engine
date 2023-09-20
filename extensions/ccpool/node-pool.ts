@@ -25,7 +25,7 @@
 
 import { Component } from '../../cocos/scene-graph/component';
 import { Node } from '../../cocos/scene-graph';
-import { legacyCC } from '../../cocos/core/global-exports';
+import { cclegacy } from '@base/global';
 
 type Constructor<T = {}> = new(...args: any[]) => T;
 
@@ -169,4 +169,4 @@ export class NodePool {
     }
 }
 
-legacyCC.NodePool = NodePool;
+cclegacy.NodePool = NodePool;

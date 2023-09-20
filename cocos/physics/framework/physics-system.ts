@@ -23,7 +23,8 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like, error } from '../../core';
+import { Vec3, RecyclePool, Enum, System, Settings, settings, geometry, warn, IQuatLike, IVec3Like, error } from '../../core';
+import { cclegacy } from '@base/global';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';

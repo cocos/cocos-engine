@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { NodeEventType } from '../../scene-graph/node-event';
 
 /**

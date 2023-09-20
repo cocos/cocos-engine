@@ -25,7 +25,8 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, cclegacy } from '../../core';
+import { Color } from '../../core';
+import { cclegacy } from '@base/global';
 import { Label } from './label';
 
 /**

@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { log, warnID } from '../../platform/debug';
 import { formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
-import { legacyCC } from '../../global-exports';
+import { cclegacy } from '@base/global';
 
 export const DELIMETER = '$_$';
 
@@ -47,7 +47,7 @@ export function createAttrs (subclass: any): any {
         return createAttrsSingle(instance, getClassAttrs(instance.constructor));
     }
     let superClass: any;
-    const chains: any[] = legacyCC.Class.getInheritanceChain(subclass);
+    const chains: any[] = cclegacy.Class.getInheritanceChain(subclass);
     for (let i = chains.length - 1; i >= 0; i--) {
         const cls = chains[i];
         const attrs = cls.hasOwnProperty('__attrs__') && cls.__attrs__;
@@ -128,8 +128,8 @@ export class PrimitiveType<T> {
  * ```
  */
 export const CCInteger = new PrimitiveType('Integer', 0);
-legacyCC.Integer = CCInteger;
-legacyCC.CCInteger = CCInteger;
+cclegacy.Integer = CCInteger;
+cclegacy.CCInteger = CCInteger;
 
 /**
  * @en
@@ -150,11 +150,11 @@ legacyCC.CCInteger = CCInteger;
  * ```
  */
 export const CCFloat = new PrimitiveType('Float', 0.0);
-legacyCC.Float = CCFloat;
-legacyCC.CCFloat = CCFloat;
+cclegacy.Float = CCFloat;
+cclegacy.CCFloat = CCFloat;
 
 if (EDITOR) {
-    get(legacyCC, 'Number', () => {
+    get(cclegacy, 'Number', () => {
         warnID(3603);
         return CCFloat;
     });
@@ -178,8 +178,8 @@ if (EDITOR) {
  * ```
  */
 export const CCBoolean = new PrimitiveType('Boolean', false);
-legacyCC.Boolean = CCBoolean;
-legacyCC.CCBoolean = CCBoolean;
+cclegacy.Boolean = CCBoolean;
+cclegacy.CCBoolean = CCBoolean;
 
 /**
  * @en
@@ -200,8 +200,8 @@ legacyCC.CCBoolean = CCBoolean;
  * ```
  */
 export const CCString = new PrimitiveType('String', '');
-legacyCC.String = CCString;
-legacyCC.CCString = CCString;
+cclegacy.String = CCString;
+cclegacy.CCString = CCString;
 
 // Ensures the type matches its default value
 export function getTypeChecker_ET (type: string, attributeName: string) {
@@ -261,8 +261,8 @@ export function getObjTypeChecker_ET (typeCtor) {
         getTypeChecker_ET('Object', 'type')(classCtor, mainPropName);
         // check ValueType
         const defaultDef = getClassAttrs(classCtor)[`${mainPropName + DELIMETER}default`];
-        const defaultVal = legacyCC.Class.getDefault(defaultDef);
-        if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, legacyCC.ValueType)) {
+        const defaultVal = cclegacy.Class.getDefault(defaultDef);
+        if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, cclegacy.ValueType)) {
             const typename = getClassName(typeCtor);
             const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
                 getClassName(classCtor), mainPropName, typename);

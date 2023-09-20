@@ -33,7 +33,7 @@ import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 
 const _color = new Color();
 
@@ -274,4 +274,4 @@ export class PageViewIndicator extends Component {
     }
 }
 
-legacyCC.PageViewIndicator = PageViewIndicator;
+cclegacy.PageViewIndicator = PageViewIndicator;

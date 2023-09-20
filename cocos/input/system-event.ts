@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 
-import { EventTarget, cclegacy } from '../core';
+import { EventTarget } from '../core';
+import { cclegacy } from '@base/global';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, SystemEventType, Touch } from './types';
 import { input } from './input';
 import { InputEventType } from './types/event-enum';

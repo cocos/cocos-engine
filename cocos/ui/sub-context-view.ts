@@ -33,11 +33,11 @@ import { Node } from '../scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
 import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../asset/assets/image-asset';
-import {  Size } from '../core/math';
+import { Size } from '../core/math';
 
-import { legacyCC } from '../core/global-exports';
-import { NodeEventType } from '../scene-graph/node-event';
+import { cclegacy } from '@base/global';
 import { CCObject } from '../core';
+import { NodeEventType } from '../scene-graph/node-event';
 import { Texture2D } from '../asset/assets';
 
 /**
@@ -293,4 +293,4 @@ export class SubContextView extends Component {
     }
 }
 
-legacyCC.SubContextView = SubContextView;
+cclegacy.SubContextView = SubContextView;

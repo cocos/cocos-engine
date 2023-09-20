@@ -56,6 +56,12 @@ jest.mock(
 );
 
 jest.mock(
+    '@base/global',
+    () => jest.requireActual('../cocos/base/global/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
     'pal/pacer',
     () => jest.requireActual('../pal/pacer/pacer-web'),
     { virtual: true, },

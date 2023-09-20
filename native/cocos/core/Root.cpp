@@ -64,7 +64,7 @@ Root::Root(gfx::Device *device)
 : _device(device) {
     instance = this;
     // TODO(minggo):
-    //    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
+    //    this._dataPoolMgr = cclegacy.internal.DataPoolManager && new cclegacy.internal.DataPoolManager(device) as DataPoolManager;
 
     _cameraList.reserve(6);
     _swapchains.reserve(2);

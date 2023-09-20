@@ -29,47 +29,11 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { assert, cclegacy, RecyclePool } from '../../core';
+import { assert, RecyclePool } from '../../core';
+import { cclegacy } from '@base/global';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
-import {
-    AccessFlagBit,
-    Attribute,
-    Buffer,
-    BufferInfo,
-    BufferUsageBit,
-    BufferViewInfo,
-    Color,
-    ColorAttachment,
-    CommandBuffer,
-    DepthStencilAttachment,
-    DescriptorSet,
-    DescriptorSetInfo,
-    Device,
-    deviceManager,
-    Format,
-    Framebuffer,
-    FramebufferInfo,
-    GeneralBarrierInfo,
-    InputAssembler,
-    InputAssemblerInfo,
-    LoadOp,
-    MemoryUsageBit,
-    PipelineState,
-    Rect,
-    RenderPass,
-    RenderPassInfo,
-    Shader,
-    StoreOp,
-    SurfaceTransform,
-    Swapchain,
-    Texture,
-    TextureInfo,
-    TextureType,
-    TextureUsageBit,
-    Viewport,
-} from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
+import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, Format, Framebuffer, FramebufferInfo, GeneralBarrierInfo, InputAssembler, InputAssemblerInfo, LoadOp, MemoryUsageBit, PipelineState, Rect, RenderPass, RenderPassInfo, Shader, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo, TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
 import { Pass } from '../../render-scene';
@@ -82,59 +46,15 @@ import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
 import { SceneVisitor } from './scene';
-import {
-    Blit,
-    ClearView,
-    ComputePass,
-    ComputeSubpass,
-    ComputeView,
-    CopyPass,
-    Dispatch,
-    FormatView,
-    ManagedBuffer,
-    ManagedResource,
-    ManagedTexture,
-    MovePass,
-    RasterPass,
-    RasterSubpass,
-    RasterView,
-    RaytracePass,
-    RenderData,
-    RenderGraph,
-    RenderGraphVisitor,
-    RenderQueue,
-    RenderSwapchain,
-    ResolvePass,
-    ResourceDesc,
-    ResourceGraph,
-    ResourceGraphVisitor,
-    ResourceTraits,
-    SceneData,
-    SubresourceView,
-} from './render-graph';
-import {
-    AttachmentType,
-    QueueHint,
-    ResourceDimension,
-    ResourceFlags,
-    ResourceResidency,
-    SceneFlags,
-    UpdateFrequency,
-} from './types';
+import { Blit, ClearView, ComputePass, ComputeSubpass, ComputeView, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass, RasterPass, RasterSubpass, RasterView, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc, ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView } from './render-graph';
+import { AttachmentType, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
-import {
-    getDescriptorSetDataFromLayout,
-    getDescriptorSetDataFromLayoutId,
-    getRenderArea,
-    mergeSrcToTargetDesc,
-    updateGlobalDescBinding,
-    validPunctualLightsCulling,
-} from './define';
+import { getDescriptorSetDataFromLayout, getDescriptorSetDataFromLayoutId, getRenderArea, mergeSrcToTargetDesc, updateGlobalDescBinding, validPunctualLightsCulling } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { SceneCulling } from './scene-culling';
 
@@ -1588,7 +1508,7 @@ class ExecutorContext {
         this.pipelineSceneData = pipeline.pipelineSceneData;
         this.resourceGraph = resourceGraph;
         this.renderGraph = renderGraph;
-        this.root = legacyCC.director.root;
+        this.root = cclegacy.director.root;
         this.ubo = ubo;
         this.layoutGraph = layoutGraph;
         this.width = width;

@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import{ cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import './asset';
 import { patch_cc_EffectAsset } from '../../native-binding/decorators';
 import type { EffectAsset as JsbEffectAsset } from './effect-asset';
-import type { BlendState, DepthStencilState, RasterizerState, DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format} from "../../gfx/index.jsb";
+import type { BlendState, DepthStencilState, RasterizerState, DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format } from '../../gfx/index.jsb';
 import type { RenderPassStage } from '../../rendering/define';
 import type { MacroRecord } from '../../render-scene/core/pass-utils';
 

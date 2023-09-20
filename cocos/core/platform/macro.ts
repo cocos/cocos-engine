@@ -26,7 +26,7 @@
 */
 
 import { EDITOR, MINIGAME, NATIVE, PREVIEW, RUNTIME_BASED } from 'internal:constants';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '@base/global';
 import { Settings, settings } from '../settings';
 
 const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
@@ -1134,6 +1134,6 @@ const macro: Macro = {
     },
 };
 
-legacyCC.macro = macro;
+cclegacy.macro = macro;
 export { macro };
 export type { Macro };

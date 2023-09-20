@@ -22,13 +22,12 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass, serializable, tooltip, type, disallowAnimation,
-} from 'cc.decorator';
+import { ccclass, serializable, tooltip, type, disallowAnimation } from 'cc.decorator';
 import { scene } from '../render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Renderer } from './renderer';
-import { CCBoolean, cclegacy, _decorator } from '../core';
+import { CCBoolean, _decorator } from '../core';
+import { cclegacy } from '@base/global';
 import { Model, SubModel } from '../render-scene/scene';
 import { isEnableEffect } from '../rendering/define';
 import { Root } from '../root';

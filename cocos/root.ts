@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
+import { cclegacy } from '@base/global';
+import { Pool, warnID, settings, Settings, macro } from './core';
 import type { RenderPipeline } from './rendering/render-pipeline';
 import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
 import { createDefaultPipeline } from './rendering/forward/forward-pipeline';

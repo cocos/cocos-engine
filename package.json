@@ -14,7 +14,8 @@
   },
   "workspaces": [
     "packages/*",
-    "pal/*"
+    "pal/*",
+    "cocos/base/*"
   ],
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
@@ -39,15 +40,15 @@
     "url": "git+https://github.com/cocos-creator/engine.git"
   },
   "dependencies": {
-    "@pal/env": "*",
-    "@pal/utils": "*",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
-    "@cocos/ccbuild": "2.0.3-alpha.14",
-    "@cocos/dragonbones-js": "^1.0.1"
+    "@cocos/ccbuild": "2.0.3-alpha.16",
+    "@cocos/dragonbones-js": "^1.0.1",
+    "@pal/env": "*",
+    "@pal/utils": "*",
+    "@base/global": "*"
   },
   "devDependencies": {
-    "@types/node": "^20.5.9",
     "@babel/core": "^7.13.10",
     "@babel/plugin-proposal-export-default-from": "^7.17.12",
     "@babel/preset-env": "7.8.7",
@@ -55,6 +56,7 @@
     "@types/fs-extra": "^5.0.4",
     "@types/istanbul-lib-report": "^3.0.0",
     "@types/jest": "^28.1.8",
+    "@types/node": "^20.5.9",
     "@types/yargs": "^12.0.14",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
@@ -79,6 +81,8 @@
     "gulp-uglify": "^3.0.2",
     "gulp-zip": "^5.0.2",
     "http-server": "^0.12.3",
+    "import-redirect": "^1.0.2",
+    "inquirer": "^8.2.6",
     "jest": "^28.0.2",
     "jest-environment-jsdom": "^28.0.2",
     "jest-extended": "^1.1.0",

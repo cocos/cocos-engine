@@ -24,14 +24,18 @@
 
 import { BUILD } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { getError, macro, path, removeProperty, replaceProperty, cclegacy } from '../../core';
+import { getError, macro, path, removeProperty, replaceProperty } from '../../core';
+import { cclegacy } from '@base/global';
 import Cache from './cache';
-import assetManager, { AssetManager } from './asset-manager';
+import assetManager from './asset-manager';
+import { AssetManager } from './asset-manager';
 import { resources } from './bundle';
 import dependUtil from './depend-util';
-import downloader, { Downloader } from './downloader';
+import downloader from './downloader';
+import { Downloader } from './downloader';
 import { getUuidFromURL, transform } from './helper';
-import parser, { Parser } from './parser';
+import parser from './parser';
+import { Parser } from './parser';
 import { releaseManager } from './release-manager';
 import { assets, BuiltinBundleName, bundles } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';

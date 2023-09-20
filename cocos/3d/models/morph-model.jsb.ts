@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from "../../core";
+import { cclegacy } from '@base/global';
 import type { MorphModel as JsbMorphModel } from './morph-model';
 
 declare const jsb: any;

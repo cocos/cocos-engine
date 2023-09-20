@@ -23,12 +23,12 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like, IColorLike } from './type-define';
 import { clamp, EPSILON, random } from './utils';
-import { legacyCC } from '../global-exports';
 import { warn } from '../platform/debug';
 
 /**
@@ -958,7 +958,7 @@ export class Vec4 extends ValueType {
 }
 
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
-legacyCC.Vec4 = Vec4;
+cclegacy.Vec4 = Vec4;
 
 export function v4 (other: Vec4): Vec4;
 export function v4 (x?: number, y?: number, z?: number, w?: number): Vec4;
@@ -967,4 +967,4 @@ export function v4 (x?: number | Vec4, y?: number, z?: number, w?: number): Vec4
     return new Vec4(x as any, y, z, w);
 }
 
-legacyCC.v4 = v4;
+cclegacy.v4 = v4;

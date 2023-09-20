@@ -24,6 +24,7 @@
 */
 
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
@@ -34,7 +35,6 @@ import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs } from './utils/preprocess-class';
 import * as RF from './utils/requiring-frame';
 
-import { legacyCC } from '../global-exports';
 import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
 import { setPropertyEnumTypeOnAttrs } from './utils/attribute-internal';
 
@@ -130,7 +130,7 @@ function getDefault (defaultVal): any {
             try {
                 return defaultVal();
             } catch (e) {
-                legacyCC._throw(e);
+                cclegacy._throw(e);
                 return undefined;
             }
         } else {
@@ -162,7 +162,7 @@ function doDefine (className, baseClass, options): any {
 }
 
 function define (className, baseClass, options): any {
-    const Component = legacyCC.Component;
+    const Component = cclegacy.Component;
     const frame = RF.peek();
 
     if (frame && js.isChildClassOf(baseClass, Component)) {
@@ -181,9 +181,9 @@ function define (className, baseClass, options): any {
 
     if (EDITOR) {
         // for RenderPipeline, RenderFlow, RenderStage
-        const isRenderPipeline = js.isChildClassOf(baseClass, legacyCC.RenderPipeline);
-        const isRenderFlow = js.isChildClassOf(baseClass, legacyCC.RenderFlow);
-        const isRenderStage = js.isChildClassOf(baseClass, legacyCC.RenderStage);
+        const isRenderPipeline = js.isChildClassOf(baseClass, cclegacy.RenderPipeline);
+        const isRenderFlow = js.isChildClassOf(baseClass, cclegacy.RenderFlow);
+        const isRenderStage = js.isChildClassOf(baseClass, cclegacy.RenderStage);
         const isRender = isRenderPipeline || isRenderFlow || isRenderStage;
         if (isRender) {
             let renderName = '';
@@ -295,7 +295,7 @@ export function CCClass<TFunction> (options: {
     // create constructor
     const cls = define(name, base, options);
     if (!name) {
-        name = legacyCC.js.getClassName(cls);
+        name = cclegacy.js.getClassName(cls);
     }
 
     cls._sealed = true;
@@ -309,8 +309,8 @@ export function CCClass<TFunction> (options: {
 
     const editor = options.editor;
     if (editor) {
-        if (js.isChildClassOf(base, legacyCC.Component)) {
-            legacyCC.Component._registerEditorProps(cls, editor);
+        if (js.isChildClassOf(base, cclegacy.Component)) {
+            cclegacy.Component._registerEditorProps(cls, editor);
         } else if (DEV) {
             warnID(3623, name!);
         }
@@ -607,4 +607,4 @@ CCClass.IDENTIFIER_RE = IDENTIFIER_RE;
 // NOTE: the type of getNewValueTypeCode can be ((value: any) => string) or boolean.
 CCClass.getNewValueTypeCode = (SUPPORT_JIT && getNewValueTypeCodeJit) as any;
 
-legacyCC.Class = CCClass;
+cclegacy.Class = CCClass;

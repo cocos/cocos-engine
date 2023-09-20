@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 import { HTML5 } from 'internal:constants';
-import { legacyCC } from './global-exports';
+import { cclegacy } from '@base/global';
 
 declare const fsUtils: any;
 
 export class EffectSettings {
     init (path = ''): Promise<void> {
-        if (!legacyCC.rendering || !legacyCC.rendering.enableEffectImport || !path) {
+        if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport || !path) {
             return Promise.resolve();
         }
         return new Promise((resolve, reject) => {
@@ -63,4 +63,4 @@ export class EffectSettings {
 }
 
 export const effectSettings = new EffectSettings();
-legacyCC.effectSettings = effectSettings;
+cclegacy.effectSettings = effectSettings;

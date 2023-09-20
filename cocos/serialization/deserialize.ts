@@ -23,7 +23,8 @@
 */
 
 import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
-import { cclegacy, errorID, getError, js, assertIsTrue } from '../core';
+import { cclegacy } from '@base/global';
+import { errorID, getError, js, assertIsTrue } from '../core';
 
 import { deserializeDynamic, DeserializeDynamicOptions, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../asset/assets/asset';
@@ -123,7 +124,7 @@ const enum DataTypeID {
     // (The objects in INSTANCES do not need to dynamically resolve resource reference relationships, so there is no need to have the AssetRef type.)
     AssetRefByInnerObj,
 
-    // Common TypedArray for legacyCC.Node only. Never be null.
+    // Common TypedArray for cclegacy.Node only. Never be null.
     TRS,
 
     // From the point of view of simplified implementation,

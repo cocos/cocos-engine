@@ -33,7 +33,8 @@ import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-pro
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
 import { PipelineRuntime } from './custom/pipeline';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { cclegacy, geometry } from '../core';
+import { cclegacy } from '@base/global';
+import { geometry } from '../core';
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 let _phaseID = getPhaseID('default');

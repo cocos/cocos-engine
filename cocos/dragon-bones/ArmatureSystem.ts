@@ -23,7 +23,8 @@
 */
 
 import { director } from '../game/director';
-import { System, cclegacy } from '../core';
+import { System } from '../core';
+import { cclegacy } from '@base/global';
 import { ArmatureDisplay } from './ArmatureDisplay';
 /**
  * @en The ArmatureSystem is mainly responsible for triggering and updating the animation uniformly.

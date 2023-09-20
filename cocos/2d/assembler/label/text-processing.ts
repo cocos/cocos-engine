@@ -24,7 +24,8 @@
 import { ANDROID, JSB } from 'internal:constants';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
-import { cclegacy, Color, Pool, Rect, Vec2 } from '../../../core';
+import { cclegacy } from '@base/global';
+import { Color, Pool, Rect, Vec2 } from '../../../core';
 import { log, logID, warn } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';

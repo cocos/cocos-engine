@@ -24,7 +24,7 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { Asset } from './asset';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en Json asset, it will automatically parse the json to a JS object.

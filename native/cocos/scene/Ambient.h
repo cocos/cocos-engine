@@ -122,7 +122,7 @@ public:
      * @zh 编辑器中可配置的天空光照颜色（通过颜色拾取器）
      */
     // @visible(() => {
-    //     const scene = legacyCC.director.getScene();
+    //     const scene = cclegacy.director.getScene();
     //     const skybox = scene.globals.skybox;
     //     if (skybox.useIBL && skybox.applyDiffuseMap) {
     //         return false;
@@ -152,7 +152,7 @@ public:
      * @zh 编辑器中可配置的地面光照颜色（通过颜色拾取器）
      */
     // @visible(() => {
-    //     const scene = legacyCC.director.getScene();
+    //     const scene = cclegacy.director.getScene();
     //     const skybox = scene.globals.skybox;
     //     if (skybox.useIBL && skybox.applyDiffuseMap) {
     //         return false;

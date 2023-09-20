@@ -29,7 +29,7 @@ import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../render-scene/scene/camera';
 import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en reflection probe render flow

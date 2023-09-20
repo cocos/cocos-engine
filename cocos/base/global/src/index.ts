@@ -33,17 +33,17 @@ const _global = typeof window === 'undefined' ? global : window;
  * Cocos引擎的主要命名空间，引擎代码中所有的类，函数，属性和常量都在这个命名空间中定义。
  * @deprecated
  */
-export const legacyCC: Record<string, any> & {
+export const cclegacy: Record<string, any> & {
     _global: typeof globalThis;
 } = {
     _global,
 };
 
 // For internal usage
-legacyCC.internal = {};
+cclegacy.internal = {};
 
 if (DEV) {
-    legacyCC._Test = {};
+    cclegacy._Test = {};
 }
 
 const engineVersion = '3.8.2';
@@ -58,16 +58,16 @@ const engineVersion = '3.8.2';
  * 请不要删除此字符串，它是错误跟踪的重要标志。
  * 如果您将错误发布到论坛，请附上此标志。
  */
-_global.CocosEngine = legacyCC.ENGINE_VERSION = engineVersion;
+_global.CocosEngine = cclegacy.ENGINE_VERSION = engineVersion;
 
-_global.cc = legacyCC;
+_global.cc = cclegacy;
 
 export { engineVersion as VERSION };
 
 if (EDITOR_NOT_IN_PREVIEW === undefined) {
     // Used to indicate whether it is currently in preview mode.
     // 'isPreviewProcess' is defined only in the editor's process.
-    legacyCC.GAME_VIEW = typeof globalThis.isPreviewProcess !== 'undefined' ? globalThis.isPreviewProcess : false;
+    cclegacy.GAME_VIEW = typeof globalThis.isPreviewProcess !== 'undefined' ? globalThis.isPreviewProcess : false;
 }
 
 const ccwindow: typeof window = typeof globalThis.jsb !== 'undefined' ? (typeof jsb.window !== 'undefined' ? jsb.window : globalThis) : globalThis;

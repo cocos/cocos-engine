@@ -29,7 +29,7 @@ import { Layers } from './layers';
 import { Node } from './node';
 import { Vec2 } from '../core/math/vec2';
 import { Size } from '../core/math/size';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 import { CCObject } from '../core/data/object';
 import { warnID } from '../core/platform/debug';
 import { SceneGlobals } from './scene-globals';
@@ -364,4 +364,4 @@ replaceProperty(Node.EventType, 'Node.EventType', [
     },
 ]);
 
-legacyCC.PrivateNode = PrivateNode;
+cclegacy.PrivateNode = PrivateNode;

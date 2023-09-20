@@ -27,7 +27,7 @@ import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
 import { log } from '../core/platform/debug';
 import { VideoClip } from './assets/video-clip';
-import { ccwindow } from '../core/global-exports';
+import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

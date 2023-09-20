@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { patch_cc_TextAsset } from '../../native-binding/decorators';
 import './asset';
 

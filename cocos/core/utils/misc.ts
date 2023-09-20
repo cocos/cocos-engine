@@ -27,8 +27,8 @@
 
 import { DEV } from 'internal:constants';
 import { setTimeoutRAF } from '@pal/utils';
+import { cclegacy } from '@base/global';
 import { getClassName, getset, isEmptyObject } from './js';
-import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import { macro } from '../platform/macro';
 import type { Component } from '../../scene-graph';
@@ -61,7 +61,7 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets): void {
         } else {
             const getterFunc: Getter = np[getter];
             if (DEV && !getterFunc) {
-                const clsName: string = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor))
+                const clsName: string = (cclegacy.Class._isCCClass(ctor) && getClassName(ctor))
                     || ctor.name
                     || '(anonymous class)';
                 warnID(5700, propName, getter, clsName);
@@ -268,7 +268,7 @@ export function radiansToDegrees (angle): number {
 //     }
 // }
 
-legacyCC.misc = {
+cclegacy.misc = {
     BUILTIN_CLASSID_RE,
     BASE64_VALUES,
     propertyDefine,

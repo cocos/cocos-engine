@@ -27,7 +27,8 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multil
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID, Color, Vec2, CCObject, cclegacy, js, Size } from '../../core';
+import { assert, warnID, Color, Vec2, CCObject, js, Size } from '../../core';
+import { cclegacy } from '@base/global';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';

@@ -23,12 +23,12 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, lerp, random } from './utils';
-import { legacyCC } from '../global-exports';
 import { warn } from '../platform/debug';
 
 /**
@@ -1207,7 +1207,7 @@ export class Vec3 extends ValueType {
 }
 
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
-legacyCC.Vec3 = Vec3;
+cclegacy.Vec3 = Vec3;
 
 export function v3 (other: Vec3): Vec3;
 export function v3 (x?: number, y?: number, z?: number): Vec3;
@@ -1238,4 +1238,4 @@ const rotateAxisAngle = ((): (out: Vec3, input: Readonly<Vec3>, axis: Readonly<V
     };
 })();
 
-legacyCC.v3 = v3;
+cclegacy.v3 = v3;

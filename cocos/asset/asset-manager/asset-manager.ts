@@ -25,26 +25,28 @@
 
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, sys, Settings, settings, path, cclegacy, EventTarget } from '../../core';
+import { error, sys, Settings, settings, path, EventTarget } from '../../core';
+import { cclegacy } from '@base/global';
 import Bundle from './bundle';
-import Cache, { ICache } from './cache';
+import Cache from './cache';
+import { ICache } from './cache';
 import CacheManager from './cache-manager';
-import dependUtil, { DependUtil } from './depend-util';
-import downloader, { Downloader } from './downloader';
+import dependUtil from './depend-util';
+import { DependUtil } from './depend-util';
+import downloader from './downloader';
+import { Downloader } from './downloader';
 import factory from './factory';
 import fetch from './fetch';
 import * as helper from './helper';
 import load from './load';
 import packManager from './pack-manager';
-import parser, { Parser } from './parser';
+import parser from './parser';
+import { Parser } from './parser';
 import { Pipeline } from './pipeline';
 import preprocess from './preprocess';
 import { releaseManager } from './release-manager';
 import RequestItem from './request-item';
-import {
-    presets,
-    references,
-    assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline, assetsOverrideMap, IRequest } from './shared';
+import { presets, references, assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline, assetsOverrideMap, IRequest } from './shared';
 
 import Task from './task';
 import { combine, parse, replaceOverrideAsset } from './url-transformer';

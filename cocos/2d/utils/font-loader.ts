@@ -27,7 +27,7 @@ import { safeMeasureText } from './text-utils';
 import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
-import { ccwindow } from '../../core/global-exports';
+import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

@@ -31,8 +31,8 @@ import { UITransform } from '../2d/framework/ui-transform';
 import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
 import { warn } from '../core';
+import { cclegacy } from '@base/global';
 import { NodeEventType } from '../scene-graph/node-event';
-import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph/node';
 
 /**
@@ -1179,4 +1179,4 @@ export class Layout extends Component {
     }
 }
 
-legacyCC.Layout = Layout;
+cclegacy.Layout = Layout;

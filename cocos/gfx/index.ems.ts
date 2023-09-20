@@ -27,12 +27,12 @@
  * @module gfx
  */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { gfx, webgpuAdapter } from '../webgpu/instantiated';
 
 import './deprecated-3.0.0';
 
-export { BlendState, PipelineStateInfo, RasterizerState, DepthStencilState, BlendTarget } from './base/pipeline-state'
+export { BlendState, PipelineStateInfo, RasterizerState, DepthStencilState, BlendTarget } from './base/pipeline-state';
 export * from './base/define';
 export * from './device-manager';
 
@@ -56,7 +56,7 @@ polyfillCC.Queue = gfx.CCWGPUQueue;
 cclegacy.gfx = polyfillCC;
 
 export * from './webgpu/override';
-export * from './webgpu/webgpu-define'
+export * from './webgpu/webgpu-define';
 
 export const WGPU_WASM = true;
 

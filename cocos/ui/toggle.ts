@@ -31,7 +31,7 @@ import { Sprite } from '../2d/components/sprite';
 import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { EventType as ButtonEventType, Button } from './button';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 
 enum EventType {
     TOGGLE = 'toggle',
@@ -105,7 +105,7 @@ export class Toggle extends Button {
      */
     get _toggleContainer (): ToggleContainer | null {
         const parent = this.node.parent!;
-        if (legacyCC.Node.isNode(parent)) {
+        if (cclegacy.Node.isNode(parent)) {
             return parent.getComponent('cc.ToggleContainer') as ToggleContainer;
         }
         return null;
@@ -212,4 +212,4 @@ export class Toggle extends Button {
  * @param toggle @en The Toggle component. @zh 切换键组件。
  */
 
-legacyCC.Toggle = Toggle;
+cclegacy.Toggle = Toggle;

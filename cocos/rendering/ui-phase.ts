@@ -28,7 +28,7 @@ import { isEnableEffect, SetIndex } from './define';
 import { Camera } from '../render-scene/scene/camera';
 import { RenderPipeline } from './render-pipeline';
 import { getPhaseID } from './pass-phase';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 
 export class UIPhase {
     private _phaseID = getPhaseID('default');

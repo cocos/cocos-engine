@@ -24,7 +24,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { value } from '../utils/js';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '@base/global';
 import { errorID } from '../platform/debug';
 
 /**
@@ -151,4 +151,4 @@ export function ccbitmask (bitmaskx: object): void {
     value(bitmaskx, '__bitmask__', null, true);
 }
 
-legacyCC.BitMask = BitMask;
+cclegacy.BitMask = BitMask;

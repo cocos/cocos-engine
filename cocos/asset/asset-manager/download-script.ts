@@ -23,7 +23,7 @@
 */
 
 import { getError } from '../../core';
-import { ccwindow } from '../../core/global-exports';
+import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

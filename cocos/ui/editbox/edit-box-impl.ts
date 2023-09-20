@@ -39,7 +39,7 @@ import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
-import { ccwindow } from '../../core/global-exports';
+import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

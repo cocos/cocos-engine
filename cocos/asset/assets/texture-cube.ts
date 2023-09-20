@@ -28,7 +28,7 @@ import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '..
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
-import { legacyCC, ccwindow } from '../../core/global-exports';
+import { ccwindow, cclegacy } from '@base/global';
 import { error, js, sys } from '../../core';
 import { OS } from '../../../pal/system-info/enum-type';
 
@@ -632,7 +632,7 @@ export class TextureCube extends SimpleTexture {
     }
 }
 
-legacyCC.TextureCube = TextureCube;
+cclegacy.TextureCube = TextureCube;
 
 interface ITextureCubeSerializeData {
     base: string;

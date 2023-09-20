@@ -30,11 +30,11 @@ import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
 import { BlendFactor } from '../../gfx';
-import { legacyCC } from '../../core/global-exports';
+import { cclegacy } from '@base/global';
+import { Color, Vec3 } from '../../core';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';
-import { Color, Vec3 } from '../../core';
 import { MaterialInstance } from '../../render-scene';
 
 const _slotColor = new Color(0, 0, 255, 255);
@@ -355,4 +355,4 @@ function cacheTraverse (comp: Skeleton): void {
     }
 }
 
-legacyCC.internal.SpineAssembler = simple;
+cclegacy.internal.SpineAssembler = simple;

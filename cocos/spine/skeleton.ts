@@ -28,20 +28,21 @@ import { error, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
 import { CCObject, Color, RecyclePool, js } from '../core';
+import { cclegacy } from '@base/global';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
 import { builtinResMgr } from '../asset/asset-manager';
-import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { AttachUtil } from './attach-util';
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
+import SkeletonCache from './skeleton-cache';
+import { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
 
@@ -1790,4 +1791,4 @@ export class Skeleton extends UIRenderer {
     }
 }
 
-legacyCC.internal.SpineSkeleton = Skeleton;
+cclegacy.internal.SpineSkeleton = Skeleton;

@@ -39,7 +39,7 @@
 
 import { ccclass, executionOrder } from 'cc.decorator';
 import { Component } from '../scene-graph/component';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 
 @ccclass('cc.ViewGroup')
 @executionOrder(110)
@@ -47,4 +47,4 @@ export class ViewGroup extends Component {
 
 }
 
-legacyCC.ViewGroup = ViewGroup;
+cclegacy.ViewGroup = ViewGroup;

@@ -33,14 +33,10 @@ import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
 import { IMacroPatch } from '../core/pass';
-import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
-import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
-    BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
-import {
-    UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING,
-    UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING,
-} from '../../rendering/define';
+import { Mat4, Vec3, Vec4, geometry, EPSILON } from '../../core';
+import { cclegacy } from '@base/global';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
+import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
 import { ShadowType } from './shadows';

@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { Size } from './size';
 import { IRectLike, IVec2Like } from './type-define';
 import { Vec2 } from './vec2';
-import { legacyCC } from '../global-exports';
 
 /**
  * @en
@@ -486,7 +486,7 @@ export class Rect extends ValueType {
 
 CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
-legacyCC.Rect = Rect;
+cclegacy.Rect = Rect;
 
 /**
  * @en The convenient method to create a new Rect.
@@ -511,4 +511,4 @@ export function rect (x: Rect | number = 0, y = 0, width = 0, height = 0): Rect 
     return new Rect(x as any, y, width, height);
 }
 
-legacyCC.rect = rect;
+cclegacy.rect = rect;

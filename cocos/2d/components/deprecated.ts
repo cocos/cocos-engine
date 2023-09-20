@@ -31,7 +31,8 @@ import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIStaticBatch } from './ui-static-batch';
 import { UIOpacity } from './ui-opacity';
-import { js, cclegacy, replaceProperty } from '../../core';
+import { js, replaceProperty } from '../../core';
+import { cclegacy } from '@base/global';
 
 /**
  * Alias of [[Mask]]

@@ -23,10 +23,10 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { ISizeLike } from './type-define';
-import { legacyCC } from '../global-exports';
 
 /**
  * @en Two dimensional size type representing the width and height.
@@ -191,6 +191,6 @@ export function size (width: Size | number = 0, height = 0): Size {
     return new Size(width as any, height);
 }
 
-legacyCC.size = size;
+cclegacy.size = size;
 
-legacyCC.Size = Size;
+cclegacy.Size = Size;

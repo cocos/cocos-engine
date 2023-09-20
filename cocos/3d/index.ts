@@ -23,7 +23,7 @@
 */
 
 import * as utils from './misc';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 
 export * from './misc/batch-utils';
 export * from './assets';
@@ -37,4 +37,4 @@ export * from './reflection-probe';
 export {
     utils,
 };
-legacyCC.utils = utils;
+cclegacy.utils = utils;

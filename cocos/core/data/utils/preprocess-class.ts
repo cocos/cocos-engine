@@ -27,7 +27,7 @@ import { DEV, EDITOR, TEST } from 'internal:constants';
 import { error, errorID, warn, warnID } from '../../platform/debug';
 import * as js from '../../utils/js';
 import { PrimitiveType } from './attribute';
-import { legacyCC } from '../../global-exports';
+import { cclegacy } from '@base/global';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -85,7 +85,7 @@ function parseType (val, type, className, propName): void {
 
     if (Array.isArray(type)) {
         if (STATIC_CHECK && 'default' in val) {
-            if (!legacyCC.Class.isArray(val.default)) {
+            if (!cclegacy.Class.isArray(val.default)) {
                 warnID(5507, className, propName);
             }
         }
@@ -98,17 +98,17 @@ function parseType (val, type, className, propName): void {
     }
     if (typeof type === 'function') {
         if (type === String) {
-            val.type = legacyCC.String;
+            val.type = cclegacy.String;
             if (STATIC_CHECK) {
                 warnID(3608, `"${className}.${propName}"`);
             }
         } else if (type === Boolean) {
-            val.type = legacyCC.Boolean;
+            val.type = cclegacy.Boolean;
             if (STATIC_CHECK) {
                 warnID(3609, `"${className}.${propName}"`);
             }
         } else if (type === Number) {
-            val.type = legacyCC.Float;
+            val.type = cclegacy.Float;
             if (STATIC_CHECK) {
                 warnID(3610, `"${className}.${propName}"`);
             }
@@ -139,7 +139,7 @@ function parseType (val, type, className, propName): void {
     }
 
     if (EDITOR && typeof type === 'function') {
-        if (legacyCC.Class._isCCClass(type) && val.serializable !== false && !js.getClassId(type, false)) {
+        if (cclegacy.Class._isCCClass(type) && val.serializable !== false && !js.getClassId(type, false)) {
             warnID(5512, className, propName, className, propName);
         }
     }
@@ -186,7 +186,7 @@ export function getFullFormOfProperty (options, isGetset): {
             return _wrapOptions(isGetset, [], options);
         } else if (typeof options === 'function') {
             const type = options;
-            return _wrapOptions(isGetset, js.isChildClassOf(type, legacyCC.ValueType) ? new type() : null, type);
+            return _wrapOptions(isGetset, js.isChildClassOf(type, cclegacy.ValueType) ? new type() : null, type);
         } else if (options instanceof PrimitiveType) {
             return _wrapOptions(isGetset, undefined, options);
         } else {
@@ -210,7 +210,7 @@ export function preprocessAttrs (properties, className, cls): void {
                         errorID(5513, className, propName);
                     } else if (val.set) {
                         errorID(5514, className, propName);
-                    } else if (legacyCC.Class._isCCClass(val.default)) {
+                    } else if (cclegacy.Class._isCCClass(val.default)) {
                         val.default = null;
                         errorID(5515, className, propName);
                     }
@@ -246,7 +246,7 @@ export function doValidateMethodWithProps_DEV (func, funcName, className, cls, b
         return false;
     }
     if (funcName === 'destroy'
-        && js.isChildClassOf(base, legacyCC.Component)
+        && js.isChildClassOf(base, cclegacy.Component)
         && !CALL_SUPER_DESTROY_REG_DEV.test(func)
     ) {
         error(`Overwriting '${funcName}' function in '${className}' class without calling super is not allowed. Call the super function in '${funcName}' please.`);

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '@base/global';
 
 export type BezierControlPoints = [ number, number, number, number ];
 
@@ -30,7 +30,7 @@ export function bezier (C1: number, C2: number, C3: number, C4: number, t: numbe
     const t1 = 1 - t;
     return t1 * (t1 * (C1 + (C2 * 3 - C1) * t) + C3 * 3 * t * t) + C4 * t * t * t;
 }
-legacyCC.bezier = bezier;
+cclegacy.bezier = bezier;
 
 // var sin = Math.sin;
 const cos = Math.cos;
@@ -160,4 +160,4 @@ export function bezierByTime (controlPoints: BezierControlPoints, x: number): nu
     // return bezier(0, p1y, p2y, 1, percent);
     return ((1 - percent) * (p1y + (p2y - p1y) * percent) * 3 + percent * percent) * percent;
 }
-legacyCC.bezierByTime = bezierByTime;
+cclegacy.bezierByTime = bezierByTime;

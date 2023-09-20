@@ -24,7 +24,8 @@
 import { WASM_SUPPORT_MODE } from 'internal:constants';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 
-import { sys, logID, cclegacy } from '../../core';
+import { sys, logID } from '../../core';
+import { cclegacy } from '@base/global';
 
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 

@@ -23,7 +23,8 @@
 */
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, cclegacy } from '../../core';
+import { error } from '../../core';
+import { cclegacy } from '@base/global';
 import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';

@@ -25,7 +25,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { Asset } from './asset';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en The script asset base class

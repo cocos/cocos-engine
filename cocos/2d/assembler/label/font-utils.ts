@@ -29,7 +29,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
-import { ccwindow } from '../../../core/global-exports';
+import { ccwindow } from '@base/global';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;

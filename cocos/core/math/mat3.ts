@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
 import { EPSILON, HALF_PI } from './utils';
 import { Vec3 } from './vec3';
-import { legacyCC } from '../global-exports';
 
 /**
  * @en Mathematical 3x3 matrix.
@@ -1111,4 +1111,4 @@ CCClass.fastDefine('cc.Mat3', Mat3, {
     m07: 0,
     m08: 1,
 });
-legacyCC.Mat3 = Mat3;
+cclegacy.Mat3 = Mat3;

@@ -28,7 +28,8 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
 import { IMemoryImageSource } from '../../../pal/image/types';
-import { Mat4, Rect, Size, Vec2, Vec3, Vec4, cclegacy, errorID, warnID, js } from '../../core';
+import { Mat4, Rect, Size, Vec2, Vec3, Vec4, errorID, warnID, js } from '../../core';
+import { cclegacy, ccwindow } from '@base/global';
 import { Asset } from '../../asset/assets/asset';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { ImageAsset } from '../../asset/assets/image-asset';
@@ -37,7 +38,6 @@ import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
 import { Attribute, AttributeName, Format, PrimitiveMode, Sampler, SamplerInfo, Texture } from '../../gfx';
-import { ccwindow } from '../../core/global-exports';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;

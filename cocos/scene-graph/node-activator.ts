@@ -27,7 +27,7 @@ import { CCObject, isValid } from '../core/data/object';
 import { array, Pool } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 import { assert, errorID, getError, log } from '../core/platform/debug';
 import { NodeEventType } from './node-event';
 import { assertIsTrue } from '../core/data/utils/asserts';
@@ -224,7 +224,7 @@ export default class NodeActivator {
             if (deactivatedOnLoading) {
                 return;
             }
-            legacyCC.director._compScheduler.enableComp(comp, onEnableInvoker);
+            cclegacy.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
     }
 
@@ -235,7 +235,7 @@ export default class NodeActivator {
      */
     public destroyComp (comp: Component): void {
         // ensure onDisable called
-        legacyCC.director._compScheduler.disableComp(comp);
+        cclegacy.director._compScheduler.disableComp(comp);
 
         if (comp.internalOnDestroy && (comp._objFlags & IsOnLoadCalled)) {
             comp.internalOnDestroy();
@@ -262,7 +262,7 @@ export default class NodeActivator {
         // activate components
         for (let i = 0; i < originCount; ++i) {
             const component = node.components[i];
-            if (component instanceof legacyCC.Component) {
+            if (component instanceof cclegacy.Component) {
                 this.activateComp(component, preloadInvoker, onLoadInvoker, onEnableInvoker);
             } else {
                 _componentCorrupted(node, component, i);
@@ -296,7 +296,7 @@ export default class NodeActivator {
         for (let c = 0; c < originCount; ++c) {
             const component = node.components[c];
             if (component._enabled) {
-                legacyCC.director._compScheduler.disableComp(component);
+                cclegacy.director._compScheduler.disableComp(component);
 
                 if (node.activeInHierarchy) {
                     // reactivated from root
@@ -329,7 +329,7 @@ if (EDITOR) {
         try {
             c.internalOnLoad?.();
         } catch (e) {
-            legacyCC._throw(e);
+            cclegacy._throw(e);
         }
         c._objFlags |= IsOnLoadCalled;
         _onLoadInEditor(c);
@@ -339,7 +339,7 @@ if (EDITOR) {
     const callOnLostFocusInTryCatch = tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
     const _onLoadInEditor = (comp: Component): void => {
-        if (comp.internalOnLoad && !legacyCC.GAME_VIEW) {
+        if (comp.internalOnLoad && !cclegacy.GAME_VIEW) {
             const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
             if (focused) {
                 if (comp.onFocusInEditor && callOnFocusInTryCatch) {
@@ -357,7 +357,7 @@ if (EDITOR) {
             return;
         }
         // NOTE: _executeInEditMode is dynamically injected on Editor environment
-        if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
+        if (cclegacy.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
                 if (comp.internalPreload) {
@@ -390,17 +390,17 @@ if (EDITOR) {
             if (deactivatedOnLoading) {
                 return;
             }
-            legacyCC.director._compScheduler.enableComp(comp, onEnableInvoker);
+            cclegacy.director._compScheduler.enableComp(comp, onEnableInvoker);
         }
     };
 
     NodeActivator.prototype.destroyComp = (comp: Component): void => {
         // ensure onDisable called
-        legacyCC.director._compScheduler.disableComp(comp);
+        cclegacy.director._compScheduler.disableComp(comp);
 
         if (comp.internalOnDestroy && (comp._objFlags & IsOnLoadCalled)) {
             // NOTE: _executeInEditMode is dynamically injected on Editor environment
-            if (legacyCC.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
+            if (cclegacy.GAME_VIEW || (comp.constructor as any)._executeInEditMode) {
                 callOnDestroyInTryCatch && callOnDestroyInTryCatch(comp);
             }
         }
@@ -411,7 +411,7 @@ if (EDITOR) {
             try {
                 comp.resetInEditor(didResetToDefault);
             } catch (e) {
-                legacyCC._throw(e);
+                cclegacy._throw(e);
             }
         }
     };

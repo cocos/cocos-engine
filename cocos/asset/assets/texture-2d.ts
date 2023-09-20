@@ -29,7 +29,8 @@ import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
 import { Filter, PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
-import { js, cclegacy } from '../../core';
+import { js } from '../../core';
+import { cclegacy } from '@base/global';
 
 /**
  * @en The create information for [[Texture2D]].

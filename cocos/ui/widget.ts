@@ -27,7 +27,8 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { EDITOR, DEV, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework/ui-transform';
-import { Size, Vec2, Vec3, visibleRect, ccenum, errorID, cclegacy, Rect } from '../core';
+import { Size, Vec2, Vec3, visibleRect, ccenum, errorID, Rect } from '../core';
+import { cclegacy } from '@base/global';
 import { View } from './view';
 import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';

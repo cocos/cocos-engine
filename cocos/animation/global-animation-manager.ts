@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import type { AnimationManager } from './animation-manager';
 
 export function getGlobalAnimationManager (): AnimationManager {

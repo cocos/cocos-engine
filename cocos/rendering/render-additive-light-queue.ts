@@ -25,9 +25,9 @@
 import { BatchingSchemes, Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Vec3, nextPow2, Mat4, Color, Pool, geometry, cclegacy } from '../core';
-import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
+import { Vec3, nextPow2, Mat4, Color, Pool, geometry } from '../core';
+import { cclegacy } from '@base/global';
+import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
 import { SpotLight } from '../render-scene/scene/spot-light';
@@ -36,8 +36,7 @@ import { RangedDirectionalLight } from '../render-scene/scene/ranged-directional
 import { SubModel } from '../render-scene/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../render-scene/scene/light';
-import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture, isEnableEffect } from './define';
+import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture, isEnableEffect } from './define';
 import { Camera } from '../render-scene/scene/camera';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { GlobalDSManager } from './global-descriptor-set-manager';

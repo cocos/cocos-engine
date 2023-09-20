@@ -28,7 +28,8 @@ import { ImageData } from 'pal/image';
 import { IMemoryImageSource } from '../../../pal/image/types';
 
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
-import { assertID, error, js, macro, cclegacy } from '../../core';
+import { assertID, error, js, macro } from '../../core';
+import { cclegacy } from '@base/global';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';

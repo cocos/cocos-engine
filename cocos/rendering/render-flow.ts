@@ -25,7 +25,7 @@
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { RenderStage } from './render-stage';
 import { RenderPipeline } from './render-pipeline';
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { Camera } from '../render-scene/scene';
 
 /**

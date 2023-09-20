@@ -24,13 +24,13 @@
 
 declare var nr:any;
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 import type { RenderStage as NrRenderStage } from './render-stage';
 import type { RenderQueueDesc } from './pipeline-serialization';
 export const RenderStage: typeof NrRenderStage = nr.RenderStage;
 export type RenderStage = NrRenderStage;
 // Do not delete, for the class detection of editor
-legacyCC.RenderStage = RenderStage;
+cclegacy.RenderStage = RenderStage;
 
 /**
  * @en The render stage information descriptor
