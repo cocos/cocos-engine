@@ -324,6 +324,7 @@ export class SubModel {
      * @zh 管线更新回调
      */
     public onPipelineStateChanged (): void {
+
         const passes = this._passes;
         if (!passes) { return; }
 
