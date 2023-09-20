@@ -173,10 +173,10 @@ jest.mock(
     { virtual: true },
 );
 
-jest.mock('../cocos/core/platform/debug', () => {
+jest.mock('@base/debug', () => {
     const result = {
         __esModule: true, // Use it when dealing with esModules
-        ...jest.requireActual('../cocos/core/platform/debug')
+        ...jest.requireActual('../cocos/base/debug/src/index.ts')
     };
     const { feed } = require('./utils/log-capture');
     for (const logMethodName of ['warn', 'error', 'warnID', 'errorID']) {
@@ -193,6 +193,8 @@ jest.mock('../cocos/core/platform/debug', () => {
         }
     }
     return result;
+}, {
+    virtual: true,
 });
 
 jest.mock(
