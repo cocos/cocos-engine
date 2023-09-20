@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3, RecyclePool, error, js, IVec3Like, geometry, IQuatLike, warnID } from '../../core';
+import { Vec3, RecyclePool, js, IVec3Like, geometry, IQuatLike } from '../../core';
+import { error, warnID } from '@base/debug';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';

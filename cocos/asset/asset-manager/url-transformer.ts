@@ -23,7 +23,8 @@
 */
 
 import { EDITOR, PREVIEW } from 'internal:constants';
-import { warnID, js, path } from '../../core';
+import { warnID } from '@base/debug';
+import { js, path } from '../../core';
 import { cclegacy } from '@base/global';
 import Config from './config';
 import { IAddressableInfo, IAssetInfo } from './config';

@@ -25,7 +25,7 @@
 
 import downloader from '../asset/asset-manager/downloader';
 import factory from '../asset/asset-manager/factory';
-import { log } from '../core/platform/debug';
+import { log } from '@base/debug';
 import { VideoClip } from './assets/video-clip';
 import { ccwindow } from '@base/global';
 

@@ -22,11 +22,8 @@
  THE SOFTWARE.
 */
 
-import { log } from '../../core';
-import {
-    FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
-    FormatInfos, TextureUsageBit,
-} from '../base/define';
+import { log } from '@base/debug';
+import { FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo, FormatInfos, TextureUsageBit } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2DeviceManager } from './webgl2-define';

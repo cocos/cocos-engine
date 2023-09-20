@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { cclegacy } from '@base/global';
-import { error } from '../../core';
+import { error } from '@base/debug';
 import RequestItem from './request-item';
 import { bundles, transformPipeline } from './shared';
 import Task from './task';

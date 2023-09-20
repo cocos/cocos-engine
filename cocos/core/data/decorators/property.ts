@@ -26,7 +26,7 @@ import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, BabelPropertyDecoratorDescriptor, Initializer, getOrCreateClassDecoratorStash } from './utils';
-import { warnID, errorID } from '../../platform/debug';
+import { warnID, errorID } from '@base/debug';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 import { getClassName, mixin } from '../../utils/js-typed';

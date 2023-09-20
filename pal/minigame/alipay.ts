@@ -25,7 +25,7 @@
 import { IMiniGame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { Orientation } from '../screen-adapter/enum-type';
-import { error, warn } from '../../cocos/core/platform/debug';
+import { error, warn } from '@base/debug';
 
 declare let my: any;
 

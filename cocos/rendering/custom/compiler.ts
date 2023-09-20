@@ -23,14 +23,12 @@
 ****************************************************************************/
 import { DEBUG } from 'internal:constants';
 import { Buffer, Framebuffer, LoadOp, StoreOp, Texture, Viewport } from '../../gfx';
-import { assert } from '../../core';
+import { assert } from '@base/debug';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
-import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
-    RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView,
-    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView } from './render-graph';
+import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass, RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView, RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView } from './render-graph';
 import { AccessType, ResourceResidency, SceneFlags } from './types';
 import { hashCombineNum, hashCombineStr } from './define';
 

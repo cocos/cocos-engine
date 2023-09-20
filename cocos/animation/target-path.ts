@@ -24,7 +24,7 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
-import { warnID } from '../core';
+import { warnID } from '@base/debug';
 import type { Component } from '../scene-graph';
 
 /**

@@ -22,7 +22,7 @@
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
-import { errorID, getError } from '../core/platform/debug';
+import { errorID, getError } from '@base/debug';
 import { Component } from './component';
 import { NodeEventType } from './node-event';
 import { CCObject } from '../core/data/object';

@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { debug, error, errorID, CachedArray, assertID } from '../../core';
+import { debug, error, errorID, assertID } from '@base/debug';
+import { CachedArray } from '../../core';
 import { cclegacy } from '@base/global';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';

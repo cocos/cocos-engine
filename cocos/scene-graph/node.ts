@@ -33,7 +33,7 @@ import { ISchedulable } from '../core/scheduler';
 import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
-import { errorID, warnID, error, log, getError } from '../core/platform/debug';
+import { errorID, warnID, error, log, getError } from '@base/debug';
 import { Component } from './component';
 import { property } from '../core/data/decorators/property';
 import type { Scene } from './scene';

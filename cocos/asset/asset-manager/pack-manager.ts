@@ -25,7 +25,8 @@
 import { ImageAsset } from '../assets/image-asset';
 import { Texture2D } from '../assets/texture-2d';
 import { isGeneralPurposePack, packCustomObjData, unpackJSONs } from '../../serialization/deserialize';
-import { assertIsTrue, error, errorID, js } from '../../core';
+import { assertIsTrue, js } from '../../core';
+import { error, errorID } from '@base/debug';
 import Cache from './cache';
 import downloader from './downloader';
 import { transform } from './helper';

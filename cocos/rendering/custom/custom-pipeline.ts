@@ -30,7 +30,8 @@ import { CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags } from '.
 import { buildBloomPass, buildForwardPass, buildFxaaPass, buildPostprocessPass, buildSSSSPass, buildToneMappingPass, buildTransparencyPass, buildUIPass, hasSkinObject, buildHBAOPasses, buildCopyPass, getRenderArea, buildReflectionProbePasss } from './define';
 import { isUICamera } from './utils';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { assert, geometry } from '../../core';
+import { assert } from '@base/debug';
+import { geometry } from '../../core';
 import { cclegacy } from '@base/global';
 import { RenderScene } from '../../render-scene';
 import { AABB } from '../../core/geometry/aabb';

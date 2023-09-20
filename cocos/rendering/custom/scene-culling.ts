@@ -1,4 +1,5 @@
-import { Vec3, assert } from '../../core';
+import { Vec3 } from '../../core';
+import { assert } from '@base/debug';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer } from '../../gfx';
 import { BatchingSchemes, Pass, RenderScene } from '../../render-scene';

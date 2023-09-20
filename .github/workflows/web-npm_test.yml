@@ -31,10 +31,6 @@ jobs:
     - name: npm install
       run: |
         npm install
-       
-    - name: build-debug-infos
-      run: |
-        gulp build-debug-infos
         
     - name: run test
       run: |

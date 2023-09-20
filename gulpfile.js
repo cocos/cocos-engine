@@ -34,10 +34,6 @@ const fs = require('fs-extra');
 const ps = require('path');
 const cp = require('child_process');
 
-gulp.task('build-debug-infos', async () => {
-    return await Promise.resolve(require('./gulp/tasks/buildDebugInfos')());
-});
-
 gulp.task('build-source', async () => {
     const cli = require.resolve('@cocos/build-engine/lib/cli');
     return cp.spawn('node', [
@@ -52,7 +48,7 @@ gulp.task('build-source', async () => {
     });
 });
 
-gulp.task('build-h5-source', gulp.series('build-debug-infos', async () => {
+gulp.task('build-h5-source', async () => {
     const outDir = ps.join('bin', 'dev', 'cc');
     await fs.ensureDir(outDir);
     await fs.emptyDir(outDir);
@@ -80,9 +76,9 @@ gulp.task('build-h5-source', gulp.series('build-debug-infos', async () => {
         console.error(`Build process exit with ${exitCode}`);
         process.exit(exitCode);
     }
-}));
+});
 
-gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
+gulp.task('build-h5-minified', async () => {
     const outDir = ps.join('bin', 'dev', 'cc-min');
     await fs.ensureDir(outDir);
     await fs.emptyDir(outDir);
@@ -102,7 +98,7 @@ gulp.task('build-h5-minified', gulp.series('build-debug-infos', async () => {
         stdio: 'inherit',
         cwd: __dirname,
     });
-}));
+});
 
 gulp.task('build-declarations', async () => {
     const outDir = ps.join('bin', '.declarations');
@@ -114,7 +110,7 @@ gulp.task('build-declarations', async () => {
     });
 });
 
-gulp.task('build', gulp.parallel('build-h5-minified', 'build-debug-infos', 'build-declarations'));
+gulp.task('build', gulp.parallel('build-h5-minified', 'build-declarations'));
 
 gulp.task('code-check', () => {
     return cp.spawn('npx', ['tsc', '--noEmit'], {
@@ -133,13 +129,3 @@ gulp.task('unit-tests', () => {
 });
 
 gulp.task('test', gulp.series('code-check', 'unit-tests'));
-
-gulp.task('build-api-json', async () => {
-    const APIBuilder = require('./gulp/util/api-docs-build');
-    return await Promise.resolve(APIBuilder.generateJson());
-});
-
-gulp.task('build-3d-api', async () => {
-    const APIBuilder = require('./gulp/util/api-docs-build');
-    return await Promise.resolve(APIBuilder.generateHTMLWithLocalization());
-});

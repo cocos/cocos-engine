@@ -31,7 +31,7 @@ import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 
 import { Vec3 } from './vec3';
-import { warn } from '../platform/debug';
+import { warn } from '@base/debug';
 
 /**
  * @en Representation of 2D vectors and points.

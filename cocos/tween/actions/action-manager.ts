@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { errorID, logID } from '../../core/platform/debug';
+import { errorID, logID } from '@base/debug';
 import { Action } from './action';
 import { Node } from '../../scene-graph';
 import { cclegacy } from '@base/global';

@@ -1,5 +1,6 @@
 import { DEBUG } from 'internal:constants';
-import { error, Quat, RealCurve, Vec3, warnID } from '../../core';
+import { error, warnID } from '@base/debug';
+import { Quat, RealCurve, Vec3 } from '../../core';
 import { assertIsTrue } from '../../core/data/utils/asserts';
 import { Node } from '../../scene-graph/node';
 import { additiveSettingsTag, AnimationClip, exoticAnimationTag } from '../animation-clip';

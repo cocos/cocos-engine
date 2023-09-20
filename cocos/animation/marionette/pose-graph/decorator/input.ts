@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import { error, js } from '../../../../core';
+import { error } from '@base/debug';
+import { js } from '../../../../core';
 import { PropertyStashInternalFlag } from '../../../../core/data/class-stash';
 import { getOrCreatePropertyStash } from '../../../../core/data/decorators/property';
 import { PoseGraphNodeInputMappingOptions, globalPoseGraphNodeInputManager } from '../foundation/authoring/input-authoring';

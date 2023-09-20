@@ -38,7 +38,7 @@ import { Widget } from './widget';
 import { PageView } from './page-view';
 import { PageViewIndicator } from './page-view-indicator';
 import { SafeArea } from './safe-area';
-import { warnID } from '../core/platform/debug';
+import { warnID } from '@base/debug';
 import { ccclass } from '../core/data/class-decorator';
 import { js, removeProperty, markAsWarning } from '../core';
 import { cclegacy } from '@base/global';

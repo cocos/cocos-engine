@@ -31,7 +31,7 @@ import { Vec2 } from '../core/math/vec2';
 import { Size } from '../core/math/size';
 import { cclegacy } from '@base/global';
 import { CCObject } from '../core/data/object';
-import { warnID } from '../core/platform/debug';
+import { warnID } from '@base/debug';
 import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../input/types';
 import { SystemEvent } from '../input';

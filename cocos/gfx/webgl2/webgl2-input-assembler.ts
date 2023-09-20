@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { error } from '../../core';
+import { error } from '@base/debug';
 import { InputAssemblerInfo } from '../base/define';
 import { InputAssembler } from '../base/input-assembler';
 import { WebGL2Buffer } from './webgl2-buffer';

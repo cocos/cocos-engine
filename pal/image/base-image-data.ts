@@ -24,7 +24,7 @@
 import { ccwindow } from '@base/global';
 import { RawDataType, ImageSource } from './types';
 import { sys } from '../../cocos/core/platform/sys';
-import { assert } from '../../cocos/core/platform/debug';
+import { assert } from '@base/debug';
 
 export class BaseImageData {
     // TODO(qgh):Designed for compatibility, may be removed in the future.

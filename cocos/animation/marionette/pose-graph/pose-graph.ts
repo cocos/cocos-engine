@@ -1,4 +1,5 @@
-import { EditorExtendable, assertIsTrue, error, js, warn } from '../../../core';
+import { EditorExtendable, assertIsTrue, js } from '../../../core';
+import { error, warn } from '@base/debug';
 import { ccclass, serializable } from '../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 import { PoseGraphNodeShell } from './foundation/node-shell';

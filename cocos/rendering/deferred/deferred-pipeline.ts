@@ -35,13 +35,10 @@ import { RenderPipeline, IRenderPipelineInfo, PipelineRenderData, PipelineInputA
 import { MainFlow } from './main-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { Format, StoreOp,
-    ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, Texture, AccessFlagBit, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
+import { Format, StoreOp, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp, RenderPassInfo, Texture, AccessFlagBit, Framebuffer, TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Swapchain, GeneralBarrierInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
 import { Camera } from '../../render-scene/scene';
-import { errorID, log } from '../../core/platform/debug';
+import { errorID, log } from '@base/debug';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { PipelineEventType } from '../pipeline-event';
 

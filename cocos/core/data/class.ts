@@ -25,7 +25,7 @@
 
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
-import { errorID, warnID, error } from '../platform/debug';
+import { errorID, warnID, error } from '@base/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { BitMask } from '../value-types';

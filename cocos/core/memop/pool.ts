@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warnID } from '../platform/debug';
+import { warnID } from '@base/debug';
 import { ScalableContainer } from './scalable-container';
 
 /**

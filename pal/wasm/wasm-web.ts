@@ -24,7 +24,7 @@
 
 import { EDITOR, PREVIEW } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
-import { error } from '../../cocos/core/platform/debug';
+import { error } from '@base/debug';
 
 declare const require: any;
 

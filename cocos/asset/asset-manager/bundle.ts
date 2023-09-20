@@ -25,7 +25,7 @@
 
 import { Asset } from '../assets/asset';
 import { SceneAsset } from '../assets/scene-asset';
-import { error, errorID } from '../../core';
+import { error, errorID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import Config from './config';
 import { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';

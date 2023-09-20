@@ -24,7 +24,8 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import type { ParticleSystem } from '../../particle';
-import { warn, js } from '../../core';
+import { warn } from '@base/debug';
+import { js } from '../../core';
 import type { Node } from '../../scene-graph/node';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { EmbeddedPlayableState, EmbeddedPlayable } from './embedded-player';

@@ -29,7 +29,8 @@
  */
 /* eslint-disable max-len */
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { assert, RecyclePool } from '../../core';
+import { assert } from '@base/debug';
+import { RecyclePool } from '../../core';
 import { cclegacy } from '@base/global';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';

@@ -24,7 +24,7 @@
 
 import { DEV } from 'internal:constants';
 import { CCClass } from '../class';
-import { error } from '../../platform/debug';
+import { error } from '@base/debug';
 import { getClassName } from '../../utils/js-typed';
 import type { ClassStash } from '../class-stash';
 

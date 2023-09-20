@@ -27,7 +27,7 @@ import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
-import { error, warn } from '../../../cocos/core/platform/debug';
+import { warn } from '@base/debug';
 
 export interface SafeAreaEdge {
     top: number;

@@ -34,7 +34,7 @@ import { AABB } from './aabb';
 import { OBB } from './obb';
 import { Capsule } from './capsule';
 import { Frustum } from './frustum';
-import { warn } from '../platform';
+import { warn } from '@base/debug';
 
 replaceProperty(intersect, 'intersect', [
     {

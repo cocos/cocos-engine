@@ -23,7 +23,8 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCString, Enum, error } from '../core';
+import { CCString, Enum } from '../core';
+import { error } from '@base/debug';
 import { cclegacy } from '@base/global';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';

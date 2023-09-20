@@ -1,5 +1,5 @@
 import { RenderTexture } from '../../../asset/assets';
-import { warn } from '../../../core';
+import { warn } from '@base/debug';
 import { property } from '../../../core/data/class-decorator';
 import { ccclass, menu } from '../../../core/data/decorators';
 import { game } from '../../../game';

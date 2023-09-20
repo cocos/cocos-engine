@@ -27,7 +27,7 @@ import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { SkeletonData } from './skeleton-data';
-import { warn } from '../core/platform/debug';
+import { warn } from '@base/debug';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;

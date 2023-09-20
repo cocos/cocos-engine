@@ -27,11 +27,11 @@ import { systemInfo } from 'pal/system-info';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
-import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit,
-    BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
+import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
-import { macro, warnID, warn, debug } from '../../core';
+import { macro } from '../../core';
+import { warnID, warn, debug } from '@base/debug';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { IWebGLBlitManager } from './webgl-gpu-objects';
 

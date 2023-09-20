@@ -24,7 +24,7 @@
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { warn } from '../core/platform';
+import { warn } from '@base/debug';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { clamp } from '../core/math';

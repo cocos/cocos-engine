@@ -23,7 +23,8 @@
 */
 
 import { B2 } from '../instantiated';
-import { js, warn } from '../../../core';
+import { js } from '../../../core';
+import { warn } from '@base/debug';
 
 export class PhysicsContactListener {
     static _BeginContact: Function | null = null;

@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4, Vec3, Vec4, geometry, warnID, toRadian } from '../core';
+import { Color, Mat4, Vec3, Vec4, geometry, toRadian } from '../core';
+import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';

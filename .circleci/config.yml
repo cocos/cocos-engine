@@ -9,7 +9,6 @@ jobs:
       - checkout
       - run: sudo npm install -g gulp
       - run: npm install
-      - run: gulp build-debug-infos
       - run: npm test
 
 workflows:

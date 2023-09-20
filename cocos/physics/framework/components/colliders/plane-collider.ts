@@ -22,17 +22,9 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass,
-    help,
-    executeInEditMode,
-    menu,
-    tooltip,
-    type,
-    editable,
-    serializable,
-} from 'cc.decorator';
-import { Vec3, warnID } from '../../../../core';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, editable, serializable } from 'cc.decorator';
+import { Vec3 } from '../../../../core';
+import { warnID } from '@base/debug';
 import { Collider } from './collider';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
 import { EColliderType, ERigidBodyType } from '../../physics-enum';

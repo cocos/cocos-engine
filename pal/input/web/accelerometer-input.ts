@@ -29,7 +29,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, OS } from '../../system-info/enum-type';
 import { EventAcceleration, Acceleration } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { warn } from '../../../cocos/core/platform/debug';
+import { warn } from '@base/debug';
 
 export class AccelerometerInputSource {
     private _intervalInMileSeconds = 200;

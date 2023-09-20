@@ -25,7 +25,8 @@
 import { ImageData } from 'pal/image';
 import { IMemoryImageSource } from '../../../pal/image/types';
 import { ImageAsset } from '../assets/image-asset';
-import { js, warn } from '../../core';
+import { js } from '../../core';
+import { warn } from '@base/debug';
 import Cache from './cache';
 import deserialize from './deserialize';
 import { isScene } from './helper';

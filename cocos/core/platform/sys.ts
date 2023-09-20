@@ -29,7 +29,7 @@ import { WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { Rect } from '../math/rect';
 import { Vec2 } from '../math/vec2';
-import { warnID, log } from './debug';
+import { warnID, log } from '@base/debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
 

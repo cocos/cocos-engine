@@ -25,7 +25,8 @@
 /* eslint-disable new-cap */
 import { BulletConstraint } from './bullet-constraint';
 import { IConfigurableConstraint } from '../../spec/i-physics-constraint';
-import { error, IVec3Like, Mat4, Quat, Vec3, toRadian } from '../../../core';
+import { error } from '@base/debug';
+import { IVec3Like, Mat4, Quat, Vec3, toRadian } from '../../../core';
 import { ConfigurableConstraint, EConstraintMode, EConstraintType, EDriverMode, PhysicsSystem } from '../../framework';
 import { bt } from '../instantiated';
 import { BulletRigidBody } from '../bullet-rigid-body';

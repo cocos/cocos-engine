@@ -23,7 +23,8 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { RealCurve, Color, Size, Vec2, Vec3, Vec4, getError } from '../../core';
+import { RealCurve, Color, Size, Vec2, Vec3, Vec4 } from '../../core';
+import { getError } from '@base/debug';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { IValueProxyFactory } from '../value-proxy';
 import { ColorTrack, ColorTrackEval } from './color-track';

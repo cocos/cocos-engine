@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { errorID } from '../platform/debug';
+import { errorID } from '@base/debug';
 import * as js from '../utils/js';
 import { cclegacy } from '@base/global';
 

@@ -23,7 +23,8 @@
 */
 
 import { FontAtlas } from '../../assets/bitmap-font';
-import { Color, macro, warn, warnID, ImageData } from '../../../core';
+import { Color, macro, ImageData } from '../../../core';
+import { warn, warnID } from '@base/debug';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';

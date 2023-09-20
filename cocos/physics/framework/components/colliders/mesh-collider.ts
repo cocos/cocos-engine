@@ -22,21 +22,12 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass,
-    help,
-    executeInEditMode,
-    menu,
-    type,
-    editable,
-    serializable,
-    tooltip,
-} from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, type, editable, serializable, tooltip } from 'cc.decorator';
 import { Collider } from './collider';
 import { Mesh } from '../../../../3d/assets';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EColliderType, ERigidBodyType } from '../../physics-enum';
-import { warnID } from '../../../../core';
+import { warnID } from '@base/debug';
 import { RigidBody } from '../rigid-body';
 
 /**

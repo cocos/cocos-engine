@@ -22,15 +22,10 @@
  THE SOFTWARE.
 */
 
-import { warn } from '../../core';
+import { warn } from '@base/debug';
 import { Buffer } from '../base/buffer';
 import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
-import {
-    WebGL2CmdFuncCreateBuffer,
-    WebGL2CmdFuncDestroyBuffer,
-    WebGL2CmdFuncResizeBuffer,
-    WebGL2CmdFuncUpdateBuffer,
-} from './webgl2-commands';
+import { WebGL2CmdFuncCreateBuffer, WebGL2CmdFuncDestroyBuffer, WebGL2CmdFuncResizeBuffer, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
 import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUBuffer, WebGL2IndirectDrawInfos } from './webgl2-gpu-objects';
 

@@ -83,7 +83,7 @@ rules:
 
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
-    max-len: [warn, 150] # more lenient on max length per line
+    max-len: off # no max line length limitation
     no-console: error # prefer the uniform logging methods
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues

@@ -28,7 +28,7 @@
  THE SOFTWARE.
 */
 
-import { getError, log, logID } from '../core';
+import { getError, log, logID } from '@base/debug';
 import { ccwindow } from '@base/global';
 
 interface IFile {

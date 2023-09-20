@@ -51,8 +51,6 @@ export { EasingMethod } from './curves/easing-method';
 export { CallbacksInvoker } from './event/callbacks-invoker';
 export { applyMixins } from './event/event-target-factory';
 
-export { _resetDebugSetting } from './platform/debug';
-
 /**
  * @engineInternal
  */

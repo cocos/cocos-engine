@@ -31,7 +31,7 @@ import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
 import { cclegacy } from '@base/global';
-import { warnID } from '../../core';
+import { warnID } from '@base/debug';
 import { ProgramLibrary } from '../../rendering/custom/private';
 import { addEffectDefaultProperties, getCombinationDefines } from '../../render-scene/core/program-utils';
 

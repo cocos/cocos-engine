@@ -52,17 +52,13 @@ import { WebGL2Sampler } from './states/webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2Swapchain, getExtensions, getContext } from './webgl2-swapchain';
 import { WebGL2Texture } from './webgl2-texture';
-import {
-    CommandBufferType, DescriptorSetLayoutInfo, DescriptorSetInfo,
-    PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, FramebufferInfo, InputAssemblerInfo,
-    QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, GeneralBarrierInfo, TextureBarrierInfo,
-    BufferBarrierInfo, QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, Format, FormatFeatureBit,
-} from '../base/define';
+import { CommandBufferType, DescriptorSetLayoutInfo, DescriptorSetInfo, PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, FramebufferInfo, InputAssemblerInfo, QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo, QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, Format, FormatFeatureBit } from '../base/define';
 import { WebGL2CmdFuncCopyTextureToBuffers, WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { debug, error, sys } from '../../core';
+import { debug, error } from '@base/debug';
+import { sys } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2BindingMapping, IWebGL2BlitManager } from './webgl2-gpu-objects';

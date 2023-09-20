@@ -22,11 +22,10 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass, disallowMultiple,
-    tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, disallowMultiple, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, warn, CCFloat, Eventify } from '../../../../core';
+import { Vec3, CCFloat, Eventify } from '../../../../core';
+import { warn } from '@base/debug';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';

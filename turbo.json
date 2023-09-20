@@ -5,6 +5,10 @@
             "inputs": ["src/**"],
             "outputs": ["lib/**"],
             "dependsOn": ["^build"]
+        },
+        "@base/debug#build": {
+            "outputs": ["lib/**"],
+            "cache": false
         }
     }
 }

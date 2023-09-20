@@ -25,7 +25,8 @@
 
 import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { cclegacy } from '@base/global';
-import { js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, error, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
+import { js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
+import { error } from '@base/debug';
 import { MissingScript } from '../misc/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../pal/system-info/enum-type';

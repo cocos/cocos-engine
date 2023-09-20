@@ -34,7 +34,7 @@ import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
-import { assert, warn } from '../../core';
+import { assert, warn } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import type { UIRenderer } from '../framework/ui-renderer';

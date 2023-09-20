@@ -29,7 +29,7 @@ import { DEV } from 'internal:constants';
 import { setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { getClassName, getset, isEmptyObject } from './js';
-import { warnID } from '../platform/debug';
+import { warnID } from '@base/debug';
 import { macro } from '../platform/macro';
 import type { Component } from '../../scene-graph';
 

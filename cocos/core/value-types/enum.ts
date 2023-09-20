@@ -26,7 +26,7 @@
 import { EDITOR, TEST, DEV } from 'internal:constants';
 import { value } from '../utils/js';
 import { cclegacy } from '@base/global';
-import { errorID } from '../platform/debug';
+import { errorID } from '@base/debug';
 import { assertIsTrue } from '../data/utils/asserts';
 
 export type EnumType = Record<string, string | number>;

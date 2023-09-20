@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warnID } from '../../core';
+import { warnID } from '@base/debug';
 import { safeMeasureText } from './text-utils';
 import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
