@@ -803,7 +803,7 @@ struct SubpassComparator {
 
 struct PassComparator {
     bool operator()(const AttachmentSortKey &lhs, const AttachmentSortKey &rhs) const {
-        return std::tie(lhs.slotID, lhs.name) < std::tie(rhs.slotID, rhs.name);
+        return lhs.slotID < rhs.slotID;
     }
 };
 
@@ -819,8 +819,8 @@ template <typename Comp>
 using AttachmentMap = ccstd::pmr::map<AttachmentSortKey, ViewInfo, Comp>;
 } // namespace
 
-template <typename T>
-void fillRenderPassInfo(const T &colorMap,
+template <typename Comp>
+void fillRenderPassInfo(const AttachmentMap<Comp> &colorMap,
                         FGRenderPassInfo &fgRenderpassInfo,
                         const ResourceGraph &resg) {
     for (const auto &pair : colorMap) {
@@ -1228,7 +1228,7 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
     auto parentRagVertID = resourceAccessGraph.passIndex.at(parentID);
     auto &fgRenderpassInfo = get(ResourceAccessGraph::RenderPassInfoTag{}, resourceAccessGraph, parentRagVertID);
 
-    const auto &rg = renderGraph;
+    auto &rg = renderGraph;
     auto &rag = resourceAccessGraph;
     auto &resg = resourceGraph;
 
@@ -1322,6 +1322,7 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
     CC_ASSERT(parentPass);
 
     if (parentPass->subpassGraph.subpasses.size() == 1) {
+        // for those renderpass which consist of only 1 subpass
         AttachmentMap<PassComparator> colorMap(resourceAccessGraph.get_allocator());
         process(colorMap);
     } else {
