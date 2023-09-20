@@ -671,24 +671,44 @@ export class RenderCommonObjectPool {
         culledByLight = false,
         probe: ReflectionProbe | null = null,
     ): LightInfo {
-        const v = this._lightInfo.add();
+        let v: LightInfo;
+        if (this.debug) {
+            v = new LightInfo();
+        } else {
+            v = this._lightInfo.add();
+        }
         v.reset(light, level, culledByLight, probe);
         return v;
     }
     createDescriptor (
         type: Type = Type.UNKNOWN,
     ): Descriptor {
-        const v = this._descriptor.add();
+        let v: Descriptor;
+        if (this.debug) {
+            v = new Descriptor();
+        } else {
+            v = this._descriptor.add();
+        }
         v.reset(type);
         return v;
     }
     createDescriptorBlock (): DescriptorBlock {
-        const v = this._descriptorBlock.add();
+        let v: DescriptorBlock;
+        if (this.debug) {
+            v = new DescriptorBlock();
+        } else {
+            v = this._descriptorBlock.add();
+        }
         v.reset();
         return v;
     }
     createDescriptorBlockFlattened (): DescriptorBlockFlattened {
-        const v = this._descriptorBlockFlattened.add();
+        let v: DescriptorBlockFlattened;
+        if (this.debug) {
+            v = new DescriptorBlockFlattened();
+        } else {
+            v = this._descriptorBlockFlattened.add();
+        }
         v.reset();
         return v;
     }
@@ -698,7 +718,12 @@ export class RenderCommonObjectPool {
         descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ): DescriptorBlockIndex {
-        const v = this._descriptorBlockIndex.add();
+        let v: DescriptorBlockIndex;
+        if (this.debug) {
+            v = new DescriptorBlockIndex();
+        } else {
+            v = this._descriptorBlockIndex.add();
+        }
         v.updateFrequency = updateFrequency;
         v.parameterType = parameterType;
         v.descriptorType = descriptorType;
@@ -712,7 +737,12 @@ export class RenderCommonObjectPool {
         mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
         mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
     ): ResolvePair {
-        const v = this._resolvePair.add();
+        let v: ResolvePair;
+        if (this.debug) {
+            v = new ResolvePair();
+        } else {
+            v = this._resolvePair.add();
+        }
         v.reset(source, target, resolveFlags, mode, mode1);
         return v;
     }
@@ -728,7 +758,12 @@ export class RenderCommonObjectPool {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ): CopyPair {
-        const v = this._copyPair.add();
+        let v: CopyPair;
+        if (this.debug) {
+            v = new CopyPair();
+        } else {
+            v = this._copyPair.add();
+        }
         v.reset(source, target, mipLevels, numSlices, sourceMostDetailedMip, sourceFirstSlice, sourcePlaneSlice, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
@@ -740,7 +775,12 @@ export class RenderCommonObjectPool {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ): UploadPair {
-        const v = this._uploadPair.add();
+        let v: UploadPair;
+        if (this.debug) {
+            v = new UploadPair();
+        } else {
+            v = this._uploadPair.add();
+        }
         v.reset(target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
@@ -753,12 +793,22 @@ export class RenderCommonObjectPool {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ): MovePair {
-        const v = this._movePair.add();
+        let v: MovePair;
+        if (this.debug) {
+            v = new MovePair();
+        } else {
+            v = this._movePair.add();
+        }
         v.reset(source, target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
     createPipelineStatistics (): PipelineStatistics {
-        const v = this._pipelineStatistics.add();
+        let v: PipelineStatistics;
+        if (this.debug) {
+            v = new PipelineStatistics();
+        } else {
+            v = this._pipelineStatistics.add();
+        }
         v.reset();
         return v;
     }
@@ -772,6 +822,7 @@ export class RenderCommonObjectPool {
     private readonly _uploadPair: RecyclePool<UploadPair>;
     private readonly _movePair: RecyclePool<MovePair>;
     private readonly _pipelineStatistics: RecyclePool<PipelineStatistics>;
+    public debug = false;
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {

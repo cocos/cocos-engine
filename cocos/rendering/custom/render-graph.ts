@@ -2665,7 +2665,12 @@ export class RenderGraphObjectPool {
         z = 0,
         w = 0,
     ): ClearValue {
-        const v = this._clearValue.add();
+        let v: ClearValue;
+        if (this.debug) {
+            v = new ClearValue();
+        } else {
+            v = this._clearValue.add();
+        }
         v.reset(x, y, z, w);
         return v;
     }
@@ -2678,7 +2683,12 @@ export class RenderGraphObjectPool {
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ): RasterView {
-        const v = this._rasterView.add();
+        let v: RasterView;
+        if (this.debug) {
+            v = new RasterView();
+        } else {
+            v = this._rasterView.add();
+        }
         v.reset(slotName, accessType, attachmentType, loadOp, storeOp, clearFlags, shaderStageFlags);
         return v;
     }
@@ -2689,74 +2699,134 @@ export class RenderGraphObjectPool {
         clearValueType: ClearValueType = ClearValueType.NONE,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ): ComputeView {
-        const v = this._computeView.add();
+        let v: ComputeView;
+        if (this.debug) {
+            v = new ComputeView();
+        } else {
+            v = this._computeView.add();
+        }
         v.reset(name, accessType, clearFlags, clearValueType, shaderStageFlags);
         return v;
     }
     createResourceDesc (): ResourceDesc {
-        const v = this._resourceDesc.add();
+        let v: ResourceDesc;
+        if (this.debug) {
+            v = new ResourceDesc();
+        } else {
+            v = this._resourceDesc.add();
+        }
         v.reset();
         return v;
     }
     createResourceTraits (
         residency: ResourceResidency = ResourceResidency.MANAGED,
     ): ResourceTraits {
-        const v = this._resourceTraits.add();
+        let v: ResourceTraits;
+        if (this.debug) {
+            v = new ResourceTraits();
+        } else {
+            v = this._resourceTraits.add();
+        }
         v.reset(residency);
         return v;
     }
     createRenderSwapchain (
         swapchain: Swapchain | null = null,
     ): RenderSwapchain {
-        const v = this._renderSwapchain.add();
+        let v: RenderSwapchain;
+        if (this.debug) {
+            v = new RenderSwapchain();
+        } else {
+            v = this._renderSwapchain.add();
+        }
         v.reset(swapchain);
         return v;
     }
     createResourceStates (): ResourceStates {
-        const v = this._resourceStates.add();
+        let v: ResourceStates;
+        if (this.debug) {
+            v = new ResourceStates();
+        } else {
+            v = this._resourceStates.add();
+        }
         v.reset();
         return v;
     }
     createManagedBuffer (
         buffer: Buffer | null = null,
     ): ManagedBuffer {
-        const v = this._managedBuffer.add();
+        let v: ManagedBuffer;
+        if (this.debug) {
+            v = new ManagedBuffer();
+        } else {
+            v = this._managedBuffer.add();
+        }
         v.reset(buffer);
         return v;
     }
     createPersistentBuffer (
         buffer: Buffer | null = null,
     ): PersistentBuffer {
-        const v = this._persistentBuffer.add();
+        let v: PersistentBuffer;
+        if (this.debug) {
+            v = new PersistentBuffer();
+        } else {
+            v = this._persistentBuffer.add();
+        }
         v.reset(buffer);
         return v;
     }
     createManagedTexture (
         texture: Texture | null = null,
     ): ManagedTexture {
-        const v = this._managedTexture.add();
+        let v: ManagedTexture;
+        if (this.debug) {
+            v = new ManagedTexture();
+        } else {
+            v = this._managedTexture.add();
+        }
         v.reset(texture);
         return v;
     }
     createPersistentTexture (
         texture: Texture | null = null,
     ): PersistentTexture {
-        const v = this._persistentTexture.add();
+        let v: PersistentTexture;
+        if (this.debug) {
+            v = new PersistentTexture();
+        } else {
+            v = this._persistentTexture.add();
+        }
         v.reset(texture);
         return v;
     }
     createManagedResource (): ManagedResource {
-        const v = this._managedResource.add();
+        let v: ManagedResource;
+        if (this.debug) {
+            v = new ManagedResource();
+        } else {
+            v = this._managedResource.add();
+        }
         v.reset();
         return v;
     }
     createSubpass (): Subpass {
-        const v = this._subpass.add();
+        let v: Subpass;
+        if (this.debug) {
+            v = new Subpass();
+        } else {
+            v = this._subpass.add();
+        }
         v.reset();
         return v;
     }
     createSubpassGraph (): SubpassGraph {
-        const v = this._subpassGraph.add();
+        let v: SubpassGraph;
+        if (this.debug) {
+            v = new SubpassGraph();
+        } else {
+            v = this._subpassGraph.add();
+        }
         v.clear();
         return v;
     }
@@ -2765,19 +2835,34 @@ export class RenderGraphObjectPool {
         count = 1,
         quality = 0,
     ): RasterSubpass {
-        const v = this._rasterSubpass.add();
+        let v: RasterSubpass;
+        if (this.debug) {
+            v = new RasterSubpass();
+        } else {
+            v = this._rasterSubpass.add();
+        }
         v.reset(subpassID, count, quality);
         return v;
     }
     createComputeSubpass (
         subpassID = 0xFFFFFFFF,
     ): ComputeSubpass {
-        const v = this._computeSubpass.add();
+        let v: ComputeSubpass;
+        if (this.debug) {
+            v = new ComputeSubpass();
+        } else {
+            v = this._computeSubpass.add();
+        }
         v.reset(subpassID);
         return v;
     }
     createRasterPass (): RasterPass {
-        const v = this._rasterPass.add();
+        let v: RasterPass;
+        if (this.debug) {
+            v = new RasterPass();
+        } else {
+            v = this._rasterPass.add();
+        }
         v.reset();
         return v;
     }
@@ -2785,47 +2870,92 @@ export class RenderGraphObjectPool {
         renderPass: RenderPass | null = null,
         framebuffer: Framebuffer | null = null,
     ): PersistentRenderPassAndFramebuffer {
-        const v = this._persistentRenderPassAndFramebuffer.add();
+        let v: PersistentRenderPassAndFramebuffer;
+        if (this.debug) {
+            v = new PersistentRenderPassAndFramebuffer();
+        } else {
+            v = this._persistentRenderPassAndFramebuffer.add();
+        }
         v.reset(renderPass, framebuffer);
         return v;
     }
     createFormatView (): FormatView {
-        const v = this._formatView.add();
+        let v: FormatView;
+        if (this.debug) {
+            v = new FormatView();
+        } else {
+            v = this._formatView.add();
+        }
         v.reset();
         return v;
     }
     createSubresourceView (): SubresourceView {
-        const v = this._subresourceView.add();
+        let v: SubresourceView;
+        if (this.debug) {
+            v = new SubresourceView();
+        } else {
+            v = this._subresourceView.add();
+        }
         v.reset();
         return v;
     }
     createResourceGraph (): ResourceGraph {
-        const v = this._resourceGraph.add();
+        let v: ResourceGraph;
+        if (this.debug) {
+            v = new ResourceGraph();
+        } else {
+            v = this._resourceGraph.add();
+        }
         v.clear();
         return v;
     }
     createComputePass (): ComputePass {
-        const v = this._computePass.add();
+        let v: ComputePass;
+        if (this.debug) {
+            v = new ComputePass();
+        } else {
+            v = this._computePass.add();
+        }
         v.reset();
         return v;
     }
     createResolvePass (): ResolvePass {
-        const v = this._resolvePass.add();
+        let v: ResolvePass;
+        if (this.debug) {
+            v = new ResolvePass();
+        } else {
+            v = this._resolvePass.add();
+        }
         v.reset();
         return v;
     }
     createCopyPass (): CopyPass {
-        const v = this._copyPass.add();
+        let v: CopyPass;
+        if (this.debug) {
+            v = new CopyPass();
+        } else {
+            v = this._copyPass.add();
+        }
         v.reset();
         return v;
     }
     createMovePass (): MovePass {
-        const v = this._movePass.add();
+        let v: MovePass;
+        if (this.debug) {
+            v = new MovePass();
+        } else {
+            v = this._movePass.add();
+        }
         v.reset();
         return v;
     }
     createRaytracePass (): RaytracePass {
-        const v = this._raytracePass.add();
+        let v: RaytracePass;
+        if (this.debug) {
+            v = new RaytracePass();
+        } else {
+            v = this._raytracePass.add();
+        }
         v.reset();
         return v;
     }
@@ -2833,7 +2963,12 @@ export class RenderGraphObjectPool {
         slotName = '',
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
     ): ClearView {
-        const v = this._clearView.add();
+        let v: ClearView;
+        if (this.debug) {
+            v = new ClearView();
+        } else {
+            v = this._clearView.add();
+        }
         v.reset(slotName, clearFlags);
         return v;
     }
@@ -2841,7 +2976,12 @@ export class RenderGraphObjectPool {
         hint: QueueHint = QueueHint.RENDER_OPAQUE,
         phaseID = 0xFFFFFFFF,
     ): RenderQueue {
-        const v = this._renderQueue.add();
+        let v: RenderQueue;
+        if (this.debug) {
+            v = new RenderQueue();
+        } else {
+            v = this._renderQueue.add();
+        }
         v.reset(hint, phaseID);
         return v;
     }
@@ -2852,7 +2992,12 @@ export class RenderGraphObjectPool {
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
         shadingLight: Light | null = null,
     ): SceneData {
-        const v = this._sceneData.add();
+        let v: SceneData;
+        if (this.debug) {
+            v = new SceneData();
+        } else {
+            v = this._sceneData.add();
+        }
         v.reset(scene, camera, flags, cullingFlags, shadingLight);
         return v;
     }
@@ -2863,7 +3008,12 @@ export class RenderGraphObjectPool {
         threadGroupCountY = 0,
         threadGroupCountZ = 0,
     ): Dispatch {
-        const v = this._dispatch.add();
+        let v: Dispatch;
+        if (this.debug) {
+            v = new Dispatch();
+        } else {
+            v = this._dispatch.add();
+        }
         v.reset(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
         return v;
     }
@@ -2873,17 +3023,32 @@ export class RenderGraphObjectPool {
         sceneFlags: SceneFlags = SceneFlags.NONE,
         camera: Camera | null = null,
     ): Blit {
-        const v = this._blit.add();
+        let v: Blit;
+        if (this.debug) {
+            v = new Blit();
+        } else {
+            v = this._blit.add();
+        }
         v.reset(material, passID, sceneFlags, camera);
         return v;
     }
     createRenderData (): RenderData {
-        const v = this._renderData.add();
+        let v: RenderData;
+        if (this.debug) {
+            v = new RenderData();
+        } else {
+            v = this._renderData.add();
+        }
         v.reset();
         return v;
     }
     createRenderGraph (): RenderGraph {
-        const v = this._renderGraph.add();
+        let v: RenderGraph;
+        if (this.debug) {
+            v = new RenderGraph();
+        } else {
+            v = this._renderGraph.add();
+        }
         v.clear();
         return v;
     }
@@ -2921,4 +3086,5 @@ export class RenderGraphObjectPool {
     private readonly _blit: RecyclePool<Blit>;
     private readonly _renderData: RecyclePool<RenderData>;
     private readonly _renderGraph: RecyclePool<RenderGraph>;
+    public debug = false;
 }

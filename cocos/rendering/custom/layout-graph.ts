@@ -1420,17 +1420,32 @@ export class LayoutGraphObjectPool {
         this._layoutGraphData.reset();
     }
     createDescriptorDB (): DescriptorDB {
-        const v = this._descriptorDB.add();
+        let v: DescriptorDB;
+        if (this.debug) {
+            v = new DescriptorDB();
+        } else {
+            v = this._descriptorDB.add();
+        }
         v.reset();
         return v;
     }
     createRenderPhase (): RenderPhase {
-        const v = this._renderPhase.add();
+        let v: RenderPhase;
+        if (this.debug) {
+            v = new RenderPhase();
+        } else {
+            v = this._renderPhase.add();
+        }
         v.reset();
         return v;
     }
     createLayoutGraph (): LayoutGraph {
-        const v = this._layoutGraph.add();
+        let v: LayoutGraph;
+        if (this.debug) {
+            v = new LayoutGraph();
+        } else {
+            v = this._layoutGraph.add();
+        }
         v.clear();
         return v;
     }
@@ -1439,12 +1454,22 @@ export class LayoutGraphObjectPool {
         uniformType: Type = Type.UNKNOWN,
         offset = 0,
     ): UniformData {
-        const v = this._uniformData.add();
+        let v: UniformData;
+        if (this.debug) {
+            v = new UniformData();
+        } else {
+            v = this._uniformData.add();
+        }
         v.reset(uniformID, uniformType, offset);
         return v;
     }
     createUniformBlockData (): UniformBlockData {
-        const v = this._uniformBlockData.add();
+        let v: UniformBlockData;
+        if (this.debug) {
+            v = new UniformBlockData();
+        } else {
+            v = this._uniformBlockData.add();
+        }
         v.reset();
         return v;
     }
@@ -1453,7 +1478,12 @@ export class LayoutGraphObjectPool {
         type: Type = Type.UNKNOWN,
         count = 1,
     ): DescriptorData {
-        const v = this._descriptorData.add();
+        let v: DescriptorData;
+        if (this.debug) {
+            v = new DescriptorData();
+        } else {
+            v = this._descriptorData.add();
+        }
         v.reset(descriptorID, type, count);
         return v;
     }
@@ -1462,7 +1492,12 @@ export class LayoutGraphObjectPool {
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
         capacity = 0,
     ): DescriptorBlockData {
-        const v = this._descriptorBlockData.add();
+        let v: DescriptorBlockData;
+        if (this.debug) {
+            v = new DescriptorBlockData();
+        } else {
+            v = this._descriptorBlockData.add();
+        }
         v.reset(type, visibility, capacity);
         return v;
     }
@@ -1470,7 +1505,12 @@ export class LayoutGraphObjectPool {
         slot = 0xFFFFFFFF,
         capacity = 0,
     ): DescriptorSetLayoutData {
-        const v = this._descriptorSetLayoutData.add();
+        let v: DescriptorSetLayoutData;
+        if (this.debug) {
+            v = new DescriptorSetLayoutData();
+        } else {
+            v = this._descriptorSetLayoutData.add();
+        }
         v.reset(slot, capacity);
         return v;
     }
@@ -1478,52 +1518,102 @@ export class LayoutGraphObjectPool {
         descriptorSetLayout: DescriptorSetLayout | null = null,
         descriptorSet: DescriptorSet | null = null,
     ): DescriptorSetData {
-        const v = this._descriptorSetData.add();
+        let v: DescriptorSetData;
+        if (this.debug) {
+            v = new DescriptorSetData();
+        } else {
+            v = this._descriptorSetData.add();
+        }
         v.reset(descriptorSetLayout, descriptorSet);
         return v;
     }
     createPipelineLayoutData (): PipelineLayoutData {
-        const v = this._pipelineLayoutData.add();
+        let v: PipelineLayoutData;
+        if (this.debug) {
+            v = new PipelineLayoutData();
+        } else {
+            v = this._pipelineLayoutData.add();
+        }
         v.reset();
         return v;
     }
     createShaderBindingData (): ShaderBindingData {
-        const v = this._shaderBindingData.add();
+        let v: ShaderBindingData;
+        if (this.debug) {
+            v = new ShaderBindingData();
+        } else {
+            v = this._shaderBindingData.add();
+        }
         v.reset();
         return v;
     }
     createShaderLayoutData (): ShaderLayoutData {
-        const v = this._shaderLayoutData.add();
+        let v: ShaderLayoutData;
+        if (this.debug) {
+            v = new ShaderLayoutData();
+        } else {
+            v = this._shaderLayoutData.add();
+        }
         v.reset();
         return v;
     }
     createTechniqueData (): TechniqueData {
-        const v = this._techniqueData.add();
+        let v: TechniqueData;
+        if (this.debug) {
+            v = new TechniqueData();
+        } else {
+            v = this._techniqueData.add();
+        }
         v.reset();
         return v;
     }
     createEffectData (): EffectData {
-        const v = this._effectData.add();
+        let v: EffectData;
+        if (this.debug) {
+            v = new EffectData();
+        } else {
+            v = this._effectData.add();
+        }
         v.reset();
         return v;
     }
     createShaderProgramData (): ShaderProgramData {
-        const v = this._shaderProgramData.add();
+        let v: ShaderProgramData;
+        if (this.debug) {
+            v = new ShaderProgramData();
+        } else {
+            v = this._shaderProgramData.add();
+        }
         v.reset();
         return v;
     }
     createRenderStageData (): RenderStageData {
-        const v = this._renderStageData.add();
+        let v: RenderStageData;
+        if (this.debug) {
+            v = new RenderStageData();
+        } else {
+            v = this._renderStageData.add();
+        }
         v.reset();
         return v;
     }
     createRenderPhaseData (): RenderPhaseData {
-        const v = this._renderPhaseData.add();
+        let v: RenderPhaseData;
+        if (this.debug) {
+            v = new RenderPhaseData();
+        } else {
+            v = this._renderPhaseData.add();
+        }
         v.reset();
         return v;
     }
     createLayoutGraphData (): LayoutGraphData {
-        const v = this._layoutGraphData.add();
+        let v: LayoutGraphData;
+        if (this.debug) {
+            v = new LayoutGraphData();
+        } else {
+            v = this._layoutGraphData.add();
+        }
         v.clear();
         return v;
     }
@@ -1546,6 +1636,7 @@ export class LayoutGraphObjectPool {
     private readonly _renderStageData: RecyclePool<RenderStageData>;
     private readonly _renderPhaseData: RecyclePool<RenderPhaseData>;
     private readonly _layoutGraphData: RecyclePool<LayoutGraphData>;
+    public debug = false;
 }
 
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB): void {
