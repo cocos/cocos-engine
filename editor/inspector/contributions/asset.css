@@ -62,6 +62,11 @@
     opacity: 0.55;
 }
 
+:host > .container > .header > .location {
+    display: none;
+    margin-right: 4px;
+}
+
 :host > .container > .header > .copy {
     margin-right: 4px;
 }
@@ -116,6 +121,10 @@
 :host > .container > .content > section > ui-panel:only-child {
     flex: 1;
     min-height: 0;
+}
+
+:host([uuid]) > .container > .header > .location {
+    display: inline-flex;
 }
 
 :host([sub-type="material"]) > .container > .content,

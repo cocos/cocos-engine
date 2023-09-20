@@ -21,6 +21,9 @@ exports.template = `
         <ui-button class="reset tiny" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset" color></ui-icon>
         </ui-button>
+        <ui-button class="location transparent" icon tooltip="i18n:ENGINE.assets.locate_asset">
+            <ui-icon value="location"></ui-icon>
+        </ui-button>
         <ui-button class="copy transparent" icon tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
@@ -40,6 +43,7 @@ exports.$ = {
     container: '.container',
     header: '.header',
     content: '.content',
+    location: '.location',
     copy: '.copy',
     icon: '.icon',
     image: '.image',
@@ -226,6 +230,13 @@ const Elements = {
             });
 
             panel.$.icon.addEventListener('click', (event) => {
+                event.stopPropagation();
+                panel.uuidList.forEach((uuid) => {
+                    Editor.Message.request('assets', 'ui-kit:touch-asset', uuid);
+                });
+            });
+
+            panel.$.location.addEventListener('click', (event) => {
                 event.stopPropagation();
                 panel.uuidList.forEach((uuid) => {
                     Editor.Message.request('assets', 'ui-kit:touch-asset', uuid);
