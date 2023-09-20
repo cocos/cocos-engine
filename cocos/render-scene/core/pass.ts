@@ -434,6 +434,7 @@ export class Pass {
         const value = info && info.value;
         const texName = value ? `${value as string}${getStringFromType(type)}` : getDefaultFromType(type) as string;
         const textureBase = builtinResMgr.get<TextureBase>(texName);
+        if (!textureBase) return;
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerInfo = info && info.samplerHash !== undefined
             ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
