@@ -25,7 +25,7 @@
 import { Texture2D } from '../../../asset/assets';
 import { Rect, Size, Vec2 } from '../../../core';
 import { SpriteFrame } from '../../assets';
-import { IRenderData } from './text-processing';
+import { IRenderData, LetterInfo } from './text-processing';
 
 export class TextOutputLayoutData {
     // public parsedStringStyle; // Prepare for merging richtext
@@ -43,6 +43,8 @@ export class TextOutputLayoutData {
 
     public startPosition = Vec2.ZERO.clone(); // ttf
 
+    public lettersInfo: LetterInfo[] = []; // only bmfont use
+
     public reset (): void {
         this.parsedString.length = 0;
         this.nodeContentSize.set(0, 0);
@@ -50,6 +52,7 @@ export class TextOutputLayoutData {
         this.canvasPadding.set();
         this.contentSizeExtend.set();
         this.startPosition.set();
+        this.lettersInfo.length = 0;
     }
 }
 

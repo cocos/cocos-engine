@@ -31,6 +31,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
+import { TextStyle } from './text-style';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -88,12 +89,8 @@ export class CanvasPool {
 
 interface ILabelInfo {
     fontSize: number;
-    lineHeight: number;
-    hash: string;
     fontFamily: string;
     fontDesc: string;
-    hAlign: number;
-    vAlign: number;
     color: Color;
     isOutlined: boolean;
     out: Color;
@@ -131,10 +128,10 @@ class LetterTexture {
     public height = 0;
     public offsetY = 0;
     public hash: string;
-    constructor (char: string, labelInfo: ILabelInfo) {
+    constructor (char: string, labelInfo: ILabelInfo, hash: string) {
         this.char = char;
         this.labelInfo = labelInfo;
-        this.hash = `${char.charCodeAt(0)}${labelInfo.hash}`;
+        this.hash = `${char.charCodeAt(0)}${hash}`;
     }
 
     public updateRenderData (): void {
@@ -400,11 +397,22 @@ export class LetterAtlas {
         return this.fontDefDictionary.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
-        const hash = char.charCodeAt(0).toString() + labelInfo.hash;
+    public getLetterDefinitionForChar (char: string, style: TextStyle, fontScale: number): any {
+        const styleHash = style.hash;
+        const hash = char.charCodeAt(0).toString() + styleHash;
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
-            const temp = new LetterTexture(char, labelInfo);
+            const sharedLabelData: ILabelInfo = {
+                fontSize: style.fontSize,
+                fontFamily: style.fontFamily,
+                fontDesc: style.fontDesc,
+                color: style.color.clone(),
+                isOutlined: style.isOutlined,
+                out: style.outlineColor.clone(),
+                margin: style.outlineWidth,
+                fontScale,
+            };
+            const temp = new LetterTexture(char, sharedLabelData, styleHash);
             temp.updateRenderData();
             letter = this.insertLetterTexture(temp);
             temp.destroy();
@@ -414,45 +422,13 @@ export class LetterAtlas {
     }
 }
 
-export interface IShareLabelInfo {
-    fontAtlas: FontAtlas | LetterAtlas | null;
-    fontSize: number;
-    lineHeight: number;
-    hAlign: number;
-    vAlign: number;
-    hash: string;
-    fontFamily: string;
-    fontDesc: string;
-    color: Color;
-    isOutlined: boolean;
-    out: Color;
-    margin: number;
-    fontScale: number;
-}
-
-export const shareLabelInfo: IShareLabelInfo = {
-    fontAtlas: null,
-    fontSize: 0,
-    lineHeight: 0,
-    hAlign: 0,
-    vAlign: 0,
-    hash: '',
-    fontFamily: '',
-    fontDesc: 'Arial',
-    color: Color.WHITE.clone(),
-    isOutlined: false,
-    out: Color.WHITE.clone(),
-    margin: 0,
-    fontScale: 1,
-};
-
-export function computeHash (labelInfo: IShareLabelInfo): string {
+export function computeHash (color: Color, isOutlined: boolean, margin: number, outlineColor: Color, fontSize: number, fontFamily: string): string {
     const hashData = '';
-    const color = labelInfo.color.toHEX();
+    const colorHex = color.toHEX();
     let out = '';
-    if (labelInfo.isOutlined && labelInfo.margin > 0) {
-        out = out + labelInfo.margin.toString() + labelInfo.out.toHEX();
+    if (isOutlined && margin > 0) {
+        out = out + margin.toString() + outlineColor.toHEX();
     }
 
-    return hashData + labelInfo.fontSize.toString() + labelInfo.fontFamily + color + out;
+    return hashData + fontSize.toString() + fontFamily + colorHex + out;
 }

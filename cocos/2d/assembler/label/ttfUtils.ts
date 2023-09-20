@@ -46,23 +46,23 @@ export const ttfUtils =  {
         trans: UITransform,
     ): void {
         // font info // both
-        style.isSystemFontUsed = comp.useSystemFont; // 都会影响
-        style.fontSize = comp.fontSize; // 都会影响
+        style.isSystemFontUsed = comp.useSystemFont; // both
+        style.fontSize = comp.fontSize; // both
 
         // layout info
-        layout.lineHeight = comp.lineHeight; // both // 都影响
-        layout.overFlow = comp.overflow; // layout only // but change render // 在 bmfont 里会和渲染相关，ttf 不会
+        layout.lineHeight = comp.lineHeight; // both
+        layout.overFlow = comp.overflow; // layout only
         if (comp.overflow === Overflow.NONE) {
             layout.wrapping = false;
         } else if (comp.overflow === Overflow.RESIZE_HEIGHT) {
             layout.wrapping = true;
         } else {
-            layout.wrapping = comp.enableWrapText; // layout only // but change render // 在 bmfont 里会和渲染相关，ttf 不会
+            layout.wrapping = comp.enableWrapText; // layout only
         }
 
         // effect info // both
-        style.isBold = comp.isBold; // 可能会影响到 context 的测量，所以和排版相关 // 和渲染相关
-        style.isItalic = comp.isItalic; // 可能会影响到 context 的测量，所以和排版相关 // 和渲染相关
+        style.isBold = comp.isBold;
+        style.isItalic = comp.isItalic;
 
         // outline// both
         const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
@@ -71,7 +71,7 @@ export const ttfUtils =  {
             style.outlineColor.set(comp.outlineColor);
             style.outlineWidth = comp.outlineWidth;
         } else {
-            style.isOutlined = false; // 由于影响到了canvas 的宽度，所以和排版相关 // 和渲染相关
+            style.isOutlined = false;
         }
 
         // shadow// both
@@ -83,15 +83,15 @@ export const ttfUtils =  {
             style.shadowOffsetX = comp.shadowOffset.x;
             style.shadowOffsetY = comp.shadowOffset.y;
         } else {
-            style.hasShadow = false; // 由于影响到了canvas 的宽度，所以和排版相关 //和渲染相关
+            style.hasShadow = false;
         }
 
-        layout.horizontalAlign = comp.horizontalAlign; // render Only // 由于影响起始位置的计算，所以和排版相关 // 和渲染相关
-        layout.verticalAlign = comp.verticalAlign; // render Only // 由于影响起始位置的计算，所以和排版相关 // 和渲染相关
+        layout.horizontalAlign = comp.horizontalAlign; // both
+        layout.verticalAlign = comp.verticalAlign; // both
 
-        // node info // both // 怎么触发 dirty
-        outputLayoutData.nodeContentSize.width = outputLayoutData.canvasSize.width = trans.width; // 这儿的更新一定都会影响的
-        outputLayoutData.nodeContentSize.height = outputLayoutData.canvasSize.height = trans.height; // 这儿的更新一定都会影响的
+        // node info // both
+        outputLayoutData.nodeContentSize.width = outputLayoutData.canvasSize.width = trans.width;
+        outputLayoutData.nodeContentSize.height = outputLayoutData.canvasSize.height = trans.height;
     },
 
     // render Only
@@ -123,9 +123,9 @@ export const ttfUtils =  {
         }
     },
 
-    // 进行统一调用
     updateLayoutData (comp: Label): void {
-        if (comp.layoutDirty) {
+        // Todo: dirtyFlag
+        if (comp.assemblerData) {
             const trans = comp.node._uiProps.uiTransformComp!;
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
@@ -134,7 +134,7 @@ export const ttfUtils =  {
             style.fontScale = view.getScaleX();
             this.updateLayoutProcessingData(style, layout, outputLayoutData, comp, trans);
             // use canvas in assemblerData // to do to optimize
-            processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
+            processing.setCanvasUsed(comp.assemblerData.canvas, comp.assemblerData.context);
             style.fontFamily = this._updateFontFamily(comp);
 
             // TextProcessing
@@ -142,7 +142,6 @@ export const ttfUtils =  {
             comp.actualFontSize = style.actualFontSize;
             trans.setContentSize(outputLayoutData.nodeContentSize);
             comp.contentWidth = outputLayoutData.nodeContentSize.width;
-            comp._resetLayoutDirty();
         }
     },
 
@@ -150,8 +149,7 @@ export const ttfUtils =  {
         if (!comp.renderData) { return; }
 
         if (comp.renderData.vertDirty) {
-            this.updateLayoutData(comp); // 需要注意的是要防止在两个函数中间被修改 // 但是这里的修改应该是不会影响到排版的
-
+            this.updateLayoutData(comp);// Todo: move to layout manager
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
             const layout = comp.textLayout;
@@ -162,6 +160,7 @@ export const ttfUtils =  {
 
             this._resetDynamicAtlas(comp);
 
+            processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
             processing.generateRenderInfo(false, style, layout, outputLayoutData, outputRenderData, comp.string, this.generateVertexData);
 
             const renderData = comp.renderData;

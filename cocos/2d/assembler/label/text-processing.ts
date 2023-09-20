@@ -26,12 +26,12 @@ import { cclegacy } from '@base/global';
 import { log, logID, warn } from '@base/debug';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
-import { Color, Pool, Rect, Vec2 } from '../../../core';
+import { Color, Rect, Vec2 } from '../../../core';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
 import { BASELINE_RATIO, fragmentText, getBaselineOffset, isUnicodeCJK, isUnicodeSpace, safeMeasureText } from '../../utils/text-utils';
-import { CanvasPool, ISharedLabelData, shareLabelInfo } from './font-utils';
+import { CanvasPool, ISharedLabelData } from './font-utils';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
@@ -55,7 +55,7 @@ export interface IRenderData {
     color: Color;
 }
 
-class LetterInfo {
+export class LetterInfo {
     public char = '';
     public valid = true;
     public x = 0;
@@ -75,7 +75,6 @@ export class TextProcessing {
 
     public destroy (): void {
         CanvasPool.getInstance().put(this._canvasData!);
-        this._lettersInfo.length = 0;
     }
 
     public processingString (
@@ -98,7 +97,10 @@ export class TextProcessing {
                 if (loopTime > MAX_CALCULATION_NUM) {
                     this._fontScale = 1;
                 } else {
-                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height); // Current Canvas Size max dimension
+                    const maxValue = Math.max(
+                        outputLayoutData.canvasSize.width,
+                        outputLayoutData.canvasSize.height,
+                    ); // Current Canvas Size max dimension
                     const canvasScaleToMaxSizeRatio = MAX_SIZE / maxValue;
                     this._fontScale *=  canvasScaleToMaxSizeRatio;
                     this._fontScale = Math.max(1, this._fontScale);
@@ -113,7 +115,6 @@ export class TextProcessing {
             } else {
                 this._fontScale = 1;
             }
-            shareLabelInfo.fontScale = this._fontScale;
             this._setupBMFontOverflowMetrics(layout, outputLayoutData);
             this._updateFontScale(style);
             this._computeHorizontalKerningForText(style, layout, inputString);
@@ -156,7 +157,6 @@ export class TextProcessing {
     private _canvas: HTMLCanvasElement | null = null;
     private _canvasData: ISharedLabelData | null = null;
 
-    private _lettersInfo: LetterInfo[] = [];
     private _tmpRect = new Rect();
 
     private _maxFontSize = 100;
@@ -721,7 +721,7 @@ export class TextProcessing {
         let textFragment = '';
 
         for (let i = 0, line = 0, l = inputString.length; i < l; ++i) {
-            const letterInfo = this._lettersInfo[i];
+            const letterInfo = outputLayoutData.lettersInfo[i];
             if (!letterInfo.valid) { continue; }
             if (line === letterInfo.line) {
                 textFragment += letterInfo.char;
@@ -768,12 +768,12 @@ export class TextProcessing {
                 lineIndex++;
                 nextTokenX = 0;
                 nextTokenY -= layout.lineHeight * this._getFontScale(style, layout) + _lineSpacing;
-                this._recordPlaceholderInfo(index, character);
+                this._recordPlaceholderInfo(index, character, style.hash, outputLayoutData.lettersInfo);
                 index++;
                 continue;
             }
 
-            const tokenLen = nextTokenFunc(style, layout, _string, index, textLen);
+            const tokenLen = nextTokenFunc(style, layout, _string, index, textLen, this._fontScale);
             let tokenHighestY = highestY;
             let tokenLowestY = lowestY;
             let tokenRight = letterRight;
@@ -785,18 +785,18 @@ export class TextProcessing {
                 const letterIndex = index + tmp;
                 character = _string.charAt(letterIndex);
                 if (character === '\r') {
-                    this._recordPlaceholderInfo(letterIndex, character);
+                    this._recordPlaceholderInfo(letterIndex, character, style.hash, outputLayoutData.lettersInfo);
                     continue;
                 }
-                letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
+                letterDef = style.fontAtlas!.getLetterDefinitionForChar(character, style, this._fontScale);
                 if (!letterDef) {
-                    this._recordPlaceholderInfo(letterIndex, character);
+                    this._recordPlaceholderInfo(letterIndex, character, style.hash, outputLayoutData.lettersInfo);
                     log(`Can't find letter definition in texture atlas ${
                         style.fntConfig!.atlasName} for letter:${character}`);
                     continue;
                 }
 
-                const letterX = nextLetterX + letterDef.offsetX * style.bmfontScale - shareLabelInfo.margin;
+                const letterX = nextLetterX + letterDef.offsetX * style.bmfontScale - style.outlineWidth;
 
                 if (layout.wrapping
                     && layout.maxLineWidth > 0
@@ -815,7 +815,7 @@ export class TextProcessing {
                 }
 
                 letterPosition.y = nextTokenY - letterDef.offsetY * style.bmfontScale;
-                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex);
+                this._recordLetterInfo(letterPosition, character, letterIndex, lineIndex, style.hash, style.fontAtlas, outputLayoutData.lettersInfo);
 
                 if (letterIndex + 1 < layout.horizontalKerning.length && letterIndex < textLen - 1) {
                     nextLetterX += layout.horizontalKerning[letterIndex + 1] * style.bmfontScale;
@@ -863,10 +863,10 @@ export class TextProcessing {
         outputLayoutData.nodeContentSize.width = layout.textWidthTemp;
         outputLayoutData.nodeContentSize.height = layout.textHeightTemp;
         if (layout.textWidthTemp <= 0) {
-            outputLayoutData.nodeContentSize.width = parseFloat(longestLine.toFixed(2)) + shareLabelInfo.margin * 2;
+            outputLayoutData.nodeContentSize.width = parseFloat(longestLine.toFixed(2)) + style.outlineWidth * 2;
         }
         if (layout.textHeightTemp <= 0) {
-            outputLayoutData.nodeContentSize.height = parseFloat(layout.textDesiredHeight.toFixed(2)) + shareLabelInfo.margin * 2;
+            outputLayoutData.nodeContentSize.height = parseFloat(layout.textDesiredHeight.toFixed(2)) + style.outlineWidth * 2;
         }
 
         layout.tailoredTopY = outputLayoutData.nodeContentSize.height;
@@ -881,36 +881,44 @@ export class TextProcessing {
         return true;
     }
 
-    private _recordPlaceholderInfo (letterIndex: number, char: string): void {
-        if (letterIndex >= this._lettersInfo.length) {
+    private _recordPlaceholderInfo (letterIndex: number, char: string, hash: string, lettersInfo: LetterInfo[]): void {
+        if (letterIndex >= lettersInfo.length) {
             const tmpInfo = new LetterInfo();
-            this._lettersInfo.push(tmpInfo);
+            lettersInfo.push(tmpInfo);
         }
 
-        this._lettersInfo[letterIndex].char = char;
-        this._lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
-        this._lettersInfo[letterIndex].valid = false;
+        lettersInfo[letterIndex].char = char;
+        lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${hash}`;
+        lettersInfo[letterIndex].valid = false;
     }
 
-    private _recordLetterInfo (letterPosition: Vec2, character: string, letterIndex: number, lineIndex: number): void {
-        if (letterIndex >= this._lettersInfo.length) {
+    private _recordLetterInfo (
+        letterPosition: Vec2,
+        character: string,
+        letterIndex: number,
+        lineIndex: number,
+        hash: string,
+        fontAtlas,
+        lettersInfo,
+    ): void {
+        if (letterIndex >= lettersInfo.length) {
             const tmpInfo = new LetterInfo();
-            this._lettersInfo.push(tmpInfo);
+            lettersInfo.push(tmpInfo);
         }
 
         const char = character.charCodeAt(0);
-        const key = `${char}${shareLabelInfo.hash}`;
+        const key = `${char}${hash}`;
 
-        this._lettersInfo[letterIndex].line = lineIndex;
-        this._lettersInfo[letterIndex].char = character;
-        this._lettersInfo[letterIndex].hash = key;
-        this._lettersInfo[letterIndex].valid = shareLabelInfo.fontAtlas!.getLetter(key).valid;
-        this._lettersInfo[letterIndex].x = letterPosition.x;
-        this._lettersInfo[letterIndex].y = letterPosition.y;
+        lettersInfo[letterIndex].line = lineIndex;
+        lettersInfo[letterIndex].char = character;
+        lettersInfo[letterIndex].hash = key;
+        lettersInfo[letterIndex].valid = fontAtlas.getLetter(key).valid;
+        lettersInfo[letterIndex].x = letterPosition.x;
+        lettersInfo[letterIndex].y = letterPosition.y;
     }
 
     // processingString
-    private _getFirstWordLen (style: TextStyle, layout: TextLayout, text: string, startIndex: number, textLen: number): number {
+    private _getFirstWordLen (style: TextStyle, layout: TextLayout, text: string, startIndex: number, textLen: number, fontScale: number): number {
         let character = text.charAt(startIndex);
         if (isUnicodeCJK(character)
             || character === '\n'
@@ -919,7 +927,7 @@ export class TextProcessing {
         }
 
         let len = 1;
-        let letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
+        let letterDef = style.fontAtlas!.getLetterDefinitionForChar(character, style, fontScale);
         if (!letterDef) {
             return len;
         }
@@ -928,12 +936,11 @@ export class TextProcessing {
         for (let index = startIndex + 1; index < textLen; ++index) {
             character = text.charAt(index);
 
-            letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
+            letterDef = style.fontAtlas!.getLetterDefinitionForChar(character, style, fontScale);
             if (!letterDef) {
                 break;
             }
             letterX = nextLetterX + letterDef.offsetX * style.bmfontScale;
-
             if (letterX + letterDef.w * style.bmfontScale > layout.maxLineWidth
                 && !isUnicodeSpace(character)
                 && layout.maxLineWidth > 0) {
@@ -947,7 +954,6 @@ export class TextProcessing {
             }
             len++;
         }
-
         return len;
     }
 
@@ -1018,13 +1024,12 @@ export class TextProcessing {
         let letterClamp = false;
         const _string = inputString;
         for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
-            const letterInfo = process._lettersInfo[ctr];
+            const letterInfo = outputLayoutData.lettersInfo[ctr];
             if (letterInfo.valid) {
-                const letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo);
+                const letterDef = style.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, style, process._fontScale);
                 if (!letterDef) {
                     continue;
                 }
-
                 const px = letterInfo.x + letterDef.w * style.bmfontScale;
                 const lineIndex = letterInfo.line;
                 if (layout.textWidthTemp > 0) {
@@ -1043,7 +1048,6 @@ export class TextProcessing {
                 }
             }
         }
-
         return letterClamp;
     }
 
@@ -1119,16 +1123,16 @@ export class TextProcessing {
         inputString: string,
         callback,
     ): boolean {
-        const texture =  style.spriteFrame ? style.spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
+        const texture =  style.spriteFrame ? style.spriteFrame.texture : style.fontAtlas!.getTexture();
 
         const appX = outputRenderData.uiTransAnchorX * outputLayoutData.nodeContentSize.width;
         const appY = outputRenderData.uiTransAnchorY * outputLayoutData.nodeContentSize.height;
 
         const ret = true;
         for (let ctr = 0, l = inputString.length; ctr < l; ++ctr) {
-            const letterInfo = this._lettersInfo[ctr];
+            const letterInfo = outputLayoutData.lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
-            const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
+            const letterDef = style.fontAtlas!.getLetter(letterInfo.hash);
             if (!letterDef) {
                 warn('Can\'t find letter in this bitmap-font');
                 continue;
