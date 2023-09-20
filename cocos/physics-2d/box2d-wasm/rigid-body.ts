@@ -232,11 +232,11 @@ export class B2RigidBody2D implements IRigidBody2D {
 
     setType (v: ERigidBody2DType): void {
         if (v === ERigidBody2DType.Dynamic) {
-            this._body!.SetType(B2.BodyType.b2_dynamicBody);
+            this._body!.SetType(B2.BodyType.b2_dynamicBody as B2.BodyType);
         } else if (v === ERigidBody2DType.Kinematic) {
-            this._body!.SetType(B2.BodyType.b2_kinematicBody);
+            this._body!.SetType(B2.BodyType.b2_kinematicBody as B2.BodyType);
         } else if (v === ERigidBody2DType.Static) {
-            this._body!.SetType(B2.BodyType.b2_staticBody);
+            this._body!.SetType(B2.BodyType.b2_staticBody as B2.BodyType);
         }
     }
 
