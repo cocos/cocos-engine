@@ -66,7 +66,7 @@ void SystemWindow::initWindowProperty(SDL_Window* window, const char *title, int
     [view addSubview:newView];
     [nsWindow.contentView setWantsBestResolutionOpenGLSurface:YES];
     [nsWindow makeKeyAndOrderFront:nil];
-    _windowHandle = reinterpret_cast<uintptr_t>(nsWindow.contentView) ;
+    _windowHandle = reinterpret_cast<uintptr_t>(newView);
 
     auto dpr = [nsWindow backingScaleFactor];
     _width  = w * dpr;
