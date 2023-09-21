@@ -254,6 +254,19 @@ export function radiansToDegrees (angle): number {
     return angle * macro.DEG;
 }
 
+/**
+ * @engineInternal
+ */
+export function applyMixins (derivedCtor: any, baseCtors: any[]): void {
+    baseCtors.forEach((baseCtor) => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+            if (name !== 'constructor') {
+                Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name)!);
+            }
+        });
+    });
+}
+
 // if (TEST) {
 //     // editor mocks using in unit tests
 //     if (typeof Editor === 'undefined') {
