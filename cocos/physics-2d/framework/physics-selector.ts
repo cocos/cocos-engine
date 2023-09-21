@@ -297,6 +297,7 @@ const ENTIRE_JOINT: IEntireJoint = {
     impl: null,
 
     initialize: FUNC,
+    apply: FUNC,
 
     setDampingRatio: FUNC,
     setFrequency: FUNC,
