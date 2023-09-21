@@ -535,32 +535,33 @@ void CCWGPUCommandBuffer::draw(const DrawInfo &info) {
     bindStates();
 
     auto *ia = static_cast<CCWGPUInputAssembler *>(_gpuCommandBufferObj->stateCache.inputAssembler);
-    if (ia->getIndirectBuffer()) {
-        auto *indirectBuffer = static_cast<CCWGPUBuffer *>(ia->getIndirectBuffer());
-        bool multiDrawIndirectSupport = false;
+    // TODO(Zeqiang): implement indirect drawing
+    if (0) {
+        // auto *indirectBuffer = static_cast<CCWGPUBuffer *>(ia->getIndirectBuffer());
+        // bool multiDrawIndirectSupport = false;
 
-        // indirectSupport not support, emscripten webgpu ver < 2021
-        // https://github.com/gpuweb/gpuweb/issues/1354
-        if (multiDrawIndirectSupport) {
-            // todo
-        } else {
-            if (info.indexCount) {
-                // indexedIndirect not supported, emsdk 2.0.26
-                uint32_t drawInfoCount = indirectBuffer->getCount();
-                for (size_t i = 0; i < drawInfoCount; i++) {
-                    wgpuRenderPassEncoderDrawIndexedIndirect(_gpuCommandBufferObj->wgpuRenderPassEncoder,
-                                                             indirectBuffer->gpuBufferObject()->wgpuBuffer,
-                                                             indirectBuffer->getOffset() + i * sizeof(CCWGPUDrawIndexedIndirectObject));
-                }
-            } else {
-                uint32_t drawInfoCount = indirectBuffer->getCount();
-                for (size_t i = 0; i < drawInfoCount; i++) {
-                    wgpuRenderPassEncoderDrawIndirect(_gpuCommandBufferObj->wgpuRenderPassEncoder,
-                                                      indirectBuffer->gpuBufferObject()->wgpuBuffer,
-                                                      indirectBuffer->getOffset() + i * sizeof(CCWGPUDrawIndirectObject));
-                }
-            }
-        }
+        // // indirectSupport not support, emscripten webgpu ver < 2021
+        // // https://github.com/gpuweb/gpuweb/issues/1354
+        // if (multiDrawIndirectSupport) {
+        //     // todo
+        // } else {
+        //     if (info.indexCount) {
+        //         // indexedIndirect not supported, emsdk 2.0.26
+        //         uint32_t drawInfoCount = indirectBuffer->getCount();
+        //         for (size_t i = 0; i < drawInfoCount; i++) {
+        //             wgpuRenderPassEncoderDrawIndexedIndirect(_gpuCommandBufferObj->wgpuRenderPassEncoder,
+        //                                                      indirectBuffer->gpuBufferObject()->wgpuBuffer,
+        //                                                      indirectBuffer->getOffset() + i * sizeof(CCWGPUDrawIndexedIndirectObject));
+        //         }
+        //     } else {
+        //         uint32_t drawInfoCount = indirectBuffer->getCount();
+        //         for (size_t i = 0; i < drawInfoCount; i++) {
+        //             wgpuRenderPassEncoderDrawIndirect(_gpuCommandBufferObj->wgpuRenderPassEncoder,
+        //                                               indirectBuffer->gpuBufferObject()->wgpuBuffer,
+        //                                               indirectBuffer->getOffset() + i * sizeof(CCWGPUDrawIndirectObject));
+        //         }
+        //     }
+        // }
     } else {
         auto *indexBuffer = static_cast<CCWGPUBuffer *>(ia->getIndexBuffer());
         bool drawIndexed = indexBuffer && info.indexCount;
