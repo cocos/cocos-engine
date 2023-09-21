@@ -249,15 +249,13 @@ exports.listeners = {
         }
 
         /**
-         * Hack：stop preview
-         * For the reason: preview-set-property and cancel-preview-set-property is command machining.
-         * Changes between component properties are not controlled to be strictly reversible.
-         * So stop preview some properties.
+         * Some assets don`t need to preview, like:
+         * cc.AnimationClip 
          */
-        const stopPreviewOnTheseTooltips = [
-            'i18n:ENGINE.animation.default_clip',
+        const notNeedToPreview = [
+            'cc.AnimationClip',
         ];
-        if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
+        if (notNeedToPreview.includes(dump.type)) {
             return;
         }
 
