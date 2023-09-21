@@ -88,10 +88,18 @@ CCProgram cluster-main %{
       vec3 center = (cluster.minBounds + cluster.maxBounds) * 0.5;
       float sphereRadius = sqrt(dot(halfExtents, halfExtents));
       light.cc_lightDir = ((cc_matView) * (vec4(light.cc_lightDir.xyz, 1.0)));
-      light.cc_lightDir.xyz = normalize((light.cc_lightDir - ((cc_matView) * (vec4(0,0,0, 1.0)))).xyz).xyz;
+      light.cc_lightDir.xyz = (light.cc_lightDir - ((cc_matView) * (vec4(0,0,0, 1.0)))).xyz;
+      if (length(light.cc_lightDir.xyz) > 0.1) {
+        light.cc_lightDir.xyz = normalize(light.cc_lightDir.xyz);
+      }
       vec3 v = center - light.cc_lightPos.xyz;
       float lenSq = dot(v, v);
       float v1Len = dot(v, light.cc_lightDir.xyz);
+      if(light.cc_lightDir.w == 1.0) {
+        v1Len = sqrt(lenSq);
+        return (v1Len <= sphereRadius  + light.cc_lightSizeRangeAngle.y);
+      }
+
       float cosAngle = light.cc_lightSizeRangeAngle.z;
       float sinAngle = sqrt(1.0 - cosAngle * cosAngle);
       float distanceClosestPoint = cosAngle * sqrt(lenSq - v1Len * v1Len) - v1Len * sinAngle;
@@ -108,7 +116,7 @@ CCProgram cluster-main %{
   layout(local_size_x = LOCAL_SIZE_X, local_size_y = LOCAL_SIZE_Y, local_size_z = LOCAL_SIZE_Z) in;
   void main()
   {
-    uint visibleLights[100];
+    uint visibleLights[200];
     uint visibleCount = 0u;
     uint clusterIndex = gl_GlobalInvocationID.z * gl_WorkGroupSize.x * gl_WorkGroupSize.y +
       gl_GlobalInvocationID.y * gl_WorkGroupSize.x +
@@ -127,7 +135,7 @@ CCProgram cluster-main %{
       }
       barrier();
       for (uint i = 0u; i < batchSize; i++) {
-        if (visibleCount < 100u && ccLightIntersectsCluster(lights[i], cluster)) {
+        if (visibleCount < 200u && ccLightIntersectsCluster(lights[i], cluster)) {
           visibleLights[visibleCount] = lightOffset + i;
           visibleCount++;
         }

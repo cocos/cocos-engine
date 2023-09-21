@@ -31,6 +31,7 @@
 #include "platform/BasePlatform.h"
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
+#include "platform/interfaces/modules/ISystemWindowManager.h"
 
 namespace {
 std::unordered_map<int, cc::KeyCode> gKeyMap = {
@@ -194,8 +195,12 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             break;
         }
         case SDL_WINDOWEVENT_HIDDEN: {
-            ev.type = WindowEvent::Type::HIDDEN;
-            events::WindowEvent::broadcast(ev);
+            SDL_Window *window = SDL_GetWindowFromID(windowId);
+            if (!isWindowMinimized(window)) {
+                int32_t v = SDL_GetWindowFlags(window);
+                ev.type = WindowEvent::Type::HIDDEN;
+                events::WindowEvent::broadcast(ev);
+            }
             break;
         }
         case SDL_WINDOWEVENT_MINIMIZED: {
@@ -399,6 +404,14 @@ Vec2 SDLHelper::getWindowPosition(SDL_Window *window) {
     int y = 0;
     SDL_GetWindowPosition(window, &x, &y);
     return Vec2(x, y);
+}
+
+void SDLHelper::stopTextInput() {
+    SDL_StopTextInput();
+}
+
+bool SDLHelper::isWindowMinimized(SDL_Window *window) {
+    return SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED;
 }
 
 } // namespace cc

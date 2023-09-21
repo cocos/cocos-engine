@@ -77,7 +77,7 @@ export class B2Shape2D implements IBaseShape {
     }
 
     onDisable (): void {
-        PhysicsSystem2D.instance._callAfterStep(this, this._destroy);
+        PhysicsSystem2D.instance._callAfterStep(this, this.destroy);
     }
 
     start (): void {
@@ -92,7 +92,7 @@ export class B2Shape2D implements IBaseShape {
     }
 
     apply (): void {
-        this._destroy();
+        this.destroy();
         if (this.collider.enabledInHierarchy) {
             this._init();
         }
@@ -200,7 +200,7 @@ export class B2Shape2D implements IBaseShape {
         this._inited = true;
     }
 
-    _destroy (): void {
+    destroy (): void {
         if (!this._inited) return;
 
         const fixtures = this._fixtures;

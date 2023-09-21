@@ -33,7 +33,7 @@
 
 namespace cc::gfx {
 
-void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout) {
+void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout, bool skipEmpty) {
     ccstd::hash_t hash = descriptorSets.size() * 2 + 1;
     ccstd::hash_combine(hash, descriptorSets.size());
     std::string label = "";
@@ -41,16 +41,17 @@ void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descripto
     for (size_t i = 0; i < descriptorSets.size(); ++i) {
         auto* descriptorSet = static_cast<CCWGPUDescriptorSet*>(descriptorSets[i]);
         if (descriptorSet && descriptorSet->getHash() != 0) {
-            auto* descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout*>(descriptorSet->getLayout());
+            auto* tLayout = const_cast<DescriptorSetLayout*>(descriptorSet->getLayout());
+            auto* descriptorSetLayout = static_cast<CCWGPUDescriptorSetLayout*>(tLayout);
             auto* wgpuBindGroupLayout = static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::getBindGroupLayoutByHash(descriptorSet->getHash()));
             descriptorSetLayouts.push_back(wgpuBindGroupLayout);
             ccstd::hash_combine(hash, i);
             ccstd::hash_combine(hash, descriptorSet->getHash());
-            label += std::to_string(descriptorSet->getHash()) + "-" + descriptorSet->label + "-" + std::to_string(descriptorSetLayout->getHash()) + " ";
-        } else {
-            descriptorSetLayouts.push_back(static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout()));
+            //label += std::to_string(descriptorSet->getHash()) + "-" + descriptorSet->label + "-" + std::to_string(descriptorSetLayout->getHash()) + " ";
+        } else if (!skipEmpty) {
+            auto bindgroup = static_cast<WGPUBindGroupLayout>(CCWGPUDescriptorSetLayout::defaultBindGroupLayout());
+            descriptorSetLayouts.push_back(bindgroup);
             ccstd::hash_combine(hash, i);
-            ccstd::hash_combine(hash, 0);
         }
     }
 
@@ -140,23 +141,23 @@ fn frag_main() -> @location(0) vec4<f32> {
 }
         )";
 
-        WGPUShaderModuleWGSLDescriptor wgslShaderDescVert;
-        wgslShaderDescVert.source = clearQuadVert;
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescVert{};
+        wgslShaderDescVert.code = clearQuadVert;
         wgslShaderDescVert.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
         WGPUShaderModuleDescriptor shaderDescVert;
         shaderDescVert.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescVert);
         shaderDescVert.label = "clearQuadVert";
         clearPassData.vertShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescVert);
 
-        WGPUShaderModuleWGSLDescriptor wgslShaderDescFrag;
-        wgslShaderDescFrag.source = clearQuadFrag;
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescFrag{};
+        wgslShaderDescFrag.code = clearQuadFrag;
         wgslShaderDescFrag.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
         WGPUShaderModuleDescriptor shaderDescFrag;
         shaderDescFrag.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescFrag);
         shaderDescFrag.label = "clearQuadFrag";
         clearPassData.fragShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescFrag);
 
-        WGPUBindGroupLayoutEntry bufferEntry;
+        WGPUBindGroupLayoutEntry bufferEntry{};
         bufferEntry.binding = 0;
         bufferEntry.visibility = WGPUShaderStage_Fragment;
         bufferEntry.texture.sampleType = WGPUTextureSampleType_Undefined;
@@ -166,44 +167,44 @@ fn frag_main() -> @location(0) vec4<f32> {
         bufferEntry.sampler.type = WGPUSamplerBindingType_Undefined;
         bufferEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
 
-        WGPUBindGroupLayoutDescriptor bgLayoutDesc;
+        WGPUBindGroupLayoutDescriptor bgLayoutDesc{};
         bgLayoutDesc.label = "clearPassBGLayout";
         bgLayoutDesc.entryCount = 1;
         bgLayoutDesc.entries = &bufferEntry;
         clearPassData.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(wgpuDevice, &bgLayoutDesc);
 
-        WGPUPipelineLayoutDescriptor pipelineLayoutDesc;
+        WGPUPipelineLayoutDescriptor pipelineLayoutDesc{};
         pipelineLayoutDesc.label = "clearPassPipelineLayout";
         pipelineLayoutDesc.bindGroupLayoutCount = 1;
         pipelineLayoutDesc.bindGroupLayouts = &clearPassData.bindGroupLayout;
         clearPassData.pipelineLayout = wgpuDeviceCreatePipelineLayout(wgpuDevice, &pipelineLayoutDesc);
 
-        WGPUVertexState vertexState;
+        WGPUVertexState vertexState{};
         vertexState.module = clearPassData.vertShader;
         vertexState.entryPoint = "vert_main";
 
-        WGPUPrimitiveState primitiveState;
+        WGPUPrimitiveState primitiveState{};
         primitiveState.topology = WGPUPrimitiveTopology_TriangleList;
         primitiveState.stripIndexFormat = WGPUIndexFormat_Undefined;
         primitiveState.frontFace = WGPUFrontFace_CCW;
         primitiveState.cullMode = WGPUCullMode_None;
 
-        WGPUColorTargetState colorState;
+        WGPUColorTargetState colorState{};
         colorState.format = format;
         colorState.writeMask = WGPUColorWriteMask_All;
 
-        WGPUFragmentState fragState;
+        WGPUFragmentState fragState{};
         fragState.module = clearPassData.fragShader;
         fragState.entryPoint = "frag_main";
         fragState.targetCount = 1;
         fragState.targets = &colorState;
 
-        WGPUMultisampleState multisample;
+        WGPUMultisampleState multisample{};
         multisample.count = 1;
         multisample.alphaToCoverageEnabled = false;
         multisample.mask = 0xFFFFFFFF;
 
-        WGPURenderPipelineDescriptor pipelineDesc;
+        WGPURenderPipelineDescriptor pipelineDesc{};
         pipelineDesc.label = "clearPassPipeline";
         pipelineDesc.layout = clearPassData.pipelineLayout;
         pipelineDesc.vertex = vertexState;
@@ -223,7 +224,7 @@ fn frag_main() -> @location(0) vec4<f32> {
 
     auto dstView = wgpuTextureView;
 
-    WGPUBufferDescriptor bufferDesc;
+    WGPUBufferDescriptor bufferDesc{};
     bufferDesc.usage = WGPUBufferUsage_Uniform;
     bufferDesc.size = 16;
     bufferDesc.mappedAtCreation = true;
@@ -234,8 +235,7 @@ fn frag_main() -> @location(0) vec4<f32> {
     memcpy(mappedBuffer, colorArr, 16);
     wgpuBufferUnmap(uniformBuffer);
 
-    WGPUBindGroupEntry entry;
-    entry.nextInChain = nullptr;
+    WGPUBindGroupEntry entry{};
     entry.binding = 0;
     entry.sampler = wgpuDefaultHandle;
     entry.buffer = uniformBuffer;
@@ -243,22 +243,20 @@ fn frag_main() -> @location(0) vec4<f32> {
     entry.size = 16;
     entry.textureView = wgpuDefaultHandle;
 
-    WGPUBindGroupDescriptor bindgroupDesc;
+    WGPUBindGroupDescriptor bindgroupDesc{};
     bindgroupDesc.layout = clearPassData.bindGroupLayout;
     bindgroupDesc.entryCount = 1;
     bindgroupDesc.entries = &entry;
     auto bindGroup = wgpuDeviceCreateBindGroup(wgpuDevice, &bindgroupDesc);
 
-    WGPURenderPassColorAttachment colorAttachment;
+    WGPURenderPassColorAttachment colorAttachment{};
     colorAttachment.view = dstView;
     colorAttachment.resolveTarget = wgpuDefaultHandle;
     colorAttachment.loadOp = WGPULoadOp_Load;
     colorAttachment.storeOp = WGPUStoreOp_Store;
     colorAttachment.clearValue = {0.88, 0.88, 0.88, 1.0};
 
-    WGPURenderPassDescriptor rpDesc;
-    rpDesc.nextInChain = nullptr;
-    rpDesc.label = nullptr;
+    WGPURenderPassDescriptor rpDesc{};
     rpDesc.colorAttachmentCount = 1;
     rpDesc.colorAttachments = &colorAttachment;
     rpDesc.depthStencilAttachment = nullptr;
@@ -347,37 +345,37 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
 }
         )";
 
-        WGPUSamplerDescriptor samplerDesc;
+        WGPUSamplerDescriptor samplerDesc{};
         samplerDesc.label = "filterSampler";
         samplerDesc.addressModeU = WGPUAddressMode_MirrorRepeat;
         samplerDesc.addressModeV = WGPUAddressMode_MirrorRepeat;
         samplerDesc.addressModeW = WGPUAddressMode_MirrorRepeat;
         samplerDesc.magFilter = WGPUFilterMode_Linear;
         samplerDesc.minFilter = WGPUFilterMode_Linear;
-        samplerDesc.mipmapFilter = WGPUFilterMode_Linear;
+        samplerDesc.mipmapFilter = WGPUMipmapFilterMode_Linear;
         samplerDesc.lodMinClamp = 0.0;
         samplerDesc.lodMaxClamp = 32.0;
         samplerDesc.compare = WGPUCompareFunction_Undefined;
         samplerDesc.maxAnisotropy = 1;
         mipmapData.sampler = wgpuDeviceCreateSampler(wgpuDevice, &samplerDesc);
 
-        WGPUShaderModuleWGSLDescriptor wgslShaderDescVert;
-        wgslShaderDescVert.source = textureQuadVert;
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescVert{};
+        wgslShaderDescVert.code = textureQuadVert;
         wgslShaderDescVert.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
         WGPUShaderModuleDescriptor shaderDescVert;
         shaderDescVert.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescVert);
         shaderDescVert.label = "textureQuadVert";
         mipmapData.vertShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescVert);
 
-        WGPUShaderModuleWGSLDescriptor wgslShaderDescFrag;
-        wgslShaderDescFrag.source = textureQuadFrag;
+        WGPUShaderModuleWGSLDescriptor wgslShaderDescFrag{};
+        wgslShaderDescFrag.code = textureQuadFrag;
         wgslShaderDescFrag.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
         WGPUShaderModuleDescriptor shaderDescFrag;
         shaderDescFrag.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslShaderDescFrag);
         shaderDescFrag.label = "textureQuadFrag";
         mipmapData.fragShader = wgpuDeviceCreateShaderModule(wgpuDevice, &shaderDescFrag);
 
-        WGPUBindGroupLayoutEntry samplerEntry;
+        WGPUBindGroupLayoutEntry samplerEntry{};
         samplerEntry.binding = 0;
         samplerEntry.visibility = WGPUShaderStage_Fragment;
         samplerEntry.sampler.type = WGPUSamplerBindingType_Filtering;
@@ -385,7 +383,7 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         samplerEntry.texture.sampleType = WGPUTextureSampleType_Undefined;
         samplerEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
 
-        WGPUBindGroupLayoutEntry textureEntry;
+        WGPUBindGroupLayoutEntry textureEntry{};
         textureEntry.binding = 1;
         textureEntry.visibility = WGPUShaderStage_Fragment;
         textureEntry.texture.sampleType = textureSampleTypeTrait(ccTexture->getFormat());
@@ -396,44 +394,46 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         textureEntry.storageTexture.access = WGPUStorageTextureAccess_Undefined;
         WGPUBindGroupLayoutEntry entries[2] = {samplerEntry, textureEntry};
 
-        WGPUBindGroupLayoutDescriptor bgLayoutDesc;
+        WGPUBindGroupLayoutDescriptor bgLayoutDesc{};
         bgLayoutDesc.label = "fullscreenTexturedQuadBGLayout";
         bgLayoutDesc.entryCount = 2;
         bgLayoutDesc.entries = entries;
         mipmapData.bindGroupLayout = wgpuDeviceCreateBindGroupLayout(wgpuDevice, &bgLayoutDesc);
 
-        WGPUPipelineLayoutDescriptor pipelineLayoutDesc;
+        WGPUPipelineLayoutDescriptor pipelineLayoutDesc{};
         pipelineLayoutDesc.label = "fullscreenTexturedQuadPipelineLayout";
         pipelineLayoutDesc.bindGroupLayoutCount = 1;
         pipelineLayoutDesc.bindGroupLayouts = &mipmapData.bindGroupLayout;
         mipmapData.pipelineLayout = wgpuDeviceCreatePipelineLayout(wgpuDevice, &pipelineLayoutDesc);
 
-        WGPUVertexState vertexState;
+        WGPUVertexState vertexState{};
         vertexState.module = mipmapData.vertShader;
         vertexState.entryPoint = "vert_main";
+        vertexState.bufferCount = 0;
+        vertexState.buffers = nullptr;
 
-        WGPUPrimitiveState primitiveState;
+        WGPUPrimitiveState primitiveState{};
         primitiveState.topology = WGPUPrimitiveTopology_TriangleList;
         primitiveState.stripIndexFormat = WGPUIndexFormat_Undefined;
         primitiveState.frontFace = WGPUFrontFace_CCW;
         primitiveState.cullMode = WGPUCullMode_None;
 
-        WGPUColorTargetState colorState;
+        WGPUColorTargetState colorState{};
         colorState.format = format;
         colorState.writeMask = WGPUColorWriteMask_All;
 
-        WGPUFragmentState fragState;
+        WGPUFragmentState fragState{};
         fragState.module = mipmapData.fragShader;
         fragState.entryPoint = "frag_main";
         fragState.targetCount = 1;
         fragState.targets = &colorState;
 
-        WGPUMultisampleState multisample;
+        WGPUMultisampleState multisample{};
         multisample.count = 1;
         multisample.alphaToCoverageEnabled = false;
         multisample.mask = 0xFFFFFFFF;
 
-        WGPURenderPipelineDescriptor pipelineDesc;
+        WGPURenderPipelineDescriptor pipelineDesc{};
         pipelineDesc.label = "fullscreenTexturedQuadPipeline";
         pipelineDesc.layout = mipmapData.pipelineLayout;
         pipelineDesc.vertex = vertexState;
@@ -444,7 +444,7 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         mipmapData.pipeline = wgpuDeviceCreateRenderPipeline(wgpuDevice, &pipelineDesc);
     }
 
-    WGPUTextureViewDescriptor desc;
+    WGPUTextureViewDescriptor desc{};
     desc.format = format;
     desc.dimension = WGPUTextureViewDimension_2D;
     desc.baseMipLevel = fromLevel;
@@ -481,7 +481,7 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         entries[1].buffer = wgpuDefaultHandle;
         entries[1].sampler = wgpuDefaultHandle;
 
-        WGPUBindGroupDescriptor bindgroupDesc;
+        WGPUBindGroupDescriptor bindgroupDesc{};
         bindgroupDesc.layout = mipmapData.bindGroupLayout;
         bindgroupDesc.entryCount = 2;
         bindgroupDesc.entries = entries;
@@ -494,8 +494,7 @@ fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
         colorAttachment.storeOp = WGPUStoreOp_Store;
         colorAttachment.clearValue = {0.88, 0.88, 0.88, 1.0};
 
-        WGPURenderPassDescriptor rpDesc;
-        rpDesc.nextInChain = nullptr;
+        WGPURenderPassDescriptor rpDesc{};
         rpDesc.label = nullptr;
         rpDesc.colorAttachmentCount = 1;
         rpDesc.colorAttachments = &colorAttachment;

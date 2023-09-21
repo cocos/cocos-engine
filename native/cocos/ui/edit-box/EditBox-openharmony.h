@@ -26,25 +26,20 @@
 #include "EditBox.h"
 #include "cocos/application/ApplicationManager.h"
 #include "platform/openharmony/napi/NapiHelper.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace cc {
 
 class OpenHarmonyEditBox : public EditBox {
 public:
-    static void GetInterfaces(std::vector<napi_property_descriptor>& descriptors);
-    
-    static napi_value napiOnComplete(napi_env env, napi_callback_info info);
-    static napi_value napiOnTextChange(napi_env env, napi_callback_info info);
+    static void napiOnComplete(const Napi::CallbackInfo &info);
+    static void napiOnTextChange(const Napi::CallbackInfo &info);
 
-    static napi_value show(const std::string& inputMessage);
+    static napi_value show(const std::string &inputMessage);
     static napi_value hide();
+
 private:
     static napi_ref showEditBoxFunction;
     static napi_ref hideEditBoxFunction;
-
 };
 
 } // namespace cc
-
-

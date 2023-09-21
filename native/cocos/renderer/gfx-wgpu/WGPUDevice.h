@@ -91,6 +91,8 @@ public:
     using Device::getSampler;
     using Device::initialize;
 
+    void frameSync() override{};
+
     Shader *createShader(const ShaderInfo &, const std::vector<std::vector<uint32_t>> &);
 
     void copyBuffersToTexture(const std::vector<std::vector<uint8_t>> &buffers, Texture *dst, const std::vector<BufferTextureCopy> &regions) {
@@ -117,7 +119,6 @@ public:
     EXPORT_EMS(
         void copyTextureToBuffers(Texture *src, const emscripten::val &buffers, const emscripten::val &regions);
         emscripten::val copyTextureToBuffers(Texture * src, const BufferTextureCopyList &regions);
-        Shader * createShader(const ShaderInfo &info, const emscripten::val &spirvVal);
         void copyBuffersToTexture(const emscripten::val &v, Texture *dst, const std::vector<BufferTextureCopy> &regions);)
 
     void initFeatures();

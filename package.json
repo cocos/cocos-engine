@@ -39,19 +39,20 @@
     "url": "git+https://github.com/cocos-creator/engine.git"
   },
   "dependencies": {
+    "@base/global": "*",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
     "@cocos/ccbuild": "2.0.3-alpha.16",
     "@cocos/dragonbones-js": "^1.0.1",
     "@pal/env": "*",
-    "@pal/utils": "*",
-    "@base/global": "*"
+    "@pal/utils": "*"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@babel/plugin-proposal-export-default-from": "^7.17.12",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
+    "@cocos/build-engine": "4.4.2",
     "@types/fs-extra": "^5.0.4",
     "@types/istanbul-lib-report": "^3.0.0",
     "@types/jest": "^28.1.8",

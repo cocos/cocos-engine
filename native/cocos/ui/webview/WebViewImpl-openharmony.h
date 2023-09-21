@@ -26,18 +26,16 @@
 #pragma once
 
 #include "platform/openharmony/napi/NapiHelper.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 #include "ui/webview/WebViewImpl-java.h"
 
 namespace cc {
 
 class OpenHarmonyWebView {
 public:
-    static void GetInterfaces(std::vector<napi_property_descriptor>& descriptors);
-    static napi_value napiShouldStartLoading(napi_env env, napi_callback_info info);
-    static napi_value napiFinishLoading(napi_env env, napi_callback_info info);
-    static napi_value napiFailLoading(napi_env env, napi_callback_info info);
-    static napi_value napiJsCallback(napi_env env, napi_callback_info info);
+    static void napiShouldStartLoading(const Napi::CallbackInfo &info);
+    static void napiFinishLoading(const Napi::CallbackInfo &info);
+    static void napiFailLoading(const Napi::CallbackInfo &info);
+    static void napiJsCallback(const Napi::CallbackInfo &info);
 };
 
 } //namespace cc

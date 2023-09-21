@@ -27,6 +27,7 @@
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
 #include "WGPUUtils.h"
+#include "gfx-base/GFXDef-common.h"
 #define USE_NATIVE_SPIRV 0
 #if USE_NATIVE_SPIRV
     #include "gfx-base/SPIRVUtils.h"
@@ -74,6 +75,41 @@ void CCWGPUShader::initialize(const ShaderInfo &info, const std::vector<std::vec
         spv.code = spvData;
         WGPUShaderModuleDescriptor desc = {};
         desc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&spv);
+        desc.label = _name.c_str();
+        if (stage.stage == ShaderStageFlagBit::VERTEX) {
+            _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else if (stage.stage == ShaderStageFlagBit::FRAGMENT) {
+            _gpuShaderObject->wgpuShaderFragmentModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else if (stage.stage == ShaderStageFlagBit::COMPUTE) {
+            _gpuShaderObject->wgpuShaderComputeModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
+        } else {
+            printf("unsupport shader stage.");
+        }
+    }
+}
+
+void CCWGPUShader::initWithWGSL(const ShaderInfo &info) {
+    _gpuShaderObject = ccnew CCWGPUShaderObject;
+
+    _name = info.name;
+    _stages = info.stages;
+    _attributes = info.attributes;
+    _blocks = info.blocks;
+    _buffers = info.buffers;
+    _samplerTextures = info.samplerTextures;
+    _samplers = info.samplers;
+    _textures = info.textures;
+    _images = info.images;
+    _subpassInputs = info.subpassInputs;
+
+    _gpuShaderObject->name = info.name;
+    for (size_t i = 0; i < info.stages.size(); i++) {
+        const auto &stage = info.stages[i];
+        WGPUShaderModuleWGSLDescriptor wgslDesc = {};
+        wgslDesc.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+        wgslDesc.code = stage.source.c_str();
+        WGPUShaderModuleDescriptor desc = {};
+        desc.nextInChain = reinterpret_cast<WGPUChainedStruct *>(&wgslDesc);
         desc.label = _name.c_str();
         if (stage.stage == ShaderStageFlagBit::VERTEX) {
             _gpuShaderObject->wgpuShaderVertexModule = wgpuDeviceCreateShaderModule(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuDevice, &desc);
@@ -140,6 +176,7 @@ const std::string spirvProcess(const uint32_t *data, size_t size, const UniformS
 }
 
 void CCWGPUShader::doInit(const ShaderInfo &info) {
+    initWithWGSL(info);
 #if USE_NATIVE_SPIRV
     _gpuShaderObject = ccnew CCWGPUShaderObject;
     if (!spirv) {

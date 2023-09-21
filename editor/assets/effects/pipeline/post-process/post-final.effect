@@ -33,7 +33,7 @@ CCProgram fs %{
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-    fragColor = vec4(texture(inputTexture, v_uv).rgb, 1.0);
+    fragColor = texture(inputTexture, v_uv);
   }
 
 }%
