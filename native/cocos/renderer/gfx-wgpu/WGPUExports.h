@@ -105,7 +105,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     EXPORT_STRUCT_POD(ShaderStage, stage, source);
     EXPORT_STRUCT_POD(Attribute, name, format, isNormalized, stream, isInstanced, location);
     EXPORT_STRUCT_POD(ShaderInfo, name, stages, attributes, blocks, buffers, samplerTextures, samplers, textures, images, subpassInputs);
-    EXPORT_STRUCT_NPOD(InputAssemblerInfo, attributes, vertexBuffers, indexBuffer, indirectBuffer);
+    EXPORT_STRUCT_NPOD(InputAssemblerInfo, attributes, vertexBuffers, indexBuffer);
     EXPORT_STRUCT_NPOD(ColorAttachment, format, sampleCount, loadOp, storeOp, barrier);
     EXPORT_STRUCT_NPOD(DepthStencilAttachment, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, barrier);
     EXPORT_STRUCT_POD(SubpassInfo, inputs, colors, resolves, preserves, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
@@ -349,7 +349,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("attributes", &InputAssembler::getAttributes)
         .property("vertexBuffers", &InputAssembler::getVertexBuffers)
         .property("indexBuffer", &InputAssembler::getIndexBuffer)
-        .property("indirectBuffer", &InputAssembler::getIndirectBuffer)
         .property("objectID", select_overload<uint32_t(void) const>(&InputAssembler::getObjectID));
     class_<CCWGPUInputAssembler, base<InputAssembler>>("CCWGPUInputAssembler")
         .constructor<>();
