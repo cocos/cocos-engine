@@ -24,9 +24,9 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass, editorOnly } from 'cc.decorator';
+import { assertIsTrue } from '@base/debug';
 import { getClassName } from '../utils/js';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
-import { assertIsTrue } from './utils/asserts';
 
 // Functions and classes exposed from this module are useful to
 // make a class to be `EditorExtendableObject`.

@@ -26,6 +26,8 @@ import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import { ccwindow, cclegacy } from '@base/global';
 import debugInfos from '../lib/DebugInfos';
 
+export * from './asserts';
+
 const ccdocument = ccwindow.document;
 
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { assertIsNonNullable, assertIsTrue } from './utils/asserts';
+import { assertIsNonNullable, assertIsTrue } from '@base/debug';
 
 /**
  * Tag to define the custom serialization method.

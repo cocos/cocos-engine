@@ -28,7 +28,7 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
 import { clamp, EPSILON } from './utils';
-import { assertIsTrue } from '../data/utils/asserts';
+import { assertIsTrue } from '@base/debug';
 import { Vec4 } from './vec4';
 import { Vec3 } from './vec3';
 
