@@ -25,7 +25,7 @@
 import { HandleCallback } from 'pal/input';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '../../../cocos/core/event';
-import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation } from '../input-source';
+import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation, InputSourceTouch } from '../input-source';
 import { Vec3, Quat } from '../../../cocos/core/math';
 
 export class HandleInputDevice {
@@ -53,14 +53,14 @@ export class HandleInputDevice {
     public get aimLeftOrientation (): InputSourceOrientation { return this._aimLeftOrientation; }
     public get aimRightPosition (): InputSourcePosition { return this._aimRightPosition; }
     public get aimRightOrientation (): InputSourceOrientation { return this._aimRightOrientation; }
-    public get touchButtonA (): InputSourceButton { return this._touchButtonA; }
-    public get touchButtonB (): InputSourceButton { return this._touchButtonB; }
-    public get touchButtonX (): InputSourceButton { return this._touchButtonX; }
-    public get touchButtonY (): InputSourceButton { return this._touchButtonY; }
-    public get touchButtonTriggerLeft (): InputSourceButton { return this._touchButtonTriggerLeft; }
-    public get touchButtonTriggerRight (): InputSourceButton { return this._touchButtonTriggerRight; }
-    public get touchButtonThumbStickLeft (): InputSourceButton { return this._touchButtonThumbStickLeft; }
-    public get touchButtonThumbStickRight (): InputSourceButton { return this._touchButtonThumbStickRight; }
+    public get touchButtonA (): InputSourceTouch { return this._touchButtonA; }
+    public get touchButtonB (): InputSourceTouch { return this._touchButtonB; }
+    public get touchButtonX (): InputSourceTouch { return this._touchButtonX; }
+    public get touchButtonY (): InputSourceTouch { return this._touchButtonY; }
+    public get touchButtonTriggerLeft (): InputSourceTouch { return this._touchButtonTriggerLeft; }
+    public get touchButtonTriggerRight (): InputSourceTouch { return this._touchButtonTriggerRight; }
+    public get touchButtonThumbStickLeft (): InputSourceTouch { return this._touchButtonThumbStickLeft; }
+    public get touchButtonThumbStickRight (): InputSourceTouch { return this._touchButtonThumbStickRight; }
 
     private _eventTarget: EventTarget = new EventTarget();
 
@@ -88,14 +88,14 @@ export class HandleInputDevice {
     private _aimLeftOrientation!: InputSourceOrientation;
     private _aimRightPosition!: InputSourcePosition;
     private _aimRightOrientation!: InputSourceOrientation;
-    private _touchButtonA!: InputSourceButton;
-    private _touchButtonB!: InputSourceButton;
-    private _touchButtonX!: InputSourceButton;
-    private _touchButtonY!: InputSourceButton;
-    private _touchButtonTriggerLeft!: InputSourceButton;
-    private _touchButtonTriggerRight!: InputSourceButton;
-    private _touchButtonThumbStickLeft!: InputSourceButton;
-    private _touchButtonThumbStickRight!: InputSourceButton;
+    private _touchButtonA!: InputSourceTouch;
+    private _touchButtonB!: InputSourceTouch;
+    private _touchButtonX!: InputSourceTouch;
+    private _touchButtonY!: InputSourceTouch;
+    private _touchButtonTriggerLeft!: InputSourceTouch;
+    private _touchButtonTriggerRight!: InputSourceTouch;
+    private _touchButtonThumbStickLeft!: InputSourceTouch;
+    private _touchButtonThumbStickRight!: InputSourceTouch;
 
     constructor () {
         this._initInputSource();
@@ -179,21 +179,22 @@ export class HandleInputDevice {
         this._aimRightPosition.getValue = (): Readonly<Vec3> => Vec3.ZERO;
         this._aimRightOrientation = new InputSourceOrientation();
         this._aimRightOrientation.getValue = (): Readonly<Quat> => Quat.IDENTITY;
-        this._touchButtonA = new InputSourceButton();
+
+        this._touchButtonA = new InputSourceTouch();
         this._touchButtonA.getValue = (): number => 0;
-        this._touchButtonB = new InputSourceButton();
+        this._touchButtonB = new InputSourceTouch();
         this._touchButtonB.getValue = (): number => 0;
-        this._touchButtonX = new InputSourceButton();
+        this._touchButtonX = new InputSourceTouch();
         this._touchButtonX.getValue = (): number => 0;
-        this._touchButtonY = new InputSourceButton();
+        this._touchButtonY = new InputSourceTouch();
         this._touchButtonY.getValue = (): number => 0;
-        this._touchButtonTriggerLeft = new InputSourceButton();
+        this._touchButtonTriggerLeft = new InputSourceTouch();
         this._touchButtonTriggerLeft.getValue = (): number => 0;
-        this._touchButtonTriggerRight = new InputSourceButton();
+        this._touchButtonTriggerRight = new InputSourceTouch();
         this._touchButtonTriggerRight.getValue = (): number => 0;
-        this._touchButtonThumbStickLeft = new InputSourceButton();
+        this._touchButtonThumbStickLeft = new InputSourceTouch();
         this._touchButtonThumbStickLeft.getValue = (): number => 0;
-        this._touchButtonThumbStickRight = new InputSourceButton();
+        this._touchButtonThumbStickRight = new InputSourceTouch();
         this._touchButtonThumbStickRight.getValue = (): number => 0;
     }
 }

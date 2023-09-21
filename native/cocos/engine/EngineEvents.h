@@ -124,8 +124,14 @@ enum class StickAxisCode {
     R2,
     LEFT_GRIP,
     RIGHT_GRIP,
+};
+
+enum class StickTouchCode {
+    UNDEFINE = 0,
     A,
     B,
+    X,
+    Y,
     LEFT_TRIGGER,
     RIGHT_TRIGGER,
     LEFT_THUMBSTICK,
@@ -143,10 +149,15 @@ struct ControllerInfo {
         bool isPress{false};
         ButtonInfo(StickKeyCode key, bool isPress) : key(key), isPress(isPress) {}
     };
-
+    struct TouchInfo {
+        StickTouchCode key{StickTouchCode::UNDEFINE};
+        float value{0.F};
+        TouchInfo(StickTouchCode key, float value) : key(key), value(value) {}
+    };
     int napdId{0};
     std::vector<AxisInfo> axisInfos;
     std::vector<ButtonInfo> buttonInfos;
+    std::vector<TouchInfo> touchInfos;
 };
 
 struct ControllerEvent {

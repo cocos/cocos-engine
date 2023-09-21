@@ -332,8 +332,20 @@ void EventDispatcher::dispatchControllerEvent(const ControllerEvent &controllerE
             jsAxisInfoList->setArrayElement(axisIndex, se::Value(jsAxisInfo));
             axisIndex++;
         }
+
+        se::HandleObject jsTouchInfoList{se::Object::createArrayObject(static_cast<uint32_t>(controller->touchInfos.size()))};
+
+        uint32_t touchIndex = 0;
+        for (const auto &touchInfo : controller->touchInfos) {
+            se::HandleObject jsTouchInfo{se::Object::createPlainObject()};
+            jsTouchInfo->setProperty("code", se::Value(static_cast<uint32_t>(touchInfo.key)));
+            jsTouchInfo->setProperty("value", se::Value(touchInfo.value));
+            jsTouchInfoList->setArrayElement(touchIndex, se::Value(jsTouchInfo));
+            touchIndex++;
+        }
         jsController->setProperty("axisInfoList", se::Value(jsAxisInfoList));
         jsController->setProperty("buttonInfoList", se::Value(jsButtonInfoList));
+        jsController->setProperty("touchInfoList", se::Value(jsTouchInfoList));
 
         jsControllerEventArray->setArrayElement(controllerIndex, se::Value(jsController));
         controllerIndex++;

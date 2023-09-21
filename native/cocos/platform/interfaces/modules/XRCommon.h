@@ -213,6 +213,7 @@ enum class XREventType {
     STICK,
     GRAB,
     POSE,
+    TOUCH,
     UNKNOWN
 };
 
@@ -289,14 +290,6 @@ struct XRGrab : public XRControllerInfo {
         GRIP_LEFT,
         TRIGGER_RIGHT,
         GRIP_RIGHT,
-        TOUCH_A,
-        TOUCH_B,
-        TOUCH_X,
-        TOUCH_Y,
-        TOUCH_TRIGGER_LEFT,
-        TOUCH_TRIGGER_RIGHT,
-        TOUCH_THUMBSTICK_LEFT,
-        TOUCH_THUMBSTICK_RIGHT,
         UNKNOWN
     };
 
@@ -315,6 +308,37 @@ struct XRGrab : public XRControllerInfo {
 
     XREventType getXREventType() const override {
         return XREventType::GRAB;
+    }
+};
+
+struct XRTouch : public XRControllerInfo {
+    enum class Type {
+        TOUCH_A,
+        TOUCH_B,
+        TOUCH_X,
+        TOUCH_Y,
+        TOUCH_TRIGGER_LEFT,
+        TOUCH_TRIGGER_RIGHT,
+        TOUCH_THUMBSTICK_LEFT,
+        TOUCH_THUMBSTICK_RIGHT,
+        UNKNOWN
+    };
+
+    bool isActive = false;
+    float value = 0.F;
+    Type type = Type::UNKNOWN;
+
+    XRTouch(Type type, bool isActive)
+            : type(type),
+              isActive(isActive) {}
+
+    XRTouch(Type type, float value)
+            : type(type),
+              isActive(true),
+              value(value) {}
+
+    XREventType getXREventType() const override {
+        return XREventType::TOUCH;
     }
 };
 

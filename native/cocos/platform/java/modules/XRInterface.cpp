@@ -85,14 +85,17 @@ const static ccstd::unordered_map<xr::XRGrab::Type, StickAxisCode> GRAB_TYPE_TO_
     {xr::XRGrab::Type::TRIGGER_RIGHT, StickAxisCode::R2},
     {xr::XRGrab::Type::GRIP_LEFT, StickAxisCode::LEFT_GRIP},
     {xr::XRGrab::Type::GRIP_RIGHT, StickAxisCode::RIGHT_GRIP},
-    {xr::XRGrab::Type::TOUCH_A, StickAxisCode::A},
-    {xr::XRGrab::Type::TOUCH_B, StickAxisCode::B},
-    {xr::XRGrab::Type::TOUCH_X, StickAxisCode::X},
-    {xr::XRGrab::Type::TOUCH_Y, StickAxisCode::Y},
-    {xr::XRGrab::Type::TOUCH_TRIGGER_LEFT, StickAxisCode::LEFT_TRIGGER},
-    {xr::XRGrab::Type::TOUCH_TRIGGER_RIGHT, StickAxisCode::RIGHT_TRIGGER},
-    {xr::XRGrab::Type::TOUCH_THUMBSTICK_LEFT, StickAxisCode::LEFT_THUMBSTICK},
-    {xr::XRGrab::Type::TOUCH_THUMBSTICK_RIGHT, StickAxisCode::RIGHT_THUMBSTICK},
+};
+
+const static ccstd::unordered_map<xr::XRTouch::Type, StickTouchCode> TOUCH_TYPE_TO_AXIS_CODE = {
+    {xr::XRTouch::Type::TOUCH_A, StickTouchCode::A},
+    {xr::XRTouch::Type::TOUCH_B, StickTouchCode::B},
+    {xr::XRTouch::Type::TOUCH_X, StickTouchCode::X},
+    {xr::XRTouch::Type::TOUCH_Y, StickTouchCode::Y},
+    {xr::XRTouch::Type::TOUCH_TRIGGER_LEFT, StickTouchCode::LEFT_TRIGGER},
+    {xr::XRTouch::Type::TOUCH_TRIGGER_RIGHT, StickTouchCode::RIGHT_TRIGGER},
+    {xr::XRTouch::Type::TOUCH_THUMBSTICK_LEFT, StickTouchCode::LEFT_THUMBSTICK},
+    {xr::XRTouch::Type::TOUCH_THUMBSTICK_RIGHT, StickTouchCode::RIGHT_THUMBSTICK},
 };
 
 void XRInterface::dispatchGamepadEventInternal(const xr::XRControllerEvent &xrControllerEvent) {
@@ -292,6 +295,14 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
                     controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(stickAxisCode, xrGrab->value));
                 }
             } break;
+            case xr::XREventType::TOUCH: {
+                auto *xrTouch = static_cast<xr::XRTouch *>(xrControllerEvent.xrControllerInfos.at(i).get());
+                if(TOUCH_TYPE_TO_AXIS_CODE.count(xrTouch->type) > 0) {
+                    StickTouchCode stickTouchCode = TOUCH_TYPE_TO_AXIS_CODE.at(xrTouch->type);
+                    controllerInfo->touchInfos.emplace_back(ControllerInfo::TouchInfo(stickTouchCode, xrTouch->value));
+                }
+                break;
+            }
             case xr::XREventType::POSE: {
                 auto *xrPose = static_cast<xr::XRPose *>(xrControllerEvent.xrControllerInfos.at(i).get());
                 switch (xrPose->type) {
@@ -331,7 +342,7 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
         EventDispatcher::doDispatchJsEvent("onHandlePoseInput", args);
     }
 
-    if (!controllerInfo->buttonInfos.empty() || !controllerInfo->axisInfos.empty()) {
+    if (!controllerInfo->buttonInfos.empty() || !controllerInfo->axisInfos.empty() || !controllerInfo->touchInfos.empty()) {
         controllerInfo->napdId = 0; // xr only one handle connection
         _controllerEvent.controllerInfos.emplace_back(controllerInfo);
         _controllerEvent.type = ControllerEvent::Type::HANDLE;
@@ -346,6 +357,12 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
             if (!controllerInfo->axisInfos.empty()) {
                 for (const auto &axisInfo : controllerInfo->axisInfos) {
                     _xrRemotePreviewManager->sendControllerKeyInfo(axisInfo);
+                }
+            }
+
+            if (!controllerInfo->touchInfos.empty()) {
+                for (const auto &touchInfo : controllerInfo->touchInfos) {
+                    _xrRemotePreviewManager->sendControllerKeyInfo(touchInfo);
                 }
             }
         }
