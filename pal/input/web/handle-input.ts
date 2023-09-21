@@ -76,7 +76,7 @@ enum StickKeyCode {
     START,
     TRIGGER_LEFT,
     TRIGGER_RIGHT,
-};
+}
 
 enum StickAxisCode {
     UNDEFINE = 0,
@@ -96,7 +96,7 @@ enum StickAxisCode {
     RIGHT_TRIGGER,
     LEFT_THUMBSTICK,
     RIGHT_THUMBSTICK,
-};
+}
 
 const _nativeButtonMap = {
     1: Button.BUTTON_EAST,
@@ -238,9 +238,9 @@ export class HandleInputDevice {
         window.addEventListener('xr-remote-input', (evt: Event): void => {
             const remoteInputEvent: CustomEvent = evt as CustomEvent;
             const keyEventType: KeyEventType = remoteInputEvent.detail.keyEventType;
-            const stickAxisCode = remoteInputEvent.detail.stickAxisCode;
-            const stickAxisValue = remoteInputEvent.detail.stickAxisValue;
-            const stickKeyCode = remoteInputEvent.detail.stickKeyCode;
+            const stickAxisCode = remoteInputEvent.detail.stickAxisCode as StickAxisCode;
+            const stickAxisValue = remoteInputEvent.detail.stickAxisValue as number;
+            const stickKeyCode = remoteInputEvent.detail.stickKeyCode as number;
             const isButtonPressed = remoteInputEvent.detail.isButtonPressed;
 
             if (keyEventType === KeyEventType.KET_CLICK) {
@@ -293,7 +293,7 @@ export class HandleInputDevice {
                 case StickAxisCode.LEFT_THUMBSTICK:
                 case StickAxisCode.RIGHT_THUMBSTICK:
                     this._nativeTouchState[stickAxisCode] = stickAxisValue;
-                break;
+                    break;
                 default:
                     break;
                 }

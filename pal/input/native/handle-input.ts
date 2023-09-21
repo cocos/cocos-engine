@@ -78,7 +78,7 @@ enum StickKeyCode {
     START,
     TRIGGER_LEFT,
     TRIGGER_RIGHT,
-};
+}
 
 enum StickAxisCode {
     UNDEFINE = 0,
@@ -98,7 +98,7 @@ enum StickAxisCode {
     RIGHT_TRIGGER,
     LEFT_THUMBSTICK,
     RIGHT_THUMBSTICK,
-};
+}
 
 interface IPoseValue {
     position: Vec3;
@@ -246,7 +246,7 @@ export class HandleInputDevice {
         [Pose.HAND_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.AIM_LEFT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.AIM_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
-    }
+    };
 
     constructor () {
         this._initInputSource();
@@ -357,20 +357,24 @@ export class HandleInputDevice {
 
     private _updateNativePoseState (info: jsb.PoseInfo): void {
         switch (info.code) {
-            case 1:
-                this._nativePoseState[Pose.HAND_LEFT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
-                break;
-            case 2:
-                this._nativePoseState[Pose.AIM_LEFT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
-                break;
-            case 4:
-                this._nativePoseState[Pose.HAND_RIGHT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
-                break;
-            case 5:
-                this._nativePoseState[Pose.AIM_RIGHT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
-                break;
-            default:
-                break;
+        case 1:
+            this._nativePoseState[Pose.HAND_LEFT] = { position: new Vec3(info.x, info.y, info.z),
+                orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
+            break;
+        case 2:
+            this._nativePoseState[Pose.AIM_LEFT] = { position: new Vec3(info.x, info.y, info.z),
+                orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
+            break;
+        case 4:
+            this._nativePoseState[Pose.HAND_RIGHT] = { position: new Vec3(info.x, info.y, info.z),
+                orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
+            break;
+        case 5:
+            this._nativePoseState[Pose.AIM_RIGHT] = { position: new Vec3(info.x, info.y, info.z),
+                orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
+            break;
+        default:
+            break;
         }
     }
 
