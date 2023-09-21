@@ -1,8 +1,8 @@
 {
   "ver": "1.0.1",
-  "importer": "*",
+  "importer": "physics-material",
   "imported": true,
-  "uuid": "865b04b2-bc79-40fc-9bdf-a7557665b27c",
+  "uuid": "ad05fddb-302f-40f5-81d2-27f671ddf0b6",
   "files": [
     ".json"
   ],
