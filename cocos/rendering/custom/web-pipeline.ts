@@ -224,7 +224,7 @@ export class WebSetter implements Setter {
         const block: string = this._currBlock;
         const nodeId = this._lg.locateChild(0xFFFFFFFF, this._currStage);
         const ppl = this._lg.getLayout(nodeId);
-        const layout = ppl.descriptorSets.get(UpdateFrequency.PER_PASS)!.descriptorSetLayoutData;
+        const layout = ppl.descriptorSets.get(this._currFrequency)!.descriptorSetLayoutData;
         const nameID: number = this._lg.attributeIndex.get(block)!;
         return layout.uniformBlocks.get(nameID);
     }
@@ -232,7 +232,7 @@ export class WebSetter implements Setter {
     protected _getCurrDescSetLayoutData (): DescriptorSetLayoutData {
         const nodeId = this._lg.locateChild(0xFFFFFFFF, this._currStage);
         const ppl = this._lg.getLayout(nodeId);
-        const layout = ppl.descriptorSets.get(UpdateFrequency.PER_PASS)!.descriptorSetLayoutData;
+        const layout = ppl.descriptorSets.get(this._currFrequency)!.descriptorSetLayoutData;
         return layout;
     }
 
@@ -249,9 +249,10 @@ export class WebSetter implements Setter {
         return -1;
     }
 
-    setCurrConstant (block: string, stage = 'default'): boolean {
+    setCurrConstant (block: string, stage = 'default', frequency: UpdateFrequency = UpdateFrequency.PER_PASS): boolean {
         this._currBlock = block;
         this._currStage = stage;
+        this._currFrequency = frequency;
         const nameID: number = this._lg.attributeIndex.get(block)!;
         this._currCount = 0;
         const currBlock = this._getCurrUniformBlock();
@@ -267,9 +268,10 @@ export class WebSetter implements Setter {
         return this._currConstant;
     }
 
-    public addConstant (block: string, stage = 'default'): boolean {
+    public addConstant (block: string, stage = 'default', frequency: UpdateFrequency = UpdateFrequency.PER_PASS): boolean {
         this._currBlock = block;
         this._currStage = stage;
+        this._currFrequency = frequency;
         const num = this._lg.attributeIndex.get(block)!;
         this._currCount = 0;
         const currBlock = this._getCurrUniformBlock();
@@ -347,32 +349,195 @@ export class WebSetter implements Setter {
         const num = this._lg.attributeIndex.get(name)!;
         this._data.samplers.set(num, sampler);
     }
+
+    public getParentLayout (): string {
+        const director = cclegacy.director;
+        const root = director.root;
+        const pipeline = root.pipeline as WebPipeline;
+        const parId = pipeline.renderGraph!.getParent(this._vertID);
+        const layoutName = pipeline.renderGraph!.getLayout(parId);
+        return layoutName;
+    }
+
+    public getCurrentLayout (): string {
+        const director = cclegacy.director;
+        const root = director.root;
+        const pipeline = root.pipeline as WebPipeline;
+        const layoutName = pipeline.renderGraph!.getLayout(this._vertID);
+        return layoutName;
+    }
+
     public setBuiltinCameraConstants (camera: Camera): void {
-        // TODO
+        const director = cclegacy.director;
+        const root = director.root;
+        const pipeline = root.pipeline as WebPipeline;
+        const layoutName = this.getParentLayout();
+        setCameraUBOValues(this, camera, pipeline.pipelineSceneData, camera.scene, layoutName);
     }
     public setBuiltinShadowMapConstants (light: Light, numLevels?: number): void {
-        // TODO
+        setShadowUBOView(this, null, this.getParentLayout());
     }
     public setBuiltinDirectionalLightFrustumConstants (camera: Camera, light: DirectionalLight, csmLevel = 0): void {
         setShadowUBOLightView(this, camera, light, csmLevel);
     }
     public setBuiltinSpotLightFrustumConstants (light: SpotLight): void {
-        // TODO
+        setShadowUBOLightView(this, null, light, 0);
     }
     public setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
         // TODO
     }
     public setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
-        // TODO
+        const director = cclegacy.director;
+        const pipeline = (director.root as Root).pipeline;
+        const sceneData = pipeline.pipelineSceneData;
+        if (!this.addConstant('CCForwardLight', this.getParentLayout(), UpdateFrequency.PER_BATCH)) return;
+        uniformOffset = this.getUniformOffset('cc_lightPos', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.position.x, light.position.y, light.position.z, LightType.SPHERE);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = this.getUniformOffset('cc_lightSizeRangeAngle', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.size, light.range, 0.0, 0.0);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        const isHDR = sceneData.isHDR;
+        const lightMeterScale = 10000.0;
+        uniformOffset = this.getUniformOffset('cc_lightColor', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.color.x, light.color.y, light.color.z, 0);
+            if (light.useColorTemperature) {
+                const finalColor = light.finalColor;
+                _uboVec.x = finalColor.x;
+                _uboVec.y = finalColor.y;
+                _uboVec.z = finalColor.z;
+            }
+            if (isHDR) {
+                _uboVec.w = (light).luminance * camera.exposure * lightMeterScale;
+            } else {
+                _uboVec.w = (light).luminance;
+            }
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
     }
     public setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void {
-        // TODO
+        const director = cclegacy.director;
+        const pipeline = (director.root as Root).pipeline;
+        const sceneData = pipeline.pipelineSceneData;
+
+        const shadowInfo = sceneData.shadows;
+        if (!this.addConstant('CCForwardLight', this.getParentLayout(), UpdateFrequency.PER_BATCH)) return;
+        uniformOffset = this.getUniformOffset('cc_lightPos', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.position.x, light.position.y, light.position.z, LightType.SPOT);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = this.getUniformOffset('cc_lightSizeRangeAngle', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.size, light.range, light.spotAngle, (shadowInfo.enabled && light.shadowEnabled && shadowInfo.type === ShadowType.ShadowMap) ? 1 : 0);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = this.getUniformOffset('cc_lightDir', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.direction.x, light.direction.y, light.direction.z, 0);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        const isHDR = sceneData.isHDR;
+        const lightMeterScale = 10000.0;
+        uniformOffset = this.getUniformOffset('cc_lightColor', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.color.x, light.color.y, light.color.z, 0);
+            if (light.useColorTemperature) {
+                const finalColor = light.finalColor;
+                _uboVec.x = finalColor.x;
+                _uboVec.y = finalColor.y;
+                _uboVec.z = finalColor.z;
+            }
+            if (isHDR) {
+                _uboVec.w = (light).luminance * camera.exposure * lightMeterScale;
+            } else {
+                _uboVec.w = (light).luminance;
+            }
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
     }
     public setBuiltinPointLightConstants (light: PointLight, camera: Camera): void {
-        // TODO
+        const director = cclegacy.director;
+        const pipeline = (director.root as Root).pipeline;
+        const sceneData = pipeline.pipelineSceneData;
+        if (!this.addConstant('CCForwardLight', this.getParentLayout(), UpdateFrequency.PER_BATCH)) return;
+        uniformOffset = this.getUniformOffset('cc_lightPos', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.position.x, light.position.y, light.position.z, LightType.POINT);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = this.getUniformOffset('cc_lightSizeRangeAngle', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(0.0, light.range, 0.0, 0.0);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        const isHDR = sceneData.isHDR;
+        const lightMeterScale = 10000.0;
+        uniformOffset = this.getUniformOffset('cc_lightColor', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.color.x, light.color.y, light.color.z, 0);
+            if (light.useColorTemperature) {
+                const finalColor = light.finalColor;
+                _uboVec.x = finalColor.x;
+                _uboVec.y = finalColor.y;
+                _uboVec.z = finalColor.z;
+            }
+            if (isHDR) {
+                _uboVec.w = (light).luminance * camera.exposure * lightMeterScale;
+            } else {
+                _uboVec.w = (light).luminance;
+            }
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
     }
     public setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void {
-        // TODO
+        const director = cclegacy.director;
+        const pipeline = (director.root as Root).pipeline;
+        const sceneData = pipeline.pipelineSceneData;
+        if (!this.addConstant('CCForwardLight', this.getParentLayout(), UpdateFrequency.PER_BATCH)) return;
+        uniformOffset = this.getUniformOffset('cc_lightPos', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.position.x, light.position.y, light.position.z, LightType.RANGED_DIRECTIONAL);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = this.getUniformOffset('cc_lightSizeRangeAngle', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.right.x, light.right.y, light.right.z, 0.0);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = this.getUniformOffset('cc_lightDir', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.direction.x, light.direction.y, light.direction.z, 0);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = this.getUniformOffset('cc_lightBoundingSizeVS', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            const scale = light.scale;
+            _uboVec.set(scale.x * 0.5, scale.y * 0.5, scale.z * 0.5, 0);
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
+        const isHDR = sceneData.isHDR;
+        uniformOffset = this.getUniformOffset('cc_lightColor', Type.FLOAT4);
+        if (this.hasUniform(uniformOffset)) {
+            _uboVec.set(light.color.x, light.color.y, light.color.z, 0);
+            if (light.useColorTemperature) {
+                const finalColor = light.finalColor;
+                _uboVec.x = finalColor.x;
+                _uboVec.y = finalColor.y;
+                _uboVec.z = finalColor.z;
+            }
+            if (isHDR) {
+                _uboVec.w = light.illuminance * camera.exposure;
+            } else {
+                _uboVec.w = light.illuminance;
+            }
+            this.offsetVec4(_uboVec, uniformOffset);
+        }
     }
     public hasSampler (name: string): boolean {
         const id = this._lg.attributeIndex.get(name);
@@ -395,15 +560,17 @@ export class WebSetter implements Setter {
     // protected
     protected _data: RenderData;
     protected _lg: LayoutGraphData;
+    protected _vertID: number = -1;
     protected _currBlock;
     protected _currStage: string = '';
+    protected _currFrequency: UpdateFrequency = UpdateFrequency.PER_PASS;
     protected _currCount;
     protected _currConstant: number[] = [];
 }
 
 function setShadowUBOLightView (
     setter: WebSetter,
-    camera: Camera,
+    camera: Camera | null,
     light: Light,
     csmLevel: number,
     layout = 'default',
@@ -426,8 +593,8 @@ function setShadowUBOLightView (
     if (shadowInfo.enabled) {
         if (shadowInfo.type === ShadowType.ShadowMap) {
             // update CSM layers
-            if (light && light.node) {
-                csmLayers.update(sceneData, camera);
+            if (light && light.node && light.type === LightType.DIRECTIONAL) {
+                csmLayers.update(sceneData, camera!);
             }
         }
     }
@@ -997,7 +1164,7 @@ export class WebSceneBuilder extends WebSetter implements SceneBuilder {
         const queueId = this._renderGraph.getParent(this._sceneId);
         const passId = this._renderGraph.getParent(queueId);
         const layoutName = this._renderGraph.getLayout(passId);
-        setShadowUBOLightView(this, this._scene.camera!, light, csmLevel, layoutName);
+        setShadowUBOLightView(this, this._scene.camera, light, csmLevel, layoutName);
     }
     private _renderGraph: RenderGraph;
     private _scene: SceneData;
@@ -1031,16 +1198,10 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         this._renderGraph.setName(this._vertID, name);
     }
 
-    getLayoutName (): string {
-        const parId = this._renderGraph.getParent(this._vertID);
-        const layoutName = this._renderGraph.getLayout(parId);
-        return layoutName;
-    }
-
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
         const sceneData = renderGraphPool.createSceneData(camera.scene, camera, sceneFlags, CullingFlags.NONE, light.light);
         this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', renderGraphPool.createRenderData(), false, this._vertID);
-        const layoutName = this.getLayoutName();
+        const layoutName = this.getParentLayout();
         const scene: Scene = cclegacy.director.getScene();
         setCameraUBOValues(
             this,
@@ -1065,7 +1226,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         const renderData = renderGraphPool.createRenderData();
         const sceneId = this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, false, this._vertID);
         if (!(sceneFlags & SceneFlags.NON_BUILTIN)) {
-            const layoutName = this.getLayoutName();
+            const layoutName = this.getParentLayout();
             setCameraUBOValues(
                 this,
                 camera,
@@ -1091,7 +1252,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             false,
             this._vertID,
         );
-        const layoutName = this.getLayoutName();
+        const layoutName = this.getParentLayout();
         const scene: Scene | null = cclegacy.director.getScene();
         setCameraUBOValues(
             this,
@@ -1118,7 +1279,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             false,
             this._vertID,
         );
-        const layoutName = this.getLayoutName();
+        const layoutName = this.getParentLayout();
         const scene: Scene = cclegacy.director.getScene();
         setCameraUBOValues(
             this,
@@ -1156,7 +1317,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         throw new Error('Method not implemented.');
     }
     private _renderGraph: RenderGraph;
-    private _vertID: number;
     private _queue: RenderQueue;
     private _pipeline: PipelineSceneData;
 }
@@ -1246,7 +1406,6 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     set showStatistics (enable: boolean) {
         this._subpass.showStatistics = enable;
     }
-
     private _renderGraph: RenderGraph;
     private _vertID: number;
     private _layoutID: number;
