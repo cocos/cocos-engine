@@ -27,6 +27,7 @@ import { TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
+import { isCCObject, isValid } from '../data/object';
 
 const fastRemoveAt = array.fastRemoveAt;
 
@@ -47,6 +48,15 @@ class CallbackInfo {
         this.target = undefined;
         this.callback = empty;
         this.once = false;
+    }
+
+    public check (): boolean {
+        // Validation
+        if (isCCObject(this.target) && !isValid(this.target, true)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }
 
@@ -229,7 +239,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
 
         for (let i = 0; i < infos.length; ++i) {
             const info = infos[i];
-            if (info && info.callback === callback && info.target === target) {
+            if (info && info.check() && info.callback === callback && info.target === target) {
                 return true;
             }
         }
@@ -326,7 +336,11 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
                     if (info.once) {
                         this.off(key, callback, target);
                     }
-                    if (target) {
+                    // Lazy check validity of callback target,
+                    // if target is CCObject and is no longer valid, then remove the callback info directly
+                    if (!info.check()) {
+                        this.off(key, callback, target);
+                    } else if (target) {
                         callback.call(target, arg0, arg1, arg2, arg3, arg4);
                     } else {
                         callback(arg0, arg1, arg2, arg3, arg4);
