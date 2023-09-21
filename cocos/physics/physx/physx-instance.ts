@@ -22,8 +22,6 @@
  THE SOFTWARE.
 */
 
-import './physx.null';
-
 /**
  * Base class for storage static instance object
  */

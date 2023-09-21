@@ -30,12 +30,10 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
-import { asmFactory } from './physx.asmjs';
-import { wasmFactory, PhysXWasmUrl } from './physx.wasmjs';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
-import { instantiateWasm } from 'pal/wasm';
+import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, error } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
@@ -57,31 +55,40 @@ const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 // Init physx libs when engine init.
 game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
-export function InitPhysXLibs (): any {
+export function InitPhysXLibs (): Promise<void> {
     if (USE_BYTEDANCE) {
-        if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
-        Object.assign(PX, globalThis.nativePhysX);
-        Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
-        _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
-        _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
-        initConfigAndCacheObject(PX);
+        return new Promise<void>((resolve, reject) => {
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
+            Object.assign(PX, globalThis.nativePhysX);
+            Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
+            _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
+            _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
+            initConfigAndCacheObject(PX);
+            resolve();
+        });
     } else {
-        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-            if (sys.hasFeature(sys.Feature.WASM)) {
-                return initWASM();
-            } else {
-                return initASM();
-            }
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-            return initWASM();
-        } else {
-            return initASM();
-        }
+        return ensureWasmModuleReady().then(() => Promise.all([
+            import('external:emscripten/physx/physx.release.wasm.js'),
+            import('external:emscripten/physx/physx.release.wasm.wasm'),
+            import('external:emscripten/physx/physx.release.asm.js'),
+        ]).then(([
+            { default: physxWasmFactory },
+            { default: physxWasmUrl },
+            { default: physxAsmFactory },
+        ]) => InitPhysXLibsInternal(physxWasmFactory, physxWasmUrl, physxAsmFactory)));
     }
 }
 
-function initASM (): any {
-    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : asmFactory;
+function InitPhysXLibsInternal (physxWasmFactory, physxWasmUrl, physxAsmFactory): any {
+    if (shouldUseWasmModule()) {
+        return initWASM(physxWasmFactory, physxWasmUrl);
+    } else {
+        return initASM(physxAsmFactory);
+    }
+}
+
+function initASM (physxAsmFactory): any {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : physxAsmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX().then((Instance: any): void => {
             if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
@@ -97,13 +104,15 @@ function initASM (): any {
     }
 }
 
-function initWASM (): any {
-    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : wasmFactory;
+function initWASM (physxWasmFactory, physxWasmUrl): any {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : physxWasmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX({
-            instantiateWasm (importObject: WebAssembly.Imports,
-                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void): any {
-                return instantiateWasm(PhysXWasmUrl, importObject).then((result: any): void => {
+            instantiateWasm (
+                importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+            ): any {
+                return instantiateWasm(physxWasmUrl, importObject).then((result: any): void => {
                     receiveInstance(result.instance, result.module);
                 });
             },
@@ -118,6 +127,16 @@ function initWASM (): any {
         return new Promise<void>((resolve, reject): void => {
             resolve();
         });
+    }
+}
+
+function shouldUseWasmModule (): boolean {
+    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        return sys.hasFeature(sys.Feature.WASM);
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -422,11 +441,17 @@ export function createTriangleMesh (vertices: Float32Array | number[], indices: 
     }
 }
 
-export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array, cooking: any, physics: any,
+export function createBV33TriangleMesh (
+    vertices: number[],
+    indices: Uint32Array,
+    cooking: any,
+    physics: any,
     skipMeshCleanUp = false,
     skipEdgeData = false,
     cookingPerformance = false,
-    meshSizePerfTradeoff = true, inserted = true): any {
+    meshSizePerfTradeoff = true,
+    inserted = true,
+): any {
     if (!USE_BYTEDANCE) return;
     const meshDesc = new PX.TriangleMeshDesc();
     meshDesc.setPointsData(vertices);
@@ -448,11 +473,16 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
     return cooking.createTriangleMesh(meshDesc);
 }
 
-export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array, cooking: any, physics: any,
+export function createBV34TriangleMesh (
+    vertices: number[],
+    indices: Uint32Array,
+    cooking: any,
+    physics: any,
     skipMeshCleanUp = false,
     skipEdgeData = false,
     numTrisPerLeaf = true,
-    inserted = true): void {
+    inserted = true,
+): void {
     if (!USE_BYTEDANCE) return;
     const meshDesc = new PX.TriangleMeshDesc();
     meshDesc.setPointsData(vertices);
@@ -503,8 +533,13 @@ export function createHeightFieldGeometry (hf: any, flags: number, hs: number, x
     if (USE_BYTEDANCE) {
         return new PX.HeightFieldGeometry(hf, hs, xs, zs);
     }
-    return new PX.PxHeightFieldGeometry(hf, new PX.PxMeshGeometryFlags(flags),
-        hs, xs, zs);
+    return new PX.PxHeightFieldGeometry(
+        hf,
+        new PX.PxMeshGeometryFlags(flags),
+        hs,
+        xs,
+        zs,
+    );
 }
 
 export function simulateScene (scene: any, deltaTime: number): void {
@@ -515,8 +550,13 @@ export function simulateScene (scene: any, deltaTime: number): void {
     }
 }
 
-export function raycastAll (world: PhysXWorld, worldRay: geometry.Ray, options: IRaycastOptions,
-    pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+export function raycastAll (
+    world: PhysXWorld,
+    worldRay: geometry.Ray,
+    options: IRaycastOptions,
+    pool: RecyclePool<PhysicsRayResult>,
+    results: PhysicsRayResult[],
+): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
@@ -529,8 +569,16 @@ export function raycastAll (world: PhysXWorld, worldRay: geometry.Ray, options: 
         queryfilterData.data.word3 = word3;
         queryfilterData.data.word0 = options.mask >>> 0;
         queryfilterData.flags = queryFlags;
-        const r = PX.SceneQueryExt.raycastMultiple(world.scene, worldRay.o, worldRay.d, maxDistance, flags,
-            mutipleResultSize, queryfilterData, queryFilterCB);
+        const r = PX.SceneQueryExt.raycastMultiple(
+            world.scene,
+            worldRay.o,
+            worldRay.d,
+            maxDistance,
+            flags,
+            mutipleResultSize,
+            queryfilterData,
+            queryFilterCB,
+        );
 
         if (r) {
             for (let i = 0; i < r.length; i++) {
@@ -547,8 +595,17 @@ export function raycastAll (world: PhysXWorld, worldRay: geometry.Ray, options: 
         queryfilterData.setWords(word3, 3);
         queryfilterData.setFlags(queryFlags);
         const blocks = mutipleResults;
-        const r = world.scene.raycastMultiple(worldRay.o, worldRay.d, maxDistance, flags,
-            blocks, blocks.size(), queryfilterData, queryFilterCB, null);
+        const r = world.scene.raycastMultiple(
+            worldRay.o,
+            worldRay.d,
+            maxDistance,
+            flags,
+            blocks,
+            blocks.size(),
+            queryfilterData,
+            queryFilterCB,
+            null,
+        );
 
         if (r > 0) {
             for (let i = 0; i < r; i++) {
@@ -579,8 +636,15 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
         queryfilterData.data.word3 = word3;
         queryfilterData.data.word0 = options.mask >>> 0;
         queryfilterData.flags = queryFlags;
-        const block = PX.SceneQueryExt.raycastSingle(world.scene, worldRay.o, worldRay.d, maxDistance,
-            flags, queryfilterData, queryFilterCB);
+        const block = PX.SceneQueryExt.raycastSingle(
+            world.scene,
+            worldRay.o,
+            worldRay.d,
+            maxDistance,
+            flags,
+            queryfilterData,
+            queryFilterCB,
+        );
         if (block) {
             const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
             result._assign(block.position, block.distance, collider, block.normal);
@@ -591,8 +655,16 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
         queryfilterData.setWords(word3, 3);
         queryfilterData.setFlags(queryFlags);
         const block = PhysXInstance.singleResult;
-        const r = world.scene.raycastSingle(worldRay.o, worldRay.d, options.maxDistance, flags,
-            block, queryfilterData, queryFilterCB, null);
+        const r = world.scene.raycastSingle(
+            worldRay.o,
+            worldRay.d,
+            options.maxDistance,
+            flags,
+            block,
+            queryfilterData,
+            queryFilterCB,
+            null,
+        );
         if (r) {
             const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
             result._assign(block.position, block.distance, collider, block.normal);
@@ -602,8 +674,15 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
     return false;
 }
 
-export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
-    options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+export function sweepAll (
+    world: PhysXWorld,
+    worldRay: geometry.Ray,
+    geometry: any,
+    geometryRotation: IQuatLike,
+    options: IRaycastOptions,
+    pool: RecyclePool<PhysicsRayResult>,
+    results: PhysicsRayResult[],
+): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
@@ -617,8 +696,19 @@ export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: a
     queryfilterData.setWords(word3, 3);
     queryfilterData.setFlags(queryFlags);
     const blocks = mutipleResults;
-    const r = world.scene.sweepMultiple(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance, flags,
-        blocks, blocks.size(), queryfilterData, queryFilterCB, null, 0);
+    const r = world.scene.sweepMultiple(
+        geometry,
+        getTempTransform(worldRay.o, geometryRotation),
+        worldRay.d,
+        maxDistance,
+        flags,
+        blocks,
+        blocks.size(),
+        queryfilterData,
+        queryFilterCB,
+        null,
+        0,
+    );
 
     if (r > 0) {
         for (let i = 0; i < r; i++) {
@@ -637,8 +727,14 @@ export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: a
     return false;
 }
 
-export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
-    options: IRaycastOptions, result: PhysicsRayResult): boolean {
+export function sweepClosest (
+    world: PhysXWorld,
+    worldRay: geometry.Ray,
+    geometry: any,
+    geometryRotation: IQuatLike,
+    options: IRaycastOptions,
+    result: PhysicsRayResult,
+): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
@@ -651,8 +747,18 @@ export function sweepClosest (world: PhysXWorld, worldRay: geometry.Ray, geometr
     const queryFilterCB = PhysXInstance.queryFilterCB;
 
     const block = PhysXInstance.singleSweepResult;
-    const r = world.scene.sweepSingle(geometry, getTempTransform(worldRay.o, geometryRotation), worldRay.d, maxDistance,
-        flags, block, queryfilterData, queryFilterCB, null, 0);
+    const r = world.scene.sweepSingle(
+        geometry,
+        getTempTransform(worldRay.o, geometryRotation),
+        worldRay.d,
+        maxDistance,
+        flags,
+        block,
+        queryfilterData,
+        queryFilterCB,
+        null,
+        0,
+    );
     if (r) {
         const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
         result._assign(block.position, block.distance, collider, block.normal);
