@@ -196,6 +196,12 @@ jest.mock('@base/debug', () => {
 }, {
     virtual: true,
 });
+jest.mock('@base/debug/internal', () => ({
+        __esModule: true, // Use it when dealing with esModules
+        ...jest.requireActual('../cocos/base/debug/src/internal-index.ts')
+}), {
+    virtual: true,
+});
 
 jest.mock(
     'cc',
