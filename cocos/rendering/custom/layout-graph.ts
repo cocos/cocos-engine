@@ -40,7 +40,6 @@ export class DescriptorDB {
         this.blocks.clear();
     }
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
-    _pool?: boolean;
 }
 
 export class RenderPhase {
@@ -48,7 +47,6 @@ export class RenderPhase {
         this.shaders.clear();
     }
     readonly shaders: Set<string> = new Set<string>();
-    _pool?: boolean;
 }
 
 export enum RenderPassType {
@@ -588,7 +586,6 @@ export class LayoutGraph implements BidirectionalGraph
     readonly _vertices: LayoutGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descriptors: DescriptorDB[] = [];
-    _pool?: boolean;
 }
 
 export class UniformData {
@@ -607,7 +604,6 @@ export class UniformData {
     uniformType: Type;
     offset: number;
     size = 0;
-    _pool?: boolean;
 }
 
 export class UniformBlockData {
@@ -617,7 +613,6 @@ export class UniformBlockData {
     }
     bufferSize = 0;
     readonly uniforms: UniformData[] = [];
-    _pool?: boolean;
 }
 
 export class DescriptorData {
@@ -634,7 +629,6 @@ export class DescriptorData {
     descriptorID: number;
     type: Type;
     count: number;
-    _pool?: boolean;
 }
 
 export class DescriptorBlockData {
@@ -655,7 +649,6 @@ export class DescriptorBlockData {
     offset = 0;
     capacity: number;
     readonly descriptors: DescriptorData[] = [];
-    _pool?: boolean;
 }
 
 export class DescriptorSetLayoutData {
@@ -691,7 +684,6 @@ export class DescriptorSetLayoutData {
     readonly descriptorBlocks: DescriptorBlockData[];
     readonly uniformBlocks: Map<number, UniformBlock>;
     readonly bindingMap: Map<number, number>;
-    _pool?: boolean;
 }
 
 export class DescriptorSetData {
@@ -710,7 +702,6 @@ export class DescriptorSetData {
     readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
     /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
     /*refcount*/ descriptorSet: DescriptorSet | null;
-    _pool?: boolean;
 }
 
 export class PipelineLayoutData {
@@ -718,7 +709,6 @@ export class PipelineLayoutData {
         this.descriptorSets.clear();
     }
     readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
-    _pool?: boolean;
 }
 
 export class ShaderBindingData {
@@ -726,7 +716,6 @@ export class ShaderBindingData {
         this.descriptorBindings.clear();
     }
     readonly descriptorBindings: Map<number, number> = new Map<number, number>();
-    _pool?: boolean;
 }
 
 export class ShaderLayoutData {
@@ -736,7 +725,6 @@ export class ShaderLayoutData {
     }
     readonly layoutData: Map<UpdateFrequency, DescriptorSetLayoutData> = new Map<UpdateFrequency, DescriptorSetLayoutData>();
     readonly bindingData: Map<UpdateFrequency, ShaderBindingData> = new Map<UpdateFrequency, ShaderBindingData>();
-    _pool?: boolean;
 }
 
 export class TechniqueData {
@@ -744,7 +732,6 @@ export class TechniqueData {
         this.passes.length = 0;
     }
     readonly passes: ShaderLayoutData[] = [];
-    _pool?: boolean;
 }
 
 export class EffectData {
@@ -752,7 +739,6 @@ export class EffectData {
         this.techniques.clear();
     }
     readonly techniques: Map<string, TechniqueData> = new Map<string, TechniqueData>();
-    _pool?: boolean;
 }
 
 export class ShaderProgramData {
@@ -762,7 +748,6 @@ export class ShaderProgramData {
     }
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
     /*refcount*/ pipelineLayout: PipelineLayout | null = null;
-    _pool?: boolean;
 }
 
 export class RenderStageData {
@@ -770,7 +755,6 @@ export class RenderStageData {
         this.descriptorVisibility.clear();
     }
     readonly descriptorVisibility: Map<number, ShaderStageFlagBit> = new Map<number, ShaderStageFlagBit>();
-    _pool?: boolean;
 }
 
 export class RenderPhaseData {
@@ -784,7 +768,6 @@ export class RenderPhaseData {
     readonly shaderPrograms: ShaderProgramData[] = [];
     readonly shaderIndex: Map<string, number> = new Map<string, number>();
     /*refcount*/ pipelineLayout: PipelineLayout | null = null;
-    _pool?: boolean;
 }
 
 //=================================================================
@@ -1351,7 +1334,6 @@ export class LayoutGraphData implements BidirectionalGraph
     readonly shaderLayoutIndex: Map<string, number> = new Map<string, number>();
     readonly effects: Map<string, EffectData> = new Map<string, EffectData>();
     constantMacros = '';
-    _pool?: boolean;
 }
 
 export class LayoutGraphObjectPoolSettings {
@@ -1437,36 +1419,18 @@ export class LayoutGraphObjectPool {
         this._renderPhaseData.reset();
         this._layoutGraphData.reset();
     }
-    createDescriptorDB (isDebug = true): DescriptorDB {
-        let v: DescriptorDB;
-        if (isDebug) {
-            v = new DescriptorDB();
-        } else {
-            v = this._descriptorDB.add();
-            v._pool = true;
-        }
+    createDescriptorDB (): DescriptorDB {
+        const v = this._descriptorDB.add();
         v.reset();
         return v;
     }
-    createRenderPhase (isDebug = true): RenderPhase {
-        let v: RenderPhase;
-        if (isDebug) {
-            v = new RenderPhase();
-        } else {
-            v = this._renderPhase.add();
-            v._pool = true;
-        }
+    createRenderPhase (): RenderPhase {
+        const v = this._renderPhase.add();
         v.reset();
         return v;
     }
-    createLayoutGraph (isDebug = true): LayoutGraph {
-        let v: LayoutGraph;
-        if (isDebug) {
-            v = new LayoutGraph();
-        } else {
-            v = this._layoutGraph.add();
-            v._pool = true;
-        }
+    createLayoutGraph (): LayoutGraph {
+        const v = this._layoutGraph.add();
         v.clear();
         return v;
     }
@@ -1474,26 +1438,13 @@ export class LayoutGraphObjectPool {
         uniformID = 0xFFFFFFFF,
         uniformType: Type = Type.UNKNOWN,
         offset = 0,
-        isDebug = true,
     ): UniformData {
-        let v: UniformData;
-        if (isDebug) {
-            v = new UniformData();
-        } else {
-            v = this._uniformData.add();
-            v._pool = true;
-        }
+        const v = this._uniformData.add();
         v.reset(uniformID, uniformType, offset);
         return v;
     }
-    createUniformBlockData (isDebug = true): UniformBlockData {
-        let v: UniformBlockData;
-        if (isDebug) {
-            v = new UniformBlockData();
-        } else {
-            v = this._uniformBlockData.add();
-            v._pool = true;
-        }
+    createUniformBlockData (): UniformBlockData {
+        const v = this._uniformBlockData.add();
         v.reset();
         return v;
     }
@@ -1501,15 +1452,8 @@ export class LayoutGraphObjectPool {
         descriptorID = 0,
         type: Type = Type.UNKNOWN,
         count = 1,
-        isDebug = true,
     ): DescriptorData {
-        let v: DescriptorData;
-        if (isDebug) {
-            v = new DescriptorData();
-        } else {
-            v = this._descriptorData.add();
-            v._pool = true;
-        }
+        const v = this._descriptorData.add();
         v.reset(descriptorID, type, count);
         return v;
     }
@@ -1517,144 +1461,69 @@ export class LayoutGraphObjectPool {
         type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
         capacity = 0,
-        isDebug = true,
     ): DescriptorBlockData {
-        let v: DescriptorBlockData;
-        if (isDebug) {
-            v = new DescriptorBlockData();
-        } else {
-            v = this._descriptorBlockData.add();
-            v._pool = true;
-        }
+        const v = this._descriptorBlockData.add();
         v.reset(type, visibility, capacity);
         return v;
     }
     createDescriptorSetLayoutData (
         slot = 0xFFFFFFFF,
         capacity = 0,
-        isDebug = true,
     ): DescriptorSetLayoutData {
-        let v: DescriptorSetLayoutData;
-        if (isDebug) {
-            v = new DescriptorSetLayoutData();
-        } else {
-            v = this._descriptorSetLayoutData.add();
-            v._pool = true;
-        }
+        const v = this._descriptorSetLayoutData.add();
         v.reset(slot, capacity);
         return v;
     }
     createDescriptorSetData (
         descriptorSetLayout: DescriptorSetLayout | null = null,
         descriptorSet: DescriptorSet | null = null,
-        isDebug = true,
     ): DescriptorSetData {
-        let v: DescriptorSetData;
-        if (isDebug) {
-            v = new DescriptorSetData();
-        } else {
-            v = this._descriptorSetData.add();
-            v._pool = true;
-        }
+        const v = this._descriptorSetData.add();
         v.reset(descriptorSetLayout, descriptorSet);
         return v;
     }
-    createPipelineLayoutData (isDebug = true): PipelineLayoutData {
-        let v: PipelineLayoutData;
-        if (isDebug) {
-            v = new PipelineLayoutData();
-        } else {
-            v = this._pipelineLayoutData.add();
-            v._pool = true;
-        }
+    createPipelineLayoutData (): PipelineLayoutData {
+        const v = this._pipelineLayoutData.add();
         v.reset();
         return v;
     }
-    createShaderBindingData (isDebug = true): ShaderBindingData {
-        let v: ShaderBindingData;
-        if (isDebug) {
-            v = new ShaderBindingData();
-        } else {
-            v = this._shaderBindingData.add();
-            v._pool = true;
-        }
+    createShaderBindingData (): ShaderBindingData {
+        const v = this._shaderBindingData.add();
         v.reset();
         return v;
     }
-    createShaderLayoutData (isDebug = true): ShaderLayoutData {
-        let v: ShaderLayoutData;
-        if (isDebug) {
-            v = new ShaderLayoutData();
-        } else {
-            v = this._shaderLayoutData.add();
-            v._pool = true;
-        }
+    createShaderLayoutData (): ShaderLayoutData {
+        const v = this._shaderLayoutData.add();
         v.reset();
         return v;
     }
-    createTechniqueData (isDebug = true): TechniqueData {
-        let v: TechniqueData;
-        if (isDebug) {
-            v = new TechniqueData();
-        } else {
-            v = this._techniqueData.add();
-            v._pool = true;
-        }
+    createTechniqueData (): TechniqueData {
+        const v = this._techniqueData.add();
         v.reset();
         return v;
     }
-    createEffectData (isDebug = true): EffectData {
-        let v: EffectData;
-        if (isDebug) {
-            v = new EffectData();
-        } else {
-            v = this._effectData.add();
-            v._pool = true;
-        }
+    createEffectData (): EffectData {
+        const v = this._effectData.add();
         v.reset();
         return v;
     }
-    createShaderProgramData (isDebug = true): ShaderProgramData {
-        let v: ShaderProgramData;
-        if (isDebug) {
-            v = new ShaderProgramData();
-        } else {
-            v = this._shaderProgramData.add();
-            v._pool = true;
-        }
+    createShaderProgramData (): ShaderProgramData {
+        const v = this._shaderProgramData.add();
         v.reset();
         return v;
     }
-    createRenderStageData (isDebug = true): RenderStageData {
-        let v: RenderStageData;
-        if (isDebug) {
-            v = new RenderStageData();
-        } else {
-            v = this._renderStageData.add();
-            v._pool = true;
-        }
+    createRenderStageData (): RenderStageData {
+        const v = this._renderStageData.add();
         v.reset();
         return v;
     }
-    createRenderPhaseData (isDebug = true): RenderPhaseData {
-        let v: RenderPhaseData;
-        if (isDebug) {
-            v = new RenderPhaseData();
-        } else {
-            v = this._renderPhaseData.add();
-            v._pool = true;
-        }
+    createRenderPhaseData (): RenderPhaseData {
+        const v = this._renderPhaseData.add();
         v.reset();
         return v;
     }
-    createLayoutGraphData (isDebug = true): LayoutGraphData {
-        let v: LayoutGraphData;
-        if (isDebug) {
-            v = new LayoutGraphData();
-        } else {
-            v = this._layoutGraphData.add();
-            v._pool = true;
-        }
+    createLayoutGraphData (): LayoutGraphData {
+        const v = this._layoutGraphData.add();
         v.clear();
         return v;
     }
@@ -1677,7 +1546,6 @@ export class LayoutGraphObjectPool {
     private readonly _renderStageData: RecyclePool<RenderStageData>;
     private readonly _renderPhaseData: RecyclePool<RenderPhaseData>;
     private readonly _layoutGraphData: RecyclePool<LayoutGraphData>;
-    public debug = false;
 }
 
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB): void {

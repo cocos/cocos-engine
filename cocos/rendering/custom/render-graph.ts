@@ -55,7 +55,6 @@ export class ClearValue {
     y: number;
     z: number;
     w: number;
-    _pool?: boolean;
 }
 
 export class RasterView {
@@ -108,7 +107,6 @@ export class RasterView {
     readonly clearColor: Color;
     slotID = 0;
     shaderStageFlags: ShaderStageFlagBit;
-    _pool?: boolean;
 }
 
 export class ComputeView {
@@ -149,7 +147,6 @@ export class ComputeView {
     clearValueType: ClearValueType;
     readonly clearValue: ClearValue;
     shaderStageFlags: ShaderStageFlagBit;
-    _pool?: boolean;
 }
 
 export class ResourceDesc {
@@ -177,7 +174,6 @@ export class ResourceDesc {
     textureFlags: TextureFlagBit = TextureFlagBit.NONE;
     flags: ResourceFlags = ResourceFlags.NONE;
     viewType: TextureType = TextureType.TEX2D;
-    _pool?: boolean;
 }
 
 export class ResourceTraits {
@@ -188,7 +184,6 @@ export class ResourceTraits {
         this.residency = residency;
     }
     residency: ResourceResidency;
-    _pool?: boolean;
 }
 
 export class RenderSwapchain {
@@ -207,7 +202,6 @@ export class RenderSwapchain {
     currentID = 0;
     numBackBuffers = 0;
     generation = 0xFFFFFFFF;
-    _pool?: boolean;
 }
 
 export class ResourceStates {
@@ -215,7 +209,6 @@ export class ResourceStates {
         this.states = AccessFlagBit.NONE;
     }
     states: AccessFlagBit = AccessFlagBit.NONE;
-    _pool?: boolean;
 }
 
 export class ManagedBuffer {
@@ -228,7 +221,6 @@ export class ManagedBuffer {
     }
     /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
-    _pool?: boolean;
 }
 
 export class PersistentBuffer {
@@ -241,7 +233,6 @@ export class PersistentBuffer {
     }
     /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
-    _pool?: boolean;
 }
 
 export class ManagedTexture {
@@ -254,7 +245,6 @@ export class ManagedTexture {
     }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
-    _pool?: boolean;
 }
 
 export class PersistentTexture {
@@ -267,7 +257,6 @@ export class PersistentTexture {
     }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
-    _pool?: boolean;
 }
 
 export class ManagedResource {
@@ -275,7 +264,6 @@ export class ManagedResource {
         this.unused = 0;
     }
     unused = 0;
-    _pool?: boolean;
 }
 
 export class Subpass {
@@ -287,7 +275,6 @@ export class Subpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly resolvePairs: ResolvePair[] = [];
-    _pool?: boolean;
 }
 
 //=================================================================
@@ -589,7 +576,6 @@ export class SubpassGraph implements BidirectionalGraph
     readonly _vertices: SubpassGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _subpasses: Subpass[] = [];
-    _pool?: boolean;
 }
 
 export class RasterSubpass {
@@ -616,7 +602,6 @@ export class RasterSubpass {
     count: number;
     quality: number;
     showStatistics = false;
-    _pool?: boolean;
 }
 
 export class ComputeSubpass {
@@ -631,7 +616,6 @@ export class ComputeSubpass {
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     subpassID: number;
-    _pool?: boolean;
 }
 
 export class RasterPass {
@@ -665,7 +649,6 @@ export class RasterPass {
     version = 0;
     hashValue = 0;
     showStatistics = false;
-    _pool?: boolean;
 }
 
 export class PersistentRenderPassAndFramebuffer {
@@ -685,7 +668,6 @@ export class PersistentRenderPassAndFramebuffer {
     readonly clearColors: Color[] = [];
     clearDepth = 0;
     clearStencil = 0;
-    _pool?: boolean;
 }
 
 export class FormatView {
@@ -693,7 +675,6 @@ export class FormatView {
         this.format = Format.UNKNOWN;
     }
     format: Format = Format.UNKNOWN;
-    _pool?: boolean;
 }
 
 export class SubresourceView {
@@ -715,7 +696,6 @@ export class SubresourceView {
     numArraySlices = 0;
     firstPlane = 0;
     numPlanes = 0;
-    _pool?: boolean;
 }
 
 //=================================================================
@@ -1467,7 +1447,6 @@ export class ResourceGraph implements BidirectionalGraph
     readonly renderPasses: Map<string, PersistentRenderPassAndFramebuffer> = new Map<string, PersistentRenderPassAndFramebuffer>();
     nextFenceValue = 0;
     version = 0;
-    _pool?: boolean;
 }
 
 export class ComputePass {
@@ -1477,7 +1456,6 @@ export class ComputePass {
     }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
-    _pool?: boolean;
 }
 
 export class ResolvePass {
@@ -1485,7 +1463,6 @@ export class ResolvePass {
         this.resolvePairs.length = 0;
     }
     readonly resolvePairs: ResolvePair[] = [];
-    _pool?: boolean;
 }
 
 export class CopyPass {
@@ -1495,7 +1472,6 @@ export class CopyPass {
     }
     readonly copyPairs: CopyPair[] = [];
     readonly uploadPairs: UploadPair[] = [];
-    _pool?: boolean;
 }
 
 export class MovePass {
@@ -1503,7 +1479,6 @@ export class MovePass {
         this.movePairs.length = 0;
     }
     readonly movePairs: MovePair[] = [];
-    _pool?: boolean;
 }
 
 export class RaytracePass {
@@ -1511,7 +1486,6 @@ export class RaytracePass {
         this.computeViews.clear();
     }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
-    _pool?: boolean;
 }
 
 export class ClearView {
@@ -1528,7 +1502,6 @@ export class ClearView {
     slotName: string;
     clearFlags: ClearFlagBit;
     readonly clearColor: Color;
-    _pool?: boolean;
 }
 
 export class RenderQueue {
@@ -1544,7 +1517,6 @@ export class RenderQueue {
     hint: QueueHint;
     phaseID: number;
     viewport: Viewport | null = null;
-    _pool?: boolean;
 }
 
 export enum CullingFlags {
@@ -1590,7 +1562,6 @@ export class SceneData {
     flags: SceneFlags;
     cullingFlags: CullingFlags;
     /*refcount*/ shadingLight: Light | null;
-    _pool?: boolean;
 }
 
 export class Dispatch {
@@ -1625,7 +1596,6 @@ export class Dispatch {
     threadGroupCountX: number;
     threadGroupCountY: number;
     threadGroupCountZ: number;
-    _pool?: boolean;
 }
 
 export class Blit {
@@ -1645,7 +1615,6 @@ export class Blit {
     passID: number;
     sceneFlags: SceneFlags;
     /*pointer*/ camera: Camera | null;
-    _pool?: boolean;
 }
 
 export class RenderData {
@@ -1661,7 +1630,6 @@ export class RenderData {
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
     readonly samplers: Map<number, Sampler> = new Map<number, Sampler>();
     custom = '';
-    _pool?: boolean;
 }
 
 //=================================================================
@@ -2546,7 +2514,6 @@ export class RenderGraph implements BidirectionalGraph
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
     readonly sortedVertices: number[] = [];
-    _pool?: boolean;
 }
 
 export class RenderGraphObjectPoolSettings {
@@ -2697,15 +2664,8 @@ export class RenderGraphObjectPool {
         y = 0,
         z = 0,
         w = 0,
-        isDebug = true,
     ): ClearValue {
-        let v: ClearValue;
-        if (isDebug) {
-            v = new ClearValue();
-        } else {
-            v = this._clearValue.add();
-            v._pool = true;
-        }
+        const v = this._clearValue.add();
         v.reset(x, y, z, w);
         return v;
     }
@@ -2717,15 +2677,8 @@ export class RenderGraphObjectPool {
         storeOp: StoreOp = StoreOp.STORE,
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
-        isDebug = true,
     ): RasterView {
-        let v: RasterView;
-        if (isDebug) {
-            v = new RasterView();
-        } else {
-            v = this._rasterView.add();
-            v._pool = true;
-        }
+        const v = this._rasterView.add();
         v.reset(slotName, accessType, attachmentType, loadOp, storeOp, clearFlags, shaderStageFlags);
         return v;
     }
@@ -2735,154 +2688,75 @@ export class RenderGraphObjectPool {
         clearFlags: ClearFlagBit = ClearFlagBit.NONE,
         clearValueType: ClearValueType = ClearValueType.NONE,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
-        isDebug = true,
     ): ComputeView {
-        let v: ComputeView;
-        if (isDebug) {
-            v = new ComputeView();
-        } else {
-            v = this._computeView.add();
-            v._pool = true;
-        }
+        const v = this._computeView.add();
         v.reset(name, accessType, clearFlags, clearValueType, shaderStageFlags);
         return v;
     }
-    createResourceDesc (isDebug = true): ResourceDesc {
-        let v: ResourceDesc;
-        if (isDebug) {
-            v = new ResourceDesc();
-        } else {
-            v = this._resourceDesc.add();
-            v._pool = true;
-        }
+    createResourceDesc (): ResourceDesc {
+        const v = this._resourceDesc.add();
         v.reset();
         return v;
     }
     createResourceTraits (
         residency: ResourceResidency = ResourceResidency.MANAGED,
-        isDebug = true,
     ): ResourceTraits {
-        let v: ResourceTraits;
-        if (isDebug) {
-            v = new ResourceTraits();
-        } else {
-            v = this._resourceTraits.add();
-            v._pool = true;
-        }
+        const v = this._resourceTraits.add();
         v.reset(residency);
         return v;
     }
     createRenderSwapchain (
         swapchain: Swapchain | null = null,
-        isDebug = true,
     ): RenderSwapchain {
-        let v: RenderSwapchain;
-        if (isDebug) {
-            v = new RenderSwapchain();
-        } else {
-            v = this._renderSwapchain.add();
-            v._pool = true;
-        }
+        const v = this._renderSwapchain.add();
         v.reset(swapchain);
         return v;
     }
-    createResourceStates (isDebug = true): ResourceStates {
-        let v: ResourceStates;
-        if (isDebug) {
-            v = new ResourceStates();
-        } else {
-            v = this._resourceStates.add();
-            v._pool = true;
-        }
+    createResourceStates (): ResourceStates {
+        const v = this._resourceStates.add();
         v.reset();
         return v;
     }
     createManagedBuffer (
         buffer: Buffer | null = null,
-        isDebug = true,
     ): ManagedBuffer {
-        let v: ManagedBuffer;
-        if (isDebug) {
-            v = new ManagedBuffer();
-        } else {
-            v = this._managedBuffer.add();
-            v._pool = true;
-        }
+        const v = this._managedBuffer.add();
         v.reset(buffer);
         return v;
     }
     createPersistentBuffer (
         buffer: Buffer | null = null,
-        isDebug = true,
     ): PersistentBuffer {
-        let v: PersistentBuffer;
-        if (isDebug) {
-            v = new PersistentBuffer();
-        } else {
-            v = this._persistentBuffer.add();
-            v._pool = true;
-        }
+        const v = this._persistentBuffer.add();
         v.reset(buffer);
         return v;
     }
     createManagedTexture (
         texture: Texture | null = null,
-        isDebug = true,
     ): ManagedTexture {
-        let v: ManagedTexture;
-        if (isDebug) {
-            v = new ManagedTexture();
-        } else {
-            v = this._managedTexture.add();
-            v._pool = true;
-        }
+        const v = this._managedTexture.add();
         v.reset(texture);
         return v;
     }
     createPersistentTexture (
         texture: Texture | null = null,
-        isDebug = true,
     ): PersistentTexture {
-        let v: PersistentTexture;
-        if (isDebug) {
-            v = new PersistentTexture();
-        } else {
-            v = this._persistentTexture.add();
-            v._pool = true;
-        }
+        const v = this._persistentTexture.add();
         v.reset(texture);
         return v;
     }
-    createManagedResource (isDebug = true): ManagedResource {
-        let v: ManagedResource;
-        if (isDebug) {
-            v = new ManagedResource();
-        } else {
-            v = this._managedResource.add();
-            v._pool = true;
-        }
+    createManagedResource (): ManagedResource {
+        const v = this._managedResource.add();
         v.reset();
         return v;
     }
-    createSubpass (isDebug = true): Subpass {
-        let v: Subpass;
-        if (isDebug) {
-            v = new Subpass();
-        } else {
-            v = this._subpass.add();
-            v._pool = true;
-        }
+    createSubpass (): Subpass {
+        const v = this._subpass.add();
         v.reset();
         return v;
     }
-    createSubpassGraph (isDebug = true): SubpassGraph {
-        let v: SubpassGraph;
-        if (isDebug) {
-            v = new SubpassGraph();
-        } else {
-            v = this._subpassGraph.add();
-            v._pool = true;
-        }
+    createSubpassGraph (): SubpassGraph {
+        const v = this._subpassGraph.add();
         v.clear();
         return v;
     }
@@ -2890,173 +2764,84 @@ export class RenderGraphObjectPool {
         subpassID = 0xFFFFFFFF,
         count = 1,
         quality = 0,
-        isDebug = true,
     ): RasterSubpass {
-        let v: RasterSubpass;
-        if (isDebug) {
-            v = new RasterSubpass();
-        } else {
-            v = this._rasterSubpass.add();
-            v._pool = true;
-        }
+        const v = this._rasterSubpass.add();
         v.reset(subpassID, count, quality);
         return v;
     }
     createComputeSubpass (
         subpassID = 0xFFFFFFFF,
-        isDebug = true,
     ): ComputeSubpass {
-        let v: ComputeSubpass;
-        if (isDebug) {
-            v = new ComputeSubpass();
-        } else {
-            v = this._computeSubpass.add();
-            v._pool = true;
-        }
+        const v = this._computeSubpass.add();
         v.reset(subpassID);
         return v;
     }
-    createRasterPass (isDebug = true): RasterPass {
-        let v: RasterPass;
-        if (isDebug) {
-            v = new RasterPass();
-        } else {
-            v = this._rasterPass.add();
-            v._pool = true;
-        }
+    createRasterPass (): RasterPass {
+        const v = this._rasterPass.add();
         v.reset();
         return v;
     }
     createPersistentRenderPassAndFramebuffer (
         renderPass: RenderPass | null = null,
         framebuffer: Framebuffer | null = null,
-        isDebug = true,
     ): PersistentRenderPassAndFramebuffer {
-        let v: PersistentRenderPassAndFramebuffer;
-        if (isDebug) {
-            v = new PersistentRenderPassAndFramebuffer();
-        } else {
-            v = this._persistentRenderPassAndFramebuffer.add();
-            v._pool = true;
-        }
+        const v = this._persistentRenderPassAndFramebuffer.add();
         v.reset(renderPass, framebuffer);
         return v;
     }
-    createFormatView (isDebug = true): FormatView {
-        let v: FormatView;
-        if (isDebug) {
-            v = new FormatView();
-        } else {
-            v = this._formatView.add();
-            v._pool = true;
-        }
+    createFormatView (): FormatView {
+        const v = this._formatView.add();
         v.reset();
         return v;
     }
-    createSubresourceView (isDebug = true): SubresourceView {
-        let v: SubresourceView;
-        if (isDebug) {
-            v = new SubresourceView();
-        } else {
-            v = this._subresourceView.add();
-            v._pool = true;
-        }
+    createSubresourceView (): SubresourceView {
+        const v = this._subresourceView.add();
         v.reset();
         return v;
     }
-    createResourceGraph (isDebug = true): ResourceGraph {
-        let v: ResourceGraph;
-        if (isDebug) {
-            v = new ResourceGraph();
-        } else {
-            v = this._resourceGraph.add();
-            v._pool = true;
-        }
+    createResourceGraph (): ResourceGraph {
+        const v = this._resourceGraph.add();
         v.clear();
         return v;
     }
-    createComputePass (isDebug = true): ComputePass {
-        let v: ComputePass;
-        if (isDebug) {
-            v = new ComputePass();
-        } else {
-            v = this._computePass.add();
-            v._pool = true;
-        }
+    createComputePass (): ComputePass {
+        const v = this._computePass.add();
         v.reset();
         return v;
     }
-    createResolvePass (isDebug = true): ResolvePass {
-        let v: ResolvePass;
-        if (isDebug) {
-            v = new ResolvePass();
-        } else {
-            v = this._resolvePass.add();
-            v._pool = true;
-        }
+    createResolvePass (): ResolvePass {
+        const v = this._resolvePass.add();
         v.reset();
         return v;
     }
-    createCopyPass (isDebug = true): CopyPass {
-        let v: CopyPass;
-        if (isDebug) {
-            v = new CopyPass();
-        } else {
-            v = this._copyPass.add();
-            v._pool = true;
-        }
+    createCopyPass (): CopyPass {
+        const v = this._copyPass.add();
         v.reset();
         return v;
     }
-    createMovePass (isDebug = true): MovePass {
-        let v: MovePass;
-        if (isDebug) {
-            v = new MovePass();
-        } else {
-            v = this._movePass.add();
-            v._pool = true;
-        }
+    createMovePass (): MovePass {
+        const v = this._movePass.add();
         v.reset();
         return v;
     }
-    createRaytracePass (isDebug = true): RaytracePass {
-        let v: RaytracePass;
-        if (isDebug) {
-            v = new RaytracePass();
-        } else {
-            v = this._raytracePass.add();
-            v._pool = true;
-        }
+    createRaytracePass (): RaytracePass {
+        const v = this._raytracePass.add();
         v.reset();
         return v;
     }
     createClearView (
         slotName = '',
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
-        isDebug = true,
     ): ClearView {
-        let v: ClearView;
-        if (isDebug) {
-            v = new ClearView();
-        } else {
-            v = this._clearView.add();
-            v._pool = true;
-        }
+        const v = this._clearView.add();
         v.reset(slotName, clearFlags);
         return v;
     }
     createRenderQueue (
         hint: QueueHint = QueueHint.RENDER_OPAQUE,
         phaseID = 0xFFFFFFFF,
-        isDebug = true,
     ): RenderQueue {
-        let v: RenderQueue;
-        if (isDebug) {
-            v = new RenderQueue();
-        } else {
-            v = this._renderQueue.add();
-            v._pool = true;
-        }
+        const v = this._renderQueue.add();
         v.reset(hint, phaseID);
         return v;
     }
@@ -3066,15 +2851,8 @@ export class RenderGraphObjectPool {
         flags: SceneFlags = SceneFlags.NONE,
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
         shadingLight: Light | null = null,
-        isDebug = true,
     ): SceneData {
-        let v: SceneData;
-        if (isDebug) {
-            v = new SceneData();
-        } else {
-            v = this._sceneData.add();
-            v._pool = true;
-        }
+        const v = this._sceneData.add();
         v.reset(scene, camera, flags, cullingFlags, shadingLight);
         return v;
     }
@@ -3084,15 +2862,8 @@ export class RenderGraphObjectPool {
         threadGroupCountX = 0,
         threadGroupCountY = 0,
         threadGroupCountZ = 0,
-        isDebug = true,
     ): Dispatch {
-        let v: Dispatch;
-        if (isDebug) {
-            v = new Dispatch();
-        } else {
-            v = this._dispatch.add();
-            v._pool = true;
-        }
+        const v = this._dispatch.add();
         v.reset(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
         return v;
     }
@@ -3101,37 +2872,18 @@ export class RenderGraphObjectPool {
         passID = 0,
         sceneFlags: SceneFlags = SceneFlags.NONE,
         camera: Camera | null = null,
-        isDebug = true,
     ): Blit {
-        let v: Blit;
-        if (isDebug) {
-            v = new Blit();
-        } else {
-            v = this._blit.add();
-            v._pool = true;
-        }
+        const v = this._blit.add();
         v.reset(material, passID, sceneFlags, camera);
         return v;
     }
-    createRenderData (isDebug = true): RenderData {
-        let v: RenderData;
-        if (isDebug) {
-            v = new RenderData();
-        } else {
-            v = this._renderData.add();
-            v._pool = true;
-        }
+    createRenderData (): RenderData {
+        const v = this._renderData.add();
         v.reset();
         return v;
     }
-    createRenderGraph (isDebug = true): RenderGraph {
-        let v: RenderGraph;
-        if (isDebug) {
-            v = new RenderGraph();
-        } else {
-            v = this._renderGraph.add();
-            v._pool = true;
-        }
+    createRenderGraph (): RenderGraph {
+        const v = this._renderGraph.add();
         v.clear();
         return v;
     }
@@ -3169,5 +2921,4 @@ export class RenderGraphObjectPool {
     private readonly _blit: RecyclePool<Blit>;
     private readonly _renderData: RecyclePool<RenderData>;
     private readonly _renderGraph: RecyclePool<RenderGraph>;
-    public debug = false;
 }

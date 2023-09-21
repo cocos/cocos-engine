@@ -36,7 +36,6 @@ import { IProgramInfo } from '../../render-scene/core/program-lib';
 export interface ProgramProxy {
     readonly name: string;
     readonly shader: Shader;
-    _pool?: boolean;
 }
 
 export interface ProgramLibrary {
@@ -71,5 +70,4 @@ export interface ProgramLibrary {
     getProgramID (phaseID: number, programName: string): number;
     getDescriptorNameID (name: string): number;
     getDescriptorName (nameID: number): string;
-    _pool?: boolean;
 }

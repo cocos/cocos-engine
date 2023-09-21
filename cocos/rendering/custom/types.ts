@@ -307,7 +307,6 @@ export class LightInfo {
     /*pointer*/ probe: ReflectionProbe | null;
     level: number;
     culledByLight: boolean;
-    _pool?: boolean;
 }
 
 export enum DescriptorTypeOrder {
@@ -357,7 +356,6 @@ export class Descriptor {
     }
     type: Type;
     count = 1;
-    _pool?: boolean;
 }
 
 export class DescriptorBlock {
@@ -371,7 +369,6 @@ export class DescriptorBlock {
     readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
     capacity = 0;
     count = 0;
-    _pool?: boolean;
 }
 
 export class DescriptorBlockFlattened {
@@ -389,7 +386,6 @@ export class DescriptorBlockFlattened {
     readonly uniformBlocks: UniformBlock[] = [];
     capacity = 0;
     count = 0;
-    _pool?: boolean;
 }
 
 export class DescriptorBlockIndex {
@@ -403,7 +399,6 @@ export class DescriptorBlockIndex {
     parameterType: ParameterType;
     descriptorType: DescriptorTypeOrder;
     visibility: ShaderStageFlagBit;
-    _pool?: boolean;
 }
 
 export enum ResolveFlags {
@@ -445,7 +440,6 @@ export class ResolvePair {
     resolveFlags: ResolveFlags;
     mode: ResolveMode;
     mode1: ResolveMode;
-    _pool?: boolean;
 }
 
 export class CopyPair {
@@ -505,7 +499,6 @@ export class CopyPair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
-    _pool?: boolean;
 }
 
 export class UploadPair {
@@ -549,7 +542,6 @@ export class UploadPair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
-    _pool?: boolean;
 }
 
 export class MovePair {
@@ -594,7 +586,6 @@ export class MovePair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
-    _pool?: boolean;
 }
 
 export class PipelineStatistics {
@@ -622,7 +613,6 @@ export class PipelineStatistics {
     numFreeDescriptorSets = 0;
     numInstancingBuffers = 0;
     numInstancingUniformBlocks = 0;
-    _pool?: boolean;
 }
 
 export class RenderCommonObjectPoolSettings {
@@ -680,51 +670,25 @@ export class RenderCommonObjectPool {
         level = 0,
         culledByLight = false,
         probe: ReflectionProbe | null = null,
-        isDebug = true,
     ): LightInfo {
-        let v: LightInfo;
-        if (isDebug) {
-            v = new LightInfo();
-        } else {
-            v = this._lightInfo.add();
-            v._pool = true;
-        }
+        const v = this._lightInfo.add();
         v.reset(light, level, culledByLight, probe);
         return v;
     }
     createDescriptor (
         type: Type = Type.UNKNOWN,
-        isDebug = true,
     ): Descriptor {
-        let v: Descriptor;
-        if (isDebug) {
-            v = new Descriptor();
-        } else {
-            v = this._descriptor.add();
-            v._pool = true;
-        }
+        const v = this._descriptor.add();
         v.reset(type);
         return v;
     }
-    createDescriptorBlock (isDebug = true): DescriptorBlock {
-        let v: DescriptorBlock;
-        if (isDebug) {
-            v = new DescriptorBlock();
-        } else {
-            v = this._descriptorBlock.add();
-            v._pool = true;
-        }
+    createDescriptorBlock (): DescriptorBlock {
+        const v = this._descriptorBlock.add();
         v.reset();
         return v;
     }
-    createDescriptorBlockFlattened (isDebug = true): DescriptorBlockFlattened {
-        let v: DescriptorBlockFlattened;
-        if (isDebug) {
-            v = new DescriptorBlockFlattened();
-        } else {
-            v = this._descriptorBlockFlattened.add();
-            v._pool = true;
-        }
+    createDescriptorBlockFlattened (): DescriptorBlockFlattened {
+        const v = this._descriptorBlockFlattened.add();
         v.reset();
         return v;
     }
@@ -733,15 +697,8 @@ export class RenderCommonObjectPool {
         parameterType: ParameterType = ParameterType.CONSTANTS,
         descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
-        isDebug = true,
     ): DescriptorBlockIndex {
-        let v: DescriptorBlockIndex;
-        if (isDebug) {
-            v = new DescriptorBlockIndex();
-        } else {
-            v = this._descriptorBlockIndex.add();
-            v._pool = true;
-        }
+        const v = this._descriptorBlockIndex.add();
         v.updateFrequency = updateFrequency;
         v.parameterType = parameterType;
         v.descriptorType = descriptorType;
@@ -754,15 +711,8 @@ export class RenderCommonObjectPool {
         resolveFlags: ResolveFlags = ResolveFlags.NONE,
         mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
         mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
-        isDebug = true,
     ): ResolvePair {
-        let v: ResolvePair;
-        if (isDebug) {
-            v = new ResolvePair();
-        } else {
-            v = this._resolvePair.add();
-            v._pool = true;
-        }
+        const v = this._resolvePair.add();
         v.reset(source, target, resolveFlags, mode, mode1);
         return v;
     }
@@ -777,15 +727,8 @@ export class RenderCommonObjectPool {
         targetMostDetailedMip = 0,
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
-        isDebug = true,
     ): CopyPair {
-        let v: CopyPair;
-        if (isDebug) {
-            v = new CopyPair();
-        } else {
-            v = this._copyPair.add();
-            v._pool = true;
-        }
+        const v = this._copyPair.add();
         v.reset(source, target, mipLevels, numSlices, sourceMostDetailedMip, sourceFirstSlice, sourcePlaneSlice, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
@@ -796,15 +739,8 @@ export class RenderCommonObjectPool {
         targetMostDetailedMip = 0,
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
-        isDebug = true,
     ): UploadPair {
-        let v: UploadPair;
-        if (isDebug) {
-            v = new UploadPair();
-        } else {
-            v = this._uploadPair.add();
-            v._pool = true;
-        }
+        const v = this._uploadPair.add();
         v.reset(target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
@@ -816,26 +752,13 @@ export class RenderCommonObjectPool {
         targetMostDetailedMip = 0,
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
-        isDebug = true,
     ): MovePair {
-        let v: MovePair;
-        if (isDebug) {
-            v = new MovePair();
-        } else {
-            v = this._movePair.add();
-            v._pool = true;
-        }
+        const v = this._movePair.add();
         v.reset(source, target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
-    createPipelineStatistics (isDebug = true): PipelineStatistics {
-        let v: PipelineStatistics;
-        if (isDebug) {
-            v = new PipelineStatistics();
-        } else {
-            v = this._pipelineStatistics.add();
-            v._pool = true;
-        }
+    createPipelineStatistics (): PipelineStatistics {
+        const v = this._pipelineStatistics.add();
         v.reset();
         return v;
     }
@@ -849,7 +772,6 @@ export class RenderCommonObjectPool {
     private readonly _uploadPair: RecyclePool<UploadPair>;
     private readonly _movePair: RecyclePool<MovePair>;
     private readonly _pipelineStatistics: RecyclePool<PipelineStatistics>;
-    public debug = false;
 }
 
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {

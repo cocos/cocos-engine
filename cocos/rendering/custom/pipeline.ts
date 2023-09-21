@@ -179,7 +179,6 @@ export interface PipelineRuntime {
      * @zh 触发管线状态更新事件
      */
     onGlobalPipelineStateChanged (): void;
-    _pool?: boolean;
 }
 
 /**
@@ -269,7 +268,6 @@ export enum SubpassCapabilities {
  */
 export class PipelineCapabilities {
     subpass: SubpassCapabilities = SubpassCapabilities.NONE;
-    _pool?: boolean;
 }
 
 /**
@@ -288,7 +286,6 @@ export interface RenderNode {
      * @experimental
      */
     setCustomBehavior (name: string): void;
-    _pool?: boolean;
 }
 
 /**
@@ -393,7 +390,6 @@ export interface Setter extends RenderNode {
         light: DirectionalLight,
         csmLevel?: number): void;
     setBuiltinSpotLightFrustumConstants (light: SpotLight): void;
-    _pool?: boolean;
 }
 
 export interface SceneBuilder extends Setter {
@@ -401,7 +397,6 @@ export interface SceneBuilder extends Setter {
         light: Light,
         csmLevel?: number,
         optCamera?: Camera): void;
-    _pool?: boolean;
 }
 
 /**
@@ -470,7 +465,6 @@ export interface RenderQueueBuilder extends Setter {
      * @experimental
      */
     addCustomCommand (customBehavior: string): void;
-    _pool?: boolean;
 }
 
 /**
@@ -565,7 +559,6 @@ export interface BasicRenderPassBuilder extends Setter {
      * @zh 在屏幕上渲染统计数据
      */
     showStatistics: boolean;
-    _pool?: boolean;
 }
 
 export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilder {
@@ -575,7 +568,6 @@ export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilde
         target: string,
         depthMode?: ResolveMode,
         stencilMode?: ResolveMode): void;
-    _pool?: boolean;
 }
 
 /**
@@ -824,7 +816,6 @@ export interface BasicPipeline extends PipelineRuntime {
      * @engineInternal
      */
     getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | undefined;
-    _pool?: boolean;
 }
 
 /**
@@ -954,7 +945,6 @@ export interface RenderSubpassBuilder extends Setter {
      * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
-    _pool?: boolean;
 }
 
 /**
@@ -983,7 +973,6 @@ export interface MultisampleRenderSubpassBuilder extends RenderSubpassBuilder {
         target: string,
         depthMode?: ResolveMode,
         stencilMode?: ResolveMode): void;
-    _pool?: boolean;
 }
 
 /**
@@ -1006,7 +995,6 @@ export interface ComputeQueueBuilder extends Setter {
         threadGroupCountZ: number,
         material?: Material,
         passID?: number): void;
-    _pool?: boolean;
 }
 
 /**
@@ -1090,7 +1078,6 @@ export interface ComputeSubpassBuilder extends Setter {
      * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
-    _pool?: boolean;
 }
 
 /**
@@ -1161,7 +1148,6 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
      * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
-    _pool?: boolean;
 }
 
 export interface MultisampleRenderPassBuilder extends BasicMultisampleRenderPassBuilder {
@@ -1173,7 +1159,6 @@ export interface MultisampleRenderPassBuilder extends BasicMultisampleRenderPass
         name: string,
         accessType: AccessType,
         slotName: string): void;
-    _pool?: boolean;
 }
 
 /**
@@ -1253,7 +1238,6 @@ export interface ComputePassBuilder extends Setter {
      * @experimental
      */
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
-    _pool?: boolean;
 }
 
 /**
@@ -1424,7 +1408,6 @@ export interface Pipeline extends BasicPipeline {
         name: string,
         info: TextureInfo,
         type: string): number;
-    _pool?: boolean;
 }
 
 /**
@@ -1444,7 +1427,6 @@ export interface PipelineBuilder {
      */
     setup (cameras: Camera[], pipeline: BasicPipeline): void;
     onGlobalPipelineStateChanged? (): void;
-    _pool?: boolean;
 }
 
 /**
@@ -1454,5 +1436,4 @@ export interface RenderingModule {
     getPassID (name: string): number;
     getSubpassID (passID: number, name: string): number;
     getPhaseID (subpassOrPassID: number, name: string): number;
-    _pool?: boolean;
 }
