@@ -24,10 +24,11 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, type, serializable, editable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
-import { Mat4, js, assertIsTrue } from '../../core';
 import { warn } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { cclegacy } from '@base/global';
+import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
+import { Mat4, js } from '../../core';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../../animation/animation-clip';

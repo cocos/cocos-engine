@@ -23,7 +23,7 @@
 */
 
 import { checkPalIntegrity, withImpl } from '@pal/utils';
-import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { assertIsTrue } from '@base/debug/internal';
 
 declare const jsb: any;
 export class Pacer {

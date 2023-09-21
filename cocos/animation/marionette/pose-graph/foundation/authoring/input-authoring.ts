@@ -1,4 +1,5 @@
-import { Quat, Vec3, assertIsTrue, js } from '../../../../../core';
+import { assertIsTrue } from '@base/debug/internal';
+import { Quat, Vec3, js } from '../../../../../core';
 import { PoseGraphNode } from '../pose-graph-node';
 import { PoseGraphType } from '../type-system';
 import { NodeInputPath } from '../node-shell';

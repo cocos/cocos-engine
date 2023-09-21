@@ -23,11 +23,12 @@
 */
 
 import { JSB } from 'internal:constants';
+import { assertID, errorID } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { assertID, errorID } from '@base/debug';
-import { Pool, macro, assertIsTrue } from '../../core';
+import { Pool, macro } from '../../core';
 import { director } from '../../game';
 
 interface IFreeEntry {

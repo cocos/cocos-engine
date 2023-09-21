@@ -1,6 +1,7 @@
+import { assertIsTrue } from '@base/debug/internal';
 import { BasicVariableDescription, VariableType, createInstanceTag, VarInstanceBase, Value } from './basic';
 import { ccclass, serializable } from '../../../core/data/decorators';
-import { assertIsTrue, Quat } from '../../../core';
+import { Quat } from '../../../core';
 
 @ccclass('cc.animation.QuatVariable')
 export class QuatVariable implements BasicVariableDescription<VariableType.QUAT_experimental> {

@@ -23,14 +23,14 @@
 */
 
 import { EDITOR, DEV, SUPPORT_JIT, DEBUG } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { assert, errorID, getError, log } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { CCObject, isValid } from '../core/data/object';
 import { array, Pool } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
-import { cclegacy } from '@base/global';
-import { assert, errorID, getError, log } from '@base/debug';
 import { NodeEventType } from './node-event';
-import { assertIsTrue } from '../core/data/utils/asserts';
 import type { Component } from './component';
 import type { Node } from './node';
 

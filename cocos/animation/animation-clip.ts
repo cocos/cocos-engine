@@ -24,11 +24,12 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
+import { errorID, warnID } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { cclegacy } from '@base/global';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { errorID, warnID } from '@base/debug';
-import { js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, assertIsTrue, RealCurve } from '../core';
-import { cclegacy } from '@base/global';
+import { js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, RealCurve } from '../core';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode } from './types';
 import { Node } from '../scene-graph/node';

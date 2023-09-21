@@ -1,4 +1,4 @@
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { assertIsTrue } from '@base/debug/internal';
 import { Pose } from './pose';
 import { TransformArray } from './transform-array';
 import { SharedStackBasedAllocator, SharedStackBasedAllocatorManager } from './shared-stack-based-allocator';

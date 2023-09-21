@@ -1,3 +1,4 @@
+import { assertIsTrue } from '@base/debug/internal';
 import {
     AnimationBlend1D,
     AnimationBlend2D,
@@ -17,7 +18,6 @@ import { TCBindingValueType } from '../../../cocos/animation/marionette/state-ma
 import { TCVariableBinding } from '../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
 import { PVNodeGetVariableBase } from '../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable';
 import { PoseGraphType } from '../../../cocos/animation/marionette/pose-graph/foundation/type-system';
-import { assertIsTrue } from '../../../exports/base';
 
 export interface VariableBindingView {
     /**
