@@ -43,6 +43,7 @@ let LabelShadow = cc.Class({
     extends: require('./CCComponent'),
     editor: CC_EDITOR && {
         menu: 'i18n:MAIN_MENU.component.renderers/LabelShadow',
+        help: 'i18n:COMPONENT.help_url.labelShadow',
         executeInEditMode: true,
         requireComponent: cc.Label,
     },
