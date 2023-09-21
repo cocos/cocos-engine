@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { assertIsTrue } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { CCClass } from '../data/class';
 import { approx } from '../math';

@@ -24,10 +24,10 @@
 */
 
 import { EDITOR, TEST, DEV } from 'internal:constants';
-import { value } from '../utils/js';
 import { cclegacy } from '@base/global';
 import { errorID } from '@base/debug';
-import { assertIsTrue } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { value } from '../utils/js';
 
 export type EnumType = Record<string, string | number>;
 

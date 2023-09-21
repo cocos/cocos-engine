@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { assertIsTrue } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { IQuatLike, pingPong, Quat, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
 import { EasingMethod, ExtrapolationMode } from './curve';

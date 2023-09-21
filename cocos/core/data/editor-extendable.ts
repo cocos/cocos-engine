@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass, editorOnly } from 'cc.decorator';
-import { assertIsTrue } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { getClassName } from '../utils/js';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 
