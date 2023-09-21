@@ -24,6 +24,7 @@
 
 #include "WGPUBuffer.h"
 #include <webgpu/webgpu.h>
+#include <boost/align/align_up.hpp>
 #include "WGPUDevice.h"
 #include "WGPUObject.h"
 #include "WGPUUtils.h"
@@ -34,6 +35,7 @@ namespace gfx {
 namespace {
 CCWGPUBuffer *dftUniformBuffer = nullptr;
 CCWGPUBuffer *dftStorageBuffer = nullptr;
+static uint32_t BUFFER_ALIGNMENT = 16;
 } // namespace
 
 using namespace emscripten;
@@ -54,7 +56,7 @@ void CCWGPUBuffer::doInit(const BufferInfo &info) {
         _gpuBufferObject->indirectObjs.resize(drawInfoCount);
     }
 
-    _size = ceil(info.size / 4.0) * 4;
+    _size = boost::alignment::align_up(_size, BUFFER_ALIGNMENT);
 
     WGPUBufferDescriptor descriptor = {
         .nextInChain = nullptr,
@@ -113,7 +115,7 @@ void CCWGPUBuffer::doResize(uint32_t size, uint32_t count) {
         _gpuBufferObject->indirectObjs.resize(drawInfoCount);
     }
 
-    _size = ceil(size / 4.0) * 4;
+    _size = boost::alignment::align_up(size, BUFFER_ALIGNMENT);
 
     WGPUBufferDescriptor descriptor = {
         .nextInChain = nullptr,
@@ -172,7 +174,7 @@ void CCWGPUBuffer::update(const void *buffer, uint32_t size) {
         update(drawInfo, drawInfoCount);
     } else {
         size_t offset = _isBufferView ? _offset : 0;
-        uint32_t alignedSize = ceil(size / 4.0) * 4;
+        uint32_t alignedSize = boost::alignment::align_up(size, BUFFER_ALIGNMENT);
         size_t buffSize = alignedSize;
         wgpuQueueWriteBuffer(CCWGPUDevice::getInstance()->gpuDeviceObject()->wgpuQueue, _gpuBufferObject->wgpuBuffer, offset, buffer, buffSize);
     }

@@ -31,7 +31,8 @@ import { Sprite } from './sprite';
 import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIOpacity } from './ui-opacity';
-import { js, replaceProperty } from '../../core';
+import { js, replaceProperty, markAsWarning } from '../../core';
+import { LabelShadow } from './label-shadow';
 import './deprecated-3.9.0';
 
 /**
@@ -118,5 +119,31 @@ replaceProperty(MaskType, 'MaskType', [
         newName: 'SPRITE_STENCIL',
         target: MaskType,
         targetName: 'MaskType',
+    },
+]);
+
+markAsWarning(LabelOutline.prototype, 'LabelOutline.prototype', [
+    {
+        name: 'width',
+        suggest: 'Please use Label.prototype.outlineWidth instead.',
+    },
+    {
+        name: 'color',
+        suggest: 'Please use Label.prototype.outlineColor instead.',
+    },
+]);
+
+markAsWarning(LabelShadow.prototype, 'LabelShadow.prototype', [
+    {
+        name: 'color',
+        suggest: 'Please use Label.prototype.shadowColor instead.',
+    },
+    {
+        name: 'offset',
+        suggest: 'Please use Label.prototype.shadowOffset instead.',
+    },
+    {
+        name: 'blur',
+        suggest: 'Please use Label.prototype.shadowBlur instead.',
     },
 ]);

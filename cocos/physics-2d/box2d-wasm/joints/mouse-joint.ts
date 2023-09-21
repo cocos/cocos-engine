@@ -118,7 +118,7 @@ export class B2MouseJoint extends B2Joint implements IMouseJoint {
     }
 
     onTouchEnd (event: Touch): void {
-        this._destroy();
+        this.destroy();
         this._isTouched = false;
     }
 

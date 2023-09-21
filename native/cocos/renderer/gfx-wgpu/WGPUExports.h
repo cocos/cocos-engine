@@ -45,7 +45,7 @@
 #include "states/WGPUGeneralBarrier.h"
 #include "states/WGPUTextureBarrier.h"
 
-REGISTER_GFX_PTRS_FOR_STRUCT(Device, Buffer, Texture, GeneralBarrier, Queue, RenderPass, Shader, PipelineLayout, DescriptorSetLayout, CommandBuffer, DescriptorSet);
+REGISTER_GFX_PTRS_FOR_STRUCT(Device, Buffer, Texture, GeneralBarrier, Queue, RenderPass, Shader, PipelineLayout, DescriptorSetLayout, CommandBuffer, DescriptorSet, Sampler, CCWGPUGPUDescriptorSetObject);
 
 namespace cc::gfx {
 
@@ -105,18 +105,21 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
     EXPORT_STRUCT_POD(ShaderStage, stage, source);
     EXPORT_STRUCT_POD(Attribute, name, format, isNormalized, stream, isInstanced, location);
     EXPORT_STRUCT_POD(ShaderInfo, name, stages, attributes, blocks, buffers, samplerTextures, samplers, textures, images, subpassInputs);
-    EXPORT_STRUCT_NPOD(InputAssemblerInfo, attributes, vertexBuffers, indexBuffer, indirectBuffer);
-    EXPORT_STRUCT_NPOD(ColorAttachment, format, sampleCount, loadOp, storeOp, barrier, isGeneralLayout);
-    EXPORT_STRUCT_NPOD(DepthStencilAttachment, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, barrier, isGeneralLayout);
+    EXPORT_STRUCT_NPOD(InputAssemblerInfo, attributes, vertexBuffers, indexBuffer);
+    EXPORT_STRUCT_NPOD(ColorAttachment, format, sampleCount, loadOp, storeOp, barrier);
+    EXPORT_STRUCT_NPOD(DepthStencilAttachment, format, sampleCount, depthLoadOp, depthStoreOp, stencilLoadOp, stencilStoreOp, barrier);
     EXPORT_STRUCT_POD(SubpassInfo, inputs, colors, resolves, preserves, depthStencil, depthStencilResolve, depthResolveMode, stencilResolveMode);
 
     // MAYBE TODO(Zeqiang): all ts related backend no need to care about barriers.
-    EXPORT_STRUCT_POD(SubpassDependency, srcSubpass, dstSubpass, bufferBarrierCount, textureBarrierCount);
+    EXPORT_STRUCT_POD(SubpassDependency, srcSubpass, dstSubpass, prevAccesses, nextAccesses);
     EXPORT_STRUCT_POD(RenderPassInfo, colorAttachments, depthStencilAttachment, subpasses, dependencies);
     EXPORT_STRUCT_POD(GeneralBarrierInfo, prevAccesses, nextAccesses, type);
-    EXPORT_STRUCT_NPOD(TextureBarrierInfo, prevAccesses, nextAccesses, type, baseMipLevel, levelCount, baseSlice, sliceCount, discardContents, srcQueue, dstQueue);
+    EXPORT_STRUCT_POD(ResourceRange, width, height, depthOrArraySize, firstSlice, numSlices, mipLevel, levelCount, basePlane, planeCount);
+    EXPORT_STRUCT_NPOD(TextureBarrierInfo, prevAccesses, nextAccesses, type, range, discardContents, srcQueue, dstQueue);
     EXPORT_STRUCT_NPOD(BufferBarrierInfo, prevAccesses, nextAccesses, type, offset, size, discardContents, srcQueue, dstQueue);
     EXPORT_STRUCT_NPOD(FramebufferInfo, renderPass, colorTextures, depthStencilTexture);
+    EXPORT_STRUCT_NPOD(WGPUGPUDescriptor, type, buffer, texture, sampler);
+    EXPORT_STRUCT_NPOD(CCWGPUGPUDescriptorSetObject, gpuDescriptors, descriptorIndices);
     EXPORT_STRUCT_NPOD(DescriptorSetLayoutBinding, binding, descriptorType, count, stageFlags, immutableSamplers);
     EXPORT_STRUCT_POD(DescriptorSetLayoutInfo, bindings);
     EXPORT_STRUCT_NPOD(DescriptorSetInfo, layout);
@@ -174,6 +177,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         //           /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
         // .function("flushCommands", &Device::flushCommands, allow_raw_pointers())
         .function("present", select_overload<void(void)>(&Device::present))
+        .function("enableAutoBarrier", &Device::enableAutoBarrier)
         .property("queue", &Device::getQueue)
         .property("commandBuffer", &Device::getCommandBuffer)
         .property("capabilities", &Device::getCapabilities)
@@ -190,8 +194,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
 
         .function("acquire", select_overload<void(const std::vector<Swapchain *> &)>(&CCWGPUDevice::acquire),
                   /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
-        .function("createShaderNative", select_overload<Shader *(const ShaderInfo &, const emscripten::val &)>(&CCWGPUDevice::createShader),
-                  /* pure_virtual(), */ allow_raw_pointer<arg<0>>())
+        .function("createShaderNative", select_overload<Shader *(const ShaderInfo &)>(&CCWGPUDevice::createShader))
         .function("copyTextureToBuffers", select_overload<void(Texture * src, const emscripten::val &, const emscripten::val &)>(&CCWGPUDevice::copyTextureToBuffers),
                   /* pure_virtual(), */ allow_raw_pointers())
         .function("copyBuffersToTexture", select_overload<void(const emscripten::val &, Texture *dst, const std::vector<BufferTextureCopy> &)>(&CCWGPUDevice::copyBuffersToTexture),
@@ -288,6 +291,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .function("update", &DescriptorSet::update)
         .function("bindBuffer", select_overload<void(uint32_t, Buffer *)>(&DescriptorSet::bindBuffer), allow_raw_pointer<arg<1>>())
         .function("bindBuffer", select_overload<void(uint32_t, Buffer *, uint32_t)>(&DescriptorSet::bindBuffer), allow_raw_pointer<arg<1>>())
+        .function("bindBuffer", select_overload<void(uint32_t, Buffer *, uint32_t, AccessFlags)>(&DescriptorSet::bindBuffer), allow_raw_pointer<arg<1>>())
         .function("bindTexture", select_overload<void(uint32_t, Texture *)>(&DescriptorSet::bindTexture), allow_raw_pointer<arg<1>>())
         .function("bindTexture", select_overload<void(uint32_t, Texture *, uint32_t)>(&DescriptorSet::bindTexture), allow_raw_pointer<arg<1>>())
         .function("bindSampler", select_overload<void(uint32_t, Sampler *)>(&DescriptorSet::bindSampler), allow_raw_pointer<arg<1>>())
@@ -301,6 +305,7 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("layout", &DescriptorSet::getLayout)
         .property("objectID", select_overload<uint32_t(void) const>(&DescriptorSet::getObjectID));
     class_<CCWGPUDescriptorSet, base<DescriptorSet>>("CCWGPUDescriptorSet")
+        .property("gpuDescriptorSet", &CCWGPUDescriptorSet::gpuDescriptors, &CCWGPUDescriptorSet::setGpuDescriptors)
         .constructor<>();
 
     class_<PipelineLayout>("PipelineLayout")
@@ -312,7 +317,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .constructor<>();
 
     class_<Shader>("Shader")
-        .function("initialize", &Shader::initialize)
         .function("destroy", &Shader::destroy)
         .property("name", &Shader::getName)
         .property("attributes", &Shader::getAttributes)
@@ -326,6 +330,8 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("subpassInputs", &Shader::getSubpassInputs)
         .property("objectID", select_overload<uint32_t(void) const>(&Shader::getObjectID));
     class_<CCWGPUShader, base<Shader>>("CCWGPUShader")
+        .function("initialize", &CCWGPUShader::initWithWGSL)
+        .function("reflectBinding", &CCWGPUShader::reflectBinding)
         .constructor<>();
 
     class_<InputAssembler>("InputAssembler")
@@ -343,7 +349,6 @@ EMSCRIPTEN_BINDINGS(WEBGPU_DEVICE_WASM_EXPORT) {
         .property("attributes", &InputAssembler::getAttributes)
         .property("vertexBuffers", &InputAssembler::getVertexBuffers)
         .property("indexBuffer", &InputAssembler::getIndexBuffer)
-        .property("indirectBuffer", &InputAssembler::getIndirectBuffer)
         .property("objectID", select_overload<uint32_t(void) const>(&InputAssembler::getObjectID));
     class_<CCWGPUInputAssembler, base<InputAssembler>>("CCWGPUInputAssembler")
         .constructor<>();

@@ -29,9 +29,11 @@
 namespace cc {
 
 float Battery::getBatteryLevel() const {
-    int32_t value;
-    NapiHelper::napiCallFunction("getBatteryLevel", &value);
-    return value;
+    auto value = NapiHelper::napiCallFunction("getBatteryLevel");
+    if (value.IsNumber()) {
+        return value.As<Napi::Number>().FloatValue();
+    }
+    return 0.F;
 }
 
 } // namespace cc

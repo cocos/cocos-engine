@@ -31,7 +31,7 @@ void CCSurfacesGetFragmentInput(out SurfacesStandardFragmentInput fsInput)
   #define FSInput_worldTangent v_tangent.xyz // unnormalized
   #define FSInput_mirrorNormal v_tangent.w
 #else
-  #define FSInput_worldTangent vec3(0.0, 0.0, 0.0)
+  #define FSInput_worldTangent vec3(1.0, 1.0, 1.0) // normalize zero vector may crash on webgpu, use 1 instead
   #define FSInput_mirrorNormal 1.0
 #endif
 

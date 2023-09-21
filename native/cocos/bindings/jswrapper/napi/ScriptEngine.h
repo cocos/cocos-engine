@@ -256,6 +256,16 @@ public:
          */
     void mainLoopUpdate();
 
+     /**
+     * @brief
+     * This function asks ScriptEngine to interrupt lengthy JavaScript operations and run the provided callback, passing the supplied data to it.
+     * Once the callback completes, control returns to the JavaScript code. Multiple interrupt requests may be ongoing.
+     * This function can be called from a different thread without needing a Locker. The registered callback should not reenter the interrupted Isolate.
+     * @param callback the callback to be called when interruption happens.
+     * @param data the data to be passed to the callback
+     */
+    void requestInterrupt(void (*callback)(void *), void *data) { /* NOT SUPPORTED BY NAPI*/}
+
     bool runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */);
 
     /**

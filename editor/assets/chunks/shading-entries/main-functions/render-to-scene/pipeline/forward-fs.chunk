@@ -128,6 +128,18 @@ void main()  {
   #endif
 #endif
 
+  // Fog, rgbe and gamma output can't apply fog with forward-add pass
+  // todo: apply fogColorBrightness to linear fogColor for supporting scatter lighting with HDR
+  #if CC_USE_FOG != CC_FOG_NONE && (!CC_USE_FLOAT_OUTPUT || CC_IS_TRANSPARENCY_PASS)
+    #if !CC_FORWARD_ADD
+      #ifdef CC_SURFACES_LIGHTING_MODIFY_FOG
+        color.rgb = CCSurfacesLightingModifyFog(fogFactor, color.rgb, surfaceData, lightingResult);
+      #else
+        CC_APPLY_FOG_BASE(color, fogFactor);
+      #endif
+    #endif
+  #endif
+
   // Color output
   #if CC_USE_RGBE_OUTPUT
     color = packRGBE(color.rgb); // for reflection-map
@@ -139,16 +151,5 @@ void main()  {
     #endif
   #endif
 
-  // Fog, rgbe and gamma output can't apply fog with forward-add pass
-  // todo: apply fogColorBrightness to fogColor for supporting scatter lighting with HDR
-  #if CC_USE_FOG != CC_FOG_NONE && (!CC_USE_FLOAT_OUTPUT || CC_IS_TRANSPARENCY_PASS)
-    #if !CC_FORWARD_ADD
-      #ifdef CC_SURFACES_LIGHTING_MODIFY_FOG
-        color.rgb = CCSurfacesLightingModifyFog(fogFactor, color.rgb, surfaceData, lightingResult);
-      #else
-        CC_APPLY_FOG_BASE(color, fogFactor);
-      #endif
-    #endif
-  #endif
   fragColorX = color;
 }

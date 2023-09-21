@@ -397,6 +397,13 @@ module.exports = link(mixin({
         font_underline: '字体加下划线',
         spacing_x: '文本字符之间的间距。仅在使用 BMFont 位图字体时生效',
         underline_height: '下划线高度',
+        outline_enable: '是否启用描边',
+        outline_width: '描边宽度',
+        outline_color: '描边颜色',
+        shadow_enable: '是否启用阴影',
+        shadow_color: '阴影颜色',
+        shadow_offset: '阴影偏移量',
+        shadow_blur: '阴影模糊程度',
     },
     labelOutline: {
         color: '描边的颜色',
@@ -1007,6 +1014,10 @@ module.exports = link(mixin({
         physics_2d_box2d: {
             label: "基于 Box2D 的 2D 物理系统",
             description: "基于 Box2D 的 2D 物理系统支持。",
+        },
+        physics_2d_box2d_wasm: {
+            label: "基于 Box2D-wasm 的 2D 物理系统",
+            description: "基于 Box2D-wasm 的 2D 物理系统支持。",
         },
         intersection_2d: {
             label: "2D 相交检测算法",

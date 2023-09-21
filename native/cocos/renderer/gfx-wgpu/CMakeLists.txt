@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 set(APP_NAME "webgpu" CACHE STRING "Project Name")
 project(${APP_NAME}_wasm)
 
+message(${CMAKE_BUILD_TYPE})
 if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
     set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
 endif()
@@ -11,11 +12,15 @@ set(ENGINE_ROOT_DIR ${CMAKE_CURRENT_LIST_DIR}/../../..)
 
 include(${ENGINE_ROOT_DIR}/cmake/predefine.cmake)
 
-# include (${ENGINE_ROOT_DIR}/external/CMakeLists.txt)
+include (${ENGINE_ROOT_DIR}/external/CMakeLists.txt)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17  -Wextra -Wno-nonportable-include-path -fno-exceptions -v")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g3 -D_DEBUG=1 -Wno-unused -O0 -std=c++17")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -w -DNDEBUG=1 -O3 -std=c++17")
+add_definitions(-DBOOST_NO_CXX98_FUNCTION_BASE)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wno-nonportable-include-path -fno-exceptions")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -D_DEBUG=1 -Wno-unused -O0 -std=c++17")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG=1 -O3 -std=c++17")
+
+message(${CMAKE_BUILD_TYPE})
 
 AUX_SOURCE_DIRECTORY(
     ./states
@@ -100,7 +105,7 @@ AUX_SOURCE_DIRECTORY(
 add_executable(${APP_NAME}_wasm ${WASM_EXPORTS} ${NATIVE_SRC})
 
 target_include_directories(
-	${APP_NAME}_wasm PRIVATE "${CMAKE_CURRENT_LIST_DIR}/inc"
+	${APP_NAME}_wasm PRIVATE "${CMAKE_CURRENT_LIST_DIR}/include"
 	${CC_EXTERNAL_INCLUDES}
     ${CMAKE_CURRENT_LIST_DIR}
 	${ENGINE_ROOT_DIR}
@@ -121,5 +126,11 @@ target_link_libraries(
 set(EMS_LINK_FLAGS
 "-flto --bind --no-entry -O3 -s USE_ES6_IMPORT_META=0 -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='wasmDevice' -s ENVIRONMENT=web -s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s LLD_REPORT_UNDEFINED -s ALLOW_MEMORY_GROWTH=1"
 )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    string(APPEND EMS_LINK_FLAGS " -g -s ASSERTIONS=2")
+endif()
+
+set_target_properties(${APP_NAME}_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ENGINE_ROOT_DIR}/external/emscripten/webgpu)
 
 set_target_properties(${APP_NAME}_wasm PROPERTIES CXX_STANDARD 17 LINK_FLAGS ${EMS_LINK_FLAGS})
