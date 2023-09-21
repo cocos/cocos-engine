@@ -241,7 +241,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (keyOrTarget: EventTypeClass | unknown): void {
+    public removeAll (keyOrTarget: unknown): void {
         const type = typeof keyOrTarget;
         if (type === 'string' || type === 'number') {
             // remove by key
