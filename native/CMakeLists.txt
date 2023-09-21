@@ -82,6 +82,13 @@ if(USE_SERVER_MODE)
     add_definitions(-DCC_SERVER_MODE)
 endif()
 
+# Fix the issue: https://github.com/cocos/cocos-engine/issues/16190
+# std::unary_function was removed since clang 15
+# The macro has already been defined in boost/config/stdlib/dinkumware.hpp(258,1),
+# so no need to define it again to avoid 'macro redefinition' error.
+if(NOT WINDOWS)
+    add_definitions(-DBOOST_NO_CXX98_FUNCTION_BASE)
+endif()
 
 add_definitions(-DCC_NETMODE_CLIENT=0)
 add_definitions(-DCC_NETMODE_LISTEN_SERVER=1)
@@ -3292,6 +3299,13 @@ if(APPLE)
             CC_KEYBOARD_SUPPORT
         )
     elseif(IOS)
+
+        if("${XCODE_VERSION}" VERSION_GREATER_EQUAL "15.0")
+            # For Xcode 15 and newer, add extra link flags to fix crash in __cxx_global_var_init.
+            message(STATUS "Using Xcode 15 or newer, adding extra link flags: -Wl,-ld_classic.")
+            target_link_options(${ENGINE_NAME} PUBLIC -Wl,-ld_classic)
+        endif()
+
         target_link_libraries(${ENGINE_NAME} PUBLIC
             "-framework QuartzCore"
             "-framework MetalPerformanceShaders"
