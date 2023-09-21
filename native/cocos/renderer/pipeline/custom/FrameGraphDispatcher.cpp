@@ -1228,7 +1228,7 @@ void startRenderSubpass(const Graphs &graphs, uint32_t passID, const RasterSubpa
     auto parentRagVertID = resourceAccessGraph.passIndex.at(parentID);
     auto &fgRenderpassInfo = get(ResourceAccessGraph::RenderPassInfoTag{}, resourceAccessGraph, parentRagVertID);
 
-    auto &rg = renderGraph;
+    const auto &rg = renderGraph;
     auto &rag = resourceAccessGraph;
     auto &resg = resourceGraph;
 
