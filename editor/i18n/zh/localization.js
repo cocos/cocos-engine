@@ -5,6 +5,8 @@ module.exports = {
             "animation": "https://docs.cocos.com/creator/2.4/manual/zh/components/animation.html",
             "sprite": "https://docs.cocos.com/creator/2.4/manual/zh/components/sprite.html",
             "label": "https://docs.cocos.com/creator/2.4/manual/zh/components/label.html",
+            "labelOutline": "https://docs.cocos.com/creator/2.4/manual/zh/components/label-outline.html",
+            "labelShadow": "https://docs.cocos.com/creator/2.4/manual/zh/components/label-shadow.html",
             "canvas": "https://docs.cocos.com/creator/2.4/manual/zh/components/canvas.html",
             "spine": "https://docs.cocos.com/creator/2.4/manual/zh/components/spine.html",
             "widget": "https://docs.cocos.com/creator/2.4/manual/zh/components/widget.html",
