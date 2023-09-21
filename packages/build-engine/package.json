@@ -1,7 +1,7 @@
 {
   "$schema": "../../schemas/module-config.schema.json",
   "name": "@cocos/build-engine",
-  "version": "4.4.1",
+  "version": "4.4.2",
   "description": "",
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "@babel/plugin-transform-for-of": "^7.9.0",
     "@babel/preset-env": "^7.8.7",
     "@cocos/babel-plugin-dynamic-import-vars": "^1.0.2",
-    "@cocos/creator-programming-babel-preset-cc": "1.0.1-alpha.2",
+    "@cocos/creator-programming-babel-preset-cc": "1.0.1-alpha.5",
     "@rollup/plugin-babel": "^5.2.2",
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-json": "^4.0.2",

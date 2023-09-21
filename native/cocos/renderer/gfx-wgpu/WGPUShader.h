@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #pragma once
+#include "gfx-base/GFXDef-common.h"
 #ifdef CC_WGPU_WASM
     #include "WGPUDef.h"
 #endif
@@ -45,8 +46,11 @@ public:
 
     // ems export
     EXPORT_EMS(
-        void initialize(const ShaderInfo &info, emscripten::val &spirvs);)
+        void initialize(const ShaderInfo &info, emscripten::val &spirvs);
+        void reflectBinding(const emscripten::val &bindings);)
+
     void initialize(const ShaderInfo &info, const std::vector<std::vector<uint32_t>> &spirvs);
+    void initWithWGSL(const ShaderInfo &info);
 
 protected:
     void doInit(const ShaderInfo &info) override;

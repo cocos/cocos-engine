@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { BatchingSchemes, Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Vec3, nextPow2, Mat4, Color, Pool, geometry } from '../core';
-import { cclegacy } from '@base/global';
-import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
+import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, CommandBuffer, deviceManager } from '../gfx';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
 import { SpotLight } from '../render-scene/scene/spot-light';
@@ -169,7 +169,7 @@ export class RenderAdditiveLightQueue {
         const keys = descriptorSetMap.keys;
 
         for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
+            const key = keys[i] as Light;
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
                 const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
@@ -182,7 +182,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    private _bindForwardAddLight (validPunctualLights, passLayout = 'default'): void {
+    private _bindForwardAddLight (validPunctualLights: Light[], passLayout = 'default'): void {
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];
@@ -489,7 +489,7 @@ export class RenderAdditiveLightQueue {
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstLightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+            this._firstLightBufferView = deviceManager.gfxDevice.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
         for (let l = 0, offset = 0; l < validPunctualLights.length; l++, offset += this._lightBufferElementCount) {

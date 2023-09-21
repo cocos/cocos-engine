@@ -113,7 +113,7 @@ CCProgram macro-remapping %{
   // ui displayed macros
   #pragma define-meta HAS_SECOND_UV
   #pragma define-meta USE_TWOSIDE
-  //use FSInput_faceSideSign for materials #pragma define-meta USE_TWOSIDE_MATERIAL
+  //use FSInput_faceSideSign for different textures #pragma define-meta USE_TWOSIDE_MATERIAL
   #pragma define-meta USE_VERTEX_COLOR
   #pragma define-meta USE_DITHERED_ALPHA_TEST
 

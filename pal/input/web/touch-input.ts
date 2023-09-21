@@ -26,6 +26,7 @@ import { TouchCallback } from 'pal/input';
 import { EDITOR, TEST } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
+import { warn } from '@base/debug';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event';
 import { Touch, EventTouch } from '../../../cocos/input/types';
@@ -42,7 +43,7 @@ export class TouchInputSource {
         if (systemInfo.hasFeature(Feature.INPUT_TOUCH)) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST && !EDITOR) {
-                console.warn('failed to access canvas');
+                warn('failed to access canvas');
             }
             // In Editor, we don't receive touch event but maybe receive simulated touch event.
             if (!EDITOR) {
@@ -71,7 +72,7 @@ export class TouchInputSource {
                     continue;
                 }
                 const location = this._getLocation(changedTouch, canvasRect);
-                const touch = touchManager.getTouch(touchID, location.x, location.y);
+                const touch = touchManager.getOrCreateTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
                 }
@@ -88,8 +89,12 @@ export class TouchInputSource {
                 this._canvas?.focus();
             }
             if (handleTouches.length > 0) {
-                const eventTouch = new EventTouch(handleTouches, false, eventType,
-                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches);
+                const eventTouch = new EventTouch(
+                    handleTouches,
+                    false,
+                    eventType,
+                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches,
+                );
                 this._eventTarget.emit(eventType, eventTouch);
             }
         };

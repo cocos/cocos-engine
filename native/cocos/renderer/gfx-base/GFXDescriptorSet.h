@@ -41,10 +41,11 @@ public:
     virtual void update() = 0;
     virtual void forceUpdate() = 0;
 
-    virtual void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index);
+    virtual void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index, AccessFlags flags);
     virtual void bindSampler(uint32_t binding, Sampler *sampler, uint32_t index);
     virtual void bindTexture(uint32_t binding, Texture *texture, uint32_t index, AccessFlags flags);
 
+    void bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index);
     void bindTexture(uint32_t binding, Texture *texture, uint32_t index);
 
     // Functions invoked by JSB adapter

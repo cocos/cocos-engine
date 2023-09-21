@@ -1,0 +1,66 @@
+name: <Native> Compile WebGPU
+
+on:
+  pull_request:
+    paths:
+    - 'native/external-config.json'
+    - 'native/cocos/base/**'
+    - 'native/cocos/renderer/gfx-base/**'
+    - 'native/cocos/renderer/gfx-wgpu/**'
+    - 'native/cocos/renderer/gfx-validator/**'
+    - 'native/cocos/renderer/gfx-empty/**'
+    - '.github/workflows/native-compile-webgpu.yml'
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  compile_wgpu:
+    if:
+      (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
+    name: "Emscripten"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
+      - name: Setup emsdk
+        uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
+        with:
+          version: 3.1.45
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Verify
+        run: |
+          which emcc
+          emcc -v
+
+      - name: Install ninja
+        run: |
+          if ! command -v ninja &> /dev/null; then
+              echo "Ninja not found, installing..."
+              # sudo apt update
+              sudo apt install ninja-build
+          else
+              echo "Ninja is already installed."
+          fi
+          which ninja
+
+      - name: Compile
+        # env:
+        #   COCOS_ENGINE_DEV: 1
+        run: |
+          NATIVE_ROOT=$GITHUB_WORKSPACE/native
+          cd $NATIVE_ROOT/cocos/renderer/gfx-wgpu
+          mkdir build
+          cd build
+          cmake .. -GNinja -DCMAKE_TOOLCHAIN_FILE=${EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Debug
+          ninja
+          echo "============== Compile WGPU by ems on Ubuntu Done! =============="
