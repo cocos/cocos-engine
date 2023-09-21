@@ -248,26 +248,11 @@ class DeviceTexture extends DeviceResource {
     get description (): ResourceDesc | null { return this._desc; }
     get trait (): ResourceTraits | null { return this._trait; }
     get swapchain (): Swapchain | null { return this._swapchain; }
-    private _setDesc (desc: ResourceDesc): void {
-        if (!this._desc) {
-            this._desc = new ResourceDesc();
-        }
-        this._desc.alignment = desc.alignment;
-        this._desc.depthOrArraySize = desc.depthOrArraySize;
-        this._desc.dimension = desc.dimension;
-        this._desc.flags = desc.flags;
-        this._desc.format = desc.format;
-        this._desc.height = desc.height;
-        this._desc.mipLevels = desc.mipLevels;
-        this._desc.sampleCount = desc.sampleCount;
-        this._desc.textureFlags = desc.textureFlags;
-        this._desc.width = desc.width;
-    }
     constructor (name: string, tex: PersistentTexture | Framebuffer | RenderSwapchain | ManagedResource) {
         super(name);
         const resGraph = context.resourceGraph;
         const verID = resGraph.vertex(name);
-        this._setDesc(resGraph.getDesc(verID));
+        this._desc = resGraph.getDesc(verID);
         this._trait = resGraph.getTraits(verID);
         if (tex instanceof Texture) {
             this._texture = tex;
@@ -282,7 +267,7 @@ class DeviceTexture extends DeviceResource {
             return;
         }
 
-        const info = this._desc!;
+        const info = this._desc;
         let type = TextureType.TEX2D;
 
         switch (info.dimension) {
