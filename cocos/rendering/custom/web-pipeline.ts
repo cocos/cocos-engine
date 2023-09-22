@@ -1135,7 +1135,7 @@ export class WebSceneBuilder extends WebSetter implements SceneBuilder {
         super(data, layoutGraph);
         this._renderGraph = rg;
         this._scene = scene;
-        this._sceneId = sceneId;
+        this._vertID = sceneId;
     }
     update (
         data: RenderData,
@@ -1148,7 +1148,7 @@ export class WebSceneBuilder extends WebSetter implements SceneBuilder {
         this._lg = layoutGraph;
         this._renderGraph = rg;
         this._scene = scene;
-        this._sceneId = sceneId;
+        this._vertID = sceneId;
     }
 
     useLightFrustum (light: Light, csmLevel = 0, optCamera: Camera | undefined = undefined): void {
@@ -1161,14 +1161,13 @@ export class WebSceneBuilder extends WebSetter implements SceneBuilder {
         if (this._scene.flags & SceneFlags.NON_BUILTIN) {
             return;
         }
-        const queueId = this._renderGraph.getParent(this._sceneId);
+        const queueId = this._renderGraph.getParent(this._vertID);
         const passId = this._renderGraph.getParent(queueId);
         const layoutName = this._renderGraph.getLayout(passId);
         setShadowUBOLightView(this, this._scene.camera, light, csmLevel, layoutName);
     }
     private _renderGraph: RenderGraph;
     private _scene: SceneData;
-    private _sceneId: number;
 }
 
 export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuilder {
@@ -1407,7 +1406,6 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._subpass.showStatistics = enable;
     }
     private _renderGraph: RenderGraph;
-    private _vertID: number;
     private _layoutID: number;
     private _subpass: RasterSubpass;
     private _pipeline: PipelineSceneData;
@@ -1605,7 +1603,6 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pass.showStatistics = enable;
     }
     private _renderGraph: RenderGraph;
-    private _vertID: number;
     private _layoutID: number;
     private _pass: RasterPass;
     private _pipeline: PipelineSceneData;
@@ -1660,7 +1657,6 @@ export class WebComputeQueueBuilder extends WebSetter implements ComputeQueueBui
         );
     }
     private _renderGraph: RenderGraph;
-    private _vertID: number;
     private _queue: RenderQueue;
     private _pipeline: PipelineSceneData;
 }
@@ -1745,7 +1741,6 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
 
     private _renderGraph: RenderGraph;
     private _resourceGraph: ResourceGraph;
-    private _vertID: number;
     private _layoutID: number;
     private _pass: ComputePass;
     private _pipeline: PipelineSceneData;
