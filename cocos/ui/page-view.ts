@@ -25,6 +25,8 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warnID, logID } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { EventHandler as ComponentEventHandler, Node } from '../scene-graph';
 import { EventTouch } from '../input/types';
 import { Vec2, Vec3 } from '../core/math';
@@ -33,9 +35,7 @@ import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
 import { ScrollView, EventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
-import { warnID, logID } from '@base/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
-import { cclegacy } from '@base/global';
 import { NodeEventType } from '../scene-graph/node-event';
 
 const _tempVec2 = new Vec2();

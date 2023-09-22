@@ -38,8 +38,8 @@
  */
 
 import { ccclass, executionOrder } from 'cc.decorator';
-import { Component } from '../scene-graph/component';
 import { cclegacy } from '@base/global';
+import { Component } from '../scene-graph/component';
 
 @ccclass('cc.ViewGroup')
 @executionOrder(110)

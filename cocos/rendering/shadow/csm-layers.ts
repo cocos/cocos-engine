@@ -20,6 +20,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Shadows, CSMLevel, CSMOptimizationMode } from '../../render-scene/scene/shadows';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Camera } from '../../render-scene/scene/camera';
@@ -28,7 +29,6 @@ import { Frustum, AABB } from '../../core/geometry';
 import { IRenderObject } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { CachedArray } from '../../core/memop/cached-array';
-import { cclegacy } from '@base/global';
 
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();

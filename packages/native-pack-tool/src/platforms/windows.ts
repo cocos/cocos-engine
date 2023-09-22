@@ -1,10 +1,10 @@
-import { CocosParams, NativePackTool } from "../base/default";
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import * as os from 'os';
+import { spawn } from "child_process";
 import { cchelper, toolHelper, Paths } from "../utils";
 import { cocosConfig } from "../cocosConfig";
-import { spawn } from "child_process";
+import { CocosParams, NativePackTool } from "../base/default";
 
 export interface IWindowsParam {
     targetPlatform: 'x64';

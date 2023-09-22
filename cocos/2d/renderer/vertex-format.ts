@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { AttributeName, Format, FormatInfos, Attribute } from '../../gfx';
 import { cclegacy } from '@base/global';
+import { AttributeName, Format, FormatInfos, Attribute } from '../../gfx';
 
 /**
  * @en Vertex format with vector 3 position attribute

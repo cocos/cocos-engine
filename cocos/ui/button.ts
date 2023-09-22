@@ -25,6 +25,7 @@
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform, UIRenderer } from '../2d/framework';
@@ -34,7 +35,6 @@ import { ccenum } from '../core/value-types/enum';
 import { lerp } from '../core/math/utils';
 import { Node } from '../scene-graph/node';
 import { Sprite } from '../2d/components/sprite';
-import { cclegacy } from '@base/global';
 import { TransformBit } from '../scene-graph/node-enum';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEventType } from '../xr/event/xr-event-handle';

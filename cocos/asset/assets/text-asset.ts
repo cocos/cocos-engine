@@ -24,8 +24,8 @@
 */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { Asset } from './asset';
 import { cclegacy } from '@base/global';
+import { Asset } from './asset';
 
 /**
  * @en The asset for text file.

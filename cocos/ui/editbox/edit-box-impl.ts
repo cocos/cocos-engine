@@ -26,6 +26,7 @@
 */
 
 import { screenAdapter } from 'pal/screen-adapter';
+import { ccwindow } from '@base/global';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../game/director';
 import { game } from '../../game';
@@ -39,7 +40,6 @@ import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
-import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

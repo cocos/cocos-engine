@@ -23,6 +23,8 @@
 */
 
 import { ImageData } from 'pal/image';
+import { debug } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -55,8 +57,6 @@ import { EmptyRenderPass } from './empty-render-pass';
 import { EmptyShader } from './empty-shader';
 import { EmptySwapchain } from './empty-swapchain';
 import { EmptyTexture } from './empty-texture';
-import { debug } from '@base/debug';
-import { cclegacy } from '@base/global';
 import { ImageAsset } from '../../asset/assets';
 
 export class EmptyDevice extends Device {

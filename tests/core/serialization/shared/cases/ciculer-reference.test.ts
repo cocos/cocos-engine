@@ -1,7 +1,7 @@
 
+import * as cc from 'cc';
 import { PORTS_BOTH_DYNAMIC_COMPILED, testEachPort } from "../port";
 import { ccclassAutoNamed, runTest } from "../utils";
-import * as cc from 'cc';
 @ccclassAutoNamed(__filename)
 class CCClassSelfCircularReference { @cc._decorator.property me: CCClassSelfCircularReference = this; }
 

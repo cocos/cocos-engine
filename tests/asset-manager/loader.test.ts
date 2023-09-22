@@ -1,6 +1,6 @@
+import { ImageData } from "pal/image";
 import { assetManager, loader } from "../../cocos/asset/asset-manager";
 import { ImageAsset } from "../../cocos/asset/assets/image-asset";
-import { ImageData } from "pal/image";
 
 describe('Loader', () => {
     const assetDir = './tests/fixtures';

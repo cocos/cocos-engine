@@ -23,10 +23,10 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { Material } from '../../asset/assets/material';
-import { Color, Mat4, Vec3, Vec2, Enum, geometry } from '../../core';
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { Material } from '../../asset/assets/material';
+import { Color, Mat4, Vec3, Vec2, Enum, geometry } from '../../core';
 import type { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
 import { Shader } from '../../gfx';

@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { warn } from '@base/debug';
 import { BulletShape } from './bullet-shape';
 import { Vec3, IVec3Like } from '../../../core';
-import { warn } from '@base/debug';
 import { TerrainCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { ITerrainShape } from '../../spec/i-physics-shape';

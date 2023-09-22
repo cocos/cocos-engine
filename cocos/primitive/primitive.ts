@@ -23,11 +23,11 @@
 */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { createMesh } from '../3d/misc';
 import { Mesh } from '../3d/assets/mesh';
 import * as primitives from '.';
 import { ccenum } from '../core';
-import { cclegacy } from '@base/global';
 
 enum PrimitiveType {
     BOX = 0,

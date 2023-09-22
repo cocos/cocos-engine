@@ -25,12 +25,12 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable } from 'cc.decorator';
+import { errorID } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter, deviceManager } from '../../gfx';
-import { errorID } from '@base/debug';
 import { murmurhash2_32_gc, ccenum, js } from '../../core';
-import { cclegacy } from '@base/global';
 
 ccenum(Format);
 

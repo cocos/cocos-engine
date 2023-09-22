@@ -24,16 +24,16 @@
 
 import { ccclass, editable, serializable, type, visible } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { errorID, warnID, error, log, getError } from '@base/debug';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { cclegacy } from '@base/global';
 import { CCObject, js } from '../core';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
 import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
-import { errorID, warnID, error, log, getError } from '@base/debug';
 import { Component } from './component';
 import { property } from '../core/data/decorators/property';
 import type { Scene } from './scene';

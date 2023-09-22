@@ -1,8 +1,8 @@
-import { CocosParams, NativePackTool } from "../base/default";
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import * as os from 'os';
 import { execSync } from "child_process";
+import { CocosParams, NativePackTool } from "../base/default";
 import { toolHelper } from "../utils";
 
 export interface IOrientation {

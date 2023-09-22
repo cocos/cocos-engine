@@ -24,9 +24,9 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { Toggle } from './toggle';
-import { cclegacy } from '@base/global';
 import { NodeEventType } from '../scene-graph/node-event';
 
 /**

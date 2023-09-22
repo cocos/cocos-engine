@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { SkinnedMeshBatchRenderer, SkinnedMeshUnit } from './skinned-mesh-batch-renderer';
 import { js } from '../../core';
-import { cclegacy } from '@base/global';
 /**
  * Alias of [[SkinnedMeshRenderer]]
  * @deprecated Since v1.2

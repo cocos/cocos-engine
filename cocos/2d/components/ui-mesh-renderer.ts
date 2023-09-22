@@ -25,6 +25,8 @@
 
 import { ccclass, help, executionOrder, menu, executeInEditMode } from 'cc.decorator';
 import { DEBUG, JSB } from 'internal:constants';
+import { assert, warn } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { ModelRenderer } from '../../misc/model-renderer';
 import { RenderPriority } from '../../rendering/define';
 import { IBatcher } from '../renderer/i-batcher';
@@ -34,8 +36,6 @@ import { NativeUIModelProxy } from '../renderer/native-2d';
 import { uiRendererManager } from '../framework/ui-renderer-manager';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
 import { MeshRenderData, RenderData } from '../renderer/render-data';
-import { assert, warn } from '@base/debug';
-import { cclegacy } from '@base/global';
 import { RenderDrawInfoType } from '../renderer/render-draw-info';
 import type { UIRenderer } from '../framework/ui-renderer';
 

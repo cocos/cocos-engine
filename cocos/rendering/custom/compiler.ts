@@ -22,8 +22,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 import { DEBUG } from 'internal:constants';
-import { Buffer, Framebuffer, LoadOp, StoreOp, Texture, Viewport } from '../../gfx';
 import { assert } from '@base/debug';
+import { Buffer, Framebuffer, LoadOp, StoreOp, Texture, Viewport } from '../../gfx';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';

@@ -23,8 +23,8 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
-import type { ParticleSystem } from '../../particle';
 import { warn } from '@base/debug';
+import type { ParticleSystem } from '../../particle';
 import { js } from '../../core';
 import type { Node } from '../../scene-graph/node';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';

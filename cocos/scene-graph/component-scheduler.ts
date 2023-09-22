@@ -23,11 +23,11 @@
 */
 
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { error, assert } from '@base/debug';
 import { CCObject } from '../core/data/object';
 import { js } from '../core';
-import { cclegacy } from '@base/global';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
-import { error, assert } from '@base/debug';
 import type { Component } from './component';
 
 const fastRemoveAt = js.array.fastRemoveAt;

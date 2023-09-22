@@ -24,10 +24,10 @@
 */
 
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
-import { Asset } from '../assets/asset';
 import { error } from '@base/debug';
-import { sys, Settings, settings, path, EventTarget } from '../../core';
 import { cclegacy } from '@base/global';
+import { Asset } from '../assets/asset';
+import { sys, Settings, settings, path, EventTarget } from '../../core';
 import Bundle from './bundle';
 import Cache from './cache';
 import { ICache } from './cache';

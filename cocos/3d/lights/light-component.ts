@@ -24,9 +24,9 @@
 */
 
 import { ccclass, tooltip, range, slide, type, displayOrder, serializable, editable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { Component } from '../../scene-graph/component';
 import { Color, Vec3, Enum } from '../../core';
-import { cclegacy } from '@base/global';
 import { scene } from '../../render-scene';
 import { Root } from '../../root';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';

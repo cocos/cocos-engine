@@ -23,9 +23,9 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { cclegacy } from '@base/global';
 import { _decorator } from '../core';
 
 const { ccclass, serializable, editable } = _decorator;

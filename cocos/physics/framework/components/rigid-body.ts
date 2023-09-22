@@ -26,8 +26,8 @@
 
 import { ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrder, tooltip, displayOrder, visible, type, serializable, override } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3 } from '../../../core';
 import { error, warn } from '@base/debug';
+import { Vec3 } from '../../../core';
 import { Component } from '../../../scene-graph';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { selector, createRigidBody } from '../physics-selector';

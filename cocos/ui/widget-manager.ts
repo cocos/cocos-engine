@@ -25,9 +25,9 @@
 
 import { EDITOR, DEV } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
+import { cclegacy } from '@base/global';
 import { Director, director } from '../game/director';
 import { Vec2, Vec3, visibleRect, js, approx, EPSILON } from '../core';
-import { cclegacy } from '@base/global';
 import { View } from './view';
 import { Scene } from '../scene-graph';
 import { Node } from '../scene-graph/node';

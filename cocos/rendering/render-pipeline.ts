@@ -24,6 +24,7 @@
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { systemInfo } from 'pal/system-info';
+import { cclegacy } from '@base/global';
 import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../asset/assets/asset';
 import { AccessFlagBit, Attribute, Buffer, BufferInfo, BufferUsageBit, ClearFlagBit, ClearFlags, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, Device, Feature, Format, FormatFeatureBit, Framebuffer, FramebufferInfo, InputAssembler, InputAssemblerInfo, LoadOp, MemoryUsageBit, Rect, RenderPass, RenderPassInfo, Sampler, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo, TextureType, TextureUsageBit, Viewport, GeneralBarrierInfo, deviceManager, DescriptorSetLayout } from '../gfx';
@@ -40,7 +41,6 @@ import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pip
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../pal/system-info/enum-type';
 import { macro, murmurhash2_32_gc } from '../core';
-import { cclegacy } from '@base/global';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';
 

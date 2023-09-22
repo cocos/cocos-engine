@@ -24,6 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { SpriteFrame } from '../2d/assets';
 import { Component } from '../scene-graph/component';
 import { Color, Size } from '../core/math';
@@ -33,7 +34,6 @@ import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { cclegacy } from '@base/global';
 
 const _color = new Color();
 

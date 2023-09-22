@@ -23,13 +23,13 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, type, serializable, tooltip } from 'cc.decorator';
+import { warnID } from '@base/debug';
 import { Collider } from './collider';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
 import { TerrainAsset } from '../../../../terrain/terrain-asset';
 import { EColliderType, ERigidBodyType } from '../../physics-enum';
 import { RigidBody } from '../rigid-body';
-import { warnID } from '@base/debug';
 
 /**
  * @en

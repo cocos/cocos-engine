@@ -24,10 +24,10 @@
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Armature, Bone, EventObject, AnimationState } from '@cocos/dragonbones-js';
-import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Enum, ccenum, RecyclePool, js, CCObject, EventTarget, _decorator } from '../core';
 import { errorID, warn, error } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { UIRenderer } from '../2d/framework/ui-renderer';
+import { Color, Enum, ccenum, RecyclePool, js, CCObject, EventTarget, _decorator } from '../core';
 import { BlendFactor } from '../gfx';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';

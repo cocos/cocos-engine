@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import * as utils from './misc';
 import { cclegacy } from '@base/global';
+import * as utils from './misc';
 
 export * from './misc/batch-utils';
 export * from './assets';

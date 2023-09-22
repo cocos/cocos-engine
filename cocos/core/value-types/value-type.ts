@@ -24,8 +24,8 @@
 */
 
 import { errorID } from '@base/debug';
-import * as js from '../utils/js';
 import { cclegacy } from '@base/global';
+import * as js from '../utils/js';
 
 /**
  * @en The base class of all value types.

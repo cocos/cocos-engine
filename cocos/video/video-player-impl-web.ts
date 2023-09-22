@@ -23,16 +23,16 @@
 */
 
 import { screenAdapter } from 'pal/screen-adapter';
+import { warn } from '@base/debug';
+import { ccwindow } from '@base/global';
 import { mat4, visibleRect } from '../core';
 import { sys, screen } from '../core/platform';
-import { warn } from '@base/debug';
 import { game } from '../game';
 import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
-import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 

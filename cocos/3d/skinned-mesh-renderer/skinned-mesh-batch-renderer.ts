@@ -25,6 +25,8 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, visible, override, serializable, editable } from 'cc.decorator';
 import { ImageData } from 'pal/image';
+import { warn } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { getWorldTransformUntilRoot } from '../../animation/transform-utils';
 import { Filter, PixelFormat } from '../../asset/assets/asset-enum';
 import { Material } from '../../asset/assets/material';
@@ -32,8 +34,6 @@ import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { CCString, Mat4, Vec2, Vec3 } from '../../core';
-import { warn } from '@base/debug';
-import { cclegacy } from '@base/global';
 import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy } from '../../gfx';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';

@@ -23,8 +23,8 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { NativeBufferPool } from './native-pools';
 import { warn } from '@base/debug';
+import { NativeBufferPool } from './native-pools';
 
 const contains = (a: number[], t: number): boolean => {
     for (let i = 0; i < a.length; ++i) {

@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
+import { cclegacy } from '@base/global';
 import { Component } from '../../cocos/scene-graph/component';
 import { Node } from '../../cocos/scene-graph';
-import { cclegacy } from '@base/global';
 
 type Constructor<T = {}> = new(...args: any[]) => T;
 

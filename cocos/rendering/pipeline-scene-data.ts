@@ -20,6 +20,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Fog } from '../render-scene/scene/fog';
 import { Ambient } from '../render-scene/scene/ambient';
 import { Skybox } from '../render-scene/scene/skybox';
@@ -31,7 +32,6 @@ import { Light } from '../render-scene/scene/light';
 import { Material } from '../asset/assets';
 import { Pass } from '../render-scene/core/pass';
 import { CSMLayers } from './shadow/csm-layers';
-import { cclegacy } from '@base/global';
 import { Skin } from '../render-scene/scene/skin';
 import { Model } from '../render-scene/scene/model';
 import { PostSettings } from '../render-scene/scene/post-settings';

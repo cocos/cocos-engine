@@ -23,6 +23,7 @@
 */
 
 import { ImageData } from 'pal/image';
+import { debug, error } from '@base/debug';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -57,7 +58,6 @@ import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers, Web
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { debug, error } from '@base/debug';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { IWebGLBindingMapping, IWebGLBlitManager } from './webgl-gpu-objects';

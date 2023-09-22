@@ -24,9 +24,9 @@
 */
 
 import { DEV, JSB } from 'internal:constants';
-import { CCObject, isCCObject, js, ValueType, jsbUtils, isCCClassOrFastDefined, misc } from '../core';
 import { getError, warn } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { CCObject, isCCObject, js, ValueType, jsbUtils, isCCClassOrFastDefined, misc } from '../core';
 import { Prefab } from '../scene-graph/prefab';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';

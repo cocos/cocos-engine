@@ -24,6 +24,8 @@
 */
 
 import { TEST, EDITOR } from 'internal:constants';
+import { warn } from '@base/debug';
+import { cclegacy, ccwindow } from '@base/global';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -34,8 +36,6 @@ import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
 import { preTransforms, System, sys, Settings, settings } from '../core';
-import { warn } from '@base/debug';
-import { cclegacy, ccwindow } from '@base/global';
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';

@@ -24,8 +24,8 @@
 
 import { IMiniGame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
-import { Orientation } from '../screen-adapter/enum-type';
 import { warn } from '@base/debug';
+import { Orientation } from '../screen-adapter/enum-type';
 
 declare let swan: any;
 

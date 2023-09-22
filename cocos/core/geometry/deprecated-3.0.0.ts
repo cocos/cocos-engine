@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { warn } from '@base/debug';
 import { replaceProperty } from '../utils/x-deprecated';
 
 import intersect from './intersect';
@@ -34,7 +35,6 @@ import { AABB } from './aabb';
 import { OBB } from './obb';
 import { Capsule } from './capsule';
 import { Frustum } from './frustum';
-import { warn } from '@base/debug';
 
 replaceProperty(intersect, 'intersect', [
     {

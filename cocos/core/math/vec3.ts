@@ -24,12 +24,12 @@
 */
 
 import { cclegacy } from '@base/global';
+import { warn } from '@base/debug';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, lerp, random } from './utils';
-import { warn } from '@base/debug';
 
 /**
  * @en Representation of 3D vectors and points.

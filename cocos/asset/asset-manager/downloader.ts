@@ -23,8 +23,8 @@
 */
 
 import { BUILD, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { sys, js, misc, path } from '../../core';
 import { cclegacy } from '@base/global';
+import { sys, js, misc, path } from '../../core';
 import Cache from './cache';
 import downloadFile from './download-file';
 import { FileProgressCallback } from './download-file';
