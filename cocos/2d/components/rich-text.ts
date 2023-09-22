@@ -27,6 +27,7 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multil
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { assert, warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { assert, warnID } from '@base/debug';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { Color, Vec2, CCObject, js, Size } from '../../core';

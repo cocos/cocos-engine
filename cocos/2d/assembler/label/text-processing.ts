@@ -741,7 +741,7 @@ export class TextProcessing {
         layout: TextLayout,
         outputLayoutData: TextOutputLayoutData,
         inputString: string,
-        nextTokenFunc: (arg0: TextStyle, arg1: TextLayout, arg2: string, arg3: number, arg4: number) => number,
+        nextTokenFunc: (arg0: TextStyle, arg1: TextLayout, arg2: string, arg3: number, arg4: number, arg5: number) => number,
     ): boolean {
         layout.linesWidth.length = 0;
 

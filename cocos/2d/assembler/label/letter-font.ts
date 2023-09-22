@@ -42,7 +42,7 @@ export const letterFont = js.mixin(bmfontUtils, {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
         }
 
-        return _shareAtlas.getTexture() as LetterRenderTexture | null;
+        return _shareAtlas.getTexture();
     },
 
     _getFontFamily (comp: Label) {
@@ -89,13 +89,13 @@ export const letterFont = js.mixin(bmfontUtils, {
 
         // outline
         let margin = 0;
-        const outline = comp.getComponent(LabelOutline);
-        if (outline && outline.enabled) {
+        const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
+        if (isOutlined) {
             style.isOutlined = true;
-            margin = outline.width;
-            style.outlineWidth = outline.width;
-            style.outlineColor = outline.color.clone();
-            style.outlineColor.a = outline.color.a * comp.color.a / 255.0;
+            margin = comp.outlineWidth;
+            style.outlineWidth = comp.outlineWidth;
+            style.outlineColor = comp.outlineColor.clone();
+            style.outlineColor.a = comp.outlineColor.a * comp.color.a / 255.0;
         } else {
             style.outlineWidth = 0;
             style.isOutlined = false;

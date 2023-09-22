@@ -24,6 +24,7 @@
 
 import { warn, warnID } from '@base/debug';
 import { ccwindow } from '@base/global';
+import { warn, warnID } from '@base/debug';
 import { FontAtlas } from '../../assets/bitmap-font';
 import { Color, macro, ImageData } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';

@@ -37,11 +37,10 @@ const Overflow = Label.Overflow;
 
 export const ttfUtils =  {
 
-    updateProcessingData (
+    updateLayoutProcessingData (
         style: TextStyle,
         layout: TextLayout,
         outputLayoutData: TextOutputLayoutData,
-        outputRenderData: TextOutputRenderData,
         comp: Label,
         trans: UITransform,
     ): void {
