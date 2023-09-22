@@ -24,18 +24,18 @@
 */
 
 import { TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 import { isCCObject, isValid } from '../data/object';
-import { cclegacy } from '@base/global';
 
 const fastRemoveAt = array.fastRemoveAt;
 
-function empty (): void { }
+function empty (): void { /* no implementation */ }
 
 class CallbackInfo {
     public callback: AnyFunction = empty;
-    public target: unknown | undefined = undefined;
+    public target?: unknown = undefined;
     public once = false;
 
     public set (callback: AnyFunction, target?: unknown, once?: boolean): void {
@@ -251,7 +251,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
      * @en Removes all callbacks registered in a certain event type or all callbacks registered with a certain target
      * @param keyOrTarget - The event type or target with which the listeners will be removed
      */
-    public removeAll (keyOrTarget: EventTypeClass | unknown): void {
+    public removeAll (keyOrTarget: unknown): void {
         const type = typeof keyOrTarget;
         if (type === 'string' || type === 'number') {
             // remove by key
