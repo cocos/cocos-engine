@@ -22,15 +22,13 @@
  THE SOFTWARE.
 */
 
-
-
 import { IVec2Like } from '../../core';
 import { ILifecycle } from '../../physics/spec/i-lifecycle';
 import { Joint2D, RigidBody2D } from '../framework';
 
 export interface IJoint2D extends ILifecycle {
     readonly impl: any;
-
+    apply (): void;
     initialize (v: Joint2D): void;
 }
 
