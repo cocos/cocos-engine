@@ -40,7 +40,7 @@ const DefaultAPILevel = 27;
 export class AndroidPackTool extends NativePackTool {
     params!: CocosParams<IAndroidParams>;
 
-    private firstTimeBuild: boolean = false;
+    protected firstTimeBuild: boolean = false;
 
     protected async copyPlatformTemplate() {
         // 原生工程不重复拷贝 TODO 复用前需要做版本检测

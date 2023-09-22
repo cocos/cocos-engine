@@ -280,7 +280,7 @@ nodeProto.on = function (type, callback, target, useCapture: any = false) {
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_LAYER_CHANGED;
             }
             break;
-        case NodeEventType.SIBLING_ORDER_CHANGED:
+        case NodeEventType.CHILDREN_ORDER_CHANGED:
             if (!(this._registeredNodeEventTypeMask & REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED)) {
                 this._registerOnSiblingOrderChanged();
                 this._registeredNodeEventTypeMask |= REGISTERED_EVENT_MASK_SIBLING_ORDER_CHANGED;
@@ -492,7 +492,7 @@ nodeProto.destroyAllChildren = function destroyAllChildren() {
 };
 
 nodeProto._onSiblingOrderChanged = function () {
-    this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
+    this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
 };
 
 nodeProto._onActivateNode = function (shouldActiveNow) {

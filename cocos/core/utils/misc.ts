@@ -28,8 +28,8 @@
 import { DEV } from 'internal:constants';
 import { setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
-import { getClassName, getset, isEmptyObject } from './js';
 import { warnID } from '@base/debug';
+import { getClassName, getset, isEmptyObject } from './js';
 import { macro } from '../platform/macro';
 import type { Component } from '../../scene-graph';
 
@@ -252,6 +252,19 @@ export function degreesToRadians (angle: number): number {
  */
 export function radiansToDegrees (angle): number {
     return angle * macro.DEG;
+}
+
+/**
+ * @engineInternal
+ */
+export function applyMixins (derivedCtor: any, baseCtors: any[]): void {
+    baseCtors.forEach((baseCtor) => {
+        Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+            if (name !== 'constructor') {
+                Object.defineProperty(derivedCtor.prototype, name, Object.getOwnPropertyDescriptor(baseCtor.prototype, name)!);
+            }
+        });
+    });
 }
 
 // if (TEST) {

@@ -619,7 +619,7 @@ export class Batcher2D implements IBatcher {
         this._currBID = -1;
 
         // Request ia failed
-        if (!ia) {
+        if (!ia || !this._currTexture) {
             return;
         }
 
@@ -636,7 +636,7 @@ export class Batcher2D implements IBatcher {
 
         const curDrawBatch = this._drawBatchPool.alloc();
         curDrawBatch.visFlags = this._currLayer;
-        curDrawBatch.texture = this._currTexture!;
+        curDrawBatch.texture = this._currTexture;
         curDrawBatch.sampler = this._currSampler;
         curDrawBatch.inputAssembler = ia;
         curDrawBatch.useLocalData = this._currTransform;

@@ -30,14 +30,21 @@
 import { WASM_SUPPORT_MODE, WEBGPU } from 'internal:constants';
 import webgpuUrl from 'external:emscripten/webgpu/webgpu_wasm.wasm';
 import glslangUrl from 'external:emscripten/webgpu/glslang.wasm';
+import twgslUrl from 'external:emscripten/webgpu/twgsl.wasm'
+
 import wasmDevice from 'external:emscripten/webgpu/webgpu_wasm.js';
 import glslangLoader from 'external:emscripten/webgpu/glslang.js';
+import twgslLoader from 'external:emscripten/webgpu/twgsl.js'
 import { cclegacy } from '@base/global';
 import { WebAssemblySupportMode } from '../misc/webassembly-support';
 import { log } from 'console';
 
-export const glslalgWasmModule: any = {
+export const glslangWasmModule: any = {
     glslang: null,
+};
+
+export const twgslModule: any = {
+    twgsl: null,
 };
 
 export const gfx: any = cclegacy.gfx = {
@@ -55,7 +62,10 @@ export const promiseForWebGPUInstantiation = (() => {
         // TODO: we need to support AsmJS fallback option
         return Promise.all([
             glslangLoader(new URL(glslangUrl, import.meta.url).href).then((res) => {
-                glslalgWasmModule.glslang = res;
+                glslangWasmModule.glslang = res;
+            }),
+            twgslLoader(new URL(twgslUrl, import.meta.url).href).then((data) => {
+                twgslModule.twgsl = data;
             }),
             new Promise<void>((resolve) => {
                 fetch(new URL(webgpuUrl, import.meta.url).href).then((response) => {

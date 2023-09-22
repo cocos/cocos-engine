@@ -64,7 +64,7 @@ protected:
 
     ccstd::hash_t _hash{0};
 
-    friend void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet *> &descriptorSets, PipelineLayout *pipelineLayout);
+    friend void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet *> &descriptorSets, PipelineLayout *pipelineLayout, bool skipEmpty);
 };
 
 } // namespace gfx

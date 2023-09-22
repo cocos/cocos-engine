@@ -100,7 +100,7 @@ static WGPUTextureDimension toWGPUTextureDimension(TextureType type) {
         case TextureType::TEX3D:
             return WGPUTextureDimension::WGPUTextureDimension_3D;
         default:
-            printf("unsupport type %d.", type);
+            printf("Unsupport type: %d\n", static_cast<int>(type));
             return WGPUTextureDimension::WGPUTextureDimension_Force32;
     }
 }
@@ -119,7 +119,7 @@ static WGPUTextureViewDimension toWGPUTextureViewDimension(TextureType type) {
         case TextureType::TEX3D:
             return WGPUTextureViewDimension::WGPUTextureViewDimension_3D;
         default:
-            printf("unsupport type %d.", type);
+            printf("Unsupport type %d\n", static_cast<int>(type));
             return WGPUTextureViewDimension::WGPUTextureViewDimension_Undefined;
     }
 }
@@ -167,7 +167,8 @@ static WGPUTextureSampleType textureSampleTypeTrait(Format format) {
         case Format::DEPTH:
             return WGPUTextureSampleType::WGPUTextureSampleType_Depth;
         default:
-            printf("unsupport texture sample type yet, github@hana-alice to fix.");
+            printf("Unsupport texture sample type yet, github@hana-alice to fix.\n");
+            return WGPUTextureSampleType::WGPUTextureSampleType_Undefined;
     }
 }
 
@@ -291,7 +292,7 @@ static WGPUTextureFormat toWGPUTextureFormat(Format format) {
         case Format::BC7_SRGB:
             return WGPUTextureFormat::WGPUTextureFormat_BC7RGBAUnormSrgb;
         default:
-            printf("unsupport WebGPU texture format %d\n", format);
+            printf("Unsupport WebGPU texture format %d\n", static_cast<int>(format));
             return WGPUTextureFormat::WGPUTextureFormat_Force32;
     }
 }
@@ -306,6 +307,19 @@ static WGPUAddressMode toWGPUAddressMode(Address addrMode) {
             return WGPUAddressMode::WGPUAddressMode_ClampToEdge;
         case Address::MIRROR:
             return WGPUAddressMode::WGPUAddressMode_MirrorRepeat;
+    }
+}
+
+static WGPUMipmapFilterMode toWGPUMipmapFilterMode(Filter filter) {
+    switch (filter) {
+        case Filter::NONE:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Nearest;
+        case Filter::POINT:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Nearest;
+        case Filter::LINEAR:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Linear;
+        case Filter::ANISOTROPIC:
+            return WGPUMipmapFilterMode::WGPUMipmapFilterMode_Linear;
     }
 }
 
@@ -341,7 +355,7 @@ static WGPUCompareFunction toWGPUCompareFunction(ComparisonFunc compareFunc) {
         case ComparisonFunc::ALWAYS:
             return WGPUCompareFunction::WGPUCompareFunction_Always;
         default:
-            printf("unsupport compareFunc: %d", compareFunc);
+            printf("Unsupport compareFunc: %d\n", static_cast<int>(compareFunc));
             return WGPUCompareFunction::WGPUCompareFunction_Force32;
     }
 }
@@ -388,7 +402,7 @@ static WGPUShaderStageFlags toWGPUShaderStageFlag(ShaderStageFlagBit flag) {
     }
 
     if (result == WGPUShaderStage_None) {
-        printf("unsupport shader stage detected");
+        printf("Unsupport shader stage detected\n");
     }
     return result;
 }
@@ -511,7 +525,8 @@ static WGPUVertexFormat toWGPUVertexFormat(Format format) {
         case Format::RGBA32I:
             return WGPUVertexFormat_Sint32x4;
         default:
-            printf("usvf %d\n", format);
+            printf("usvf %d\n", static_cast<int>(format));
+            return WGPUVertexFormat_Undefined;
     }
 }
 
@@ -528,7 +543,7 @@ static WGPUPrimitiveTopology toWGPUPrimTopology(PrimitiveMode mode) {
         case PrimitiveMode::TRIANGLE_STRIP:
             return WGPUPrimitiveTopology_TriangleStrip;
         default:
-            printf("unsupport primitive topology.");
+            printf("Unsupport primitive topology.\n");
             return WGPUPrimitiveTopology_Force32;
     }
 }
@@ -579,7 +594,7 @@ static WGPUBlendFactor toWGPUBlendFactor(BlendFactor blendFactor) {
         case BlendFactor::ONE_MINUS_CONSTANT_COLOR:
             return WGPUBlendFactor::WGPUBlendFactor_OneMinusConstant;
         default:
-            printf("unsupport blend factor config %d\n", blendFactor);
+            printf("Unsupport blend factor config %d\n", static_cast<int>(blendFactor));
             return WGPUBlendFactor::WGPUBlendFactor_Force32;
     }
 }
@@ -644,7 +659,7 @@ void genMipMap(Texture* texture, uint8_t fromLevel, uint8_t levelCount, uint32_t
 class DescriptorSet;
 class PipelineLayout;
 // descriptor set layout in descriptor set not consistent with the binding in pipeline layout.
-void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout);
+void createPipelineLayoutFallback(const ccstd::vector<DescriptorSet*>& descriptorSets, PipelineLayout* pipelineLayout, bool skipEmpty = false);
 
 class Texture;
 class CommandBuffer;

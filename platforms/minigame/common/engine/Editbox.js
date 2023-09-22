@@ -86,7 +86,7 @@
             cbs.onKeyboardConfirm = function (res) {
                 res && res.value ? delegate._editBoxEditingReturn(res.value) : delegate._editBoxEditingReturn();
                 const cbs = self._eventListeners;
-                cbs.onKeyboardComplete && cbs.onKeyboardComplete();
+                cbs.onKeyboardComplete && cbs.onKeyboardComplete(res);
             };
 
             cbs.onKeyboardComplete = function (res) {
@@ -95,6 +95,9 @@
                 // wechat program do not have offKeyboard related callback
                 if (cc.sys.platform !== cc.sys.Platform.WECHAT_MINI_PROGRAM) {
                     self._unregisterKeyboardEvent();
+                }
+                if (res && res.value && res.value !== delegate.string) {
+                    delegate._editBoxTextChanged(res.value);
                 }
                 res && res.value ? delegate._editBoxEditingDidEnded(res.value) : delegate._editBoxEditingDidEnded();
             };

@@ -2,7 +2,7 @@
 #pragma define CLUSTERS_X 16u
 #pragma define CLUSTERS_Y 8u
 #pragma define CLUSTERS_Z 24u
-#pragma define MAX_LIGHTS_PER_CLUSTER 100u
+#pragma define MAX_LIGHTS_PER_CLUSTER 200u
 
 #pragma rate b_ccLightsBuffer pass
 #pragma glBinding(0)
