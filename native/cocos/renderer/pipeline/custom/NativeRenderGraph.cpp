@@ -779,11 +779,18 @@ void NativeSceneBuilder::useLightFrustum(
         return;
     }
 
-    const auto *pLight = dynamic_cast<const scene::DirectionalLight *>(light.get());
-    if (pLight) {
-        setBuiltinDirectionalLightFrustumConstants(sceneData.camera, pLight, csmLevel);
-    } else {
-        CC_EXPECTS(false);
+    switch (light->getType()) {
+        case scene::LightType::DIRECTIONAL: {
+            setBuiltinDirectionalLightFrustumConstants(
+                sceneData.camera, dynamic_cast<const scene::DirectionalLight *>(light.get()), csmLevel);
+        } break;
+        case scene::LightType::SPOT: {
+            setBuiltinSpotLightFrustumConstants(
+                dynamic_cast<const scene::SpotLight *>(light.get()));
+        } break;
+        default:
+            // noop
+            break;
     }
 }
 
