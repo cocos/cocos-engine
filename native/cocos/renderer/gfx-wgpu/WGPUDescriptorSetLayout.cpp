@@ -32,6 +32,7 @@
 #include "WGPUSampler.h"
 #include "WGPUTexture.h"
 #include "WGPUUtils.h"
+#include "base/Assertf.h"
 
 namespace cc {
 namespace gfx {
@@ -40,174 +41,8 @@ namespace {
 WGPUBindGroupLayout dftBindgroupLayout = wgpuDefaultHandle;
 
 ccstd::unordered_map<ccstd::hash_t, WGPUBindGroupLayout> layoutPool;
-} // namespace
 
-using namespace emscripten;
-
-CCWGPUDescriptorSetLayout::CCWGPUDescriptorSetLayout() : DescriptorSetLayout() {
-}
-
-CCWGPUDescriptorSetLayout::~CCWGPUDescriptorSetLayout() {
-    doDestroy();
-}
-
-void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
-    _gpuLayoutEntryObj = ccnew CCWGPUBindGroupLayoutObject;
-    for (size_t i = 0; i < _bindings.size(); i++) {
-        if (_bindings[i].descriptorType == DescriptorType::UNKNOWN)
-            continue;
-        if (hasFlag(COMBINED_ST_IN_USE, _bindings[i].descriptorType)) {
-            // 1. texture
-            WGPUBindGroupLayoutEntry textureLayout = {
-                .nextInChain = nullptr,
-                .binding = _bindings[i].binding,
-                .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                .texture.sampleType = WGPUTextureSampleType_Float,
-                .texture.viewDimension = WGPUTextureViewDimension_2D,
-            };
-            _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(textureLayout);
-
-            // 2. sampler
-            WGPUBindGroupLayoutEntry samplerLayout = {
-                .nextInChain = nullptr,
-                .binding = _bindings[i].binding + CC_WGPU_MAX_ATTACHMENTS,
-                .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                .sampler.type = WGPUSamplerBindingType_NonFiltering,
-            };
-            _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(samplerLayout);
-        } else if (hasFlag(DESCRIPTOR_BUFFER_TYPE, _bindings[i].descriptorType)) {
-            bool hasDynamicOffset = hasAnyFlags(_bindings[i].descriptorType, DescriptorType::DYNAMIC_STORAGE_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER);
-            _dynamicOffsetCount += (hasDynamicOffset);
-            if (hasFlag(_bindings[i].descriptorType, DescriptorType::STORAGE_BUFFER | DescriptorType::DYNAMIC_STORAGE_BUFFER)) {
-                WGPUBindGroupLayoutEntry layout = {
-                    .nextInChain = nullptr,
-                    .binding = _bindings[i].binding,
-                    .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                    .buffer = {nullptr, WGPUBufferBindingType::WGPUBufferBindingType_Storage, hasDynamicOffset, 0},
-                };
-                _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(layout);
-            } else if (hasFlag(_bindings[i].descriptorType, DescriptorType::UNIFORM_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER)) {
-                WGPUBindGroupLayoutEntry layout = {
-                    .nextInChain = nullptr,
-                    .binding = _bindings[i].binding,
-                    .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                    .buffer = {nullptr, WGPUBufferBindingType::WGPUBufferBindingType_Uniform, hasDynamicOffset, 0},
-                };
-                _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(layout);
-            } else {
-                printf("unsupport buffer descriptor type.");
-            }
-        } else if (_bindings[i].descriptorType == DescriptorType::SAMPLER) {
-            WGPUBindGroupLayoutEntry layout = {
-                .nextInChain = nullptr,
-                .binding = _bindings[i].binding,
-                .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                .sampler = {nullptr, WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering},
-            };
-            _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(layout);
-        } else if (_bindings[i].descriptorType == DescriptorType::STORAGE_IMAGE) {
-            WGPUBindGroupLayoutEntry layout = {
-                .nextInChain = nullptr,
-                .binding = _bindings[i].binding,
-                .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-                .storageTexture = {
-                    nullptr,
-                    WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly,
-                    WGPUTextureFormat::WGPUTextureFormat_RGBA8Unorm,
-                    WGPUTextureViewDimension::WGPUTextureViewDimension_2D,
-                },
-            };
-            _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(layout);
-        } else {
-            WGPUBindGroupLayoutEntry layout = {
-                .nextInChain = nullptr,
-                .binding = _bindings[i].binding,
-                .visibility = toWGPUShaderStageFlag(_bindings[i].stageFlags),
-            };
-            _gpuLayoutEntryObj->bindGroupLayoutEntries.push_back(layout);
-        }
-    }
-
-    (void)defaultBindGroupLayout();
-
-    _hash = hash();
-}
-
-void CCWGPUDescriptorSetLayout::updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer) {
-    // auto iter = std::find_if(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end(), [binding](const WGPUBindGroupLayoutEntry &entry) {
-    //     return entry.binding == binding;
-    // });
-
-    // if (iter != _gpuLayoutEntryObj->bindGroupLayoutEntries.end()) {
-    //     auto bindingIter = std::find_if(_bindings.begin(), _bindings.end(), [binding](const auto &binding) {
-    //         return binding.binding == binding;
-    //     });
-    // }
-
-    // _internalChanged = true;
-}
-
-void CCWGPUDescriptorSetLayout::updateTextureLayout(uint8_t binding, const CCWGPUTexture *texture) {
-    auto iter = std::find_if(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end(), [binding](const WGPUBindGroupLayoutEntry &entry) {
-        return entry.binding == binding;
-    });
-
-    if (iter != _gpuLayoutEntryObj->bindGroupLayoutEntries.end()) {
-        auto bindingIter = std::find_if(_bindings.begin(), _bindings.end(), [binding](const auto &bindingElem) {
-            return bindingElem.binding == binding;
-        });
-        if (texture) {
-            if (texture->getInfo().usage == TextureUsageBit::STORAGE) {
-                (*iter).storageTexture.nextInChain = nullptr;
-                (*iter).storageTexture.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
-                (*iter).storageTexture.format = toWGPUTextureFormat(texture->getFormat());
-                TextureType type = texture->isTextureView() ? texture->getViewInfo().type : texture->getInfo().type;
-                (*iter).storageTexture.viewDimension = toWGPUTextureViewDimension(type);
-            } else {
-                (*iter).texture.nextInChain = nullptr;
-                (*iter).texture.sampleType = textureSampleTypeTrait(texture->getFormat());
-                const CCWGPUTexture *ccTex = static_cast<const CCWGPUTexture *>(texture->isTextureView() ? texture->getViewInfo().texture : texture);
-                TextureType type = ccTex->getViewInfo().type;
-                (*iter).texture.viewDimension = toWGPUTextureViewDimension(type);
-                (*iter).texture.multisampled = ccTex->getInfo().samples != SampleCount::X1;
-            }
-        } else {
-            (*iter).texture.nextInChain = nullptr;
-            (*iter).texture.sampleType = WGPUTextureSampleType::WGPUTextureSampleType_Float;
-            (*iter).texture.viewDimension = WGPUTextureViewDimension::WGPUTextureViewDimension_2D;
-            (*iter).texture.multisampled = false;
-        }
-        _internalChanged = true;
-    }
-}
-
-void CCWGPUDescriptorSetLayout::updateSamplerLayout(uint8_t binding, const CCWGPUSampler *sampler) {
-    auto iter = std::find_if(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end(), [binding](const WGPUBindGroupLayoutEntry &entry) {
-        return entry.binding == binding;
-    });
-
-    if (iter != _gpuLayoutEntryObj->bindGroupLayoutEntries.end()) {
-        auto bindingIter = std::find_if(_bindings.begin(), _bindings.end(), [binding](const auto &bindingElem) {
-            return bindingElem.binding == binding;
-        });
-        if (sampler) {
-            const SamplerInfo &info = sampler->getInfo();
-            if ((info.minFilter == Filter::POINT || info.minFilter == Filter::NONE) &&
-                (info.magFilter == Filter::POINT || info.magFilter == Filter::NONE) &&
-                (info.mipFilter == Filter::POINT || info.mipFilter == Filter::NONE)) {
-                (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering;
-            } else {
-                (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
-            }
-        } else {
-            (*iter).sampler.type = WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering;
-        }
-        _internalChanged = true;
-    }
-}
-
-ccstd::hash_t CCWGPUDescriptorSetLayout::hash() const {
-    const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
+ccstd::hash_t hash(const ccstd::vector<WGPUBindGroupLayoutEntry> &entries) {
     ccstd::hash_t hash = 9527;
     ccstd::hash_combine(hash, entries.size());
     for (size_t i = 0; i < entries.size(); i++) {
@@ -236,12 +71,118 @@ ccstd::hash_t CCWGPUDescriptorSetLayout::hash() const {
     return hash;
 }
 
+bool checkInUse(uint8_t binding, const ccstd::set<uint8_t> &bindingInUse, bool samplerBinding) {
+    bool res = bindingInUse.find(binding) != bindingInUse.end();
+    if (!res && samplerBinding) {
+        res |= bindingInUse.find(binding - CC_WGPU_MAX_ATTACHMENTS) != bindingInUse.end();
+    }
+    return res;
+}
+
+} // namespace
+
+using namespace emscripten;
+
+CCWGPUDescriptorSetLayout::CCWGPUDescriptorSetLayout() : DescriptorSetLayout() {
+}
+
+CCWGPUDescriptorSetLayout::~CCWGPUDescriptorSetLayout() {
+    doDestroy();
+}
+
+void CCWGPUDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
+    _gpuLayoutEntryObj = ccnew CCWGPUBindGroupLayoutObject;
+    (void)defaultBindGroupLayout();
+}
+
+void CCWGPUDescriptorSetLayout::updateBufferLayout(uint8_t index, const CCWGPUBuffer *buffer, AccessFlags flags) {
+    WGPUBindGroupLayoutEntry bufferEntry{};
+    bufferEntry.binding = _bindings[index].binding;
+    bufferEntry.visibility = toWGPUShaderStageFlag(_bindings[index].stageFlags);
+
+    CC_ASSERT(buffer);
+
+    WGPUBufferBindingLayout bufferLayout{};
+    bool storageFlag = hasFlag(_bindings[index].descriptorType, DescriptorType::STORAGE_BUFFER | DescriptorType::DYNAMIC_STORAGE_BUFFER);
+    if (storageFlag) {
+        bufferLayout.type = flags > AccessFlagBit::PRESENT ? WGPUBufferBindingType_Storage : WGPUBufferBindingType_ReadOnlyStorage;
+    } else {
+        bufferLayout.type = WGPUBufferBindingType_Uniform;
+    }
+    bufferLayout.hasDynamicOffset = hasAnyFlags(_bindings[index].descriptorType, DescriptorType::DYNAMIC_STORAGE_BUFFER | DescriptorType::DYNAMIC_UNIFORM_BUFFER);
+
+    bufferEntry.buffer = bufferLayout;
+    _gpuLayoutEntryObj->bindGroupLayoutEntries[bufferEntry.binding] = bufferEntry;
+}
+
+namespace {
+WGPUTextureFormat formatTraits(const CCWGPUTexture *texture, uint32_t plane) {
+    if (texture->getFormat() == Format::DEPTH_STENCIL) {
+        return plane ? WGPUTextureFormat_Stencil8 : WGPUTextureFormat_Depth24Plus;
+    }
+    return toWGPUTextureFormat(texture->getFormat());
+}
+
+WGPUTextureSampleType sampletypeTraits(const CCWGPUTexture *texture, uint32_t plane) {
+    if (texture->getFormat() == Format::DEPTH_STENCIL) {
+        return plane ? WGPUTextureSampleType_Uint : WGPUTextureSampleType_UnfilterableFloat;
+    }
+    return textureSampleTypeTrait(texture->getFormat());
+}
+} // namespace
+
+void CCWGPUDescriptorSetLayout::updateTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane) {
+    WGPUBindGroupLayoutEntry textureEntry{};
+    textureEntry.binding = _bindings[index].binding;
+    textureEntry.visibility = toWGPUShaderStageFlag(_bindings[index].stageFlags);
+
+    CC_ASSERT(texture);
+
+    if (texture->getInfo().usage == TextureUsageBit::STORAGE) {
+        WGPUStorageTextureBindingLayout storageTextureLayout{};
+        storageTextureLayout.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
+        storageTextureLayout.format = formatTraits(texture, plane);
+        TextureType type = texture->isTextureView() ? texture->getViewInfo().type : texture->getInfo().type;
+        storageTextureLayout.viewDimension = toWGPUTextureViewDimension(type);
+        textureEntry.storageTexture = storageTextureLayout;
+    } else {
+        WGPUTextureBindingLayout textureLayout{};
+        textureLayout.sampleType = sampletypeTraits(texture, plane); // textureSampleTypeTrait(texture->getFormat());
+        const CCWGPUTexture *ccTex = static_cast<const CCWGPUTexture *>(texture->isTextureView() ? texture->getViewInfo().texture : texture);
+        TextureType type = ccTex->getViewInfo().type;
+        textureLayout.viewDimension = toWGPUTextureViewDimension(type);
+        textureLayout.multisampled = ccTex->getInfo().samples != SampleCount::X1;
+        textureEntry.texture = textureLayout;
+    }
+    _gpuLayoutEntryObj->bindGroupLayoutEntries[textureEntry.binding] = textureEntry;
+}
+
+void CCWGPUDescriptorSetLayout::updateSamplerLayout(uint8_t index, const CCWGPUSampler *sampler) {
+    WGPUBindGroupLayoutEntry samplerEntry{};
+    samplerEntry.binding = _bindings[index].binding + CC_WGPU_MAX_ATTACHMENTS;
+    samplerEntry.visibility = toWGPUShaderStageFlag(_bindings[index].stageFlags);
+
+    CC_ASSERT(sampler);
+
+    WGPUSamplerBindingLayout samplerLayout{};
+    const SamplerInfo &info = sampler->getInfo();
+    if ((info.minFilter == Filter::POINT || info.minFilter == Filter::NONE) &&
+        (info.magFilter == Filter::POINT || info.magFilter == Filter::NONE) &&
+        (info.mipFilter == Filter::POINT || info.mipFilter == Filter::NONE)) {
+        samplerLayout.type = WGPUSamplerBindingType::WGPUSamplerBindingType_NonFiltering;
+    } else {
+        samplerLayout.type = WGPUSamplerBindingType::WGPUSamplerBindingType_Filtering;
+    }
+    samplerEntry.sampler = samplerLayout;
+
+    _gpuLayoutEntryObj->bindGroupLayoutEntries[samplerEntry.binding] = samplerEntry;
+}
+
 void CCWGPUDescriptorSetLayout::print() const {
     size_t hashVal = _hash;
     printf("\npr this %p %p %zu\n", _gpuLayoutEntryObj, this, hashVal);
     const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
-    for (size_t j = 0; j < entries.size(); j++) {
-        const auto &entry = entries[j];
+    for (const auto &[bd, entry] : entries) {
         if ((entry.buffer.type != WGPUBufferBindingType_Undefined) +
                 (entry.sampler.type != WGPUSamplerBindingType_Undefined) +
                 (entry.texture.sampleType != WGPUTextureSampleType_Undefined) +
@@ -249,9 +190,9 @@ void CCWGPUDescriptorSetLayout::print() const {
             1) {
             printf("******missing %d, %d, %d, %d, %d\n", entry.binding, entry.buffer.type, entry.sampler.type, entry.texture.sampleType, entry.storageTexture.access);
         }
-        printf("%d, %d\n", entry.binding, entry.visibility);
+        printf("%d, %d, %d\n", entry.binding, entry.visibility, static_cast<int>(entries.size()));
         if (entry.buffer.type != WGPUBufferBindingType_Undefined) {
-            printf("b %d %d %d\n", entry.buffer.type, entry.buffer.hasDynamicOffset ? 1 : 0, entry.buffer.minBindingSize);
+            printf("b %d %d %llu\n", entry.buffer.type, entry.buffer.hasDynamicOffset ? 1 : 0, entry.buffer.minBindingSize);
         }
         if (entry.sampler.type != WGPUSamplerBindingType_Undefined) {
             printf("s %d\n", entry.sampler.type);
@@ -266,44 +207,28 @@ void CCWGPUDescriptorSetLayout::print() const {
 }
 
 void CCWGPUDescriptorSetLayout::prepare(ccstd::set<uint8_t> &bindingInUse, bool forceUpdate) {
-    // if (_gpuLayoutEntryObj->bindGroupLayout && !forceUpdate) {
-    //     return;
-    // }
-    // ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries;
-    // bindGroupLayoutEntries.assign(_gpuLayoutEntryObj->bindGroupLayoutEntries.begin(), _gpuLayoutEntryObj->bindGroupLayoutEntries.end());
-    // bindGroupLayoutEntries.erase(std::remove_if(
-    //                                  bindGroupLayoutEntries.begin(), bindGroupLayoutEntries.end(), [&bindingInUse, &bindGroupLayoutEntries](const WGPUBindGroupLayoutEntry &entry) {
-    //                                      return bindingInUse.find(entry.binding) == bindingInUse.end();
-    //                                  }),
-    //                              bindGroupLayoutEntries.end());
+    ccstd::vector<WGPUBindGroupLayoutEntry> bindGroupLayoutEntries{};
+    bindGroupLayoutEntries.reserve(_gpuLayoutEntryObj->bindGroupLayoutEntries.size());
+    for (const auto &[bd, layoutEntry] : _gpuLayoutEntryObj->bindGroupLayoutEntries) {
+        if (checkInUse(static_cast<uint8_t>(bd), bindingInUse, layoutEntry.sampler.type != WGPUSamplerBindingType_Undefined)) {
+            bindGroupLayoutEntries.emplace_back(layoutEntry);
+        }
+    }
 
-    _hash = hash();
+    _hash = hash(bindGroupLayoutEntries);
     auto iter = layoutPool.find(_hash);
-    // printf("dsl upd %zu\n", _hash);
     if (iter != layoutPool.end()) {
         _gpuLayoutEntryObj->bindGroupLayout = iter->second;
         return;
     }
-    const auto &entries = _gpuLayoutEntryObj->bindGroupLayoutEntries;
 
-    // for (size_t j = 0; j < entries.size(); j++) {
-    //     const auto& entry = entries[j];
-    //     if ((entry.buffer.type != WGPUBufferBindingType_Undefined) +
-    //             (entry.sampler.type != WGPUSamplerBindingType_Undefined) +
-    //             (entry.texture.sampleType != WGPUTextureSampleType_Undefined) +
-    //             (entry.storageTexture.access != WGPUStorageTextureAccess_Undefined) !=
-    //         1) {
-    //         printf("******missing %d, %d, %d, %d, %d\n", entry.binding, entry.buffer.type, entry.sampler.type, entry.texture.sampleType, entry.storageTexture.access);
-    //     }
-    //     // printf("l binding, b, t, s  %d, %d, %d, %d, %d\n", entry.binding, entry.buffer.type, entry.sampler.type, entry.texture.sampleType, entry.storageTexture.access);
-    // }
-
+    const auto &entries = bindGroupLayoutEntries;
     if (entries.empty()) {
         _gpuLayoutEntryObj->bindGroupLayout = dftBindgroupLayout;
     } else {
         WGPUBindGroupLayoutDescriptor descriptor = {
             .nextInChain = nullptr,
-            .label = std::to_string(_hash).c_str(),
+            .label = "", //std::to_string(_hash).c_str(),
             .entryCount = entries.size(),
             .entries = entries.data(),
         };

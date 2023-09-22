@@ -94,6 +94,8 @@ public:
     static void inflateMesh(const Mesh::IStruct &structInfo, Uint8Array &data);
 
     static void decodeMesh(Mesh::IStruct &structInfo, Uint8Array &data);
+
+    static void dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data);
 };
 
 } // namespace cc

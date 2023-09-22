@@ -22,13 +22,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#pragma once
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/preprocessor/variadic/to_seq.hpp>
+#include <vector>
 #include "WGPUBuffer.h"
 #include "WGPUCommandBuffer.h"
 #include "WGPUDef.h"
@@ -153,21 +153,6 @@ void CCWGPUDevice::copyTextureToBuffers(Texture* src, const emscripten::val& buf
     // @hana-alice
 }
 
-Shader* CCWGPUDevice::createShader(const ShaderInfo& info, const emscripten::val& spirvVal) {
-    CHECK_PTR(spirvVal);
-
-    auto len = spirvVal[length_val].as<uint32_t>();
-    std::vector<std::vector<uint32_t>> spvData;
-    for (size_t i = 0; i < len; ++i) {
-        spvData.emplace_back(std::move(convertJSArrayToNumberVector_local<uint32_t>(spirvVal[i])));
-    }
-
-    auto* shader = new CCWGPUShader();
-    // shader->initialize(shaderInfo);
-    shader->initialize(info, spvData);
-    return shader;
-}
-
 void CCWGPUDevice::copyBuffersToTexture(const emscripten::val& v, Texture* dst, const std::vector<BufferTextureCopy>& regions) {
     CHECK_VOID(v);
     auto len = v[length_val].as<unsigned>();
@@ -180,6 +165,11 @@ void CCWGPUDevice::copyBuffersToTexture(const emscripten::val& v, Texture* dst, 
     }
 
     return copyBuffersToTexture(buffers.data(), dst, regions.data(), regions.size());
+}
+
+void CCWGPUShader::reflectBinding(const emscripten::val& vals) {
+    const std::vector<uint8_t>& bindings = convertJSArrayToNumberVector<uint8_t>(vals);
+    _gpuShaderObject->bindings.emplace_back(bindings);
 }
 
 } // namespace cc::gfx

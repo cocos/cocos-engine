@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include <v8.h>
 #include <algorithm>
 #include <chrono>
 #include <map>
@@ -36,6 +35,7 @@
 #include "base/Log.h"
 #include "base/Macros.h"
 #include "base/std/container/string.h"
+#include "v8.h"
 
 // #define RECORD_JSB_INVOKING
 
@@ -72,7 +72,7 @@ constexpr inline T *SE_THIS_OBJECT(STATE &s) { // NOLINT(readability-identifier-
 
 template <typename T, typename BASE, typename STATE>
 constexpr inline T *SE_THIS_OBJECT_VIRTUAL(STATE &s) { // NOLINT(readability-identifier-naming)
-    return dynamic_cast<T *>(reinterpret_cast<BASE*>(s.nativeThisObject()));
+    return dynamic_cast<T *>(reinterpret_cast<BASE *>(s.nativeThisObject()));
 }
 
 template <typename T>

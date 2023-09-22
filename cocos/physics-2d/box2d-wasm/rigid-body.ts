@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2 } from './instantiated';
+import { B2, getTSObjectFromWASMObject, getTSObjectFromWASMObjectPtr } from './instantiated';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
@@ -31,8 +31,10 @@ import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
-import { Collider2D } from '../framework';
+import { Collider2D, Joint2D } from '../framework';
 import { NodeEventType } from '../../scene-graph/node-event';
+import { B2Shape2D } from './shapes/shape-2d';
+import { B2Joint } from './joints/joint-2d';
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = { x: 0, y: 0 };//new B2.Vec2(0, 0);
@@ -113,6 +115,29 @@ export class B2RigidBody2D implements IRigidBody2D {
 
     _destroy (): void {
         if (!this._inited) return;
+
+        //collect all fixtures attached to this rigid body and process them
+        const fixtureList = this.impl?.GetFixtureList();
+        if (fixtureList) {
+            let shapeTSObj = getTSObjectFromWASMObject<B2Shape2D>(fixtureList);
+            while (shapeTSObj && shapeTSObj.impl) {
+                shapeTSObj.destroy();
+                const nextFixture = fixtureList.GetNext();
+                shapeTSObj = getTSObjectFromWASMObject<B2Shape2D>(nextFixture);
+            }
+        }
+
+        //collect all joints attached to this rigid body and process them
+        const jointListPtr = this.impl?.GetJointList();
+        if (jointListPtr) {
+            let jointWASMPtr = B2.JointEdgeGetJoint(jointListPtr) as number;
+            let jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(jointWASMPtr);
+            while (jointTSObj) {
+                jointTSObj.destroy();
+                jointWASMPtr = B2.JointEdgeGetNext(jointListPtr) as number;
+                jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(jointWASMPtr);
+            }
+        }
 
         (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).removeBody(this);
 

@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "Utils.h"
+#include "Class.h"
 #include "CommonHeader.h"
 #include "ScriptEngine.h"
-#include "Class.h"
 
 #define MAX_STRING_LENS 1024
 
@@ -34,20 +34,20 @@ namespace se {
 namespace internal {
 void jsToSeValue(const target_value& value, Value* v) {
     assert(v != nullptr);
-    napi_status    status;
+    napi_status status;
     napi_valuetype valType;
-    int64_t iRet      = 0;
-    double  dRet      = 0.0;
-    bool    bRet      = false;
-    bool    lossless  = false;
-    size_t  len       = 0;
-    void*   privateObjPtr = nullptr;
-    void*   nativePtr = nullptr;
-    Object* obj       = nullptr;
+    int64_t iRet = 0;
+    double dRet = 0.0;
+    bool bRet = false;
+    bool lossless = false;
+    size_t len = 0;
+    void* privateObjPtr = nullptr;
+    void* nativePtr = nullptr;
+    Object* obj = nullptr;
 
     if (!value) {
         valType = napi_valuetype::napi_undefined;
-    }else {
+    } else {
         NODE_API_CALL(status, ScriptEngine::getEnv(), napi_typeof(ScriptEngine::getEnv(), value, &valType));
     }
 
@@ -67,7 +67,7 @@ void jsToSeValue(const target_value& value, Value* v) {
             }
             break;
         case napi_valuetype::napi_bigint:
-            //NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_bigint_int64(ScriptEngine::getEnv(), value, &iRet, &lossless));
+            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_value_bigint_int64(ScriptEngine::getEnv(), value, &iRet, &lossless));
             if (lossless) {
                 v->setInt64(iRet);
             } else {
@@ -133,7 +133,7 @@ void jsToSeArgs(size_t argc, target_value* argv, ValueArray* outArr) {
 
 bool seToJsValue(const Value& v, target_value* outJsVal) {
     assert(outJsVal != nullptr);
-    bool        ret = false;
+    bool ret = false;
     napi_status status = napi_ok;
     switch (v.getType()) {
         case Value::Type::Number:
@@ -150,7 +150,7 @@ bool seToJsValue(const Value& v, target_value* outJsVal) {
             break;
         case Value::Type::Object:
             *outJsVal = v.toObject()->_getJSObject();
-            ret       = (outJsVal != nullptr);
+            ret = (outJsVal != nullptr);
             break;
         case Value::Type::Null:
             NODE_API_CALL(status, ScriptEngine::getEnv(), napi_get_null(ScriptEngine::getEnv(), outJsVal));
@@ -161,8 +161,7 @@ bool seToJsValue(const Value& v, target_value* outJsVal) {
             ret = (status == napi_ok);
             break;
         case Value::Type::BigInt:
-            //NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_bigint_int64(ScriptEngine::getEnv(), v.toInt64(), outJsVal));
-            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_double(ScriptEngine::getEnv(), v.toDouble(), outJsVal));
+            NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_bigint_int64(ScriptEngine::getEnv(), v.toInt64(), outJsVal));
             ret = (status == napi_ok);
             break;
         default:

@@ -137,6 +137,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     public update (): void {
+        if (!this._dirtyFlag) return;
         this._updateMatrix();
     }
 
@@ -625,12 +626,12 @@ export class EditBoxImpl extends EditBoxImplBase {
             this._delegate!._editBoxEditingDidEnded();
         };
 
-        elem.addEventListener('compositionstart', cbs.compositionStart);
-        elem.addEventListener('compositionend', cbs.compositionEnd);
-        elem.addEventListener('input', cbs.onInput);
-        elem.addEventListener('keydown', cbs.onKeydown);
-        elem.addEventListener('blur', cbs.onBlur);
-        elem.addEventListener('touchstart', cbs.onClick);
+        elem.addEventListener('compositionstart', cbs.compositionStart as EventListenerOrEventListenerObject);
+        elem.addEventListener('compositionend', cbs.compositionEnd as EventListenerOrEventListenerObject);
+        elem.addEventListener('input', cbs.onInput as EventListenerOrEventListenerObject);
+        elem.addEventListener('keydown', cbs.onKeydown as EventListenerOrEventListenerObject);
+        elem.addEventListener('blur', cbs.onBlur as EventListenerOrEventListenerObject);
+        elem.addEventListener('touchstart', cbs.onClick as EventListenerOrEventListenerObject);
     }
     private _removeEventListeners (): void {
         if (!this._edTxt) {
@@ -640,12 +641,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         const elem = this._edTxt;
         const cbs = this.__eventListeners;
 
-        elem.removeEventListener('compositionstart', cbs.compositionStart);
-        elem.removeEventListener('compositionend', cbs.compositionEnd);
-        elem.removeEventListener('input', cbs.onInput);
-        elem.removeEventListener('keydown', cbs.onKeydown);
-        elem.removeEventListener('blur', cbs.onBlur);
-        elem.removeEventListener('touchstart', cbs.onClick);
+        elem.removeEventListener('compositionstart', cbs.compositionStart as EventListenerOrEventListenerObject);
+        elem.removeEventListener('compositionend', cbs.compositionEnd as EventListenerOrEventListenerObject);
+        elem.removeEventListener('input', cbs.onInput as EventListenerOrEventListenerObject);
+        elem.removeEventListener('keydown', cbs.onKeydown as EventListenerOrEventListenerObject);
+        elem.removeEventListener('blur', cbs.onBlur as EventListenerOrEventListenerObject);
+        elem.removeEventListener('touchstart', cbs.onClick as EventListenerOrEventListenerObject);
 
         cbs.compositionStart = null;
         cbs.compositionEnd = null;
