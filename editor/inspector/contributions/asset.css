@@ -106,11 +106,33 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    position: relative;
+}
+
+:host > .container > .content > section > inspector-resize-preview {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 10;
+}
+
+:host > .container > .content > section > inspector-resize-preview[area="header"] {
+    bottom: 0;
+}
+
+:host > .container > .content > section > inspector-resize-preview[area="footer"] {
+    top: 0;
+}
+
+:host > .container > .content > .content-header,
+:host > .container > .content > .content-footer {
+    max-height: 80vh;
 }
 
 :host > .container > .content > .content-section {
     flex: 1;
     overflow: auto;
+    min-height: 200px;
 }
 
 :host > .container > .content > section > ui-panel {

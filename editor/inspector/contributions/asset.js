@@ -32,9 +32,13 @@ exports.template = `
         </ui-link>
     </header>
     <section class="content">
-        <section class="content-header"></section>
+        <section class="content-header">
+            <inspector-resize-preview area="header"></inspector-resize-preview>
+        </section>
         <section class="content-section"></section>
-        <section class="content-footer"></section>
+        <section class="content-footer">
+            <inspector-resize-preview area="footer"></inspector-resize-preview>
+        </section>
     </section>
 </div>
 `;
@@ -133,7 +137,7 @@ const Elements = {
             if (panel.type === 'unknown') {
                 panel.metaList = [];
                 panel.metaListOrigin = [];
-                return false;
+                return;
             }
 
             try {
@@ -325,7 +329,7 @@ const Elements = {
 
             for (const renderName in panel.contentRenders) {
                 const { list, contentRender } = panel.contentRenders[renderName];
-                contentRender.__panels__ = Array.from(contentRender.children);
+                contentRender.__panels__ = Array.from(contentRender.children).filter((el) => el.tagName === 'UI-PANEL');
                 let i = 0;
                 for (i; i < list.length; i++) {
                     const file = list[i];
@@ -348,7 +352,6 @@ const Elements = {
                     contentRender.removeChild(contentRender.__panels__[i]);
                 }
 
-                contentRender.__panels__ = Array.from(contentRender.children);
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
@@ -401,9 +404,9 @@ exports.methods = {
         }
 
         return {
-            uuidListStr:JSON.stringify(panel.uuidList),
-            metaListStr:JSON.stringify(panel.metaList),
-            renderDataStr:JSON.stringify(renderData),
+            uuidListStr: JSON.stringify(panel.uuidList),
+            metaListStr: JSON.stringify(panel.metaList),
+            renderDataStr: JSON.stringify(renderData),
         };
     },
     restore(record) {

@@ -7,7 +7,6 @@ const previewParams = {
 
 exports.template = /* html */`
 <div class="section">
-    <canvas></canvas>
     <div class="tools">
         <ui-select class="primitive">
             <option>sphere</option>
@@ -20,20 +19,23 @@ exports.template = /* html */`
         </ui-select>
         <ui-checkbox>Light</ui-checkbox>
     </div>
+    <canvas></canvas>
 </div>
 `;
 
 exports.style = /* css */`
 :host > .section {
-    height: 200px;
-    padding: 4px 0 4px 4px;
-    box-sizing: border-box;
     display: flex;
+    flex-direction: column;
+    height: var(--inspector-header-preview-height, 200px);
+    padding: 4px;
+    box-sizing: border-box;
     background: var(--color-normal-fill);
-    border-bottom: 1px solid var(--color-normal-border);
 }
-:host > .section > canvas { flex: 1; min-width: 0; }
-:host > .section > .tools { display: flex; flex-direction: column; padding: 0 4px; }
+:host > .section > canvas { flex: 1; max-height: 100%; aspect-ratio: auto; }
+:host > .section > .tools { display: flex; margin-bottom: 4px; }
+:host > .section > .tools > ui-select { flex: 1; }
+:host > .section > .tools > ui-checkbox { margin-left: 4px; }
 `;
 
 exports.$ = {
