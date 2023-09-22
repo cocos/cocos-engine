@@ -81,7 +81,7 @@ export class Joint2D extends Component {
      * @zh
      * 关节所绑定的刚体组件。
      */
-    _body: RigidBody2D | null = null
+    _body: RigidBody2D | null = null;
     get body (): RigidBody2D | null {
         return this._body;
     }
@@ -130,6 +130,18 @@ export class Joint2D extends Component {
     protected onDestroy (): void {
         if (this._joint && this._joint.onDestroy) {
             this._joint.onDestroy();
+        }
+    }
+
+    /**
+     * @en
+     * If the physics engine is box2d, need to call this function to apply current changes to joint, this will regenerate inner box2d joint.
+     * @zh
+     * 如果物理引擎是 box2d, 需要调用此函数来应用当前 joint 中的修改。
+     */
+    apply (): void {
+        if (this._joint && this._joint.apply) {
+            this._joint.apply();
         }
     }
 }
