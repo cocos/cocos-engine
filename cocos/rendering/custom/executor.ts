@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
+import { getPhaseID, PipelineStateManager } from '..';
 import { assert, cclegacy, RecyclePool } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
@@ -36,7 +36,6 @@ import {
     AccessFlagBit,
     Attribute,
     Buffer,
-    BufferFlagBit,
     BufferInfo,
     BufferUsageBit,
     BufferViewInfo,
@@ -75,7 +74,6 @@ import {
 import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
-import { IMacroPatch, Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
@@ -144,7 +142,7 @@ import {
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { SceneCulling } from './scene-culling';
-import { WebPipeline } from './web-pipeline';
+import { Pass } from '../../render-scene';
 
 class ResourceVisitor implements ResourceGraphVisitor {
     name: string;
@@ -508,7 +506,6 @@ class BlitDesc {
             const deferredLitsBufView = context.blit.deferredLitsBufView;
             this._lightBufferData = context.blit.lightBufferData;
             this._lightBufferData.fill(0);
-            // const binding = isEnableEffect() ? getDescBindingFromName('CCForwardLight') : UBOForwardLight.BINDING;
             this._stageDesc.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
         }
         this._stageDesc.bindBuffer(UBOLocal.BINDING, context.blit.emptyLocalUBO);
@@ -700,62 +697,58 @@ class SubmitInfo {
 
 class RenderPassLayoutInfo {
     protected _layoutID = 0;
+    protected _vertID = -1;
     protected _stage: RenderStageData | null = null;
     protected _layout: PipelineLayoutData;
     protected _inputName: string;
     protected _descriptorSet: DescriptorSet | null = null;
-    constructor (layoutId: number, input: [string, ComputeView[]]) {
+    constructor (layoutId: number, vertId: number, input: [string, ComputeView[]]) {
         this._inputName = input[0];
         this._layoutID = layoutId;
+        this._vertID = vertId;
         const lg = context.layoutGraph;
         this._stage = lg.getRenderStage(layoutId);
         this._layout = lg.getLayout(layoutId);
         const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
-        // const globalDesc = context.descriptorSet;
-        if (layoutData) {
-            const layoutDesc = layoutData.descriptorSet!;
-            // find resource
-            const deviceTex = context.deviceTextures.get(this._inputName);
-            const gfxTex = deviceTex?.texture;
+        if (!layoutData) {
+            return;
+        }
+        const layoutDesc = layoutData.descriptorSet!;
+        // find resource
+        const deviceTex = context.deviceTextures.get(this._inputName);
+        const gfxTex = deviceTex?.texture;
 
-            const deviceBuf = context.deviceBuffers.get(this._inputName);
-            const gfxBuf = deviceBuf?.buffer;
-            if (!gfxTex && !gfxBuf) {
-                throw Error(`Could not find texture with resource name ${this._inputName}`);
-            }
-            const resId = context.resourceGraph.vertex(this._inputName);
-            const samplerInfo = context.resourceGraph.getSampler(resId);
-            // bind descriptors
-            for (const descriptor of input[1]) {
-                const descriptorName = descriptor.name;
-                const descriptorID = lg.attributeIndex.get(descriptorName);
-                // find descriptor binding
-                for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
-                    for (let i = 0; i !== block.descriptors.length; ++i) {
-                        // const buffer = layoutDesc.getBuffer(block.offset + i);
-                        // const texture = layoutDesc.getTexture(block.offset + i);
-                        if (descriptorID === block.descriptors[i].descriptorID) {
-                            if (gfxTex) {
-                                layoutDesc.bindTexture(block.offset + i, gfxTex);
-                                layoutDesc.bindSampler(block.offset + i, context.device.getSampler(samplerInfo));
+        const deviceBuf = context.deviceBuffers.get(this._inputName);
+        const gfxBuf = deviceBuf?.buffer;
+        if (!gfxTex && !gfxBuf) {
+            throw Error(`Could not find texture with resource name ${this._inputName}`);
+        }
+        const resId = context.resourceGraph.vertex(this._inputName);
+        const samplerInfo = context.resourceGraph.getSampler(resId);
+        // bind descriptors
+        for (const descriptor of input[1]) {
+            const descriptorName = descriptor.name;
+            const descriptorID = lg.attributeIndex.get(descriptorName);
+            // find descriptor binding
+            for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
+                for (let i = 0; i !== block.descriptors.length; ++i) {
+                    if (descriptorID === block.descriptors[i].descriptorID) {
+                        if (gfxTex) {
+                            layoutDesc.bindTexture(block.offset + i, gfxTex);
+                            const renderData = context.renderGraph.getData(this._vertID);
+                            layoutDesc.bindSampler(block.offset + i, renderData.samplers.get(descriptorID) || context.device.getSampler(samplerInfo));
+                        } else {
+                            const desc = context.resourceGraph.getDesc(resId);
+                            if (desc.flags & ResourceFlags.STORAGE) {
+                                const access = input[1][0].accessType !== AccessType.READ ? AccessFlagBit.COMPUTE_SHADER_WRITE
+                                    : AccessFlagBit.COMPUTE_SHADER_READ_OTHER;
+                                (layoutDesc as any).bindBuffer(block.offset + i, gfxBuf!, 0, access);
                             } else {
-                                const desc = context.resourceGraph.getDesc(resId);
-                                if (desc.flags & ResourceFlags.STORAGE) {
-                                    const access = input[1][0].accessType !== AccessType.READ ? AccessFlagBit.COMPUTE_SHADER_WRITE
-                                        : AccessFlagBit.COMPUTE_SHADER_READ_OTHER;
-                                    (layoutDesc as any).bindBuffer(block.offset + i, gfxBuf!, 0, access);
-                                } else {
-                                    layoutDesc.bindBuffer(block.offset + i, gfxBuf!);
-                                }
+                                layoutDesc.bindBuffer(block.offset + i, gfxBuf!);
                             }
-                            if (!this._descriptorSet) this._descriptorSet = layoutDesc;
-                            continue;
                         }
-                        // if (!buffer && !texture) {
-                        //     layoutDesc.bindBuffer(block.offset + i, globalDesc.getBuffer(block.offset + i));
-                        //     layoutDesc.bindTexture(block.offset + i, globalDesc.getTexture(block.offset + i));
-                        //     layoutDesc.bindSampler(block.offset + i, globalDesc.getSampler(block.offset + i));
-                        // }
+                        if (!this._descriptorSet) this._descriptorSet = layoutDesc;
+                        continue;
                     }
                 }
             }
@@ -763,6 +756,7 @@ class RenderPassLayoutInfo {
     }
     get descriptorSet (): DescriptorSet | null { return this._descriptorSet; }
     get layoutID (): number { return this._layoutID; }
+    get vertID (): number { return this._vertID; }
     get stage (): RenderStageData | null { return this._stage; }
     get layout (): PipelineLayoutData { return this._layout; }
 }
@@ -927,15 +921,6 @@ class DeviceRenderPass {
             const currTex = device.createTexture(new TextureInfo());
             colorTexs.push(currTex);
         }
-        // if (!depthTex && !swapchain && !framebuffer) {
-        //     depthTex = device.createTexture(new TextureInfo(
-        //         TextureType.TEX2D,
-        //         TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
-        //         Format.DEPTH_STENCIL,
-        //         colorTexs[0].width,
-        //         colorTexs[0].height,
-        //     ));
-        // }
         const depth = swapchain ? swapchain.depthStencilTexture : depthTex;
         if (!depth) {
             depthStencilAttachment.format = Format.UNKNOWN;
@@ -977,7 +962,7 @@ class DeviceRenderPass {
             const layoutGraph = context.layoutGraph;
             const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._layout = new RenderPassLayoutInfo(stageId, input);
+                this._layout = new RenderPassLayoutInfo(stageId, this.rasterPassInfo.id, input);
             }
         }
     }
@@ -1068,7 +1053,6 @@ class DeviceRenderPass {
     }
 
     postPass (): void {
-        // this.submitMap.clear();
         for (const queue of this._deviceQueues) {
             queue.postRecord();
         }
@@ -1231,7 +1215,7 @@ class DeviceComputePass {
             const layoutGraph = context.layoutGraph;
             const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._layout = new RenderPassLayoutInfo(stageId, input);
+                this._layout = new RenderPassLayoutInfo(stageId, this._computeInfo.id, input);
             }
         }
     }
@@ -1405,10 +1389,6 @@ class DevicePreSceneTask extends WebSceneTask {
         if (this.graphScene.blit) {
             this._currentQueue.blitDesc!.update();
         }
-        // if (isShadowMap(this.graphScene)) {
-
-        // }
-        // this._uploadInstanceBuffers();
     }
 }
 const sceneViewport = new Viewport();
