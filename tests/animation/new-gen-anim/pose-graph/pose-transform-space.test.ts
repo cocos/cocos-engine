@@ -2,7 +2,7 @@ import { TransformHandle } from '../../../../cocos/animation/core/animation-hand
 import { Pose, PoseTransformSpace } from '../../../../cocos/animation/core/pose';
 import { AnimationGraphBindingContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphEvaluationContext } from '../../../../cocos/animation/marionette/animation-graph-context';
 import { Node } from '../../../../cocos/scene-graph';
-import { assertIsTrue, Mat4, Quat, Vec3 } from '../../../../exports/base';
+import { Vec3 } from '../../../../exports/base';
 import { PoseNode, PoseTransformSpaceRequirement } from './../../../../cocos/animation/marionette/pose-graph/pose-node';
 import { input } from '../../../../cocos/animation/marionette/pose-graph/decorator/input';
 import { PoseGraphType } from '../../../../cocos/animation/marionette/pose-graph/foundation/type-system';

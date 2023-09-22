@@ -1,5 +1,6 @@
-import { DEBUG, TEST } from 'internal:constants';
-import { assertIsTrue, binarySearchEpsilon } from '../../core';
+import { DEBUG } from 'internal:constants';
+import { assertIsTrue } from '@base/debug/internal';
+import { binarySearchEpsilon } from '../../core';
 
 const allocatorPageCountTag = Symbol(DEBUG ? '[[The count of pages used by this allocator.]]' : '');
 

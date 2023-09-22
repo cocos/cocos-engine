@@ -1,12 +1,13 @@
 import { DEBUG } from 'internal:constants';
+import { warnID } from '@base/debug';
+import { assertIsTrue, assertIsNonNullable } from '@base/debug/internal';
 import { StateMachine, State, isAnimationTransition, SubStateMachine, EmptyState, EmptyStateTransition, ProceduralPoseState, ProceduralPoseTransition } from '../animation-graph';
 import { MotionEval, MotionPort } from '../motion';
 import { createEval } from '../create-eval';
 import { BindContext, validateVariableExistence, validateVariableType, VariableType } from '../parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { MotionState } from './motion-state';
-import { warnID } from '@base/debug';
-import { assertIsTrue, assertIsNonNullable, Pool, approx, clamp01 } from '../../../core';
+import { Pool, approx, clamp01 } from '../../../core';
 import { AnimationClip } from '../../animation-clip';
 import type { AnimationController } from '../animation-controller';
 import { StateMachineComponent } from './state-machine-component';

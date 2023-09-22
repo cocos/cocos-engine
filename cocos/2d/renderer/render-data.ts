@@ -23,11 +23,12 @@
 */
 
 import { DEBUG, JSB } from 'internal:constants';
+import { assert } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { director } from '../../game/director';
 import { Material } from '../../asset/assets/material';
 import { TextureBase } from '../../asset/assets/texture-base';
-import { Color, Pool, RecyclePool, murmurhash2_32_gc, assertIsTrue } from '../../core';
-import { assert } from '@base/debug';
+import { Color, Pool, RecyclePool, murmurhash2_32_gc } from '../../core';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';

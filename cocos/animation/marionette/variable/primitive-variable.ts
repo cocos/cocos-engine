@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../../../core';
+import { assertIsTrue } from '@base/debug/internal';
 import { ccclass, serializable } from '../../../core/data/decorators';
 import { BasicVariableDescription, VariableType, createInstanceTag, VarInstanceBase, Value } from './basic';
 

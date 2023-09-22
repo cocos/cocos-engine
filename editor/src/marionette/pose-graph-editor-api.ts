@@ -1,3 +1,4 @@
+import { assertIsTrue } from '@base/debug/internal';
 import { PoseGraphNode } from "../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
 import {
     getPoseGraphNodeEditorMetadata, PoseGraphCreateNodeContext, PoseGraphNodeAppearanceOptions,
@@ -7,7 +8,7 @@ import { instantiate } from "../../../cocos/serialization";
 import { PoseGraphOutputNode } from "../../../cocos/animation/marionette/pose-graph/graph-output-node";
 import { PoseNode } from "../../../cocos/animation/marionette/pose-graph/pose-node";
 import { PureValueNode } from "../../../cocos/animation/marionette/pose-graph/pure-value-node";
-import { assertIsTrue, editorExtrasTag } from "../../../exports/base";
+import { editorExtrasTag } from "../../../exports/base";
 import { PoseNodeUseStashedPose } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/use-stashed-pose';
 import { PoseGraphStash, StateMachine } from "../../../cocos/animation/marionette/animation-graph";
 import { PoseNodeLocation, visitPoseNodeInLayer } from "./visit/visit-pose-node";

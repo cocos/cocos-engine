@@ -1,8 +1,8 @@
+import { assertIsNonNullable } from '@base/debug/internal';
 import { Node } from '../../../cocos/scene-graph';
 import { Motion, MotionEval, MotionPort } from '../../../cocos/animation/marionette/motion';
 import { createEval } from '../../../cocos/animation/marionette/create-eval';
 import { VarInstance, Value, VariableType, VariableDescription, createInstanceTag } from '../../../cocos/animation/marionette/variable';
-import { assertIsNonNullable } from '../../../cocos/core/data/utils/asserts';
 import {
     AnimationBlendEval,
 } from '../../../cocos/animation/marionette/motion/animation-blend';

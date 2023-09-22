@@ -38,7 +38,6 @@ export { GCObject } from './data/gc-object';
 
 export type { DeserializationContext } from './data/custom-serializable';
 
-export * from './data/utils/asserts';
 export * from './data/utils/compiler';
 
 export { setPropertyEnumType, setPropertyEnumTypeOnAttrs } from './data/utils/attribute-internal';

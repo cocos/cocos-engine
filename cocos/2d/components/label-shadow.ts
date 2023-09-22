@@ -23,9 +23,10 @@
  THE SOFTWARE.
 */
 
+import { assertIsTrue } from '@base/debug/internal';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, Vec2, assertIsTrue } from '../../core';
+import { Color, Vec2 } from '../../core';
 import { Label } from './label';
 
 /**

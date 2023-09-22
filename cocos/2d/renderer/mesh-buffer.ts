@@ -23,10 +23,11 @@
 */
 
 import { JSB } from 'internal:constants';
+import { assertIsTrue } from '@base/debug/internal';
+import { getError, warnID } from '@base/debug';
 import { Device, BufferUsageBit, MemoryUsageBit, Attribute, Buffer, BufferInfo, InputAssembler, InputAssemblerInfo } from '../../gfx';
 import { getAttributeStride } from './vertex-format';
-import { sys, assertIsTrue } from '../../core';
-import { getError, warnID } from '@base/debug';
+import { sys } from '../../core';
 import { NativeUIMeshBuffer } from './native-2d';
 
 interface IIARef {

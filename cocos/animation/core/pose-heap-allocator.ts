@@ -1,5 +1,5 @@
 import { TEST } from 'internal:constants';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { assertIsTrue } from '@base/debug/internal';
 import { Pose } from './pose';
 import { TransformArray } from './transform-array';
 

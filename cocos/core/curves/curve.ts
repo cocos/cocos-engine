@@ -23,7 +23,7 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../data/utils/asserts';
+import { assertIsTrue } from '@base/debug/internal';
 import { approx, lerp, pingPong, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
 import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';

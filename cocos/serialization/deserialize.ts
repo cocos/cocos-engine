@@ -25,7 +25,8 @@
 import { EDITOR, TEST, PREVIEW, DEBUG, JSB, DEV } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { errorID, getError } from '@base/debug';
-import { js, assertIsTrue } from '../core';
+import { assertIsTrue } from '@base/debug/internal';
+import { js } from '../core';
 
 import { deserializeDynamic, DeserializeDynamicOptions, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../asset/assets/asset';

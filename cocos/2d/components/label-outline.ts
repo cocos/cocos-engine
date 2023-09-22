@@ -23,10 +23,11 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { assertIsTrue } from '@base/debug/internal';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
 import { Component } from '../../scene-graph/component';
-import { Color, assertIsTrue } from '../../core';
-import { cclegacy } from '@base/global';
+import { Color } from '../../core';
 import { Label } from './label';
 
 /**

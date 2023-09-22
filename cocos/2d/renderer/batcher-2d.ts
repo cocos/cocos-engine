@@ -25,11 +25,12 @@
 import { DEBUG, JSB } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { assert } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
 import { Camera, Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
-import { CachedArray, Pool, Mat4, assertIsTrue, approx, EPSILON } from '../../core';
+import { CachedArray, Pool, Mat4, approx, EPSILON } from '../../core';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';

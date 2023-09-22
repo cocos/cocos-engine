@@ -1,7 +1,7 @@
 // cSpell:words Evaluatable
 
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../../../core';
+import { assertIsTrue } from '@base/debug/internal';
 import { warn } from '@base/debug';
 import { instantiate } from '../../../serialization';
 import { PoseNode, PoseTransformSpaceRequirement } from './pose-node';

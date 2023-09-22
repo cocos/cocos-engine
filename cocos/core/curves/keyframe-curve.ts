@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { assertIsTrue } from '@base/debug/internal';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { CCClass } from '../data/class';
-import { assertIsTrue } from '../data/utils/asserts';
 import { approx } from '../math';
 import type { CurveBase } from './curve-base';
 
