@@ -118,7 +118,6 @@ CCProgram dof-prefilter-fs %{
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
-  //toning down the bokeh
   float Weigh (vec3 c) {
     return 1.0 / (1.0 + max(max(c.r, c.g), c.b));
   }
@@ -266,10 +265,9 @@ CCProgram dof-combine-fs %{
   void main () {
     vec4 source = texture(colorTex, v_uv);
     float coc = Uint8ToFloat(texture(cocTex, v_uv).r) * bokehRadius;
-    coc = (coc - 0.5) * 2.0;
     vec4 dof = texture(filterTex, v_uv);
 
-    float dofStrength = smoothstep(mainTexTexelSize.w * 2.0, mainTexTexelSize.w * 4.0, coc);
+    float dofStrength = smoothstep(0.1, 1.0, abs(coc));
     vec3 color = lerp(source.rgb, dof.rgb, dofStrength + dof.a - dofStrength * dof.a);
     fragColor = vec4(color.rgb, source.a);
   }
