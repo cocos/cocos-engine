@@ -142,7 +142,8 @@ const Elements = {
             }
 
             function observer() {
-                window.requestAnimationFrame(() => {
+                cancelAnimationFrame(panel.animationFrameId);
+                panel.animationFrameId = window.requestAnimationFrame(() => {
                     const { clientWidth } = panel.$.container;
                     const size = Math.round((clientWidth - 40) / 4);
                     // 16 is fault tolerance to avoid page scrollbar flickering
