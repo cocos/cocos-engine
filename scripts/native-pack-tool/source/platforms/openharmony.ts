@@ -95,9 +95,9 @@ export class OpenHarmonyPackTool extends NativePackTool {
         outputJSONSync(cfgFile, configJSON, { spaces: 2 });
 
         const appScopeStringJSONPath = ps.join(ohosProjDir, 'AppScope/resources/base/element/string.json');
-        const appScopStringJSON = fs.readJSONSync(appScopeStringJSONPath);
-        appScopStringJSON.string.find((item: any) => item.name === 'app_name').value = this.params.projectName;
-        outputJSONSync(appScopeStringJSONPath, appScopStringJSON, { spaces: 2 });
+        const appScopeStringJSON = fs.readJSONSync(appScopeStringJSONPath);
+        appScopeStringJSON.string.find((item: any) => item.name === 'app_name').value = this.params.projectName;
+        outputJSONSync(appScopeStringJSONPath, appScopeStringJSON, { spaces: 2 });
 
         const stringJSONPath = ps.join(ohosProjDir, 'entry/src/main/resources/base/element/string.json');
         const stringJSON = fs.readJSONSync(stringJSONPath);
