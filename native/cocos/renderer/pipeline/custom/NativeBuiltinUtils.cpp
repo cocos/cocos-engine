@@ -258,12 +258,12 @@ float getPCFRadius(
 void setShadowUBOView(
     gfx::Device &device,
     const LayoutGraphData &layoutGraph,
-    const pipeline::PipelineSceneData &sceneData,
+    const pipeline::PipelineSceneData &pplSceneData,
     const scene::DirectionalLight &mainLight,
     RenderData &data) {
-    const auto &shadowInfo = *sceneData.getShadows();
-    const auto &csmLayers = *sceneData.getCSMLayers();
-    const auto &csmSupported = sceneData.getCSMSupported();
+    const auto &shadowInfo = *pplSceneData.getShadows();
+    const auto &csmLayers = *pplSceneData.getCSMLayers();
+    const auto &csmSupported = pplSceneData.getCSMSupported();
     const auto &packing = pipeline::supportsR32FloatTexture(&device) ? 0.0F : 1.0F;
     Vec4 vec4ShadowInfo{};
     if (shadowInfo.isEnabled()) {
@@ -373,12 +373,12 @@ void setShadowUBOView(
 void setShadowUBOLightView(
     gfx::Device *device,
     const LayoutGraphData &layoutGraph,
-    const pipeline::PipelineSceneData &sceneData,
+    const pipeline::PipelineSceneData &pplSceneData,
     const BuiltinCascadedShadowMap *csm,
     const scene::Light &light,
     uint32_t level,
     RenderData &data) {
-    const auto &shadowInfo = *sceneData.getShadows();
+    const auto &shadowInfo = *pplSceneData.getShadows();
     const auto &packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
     const auto &cap = device->getCapabilities();
     Vec4 vec4ShadowInfo{};
@@ -491,12 +491,120 @@ void setShadowUBOLightView(
     setColorImpl(data, layoutGraph, "cc_shadowColor", gfx::Color{color[0], color[1], color[2], color[3]});
 }
 
+namespace {
+
+void updatePlanarNormalAndDistance(
+    const LayoutGraphData &layoutGraph,
+    const scene::Shadows &shadowInfo,
+    RenderData &data) {
+    const Vec3 normal = shadowInfo.getNormal().getNormalized();
+    const Vec4 planarNDInfo{normal.x, normal.y, normal.z, -shadowInfo.getDistance()};
+    setVec4Impl(data, layoutGraph, "cc_planarNDInfo", planarNDInfo);
+}
+
+std::tuple<Mat4, Mat4, Mat4, Mat4>
+computeShadowMatrices(
+    const gfx::DeviceCaps &cap,
+    const Mat4 &matShadowCamera,
+    float fov, float farPlane) {
+    auto matShadowView = matShadowCamera.getInversed();
+
+    Mat4 matShadowProj;
+    Mat4::createPerspective(
+        fov, 1.0F, 0.001F, farPlane,
+        true, cap.clipSpaceMinZ, cap.clipSpaceSignY,
+        0, &matShadowProj);
+
+    Mat4 matShadowViewProj = matShadowProj;
+    Mat4 matShadowInvProj = matShadowProj;
+
+    matShadowInvProj.inverse();
+    matShadowViewProj.multiply(matShadowView);
+
+    return {matShadowView, matShadowViewProj, matShadowProj, matShadowInvProj};
+}
+
+} // namespace
+
+void setPunctualLightShadowUBO(
+    gfx::Device *device,
+    const LayoutGraphData &layoutGraph,
+    const pipeline::PipelineSceneData &pplSceneData,
+    const scene::DirectionalLight *mainLight,
+    const scene::Light &light,
+    RenderData &data) {
+    const auto &shadowInfo = *pplSceneData.getShadows();
+    const auto &packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
+    const auto &cap = device->getCapabilities();
+    Vec4 vec4ShadowInfo{};
+
+    if (mainLight) {
+        // update planar PROJ
+        updatePlanarNormalAndDistance(layoutGraph, shadowInfo, data);
+    }
+
+    // ShadowMap
+    switch (light.getType()) {
+        case scene::LightType::DIRECTIONAL:
+            // noop
+            break;
+        case scene::LightType::SPHERE: {
+            const auto &shadowSize = shadowInfo.getSize();
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowWHPBInfo",
+                Vec4{shadowSize.x, shadowSize.y, 1.0F, 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowLPNNInfo",
+                Vec4{static_cast<float>(scene::LightType::SPHERE), packing, 0.0F, 0.0F});
+        } break;
+        case scene::LightType::SPOT: {
+            const auto &shadowSize = shadowInfo.getSize();
+            const auto &spotLight = dynamic_cast<const scene::SpotLight &>(light);
+            const auto &matShadowCamera = spotLight.getNode()->getWorldMatrix();
+            const auto [matShadowView, matShadowViewProj, matShadowProj, matShadowInvProj] =
+                computeShadowMatrices(cap, matShadowCamera, spotLight.getAngle(), spotLight.getRange());
+
+            setMat4Impl(data, layoutGraph, "cc_matLightView", matShadowView);
+            setMat4Impl(data, layoutGraph, "cc_matLightViewProj", matShadowViewProj);
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowNFLSInfo",
+                Vec4{0.1F, spotLight.getRange(), 0.0F, 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowWHPBInfo",
+                Vec4{shadowSize.x, shadowSize.y, spotLight.getShadowPcf(), spotLight.getShadowBias()});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowLPNNInfo",
+                Vec4{static_cast<float>(scene::LightType::SPOT), packing, spotLight.getShadowNormalBias(), 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowInvProjDepthInfo",
+                Vec4{matShadowInvProj.m[10], matShadowInvProj.m[14], matShadowInvProj.m[11], matShadowInvProj.m[15]});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowProjDepthInfo",
+                Vec4{matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowProjInfo",
+                Vec4{matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]});
+        } break;
+        case scene::LightType::POINT: {
+            const auto &shadowSize = shadowInfo.getSize();
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowWHPBInfo",
+                Vec4{shadowSize.x, shadowSize.y, 1.0F, 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowLPNNInfo",
+                Vec4{static_cast<float>(scene::LightType::POINT), packing, 0.0F, 0.0F});
+        } break;
+        default:
+            break;
+    }
+}
+
 void setLegacyTextureUBOView(
     gfx::Device &device,
     const LayoutGraphData &layoutGraph,
-    const pipeline::PipelineSceneData &sceneData,
+    const pipeline::PipelineSceneData &pplSceneData,
     RenderData &data) {
-    const auto &skybox = *sceneData.getSkybox();
+    const auto &skybox = *pplSceneData.getSkybox();
     if (skybox.getReflectionMap()) {
         auto &texture = *skybox.getReflectionMap()->getGFXTexture();
         auto *sampler = device.getSampler(skybox.getReflectionMap()->getSamplerInfo());

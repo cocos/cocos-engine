@@ -91,6 +91,14 @@ void setLightUBO(
     const scene::Shadows *shadowInfo,
     char *buffer, size_t bufferSize);
 
+void setPunctualLightShadowUBO(
+    gfx::Device *device,
+    const LayoutGraphData &layoutGraph,
+    const pipeline::PipelineSceneData &pplSceneData,
+    const scene::DirectionalLight *mainLight,
+    const scene::Light &light,
+    RenderData &data);
+
 // Render graph
 void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter);
 

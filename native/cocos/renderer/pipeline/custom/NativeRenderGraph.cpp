@@ -818,11 +818,28 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
         // objects are projected to camera, set camera ubo
         builder->setBuiltinCameraConstants(camera);
 
-        if (const auto *pDirLight = dynamic_cast<const scene::DirectionalLight *>(light); pDirLight) {
-            // light is directional
-            builder->setBuiltinDirectionalLightConstants(pDirLight, camera);
-        } else if (light) { // light is non-directional
-            // TODO(zhouzhenglong): refactor per-instance lighting
+        if (light) {
+            switch (light->getType()) {
+                case scene::LightType::DIRECTIONAL: {
+                    const auto *pDirLight = dynamic_cast<const scene::DirectionalLight *>(light);
+                    builder->setBuiltinDirectionalLightConstants(pDirLight, camera);
+                } break;
+                case scene::LightType::SPHERE: {
+                    const auto *pSphereLight = dynamic_cast<const scene::SphereLight *>(light);
+                    builder->setBuiltinSphereLightConstants(pSphereLight, camera);
+                } break;
+                case scene::LightType::SPOT: {
+                    const auto *pSpotLight = dynamic_cast<const scene::SpotLight *>(light);
+                    builder->setBuiltinSpotLightConstants(pSpotLight, camera);
+                } break;
+                case scene::LightType::POINT: {
+                    const auto *pPointLight = dynamic_cast<const scene::PointLight *>(light);
+                    builder->setBuiltinPointLightConstants(pPointLight, camera);
+                } break;
+                default:
+                    // noop
+                    break;
+            }
         }
 
         // set builtin legacy ubo
