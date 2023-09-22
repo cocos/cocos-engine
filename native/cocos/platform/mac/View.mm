@@ -35,6 +35,20 @@
 #import "platform/mac/modules/SystemWindow.h"
 #import "platform/mac/modules/SystemWindowManager.h"
 
+#include "SDL2/SDL.h"
+
+static int MetalViewEventWatch(void* userData, SDL_Event*event) {
+    if (event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+        @autoreleasepool {
+            auto *view = (__bridge View *)userData;
+            if ([view getWindowId] == event->window.windowID) {
+                [view viewDidChangeBackingProperties];
+            }
+        }
+    }
+    return 0;
+}
+
 @implementation View {
     cc::MouseEvent _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
@@ -50,6 +64,8 @@
 
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
+        // View is used as a subview, so the resize message needs to be handled manually.
+        SDL_AddEventWatch(MetalViewEventWatch, (__bridge void*)(self));
         [self.window makeFirstResponder:self];
         int pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
         CGSize size = CGSizeMake(frameRect.size.width * pixelRatio, frameRect.size.height * pixelRatio);

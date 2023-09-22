@@ -34,7 +34,19 @@ namespace gfx {
 
 struct CCWGPUBindGroupObject;
 
-using Pairs = ccstd::vector<std::pair<uint8_t, uint8_t>>;
+struct WGPUGPUDescriptor {
+    DescriptorType type = DescriptorType::UNKNOWN;
+    Buffer *buffer = nullptr;
+    Texture *texture = nullptr;
+    Sampler *sampler = nullptr;
+};
+using CCWGPUGPUDescriptorList = ccstd::vector<WGPUGPUDescriptor>;
+
+// web interface
+struct CCWGPUGPUDescriptorSetObject {
+    CCWGPUGPUDescriptorList gpuDescriptors;
+    ccstd::vector<uint32_t> descriptorIndices;
+};
 
 class CCWGPUDescriptorSet final : public DescriptorSet {
 public:
@@ -42,18 +54,28 @@ public:
     ~CCWGPUDescriptorSet();
 
     inline CCWGPUBindGroupObject *gpuBindGroupObject() { return _gpuBindGroupObj; }
-    inline Pairs &dynamicOffsets() { return _dynamicOffsets; }
+    inline const std::map<uint8_t, uint8_t> &dynamicOffsets() { return _dynamicOffsets; }
 
     void update() override;
-    void forceUpdate() override{};
+    void forceUpdate() override {
+        _isDirty = true;
+        update();
+    };
+
+    void prune(ccstd::vector<uint8_t> bindings);
     uint8_t dynamicOffsetCount() const;
     void prepare();
-    ccstd::hash_t getHash() { return _bornHash; };
+    ccstd::hash_t getHash() { return _bornHash; }
 
     static void *defaultBindGroup();
     static void clearCache();
 
     std::string label;
+
+    inline void setLayout(const DescriptorSetLayout *layout) { _layout = layout; }
+
+    inline const CCWGPUGPUDescriptorSetObject gpuDescriptors() const { return *_gpuDescriptorObj; }
+    void setGpuDescriptors(DescriptorSet *set);
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;
@@ -61,15 +83,13 @@ protected:
     ccstd::hash_t hash() const;
 
     CCWGPUBindGroupObject *_gpuBindGroupObj = nullptr;
-
-    // seperate combined sampler-texture index
-    ccstd::unordered_map<uint8_t, uint8_t> _textureIdxMap;
-    ccstd::unordered_map<uint8_t, uint8_t> _samplerIdxMap;
-
+    CCWGPUGPUDescriptorSetObject *_gpuDescriptorObj = nullptr;
     // dynamic offsets, inuse ? 1 : 0;
-    Pairs _dynamicOffsets;
+    std::map<uint8_t, uint8_t> _dynamicOffsets;
+    uint32_t _dynamicOffsetNum{0};
     ccstd::hash_t _hash{0};
     ccstd::hash_t _bornHash{0}; // hash when created, this relate to reuse bindgroup layout
+    std::function<bool(uint32_t)> _bindingSatisfied;
 };
 
 } // namespace gfx

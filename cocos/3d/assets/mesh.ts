@@ -28,11 +28,11 @@ import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc, errorID } from '../../core';
+import { geometry, cclegacy, sys, warnID, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc, errorID, halfToFloat } from '../../core';
 import { RenderingSubMesh } from '../../asset/assets';
 import {
     Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
-    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager,
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager, FormatFeatureBit,
 } from '../../gfx';
 import { Morph } from './morph';
 import { MorphRendering, createMorphRendering } from './morph-rendering';
@@ -408,6 +408,11 @@ export class Mesh extends Asset {
         }
         if (this.struct.encoded) { // decode mesh data
             info = decodeMesh(info);
+        }
+        if (this.struct.quantized
+            && !(deviceManager.gfxDevice.getFormatFeatures(Format.RGB16F) & FormatFeatureBit.VERTEX_ATTRIBUTE)) {
+            // dequantize mesh data
+            info = dequantizeMesh(info);
         }
 
         this._struct = info.struct;
@@ -1507,11 +1512,6 @@ export function decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
         return mesh;
     }
 
-    // decode the mesh
-    if (!MeshoptDecoder.supported) {
-        return mesh;
-    }
-
     const res_checker = (res: number): void => {
         if (res < 0) {
             errorID(14204, res);
@@ -1579,6 +1579,152 @@ export function inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
     mesh.data = decompressed;
     mesh.struct.compressed = false;
     return mesh;
+}
+
+export function dequantizeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+    const struct = JSON.parse(JSON.stringify(mesh.struct)) as Mesh.IStruct;
+
+    const bufferBlob = new BufferBlob();
+    bufferBlob.setNextAlignment(0);
+
+    function transformVertex (
+        reader: ((offset: number) => number),
+        writer: ((offset: number, value: number) => void),
+        count: number,
+        components: number,
+        componentSize: number,
+        readerStride: number,
+        writerStride: number,
+    ): void {
+        for (let i = 0; i < count; i++) {
+            for (let j = 0; j < components; j++) {
+                const inputOffset = readerStride * i + componentSize * j;
+                const outputOffset = writerStride * i + componentSize * j;
+                writer(outputOffset, reader(inputOffset));
+            }
+        }
+    }
+
+    function dequantizeHalf (
+        reader: ((offset: number) => number),
+        writer: ((offset: number, value: number) => void),
+        count: number,
+        components: number,
+        readerStride: number,
+        writerStride: number,
+    ): void {
+        for (let i = 0; i < count; i++) {
+            for (let j = 0; j < components; j++) {
+                const inputOffset = readerStride * i + 2 * j;
+                const outputOffset = writerStride * i + 4 * j;
+                const value = halfToFloat(reader(inputOffset));
+                writer(outputOffset, value);
+            }
+        }
+    }
+
+    for (let i = 0; i < struct.vertexBundles.length; ++i) {
+        const bundle = struct.vertexBundles[i];
+        const view = bundle.view;
+        const attributes =  bundle.attributes;
+        const oldAttributes = mesh.struct.vertexBundles[i].attributes;
+        const strides: number[] = [];
+        const dequantizes: boolean[] = [];
+        const readers: ((offset: number) => number)[] = [];
+        for (let j = 0; j < attributes.length; ++j) {
+            const attr = attributes[j];
+            const inputView = new DataView(mesh.data.buffer, view.offset + getOffset(oldAttributes, j));
+            const reader = getReader(inputView, attr.format);
+            let dequantize = true;
+            switch (attr.format) {
+            case Format.R16F:
+                attr.format = Format.R32F;
+                break;
+            case Format.RG16F:
+                attr.format = Format.RG32F;
+                break;
+            case Format.RGB16F:
+                attr.format = Format.RGB32F;
+                break;
+            case Format.RGBA16F:
+                attr.format = Format.RGBA32F;
+                break;
+            default:
+                dequantize = false;
+                break;
+            }
+            strides.push(FormatInfos[attr.format].size);
+            dequantizes.push(dequantize);
+            readers.push(reader!);
+        }
+        const netStride = strides.reduce((acc, cur) => acc + cur, 0);
+        const newBuffer = new Uint8Array(netStride * view.count);
+        for (let j = 0; j < attributes.length; ++j) {
+            const attribute = attributes[j];
+            const reader = readers[j];
+            const outputView = new DataView(newBuffer.buffer, getOffset(attributes, j));
+            const writer = getWriter(outputView, attribute.format)!;
+            const dequantize = dequantizes[j];
+            const formatInfo = FormatInfos[attribute.format];
+            if (dequantize) {
+                dequantizeHalf(
+                    reader,
+                    writer,
+                    view.count,
+                    formatInfo.count,
+                    view.stride,
+                    netStride,
+                );
+            } else {
+                transformVertex(
+                    reader,
+                    writer,
+                    view.count,
+                    formatInfo.count,
+                    formatInfo.size / formatInfo.count,
+                    view.stride,
+                    netStride,
+                );
+            }
+        }
+
+        bufferBlob.setNextAlignment(netStride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: newBuffer.byteLength,
+            count: view.count,
+            stride: netStride,
+        };
+        bundle.view = newView;
+        bufferBlob.addBuffer(newBuffer);
+    }
+
+    // dump index buffer
+    for (const primitive of struct.primitives) {
+        if (primitive.indexView === undefined) {
+            continue;
+        }
+        const view = primitive.indexView;
+        const buffer = new Uint8Array(mesh.data.buffer, view.offset, view.length);
+        bufferBlob.setNextAlignment(view.stride);
+        const newView: Mesh.IBufferView = {
+            offset: bufferBlob.getLength(),
+            length: buffer.byteLength,
+            count: view.count,
+            stride: view.stride,
+        };
+        primitive.indexView = newView;
+        bufferBlob.addBuffer(buffer);
+    }
+
+    const data = new Uint8Array(bufferBlob.getCombined());
+
+    struct.quantized = false;
+
+    return {
+        struct,
+        data,
+    };
 }
 
 // function get

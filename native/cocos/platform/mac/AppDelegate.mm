@@ -25,8 +25,6 @@
 
 #import "AppDelegate.h"
 #include "base/std/container/string.h"
-//#import "Game.h"
-#import "ViewController.h"
 #include "engine/EngineEvents.h"
 #include "platform/mac/MacPlatform.h"
 

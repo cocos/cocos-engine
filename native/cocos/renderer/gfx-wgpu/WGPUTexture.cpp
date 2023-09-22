@@ -35,6 +35,38 @@ namespace gfx {
 namespace {
 CCWGPUTexture *dftCommonTexture = nullptr;
 CCWGPUTexture *dftStorageTexture = nullptr;
+
+void generatePlaneViews(CCWGPUTexture *texture) {
+    if (texture->getFormat() == Format::DEPTH_STENCIL) {
+        auto *gpuTextureObj = texture->gpuTextureObject();
+        WGPUTextureViewDescriptor depthView = {
+            .nextInChain = nullptr,
+            .label = nullptr,
+            .format = WGPUTextureFormat_Depth24Plus,
+            .dimension = WGPUTextureViewDimension_2D,
+            .baseMipLevel = 0,
+            .mipLevelCount = 1,
+            .baseArrayLayer = 0,
+            .arrayLayerCount = 1,
+            .aspect = WGPUTextureAspect_DepthOnly,
+        };
+        gpuTextureObj->planeViews.emplace_back(wgpuTextureCreateView(gpuTextureObj->wgpuTexture, &depthView));
+
+        WGPUTextureViewDescriptor stencilView = {
+            .nextInChain = nullptr,
+            .label = nullptr,
+            .format = WGPUTextureFormat_Stencil8,
+            .dimension = WGPUTextureViewDimension_2D,
+            .baseMipLevel = 0,
+            .mipLevelCount = 1,
+            .baseArrayLayer = 0,
+            .arrayLayerCount = 1,
+            .aspect = WGPUTextureAspect_StencilOnly,
+        };
+        gpuTextureObj->planeViews.emplace_back(wgpuTextureCreateView(gpuTextureObj->wgpuTexture, &stencilView));
+    }
+}
+
 } // namespace
 
 using namespace emscripten;
@@ -84,6 +116,7 @@ void CCWGPUTexture::doInit(const TextureInfo &info) {
     };
     _gpuTextureObj->selfView = wgpuTextureCreateView(_gpuTextureObj->wgpuTexture, &texViewDesc);
 
+    generatePlaneViews(this);
     _internalChanged = true;
 } // namespace gfx
 
@@ -103,6 +136,9 @@ void CCWGPUTexture::doInit(const TextureViewInfo &info) {
     auto *ccTexture = static_cast<CCWGPUTexture *>(info.texture);
     WGPUTexture wgpuTexture = ccTexture->gpuTextureObject()->wgpuTexture;
     _gpuTextureObj->selfView = _gpuTextureObj->wgpuTextureView = wgpuTextureCreateView(wgpuTexture, &descriptor);
+
+    generatePlaneViews(this);
+
     _internalChanged = true;
 }
 
@@ -137,11 +173,20 @@ void CCWGPUTexture::doInit(const SwapchainTextureInfo &info) {
                 .aspect = aspect,
             };
             _gpuTextureObj->selfView = wgpuTextureCreateView(_gpuTextureObj->wgpuTexture, &texViewDesc);
+
+            generatePlaneViews(this);
         } else {
             _gpuTextureObj->selfView = wgpuSwapChainGetCurrentTextureView(swapchain->gpuSwapchainObject()->wgpuSwapChain);
         }
         _internalChanged = true;
     }
+}
+
+void *CCWGPUTexture::getPlaneView(uint32_t plane) {
+    if (_info.format == Format::DEPTH_STENCIL || _viewInfo.format == Format::DEPTH_STENCIL) {
+        return _gpuTextureObj->planeViews[plane];
+    }
+    return _gpuTextureObj->selfView;
 }
 
 void CCWGPUTexture::doDestroy() {
@@ -155,6 +200,11 @@ void CCWGPUTexture::doDestroy() {
         }
         if (_gpuTextureObj->selfView && !_isTextureView) {
             wgpuTextureViewRelease(_gpuTextureObj->selfView);
+        }
+        if (!_gpuTextureObj->planeViews.empty()) {
+            for (auto view : _gpuTextureObj->planeViews) {
+                wgpuTextureViewRelease(view);
+            }
         }
         delete _gpuTextureObj;
         _gpuTextureObj = nullptr;

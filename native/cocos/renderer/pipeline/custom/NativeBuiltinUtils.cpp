@@ -42,10 +42,10 @@ namespace cc {
 namespace render {
 
 void setupQuadVertexBuffer(gfx::Device &device, const Vec4 &viewport, float vbData[16]) {
-    auto minX = static_cast<float>(viewport.x);
-    auto maxX = static_cast<float>(viewport.x + viewport.z);
-    auto minY = static_cast<float>(viewport.y);
-    auto maxY = static_cast<float>(viewport.y + viewport.w);
+    const float minX = viewport.x;
+    const float maxX = viewport.x + viewport.z;
+    float minY = viewport.y;
+    float maxY = viewport.y + viewport.w;
     if (device.getCapabilities().screenSpaceSignY > 0) {
         std::swap(minY, maxY);
     }
@@ -87,43 +87,23 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter) 
     setter.setVec4(
         "cc_nativeSize",
         Vec4(shadingWidth, shadingHeight, 1.0F / shadingWidth, 1.0F / shadingHeight));
-#if 0
+
     const auto *debugView = root.getDebugView();
-    if (debugView) {
-        setter.setVec4(
-            "cc_debug_view_mode",
-            Vec4(static_cast<float>(debugView->getSingleMode()),
-                 debugView->isLightingWithAlbedo() ? 1.0F : 0.0F,
-                 debugView->isCsmLayerColoration() ? 1.0F : 0.0F,
-                 0.0F));
-        Vec4 debugPackVec{};
+    float debugViewData[4] = {0.0F, 0.0F, 0.0F, 0.0F};
+    if (debugView && debugView->isEnabled()) {
+        debugViewData[0] = static_cast<float>(debugView->getSingleMode());
         for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
              i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
-            const auto idx = i % 4;
-            (&debugPackVec.x)[idx] = debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F;
-            const auto packIdx = static_cast<uint32_t>(floor(static_cast<float>(i) / 4.0F));
-            if (idx == 3) {
-                std::string name("cc_debug_view_composite_pack_");
-                name.append(std::to_string(packIdx + 1));
-                setter.setVec4(name, debugPackVec);
-            }
+            const uint32_t offset = i >> 3;
+            const uint32_t bit = i % 8;
+            debugViewData[1 + offset] += (debugView->isCompositeModeEnabled(i) ? 1.0F : 0.0F) * powf(10.0F, static_cast<float>(bit));
         }
-    } else {
-        setter.setVec4("cc_debug_view_mode", Vec4(0.0F, 1.0F, 0.0F, 0.0F));
-        Vec4 debugPackVec{};
-        for (auto i = static_cast<uint32_t>(pipeline::DebugViewCompositeType::DIRECT_DIFFUSE);
-             i < static_cast<uint32_t>(pipeline::DebugViewCompositeType::MAX_BIT_COUNT); ++i) {
-            const auto idx = i % 4;
-            (&debugPackVec.x)[idx] = 1.0F;
-            const auto packIdx = static_cast<uint32_t>(floor(i / 4.0));
-            if (idx == 3) {
-                std::string name("cc_debug_view_composite_pack_");
-                name.append(std::to_string(packIdx + 1));
-                setter.setVec4(name, debugPackVec);
-            }
-        }
+        debugViewData[3] += (debugView->isLightingWithAlbedo() ? 1.0F : 0.0F) * powf(10.0F, static_cast<float>(6));
+        debugViewData[3] += (debugView->isCsmLayerColoration() ? 1.0F : 0.0F) * powf(10.0F, static_cast<float>(7));
     }
-#endif
+    setter.setVec4(
+        "cc_debug_view_mode",
+        Vec4(debugViewData[0], debugViewData[1], debugViewData[2], debugViewData[3]));
 }
 
 namespace {
@@ -373,7 +353,7 @@ void setShadowUBOView(
                 }
             }
         } else {
-            Vec3 tempVec3 = shadowInfo.getNormal().getNormalized();
+            const Vec3 tempVec3 = shadowInfo.getNormal().getNormalized();
             setVec4Impl(data, layoutGraph,
                         "cc_planarNDInfo",
                         Vec4(tempVec3.x, tempVec3.y, tempVec3.z, -shadowInfo.getDistance()));

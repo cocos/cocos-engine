@@ -31,7 +31,8 @@ import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIStaticBatch } from './ui-static-batch';
 import { UIOpacity } from './ui-opacity';
-import { js, cclegacy, replaceProperty } from '../../core';
+import { js, cclegacy, replaceProperty, markAsWarning } from '../../core';
+import { LabelShadow } from './label-shadow';
 
 /**
  * Alias of [[Mask]]
@@ -123,5 +124,31 @@ replaceProperty(MaskType, 'MaskType', [
         newName: 'SPRITE_STENCIL',
         target: MaskType,
         targetName: 'MaskType',
+    },
+]);
+
+markAsWarning(LabelOutline.prototype, 'LabelOutline.prototype', [
+    {
+        name: 'width',
+        suggest: 'Please use Label.prototype.outlineWidth instead.',
+    },
+    {
+        name: 'color',
+        suggest: 'Please use Label.prototype.outlineColor instead.',
+    },
+]);
+
+markAsWarning(LabelShadow.prototype, 'LabelShadow.prototype', [
+    {
+        name: 'color',
+        suggest: 'Please use Label.prototype.shadowColor instead.',
+    },
+    {
+        name: 'offset',
+        suggest: 'Please use Label.prototype.shadowOffset instead.',
+    },
+    {
+        name: 'blur',
+        suggest: 'Please use Label.prototype.shadowBlur instead.',
     },
 ]);

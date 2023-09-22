@@ -313,7 +313,7 @@ export class Camera extends Component {
      */
     @type(FOVAxis)
     @displayOrder(7)
-    @visible(function (this: Camera): boolean {
+    @visible(function visible (this: Camera): boolean {
         return this._projection === ProjectionType.PERSPECTIVE;
     })
     @tooltip('i18n:camera.fov_axis')
@@ -354,10 +354,10 @@ export class Camera extends Component {
      * @zh 正交模式下的相机视角高度。
      */
     @displayOrder(9)
-    @visible(function (this: Camera): boolean {
+    @visible(function visible (this: Camera): boolean {
         return this._projection === ProjectionType.ORTHO;
     })
-    @rangeMin(1)
+    @rangeMin(1e-6)
     @tooltip('i18n:camera.ortho_height')
     get orthoHeight (): number {
         return this._orthoHeight;
