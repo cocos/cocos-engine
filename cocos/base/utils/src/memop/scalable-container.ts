@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { fastRemoveAt } from '../utils/array';
+import { fastRemoveAt } from '../array';
 
 export abstract class ScalableContainer {
     /**

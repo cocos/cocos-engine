@@ -62,7 +62,7 @@ import {
 } from './js-typed';
 import { Pool } from './pool';
 import * as array from './array';
-import * as memop from '../memop';
+import * as memop from './memop';
 
 export * from './js-typed';
 export { IDGenerator } from './id-generator';
