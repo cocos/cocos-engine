@@ -70,7 +70,7 @@ export class CannonWorld implements IPhysicsWorld {
 
     private _debugLineCount = 0;
     private _MAX_DEBUG_LINE_COUNT = 16384;
-    private _debugDrawFlags = EPhysicsDrawFlags.None;
+    private _debugDrawFlags = EPhysicsDrawFlags.NONE;
     private _debugConstraintSize = 0.3;
     private _aabbColor = new Color(0, 255, 255, 255);
     private _wireframeColor = new Color(255, 0, 255, 255);
@@ -281,7 +281,7 @@ export class CannonWorld implements IPhysicsWorld {
         if (!debugRenderer) return;
 
         this._debugLineCount = 0;
-        if (this._debugDrawFlags & EPhysicsDrawFlags.Aabb) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.AABB) {
             for (let i = 0; i < this.bodies.length; i++) {
                 const body = this.bodies[i];
                 for (let j = 0; j < body.wrappedShapes.length; j++) {

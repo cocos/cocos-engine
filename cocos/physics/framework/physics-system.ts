@@ -462,6 +462,14 @@ export class PhysicsSystem extends System implements IWorldInitData {
         if (this.physicsWorld) this.physicsWorld.emitEvents();
     }
 
+    /**
+     * @en
+     * Get or set debug draw flags. Default is EPhysicsDrawFlags.NONE.
+     * Refer to EPhysicsDrawFlags.
+     * @zh
+     * 获取或设置调试绘制标志。默认为 EPhysicsDrawFlags.NONE。
+     * 参考 EPhysicsDrawFlags。
+     */
     get debugDrawFlags (): number {
         return this.physicsWorld.debugDrawFlags;
     }
@@ -470,6 +478,12 @@ export class PhysicsSystem extends System implements IWorldInitData {
         this.physicsWorld.debugDrawFlags = v;
     }
 
+    /**
+     * @en
+     * Get or set constraint debug draw size. Default is 0.3.
+     * @zh
+     * 获取或设置约束的调试绘制尺寸。默认为 0.3。
+     */
     get debugDrawConstraintSize (): number {
         return this.physicsWorld.debugDrawConstraintSize;
     }

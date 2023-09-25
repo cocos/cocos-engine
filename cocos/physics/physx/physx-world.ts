@@ -74,7 +74,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     private _debugLineCount = 0;
     private _MAX_DEBUG_LINE_COUNT = 16384;
-    private _debugDrawFlags = EPhysicsDrawFlags.None;
+    private _debugDrawFlags = EPhysicsDrawFlags.NONE;
     private _debugConstraintSize = 0.3;
 
     constructor () {
@@ -163,18 +163,18 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     private _setDebugDrawMode (): void {
-        if (this._debugDrawFlags & EPhysicsDrawFlags.Wireframe) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.WIRE_FRAME) {
             this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 1);
         } else {
             this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 0);
         }
 
-        const drawConstraint = Boolean(this._debugDrawFlags & EPhysicsDrawFlags.Constraint);
+        const drawConstraint = Boolean(this._debugDrawFlags & EPhysicsDrawFlags.CONSTRAINT);
         const internalConstraintSize = drawConstraint ? this._debugConstraintSize : 0;
         this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eJOINT_LOCAL_FRAMES, internalConstraintSize);
         this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eJOINT_LIMITS, internalConstraintSize);
 
-        if (this._debugDrawFlags & EPhysicsDrawFlags.Aabb) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.AABB) {
             this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_AABBS, 1);
         } else {
             this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_AABBS, 0);
