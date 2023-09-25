@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { deprecateModuleExportedName } from './utils/x-deprecated';
+import { deprecateModuleExportedName } from '@base/utils';
 
 deprecateModuleExportedName({
     Pool: {

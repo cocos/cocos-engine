@@ -23,7 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { replaceProperty } from '../utils/x-deprecated';
+import { replaceProperty } from '@base/utils';
 import { Color } from './color';
 import { Mat3 } from './mat3';
 import { Mat4 } from './mat4';

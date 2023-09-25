@@ -23,10 +23,10 @@
 */
 
 import { cclegacy } from '@base/global';
+import { replaceProperty } from '@base/utils';
 import { Camera } from '../../misc/camera-component';
 import { Vec3 } from '../math';
 import { Node } from '../../scene-graph';
-import { replaceProperty } from './x-deprecated';
 
 const _vec3 = new Vec3();
 

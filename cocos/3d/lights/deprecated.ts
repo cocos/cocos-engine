@@ -23,12 +23,11 @@
 */
 
 import { cclegacy } from '@base/global';
-import { js } from '@base/utils';
+import { js, replaceProperty } from '@base/utils';
 import { Light } from './light-component';
 import { SpotLight } from './spot-light-component';
 import { SphereLight } from './sphere-light-component';
 import { DirectionalLight } from './directional-light-component';
-import { replaceProperty } from '../../core';
 
 /**
  * Alias of [[Light]]

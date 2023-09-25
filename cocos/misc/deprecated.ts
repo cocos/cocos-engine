@@ -26,9 +26,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { cclegacy } from '@base/global';
-import { js } from '@base/utils';
+import { js, replaceProperty, markAsWarning } from '@base/utils';
 import { Camera } from './camera-component';
-import { replaceProperty, markAsWarning } from '../core';
 import { ModelRenderer } from './model-renderer';
 import { Renderer } from './renderer';
 

@@ -23,8 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { js } from '@base/utils';
-import { removeProperty } from '../../core';
+import { js, removeProperty } from '@base/utils';
 import { MeshRenderer } from './mesh-renderer';
 
 removeProperty(MeshRenderer.prototype, 'MeshRenderer.prototype', [

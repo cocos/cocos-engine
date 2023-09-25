@@ -35,8 +35,6 @@ import * as misc from './misc';
  */
 import * as path from './path';
 
-export * from './x-deprecated';
-
 export {
     misc,
     path,
