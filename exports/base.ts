@@ -26,8 +26,6 @@
 import { cclegacy } from '@base/global';
 // has to import predefines first
 import '../predefine';
-
-// tslint:disable-next-line: ordered-imports
 import '../cocos/core/legacy';
 //TODO(PP): should rename it to render-scene
 import * as renderer from '../cocos/render-scene';
@@ -35,6 +33,7 @@ import * as gfx from '../cocos/gfx';
 
 // LOAD ENGINE CORE
 export * from '../cocos/core';
+export * from '@base/utils';
 export { cclegacy, VERSION } from '@base/global';
 export { debug, log, error, warn, assert, logID, errorID, warnID, assertID, isDisplayStats, setDisplayStats, getError, DebugMode } from '@base/debug';
 

@@ -1,8 +1,7 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +22,22 @@
  THE SOFTWARE.
 */
 
-import './deprecated-3.6.0';
+import { deprecateModuleExportedName } from './utils/x-deprecated';
 
-/**
- * Some useful functions.
- */
-import * as misc from './misc';
-
-/**
- * A module to handle files and directories.
- */
-import * as path from './path';
-
-export * from './x-deprecated';
-
-export {
-    misc,
-    path,
-};
-
-export * from './coordinates-converts-utils';
+deprecateModuleExportedName({
+    Pool: {
+        newName: 'memop.Pool',
+        since: '3.9.0',
+        removed: false,
+    },
+    RecyclePool: {
+        newName: 'memop.RecyclePool',
+        since: '3.9.0',
+        removed: false,
+    },
+    CachedArray: {
+        newName: 'memop.CachedArray',
+        since: '3.9.0',
+        removed: false,
+    },
+});

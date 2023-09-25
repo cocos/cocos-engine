@@ -23,6 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
+import './deprecated-3.9.0';
 import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';

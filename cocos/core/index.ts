@@ -36,7 +36,6 @@ cclegacy.geometry = geometry;
 export { math, memop, geometry };
 
 export * from './math';
-export * from './memop';
 export * from './value-types';
 export * from './utils';
 export * from './data';
