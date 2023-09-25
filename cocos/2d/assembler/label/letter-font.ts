@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
+import { TextureBase } from '../../../asset/assets/texture-base';
 import { js } from '../../../core';
-import { Label, LabelOutline, Overflow } from '../../components';
+import { Label, Overflow } from '../../components';
 import { UITransform } from '../../framework/ui-transform';
 import { bmfontUtils } from './bmfontUtils';
 import { LetterAtlas, computeHash } from './font-utils';
@@ -42,7 +43,7 @@ export const letterFont = js.mixin(bmfontUtils, {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
         }
 
-        return _shareAtlas.getTexture();
+        return _shareAtlas.getTexture() as TextureBase;
     },
 
     _getFontFamily (comp: Label) {

@@ -25,7 +25,6 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
-import { assert, warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { assert, warnID } from '@base/debug';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';

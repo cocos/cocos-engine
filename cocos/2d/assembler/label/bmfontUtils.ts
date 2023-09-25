@@ -38,7 +38,7 @@ import { view } from '../../../ui/view';
 
 const _defaultFontAtlas = new FontAtlas(null);
 
-let QUAD_INDICES;
+let QUAD_INDICES: Uint16Array | null = null;
 
 export const bmfontUtils = {
 
@@ -158,7 +158,7 @@ export const bmfontUtils = {
 
             const indexCount = renderData.indexCount;
             this.createQuadIndices(indexCount);
-            renderData.chunk.setIndexBuffer(QUAD_INDICES);
+            renderData.chunk.setIndexBuffer(QUAD_INDICES!);
 
             this.updateUVs(comp);// dirty need
             this.updateColor(comp); // dirty need

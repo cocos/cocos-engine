@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { warn, warnID } from '@base/debug';
 import { ccwindow } from '@base/global';
 import { warn, warnID } from '@base/debug';
 import { FontAtlas } from '../../assets/bitmap-font';
