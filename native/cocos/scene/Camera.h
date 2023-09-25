@@ -37,7 +37,7 @@
 #include "math/Mat4.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
-#include "platform/java/modules/IXRInterface.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 #include "renderer/pipeline/Define.h"
 
