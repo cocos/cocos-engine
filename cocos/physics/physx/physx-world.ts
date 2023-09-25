@@ -24,9 +24,10 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error } from '@base/debug';
+import { js } from '@base/utils';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterTriggerEventType, CharacterControllerContact } from '../framework';
-import { RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
+import { RecyclePool, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest, gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll } from './physx-adapter';

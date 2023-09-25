@@ -27,10 +27,9 @@ import { ccclass, tooltip, displayName, type, serializable, disallowAnimation, v
 import { EDITOR, TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { errorID, warnID, assertID } from '@base/debug';
+import { IDGenerator, getClassName, value } from '@base/utils';
 import { Script } from '../asset/assets/scripts';
 import { CCObject } from '../core/data/object';
-import { IDGenerator } from '../core/utils/id-generator';
-import { getClassName, value } from '../core/utils/js';
 import { RenderScene } from '../render-scene/core/render-scene';
 import { Rect } from '../core/math';
 import * as RF from '../core/data/utils/requiring-frame';

@@ -25,7 +25,8 @@
 import { EDITOR, PREVIEW } from 'internal:constants';
 import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
-import { js, path } from '../../core';
+import { js } from '@base/utils';
+import { path } from '../../core';
 import Config from './config';
 import { IAddressableInfo, IAssetInfo } from './config';
 import { decodeUuid } from './helper';

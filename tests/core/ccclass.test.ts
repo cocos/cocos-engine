@@ -1,8 +1,8 @@
 import { ccclass } from 'cc.decorator';
 import { warnID } from '@base/debug';
+import { getClassName, unregisterClass, getClassId } from '@base/utils';
 import { float, property } from '../../cocos/core/data/class-decorator';
 import * as requiringFrame from '../../cocos/core/data/utils/requiring-frame';
-import { getClassName, unregisterClass, getClassId } from '../../cocos/core/utils/js-typed';
 import { Component } from '../../cocos/scene-graph/component';
 
 /**

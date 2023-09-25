@@ -23,8 +23,9 @@
 */
 
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
 import { PhysicsSystem } from './physics-system';
-import { replaceProperty, removeProperty, js } from '../../core';
+import { replaceProperty, removeProperty } from '../../core';
 import { BoxCollider } from './components/colliders/box-collider';
 import { SphereCollider } from './components/colliders/sphere-collider';
 import { CapsuleCollider } from './components/colliders/capsule-collider';

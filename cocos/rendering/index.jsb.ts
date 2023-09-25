@@ -26,7 +26,8 @@ declare const nr: any;
 declare const jsb: any;
 
 import { OPEN_HARMONY } from 'internal:constants';
-import { ccenum, CCString, js } from '../core';
+import { ccenum, CCString } from '../core';
+import { js } from '@base/utils';
 import * as pipeline from './define';
 import { ccclass, serializable, editable, type } from '../core/data/class-decorator';
 import { cclegacy } from '@base/global';

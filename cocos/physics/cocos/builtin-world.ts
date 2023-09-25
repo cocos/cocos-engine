@@ -23,7 +23,8 @@
 */
 
 import { error, warnID } from '@base/debug';
-import { Vec3, RecyclePool, js, IVec3Like, geometry, IQuatLike } from '../../core';
+import { js } from '@base/utils';
+import { Vec3, RecyclePool, IVec3Like, geometry, IQuatLike } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';

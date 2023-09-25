@@ -21,6 +21,7 @@
 */
 
 import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { Shadows, CSMLevel, CSMOptimizationMode } from '../../render-scene/scene/shadows';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Camera } from '../../render-scene/scene/camera';
@@ -28,7 +29,8 @@ import { Mat4, Vec3, Vec2, Vec4 } from '../../core/math';
 import { Frustum, AABB } from '../../core/geometry';
 import { IRenderObject } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { CachedArray } from '../../core/memop/cached-array';
+
+const { CachedArray } = memop;
 
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();

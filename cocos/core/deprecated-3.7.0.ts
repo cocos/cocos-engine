@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { js, markAsWarning } from './utils';
+import { js } from '@base/utils';
+import { markAsWarning } from './utils';
 
 markAsWarning(js, 'js', [
     {

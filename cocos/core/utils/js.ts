@@ -62,11 +62,13 @@ import {
 } from './js-typed';
 import { Pool } from './pool';
 import * as array from './array';
+import * as memop from '../memop';
 
 export * from './js-typed';
 export { IDGenerator } from './id-generator';
 export { Pool } from './pool';
 export { array };
+export { memop };
 
 /**
  * @deprecated since v3.7.0, `js.js` is deprecated, please access `js` directly instead.

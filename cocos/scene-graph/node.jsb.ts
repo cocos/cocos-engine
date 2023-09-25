@@ -32,10 +32,10 @@ import { Mat4, Quat, Vec3 } from '../core/math';
 import { Layers } from './layers';
 import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
-import { getClassByName, isChildClassOf } from '../core/utils/js-typed';
+import { getClassByName, isChildClassOf } from '@base/utils';
 import { syncNodeValues } from '../core/utils/jsb-utils';
 import { nodePolyfill } from './node-dev';
-import * as js from '../core/utils/js';
+import * as js from '@base/utils';
 import { patch_cc_Node } from '../native-binding/decorators';
 import type { Node as JsbNode } from './node';
 

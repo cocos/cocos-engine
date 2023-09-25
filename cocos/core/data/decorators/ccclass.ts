@@ -23,7 +23,7 @@
 */
 
 import { DEV } from 'internal:constants';
-import { getSuper, mixin, getClassName } from '../../utils/js-typed';
+import { getSuper, mixin, getClassName } from '@base/utils';
 import { CCClass } from '../class';
 import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
 import { getClassDecoratorStash, makeSmartClassDecorator, deleteClassDecoratorStash } from './utils';

@@ -26,7 +26,7 @@
 import { DEV, EDITOR, TEST } from 'internal:constants';
 import { error, errorID, warn, warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
-import * as js from '../../utils/js';
+import * as js from '@base/utils';
 import { PrimitiveType } from './attribute';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。

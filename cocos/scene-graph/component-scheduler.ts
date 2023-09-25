@@ -25,8 +25,8 @@
 import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { error, assert } from '@base/debug';
+import { js } from '@base/utils';
 import { CCObject } from '../core/data/object';
-import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import type { Component } from './component';
 

@@ -1,4 +1,4 @@
-﻿import { js } from "../../cocos/core";
+import { js } from '@base/utils';
 
 test('test', function() {
     const Asset = function () {};

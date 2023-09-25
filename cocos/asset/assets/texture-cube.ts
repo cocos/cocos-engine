@@ -26,11 +26,12 @@ import { EDITOR, OPPO, TEST, VIVO, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:
 import { ccclass, serializable } from 'cc.decorator';
 import { ccwindow, cclegacy } from '@base/global';
 import { error } from '@base/debug';
+import { js } from '@base/utils';
 import { TextureType, TextureInfo, TextureViewInfo, BufferTextureCopy } from '../../gfx';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
-import { js, sys } from '../../core';
+import { sys } from '../../core';
 import { OS } from '../../../pal/system-info/enum-type';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;

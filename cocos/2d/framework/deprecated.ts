@@ -24,7 +24,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { cclegacy } from '@base/global';
-import { markAsWarning, removeProperty, replaceProperty, js, Color } from '../../core';
+import { js } from '@base/utils';
+import { markAsWarning, removeProperty, replaceProperty, Color } from '../../core';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
 import { UIRenderer } from './ui-renderer';

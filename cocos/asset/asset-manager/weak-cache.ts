@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { js } from '../../core';
+import { js } from '@base/utils';
 import { ICache } from './cache';
 
 declare class WeakRef<T> {

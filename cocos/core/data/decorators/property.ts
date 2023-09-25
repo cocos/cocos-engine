@@ -24,12 +24,12 @@
 
 import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
 import { warnID, errorID } from '@base/debug';
+import { getClassName, mixin } from '@base/utils';
 import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
 import { IExposedAttributes } from '../utils/attribute-defines';
 import { LegacyPropertyDecorator, getSubDict, BabelPropertyDecoratorDescriptor, Initializer, getOrCreateClassDecoratorStash } from './utils';
 import { getFullFormOfProperty } from '../utils/preprocess-class';
 import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
-import { getClassName, mixin } from '../../utils/js-typed';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCBoolean;

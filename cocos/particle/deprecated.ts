@@ -23,7 +23,8 @@
 */
 
 import { cclegacy } from '@base/global';
-import { removeProperty, replaceProperty, js } from '../core';
+import { js } from '@base/utils';
+import { removeProperty, replaceProperty } from '../core';
 import Burst from './burst';
 import { ParticleSystem } from './particle-system';
 import { Billboard } from './billboard';

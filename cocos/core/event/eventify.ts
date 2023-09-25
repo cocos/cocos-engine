@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { createMap } from '@base/utils';
 import { CallbacksInvoker } from './callbacks-invoker';
-import { createMap } from '../utils/js';
 
 type Constructor<T> = new (...args: any[]) => T;
 
