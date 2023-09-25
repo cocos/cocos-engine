@@ -46,6 +46,7 @@ const TriggerEventObject = {
 };
 
 const aabbTemp = new geometry.AABB();
+const AABB_LINE_COUNT = 12;
 
 /**
  * Built-in collision system, intended for use as a
@@ -355,8 +356,8 @@ export class BuiltInWorld implements IPhysicsWorld {
                 const body = this.bodies[i];
                 for (let j = 0; j < body.shapes.length; j++) {
                     const shape = body.shapes[j];
-                    if (this._debugLineCount + 12 < this._MAX_DEBUG_LINE_COUNT) {
-                        this._debugLineCount += 12;
+                    if (this._debugLineCount + AABB_LINE_COUNT < this._MAX_DEBUG_LINE_COUNT) {
+                        this._debugLineCount += AABB_LINE_COUNT;
                         shape.getAABB(aabbTemp);
                         debugRenderer.addBoundingBox(aabbTemp, this._aabbColor);
                     }

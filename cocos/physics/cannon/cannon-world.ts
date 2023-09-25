@@ -36,6 +36,7 @@ import { GeometryRenderer } from '../../rendering/geometry-renderer';
 import { director } from '../../game';
 
 const aabbTemp = new geometry.AABB();
+const AABB_LINE_COUNT = 12;
 
 export class CannonWorld implements IPhysicsWorld {
     get impl (): CANNON.World {
@@ -286,8 +287,8 @@ export class CannonWorld implements IPhysicsWorld {
                 const body = this.bodies[i];
                 for (let j = 0; j < body.wrappedShapes.length; j++) {
                     const shape = body.wrappedShapes[j];
-                    if (this._debugLineCount + 12 < this._MAX_DEBUG_LINE_COUNT) {
-                        this._debugLineCount += 12;
+                    if (this._debugLineCount + AABB_LINE_COUNT < this._MAX_DEBUG_LINE_COUNT) {
+                        this._debugLineCount += AABB_LINE_COUNT;
                         shape.getAABB(aabbTemp);
                         debugRenderer.addBoundingBox(aabbTemp, this._aabbColor);
                     }
