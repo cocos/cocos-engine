@@ -187,18 +187,18 @@ void PhysXWorld::debugDraw () {
 }
 
 void PhysXWorld::setDebugDrawMode() {
-    if (uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::Wireframe)) {
+    if (uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::WIRE_FRAME)) {
         _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
     } else {
         _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 0);
     }
 
-    bool drawConstraint = bool(uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::Constraint));
+    bool drawConstraint = bool(uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::CONSTRAINT));
     float internalConstraintSize = drawConstraint ? _debugConstraintSize : 0;
     _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, internalConstraintSize);
     _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, internalConstraintSize);
 
-    if (uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::Aabb)) {
+    if (uint32_t(_debugDrawFlags) & uint32_t(EPhysicsDrawFlags::AABB)) {
         _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 1);
     } else {
         _mScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 0);

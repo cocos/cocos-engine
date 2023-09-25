@@ -410,7 +410,7 @@ export enum EPhysicsDrawFlags {
      * @zh
      * 不绘制。
     */
-    None = 0,
+    NONE = 0,
 
     /**
      * @en
@@ -418,7 +418,7 @@ export enum EPhysicsDrawFlags {
      * @zh
      * 绘制线框。
     */
-    Wireframe = 0x0001,
+    WIRE_FRAME = 0x0001,
 
     /**
      * @en
@@ -426,7 +426,7 @@ export enum EPhysicsDrawFlags {
      * @zh
      * 绘制约束
     */
-    Constraint = 0x0002,
+    CONSTRAINT = 0x0002,
 
     /**
      * @en
@@ -434,6 +434,6 @@ export enum EPhysicsDrawFlags {
      * @zh
      * 绘制包围盒。
     */
-    Aabb = 0x0004,
+    AABB = 0x0004,
 }
 Enum(EPhysicsDrawFlags);

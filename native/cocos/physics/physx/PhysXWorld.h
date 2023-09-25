@@ -162,7 +162,7 @@ private:
 
     uint32_t _debugLineCount = 0;
     uint32_t _MAX_DEBUG_LINE_COUNT = 16384;
-    EPhysicsDrawFlags _debugDrawFlags = EPhysicsDrawFlags::None;
+    EPhysicsDrawFlags _debugDrawFlags = EPhysicsDrawFlags::NONE;
     float _debugConstraintSize = 0.3;
 };
 

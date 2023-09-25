@@ -122,7 +122,7 @@ export class BulletWorld implements IPhysicsWorld {
 
     private _debugLineCount = 0;
     private _MAX_DEBUG_LINE_COUNT = 16384;
-    private _debugDrawFlags = EPhysicsDrawFlags.None;
+    private _debugDrawFlags = EPhysicsDrawFlags.NONE;
     private _debugConstraintSize = 0.3; //B3_DEFAULT_DEBUGDRAW_SIZE
 
     private _needEmitEvents = false;
@@ -857,16 +857,16 @@ export class BulletWorld implements IPhysicsWorld {
 
     private _setDebugDrawMode (): void {
         let btDrawMode = 0;
-        if (this._debugDrawFlags & EPhysicsDrawFlags.Wireframe) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.WIRE_FRAME) {
             btDrawMode |= EBulletDebugDrawModes.DBG_DrawWireframe;
         }
 
-        if (this._debugDrawFlags & EPhysicsDrawFlags.Constraint) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.CONSTRAINT) {
             btDrawMode |= EBulletDebugDrawModes.DBG_DrawConstraints;
             btDrawMode |= EBulletDebugDrawModes.DBG_DrawConstraintLimits;
         }
 
-        if (this._debugDrawFlags & EPhysicsDrawFlags.Aabb) {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.AABB) {
             btDrawMode |= EBulletDebugDrawModes.DBG_DrawAabb;
         }
 

@@ -40,10 +40,10 @@ enum class ETouchState : uint8_t {
 };
 
 enum class EPhysicsDrawFlags : uint32_t {
-    None = 0,
-    Wireframe = 0x0001,
-    Constraint = 0x0002,
-    Aabb = 0x0004
+    NONE = 0,
+    WIRE_FRAME = 0x0001,
+    CONSTRAINT = 0x0002,
+    AABB = 0x0004
 };
 
 struct TriggerEventPair {
