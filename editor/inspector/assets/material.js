@@ -168,9 +168,9 @@ exports.methods = {
         this.cacheData = {};
     },
 
-    change() {
+    async change() {
         this.canUpdatePreview = true;
-        this.setDirtyData();
+        await this.setDirtyData();
         this.dispatch('change');
     },
 
@@ -517,7 +517,7 @@ exports.methods = {
         }
     },
 
-    setDirtyData() {
+    async setDirtyData() {
         this.dirtyData.realtime = JSON.stringify({
             effect: this.material.effect,
             technique: this.material.technique,
@@ -531,7 +531,7 @@ exports.methods = {
         }
 
         if (this.canUpdatePreview) {
-            this.updatePreview(true);
+            await this.updatePreview(true);
         }
     },
 
@@ -577,7 +577,7 @@ exports.update = async function(assetList, metaList) {
     await this.updateEffect();
 
     await this.updateInterface();
-    this.setDirtyData();
+    await this.setDirtyData();
 };
 
 /**
@@ -606,7 +606,7 @@ exports.ready = function() {
 
         await this.updateInterface();
 
-        this.change();
+        await this.change();
         this.snapshot();
     });
 
@@ -621,20 +621,20 @@ exports.ready = function() {
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = Number(event.target.value);
         await this.updateInterface();
-        this.change();
+        await this.change();
         this.snapshot();
     });
 
     // The event is triggered when the useInstancing is modified
-    this.$.useInstancing.addEventListener('change-dump', (event) => {
+    this.$.useInstancing.addEventListener('change-dump', async (event) => {
         this.changeInstancing(event.target.dump.value);
         this.storeCache(event.target.dump, 0);
-        this.change();
+        await this.change();
         this.snapshot();
     });
 
     // The event triggered when the content of material is modified
-    this.$.materialDump.addEventListener('change-dump', (event) => {
+    this.$.materialDump.addEventListener('change-dump', async (event) => {
         const dump = event.target.dump;
 
         let passIndex = 0;
@@ -646,7 +646,7 @@ exports.ready = function() {
         }
 
         this.storeCache(dump, passIndex);
-        this.change();
+        await this.change();
     });
 
     this.$.materialDump.addEventListener('confirm-dump', () => {
