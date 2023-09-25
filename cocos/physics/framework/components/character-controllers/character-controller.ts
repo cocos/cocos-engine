@@ -374,8 +374,12 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on<TFunction extends (...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
-        callback: TFunction, target?, once?: boolean): any {
+    public on<TFunction extends (
+...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
+        callback: TFunction,
+        target?,
+        once?: boolean,
+    ): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -404,8 +408,11 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once<TFunction extends (...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
-        callback: TFunction, target?): any {
+    public once<TFunction extends (
+...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
+        callback: TFunction,
+        target?,
+    ): any {
         // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);

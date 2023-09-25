@@ -150,7 +150,7 @@ removeProperty(RigidBody.prototype, 'RigidBody.prototype', [
 
 removeProperty(EConstraintType, 'EConstraintType.prototype', [
     {
-        name: 'CONE_TWIST',  
+        name: 'CONE_TWIST',
     },
 ]);
 

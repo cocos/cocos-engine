@@ -76,38 +76,71 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
     }
 
-    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepBox (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepBoxClosest (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepSphere (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepSphereClosest (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
-        result: PhysicsRayResult): boolean {
+    sweepSphereClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepCapsule (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number,
-        orientation: IQuatLike, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepCapsuleClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         warnID(9641);
         return false;
     }
