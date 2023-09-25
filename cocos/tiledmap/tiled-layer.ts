@@ -42,8 +42,8 @@ import { NodeEventType } from '../scene-graph/node-event';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo, RenderDrawInfoType } from '../2d/renderer/render-draw-info';
 import { Texture2D } from '../asset/assets';
-import { director } from '../game';
 import { Camera } from '../render-scene/scene';
+import { uiSystem } from '../2d/framework/ui-system';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -108,14 +108,14 @@ export class TiledLayer extends UIRenderer {
             row: number;
             col: number;
         };
-    } { return this._cullingRect; }
+        } { return this._cullingRect; }
 
     protected _cullingDirty = true;
     protected _rightTop = { row: -1, col: -1 };
     get rightTop (): {
         row: number;
         col: number;
-    } { return this._rightTop; }
+        } { return this._rightTop; }
 
     protected _layerInfo: TMXLayerInfo | null = null;
     protected _mapInfo: TMXMapInfo | null = null;
@@ -368,7 +368,7 @@ export class TiledLayer extends UIRenderer {
         const rowData = this._userNodeGrid[row];
         const colData = rowData && rowData[col];
         if (colData) {
-            rowData!.count--;
+            rowData.count--;
             colData.count--;
             colData.list[index] = null;
             if (colData.count <= 0) {
@@ -416,7 +416,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     protected _reinstallCamera (): Camera | null {
-        const camera = director.root!.batcher2D.getFirstRenderCamera(this.node);
+        const camera = uiSystem.batcher2D.getFirstRenderCamera(this.node);
         const cameraNode = camera?.node;
         if (this._cameraNode !== cameraNode) {
             this._uninstallCamera();

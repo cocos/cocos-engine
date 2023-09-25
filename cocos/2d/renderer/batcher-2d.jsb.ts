@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -21,24 +21,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import type {
-    NativeRenderDrawInfo as N2dNativeRenderDrawInfo,
-    NativeUIMeshBuffer as N2dNativeUIMeshBuffer,
-    NativeRenderEntity as N2dNativeRenderEntity,
-    NativeUIModelProxy as N2dNativeUIModelProxy,
-    NativeStencilManager as N2dNativeStencilManager,
-} from './native-2d';
+import { cclegacy } from '@base/global';
+import type { Batcher2D as n2dBatcher2D } from "./batcher-2d";
 
-// 2d
 declare const n2d: any;
 
-export const NativeRenderDrawInfo: typeof N2dNativeRenderDrawInfo = n2d.RenderDrawInfo;
-export type NativeRenderDrawInfo = N2dNativeRenderDrawInfo;
-export const NativeUIMeshBuffer: typeof N2dNativeUIMeshBuffer = n2d.UIMeshBuffer;
-export type NativeUIMeshBuffer = N2dNativeUIMeshBuffer;
-export const NativeRenderEntity: typeof N2dNativeRenderEntity = n2d.RenderEntity;
-export type NativeRenderEntity = N2dNativeRenderEntity;
-export const NativeUIModelProxy: typeof N2dNativeUIModelProxy = n2d.UIModelProxy;
-export type NativeUIModelProxy = N2dNativeUIModelProxy;
-export const NativeStencilManager: typeof N2dNativeStencilManager = n2d.StencilManager;
-export type NativeStencilManager = N2dNativeStencilManager;
+export const Batcher2D: typeof n2dBatcher2D = n2d.Batcher2D;
+export type Batcher2D = n2dBatcher2D;
+const batcher2DProto: any = n2d.Batcher2D.prototype;
+cclegacy.internal.Batcher2D = Batcher2D;

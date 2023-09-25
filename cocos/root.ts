@@ -41,7 +41,7 @@ import { RangedDirectionalLight } from './render-scene/scene/ranged-directional-
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
 import { BasicPipeline, PipelineRuntime } from './rendering/custom/pipeline';
-import { Batcher2D } from './2d/renderer/batcher-2d';
+import type { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent } from './rendering/pipeline-event';
 import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
 import { XREye, XRPoseType } from './xr/xr-enums';
@@ -152,9 +152,10 @@ export class Root {
     /**
      * @en The draw batch manager for 2D UI, for engine internal usage, user do not need to use this.
      * @zh 2D UI 渲染合批管理器，引擎内部使用，用户无需使用此接口
+     * @deprecated Since v3.9.0, this is an engine private interface that will be removed in the future.
      */
     public get batcher2D (): Batcher2D {
-        return this._batcher as Batcher2D;
+        return cclegacy.internal.uiSystem.batcher2D as Batcher2D;
     }
 
     /**
@@ -260,7 +261,6 @@ export class Root {
     private _pipelineEvent: IPipelineEvent | null = null;
     private _classicPipeline: RenderPipeline | null = null;
     private _customPipeline: BasicPipeline | null = null;
-    private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
@@ -335,11 +335,6 @@ export class Root {
             this._pipeline.destroy();
             this._pipeline = null;
             this._pipelineEvent = null;
-        }
-
-        if (this._batcher) {
-            this._batcher.destroy();
-            this._batcher = null;
         }
 
         this._curWindow = null;
@@ -433,13 +428,6 @@ export class Root {
         }
 
         this.onGlobalPipelineStateChanged();
-        if (!this._batcher && internal.Batcher2D) {
-            this._batcher = new internal.Batcher2D(this);
-            if (!this._batcher!.initialize()) {
-                this.destroy();
-                return false;
-            }
-        }
 
         return true;
     }
@@ -803,11 +791,6 @@ export class Root {
             const scenes = this._scenes;
             const stamp = director.getTotalFrames() as number;
 
-            if (this._batcher) {
-                this._batcher.update();
-                this._batcher.uploadBuffers();
-            }
-
             for (let i = 0; i < scenes.length; i++) {
                 scenes[i].update(stamp);
             }
@@ -829,8 +812,6 @@ export class Root {
             director.emit(Director.EVENT_AFTER_RENDER);
             this._device.present();
         }
-
-        if (this._batcher) this._batcher.reset();
     }
 
     private _resizeMaxJointForDS (): void {

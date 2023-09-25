@@ -55,26 +55,6 @@ export interface IRootInfo {
 
 const rootProto: any = Root.prototype;
 
-rootProto._createBatcher2D = function () {
-    if (!this._batcher && cclegacy.internal.Batcher2D) {
-        this._batcher = new cclegacy.internal.Batcher2D(this);
-        if (!this._batcher!.initialize()) {
-            this._batcher = null;
-            this.destroy();
-            return;
-        }
-        this._batcher._nativeObj = this.getBatcher2D();
-    }
-}
-
-Object.defineProperty(rootProto, 'batcher2D', {
-    configurable: true,
-    enumerable: true,
-    get() {
-        return this._batcher;
-    },
-});
-
 Object.defineProperty(rootProto, 'dataPoolManager', {
     configurable: true,
     enumerable: true,
@@ -106,7 +86,6 @@ rootProto._ctor = function (device: Device) {
     this._dataPoolMgr = cclegacy.internal.DataPoolManager && new cclegacy.internal.DataPoolManager(device) as DataPoolManager;
     this._modelPools = new Map();
     this._lightPools = new Map();
-    this._batcher = null;
     this._pipelineEvent = new DummyPipelineEvent();
     this._registerListeners();
 };
@@ -255,7 +234,6 @@ rootProto.setRenderPipeline = function (pipeline) {
         }
         ppl = oldSetPipeline.call(this, pipeline);
     }
-    this._createBatcher2D();
     return ppl;
 }
 

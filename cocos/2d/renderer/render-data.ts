@@ -35,9 +35,10 @@ import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
 import { getAttributeStride, vfmtPosUvColor } from './vertex-format';
 import { Buffer, BufferInfo, BufferUsageBit, Device, Attribute, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../gfx';
 import { RenderDrawInfo, RenderDrawInfoType } from './render-draw-info';
-import { Batcher2D } from './batcher-2d';
 import { RenderEntity, RenderEntityType } from './render-entity';
 import type { MeshBuffer } from './mesh-buffer';
+import { uiSystem } from '../framework/ui-system';
+import { BufferAccessorManager } from './buffer-accessor-manager';
 
 /**
  * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
@@ -126,14 +127,6 @@ export class BaseRenderData {
         this._multiOwner = val;
     }
 
-    protected _batcher: Batcher2D | null = null;
-    get batcher (): Batcher2D {
-        if (!this._batcher) {
-            this._batcher = director.root!.batcher2D;
-        }
-        return this._batcher;
-    }
-
     constructor (vertexFormat = vfmtPosUvColor) {
         this._floatStride = vertexFormat === vfmtPosUvColor ? DEFAULT_STRIDE : (getAttributeStride(vertexFormat) >> 2);
         this._vertexFormat = vertexFormat;
@@ -215,11 +208,6 @@ export class BaseRenderData {
 export class RenderData extends BaseRenderData {
     public static add (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor): RenderData {
         const rd = new RenderData(vertexFormat, accessor);
-        if (!accessor) {
-            const batcher = director.root!.batcher2D;
-            accessor = batcher.switchBufferAccessor(rd._vertexFormat);
-        }
-        rd._accessor = accessor;
         return rd;
     }
 
@@ -316,7 +304,7 @@ export class RenderData extends BaseRenderData {
     public constructor (vertexFormat = vfmtPosUvColor, accessor?: StaticVBAccessor) {
         super(vertexFormat);
         if (!accessor) {
-            accessor = this.batcher.switchBufferAccessor(this._vertexFormat);
+            accessor = BufferAccessorManager.instance.switchBufferAccessor(this._vertexFormat);
         }
         this._accessor = accessor;
     }

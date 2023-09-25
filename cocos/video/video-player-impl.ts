@@ -27,9 +27,9 @@ import { error } from '@base/debug';
 import { UITransform } from '../2d/framework';
 import { VideoPlayer } from './video-player';
 import { EventType } from './video-player-enums';
-import { director } from '../game/director';
 import { Node } from '../scene-graph';
 import type { Camera } from '../render-scene/scene';
+import { uiSystem } from '../2d/framework/ui-system';
 
 export abstract class VideoPlayerImpl {
     protected _componentEventList: Map<string, () => void> = new Map();
@@ -127,7 +127,7 @@ export abstract class VideoPlayerImpl {
     public get state (): EventType { return this._state; }
     public get isPlaying (): boolean { return this._playing; }
     get UICamera (): Camera | null {
-        return director.root!.batcher2D.getFirstRenderCamera(this._node!);
+        return uiSystem.batcher2D.getFirstRenderCamera(this._node!);
     }
 
     // video player event

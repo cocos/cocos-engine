@@ -104,15 +104,6 @@ export declare class NativeUIMeshBuffer {
     uploadBuffers();
 }
 
-export declare class NativeBatcher2d {
-    syncMeshBuffersToNative(accId: number, buffers: NativeUIMeshBuffer[]);
-    update();
-    uploadBuffers();
-    reset();
-    syncRootNodesToNative(nodes: Node[]);
-    releaseDescriptorSetCache(texture: Texture, sampler: Sampler);
-}
-
 export declare class NativeUIModelProxy {
     initModel(node);
     activeSubModels();

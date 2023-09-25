@@ -29,7 +29,7 @@ import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
 import { Pool, macro } from '../../core';
-import { director } from '../../game';
+import { uiSystem } from '../framework/ui-system';
 
 interface IFreeEntry {
     offset: number;
@@ -306,8 +306,10 @@ export class StaticVBAccessor extends BufferAccessor {
         //sync to native
         // temporarily batcher transports buffers
         // It is better to put accessor to native
-        const batcher = director.root!.batcher2D;
-        batcher.syncMeshBuffersToNative(this.id, this._buffers);
+        if (JSB) {
+            const nativeBuffers = this._buffers.map((buf) => buf.nativeObj);
+            uiSystem.batcher2D.syncMeshBuffersToNative(this.id, nativeBuffers);
+        }
 
         return this._buffers.length - 1;
     }

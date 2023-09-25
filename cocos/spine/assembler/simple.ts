@@ -23,6 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
+import { JSB } from 'internal:constants';
 import { UIRenderable } from '../../2d';
 import { IAssembler } from '../../2d/renderer/base';
 
@@ -36,6 +37,7 @@ import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';
 import { MaterialInstance } from '../../render-scene';
+import { BufferAccessorManager } from '../../2d/renderer/buffer-accessor-manager';
 
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
@@ -95,16 +97,19 @@ export const simple: IAssembler = {
         let accessor = useTint ? _tintAccessor : _accessor;
         if (!accessor) {
             const device = director.root!.device;
-            const batcher = director.root!.batcher2D;
             const attributes = useTint ? vfmtPosUvTwoColor4B : vfmtPosUvColor4B;
             if (useTint) {
-                accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount as number);
-                // Register to batcher so that batcher can upload buffers after batching process
-                batcher.registerBufferAccessor(Number.parseInt('SPINETINT', 36), _tintAccessor);
+                accessor = _tintAccessor = new StaticVBAccessor(device, attributes, this.vCount);
+                if (!JSB) {
+                    // Register to batcher so that batcher can upload buffers after batching process
+                    BufferAccessorManager.instance.registerBufferAccessor(Number.parseInt('SPINETINT', 36), _tintAccessor);
+                }
             } else {
-                accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount as number);
+                accessor = _accessor = new StaticVBAccessor(device, attributes, this.vCount);
+                if (!JSB) {
                 // Register to batcher so that batcher can upload buffers after batching process
-                batcher.registerBufferAccessor(Number.parseInt('SPINE', 36), _accessor);
+                    BufferAccessorManager.instance.registerBufferAccessor(Number.parseInt('SPINE', 36), _accessor);
+                }
             }
         }
         return accessor;

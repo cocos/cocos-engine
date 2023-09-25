@@ -53,7 +53,6 @@ namespace render {
 class PipelineRuntime;
 class Pipeline;
 } // namespace render
-class Batcher2d;
 
 struct ISystemWindowInfo;
 class ISystemWindow;
@@ -235,13 +234,6 @@ public:
 
     /**
      * @zh
-     * UI实例
-     * 引擎内部使用，用户无需调用此接口
-     */
-    inline Batcher2d *getBatcher2D() const { return _batcher; }
-
-    /**
-     * @zh
      * 场景列表
      */
     inline const ccstd::vector<IntrusivePtr<scene::RenderScene>> &getScenes() const { return _scenes; }
@@ -307,7 +299,6 @@ private:
 
     gfx::Device *_device{nullptr};
     gfx::Swapchain *_swapchain{nullptr};
-    Batcher2d *_batcher{nullptr};
     IntrusivePtr<scene::RenderWindow> _mainRenderWindow;
     IntrusivePtr<scene::RenderWindow> _curRenderWindow;
     IntrusivePtr<scene::RenderWindow> _tempWindow;

@@ -45,8 +45,8 @@ RenderDrawInfo::~RenderDrawInfo() {
 }
 
 void RenderDrawInfo::changeMeshBuffer() {
-    CC_ASSERT(Root::getInstance()->getBatcher2D());
-    _meshBuffer = Root::getInstance()->getBatcher2D()->getMeshBuffer(_drawInfoAttrs._accId, _drawInfoAttrs._bufferId);
+    CC_ASSERT(Batcher2d::getInstance());
+    _meshBuffer = Batcher2d::getInstance()->getMeshBuffer(_drawInfoAttrs._accId, _drawInfoAttrs._bufferId);
 }
 
 gfx::InputAssembler* RenderDrawInfo::requestIA(gfx::Device* device) {
@@ -100,7 +100,7 @@ gfx::InputAssembler* RenderDrawInfo::initIAInfo(gfx::Device* device) {
             ibStride,
         });
 
-        iaInfo.attributes = *(Root::getInstance()->getBatcher2D()->getDefaultAttribute());
+        iaInfo.attributes = *(Batcher2d::getInstance()->getDefaultAttribute());
         iaInfo.vertexBuffers.emplace_back(_vb);
         iaInfo.indexBuffer = _ib;
 

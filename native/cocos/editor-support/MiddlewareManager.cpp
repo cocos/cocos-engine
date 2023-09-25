@@ -121,7 +121,7 @@ void MiddlewareManager::render(float dt) {
         }
 
         uint16_t accID = 65534;
-        auto *batch2d = Root::getInstance()->getBatcher2D();
+        auto *batch2d = Batcher2d::getInstance();
         if (it.first == VF_XYZUVCC) {
             accID = 65535;
         }

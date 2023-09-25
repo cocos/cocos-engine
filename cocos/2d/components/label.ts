@@ -40,6 +40,8 @@ import { BlendFactor } from '../../gfx';
 import { TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
+import { TransformBit } from '../../scene-graph';
+import { uiLayoutManager } from '../framework/ui-layout-manager';
 
 const tempColor = Color.WHITE.clone();
 /**
@@ -230,6 +232,7 @@ export class Label extends UIRenderer {
         }
 
         this._string = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -252,6 +255,7 @@ export class Label extends UIRenderer {
         }
 
         this._horizontalAlign = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -274,6 +278,7 @@ export class Label extends UIRenderer {
         }
 
         this._verticalAlign = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -309,6 +314,7 @@ export class Label extends UIRenderer {
         }
 
         this._fontSize = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -330,6 +336,7 @@ export class Label extends UIRenderer {
         }
 
         this._lineHeight = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -354,6 +361,7 @@ export class Label extends UIRenderer {
         }
 
         this._spacingX = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -376,6 +384,7 @@ export class Label extends UIRenderer {
         }
 
         this._overflow = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -397,6 +406,7 @@ export class Label extends UIRenderer {
         }
 
         this._enableWrapText = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -432,6 +442,7 @@ export class Label extends UIRenderer {
             this.font = null;
         }
         this._flushAssembler();
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -454,6 +465,7 @@ export class Label extends UIRenderer {
         }
 
         this._fontFamily = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -492,6 +504,7 @@ export class Label extends UIRenderer {
         this.destroyRenderData();
 
         this._fontAtlas = null;
+        this._markLayoutDirty();
         this.updateRenderData(true);
     }
 
@@ -521,6 +534,7 @@ export class Label extends UIRenderer {
         }
 
         this._cacheMode = value;
+        this._markLayoutDirty();
         this.updateRenderData(true);
     }
 
@@ -542,6 +556,7 @@ export class Label extends UIRenderer {
         }
 
         this._isBold = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -563,6 +578,7 @@ export class Label extends UIRenderer {
         }
 
         this._isItalic = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -621,6 +637,7 @@ export class Label extends UIRenderer {
     set enableOutline (value) {
         if (this._enableOutline === value) return;
         this._enableOutline = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -641,6 +658,7 @@ export class Label extends UIRenderer {
     set outlineColor (value) {
         if (this._outlineColor === value) return;
         this._outlineColor.set(value);
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -661,6 +679,7 @@ export class Label extends UIRenderer {
     set outlineWidth (value) {
         if (this._outlineWidth === value) return;
         this._outlineWidth = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -678,6 +697,7 @@ export class Label extends UIRenderer {
     set enableShadow (value) {
         if (this._enableShadow === value) return;
         this._enableShadow = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -698,6 +718,7 @@ export class Label extends UIRenderer {
     set shadowColor (value) {
         if (this._shadowColor === value) return;
         this._shadowColor.set(value);
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -718,6 +739,7 @@ export class Label extends UIRenderer {
     set shadowOffset (value) {
         if (this._shadowOffset === value) return;
         this._shadowOffset.set(value);
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -738,6 +760,7 @@ export class Label extends UIRenderer {
     set shadowBlur (value) {
         if (this._shadowBlur === value) return;
         this._shadowBlur = value;
+        this._markLayoutDirty();
         this.markForUpdateRenderData();
     }
 
@@ -808,6 +831,12 @@ export class Label extends UIRenderer {
     get textLayoutData (): TextOutputLayoutData {
         return this._textLayoutData!;
     }
+    /**
+     * @engineInternal
+     */
+    get layoutDirty (): boolean {
+        return this._layoutDirty;
+    }
 
     @serializable
     protected _string = 'label';
@@ -875,6 +904,8 @@ export class Label extends UIRenderer {
     protected _textRenderData: TextOutputRenderData | null = null;
     protected _textLayoutData: TextOutputLayoutData | null = null;
 
+    protected _layoutDirty = false;
+
     /**
      * @engineInternal
      */
@@ -904,6 +935,7 @@ export class Label extends UIRenderer {
 
     public onEnable (): void {
         super.onEnable();
+        this._markLayoutDirty();
 
         // TODO: Hack for barbarians
         if (!this._font && !this._isSystemFontUsed) {
@@ -963,6 +995,7 @@ export class Label extends UIRenderer {
             this._applyFontTexture();
         }
         if (this._assembler) {
+            // this._assembler.updateLayoutData(this); // Todo
             this._assembler.updateRenderData(this);
         }
     }
@@ -1041,6 +1074,7 @@ export class Label extends UIRenderer {
                 }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
+                    // this._assembler.updateLayoutData(this);// Todo
                     this._assembler.updateRenderData(this);
                 }
             }
@@ -1103,6 +1137,46 @@ export class Label extends UIRenderer {
             }
         }
         super._updateBlendFunc();
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _markLayoutDirty (): void {
+        if (this._layoutDirty) return;
+        this._layoutDirty = true;
+        if (this.enabled) {
+            uiLayoutManager.markLayoutDirty(this);
+        }
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _resetLayoutDirty (): void {
+        this._layoutDirty = false;
+    }
+
+    /**
+     * @engineInternal
+     */
+    public _updateLayout (): void {
+        // Todo
+        // if (this._assembler) {
+        //     this._assembler.updateLayoutData(this);
+        // }
+    }
+
+    protected _nodeStateChange (transformType: TransformBit): void {
+        super._nodeStateChange(transformType);
+        this._markLayoutDirty();
+        for (let i = 0; i < this.node.children.length; ++i) {
+            const child = this.node.children[i];
+            const renderComp = child.getComponent(Label);
+            if (renderComp) {
+                renderComp._markLayoutDirty();
+            }
+        }
     }
 }
 

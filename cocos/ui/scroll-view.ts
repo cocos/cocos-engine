@@ -973,7 +973,7 @@ export class ScrollView extends ViewGroup {
         // Because widget component will adjust content position and scrollView position is correct after visit
         // So this event could make sure the content is on the correct position after loading.
         if (this._content) {
-            director.once(Director.EVENT_BEFORE_DRAW, this._adjustContentOutOfBoundary, this);
+            director.once(Director.EVENT_AFTER_UPDATE, this._adjustContentOutOfBoundary, this);
         }
     }
 

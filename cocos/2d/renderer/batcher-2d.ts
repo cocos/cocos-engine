@@ -28,7 +28,7 @@ import { assert } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
 import { Camera, Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets/material';
-import { RenderRoot2D, UIRenderer } from '../framework';
+import { UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
 import { CachedArray, Pool, Mat4, approx, EPSILON } from '../../core';
 import { Root } from '../../root';
@@ -39,16 +39,16 @@ import { ModelLocalBindings, UBOLocal } from '../../rendering/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { IBatcher } from './i-batcher';
-import { StaticVBAccessor } from './static-vb-accessor';
-import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
+import { getAttributeStride, vfmt } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
-import { NativeBatcher2d, NativeUIMeshBuffer } from './native-2d';
+import type { NativeUIMeshBuffer } from './native-2d';
 import { MeshBuffer } from './mesh-buffer';
 import { scene } from '../../render-scene';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { RenderingSubMesh } from '../../asset/assets';
+import { BufferAccessorManager } from './buffer-accessor-manager';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -58,30 +58,23 @@ const m4_1 = new Mat4();
  * @zh UI 渲染流程
  */
 export class Batcher2D implements IBatcher {
-    protected declare _nativeObj: NativeBatcher2d;
-    public get nativeObj (): NativeBatcher2d  {
-        return this._nativeObj;
+    public static getInstance (): Batcher2D {
+        if (this.instance === null) {
+            this.instance = new Batcher2D(cclegacy.director.root as Root);
+        }
+        return this.instance;
     }
-
-    get currBufferAccessor (): StaticVBAccessor {
-        if (this._staticVBBuffer) return this._staticVBBuffer;
-        // create if not set
-        this._staticVBBuffer = this.switchBufferAccessor();
-        return this._staticVBBuffer;
-    }
+    private static instance: Batcher2D | null = null;
 
     get batches (): CachedArray<DrawBatch2D> {
         return this._batches;
     }
 
     public device: Device;
-    private _screens: RenderRoot2D[] = [];
-    private _staticVBBuffer: StaticVBAccessor | null = null;
-    private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
+    private _screens: Node[] = [];
 
     private _drawBatchPool: Pool<DrawBatch2D>;
     private _batches: CachedArray<DrawBatch2D>;
-    private _currBID = -1;
     private _indexStart = 0;
 
     private _emptyMaterial = new Material();
@@ -135,10 +128,7 @@ export class Batcher2D implements IBatcher {
         }
         this._batches.destroy();
 
-        for (const accessor of this._bufferAccessors.values()) {
-            accessor.destroy();
-        }
-        this._bufferAccessors.clear();
+        BufferAccessorManager.instance.destroy();
 
         if (this._drawBatchPool) {
             this._drawBatchPool.destroy();
@@ -157,16 +147,6 @@ export class Batcher2D implements IBatcher {
         }
     }
 
-    private syncRootNodesToNative (): void {
-        if (JSB) {
-            const rootNodes: Node[] = [];
-            for (const screen of this._screens) {
-                rootNodes.push(screen.node);
-            }
-            this._nativeObj.syncRootNodesToNative(rootNodes);
-        }
-    }
-
     /**
      * @en
      * Add the managed Canvas.
@@ -177,12 +157,9 @@ export class Batcher2D implements IBatcher {
      * @param comp @en The render root of 2d.
      *             @zh 2d 渲染入口组件。
      */
-    public addScreen (comp: RenderRoot2D): void {
-        this._screens.push(comp);
+    public addScreen (node: Node): void {
+        this._screens.push(node);
         this._screens.sort(this._screenSort);
-        if (JSB) {
-            this.syncRootNodesToNative();
-        }
     }
 
     /**
@@ -192,22 +169,16 @@ export class Batcher2D implements IBatcher {
      * @param comp @en The target to removed.
      *             @zh 被移除的屏幕。
      */
-    public removeScreen (comp: RenderRoot2D): void {
-        const idx = this._screens.indexOf(comp);
+    public removeScreen (node: Node): void {
+        const idx = this._screens.indexOf(node);
         if (idx === -1) {
             return;
         }
         this._screens.splice(idx, 1);
-        if (JSB) {
-            this.syncRootNodesToNative();
-        }
     }
 
     public sortScreens (): void {
         this._screens.sort(this._screenSort);
-        if (JSB) {
-            this.syncRootNodesToNative();
-        }
     }
 
     public getFirstRenderCamera (node: Node): Camera | null {
@@ -224,22 +195,16 @@ export class Batcher2D implements IBatcher {
     }
 
     public update (): void {
-        if (JSB) {
-            return;
-        }
         const screens = this._screens;
         let offset = 0;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
-            const scene = screen._getRenderScene();
-            if (!screen.enabledInHierarchy || !scene) {
-                continue;
-            }
+            const scene = screen.scene.renderScene!;
             // Reset state and walk
             this._opacityDirty = 0;
             this._pOpacity = 1;
 
-            this.walk(screen.node);
+            this.walk(screen);
 
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
@@ -264,88 +229,53 @@ export class Batcher2D implements IBatcher {
     }
 
     public uploadBuffers (): void {
-        if (JSB) {
-            this._nativeObj.uploadBuffers();
-        } else if (this._batches.length > 0) {
+        if (this._batches.length > 0) {
             const length = this._meshDataArray.length;
             for (let i = 0; i < length; i++) {
                 this._meshDataArray[i].uploadBuffers();
             }
 
-            for (const accessor of this._bufferAccessors.values()) {
-                accessor.uploadBuffers();
-                accessor.reset();
-            }
-
+            BufferAccessorManager.instance.upload();
             this._descriptorSetCache.update();
         }
     }
 
     public reset (): void {
-        if (JSB) {
-            this._nativeObj.reset();
-        } else {
-            for (let i = 0; i < this._batches.length; ++i) {
-                const batch = this._batches.array[i];
-                batch.clear();
-                this._drawBatchPool.free(batch);
-            }
-            // Reset buffer accessors
-            for (const accessor of this._bufferAccessors.values()) {
-                accessor.reset();
-            }
-            const length = this._meshDataArray.length;
-            for (let i = 0; i < length; i++) {
-                this._meshDataArray[i].freeIAPool();
-            }
-            this._meshDataArray.length = 0;
-            this._staticVBBuffer = null;
-
-            this._currBID = -1;
-            this._indexStart = 0;
-            this._currHash = 0;
-            this._currLayer = 0;
-            this._currRenderData = null;
-            this._currMaterial = this._emptyMaterial;
-            this._currTexture = null;
-            this._currSampler = null;
-            this._currComponent = null;
-            this._currTransform = null;
-            this._batches.clear();
-            StencilManager.sharedManager!.reset();
+        for (let i = 0; i < this._batches.length; ++i) {
+            const batch = this._batches.array[i];
+            batch.clear();
+            this._drawBatchPool.free(batch);
         }
+
+        BufferAccessorManager.instance.reset();
+        const length = this._meshDataArray.length;
+        for (let i = 0; i < length; i++) {
+            this._meshDataArray[i].freeIAPool();
+        }
+        this._meshDataArray.length = 0;
+
+        this._indexStart = 0;
+        this._currHash = 0;
+        this._currLayer = 0;
+        this._currRenderData = null;
+        this._currMaterial = this._emptyMaterial;
+        this._currTexture = null;
+        this._currSampler = null;
+        this._currComponent = null;
+        this._currTransform = null;
+        this._batches.clear();
+        StencilManager.sharedManager!.reset();
     }
 
-    /**
-     * @zh 如果有必要，为相应的顶点布局切换网格缓冲区。
-     * @en Switch the mesh buffer for corresponding vertex layout if necessary.
-     * @param attributes use VertexFormat.vfmtPosUvColor by default
-     */
-    public switchBufferAccessor (attributes: Attribute[] = vfmtPosUvColor): StaticVBAccessor {
-        const strideBytes = attributes === vfmtPosUvColor ? 36 /* 9x4 */ : getAttributeStride(attributes);
-        // If current accessor not compatible with the requested attributes
-        if (!this._staticVBBuffer || (this._staticVBBuffer.vertexFormatBytes) !== strideBytes) {
-            let accessor = this._bufferAccessors.get(strideBytes);
-            if (!accessor) {
-                accessor = new StaticVBAccessor(this.device, attributes);
-                this._bufferAccessors.set(strideBytes, accessor);
-            }
-
-            this._staticVBBuffer = accessor;
-            this._currBID = -1;
-        }
-        return this._staticVBBuffer;
-    }
-
-    public registerBufferAccessor (key: number, accessor: StaticVBAccessor): void {
-        this._bufferAccessors.set(key, accessor);
+    public syncMeshBuffersToNative (accId: number, buffers: NativeUIMeshBuffer[]): void {
+        //sync mesh buffer to naive // Only native need this
     }
 
     public updateBuffer (attributes: Attribute[], bid: number): void {
-        const accessor = this.switchBufferAccessor(attributes);
+        const accessor = BufferAccessorManager.instance.switchBufferAccessor(attributes);
         // If accessor changed, then current bid will be reset to -1, this check will pass too
-        if (this._currBID !== bid) {
-            this._currBID = bid;
+        if (BufferAccessorManager.instance.currBID !== bid) {
+            BufferAccessorManager.instance.currBID = bid;
             this._indexStart = accessor.getMeshBuffer(bid).indexOffset;
         }
     }
@@ -591,7 +521,7 @@ export class Batcher2D implements IBatcher {
         }
         let ia;
         const rd = this._currRenderData as MeshRenderData;
-        const accessor = this._staticVBBuffer;
+        const accessor = BufferAccessorManager.instance.currBufferAccessor;
         // Previous batch using mesh buffer
         if (rd && rd._isMeshBuffer) {
             ia = rd.requestIA(this.device);
@@ -600,7 +530,7 @@ export class Batcher2D implements IBatcher {
             }
         } else if (accessor) {
         // Previous batch using static vb buffer
-            const bid = this._currBID;
+            const bid = BufferAccessorManager.instance.currBID;
             const buf = accessor.getMeshBuffer(bid);
             if (!buf) {
                 return;
@@ -616,7 +546,7 @@ export class Batcher2D implements IBatcher {
             // Update index tracker and bid
             this._indexStart = buf.indexOffset;
         }
-        this._currBID = -1;
+        BufferAccessorManager.instance.currBID = -1;
 
         // Request ia failed
         if (!ia || !this._currTexture) {
@@ -809,17 +739,12 @@ export class Batcher2D implements IBatcher {
         level += 1;
     }
 
-    private _screenSort (a: RenderRoot2D, b: RenderRoot2D): number {
-        return a.node.getSiblingIndex() - b.node.getSiblingIndex();
+    private _screenSort (a: Node, b: Node): number {
+        return a.getSiblingIndex() - b.getSiblingIndex();
     }
 
-    // TODO: Not a good way to do the job
-    private _releaseDescriptorSetCache (textureHash, sampler = null!): void {
-        if (JSB) {
-            this._nativeObj.releaseDescriptorSetCache(textureHash, sampler);
-        } else {
-            this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
-        }
+    public releaseDescriptorSetCache (texture: TextureBase): void {
+        this._descriptorSetCache.releaseDescriptorSetCache(texture.getHash());
     }
 
     // Mask use
@@ -895,14 +820,6 @@ export class Batcher2D implements IBatcher {
             this._batches.push(curDrawBatch);
         }
         _stencilManager.enableMask();
-    }
-
-    //sync mesh buffer to naive
-    public syncMeshBuffersToNative (accId: number, buffers: MeshBuffer[]): void {
-        if (JSB) {
-            const nativeBuffers = buffers.map((buf) => buf.nativeObj);
-            this._nativeObj.syncMeshBuffersToNative(accId, nativeBuffers);
-        }
     }
 }
 
@@ -993,13 +910,11 @@ class LocalDescriptorSet  {
             Mat4.invert(m4_1, worldMatrix);
             Mat4.transpose(m4_1, m4_1);
 
-            if (!JSB) {
-                // fix precision lost of webGL on android device
-                // scale worldIT mat to around 1.0 by product its sqrt of determinant.
-                const det = Mat4.determinant(m4_1);
-                const factor = 1.0 / Math.sqrt(det);
-                Mat4.multiplyScalar(m4_1, m4_1, factor);
-            }
+            // fix precision lost of webGL on android device
+            // scale worldIT mat to around 1.0 by product its sqrt of determinant.
+            const det = Mat4.determinant(m4_1);
+            const factor = 1.0 / Math.sqrt(det);
+            Mat4.multiplyScalar(m4_1, m4_1, factor);
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer!.update(this._localData);
             this._transformUpdate = false;

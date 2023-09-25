@@ -29,9 +29,21 @@
 #include "core/scene-graph/Scene.h"
 #include "editor-support/MiddlewareManager.h"
 #include "renderer/pipeline/Define.h"
+#include "scene/Camera.h"
 #include "scene/Pass.h"
 
 namespace cc {
+
+namespace  {
+Batcher2d* instance = nullptr;
+}
+
+Batcher2d* Batcher2d::getInstance() {
+    if (instance == nullptr) {
+        instance = new Batcher2d();
+    }
+    return instance;
+}
 
 Batcher2d::Batcher2d() : Batcher2d(nullptr) {
 }
@@ -47,27 +59,7 @@ Batcher2d::Batcher2d(Root* root)
 }
 
 Batcher2d::~Batcher2d() { // NOLINT
-    _drawBatchPool.destroy();
-
-    for (auto iter : _descriptorSetCache) {
-        delete iter.second;
-    }
-
-    for (auto* drawBatch : _batches) {
-        delete drawBatch;
-    }
-    _attributes.clear();
-
-    if (_maskClearModel != nullptr) {
-        Root::getInstance()->destroyModel(_maskClearModel);
-        _maskClearModel = nullptr;
-    }
-    if (_maskModelMesh != nullptr) {
-        _maskModelMesh->destroy();
-        _maskModelMesh = nullptr;
-    }
-    _maskClearMtl = nullptr;
-    _maskAttributes.clear();
+    destroy();
 }
 
 void Batcher2d::syncMeshBuffersToNative(uint16_t accId, ccstd::vector<UIMeshBuffer*>&& buffers) {
@@ -464,15 +456,18 @@ gfx::DescriptorSet* Batcher2d::getDescriptorSet(gfx::Texture* texture, gfx::Samp
     return ds;
 }
 
-void Batcher2d::releaseDescriptorSetCache(gfx::Texture* texture, gfx::Sampler* sampler) {
+void Batcher2d::releaseDescriptorSetCache(TextureBase* texture) {
+    CC_ASSERT(texture);
+    auto *const textureGFX = texture->getGFXTexture();
+    auto *const samplerGFX = texture->getGFXSampler();
     ccstd::hash_t hash = 2;
     size_t textureHash;
-    if (texture != nullptr) {
-        textureHash = boost::hash_value(texture);
+    if (textureGFX != nullptr) {
+        textureHash = boost::hash_value(textureGFX);
         ccstd::hash_combine(hash, textureHash);
     }
-    if (sampler != nullptr) {
-        ccstd::hash_combine(hash, sampler->getHash());
+    if (samplerGFX != nullptr) {
+        ccstd::hash_combine(hash, samplerGFX->getHash());
     }
     auto iter = _descriptorSetCache.find(hash);
     if (iter != _descriptorSetCache.end()) {
@@ -540,6 +535,61 @@ void Batcher2d::reset() {
     _currSampler = nullptr;
 
     // stencilManager
+}
+
+void Batcher2d::destroy() {
+    _drawBatchPool.destroy();
+
+    for (auto iter : _descriptorSetCache) {
+        delete iter.second;
+    }
+
+    for (auto* drawBatch : _batches) {
+        delete drawBatch;
+    }
+    _attributes.clear();
+
+    if (_maskClearModel != nullptr) {
+        Root::getInstance()->destroyModel(_maskClearModel);
+        _maskClearModel = nullptr;
+    }
+    if (_maskModelMesh != nullptr) {
+        _maskModelMesh->destroy();
+        _maskModelMesh = nullptr;
+    }
+    _maskClearMtl = nullptr;
+    _maskAttributes.clear();
+}
+
+scene::Camera* Batcher2d::getFirstRenderCamera(const Node* node) {
+        if (node->getScene()!= nullptr && node->getScene()->getRenderScene()!= nullptr) {
+        const auto cameras = node->getScene()->getRenderScene()->getCameras();
+        for (size_t i = 0; i < cameras.size(); i++) {
+                        const auto camera = cameras[i];
+            if (camera->getVisibility() & node->getLayer()) {
+                return  camera;
+            }
+        }
+    }
+    return nullptr;
+}
+
+
+void Batcher2d::addScreen(Node* node) {
+    _rootNodeArr.push_back(node);
+    std::sort(_rootNodeArr.begin(), _rootNodeArr.end(), Batcher2d::screenSort);
+}
+
+void Batcher2d::removeScreen(Node* node) {
+    auto iter = std::find(_rootNodeArr.begin(), _rootNodeArr.end(), node);
+    if (iter != _rootNodeArr.end()) {
+        _rootNodeArr.erase(iter);
+    }
+    std::sort(_rootNodeArr.begin(), _rootNodeArr.end(), Batcher2d::screenSort);
+}
+
+void Batcher2d::sortScreen() {
+    std::sort(_rootNodeArr.begin(), _rootNodeArr.end(), Batcher2d::screenSort);
 }
 
 void Batcher2d::insertMaskBatch(RenderEntity* entity) {

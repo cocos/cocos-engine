@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,33 +22,22 @@
  THE SOFTWARE.
 */
 
-import { ccclass, disallowMultiple, executeInEditMode,
-    executionOrder, help, menu, requireComponent } from 'cc.decorator';
-import { Component } from '../../scene-graph/component';
-import { UITransform } from './ui-transform';
-import { uiSystem } from './ui-system';
+import { UIRenderer } from './ui-renderer';
 
-/**
- * @en The entry node for 2D object data collection, all 2D rendering objects need to be rendered under the RenderRoot node.
- * @zh 2D 对象数据收集的入口节点，所有的 2D渲染对象需在 RenderRoot 节点下才可以被渲染。
- */
-@ccclass('cc.RenderRoot2D')
-@help('i18n:cc.RenderRoot2D')
-@executionOrder(100)
-@menu('2D/RenderRoot2D')
-@requireComponent(UITransform)
-@disallowMultiple
-@executeInEditMode
-export class RenderRoot2D extends Component {
-    public onEnable (): void {
-        uiSystem.batcher2D.addScreen(this.node);
+export class UILayoutManager {
+    private _dirtyUIs: (UIRenderer)[] = [];
+
+    public markLayoutDirty (uiRenderer: UIRenderer): void {
+        this._dirtyUIs.push(uiRenderer);
     }
 
-    public onDisable (): void {
-        uiSystem.batcher2D.removeScreen(this.node);
-    }
-
-    public onDestroy (): void {
-        uiSystem.batcher2D.removeScreen(this.node);
+    public updateAllDirtyLayout (): void {
+        const length = this._dirtyUIs.length;
+        const dirtyRenderers = this._dirtyUIs;
+        for (let i = 0; i < length; i++) {
+            dirtyRenderers[i]._updateLayout();
+        }
+        this._dirtyUIs.length = 0;
     }
 }
+export const uiLayoutManager = new UILayoutManager();
