@@ -86,6 +86,22 @@ ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &World::getCCTTriggerEventPa
     return _impl->getCCTTriggerEventPairs();
 }
 
+void World::setDebugDrawFlags(EPhysicsDrawFlags flags) {
+    _impl->setDebugDrawFlags(flags);
+}
+
+EPhysicsDrawFlags World::getDebugDrawFlags() {
+    return _impl->getDebugDrawFlags();
+}
+
+void World::setDebugDrawConstraintSize(float size) {
+    _impl->setDebugDrawConstraintSize(size);
+}
+
+float World::getDebugDrawConstraintSize() {
+    return _impl->getDebugDrawConstraintSize();
+}
+
 void World::setCollisionMatrix(uint32_t i, uint32_t m) {
     _impl->setCollisionMatrix(i, m);
 }

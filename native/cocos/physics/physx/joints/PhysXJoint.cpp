@@ -104,6 +104,13 @@ void PhysXJoint::setEnableCollision(const bool v) {
     }
 }
 
+void PhysXJoint::setEnableDebugVisualization(const bool v) {
+    _mEnableDebugVisualization = v;
+    if (_mJoint) {
+        _mJoint->setConstraintFlag(physx::PxConstraintFlag::eVISUALIZATION, _mEnableDebugVisualization);
+    }
+}
+
 physx::PxRigidActor &PhysXJoint::getTempRigidActor() {
     if (!PhysXJoint::tempRigidActor) {
         PhysXJoint::tempRigidActor = PxGetPhysics().createRigidDynamic(physx::PxTransform{physx::PxIdentity});
