@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2, addImplPtrReference, addImplPtrReferenceWASM, getImplPtr } from '../instantiated';
+import { B2, addImplPtrReference, addImplPtrReferenceWASM, getImplPtr, removeImplPtrReference, removeImplPtrReferenceWASM } from '../instantiated';
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { B2PhysicsWorld } from '../physics-world';
@@ -54,12 +54,19 @@ export class B2Joint implements IJoint2D {
     }
 
     onDisable (): void {
-        PhysicsSystem2D.instance._callAfterStep(this, this._destroy);
+        PhysicsSystem2D.instance._callAfterStep(this, this.destroy);
     }
 
     // need init after body and connected body init
     start (): void {
         PhysicsSystem2D.instance._callAfterStep(this, this._init);
+    }
+
+    apply (): void {
+        PhysicsSystem2D.instance._callAfterStep(this, this.destroy);
+        if (this.comp!.enabledInHierarchy) {
+            PhysicsSystem2D.instance._callAfterStep(this, this._init);
+        }
     }
 
     _init (): void {
@@ -106,9 +113,11 @@ export class B2Joint implements IJoint2D {
         this._inited = true;
     }
 
-    _destroy (): void {
+    destroy (): void {
         if (!this._inited) return;
 
+        removeImplPtrReference(getImplPtr(this._b2joint));
+        removeImplPtrReferenceWASM(getImplPtr(this._b2joint));
         (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint!);
 
         this._b2joint = null;

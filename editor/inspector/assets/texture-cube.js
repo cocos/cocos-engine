@@ -133,6 +133,8 @@ const Elements = {
                 image.setAttribute('droppable', 'cc.ImageAsset');
                 image.setAttribute('class', key);
                 image.setAttribute('placeholder', key);
+                image.setAttribute('show-alpha', '');
+                image.setAttribute('fill', '');
                 image.addEventListener('confirm', panel.change.bind(panel, key));
 
                 panel.$[`${key}-drag-item`] = dragItem;
@@ -142,9 +144,13 @@ const Elements = {
             function observer() {
                 cancelAnimationFrame(panel.animationFrameId);
                 panel.animationFrameId = window.requestAnimationFrame(() => {
-                    const { clientWidth, clientHeight } = panel.$.container;
-                    const size = Math.round(Math.min((clientWidth - 40) / 4, (clientHeight - 40) / 3));
-                    panel.$.container.style.setProperty('--size', `${size}px`);
+                    const { clientWidth } = panel.$.container;
+                    const size = Math.round((clientWidth - 40) / 4);
+                    // 16 is fault tolerance to avoid page scrollbar flickering
+                    if (Math.abs((panel.cachePrevWidth || 0) - clientWidth) > 16) {
+                        panel.cachePrevWidth = clientWidth;
+                        panel.$.container.style.setProperty('--size', `${size}px`);
+                    }
                 });
             }
 

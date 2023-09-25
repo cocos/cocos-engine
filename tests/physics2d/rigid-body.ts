@@ -139,4 +139,56 @@ export default function (parent: Node, _steps = 0) {
         parent.removeAllChildren();
     }
 
+    //test destroy, if failed, wasm will crash
+    {
+        //rigidbody
+        {
+            const nodeRigidBody = new Node('RigidBody');
+            parent.addChild(nodeRigidBody);
+            const body = nodeRigidBody.addComponent(physics2d.RigidBody2D) as physics2d.RigidBody2D;
+
+            body.destroy();
+            director.tick(0.2);//make sure the body is destroyed
+            parent.destroyAllChildren();
+            parent.removeAllChildren();
+            director.tick(0.2);//make sure is destroyed
+        }
+
+        //rigidbody, collider
+        {
+            const nodeRigidBody = new Node('RigidBody');
+            parent.addChild(nodeRigidBody);
+            const body = nodeRigidBody.addComponent(physics2d.RigidBody2D) as physics2d.RigidBody2D;
+            const collider = nodeRigidBody.addComponent(physics2d.BoxCollider2D) as physics2d.Collider2D;
+
+            body.destroy();
+            director.tick(0.2);//make sure the body is destroyed
+            collider.destroy();
+
+            parent.destroyAllChildren();
+            parent.removeAllChildren();
+            director.tick(0.2);//make sure is destroyed
+        }
+
+        //rigidbody, joint
+        {
+            const nodeRigidBody = new Node('RigidBody');
+            parent.addChild(nodeRigidBody);
+            const body = nodeRigidBody.addComponent(physics2d.RigidBody2D) as physics2d.RigidBody2D;
+            const joint = nodeRigidBody.addComponent(physics2d.DistanceJoint2D) as physics2d.Joint2D;
+
+            const nodeRigidBody1 = new Node('RigidBody1');
+            parent.addChild(nodeRigidBody1);
+            const body1 = nodeRigidBody1.addComponent(physics2d.RigidBody2D) as physics2d.RigidBody2D;
+            joint.connectedBody = body1;
+
+            body1.destroy();
+            director.tick(0.2);//make sure the body is destroyed
+            joint.destroy();
+
+            parent.destroyAllChildren();
+            parent.removeAllChildren();
+            director.tick(0.2);//make sure is destroyed
+        }
+    }
 }

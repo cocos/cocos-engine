@@ -408,6 +408,13 @@ module.exports = link(mixin({
         font_underline: 'Font underlined',
         spacing_x: 'The spacing between text characters, only available in BMFont',
         underline_height: 'The height of underline',
+        outline_enable: 'Whether outline is enabled',
+        outline_width: 'The width of outline',
+        outline_color: 'The color of outline',
+        shadow_enable: 'Whether shadow is enabled',
+        shadow_color: 'The color of shadow',
+        shadow_offset: 'Offset between font and shadow',
+        shadow_blur: 'A non-negative float specifying the level of shadow blur',
     },
     labelOutline: {
         color: 'Outline color',
@@ -1033,6 +1040,10 @@ module.exports = link(mixin({
         physics_2d_box2d: {
             label: "Box2D Based 2D Physics System",
             description: "2D Physics system that based on Box2D.",
+        },
+        physics_2d_box2d_wasm: {
+            label: "Box2D-wasm Based 2D Physics System",
+            description: "2D Physics system that based on Box2D-wasm.",
         },
         intersection_2d: {
             label: "2D Intersection Algorithms",

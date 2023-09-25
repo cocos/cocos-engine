@@ -30,10 +30,8 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
-import { asmFactory } from './physx.asmjs';
-import { wasmFactory, PhysXWasmUrl } from './physx.wasmjs';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
-import { instantiateWasm } from 'pal/wasm';
+import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
 import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color } from '../../core';
 import { shrinkPositions } from '../utils/util';
@@ -57,37 +55,46 @@ const USE_EXTERNAL_PHYSX = !!globalThis.PHYSX;
 // Init physx libs when engine init.
 game.onPostInfrastructureInitDelegate.add(InitPhysXLibs);
 
-export function InitPhysXLibs (): any {
+export function InitPhysXLibs (): Promise<void> {
     if (USE_BYTEDANCE) {
-        if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
-        PX = globalThis.nativePhysX;
-        Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
-        _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
-        _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
-        initConfigAndCacheObject(PX);
+        return new Promise<void>((resolve, reject) => {
+            if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `Use PhysX Libs in BYTEDANCE.`);
+            Object.assign(PX, globalThis.nativePhysX);
+            Object.assign(_pxtrans, new PX.Transform(_v3, _v4));
+            _pxtrans.setPosition = PX.Transform.prototype.setPosition.bind(_pxtrans);
+            _pxtrans.setQuaternion = PX.Transform.prototype.setQuaternion.bind(_pxtrans);
+            initConfigAndCacheObject(PX);
+            resolve();
+        });
     } else {
-        if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
-            if (sys.hasFeature(sys.Feature.WASM)) {
-                return initWASM();
-            } else {
-                return initASM();
-            }
-        } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
-            return initWASM();
-        } else {
-            return initASM();
-        }
+        return ensureWasmModuleReady().then(() => Promise.all([
+            import('external:emscripten/physx/physx.release.wasm.js'),
+            import('external:emscripten/physx/physx.release.wasm.wasm'),
+            import('external:emscripten/physx/physx.release.asm.js'),
+        ]).then(([
+            { default: physxWasmFactory },
+            { default: physxWasmUrl },
+            { default: physxAsmFactory },
+        ]) => InitPhysXLibsInternal(physxWasmFactory, physxWasmUrl, physxAsmFactory)));
     }
 }
 
-function initASM (): any {
-    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : asmFactory;
+function InitPhysXLibsInternal (physxWasmFactory, physxWasmUrl, physxAsmFactory): any {
+    if (shouldUseWasmModule()) {
+        return initWASM(physxWasmFactory, physxWasmUrl);
+    } else {
+        return initASM(physxAsmFactory);
+    }
+}
+
+function initASM (physxAsmFactory): any {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : physxAsmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX().then((Instance: any): void => {
             if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX asm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
-            PX = Instance;
+            Object.assign(PX, Instance);
         }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX asm load failed: ${reason}`); });
     } else {
         if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX js libs, package may be not found.');
@@ -97,15 +104,15 @@ function initASM (): any {
     }
 }
 
-function initWASM (): any {
-    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : wasmFactory;
+function initWASM (physxWasmFactory, physxWasmUrl): any {
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : physxWasmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX({
             instantiateWasm (
                 importObject: WebAssembly.Imports,
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
             ): any {
-                return instantiateWasm(PhysXWasmUrl, importObject).then((result: any): void => {
+                return instantiateWasm(physxWasmUrl, importObject).then((result: any): void => {
                     receiveInstance(result.instance, result.module);
                 });
             },
@@ -120,6 +127,16 @@ function initWASM (): any {
         return new Promise<void>((resolve, reject): void => {
             resolve();
         });
+    }
+}
+
+function shouldUseWasmModule (): boolean {
+    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        return sys.hasFeature(sys.Feature.WASM);
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return true;
+    } else {
+        return false;
     }
 }
 

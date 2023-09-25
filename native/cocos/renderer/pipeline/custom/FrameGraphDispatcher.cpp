@@ -791,12 +791,15 @@ struct AttachmentSortKey {
     gfx::SampleCount samples;
     AccessType accessType;
     uint32_t attachmentWeight;
-    const ccstd::pmr::string name;
+    uint32_t slotID;
+    const ccstd::pmr::string &slotName;
+    const ccstd::pmr::string &name;
 };
 
 struct AttachmentComparator {
     bool operator()(const AttachmentSortKey &lhs, const AttachmentSortKey &rhs) const {
-        return std::tie(rhs.samples, lhs.accessType, lhs.attachmentWeight, lhs.name) < std::tie(lhs.samples, rhs.accessType, rhs.attachmentWeight, rhs.name);
+        return std::tie(rhs.samples, lhs.accessType, lhs.attachmentWeight, lhs.slotID, lhs.slotName, lhs.name) <
+               std::tie(lhs.samples, rhs.accessType, rhs.attachmentWeight, rhs.slotID, rhs.slotName, rhs.name);
     }
 };
 
@@ -956,6 +959,8 @@ auto checkRasterViews(const Graphs &graphs,
         colorMap.emplace(AttachmentSortKey{desc.sampleCount,
                                            rasterView.accessType,
                                            ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(rasterView.attachmentType)],
+                                           rasterView.slotID,
+                                           rasterView.slotName1.empty() ? rasterView.slotName : rasterView.slotName1,
                                            resName},
                          ViewInfo{desc.format,
                                   LayoutAccess{lastAccess, accessFlag},
@@ -1051,6 +1056,8 @@ bool checkResolveResource(const Graphs &graphs,
         colorMap.emplace(AttachmentSortKey{desc.sampleCount,
                                            AccessType::WRITE,
                                            ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(attachmentType)],
+                                           INVALID_ID,
+                                           "",
                                            resolveTargetName},
                          ViewInfo{desc.format,
                                   LayoutAccess{lastAccess, accessFlag},

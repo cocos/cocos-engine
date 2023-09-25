@@ -249,15 +249,13 @@ exports.listeners = {
         }
 
         /**
-         * Hack：stop preview
-         * For the reason: preview-set-property and cancel-preview-set-property is command machining.
-         * Changes between component properties are not controlled to be strictly reversible.
-         * So stop preview some properties.
+         * Some assets don`t need to preview, like:
+         * cc.AnimationClip 
          */
-        const stopPreviewOnTheseTooltips = [
-            'i18n:ENGINE.animation.default_clip',
+        const notNeedToPreview = [
+            'cc.AnimationClip',
         ];
-        if (stopPreviewOnTheseTooltips.includes(dump.tooltip)) {
+        if (notNeedToPreview.includes(dump.type)) {
             return;
         }
 
@@ -345,7 +343,7 @@ exports.template = /* html*/`
         <section class="component scene">
             <ui-prop class="release" type="dump"></ui-prop>
             <ui-prop class="ambient" type="dump" ui-section-config></ui-prop>
-            <ui-section class="skybox config" expand>
+            <ui-section class="skybox config" expand cache-expand="inspector-scene-skybox">
                 <div slot="header" class="component-header">
                     <span>Skybox</span>
                     <ui-link tooltip="i18n:scene.menu.help_url">
@@ -353,7 +351,7 @@ exports.template = /* html*/`
                     </ui-link>
                 </div>
                 <div class="before"></div>
-                <ui-section class="envmap" expand>
+                <ui-section class="envmap" expand cache-expand="inspector-scene-skybox-envmap">
                     <ui-label slot="header" value="Envmap"></ui-label>
                     <ui-radio-group class="useHDR" default-value="HDR" value="HDR">
                         <ui-prop class="envmap-prop">
@@ -387,7 +385,7 @@ exports.template = /* html*/`
             <ui-prop class="postSettings" type="dump" ui-section-config></ui-prop>
         </section>
 
-        <ui-section class="component node config" expand>
+        <ui-section class="component node config" expand cache-expand="inspector-node">
             <header class="component-header" slot="header">
                 <span class="name">Node</span>
                 <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">

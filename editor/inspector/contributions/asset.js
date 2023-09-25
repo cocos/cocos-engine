@@ -21,6 +21,9 @@ exports.template = `
         <ui-button class="reset tiny" tooltip="i18n:ENGINE.assets.reset">
             <ui-icon value="reset" color></ui-icon>
         </ui-button>
+        <ui-button class="location transparent" icon tooltip="i18n:ENGINE.assets.locate_asset">
+            <ui-icon value="location"></ui-icon>
+        </ui-button>
         <ui-button class="copy transparent" icon tooltip="i18n:ENGINE.inspector.cloneToEdit">
             <ui-icon value="copy"></ui-icon>
         </ui-button>
@@ -29,9 +32,13 @@ exports.template = `
         </ui-link>
     </header>
     <section class="content">
-        <section class="content-header"></section>
+        <section class="content-header">
+            <inspector-resize-preview area="header"></inspector-resize-preview>
+        </section>
         <section class="content-section"></section>
-        <section class="content-footer"></section>
+        <section class="content-footer">
+            <inspector-resize-preview area="footer"></inspector-resize-preview>
+        </section>
     </section>
 </div>
 `;
@@ -40,6 +47,7 @@ exports.$ = {
     container: '.container',
     header: '.header',
     content: '.content',
+    location: '.location',
     copy: '.copy',
     icon: '.icon',
     image: '.image',
@@ -129,7 +137,7 @@ const Elements = {
             if (panel.type === 'unknown') {
                 panel.metaList = [];
                 panel.metaListOrigin = [];
-                return false;
+                return;
             }
 
             try {
@@ -231,6 +239,13 @@ const Elements = {
                     Editor.Message.request('assets', 'ui-kit:touch-asset', uuid);
                 });
             });
+
+            panel.$.location.addEventListener('click', (event) => {
+                event.stopPropagation();
+                panel.uuidList.forEach((uuid) => {
+                    Editor.Message.request('assets', 'ui-kit:touch-asset', uuid);
+                });
+            });
         },
         update() {
             const panel = this;
@@ -314,7 +329,7 @@ const Elements = {
 
             for (const renderName in panel.contentRenders) {
                 const { list, contentRender } = panel.contentRenders[renderName];
-                contentRender.__panels__ = Array.from(contentRender.children);
+                contentRender.__panels__ = Array.from(contentRender.children).filter((el) => el.tagName === 'UI-PANEL');
                 let i = 0;
                 for (i; i < list.length; i++) {
                     const file = list[i];
@@ -337,7 +352,6 @@ const Elements = {
                     contentRender.removeChild(contentRender.__panels__[i]);
                 }
 
-                contentRender.__panels__ = Array.from(contentRender.children);
                 try {
                     await Promise.all(
                         contentRender.__panels__.map(($panel) => {
@@ -390,9 +404,9 @@ exports.methods = {
         }
 
         return {
-            uuidListStr:JSON.stringify(panel.uuidList),
-            metaListStr:JSON.stringify(panel.metaList),
-            renderDataStr:JSON.stringify(renderData),
+            uuidListStr: JSON.stringify(panel.uuidList),
+            metaListStr: JSON.stringify(panel.metaList),
+            renderDataStr: JSON.stringify(renderData),
         };
     },
     restore(record) {
