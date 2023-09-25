@@ -1,5 +1,5 @@
+import { scalableContainerManager } from "@base/utils/internal";
 import { director, game } from "../../cocos/game";
-import { scalableContainerManager } from "../../cocos/core/memop/scalable-container";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { ParticleSystem } from "../../exports/particle";
 

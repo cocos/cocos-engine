@@ -9,6 +9,9 @@
   "exports": {
     ".": {
       "types": "./src/index.ts"
+    },
+    "./internal": {
+      "types": "./src/internal-index.ts"
     }
   }
 }
