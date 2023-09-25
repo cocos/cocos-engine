@@ -153,6 +153,7 @@ export class BulletWorld implements IPhysicsWorld {
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
         bt.CollisionWorld_setDebugDrawer(this._world, this._debugDraw);
 
+        bt.DebugDraw_setDebugMode(this._debugDraw, EBulletDebugDrawModes.DBG_NoDebug);
         bt.DebugDraw_setAABBColor(this._debugDraw, 0, 1, 1);
         // set color for all shapes
         bt.DebugDraw_setActiveObjectColor(this._debugDraw, 1, 0, 1);
