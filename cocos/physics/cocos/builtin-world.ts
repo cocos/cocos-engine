@@ -23,8 +23,8 @@
 */
 
 import { error, warnID } from '@base/debug';
-import { js } from '@base/utils';
-import { Vec3, RecyclePool, IVec3Like, geometry, IQuatLike } from '../../core';
+import { js, memop } from '@base/utils';
+import { Vec3, IVec3Like, geometry, IQuatLike } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
@@ -51,7 +51,7 @@ const TriggerEventObject = {
  */
 export class BuiltInWorld implements IPhysicsWorld {
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         warnID(9640);
         return false;
     }
@@ -63,7 +63,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     }
 
     sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         warnID(9640);
         return false;
     }
@@ -75,7 +75,7 @@ export class BuiltInWorld implements IPhysicsWorld {
     }
 
     sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         warnID(9640);
         return false;
     }
@@ -163,7 +163,7 @@ export class BuiltInWorld implements IPhysicsWorld {
         return !(tmp_d === Infinity);
     }
 
-    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const max_d = options.maxDistance;
         const mask = options.mask;
         for (let i = 0; i < this.bodies.length; i++) {

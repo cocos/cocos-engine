@@ -48,8 +48,9 @@ import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
 import { AuxiliaryCurveEntry } from './auxiliary-curve-entry';
-import { removeIf } from '../core/utils/array';
 import { invokeComponentMethodsEngagedInAnimationEvent } from './event/event-emitter';
+
+const { removeIf } = js.array;
 
 export declare namespace AnimationClip {
     export interface IEvent {

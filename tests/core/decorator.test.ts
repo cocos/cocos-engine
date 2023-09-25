@@ -1,4 +1,4 @@
-import { getClassByName, unregisterClass } from '@base/utils';
+import { js } from '@base/utils';
 import { getSerializationMetadata } from '../../cocos/core/data/serialization-metadata';
 import { uniquelyReferenced } from '../../cocos/core/data/decorators/serializable';
 import { visible, editable, tooltip, ccclass, serializable, formerlySerializedAs, readOnly, displayName, group, range, rangeMin, rangeMax, rangeStep, slide, displayOrder, unit, radian, multiline, disallowAnimation, editorOnly, type, float } from '../../cocos/core/data/decorators';
@@ -7,6 +7,8 @@ import { property } from '../../cocos/core/data/decorators/property';
 import { LegacyPropertyDecorator } from '../../cocos/core/data/decorators/utils';
 import { CCBoolean, CCFloat, CCInteger, CCString } from '../../exports/base';
 import { PrimitiveType } from '../../cocos/core/data/utils/attribute';
+
+const { getClassByName, unregisterClass } = js;
 
 test('Decorators signature', () => {
     class Foo {}

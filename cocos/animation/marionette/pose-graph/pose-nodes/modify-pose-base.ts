@@ -1,5 +1,6 @@
 import { DEBUG, EDITOR } from 'internal:constants';
 import { assertIsTrue } from '@base/debug/internal';
+import { memop } from '@base/utils';
 import { ccclass, editable, serializable, type } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
@@ -8,7 +9,6 @@ import { poseGraphNodeHide } from '../decorator/node';
 import { Pose, PoseTransformSpace } from '../../../core/pose';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../../animation-graph-context';
 import { PoseGraphType } from '../foundation/type-system';
-import { CachedArray, Pool } from '../../../../core';
 import { Transform } from '../../../core/transform';
 
 class TransformModification {
@@ -51,8 +51,8 @@ class TransformModificationQueue {
         }
     }
 
-    private _pool: Pool<TransformModification> = new Pool((): TransformModification => new TransformModification(), 3);
-    private _array = new CachedArray<TransformModification>(3);
+    private _pool: memop.Pool<TransformModification> = new memop.Pool((): TransformModification => new TransformModification(), 3);
+    private _array = new memop.CachedArray<TransformModification>(3);
     private _debugLastTransformIndex = -1;
 }
 

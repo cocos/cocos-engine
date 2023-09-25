@@ -26,8 +26,10 @@
 import { EDITOR } from 'internal:constants';
 import { log, warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
-import { formatStr, get, getClassName, isChildClassOf, value } from '@base/utils';
+import { js } from '@base/utils';
 import { isPlainEmptyObj_DEV } from '../../utils/misc';
+
+const { formatStr, get, getClassName, isChildClassOf, value } = js;
 
 export const DELIMETER = '$_$';
 

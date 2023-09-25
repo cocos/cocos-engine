@@ -24,9 +24,11 @@
 
 import { DEV } from 'internal:constants';
 import { error } from '@base/debug';
-import { getClassName } from '@base/utils';
+import { js } from '@base/utils';
 import { CCClass } from '../class';
 import type { ClassStash } from '../class-stash';
+
+const { getClassName } = js;
 
 export type Initializer = () => unknown;
 

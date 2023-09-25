@@ -25,10 +25,11 @@
 import { SUPPORT_JIT, EDITOR, TEST, JSB, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { errorID, warnID } from '@base/debug';
-import * as js from '@base/utils';
-import { copyAllProperties } from '@base/utils';
+import { js } from '@base/utils';
 import { CCClass } from './class';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
+
+const { copyAllProperties } = js;
 
 // definitions for CCObject.Flags
 

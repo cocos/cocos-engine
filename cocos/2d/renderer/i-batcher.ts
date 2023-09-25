@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CachedArray } from '../../core';
+import { memop } from '@base/utils';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Device, Attribute } from '../../gfx';
 import { Camera } from '../../render-scene/scene/camera';
@@ -38,7 +38,7 @@ import { Node } from '../../scene-graph';
 
 export interface IBatcher {
     currBufferAccessor: StaticVBAccessor;
-    readonly batches: CachedArray<DrawBatch2D>;
+    readonly batches: memop.CachedArray<DrawBatch2D>;
     // registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
     // unRegisterCustomBuffer (buffer: MeshBuffer);
 

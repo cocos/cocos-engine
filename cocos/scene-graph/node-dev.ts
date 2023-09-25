@@ -25,7 +25,7 @@
 import { EDITOR, DEV, TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { error, errorID, getError, warn } from '@base/debug';
-import * as js from '@base/utils';
+import { js } from '@base/utils';
 import { CCObject } from '../core/data/object';
 import { Component } from './component';
 

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { RecyclePool, CachedArray } from '../core';
+import { memop } from '@base/utils';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
@@ -54,10 +54,10 @@ export class RenderQueue {
      * @en A cached array of render passes
      * @zh 基于缓存数组的渲染过程队列。
      */
-    public queue: CachedArray<IRenderPass>;
+    public queue: memop.CachedArray<IRenderPass>;
 
     private _passDesc: IRenderQueueDesc;
-    private _passPool: RecyclePool<IRenderPass>;
+    private _passPool: memop.RecyclePool<IRenderPass>;
 
     /**
      * @en Construct a RenderQueue with render queue descriptor
@@ -66,7 +66,7 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
-        this._passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
+        this._passPool = new memop.RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
             priority: 0,
             hash: 0,
             depth: 0,
@@ -74,7 +74,7 @@ export class RenderQueue {
             subModel: null!,
             passIdx: 0,
         }), 64);
-        this.queue = new CachedArray(64, this._passDesc.sortFunc);
+        this.queue = new memop.CachedArray(64, this._passDesc.sortFunc);
     }
 
     /**

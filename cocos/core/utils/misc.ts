@@ -29,9 +29,11 @@ import { DEV } from 'internal:constants';
 import { setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
-import { getClassName, getset, isEmptyObject } from './js';
+import { js } from '@base/utils';
 import { macro } from '../platform/macro';
 import type { Component } from '../../scene-graph';
+
+const { getClassName, getset, isEmptyObject } = js;
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 

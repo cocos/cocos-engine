@@ -24,7 +24,7 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 /* eslint @typescript-eslint/no-unsafe-argument: "off" */
 
-import { js } from '@cocos/utils';
+import { js } from '@base/utils';
 import spine from './spine-core.js';
 
 function overrideDefineArrayProp (prototype: any, getPropVector: any, name: string): void {

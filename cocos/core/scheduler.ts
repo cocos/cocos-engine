@@ -25,8 +25,10 @@
 
 import { cclegacy } from '@base/global';
 import { errorID, warnID, logID, assertID } from '@base/debug';
-import { IDGenerator, createMap } from '@base/utils';
+import { js } from '@base/utils';
 import { System } from './system';
+
+const { IDGenerator, createMap } = js;
 
 const MAX_POOL_SIZE = 20;
 

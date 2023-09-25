@@ -25,10 +25,11 @@
 
 import { TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
-import { array, createMap, memop } from '@base/utils';
+import { js, memop } from '@base/utils';
 import { isCCObject, isValid } from '../data/object';
 
 const { Pool } = memop;
+const { array, createMap } = js;
 
 const fastRemoveAt = array.fastRemoveAt;
 
