@@ -31,42 +31,37 @@ import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
 import { view } from '../../../ui/view';
 import { approx } from '../../../core';
+import { Vec2 } from '../../../core/math';
 
 const Overflow = Label.Overflow;
 
 export const ttfUtils =  {
 
-    updateProcessingData (
+    updateLayoutProcessingData (
         style: TextStyle,
         layout: TextLayout,
         outputLayoutData: TextOutputLayoutData,
-        outputRenderData: TextOutputRenderData,
         comp: Label,
         trans: UITransform,
     ): void {
         // font info // both
-        style.isSystemFontUsed = comp.useSystemFont;
-        style.fontSize = comp.fontSize;
+        style.isSystemFontUsed = comp.useSystemFont; // both
+        style.fontSize = comp.fontSize; // both
 
-        // node info // both
-        outputLayoutData.nodeContentSize.width = outputLayoutData.canvasSize.width = trans.width;
-        outputLayoutData.nodeContentSize.height = outputLayoutData.canvasSize.height = trans.height;
         // layout info
         layout.lineHeight = comp.lineHeight; // both
-        layout.overFlow = comp.overflow; // layout only // but change render
+        layout.overFlow = comp.overflow; // layout only
         if (comp.overflow === Overflow.NONE) {
             layout.wrapping = false;
         } else if (comp.overflow === Overflow.RESIZE_HEIGHT) {
             layout.wrapping = true;
         } else {
-            layout.wrapping = comp.enableWrapText; // layout only // but change render
+            layout.wrapping = comp.enableWrapText; // layout only
         }
 
         // effect info // both
         style.isBold = comp.isBold;
         style.isItalic = comp.isItalic;
-        style.isUnderline = comp.isUnderline;
-        style.underlineHeight = comp.underlineHeight;
 
         // outline// both
         const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
@@ -90,14 +85,29 @@ export const ttfUtils =  {
             style.hasShadow = false;
         }
 
-        // render info
-        style.color.set(comp.color);// may opacity bug // render Only
-        outputRenderData.texture = comp.spriteFrame; // render Only
-        outputRenderData.uiTransAnchorX = trans.anchorX; // render Only
-        outputRenderData.uiTransAnchorY = trans.anchorY; // render Only
+        layout.horizontalAlign = comp.horizontalAlign; // both
+        layout.verticalAlign = comp.verticalAlign; // both
 
-        layout.horizontalAlign = comp.horizontalAlign; // render Only
-        layout.verticalAlign = comp.verticalAlign; // render Only
+        // node info // both
+        outputLayoutData.nodeContentSize.width = outputLayoutData.canvasSize.width = trans.width;
+        outputLayoutData.nodeContentSize.height = outputLayoutData.canvasSize.height = trans.height;
+    },
+
+    // render Only
+    updateRenderProcessingData (
+        style: TextStyle,
+        outputRenderData: TextOutputRenderData,
+        comp: Label,
+        anchor: Readonly<Vec2>,
+    ): void {
+        style.isUnderline = comp.isUnderline;
+        style.underlineHeight = comp.underlineHeight;
+
+        // render info
+        style.color.set(comp.color);
+        outputRenderData.texture = comp.spriteFrame;
+        outputRenderData.uiTransAnchorX = anchor.x;
+        outputRenderData.uiTransAnchorY = anchor.y;
     },
 
     getAssemblerData (): ISharedLabelData {
@@ -112,41 +122,49 @@ export const ttfUtils =  {
         }
     },
 
-    updateRenderData (comp: Label): void {
-        if (!comp.renderData) { return; }
-
-        if (comp.renderData.vertDirty) {
+    updateLayoutData (comp: Label): void {
+        // Todo: dirtyFlag
+        if (comp.assemblerData) {
             const trans = comp.node._uiProps.uiTransformComp!;
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
-            const outputRenderData = comp.textRenderData;
             style.fontScale = view.getScaleX();
-            this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, trans);
+            this.updateLayoutProcessingData(style, layout, outputLayoutData, comp, trans);
             // use canvas in assemblerData // to do to optimize
-            processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
+            processing.setCanvasUsed(comp.assemblerData.canvas, comp.assemblerData.context);
             style.fontFamily = this._updateFontFamily(comp);
-            this._resetDynamicAtlas(comp);
 
             // TextProcessing
             processing.processingString(false, style, layout, outputLayoutData, comp.string);
-            processing.generateRenderInfo(
-                false,
-                style,
-                layout,
-                outputLayoutData,
-                outputRenderData,
-                comp.string,
-                this.generateVertexData,
-            );
+            comp.actualFontSize = style.actualFontSize;
+            trans.setContentSize(outputLayoutData.nodeContentSize);
+            comp.contentWidth = outputLayoutData.nodeContentSize.width;
+        }
+    },
+
+    updateRenderData (comp: Label): void {
+        if (!comp.renderData) { return; }
+
+        if (comp.renderData.vertDirty) {
+            this.updateLayoutData(comp);// Todo: move to layout manager
+            const processing = TextProcessing.instance;
+            const style = comp.textStyle;
+            const layout = comp.textLayout;
+            const outputLayoutData = comp.textLayoutData;
+            const outputRenderData = comp.textRenderData;
+            const anchor = comp.node._uiProps.uiTransformComp!.anchorPoint;
+            this.updateRenderProcessingData(style, outputRenderData, comp, anchor);
+
+            this._resetDynamicAtlas(comp);
+
+            processing.setCanvasUsed(comp.assemblerData!.canvas, comp.assemblerData!.context);
+            processing.generateRenderInfo(false, style, layout, outputLayoutData, outputRenderData, comp.string, this.generateVertexData);
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;
             this._calDynamicAtlas(comp, outputLayoutData);
-
-            comp.actualFontSize = style.actualFontSize;
-            trans.setContentSize(outputLayoutData.nodeContentSize);
 
             const datalist = renderData.data;
             datalist[0] = outputRenderData.vertexBuffer[0];
@@ -156,7 +174,6 @@ export const ttfUtils =  {
 
             this.updateUVs(comp);
             comp.renderData.vertDirty = false;
-            comp.contentWidth = outputLayoutData.nodeContentSize.width;
         }
 
         if (comp.spriteFrame) {

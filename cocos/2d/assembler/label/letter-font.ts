@@ -22,14 +22,18 @@
  THE SOFTWARE.
 */
 
+import { TextureBase } from '../../../asset/assets/texture-base';
 import { js } from '../../../core';
-import { Label, LabelOutline } from '../../components';
+import { Label, Overflow } from '../../components';
+import { UITransform } from '../../framework/ui-transform';
 import { bmfontUtils } from './bmfontUtils';
-import { shareLabelInfo, LetterAtlas, computeHash, LetterRenderTexture } from './font-utils';
+import { LetterAtlas, computeHash } from './font-utils';
+import { TextLayout } from './text-layout';
+import { TextOutputLayoutData } from './text-output-data';
+import { TextStyle } from './text-style';
 
 const _atlasWidth = 1024;
 const _atlasHeight = 1024;
-const _isBold = false;
 
 let _shareAtlas: LetterAtlas | null  = null;
 
@@ -39,24 +43,7 @@ export const letterFont = js.mixin(bmfontUtils, {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
         }
 
-        return _shareAtlas.getTexture() as LetterRenderTexture | null;
-    },
-
-    _updateFontFamily (comp) {
-        shareLabelInfo.fontAtlas = _shareAtlas;
-        shareLabelInfo.fontFamily = this._getFontFamily(comp);
-
-        // outline
-        const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
-        if (isOutlined) {
-            shareLabelInfo.isOutlined = true;
-            shareLabelInfo.margin = comp.outlineWidth;
-            shareLabelInfo.out = comp.outlineColor.clone();
-            shareLabelInfo.out.a = comp.outlineColor.color.a * comp.color.a / 255.0;
-        } else {
-            shareLabelInfo.isOutlined = false;
-            shareLabelInfo.margin = 0;
-        }
+        return _shareAtlas.getTexture() as TextureBase;
     },
 
     _getFontFamily (comp: Label) {
@@ -72,19 +59,66 @@ export const letterFont = js.mixin(bmfontUtils, {
         return fontFamily;
     },
 
-    _updateLabelInfo (comp) {
-        shareLabelInfo.fontDesc = this._getFontDesc();
-        shareLabelInfo.color = comp.color;
-        shareLabelInfo.hash = computeHash(shareLabelInfo);
-    },
-
-    _getFontDesc () {
-        let fontDesc = `${shareLabelInfo.fontSize.toString()}px `;
-        fontDesc += shareLabelInfo.fontFamily;
-        if (_isBold) {
-            fontDesc = `bold ${fontDesc}`;
-        }
+    _getFontDesc (fontSize: number, fontFamily: string) {
+        let fontDesc = `${fontSize.toString()}px `;
+        fontDesc += fontFamily;
 
         return fontDesc;
+    },
+
+    updateLayoutProcessingData (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        comp: Label,
+        trans: UITransform,
+    ): void {
+        style.fontSize = comp.fontSize;
+        style.actualFontSize = comp.fontSize;
+        layout.horizontalAlign = comp.horizontalAlign;
+        layout.verticalAlign = comp.verticalAlign;
+        layout.spacingX = comp.spacingX;
+        const overflow = comp.overflow;
+
+        outputLayoutData.nodeContentSize.width = trans.width;
+        outputLayoutData.nodeContentSize.height = trans.height;
+        layout.overFlow = overflow;
+        layout.lineHeight = comp.lineHeight;
+
+        style.fontAtlas = _shareAtlas;
+        style.fontFamily = this._getFontFamily(comp);
+
+        // outline
+        let margin = 0;
+        const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
+        if (isOutlined) {
+            style.isOutlined = true;
+            margin = comp.outlineWidth;
+            style.outlineWidth = comp.outlineWidth;
+            style.outlineColor = comp.outlineColor.clone();
+            style.outlineColor.a = comp.outlineColor.a * comp.color.a / 255.0;
+        } else {
+            style.outlineWidth = 0;
+            style.isOutlined = false;
+            margin = 0;
+        }
+
+        // should wrap text
+        if (overflow === Overflow.NONE) {
+            layout.wrapping = false; // both
+            outputLayoutData.nodeContentSize.width += margin * 2;
+            outputLayoutData.nodeContentSize.height += margin * 2;
+        } else if (overflow === Overflow.RESIZE_HEIGHT) {
+            layout.wrapping = true;
+            outputLayoutData.nodeContentSize.height += margin * 2;
+        } else {
+            layout.wrapping = comp.enableWrapText;
+        }
+        style.originFontSize = comp.fontSize;
+        style.fntConfig = null;
+
+        style.fontDesc = this._getFontDesc(style.fontSize, style.fontFamily);
+        style.color.set(comp.color);
+        style.hash = computeHash(style.color, style.isOutlined, style.outlineWidth, style.outlineColor, style.fontSize, style.fontFamily);
     },
 });

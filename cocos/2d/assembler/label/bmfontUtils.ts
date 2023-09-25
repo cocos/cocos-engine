@@ -24,12 +24,11 @@
 
 import { JSB } from 'internal:constants';
 import { error } from '@base/debug';
-import { IConfig, FontAtlas } from '../../assets/bitmap-font';
+import { FontAtlas, BitmapFont } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
-import { Rect } from '../../../core';
+import { Rect, Vec2 } from '../../../core';
 import { Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
-import { LetterAtlas, shareLabelInfo } from './font-utils';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { TextProcessing } from './text-processing';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
@@ -37,56 +36,88 @@ import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
 import { view } from '../../../ui/view';
 
-const _defaultLetterAtlas = new LetterAtlas(64, 64);
 const _defaultFontAtlas = new FontAtlas(null);
 
-let _comp: Label | null = null;
-let _uiTrans: UITransform | null = null;
-
-let _fntConfig: IConfig | null = null;
-let _spriteFrame: SpriteFrame|null = null;
-let QUAD_INDICES;
+let QUAD_INDICES: Uint16Array | null = null;
 
 export const bmfontUtils = {
 
-    updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData,
-        comp: Label, trans: UITransform): void {
-        style.fontSize = comp.fontSize;
-        style.actualFontSize = comp.fontSize;
-        style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
-        layout.horizontalAlign = comp.horizontalAlign;
-        layout.verticalAlign = comp.verticalAlign;
-        layout.spacingX = comp.spacingX;
+    updateLayoutProcessingData (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        comp: Label,
+        trans: UITransform,
+    ): void {
+        style.fontSize = comp.fontSize; //both
+        style.actualFontSize = comp.fontSize; //both
+        layout.horizontalAlign = comp.horizontalAlign; //both
+        layout.verticalAlign = comp.verticalAlign; //both
+        layout.spacingX = comp.spacingX; // layout only
         const overflow = comp.overflow;
-        layout.overFlow = overflow;
-        layout.lineHeight = comp.lineHeight;
 
         outputLayoutData.nodeContentSize.width = trans.width;
         outputLayoutData.nodeContentSize.height = trans.height;
+        layout.overFlow = overflow; // both
+        layout.lineHeight = comp.lineHeight; // both
 
         // should wrap text
         if (overflow === Overflow.NONE) {
-            layout.wrapping = false;
-            outputLayoutData.nodeContentSize.width += shareLabelInfo.margin * 2;
-            outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
+            layout.wrapping = false; // both
         } else if (overflow === Overflow.RESIZE_HEIGHT) {
             layout.wrapping = true;
-            outputLayoutData.nodeContentSize.height += shareLabelInfo.margin * 2;
         } else {
             layout.wrapping = comp.enableWrapText;
         }
-        outputRenderData.uiTransAnchorX = trans.anchorX;
-        outputRenderData.uiTransAnchorY = trans.anchorY;
+        const fontAsset = comp.font as BitmapFont;
+        style.fntConfig = fontAsset.fntConfig; // layout only
+        style.originFontSize = fontAsset.fntConfig?.fontSize; //both
+        style.fontAtlas = fontAsset.fontDefDictionary;
+        if (!style.fontAtlas) {
+            style.fontAtlas = _defaultFontAtlas;
+        }
 
-        shareLabelInfo.lineHeight = comp.lineHeight;
-        shareLabelInfo.fontSize = comp.fontSize;
+        style.isOutlined = false;
+        style.outlineWidth = 0;
 
-        style.spriteFrame = _spriteFrame;
-        style.fntConfig = _fntConfig;
-        style.fontFamily = shareLabelInfo.fontFamily;
+        style.hash = '';
+    },
 
-        style.color.set(comp.color);
+    // render Only
+    updateRenderProcessingData (
+        style: TextStyle,
+        outputRenderData: TextOutputRenderData,
+        comp: Label,
+        anchor: Readonly<Vec2>,
+    ): void {
+        // render info
+        outputRenderData.uiTransAnchorX = anchor.x;
+        outputRenderData.uiTransAnchorY = anchor.y;
+
+        if (comp.font instanceof BitmapFont) {
+            const fontAsset = comp.font;
+            style.spriteFrame = fontAsset.spriteFrame;
+            dynamicAtlasManager.packToDynamicAtlas(comp, style.spriteFrame);
+        }
+        style.color.set(comp.color); // render only
+    },
+
+    updateLayoutData (comp: Label): void {
+        // Todo: dirtyFlag
+        const trans = comp.node._uiProps.uiTransformComp!;
+        const processing = TextProcessing.instance;
+        const style = comp.textStyle;
+        const layout = comp.textLayout;
+        const outputLayoutData = comp.textLayoutData;
+        style.fontScale = view.getScaleX();
+
+        this.updateLayoutProcessingData(style, layout, outputLayoutData, comp, trans);
+
+        // TextProcessing
+        processing.processingString(true, style, layout, outputLayoutData, comp.string);
+
+        comp.actualFontSize = style.actualFontSize;
+        trans.setContentSize(outputLayoutData.nodeContentSize);
     },
 
     updateRenderData (comp: Label): void {
@@ -94,34 +125,29 @@ export const bmfontUtils = {
             return;
         }
 
-        if (_comp === comp) { return; }
-
         if (comp.renderData.vertDirty) {
-            _comp = comp;
-            _uiTrans = _comp.node._uiProps.uiTransformComp!;
+            this.updateLayoutData(comp);// Todo: move to layout manager
             const renderData = comp.renderData;
-
             const processing = TextProcessing.instance;
             const style = comp.textStyle;
             const layout = comp.textLayout;
             const outputLayoutData = comp.textLayoutData;
             const outputRenderData = comp.textRenderData;
-            style.fontScale = view.getScaleX();
-            this._updateFontFamily(comp);
+            const anchor = comp.node._uiProps.uiTransformComp!.anchorPoint;
+            this.updateRenderProcessingData(style, outputRenderData, comp, anchor);
 
-            this.updateProcessingData(style, layout, outputLayoutData, outputRenderData, comp, _uiTrans);
-
-            this._updateLabelInfo(comp);
-
-            style.fontDesc = shareLabelInfo.fontDesc;
-
-            // TextProcessing
-            processing.processingString(true, style, layout, outputLayoutData, comp.string);
             // generateVertex
             this.resetRenderData(comp);
             outputRenderData.quadCount = 0;
-            processing.generateRenderInfo(true, style, layout, outputLayoutData, outputRenderData,
-                comp.string, this.generateVertexData);
+            processing.generateRenderInfo(
+                true,
+                style,
+                layout,
+                outputLayoutData,
+                outputRenderData,
+                comp.string,
+                this.generateVertexData,
+            );
 
             renderData.dataLength = outputRenderData.quadCount;
             renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
@@ -132,17 +158,12 @@ export const bmfontUtils = {
 
             const indexCount = renderData.indexCount;
             this.createQuadIndices(indexCount);
-            renderData.chunk.setIndexBuffer(QUAD_INDICES);
+            renderData.chunk.setIndexBuffer(QUAD_INDICES!);
 
-            _comp.actualFontSize = style.actualFontSize;
-            _uiTrans.setContentSize(outputLayoutData.nodeContentSize);
             this.updateUVs(comp);// dirty need
             this.updateColor(comp); // dirty need
 
             renderData.vertDirty = false;
-            _comp = null;
-
-            this._resetProperties();
         }
 
         if (comp.spriteFrame) {
@@ -195,8 +216,17 @@ export const bmfontUtils = {
     },
 
     // callBack function
-    generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, offset: number,
-        spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number): void {
+    generateVertexData (
+        style: TextStyle,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        offset: number,
+        spriteFrame: SpriteFrame,
+        rect: Rect,
+        rotated: boolean,
+        x: number,
+        y: number,
+    ): void {
         const dataOffset = offset;
         const scale = style.bmfontScale;
 
@@ -251,37 +281,7 @@ export const bmfontUtils = {
         dataList[dataOffset + 3].y = y;
     },
 
-    _updateFontFamily (comp): void {
-        const fontAsset = comp.font;
-        _spriteFrame = fontAsset.spriteFrame;
-        _fntConfig = fontAsset.fntConfig;
-        shareLabelInfo.fontAtlas = fontAsset.fontDefDictionary;
-        if (!shareLabelInfo.fontAtlas) {
-            if (comp.cacheMode === CacheMode.CHAR) {
-                shareLabelInfo.fontAtlas = _defaultLetterAtlas;
-            } else {
-                shareLabelInfo.fontAtlas = _defaultFontAtlas;
-            }
-        }
-
-        dynamicAtlasManager.packToDynamicAtlas(comp, _spriteFrame);
-        // TODO update material and uv
-    },
-
-    _updateLabelInfo (comp): void {
-        // clear
-        shareLabelInfo.hash = '';
-        shareLabelInfo.margin = 0;
-    },
-
-    _resetProperties (): void {
-        _fntConfig = null;
-        _spriteFrame = null;
-        shareLabelInfo.hash = '';
-        shareLabelInfo.margin = 0;
-    },
-
-    createQuadIndices (indexCount): void {
+    createQuadIndices (indexCount: number): void {
         if (indexCount % 6 !== 0) {
             error('illegal index count!');
             return;
