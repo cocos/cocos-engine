@@ -333,12 +333,10 @@ export class SubModel {
         if (!this._globalPatches && pipelinePatches.length === 0) {
             return;
         } else if (pipelinePatches.length) {
-            if (this._globalPatches) {
+            if (this._globalPatches && pipelinePatches.length === this._globalPatches.length) {
                 const globalPatches = Object.entries(this._globalPatches);
-                if (pipelinePatches.length === globalPatches.length) {
-                    const patchesStateUnchanged = JSON.stringify(pipelinePatches.sort()) === JSON.stringify(globalPatches.sort());
-                    if (patchesStateUnchanged) return;
-                }
+                const patchesStateUnchanged = JSON.stringify(pipelinePatches.sort()) === JSON.stringify(globalPatches.sort());
+                if (patchesStateUnchanged) return;
             }
         }
         this._globalPatches = pipeline.macros;

@@ -132,7 +132,6 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     }
 
     auto flags = gfx::TextureFlagBit::NONE;
-    auto usage = gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST;
     if (_mipFilter != Filter::NONE && canGenerateMipmap(_width, _height)) {
         _mipmapLevel = getMipLevel(_width, _height);
         if (!isUsingOfflineMipmaps() && !isCompressed()) {
@@ -140,14 +139,9 @@ void SimpleTexture::createTexture(gfx::Device *device) {
         }
     }
 
-    const auto gfxFormat = getGFXFormat();
-    if (hasFlag(gfx::Device::getInstance()->getFormatFeatures(gfxFormat), gfx::FormatFeatureBit::RENDER_TARGET)) {
-        usage |= gfx::TextureUsageBit::COLOR_ATTACHMENT;
-    }
-
     auto textureCreateInfo = getGfxTextureCreateInfo(
-        usage,
-        gfxFormat,
+        gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST | gfx::TextureUsageBit::COLOR_ATTACHMENT,
+        getGFXFormat(),
         _mipmapLevel,
         flags);
 

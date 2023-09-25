@@ -26,7 +26,6 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-          local-cache: true
       - name: Generate decorators
         run: |
           cd native

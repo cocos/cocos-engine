@@ -23,32 +23,19 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#import "AppDelegate.h"
-#include "base/std/container/string.h"
-//#import "Game.h"
 #import "ViewController.h"
-#include "engine/EngineEvents.h"
-#include "platform/mac/MacPlatform.h"
+#import "platform/mac/View.h"
 
-@interface AppDelegate () {
-    NSWindow* _window;
-    cc::MacPlatform* _platform;
-}
-@end
-
-@implementation AppDelegate
-
-- (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
-    _platform = dynamic_cast<cc::MacPlatform*>(cc::BasePlatform::getPlatform());
+@implementation ViewController {
+    View* _view;
 }
 
-- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
-{
-    return _platform->readyToExit() ? NSTerminateNow : NSTerminateLater;
-}
-
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication {
-    return YES;
+- (instancetype)initWithSize:(NSRect)rect {
+    if (self = [super init]) {
+        _view = [[View alloc] initWithFrame:rect];
+        self.view = _view;
+    }
+    return self;
 }
 
 @end

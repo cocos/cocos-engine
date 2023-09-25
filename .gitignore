@@ -1,5 +1,4 @@
-lib/
-.turbo/
+/lib
 /bin
 /web.config
 .idea

@@ -571,6 +571,8 @@ elseif(MACOSX)
     cocos_source_files(
         cocos/platform/mac/MacPlatform.mm
         cocos/platform/mac/MacPlatform.h
+        cocos/platform/mac/ViewController.h
+        cocos/platform/mac/ViewController.mm
         cocos/platform/mac/AppDelegate.h
         cocos/platform/mac/AppDelegate.mm
     )

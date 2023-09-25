@@ -8,7 +8,6 @@ const Vue = require('vue/dist/vue.min.js');
 const propUtils = require('../utils/prop');
 
 const cssMediaWidth = 340;
-let layout = 'vertical';
 
 exports.template = `
 <style>
@@ -948,14 +947,11 @@ exports.methods = {
     },
     setLayout() {
         const rect = this.$this.getBoundingClientRect();
-
-        this.layout ??= layout;
-
         if (rect.width) {
             if (rect.width > cssMediaWidth) {
-                layout = this.layout = 'horizontal';
+                this.layout = 'horizontal';
             } else {
-                layout = this.layout = 'vertical';
+                this.layout = 'vertical';
             }
         }
     },

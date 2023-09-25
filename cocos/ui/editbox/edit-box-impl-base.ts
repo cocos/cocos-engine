@@ -37,22 +37,11 @@ export class EditBoxImplBase {
      */
     public _delegate: EditBox | null = null;
 
-    /**
-     * @engineInternal dirty flag to update the matrix
-     */
-    public _dirtyFlag: boolean | null = false;
+    public init (delegate: EditBox): void {}
 
-    public init (delegate: EditBox): void {
-        // To be overrode
-    }
+    public onEnable (): void {}
 
-    public onEnable (): void {
-        // To be overrode
-    }
-
-    public update (): void {
-        // To be overrode
-    }
+    public update (): void { }
 
     public onDisable (): void {
         if (this._editing) {
@@ -64,13 +53,9 @@ export class EditBoxImplBase {
         this._delegate = null;
     }
 
-    public setTabIndex (index: number): void {
-        // To be overrode
-    }
+    public setTabIndex (index: number): void {}
 
-    public setSize (width: number, height: number): void {
-        // To be overrode
-    }
+    public setSize (width: number, height: number): void {}
 
     public setFocus (value): void {
         if (value) {
@@ -84,11 +69,7 @@ export class EditBoxImplBase {
         return this._editing;
     }
 
-    public beginEditing (): void {
-        // To be overrode
-    }
+    public beginEditing (): void {}
 
-    public endEditing (): void {
-        // To be overrode
-    }
+    public endEditing (): void {}
 }

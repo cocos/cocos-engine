@@ -74,7 +74,6 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-          local-cache: true
       - uses: actions/setup-java@v3
         id: setup-jdk
         with:
@@ -145,7 +144,6 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-          local-cache: true
       - uses: actions/setup-java@v3
         id: setup-jdk
         with:

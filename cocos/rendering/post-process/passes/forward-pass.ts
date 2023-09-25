@@ -17,11 +17,10 @@ export class ForwardPass extends BasePass {
     depthBufferShadingScale = 1;
 
     calcDepthSlot (camera: Camera): void {
-        const depthSlotName = !!passContext.depthSlotName;
-        let canUsePrevDepth = !(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
+        let canUsePrevDepth = !!passContext.depthSlotName;
+        canUsePrevDepth = !(camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
         canUsePrevDepth = canUsePrevDepth && passContext.shadingScale === this.depthBufferShadingScale;
         if (canUsePrevDepth) {
-            if (!depthSlotName) passContext.depthSlotName = super.slotName(camera, 1);
             return;
         }
         this.depthBufferShadingScale = passContext.shadingScale;

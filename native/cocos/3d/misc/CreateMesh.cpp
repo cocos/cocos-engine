@@ -409,22 +409,14 @@ Mesh::ICreateInfo MeshUtils::createDynamicMeshInfo(const IDynamicGeometry &geome
 void MeshUtils::inflateMesh(const Mesh::IStruct &structInfo, Uint8Array &data) {
     uLongf uncompressedSize = 0U;
     for (const auto &prim : structInfo.primitives) {
-        if (prim.indexView.has_value()) {
-            uncompressedSize += prim.indexView->length + prim.indexView->stride;
-        }
-        if (prim.cluster.has_value()) {
-            uncompressedSize += prim.cluster->vertexView.length + prim.cluster->vertexView.stride;
-            uncompressedSize += prim.cluster->triangleView.length + prim.cluster->triangleView.stride;
-            uncompressedSize += prim.cluster->clusterView.length + prim.cluster->clusterView.stride;
-            uncompressedSize += prim.cluster->coneView.length + prim.cluster->coneView.stride;
-        }
+        uncompressedSize += prim.indexView->length;
     }
     for (const auto &vb : structInfo.vertexBundles) {
-        uncompressedSize += vb.view.length + vb.view.stride;
+        uncompressedSize += vb.view.length;
     }
     auto uncompressedData = Uint8Array(static_cast<uint32_t>(uncompressedSize));
     auto res = uncompress(uncompressedData.buffer()->getData(), &uncompressedSize, data.buffer()->getData(), data.byteLength());
-    data = Uint8Array(uncompressedData.buffer(), 0, static_cast<uint32_t>(uncompressedSize));
+    data = uncompressedData;
 }
 
 void MeshUtils::decodeMesh(Mesh::IStruct &structInfo, Uint8Array &data) {

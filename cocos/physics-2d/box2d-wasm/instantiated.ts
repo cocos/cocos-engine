@@ -35,8 +35,7 @@ export const B2 = {} as any;
 
 export function getImplPtr (wasmObject: any): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    if (!wasmObject) return 0;
-    return (wasmObject).$$.ptr as number;
+    return (wasmObject).$$.ptr;
 }
 
 /**

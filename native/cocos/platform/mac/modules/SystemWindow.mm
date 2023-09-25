@@ -23,7 +23,7 @@
 ****************************************************************************/
 
 #include "platform/mac/modules/SystemWindow.h"
-#include "platform/mac/View.h"
+#include "platform/mac/ViewController.h"
 #include "base/Log.h"
 #include "base/Macros.h"
 
@@ -58,16 +58,18 @@ void SystemWindow::initWindowProperty(SDL_Window* window, const char *title, int
     CC_ASSERT(window != nullptr);
     auto* nsWindow = reinterpret_cast<NSWindow*>(SDLHelper::getWindowHandle(window));
     NSRect rect = NSMakeRect(x, y, w, h);
+    ViewController* viewController = [[ViewController alloc] initWithSize:rect];
+    nsWindow.contentViewController = viewController;
+    nsWindow.contentView = viewController.view;
     NSString *astring = [NSString stringWithUTF8String:title];
     nsWindow.title = astring;
-    NSView *view = nsWindow.contentView;
-    auto* newView = [[View alloc] initWithFrame:rect];
-    [view addSubview:newView];
     [nsWindow.contentView setWantsBestResolutionOpenGLSurface:YES];
     [nsWindow makeKeyAndOrderFront:nil];
     
+    [viewController release];
+    viewController = nil;
     _windowHandle = reinterpret_cast<uintptr_t>(nsWindow.contentView) ;
-
+    
     auto dpr = [nsWindow backingScaleFactor];
     _width  = w * dpr;
     _height = h * dpr;
