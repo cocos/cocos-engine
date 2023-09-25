@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3, geometry } from '../../core';
 import { cclegacy } from '@base/global';
+import { Vec3, geometry } from '../../core';
 import { Light, LightType, nt2lm } from './light';
 
 /**

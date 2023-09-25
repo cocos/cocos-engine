@@ -24,6 +24,7 @@
 
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
+import { warnID, warn, debug } from '@base/debug';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
@@ -31,7 +32,6 @@ import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, Buff
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { macro } from '../../core';
-import { warnID, warn, debug } from '@base/debug';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { IWebGLBlitManager } from './webgl-gpu-objects';
 

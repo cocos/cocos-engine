@@ -25,9 +25,9 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, serializable, editable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { Asset } from '../../asset/assets';
 import { SpriteFrame } from './sprite-frame';
-import { cclegacy } from '@base/global';
 import { js } from '../../core';
 import type { TextureBase } from '../../asset/assets/texture-base';
 

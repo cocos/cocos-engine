@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
+import { error, errorID, debug, assertID } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo, FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit, Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates, UniformSamplerTexture, alignTo, Extent, formatAlignment, getTypedArrayConstructor, Offset, TextureBlit } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUInputAssembler, IWebGL2Attrib, IWebGL2GPUDescriptorSet, IWebGL2GPUBuffer, IWebGL2GPUFramebuffer, IWebGL2GPUInput, IWebGL2GPUPipelineState, IWebGL2GPUSampler, IWebGL2GPUShader, IWebGL2GPUTexture, IWebGL2GPUUniformBlock, IWebGL2GPUUniformSamplerTexture, IWebGL2GPURenderPass } from './webgl2-gpu-objects';
 import { CachedArray } from '../../core';
-import { error, errorID, debug, assertID } from '@base/debug';
-import { cclegacy } from '@base/global';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT

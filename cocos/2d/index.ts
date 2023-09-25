@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { graphicsAssembler, labelAssembler, spriteAssembler } from './assembler';
 import { RenderData, MeshRenderData } from './renderer/render-data';
 import { MeshBuffer } from './renderer/mesh-buffer';
 import { StencilManager } from './renderer/stencil-manager';
-import { cclegacy } from '@base/global';
 import './event';
 
 import './renderer/batcher-2d';

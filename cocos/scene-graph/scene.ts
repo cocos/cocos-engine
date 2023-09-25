@@ -24,11 +24,11 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { CCObject } from '../core/data/object';
 import { assert, getError } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { CCObject } from '../core/data/object';
 import { RenderScene } from '../render-scene/core/render-scene';
 import { Node } from './node';
-import { cclegacy } from '@base/global';
 import { Component } from './component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';

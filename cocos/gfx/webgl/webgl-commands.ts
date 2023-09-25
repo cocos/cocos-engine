@@ -23,8 +23,8 @@
 */
 
 import { debug, error, errorID, assertID } from '@base/debug';
-import { CachedArray } from '../../core';
 import { cclegacy } from '@base/global';
+import { CachedArray } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';

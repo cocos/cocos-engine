@@ -23,8 +23,8 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core';
 import { warn } from '@base/debug';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core';
 
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';

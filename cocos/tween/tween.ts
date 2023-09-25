@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { TweenSystem } from './tween-system';
 import { warn } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { TweenSystem } from './tween-system';
 import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';

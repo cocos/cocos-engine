@@ -23,12 +23,12 @@
 */
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
-import { Material, Texture2D } from '../asset/assets';
 import { error, logID, warn } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { Material, Texture2D } from '../asset/assets';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
 import { CCObject, Color, RecyclePool, js } from '../core';
-import { cclegacy } from '@base/global';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';

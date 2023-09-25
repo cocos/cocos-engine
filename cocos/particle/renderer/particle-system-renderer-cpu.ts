@@ -23,11 +23,11 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warn } from '@base/debug';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool } from '../../core';
-import { warn } from '@base/debug';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';

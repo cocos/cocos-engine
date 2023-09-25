@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { Asset } from '../assets';
 import { js } from '../../core';
-import { cclegacy } from '@base/global';
 import Cache from './cache';
 import { decodeUuid, normalize } from './helper';
 

@@ -1,11 +1,11 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
-import { CocosParams, NativePackTool } from "../base/default";
-import { cchelper, Paths } from "../utils";
 import * as URL from 'url';
 import { spawn, spawnSync } from 'child_process';
 import * as xml2js from 'xml2js';
 import { platform } from 'os';
+import { cchelper, Paths } from "../utils";
+import { CocosParams, NativePackTool } from "../base/default";
 
 export interface IOrientation {
     landscapeLeft: boolean;

@@ -23,8 +23,8 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Pool, settings, Settings, macro } from './core';
 import { warnID } from '@base/debug';
+import { Pool, settings, Settings, macro } from './core';
 import type { RenderPipeline } from './rendering/render-pipeline';
 import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
 import { createDefaultPipeline } from './rendering/forward/forward-pipeline';

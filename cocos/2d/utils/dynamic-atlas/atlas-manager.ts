@@ -23,8 +23,8 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { System, macro, js } from '../../../core';
 import { cclegacy } from '@base/global';
+import { System, macro, js } from '../../../core';
 import { Filter } from '../../../asset/assets/asset-enum';
 import { Atlas, DynamicAtlasTexture } from './atlas';
 import { director } from '../../../game';

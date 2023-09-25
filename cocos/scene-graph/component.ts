@@ -25,6 +25,8 @@
 
 import { ccclass, tooltip, displayName, type, serializable, disallowAnimation, visible } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { errorID, warnID, assertID } from '@base/debug';
 import { Script } from '../asset/assets/scripts';
 import { CCObject } from '../core/data/object';
 import { IDGenerator } from '../core/utils/id-generator';
@@ -33,8 +35,6 @@ import { RenderScene } from '../render-scene/core/render-scene';
 import { Rect } from '../core/math';
 import * as RF from '../core/data/utils/requiring-frame';
 import { Node } from './node';
-import { cclegacy } from '@base/global';
-import { errorID, warnID, assertID } from '@base/debug';
 import { CompPrefabInfo } from './prefab/prefab-info';
 import { EventHandler } from './component-event-handler';
 

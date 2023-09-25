@@ -26,10 +26,10 @@
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
 import { BYTEDANCE, EDITOR, JSB } from 'internal:constants';
 import { minigame } from 'pal/minigame';
+import { cclegacy } from '@base/global';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../asset/assets';
 import { ccenum, Color, Vec2 } from '../../core';
-import { cclegacy } from '@base/global';
 import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';

@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
-import { cclegacy } from '@base/global';
 
 import { System } from './system';
 

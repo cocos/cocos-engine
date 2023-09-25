@@ -24,14 +24,14 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
+import { cclegacy } from '@base/global';
+import { warnID } from '@base/debug';
 import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
 import { Layers } from './layers';
 import { Node } from './node';
 import { Vec2 } from '../core/math/vec2';
 import { Size } from '../core/math/size';
-import { cclegacy } from '@base/global';
 import { CCObject } from '../core/data/object';
-import { warnID } from '@base/debug';
 import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../input/types';
 import { SystemEvent } from '../input';

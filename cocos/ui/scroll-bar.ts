@@ -24,6 +24,7 @@
 */
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework';
 import { Color, Size, Vec2, Vec3 } from '../core/math';
@@ -32,7 +33,6 @@ import { clamp01 } from '../core/math/utils';
 import { ScrollView } from './scroll-view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../scene-graph';
-import { cclegacy } from '@base/global';
 
 const GETTING_SHORTER_FACTOR = 20;
 const _tempPos_1 = new Vec3();

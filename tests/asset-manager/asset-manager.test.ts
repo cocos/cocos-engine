@@ -1,9 +1,9 @@
+import { IMemoryImageSource, ImageData } from "pal/image";
 import { SpriteFrame } from "../../cocos/2d/assets/sprite-frame";
 import { ImageAsset } from "../../cocos/asset/assets";
 import { AssetManager, assetManager, loader, resources } from "../../cocos/asset/asset-manager";
 import { js } from "../../cocos/core";
 import { TestSprite } from "./common-class";
-import { IMemoryImageSource, ImageData } from "pal/image";
 
 describe('asset-manager', function () {
     const assetDir = './tests/fixtures';

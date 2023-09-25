@@ -1,9 +1,9 @@
 
 import { _decorator } from 'cc';
-import { Port } from './port';
 import ps from 'path';
 // @ts-expect-error Virtual module
 import { runTest as runTest_ } from 'serialization-test-helper/run-test';
+import { Port } from './port';
 
 export const runTest: RunTest = runTest_;
 

@@ -24,11 +24,11 @@
 
 import { instantiateWasm, fetchBuffer } from 'pal/wasm';
 import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE, EDITOR, TEST } from 'internal:constants';
+import { getError, error, debug } from '@base/debug';
 import { wasmFactory, box2dWasmUrl } from './box2d.wasmjs';
 import { asmFactory } from './box2d.asmjs';
 
 import { game } from '../../game';
-import { getError, error, debug } from '@base/debug';
 import { sys, IVec2Like } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 

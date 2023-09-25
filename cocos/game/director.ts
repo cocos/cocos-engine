@@ -28,10 +28,10 @@
 /* spell-checker:words COORD, Quesada, INITED, Renerer */
 
 import { DEBUG, EDITOR, BUILD, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { SceneAsset } from '../asset/assets/scene-asset';
-import { System, EventTarget, Scheduler, js, macro, CCObject, isValid } from '../core';
 import { errorID, error, assertID, warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { SceneAsset } from '../asset/assets/scene-asset';
+import { System, EventTarget, Scheduler, js, macro, CCObject, isValid } from '../core';
 import { input } from '../input';
 import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';

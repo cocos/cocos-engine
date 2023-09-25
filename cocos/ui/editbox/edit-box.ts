@@ -25,6 +25,7 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../scene-graph/component';
@@ -37,7 +38,6 @@ import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { cclegacy } from '@base/global';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 

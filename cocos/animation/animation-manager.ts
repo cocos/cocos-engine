@@ -23,9 +23,9 @@
 */
 
 import { ccclass } from 'cc.decorator';
-import { System, js } from '../core';
 import { errorID } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { System, js } from '../core';
 import { director, Director } from '../game/director';
 import { Node } from '../scene-graph';
 import { LegacyBlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';

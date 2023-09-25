@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import { error } from '@base/debug';
 import { BulletSharedBody } from './bullet-shared-body';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
@@ -32,7 +33,6 @@ import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, Bu
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3 } from './bullet-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact } from '../framework';
-import { error } from '@base/debug';
 import { RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike, Quat } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';

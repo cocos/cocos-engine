@@ -1,5 +1,5 @@
-import { director } from '../../cocos/game';
 import { cclegacy } from '@base/global';
+import { director } from '../../cocos/game';
 import { Node, Scene } from '../../cocos/scene-graph';
 import { ParticleSystem } from '../../exports/particle';
 

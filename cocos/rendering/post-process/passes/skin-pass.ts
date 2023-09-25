@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Vec4, Vec3 } from '../../../core';
 import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { Vec4, Vec3 } from '../../../core';
 import { Camera } from '../../../render-scene/scene';
 import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { BasicPipeline, PipelineRuntime } from '../../custom/pipeline';

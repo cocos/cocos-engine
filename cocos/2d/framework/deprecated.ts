@@ -23,8 +23,8 @@
 */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { markAsWarning, removeProperty, replaceProperty, js, Color } from '../../core';
 import { cclegacy } from '@base/global';
+import { markAsWarning, removeProperty, replaceProperty, js, Color } from '../../core';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
 import { UIRenderer } from './ui-renderer';

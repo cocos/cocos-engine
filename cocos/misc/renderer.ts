@@ -23,10 +23,10 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { warnID, error } from '@base/debug';
 import { Material } from '../asset/assets/material';
 import { Component } from '../scene-graph';
 import { IMaterialInstanceInfo, MaterialInstance } from '../render-scene/core/material-instance';
-import { warnID, error } from '@base/debug';
 import { _decorator } from '../core';
 
 const _matInsInfo: IMaterialInstanceInfo = {

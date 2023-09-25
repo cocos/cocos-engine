@@ -26,9 +26,9 @@ import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO,
 import { minigame } from 'pal/minigame';
 import { IFeatureMap } from 'pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
+import { warn } from '@base/debug';
 import { EventTarget } from '../../../cocos/core/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
-import { warn } from '@base/debug';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;

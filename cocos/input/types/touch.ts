@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { Vec2 } from '../../core';
 import { cclegacy } from '@base/global';
+import { Vec2 } from '../../core';
 
 const _vec2 = new Vec2();
 /**

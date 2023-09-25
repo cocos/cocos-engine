@@ -25,12 +25,12 @@
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
+import { cclegacy } from '@base/global';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework';
 import { sys } from '../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
-import { cclegacy } from '@base/global';
 import { view } from './view';
 
 /**

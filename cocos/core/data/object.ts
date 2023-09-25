@@ -24,9 +24,9 @@
 
 import { SUPPORT_JIT, EDITOR, TEST, JSB, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
+import { errorID, warnID } from '@base/debug';
 import * as js from '../utils/js';
 import { CCClass } from './class';
-import { errorID, warnID } from '@base/debug';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 import { copyAllProperties } from '../utils/js';
 

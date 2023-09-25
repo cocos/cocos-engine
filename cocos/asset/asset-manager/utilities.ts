@@ -23,9 +23,9 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Asset } from '../assets/asset';
 import { cclegacy } from '@base/global';
 import { error } from '@base/debug';
+import { Asset } from '../assets/asset';
 import { js, misc } from '../../core';
 import Config from './config';
 import { dependMap, nativeDependMap } from './depend-maps';

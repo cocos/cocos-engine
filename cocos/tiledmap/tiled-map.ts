@@ -24,6 +24,7 @@
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
 import { EDITOR, JSB } from 'internal:constants';
+import { logID, warn } from '@base/debug';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework';
 import { GID, Orientation, PropertiesInfo, Property, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimationType, TiledTextureGrids, TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types';
@@ -34,7 +35,6 @@ import { TiledMapAsset } from './tiled-map-asset';
 import { Sprite } from '../2d/components/sprite';
 import { fillTextureGrids } from './tiled-utils';
 import { Size, Vec2, Color, sys } from '../core';
-import { logID, warn } from '@base/debug';
 import { SpriteFrame } from '../2d/assets';
 import { NodeEventType } from '../scene-graph/node-event';
 import { Node } from '../scene-graph';

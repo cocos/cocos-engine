@@ -23,11 +23,11 @@
 */
 
 import { ccclass, disallowMultiple, editable, executeInEditMode, help, menu, range, serializable, type } from 'cc.decorator';
+import { warnID } from '@base/debug';
 import { clamp } from '../core/math';
 import { SortingLayers } from './sorting-layers';
 import { Component } from '../scene-graph/component';
 import { ModelRenderer } from '../misc/model-renderer';
-import { warnID } from '@base/debug';
 
 const MAX_INT16 = (1 << 15) - 1;
 const MIN_INT16 = -1 << 15;
