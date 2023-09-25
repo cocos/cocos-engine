@@ -219,10 +219,13 @@ rules:
     no-cond-assign: off
     no-constant-condition: off
     nonblock-statement-body-position: [error, below]
+
     func-names: off
+
     padded-blocks: [error, {
         'classes': always
     }]
+    '@typescript-eslint/no-this-alias': [off]
     '@typescript-eslint/no-extra-parens': [error, all, {
       'conditionalAssign': false,
       'returnAssign': false,
