@@ -466,9 +466,12 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @en
      * Get or set debug draw flags. Default is EPhysicsDrawFlags.NONE.
      * Refer to EPhysicsDrawFlags.
+     * Note: Since physics debug draw uses Geometry-Renderer to do drawing,
+     * make sure Geometry-Renderer is not cropped in Project Setting.
      * @zh
      * 获取或设置调试绘制标志。默认为 EPhysicsDrawFlags.NONE。
      * 参考 EPhysicsDrawFlags。
+     * 注意：因为物理调试绘制使用几何渲染器来绘制，请确保项目设置中几何渲染器没有被裁剪掉。
      */
     get debugDrawFlags (): number {
         return this.physicsWorld.debugDrawFlags;
