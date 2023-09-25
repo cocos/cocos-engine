@@ -144,7 +144,6 @@ export class UITransform extends Component {
      */
     @displayOrder(1)
     @tooltip('i18n:ui_transform.anchor_point')
-    // @constget
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
     }
