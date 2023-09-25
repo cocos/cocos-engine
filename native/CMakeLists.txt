@@ -726,9 +726,14 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/SystemWindow.h
         cocos/platform/java/modules/SystemWindowManager.cpp
         cocos/platform/java/modules/SystemWindowManager.h
-        cocos/platform/java/modules/XRInterface.cpp
-        cocos/platform/java/modules/XRInterface.h
     )
+
+    if(USE_XR)
+        cocos_source_files(
+            cocos/platform/java/modules/XRInterface.cpp
+            cocos/platform/java/modules/XRInterface.h
+        )
+    endif()
 endif()
 
 if(ANDROID)

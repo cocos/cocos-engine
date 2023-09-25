@@ -30,7 +30,7 @@
 #include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
-#include "platform/java/modules/XRInterface.h"
+#include "platform/java/modules/IXRInterface.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
 #endif
