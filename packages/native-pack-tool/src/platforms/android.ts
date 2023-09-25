@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import * as URL from 'url';
-import { spawn, spawnSync } from 'child_process';
+import { spawn, spawnSync, exec } from 'child_process';
 import * as xml2js from 'xml2js';
 import { platform } from 'os';
 import { cchelper, Paths } from "../utils";
@@ -41,17 +41,19 @@ export class AndroidPackTool extends NativePackTool {
     params!: CocosParams<IAndroidParams>;
 
     protected firstTimeBuild: boolean = false;
+    // 模板复用 android 平台的
+    private readonly _platform: string = 'android';
 
     protected async copyPlatformTemplate() {
         // 原生工程不重复拷贝 TODO 复用前需要做版本检测
         if (!fs.existsSync(this.paths.nativePrjDir)) {
             // 拷贝 lite 仓库的 templates/android/build 文件到构建输出目录
-            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'build'), this.paths.nativePrjDir, { overwrite: false });
+            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this._platform, 'build'), this.paths.nativePrjDir, { overwrite: false });
         }
         // 原生工程不重复拷贝 TODO 复用前需要做版本检测
         if (!fs.existsSync(this.paths.platformTemplateDirInPrj)) {
             // 拷贝 lite 仓库的 templates/android/template 文件到构建输出目录
-            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'template'), this.paths.platformTemplateDirInPrj, { overwrite: false });
+            await fs.copy(ps.join(this.paths.nativeTemplateDirInCocos, this._platform, 'template'), this.paths.platformTemplateDirInPrj, { overwrite: false });
             this.writeEngineVersion();
             this.firstTimeBuild = true;
         } else {
@@ -61,7 +63,7 @@ export class AndroidPackTool extends NativePackTool {
     }
 
     protected validatePlatformDirectory(missing: string[]): void {
-        const srcDir = ps.join(this.paths.nativeTemplateDirInCocos, this.params.platform, 'template');
+        const srcDir = ps.join(this.paths.nativeTemplateDirInCocos, this._platform, 'template');
         const dstDir = this.paths.platformTemplateDirInPrj;
         this.validateDirectory(srcDir, dstDir, missing);
     }
@@ -76,6 +78,26 @@ export class AndroidPackTool extends NativePackTool {
         await this.updateManifest();
         await this.encrypteScripts();
         await this.generateAppNameValues();
+        return true;
+    }
+
+    async openWithIde() {
+        const projPath = ps.join(this.params.buildDir, 'proj');
+        let batchFile = "studio.sh"
+        if (process.platform === 'win32') {
+            batchFile = "studio.bat"
+        }
+        const batchPath = ps.join(this.params.nativeIdeDir, batchFile);
+        await exec(
+            `"${batchPath}" "${projPath}"`,
+            (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`exec batch file error: ${error}`);
+                    return;
+                }
+
+                console.log(`batch file's output: \n${stdout}`);
+            });
         return true;
     }
 
