@@ -8,6 +8,7 @@
     "rootDir": "./",
     "noEmit": true,
     "strict": true,
+    "strictNullChecks": false,
     "noImplicitAny": false,
     "downlevelIteration": true,
     "esModuleInterop": true,
