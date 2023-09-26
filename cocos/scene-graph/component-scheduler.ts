@@ -27,7 +27,7 @@ import { cclegacy } from '@base/global';
 import { error, assert } from '@base/debug';
 import { js } from '@base/utils';
 import { CCObject } from '../core/data/object';
-import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
+import { tryCatchFunctor_EDITOR } from './utils';
 import type { Component } from './component';
 
 const fastRemoveAt = js.array.fastRemoveAt;
