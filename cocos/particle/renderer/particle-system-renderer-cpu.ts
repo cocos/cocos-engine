@@ -24,10 +24,11 @@
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { warn } from '@base/debug';
+import { memop } from '@base/utils';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool } from '../../core';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
@@ -165,7 +166,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _defaultMat: Material | null = null;
     private _node_scale: Vec3;
     private _particleVertexData: PVData;
-    private _particles: RecyclePool<Particle> | null = null;
+    private _particles: memop.RecyclePool<Particle> | null = null;
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
@@ -205,7 +206,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public onInit (ps: ParticleSystem): void {
         super.onInit(ps);
 
-        this._particles = new RecyclePool((): Particle => new Particle(this), 16);
+        this._particles = new memop.RecyclePool((): Particle => new Particle(this), 16);
         this._setVertexAttrib();
         this._setFillFunc();
         this._initModuleList();

@@ -1,13 +1,14 @@
 import { DEBUG } from 'internal:constants';
 import { warnID } from '@base/debug';
 import { assertIsTrue, assertIsNonNullable } from '@base/debug/internal';
+import { memop } from '@base/utils';
 import { StateMachine, State, isAnimationTransition, SubStateMachine, EmptyState, EmptyStateTransition, ProceduralPoseState, ProceduralPoseTransition } from '../animation-graph';
 import { MotionEval, MotionPort } from '../motion';
 import { createEval } from '../create-eval';
 import { BindContext, validateVariableExistence, validateVariableType, VariableType } from '../parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { MotionState } from './motion-state';
-import { Pool, approx, clamp01 } from '../../../core';
+import { approx, clamp01 } from '../../../core';
 import { AnimationClip } from '../../animation-clip';
 import type { AnimationController } from '../animation-controller';
 import { StateMachineComponent } from './state-machine-component';
@@ -1564,14 +1565,14 @@ class ActivatedTransition {
         }
     }
 
-    public static createPool (initialCapacity: number): Pool<ActivatedTransition> {
+    public static createPool (initialCapacity: number): memop.Pool<ActivatedTransition> {
         const destructor = !DEBUG
             ? undefined
             : (transitionInstance: ActivatedTransition): void => {
                 transitionInstance.normalizedElapsedTime = Number.NaN;
             };
 
-        const pool = new Pool<ActivatedTransition>(
+        const pool = new memop.Pool<ActivatedTransition>(
             () => new ActivatedTransition(),
             initialCapacity,
             destructor,

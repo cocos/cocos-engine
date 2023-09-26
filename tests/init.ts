@@ -62,6 +62,18 @@ jest.mock(
 );
 
 jest.mock(
+    '@base/utils',
+    () => jest.requireActual('../cocos/base/utils/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/utils/internal',
+    () => jest.requireActual('../cocos/base/utils/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
     'pal/pacer',
     () => jest.requireActual('../pal/pacer/pacer-web'),
     { virtual: true, },

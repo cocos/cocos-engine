@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { deprecateModuleExportedName } from './x-deprecated';
+import { deprecateModuleExportedName } from '@base/utils';
 
 deprecateModuleExportedName({
     replaceProperty: {

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { deprecateModuleExportedName } from '../../core';
+import { deprecateModuleExportedName } from '@base/utils';
 
 deprecateModuleExportedName({
     RenderComponent: {

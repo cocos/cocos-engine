@@ -24,6 +24,7 @@
 */
 
 import { error } from '@base/debug';
+import { js, memop } from '@base/utils';
 import { BulletSharedBody } from './bullet-shared-body';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
@@ -33,7 +34,7 @@ import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, Bu
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3 } from './bullet-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact } from '../framework';
-import { RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike, Quat } from '../../core';
+import { Vec3, IVec3Like, geometry, IQuatLike, Quat } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { BulletCharacterController } from './character-controllers/bullet-character-controller';
@@ -196,7 +197,7 @@ export class BulletWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
-    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
@@ -243,7 +244,7 @@ export class BulletWorld implements IPhysicsWorld {
         halfExtent: IVec3Like,
         orientation: IQuatLike,
         options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>,
+        pool: memop.RecyclePool<PhysicsRayResult>,
         results: PhysicsRayResult[],
     ): boolean {
         // cast shape
@@ -279,7 +280,7 @@ export class BulletWorld implements IPhysicsWorld {
         worldRay: geometry.Ray,
         radius: number,
         options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>,
+        pool: memop.RecyclePool<PhysicsRayResult>,
         results: PhysicsRayResult[],
     ): boolean {
         // cast shape
@@ -311,7 +312,7 @@ export class BulletWorld implements IPhysicsWorld {
         height: number,
         orientation: IQuatLike,
         options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>,
+        pool: memop.RecyclePool<PhysicsRayResult>,
         results: PhysicsRayResult[],
     ): boolean {
         // cast shape
@@ -344,7 +345,7 @@ export class BulletWorld implements IPhysicsWorld {
         btShapePtr: number,
         orientation: IQuatLike,
         options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>,
+        pool: memop.RecyclePool<PhysicsRayResult>,
         results: PhysicsRayResult[],
     ): boolean {
         const BT_fromTransform = BulletCache.instance.BT_TRANSFORM_0;

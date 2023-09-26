@@ -23,6 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
+import { js, replaceProperty, markAsWarning } from '@base/utils';
 import { Mask, MaskType } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';
@@ -31,7 +32,6 @@ import { Sprite } from './sprite';
 import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
 import { UIOpacity } from './ui-opacity';
-import { js, replaceProperty, markAsWarning } from '../../core';
 import { LabelShadow } from './label-shadow';
 import './deprecated-3.9.0';
 

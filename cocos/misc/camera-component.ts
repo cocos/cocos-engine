@@ -249,7 +249,6 @@ export class Camera extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:camera.color')
-    // @constget
     get clearColor (): Readonly<Color> {
         return this._color;
     }

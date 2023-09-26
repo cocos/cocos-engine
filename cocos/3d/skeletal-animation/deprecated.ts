@@ -23,7 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { js } from '../../core';
+import { js } from '@base/utils';
 import { SkeletalAnimation } from './skeletal-animation';
 /**
  * Alias of [[SkeletalAnimation]]

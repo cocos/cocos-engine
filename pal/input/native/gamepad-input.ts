@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
-/* eslint-disable brace-style */
+import { js } from '@base/utils';
 import { systemInfo } from 'pal/system-info';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventGamepad } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
-import { Quat, Vec3, js } from '../../../cocos/core';
+import { Quat, Vec3 } from '../../../cocos/core';
 
 export type GamepadCallback = (res: EventGamepad) => void;
 

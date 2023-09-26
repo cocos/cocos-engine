@@ -30,8 +30,8 @@
 /* eslint-disable max-len */
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
-import { RecyclePool } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
 import {
@@ -1656,13 +1656,13 @@ class DevicePostSceneTask extends WebSceneTask { }
 
 class ExecutorPools {
     constructor (context: ExecutorContext) {
-        this.deviceQueuePool = new RecyclePool<DeviceRenderQueue>((): DeviceRenderQueue => new DeviceRenderQueue(), 16);
-        this.computeQueuePool = new RecyclePool<DeviceComputeQueue>((): DeviceComputeQueue => new DeviceComputeQueue(), 16);
-        this.graphScenePool = new RecyclePool<GraphScene>((): GraphScene => new GraphScene(), 16);
-        this.rasterPassInfoPool = new RecyclePool<RasterPassInfo>((): RasterPassInfo => new RasterPassInfo(), 16);
-        this.computePassInfoPool = new RecyclePool<ComputePassInfo>((): ComputePassInfo => new ComputePassInfo(), 16);
-        this.reflectionProbe = new RecyclePool<RenderReflectionProbeQueue>((): RenderReflectionProbeQueue => new RenderReflectionProbeQueue(context.pipeline), 8);
-        this.passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
+        this.deviceQueuePool = new memop.RecyclePool<DeviceRenderQueue>((): DeviceRenderQueue => new DeviceRenderQueue(), 16);
+        this.computeQueuePool = new memop.RecyclePool<DeviceComputeQueue>((): DeviceComputeQueue => new DeviceComputeQueue(), 16);
+        this.graphScenePool = new memop.RecyclePool<GraphScene>((): GraphScene => new GraphScene(), 16);
+        this.rasterPassInfoPool = new memop.RecyclePool<RasterPassInfo>((): RasterPassInfo => new RasterPassInfo(), 16);
+        this.computePassInfoPool = new memop.RecyclePool<ComputePassInfo>((): ComputePassInfo => new ComputePassInfo(), 16);
+        this.reflectionProbe = new memop.RecyclePool<RenderReflectionProbeQueue>((): RenderReflectionProbeQueue => new RenderReflectionProbeQueue(context.pipeline), 8);
+        this.passPool = new memop.RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
             priority: 0,
             hash: 0,
             depth: 0,
@@ -1703,13 +1703,13 @@ class ExecutorPools {
         this.resetPassInfo();
         this.computePassInfoPool.reset();
     }
-    readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
-    readonly computeQueuePool: RecyclePool<DeviceComputeQueue>;
-    readonly graphScenePool: RecyclePool<GraphScene>;
-    readonly reflectionProbe: RecyclePool<RenderReflectionProbeQueue>;
-    readonly passPool: RecyclePool<IRenderPass>;
-    readonly rasterPassInfoPool: RecyclePool<RasterPassInfo>;
-    readonly computePassInfoPool: RecyclePool<ComputePassInfo>;
+    readonly deviceQueuePool: memop.RecyclePool<DeviceRenderQueue>;
+    readonly computeQueuePool: memop.RecyclePool<DeviceComputeQueue>;
+    readonly graphScenePool: memop.RecyclePool<GraphScene>;
+    readonly reflectionProbe: memop.RecyclePool<RenderReflectionProbeQueue>;
+    readonly passPool: memop.RecyclePool<IRenderPass>;
+    readonly rasterPassInfoPool: memop.RecyclePool<RasterPassInfo>;
+    readonly computePassInfoPool: memop.RecyclePool<ComputePassInfo>;
 }
 
 const vbData = new Float32Array(4 * 4);

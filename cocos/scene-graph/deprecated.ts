@@ -26,7 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
-import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
+import { replaceProperty, removeProperty } from '@base/utils';
 import { Layers } from './layers';
 import { Node } from './node';
 import { Vec2 } from '../core/math/vec2';

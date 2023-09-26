@@ -26,11 +26,11 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
 import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
 import { Filter, PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
-import { js } from '../../core';
 
 /**
  * @en The create information for [[Texture2D]].

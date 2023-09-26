@@ -24,9 +24,10 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error } from '@base/debug';
+import { js, memop } from '@base/utils';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterTriggerEventType, CharacterControllerContact } from '../framework';
-import { RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
+import { IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest, gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll } from './physx-adapter';
@@ -166,7 +167,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
 
     removeConstraint (_constraint: IBaseConstraint): void { }
 
-    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         return raycastAll(this, worldRay, options, pool, results);
     }
 
@@ -175,7 +176,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         if (!PhysXWorld._sweepBoxGeometry) {
             PhysXWorld._sweepBoxGeometry = new PX.BoxGeometry(halfExtent);
         }
@@ -193,7 +194,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     sweepSphere (worldRay: geometry.Ray, radius: number,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         if (!PhysXWorld._sweepSphereGeometry) {
             PhysXWorld._sweepSphereGeometry = new PX.SphereGeometry(radius);
         }
@@ -211,7 +212,7 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         if (!PhysXWorld._sweepCapsuleGeometry) {
             PhysXWorld._sweepCapsuleGeometry = new PX.CapsuleGeometry(radius, height / 2);
         }

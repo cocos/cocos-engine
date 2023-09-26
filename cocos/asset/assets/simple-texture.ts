@@ -27,10 +27,11 @@ import { DEV } from 'internal:constants';
 import { ImageData } from 'pal/image';
 import { assertID, error } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
 import { IMemoryImageSource } from '../../../pal/image/types';
 
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
-import { js, macro } from '../../core';
+import { macro } from '../../core';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';

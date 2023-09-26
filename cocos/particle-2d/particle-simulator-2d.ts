@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, misc, random, IColorLike } from '../core';
+import { js } from '@base/utils';
+import { Vec2, Color, misc, random, IColorLike } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';

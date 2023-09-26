@@ -135,7 +135,6 @@ export class Graphics extends UIRenderer {
      * 笔触的颜色。
      */
     @tooltip('i18n:graphics.strokeColor')
-    // @constget
     get strokeColor (): Readonly<Color> {
         return this._strokeColor;
     }
@@ -157,7 +156,6 @@ export class Graphics extends UIRenderer {
      * 填充绘画的颜色。
      */
     @tooltip('i18n:graphics.fillColor')
-    // @constget
     get fillColor (): Readonly<Color> {
         return this._fillColor;
     }

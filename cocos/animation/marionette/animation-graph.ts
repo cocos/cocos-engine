@@ -24,7 +24,8 @@
 
 import { ccclass, editable, serializable } from 'cc.decorator';
 import { assertIsNonNullable, assertIsTrue } from '@base/debug/internal';
-import { js, clamp, EditorExtendable, shift, Vec3, Quat } from '../../core';
+import { js } from '@base/utils';
+import { clamp, EditorExtendable, shift, Vec3, Quat } from '../../core';
 import type { Condition } from './state-machine/condition';
 import { OwnedBy, assertsOwnedBy, own, markAsDangling, ownerSymbol } from './ownership';
 import { createVariable, VariableDescription, VariableType, VariableTypeValueTypeMap } from './variable';

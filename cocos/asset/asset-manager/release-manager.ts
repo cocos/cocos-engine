@@ -23,8 +23,9 @@
 */
 
 import { EDITOR, TEST } from 'internal:constants';
+import { js } from '@base/utils';
 import { Asset } from '../assets/asset';
-import { isValid, js, misc } from '../../core';
+import { isValid, misc } from '../../core';
 import { Node, Scene } from '../../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';

@@ -22,8 +22,10 @@
  THE SOFTWARE.
 */
 
+import { js } from '@base/utils';
 import { CallbacksInvoker } from './callbacks-invoker';
-import { createMap } from '../utils/js';
+
+const { createMap } = js;
 
 type Constructor<T> = new (...args: any[]) => T;
 
