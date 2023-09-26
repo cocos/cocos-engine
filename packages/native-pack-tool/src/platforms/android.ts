@@ -1,7 +1,7 @@
 import * as fs from 'fs-extra';
 import * as ps from 'path';
 import * as URL from 'url';
-import { spawn, spawnSync, exec } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import * as xml2js from 'xml2js';
 import { platform } from 'os';
 import { cchelper, Paths } from "../utils";
