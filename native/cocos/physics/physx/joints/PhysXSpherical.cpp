@@ -32,6 +32,7 @@ namespace physics {
 
 void PhysXSpherical::onComponentSet() {
     _mJoint = PxSphericalJointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
+    setEnableDebugVisualization(true);
 }
 
 void PhysXSpherical::setPivotA(float x, float y, float z) {

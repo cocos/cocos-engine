@@ -45,6 +45,8 @@ void PhysXRevolute::onComponentSet() {
     joint->setConstraintFlag(physx::PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, true);
     joint->setProjectionAngularTolerance(0.2);
     joint->setProjectionLinearTolerance(0.2);
+
+    setEnableDebugVisualization(true);
 }
 
 void PhysXRevolute::setPivotA(float x, float y, float z) {

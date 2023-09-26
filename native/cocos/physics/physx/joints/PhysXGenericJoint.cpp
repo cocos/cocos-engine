@@ -36,6 +36,7 @@ namespace physics {
 
 void PhysXGenericJoint::onComponentSet() {
     _mJoint = PxD6JointCreate(PxGetPhysics(), &getTempRigidActor(), physx::PxTransform{physx::PxIdentity}, nullptr, physx::PxTransform{physx::PxIdentity});
+    setEnableDebugVisualization(true);
 }
 
 inline auto mapAxis(uint32_t index) -> physx::PxD6Axis::Enum {

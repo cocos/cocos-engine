@@ -44,4 +44,21 @@ export const importFunc = {
         const cct = bt.CACHE.getWrapper(controller, bt.CCT_CACHE_NAME);
         cct.onShapeHitExt(hit);
     },
+    onDebugDrawLine (from: number, to: number, color: number): void {
+        const bt = globalThis.Bullet;
+        const world = bt.CACHE.world;
+        if (world) {
+            world.onDebugDrawLine(from, to, color);
+        }
+    },
+    onClearLines (): void {
+        const bt = globalThis.Bullet;
+        const world = bt.CACHE.world;
+        if (world) {
+            world.onClearLines();
+        }
+    },
+    onFlushLines (): void {
+        //empty
+    },
 };

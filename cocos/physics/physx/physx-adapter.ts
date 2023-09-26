@@ -33,7 +33,7 @@
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, error } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
@@ -46,7 +46,7 @@ import { Director, director, game } from '../../game';
 import { degreesToRadians } from '../../core/utils/misc';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
 
-export const PX = {} as any;
+export let PX = {} as any;
 const globalThis = cclegacy._global;
 // Use bytedance native or js physics if nativePhysX is not null.
 const USE_BYTEDANCE = BYTEDANCE && globalThis.nativePhysX;
@@ -120,7 +120,7 @@ function initWASM (physxWasmFactory, physxWasmUrl): any {
             if (!EDITOR && !TEST) console.debug('[PHYSICS]:', `${USE_EXTERNAL_PHYSX ? 'External' : 'Internal'} PhysX wasm libs loaded.`);
             initAdaptWrapper(Instance);
             initConfigAndCacheObject(Instance);
-            Object.assign(PX, Instance);
+            PX = Instance;
         }, (reason: any): void => { console.error('[PHYSICS]:', `PhysX wasm load failed: ${reason}`); });
     } else {
         if (!EDITOR && !TEST) console.error('[PHYSICS]:', 'Failed to load PhysX wasm libs, package may be not found.');
@@ -197,6 +197,13 @@ type IPxTransformExt = { [x in keyof typeof _trans]: typeof _trans[x]; } &
     setPosition(pos: IVec3Like): void;
     setQuaternion(quat: IQuatLike): void;
 };
+
+export function getColorPXColor (color: Color, rgba: number): void {
+    color.b = ((rgba >> 16) & 0xff);
+    color.g = ((rgba >> 8)  & 0xff);
+    color.r = ((rgba)     & 0xff);
+    color.a = 255;
+}
 
 export const _pxtrans = _trans as unknown as IPxTransformExt;
 
@@ -336,11 +343,11 @@ export function applyTorqueForce (impl: any, vec: IVec3Like): void {
 export function getShapeFlags (isTrigger: boolean): any {
     if (USE_BYTEDANCE) {
         const flag = (isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
-            | PX.ShapeFlag.eSCENE_QUERY_SHAPE;
+            | PX.ShapeFlag.eSCENE_QUERY_SHAPE | PX.ShapeFlag.eVISUALIZATION;
         return flag;
     }
     const flag = (isTrigger ? PX.PxShapeFlag.eTRIGGER_SHAPE.value : PX.PxShapeFlag.eSIMULATION_SHAPE.value)
-        | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value;
+        | PX.PxShapeFlag.eSCENE_QUERY_SHAPE.value | PX.PxShapeFlag.eVISUALIZATION.value;
     return new PX.PxShapeFlags(flag);
 }
 
@@ -826,6 +833,7 @@ export function initializeWorld (world: any): void {
 
         const sceneDesc = PX.getDefaultSceneDesc(PhysXInstance.physics.getTolerancesScale(), 0, PhysXInstance.simulationCB);
         world.scene = PhysXInstance.physics.createScene(sceneDesc);
+        world.scene.setVisualizationParameter(PX.PxVisualizationParameter.eSCALE, 1);
         world.controllerManager = PX.PxCreateControllerManager(world.scene, false);
     }
 }
