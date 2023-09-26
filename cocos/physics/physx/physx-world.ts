@@ -25,13 +25,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterTriggerEventType,
-    CharacterControllerContact } from '../framework';
-import { error, RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat } from '../../core';
+    CharacterControllerContact,
+    EPhysicsDrawFlags } from '../framework';
+import { error, RecyclePool, js, IVec3Like, geometry, IQuatLike, Vec3, Quat, Color } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll,
+    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll, getColorPXColor,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
@@ -42,9 +43,14 @@ import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
 import { Node } from '../../scene-graph';
 import { PhysXCharacterController } from './character-controllers/physx-character-controller';
+import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { director } from '../../game';
 
 const CC_QUAT_0 = new Quat();
-
+const CC_V3_0 = new Vec3();
+const CC_V3_1 = new Vec3();
+const CC_V3_2 = new Vec3();
+const CC_COLOR_0 = new Color(0, 0, 0, 0);
 export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     setAllowSleep (_v: boolean): void { }
     setDefaultMaterial (_v: PhysicsMaterial): void { }
@@ -66,6 +72,11 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     private static _sweepSphereGeometry: any;
     private static _sweepCapsuleGeometry: any;
 
+    private _debugLineCount = 0;
+    private _MAX_DEBUG_LINE_COUNT = 16384;
+    private _debugDrawFlags = EPhysicsDrawFlags.NONE;
+    private _debugConstraintSize = 0.3;
+
     constructor () {
         super();
         initializeWorld(this);
@@ -86,6 +97,8 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
                 body.syncPhysicsToScene();
             }
         }
+
+        this._debugDraw();
     }
 
     private _simulate (dt: number): void {
@@ -128,6 +141,116 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
         for (let i = 0; i < this.wrappedBodies.length; i++) {
             const body = this.wrappedBodies[i];
             body.syncSceneWithCheck();
+        }
+    }
+
+    get debugDrawFlags (): EPhysicsDrawFlags {
+        return this._debugDrawFlags;
+    }
+
+    set debugDrawFlags (v: EPhysicsDrawFlags) {
+        this._debugDrawFlags = v;
+        this._setDebugDrawMode();
+    }
+
+    get debugDrawConstraintSize (): number {
+        return this._debugConstraintSize;
+    }
+
+    set debugDrawConstraintSize (v) {
+        this._debugConstraintSize = v;
+        this._setDebugDrawMode();
+    }
+
+    private _setDebugDrawMode (): void {
+        if (this._debugDrawFlags & EPhysicsDrawFlags.WIRE_FRAME) {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 1);
+        } else {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_SHAPES, 0);
+        }
+
+        const drawConstraint = Boolean(this._debugDrawFlags & EPhysicsDrawFlags.CONSTRAINT);
+        const internalConstraintSize = drawConstraint ? this._debugConstraintSize : 0;
+        this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eJOINT_LOCAL_FRAMES, internalConstraintSize);
+        this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eJOINT_LIMITS, internalConstraintSize);
+
+        if (this._debugDrawFlags & EPhysicsDrawFlags.AABB) {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_AABBS, 1);
+        } else {
+            this.scene.setVisualizationParameter(PX.PxVisualizationParameter.eCOLLISION_AABBS, 0);
+        }
+    }
+
+    private _getDebugRenderer (): GeometryRenderer|null {
+        const cameras = director.root!.mainWindow?.cameras;
+        if (!cameras) return null;
+        if (cameras.length === 0) return null;
+        if (!cameras[0]) return null;
+        cameras[0].initGeometryRenderer();
+
+        return cameras[0].geometryRenderer;
+    }
+
+    private _debugDraw (): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (!debugRenderer) return;
+
+        this._debugLineCount = 0;
+        const rbPtr = this.scene.getRenderBufferPtr();//PxRenderBuffer
+        const nbLine = PX.PxRenderBuffer_GetNbLines(rbPtr);
+        for (let i = 0; i < nbLine; i++) {
+            const linePtr = PX.PxRenderBuffer_GetLineAt(rbPtr, i) as number;//PxDebugLine
+            this._onDebugDrawLine(linePtr);
+        }
+        const nbTriangle = PX.PxRenderBuffer_GetNbTriangles(rbPtr);
+        for (let i = 0; i < nbTriangle; i++) {
+            const trianglePtr = PX.PxRenderBuffer_GetTriangleAt(rbPtr, i) as number;//PxDebugTriangle
+            this._onDebugDrawTriangle(trianglePtr);
+        }
+    }
+
+    private _onDebugDrawLine (linePtr: number): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (debugRenderer && this._debugLineCount < this._MAX_DEBUG_LINE_COUNT) {
+            this._debugLineCount++;
+            const f32RawPtr = PX.HEAPF32.subarray(linePtr / 4, linePtr / 4 + 3 * 8);
+            const u32RawPtr = PX.HEAPU32.subarray(linePtr / 4, linePtr / 4 + 3 * 8);
+            CC_V3_0.x = f32RawPtr[0];
+            CC_V3_0.y = f32RawPtr[1];
+            CC_V3_0.z = f32RawPtr[2];
+            const color0 = u32RawPtr[3] as number;
+            CC_V3_1.x = f32RawPtr[4];
+            CC_V3_1.y = f32RawPtr[5];
+            CC_V3_1.z = f32RawPtr[6];
+            getColorPXColor(CC_COLOR_0, color0);
+            debugRenderer.addLine(CC_V3_0, CC_V3_1, CC_COLOR_0);
+        }
+    }
+
+    private _onDebugDrawTriangle (trianglePtr: number): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (debugRenderer && (this._MAX_DEBUG_LINE_COUNT - this._debugLineCount) >= 3) {
+            this._debugLineCount += 3;
+            const f32RawPtr = PX.HEAPF32.subarray(trianglePtr / 4, trianglePtr / 4 + 3 * 12);
+            const u32RawPtr = PX.HEAPU32.subarray(trianglePtr / 4, trianglePtr / 4 + 3 * 12);
+            CC_V3_0.x = f32RawPtr[0];
+            CC_V3_0.y = f32RawPtr[1];
+            CC_V3_0.z = f32RawPtr[2];
+            const color0 = u32RawPtr[3] as number;
+            CC_V3_1.x = f32RawPtr[4];
+            CC_V3_1.y = f32RawPtr[5];
+            CC_V3_1.z = f32RawPtr[6];
+            // const color1 = u32RawPtr[7] as number;
+            CC_V3_2.x = f32RawPtr[8];
+            CC_V3_2.y = f32RawPtr[9];
+            CC_V3_2.z = f32RawPtr[10];
+            // const color2 = u32RawPtr[11] as number;
+            getColorPXColor(CC_COLOR_0, color0);
+            debugRenderer.addLine(CC_V3_0, CC_V3_1, CC_COLOR_0);
+            // getColorPXColor(CC_COLOR_0, color1);
+            debugRenderer.addLine(CC_V3_1, CC_V3_2, CC_COLOR_0);
+            // getColorPXColor(CC_COLOR_0, color2);
+            debugRenderer.addLine(CC_V3_2, CC_V3_0, CC_COLOR_0);
         }
     }
 

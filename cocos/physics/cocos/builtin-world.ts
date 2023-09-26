@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3, RecyclePool, error, js, IVec3Like, geometry, IQuatLike, warnID } from '../../core';
+import { Vec3, RecyclePool, error, js, IVec3Like, geometry, IQuatLike, warnID, Color } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';
@@ -30,9 +30,12 @@ import { ArrayCollisionMatrix } from '../utils/array-collision-matrix';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial } from '../framework/assets/physics-material';
 import { TriggerEventType } from '../framework/physics-interface';
-import { Collider } from '../../../exports/physics-framework';
+import { Collider, EPhysicsDrawFlags } from '../../../exports/physics-framework';
 import { BuiltinRigidBody } from './builtin-rigid-body';
 import { Node } from '../../scene-graph';
+import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { director } from '../../game';
+import { VEC3_0 } from '../utils/util';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {
@@ -41,6 +44,9 @@ const TriggerEventObject = {
     otherCollider: null as unknown as Collider,
     impl: {} as any,
 };
+
+const aabbTemp = new geometry.AABB();
+const AABB_LINE_COUNT = 12;
 
 /**
  * Built-in collision system, intended for use as a
@@ -117,9 +123,15 @@ export class BuiltInWorld implements IPhysicsWorld {
         return false;
     }
 
-    setGravity (v: IVec3Like): void { }
-    setAllowSleep (v: boolean): void { }
-    setDefaultMaterial (v: PhysicsMaterial): void { }
+    setGravity (v: IVec3Like): void {
+        //empty
+    }
+    setAllowSleep (v: boolean): void {
+        //empty
+    }
+    setDefaultMaterial (v: PhysicsMaterial): void {
+        //empty
+    }
     get impl (): BuiltInWorld { return this; }
     shapeArr: BuiltinShape[] = [];
     readonly bodies: BuiltinSharedBody[] = [];
@@ -127,6 +139,29 @@ export class BuiltInWorld implements IPhysicsWorld {
     private _shapeArrPrev: BuiltinShape[] = [];
     private _collisionMatrix: ArrayCollisionMatrix = new ArrayCollisionMatrix();
     private _collisionMatrixPrev: ArrayCollisionMatrix = new ArrayCollisionMatrix();
+
+    private _debugLineCount = 0;
+    private _MAX_DEBUG_LINE_COUNT = 16384;
+    private _debugDrawFlags = EPhysicsDrawFlags.NONE;
+    private _debugConstraintSize = 0.3;
+    private _aabbColor = new Color(0, 255, 255, 255);
+    private _wireframeColor = new Color(255, 0, 255, 255);
+
+    get debugDrawFlags (): EPhysicsDrawFlags {
+        return this._debugDrawFlags;
+    }
+
+    set debugDrawFlags (v: EPhysicsDrawFlags) {
+        this._debugDrawFlags = v;
+    }
+
+    get debugDrawConstraintSize (): number {
+        return this._debugConstraintSize;
+    }
+
+    set debugDrawConstraintSize (v) {
+        this._debugConstraintSize = v;
+    }
 
     destroy (): void {
         if (this.bodies.length) error('You should destroy all physics component first.');
@@ -153,6 +188,8 @@ export class BuiltInWorld implements IPhysicsWorld {
                 bodyA.intersects(bodyB);
             }
         }
+
+        this._debugDraw();
     }
 
     syncSceneToPhysics (): void {
@@ -297,5 +334,35 @@ export class BuiltInWorld implements IPhysicsWorld {
         this._collisionMatrixPrev.matrix = this._collisionMatrix.matrix;
         this._collisionMatrix.matrix = temp;
         this._collisionMatrix.reset();
+    }
+
+    private _getDebugRenderer (): GeometryRenderer|null {
+        const cameras = director.root!.mainWindow?.cameras;
+        if (!cameras) return null;
+        if (cameras.length === 0) return null;
+        if (!cameras[0]) return null;
+        cameras[0].initGeometryRenderer();
+
+        return cameras[0].geometryRenderer;
+    }
+
+    private _debugDraw (): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (!debugRenderer) return;
+
+        this._debugLineCount = 0;
+        if (this._debugDrawFlags & EPhysicsDrawFlags.AABB) {
+            for (let i = 0; i < this.bodies.length; i++) {
+                const body = this.bodies[i];
+                for (let j = 0; j < body.shapes.length; j++) {
+                    const shape = body.shapes[j];
+                    if (this._debugLineCount + AABB_LINE_COUNT < this._MAX_DEBUG_LINE_COUNT) {
+                        this._debugLineCount += AABB_LINE_COUNT;
+                        shape.getAABB(aabbTemp);
+                        debugRenderer.addBoundingBox(aabbTemp, this._aabbColor);
+                    }
+                }
+            }
+        }
     }
 }

@@ -464,6 +464,39 @@ export class PhysicsSystem extends System implements IWorldInitData {
 
     /**
      * @en
+     * Get or set debug draw flags. Default is EPhysicsDrawFlags.NONE.
+     * Refer to EPhysicsDrawFlags.
+     * Note: Since physics debug draw uses Geometry-Renderer to do drawing,
+     * make sure Geometry-Renderer is not cropped in Project Setting.
+     * @zh
+     * 获取或设置调试绘制标志。默认为 EPhysicsDrawFlags.NONE。
+     * 参考 EPhysicsDrawFlags。
+     * 注意：因为物理调试绘制使用几何渲染器来绘制，请确保项目设置中几何渲染器没有被裁剪掉。
+     */
+    get debugDrawFlags (): number {
+        return this.physicsWorld.debugDrawFlags;
+    }
+
+    set debugDrawFlags (v) {
+        this.physicsWorld.debugDrawFlags = v;
+    }
+
+    /**
+     * @en
+     * Get or set constraint debug draw size. Default is 0.3.
+     * @zh
+     * 获取或设置约束的调试绘制尺寸。默认为 0.3。
+     */
+    get debugDrawConstraintSize (): number {
+        return this.physicsWorld.debugDrawConstraintSize;
+    }
+
+    set debugDrawConstraintSize (v) {
+        this.physicsWorld.debugDrawConstraintSize = v;
+    }
+
+    /**
+     * @en
      * Collision detect all collider, and record all the detected results, through PhysicsSystem.Instance.RaycastResults access to the results.
      * @zh
      * 检测所有的碰撞盒，并记录所有被检测到的结果，通过 PhysicsSystem.instance.raycastResults 访问结果。
@@ -612,8 +645,8 @@ export class PhysicsSystem extends System implements IWorldInitData {
         halfExtent: IVec3Like,
         orientation: IQuatLike,
         mask = 0xffffffff,
-maxDistance = 10000000,
-queryTrigger = true,
+        maxDistance = 10000000,
+        queryTrigger = true,
     ): boolean {
         if (!this.physicsWorld) return false;
         this.sweepResultPool.reset();
@@ -651,8 +684,8 @@ queryTrigger = true,
         halfExtent: IVec3Like,
         orientation: IQuatLike,
         mask = 0xffffffff,
-maxDistance = 10000000,
-queryTrigger = true,
+        maxDistance = 10000000,
+        queryTrigger = true,
     ): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
@@ -685,8 +718,8 @@ queryTrigger = true,
         worldRay: geometry.Ray,
         radius: number,
         mask = 0xffffffff,
-maxDistance = 10000000,
-queryTrigger = true,
+        maxDistance = 10000000,
+        queryTrigger = true,
     ): boolean {
         if (!this.physicsWorld) return false;
         this.sweepResultPool.reset();
@@ -721,8 +754,8 @@ queryTrigger = true,
         worldRay: geometry.Ray,
         radius: number,
         mask = 0xffffffff,
-maxDistance = 10000000,
-queryTrigger = true,
+        maxDistance = 10000000,
+        queryTrigger = true,
     ): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
@@ -760,8 +793,8 @@ queryTrigger = true,
         height: number,
         orientation: IQuatLike,
         mask = 0xffffffff,
-maxDistance = 10000000,
-queryTrigger = true,
+        maxDistance = 10000000,
+        queryTrigger = true,
     ): boolean {
         if (!this.physicsWorld) return false;
         this.sweepResultPool.reset();
@@ -804,8 +837,8 @@ queryTrigger = true,
         height: number,
         orientation: IQuatLike,
         mask = 0xffffffff,
-maxDistance = 10000000,
-queryTrigger = true,
+        maxDistance = 10000000,
+        queryTrigger = true,
     ): boolean {
         if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;

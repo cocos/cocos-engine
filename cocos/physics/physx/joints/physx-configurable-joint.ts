@@ -359,6 +359,7 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         this._updateDriveSettings();
 
         this.updateFrames();
+        this.enableDebugVisualization(true);
     }
 
     updateFrames (): void {

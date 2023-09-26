@@ -113,6 +113,7 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         this.setMotorVelocity(this.constraint.motorVelocity);
         this.setMotorForceLimit(this.constraint.motorForceLimit);
         this.updateFrames();
+        this.enableDebugVisualization(true);
     }
 
     updateFrames (): void {

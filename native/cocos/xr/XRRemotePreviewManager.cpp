@@ -30,7 +30,7 @@
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "math/Quaternion.h"
-#include "platform/java/modules/XRInterface.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #if CC_USE_XR
     #include "Xr.h"
