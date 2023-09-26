@@ -82,12 +82,14 @@ export class AndroidPackTool extends NativePackTool {
     async openWithIde() {
         let projPath = ps.join(this.params.buildDir, 'proj');
         let batchFile = "./studio"
+        let batchDir = this.params.nativeIdeDir;
         if (process.platform === 'win32') {
             batchFile = "studio.bat"
+            projPath = projPath.replace(/\\/g, '/');
+            batchDir = this.params.nativeIdeDir.replace(/\\/g, '/');
         }
-        projPath = projPath.replace(/\\/g, '/');
-        const batchDir = this.params.nativeIdeDir.replace(/\\/g, '/');
-        await cchelper.runCmd(batchFile, [projPath], false, batchDir);
+        
+        cchelper.runCmd(batchFile, [projPath], false, batchDir);
         return true;
     }
 

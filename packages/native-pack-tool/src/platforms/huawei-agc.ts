@@ -4,7 +4,7 @@ import * as ps from 'path';
 import { AndroidPackTool } from "./android";
 
 export class HuaweiAGCPackTool extends AndroidPackTool {
-    
+
     // 模板复用 android 平台的
     private readonly _platform: string = 'android';
 
