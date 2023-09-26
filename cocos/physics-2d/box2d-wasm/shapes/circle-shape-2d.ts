@@ -51,8 +51,7 @@ export class B2CircleShape extends B2Shape2D implements ICircleShape {
 
         const shape = new B2.CircleShape();
         shape.m_radius = comp.radius / PHYSICS_2D_PTM_RATIO * scaleX;
-        shape.m_p.x = offsetX;
-        shape.m_p.y = offsetY;
+        shape.m_p = { x: offsetX, y: offsetY };
 
         return [shape as unknown as B2.CircleShape];
     }
