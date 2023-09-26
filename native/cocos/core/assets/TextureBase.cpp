@@ -31,6 +31,7 @@
 #include "renderer/pipeline/Define.h"
 
 #include "base/std/hash/hash.h"
+#include "2d/renderer/Batcher2d.h"
 
 namespace cc {
 

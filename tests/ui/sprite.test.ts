@@ -2,13 +2,17 @@ import { Canvas, SpriteFrame, UITransform } from "../../cocos/2d";
 import { Sprite, UIOpacity } from "../../cocos/2d/components";
 import { Texture2D } from "../../cocos/asset/assets";
 import { Node } from "../../cocos/scene-graph/node";
-import { Camera, Scene, Size, Vec3, director, game } from "../../exports/base";
+import { Camera, Director, Scene, Size, Vec3, director, game } from "../../exports/base";
 import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
+import { uiSystem } from "../../cocos/2d/framework/ui-system";
 
 test('sprite.updateWorldMatrix', () => {
 
     // @ts-expect-error
-    director.root!._batcher = new Batcher2D(director.root!);
+    uiSystem._batcher = new Batcher2D(director.root!);
+    director.on(Director.EVENT_UPDATE_UI, uiSystem.tick, uiSystem);
+    director.on(Director.EVENT_AFTER_DRAW, uiSystem.afterDraw, uiSystem);
+    director.on(Director.EVENT_BEFORE_COMMIT, uiSystem.render, uiSystem);
 
     const scene = new Scene('test');
     director.runSceneImmediate(scene);
