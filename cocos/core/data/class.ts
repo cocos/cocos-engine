@@ -26,8 +26,7 @@
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { errorID, warnID, error } from '@base/debug';
-import * as js from '../utils/js';
-import { getSuper } from '../utils/js';
+import { js } from '@base/utils';
 import { BitMask } from '../value-types';
 import { Enum } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
@@ -37,6 +36,8 @@ import * as RF from './utils/requiring-frame';
 
 import { PropertyStash, PropertyStashInternalFlag } from './class-stash';
 import { setPropertyEnumTypeOnAttrs } from './utils/attribute-internal';
+
+const { getSuper } = js;
 
 const DELIMETER = attributeUtils.DELIMETER;
 const CCCLASS_TAG = '__ctors__'; // Still use this historical name to avoid unsynchronized version issue

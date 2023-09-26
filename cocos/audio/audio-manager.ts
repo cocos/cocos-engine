@@ -24,7 +24,7 @@
 
 import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { error } from '@base/debug';
-import { js } from '../core';
+import { js } from '@base/utils';
 
 type ManagedAudio = AudioPlayer | OneShotAudio;
 interface AudioInfo<T> {

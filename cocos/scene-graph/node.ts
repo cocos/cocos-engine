@@ -26,9 +26,10 @@ import { ccclass, editable, serializable, type, visible } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { errorID, warnID, error, log, getError } from '@base/debug';
+import { js } from '@base/utils';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { CCObject, js } from '../core';
+import { CCObject } from '../core';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
 import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
@@ -1563,7 +1564,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Position in local coordinate system
      * @zh 本地坐标系下的坐标
      */
-    // @constget
     public get position (): Readonly<Vec3> {
         return this._lpos;
     }
@@ -1576,7 +1576,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Position in world coordinate system
      * @zh 世界坐标系下的坐标
      */
-    // @constget
     public get worldPosition (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._pos;
@@ -1590,7 +1589,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Rotation in local coordinate system, represented by a quaternion
      * @zh 本地坐标系下的旋转，用四元数表示
      */
-    // @constget
     public get rotation (): Readonly<Quat> {
         return this._lrot;
     }
@@ -1640,7 +1638,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Rotation in world coordinate system, represented by a quaternion
      * @zh 世界坐标系下的旋转，用四元数表示
      */
-    // @constget
     public get worldRotation (): Readonly<Quat> {
         this.updateWorldTransform();
         return this._rot;
@@ -1654,7 +1651,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Scale in local coordinate system
      * @zh 本地坐标系下的缩放
      */
-    // @constget
     public get scale (): Readonly<Vec3> {
         return this._lscale;
     }
@@ -1667,7 +1663,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en Scale in world coordinate system
      * @zh 世界坐标系下的缩放
      */
-    // @constget
     public get worldScale (): Readonly<Vec3> {
         this.updateWorldTransform();
         return this._scale;
@@ -1694,7 +1689,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @en World transformation matrix
      * @zh 世界坐标系变换矩阵
      */
-    // @constget
     public get worldMatrix (): Readonly<Mat4> {
         this.updateWorldTransform();
         return this._mat;

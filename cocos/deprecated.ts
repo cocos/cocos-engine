@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { replaceProperty } from './core';
+import { replaceProperty } from '@base/utils';
 import { Root } from './root';
 
 // Root

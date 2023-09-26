@@ -23,8 +23,8 @@
 */
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
 import { Asset } from '../assets';
-import { js } from '../../core';
 import Cache from './cache';
 import { decodeUuid, normalize } from './helper';
 

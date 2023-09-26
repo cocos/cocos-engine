@@ -23,7 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { replaceProperty, removeProperty } from '../core';
+import { replaceProperty, removeProperty } from '@base/utils';
 import { RenderScene } from './core/render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Pass } from './core/pass';

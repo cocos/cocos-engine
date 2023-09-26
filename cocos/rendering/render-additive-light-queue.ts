@@ -23,10 +23,11 @@
 */
 
 import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { BatchingSchemes, Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Vec3, nextPow2, Mat4, Color, Pool, geometry } from '../core';
+import { Vec3, nextPow2, Mat4, Color, geometry } from '../core';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, CommandBuffer, deviceManager } from '../gfx';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
@@ -52,7 +53,7 @@ interface IAdditiveLightPass {
     lights: Light[];
 }
 
-const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
+const _lightPassPool = new memop.Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
 const _v3 = new Vec3();
 const _vec4Array = new Float32Array(4);

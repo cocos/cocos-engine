@@ -23,7 +23,7 @@
 */
 
 import { warn } from '@base/debug';
-import { replaceProperty } from '../utils/x-deprecated';
+import { replaceProperty } from '@base/utils';
 
 import intersect from './intersect';
 import { Line } from './line';

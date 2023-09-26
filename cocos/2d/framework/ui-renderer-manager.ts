@@ -24,7 +24,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { assert } from '@base/debug';
-import { js } from '../../core';
+import { js } from '@base/utils';
 import { UIMeshRenderer } from '../components';
 import { UIRenderer } from './ui-renderer';
 

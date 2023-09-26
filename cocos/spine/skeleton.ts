@@ -25,10 +25,11 @@ import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
 import { error, logID, warn } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { js, memop } from '@base/utils';
 import { Material, Texture2D } from '../asset/assets';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
-import { CCObject, Color, RecyclePool, js } from '../core';
+import { CCObject, Color } from '../core';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
@@ -41,8 +42,7 @@ import { AttachUtil } from './attach-util';
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import SkeletonCache from './skeleton-cache';
-import { AnimationCache, AnimationFrame } from './skeleton-cache';
+import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
 
@@ -239,7 +239,7 @@ export class Skeleton extends UIRenderer {
     // Animation name
     protected _animationName = '';
     protected _skinName = '';
-    protected _drawList = new RecyclePool<SkeletonDrawData>((): SkeletonDrawData => ({
+    protected _drawList = new memop.RecyclePool<SkeletonDrawData>((): SkeletonDrawData => ({
         material: null,
         texture: null,
         indexOffset: 0,
@@ -318,7 +318,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @engineInternal
      */
-    get drawList (): RecyclePool<SkeletonDrawData> { return this._drawList; }
+    get drawList (): memop.RecyclePool<SkeletonDrawData> { return this._drawList; }
 
     /**
      * @en

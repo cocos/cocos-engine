@@ -292,7 +292,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.normal_color')
-    // @constget
     get normalColor (): Readonly<Color> {
         return this._normalColor;
     }
@@ -315,7 +314,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.pressed_color')
-    // @constget
     get pressedColor (): Readonly<Color> {
         return this._pressedColor;
     }
@@ -337,7 +335,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.hover_color')
-    // @constget
     get hoverColor (): Readonly<Color> {
         return this._hoverColor;
     }
@@ -358,7 +355,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.disabled_color')
-    // @constget
     get disabledColor (): Readonly<Color> {
         return this._disabledColor;
     }

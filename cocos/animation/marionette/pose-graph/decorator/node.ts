@@ -1,5 +1,5 @@
 import { error } from '@base/debug';
-import { js } from '../../../../core';
+import { js } from '@base/utils';
 import { PoseGraphNode } from '../foundation/pose-graph-node';
 
 import { PoseGraphCreateNodeFactory, PoseGraphNodeEditorMetadata, PoseGraphNodeAppearanceOptions, getOrCreateNodeEditorMetadata } from '../foundation/authoring/node-authoring';

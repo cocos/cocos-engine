@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { js } from '../../core';
+import { js } from '@base/utils';
 import { cclegacy } from '@base/global';
 import './simple-texture';
 import { EDITOR, TEST } from 'internal:constants';

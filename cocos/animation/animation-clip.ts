@@ -27,9 +27,10 @@ import { DEBUG } from 'internal:constants';
 import { errorID, warnID } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
 import { Asset } from '../asset/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
-import { js, geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, RealCurve } from '../core';
+import { geometry, approx, clamp, Mat4, Quat, Vec3, murmurhash2_32_gc, binarySearchEpsilon, RealCurve } from '../core';
 import { SkelAnimDataHub } from '../3d/skeletal-animation/skeletal-animation-data-hub';
 import { WrapMode as AnimationWrapMode, WrapMode } from './types';
 import { Node } from '../scene-graph/node';
@@ -47,8 +48,9 @@ import type { AnimationMask } from './marionette/animation-mask';
 import { getGlobalAnimationManager } from './global-animation-manager';
 import { EmbeddedPlayableState, EmbeddedPlayer } from './embedded-player/embedded-player';
 import { AuxiliaryCurveEntry } from './auxiliary-curve-entry';
-import { removeIf } from '../core/utils/array';
 import { invokeComponentMethodsEngagedInAnimationEvent } from './event/event-emitter';
+
+const { removeIf } = js.array;
 
 export declare namespace AnimationClip {
     export interface IEvent {

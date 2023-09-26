@@ -26,8 +26,8 @@ import { EDITOR, DEV, SUPPORT_JIT, DEBUG } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { assert, errorID, getError, log } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
+import { js } from '@base/utils';
 import { CCObject, isValid } from '../core/data/object';
-import { array, Pool } from '../core/utils/js';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { NodeEventType } from './node-event';
@@ -62,7 +62,7 @@ class UnsortedInvoker extends LifeCycleInvoker {
 const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();')
     : createInvokeImpl(
         (c: Component): void => { c.internalPreload?.(); },
-        (iterator: array.MutableForwardIterator<Component>): void => {
+        (iterator: js.array.MutableForwardIterator<Component>): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].internalPreload?.();
@@ -75,7 +75,7 @@ const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=
             c.internalOnLoad?.();
             c._objFlags |= IsOnLoadCalled;
         },
-        (iterator: array.MutableForwardIterator<Component>): void => {
+        (iterator: js.array.MutableForwardIterator<Component>): void => {
             const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 const comp: Component = array[iterator.i];
@@ -92,7 +92,7 @@ interface ActivateTask {
     onEnable: OneOffInvoker;
 }
 
-const activateTasksPool = new Pool<ActivateTask>(MAX_POOL_SIZE);
+const activateTasksPool = new js.Pool<ActivateTask>(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask (): ActivateTask {
     const task = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
@@ -120,7 +120,7 @@ function _componentCorrupted (node: Node, comp: Component, index: number): void 
     if (comp) {
         node._removeComponent(comp);
     } else {
-        array.removeAt(node.getWritableComponents(), index);
+        js.array.removeAt(node.getWritableComponents(), index);
     }
 }
 

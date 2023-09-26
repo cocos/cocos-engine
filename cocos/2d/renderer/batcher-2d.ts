@@ -26,11 +26,12 @@ import { DEBUG, JSB } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { assert } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
+import { memop } from '@base/utils';
 import { Camera, Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets/material';
 import { UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
-import { CachedArray, Pool, Mat4, approx, EPSILON } from '../../core';
+import { Mat4, approx, EPSILON } from '../../core';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
@@ -66,7 +67,7 @@ export class Batcher2D implements IBatcher {
     }
     private static instance: Batcher2D | null = null;
 
-    get batches (): CachedArray<DrawBatch2D> {
+    get batches (): memop.CachedArray<DrawBatch2D> {
         return this._batches;
     }
 
@@ -75,6 +76,7 @@ export class Batcher2D implements IBatcher {
 
     private _drawBatchPool: Pool<DrawBatch2D>;
     private _batches: CachedArray<DrawBatch2D>;
+
     private _indexStart = 0;
 
     private _emptyMaterial = new Material();
@@ -112,8 +114,8 @@ export class Batcher2D implements IBatcher {
 
     constructor (private _root: Root) {
         this.device = _root.device;
-        this._batches = new CachedArray(64);
-        this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
+        this._batches = new memop.CachedArray(64);
+        this._drawBatchPool = new memop.Pool(() => new DrawBatch2D(), 128, (obj) => obj.destroy(this));
     }
 
     public initialize (): boolean {
@@ -926,10 +928,10 @@ class DescriptorSetCache {
     private _descriptorSetCache = new Map<number, DescriptorSet>();
     private _dsCacheHashByTexture = new Map<number, number>();
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
-    private _localCachePool: Pool<LocalDescriptorSet>;
+    private _localCachePool: memop.Pool<LocalDescriptorSet>;
 
     constructor () {
-        this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());
+        this._localCachePool = new memop.Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());
     }
 
     public getDescriptorSet (batch: DrawBatch2D): DescriptorSet {

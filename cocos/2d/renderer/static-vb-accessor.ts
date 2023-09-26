@@ -25,18 +25,19 @@
 import { JSB } from 'internal:constants';
 import { assertID, errorID } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
+import { memop } from '@base/utils';
 import { Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { Pool, macro } from '../../core';
 import { uiSystem } from '../framework/ui-system';
+import { macro } from '../../core';
 
 interface IFreeEntry {
     offset: number;
     length: number;
 }
 
-const _entryPool = new Pool<IFreeEntry>(() => ({
+const _entryPool = new memop.Pool<IFreeEntry>(() => ({
     offset: 0,
     length: 0,
 }), 32);

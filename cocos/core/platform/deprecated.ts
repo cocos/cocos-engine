@@ -23,7 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { markAsWarning, removeProperty, replaceProperty } from '../utils';
+import { markAsWarning, removeProperty, replaceProperty } from '@base/utils';
 import { sys } from './sys';
 import { screen } from './screen';
 
