@@ -67,6 +67,19 @@ export class Batcher2D implements IBatcher {
     }
     private static instance: Batcher2D | null = null;
 
+    public static getFirstRenderCamera (node: Node): Camera | null {
+        if (node.scene && node.scene.renderScene) {
+            const cameras = node.scene.renderScene.cameras;
+            for (let i = 0; i < cameras.length; i++) {
+                const camera = cameras[i];
+                if (camera.visibility & node.layer) {
+                    return camera;
+                }
+            }
+        }
+        return null;
+    }
+
     get batches (): memop.CachedArray<DrawBatch2D> {
         return this._batches;
     }
@@ -74,8 +87,8 @@ export class Batcher2D implements IBatcher {
     public device: Device;
     private _screens: Node[] = [];
 
-    private _drawBatchPool: Pool<DrawBatch2D>;
-    private _batches: CachedArray<DrawBatch2D>;
+    private _drawBatchPool: memop.Pool<DrawBatch2D>;
+    private _batches: memop.CachedArray<DrawBatch2D>;
 
     private _indexStart = 0;
 
@@ -181,19 +194,6 @@ export class Batcher2D implements IBatcher {
 
     public sortScreens (): void {
         this._screens.sort(this._screenSort);
-    }
-
-    public getFirstRenderCamera (node: Node): Camera | null {
-        if (node.scene && node.scene.renderScene) {
-            const cameras = node.scene.renderScene.cameras;
-            for (let i = 0; i < cameras.length; i++) {
-                const camera = cameras[i];
-                if (camera.visibility & node.layer) {
-                    return camera;
-                }
-            }
-        }
-        return null;
     }
 
     public update (): void {
@@ -482,7 +482,7 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(comp.stencilStage);
         }
 
-        const stamp = cclegacy.director.getTotalFrames();
+        const stamp = cclegacy.director.getTotalFrames() as number;
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);
@@ -800,7 +800,7 @@ export class Batcher2D implements IBatcher {
         }
 
         const model = this._maskClearModel!;
-        const stamp = cclegacy.director.getTotalFrames();
+        const stamp = cclegacy.director.getTotalFrames() as number;
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);

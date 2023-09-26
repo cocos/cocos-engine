@@ -58,7 +58,7 @@ static Batcher2d *getInstance();
     void reset();
     void destroy();
 
-    scene::Camera* getFirstRenderCamera(const Node* node);
+    static scene::Camera* getFirstRenderCamera(const Node* node);
 
     void addScreen (Node* node);
     void removeScreen (Node* node);

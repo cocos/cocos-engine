@@ -43,7 +43,7 @@ import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo, RenderDrawInfoType } from '../2d/renderer/render-draw-info';
 import { Texture2D } from '../asset/assets';
 import { Camera } from '../render-scene/scene';
-import { uiSystem } from '../2d/framework/ui-system';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -416,7 +416,7 @@ export class TiledLayer extends UIRenderer {
     }
 
     protected _reinstallCamera (): Camera | null {
-        const camera = uiSystem.batcher2D.getFirstRenderCamera(this.node);
+        const camera = Batcher2D.getFirstRenderCamera(this.node);
         const cameraNode = camera?.node;
         if (this._cameraNode !== cameraNode) {
             this._uninstallCamera();

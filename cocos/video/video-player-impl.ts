@@ -29,7 +29,7 @@ import { VideoPlayer } from './video-player';
 import { EventType } from './video-player-enums';
 import { Node } from '../scene-graph';
 import type { Camera } from '../render-scene/scene';
-import { uiSystem } from '../2d/framework/ui-system';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 
 export abstract class VideoPlayerImpl {
     protected _componentEventList: Map<string, () => void> = new Map();
@@ -127,7 +127,7 @@ export abstract class VideoPlayerImpl {
     public get state (): EventType { return this._state; }
     public get isPlaying (): boolean { return this._playing; }
     get UICamera (): Camera | null {
-        return uiSystem.batcher2D.getFirstRenderCamera(this._node!);
+        return Batcher2D.getFirstRenderCamera(this._node!);
     }
 
     // video player event

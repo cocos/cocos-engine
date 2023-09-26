@@ -39,7 +39,7 @@ import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
-import { uiSystem } from '../../2d/framework/ui-system';
+import { Batcher2D } from '../../2d/renderer/batcher-2d';
 
 const ccdocument = ccwindow.document;
 
@@ -287,7 +287,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        const camera = uiSystem.batcher2D.getFirstRenderCamera(node);
+        const camera = Batcher2D.getFirstRenderCamera(node);
         if (!camera) return;
 
         camera.node.getWorldRT(_matrix_temp);

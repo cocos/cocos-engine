@@ -565,7 +565,7 @@ scene::Camera* Batcher2d::getFirstRenderCamera(const Node* node) {
         if (node->getScene()!= nullptr && node->getScene()->getRenderScene()!= nullptr) {
         const auto cameras = node->getScene()->getRenderScene()->getCameras();
         for (size_t i = 0; i < cameras.size(); i++) {
-                        const auto camera = cameras[i];
+            const auto camera = cameras[i];
             if (camera->getVisibility() & node->getLayer()) {
                 return  camera;
             }

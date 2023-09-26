@@ -28,8 +28,7 @@ import { Device, Attribute } from '../../gfx';
 import { Camera } from '../../render-scene/scene/camera';
 import { Model } from '../../render-scene/scene/model';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { UIRenderer, RenderRoot2D } from '../framework';
-import { StaticVBAccessor } from './static-vb-accessor';
+import { UIRenderer } from '../framework';
 import { DrawBatch2D } from './draw-batch';
 import { BaseRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
@@ -37,7 +36,7 @@ import { Material } from '../../asset/assets';
 import { Node } from '../../scene-graph';
 
 export interface IBatcher {
-    readonly batches: CachedArray<DrawBatch2D>;
+    readonly batches: memop.CachedArray<DrawBatch2D>;
     // registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) : MeshBuffer;
     // unRegisterCustomBuffer (buffer: MeshBuffer);
 
@@ -47,7 +46,6 @@ export interface IBatcher {
     destroy();
 
     addScreen (node: Node);
-    getFirstRenderCamera (node: Node): Camera | null;
     removeScreen (node: Node);
 
     sortScreens ();
