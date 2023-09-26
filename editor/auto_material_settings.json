@@ -10,7 +10,7 @@
         },
         "pbrMap": {
             "matchString": "orms",
-            "defineName": "USE_NORMAL_MAP"
+            "defineName": "USE_PBR_MAP"
         },
         "occlusionMap": {
             "matchString": "occlusion",
@@ -48,13 +48,13 @@
     },
     "effectMap": {
         "default": "c8f66d17-351a-48da-a12c-0212d28575c4",
-        "sheenColorMap": "b25c7601-1d07-4a56-86c5-62e83ea7c61e",
+        "sheenDataMap": "b25c7601-1d07-4a56-86c5-62e83ea7c61e",
         "coatDataMap": "304a12db-3955-46e4-b712-e5e26f45258b",
         "sssMap": "4a31bd46-8da1-4d9a-add5-9ac43967159e"
     },
     "effectPriority": [
         "coatDataMap",
-        "sheenColorMap",
+        "sheenDataMap",
         "sssMap",
         "default"
     ]
