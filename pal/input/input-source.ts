@@ -83,7 +83,7 @@ export class InputSourceAxis3D extends InputSource<Vec3> {
  * @en The class for input source of Quaternion, which is used to control the input signal of a mono input source
  * @zh 四元数的 InputSource 类，该类用于控制单一输入源的输入信号
  */
- export class InputSourceQuat extends InputSource<Quat> {
+export class InputSourceQuat extends InputSource<Quat> {
     /**
      * @en Get the signal value of the input source, which returns a Quat object.
      * @zh 获取输入源的信号值，该方法返回一个 Quat 对象
@@ -288,12 +288,12 @@ export class InputSourceStick extends CompositeInputSourceAxis2D {
  * @en The class for input source of orientation, whose input signal value a Quat object
  * @zh 方向输入源类, 输入信号源的取值是一个 Quat 对象
  */
- export class InputSourceOrientation extends InputSourceQuat {
+export class InputSourceOrientation extends InputSourceQuat {
     /**
      * @en Get the signal value of the input source, which returns a Quat object.
      * @zh 获取输入源的信号值，该方法返回一个 Quat 对象
      */
-     getValue (): Quat {
+    getValue (): Quat {
         return super.getValue();
     }
 }
@@ -302,12 +302,26 @@ export class InputSourceStick extends CompositeInputSourceAxis2D {
  * @en The class for input source of position, whose input signal value a Vec3 object
  * @zh 坐标输入源类, 输入信号源的取值是一个 Vec3 对象
  */
- export class InputSourcePosition extends InputSourceAxis3D {
+export class InputSourcePosition extends InputSourceAxis3D {
     /**
      * @en Get the signal value of the input source, which returns a Vec3 object.
      * @zh 获取输入源的信号值，该方法返回一个 Vec3 对象
      */
-     getValue (): Vec3 {
+    getValue (): Vec3 {
+        return super.getValue();
+    }
+}
+
+/**
+ * @en The class for input source of mono button touch, whose input signal value is ranged from 0 or 1
+ * @zh 单一按键触摸输入源类, 输入信号源的取值范围是 0 或 1
+ */
+export class InputSourceTouch extends InputSourceAxis1D {
+    /**
+     * @en Get the signal value of the input source, ranged from 0 or 1
+     * @zh 获取输入源的信号值，取值范围从 0 或 1
+     */
+    getValue (): number {
         return super.getValue();
     }
 }

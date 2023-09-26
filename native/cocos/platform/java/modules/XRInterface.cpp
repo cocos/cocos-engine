@@ -87,6 +87,17 @@ const static ccstd::unordered_map<xr::XRGrab::Type, StickAxisCode> GRAB_TYPE_TO_
     {xr::XRGrab::Type::GRIP_RIGHT, StickAxisCode::RIGHT_GRIP},
 };
 
+const static ccstd::unordered_map<xr::XRTouch::Type, StickTouchCode> TOUCH_TYPE_TO_AXIS_CODE = {
+    {xr::XRTouch::Type::TOUCH_A, StickTouchCode::A},
+    {xr::XRTouch::Type::TOUCH_B, StickTouchCode::B},
+    {xr::XRTouch::Type::TOUCH_X, StickTouchCode::X},
+    {xr::XRTouch::Type::TOUCH_Y, StickTouchCode::Y},
+    {xr::XRTouch::Type::TOUCH_TRIGGER_LEFT, StickTouchCode::LEFT_TRIGGER},
+    {xr::XRTouch::Type::TOUCH_TRIGGER_RIGHT, StickTouchCode::RIGHT_TRIGGER},
+    {xr::XRTouch::Type::TOUCH_THUMBSTICK_LEFT, StickTouchCode::LEFT_THUMBSTICK},
+    {xr::XRTouch::Type::TOUCH_THUMBSTICK_RIGHT, StickTouchCode::RIGHT_THUMBSTICK},
+};
+
 void XRInterface::dispatchGamepadEventInternal(const xr::XRControllerEvent &xrControllerEvent) {
     if (xrControllerEvent.xrControllerInfos.empty()) {
         return;
@@ -102,48 +113,50 @@ void XRInterface::dispatchGamepadEventInternal(const xr::XRControllerEvent &xrCo
         switch (xrControllerEvent.xrControllerInfos.at(i)->getXREventType()) {
             case xr::XREventType::CLICK: {
                 auto *xrClick = static_cast<xr::XRClick *>(xrControllerEvent.xrControllerInfos.at(i).get());
-                StickKeyCode stickKeyCode = CLICK_TYPE_TO_KEY_CODE.at(xrClick->type);
+                if(CLICK_TYPE_TO_KEY_CODE.count(xrClick->type) > 0) {
+                    StickKeyCode stickKeyCode = CLICK_TYPE_TO_KEY_CODE.at(xrClick->type);
 
-                switch (xrClick->type) {
-                    case xr::XRClick::Type::MENU:
-                    case xr::XRClick::Type::TRIGGER_LEFT:
-                    case xr::XRClick::Type::SHOULDER_LEFT:
-                    case xr::XRClick::Type::THUMBSTICK_LEFT:
-                    case xr::XRClick::Type::X:
-                    case xr::XRClick::Type::Y:
-                    case xr::XRClick::Type::TRIGGER_RIGHT:
-                    case xr::XRClick::Type::SHOULDER_RIGHT:
-                    case xr::XRClick::Type::THUMBSTICK_RIGHT:
-                    case xr::XRClick::Type::A:
-                    case xr::XRClick::Type::B:
-                    case xr::XRClick::Type::START: {
-                        controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(stickKeyCode, xrClick->isPress));
-                        break;
-                    }
-                    case xr::XRClick::Type::HOME: {
-                        CC_LOG_INFO("[XRInterface] dispatchGamepadEventInternal exit when home click in rokid.");
+                    switch (xrClick->type) {
+                        case xr::XRClick::Type::MENU:
+                        case xr::XRClick::Type::TRIGGER_LEFT:
+                        case xr::XRClick::Type::SHOULDER_LEFT:
+                        case xr::XRClick::Type::THUMBSTICK_LEFT:
+                        case xr::XRClick::Type::X:
+                        case xr::XRClick::Type::Y:
+                        case xr::XRClick::Type::TRIGGER_RIGHT:
+                        case xr::XRClick::Type::SHOULDER_RIGHT:
+                        case xr::XRClick::Type::THUMBSTICK_RIGHT:
+                        case xr::XRClick::Type::A:
+                        case xr::XRClick::Type::B:
+                        case xr::XRClick::Type::START: {
+                            controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(stickKeyCode, xrClick->isPress));
+                            break;
+                        }
+                        case xr::XRClick::Type::HOME: {
+                            CC_LOG_INFO("[XRInterface] dispatchGamepadEventInternal exit when home click in rokid.");
 #if CC_USE_XR
-                        xr::XrEntry::getInstance()->destroyXrInstance();
-                        xr::XrEntry::destroyInstance();
-                        _isXrEntryInstanceValid = false;
+                            xr::XrEntry::getInstance()->destroyXrInstance();
+                            xr::XrEntry::destroyInstance();
+                            _isXrEntryInstanceValid = false;
 #endif
-                        CC_CURRENT_APPLICATION_SAFE()->close();
-                        break;
+                            CC_CURRENT_APPLICATION_SAFE()->close();
+                            break;
+                        }
+                        case xr::XRClick::Type::DPAD_UP:
+                            controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::Y, xrClick->isPress ? 1.F : 0.F));
+                            break;
+                        case xr::XRClick::Type::DPAD_DOWN:
+                            controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::Y, xrClick->isPress ? -1.F : 0.F));
+                            break;
+                        case xr::XRClick::Type::DPAD_LEFT:
+                            controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::X, xrClick->isPress ? -1.F : 0.F));
+                            break;
+                        case xr::XRClick::Type::DPAD_RIGHT:
+                            controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::X, xrClick->isPress ? 1.F : 0.F));
+                            break;
+                        default:
+                            break;
                     }
-                    case xr::XRClick::Type::DPAD_UP:
-                        controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::Y, xrClick->isPress ? 1.F : 0.F));
-                        break;
-                    case xr::XRClick::Type::DPAD_DOWN:
-                        controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::Y, xrClick->isPress ? -1.F : 0.F));
-                        break;
-                    case xr::XRClick::Type::DPAD_LEFT:
-                        controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::X, xrClick->isPress ? -1.F : 0.F));
-                        break;
-                    case xr::XRClick::Type::DPAD_RIGHT:
-                        controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(StickAxisCode::X, xrClick->isPress ? 1.F : 0.F));
-                        break;
-                    default:
-                        break;
                 }
             } break;
             case xr::XREventType::STICK: {
@@ -163,15 +176,17 @@ void XRInterface::dispatchGamepadEventInternal(const xr::XRControllerEvent &xrCo
             } break;
             case xr::XREventType::GRAB: {
                 auto *xrGrab = static_cast<xr::XRGrab *>(xrControllerEvent.xrControllerInfos.at(i).get());
-                StickAxisCode stickAxisCode = GRAB_TYPE_TO_AXIS_CODE.at(xrGrab->type);
-                switch (xrGrab->type) {
-                    case xr::XRGrab::Type::TRIGGER_LEFT:
-                    case xr::XRGrab::Type::TRIGGER_RIGHT: {
-                        controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(stickAxisCode, xrGrab->value));
-                        break;
+                if(GRAB_TYPE_TO_AXIS_CODE.count(xrGrab->type) > 0) {
+                    StickAxisCode stickAxisCode = GRAB_TYPE_TO_AXIS_CODE.at(xrGrab->type);
+                    switch (xrGrab->type) {
+                        case xr::XRGrab::Type::TRIGGER_LEFT:
+                        case xr::XRGrab::Type::TRIGGER_RIGHT: {
+                            controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(stickAxisCode, xrGrab->value));
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    default:
-                        break;
                 }
             } break;
             default:
@@ -219,41 +234,43 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
         switch (xrControllerEvent.xrControllerInfos.at(i)->getXREventType()) {
             case xr::XREventType::CLICK: {
                 auto *xrClick = static_cast<xr::XRClick *>(xrControllerEvent.xrControllerInfos.at(i).get());
-                StickKeyCode stickKeyCode = CLICK_TYPE_TO_KEY_CODE.at(xrClick->type);
-                switch (xrClick->type) {
-                    case xr::XRClick::Type::MENU: {
+                if(CLICK_TYPE_TO_KEY_CODE.count(xrClick->type) > 0) {
+                    StickKeyCode stickKeyCode = CLICK_TYPE_TO_KEY_CODE.at(xrClick->type);
+                    switch (xrClick->type) {
+                        case xr::XRClick::Type::MENU: {
 #if !XR_OEM_SEED
-                        controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(StickKeyCode::MENU, xrClick->isPress));
+                            controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(StickKeyCode::MENU, xrClick->isPress));
 #else
-                        CC_LOG_INFO("[XRInterface] exit when menu click in seed.");
+                            CC_LOG_INFO("[XRInterface] exit when menu click in seed.");
                         CC_CURRENT_APPLICATION_SAFE()->close();
 #endif
-                        break;
-                    }
-                    case xr::XRClick::Type::TRIGGER_LEFT:
-                    case xr::XRClick::Type::THUMBSTICK_LEFT:
-                    case xr::XRClick::Type::X:
-                    case xr::XRClick::Type::Y:
-                    case xr::XRClick::Type::TRIGGER_RIGHT:
-                    case xr::XRClick::Type::THUMBSTICK_RIGHT:
-                    case xr::XRClick::Type::A:
-                    case xr::XRClick::Type::B:
-                    case xr::XRClick::Type::START: {
-                        controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(stickKeyCode, xrClick->isPress));
-                        break;
-                    }
-                    case xr::XRClick::Type::HOME: {
-                        CC_LOG_INFO("[XRInterface] dispatchHandleEventInternal exit when home click in rokid.");
+                            break;
+                        }
+                        case xr::XRClick::Type::TRIGGER_LEFT:
+                        case xr::XRClick::Type::THUMBSTICK_LEFT:
+                        case xr::XRClick::Type::X:
+                        case xr::XRClick::Type::Y:
+                        case xr::XRClick::Type::TRIGGER_RIGHT:
+                        case xr::XRClick::Type::THUMBSTICK_RIGHT:
+                        case xr::XRClick::Type::A:
+                        case xr::XRClick::Type::B:
+                        case xr::XRClick::Type::START: {
+                            controllerInfo->buttonInfos.emplace_back(ControllerInfo::ButtonInfo(stickKeyCode, xrClick->isPress));
+                            break;
+                        }
+                        case xr::XRClick::Type::HOME: {
+                            CC_LOG_INFO("[XRInterface] dispatchHandleEventInternal exit when home click in rokid.");
 #if CC_USE_XR
-                        xr::XrEntry::getInstance()->destroyXrInstance();
-                        xr::XrEntry::destroyInstance();
-                        _isXrEntryInstanceValid = false;
+                            xr::XrEntry::getInstance()->destroyXrInstance();
+                            xr::XrEntry::destroyInstance();
+                            _isXrEntryInstanceValid = false;
 #endif
-                        CC_CURRENT_APPLICATION_SAFE()->close();
-                        break;
+                            CC_CURRENT_APPLICATION_SAFE()->close();
+                            break;
+                        }
+                        default:
+                            break;
                     }
-                    default:
-                        break;
                 }
             } break;
             case xr::XREventType::STICK: {
@@ -273,19 +290,19 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
             } break;
             case xr::XREventType::GRAB: {
                 auto *xrGrab = static_cast<xr::XRGrab *>(xrControllerEvent.xrControllerInfos.at(i).get());
-                StickAxisCode stickAxisCode = GRAB_TYPE_TO_AXIS_CODE.at(xrGrab->type);
-                switch (xrGrab->type) {
-                    case xr::XRGrab::Type::TRIGGER_LEFT:
-                    case xr::XRGrab::Type::TRIGGER_RIGHT:
-                    case xr::XRGrab::Type::GRIP_LEFT:
-                    case xr::XRGrab::Type::GRIP_RIGHT: {
-                        controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(stickAxisCode, xrGrab->value));
-                        break;
-                    }
-                    default:
-                        break;
+                if(GRAB_TYPE_TO_AXIS_CODE.count(xrGrab->type) > 0) {
+                    StickAxisCode stickAxisCode = GRAB_TYPE_TO_AXIS_CODE.at(xrGrab->type);
+                    controllerInfo->axisInfos.emplace_back(ControllerInfo::AxisInfo(stickAxisCode, xrGrab->value));
                 }
             } break;
+            case xr::XREventType::TOUCH: {
+                auto *xrTouch = static_cast<xr::XRTouch *>(xrControllerEvent.xrControllerInfos.at(i).get());
+                if(TOUCH_TYPE_TO_AXIS_CODE.count(xrTouch->type) > 0) {
+                    StickTouchCode stickTouchCode = TOUCH_TYPE_TO_AXIS_CODE.at(xrTouch->type);
+                    controllerInfo->touchInfos.emplace_back(ControllerInfo::TouchInfo(stickTouchCode, xrTouch->value));
+                }
+                break;
+            }
             case xr::XREventType::POSE: {
                 auto *xrPose = static_cast<xr::XRPose *>(xrControllerEvent.xrControllerInfos.at(i).get());
                 switch (xrPose->type) {
@@ -325,7 +342,7 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
         EventDispatcher::doDispatchJsEvent("onHandlePoseInput", args);
     }
 
-    if (!controllerInfo->buttonInfos.empty() || !controllerInfo->axisInfos.empty()) {
+    if (!controllerInfo->buttonInfos.empty() || !controllerInfo->axisInfos.empty() || !controllerInfo->touchInfos.empty()) {
         controllerInfo->napdId = 0; // xr only one handle connection
         _controllerEvent.controllerInfos.emplace_back(controllerInfo);
         _controllerEvent.type = ControllerEvent::Type::HANDLE;
@@ -340,6 +357,12 @@ void XRInterface::dispatchHandleEventInternal(const xr::XRControllerEvent &xrCon
             if (!controllerInfo->axisInfos.empty()) {
                 for (const auto &axisInfo : controllerInfo->axisInfos) {
                     _xrRemotePreviewManager->sendControllerKeyInfo(axisInfo);
+                }
+            }
+
+            if (!controllerInfo->touchInfos.empty()) {
+                for (const auto &touchInfo : controllerInfo->touchInfos) {
+                    _xrRemotePreviewManager->sendControllerKeyInfo(touchInfo);
                 }
             }
         }
