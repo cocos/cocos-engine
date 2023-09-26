@@ -4,7 +4,6 @@ import * as physics2d from "../../exports/physics-2d-framework";
 import { Node, Scene } from "../../cocos/scene-graph";
 
 import waitForBox2dWasmInstantiation from "../../exports/wait-for-box2d-instantiation";
-waitForBox2dWasmInstantiation();
 import "../../exports/physics-2d-box2d-wasm";
 import "../../exports/physics-2d-box2d";
 import "../../exports/physics-2d-builtin";
@@ -16,6 +15,10 @@ import EventTest from "./events";
 
 game.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
 physics2d.PhysicsSystem2D.constructAndRegister();
+
+beforeAll(async () => {
+    await waitForBox2dWasmInstantiation();
+});
 
 test(`physics2d test | utils`, done => {
     Utils();

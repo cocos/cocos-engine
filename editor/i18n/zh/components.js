@@ -42,5 +42,7 @@ module.exports = {
             applyCameraSizeLessThanMinimum: '当前屏占比小于目前层级能使用的最小值，无法设置，设置为目前层级能使用的最小值。请更新更低 LOD 层级的屏幕尺寸之后再次尝试。',
             applyCameraSizeGreaterThanMaximum: '当前屏占比大于目前层级能使用的最大值，无法设置，设置为目前层级能使用的最大值。请更新更高 LOD 层级的屏幕尺寸之后再次尝试。',
         },
+
+        blockInputEventsTip: '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。',
     },
 };

@@ -22,4 +22,5 @@ module.exports = {
     'cc.Widget': join(__dirname, './components/widget.js'),
     'cc.Class': join(__dirname, './components/class.js'),
     'cc.LODGroup': join(__dirname, './components/lod-group/index.js'),
+    'cc.BlockInputEvents': join(__dirname, './components/block-input-events.js'),
 };
