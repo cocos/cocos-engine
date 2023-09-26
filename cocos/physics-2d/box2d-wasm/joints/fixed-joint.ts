@@ -30,10 +30,14 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 
 export class B2FixedJoint extends B2Joint implements IFixedJoint {
     setFrequency (v: number): void {
-        (this._b2joint as B2.WeldJoint).SetFrequency(v);
+        if (this._b2joint) {
+            (this._b2joint as B2.WeldJoint).SetFrequency(v);
+        }
     }
     setDampingRatio (v: number): void {
-        (this._b2joint as B2.WeldJoint).SetDampingRatio(v);
+        if (this._b2joint) {
+            (this._b2joint as B2.WeldJoint).SetDampingRatio(v);
+        }
     }
 
     _createJointDef (): any {
