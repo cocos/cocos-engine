@@ -31,10 +31,10 @@ import { toRadian } from '../../../core';
 
 export class B2WheelJoint extends B2Joint implements IWheelJoint {
     setFrequency (v: number): void {
-        (this._b2joint as B2.WheelJoint).SetSpringFrequencyHz(v);
+        (this._b2joint as B2.WheelJoint as any).SetSpringFrequencyHz(v);
     }
     setDampingRatio (v: number): void {
-        (this._b2joint as B2.WheelJoint).SetSpringDampingRatio(v);
+        (this._b2joint as B2.WheelJoint as any).SetSpringDampingRatio(v);
     }
 
     // motor
