@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-
 import type { Component } from './component';
 
 /**
@@ -34,7 +33,7 @@ import type { Component } from './component';
  * @zh 使用 try catch 机制调用 `functionName` 的新函数.
  */
 export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => void {
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
     return Function(
         'target',
         `${'try {\n'

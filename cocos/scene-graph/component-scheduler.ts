@@ -237,7 +237,9 @@ export function createInvokeImplJit (code: string, useDt?, ensureFlag?): (iterat
                 + 'var c=a[it.i];'}${
         code
     }}`;
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
     const fastPath = useDt ? Function('it', 'dt', body) : Function('it', body);
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
     const singleInvoke = Function('c', 'dt', code);
     return createInvokeImpl(singleInvoke, fastPath, ensureFlag);
 }
@@ -361,7 +363,7 @@ export class ComponentScheduler {
      */
     public lateUpdateInvoker!: ReusableInvoker;
     // components deferred to schedule
-    private _deferredComps: any[] = [];
+    private _deferredComps: Component[] = [];
     private _updating!: boolean;
 
     constructor () {
