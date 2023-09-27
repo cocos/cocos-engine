@@ -800,6 +800,13 @@ export class Game extends EventTarget {
                 }
                 cclegacy.rendering.init(deviceManager.gfxDevice, data);
             })
+            .then((): Promise<any[]> => {
+                const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
+                if (scriptPackages) {
+                    return Promise.all(scriptPackages.map((pack): Promise<any> => import(pack)));
+                }
+                return Promise.resolve([]);
+            })
             .then((): Promise<void> => {
                 if (DEBUG) {
                     console.time('Init SubSystem');
@@ -837,13 +844,6 @@ export class Game extends EventTarget {
                     });
                 }
                 return promise;
-            })
-            .then((): Promise<any[]> => {
-                const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
-                if (scriptPackages) {
-                    return Promise.all(scriptPackages.map((pack): Promise<any> => import(pack)));
-                }
-                return Promise.resolve([]);
             })
             .then((): Promise<any[]> => this._loadProjectBundles())
             .then((): Promise<void> => this._loadCCEScripts())
