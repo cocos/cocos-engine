@@ -480,12 +480,14 @@ void GLES3CommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
     _curCmdPackage->cmds.push(GLESCmdType::QUERY);
 }
 
-void GLES3CommandBuffer::resetQueryPool(QueryPool *queryPool) {
+void GLES3CommandBuffer::resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) {
     auto *gles3QueryPool = static_cast<GLES3QueryPool *>(queryPool);
     GLES3CmdQuery *cmd = _cmdAllocator->queryCmdPool.alloc();
     cmd->queryPool = gles3QueryPool;
     cmd->type = GLES3QueryType::RESET;
     cmd->id = 0;
+    cmd->first = first;
+    cmd->count = count;
 
     _curCmdPackage->queryCmds.push(cmd);
     _curCmdPackage->cmds.push(GLESCmdType::QUERY);

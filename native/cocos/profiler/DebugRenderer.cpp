@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -26,12 +26,14 @@
 #include <algorithm>
 #include "Profiler.h"
 #include "application/ApplicationManager.h"
-#include "base/Log.h"
 #include "base/UTF8.h"
 #include "base/memory/Memory.h"
+#include "base/std/hash/hash.h"
+#include "core/MaterialInstance.h"
 #include "core/assets/BitmapFont.h"
 #include "core/assets/FreeTypeFont.h"
 #include "math/Vec2.h"
+#include "scene/Pass.h"
 #include "platform/interfaces/modules/Device.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -44,7 +46,6 @@
 #include "renderer/pipeline/RenderPipeline.h"
 
 namespace cc {
-
 constexpr uint32_t DEBUG_FONT_SIZE = 10U;
 constexpr uint32_t DEBUG_MAX_CHARACTERS = 10000U;
 constexpr uint32_t DEBUG_VERTICES_PER_CHAR = 6U;
@@ -86,15 +87,16 @@ struct DebugVertex {
     gfx::Color color;
 };
 
+struct DebugBatchUBOData {
+    Vec4 surfaceTransform;
+    Vec4 screenSize;
+};
+
 struct DebugBatch {
-    DebugBatch(gfx::Device *device, bool bd, bool it, gfx::Texture *tex)
-    : bold(bd), italic(it), texture(tex) {
-        gfx::DescriptorSetLayoutInfo info;
-        info.bindings.push_back({0, gfx::DescriptorType::SAMPLER_TEXTURE, 1, gfx::ShaderStageFlagBit::FRAGMENT});
+    DebugBatch(gfx::Device *device, bool bd, bool it, gfx::Texture *tex, MaterialInstance *mi)
+    : bold(bd), italic(it), texture(tex), materialInstance(mi) {
 
-        descriptorSetLayout = device->createDescriptorSetLayout(info);
-        descriptorSet = device->createDescriptorSet({descriptorSetLayout});
-
+        auto &passes = (*mi->getPasses());
         auto *sampler = device->getSampler({
             gfx::Filter::LINEAR,
             gfx::Filter::LINEAR,
@@ -103,16 +105,14 @@ struct DebugBatch {
             gfx::Address::CLAMP,
             gfx::Address::CLAMP,
         });
-
-        descriptorSet->bindSampler(0, sampler);
-        descriptorSet->bindTexture(0, texture);
-        descriptorSet->update();
+        pass = passes[0];
+        pass->tryCompile();
+        pass->bindTexture(0, tex, 0);
+        pass->bindSampler(0, sampler, 0);
+        pass->update();
     }
 
-    ~DebugBatch() {
-        CC_SAFE_DESTROY_AND_DELETE(descriptorSet);
-        CC_SAFE_DESTROY_AND_DELETE(descriptorSetLayout);
-    }
+    ~DebugBatch() = default;
 
     inline bool match(bool b, bool i, gfx::Texture *tex) const {
         return bold == b && italic == i && texture == tex;
@@ -121,23 +121,23 @@ struct DebugBatch {
     std::vector<DebugVertex> vertices;
     bool bold{false};
     bool italic{false};
-    gfx::Texture *texture{nullptr};
-    gfx::DescriptorSet *descriptorSet{nullptr};
-    gfx::DescriptorSetLayout *descriptorSetLayout{nullptr};
+    IntrusivePtr<gfx::Texture> texture;
+    IntrusivePtr<MaterialInstance> materialInstance;
+    scene::Pass *pass = nullptr;
 };
 
 class DebugVertexBuffer {
 public:
     inline void init(gfx::Device *device, uint32_t maxVertices, const gfx::AttributeList &attributes) {
         _maxVertices = maxVertices;
-        _buffer = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+        _vertexBuffer = device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
                                         gfx::MemoryUsageBit::DEVICE,
                                         static_cast<uint32_t>(_maxVertices * sizeof(DebugVertex)),
                                         static_cast<uint32_t>(sizeof(DebugVertex))});
 
         gfx::InputAssemblerInfo info;
         info.attributes = attributes;
-        info.vertexBuffers.push_back(_buffer);
+        info.vertexBuffers.push_back(_vertexBuffer);
         _inputAssembler = device->createInputAssembler(info);
         CC_PROFILE_MEMORY_INC(DebugVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(DebugVertex)));
     }
@@ -154,7 +154,7 @@ public:
 
         const auto count = std::min(static_cast<uint32_t>(vertices.size()), _maxVertices);
         const auto size = static_cast<uint32_t>(count * sizeof(DebugVertex));
-        _buffer->update(&vertices[0], size);
+        _vertexBuffer->update(vertices.data(), size);
     }
 
     inline void destroy() {
@@ -162,19 +162,21 @@ public:
             CC_SAFE_DELETE(batch);
         }
 
-        CC_SAFE_DESTROY_AND_DELETE(_buffer);
-        CC_SAFE_DESTROY_AND_DELETE(_inputAssembler);
+        _vertexBuffer = nullptr;
+        _inputAssembler = nullptr;
         CC_PROFILE_MEMORY_DEC(DebugVertexBuffer, static_cast<uint32_t>(_maxVertices * sizeof(DebugVertex)));
     }
 
-    DebugBatch &getOrCreateBatch(gfx::Device *device, bool bold, bool italic, gfx::Texture *texture) {
+    DebugBatch &getOrCreateBatch(gfx::Device *device, bool bold, bool italic, gfx::Texture *texture, Material *material) {
         for (auto *batch : _batches) {
             if (batch->match(bold, italic, texture)) {
                 return *batch;
             }
         }
 
-        auto *batch = ccnew DebugBatch(device, bold, italic, texture);
+        IMaterialInstanceInfo miInfo = {material};
+
+        auto *batch = ccnew DebugBatch(device, bold, italic, texture, ccnew MaterialInstance(miInfo));
         _batches.push_back(batch);
 
         return *batch;
@@ -194,64 +196,111 @@ public:
 private:
     uint32_t _maxVertices{0U};
     std::vector<DebugBatch *> _batches;
-    gfx::Buffer *_buffer{nullptr};
-    gfx::InputAssembler *_inputAssembler{nullptr};
-
-    friend class DebugRenderer;
+    IntrusivePtr<gfx::Buffer> _vertexBuffer;
+    IntrusivePtr<gfx::InputAssembler> _inputAssembler;
+    friend class TextRenderer;
 };
 
 DebugRendererInfo::DebugRendererInfo()
 : fontSize(DEBUG_FONT_SIZE), maxCharacters(DEBUG_MAX_CHARACTERS) {
 }
 
-DebugRenderer *DebugRenderer::instance = nullptr;
-DebugRenderer *DebugRenderer::getInstance() {
-    return instance;
+namespace {
+void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color) {
+    DebugVertex const quad[4] = {
+        {Vec2(rect.x, rect.y), Vec2(uv.x, uv.y), color},
+        {Vec2(rect.x + rect.z, rect.y), Vec2(uv.x + uv.z, uv.y), color},
+        {Vec2(rect.x, rect.y + rect.w), Vec2(uv.x, uv.y + uv.w), color},
+        {Vec2(rect.x + rect.z, rect.y + rect.w), Vec2(uv.x + uv.z, uv.y + uv.w), color}};
+
+    // first triangle
+    batch.vertices.emplace_back(quad[0]);
+    batch.vertices.emplace_back(quad[1]);
+    batch.vertices.emplace_back(quad[2]);
+
+    // second triangle
+    batch.vertices.emplace_back(quad[1]);
+    batch.vertices.emplace_back(quad[3]);
+    batch.vertices.emplace_back(quad[2]);
 }
 
-DebugRenderer::DebugRenderer() {
-    DebugRenderer::instance = this;
+const gfx::AttributeList ATTRIBUTES = {
+    {"a_position", gfx::Format::RG32F},
+    {"a_texCoord", gfx::Format::RG32F},
+    {"a_color", gfx::Format::RGBA32F}
+};
+
+} // namespace
+
+TextRenderer::~TextRenderer() {
+    CC_SAFE_DESTROY_AND_DELETE(_buffer);
+
+    for (auto &iter : _fonts) {
+        CC_SAFE_DELETE(iter.font);
+    }
 }
 
-DebugRenderer::~DebugRenderer() {
-    DebugRenderer::instance = nullptr;
-}
-
-void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info) {
+void TextRenderer::initialize(gfx::Device *device, const DebugRendererInfo &info, uint32_t fontSize, const std::string &effect) {
     _device = device;
-
-    static const gfx::AttributeList ATTRIBUTES = {
-        {"a_position", gfx::Format::RG32F},
-        {"a_texCoord", gfx::Format::RG32F},
-        {"a_color", gfx::Format::RGBA32F}};
 
     _buffer = ccnew DebugVertexBuffer();
     _buffer->init(_device, info.maxCharacters * DEBUG_VERTICES_PER_CHAR, ATTRIBUTES);
 
-    const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
-    const auto width = window->getViewSize().width * Device::getDevicePixelRatio();
-    auto fontSize = static_cast<uint32_t>(width / 800.0F * info.fontSize);
-    fontSize = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
+    _ubo = device->createBuffer(gfx::BufferInfo {
+        gfx::BufferUsageBit::UNIFORM,
+        gfx::MemoryUsageBit::DEVICE | gfx::MemoryUsageBit::HOST,
+        sizeof(DebugBatchUBOData),
+        sizeof(DebugBatchUBOData),
+        gfx::BufferFlagBit::ENABLE_STAGING_WRITE
+    });
 
+    IMaterialInfo matInfo = {};
+    matInfo.effectName = effect;
+    _material = ccnew Material();
+    _material->setUuid("default-debug-renderer-material");
+    _material->initialize(matInfo);
+    auto &passes = *_material->getPasses();
+    for (auto &pass : passes) {
+        pass->tryCompile();
+    }
+
+    gfx::DescriptorSetLayoutInfo passLayout = {};
+    passLayout.bindings.emplace_back(gfx::DescriptorSetLayoutBinding{0, gfx::DescriptorType::UNIFORM_BUFFER, 1, gfx::ShaderStageFlagBit::VERTEX});
+    _passLayout = _device->createDescriptorSetLayout(passLayout);
+
+    gfx::PipelineLayoutInfo pLayoutInfo = {};
+    pLayoutInfo.setLayouts.emplace_back(_passLayout);
+    pLayoutInfo.setLayouts.emplace_back(passes[0]->getPipelineLayout()->getSetLayouts()[1]);
+    _pipelineLayout = _device->createPipelineLayout(pLayoutInfo);
+
+    gfx::DescriptorSetInfo setInfo = {};
+    setInfo.layout = _passLayout;
+    _passSet = _device->createDescriptorSet(setInfo);
+    _passSet->bindBuffer(0, _ubo);
+    _passSet->update();
+
+    CC_ASSERT(!passes.empty());
     for (auto i = 0U; i < _fonts.size(); i++) {
         _fonts[i].font = ccnew FreeTypeFont(getFontPath(i));
         _fonts[i].face = _fonts[i].font->createFace(FontFaceInfo(fontSize));
-        _fonts[i].invTextureSize = {1.0F / _fonts[i].face->getTextureWidth(), 1.0F / _fonts[i].face->getTextureHeight()};
+        _fonts[i].invTextureSize = {1.0F / static_cast<float>(_fonts[i].face->getTextureWidth()),
+                                    1.0F / static_cast<float>(_fonts[i].face->getTextureHeight())};
     }
 }
 
-void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData) {
-    CC_PROFILE(DebugRendererRender);
+void TextRenderer::render(gfx::RenderPass *renderPass, uint32_t subPassId, gfx::CommandBuffer *cmdBuff) {
     if (!_buffer || _buffer->empty()) {
         return;
     }
 
-    const auto &pass = sceneData->getDebugRendererPass();
-    const auto &shader = sceneData->getDebugRendererShader();
+    preparePso(_buffer->_inputAssembler, renderPass, subPassId, (*_material->getPasses())[0]);
+    if (!_pso) {
+        return;
+    }
 
-    auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, _buffer->_inputAssembler, renderPass);
-    cmdBuff->bindPipelineState(pso);
+    cmdBuff->bindPipelineState(_pso);
     cmdBuff->bindInputAssembler(_buffer->_inputAssembler);
+    cmdBuff->bindDescriptorSet(0, _passSet);
 
     uint32_t offset = 0U;
     for (auto *batch : _buffer->_batches) {
@@ -264,7 +313,7 @@ void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
         drawInfo.firstVertex = offset;
         drawInfo.vertexCount = count;
 
-        cmdBuff->bindDescriptorSet(pipeline::materialSet, batch->descriptorSet);
+        cmdBuff->bindDescriptorSet(1, batch->pass->getDescriptorSet());
         cmdBuff->draw(drawInfo);
 
         offset += count;
@@ -274,26 +323,71 @@ void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdB
     _buffer->reset();
 }
 
-void DebugRenderer::destroy() {
-    CC_SAFE_DESTROY_AND_DELETE(_buffer);
+void TextRenderer::updateTextData() {
+    _buffer->update();
+}
 
-    for (auto &iter : _fonts) {
-        CC_SAFE_DELETE(iter.font);
+void TextRenderer::updateWindowSize(uint32_t width, uint32_t height, uint32_t screenTransform, float flip) {
+    if (_windowWidth == width && _windowHeight == height) {
+        return;
+    }
+
+    DebugBatchUBOData data = {};
+    data.screenSize.x = static_cast<float>(width);
+    data.screenSize.y = static_cast<float>(height);
+    data.screenSize.z = 1.0F / static_cast<float>(width);
+    data.screenSize.w = 1.0F / static_cast<float>(height);
+
+    data.surfaceTransform.x = static_cast<float>(screenTransform);
+    data.surfaceTransform.y = flip;
+    _ubo->update(&data, sizeof(DebugBatchUBOData));
+
+    _windowWidth = width;
+    _windowHeight = height;
+}
+
+uint32_t TextRenderer::getLineHeight(bool bold, bool italic) const {
+    uint32_t const index = getFontIndex(bold, italic);
+    const auto &fontInfo = _fonts[index];
+
+    if (fontInfo.face) {
+        return fontInfo.face->getLineHeight();
+    }
+
+    return 0U;
+}
+
+void TextRenderer::preparePso(gfx::InputAssembler *ia, gfx::RenderPass *renderPass, uint32_t subPassId, scene::Pass *pass) {
+    auto *shader = pass->getShaderVariant();
+    const auto passHash = pass->getHash();
+    const auto renderPassHash = renderPass->getHash();
+    const auto iaHash = ia->getAttributesHash();
+    const auto shaderID = shader->getTypedID();
+
+    auto hash = passHash;
+    ccstd::hash_combine(hash, renderPassHash);
+    ccstd::hash_combine(hash, iaHash);
+    ccstd::hash_combine(hash, shaderID);
+    ccstd::hash_combine(hash, subPassId);
+
+    if (hash != _psoHash) {
+        _pso = gfx::Device::getInstance()->createPipelineState({shader,
+                                                                _pipelineLayout,
+                                                                renderPass,
+                                                                ia->getAttributes(),
+                                                                *(pass->getRasterizerState()),
+                                                                *(pass->getDepthStencilState()),
+                                                                *(pass->getBlendState()),
+                                                                pass->getPrimitive(),
+                                                                pass->getDynamicStates(),
+                                                                gfx::PipelineBindPoint::GRAPHICS,
+                                                                subPassId});
+        _psoHash = hash;
     }
 }
 
-void DebugRenderer::update() {
-    if (_buffer) {
-        _buffer->update();
-    }
-}
-
-void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos) {
-    addText(text, screenPos, DebugTextInfo());
-}
-
-void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info) {
-    uint32_t index = getFontIndex(info.bold, info.italic);
+void TextRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info) {
+    uint32_t const index = getFontIndex(info.bold, info.italic);
     auto &fontInfo = _fonts[index];
     auto *face = fontInfo.face;
 
@@ -302,7 +396,7 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
     }
 
     std::u32string unicodeText;
-    bool success = StringUtils::UTF8ToUTF32(text, unicodeText);
+    bool const success = StringUtils::UTF8ToUTF32(text, unicodeText);
     if (!success) {
         return;
     }
@@ -310,10 +404,10 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
     auto offsetX = screenPos.x;
     auto offsetY = screenPos.y;
     const auto scale = info.scale;
-    const auto lineHeight = face->getLineHeight() * scale;
+    const auto lineHeight = static_cast<float>(face->getLineHeight()) * scale;
     const auto &invTextureSize = fontInfo.invTextureSize;
 
-    for (char32_t code : unicodeText) {
+    for (char32_t const code : unicodeText) {
         if (code == '\r') {
             continue;
         }
@@ -330,13 +424,13 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
         }
 
         if (glyph->width > 0U && glyph->height > 0U) {
-            auto &batch = _buffer->getOrCreateBatch(_device, info.bold, info.italic, face->getTexture(glyph->page));
+            auto &batch = _buffer->getOrCreateBatch(_device, info.bold, info.italic, face->getTexture(glyph->page), _material);
 
-            Vec4 rect{offsetX + static_cast<float>(glyph->bearingX) * scale,
+            Vec4 const rect{offsetX + static_cast<float>(glyph->bearingX) * scale,
                       offsetY - static_cast<float>(glyph->bearingY) * scale,
                       static_cast<float>(glyph->width) * scale,
                       static_cast<float>(glyph->height) * scale};
-            Vec4 uv{static_cast<float>(glyph->x) * invTextureSize.x,
+            Vec4 const uv{static_cast<float>(glyph->x) * invTextureSize.x,
                     static_cast<float>(glyph->y) * invTextureSize.y,
                     static_cast<float>(glyph->width) * invTextureSize.x,
                     static_cast<float>(glyph->height) * invTextureSize.y};
@@ -344,7 +438,7 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
             if (info.shadow) {
                 for (auto x = 1U; x <= info.shadowThickness; x++) {
                     for (auto y = 1U; y <= info.shadowThickness; y++) {
-                        Vec4 shadowRect(rect.x + x, rect.y + y, rect.z, rect.w);
+                        Vec4 const shadowRect(rect.x + static_cast<float>(x), rect.y + static_cast<float>(y), rect.z, rect.w);
                         addQuad(batch, shadowRect, uv, info.shadowColor);
                     }
                 }
@@ -353,7 +447,7 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
             addQuad(batch, rect, uv, info.color);
         }
 
-        offsetX += glyph->advance * scale;
+        offsetX += static_cast<float>(glyph->advance) * scale;
 
 #ifdef USE_KERNING
         if (i < unicodeText.size() - 1) {
@@ -363,33 +457,61 @@ void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, co
     }
 }
 
-uint32_t DebugRenderer::getLineHeight(bool bold, bool italic) {
-    uint32_t index = getFontIndex(bold, italic);
-    auto &fontInfo = _fonts[index];
-
-    if (fontInfo.face) {
-        return fontInfo.face->getLineHeight();
-    }
-
-    return 0U;
+DebugRenderer *DebugRenderer::instance = nullptr;
+DebugRenderer *DebugRenderer::getInstance() {
+    return instance;
 }
 
-void DebugRenderer::addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color) {
-    DebugVertex quad[4] = {
-        {Vec2(rect.x, rect.y), Vec2(uv.x, uv.y), color},
-        {Vec2(rect.x + rect.z, rect.y), Vec2(uv.x + uv.z, uv.y), color},
-        {Vec2(rect.x, rect.y + rect.w), Vec2(uv.x, uv.y + uv.w), color},
-        {Vec2(rect.x + rect.z, rect.y + rect.w), Vec2(uv.x + uv.z, uv.y + uv.w), color}};
+DebugRenderer::DebugRenderer() {
+    DebugRenderer::instance = this;
+}
 
-    // first triangle
-    batch.vertices.emplace_back(quad[0]);
-    batch.vertices.emplace_back(quad[1]);
-    batch.vertices.emplace_back(quad[2]);
+DebugRenderer::~DebugRenderer() {
+    DebugRenderer::instance = nullptr;
+}
 
-    // second triangle
-    batch.vertices.emplace_back(quad[1]);
-    batch.vertices.emplace_back(quad[3]);
-    batch.vertices.emplace_back(quad[2]);
+void DebugRenderer::activate(gfx::Device *device, const DebugRendererInfo &info) {
+    const auto *window = CC_GET_MAIN_SYSTEM_WINDOW();
+    const auto &ext = window->getViewSize();
+    const auto width = ext.width * Device::getDevicePixelRatio();
+    const auto height = ext.height * Device::getDevicePixelRatio();
+    auto fontSize = static_cast<uint32_t>(width / 800.0F * static_cast<float>(info.fontSize));
+    fontSize = fontSize < 10U ? 10U : (fontSize > 20U ? 20U : fontSize);
+
+    _textRenderer = std::make_unique<TextRenderer>();
+    _textRenderer->initialize(device, info, fontSize, "internal/builtin-debug-renderer");
+    _textRenderer->updateWindowSize(static_cast<uint32_t>(width), static_cast<uint32_t>(height), 0, device->getCombineSignY());
+}
+
+void DebugRenderer::render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff) {
+    CC_PROFILE(DebugRendererRender);
+    if (_textRenderer) {
+        _textRenderer->render(renderPass, 0, cmdBuff);
+    }
+}
+
+void DebugRenderer::destroy() {
+    _textRenderer = nullptr;
+}
+
+void DebugRenderer::update() {
+    if (_textRenderer) {
+        _textRenderer->updateTextData();
+    }
+}
+
+void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos) {
+    addText(text, screenPos, DebugTextInfo());
+}
+
+void DebugRenderer::addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info) {
+    if (_textRenderer) {
+        _textRenderer->addText(text, screenPos, info);
+    }
+}
+
+uint32_t DebugRenderer::getLineHeight(bool bold, bool italic) {
+    return _textRenderer ? _textRenderer->getLineHeight(bold, italic) : 0U;
 }
 
 } // namespace cc

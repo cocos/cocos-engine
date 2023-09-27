@@ -209,6 +209,17 @@ PersistentRenderPassAndFramebuffer& fetchOrCreateFramebuffer(
     return iter->second;
 }
 
+std::string getPassName(const RenderGraph& g, RenderGraph::vertex_descriptor v) noexcept {
+    std::stringstream ss;
+    const auto &name = get(RenderGraph::NameTag{}, g, v);
+    if (name.empty()) {
+        ss << "GraphPass_" << v;
+        return ss.str();
+    }
+
+    return name.c_str();
+}
+
 struct RenderGraphFilter {
     bool operator()(RenderGraph::vertex_descriptor u) const {
         return validPasses->operator[](u);
@@ -787,6 +798,8 @@ void submitProfilerCommands(
     cmdBuff->bindDescriptorSet(static_cast<uint32_t>(pipeline::SetIndex::LOCAL), submodel->getDescriptorSet());
     cmdBuff->bindInputAssembler(ia);
     cmdBuff->draw(ia);
+
+    ctx.context.pipelineProfiler.render(ctx.currentPass, ctx.subpassIndex, ctx.cmdBuff);
 }
 
 const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&
@@ -1127,6 +1140,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 #if CC_DEBUG
         ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
 #endif
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
+
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
             const auto& passes = ctx.ppl->custom.renderPasses;
@@ -1167,6 +1182,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 #if CC_DEBUG
         ctx.cmdBuff->insertMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
 #endif
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
 
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
@@ -1188,6 +1204,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         // noop
     }
     void begin(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
+#if CC_DEBUG
+        ctx.cmdBuff->insertMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
+#endif
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
+
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
             const auto& subpasses = ctx.ppl->custom.computeSubpasses;
@@ -1206,6 +1227,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 #if CC_DEBUG
         ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), COMPUTE_COLOR));
 #endif
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
 
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
@@ -1358,6 +1380,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 #if CC_DEBUG
         ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RENDER_QUEUE_COLOR));
 #endif
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
 
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
@@ -1474,7 +1497,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 return;
             }
         }
-
         if (pass.showStatistics) {
             submitProfilerCommands(ctx, vertID, pass);
         }
@@ -1482,6 +1504,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.currentPass = nullptr;
         ctx.currentPassLayoutID = LayoutGraphData::null_vertex();
 
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
 #if CC_DEBUG
         ctx.cmdBuff->endMarker();
 #endif
@@ -1501,6 +1524,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         std::ignore = vertID;
         ctx.subpassIndex = 0;
         // noop
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
     }
     void end(const ComputeSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1516,6 +1540,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         std::ignore = subpass;
         std::ignore = vertID;
         // noop
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
     }
     void end(const ComputePass& pass, RenderGraph::vertex_descriptor vertID) const {
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1527,6 +1552,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 return;
             }
         }
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
 #if CC_DEBUG
         ctx.cmdBuff->endMarker();
 #endif
@@ -1554,6 +1580,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 return;
             }
         }
+        ctx.context.pipelineProfiler.writeGpuTimeStamp(ctx.cmdBuff, vertID);
 #if CC_DEBUG
         ctx.cmdBuff->endMarker();
 #endif
@@ -1887,6 +1914,26 @@ struct CommandSubmitter {
     gfx::CommandBuffer* primaryCommandBuffer = nullptr;
 };
 
+struct PipelineStatisticsRecorder {
+    PipelineStatisticsRecorder(NativePipeline& pipeline, const std::vector<gfx::CommandBuffer*>& cmdBuffers, uint32_t passCount)
+    : context(pipeline.nativeContext) {
+        CC_EXPECTS(cmdBuffers.size() == 1);
+        primaryCommandBuffer = cmdBuffers.at(0);
+        context.pipelineProfiler.resolveData(pipeline);
+        context.pipelineProfiler.beginFrame(passCount, primaryCommandBuffer);
+    }
+
+    ~PipelineStatisticsRecorder() {
+        context.pipelineProfiler.endFrame(primaryCommandBuffer);
+    }
+
+    PipelineStatisticsRecorder(const PipelineStatisticsRecorder &) = delete;
+    PipelineStatisticsRecorder &operator=(const PipelineStatisticsRecorder &) = delete;
+
+    NativeRenderContext& context;
+    gfx::CommandBuffer* primaryCommandBuffer = nullptr;
+};
+
 void extendResourceLifetime(const NativeRenderQueue& queue, ResourceGroup& group) {
     // keep instanceBuffers
     for (const auto& batch : queue.opaqueInstancingQueue.sortedBatches) {
@@ -2004,6 +2051,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             fg(graphView, boost::keep_all{}, RenderGraphFilter{&validPasses});
 
         CommandSubmitter submit(ppl.device, ppl.getCommandBuffers());
+        PipelineStatisticsRecorder pipelineStatisticsRecorder(ppl, ppl.getCommandBuffers(), num_vertices(rg));
 
         // upload buffers
         {

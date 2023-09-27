@@ -83,7 +83,7 @@ public:
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint32_t count);
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
-    void resetQueryPool(QueryPool *queryPool) override;
+    void resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) override;
     void completeQueryPool(QueryPool *queryPool) override;
     inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
     inline CCMTLGPUCommandBufferObject *gpuCommandBufferObj() const { return _gpuCommandBufferObj; }

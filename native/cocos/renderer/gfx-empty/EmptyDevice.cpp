@@ -62,7 +62,7 @@ bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
     queueInfo.type = QueueType::GRAPHICS;
     _queue = createQueue(queueInfo);
 
-    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS, true};
+    QueryPoolInfo queryPoolInfo{QueryType::OCCLUSION, DEFAULT_MAX_QUERY_OBJECTS};
     _queryPool = createQueryPool(queryPoolInfo);
 
     CommandBufferInfo cmdBuffInfo;

@@ -442,10 +442,6 @@ void Pass::resetTextures() {
 }
 
 bool Pass::tryCompile() {
-    if (_root->getPipeline() == nullptr) {
-        return false;
-    }
-
     syncBatchingScheme();
     auto *programLib = render::getProgramLibrary();
     if (programLib) {
@@ -456,7 +452,7 @@ bool Pass::tryCompile() {
         }
         _shader = shaderProxy->getShader();
         _pipelineLayout = programLib->getPipelineLayout(_device, _phaseID, _programName);
-    } else {
+    } else if (_root->getPipeline() != nullptr) {
         auto *shader = ProgramLib::getInstance()->getGFXShader(_device, _programName, _defines, _root->getPipeline());
         if (!shader) {
             CC_LOG_WARNING("create shader %s failed", _programName.c_str());
@@ -464,6 +460,8 @@ bool Pass::tryCompile() {
         }
         _shader = shader;
         _pipelineLayout = ProgramLib::getInstance()->getTemplateInfo(_programName)->pipelineLayout;
+    } else {
+        return false;
     }
 
     _hash = Pass::getPassHash(this);

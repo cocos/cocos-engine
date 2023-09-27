@@ -73,7 +73,7 @@ public:
     void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const * /*buffers*/, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const * /*textures*/, uint32_t textureBarrierCount) override;
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
-    void resetQueryPool(QueryPool *queryPool) override;
+    void resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) override;
 
 protected:
     friend class GLES3Queue;

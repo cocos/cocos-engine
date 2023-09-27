@@ -1472,6 +1472,10 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/details/SerializationUtils.h
                  cocos/renderer/pipeline/custom/details/Set.h
                  cocos/renderer/pipeline/custom/details/Utility.h
+                 cocos/renderer/pipeline/profile/GPUTimeQuery.cpp
+                 cocos/renderer/pipeline/profile/GPUTimeQuery.h
+                 cocos/renderer/pipeline/profile/PipelineProfiler.cpp
+                 cocos/renderer/pipeline/profile/PipelineProfiler.h
 )
 
 if (USE_GEOMETRY_RENDERER)

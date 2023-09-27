@@ -315,7 +315,7 @@ struct CCVKGPUQueryPool : public CCVKGPUDeviceObject {
 
     QueryType type{QueryType::OCCLUSION};
     uint32_t maxQueryObjects{0};
-    bool forceWait{true};
+    PipelineStatisticFlags psFlags{0};
     VkQueryPool vkPool{VK_NULL_HANDLE};
 };
 

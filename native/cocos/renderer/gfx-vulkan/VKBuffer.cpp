@@ -91,6 +91,10 @@ void CCVKBuffer::update(const void *buffer, uint32_t size) {
     cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
 }
 
+void CCVKBuffer::readBack(void *dst, uint32_t offset, uint32_t size) {
+    cmdFuncCCVKReadBackBuffer(CCVKDevice::getInstance(), _gpuBuffer, dst, offset, size);
+}
+
 void CCVKGPUBuffer::shutdown() {
     CCVKDevice::getInstance()->gpuBarrierManager()->cancel(this);
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(this);

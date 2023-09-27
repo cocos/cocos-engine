@@ -813,6 +813,20 @@ enum class PassType : uint32_t {
 };
 CC_ENUM_CONVERSION_OPERATOR(PassType);
 
+enum class PipelineStatisticFlagBit : uint32_t {
+    NONE = 0,
+    IA_VERTICES = 0x01,
+    IA_PRIMITIVES = 0x02,
+    VS_INVOCATIONS = 0x04,
+    CLIP_INVOCATIONS = 0x08,
+    CLIP_PRIMITIVES = 0x10,
+    FS_INVOCATIONS = 0x20,
+    CS_INVOCATIONS = 0x40,
+    ALL = IA_VERTICES | IA_PRIMITIVES | VS_INVOCATIONS | CLIP_INVOCATIONS | CLIP_PRIMITIVES | FS_INVOCATIONS | CS_INVOCATIONS
+};
+using PipelineStatisticFlags = PipelineStatisticFlagBit;
+CC_ENUM_BITWISE_OPERATORS(PipelineStatisticFlagBit);
+
 #define EXPOSE_COPY_FN(type)      \
     type &copy(const type &rhs) { \
         *this = rhs;              \
@@ -849,6 +863,8 @@ struct DeviceCaps {
     uint32_t maxComputeWorkGroupInvocations{0};
     Size maxComputeWorkGroupSize;
     Size maxComputeWorkGroupCount;
+
+    uint32_t timestampPeriod{1};
 
     bool supportQuery{false};
     bool supportVariableRateShading{false};
@@ -1575,8 +1591,7 @@ struct QueueInfo {
 struct QueryPoolInfo {
     QueryType type{QueryType::OCCLUSION};
     uint32_t maxQueryObjects{DEFAULT_MAX_QUERY_OBJECTS};
-    bool forceWait{true};
-
+    PipelineStatisticFlags pipelineStatisticFlags{PipelineStatisticFlagBit::NONE};
     EXPOSE_COPY_FN(QueryPoolInfo)
 };
 
@@ -1621,6 +1636,16 @@ struct DynamicStates {
     DynamicStencilStates stencilStatesBack;
 
     EXPOSE_COPY_FN(DynamicStates)
+};
+
+struct PipelineStatisticData {
+    uint64_t inputAssemblyVertices;
+    uint64_t inputAssemblyPrimitives;
+    uint64_t vsInvocations;
+    uint64_t clipInvocations;
+    uint64_t clipPrimitives;
+    uint64_t fsInvocations;
+    uint64_t csInvocations;
 };
 
 #undef EXPOSE_COPY_FN

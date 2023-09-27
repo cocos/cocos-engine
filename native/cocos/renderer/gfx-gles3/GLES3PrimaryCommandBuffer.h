@@ -55,7 +55,7 @@ public:
     void resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
-    void resetQueryPool(QueryPool *queryPool) override;
+    void resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) override;
 
 protected:
     friend class GLES3Queue;

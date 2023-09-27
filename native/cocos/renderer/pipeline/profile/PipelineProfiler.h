@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,30 +24,34 @@
 
 #pragma once
 
-#include <mutex>
-#include "VKStd.h"
-#include "gfx-base/GFXQueryPool.h"
-#include "gfx-vulkan/VKGPUObjects.h"
+#include "base/std/container/map.h"
+#include "GPUTimeQuery.h"
+#include "profiler/DebugRenderer.h"
+#include "core/assets/Material.h"
+#include "scene/Pass.h"
 
-namespace cc {
-namespace gfx {
+namespace cc::render {
+struct NativePipeline;
 
-class CC_VULKAN_API CCVKQueryPool final : public QueryPool {
+class PipelineProfiler {
 public:
-    CCVKQueryPool();
-    ~CCVKQueryPool() override;
+    PipelineProfiler();
+    ~PipelineProfiler() = default;
 
-    inline CCVKGPUQueryPool *gpuQueryPool() const { return _gpuQueryPool; }
+    void beginFrame(uint32_t passCount, gfx::CommandBuffer *cmdBuffer);
+    void endFrame(gfx::CommandBuffer *cmdBuffer);
+    void resolveData(NativePipeline &pipeline);
 
-protected:
-    friend class CCVKCommandBuffer;
-    friend class CCVKDevice;
+    void writeGpuTimeStamp(gfx::CommandBuffer *cmdBuffer, uint32_t passID);
+    void render(gfx::RenderPass *renderPass, uint32_t subpass, gfx::CommandBuffer *cmdBuff);
 
-    void doInit(const QueryPoolInfo &info) override;
-    void doDestroy() override;
-
-    IntrusivePtr<CCVKGPUQueryPool> _gpuQueryPool;
+private:
+    GPUTimeQuery _timeQuery;
+    ccstd::map<uint32_t, uint64_t> _passTimes;
+#if CC_USE_DEBUG_RENDERER
+    std::unique_ptr<TextRenderer> _textRenderer;
+    IntrusivePtr<Material> _material;
+#endif
 };
 
-} // namespace gfx
-} // namespace cc
+} // namespace cc::render

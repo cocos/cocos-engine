@@ -51,6 +51,7 @@ protected:
 
     void flush(const uint8_t *buffer) override;
     uint8_t *getStagingAddress() const override;
+    void readBack(void *dst, uint32_t offset, uint32_t size) override;
 
     void addView(BufferValidator *view);
     void removeView(BufferValidator *view);

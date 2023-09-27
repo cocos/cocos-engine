@@ -37,6 +37,7 @@ public:
     ~CCVKBuffer() override;
 
     void update(const void *buffer, uint32_t size) override;
+    void readBack(void *dst, uint32_t offset, uint32_t size) override;
 
     inline CCVKGPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     inline CCVKGPUBufferView *gpuBufferView() const { return _gpuBufferView; }

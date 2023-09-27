@@ -1146,7 +1146,7 @@ void CCMTLCommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
     }
 }
 
-void CCMTLCommandBuffer::resetQueryPool(QueryPool *queryPool) {
+void CCMTLCommandBuffer::resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) {
     auto *mtlQueryPool = static_cast<CCMTLQueryPool *>(queryPool);
 
     mtlQueryPool->_ids.clear();

@@ -28,7 +28,7 @@ import {
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
     QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo,
     SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit,
-    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers, TextureUsage, TextureFlags,
+    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers, TextureUsage, TextureFlags, PipelineStatisticFlags,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -358,7 +358,9 @@ export abstract class Device {
      * @zh 是否开启自动GFX内部barrier推导，web无影响。
      * @param format The GFX format to be queried.
      */
-    public enableAutoBarrier (en: boolean): void {}
+    public enableAutoBarrier (en: boolean): void {
+        // noop
+    }
 
     /**
      * @en Get maximum supported sample count.
@@ -369,6 +371,16 @@ export abstract class Device {
      */
     public getMaxSampleCount (format: Format, usage: TextureUsage, flags: TextureFlags): SampleCount {
         return SampleCount.X1;
+    }
+
+    /**
+     * @en Get supported pipeline statistic flags by device query.
+     * @zh 获取可通过设备查询获取的管线硬件数据类型
+     * @param flags Pipeline statistic flag to be tested.
+     * @param outFlags Pipeline statistic flag test result.
+     */
+    public getSupportedPipelineStatisticFlags (flags: Readonly<PipelineStatisticFlags>, outFlags: PipelineStatisticFlags): number {
+        return 0;
     }
 }
 

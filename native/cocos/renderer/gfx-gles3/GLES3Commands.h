@@ -161,6 +161,8 @@ public:
     GLES3QueryPool *queryPool = nullptr;
     GLES3QueryType type = GLES3QueryType::BEGIN;
     uint32_t id = 0U;
+    uint32_t first = 0U;
+    uint32_t count = 1U;
 
     GLES3CmdQuery() : GLESCmd(GLESCmdType::QUERY) {}
 

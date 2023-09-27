@@ -75,9 +75,7 @@ FontFace::FontFace(Font *font)
 }
 
 FontFace::~FontFace() {
-    for (auto *texture : _textures) {
-        CC_SAFE_DESTROY_AND_DELETE(texture);
-    }
+    _textures.clear();
 }
 
 /**
