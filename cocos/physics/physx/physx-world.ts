@@ -32,7 +32,7 @@ import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll, getColorPXColor,
+    getWrapShape, PX, getContactDataOrByteOffset, sweepAll, getColorPXColor,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
@@ -398,7 +398,6 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     emitEvents (): void {
-        gatherEvents(this);
         PhysXCallback.emitTriggerEvent();
         PhysXCallback.emitCollisionEvent();
         PhysXCallback.emitCCTCollisionEvent();

@@ -350,13 +350,6 @@
             }
         },
         {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.NOT_PACK_PHYSX_LIBS",
-            "isVirtualModule": false,
-            "overrides": {
-                "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
-            }
-        },
-        {
             "test": "!context.buildTimeConstants.MARIONETTE",
             "isVirtualModule": false,
             "overrides": {
@@ -630,12 +623,6 @@
             "ccGlobal": true,
             "internal": false,
             "dynamic": true
-        },
-        "NOT_PACK_PHYSX_LIBS": {
-            "comment": "This is an internal constant to determine whether pack physx libs.",
-            "type": "boolean",
-            "value": false,
-            "internal": true
         },
         "NET_MODE": {
             "comment": "The network access mode.\n- 0 Client\n- 1 ListenServer\n- 2 HostServer",
