@@ -28,7 +28,7 @@ import { assert, errorID, getError, log } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
 import { js } from '@base/utils';
 import { CCObject, isValid } from '../core/data/object';
-import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
+import { tryCatchFunctor_EDITOR } from './utils';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { NodeEventType } from './node-event';
 import type { Component } from './component';

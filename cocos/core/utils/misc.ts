@@ -25,13 +25,12 @@
 
 /* eslint-disable no-new-func */
 
-import { DEV } from 'internal:constants';
+import { DEBUG, DEV } from 'internal:constants';
 import { setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
 import { macro } from '../platform/macro';
-import type { Component } from '../../scene-graph';
 
 const { getClassName, getset, isEmptyObject } = js;
 
@@ -181,8 +180,13 @@ export function callInNextTick (callback, p1?: any, p2?: any): void {
  * @zh 被 try catch 包裹的函数名。
  * @returns @en A new function that will invoke `functionName` with try catch.
  * @zh 使用 try catch 机制调用 `functionName` 的新函数.
+ *
+ * @deprecated `misc.tryCatchFunctor_EDITOR` is deprecated since v3.9.0.
  */
-export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => void {
+export function tryCatchFunctor_EDITOR (funcName: string): (comp: unknown) => void {
+    if (DEBUG) {
+        warnID(16000, 'misc.tryCatchFunctor_EDITOR', '3.9.0');
+    }
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
     return Function(
         'target',
@@ -192,7 +196,7 @@ export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => 
         + `catch (e) {\n`
         + `  cc._throw(e);\n`
         + `}`,
-    ) as (comp: Component) => void;
+    ) as (comp: unknown) => void;
 }
 
 /**
