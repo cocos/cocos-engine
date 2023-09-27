@@ -22,14 +22,21 @@
  THE SOFTWARE.
 */
 
-import { HUAWEI, TAOBAO_MINIGAME, WASM_SUBPACKAGE, XIAOMI } from 'internal:constants';
+import { BYTEDANCE, HUAWEI, TAOBAO_MINIGAME, WASM_SUBPACKAGE, XIAOMI } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { basename } from '../../cocos/core/utils/path';
 import { checkPalIntegrity, withImpl } from '../integrity-check';
 import { log } from '../../cocos/core/platform/debug';
 
 export function instantiateWasm (wasmUrl: string, importObject: WebAssembly.Imports): Promise<any> {
-    return getPlatformBinaryUrl(wasmUrl).then((url) => WebAssembly.instantiate(url, importObject));
+    if (BYTEDANCE) {
+        const bytedanceWASMUrl = `${wasmUrl.replace(/\.wasm$/, '.bin')}`;
+        return fetchBuffer(bytedanceWASMUrl).then(
+            (arrayBuffer) => WebAssembly.instantiate(arrayBuffer, importObject),
+        );
+    } else {
+        return getPlatformBinaryUrl(wasmUrl).then((url) => WebAssembly.instantiate(url, importObject));
+    }
 }
 
 export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
