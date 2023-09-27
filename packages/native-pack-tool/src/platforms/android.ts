@@ -83,6 +83,9 @@ export class AndroidPackTool extends NativePackTool {
         let projPath = ps.join(this.params.buildDir, 'proj');
         let ASFile = "./studio"
         let ASDir = this.params.nativeIdeDir;
+        if (!ASDir || !fs.existsSync(ASDir)) {
+            throw new Error(`android studio's runnable file Dir not set or not exist`);
+        }
         if (process.platform === 'win32') {
             ASFile = "studio.bat"
             projPath = projPath.replace(/\\/g, '/');
