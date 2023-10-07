@@ -1525,7 +1525,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _transformFlags = TransformBit.NONE; // does the world transform need to update?
+    protected _transformFlags = TransformBit.TRS; // does the world transform need to update?
     protected _eulerDirty = false;
 
     protected _flagChangeVersion = 0;
