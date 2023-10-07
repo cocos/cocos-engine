@@ -51,7 +51,6 @@ export class BulletCapsuleCharacterController extends BulletCharacterController 
         bt.Vec3_set(up, upDir.x, upDir.y, upDir.z);
 
         const report = bt.ControllerHitReport.implement(importFunc).$$.ptr as number;
-
         const bulletWorld = (PhysicsSystem.instance.physicsWorld as BulletWorld);
         const controllerDesc = bt.CapsuleCharacterControllerDesc_new(
             degreesToRadians(this.component.slopeLimit),

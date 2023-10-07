@@ -25,7 +25,7 @@
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
 import { game } from '../../game';
-import { debug, error, getError, sys } from '../../core';
+import { debug, error, getError, log, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 //corresponds to bulletType in bullet-compile
@@ -105,7 +105,7 @@ function initWASM (wasmFactory, wasmUrl: string): Promise<void> {
                 }).catch((err) => reject(errorMessage(err)));
             },
         }).then((instance: any) => {
-            debug('[bullet]:bullet wasm lib loaded.');
+            log('[bullet]:bullet wasm lib loaded.');
             bt = instance as Bullet.instance;
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
@@ -115,7 +115,7 @@ function initASM (asmFactory): Promise<void> {
     if (asmFactory != null) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return asmFactory().then((instance: any) => {
-            debug('[bullet]:bullet asm lib loaded.');
+            log('[bullet]:bullet asm lib loaded.');
             bt = instance as Bullet.instance;
         });
     } else {
@@ -125,23 +125,20 @@ function initASM (asmFactory): Promise<void> {
     }
 }
 
-function waitForAmmoInstantiationInternal (bulletWasmFactory, bulletWasmUrl: string, bulletAsmFactory): any {
-    const errorReport = (msg: any): void => { error(msg); };
-    if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.MAYBE_SUPPORT) {
-        if (sys.hasFeature(sys.Feature.WASM)) {
-            return initWASM(bulletWasmFactory, bulletWasmUrl).catch(errorReport);
-        } else {
-            return initASM(bulletAsmFactory).catch(errorReport);
-        }
-    } else if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.SUPPORT) {
-        return initWASM(bulletWasmFactory, bulletWasmUrl).catch(errorReport);
+function shouldUseWasmModule (): boolean {
+    if (FORCE_BANNING_BULLET_WASM) {
+        return false;
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+        return sys.hasFeature(sys.Feature.WASM);
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+        return true;
     } else {
-        return initASM(bulletAsmFactory).catch(errorReport);
+        return false;
     }
 }
 
 export function waitForAmmoInstantiation (): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    const errorReport = (msg: any): void => { error(msg); };
     return ensureWasmModuleReady().then(() => Promise.all([
         import('external:emscripten/bullet/bullet.release.wasm.js'),
         import('external:emscripten/bullet/bullet.release.wasm.wasm'),
@@ -150,8 +147,13 @@ export function waitForAmmoInstantiation (): Promise<void> {
         { default: bulletWasmFactory },
         { default: bulletWasmUrl },
         { default: bulletAsmFactory },
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    ]) => waitForAmmoInstantiationInternal(bulletWasmFactory, bulletWasmUrl, bulletAsmFactory)));
+    ]) => {
+        if (shouldUseWasmModule()) {
+            return initWASM(bulletWasmFactory, bulletWasmUrl);
+        } else {
+            return initASM(bulletAsmFactory);
+        }
+    })).catch(errorReport);
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);
