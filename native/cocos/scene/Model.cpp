@@ -601,7 +601,11 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     _localDataUpdated = true;
 }
 
-void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
+void Model::initLocalDescriptors(index_t subModelIndex) {
+    if (supportGPUDriven(subModelIndex)) {
+        return;
+    }
+
     if (!_localBuffer) {
         _localBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                               gfx::MemoryUsageBit::DEVICE,
@@ -632,7 +636,11 @@ void Model::initLocalSHDescriptors(index_t /*subModelIndex*/) {
     }
 }
 
-void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
+void Model::initWorldBoundDescriptors(index_t subModelIndex) {
+    if (supportGPUDriven(subModelIndex)) {
+        return;
+    }
+
     if (!_worldBoundBuffer) {
         _worldBoundBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                                    gfx::MemoryUsageBit::DEVICE,

@@ -1407,6 +1407,7 @@ export interface Pipeline extends BasicPipeline {
         layoutPath?: string,
         hzbName?: string,
         light?: Light | null,
+        level?: number,
         bMainPass?: boolean): void;
     /**
      * @en Add hierarchical z buffer generation pass

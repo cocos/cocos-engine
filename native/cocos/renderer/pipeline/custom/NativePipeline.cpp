@@ -1024,7 +1024,7 @@ bool setupGpuDrivenResources(
     {
         name = "CCVisibilityBuffer";
         name.append(std::to_string(cullingID));
-        const auto bufferSize = gpuScene->getInstanceCount() * static_cast<uint32_t>(sizeof(uint32_t));
+        const auto bufferSize = std::max(gpuScene->getInstanceCount(), 1U) * static_cast<uint32_t>(sizeof(uint32_t));
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
             ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, bufferSize, ResourceResidency::MANAGED);
@@ -1059,7 +1059,7 @@ bool setupGpuDrivenResources(
 
 void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     const scene::Camera *camera, const std::string &layoutPath,
-    const std::string &hzbName, const scene::Light *light, bool bMainPass) {
+    const std::string &hzbName, const scene::Light *light, uint32_t level, bool bMainPass) {
     auto *scene = camera->getScene();
     if (!scene) {
         return;
@@ -1078,11 +1078,6 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
 
     const uint32_t sceneID = iter->second;
     bool firstPass = setupGpuDrivenResources(*this, camera, gpuScene, sceneID, cullingID, resourceGraph, hzbName);
-
-    if (light) {
-        // build light culling pass
-        return;
-    }
 
     const std::string objectBuffer = "CCObjectBuffer" + std::to_string(sceneID);
     const std::string instanceBuffer = "CCInstanceBuffer" + std::to_string(sceneID);
@@ -1155,26 +1150,57 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         std::unique_ptr<NativeComputeQueueBuilder> gpuCullQueue(dynamic_cast<NativeComputeQueueBuilder*>(gpuCullPass->addQueue()));
         gpuCullQueue->addDispatch(groupCount, 1, 1, pipelineSceneData->getGPUCullingMaterial(materialIndex), 0);
 
-        ccstd::vector<float> planes;
-        const auto &frustum = camera->getFrustum();
-        for (auto *plane : frustum.planes) {
-            planes.push_back(plane->n.x);
-            planes.push_back(plane->n.y);
-            planes.push_back(plane->n.z);
-            planes.push_back(plane->d);
+        if (light) {
+            auto *layers = pipelineSceneData->getCSMLayers();
+            layers->update(pipelineSceneData, camera);
+
+            auto *layer = layers->getLayers()[level];
+            const auto size = pipelineSceneData->getShadows()->getSize();
+            const auto width = static_cast<uint32_t>(size.x) / 2;
+            const auto height = static_cast<uint32_t>(size.y) / 2;
+
+            ccstd::vector<float> planes;
+            const auto &frustum = layer->getValidFrustum();
+            for (auto *plane : frustum.planes) {
+                planes.push_back(plane->n.x);
+                planes.push_back(plane->n.y);
+                planes.push_back(plane->n.z);
+                planes.push_back(plane->d);
+            }
+            ArrayBuffer planesBuffer(reinterpret_cast<uint8_t *>(&planes[0]), sizeof(float) * static_cast<uint32_t>(planes.size()));
+            gpuCullPass->setMat4("cc_view", layer->getMatShadowView());
+            gpuCullPass->setMat4("cc_proj", layer->getMatShadowProj());
+            gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
+            gpuCullPass->setFloat("cc_znear", layer->getSplitCameraNear());
+            gpuCullPass->setFloat("cc_zfar", layer->getSplitCameraFar());
+            gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(width)));
+            gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(height)));
+            gpuCullPass->setUint("cc_isPerspective", light->getType() == scene::LightType::DIRECTIONAL ? 0 : 1);
+            gpuCullPass->setUint("cc_orientation", 0);
+            gpuCullPass->setUint("cc_instanceCount", instanceCount);
+            gpuCullPass->setUint("cc_phaseId", phaseID);
+        } else {
+            ccstd::vector<float> planes;
+            const auto &frustum = camera->getFrustum();
+            for (auto *plane : frustum.planes) {
+                planes.push_back(plane->n.x);
+                planes.push_back(plane->n.y);
+                planes.push_back(plane->n.z);
+                planes.push_back(plane->d);
+            }
+            ArrayBuffer planesBuffer(reinterpret_cast<uint8_t *>(&planes[0]), sizeof(float) * static_cast<uint32_t>(planes.size()));
+            gpuCullPass->setMat4("cc_view", camera->getMatView());
+            gpuCullPass->setMat4("cc_proj", camera->getMatProj());
+            gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
+            gpuCullPass->setFloat("cc_znear", camera->getNearClip());
+            gpuCullPass->setFloat("cc_zfar", camera->getFarClip());
+            gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(camera->getWidth())));
+            gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(camera->getHeight())));
+            gpuCullPass->setUint("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
+            gpuCullPass->setUint("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
+            gpuCullPass->setUint("cc_instanceCount", instanceCount);
+            gpuCullPass->setUint("cc_phaseId", phaseID);
         }
-        ArrayBuffer planesBuffer(reinterpret_cast<uint8_t*>(&planes[0]), sizeof(float) * static_cast<uint32_t>(planes.size()));
-        gpuCullPass->setMat4("cc_view", camera->getMatView());
-        gpuCullPass->setMat4("cc_proj", camera->getMatProj());
-        gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
-        gpuCullPass->setFloat("cc_znear", camera->getNearClip());
-        gpuCullPass->setFloat("cc_zfar", camera->getFarClip());
-        gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(camera->getWidth())));
-        gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(camera->getHeight())));
-        gpuCullPass->setUint("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
-        gpuCullPass->setUint("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
-        gpuCullPass->setUint("cc_instanceCount", instanceCount);
-        gpuCullPass->setUint("cc_phaseId", phaseID);
     }
 }
 

@@ -428,12 +428,6 @@ export class Root {
         //-----------------------------------------------
         // pipeline initialization completed
         //-----------------------------------------------
-        const scene = director.getScene();
-        if (scene) {
-            scene.globals.activate();
-        }
-
-        this.onGlobalPipelineStateChanged();
         if (!this._batcher && internal.Batcher2D) {
             this._batcher = new internal.Batcher2D(this);
             if (!this._batcher!.initialize()) {

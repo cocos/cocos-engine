@@ -252,7 +252,6 @@ public:
     }
     inline void setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
-    inline const gfx::Texture *getLightmap() const { return _lightmap ? _lightmap->getGFXTexture() : nullptr; }
     inline void setGPUDrivenEnabled(bool b) { _gpuDrivenEnabled = b; }
     inline bool isGPUDrivenEnabled() const { return _gpuDrivenEnabled; }
 
