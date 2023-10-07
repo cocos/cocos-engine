@@ -2123,6 +2123,72 @@ describe('NewGen Anim', () => {
             evalMock.step(0.2);
             expect(listener.onDestinationStateEntered).toBeCalled();
         });
+
+        test(`Any state and empty state`, () => {
+            const fixture = {
+                defaultValue: -2,
+                destinationMotion: new LinearRealValueAnimationFixture(0, 1, 3),
+                transitionDuration: 1.5,
+            };
+
+            const observer = new SingleRealValueObserver(fixture.defaultValue);
+
+            const animationGraph = createAnimationGraph({
+                variableDeclarations: { 'Transition': { type: 'trigger' } },
+                layers: [{
+                    stateMachine: {
+                        states: {
+                            'DestinationState': {
+                                type: 'motion',
+                                transitionInEventBinding: 'onDestinationStateEntered',
+                                motion: fixture.destinationMotion.createMotion(observer.getCreateMotionContext()),
+                            },
+                            'Empty': { type: 'empty' },
+                        },
+                        entryTransitions: [{ to: 'Empty' }],
+                        anyTransitions: [{
+                            to: 'DestinationState',
+                            conditions: [{ type: 'trigger', variableName: 'Transition' }],
+                            relativeDuration: true,
+                            duration: fixture.transitionDuration,
+                        }],
+                    },
+                }],
+            });
+
+            class Listener extends Component {
+                onDestinationStateEntered = jest.fn();
+            }
+
+            const listener = observer.root.addComponent(Listener) as Listener;
+
+            const evalMock = new AnimationGraphEvalMock(observer.root, animationGraph);
+
+            evalMock.step(0.2);
+            expect(listener.onDestinationStateEntered).not.toBeCalled();
+            expect(observer.value).toBe(fixture.defaultValue);
+
+            evalMock.controller.setValue('Transition', true);
+            const transitionStartTime = evalMock.current;
+            for (const transitionRatio of [0.3, 0.9]) {
+                evalMock.goto(transitionStartTime + fixture.transitionDuration * transitionRatio);
+                expect(listener.onDestinationStateEntered).toBeCalled();
+                expect(observer.value).toBeCloseTo(
+                    lerp(
+                        fixture.defaultValue,
+                        fixture.destinationMotion.getExpected(fixture.transitionDuration * transitionRatio),
+                        transitionRatio,
+                    ),
+                    5,
+                );
+            }
+
+            evalMock.goto(fixture.transitionDuration * 1.2);
+            expect(observer.value).toBeCloseTo(
+                fixture.destinationMotion.getExpected(evalMock.current - transitionStartTime),
+                5,
+            );
+        });
     });
 
     describe(`Empty state`, () => {
