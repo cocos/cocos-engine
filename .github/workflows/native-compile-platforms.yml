@@ -141,7 +141,7 @@ jobs:
         uses: jlumbroso/free-disk-space@d5af243ce7bacb67384aa6c5b1fc5f169e30903e
         with:
           tool-cache: true
-          android: true
+          android: false
           dotnet: true
           haskell: true
           large-packages: true
