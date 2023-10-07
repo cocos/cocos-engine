@@ -85,7 +85,7 @@ jobs:
           COCOS_ENGINE_DEV: 1
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          ANDORID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
           NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
@@ -156,7 +156,7 @@ jobs:
           COCOS_ENGINE_DEV: 1
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          ANDORID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
           NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
