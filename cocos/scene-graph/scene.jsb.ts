@@ -130,9 +130,6 @@ sceneProto._activate = function (active: boolean) {
     }
     cclegacy.director._nodeActivator.activateNode(this, active);
     // The test environment does not currently support the renderer
-    if (!TEST || EDITOR) {
-        this._globals.activate(this);
-    }
 };
 
 sceneProto._instantiate = function(): void {};

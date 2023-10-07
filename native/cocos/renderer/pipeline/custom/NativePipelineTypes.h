@@ -1442,7 +1442,7 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &passName) override;
     void addUploadPass(ccstd::vector<UploadPair> &uploadPairs) override;
     void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
-    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light, bool bMainPass) override;
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light, uint32_t level, bool bMainPass) override;
     void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) override;
     uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) override;
     uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) override;

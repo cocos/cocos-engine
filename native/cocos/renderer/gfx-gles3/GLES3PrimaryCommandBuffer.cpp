@@ -85,6 +85,7 @@ void GLES3PrimaryCommandBuffer::insertMarker(const MarkerInfo &marker) {
 }
 
 void GLES3PrimaryCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    CC_PROFILE(GLES3PrimaryCmdBufDrawIndirect);
     if (_isStateInvalid) {
         bindStates();
     }
@@ -100,6 +101,7 @@ void GLES3PrimaryCommandBuffer::drawIndirect(Buffer *buffer, uint32_t offset, ui
 }
 
 void GLES3PrimaryCommandBuffer::drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) {
+    CC_PROFILE(GLES3PrimaryCmdBufDrawIndirect);
     if (_isStateInvalid) {
         bindStates();
     }

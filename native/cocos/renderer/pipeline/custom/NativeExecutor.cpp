@@ -1499,10 +1499,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
 
         if (pass.showStatistics) {
-            submitProfilerCommands(ctx, vertID, pass);
 #if CC_USE_DEBUG_RENDERER
             renderDebugRenderer(ctx.currentPass, ctx.cmdBuff, ctx.ppl->pipelineSceneData, nullptr);
 #endif
+            submitProfilerCommands(ctx, vertID, pass);
         }
         ctx.cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;
