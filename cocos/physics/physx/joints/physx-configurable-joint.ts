@@ -374,11 +374,25 @@ export class PhysXConfigurableJoint extends PhysXJoint implements IConfigurableC
         const axisZ = Vec3.cross(CC_V3_0, axisX, axisY);
 
         const _rot = CC_QUAT_0;
-        const mat = Mat4.set(CC_MAT4_0,
-            axisX.x, axisX.y, axisX.z, 0,
-            axisY.x, axisY.y, axisY.z, 0,
-            axisZ.x, axisZ.y, axisZ.z, 0,
-            0, 0, 0, 1);
+        const mat = Mat4.set(
+            CC_MAT4_0,
+            axisX.x,
+            axisX.y,
+            axisX.z,
+            0,
+            axisY.x,
+            axisY.y,
+            axisY.z,
+            0,
+            axisZ.x,
+            axisZ.y,
+            axisZ.z,
+            0,
+            0,
+            0,
+            0,
+            1,
+        );
         mat.getRotation(_rot);
 
         Vec3.multiply(pos, cs.node.worldScale, cs.pivotA);

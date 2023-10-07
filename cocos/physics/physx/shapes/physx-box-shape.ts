@@ -50,7 +50,7 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
 
     onComponentSet (): void {
         this.updateGeometry();
-        const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
+        const pxmat = this.getSharedMaterial(this._collider.sharedMaterial);
         this._impl = PhysXInstance.physics.createShape(PhysXBoxShape.BOX_GEOMETRY, pxmat, true, this._flags);
     }
 
