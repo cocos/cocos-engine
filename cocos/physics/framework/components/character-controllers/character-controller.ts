@@ -410,8 +410,8 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once<TFunction extends (
-...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
+    public once<TFunction extends Callback> (
+        type: CharacterTriggerEventType | CharacterCollisionEventType,
         callback: TFunction,
         target?,
     ): any {
