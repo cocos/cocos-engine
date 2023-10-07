@@ -27,8 +27,6 @@ import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from
 import { game } from '../../game';
 import { debug, error, getError, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
-import { wasmFactory, bulletWasmUrl } from './bullet.wasmjs';
-import { asmFactory } from './bullet.asmjs';
 
 //corresponds to bulletType in bullet-compile
 export enum EBulletType{
@@ -89,12 +87,11 @@ interface BtCache {
 
 // eslint-disable-next-line import/no-mutable-exports
 export let bt = {} as Bullet.instance;
-globalThis.Bullet = bt;
 export const btCache = {} as BtCache;
 btCache.BODY_CACHE_NAME = 'body';
 btCache.CCT_CACHE_NAME = 'cct';
 
-function initWasm (wasmUrl: string): Promise<void> {
+function initWASM (wasmFactory, wasmUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const errorMessage = (err: any): string => `[bullet]: bullet wasm lib load failed: ${err}`;
         wasmFactory({
@@ -102,7 +99,6 @@ function initWasm (wasmUrl: string): Promise<void> {
                 importObject: WebAssembly.Imports,
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
             ) {
-
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
                 instantiateWasm(wasmUrl, importObject).then((result: any) => {
                     receiveInstance(result.instance as WebAssembly.Instance, result.module as WebAssembly.Module);
@@ -115,9 +111,9 @@ function initWasm (wasmUrl: string): Promise<void> {
     });
 }
 
-// todo importObject
-function initAsm (): Promise<void> {
+function initASM (asmFactory): Promise<void> {
     if (asmFactory != null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return asmFactory().then((instance: any) => {
             debug('[bullet]:bullet asm lib loaded.');
             bt = instance as Bullet.instance;
@@ -129,19 +125,33 @@ function initAsm (): Promise<void> {
     }
 }
 
-export function waitForAmmoInstantiation (): Promise<void> {
+function waitForAmmoInstantiationInternal (bulletWasmFactory, bulletWasmUrl: string, bulletAsmFactory): any {
     const errorReport = (msg: any): void => { error(msg); };
     if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.MAYBE_SUPPORT) {
         if (sys.hasFeature(sys.Feature.WASM)) {
-            return initWasm(bulletWasmUrl).catch(errorReport);
+            return initWASM(bulletWasmFactory, bulletWasmUrl).catch(errorReport);
         } else {
-            return initAsm().catch(errorReport);
+            return initASM(bulletAsmFactory).catch(errorReport);
         }
     } else if ((WASM_SUPPORT_MODE as WebAssemblySupportMode) === WebAssemblySupportMode.SUPPORT) {
-        return initWasm(bulletWasmUrl).catch(errorReport);
+        return initWASM(bulletWasmFactory, bulletWasmUrl).catch(errorReport);
     } else {
-        return initAsm().catch(errorReport);
+        return initASM(bulletAsmFactory).catch(errorReport);
     }
+}
+
+export function waitForAmmoInstantiation (): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return ensureWasmModuleReady().then(() => Promise.all([
+        import('external:emscripten/bullet/bullet.release.wasm.js'),
+        import('external:emscripten/bullet/bullet.release.wasm.wasm'),
+        import('external:emscripten/bullet/bullet.release.asm.js'),
+    ]).then(([
+        { default: bulletWasmFactory },
+        { default: bulletWasmUrl },
+        { default: bulletAsmFactory },
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    ]) => waitForAmmoInstantiationInternal(bulletWasmFactory, bulletWasmUrl, bulletAsmFactory)));
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);
