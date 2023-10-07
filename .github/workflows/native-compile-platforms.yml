@@ -85,7 +85,7 @@ jobs:
           COCOS_ENGINE_DEV: 1
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          ANDROID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
           NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
@@ -112,7 +112,7 @@ jobs:
 
           ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
 
-          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
+          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDROID_NDK@g" gradle.properties
           sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
           sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
           sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$NATIVE_ROOT@g" gradle.properties
@@ -123,7 +123,7 @@ jobs:
           sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
 
           echo "Compile Android - cmake ..."
-          echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
+          echo "ANDROID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
           # ./gradlew :CocosGame:assembleDebug --quiet
           ./gradlew :CocosGame:assembleRelease --quiet
           echo "Compile Android Debug Done!"
@@ -156,7 +156,7 @@ jobs:
           COCOS_ENGINE_DEV: 1
         run: |
           NATIVE_ROOT=$GITHUB_WORKSPACE/native
-          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          ANDROID_NDK=${{ steps.setup-ndk.outputs.ndk-path }}
           NATIVE_DIR=$GITHUB_WORKSPACE/templates/android-template
           echo "Compiling Android ... "
           cd $GITHUB_WORKSPACE/templates/
@@ -187,7 +187,7 @@ jobs:
 
           ASSET_DIR=$GITHUB_WORKSPACE/templates/android/build/build-android/
 
-          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
+          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDROID_NDK@g" gradle.properties
           sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
           sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
           sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$NATIVE_ROOT@g" gradle.properties
@@ -199,7 +199,7 @@ jobs:
           sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
 
           echo "Compile Android - cmake ..."
-          echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
+          echo "ANDROID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
           ./gradlew :CocosGame:assembleDebug --quiet
           df -h
           ./gradlew clean
