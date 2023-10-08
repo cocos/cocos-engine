@@ -33,6 +33,7 @@ import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
+import type { VideoClip } from './assets/video-clip';
 
 const ccdocument = ccwindow.document;
 
@@ -109,7 +110,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         }
     }
 
-    public syncClip (clip: any): void {
+    public syncClip (clip: VideoClip): void {
         this.removeVideoPlayer();
         if (!clip) { return; }
         this.createVideoPlayer(clip.nativeUrl);
@@ -206,7 +207,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             }
             // Monitor video entry and exit full-screen events
             video.setAttribute('x5-video-player-fullscreen', 'true');
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-unsafe-argument
             screen.requestFullScreen(video, (document) => {
                 const fullscreenElement = sys.browserType === BrowserType.IE ? document.msFullscreenElement : document.fullscreenElement;
                 this._fullScreenOnAwake = (fullscreenElement === video);

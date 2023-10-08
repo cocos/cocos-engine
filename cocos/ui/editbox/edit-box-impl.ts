@@ -64,15 +64,15 @@ export class EditBoxImpl extends EditBoxImplBase {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _inputMode: InputMode = -1;
+    public _inputMode: InputMode = InputMode.ANY;
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _inputFlag: InputFlag = -1;
+    public _inputFlag: InputFlag = InputFlag.DEFAULT;
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _returnType: KeyboardReturnType = -1;
+    public _returnType: KeyboardReturnType = KeyboardReturnType.DEFAULT;
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -160,6 +160,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         this._editing = true;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         _currentEditBoxImpl = this;
         this._delegate!._editBoxEditingDidBegan();
         this._showDom();

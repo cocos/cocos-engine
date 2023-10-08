@@ -36,10 +36,6 @@ const ccdocument = ccwindow.document;
 const _mat4_temp = mat4();
 
 export class WebViewImplWeb extends WebViewImpl {
-    constructor (component: any) {
-        super(component);
-    }
-
     _bindDomEvent (): void {
         if (!this.webview) {
             return;
