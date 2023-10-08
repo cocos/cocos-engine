@@ -35,6 +35,8 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 1008, "[Action reverse]. override me" },
 { 1100, "Expected 'data' dict, but not found. Config file: %s" },
 { 1101, "Please load the resource first : %s" },
+{ 1102, "Effect settings not found, effects will not be imported." },
+{ 1103, "Success to load scene: %s" },
 { 1200, "cocos2d: Director: Error in gettimeofday" },
 { 1204, "Running scene should not be null" },
 { 1205, "The scene should not be null" },
