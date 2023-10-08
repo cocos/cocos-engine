@@ -30,6 +30,7 @@ import { setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
+import { isPlainEmptyObj } from '@base/utils/internal';
 import { macro } from '../platform/macro';
 
 const { getClassName, getset, isEmptyObject } = js;
@@ -205,12 +206,14 @@ export function tryCatchFunctor_EDITOR (funcName: string): (comp: unknown) => vo
  * @param obj @en The object to check. @zh 要检查的对象。
  * @returns @en True if it is an empty object. False if it is not an empty object, not Object type, null or undefined.
  * @ 如果是空对象，返回 true。如果不是空对象，不是Object类型，空或未定义，则为假。
+ *
+ * @deprecated `misc.isPlainEmptyObj_DEV` is deprecated since v3.9.0, please use `js.isEmptyObject` instead.
  */
 export function isPlainEmptyObj_DEV (obj): boolean {
-    if (!obj || obj.constructor !== Object) {
-        return false;
+    if (DEBUG) {
+        warnID(16001, 'misc.isPlainEmptyObj_DEV', '3.9.0', 'js.isEmptyObject');
     }
-    return isEmptyObject(obj);
+    return isPlainEmptyObj(obj);
 }
 
 /**
