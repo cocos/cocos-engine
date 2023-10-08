@@ -611,7 +611,7 @@ bool ScriptEngine::init() {
 
 bool ScriptEngine::init(v8::Isolate *isolate) {
     cleanup();
-    SE_LOGE("Initializing V8, version: %s\n", v8::V8::GetVersion());
+    SE_LOGD("Initializing V8, version: %s\n", v8::V8::GetVersion());
     ++_vmId;
 
     _engineThreadId = std::this_thread::get_id();
