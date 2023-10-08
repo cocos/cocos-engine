@@ -182,7 +182,7 @@ export function callInNextTick (callback, p1?: any, p2?: any): void {
  * @returns @en A new function that will invoke `functionName` with try catch.
  * @zh 使用 try catch 机制调用 `functionName` 的新函数.
  *
- * @deprecated `misc.tryCatchFunctor_EDITOR` is deprecated since v3.9.0.
+ * @deprecated since v3.9.0.
  */
 export function tryCatchFunctor_EDITOR (funcName: string): (comp: unknown) => void {
     if (DEBUG) {
@@ -207,7 +207,7 @@ export function tryCatchFunctor_EDITOR (funcName: string): (comp: unknown) => vo
  * @returns @en True if it is an empty object. False if it is not an empty object, not Object type, null or undefined.
  * @ 如果是空对象，返回 true。如果不是空对象，不是Object类型，空或未定义，则为假。
  *
- * @deprecated `misc.isPlainEmptyObj_DEV` is deprecated since v3.9.0, please use `js.isEmptyObject` instead.
+ * @deprecated since v3.9.0, please use `js.isEmptyObject` instead.
  */
 export function isPlainEmptyObj_DEV (obj): boolean {
     if (DEBUG) {
@@ -233,8 +233,13 @@ export function isPlainEmptyObj_DEV (obj): boolean {
  * var v1 = clampf(20, 0, 20); // 20;
  * var v2 = clampf(-1, 0, 20); //  0;
  * var v3 = clampf(10, 0, 20); // 10;
+ *
+ * @deprecated since v3.9.0, please use `math.clamp` instead.
  */
 export function clampf (value: number, min_inclusive: number, max_inclusive: number): number {
+    if (DEBUG) {
+        warnID(16001, 'misc.clampf', '3.9.0', 'math.clamp');
+    }
     if (min_inclusive > max_inclusive) {
         const temp = min_inclusive;
         min_inclusive = max_inclusive;
