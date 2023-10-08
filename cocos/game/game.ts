@@ -29,7 +29,7 @@ import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, error } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID } from '../core';
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
@@ -799,7 +799,7 @@ export class Game extends EventTarget {
                 }
                 const data = effectSettings.data;
                 if (data === null) {
-                    error('Effect settings not found, effects will not be imported.');
+                    errorID(1102);
                     return;
                 }
                 cclegacy.rendering.init(deviceManager.gfxDevice, data);
@@ -1025,7 +1025,7 @@ export class Game extends EventTarget {
             if (launchScene) {
                 // load scene
                 director.loadScene(launchScene, (): void => {
-                    log(`Success to load scene: ${launchScene}`);
+                    logID(1103, launchScene);
                     this._initTime = performance.now();
                     director.startAnimation();
                     this.onStart?.();
