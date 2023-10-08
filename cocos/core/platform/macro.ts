@@ -28,7 +28,6 @@
 import { EDITOR, MINIGAME, NATIVE, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { Settings, settings } from '../settings';
-import { DEG_2_RAD, RAD_2_DEG } from '../math';
 
 const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
@@ -876,7 +875,7 @@ interface Macro {
      * @en One angle in radian, equals to PI / 180
      * @zh 弧度制中的单位角度，等同于 PI / 180
      *
-     * @deprecated since v3.9.0, please use `math.DEG_2_RAD` instead.
+     * @deprecated since v3.9.0, please use `math.toRadian` instead.
      */
     RAD: number;
 
@@ -884,7 +883,7 @@ interface Macro {
      * @en One radian in angle, equals to 180 / PI
      * @zh 角度制中的单位弧度，等同于 180 / PI
      *
-     * @deprecated since v3.9.0, please use `math.RAD_2_DEG` instead.
+     * @deprecated since v3.9.0, please use `math.toDegree` instead.
      */
     DEG: number;
 
@@ -1101,8 +1100,8 @@ interface Macro {
 const macro: Macro = {
     SUPPORT_TEXTURE_FORMATS,
     KEY,
-    RAD: DEG_2_RAD,
-    DEG: RAD_2_DEG,
+    RAD: Math.PI / 180,
+    DEG: 180 / Math.PI,
     REPEAT_FOREVER: (Number.MAX_VALUE - 1),
     FLT_EPSILON: 0.0000001192092896,
     ORIENTATION_PORTRAIT: 1,
