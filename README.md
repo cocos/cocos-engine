@@ -65,7 +65,7 @@ In the cloned engine folder, run the following command to setup development envi
 
 ```bash
 # download external dependencies
-cd engine-native
+cd ./native
 npm install
 gulp init
 # back to the root folder
