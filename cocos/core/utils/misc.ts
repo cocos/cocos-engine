@@ -26,7 +26,7 @@
 /* eslint-disable no-new-func */
 
 import { DEBUG, DEV } from 'internal:constants';
-import { isDescendantElementOf, setTimeoutRAF } from '@pal/utils';
+import { isDescendantElementOf, isDomNode as _isDomNode, setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
@@ -134,18 +134,14 @@ export function contains (refNode, otherNode): boolean {
  * @param node @en The node the check. @zh 被检查节点。
  * @returns @en True if node is a DOM node, false else.
  * @zh 如果 DOM 节点，返回 true；否则返回 false。
+ *
+ * @deprecated since 3.9.0, the engine should not provide the web specific interface anymore.
  */
 export function isDomNode (node): boolean {
-    if (typeof window === 'object' && typeof Node === 'function') {
-        // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
-        // it should because window.Node was overwritten.
-        return node instanceof Node;
-    } else {
-        return !!node
-            && typeof node === 'object'
-            && typeof node.nodeType === 'number'
-            && typeof node.nodeName === 'string';
+    if (DEBUG) {
+        warnID(16000, 'misc.isDomNode', '3.9.0');
     }
+    return _isDomNode(node);
 }
 
 /**

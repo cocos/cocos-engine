@@ -294,3 +294,19 @@ export function isDescendantElementOf (refNode, otherNode): boolean {
         return false;
     }
 }
+
+/**
+ * Checks whether a node is a DOM node.
+ */
+export function isDomNode (node): boolean {
+    if (typeof window === 'object' && typeof Node === 'function') {
+        // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
+        // it should because window.Node was overwritten.
+        return node instanceof Node;
+    } else {
+        return !!node
+            && typeof node === 'object'
+            && typeof node.nodeType === 'number'
+            && typeof node.nodeName === 'string';
+    }
+}
