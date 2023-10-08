@@ -33,8 +33,6 @@ import { js } from '@base/utils';
 import { isPlainEmptyObj } from '@base/utils/internal';
 import { toRadian, toDegree } from '../math';
 
-const { getClassName, getset } = js;
-
 /**
  * @deprecated since v3.9.0
  */
