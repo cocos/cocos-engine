@@ -911,6 +911,7 @@ struct RenderData {
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
     PmrUnorderedMap<uint32_t, gfx::Sampler*> samplers;
+    PmrUnorderedMap<uint32_t, ccstd::pmr::string> bufferNames;
     ccstd::pmr::string custom;
 };
 

@@ -593,6 +593,7 @@ gfx::DescriptorSet* initDescriptorSet(
 
 gfx::DescriptorSet* updatePerPassDescriptorSet(
     gfx::CommandBuffer* cmdBuff,
+    ResourceGraph& resg,
     const LayoutGraphData& lg,
     const DescriptorSetData& set,
     const RenderData& user,
@@ -677,7 +678,15 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 for (const auto& d : block.descriptors) {
                     bool found = false;
                     CC_EXPECTS(d.count == 1);
-                    if (auto iter = user.buffers.find(d.descriptorID.value);
+                    if (auto iter = user.bufferNames.find(d.descriptorID.value);
+                        iter != user.bufferNames.end()) {
+                        const auto resID = findVertex(iter->second, resg);
+                        CC_ENSURES(resID != ResourceGraph::null_vertex());
+                        auto* buffer = resg.getBuffer(resID);
+                        CC_ENSURES(buffer);
+                        newSet->bindBuffer(bindID, buffer);
+                        found = true;
+                    } else if (auto iter = user.buffers.find(d.descriptorID.value);
                         iter != user.buffers.end()) {
                         newSet->bindBuffer(bindID, iter->second.get());
                         found = true;
@@ -732,7 +741,7 @@ gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
         auto& set = iter->second;
         auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
         const auto& user = get(RenderGraph::DataTag{}, ctx.g, sceneID); // notice: sceneID
-        perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
+        perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.resourceGraph, ctx.lg, set, user, node);
     }
     return perPassSet;
 }
