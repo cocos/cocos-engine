@@ -55,7 +55,7 @@ export class B2BoxShape extends B2Shape2D implements IBoxShape {
         return wps;
     }
 
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): B2.PolygonShape[] {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): number[] { //B2.PolygonShape[]
         scaleX = Math.abs(scaleX);
         scaleY = Math.abs(scaleY);
 
@@ -71,6 +71,7 @@ export class B2BoxShape extends B2Shape2D implements IBoxShape {
         tempB2Vec2_1.y = offsetY;
         shape.SetAsBoxWithCenterAndAngle(width, height, tempB2Vec2_1, 0);
 
-        return [shape as unknown as B2.PolygonShape];
+        // return [shape as unknown as B2.PolygonShape];
+        return [shape.$$.ptr as number];
     }
 }

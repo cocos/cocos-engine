@@ -64,6 +64,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
 
     private _temoBodyDef: B2.BodyDef;
     private _tempB2AABB: B2.AABB;
+    public tempB2FixtureDefPtr: number;
 
     get impl (): B2.World {
         return this._world;
@@ -88,6 +89,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
 
         this._temoBodyDef = new B2.BodyDef();
         this._tempB2AABB = new B2.AABB();
+        this.tempB2FixtureDefPtr = B2.FixtureDefNew();
     }
 
     _debugGraphics: Graphics | null = null;
@@ -344,11 +346,13 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         }
     }
 
-    registerContactFixture (fixture: B2.Fixture): void {
-        this._contactListener.registerContactFixture(getImplPtr(fixture));
+    registerContactFixture (fixture: number): void { //B2.Fixture ptr
+        // this._contactListener.registerContactFixture(getImplPtr(fixture));
+        this._contactListener.registerContactFixture(fixture);
     }
-    unregisterContactFixture (fixture: B2.Fixture): void {
-        this._contactListener.unregisterContactFixture(getImplPtr(fixture));
+    unregisterContactFixture (fixture: number): void { //B2.Fixture ptr
+    // this._contactListener.unregisterContactFixture(getImplPtr(fixture));
+        this._contactListener.unregisterContactFixture(fixture);
     }
 
     testPoint (point: Vec2): readonly Collider2D[] {

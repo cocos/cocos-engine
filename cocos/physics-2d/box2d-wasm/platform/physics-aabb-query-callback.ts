@@ -26,10 +26,11 @@ import { B2, getTSObjectFromWASMObject, getWASMObjectFromWASMObjectPtr } from '.
 import { Vec2 } from '../../../core';
 import { B2RigidBody2D } from '../rigid-body';
 
+const tempVec2 = { x: 0, y: 0 };
 export class PhysicsAABBQueryCallback {
     static _point = { x: 0, y: 0 };
     static _isPoint = false;
-    static _fixtures: B2.Fixture[] = [];
+    static _fixtures: number[] = [];//B2.Fixture ptr
 
     static init (point?: Vec2): void {
         if (point) {
@@ -43,9 +44,10 @@ export class PhysicsAABBQueryCallback {
         this._fixtures.length = 0;
     }
 
-    static ReportFixture (fixture: B2.Fixture): boolean {
+    static ReportFixture (fixture: number): boolean {
         if (this._isPoint) {
-            if (fixture.TestPoint(this._point)) {
+            //if (fixture.TestPoint(this._point)) {
+            if (B2.FixtureTestPoint(fixture, this._point)) {
                 this._fixtures.push(fixture);
             }
         } else {
@@ -66,8 +68,8 @@ export class PhysicsAABBQueryCallback {
 
     static callback = {
         ReportFixture (fixture: number): boolean {
-            const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
-            return PhysicsAABBQueryCallback.ReportFixture(f);
+            // const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
+            return PhysicsAABBQueryCallback.ReportFixture(fixture);
         },
     };
 }

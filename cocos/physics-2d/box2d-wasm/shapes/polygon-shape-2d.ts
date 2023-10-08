@@ -48,8 +48,8 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
         return this._worldPoints;
     }
 
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): B2.PolygonShape[] {
-        const shapes: B2.PolygonShape[] = [];
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): number[] {
+        const shapes: number[] = [];
 
         const comp = this.collider as PolygonCollider2D;
         const points = comp.points;
@@ -90,7 +90,7 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
 
                 if (vertices.size() === B2.maxPolygonVertices) {
                     shape!.Set(vertices, vertices.size() as number);
-                    shapes.push(shape!);
+                    shapes.push(shape!.$$.ptr);
 
                     shape = null;
 
@@ -105,7 +105,7 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
 
             if (shape) {
                 shape.Set(vertices, vertices.size() as number);
-                shapes.push(shape);
+                shapes.push(shape.$$.ptr);
             }
             vertices.delete();
         }
