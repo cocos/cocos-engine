@@ -35,6 +35,9 @@ import { toRadian, toDegree } from '../math';
 
 const { getClassName, getset } = js;
 
+/**
+ * @deprecated since v3.9.0
+ */
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
 const BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';

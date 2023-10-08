@@ -269,6 +269,8 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
     };
 }
 
+const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
+
 /**
  * Tells if the class can be deserialized in "fast mode".
  * In fast mode, deserialization of the class will go into an optimized way:
@@ -277,7 +279,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
  * without performing in-loop check.
  */
 function canBeDeserializedInFastMode (klass: any): boolean {
-    return misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    return BUILTIN_CLASSID_RE.test(js.getClassId(klass));
 }
 
 function isPrimitivePropertyByDefaultOrType (defaultValue: any, userType: any): boolean {
