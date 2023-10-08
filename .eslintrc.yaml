@@ -210,6 +210,7 @@ rules:
         }
     }]
     func-names: off
+    default-param-last: off
     one-var: [error, never]
     eqeqeq: [error, always, {'null': ignore}]
     arrow-body-style: [error, as-needed]
