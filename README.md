@@ -72,7 +72,6 @@ gulp init
 cd ..
 # setup environment and build engine files
 npm install
-npm build
 ```
 
 This is all you have to do to setup engine development environment.
