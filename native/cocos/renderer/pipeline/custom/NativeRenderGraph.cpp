@@ -773,9 +773,6 @@ void NativeRenderQueueBuilder::addGpuDrivenResource(const scene::Camera *camera,
             ccstd::pmr::string drawInstanceBuffer("CCDrawInstanceBuffer");
             drawInstanceBuffer.append(std::to_string(cullingID));
 
-            const auto objectNameID = layoutGraph->attributeIndex.at("CCObjectBuffer");
-            data.bufferNames[objectNameID.value] = objectBuffer;
-
             const auto instanceNameID = layoutGraph->attributeIndex.at("CCDrawInstanceBuffer");
             data.bufferNames[instanceNameID.value] = drawInstanceBuffer;
 
