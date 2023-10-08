@@ -110,7 +110,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         }
     }
 
-    public syncClip (clip: VideoClip): void {
+    public syncClip (clip: VideoClip | null): void {
         this.removeVideoPlayer();
         if (!clip) { return; }
         this.createVideoPlayer(clip.nativeUrl);

@@ -251,7 +251,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
                         o[propName] = null;
                     }
                 } else if (prop) {
-                    s._deserializeAndAssignField(o, prop, propName);
+                    s._deserializeAndAssignField(o, prop as SerializedFieldObjectValue, propName);
                 } else {
                     o[propName] = null;
                 }

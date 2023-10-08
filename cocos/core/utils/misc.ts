@@ -31,7 +31,7 @@ import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
 import { isPlainEmptyObj } from '@base/utils/internal';
-import { toRadian, toDegree } from '../math';
+import { toRadian, toDegree, clamp } from '../math';
 import values from '../../../external/compression/base64-values';
 
 /**
@@ -176,12 +176,7 @@ export function clampf (value: number, min_inclusive: number, max_inclusive: num
     if (DEBUG) {
         warnID(16001, 'misc.clampf', '3.9.0', 'math.clamp');
     }
-    if (min_inclusive > max_inclusive) {
-        const temp = min_inclusive;
-        min_inclusive = max_inclusive;
-        max_inclusive = temp;
-    }
-    return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+    return clamp(value, min_inclusive, max_inclusive);
 }
 
 /**
