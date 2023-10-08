@@ -27,9 +27,17 @@ import * as bits from './bits';
 import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
 
-const _d2r = Math.PI / 180.0;
+/**
+ * @en One angle in radian, equals to PI / 180
+ * @zh 弧度制中的单位角度，等同于 PI / 180
+ */
+export const RAD = Math.PI / 180.0;
 
-const _r2d = 180.0 / Math.PI;
+/**
+ * @en One radian in angle, equals to 180 / PI
+ * @zh 角度制中的单位弧度，等同于 180 / PI
+ */
+export const DEG = 180.0 / Math.PI;
 
 let _random = Math.random;
 
@@ -108,7 +116,7 @@ export function lerp (from: number, to: number, ratio: number): number {
  * @param {Number} a Angle in Degrees
  */
 export function toRadian (a: number): number {
-    return a * _d2r;
+    return a * RAD;
 }
 
 /**
@@ -117,7 +125,7 @@ export function toRadian (a: number): number {
  * @param {Number} a Angle in Radian
  */
 export function toDegree (a: number): number {
-    return a * _r2d;
+    return a * DEG;
 }
 
 /**

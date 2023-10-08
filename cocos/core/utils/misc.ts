@@ -31,7 +31,7 @@ import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
 import { isPlainEmptyObj } from '@base/utils/internal';
-import { macro } from '../platform/macro';
+import { toRadian, toDegree } from '../math';
 
 const { getClassName, getset, isEmptyObject } = js;
 
@@ -229,9 +229,14 @@ export function clampf (value: number, min_inclusive: number, max_inclusive: num
  * @zh 将度数转换为弧度。
  * @param angle @en The degree to convert. @zh 角度。
  * @returns @en The radian. @zh 弧度。
+ *
+ * @deprecated since v3.9.0, please use `math.toRadian` instead.
  */
 export function degreesToRadians (angle: number): number {
-    return angle * macro.RAD;
+    if (DEBUG) {
+        warnID(16001, 'misc.degreesToRadians', '3.9.0', 'math.toRadian');
+    }
+    return toRadian(angle);
 }
 
 /**
@@ -239,9 +244,14 @@ export function degreesToRadians (angle: number): number {
  * @zh 将弧度转换为角度。
  * @param angle @en The radian to convert. @zh 弧度。
  * @returns @en The degree. @zh 角度。
+ *
+ * @deprecated since v3.9.0, please use `math.toDegree` instead.
  */
-export function radiansToDegrees (angle): number {
-    return angle * macro.DEG;
+export function radiansToDegrees (angle: number): number {
+    if (DEBUG) {
+        warnID(16001, 'misc.radiansToDegrees', '3.9.0', 'math.toDegree');
+    }
+    return toDegree(angle);
 }
 
 cclegacy.misc = {
