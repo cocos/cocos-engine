@@ -851,8 +851,6 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
         return false;
     }
 
-    auto oldTime = std::chrono::steady_clock::now();
-
     CC_ASSERT_NOT_NULL(script);
     if (length == 0) {
         length = static_cast<uint32_t>(strlen(script));
@@ -915,10 +913,6 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
     if (!success) {
         SE_LOGE("ScriptEngine::evalString script %s, failed!\n", fileName);
     }
-
-    auto nowTime = std::chrono::steady_clock::now();
-    double ns = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(nowTime - oldTime).count() / 1000000.0);
-    CC_LOG_INFO("v8 11 evalString(%s) cost: %lf ms", fileName, ns);
 
     return success;
 }
