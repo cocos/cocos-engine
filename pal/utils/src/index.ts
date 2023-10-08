@@ -270,3 +270,27 @@ export function clearTimeoutRAF (id): void {
         caf(id);
     }
 }
+
+/**
+ * This is a web specific util to checks whether a node is a descendant of a given node, that is the node itself, one of its direct
+ * children (childNodes), one of the children's direct children, and so on.
+ */
+export function isDescendantElementOf (refNode, otherNode): boolean {
+    if (typeof refNode.contains === 'function') {
+        return refNode.contains(otherNode) as boolean;
+    } else if (typeof refNode.compareDocumentPosition === 'function') {
+        return !!(refNode.compareDocumentPosition(otherNode) & 16);
+    } else {
+        let node = otherNode.parentNode;
+        if (node) {
+            do {
+                if (node === refNode) {
+                    return true;
+                } else {
+                    node = node.parentNode;
+                }
+            } while (node !== null);
+        }
+        return false;
+    }
+}

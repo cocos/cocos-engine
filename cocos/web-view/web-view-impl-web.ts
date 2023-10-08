@@ -25,11 +25,11 @@
 import { screenAdapter } from 'pal/screen-adapter';
 import { error, warn } from '@base/debug';
 import { ccwindow } from '@base/global';
+import { isDescendantElementOf } from '@pal/utils';
 import { EventType } from './web-view-enums';
 import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
 import { mat4 } from '../core/math';
-import { contains } from '../core/utils/misc';
 
 const ccdocument = ccwindow.document;
 
@@ -91,7 +91,7 @@ export class WebViewImplWeb extends WebViewImpl {
 
     public removeWebView (): void {
         const wrapper = this._wrapper;
-        if (contains(game.container, wrapper)) {
+        if (isDescendantElementOf(game.container, wrapper)) {
             game.container!.removeChild(wrapper);
         }
         this.reset();

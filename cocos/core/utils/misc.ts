@@ -26,7 +26,7 @@
 /* eslint-disable no-new-func */
 
 import { DEBUG, DEV } from 'internal:constants';
-import { setTimeoutRAF } from '@pal/utils';
+import { isDescendantElementOf, setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
@@ -119,25 +119,14 @@ export function pushToMap (map, key, value, pushFront): void {
  * @param otherNode @en The node to test with. @zh 用来测试的节点。
  * @returns @en True if otherNode is contained in refNode, false if not.
  * @zh 如果 refNode 包含 otherNode，返回 true；否则返回 false。
+ *
+ * @deprecated since 3.9.0, the engine should not provide the web specific interface anymore.
  */
 export function contains (refNode, otherNode): boolean {
-    if (typeof refNode.contains === 'function') {
-        return refNode.contains(otherNode) as boolean;
-    } else if (typeof refNode.compareDocumentPosition === 'function') {
-        return !!(refNode.compareDocumentPosition(otherNode) & 16);
-    } else {
-        let node = otherNode.parentNode;
-        if (node) {
-            do {
-                if (node === refNode) {
-                    return true;
-                } else {
-                    node = node.parentNode;
-                }
-            } while (node !== null);
-        }
-        return false;
+    if (DEBUG) {
+        warnID(16000, 'misc.contains', '3.9.0');
     }
+    return isDescendantElementOf(refNode, otherNode);
 }
 
 /**

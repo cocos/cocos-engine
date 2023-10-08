@@ -25,10 +25,10 @@
 import { screenAdapter } from 'pal/screen-adapter';
 import { warn } from '@base/debug';
 import { ccwindow } from '@base/global';
+import { isDescendantElementOf } from '@pal/utils';
 import { mat4, visibleRect } from '../core';
 import { sys, screen } from '../core/platform';
 import { game } from '../game';
-import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
@@ -238,7 +238,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     public removeVideoPlayer (): void {
         const video = this._video;
         if (video) {
-            if (contains(game.container, video)) {
+            if (isDescendantElementOf(game.container, video)) {
                 game.container!.removeChild(video);
                 this.removeAllListeners();
             }

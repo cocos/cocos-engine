@@ -27,13 +27,13 @@
 
 import { screenAdapter } from 'pal/screen-adapter';
 import { ccwindow } from '@base/global';
+import { isDescendantElementOf } from '@pal/utils';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../game/director';
 import { game } from '../../game';
 import { Mat4, Vec3, visibleRect, sys } from '../../core';
 import { view } from '../view';
 import { KeyCode } from '../../input/types';
-import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
@@ -188,11 +188,11 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _removeDomFromGameContainer (): void {
-        const hasElem = contains(game.container, this._edTxt);
+        const hasElem = isDescendantElementOf(game.container, this._edTxt);
         if (hasElem && this._edTxt) {
             game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = contains(ccdocument.head, this._placeholderStyleSheet);
+        const hasStyleSheet = isDescendantElementOf(ccdocument.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
             ccdocument.head.removeChild(this._placeholderStyleSheet!);
         }
