@@ -53,13 +53,13 @@ export const BASE64_VALUES = values;
  * @param pushFront @en Whether to put new value in front of the vector if key exists.
  * @zh 如果关键字已经存在，是否把新插入的值放到数组第一个位置。
  *
- * @deprecated since v3.9.0, please use `js.pushToRecord` instead.
+ * @deprecated since v3.9.0, please use `js.pushToMap` instead.
  */
 export function pushToMap (map: Record<string, unknown>, key: string, value: unknown, pushFront: boolean): void {
     if (DEBUG) {
-        warnID(16001, 'misc.pushToMap', '3.9.0', 'js.pushToRecord');
+        warnID(16001, 'misc.pushToMap', '3.9.0', 'js.pushToMap');
     }
-    js.pushToRecord(map, key, value, pushFront);
+    js.pushToMap(map, key, value, pushFront);
 }
 
 /**

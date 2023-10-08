@@ -81,11 +81,11 @@ export { array };
  * import { js, log } from 'cc';
  *
  * let a = { b: 1 };
- * js.pushToRecord(a, 'b', 2, false);
+ * js.pushToMap(a, 'b', 2, false);
  * log(a);  // { b: [1, 2] }
  * ```
  */
-export function pushToRecord (map: Record<string, unknown>, key: string, value: unknown, pushFront: boolean): void {
+export function pushToMap (map: Record<string, unknown>, key: string, value: unknown, pushFront: boolean): void {
     const exists = map[key];
     if (exists) {
         if (Array.isArray(exists)) {
