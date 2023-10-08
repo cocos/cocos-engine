@@ -204,11 +204,6 @@ void GPUDrivenQueue::recordCommandBuffer(
     auto indirectResID = findVertex(indirectName, resg);
     const auto &indirectBuffer = get(ManagedBufferTag{}, indirectResID, resg).buffer.get();
 
-    ccstd::pmr::string instanceName("CCDrawInstanceBuffer", get_allocator());
-    instanceName.append(std::to_string(cullingID));
-    auto instanceResID = findVertex(instanceName, resg);
-    const auto &instanceBuffer = get(ManagedBufferTag{}, instanceResID, resg).buffer.get();
-
     // Draw visible instances
     const auto supportFirstInstance = device->getCapabilities().supportFirstInstance;
     auto *batchPool = gpuScene->getBatchPool();
