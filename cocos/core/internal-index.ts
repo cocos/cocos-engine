@@ -48,7 +48,6 @@ export { isCCObject, isValid } from './data/object';
 export { EasingMethod } from './curves/easing-method';
 
 export { CallbacksInvoker } from './event/callbacks-invoker';
-export { applyMixins } from './utils/misc';
 
 /**
  * @engineInternal
