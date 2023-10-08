@@ -33,7 +33,7 @@ import { js } from '@base/utils';
 import { isPlainEmptyObj } from '@base/utils/internal';
 import { toRadian, toDegree } from '../math';
 
-const { getClassName, getset, isEmptyObject } = js;
+const { getClassName, getset } = js;
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
