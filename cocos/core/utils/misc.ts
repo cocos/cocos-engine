@@ -49,45 +49,6 @@ for (let i = 0; i < 64; ++i) { values[BASE64_KEYS.charCodeAt(i)] = i; }
 export const BASE64_VALUES = values;
 
 /**
- * @en Defines properties for a class, or replaces getter, setter of existing properties.
- * @param ctor @en Class to modify.
- * @param sameNameGetSets @en Getters and setters of properties. The getter and setter
- * have the same name. So a property getter and setter occupy one position in `sameNameGetSets`.
- * @param diffNameGetSets @en Getters and setters of properties. The getter and setter
- * have different names. So a property getter and setter occupy two positions in `diffNameGetSets`.
- * @engineInternal
- */
-export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets): void {
-    function define (np: object, propName: string, getter: string, setter: string): void {
-        const pd = Object.getOwnPropertyDescriptor(np, propName);
-        if (pd) {
-            if (pd.get) { np[getter] = pd.get; }
-            if (pd.set && setter) { np[setter] = pd.set; }
-        } else {
-            const getterFunc: Getter = np[getter];
-            if (DEV && !getterFunc) {
-                const clsName: string = (cclegacy.Class._isCCClass(ctor) && getClassName(ctor))
-                    || ctor.name
-                    || '(anonymous class)';
-                warnID(5700, propName, getter, clsName);
-            } else {
-                getset(np, propName, getterFunc, np[setter] as Setter);
-            }
-        }
-    }
-    let propName: string; const np: object = ctor.prototype;
-    for (let i = 0; i < sameNameGetSets.length; i++) {
-        propName = sameNameGetSets[i];
-        const suffix = propName[0].toUpperCase() + propName.slice(1);
-        define(np, propName, `get${suffix}`, `set${suffix}`);
-    }
-    for (propName in diffNameGetSets) {
-        const gs: string[] = diffNameGetSets[propName];
-        define(np, propName, gs[0], gs[1]);
-    }
-}
-
-/**
  * @en Inserts a new element into a map. All values corresponding to the same key are stored in an array.
  * @zh 往 map 插入一个元素。同一个关键字对应的所有值存储在一个数组里。
  * @param map @en The map to insert element. @zh 插入元素的 map。
@@ -260,7 +221,6 @@ export function radiansToDegrees (angle: number): number {
 cclegacy.misc = {
     BUILTIN_CLASSID_RE,
     BASE64_VALUES,
-    propertyDefine,
     pushToMap,
     contains,
     isDomNode,
