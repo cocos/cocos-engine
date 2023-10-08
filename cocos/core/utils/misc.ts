@@ -92,23 +92,14 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets): void {
  * @param value @en The value of new element. @zh 新插入元素的值。
  * @param pushFront @en Whether to put new value in front of the vector if key exists.
  * @zh 如果关键字已经存在，是否把新插入的值放到数组第一个位置。
+ *
+ * @deprecated since v3.9.0, please use `js.pushToRecord` instead.
  */
-export function pushToMap (map, key, value, pushFront): void {
-    const exists = map[key];
-    if (exists) {
-        if (Array.isArray(exists)) {
-            if (pushFront) {
-                exists.push(exists[0]);
-                exists[0] = value;
-            } else {
-                exists.push(value);
-            }
-        } else {
-            map[key] = (pushFront ? [value, exists] : [exists, value]);
-        }
-    } else {
-        map[key] = value;
+export function pushToMap (map: Record<string, unknown>, key: string, value: unknown, pushFront: boolean): void {
+    if (DEBUG) {
+        warnID(16001, 'misc.pushToMap', '3.9.0', 'js.pushToRecord');
     }
+    js.pushToRecord(map, key, value, pushFront);
 }
 
 /**
