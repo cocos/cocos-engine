@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { director } from '../game/director';
 import { System } from '../core';
 import { Skeleton } from './skeleton';
@@ -79,7 +80,7 @@ export class SkeletonSystem extends System {
             return;
         }
         this.index++;
-        spine.SkeletonSystem.updateAnimation(dt);
+        if(!EDITOR_NOT_IN_PREVIEW) spine.SkeletonSystem.updateAnimation(dt);
         this._skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
             skeleton.syncAttachedNode();

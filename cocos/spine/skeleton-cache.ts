@@ -189,6 +189,7 @@ export class AnimationCache {
         modelData.vData = vUint8Buf;
         modelData.iData = iUint16Buf;
 
+        /*
         const meshes = model.getMeshes();
         const count = meshes.size();
         for (let i = 0; i < count; i++) {
@@ -197,6 +198,17 @@ export class AnimationCache {
             meshData.iCount = mesh.iCount;
             meshData.blendMode = mesh.blendMode;
             meshData.textureID = mesh.textureID;
+            modelData.meshes.push(meshData);
+        }
+        */
+
+        const data = model.getData();
+        const count = data.size();
+        for (let i = 0; i < count; i += 6) {
+            const meshData = new SpineDrawItem();
+            meshData.iCount = data.get(i+3);
+            meshData.blendMode = data.get(i+4);
+            meshData.textureID = data.get(i+5);
             modelData.meshes.push(meshData);
         }
 
