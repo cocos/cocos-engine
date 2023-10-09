@@ -30,43 +30,45 @@ import { array } from 'cocos/core/utils/js.js';
 
 
 function resizeArray(array, newSize) {
+    if (!array) return new Array(newSize);
     if (newSize == array.length) return array;
     if (newSize < array.length) return array.slice(0, newSize);
     else return new Array(newSize);
 }
 
-function getVectorArray(self: any, array: any, getPropVector: any) {
-    const vectors = getPropVector.call(self);
-    const count = vectors.size();
-    array = resizeArray(array, count);
-    for (let i = 0; i < count; i++) array[i] = vectors.get(i);
-    return array;
-}
-
 function overrideDefineArrayProp (prototype: any, getPropVector: any, name: string): void {
-    let array : any[] = new Array(100);
+    const _name = `_${name}`;
     Object.defineProperty(prototype, name, {
         get (): any[] {
-            return getVectorArray(this, array, getPropVector);
+            const vectors = getPropVector.call(this);
+            const count = vectors.size();
+            let array = this[_name];
+            array = resizeArray(array, count);
+            //if (array[0]) return array;
+            for (let i = 0; i < count; i++) array[i] = vectors.get(i);
+            this[_name] = array;
+            return array;
         },
     });
 }
 
 function overrideDefineArrayArrayProp (prototype: any, getPropVector: any, name: string): void {
+    const _name = `_${name}`;
     Object.defineProperty(prototype, name, {
         get (): any[] {
-            const array: any[] = [];
             const vectors = getPropVector.call(this);
             const count = vectors.size();
+            let array = this[_name];
+            array = resizeArray(array, count);
             for (let i = 0; i < count; i++) {
                 const vectorI = vectors.get(i);
                 const countJ = vectorI.size();
-                const arrayJ: any[] = [];
-                for (let j = 0; j < countJ; j++) {
-                    arrayJ.push(vectorI.get(j));
-                }
-                array.push(arrayJ);
+                let arrayJ: any[] = array[i];
+                arrayJ = resizeArray(arrayJ, countJ);
+                for (let j = 0; j < countJ; j++) arrayJ[j] = vectorI.get(j);
+                array[i] = arrayJ;
             }
+            this[_name] = array;
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return array;
         },
@@ -74,10 +76,16 @@ function overrideDefineArrayArrayProp (prototype: any, getPropVector: any, name:
 }
 
 function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: string): void {
-    let array : any[] = new Array(100);
+    const _name = `_${name}`;
     Object.defineProperty(prototype, name, {
         value () {
-            return getVectorArray(this, array, getPropVector);
+            const vectors = getPropVector.call(this);
+            const count = vectors.size();
+            let array = this[_name];
+            array = resizeArray(array, count);
+            for (let i = 0; i < count; i++) array[i] = vectors.get(i);
+            this[_name] = array;
+            return array;
         },
     });
 }
@@ -793,13 +801,15 @@ function overrideProperty_RegionAttachment (): void {
     overrideDefineArrayProp(prototype, prototype.getOffset, 'offset');
     const getUVs = prototype.getUVs;
     const setUVs = prototype.setUVs;
-    let uvs = new Array(8);
+    const _uvs = '_uvs';
     Object.defineProperty(prototype, 'uvs', {
         get (): any {
             const vectors = getUVs.call(this);
             const count = vectors.size();
-            uvs = resizeArray(uvs, count);
-            for (let i = 0; i < count; i++) uvs[i] = vectors.get(i);
+            let array = prototype[_uvs];
+            array = resizeArray(array, count);
+            for (let i = 0; i < count; i++) array[i] = vectors.get(i);
+            prototype[_uvs] = array;
             return uvs;
         },
         set (value: number[]) {
@@ -1332,7 +1342,6 @@ function overrideProperty_Skin (): void {
         },
     });
     const originFindNamesForSlot = prototype.findNamesForSlot;
-    const names = new Array(5);
     Object.defineProperty(prototype, 'findNamesForSlot', {
         value (slotIndex: number, names: Array<string>) {
             const vectors = originFindNamesForSlot.call(this, slotIndex);
