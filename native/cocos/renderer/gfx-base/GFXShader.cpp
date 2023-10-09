@@ -52,7 +52,6 @@ void Shader::initialize(const ShaderInfo &info) {
 
 void Shader::destroy() {
     doDestroy();
-
     _stages.clear();
     _attributes.clear();
     _blocks.clear();
