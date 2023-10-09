@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { warn } from '@base/debug';
 import { EDITOR } from 'internal:constants';
 
 declare const guard: unique symbol;
@@ -44,14 +45,13 @@ type Guard = typeof guard;
  *
  * @note This function should be easily tree-shaken.
  */
-export function checkPalIntegrity<T> (impl: T & Guard) {
-}
+export function checkPalIntegrity<T> (impl: T & Guard): void { /* no implementation */ }
 
 /**
  * Utility function, see example of `checkPalIntegrity()`.
  *
  */
-export function withImpl<T> () {
+export function withImpl<T> (): T & Guard {
     return 0 as unknown as T & Guard;
 }
 
@@ -60,7 +60,7 @@ export function withImpl<T> () {
  * @param targetObject Usually it's specified as the minigame module.
  * @param originObj Original minigame environment such as `wx`, `swan` etc.
  */
-export function cloneObject (targetObject: any, originObj: any): void {
+export function cloneObject (targetObject: object, originObj: object): void {
     Object.keys(originObj).forEach((key) => {
         if (typeof originObj[key] === 'function') {
             targetObject[key] = originObj[key].bind(originObj);
@@ -200,7 +200,7 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
 export function versionCompare (versionA: string, versionB: string): number {
     const versionRegExp = /\d+\.\d+\.\d+/;
     if (!(versionRegExp.test(versionA) && versionRegExp.test(versionB))) {
-        console.warn('wrong format of version when compare version');
+        warn('wrong format of version when compare version');
         return 0;
     }
     const versionNumbersA = versionA.split('.').map((num: string) => Number.parseInt(num));
@@ -222,7 +222,7 @@ export function versionCompare (versionA: string, versionB: string): number {
  * @param args The arguments to be passed to the callback function.
  * @returns A unique identifier for the timer.
  */
-export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: any[]): number {
+export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: unknown[]): number {
     const start = performance.now();
 
     const raf = requestAnimationFrame
@@ -252,7 +252,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
  * @param id A numeric ID that represents the timer to be canceled.
  * @returns Nothing.
  */
-export function clearTimeoutRAF (id): void {
+export function clearTimeoutRAF (id: number): void {
     const caf = cancelAnimationFrame
         || window.cancelAnimationFrame
         || window.cancelRequestAnimationFrame
@@ -268,5 +268,45 @@ export function clearTimeoutRAF (id): void {
         clearTimeout(id);
     } else {
         caf(id);
+    }
+}
+
+/**
+ * This is a web specific util to checks whether a node is a descendant of a given node, that is the node itself, one of its direct
+ * children (childNodes), one of the children's direct children, and so on.
+ */
+export function isDescendantElementOf (refNode, otherNode): boolean {
+    if (typeof refNode.contains === 'function') {
+        return refNode.contains(otherNode) as boolean;
+    } else if (typeof refNode.compareDocumentPosition === 'function') {
+        return !!(refNode.compareDocumentPosition(otherNode) & 16);
+    } else {
+        let node = otherNode.parentNode;
+        if (node) {
+            do {
+                if (node === refNode) {
+                    return true;
+                } else {
+                    node = node.parentNode;
+                }
+            } while (node !== null);
+        }
+        return false;
+    }
+}
+
+/**
+ * Checks whether a node is a DOM node.
+ */
+export function isDomNode (node): boolean {
+    if (typeof window === 'object' && typeof Node === 'function') {
+        // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
+        // it should because window.Node was overwritten.
+        return node instanceof Node;
+    } else {
+        return !!node
+            && typeof node === 'object'
+            && typeof node.nodeType === 'number'
+            && typeof node.nodeName === 'string';
     }
 }

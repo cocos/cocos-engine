@@ -25,7 +25,7 @@
 
 import { TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
-import { BASE64_VALUES } from './misc';
+import BASE64_VALUES from '../../../external/compression/base64-values';
 
 const separator = '@';
 

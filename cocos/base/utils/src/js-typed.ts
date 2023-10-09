@@ -85,6 +85,7 @@ export function isString (object: any): boolean {
  * @zh 如果不是空对象或者不是一个对象，返回 `true`；否则返回 `false`。
  */
 export function isEmptyObject (obj: any): boolean {
+    // eslint-disable-next-line no-unreachable-loop
     for (const key in obj) {
         return false;
     }
