@@ -26,19 +26,26 @@
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
 
-/**
- *
- */
-let requiringFrames: any = [];  // the requiring frame infos
+interface IRequiringFrame {
+    uuid: string,
+    script: string,
+    module: { exports: AnyFunction },
+    exports: this['module']['exports'],
+    beh: unknown,
+    importMeta?: Record<string, unknown>,
+    cls?: AnyFunction,
+}
 
-export function push (module, uuid: string, script, importMeta?): void {
-    if (script === undefined) {
-        script = uuid;
+let requiringFrames: IRequiringFrame[] = [];  // the requiring frame infos
+
+export function push (module: IRequiringFrame['module'], uuid: IRequiringFrame['uuid'], scriptName: IRequiringFrame['script'], importMeta?: IRequiringFrame['importMeta']): void {
+    if (scriptName === undefined) {
+        scriptName = uuid;
         uuid = '';
     }
     requiringFrames.push({
         uuid,
-        script,
+        script: scriptName,
         module,
         exports: module.exports,    // original exports
         beh: null,
@@ -47,21 +54,22 @@ export function push (module, uuid: string, script, importMeta?): void {
 }
 
 export function pop (): void {
-    const frameInfo = requiringFrames.pop();
+    const frameInfo = requiringFrames.pop()!;
     // check exports
     const module = frameInfo.module;
     let exports = module.exports;
     if (exports === frameInfo.exports) {
+        // eslint-disable-next-line no-unreachable-loop
         for (const anykey in exports) {
             // exported
             return;
         }
         // auto export component
-        module.exports = exports = frameInfo.cls;
+        module.exports = exports = frameInfo.cls!;
     }
 }
 
-export function peek (): any {
+export function peek (): IRequiringFrame {
     return requiringFrames[requiringFrames.length - 1];
 }
 

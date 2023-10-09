@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -28,6 +29,7 @@ import { error, errorID, warn, warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
 import { PrimitiveType } from './attribute';
+import { PropertyStash } from '../class-stash';
 
 // 增加预处理属性这个步骤的目的是降低 CCClass 的实现难度，将比较稳定的通用逻辑和一些需求比较灵活的属性需求分隔开。
 
@@ -54,6 +56,7 @@ function parseNotify (val, propName, notify, properties): void {
         const newKey = `_N$${propName}`;
 
         val.get = function (): any {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this[newKey];
         };
         val.set = function (value): void {
@@ -80,7 +83,7 @@ function parseNotify (val, propName, notify, properties): void {
     }
 }
 
-function parseType (val, type, className, propName): void {
+function parseType (val: PropertyStash, type: unknown, className: string, propName: string): void {
     const STATIC_CHECK = (EDITOR && DEV) || TEST;
 
     if (Array.isArray(type)) {
@@ -159,11 +162,7 @@ function getBaseClassWherePropertyDefined_DEV (propName, cls): any {
     return null;
 }
 
-function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[] | PrimitiveType<any>): {
-    default?: any;
-    _short?: boolean | undefined;
-    type?: any;
-} {
+function _wrapOptions (isGetset: boolean, _default, type?: PropertyStash['type']): PropertyStash {
     const res: {
         default?: any,
         _short?: boolean,
@@ -172,21 +171,17 @@ function _wrapOptions (isGetset: boolean, _default, type?: Function | Function[]
     if (type) {
         res.type = type;
     }
-    return res;
+    return res as PropertyStash;
 }
 
-export function getFullFormOfProperty (options, isGetset): {
-    default?: any;
-    _short?: boolean | undefined;
-    type?: any;
-} | null {
+export function getFullFormOfProperty (options: unknown, isGetset: boolean): PropertyStash | null {
     const isLiteral = options && options.constructor === Object;
     if (!isLiteral) {
         if (Array.isArray(options) && options.length > 0) {
             return _wrapOptions(isGetset, [], options);
         } else if (typeof options === 'function') {
-            const type = options;
-            return _wrapOptions(isGetset, js.isChildClassOf(type, cclegacy.ValueType) ? new type() : null, type);
+            const Type = options;
+            return _wrapOptions(isGetset, js.isChildClassOf(Type, cclegacy.ValueType) ? new (Type as Constructor)() : null, Type);
         } else if (options instanceof PrimitiveType) {
             return _wrapOptions(isGetset, undefined, options);
         } else {
@@ -196,7 +191,7 @@ export function getFullFormOfProperty (options, isGetset): {
     return null;
 }
 
-export function preprocessAttrs (properties, className, cls): void {
+export function preprocessAttrs (properties: Record<string, PropertyStash>, className: string, cls): void {
     for (const propName in properties) {
         let val = properties[propName];
         const fullForm = getFullFormOfProperty(val, false);
@@ -221,7 +216,8 @@ export function preprocessAttrs (properties, className, cls): void {
                 const baseClass = js.getClassName(getBaseClassWherePropertyDefined_DEV(propName, cls));
                 warnID(5517, className, propName, baseClass, propName);
             }
-            const notify = val.notify;
+            // NOTE: not yet support notify attributes
+            const notify = (val as any).notify;
             if (notify) {
                 if (DEV) {
                     error('not yet support notify attributes.');
@@ -238,12 +234,12 @@ export function preprocessAttrs (properties, className, cls): void {
 }
 
 const CALL_SUPER_DESTROY_REG_DEV = /\b\._super\b|destroy.*\.call\s*\(\s*\w+\s*[,|)]/;
-export function doValidateMethodWithProps_DEV (func, funcName, className, cls, base): false | undefined {
+export function doValidateMethodWithProps_DEV (func: string, funcName: string, className: string, cls: any, base: any): void {
     if (cls.__props__ && cls.__props__.indexOf(funcName) >= 0) {
         // find class that defines this method as a property
         const baseClassName = js.getClassName(getBaseClassWherePropertyDefined_DEV(funcName, cls));
         errorID(3648, className, funcName, baseClassName);
-        return false;
+        return;
     }
     if (funcName === 'destroy'
         && js.isChildClassOf(base, cclegacy.Component)
