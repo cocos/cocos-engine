@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2, getTSObjectFromWASMObject, getTSObjectFromWASMObjectPtr } from './instantiated';
+import { B2, B2ObjectType, getTSObjectFromWASMObject, getTSObjectFromWASMObjectPtr } from './instantiated';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
@@ -119,11 +119,11 @@ export class B2RigidBody2D implements IRigidBody2D {
         //collect all fixtures attached to this rigid body and process them
         const fixtureList = this.impl?.GetFixtureList();
         if (fixtureList) {
-            let shapeTSObj = getTSObjectFromWASMObject<B2Shape2D>(fixtureList);
+            let shapeTSObj = getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, fixtureList);
             while (shapeTSObj && shapeTSObj.impl) {
                 shapeTSObj.destroy();
-                const nextFixture = fixtureList.GetNext();
-                shapeTSObj = getTSObjectFromWASMObject<B2Shape2D>(nextFixture);
+                const nextFixture = B2.FixtureGetNext(fixtureList) as number;
+                shapeTSObj = getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, nextFixture);
             }
         }
 
@@ -131,11 +131,11 @@ export class B2RigidBody2D implements IRigidBody2D {
         const jointListPtr = this.impl?.GetJointList();
         if (jointListPtr) {
             let jointWASMPtr = B2.JointEdgeGetJoint(jointListPtr) as number;
-            let jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(jointWASMPtr);
+            let jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(B2ObjectType.Fixture, jointWASMPtr);
             while (jointTSObj) {
                 jointTSObj.destroy();
                 jointWASMPtr = B2.JointEdgeGetNext(jointListPtr) as number;
-                jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(jointWASMPtr);
+                jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(B2ObjectType.Fixture, jointWASMPtr);
             }
         }
 

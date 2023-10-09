@@ -24,7 +24,7 @@
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM, getTSObjectFromWASMObject,
-    getTSObjectFromWASMObjectPtr, removeImplPtrReference, removeImplPtrReferenceWASM } from './instantiated';
+    getTSObjectFromWASMObjectPtr, removeImplPtrReference, removeImplPtrReferenceWASM, B2ObjectType } from './instantiated';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
@@ -191,7 +191,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             const results: RaycastResult2D[] = [];
             for (let i = 0, l = fixtures.length; i < l; i++) {
                 const fixture = fixtures[i];
-                const shape = getTSObjectFromWASMObject<B2Shape2D>(fixture);
+                const shape = getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, fixture);
                 const collider = shape.collider;
 
                 if (type === ERaycast2DType.AllClosest) {
@@ -321,8 +321,8 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
 
         const b2Body = this._world.CreateBody(bodyDef);
-        addImplPtrReference(body, getImplPtr(b2Body));
-        addImplPtrReferenceWASM(b2Body, getImplPtr(b2Body));
+        addImplPtrReference(B2ObjectType.Body, body, getImplPtr(b2Body));
+        addImplPtrReferenceWASM(B2ObjectType.Body, b2Body, getImplPtr(b2Body));
         body._imp = b2Body;
 
         this._bodies.push(body);
@@ -333,8 +333,8 @@ export class B2PhysicsWorld implements IPhysicsWorld {
             return;
         }
         if (body.impl) {
-            removeImplPtrReference(getImplPtr(body.impl));
-            removeImplPtrReferenceWASM(getImplPtr(body.impl));
+            removeImplPtrReference(B2ObjectType.Body, getImplPtr(body.impl));
+            removeImplPtrReferenceWASM(B2ObjectType.Body, getImplPtr(body.impl));
             this._world.DestroyBody(body.impl);
             body._imp = null;
         }
@@ -347,11 +347,9 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     registerContactFixture (fixture: number): void { //B2.Fixture ptr
-        // this._contactListener.registerContactFixture(getImplPtr(fixture));
         this._contactListener.registerContactFixture(fixture);
     }
     unregisterContactFixture (fixture: number): void { //B2.Fixture ptr
-    // this._contactListener.unregisterContactFixture(getImplPtr(fixture));
         this._contactListener.unregisterContactFixture(fixture);
     }
 
@@ -370,7 +368,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         const fixtures = PhysicsAABBQueryCallback.getFixtures();
         testResults.length = 0;
         for (let i = 0; i < fixtures.length; i++) {
-            const collider = getTSObjectFromWASMObject<B2Shape2D>(fixtures[i]).collider;
+            const collider = getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, fixtures[i]).collider;
             if (!testResults.includes(collider)) {
                 testResults.push(collider);
             }
@@ -389,7 +387,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         const fixtures = PhysicsAABBQueryCallback.getFixtures();
         testResults.length = 0;
         for (let i = 0; i < fixtures.length; i++) {
-            const collider = getTSObjectFromWASMObject<B2Shape2D>(fixtures[i]).collider;
+            const collider = getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, fixtures[i]).collider;
             if (!testResults.includes(collider)) {
                 testResults.push(collider);
             }
@@ -413,7 +411,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     _onEndContact (b2contact: number): void {
-        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(B2ObjectType.Contact, b2contact);
         if (!c) {
             return;
         }
@@ -423,7 +421,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     _onPreSolve (b2contact: number): void {
-        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(B2ObjectType.Contact, b2contact);
         if (!c) {
             return;
         }
@@ -432,7 +430,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
     }
 
     _onPostSolve (b2contact: number, impulse: number): void {
-        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(B2ObjectType.Contact, b2contact);
         if (!c) {
             return;
         }

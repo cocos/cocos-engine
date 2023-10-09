@@ -46,7 +46,6 @@ export class PhysicsAABBQueryCallback {
 
     static ReportFixture (fixture: number): boolean {
         if (this._isPoint) {
-            //if (fixture.TestPoint(this._point)) {
             if (B2.FixtureTestPoint(fixture, this._point)) {
                 this._fixtures.push(fixture);
             }
@@ -58,17 +57,16 @@ export class PhysicsAABBQueryCallback {
         return true;
     }
 
-    static getFixture (): any {
+    static getFixture (): number {
         return this._fixtures[0];
     }
 
-    static getFixtures (): any[] {
+    static getFixtures (): number[] {
         return this._fixtures;
     }
 
     static callback = {
         ReportFixture (fixture: number): boolean {
-            // const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
             return PhysicsAABBQueryCallback.ReportFixture(fixture);
         },
     };

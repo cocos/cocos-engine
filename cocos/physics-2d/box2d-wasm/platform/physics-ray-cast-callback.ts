@@ -48,7 +48,6 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
 
     static ReportFixture (fixture: number, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
         if ((B2.FixtureGetFilterData(fixture).categoryBits & PhysicsRayCastCallback._mask) === 0) {
-        //if ((fixture.GetFilterData().categoryBits & PhysicsRayCastCallback._mask) === 0) {
             return 0;
         }
 
@@ -92,7 +91,6 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
 
     static callback = {
         ReportFixture (fixture: number, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
-            //const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
             return PhysicsRayCastCallback.ReportFixture(fixture, point, normal, fraction);
         },
     };

@@ -31,13 +31,11 @@ import { Vec2 } from '../../../core';
 
 export class B2CircleShape extends B2Shape2D implements ICircleShape {
     get worldRadius (): number {
-        //return (this._shapes[0]).m_radius * PHYSICS_2D_PTM_RATIO;
         return B2.CircleShapeGetRadius(this._shapes[0]) * PHYSICS_2D_PTM_RATIO;
     }
 
     _worldPosition = new Vec2();
     get worldPosition (): Vec2 {
-        //const p = (this._shapes[0] as B2.CircleShape).m_p;
         const p = B2.CircleShapeGetPosition(this._shapes[0]) as B2.Vec2;
         return this._worldPosition.set(p.x * PHYSICS_2D_PTM_RATIO, p.y * PHYSICS_2D_PTM_RATIO);
     }
@@ -51,13 +49,10 @@ export class B2CircleShape extends B2Shape2D implements ICircleShape {
         const offsetX = (relativePositionX + comp.offset.x * scaleX) / PHYSICS_2D_PTM_RATIO;
         const offsetY = (relativePositionY + comp.offset.y * scaleY) / PHYSICS_2D_PTM_RATIO;
 
-        const shape = B2.CircleShapeNew() as number;//new B2.CircleShape();
-        // shape.m_radius = comp.radius / PHYSICS_2D_PTM_RATIO * scaleX;
-        // shape.m_p = { x: offsetX, y: offsetY };
-        B2.CircleShapeSetRadius(shape, comp.radius / PHYSICS_2D_PTM_RATIO * scaleX);
+        const shape = B2.CircleShapeNew() as number;
+        B2.ShapeSetRadius(shape, comp.radius / PHYSICS_2D_PTM_RATIO * scaleX);
         B2.CircleShapeSetPosition(shape, offsetX, offsetY);
 
-        // return [shape as unknown as B2.CircleShape];
         return [shape];
     }
 }

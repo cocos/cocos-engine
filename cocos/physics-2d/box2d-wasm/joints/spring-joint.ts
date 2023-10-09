@@ -30,12 +30,15 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 
 export class B2SpringJoint extends B2Joint implements ISpringJoint {
     setFrequency (v: number): void {
-        (this._b2joint as B2.DistanceJoint).SetFrequency(v);
+        if (this._b2joint) {
+            (this._b2joint as B2.DistanceJoint).SetFrequency(v);
+        }
     }
 
     setDampingRatio (v: number): void {
-        //this.updateStiffnessAndDamping();
-        (this._b2joint as B2.DistanceJoint).SetDampingRatio(v);
+        if (this._b2joint) {
+            (this._b2joint as B2.DistanceJoint).SetDampingRatio(v);
+        }
     }
 
     setDistance (v: number): void {
