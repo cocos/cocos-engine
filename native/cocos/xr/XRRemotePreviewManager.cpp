@@ -30,7 +30,7 @@
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
 #include "math/Quaternion.h"
-#include "platform/java/modules/XRInterface.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 
 #if CC_USE_XR
     #include "Xr.h"
@@ -314,6 +314,33 @@ void XRRemotePreviewManager::sendControllerKeyInfo(const ControllerInfo::AxisInf
         }
     }
     #endif
+}
+
+void XRRemotePreviewManager::sendControllerKeyInfo(const ControllerInfo::TouchInfo &info) {
+#if CC_USE_WEBSOCKET_SERVER
+    if (_webSocketServer && _isConnectionChanged) {
+        _isConnectionChanged = false;
+        _wssConnections = _webSocketServer->getConnections();
+    }
+
+    if (_webSocketServer && !_wssConnections.empty()) {
+        for (auto &wssConn : _wssConnections) {
+            if (wssConn->getReadyState() == WebSocketServerConnection::ReadyState::OPEN) {
+                XRControllerKeyInfo ctrlKeyInfo;
+                ctrlKeyInfo.type = static_cast<int16_t>(XRDataPackageType::DPT_MSG_CONTROLLER_KEY);
+                ctrlKeyInfo.stickTouchValue = info.value;
+                ctrlKeyInfo.stickTouchCode = static_cast<int16_t>(info.key);
+                ctrlKeyInfo.keyEventType = static_cast<int16_t>(XRKeyEventType::KET_TOUCH);
+                size_t dataLen = 8 + sizeof(ctrlKeyInfo);
+                char data[dataLen];
+                packControllerKeyData(ctrlKeyInfo, data);
+                wssConn->sendBinaryAsync(data, dataLen, nullptr);
+            } else {
+                CC_LOG_ERROR("[XRRemotePreviewManager] sendControllerTouchInfo failed !!!");
+            }
+        }
+    }
+#endif
 }
 
 void XRRemotePreviewManager::resume() {

@@ -55,6 +55,7 @@ export class BulletFixedConstraint extends BulletConstraint implements IFixedCon
         this.setBreakForce(this.constraint.breakForce);
         this.setBreakTorque(this.constraint.breakTorque);
         this.updateFrames();
+        this.updateDebugDrawSize();
     }
 
     updateFrames (): void {

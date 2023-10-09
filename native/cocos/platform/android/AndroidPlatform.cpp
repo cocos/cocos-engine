@@ -42,7 +42,11 @@
 #include "platform/java/modules/SystemWindow.h"
 #include "platform/java/modules/SystemWindowManager.h"
 #include "platform/java/modules/Vibrator.h"
+
+#include "platform/interfaces/modules/IXRInterface.h"
+#if CC_USE_XR
 #include "platform/java/modules/XRInterface.h"
+#endif
 
 #include "base/StringUtil.h"
 #include "engine/EngineEvents.h"

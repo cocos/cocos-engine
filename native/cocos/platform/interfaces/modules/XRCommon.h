@@ -118,6 +118,8 @@ enum class XRConfigKey {
     EYE_RENDER_JS_CALLBACK = 54,
     ASYNC_LOAD_ASSETS_IMAGE = 55,
     ASYNC_LOAD_ASSETS_IMAGE_RESULTS = 56,
+    LEFT_CONTROLLER_ACTIVE = 57,
+    RIGHT_CONTROLLER_ACTIVE= 58,
     MAX_COUNT
 };
 
@@ -211,6 +213,7 @@ enum class XREventType {
     STICK,
     GRAB,
     POSE,
+    TOUCH,
     UNKNOWN
 };
 
@@ -305,6 +308,37 @@ struct XRGrab : public XRControllerInfo {
 
     XREventType getXREventType() const override {
         return XREventType::GRAB;
+    }
+};
+
+struct XRTouch : public XRControllerInfo {
+    enum class Type {
+        TOUCH_A,
+        TOUCH_B,
+        TOUCH_X,
+        TOUCH_Y,
+        TOUCH_TRIGGER_LEFT,
+        TOUCH_TRIGGER_RIGHT,
+        TOUCH_THUMBSTICK_LEFT,
+        TOUCH_THUMBSTICK_RIGHT,
+        UNKNOWN
+    };
+
+    bool isActive = false;
+    float value = 0.F;
+    Type type = Type::UNKNOWN;
+
+    XRTouch(Type type, bool isActive)
+            : type(type),
+              isActive(isActive) {}
+
+    XRTouch(Type type, float value)
+            : type(type),
+              isActive(true),
+              value(value) {}
+
+    XREventType getXREventType() const override {
+        return XREventType::TOUCH;
     }
 };
 

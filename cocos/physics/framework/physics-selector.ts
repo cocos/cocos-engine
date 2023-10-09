@@ -202,6 +202,8 @@ export function constructDefaultWorld (data: IWorldInitData): void {
 const FUNC = (...v: any): any => 0 as any;
 const ENTIRE_WORLD: IPhysicsWorld = {
     impl: null,
+    debugDrawFlags: 0,
+    debugDrawConstraintSize: 0,
     setGravity: FUNC,
     setAllowSleep: FUNC,
     setDefaultMaterial: FUNC,

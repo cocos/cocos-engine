@@ -66,7 +66,7 @@ export class PhysXConeShape extends PhysXShape implements IConeShape {
         meshScale.setScale(Vec3.ONE);
         meshScale.setRotation(Quat.IDENTITY);
         const convexMesh = PhysXConeShape.CONVEX_MESH;
-        const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
+        const pxmat = this.getSharedMaterial(collider.sharedMaterial);
         this.geometry = new PX.ConvexMeshGeometry(convexMesh, meshScale, createMeshGeometryFlags(0, true));
         this.updateGeometry();
         this._impl = physics.createShape(this.geometry, pxmat, true, this._flags);

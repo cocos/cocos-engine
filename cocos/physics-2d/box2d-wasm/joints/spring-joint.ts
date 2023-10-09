@@ -30,20 +30,17 @@ import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 
 export class B2SpringJoint extends B2Joint implements ISpringJoint {
     setFrequency (v: number): void {
-        this.updateStiffnessAndDamping();
-    }
-    setDampingRatio (v: number): void {
-        this.updateStiffnessAndDamping();
-    }
-    updateStiffnessAndDamping (): void {
         if (this._b2joint) {
-            B2.SetLinearFrequencyAndDampingRatio(
-                this._b2joint,
-                (this._jointComp as SpringJoint2D).frequency,
-                (this._jointComp as SpringJoint2D).dampingRatio,
-            );
+            (this._b2joint as B2.DistanceJoint).SetFrequency(v);
         }
     }
+
+    setDampingRatio (v: number): void {
+        if (this._b2joint) {
+            (this._b2joint as B2.DistanceJoint).SetDampingRatio(v);
+        }
+    }
+
     setDistance (v: number): void {
         if (this._b2joint) {
             (this._b2joint as B2.DistanceJoint).SetLength(v);
@@ -56,8 +53,8 @@ export class B2SpringJoint extends B2Joint implements ISpringJoint {
         def.localAnchorA = { x: comp.anchor.x / PHYSICS_2D_PTM_RATIO, y: comp.anchor.y / PHYSICS_2D_PTM_RATIO };
         def.localAnchorB = { x: comp.connectedAnchor.x / PHYSICS_2D_PTM_RATIO, y: comp.connectedAnchor.y / PHYSICS_2D_PTM_RATIO };
         def.length = comp.distance / PHYSICS_2D_PTM_RATIO;
-        def.damping = 0;//comp.dampingRatio;
-        def.stiffness = 1;//comp.frequency;
+        def.dampingRatio = comp.dampingRatio;
+        def.frequencyHz = comp.frequency;
         return def;
     }
 }

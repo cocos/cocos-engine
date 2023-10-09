@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import b2 from '@cocos/box2d';
+import b2, { Vec2 } from '@cocos/box2d';
 import { Color } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
 import { Graphics } from '../../../2d';
@@ -48,7 +48,7 @@ export class PhysicsDebugDraw extends b2.Draw {
         const drawer = this._drawer!;
 
         for (let i = 0; i < vertexCount; i++) {
-            b2.Transform.MulXV(this._xf, vertices[i], _tmp_vec2);
+            b2.Transform.MulXV(this._xf, vertices[i] as Vec2, _tmp_vec2);
             const x = _tmp_vec2.x * PHYSICS_2D_PTM_RATIO;
             const y = _tmp_vec2.y * PHYSICS_2D_PTM_RATIO;
             if (i === 0) drawer.moveTo(x, y);
@@ -74,8 +74,9 @@ export class PhysicsDebugDraw extends b2.Draw {
     }
 
     _DrawCircle (center: b2.Vec2, radius: number): void {
-        const p = this._xf.p;
-        this._drawer!.circle((center.x + p.x) * PHYSICS_2D_PTM_RATIO, (center.y + p.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
+        b2.Transform.MulXV(this._xf, center, _tmp_vec2);
+        //scale?
+        this._drawer!.circle((_tmp_vec2.x) * PHYSICS_2D_PTM_RATIO, (_tmp_vec2.y) * PHYSICS_2D_PTM_RATIO, radius * PHYSICS_2D_PTM_RATIO);
     }
 
     DrawCircle (center: b2.Vec2, radius: number, color): void {
@@ -137,9 +138,11 @@ export class PhysicsDebugDraw extends b2.Draw {
     }
 
     DrawPoint (center, radius, color): void {
+        //empty
     }
 
     DrawParticles (): void {
+        //empty
     }
 
     _applyStrokeColor (color): void {

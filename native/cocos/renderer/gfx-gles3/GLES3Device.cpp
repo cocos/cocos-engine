@@ -44,7 +44,7 @@
 #include "GLES3Swapchain.h"
 #include "GLES3Texture.h"
 #include "application/ApplicationManager.h"
-#include "platform/java/modules/XRInterface.h"
+#include "platform/interfaces/modules/IXRInterface.h"
 #include "profiler/Profiler.h"
 #include "states/GLES3GeneralBarrier.h"
 #include "states/GLES3Sampler.h"

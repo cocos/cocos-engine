@@ -65,6 +65,7 @@ export {
     EAxisDirection,
     ERigidBodyType,
     EColliderType,
+    EPhysicsDrawFlags,
 } from '../cocos/physics/framework';
 
 export type {
