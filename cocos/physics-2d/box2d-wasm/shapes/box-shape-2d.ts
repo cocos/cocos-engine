@@ -66,12 +66,16 @@ export class B2BoxShape extends B2Shape2D implements IBoxShape {
         const offsetX = (relativePositionX + comp.offset.x * scaleX) / PHYSICS_2D_PTM_RATIO;
         const offsetY = (relativePositionY + comp.offset.y * scaleY) / PHYSICS_2D_PTM_RATIO;
 
-        const shape = new B2.PolygonShape();
-        tempB2Vec2_1.x = offsetX;
-        tempB2Vec2_1.y = offsetY;
-        shape.SetAsBoxWithCenterAndAngle(width, height, tempB2Vec2_1, 0);
+        // const shape = new B2.PolygonShape();
+        // tempB2Vec2_1.x = offsetX;
+        // tempB2Vec2_1.y = offsetY;
+        // shape.SetAsBoxWithCenterAndAngle(width, height, tempB2Vec2_1, 0);
+
+        const shape = B2.PolygonShapeNew() as number;//new B2.PolygonShape()
+        B2.PolygonShapeSetAsBoxWithCenterAndAngle(shape, width, height, offsetX, offsetY, 0);
 
         // return [shape as unknown as B2.PolygonShape];
-        return [shape.$$.ptr as number];
+        // return [shape.$$.ptr as number];
+        return [shape];
     }
 }
