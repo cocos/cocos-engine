@@ -154,6 +154,8 @@ function doDefine (className: string | undefined, baseClass: Constructor | null,
     js.value(ctor, CCCLASS_TAG, true, true);
 
     if (baseClass) {
+        // TODO: this is a dynamic inject method, should be define in class
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         (ctor as any).$super = baseClass;
     }
 
@@ -260,18 +262,20 @@ function escapeForJS (s): string {
 // simple test variable name
 const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-function declareProperties (cls: Constructor, className: string, properties, baseClass): void {
+function declareProperties (cls: Constructor, className: string, properties: Record<string, PropertyStash> | undefined, baseClass: Constructor | null): void {
+    // TODO: this is a dynamic inject method, should be define in class
+    // issue: https://github.com/cocos/cocos-engine/issues/14643
     (cls as any).__props__ = [];
 
-    if (baseClass && baseClass.__props__) {
-        (cls as any).__props__ = baseClass.__props__.slice();
+    if (baseClass && (baseClass as any).__props__) {
+        (cls as any).__props__ = (baseClass as any).__props__.slice();
     }
 
     if (properties) {
         preprocessAttrs(properties, className, cls);
 
         for (const propName in properties) {
-            const val: PropertyStash = properties[propName];
+            const val = properties[propName];
             if (!val.get && !val.set) {
                 defineProp(cls, className, propName, val);
             } else {
@@ -288,7 +292,7 @@ export function CCClass<TFunction> (options: {
     name?: string;
     extends: null | (Constructor & { __props__?: any; _sealed?: boolean });
     ctor: TFunction;
-    properties?: any;
+    properties?: Record<string, PropertyStash>;
     editor?: any;
 }): any {
     let name = options.name;
@@ -349,6 +353,8 @@ CCClass._isCCClass = function isCCClass (constructor): boolean {
 //
 CCClass.fastDefine = function (className: string, constructor: Constructor, serializableFields: Record<string, unknown>): void {
     js.setClassName(className, constructor);
+    // TODO: this is a dynamic inject method, should be define in class
+    // issue: https://github.com/cocos/cocos-engine/issues/14643
     const props = (constructor as any).__props__ = (constructor as any).__values__ = Object.keys(serializableFields);
     const attrs = attributeUtils.getClassAttrs(constructor);
     for (let i = 0; i < props.length; i++) {
@@ -454,7 +460,7 @@ function parseAttributes (constructor: Constructor, attributes: PropertyStash, c
         } else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
                 setPropertyEnumTypeOnAttrs(
-                    (attrs || initAttrs()) as Record<string, any>,
+                    (attrs || initAttrs()) as Record<string, unknown>,
                     propertyName,
                     type as EnumType,
                 );

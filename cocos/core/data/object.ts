@@ -348,6 +348,8 @@ class CCObject implements EditorExtendableObject {
      */
     public _destruct (): void {
         const ctor = this.constructor as Constructor;
+        // TODO: this is a dynamic inject method, should be define in class
+        // issue: https://github.com/cocos/cocos-engine/issues/14643
         let destruct = (ctor as any).__destruct__;
         if (!destruct) {
             destruct = compileDestruct(this, ctor);
