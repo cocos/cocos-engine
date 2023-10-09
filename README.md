@@ -80,7 +80,7 @@ This is all you have to do to setup engine development environment.
 
 The Cocos Creator engine is designed to work with its editor, the engine will automatically compile and build after the editor window is opened. For more instructions on modifying the engine in Cocos Creator, please refer to [Engine Customization Workflow](https://docs.cocos.com/creator/manual/en/advanced-topics/engine-customization.html).
 
-Please refer to [native readme](native/README.md) for more information related to native development enviroment.
+Please refer to [native readme](native/README.md) for more information related to native development environment.
 
 ### Contribution
 
