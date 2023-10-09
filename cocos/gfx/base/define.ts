@@ -409,6 +409,7 @@ export enum TextureFlagBit {
     EXTERNAL_NORMAL = 0x8, // External normal texture
     LAZILY_ALLOCATED = 0x10, // Try lazily allocated mode.
     MUTABLE_VIEW_FORMAT = 0x40, // texture view as different format
+    MUTABLE_STORAGE = 0x80, // mutable storage for gl
 }
 
 export enum FormatFeatureBit {
