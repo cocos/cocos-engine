@@ -83,7 +83,7 @@ export class SkeletonSystem extends System {
         if(!EDITOR_NOT_IN_PREVIEW) spine.SkeletonSystem.updateAnimation(dt);
         this._skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
-            skeleton.syncAttachedNode();
+            //skeleton.syncAttachedNode();
         });
         //this.index % 500 == 0 && console.log('spine update :', this.index , `count:${spine.SkeletonSystem.getCount()}`);
     }
