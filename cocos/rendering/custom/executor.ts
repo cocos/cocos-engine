@@ -1249,7 +1249,7 @@ class DeviceComputePass {
             const layoutGraph = context.layoutGraph;
             const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._layout = new RenderPassLayoutInfo(stageId, input);
+                this._layout = new RenderPassLayoutInfo(stageId, this._computeInfo.id, input);
             }
         }
     }

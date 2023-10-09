@@ -794,10 +794,15 @@ struct AttachmentSortKey {
     const ccstd::pmr::string &name;
 };
 
-struct AttachmentComparator {
+struct SubpassComparator {
     bool operator()(const AttachmentSortKey &lhs, const AttachmentSortKey &rhs) const {
-        return std::tie(rhs.samples, lhs.accessType, lhs.attachmentWeight, lhs.slotID, lhs.slotName, lhs.name) <
-               std::tie(lhs.samples, rhs.accessType, rhs.attachmentWeight, rhs.slotID, rhs.slotName, rhs.name);
+        return std::tie(rhs.samples, lhs.accessType, lhs.attachmentWeight, lhs.name) < std::tie(lhs.samples, rhs.accessType, rhs.attachmentWeight, rhs.name);
+    }
+};
+
+struct PassComparator {
+    bool operator()(const AttachmentSortKey &lhs, const AttachmentSortKey &rhs) const {
+        return lhs.slotID < rhs.slotID;
     }
 };
 
@@ -1058,7 +1063,7 @@ bool checkResolveResource(const Graphs &graphs,
         colorMap.emplace(AttachmentSortKey{desc.sampleCount,
                                            AccessType::WRITE,
                                            ATTACHMENT_TYPE_WEIGHT[static_cast<uint32_t>(attachmentType)],
-                                           INVALID_ID,
+                                           static_cast<uint32_t>(colorMap.size()),
                                            "",
                                            resolveTargetName},
                          ViewInfo{desc.format,
