@@ -64,7 +64,13 @@ Clone this repository into your local environment.
 In the cloned engine folder, run the following command to setup development environment:
 
 ```bash
-# download & build engine dependencies
+# download external dependencies
+cd ./native
+npm install
+gulp init
+# back to the root folder
+cd ..
+# setup environment and build engine files
 npm install
 ```
 
@@ -72,14 +78,9 @@ This is all you have to do to setup engine development environment.
 
 ### Build
 
-- If running inside Cocos Creator, the engine will automatically compile and build after the editor window is opened. For more instructions on modifying the engine in Cocos Creator, please refer to [Engine Customization Workflow](https://docs.cocos.com/creator/manual/en/advanced-topics/engine-customization.html).
-- Outside the editor, you need to run the following command to build:
+The Cocos Creator engine is designed to work with its editor, the engine will automatically compile and build after the editor window is opened. For more instructions on modifying the engine in Cocos Creator, please refer to [Engine Customization Workflow](https://docs.cocos.com/creator/manual/en/advanced-topics/engine-customization.html).
 
-```bash
-npm run build
-```
-
-Please refer to [native readme](native/README.md) if you want to develop native applications.
+Please refer to [native readme](native/README.md) for more information related to native development environment.
 
 ### Contribution
 
