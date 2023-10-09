@@ -810,7 +810,7 @@ function overrideProperty_RegionAttachment (): void {
             array = resizeArray(array, count);
             for (let i = 0; i < count; i++) array[i] = vectors.get(i);
             prototype[_uvs] = array;
-            return uvs;
+            return array;
         },
         set (value: number[]) {
             setUVs.call(this, value[0], value[1], value[2], value[3], value[4] == 1);

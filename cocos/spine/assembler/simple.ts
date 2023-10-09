@@ -149,11 +149,12 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
 }
 
 function realTimeTraverse (comp: Skeleton): void {
-    const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
+    const floatStride = (comp.useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
     const model = comp.updateRenderData();
-    if (!model) return;
     const vc = model.vCount as number;
     const ic = model.iCount as number;
+    if (vc < 1 || ic < 1) return;
+
     const rd = comp.renderData!;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
@@ -163,15 +164,16 @@ function realTimeTraverse (comp: Skeleton): void {
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         comp._iBuffer = new Uint8Array(rd.indices.buffer);
     }
-    if (vc < 1 || ic < 1) return;
+
     let vbuf = rd.chunk.vb;
     const vPtr = model.vPtr;
-    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
-    comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
     const iPtr = model.iPtr;
     const ibuf = rd.indices!;
+    const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
+
+    comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
     comp._iBuffer?.set(HEAPU8.subarray(iPtr, iPtr + comp._iLength), 0);
+    
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) ibuf[i] += chunkOffset;
 
@@ -187,31 +189,6 @@ function realTimeTraverse (comp: Skeleton): void {
         indexOffset += indexCount;
     }
 
-    /*
-    const meshes = model.getMeshes();
-    const count = meshes.size();
-    let indexOffset = 0;
-    let indexCount = 0;
-    for (let i = 0; i < count; i++) {
-        const mesh = meshes.get(i);
-        const material = _getSlotMaterial(mesh.blendMode, comp);
-        const textureID = mesh.textureID;
-        indexCount = mesh.iCount;
-        comp.requestDrawData(material, textureID, indexOffset, indexCount);
-        indexOffset += indexCount;
-    }
-    */
-    /*
-    let indexOffset = 0;
-    let indexCount = 0;
-    for (let i = 0; i < 1; i++) {
-        const material = _getSlotMaterial(0, comp);
-        const textureID = 0
-        indexCount = 1029;
-        comp.requestDrawData(material, textureID, indexOffset, indexCount);
-        indexOffset += indexCount;
-    }
-    */
     // if enableBatch apply worldMatrix
     if (comp.enableBatch) {
         const worldMat = comp.node.worldMatrix;
@@ -360,7 +337,6 @@ function cacheTraverse (comp: Skeleton): void {
     if (comp.enableBatch) {
         const worldMat = comp.node.worldMatrix;
         let index = 0;
-        const tempVecPos = new Vec3(0, 0, 0);
         for (let i = 0; i < vc; i++) {
             index = i * floatStride;
             tempVecPos.x = vbuf[index];

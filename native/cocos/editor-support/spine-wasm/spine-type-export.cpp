@@ -1645,6 +1645,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .property("iCount", &SpineModel::iCount)
         .property("vPtr", &SpineModel::vPtr)
         .property("iPtr", &SpineModel::iPtr)
+        //.property("data", &SpineModel::data, allow_raw_pointer<std::vector<uint32_t>>());
         .function("getData", &SpineModel::getData, allow_raw_pointer<std::vector<unsigned int>>());
         //.function("getMeshes", &SpineModel::getMeshes, allow_raw_pointer<std::vector<SlotMesh>>());
 
