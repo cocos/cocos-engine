@@ -30,7 +30,8 @@ import { LayoutGraphData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView,
-    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView } from './render-graph';
+    RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView,
+    PersistentBuffer, PersistentTexture } from './render-graph';
 import { AccessType, ResourceResidency, SceneFlags } from './types';
 import { hashCombineNum, hashCombineStr } from './define';
 
@@ -342,7 +343,8 @@ class ResourceVisitor implements ResourceGraphVisitor {
     managed (value: ManagedResource): void {
         this.dependency();
     }
-    persistentBuffer (value: Buffer): void {
+    persistentBuffer (value: PersistentBuffer): void {
+        // noop
     }
 
     dependency (): void {
@@ -354,7 +356,7 @@ class ResourceVisitor implements ResourceGraphVisitor {
         depthFirstSearch(this._passManagerVis.graphView, this._passManagerVis, this._passManagerVis.colorMap);
     }
 
-    persistentTexture (value: Texture): void {
+    persistentTexture (value: PersistentTexture): void {
         this.dependency();
     }
     framebuffer (value: Framebuffer): void {
@@ -364,8 +366,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.dependency();
     }
     formatView (value: FormatView): void {
+        // noop
     }
     subresourceView (value: SubresourceView): void {
+        // noop
     }
 }
 
