@@ -1179,7 +1179,7 @@ declare namespace spine {
     }
 
     class SkeletonSystem {
-        public static updateAnimation(deltaTime:number): void;
+        public static updateAnimation(deltaTime: number): void;
         public static updateRenderData(): void;
         public static getCount(): number;
     }

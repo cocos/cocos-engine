@@ -87,13 +87,6 @@ function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance 
 }
 
 export const simple: IAssembler = {
-
-    fillBuffers (render: UIRenderable, batcher: Batcher2D) {
-
-    },
-    updateColor (render: UIRenderable) {
-
-    },
     vCount: 32767,
     ensureAccessor (useTint: boolean) {
         let accessor = useTint ? _tintAccessor : _accessor;
@@ -160,13 +153,13 @@ function realTimeTraverse (comp: Skeleton): void {
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
-        comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride; 
+        comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, Float32Array.BYTES_PER_ELEMENT * rd.chunk.vb.length);
         comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         comp._iBuffer = new Uint8Array(rd.indices.buffer);
     }
 
-    let vbuf = rd.chunk.vb;
+    const vbuf = rd.chunk.vb;
     const vPtr = model.vPtr;
     const iPtr = model.iPtr;
     const ibuf = rd.indices!;
@@ -174,7 +167,6 @@ function realTimeTraverse (comp: Skeleton): void {
 
     comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
     comp._iBuffer?.set(HEAPU8.subarray(iPtr, iPtr + comp._iLength), 0);
-    
     const chunkOffset = rd.chunk.vertexOffset;
     for (let i = 0; i < ic; i++) ibuf[i] += chunkOffset;
 
@@ -184,8 +176,8 @@ function realTimeTraverse (comp: Skeleton): void {
     let indexCount = 0;
     for (let i = 0; i < count; i += 6) {
         indexCount = data.get(i+3);
-        const material = _getSlotMaterial(data.get(i+4), comp);
-        const textureID = data.get(i+5);
+        const material = _getSlotMaterial(data.get(i + 4), comp);
+        const textureID: number = data.get(i + 5);
         comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
     }
@@ -201,7 +193,7 @@ function realTimeTraverse (comp: Skeleton): void {
             tempVecPos.transformMat4(worldMat);
             vbuf[index] = tempVecPos.x;
             vbuf[index + 1] = tempVecPos.y;
-            vbuf[index + 2] = 0
+            vbuf[index + 2] = 0;
         }
     }
 
