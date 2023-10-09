@@ -1155,7 +1155,6 @@ declare namespace spine {
         updateOffset(): void;
         computeWorldVertices(bone: Bone, worldVertices: ArrayLike<number>, offset: number, stride: number): void;
         copy(): Attachment;
-        private _uvs: ArrayLike<number> | undefined;
     }
     class JitterEffect implements VertexEffect {
         jitterX: number;
