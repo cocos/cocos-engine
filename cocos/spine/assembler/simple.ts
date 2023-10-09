@@ -175,7 +175,7 @@ function realTimeTraverse (comp: Skeleton): void {
     let indexOffset = 0;
     let indexCount = 0;
     for (let i = 0; i < count; i += 6) {
-        indexCount = data.get(i+3);
+        indexCount = data.get(i + 3);
         const material = _getSlotMaterial(data.get(i + 4), comp);
         const textureID: number = data.get(i + 5);
         comp.requestDrawData(material, textureID, indexOffset, indexCount);
