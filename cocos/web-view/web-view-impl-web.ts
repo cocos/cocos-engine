@@ -23,23 +23,19 @@
 */
 
 import { screenAdapter } from 'pal/screen-adapter';
-import { EventType } from './web-view-enums';
 import { error, warn } from '@base/debug';
+import { ccwindow } from '@base/global';
+import { isDescendantElementOf } from '@pal/utils';
+import { EventType } from './web-view-enums';
 import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
 import { mat4 } from '../core/math';
-import { contains } from '../core/utils/misc';
-import { ccwindow } from '@base/global';
 
 const ccdocument = ccwindow.document;
 
 const _mat4_temp = mat4();
 
 export class WebViewImplWeb extends WebViewImpl {
-    constructor (component: any) {
-        super(component);
-    }
-
     _bindDomEvent (): void {
         if (!this.webview) {
             return;
@@ -91,7 +87,7 @@ export class WebViewImplWeb extends WebViewImpl {
 
     public removeWebView (): void {
         const wrapper = this._wrapper;
-        if (contains(game.container, wrapper)) {
+        if (isDescendantElementOf(game.container, wrapper)) {
             game.container!.removeChild(wrapper);
         }
         this.reset();

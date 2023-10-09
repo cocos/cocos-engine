@@ -24,9 +24,9 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { warnID } from '@base/debug';
 import { Component, Node } from '../../scene-graph';
 import { Mat4, Rect, Size, Vec2, Vec3, geometry, visibleRect, approx, EPSILON } from '../../core';
-import { warnID } from '@base/debug';
 import { Director, director } from '../../game/director';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { IMask } from '../../scene-graph/node-event-processor';
@@ -144,7 +144,6 @@ export class UITransform extends Component {
      */
     @displayOrder(1)
     @tooltip('i18n:ui_transform.anchor_point')
-    // @constget
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
     }

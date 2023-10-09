@@ -1,7 +1,7 @@
+import { js } from '@base/utils';
 import { AnimationState } from '../../cocos/animation';
 import { CrossFade } from '../../cocos/animation/cross-fade';
 import { Playable } from '../../cocos/animation/playable';
-import { js } from '../../cocos/core';
 
 type CrossFadeScheduler = NonNullable<ConstructorParameters<typeof CrossFade>[0]>;
 

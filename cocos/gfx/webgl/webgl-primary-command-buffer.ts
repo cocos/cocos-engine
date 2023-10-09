@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { error } from '@base/debug';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
 import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport, TextureBlit, Filter } from '../base/define';
@@ -36,7 +37,6 @@ import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLDeviceManager } from './webgl-define';
-import { error } from '@base/debug';
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     public beginRenderPass (

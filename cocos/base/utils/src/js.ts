@@ -69,6 +69,41 @@ export { Pool } from './pool';
 export { array };
 
 /**
+ * @en Inserts a new element into a map. All values corresponding to the same key are stored in an array.
+ * @zh 往 map 插入一个元素。同一个关键字对应的所有值存储在一个数组里。
+ * @param map @en The map to insert element. @zh 插入元素的 map。
+ * @param key @en The key of new element. @zh 新插入元素的关键字。
+ * @param value @en The value of new element. @zh 新插入元素的值。
+ * @param pushFront @en Whether to put new value in front of the vector if key exists. @zh 如果关键字已经存在，是否把新插入的值放到数组第一个位置。
+ *
+ * @example
+ * ```ts
+ * import { js, log } from 'cc';
+ *
+ * let a = { b: 1 };
+ * js.pushToMap(a, 'b', 2, false);
+ * log(a);  // { b: [1, 2] }
+ * ```
+ */
+export function pushToMap (map: Record<string, unknown>, key: string, value: unknown, pushFront: boolean): void {
+    const exists = map[key];
+    if (exists) {
+        if (Array.isArray(exists)) {
+            if (pushFront) {
+                exists.push(exists[0]);
+                exists[0] = value;
+            } else {
+                exists.push(value);
+            }
+        } else {
+            map[key] = (pushFront ? [value, exists] : [exists, value]);
+        }
+    } else {
+        map[key] = value;
+    }
+}
+
+/**
  * @deprecated since v3.7.0, `js.js` is deprecated, please access `js` directly instead.
  */
 export const js = {

@@ -27,9 +27,9 @@
 
 import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
 import { cclegacy } from '@base/global';
+import { error, warn, warnID } from '@base/debug';
 import { Size } from '../math';
 import { Settings, settings } from '../settings';
-import { error, warn, warnID } from '@base/debug';
 import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.

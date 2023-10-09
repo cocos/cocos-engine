@@ -20,6 +20,8 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { Shadows, CSMLevel, CSMOptimizationMode } from '../../render-scene/scene/shadows';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Camera } from '../../render-scene/scene/camera';
@@ -27,8 +29,6 @@ import { Mat4, Vec3, Vec2, Vec4 } from '../../core/math';
 import { Frustum, AABB } from '../../core/geometry';
 import { IRenderObject } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { CachedArray } from '../../core/memop/cached-array';
-import { cclegacy } from '@base/global';
 
 const _mat4Trans = new Mat4();
 const _matShadowTrans = new Mat4();
@@ -280,7 +280,7 @@ export class CSMShadowLayer extends ShadowLayerVolume {
  */
 export class CSMLayers {
     protected _castShadowObjects: IRenderObject[] = [];
-    protected _layerObjects = new CachedArray<IRenderObject>(64);
+    protected _layerObjects = new memop.CachedArray<IRenderObject>(64);
 
     protected _layers: CSMShadowLayer[] = [];
     // LevelCount is a scalar, Indicates the number.
@@ -293,7 +293,7 @@ export class CSMLayers {
         return this._castShadowObjects;
     }
 
-    get layerObjects (): CachedArray<IRenderObject> {
+    get layerObjects (): memop.CachedArray<IRenderObject> {
         return this._layerObjects;
     }
 

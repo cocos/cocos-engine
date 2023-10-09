@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { assertsArrayIndex } from '../data/utils/asserts';
+import { assertsArrayIndex } from '@base/debug/internal';
 
 /**
  * @en Circle shift an array once in range [first, last]. If `first < last`, then will do left circle shift;

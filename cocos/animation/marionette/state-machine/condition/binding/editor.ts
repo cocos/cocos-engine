@@ -1,5 +1,7 @@
 import { EDITOR } from 'internal:constants';
-import { _decorator, assertIsTrue, js } from '../../../../../core';
+import { assertIsTrue } from '@base/debug/internal';
+import { js } from '@base/utils';
+import { _decorator } from '../../../../../core';
 import { TCBinding, TCBindingValueType } from './binding';
 
 /**

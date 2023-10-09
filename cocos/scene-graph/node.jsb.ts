@@ -23,6 +23,7 @@
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { errorID, getError } from '@base/debug';
+import { js } from '@base/utils';
 import { Component } from './component';
 import { NodeEventType } from './node-event';
 import { CCObject } from '../core/data/object';
@@ -32,12 +33,12 @@ import { Mat4, Quat, Vec3 } from '../core/math';
 import { Layers } from './layers';
 import { editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';
-import { getClassByName, isChildClassOf } from '../core/utils/js-typed';
 import { syncNodeValues } from '../core/utils/jsb-utils';
 import { nodePolyfill } from './node-dev';
-import * as js from '../core/utils/js';
 import { patch_cc_Node } from '../native-binding/decorators';
 import type { Node as JsbNode } from './node';
+
+const { getClassByName, isChildClassOf } = js;
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 

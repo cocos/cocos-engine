@@ -24,9 +24,11 @@
 */
 
 import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
-import { cclegacy } from '@base/global';
-import { js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
 import { error } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
 import { MissingScript } from '../misc/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../pal/system-info/enum-type';
@@ -244,12 +246,12 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
                 const valueTypeCtor = advancedPropsValueType[i];
                 if (valueTypeCtor) {
                     if (fastMode || prop) {
-                        s._deserializeFastDefinedObject(o[propName] as Record<PropertyKey, unknown>, prop as SerializedGeneralTypedObject, valueTypeCtor);
+                        s._deserializeFastDefinedObject(o[propName] as Record<PropertyKey, unknown>, prop as SerializedGeneralTypedObject, valueTypeCtor as SerializableClassConstructor);
                     } else {
                         o[propName] = null;
                     }
                 } else if (prop) {
-                    s._deserializeAndAssignField(o, prop, propName);
+                    s._deserializeAndAssignField(o, prop as SerializedFieldObjectValue, propName);
                 } else {
                     o[propName] = null;
                 }
@@ -267,6 +269,8 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
     };
 }
 
+const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
+
 /**
  * Tells if the class can be deserialized in "fast mode".
  * In fast mode, deserialization of the class will go into an optimized way:
@@ -275,7 +279,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
  * without performing in-loop check.
  */
 function canBeDeserializedInFastMode (klass: any): boolean {
-    return misc.BUILTIN_CLASSID_RE.test(js.getClassId(klass));
+    return BUILTIN_CLASSID_RE.test(js.getClassId(klass));
 }
 
 function isPrimitivePropertyByDefaultOrType (defaultValue: any, userType: any): boolean {
@@ -337,7 +341,7 @@ type SerializedValue = SerializedObject | SerializedValue[] | string | number | 
 
 type SerializedPropertyKey = string | number;
 
-type SerializedFieldObjectValue = SerializedObjectReference | SerializedUUIDReference | unknown;
+type SerializedFieldObjectValue = SerializedObjectReference | SerializedUUIDReference;
 
 type SerializedFieldValue = string | number | boolean | null | SerializedFieldObjectValue;
 
@@ -517,7 +521,7 @@ class _Deserializer {
         for (let i = 0; i < value.length; i++) {
             prop = value[i];
             if (typeof prop === 'object' && prop) {
-                const isAssetType = this._deserializeAndAssignField(obj, prop, `${i}`);
+                const isAssetType = this._deserializeAndAssignField(obj, prop as SerializedFieldObjectValue, `${i}`);
                 if (isAssetType) {
                     // fill default value for primitive objects (no constructor)
                     obj[i] = null;
@@ -621,7 +625,7 @@ class _Deserializer {
                 if (typeof serializedField !== 'object' || !serializedField) {
                     return serializedField as unknown;
                 } else {
-                    return this._deserializeObjectField(serializedField) as unknown;
+                    return this._deserializeObjectField(serializedField as SerializedFieldObjectValue) as unknown;
                 }
             },
 
@@ -632,7 +636,7 @@ class _Deserializer {
             readSuper: () => {
                 const superConstructor = js.getSuper(constructor);
                 if (superConstructor) {
-                    this._deserializeInto(value, object, superConstructor);
+                    this._deserializeInto(value, object, superConstructor as deserialize.SerializableClassConstructor);
                 }
             },
         };
@@ -709,9 +713,9 @@ class _Deserializer {
                 const expectedType = (serializedField as SerializedUUIDReference).__expectedType__;
                 this.result.push(obj, propName, uuid, expectedType);
             } else if (EDITOR || TEST) {
-                obj[propName] = this._deserializeObject(serializedField as SerializedObject, -1, obj, propName);
+                obj[propName] = this._deserializeObject(serializedField as unknown as SerializedObject, -1, obj, propName);
             } else {
-                obj[propName] = this._deserializeObject(serializedField as SerializedObject, -1);
+                obj[propName] = this._deserializeObject(serializedField as unknown as SerializedObject, -1);
             }
         }
         return false;
@@ -735,7 +739,7 @@ class _Deserializer {
                 const _expectedType = (serializedField as SerializedUUIDReference).__expectedType__;
                 throw new Error(`Asset reference field serialization is currently not supported in custom serialization.`);
             } else {
-                return this._deserializeObject(serializedField as SerializedObject, -1);
+                return this._deserializeObject(serializedField as unknown as SerializedObject, -1);
             }
         }
     }
@@ -755,7 +759,7 @@ class _Deserializer {
                     instance[propName] = prop;
                 }
             } else if (prop) {
-                const isAssetType = this._deserializeAndAssignField(instance, prop, propName);
+                const isAssetType = this._deserializeAndAssignField(instance, prop as SerializedFieldObjectValue, propName);
                 if (isAssetType) {
                     // fill default value for primitive objects (no constructor)
                     instance[propName] = null;
@@ -824,7 +828,7 @@ class _Deserializer {
             if (typeof value !== 'object') {
                 instance[propName] = value;
             } else if (value) {
-                this._deserializeAndAssignField(instance, value, propName);
+                this._deserializeAndAssignField(instance, value as SerializedFieldObjectValue, propName);
             } else {
                 instance[propName] = null;
             }
@@ -861,7 +865,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     const res = deserializer.deserialize(data);
     cclegacy.game._isCloning = false;
 
-    _Deserializer.pool.put(deserializer);
+    _Deserializer.pool.put(deserializer as _Deserializer);
     if (createAssetRefs) {
         details.assignAssetsBy((uuid, options) => (EditorExtends.serialize.asAsset(uuid, options.type) as Asset));
     }
@@ -879,7 +883,7 @@ export function parseUuidDependenciesDynamic (serialized: unknown): string[] {
     const depends: string[] = [];
     const parseDependRecursively = (data: any, out: string[]): void => {
         if (!data || typeof data !== 'object' || typeof data.__id__ === 'number') { return; }
-        const uuid = data.__uuid__;
+        const uuid = data.__uuid__ as string;
         if (Array.isArray(data)) {
             for (let i = 0, l = data.length; i < l; i++) {
                 parseDependRecursively(data[i], out);

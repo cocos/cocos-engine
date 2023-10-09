@@ -23,9 +23,9 @@
 */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { RenderStage } from './render-stage';
 import { RenderPipeline } from './render-pipeline';
-import { cclegacy } from '@base/global';
 import { Camera } from '../render-scene/scene';
 
 /**

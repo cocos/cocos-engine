@@ -23,11 +23,11 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { error } from '@base/debug';
+import { js } from '@base/utils';
 import { Asset } from '../assets/asset';
 import { MissingScript } from '../../misc/missing-script';
 import { deserialize, Details } from '../../serialization/deserialize';
-import { error } from '@base/debug';
-import { js } from '../../core';
 import { dependMap, nativeDependMap } from './depend-maps';
 import { decodeUuid } from './helper';
 

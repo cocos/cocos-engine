@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
-import { assertIsTrue } from '../../cocos/core/data/utils/asserts';
+import { assertIsTrue } from '@base/debug/internal';
 
 const FRAME_RESET_TIME = 2000;
 

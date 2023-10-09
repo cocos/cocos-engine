@@ -1,5 +1,6 @@
 import { EDITOR } from 'internal:constants';
 
+import { cclegacy } from '@base/global';
 import { Material } from '../../../asset/assets';
 import { Camera } from '../../../render-scene/scene';
 import { getCameraUniqueID } from '../../custom/define';
@@ -7,7 +8,6 @@ import { BasicPipeline, Pipeline, PipelineRuntime } from '../../custom/pipeline'
 import { passContext } from '../utils/pass-context';
 import { Address, Filter, Format, Sampler, SamplerInfo } from '../../../gfx';
 import { supportsRGBA16HalfFloatTexture } from '../../define';
-import { cclegacy } from '@base/global';
 import { macro } from '../../../core';
 
 let _BasePassID = 0;

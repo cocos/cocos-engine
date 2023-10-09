@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 import { ccwindow } from '@base/global';
+import { assert } from '@base/debug';
 import { RawDataType, ImageSource } from './types';
 import { sys } from '../../cocos/core/platform/sys';
-import { assert } from '@base/debug';
 
 export class BaseImageData {
     // TODO(qgh):Designed for compatibility, may be removed in the future.

@@ -23,10 +23,10 @@
 */
 
 import { JSB } from 'internal:constants';
+import { error } from '@base/debug';
 import { IConfig, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Rect } from '../../../core';
-import { error } from '@base/debug';
 import { Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
 import { LetterAtlas, shareLabelInfo } from './font-utils';

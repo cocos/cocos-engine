@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
-import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
-import { Device, deviceManager } from './gfx';
-import { settings, Settings, Pool, macro } from './core';
 import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
+import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
+import { Device, deviceManager } from './gfx';
+import { settings, Settings, macro } from './core';
 import { ForwardPipeline } from './rendering';
 import type { Root as JsbRoot } from './root';
 
@@ -121,7 +122,7 @@ rootProto.initialize = function (info: IRootInfo) {
 rootProto.createModel = function (ModelCtor) {
     let p = this._modelPools.get(ModelCtor);
     if (!p) {
-        this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
+        this._modelPools.set(ModelCtor, new memop.Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
         p = this._modelPools.get(ModelCtor)!;
     }
     const model = p.alloc();
@@ -145,7 +146,7 @@ rootProto.destroyModel = function (m) {
 rootProto.createLight = function (LightCtor) {
     let l = this._lightPools.get(LightCtor);
     if (!l) {
-        this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4, (obj) => obj.destroy()));
+        this._lightPools.set(LightCtor, new memop.Pool(() => new LightCtor(), 4, (obj) => obj.destroy()));
         l = this._lightPools.get(LightCtor)!;
     }
     const light = l.alloc();

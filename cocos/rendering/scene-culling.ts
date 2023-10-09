@@ -21,10 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { Model } from '../render-scene/scene/model';
 import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
-import { Vec3, Pool, geometry } from '../core';
-import { cclegacy } from '@base/global';
+import { Vec3, geometry } from '../core';
 import { RenderPipeline } from './render-pipeline';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
@@ -37,7 +38,7 @@ const _sphere = geometry.Sphere.create(0, 0, 0, 1);
 const _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 const _tmpBoundingBox = new AABB();
 
-const roPool = new Pool<IRenderObject>((): IRenderObject => ({ model: null!, depth: 0 }), 128);
+const roPool = new memop.Pool<IRenderObject>((): IRenderObject => ({ model: null!, depth: 0 }), 128);
 
 function getRenderObject (model: Model, camera: Camera): IRenderObject {
     let depth = 0;

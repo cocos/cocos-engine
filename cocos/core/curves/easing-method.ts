@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { assertIsTrue } from '@base/debug/internal';
 import * as easing from '../algorithm/easing';
-import { assertIsTrue } from '../data/utils/asserts';
 
 /**
  * @engineInternal

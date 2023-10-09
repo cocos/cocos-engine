@@ -22,7 +22,9 @@
  THE SOFTWARE.
 */
 
-import { array } from '../utils/js';
+import { js } from '@base/utils';
+
+const { array } = js;
 
 /**
  * @zh

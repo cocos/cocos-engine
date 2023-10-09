@@ -21,8 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { assertIsTrue } from '@base/debug/internal';
 import { Model } from './model';
-import { Vec3, assertIsTrue } from '../../core';
+import { Vec3 } from '../../core';
 import { RenderScene } from '..';
 import { Device, deviceManager } from '../../gfx';
 import { Node } from '../../scene-graph';

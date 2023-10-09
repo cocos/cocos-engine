@@ -24,13 +24,14 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { warnID, errorID } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { cclegacy } from '@base/global';
 import { Asset } from '../../asset/assets/asset';
 import { IDynamicGeometry } from '../../primitive/define';
 import { BufferBlob } from '../misc/buffer-blob';
 import { Skeleton } from './skeleton';
-import { geometry, sys, Mat4, Quat, Vec3, assertIsTrue, murmurhash2_32_gc, halfToFloat } from '../../core';
-import { warnID, errorID } from '@base/debug';
-import { cclegacy } from '@base/global';
+import { geometry, sys, Mat4, Quat, Vec3, murmurhash2_32_gc, halfToFloat } from '../../core';
 import { RenderingSubMesh } from '../../asset/assets';
 import { Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format, FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor, DrawInfo, FormatInfo, deviceManager, FormatFeatureBit } from '../../gfx';
 import { Morph } from './morph';

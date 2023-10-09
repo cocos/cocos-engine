@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { js } from '../../../core';
+import { js } from '@base/utils';
 import { Label, LabelOutline } from '../../components';
 import { bmfontUtils } from './bmfontUtils';
 import { shareLabelInfo, LetterAtlas, computeHash, LetterRenderTexture } from './font-utils';

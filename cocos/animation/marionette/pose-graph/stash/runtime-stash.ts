@@ -1,6 +1,7 @@
 import { DEBUG } from 'internal:constants';
-import { approx, assertIsTrue } from '../../../../core';
 import { error } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { approx } from '../../../../core';
 import { Pose } from '../../../core/pose';
 import { PoseGraphStash } from '../../animation-graph';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator } from '../../animation-graph-context';

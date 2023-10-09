@@ -24,8 +24,8 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 /* eslint @typescript-eslint/no-unsafe-argument: "off" */
 
+import { js } from '@base/utils';
 import spine from './spine-core.js';
-import { js } from '../../core';
 
 function overrideDefineArrayProp (prototype: any, getPropVector: any, name: string): void {
     Object.defineProperty(prototype, name, {

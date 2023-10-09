@@ -23,8 +23,8 @@
 */
 
 import { debug, error, errorID, assertID } from '@base/debug';
-import { CachedArray } from '../../core';
 import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
@@ -548,13 +548,13 @@ export class WebGLCmdBlitTexture extends WebGLCmdObject {
 }
 
 export class WebGLCmdPackage {
-    public cmds: CachedArray<WebGLCmd> = new CachedArray(1);
-    public beginRenderPassCmds: CachedArray<WebGLCmdBeginRenderPass> = new CachedArray(1);
-    public bindStatesCmds: CachedArray<WebGLCmdBindStates> = new CachedArray(1);
-    public drawCmds: CachedArray<WebGLCmdDraw> = new CachedArray(1);
-    public updateBufferCmds: CachedArray<WebGLCmdUpdateBuffer> = new CachedArray(1);
-    public copyBufferToTextureCmds: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
-    public blitTextureCmds: CachedArray<WebGLCmdBlitTexture> = new CachedArray(1);
+    public cmds: memop.CachedArray<WebGLCmd> = new memop.CachedArray(1);
+    public beginRenderPassCmds: memop.CachedArray<WebGLCmdBeginRenderPass> = new memop.CachedArray(1);
+    public bindStatesCmds: memop.CachedArray<WebGLCmdBindStates> = new memop.CachedArray(1);
+    public drawCmds: memop.CachedArray<WebGLCmdDraw> = new memop.CachedArray(1);
+    public updateBufferCmds: memop.CachedArray<WebGLCmdUpdateBuffer> = new memop.CachedArray(1);
+    public copyBufferToTextureCmds: memop.CachedArray<WebGLCmdCopyBufferToTexture> = new memop.CachedArray(1);
+    public blitTextureCmds: memop.CachedArray<WebGLCmdBlitTexture> = new memop.CachedArray(1);
 
     public clearCmds (allocator: WebGLCommandAllocator): void {
         if (this.beginRenderPassCmds.length) {

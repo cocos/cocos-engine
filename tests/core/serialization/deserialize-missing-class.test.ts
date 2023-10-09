@@ -1,7 +1,7 @@
 
+import { js } from '@base/utils';
 import { MissingScript } from '../../../cocos/misc';
 import { deserialize } from '../../../cocos/serialization/deserialize';
-import { js } from '../../../cocos/core';
 
 describe(`Missing class deserialization`, () => {
     const serialized = {

@@ -23,8 +23,8 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { Vec3, Quat, Vec4, Vec2, Mat4 } from '../../math';
 import { error } from '@base/debug';
+import { Vec3, Quat, Vec4, Vec2, Mat4 } from '../../math';
 
 export enum StorageUnit {
     Uint8, Uint16, Uint32,

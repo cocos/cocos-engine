@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
-import { BitMask, Enum } from '../core/value-types';
 import { cclegacy } from '@base/global';
-import { js } from '../core';
-import { log2 } from '../core/math/bits';
-import { assertIsTrue } from '../core/data/utils/asserts';
+import { assertIsTrue } from '@base/debug/internal';
 import { getError, warn } from '@base/debug';
+import { js } from '@base/utils';
+import { BitMask, Enum } from '../core/value-types';
+import { log2 } from '../core/math/bits';
 import { Settings, settings } from '../core/settings';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.

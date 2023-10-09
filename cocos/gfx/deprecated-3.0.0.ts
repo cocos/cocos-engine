@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { replaceProperty, removeProperty } from '../core';
 import { cclegacy } from '@base/global';
+import { replaceProperty, removeProperty } from '@base/utils';
 
 // Deprecated CC polyfill
 const polyfills = {

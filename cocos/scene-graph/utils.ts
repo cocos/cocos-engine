@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,22 +22,25 @@
  THE SOFTWARE.
 */
 
-export type EventArgumentsOf<
-    K extends string,
-    Map extends any,
-    AllowCustomEvents extends boolean = false
-> = K extends (keyof Map) ?
-    Parameters<Map[K]> :
-    (AllowCustomEvents extends true ?
-        any[] :
-        never);
+import type { Component } from './component';
 
-export type EventCallbackOf<
-    K extends string,
-    Map extends any,
-    AllowCustomEvents extends boolean = false
-> = K extends (keyof Map) ?
-    (...args: Parameters<Map[K]>) => void :
-    (AllowCustomEvents extends true ?
-        (...args: any[]) => void :
-        never);
+/**
+ * @en Create a new function that will invoke `functionName` with try catch.
+ * @zh 创建一个新函数，该函数会使用 try catch 机制调用 `functionName`.
+ * @param funcName @en The function name to be invoked with try catch.
+ * @zh 被 try catch 包裹的函数名。
+ * @returns @en A new function that will invoke `functionName` with try catch.
+ * @zh 使用 try catch 机制调用 `functionName` 的新函数.
+ */
+export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => void {
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
+    return Function(
+        'target',
+        `${'try {\n'
+        + '  target.'}${funcName}();\n`
+        + `}\n`
+        + `catch (e) {\n`
+        + `  cc._throw(e);\n`
+        + `}`,
+    ) as (comp: Component) => void;
+}

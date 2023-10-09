@@ -23,10 +23,10 @@
 */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { CCObject } from '../core/data/object';
-import * as js from '../core/utils/js';
 import { cclegacy } from '@base/global';
 import { error, errorID, getError, warn } from '@base/debug';
+import { js } from '@base/utils';
+import { CCObject } from '../core/data/object';
 import { Component } from './component';
 
 const Destroying = CCObject.Flags.Destroying;

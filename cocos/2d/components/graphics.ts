@@ -25,12 +25,12 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, visible, override, editable, serializable } from 'cc.decorator';
 import { JSB } from 'internal:constants';
+import { warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../game/director';
 import { Color } from '../../core';
-import { warnID } from '@base/debug';
-import { cclegacy } from '@base/global';
 import { scene } from '../../render-scene';
 import { IAssembler } from '../renderer/base';
 import { IBatcher } from '../renderer/i-batcher';
@@ -135,7 +135,6 @@ export class Graphics extends UIRenderer {
      * 笔触的颜色。
      */
     @tooltip('i18n:graphics.strokeColor')
-    // @constget
     get strokeColor (): Readonly<Color> {
         return this._strokeColor;
     }
@@ -157,7 +156,6 @@ export class Graphics extends UIRenderer {
      * 填充绘画的颜色。
      */
     @tooltip('i18n:graphics.fillColor')
-    // @constget
     get fillColor (): Readonly<Color> {
         return this._fillColor;
     }

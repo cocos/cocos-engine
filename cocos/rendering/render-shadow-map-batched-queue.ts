@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { SubModel } from '../render-scene/scene/submodel';
 import { isEnableEffect, SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
@@ -31,7 +32,6 @@ import { Pass, BatchingSchemes } from '../render-scene/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';
-import { cclegacy } from '@base/global';
 import { geometry } from '../core';
 import { Model } from '../render-scene/scene/model';
 import { Camera, DirectionalLight, SpotLight } from '../render-scene/scene';

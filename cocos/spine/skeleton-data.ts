@@ -23,9 +23,9 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCString, Enum } from '../core';
 import { error } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { CCString, Enum } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';

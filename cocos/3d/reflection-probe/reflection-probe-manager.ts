@@ -24,12 +24,12 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { MeshRenderer } from '../framework/mesh-renderer';
 import { ReflectionProbeType } from './reflection-probe-enum';
 import { ImageAsset, Texture2D } from '../../asset/assets';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { Vec3, geometry } from '../../core';
-import { cclegacy } from '@base/global';
 import { AABB } from '../../core/geometry';
 import { Texture } from '../../gfx';
 import { Camera, Model } from '../../render-scene/scene';

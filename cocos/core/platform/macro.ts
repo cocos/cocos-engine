@@ -874,12 +874,16 @@ interface Macro {
     /**
      * @en One angle in radian, equals to PI / 180
      * @zh 弧度制中的单位角度，等同于 PI / 180
+     *
+     * @deprecated since v3.9.0, please use `math.toRadian` instead.
      */
     RAD: number;
 
     /**
      * @en One radian in angle, equals to 180 / PI
      * @zh 角度制中的单位弧度，等同于 180 / PI
+     *
+     * @deprecated since v3.9.0, please use `math.toDegree` instead.
      */
     DEG: number;
 

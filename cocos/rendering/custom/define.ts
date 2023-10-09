@@ -23,6 +23,8 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { assert } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp, Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
 import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
@@ -37,8 +39,6 @@ import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../defi
 import { BasicPipeline, Pipeline } from './pipeline';
 import { AccessType, AttachmentType, CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { Vec2, Vec3, Vec4, macro, geometry, toRadian, nextPow2 } from '../../core';
-import { assert } from '@base/debug';
-import { cclegacy } from '@base/global';
 import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';

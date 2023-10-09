@@ -1,8 +1,8 @@
 import * as ps from 'path';
 import * as fs from 'fs-extra';
+import { gzipSync } from 'zlib';
 import { cchelper, Paths } from "../utils";
 import { CocosProjectTasks } from './cocosProjectTypes';
-import { gzipSync } from 'zlib';
 const globby = require('globby');
 const xxtea = require('xxtea-node');
 

@@ -24,10 +24,11 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, type, serializable, editable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
-import { Component } from '../scene-graph/component';
-import { Eventify, js } from '../core';
 import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { Component } from '../scene-graph/component';
+import { Eventify } from '../core';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';

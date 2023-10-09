@@ -25,8 +25,8 @@
 
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Eventify, Vec3, geometry } from '../../../../core';
 import { error } from '@base/debug';
+import { Eventify, Vec3, geometry } from '../../../../core';
 import { CharacterTriggerEventType, CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
 import { PhysicsMaterial } from '../../assets/physics-material';

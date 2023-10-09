@@ -24,6 +24,7 @@
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 import { EDITOR } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
@@ -34,7 +35,6 @@ import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
 import { IMacroPatch } from '../core/pass';
 import { Mat4, Vec3, Vec4, geometry, EPSILON } from '../../core';
-import { cclegacy } from '@base/global';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
 import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';

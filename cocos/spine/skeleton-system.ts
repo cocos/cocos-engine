@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { director } from '../game/director';
 import { System } from '../core';
-import { cclegacy } from '@base/global';
 import { Skeleton } from './skeleton';
 
 export class SkeletonSystem extends System {

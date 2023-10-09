@@ -38,7 +38,6 @@ export { GCObject } from './data/gc-object';
 
 export type { DeserializationContext } from './data/custom-serializable';
 
-export * from './data/utils/asserts';
 export * from './data/utils/compiler';
 
 export { setPropertyEnumType, setPropertyEnumTypeOnAttrs } from './data/utils/attribute-internal';
@@ -49,7 +48,6 @@ export { isCCObject, isValid } from './data/object';
 export { EasingMethod } from './curves/easing-method';
 
 export { CallbacksInvoker } from './event/callbacks-invoker';
-export { applyMixins } from './event/event-target-factory';
 
 /**
  * @engineInternal

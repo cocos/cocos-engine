@@ -24,10 +24,10 @@
 */
 
 import { ccclass, inspector, editorOnly, serializable } from 'cc.decorator';
-import { Component } from '../scene-graph/component';
 import { warnID, error } from '@base/debug';
-import { js } from '../core';
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { Component } from '../scene-graph/component';
 
 /**
  * @en

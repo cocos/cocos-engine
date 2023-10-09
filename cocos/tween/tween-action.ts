@@ -23,10 +23,10 @@
 */
 
 import { warnID, warn } from '@base/debug';
+import { VERSION } from '@base/global';
 import { easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
-import { VERSION } from '@base/global';
 
 /** adapter */
 function TweenEasingAdapter (easingName: string): string {

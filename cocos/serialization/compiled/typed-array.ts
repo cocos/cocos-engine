@@ -1,4 +1,5 @@
-import { assertIsTrue, sys } from '../../core';
+import { assertIsTrue } from '@base/debug/internal';
+import { sys } from '../../core';
 import { IRuntimeFileData } from '../deserialize';
 
 assertIsTrue(sys.isLittleEndian, `Deserialization system currently suppose little endian.`);

@@ -25,9 +25,11 @@
 
 import { EDITOR } from 'internal:constants';
 import { log, warnID } from '@base/debug';
-import { formatStr, get, getClassName, isChildClassOf, value } from '../../utils/js';
-import { isPlainEmptyObj_DEV } from '../../utils/misc';
 import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { isPlainEmptyObj } from '@base/utils/internal';
+
+const { formatStr, get, getClassName, isChildClassOf, value } = js;
 
 export const DELIMETER = '$_$';
 
@@ -226,7 +228,7 @@ export function getTypeChecker_ET (type: string, attributeName: string) {
         if (typeof defaultVal === 'undefined') {
             return;
         }
-        const isContainer = Array.isArray(defaultVal) || isPlainEmptyObj_DEV(defaultVal);
+        const isContainer = Array.isArray(defaultVal) || isPlainEmptyObj(defaultVal);
         if (isContainer) {
             return;
         }

@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../../3d/assets/mesh';
@@ -34,7 +35,6 @@ import { Root } from '../../root';
 import { GlobalDSManager } from '../../rendering/global-descriptor-set-manager';
 import { deviceManager } from '../../gfx';
 import { Enum } from '../../core';
-import { cclegacy } from '@base/global';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;

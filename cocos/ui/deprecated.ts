@@ -23,6 +23,9 @@
 */
 
 import './deprecated-1.2.0';
+import { warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { js, removeProperty, markAsWarning } from '@base/utils';
 import { UICoordinateTracker } from './ui-coordinate-tracker';
 import { BlockInputEvents } from './block-input-events';
 import { Button } from './button';
@@ -38,10 +41,7 @@ import { Widget } from './widget';
 import { PageView } from './page-view';
 import { PageViewIndicator } from './page-view-indicator';
 import { SafeArea } from './safe-area';
-import { warnID } from '@base/debug';
 import { ccclass } from '../core/data/class-decorator';
-import { js, removeProperty, markAsWarning } from '../core';
-import { cclegacy } from '@base/global';
 import { View } from './view';
 
 /**

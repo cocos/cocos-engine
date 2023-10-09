@@ -25,13 +25,13 @@
 import { ccclass, displayOrder, executeInEditMode, help, menu, slide, range, requireComponent, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { warn } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { clamp } from '../core/math';
 import { VideoClip } from './assets/video-clip';
 import { VideoPlayerImplManager } from './video-player-impl-manager';
 import { EventType, ResourceType } from './video-player-enums';
-import { cclegacy } from '@base/global';
 import { VideoPlayerImplWeb } from './video-player-impl-web';
 
 /**

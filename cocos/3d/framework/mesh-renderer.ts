@@ -24,12 +24,13 @@
 */
 import { JSB } from 'internal:constants';
 import { displayOrder, group, range } from 'cc.decorator';
+import { warnID } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { cclegacy } from '@base/global';
 import { Texture2D, TextureCube } from '../../asset/assets';
 import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
-import { Vec4, Enum, CCBoolean, CCFloat, assertIsTrue, _decorator, CCInteger, EventTarget } from '../../core';
-import { warnID } from '@base/debug';
-import { cclegacy } from '@base/global';
+import { Vec4, Enum, CCBoolean, CCFloat, _decorator, CCInteger, EventTarget } from '../../core';
 import { scene } from '../../render-scene';
 import { MorphModel } from '../models/morph-model';
 import { Root } from '../../root';

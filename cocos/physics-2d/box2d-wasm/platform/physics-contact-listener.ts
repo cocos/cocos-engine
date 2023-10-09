@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { B2 } from '../instantiated';
-import { js } from '../../../core';
 import { warn } from '@base/debug';
+import { js } from '@base/utils';
+import { B2 } from '../instantiated';
 
 export class PhysicsContactListener {
     static _BeginContact: Function | null = null;

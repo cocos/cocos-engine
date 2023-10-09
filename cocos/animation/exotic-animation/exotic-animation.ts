@@ -23,8 +23,8 @@
 */
 
 import { EDITOR, TEST } from 'internal:constants';
+import { assertIsTrue } from '@base/debug/internal';
 import { binarySearchEpsilon, clamp, lerp, Quat, Vec3, _decorator } from '../../core';
-import { assertIsTrue } from '../../core/data/utils/asserts';
 import { AnimationClipGraphBindingContext } from '../marionette/animation-graph-animation-clip-binding';
 import { TransformHandle } from '../core/animation-handle';
 import { Pose } from '../core/pose';

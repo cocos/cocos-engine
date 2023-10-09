@@ -1,5 +1,6 @@
+import { assertIsTrue } from '@base/debug/internal';
 import { PoseGraphNode } from "../../../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
-import { assertIsTrue, Asset, Constructor } from "../../../../../exports/base";
+import { Asset, Constructor } from "../../../../../exports/base";
 
 /**
  * In pose graph, describes the drag handling info for an asset type.

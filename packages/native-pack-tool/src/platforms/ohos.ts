@@ -1,9 +1,9 @@
 
-import { CocosParams, NativePackTool } from "../base/default";
 import * as ps from 'path';
 import * as fs from 'fs-extra';
-import { cchelper, Paths } from "../utils";
 import { randomBytes } from "crypto";
+import { cchelper, Paths } from "../utils";
+import { CocosParams, NativePackTool } from "../base/default";
 
 
 export interface IOrientation {
