@@ -26,12 +26,10 @@
 
 import spine from './spine-core.js';
 import { js } from '../../core';
-import { array } from 'cocos/core/utils/js.js';
 
-
-function resizeArray(array, newSize) {
+function resizeArray (array, newSize) {
     if (!array) return new Array(newSize);
-    if (newSize == array.length) return array;
+    if (newSize === array.length) return array;
     if (newSize < array.length) return array.slice(0, newSize);
     else return new Array(newSize);
 }
@@ -96,13 +94,7 @@ function overrideDefinePtrStringFunction (prototype: any, getPtr: any, name: str
             let str = '';
             const ptr = getPtr.call(this);
             const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
-            /*
-            let length = this.length + ptr;
-            for (let i = ptr; i < length; ++i) {
-                str += String.fromCharCode(HEAPU8[i]);
-            }
-            */
-            let length = this.length;
+            const length = this.length;
             const buffer = HEAPU8.subarray(ptr, ptr + length);
             str = String.fromCharCode(...buffer);
             return str;
@@ -203,8 +195,8 @@ function overrideProperty_String (): void {
         {
             proto: prototype,
             property: 'str',
-            getter: prototype.str
-        }
+            getter: prototype.str,
+        },
     ];
     propertyPolyfills.forEach((prop): void => {
         js.get(prop.proto, prop.property, prop.getter);
@@ -225,7 +217,7 @@ function overrideProperty_Vector2 (): void {
             proto: prototype,
             property: 'y',
             getter: prototype.getY,
-            setter: prototype.setY
+            setter: prototype.setY,
         },
     ];
     propertyPolyfills.forEach((prop): void => {
@@ -813,8 +805,8 @@ function overrideProperty_RegionAttachment (): void {
             return array;
         },
         set (value: number[]) {
-            setUVs.call(this, value[0], value[1], value[2], value[3], value[4] == 1);
-        }
+            setUVs.call(this, value[0], value[1], value[2], value[3], value[4] === 1);
+        },
     });
 
     const originComputeWorldVertices = prototype.computeWorldVertices;
@@ -1331,7 +1323,7 @@ function overrideProperty_Skin (): void {
     overrideDefineArrayProp(prototype, prototype.getAttachments, 'attachments');
     overrideDefineArrayProp(prototype, prototype.getConstraints, 'constraints');
     overrideDefineArrayFunction(prototype, prototype.getAttachments, 'getAttachments');
-    const originGetAttachmentsForSlot = prototype.getAttachmentsForSlot; 
+    const originGetAttachmentsForSlot = prototype.getAttachmentsForSlot;
     Object.defineProperty(prototype, 'getAttachmentsForSlot', {
         value (slotIndex: number, attachments: Array<spine.SkinEntry>) {
             const vectors = originGetAttachmentsForSlot.call(this, slotIndex);

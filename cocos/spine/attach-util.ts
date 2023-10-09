@@ -38,7 +38,7 @@ export class AttachUtil {
     protected isInitialized = false;
     protected skeletonBones: spine.Bone[] | FrameBoneInfo[] | undefined;
     protected socketNodes: Map<number, Node> | undefined;
-    private keysToDelete:number[] = [];
+    private keysToDelete: number[] = [];
 
     constructor () {
         this.isInitialized = false;
@@ -64,7 +64,7 @@ export class AttachUtil {
     }
 
     _syncAttachedNode (): void {
-        if(!this.isInitialized) return;
+        if (!this.isInitialized) return;
         const socketNodes = this.socketNodes!;
         for (const [boneIdx, boneNode] of socketNodes) {
             if (!boneNode || !boneNode.isValid) {

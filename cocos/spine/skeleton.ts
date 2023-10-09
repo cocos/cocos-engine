@@ -302,11 +302,11 @@ export class Skeleton extends UIRenderer {
     private _slotTextures: Map<number, Texture2D> | null = null;
 
     _vLength = 0;
-    _vBuffer:Uint8Array | null = null;
+    _vBuffer: Uint8Array | null = null;
     _iLength = 0;
-    _iBuffer:Uint8Array | null = null;
-    _model:any | undefined;
-    _tempColor:Color = new Color(1, 1, 1, 1);
+    _iBuffer: Uint8Array | null = null;
+    _model: any | undefined;
+    _tempColor: Color = new Color(1, 1, 1, 1);
 
     constructor () {
         super();
@@ -508,7 +508,7 @@ export class Skeleton extends UIRenderer {
     set timeScale (value) {
         if (value !== this._timeScale) {
             this._timeScale = value;
-            if(this._instance) {
+            if (this._instance) {
                 this._instance.dtRate = this._timeScale * timeScale;
             }
         }
@@ -559,7 +559,7 @@ export class Skeleton extends UIRenderer {
         }
         this._sockets = val;
         this._updateSocketBindings();
-        this.attachUtil.init(this); 
+        this.attachUtil.init(this);
     }
 
     /**
@@ -683,7 +683,6 @@ export class Skeleton extends UIRenderer {
         super.onDisable();
         this._instance.enable = false;
         SkeletonSystem.getInstance().remove(this);
-
     }
 
     public onDestroy (): void {
@@ -1612,10 +1611,10 @@ export class Skeleton extends UIRenderer {
         const b = this._color.b / 255.0;
         const a = this.node._uiProps.opacity;
 
-        if (this._tempColor.r == r ||
-            this._tempColor.g == g ||
-            this._tempColor.b == b)
-            return;
+        if (this._tempColor.r === r ||
+            this._tempColor.g === g ||
+            this._tempColor.b === b)
+            { return; }
         this._tempColor.set(r, g, b, this._tempColor.a);
         this._instance.setColor(r, g, b, a);
     }
