@@ -715,13 +715,15 @@ class SubmitInfo {
 
 class RenderPassLayoutInfo {
     protected _layoutID = 0;
+    protected _vertID = -1;
     protected _stage: RenderStageData | null = null;
     protected _layout: PipelineLayoutData;
     protected _inputName: string;
     protected _descriptorSet: DescriptorSet | null = null;
-    constructor (layoutId: number, input: [string, ComputeView[]]) {
+    constructor (layoutId: number, vertId: number, input: [string, ComputeView[]]) {
         this._inputName = input[0];
         this._layoutID = layoutId;
+        this._vertID = vertId;
         const lg = context.layoutGraph;
         this._stage = lg.getRenderStage(layoutId);
         this._layout = lg.getLayout(layoutId);
@@ -778,6 +780,7 @@ class RenderPassLayoutInfo {
     }
     get descriptorSet (): DescriptorSet | null { return this._descriptorSet; }
     get layoutID (): number { return this._layoutID; }
+    get vertID (): number { return this._vertID; }
     get stage (): RenderStageData | null { return this._stage; }
     get layout (): PipelineLayoutData { return this._layout; }
 }
@@ -992,7 +995,7 @@ class DeviceRenderPass {
             const layoutGraph = context.layoutGraph;
             const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._layout = new RenderPassLayoutInfo(stageId, input);
+                this._layout = new RenderPassLayoutInfo(stageId, this.rasterPassInfo.id, input);
             }
         }
     }
