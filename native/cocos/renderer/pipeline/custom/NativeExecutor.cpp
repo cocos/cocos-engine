@@ -28,14 +28,15 @@
 #include "LayoutGraphGraphs.h"
 #include "LayoutGraphTypes.h"
 #include "LayoutGraphUtils.h"
+#include "NativeBuiltinUtils.h"
 #include "NativePipelineFwd.h"
 #include "NativePipelineTypes.h"
+#include "NativeRenderGraphUtils.h"
 #include "NativeUtils.h"
 #include "PrivateTypes.h"
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "RenderingModule.h"
-#include "NativeRenderGraphUtils.h"
 #include "cocos/renderer/gfx-base/GFXBarrier.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDescriptorSetLayout.h"
@@ -60,10 +61,11 @@ namespace {
 
 constexpr uint32_t INVALID_ID = 0xFFFFFFFF;
 constexpr gfx::Color RASTER_COLOR{0.0, 1.0, 0.0, 1.0};
+constexpr gfx::Color RASTER_UPLOAD_COLOR{1.0, 1.0, 0.0, 1.0};
 constexpr gfx::Color RENDER_QUEUE_COLOR{0.0, 0.5, 0.5, 1.0};
 constexpr gfx::Color COMPUTE_COLOR{0.0, 0.0, 1.0, 1.0};
 
-gfx::MarkerInfo makeMarkerInfo(const char *str, const gfx::Color &color) {
+gfx::MarkerInfo makeMarkerInfo(const char* str, const gfx::Color& color) {
     return gfx::MarkerInfo{str, color};
 }
 
@@ -1124,9 +1126,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
     }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
-#if CC_DEBUG
-        ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
-#endif
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
             const auto& passes = ctx.ppl->custom.renderPasses;
@@ -1182,7 +1181,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         if (subpass.subpassID) {
             ctx.cmdBuff->nextSubpass();
         }
-        //ctx.cmdBuff->setViewport(subpass);
+        // ctx.cmdBuff->setViewport(subpass);
         tryBindPerPassDescriptorSet(vertID);
         ctx.subpassIndex = subpass.subpassID;
         // noop
@@ -1382,16 +1381,14 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             tryBindPerPassDescriptorSet(sceneID);
         }
         const auto* scene = camera->getScene();
-        const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
-        const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget];
-        queue.opaqueQueue.recordCommandBuffer(
-            ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-        queue.opaqueInstancingQueue.recordCommandBuffer(
-            ctx.currentPass, ctx.cmdBuff);
-        queue.transparentQueue.recordCommandBuffer(
-        ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
-        queue.transparentInstancingQueue.recordCommandBuffer(
-            ctx.currentPass, ctx.cmdBuff);
+        const auto& queueDesc = ctx.context.sceneCulling.renderQueueIndex.at(sceneID);
+        const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
+
+        queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0);
+
+        if (any(sceneData.flags & SceneFlags::REFLECTION_PROBE)) {
+            queue.probeQueue.removeMacro();
+        }
         if (any(sceneData.flags & SceneFlags::UI)) {
             submitUICommands(ctx.currentPass,
                              ctx.currentPassLayoutID, camera, ctx.cmdBuff);
@@ -1481,10 +1478,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         ctx.cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;
         ctx.currentPassLayoutID = LayoutGraphData::null_vertex();
-
-#if CC_DEBUG
-        ctx.cmdBuff->endMarker();
-#endif
     }
     void end(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -1676,6 +1669,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         visitObject(
             vertID, ctx.g,
             [&](const RasterPass& pass) {
+#if CC_DEBUG
+                ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
+#endif
                 mountResources(pass);
                 {
                     const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
@@ -1684,9 +1680,15 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 }
                 // update UniformBuffers and DescriptorSets in all children
                 {
+#if CC_DEBUG
+                    ctx.cmdBuff->beginMarker(makeMarkerInfo("Upload", RASTER_UPLOAD_COLOR));
+#endif
                     auto colors = ctx.g.colors(ctx.scratch);
                     RenderGraphUploadVisitor visitor{{}, ctx};
                     boost::depth_first_visit(gv, vertID, visitor, get(colors, ctx.g));
+#if CC_DEBUG
+                    ctx.cmdBuff->endMarker();
+#endif
                 }
                 if (pass.showStatistics) {
                     const auto* profiler = ctx.ppl->getProfiler();
@@ -1792,6 +1794,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             [&](const RasterPass& pass) {
                 end(pass, vertID);
                 rearBarriers(vertID);
+#if CC_DEBUG
+                ctx.cmdBuff->endMarker();
+#endif
             },
             [&](const RasterSubpass& subpass) {
                 end(subpass, vertID);
@@ -1976,7 +1981,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
     {
         auto& context = ppl.nativeContext;
         auto& sceneCulling = context.sceneCulling;
-        sceneCulling.buildRenderQueues(rg, lg, *ppl.pipelineSceneData);
+        sceneCulling.buildRenderQueues(rg, lg, ppl);
         auto& group = ppl.nativeContext.resourceGroups[context.nextFenceValue];
         // notice: we cannot use ranged-for of sceneCulling.renderQueues
         CC_EXPECTS(sceneCulling.numRenderQueues <= sceneCulling.renderQueues.size());
@@ -1984,6 +1989,16 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             const auto& queue = sceneCulling.renderQueues[queueID];
             extendResourceLifetime(queue, group);
         }
+    }
+
+    // light manangement
+    {
+        auto& ctx = ppl.nativeContext;
+        ctx.lightResources.clear();
+        ctx.lightResources.buildLights(
+            ctx.sceneCulling,
+            ppl.pipelineSceneData->isHDR(),
+            ppl.pipelineSceneData->getShadows());
     }
 
     // gpu driven
@@ -2007,6 +2022,11 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 
         // upload buffers
         {
+            auto& ctx = ppl.nativeContext;
+#if CC_DEBUG
+            submit.primaryCommandBuffer->beginMarker(makeMarkerInfo("Internal Upload", RASTER_UPLOAD_COLOR));
+#endif
+            // scene
             const auto& sceneCulling = ppl.nativeContext.sceneCulling;
             for (uint32_t queueID = 0; queueID != sceneCulling.numRenderQueues; ++queueID) {
                 // notice: we cannot use ranged-for of sceneCulling.renderQueues
@@ -2015,6 +2035,13 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
                 queue.opaqueInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
                 queue.transparentInstancingQueue.uploadBuffers(submit.primaryCommandBuffer);
             }
+
+            // lights
+            ctx.lightResources.buildLightBuffer(submit.primaryCommandBuffer);
+            ctx.lightResources.tryUpdateRenderSceneLocalDescriptorSet(sceneCulling);
+#if CC_DEBUG
+            submit.primaryCommandBuffer->endMarker();
+#endif
         }
 
         ccstd::pmr::unordered_map<

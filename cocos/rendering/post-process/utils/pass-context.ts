@@ -3,7 +3,7 @@ import { EDITOR } from 'internal:constants';
 import { QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
-import { Camera } from '../../../render-scene/scene';
+import { Camera, SKYBOX_FLAG } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
 import { getRenderArea } from '../../custom/define';
@@ -111,7 +111,7 @@ export class PassContext {
     //     return this;
     // }
 
-    addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency): PassContext {
+    addRasterView (name: string, format: Format, offscreen = true, residency: ResourceResidency = ResourceResidency.MANAGED): PassContext {
         const ppl = this.ppl;
         const camera = this.camera;
         const pass = this.pass;
@@ -154,10 +154,11 @@ export class PassContext {
 
             const clearFlag = this.clearFlag & ClearFlagBit.COLOR;
             let loadOp = LoadOp.CLEAR;
-            if (clearFlag === ClearFlagBit.NONE) {
+            if (clearFlag === ClearFlagBit.NONE && !(this.clearFlag & SKYBOX_FLAG)) {
                 loadOp = LoadOp.LOAD;
+            } else if (this.clearFlag & SKYBOX_FLAG) {
+                clearColor.set(0, 0, 0, 1);
             }
-
             pass.addRenderTarget(name, loadOp, StoreOp.STORE, clearColor);
         }
         return this;

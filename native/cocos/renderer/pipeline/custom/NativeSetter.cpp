@@ -26,6 +26,7 @@
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
+#include "cocos/scene/Light.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/SpotLight.h"
 
@@ -122,21 +123,27 @@ void NativeSetter::setBuiltinCameraConstants(const scene::Camera *camera) {
         camera->getScene()->getMainLight(), data);
 }
 
-void NativeSetter::setBuiltinDirectionalLightViewConstants(
+void NativeSetter::setBuiltinDirectionalLightFrustumConstants(
+    const scene::Camera *camera,
     const scene::DirectionalLight *light, uint32_t level) {
     CC_EXPECTS(light);
+    // if csm is actually activated, csm is not nullptr
+    // update and get csm
+    const auto *csm = getBuiltinShadowCSM(*pipelineRuntime, *camera, light);
+
+    // set data
     auto *device = pipelineRuntime->getDevice();
     const auto &sceneData = *pipelineRuntime->getPipelineSceneData();
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-    setShadowUBOLightView(device, *layoutGraph, sceneData, *light, level, data);
+    setShadowUBOLightView(device, *layoutGraph, sceneData, csm, *light, level, data);
 }
 
-void NativeSetter::setBuiltinSpotLightViewConstants(const scene::SpotLight *light) {
+void NativeSetter::setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) {
     CC_EXPECTS(light);
     auto *device = pipelineRuntime->getDevice();
     const auto &sceneData = *pipelineRuntime->getPipelineSceneData();
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-    setShadowUBOLightView(device, *layoutGraph, sceneData, *light, 0, data);
+    setShadowUBOLightView(device, *layoutGraph, sceneData, nullptr, *light, 0, data);
 }
 
 void NativeSetter::setBuiltinShadowMapConstants(
@@ -148,19 +155,177 @@ void NativeSetter::setBuiltinShadowMapConstants(
     setShadowUBOView(*device, *layoutGraph, sceneData, *light, data);
 }
 
+namespace {
+
+constexpr float LIGHT_METER_SCALE = 10000.0F;
+constexpr bool ENABLE_NEW_MULTI_LIGHT = false;
+
+} // namespace
+
 void NativeSetter::setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) {
 }
 
-void NativeSetter::setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) {
+void NativeSetter::setBuiltinSphereLightConstants(
+    const scene::SphereLight *light, const scene::Camera *camera) {
+    CC_EXPECTS(light);
+    const auto &sceneData = *pipelineRuntime->getPipelineSceneData();
+    const auto &shadowInfo = *sceneData.getShadows();
+
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+
+    if constexpr (ENABLE_NEW_MULTI_LIGHT) {
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightPos",
+            toVec4(light->getPosition(), static_cast<float>(scene::LightType::SPHERE)));
+        auto color = toVec4(light->getColor());
+        if (light->isUseColorTemperature()) {
+            const auto &rgb = light->getColorTemperatureRGB();
+            color.x *= rgb.x;
+            color.y *= rgb.y;
+            color.z *= rgb.z;
+        }
+        if (sceneData.isHDR()) {
+            color.w = light->getLuminance() * camera->getExposure() * LIGHT_METER_SCALE;
+        } else {
+            color.w = light->getLuminance();
+        }
+
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightColor", color);
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightSizeRangeAngle",
+            Vec4(
+                light->getSize(),
+                light->getRange(),
+                0.F,
+                0.F));
+    }
+    setPunctualLightShadowUBO(
+        pipelineRuntime->getDevice(), *layoutGraph, sceneData,
+        camera->getScene()->getMainLight(), *light, data);
 }
 
 void NativeSetter::setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) {
+    CC_EXPECTS(light);
+    const auto &sceneData = *this->pipelineRuntime->getPipelineSceneData();
+    const auto &shadowInfo = *sceneData.getShadows();
+
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+
+    if constexpr (ENABLE_NEW_MULTI_LIGHT) {
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightPos",
+            toVec4(light->getPosition(), static_cast<float>(scene::LightType::SPOT)));
+
+        auto color = toVec4(light->getColor());
+        if (light->isUseColorTemperature()) {
+            const auto &rgb = light->getColorTemperatureRGB();
+            color.x *= rgb.x;
+            color.y *= rgb.y;
+            color.z *= rgb.z;
+        }
+        if (sceneData.isHDR()) {
+            color.w = light->getLuminance() * camera->getExposure() * LIGHT_METER_SCALE;
+        } else {
+            color.w = light->getLuminance();
+        }
+
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightColor", color);
+
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightSizeRangeAngle",
+            Vec4(
+                light->getSize(),
+                light->getRange(),
+                light->getSpotAngle(),
+                shadowInfo.isEnabled() &&
+                        light->isShadowEnabled() &&
+                        shadowInfo.getType() == scene::ShadowType::SHADOW_MAP
+                    ? 1.0F
+                    : 0.0F));
+
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightDir",
+            toVec4(light->getDirection()));
+    }
+    setPunctualLightShadowUBO(
+        pipelineRuntime->getDevice(), *layoutGraph, sceneData,
+        camera->getScene()->getMainLight(), *light, data);
 }
 
 void NativeSetter::setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) {
+    CC_EXPECTS(light);
+    const auto &sceneData = *this->pipelineRuntime->getPipelineSceneData();
+    const auto &shadowInfo = *sceneData.getShadows();
+
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+
+    if constexpr (ENABLE_NEW_MULTI_LIGHT) {
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightPos",
+            toVec4(light->getPosition(), static_cast<float>(scene::LightType::POINT)));
+        auto color = toVec4(light->getColor());
+        if (light->isUseColorTemperature()) {
+            const auto &rgb = light->getColorTemperatureRGB();
+            color.x *= rgb.x;
+            color.y *= rgb.y;
+            color.z *= rgb.z;
+        }
+        if (sceneData.isHDR()) {
+            color.w = light->getLuminance() * camera->getExposure() * LIGHT_METER_SCALE;
+        } else {
+            color.w = light->getLuminance();
+        }
+
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightColor", color);
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightSizeRangeAngle",
+            Vec4(
+                0.F,
+                light->getRange(),
+                0.F,
+                0.F));
+    }
+    setPunctualLightShadowUBO(
+        pipelineRuntime->getDevice(), *layoutGraph, sceneData,
+        camera->getScene()->getMainLight(), *light, data);
 }
 
 void NativeSetter::setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) {
+    const auto &sceneData = *this->pipelineRuntime->getPipelineSceneData();
+    const auto &shadowInfo = *sceneData.getShadows();
+
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+
+    if constexpr (ENABLE_NEW_MULTI_LIGHT) {
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightPos",
+            toVec4(light->getPosition(), static_cast<float>(scene::LightType::RANGED_DIRECTIONAL)));
+        auto color = toVec4(light->getColor());
+        if (light->isUseColorTemperature()) {
+            const auto &rgb = light->getColorTemperatureRGB();
+            color.x *= rgb.x;
+            color.y *= rgb.y;
+            color.z *= rgb.z;
+        }
+        if (sceneData.isHDR()) {
+            color.w = light->getIlluminance() * camera->getExposure();
+        } else {
+            color.w = light->getIlluminance();
+        }
+
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightColor", color);
+        setVec4Impl(
+            data, *layoutGraph, "cc_lightSizeRangeAngle",
+            Vec4(
+                light->getRight().x,
+                light->getRight().y,
+                light->getRight().z,
+                0.F));
+    }
 }
 
 } // namespace render

@@ -106,6 +106,46 @@ using PmrUnorderedStringMultiMap = std::unordered_multimap<
     TransparentStringHash<typename Key::value_type>, std::equal_to<>,
     boost::container::pmr::polymorphic_allocator<std::pair<const Key, Value>>>;
 
+template <class Key, class Value, class Allocator, class KeyLike>
+inline typename std::map<Key, Value, std::less<>, Allocator>::mapped_type&
+at(std::map<Key, Value, std::less<>, Allocator>& m, const KeyLike& key) {
+    auto iter = m.find(key);
+    if (iter == m.end()) {
+        throw std::out_of_range("at(std::map) out of range");
+    }
+    return iter->second;
+}
+
+template <class Key, class Value, class Allocator, class KeyLike>
+inline typename std::map<Key, Value, std::less<>, Allocator>::mapped_type const&
+at(const std::map<Key, Value, std::less<>, Allocator>& m, const KeyLike& key) {
+    auto iter = m.find(key);
+    if (iter == m.end()) {
+        throw std::out_of_range("at(std::map) out of range");
+    }
+    return iter->second;
+}
+
+template <class Key, class Value, class Allocator, class KeyLike>
+inline typename boost::container::flat_map<Key, Value, std::less<>, Allocator>::mapped_type&
+at(boost::container::flat_map<Key, Value, std::less<>, Allocator>& m, const KeyLike& key) {
+    auto iter = m.find(key);
+    if (iter == m.end()) {
+        throw std::out_of_range("at(boost::container::flat_map) out of range");
+    }
+    return iter->second;
+}
+
+template <class Key, class Value, class Allocator, class KeyLike>
+inline typename boost::container::flat_map<Key, Value, std::less<>, Allocator>::mapped_type const&
+at(const boost::container::flat_map<Key, Value, std::less<>, Allocator>& m, const KeyLike& key) {
+    auto iter = m.find(key);
+    if (iter == m.end()) {
+        throw std::out_of_range("at(boost::container::flat_map) out of range");
+    }
+    return iter->second;
+}
+
 } // namespace cc
 
 namespace ccstd {

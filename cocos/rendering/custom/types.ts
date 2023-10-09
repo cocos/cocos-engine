@@ -29,9 +29,11 @@
  */
 /* eslint-disable max-len */
 import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
+import { RecyclePool } from '../../core/memop';
 
 export enum UpdateFrequency {
     PER_INSTANCE,
@@ -208,6 +210,7 @@ export enum SceneFlags {
     DRAW_NON_INSTANCING = 0x1000,
     REFLECTION_PROBE = 0x2000,
     GPU_DRIVEN = 0x4000,
+    NON_BUILTIN = 0x8000,
     ALL = 0xFFFFFFFF,
 }
 
@@ -288,12 +291,20 @@ export function getClearValueTypeName (e: ClearValueType): string {
 }
 
 export class LightInfo {
-    constructor (light: Light | null = null, level = 0, culledByLight = false) {
+    constructor (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null) {
         this.light = light;
+        this.probe = probe;
+        this.level = level;
+        this.culledByLight = culledByLight;
+    }
+    reset (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null): void {
+        this.light = light;
+        this.probe = probe;
         this.level = level;
         this.culledByLight = culledByLight;
     }
     /*refcount*/ light: Light | null;
+    /*pointer*/ probe: ReflectionProbe | null;
     level: number;
     culledByLight: boolean;
 }
@@ -339,11 +350,21 @@ export class Descriptor {
     constructor (type: Type = Type.UNKNOWN) {
         this.type = type;
     }
+    reset (type: Type = Type.UNKNOWN): void {
+        this.type = type;
+        this.count = 1;
+    }
     type: Type;
     count = 1;
 }
 
 export class DescriptorBlock {
+    reset (): void {
+        this.descriptors.clear();
+        this.uniformBlocks.clear();
+        this.capacity = 0;
+        this.count = 0;
+    }
     readonly descriptors: Map<string, Descriptor> = new Map<string, Descriptor>();
     readonly uniformBlocks: Map<string, UniformBlock> = new Map<string, UniformBlock>();
     capacity = 0;
@@ -351,6 +372,14 @@ export class DescriptorBlock {
 }
 
 export class DescriptorBlockFlattened {
+    reset (): void {
+        this.descriptorNames.length = 0;
+        this.uniformBlockNames.length = 0;
+        this.descriptors.length = 0;
+        this.uniformBlocks.length = 0;
+        this.capacity = 0;
+        this.count = 0;
+    }
     readonly descriptorNames: string[] = [];
     readonly uniformBlockNames: string[] = [];
     readonly descriptors: Descriptor[] = [];
@@ -393,6 +422,19 @@ export class ResolvePair {
         this.mode = mode;
         this.mode1 = mode1;
     }
+    reset (
+        source = '',
+        target = '',
+        resolveFlags: ResolveFlags = ResolveFlags.NONE,
+        mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+    ): void {
+        this.source = source;
+        this.target = target;
+        this.resolveFlags = resolveFlags;
+        this.mode = mode;
+        this.mode1 = mode1;
+    }
     source: string;
     target: string;
     resolveFlags: ResolveFlags;
@@ -413,6 +455,29 @@ export class CopyPair {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ) {
+        this.source = source;
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.sourceMostDetailedMip = sourceMostDetailedMip;
+        this.sourceFirstSlice = sourceFirstSlice;
+        this.sourcePlaneSlice = sourcePlaneSlice;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
+    reset (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        sourceMostDetailedMip = 0,
+        sourceFirstSlice = 0,
+        sourcePlaneSlice = 0,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): void {
         this.source = source;
         this.target = target;
         this.mipLevels = mipLevels;
@@ -454,6 +519,22 @@ export class UploadPair {
         this.targetFirstSlice = targetFirstSlice;
         this.targetPlaneSlice = targetPlaneSlice;
     }
+    reset (
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): void {
+        // source: Uint8Array size unchanged
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
     readonly source: Uint8Array;
     target: string;
     mipLevels: number;
@@ -481,6 +562,23 @@ export class MovePair {
         this.targetFirstSlice = targetFirstSlice;
         this.targetPlaneSlice = targetPlaneSlice;
     }
+    reset (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): void {
+        this.source = source;
+        this.target = target;
+        this.mipLevels = mipLevels;
+        this.numSlices = numSlices;
+        this.targetMostDetailedMip = targetMostDetailedMip;
+        this.targetFirstSlice = targetFirstSlice;
+        this.targetPlaneSlice = targetPlaneSlice;
+    }
     source: string;
     target: string;
     mipLevels: number;
@@ -491,6 +589,19 @@ export class MovePair {
 }
 
 export class PipelineStatistics {
+    reset (): void {
+        this.numRenderPasses = 0;
+        this.numManagedTextures = 0;
+        this.totalManagedTextures = 0;
+        this.numUploadBuffers = 0;
+        this.numUploadBufferViews = 0;
+        this.numFreeUploadBuffers = 0;
+        this.numFreeUploadBufferViews = 0;
+        this.numDescriptorSets = 0;
+        this.numFreeDescriptorSets = 0;
+        this.numInstancingBuffers = 0;
+        this.numInstancingUniformBlocks = 0;
+    }
     numRenderPasses = 0;
     numManagedTextures = 0;
     totalManagedTextures = 0;
@@ -504,14 +615,175 @@ export class PipelineStatistics {
     numInstancingUniformBlocks = 0;
 }
 
+export class RenderCommonObjectPoolSettings {
+    constructor (batchSize: number) {
+        this.lightInfoBatchSize = batchSize;
+        this.descriptorBatchSize = batchSize;
+        this.descriptorBlockBatchSize = batchSize;
+        this.descriptorBlockFlattenedBatchSize = batchSize;
+        this.descriptorBlockIndexBatchSize = batchSize;
+        this.resolvePairBatchSize = batchSize;
+        this.copyPairBatchSize = batchSize;
+        this.uploadPairBatchSize = batchSize;
+        this.movePairBatchSize = batchSize;
+        this.pipelineStatisticsBatchSize = batchSize;
+    }
+    lightInfoBatchSize = 16;
+    descriptorBatchSize = 16;
+    descriptorBlockBatchSize = 16;
+    descriptorBlockFlattenedBatchSize = 16;
+    descriptorBlockIndexBatchSize = 16;
+    resolvePairBatchSize = 16;
+    copyPairBatchSize = 16;
+    uploadPairBatchSize = 16;
+    movePairBatchSize = 16;
+    pipelineStatisticsBatchSize = 16;
+}
+
+export class RenderCommonObjectPool {
+    constructor (settings: RenderCommonObjectPoolSettings) {
+        this._lightInfo = new RecyclePool<LightInfo>(() => new LightInfo(), settings.lightInfoBatchSize);
+        this._descriptor = new RecyclePool<Descriptor>(() => new Descriptor(), settings.descriptorBatchSize);
+        this._descriptorBlock = new RecyclePool<DescriptorBlock>(() => new DescriptorBlock(), settings.descriptorBlockBatchSize);
+        this._descriptorBlockFlattened = new RecyclePool<DescriptorBlockFlattened>(() => new DescriptorBlockFlattened(), settings.descriptorBlockFlattenedBatchSize);
+        this._descriptorBlockIndex = new RecyclePool<DescriptorBlockIndex>(() => new DescriptorBlockIndex(), settings.descriptorBlockIndexBatchSize);
+        this._resolvePair = new RecyclePool<ResolvePair>(() => new ResolvePair(), settings.resolvePairBatchSize);
+        this._copyPair = new RecyclePool<CopyPair>(() => new CopyPair(), settings.copyPairBatchSize);
+        this._uploadPair = new RecyclePool<UploadPair>(() => new UploadPair(), settings.uploadPairBatchSize);
+        this._movePair = new RecyclePool<MovePair>(() => new MovePair(), settings.movePairBatchSize);
+        this._pipelineStatistics = new RecyclePool<PipelineStatistics>(() => new PipelineStatistics(), settings.pipelineStatisticsBatchSize);
+    }
+    reset (): void {
+        this._lightInfo.reset();
+        this._descriptor.reset();
+        this._descriptorBlock.reset();
+        this._descriptorBlockFlattened.reset();
+        this._descriptorBlockIndex.reset();
+        this._resolvePair.reset();
+        this._copyPair.reset();
+        this._uploadPair.reset();
+        this._movePair.reset();
+        this._pipelineStatistics.reset();
+    }
+    createLightInfo (
+        light: Light | null = null,
+        level = 0,
+        culledByLight = false,
+        probe: ReflectionProbe | null = null,
+    ): LightInfo {
+        const v = this._lightInfo.add();
+        v.reset(light, level, culledByLight, probe);
+        return v;
+    }
+    createDescriptor (
+        type: Type = Type.UNKNOWN,
+    ): Descriptor {
+        const v = this._descriptor.add();
+        v.reset(type);
+        return v;
+    }
+    createDescriptorBlock (): DescriptorBlock {
+        const v = this._descriptorBlock.add();
+        v.reset();
+        return v;
+    }
+    createDescriptorBlockFlattened (): DescriptorBlockFlattened {
+        const v = this._descriptorBlockFlattened.add();
+        v.reset();
+        return v;
+    }
+    createDescriptorBlockIndex (
+        updateFrequency: UpdateFrequency = UpdateFrequency.PER_INSTANCE,
+        parameterType: ParameterType = ParameterType.CONSTANTS,
+        descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
+        visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): DescriptorBlockIndex {
+        const v = this._descriptorBlockIndex.add();
+        v.updateFrequency = updateFrequency;
+        v.parameterType = parameterType;
+        v.descriptorType = descriptorType;
+        v.visibility = visibility;
+        return v;
+    }
+    createResolvePair (
+        source = '',
+        target = '',
+        resolveFlags: ResolveFlags = ResolveFlags.NONE,
+        mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+    ): ResolvePair {
+        const v = this._resolvePair.add();
+        v.reset(source, target, resolveFlags, mode, mode1);
+        return v;
+    }
+    createCopyPair (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        sourceMostDetailedMip = 0,
+        sourceFirstSlice = 0,
+        sourcePlaneSlice = 0,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): CopyPair {
+        const v = this._copyPair.add();
+        v.reset(source, target, mipLevels, numSlices, sourceMostDetailedMip, sourceFirstSlice, sourcePlaneSlice, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
+        return v;
+    }
+    createUploadPair (
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): UploadPair {
+        const v = this._uploadPair.add();
+        v.reset(target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
+        return v;
+    }
+    createMovePair (
+        source = '',
+        target = '',
+        mipLevels = 0xFFFFFFFF,
+        numSlices = 0xFFFFFFFF,
+        targetMostDetailedMip = 0,
+        targetFirstSlice = 0,
+        targetPlaneSlice = 0,
+    ): MovePair {
+        const v = this._movePair.add();
+        v.reset(source, target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
+        return v;
+    }
+    createPipelineStatistics (): PipelineStatistics {
+        const v = this._pipelineStatistics.add();
+        v.reset();
+        return v;
+    }
+    private readonly _lightInfo: RecyclePool<LightInfo>;
+    private readonly _descriptor: RecyclePool<Descriptor>;
+    private readonly _descriptorBlock: RecyclePool<DescriptorBlock>;
+    private readonly _descriptorBlockFlattened: RecyclePool<DescriptorBlockFlattened>;
+    private readonly _descriptorBlockIndex: RecyclePool<DescriptorBlockIndex>;
+    private readonly _resolvePair: RecyclePool<ResolvePair>;
+    private readonly _copyPair: RecyclePool<CopyPair>;
+    private readonly _uploadPair: RecyclePool<UploadPair>;
+    private readonly _movePair: RecyclePool<MovePair>;
+    private readonly _pipelineStatistics: RecyclePool<PipelineStatistics>;
+}
+
 export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
+    // skip, v.probe: ReflectionProbe
     ar.writeNumber(v.level);
     ar.writeBool(v.culledByLight);
 }
 
 export function loadLightInfo (ar: InputArchive, v: LightInfo): void {
     // skip, v.light: Light
+    // skip, v.probe: ReflectionProbe
     v.level = ar.readNumber();
     v.culledByLight = ar.readBool();
 }

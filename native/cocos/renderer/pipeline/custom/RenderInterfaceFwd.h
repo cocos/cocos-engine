@@ -30,9 +30,6 @@
 // clang-format off
 #pragma once
 #include "cocos/base/std/variant.h"
-#include "cocos/core/assets/EffectAsset.h"
-#include "cocos/renderer/core/PassUtils.h"
-#include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/CustomFwd.h"
 
 namespace cc {
@@ -47,6 +44,7 @@ enum class SubpassCapabilities : uint32_t;
 struct PipelineCapabilities;
 class RenderNode;
 class Setter;
+class SceneBuilder;
 class RenderQueueBuilder;
 class BasicRenderPassBuilder;
 class BasicMultisampleRenderPassBuilder;

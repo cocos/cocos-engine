@@ -41,7 +41,7 @@ const roPool = new Pool<IRenderObject>((): IRenderObject => ({ model: null!, dep
 function getRenderObject (model: Model, camera: Camera): IRenderObject {
     let depth = 0;
     if (model.node) {
-        Vec3.subtract(_tempVec3, model.node.worldPosition, camera.position);
+        Vec3.subtract(_tempVec3, model.worldBounds ? model.worldBounds.center : model.node.worldPosition, camera.position);
         depth = Vec3.dot(_tempVec3, camera.forward);
     }
     const ro = roPool.alloc();

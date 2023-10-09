@@ -1,6 +1,7 @@
+import { RecyclePool, cclegacy } from '../../core';
 import { CommandBuffer, DescriptorSet, Device, PipelineState, RenderPass, deviceManager } from '../../gfx';
-import { RenderScene } from '../../render-scene';
-import { Camera, Light, LightType, Model, SubModel } from '../../render-scene/scene';
+import { IMacroPatch } from '../../render-scene';
+import { LightType, Model, SubModel } from '../../render-scene/scene';
 import { SetIndex } from '../define';
 import { InstancedBuffer } from '../instanced-buffer';
 import { PipelineStateManager } from '../pipeline-state-manager';
@@ -29,6 +30,90 @@ export class DrawInstance {
         this.shaderID = shaderID;
         this.passIndex = passIndex;
     }
+    update (
+        subModel: SubModel | null = null,
+        priority = 0,
+        hash = 0,
+        depth = 0,
+        shaderID = 0,
+        passIndex = 0,
+    ): void {
+        this.subModel = subModel;
+        this.priority = priority;
+        this.hash = hash;
+        this.depth = depth;
+        this.shaderID = shaderID;
+        this.passIndex = passIndex;
+    }
+}
+
+export const instancePool = new RecyclePool(() => new DrawInstance(), 8);
+
+const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
+function getLayoutId (passLayout: string, phaseLayout: string): number {
+    const r = cclegacy.rendering;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return r.getPhaseID(r.getPassID(passLayout), phaseLayout);
+}
+function getPassIndexFromLayout (subModel: SubModel, phaseLayoutId: number): number {
+    const passes = subModel.passes;
+    for (let k = 0; k < passes.length; k++) {
+        if ((passes[k].phaseID === phaseLayoutId)) {
+            return k;
+        }
+    }
+    return -1;
+}
+
+export class ProbeHelperQueue {
+    probeMap: Array<SubModel> = new Array<SubModel>();
+    defaultId: number = getLayoutId('default', 'default');
+    removeMacro (): void {
+        for (const subModel of this.probeMap) {
+            let patches: IMacroPatch[] = [];
+            patches = patches.concat(subModel.patches!);
+            if (!patches.length) continue;
+            for (let j = 0; j < patches.length; j++) {
+                const patch = patches[j];
+                if (patch.name === CC_USE_RGBE_OUTPUT) {
+                    patches.splice(j, 1);
+                    break;
+                }
+            }
+            subModel.onMacroPatchesStateChanged(patches);
+        }
+    }
+    applyMacro (model: Model, probeLayoutId: number): void {
+        const subModels = model.subModels;
+        for (let j = 0; j < subModels.length; j++) {
+            const subModel: SubModel = subModels[j];
+
+            //Filter transparent objects
+            const isTransparent = subModel.passes[0].blendState.targets[0].blend;
+            if (isTransparent) {
+                continue;
+            }
+
+            let passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
+            let bUseReflectPass = true;
+            if (passIdx < 0) {
+                probeLayoutId = this.defaultId;
+                passIdx = getPassIndexFromLayout(subModel, probeLayoutId);
+                bUseReflectPass = false;
+            }
+            if (passIdx < 0) { continue; }
+            if (!bUseReflectPass) {
+                let patches: IMacroPatch[] = [];
+                patches = patches.concat(subModel.patches!);
+                const useRGBEPatchs: IMacroPatch[] = [
+                    { name: CC_USE_RGBE_OUTPUT, value: true },
+                ];
+                patches = patches.concat(useRGBEPatchs);
+                subModel.onMacroPatchesStateChanged(patches);
+                this.probeMap.push(subModel);
+            }
+        }
+    }
 }
 
 export class RenderDrawQueue {
@@ -42,8 +127,9 @@ export class RenderDrawQueue {
         const shaderId = subModel.shaders[passIdx].typedID;
         const hash = (0 << 30) | (passPriority as number << 16) | (modelPriority as number << 8) | passIdx;
         const priority = model.priority;
-
-        this.instances.push(new DrawInstance(subModel, priority, hash, depth, shaderId, passIdx));
+        const instance = instancePool.add();
+        instance.update(subModel, priority, hash, depth, shaderId, passIdx);
+        this.instances.push(instance);
     }
     /**
      * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -186,9 +272,19 @@ export class RenderQueueDesc {
         this.renderQueueTarget = renderQueueTargetIn;
         this.lightType = lightTypeIn;
     }
+    update (
+        culledSourceIn = 0xFFFFFFFF,
+        renderQueueTargetIn = 0xFFFFFFFF,
+        lightTypeIn: LightType = LightType.UNKNOWN,
+    ): void {
+        this.culledSource = culledSourceIn;
+        this.renderQueueTarget = renderQueueTargetIn;
+        this.lightType = lightTypeIn;
+    }
 }
 
 export class RenderQueue {
+    probeQueue: ProbeHelperQueue = new ProbeHelperQueue();
     opaqueQueue: RenderDrawQueue = new RenderDrawQueue();
     transparentQueue: RenderDrawQueue = new RenderDrawQueue();
     opaqueInstancingQueue: RenderInstancingQueue = new RenderInstancingQueue();
@@ -212,7 +308,8 @@ export class RenderQueue {
         instances.clear();
     }
 
-    clear (): void {
+    update (): void {
+        this.probeQueue.probeMap.length = 0;
         this.opaqueQueue.instances.length = 0;
         this.transparentQueue.instances.length = 0;
         this._clearInstances(this.opaqueInstancingQueue.batches);

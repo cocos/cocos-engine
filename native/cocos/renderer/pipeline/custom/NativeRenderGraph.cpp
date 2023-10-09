@@ -50,8 +50,8 @@ void NativeRenderNode::setCustomBehavior(const ccstd::string &name) { // NOLINT(
 RenderGraph::vertex_descriptor RenderGraph::getPassID(vertex_descriptor nodeID) const {
     CC_EXPECTS(nodeID != null_vertex());
     for (auto parentID = nodeID;
-        parentID != RenderGraph::null_vertex();
-        parentID = parent(nodeID, *this)) {
+         parentID != RenderGraph::null_vertex();
+         parentID = parent(nodeID, *this)) {
         nodeID = parentID;
     }
     CC_ENSURES(nodeID != null_vertex());
@@ -690,10 +690,27 @@ ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(const ccstd::string &
     return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
 }
 
+namespace {
+
+CullingFlags makeCullingFlags(const LightInfo &light) {
+    auto cullingFlags = CullingFlags::NONE;
+    if (light.culledByLight) {
+        cullingFlags |= CullingFlags::LIGHT_FRUSTUM;
+    } else {
+        cullingFlags |= CullingFlags::CAMERA_FRUSTUM;
+        if (light.light) {
+            cullingFlags |= CullingFlags::LIGHT_BOUNDS;
+        }
+    }
+    return cullingFlags;
+}
+
+} // namespace
+
 void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     const auto *pLight = light.light.get();
-    SceneData scene(camera->getScene(), camera, sceneFlags, light);
+    SceneData scene(camera->getScene(), camera, sceneFlags, light, makeCullingFlags(light), light.light);
     auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Camera"),
@@ -712,12 +729,18 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         *pipelineRuntime->getPipelineSceneData(),
         camera->getScene()->getMainLight(), data);
 
+    // notice: if light is not directional light, csm will be nullptr
+    const auto *csm = getBuiltinShadowCSM(
+        *pipelineRuntime, *camera,
+        dynamic_cast<const scene::DirectionalLight *>(pLight));
+
     if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
         if (pLight) {
             setShadowUBOLightView(
                 pipelineRuntime->getDevice(),
                 *layoutGraph,
                 *pipelineRuntime->getPipelineSceneData(),
+                csm, // csm might be nullptr
                 *pLight, light.level, data);
         }
     } else {
@@ -736,23 +759,108 @@ void NativeRenderQueueBuilder::addSceneOfCamera(
         data);
 }
 
-void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) {
-    std::ignore = light;
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{});
+void NativeSceneBuilder::useLightFrustum(
+    IntrusivePtr<scene::Light> light, uint32_t csmLevel, const scene::Camera *optCamera) {
+    auto &sceneData = get(SceneTag{}, nodeID, *renderGraph);
+    sceneData.light.light = light;
+    sceneData.light.level = csmLevel;
+    sceneData.light.culledByLight = true;
+    if (optCamera) {
+        sceneData.camera = optCamera;
+    }
 
-    auto sceneID = addVertex2(
+    // Disable camera frustum projection
+    sceneData.cullingFlags &= ~CullingFlags::CAMERA_FRUSTUM;
+
+    // Enable light frustum projection
+    sceneData.cullingFlags |= CullingFlags::LIGHT_FRUSTUM;
+
+    if (any(sceneData.flags & SceneFlags::NON_BUILTIN)) {
+        return;
+    }
+
+    switch (light->getType()) {
+        case scene::LightType::DIRECTIONAL: {
+            setBuiltinDirectionalLightFrustumConstants(
+                sceneData.camera, dynamic_cast<const scene::DirectionalLight *>(light.get()), csmLevel);
+        } break;
+        case scene::LightType::SPOT: {
+            setBuiltinSpotLightFrustumConstants(
+                dynamic_cast<const scene::SpotLight *>(light.get()));
+        } break;
+        default:
+            // noop
+            break;
+    }
+}
+
+SceneBuilder *NativeRenderQueueBuilder::addScene(
+    const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) {
+    const auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Scene"),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
+        std::forward_as_tuple(
+            camera->getScene(), // Scene and camera should be decoupled.
+            camera,             // They are coupled for now.
+            sceneFlags,
+            LightInfo{nullptr, 0},
+            // Objects are projected to camera by default and are culled further if light is available.
+            light ? CullingFlags::CAMERA_FRUSTUM | CullingFlags::LIGHT_BOUNDS
+                  : CullingFlags::CAMERA_FRUSTUM,
+            light),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 
+    auto builder = std::make_unique<NativeSceneBuilder>(
+        pipelineRuntime,
+        renderGraph,
+        sceneID,
+        layoutGraph,
+        layoutID);
+
+    if (!any(sceneFlags & SceneFlags::NON_BUILTIN)) {
+        // objects are projected to camera, set camera ubo
+        builder->setBuiltinCameraConstants(camera);
+
+        if (light) {
+            switch (light->getType()) {
+                case scene::LightType::DIRECTIONAL: {
+                    const auto *pDirLight = dynamic_cast<const scene::DirectionalLight *>(light);
+                    builder->setBuiltinDirectionalLightConstants(pDirLight, camera);
+                } break;
+                case scene::LightType::SPHERE: {
+                    const auto *pSphereLight = dynamic_cast<const scene::SphereLight *>(light);
+                    builder->setBuiltinSphereLightConstants(pSphereLight, camera);
+                } break;
+                case scene::LightType::SPOT: {
+                    const auto *pSpotLight = dynamic_cast<const scene::SpotLight *>(light);
+                    builder->setBuiltinSpotLightConstants(pSpotLight, camera);
+                } break;
+                case scene::LightType::POINT: {
+                    const auto *pPointLight = dynamic_cast<const scene::PointLight *>(light);
+                    builder->setBuiltinPointLightConstants(pPointLight, camera);
+                } break;
+                default:
+                    // noop
+                    break;
+            }
+        }
+
+        // set builtin legacy ubo
+        auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneID);
+        setLegacyTextureUBOView(
+            *pipelineRuntime->getDevice(),
+            *layoutGraph,
+            *pipelineRuntime->getPipelineSceneData(),
+            data);
+    }
+
     if (any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
         const auto passID = renderGraph->getPassID(nodeID);
-        const auto cullingID = dynamic_cast<const NativePipeline*>(pipelineRuntime)->nativeContext.sceneCulling.gpuCullingPassID;
+        const auto cullingID = dynamic_cast<const NativePipeline *>(pipelineRuntime)->nativeContext.sceneCulling.gpuCullingPassID;
         CC_EXPECTS(cullingID != 0xFFFFFFFF);
         if (holds<RasterPassTag>(passID, *renderGraph)) {
             ccstd::pmr::string drawIndirectBuffer("CCDrawIndirectBuffer");
@@ -760,14 +868,14 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
             ccstd::pmr::string drawInstanceBuffer("CCDrawInstanceBuffer");
             drawInstanceBuffer.append(std::to_string(cullingID));
 
-            auto& rasterPass = get(RasterPassTag{}, passID, *renderGraph);
+            auto &rasterPass = get(RasterPassTag{}, passID, *renderGraph);
             if (rasterPass.computeViews.find(drawIndirectBuffer) != rasterPass.computeViews.end()) {
                 auto res = rasterPass.computeViews.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(drawIndirectBuffer),
                     std::forward_as_tuple());
                 CC_ENSURES(res.second);
-                auto& view = res.first->second.emplace_back();
+                auto &view = res.first->second.emplace_back();
                 view.name = "CCDrawIndirectBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
@@ -778,49 +886,15 @@ void NativeRenderQueueBuilder::addScene(const scene::Camera *camera, SceneFlags 
                     std::forward_as_tuple(drawInstanceBuffer),
                     std::forward_as_tuple());
                 CC_ENSURES(res.second);
-                auto& view = res.first->second.emplace_back();
+                auto &view = res.first->second.emplace_back();
                 view.name = "CCDrawInstanceBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
             }
         }
     }
-}
 
-void NativeRenderQueueBuilder::addSceneCulledByDirectionalLight(
-    const scene::Camera *camera, SceneFlags sceneFlags,
-    scene::DirectionalLight *light, uint32_t level) {
-    CC_EXPECTS(light);
-    CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, level});
-
-    auto sceneID = addVertex2(
-        SceneTag{},
-        std::forward_as_tuple("Scene"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
-        *renderGraph, nodeID);
-    CC_ENSURES(sceneID != RenderGraph::null_vertex());
-}
-
-void NativeRenderQueueBuilder::addSceneCulledBySpotLight(
-    const scene::Camera *camera, SceneFlags sceneFlags,
-    scene::SpotLight *light) {
-    CC_EXPECTS(light);
-    CC_EXPECTS(light->getType() != scene::LightType::UNKNOWN);
-    SceneData data(camera->getScene(), camera, sceneFlags, LightInfo{light, 0});
-
-    auto sceneID = addVertex2(
-        SceneTag{},
-        std::forward_as_tuple("Scene"),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(std::move(data)),
-        *renderGraph, nodeID);
-    CC_ENSURES(sceneID != RenderGraph::null_vertex());
+    return builder.release();
 }
 
 void NativeRenderQueueBuilder::addFullscreenQuad(

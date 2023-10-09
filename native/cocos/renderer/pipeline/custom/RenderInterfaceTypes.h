@@ -320,6 +320,10 @@ constexpr bool operator!(SubpassCapabilities e) noexcept {
     return e == static_cast<SubpassCapabilities>(0);
 }
 
+constexpr SubpassCapabilities operator~(SubpassCapabilities e) noexcept {
+    return static_cast<SubpassCapabilities>(~static_cast<std::underlying_type_t<SubpassCapabilities>>(e));
+}
+
 constexpr bool any(SubpassCapabilities e) noexcept {
     return !!e;
 }
@@ -460,10 +464,23 @@ public:
     virtual void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) = 0;
     virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
     virtual void setBuiltinRangedDirectionalLightConstants(const scene::RangedDirectionalLight *light, const scene::Camera *camera) = 0;
-    virtual void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light, uint32_t level) = 0;
-    virtual void setBuiltinSpotLightViewConstants(const scene::SpotLight *light) = 0;
-    void setBuiltinDirectionalLightViewConstants(const scene::DirectionalLight *light) {
-        setBuiltinDirectionalLightViewConstants(light, 0);
+    virtual void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light, uint32_t csmLevel) = 0;
+    virtual void setBuiltinSpotLightFrustumConstants(const scene::SpotLight *light) = 0;
+    void setBuiltinDirectionalLightFrustumConstants(const scene::Camera *camera, const scene::DirectionalLight *light) {
+        setBuiltinDirectionalLightFrustumConstants(camera, light, 0);
+    }
+};
+
+class SceneBuilder : public Setter {
+public:
+    SceneBuilder() noexcept = default;
+
+    virtual void useLightFrustum(IntrusivePtr<scene::Light> light, uint32_t csmLevel, const scene::Camera *optCamera) = 0;
+    void useLightFrustum(IntrusivePtr<scene::Light> light) {
+        useLightFrustum(std::move(light), 0, nullptr);
+    }
+    void useLightFrustum(IntrusivePtr<scene::Light> light, uint32_t csmLevel) {
+        useLightFrustum(std::move(light), csmLevel, nullptr);
     }
 };
 
@@ -488,9 +505,7 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      */
     virtual void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) = 0;
-    virtual void addScene(const scene::Camera *camera, SceneFlags sceneFlags, const scene::Light *light) = 0;
-    virtual void addSceneCulledByDirectionalLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::DirectionalLight *light, uint32_t level) = 0;
-    virtual void addSceneCulledBySpotLight(const scene::Camera *camera, SceneFlags sceneFlags, scene::SpotLight *light) = 0;
+    virtual SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) = 0;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -528,8 +543,8 @@ public:
     void addSceneOfCamera(scene::Camera *camera, LightInfo light) {
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
     }
-    void addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
-        addScene(camera, sceneFlags, nullptr);
+    SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
+        return addScene(camera, sceneFlags, nullptr);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {
         addFullscreenQuad(material, passID, SceneFlags::NONE);
@@ -771,14 +786,14 @@ public:
      * @param format @en Format of the resource @zh 资源的格式
      */
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
-    virtual uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
-    virtual void updateResource(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
-    virtual uint32_t addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
-    virtual void updateTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
     virtual uint32_t addBuffer(const ccstd::string &name, uint32_t size, ResourceFlags flags, ResourceResidency residency) = 0;
     virtual void updateBuffer(const ccstd::string &name, uint32_t size) = 0;
     virtual uint32_t addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) = 0;
     virtual void updateExternalTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
+    virtual uint32_t addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
+    virtual uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateResource(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
     /**
      * @engineInternal
      * @en Begin rendering one frame
@@ -844,6 +859,7 @@ public:
      * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
+    virtual void addBuiltinReflectionProbePass(const scene::Camera *camera) = 0;
     /**
      * @engineInternal
      */
@@ -1497,6 +1513,7 @@ public:
      * @param pipeline @en Current render pipeline @zh 当前管线
      */
     virtual void setup(const ccstd::vector<scene::Camera*> &cameras, BasicPipeline *pipeline) = 0;
+    virtual void onGlobalPipelineStateChanged() = 0;
 };
 
 /**

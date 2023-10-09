@@ -24,16 +24,25 @@
 
 #pragma once
 #include <cstdint>
+#include "cocos/math/Vec4.h"
+#include "cocos/renderer/gfx-base/GFXDevice.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 
 namespace cc {
 
 namespace scene {
 class Camera;
+class Light;
 class DirectionalLight;
+class Shadows;
 } // namespace scene
+
+namespace geometry {
+class Frustum;
+} // namespace geometry
 
 namespace gfx {
 class Device;
@@ -71,8 +80,23 @@ void setShadowUBOLightView(
     gfx::Device *device,
     const LayoutGraphData &layoutGraph,
     const pipeline::PipelineSceneData &sceneData,
+    const BuiltinCascadedShadowMap *csm,
     const scene::Light &light,
     uint32_t level,
+    RenderData &data);
+
+// Additive light
+void setLightUBO(
+    const scene::Light *light, bool bHDR, float exposure,
+    const scene::Shadows *shadowInfo,
+    char *buffer, size_t bufferSize);
+
+void setPunctualLightShadowUBO(
+    gfx::Device *device,
+    const LayoutGraphData &layoutGraph,
+    const pipeline::PipelineSceneData &pplSceneData,
+    const scene::DirectionalLight *mainLight,
+    const scene::Light &light,
     RenderData &data);
 
 // Render graph
@@ -80,6 +104,18 @@ void updateRasterPassConstants(uint32_t width, uint32_t height, Setter &setter);
 
 // Geometry
 void setupQuadVertexBuffer(gfx::Device &device, const Vec4 &viewport, float vbData[16]);
+
+// Shadow
+const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
+    const PipelineRuntime &pplRuntime,
+    const scene::Camera &camera,
+    const scene::DirectionalLight *mainLight);
+
+const geometry::Frustum &getBuiltinShadowFrustum(
+    const PipelineRuntime &pplRuntime,
+    const scene::Camera &camera,
+    const scene::DirectionalLight *mainLight,
+    uint32_t level);
 
 } // namespace render
 

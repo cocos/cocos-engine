@@ -24,7 +24,10 @@
 
 #pragma once
 #include "cocos/core/ArrayBuffer.h"
+#include "cocos/math/Vec2.h"
+#include "cocos/math/Vec3.h"
 #include "cocos/math/Vec4.h"
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderInterfaceFwd.h"
@@ -74,6 +77,10 @@ void setReadWriteBufferImpl(RenderData &data, const LayoutGraphData &lg, const c
 void setReadWriteTextureImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::string &name, gfx::Texture *texture);
 
 void setSamplerImpl(RenderData &data, const LayoutGraphData &lg, const ccstd::string &name, gfx::Sampler *sampler);
+
+inline Vec4 toVec4(const Vec3 &vec, float w = 0.0F) noexcept {
+    return {vec.x, vec.y, vec.z, w};
+}
 
 } // namespace render
 
