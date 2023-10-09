@@ -26,6 +26,7 @@ import { director } from '../game/director';
 import { System } from '../core';
 import { Skeleton } from './skeleton';
 import { legacyCC } from '../core/global-exports';
+import spine from './lib/spine-core.js';
 
 export class SkeletonSystem extends System {
     /**
@@ -72,14 +73,18 @@ export class SkeletonSystem extends System {
         }
     }
 
+    index = 0;
     postUpdate (dt: number): void {
         if (!this._skeletons) {
             return;
         }
+        this.index++;
+        spine.SkeletonSystem.updateAnimation(dt);
         this._skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
             skeleton.syncAttachedNode();
         });
+        //this.index % 500 == 0 && console.log('spine update :', this.index , `count:${spine.SkeletonSystem.getCount()}`);
     }
 
     public prepareRenderData (): void {

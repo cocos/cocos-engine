@@ -26,6 +26,7 @@
 
 import spine from './spine-core.js';
 import { js } from '../../core';
+import { array, value } from 'cocos/core/utils/js.js';
 
 function overrideDefineArrayProp (prototype: any, getPropVector: any, name: string): void {
     Object.defineProperty(prototype, name, {
@@ -64,32 +65,6 @@ function overrideDefineArrayArrayProp (prototype: any, getPropVector: any, name:
     });
 }
 
-function overrideDefineArrayPropGetSet (prototype: any, getPropVector: any, setPropVector: any, Type: any, name: string): void {
-    Object.defineProperty(prototype, name, {
-        get (): any[] {
-            const array: any[] = [];
-            const vectors = getPropVector.call(this);
-            const count = vectors.size();
-            for (let i = 0; i < count; i++) {
-                const objPtr = vectors.get(i);
-                array.push(objPtr);
-            }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return array;
-        },
-        set (value: any[]) {
-            const vectors = new Type();
-            const count = value.length;
-            // vector.resize(count, 0) default 0, because currently only the number type will use this function.
-            vectors.resize(count, 0);
-            for (let i = 0; i < count; i++) {
-                vectors.set(i, value[i]);
-            }
-            setPropVector.call(this, vectors);
-        },
-    });
-}
-
 function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: string): void {
     Object.defineProperty(prototype, name, {
         value () {
@@ -106,13 +81,37 @@ function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: 
     });
 }
 
+function overrideDefinePtrStringFunction (prototype: any, getPtr: any, name: string): void {
+    Object.defineProperty(prototype, name, {
+        value (): string {
+            let str = '';
+            const ptr = getPtr.call(this);
+            const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
+            /*
+            let length = this.length + ptr;
+            for (let i = ptr; i < length; ++i) {
+                str += String.fromCharCode(HEAPU8[i]);
+            }
+            */
+            let length = this.length;
+            const buffer = HEAPU8.subarray(ptr, ptr + length);
+            str = String.fromCharCode(...buffer);
+            return str;
+        },
+    });
+}
+
 function overrideClass (wasm): void {
     spine.wasmUtil = wasm.SpineWasmUtil;
     spine.wasmUtil.wasm = wasm;
     spine.wasmUtil.spineWasmInit();
 
+    spine.SPVectorFloat = wasm.SPVectorFloat;
+
     spine.MathUtils = wasm.MathUtils;
     spine.Color = wasm.Color;
+    spine.String = wasm.String;
+    spine.Vector2 = wasm.Vector2;
     spine.Interpolation = wasm.Interpolation;
     spine.Triangulator = wasm.Triangulator;
     spine.ConstraintData = wasm.ConstraintData;
@@ -176,6 +175,53 @@ function overrideClass (wasm): void {
     spine.SwirlEffect = wasm.SwirlEffect;
 
     spine.SkeletonInstance = wasm.SkeletonInstance;
+    spine.SkeletonSystem = wasm.SkeletonSystem;
+}
+
+function overrideProperty_String (): void {
+    const prototype = spine.String.prototype as any;
+    const propertyPolyfills = [
+        {
+            proto: prototype,
+            property: 'length',
+            getter: prototype.length,
+        },
+        {
+            proto: prototype,
+            property: 'isEmpty',
+            getter: prototype.isEmpty,
+        },
+        {
+            proto: prototype,
+            property: 'str',
+            getter: prototype.str
+        }
+    ];
+    propertyPolyfills.forEach((prop): void => {
+        js.get(prop.proto, prop.property, prop.getter);
+    });
+    overrideDefinePtrStringFunction(prototype, prototype.strPtr, 'strPtr');
+}
+
+function overrideProperty_Vector2 (): void {
+    const prototype = spine.Vector2.prototype as any;
+    const propertyPolyfills = [
+        {
+            proto: prototype,
+            property: 'x',
+            getter: prototype.getX,
+            setter: prototype.setX,
+        },
+        {
+            proto: prototype,
+            property: 'y',
+            getter: prototype.getY,
+            setter: prototype.setY
+        },
+    ];
+    propertyPolyfills.forEach((prop): void => {
+        js.get(prop.proto, prop.property, prop.getter, prop.setter);
+    });
 }
 
 function overrideProperty_BoneData (): void {
@@ -543,6 +589,18 @@ function overrideProperty_VertexAttachment (): void {
     });
     overrideDefineArrayProp(prototype, prototype.getBones, 'bones');
     overrideDefineArrayProp(prototype, prototype.getVertices, 'vertices');
+    const originComputeWorldVertices = prototype.computeWorldVertices;
+    Object.defineProperty(prototype, 'computeWorldVertices', {
+        value (slot: spine.Slot, start: number, count: number, worldVertices: number[], offset: number, stride: number) {
+            const vectors = new spine.SPVectorFloat();
+            const length = worldVertices.length;
+            vectors.resize(length, 0);
+            for (let i = 0; i < length; i++) vectors.set(i, worldVertices[i]);
+            originComputeWorldVertices.call(this, slot, start, count, vectors, offset, stride);
+            for (let i = 0; i < length; i++) worldVertices[i] = vectors.get(i);
+            vectors.delete();
+        },
+    });
 }
 
 function overrideProperty_BoundingBoxAttachment (): void {
@@ -732,7 +790,33 @@ function overrideProperty_RegionAttachment (): void {
     });
 
     overrideDefineArrayProp(prototype, prototype.getOffset, 'offset');
-    overrideDefineArrayPropGetSet(prototype, prototype.getUVs, prototype.setUVs, spine.wasmUtil.wasm.VectorFloat, 'uvs');
+    const getUVs = prototype.getUVs;
+    const setUVs = prototype.setUVs;
+    Object.defineProperty(prototype, 'uvs', {
+        get (): any {
+            if(this._uvs == undefined) this._uvs = new Array(8);
+            const vectors = getUVs.call(this);
+            const count = vectors.size();
+            for (let i = 0; i < count; i++) this._uvs[i] = vectors.get(i);
+            return this._uvs;
+        },
+        set (value: number[]) {
+            setUVs.call(this, value[0], value[1], value[2], value[3], value[4] == 1);
+        }
+    });
+
+    const originComputeWorldVertices = prototype.computeWorldVertices;
+    Object.defineProperty(prototype, 'computeWorldVertices', {
+        value (bone: spine.Bone, worldVertices: number[], offset: number, stride: number) {
+            const vectors = new spine.SPVectorFloat();
+            const length = worldVertices.length;
+            vectors.resize(length, 0);
+            for (let i = 0; i < length; i++) vectors.set(i, worldVertices[i]);
+            originComputeWorldVertices.call(this, bone, vectors, offset, stride);
+            for (let i = 0; i < length; i++) worldVertices[i] = vectors.get(i);
+            vectors.delete();
+        },
+    });
 }
 
 function overrideProperty_TextureAtlas (): void {
@@ -1182,22 +1266,6 @@ function overrideProperty_Bone (): void {
         js.getset(prop.proto, prop.property, prop.getter, prop.setter);
     });
     overrideDefineArrayProp(prototype, prototype.getChildren, 'children');
-    const worldToLocal = prototype.worldToLocal;
-    Object.defineProperty(prototype, 'worldToLocal', {
-        value (vec2: spine.Vector2) {
-            const vectors = worldToLocal.call(this, vec2.x, vec2.y);
-            vec2.x = vectors.get(0);
-            vec2.y = vectors.get(1);
-        },
-    });
-    const localToWorld = prototype.localToWorld;
-    Object.defineProperty(prototype, 'localToWorld', {
-        value (vec2: spine.Vector2) {
-            const vectors = localToWorld.call(this, vec2.x, vec2.y);
-            vec2.x = vectors.get(0);
-            vec2.y = vectors.get(1);
-        },
-    });
 }
 
 function overrideProperty_Slot (): void {
@@ -1260,6 +1328,7 @@ function overrideProperty_Skin (): void {
                 const objPtr = vectors.get(i);
                 attachments.push(objPtr);
             }
+            vectors.delete();
         },
     });
     const originFindNamesForSlot = prototype.findNamesForSlot;
@@ -1271,6 +1340,7 @@ function overrideProperty_Skin (): void {
                 const objPtr = vectors.get(i);
                 names.push(objPtr);
             }
+            vectors.delete();
         },
     });
 }
@@ -1695,11 +1765,6 @@ function overrideProperty_Skeleton (): void {
         },
         {
             proto: prototype,
-            property: '_updateCache',
-            getter: prototype.getUpdateCache,
-        },
-        {
-            proto: prototype,
             property: 'skin',
             getter: prototype.getSkin,
         },
@@ -1748,6 +1813,7 @@ function overrideProperty_Skeleton (): void {
     overrideDefineArrayProp(prototype, prototype.getIkConstraints, 'ikConstraints');
     overrideDefineArrayProp(prototype, prototype.getTransformConstraints, 'transformConstraints');
     overrideDefineArrayProp(prototype, prototype.getPathConstraints, 'pathConstraints');
+    overrideDefineArrayProp(prototype, prototype.getUpdateCache, '_updateCache');
 }
 
 function overrideProperty_JitterEffect (): void {
@@ -1806,6 +1872,8 @@ function overrideProperty_SwirlEffect (): void {
 
 export function overrideSpineDefine (wasm): void {
     overrideClass(wasm);
+    overrideProperty_String();
+    overrideProperty_Vector2();
     overrideProperty_BoneData();
     overrideProperty_ConstraintData();
     overrideProperty_IkConstraintData();

@@ -47,6 +47,7 @@ public:
     TrackEntry *setAnimation(float trackIndex, const std::string &name, bool loop);
     void setSkin(const std::string &name);
     void updateAnimation(float dltTime);
+    void preUpdateRenderData();
     SpineModel *updateRenderData();
     void setPremultipliedAlpha(bool val);
     void setUseTint(bool useTint);
@@ -62,7 +63,10 @@ public:
     std::vector<SpineDebugShape> &getDebugShapes();
     void resizeSlotRegion(const std::string &slotName, uint32_t width, uint32_t height, bool createNew = false);
     void setSlotTexture(const std::string &slotName, uint32_t index);
-
+    bool isCache = false;
+    bool enable = true;
+    float dtRate = 1;
+    bool isDelete = false;
 private:
     void collectMeshData();
 

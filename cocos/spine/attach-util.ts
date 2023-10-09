@@ -36,74 +36,64 @@ const tempMat4 = new Mat4();
  */
 export class AttachUtil {
     protected _inited = false;
-    protected _skeleton: spine.Skeleton | null = null;
-    protected _skeletonNode: Node|null = null;
-    protected _skeletonComp: Skeleton|null = null;
+    protected skeletonBones: spine.Bone[] | null = [];
 
     constructor () {
         this._inited = false;
-        this._skeleton = null;
-        this._skeletonNode = null;
-        this._skeletonComp = null;
     }
 
     init (skeletonComp: Skeleton): void {
         this._inited = true;
-        this._skeleton = skeletonComp._skeleton;
-        this._skeletonNode = skeletonComp.node;
-        this._skeletonComp = skeletonComp;
+        this.skeletonBones = skeletonComp._skeleton.bones;
     }
 
     reset (): void {
         this._inited = false;
-        this._skeleton = null;
-        this._skeletonNode = null;
-        this._skeletonComp = null;
+        this.skeletonBones = null;
     }
 
-    _syncAttachedNode (): void {
-        if (!this._inited) return;
-
-        const socketNodes = this._skeletonComp!.socketNodes;
-        if (socketNodes.size === 0) return;
-
-        let boneInfos;
-        const isCached = this._skeletonComp!.isAnimationCached();
-        if (isCached && this._skeletonComp!._curFrame) {
-            boneInfos = this._skeletonComp!._curFrame.boneInfos;
-        } else {
-            boneInfos = this._skeleton!.bones;
+    _syncAttachedNode (skeletonComp: Skeleton): void {
+        if (!this._inited || skeletonComp!.socketNodes.size === 0) {
+            return;
         }
-
-        if (!boneInfos || boneInfos.length < 1) return;
-
-        const matrixHandle = (node: Node, bone: any): void => {
-            const tm = tempMat4;
-            tm.m00 = bone.a;
-            tm.m01 = bone.c;
-            tm.m04 = bone.b;
-            tm.m05 = bone.d;
-            tm.m12 = bone.worldX;
-            tm.m13 = bone.worldY;
-            node.matrix = tempMat4;
-        };
-
-        for (const boneIdx of socketNodes.keys()) {
-            const boneNode = socketNodes.get(boneIdx);
-            // Node has been destroy
+        const isCached = skeletonComp!.isAnimationCached();
+        const boneInfos = isCached && skeletonComp!._curFrame ? skeletonComp!._curFrame.boneInfos : this.skeletonBones;
+        
+        if (!boneInfos || boneInfos.length < 1) {
+            return;
+        }
+        const socketNodes = skeletonComp!.socketNodes;
+        const keysToDelete = [];
+    
+        for (const [boneIdx, boneNode] of socketNodes) {
             if (!boneNode || !boneNode.isValid) {
-                socketNodes.delete(boneIdx);
+                keysToDelete.push(boneIdx);
                 continue;
             }
+    
             const bone = boneInfos[boneIdx];
-            // Bone has been destroy
             if (!bone) {
                 boneNode.removeFromParent();
                 boneNode.destroy();
-                socketNodes.delete(boneIdx);
+                keysToDelete.push(boneIdx);
                 continue;
             }
-            matrixHandle(boneNode, bone);
+    
+           this.matrixHandle(boneNode, bone);
         }
+        for (const boneIdx of keysToDelete) {
+            socketNodes.delete(boneIdx);
+        }
+    }
+
+    matrixHandle (node: Node, bone: any): void {
+        const tm = tempMat4;
+        tm.m00 = bone.a;
+        tm.m01 = bone.c;
+        tm.m04 = bone.b;
+        tm.m05 = bone.d;
+        tm.m12 = bone.worldX;
+        tm.m13 = bone.worldY;
+        node.matrix = tempMat4;
     }
 }

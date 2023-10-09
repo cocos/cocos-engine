@@ -55,7 +55,7 @@ public:
             size_t _slotIndex;
             String _name;
             Attachment *_attachment;
-
+            //Entry();
             Entry(size_t slotIndex, const String &name, Attachment *attachment) : _slotIndex(slotIndex),
                                                                                   _name(name),
                                                                                   _attachment(attachment) {
