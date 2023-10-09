@@ -272,6 +272,18 @@ export function clearTimeoutRAF (id: number): void {
 }
 
 /**
+ * Invoke a function in next frame.
+ * @param callback The function to be invoked next frame.
+ * @param p1 The first parameter passed to `callback`.
+ * @param p2 The seconde parameter passed to `callback`.
+ */
+export function callInNextTick (callback: AnyFunction, p1?: unknown, p2?: unknown): void {
+    setTimeoutRAF(() => {
+        callback(p1, p2);
+    }, 0);
+}
+
+/**
  * This is a web specific util to checks whether a node is a descendant of a given node, that is the node itself, one of its direct
  * children (childNodes), one of the children's direct children, and so on.
  */
