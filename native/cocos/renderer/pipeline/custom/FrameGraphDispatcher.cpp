@@ -1602,7 +1602,7 @@ constexpr gfx::AccessFlags allStageReadAccess(const ResourceDesc& desc) {
     if ((flags & ResourceFlags::STORAGE) != ResourceFlags::NONE) {
         ret = gfx::AccessFlags::COMPUTE_SHADER_READ_OTHER | gfx::AccessFlags::FRAGMENT_SHADER_READ_OTHER | gfx::AccessFlags::VERTEX_SHADER_READ_OTHER;
     } else if (isBuffer) { // NOLINT(misc-redundant-expression)
-        ret = gfx::AccessFlags::COMPUTE_SHADER_READ_UNIFORM_BUFFER | gfx::AccessFlags::COMPUTE_SHADER_READ_UNIFORM_BUFFER | gfx::AccessFlags::VERTEX_SHADER_READ_UNIFORM_BUFFER;
+        ret = gfx::AccessFlags::COMPUTE_SHADER_READ_UNIFORM_BUFFER | gfx::AccessFlags::FRAGMENT_SHADER_READ_UNIFORM_BUFFER | gfx::AccessFlags::VERTEX_SHADER_READ_UNIFORM_BUFFER;
     } else {
         ret = gfx::AccessFlags::COMPUTE_SHADER_READ_TEXTURE | gfx::AccessFlags::FRAGMENT_SHADER_READ_TEXTURE | gfx::AccessFlags::VERTEX_SHADER_READ_TEXTURE;
     }
