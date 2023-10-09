@@ -26,7 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { error } from '@base/debug';
 import { js } from '@base/utils';
-import { callInNextTick } from '@pal/utils';
+import { callInNextTick } from '../../core/utils/internal';
 import { Asset } from '../assets/asset';
 import { misc } from '../../core';
 import Config from './config';

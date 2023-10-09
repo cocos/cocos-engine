@@ -26,11 +26,12 @@
 /* eslint-disable no-new-func */
 
 import { DEBUG, DEV } from 'internal:constants';
-import { isDescendantElementOf, isDomNode as _isDomNode, setTimeoutRAF, callInNextTick as _callInNextTick } from '@pal/utils';
+import { isDescendantElementOf, isDomNode as _isDomNode, setTimeoutRAF } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
 import { isPlainEmptyObj } from '@base/utils/internal';
+import { callInNextTick as _callInNextTick } from './internal';
 import { toRadian, toDegree, clamp } from '../math';
 import values from '../../../external/compression/base64-values';
 

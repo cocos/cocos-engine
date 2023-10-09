@@ -24,7 +24,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { js } from '@base/utils';
-import { callInNextTick } from '@pal/utils';
+import { callInNextTick } from '../../core/utils/internal';
 import { Asset } from '../assets/asset';
 import { isValid, misc } from '../../core';
 import { Node, Scene } from '../../scene-graph';

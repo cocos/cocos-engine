@@ -25,7 +25,7 @@
 import { BUILD, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
-import { callInNextTick } from '@pal/utils';
+import { callInNextTick } from '../../core/utils/internal';
 import { sys, misc, path } from '../../core';
 import Cache from './cache';
 import downloadFile, { FileProgressCallback } from './download-file';
