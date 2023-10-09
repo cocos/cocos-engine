@@ -333,8 +333,8 @@ exports.methods = {
                 const data = ModeMap.wrap[wrapModeName];
                 if (!meta.subMetas[textureKey]) {
                     meta.subMetas[textureKey] = {
-                        userData: {}
-                    }
+                        userData: {},
+                    };
                 }
                 let wrapModeCache = await Editor.Profile.getConfig('inspector', `${meta.uuid}@${textureKey}.texture.wrapMode`, 'default');
                 if (!wrapModeCache) {
