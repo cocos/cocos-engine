@@ -146,8 +146,8 @@ function doDefine (className: string | undefined, baseClass: Constructor | null,
 
     if (DEV) {
         // check ctor
-        if (CCClass._isCCClass(ctor) && className) {
-            errorID(3618, className);
+        if (CCClass._isCCClass(ctor)) {
+            errorID(3618, className!);
         }
     }
 
@@ -159,9 +159,7 @@ function doDefine (className: string | undefined, baseClass: Constructor | null,
         (ctor as any).$super = baseClass;
     }
 
-    if (className) {
-        js.setClassName(className, ctor);
-    }
+    js.setClassName(className!, ctor);
     return ctor;
 }
 
@@ -206,9 +204,7 @@ function define (className: string | undefined, baseClass: Constructor | null, o
         // cc-class is defined by `cc.Class({/* ... */})`.
         // In such case, `options.ctor` may be `undefined`.
         // So we can not use `options.ctor`. Instead, we should use `cls` which is the "real" registered cc-class.
-        if (className) {
-            EditorExtends.emit('class-registered', cls, frame, className);
-        }
+        EditorExtends.emit('class-registered', cls, frame, className!);
     }
 
     if (frame) {
