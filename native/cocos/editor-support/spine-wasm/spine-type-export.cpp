@@ -109,6 +109,7 @@ using SPVectorFloat = Vector<float>;
 using SPVectorVectorFloat = Vector<Vector<float>>;
 using SPVectorInt = Vector<int>;
 using SPVectorVectorInt = Vector<Vector<int>>;
+using SPVectorSize_t = Vector<size_t>;
 using SPVectorBonePtr = Vector<Bone*>;
 using SPVectorBoneDataPtr = Vector<BoneData*>;
 using SPVectorUnsignedShort = Vector<unsigned short>;
@@ -189,6 +190,24 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("size", &SPVectorVectorInt::size)
         .function("get", &SPVectorVectorInt::operator[], allow_raw_pointers())
         .function("set",optional_override([](SPVectorVectorInt &obj, int index, SPVectorInt &value) {
+            obj[index] = value;
+        }));
+
+    class_<SPVectorSize_t>("SPVectorSize_t")
+        .constructor<>()
+        .function("resize", &SPVectorSize_t::setSize)
+        .function("size", &SPVectorSize_t::size)
+        .function("get", &SPVectorSize_t::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorSize_t &obj, size_t index, size_t value) { 
+            obj[index] = value;
+        }));
+    
+    class_<SPVectorUnsignedShort>("SPVectorUnsignedShort")
+        .constructor<>()
+        .function("resize", &SPVectorUnsignedShort::setSize)
+        .function("size", &SPVectorUnsignedShort::size)
+        .function("get", &SPVectorUnsignedShort::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorUnsignedShort &obj, int index, int value) { 
             obj[index] = value;
         }));
 
@@ -308,6 +327,15 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("set",optional_override([](SPVectorTrackEntryPtr &obj, int index, TrackEntry *value) {
             obj[index] = value;
         }), allow_raw_pointer<TrackEntry*>());
+
+    class_<SPVectorUpdatablePtr>("SPVectorUpdatablePtr")
+        .constructor<>()
+        .function("resize", &SPVectorUpdatablePtr::setSize)
+        .function("size", &SPVectorUpdatablePtr::size)
+        .function("get", &SPVectorUpdatablePtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorUpdatablePtr &obj, int index, Updatable *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<Updatable*>());
 
 
     class_<Vector2>("Vector2")
@@ -502,7 +530,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<IkConstraintData, base<ConstraintData>>("IkConstraintData")
         .constructor<const String &>()
-        .function("getBones", &IkConstraintData::getBones, allow_raw_pointer<SPVectorBoneDataPtr>()) 
+        .function("getBones", optional_override([](IkConstraintData &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>()) 
         .function("getTarget", &IkConstraintData::getTarget, allow_raw_pointer<BoneData>())
         .function("setTarget", &IkConstraintData::setTarget, allow_raw_pointer<BoneData>())
         .function("getBendDirection", &IkConstraintData::getBendDirection)
@@ -520,7 +549,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<PathConstraintData, base<ConstraintData>>("PathConstraintData")
         .constructor<const String &>()
-        .function("getBones", &PathConstraintData::getBones, allow_raw_pointer<SPVectorBoneDataPtr>())
+        .function("getBones",optional_override([](PathConstraintData &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
         .function("getTarget", &PathConstraintData::getTarget, allow_raw_pointer<SlotData>())
         .function("setTarget", &PathConstraintData::setTarget, allow_raw_pointer<SlotData>())
         .function("getPositionMode", &PathConstraintData::getPositionMode)
@@ -605,8 +635,10 @@ EMSCRIPTEN_BINDINGS(spine) {
     // pure_virtual and raw pointer
     class_<VertexAttachment, base<Attachment>>("VertexAttachment")
         .function("getId", &VertexAttachment::getId)
-        .function("getBones", &VertexAttachment::getBones, allow_raw_pointer<SPVectorBoneDataPtr>())
-        .function("getVertices", &VertexAttachment::getVertices, allow_raw_pointer<SPVectorFloat>())
+        .function("getBones", optional_override([](VertexAttachment &obj){
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorSize_t>())
+        .function("getVertices", optional_override([](VertexAttachment &obj){
+            return &obj.getVertices(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getWorldVerticesLength", &VertexAttachment::getWorldVerticesLength)
         .function("setWorldVerticesLength", &VertexAttachment::setWorldVerticesLength)
         .function("getDeformAttachment", &VertexAttachment::getDeformAttachment, allow_raw_pointer<VertexAttachment>())
@@ -634,9 +666,12 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setPath", optional_override([](MeshAttachment &obj, const std::string &path) {
             const String &pathSP = STRING_STD2SP(path);
             obj.setPath(pathSP); }))
-        .function("getRegionUVs", &MeshAttachment::getRegionUVs, allow_raw_pointer<SPVectorFloat>())
-        .function("getUVs",  &MeshAttachment::getUVs, allow_raw_pointer<SPVectorFloat>())
-        .function("getTriangles",  &MeshAttachment::getTriangles, allow_raw_pointer<SPVectorUnsignedShort>())
+        .function("getRegionUVs", optional_override([](MeshAttachment &obj) {
+            return &obj.getRegionUVs(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getUVs", optional_override([](MeshAttachment &obj) { 
+            return &obj.getUVs(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getTriangles", optional_override([](MeshAttachment &obj) {
+            return &obj.getTriangles(); }), allow_raw_pointer<SPVectorUnsignedShort>())
         .function("getColor", optional_override([](MeshAttachment &obj) {
             return &obj.getColor(); }), allow_raw_pointers())
         .function("getWidth", &MeshAttachment::getWidth)
@@ -645,7 +680,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setHeight", &MeshAttachment::setHeight)
         .function("getHullLength", &MeshAttachment::getHullLength)
         .function("setHullLength", &MeshAttachment::setHullLength)
-        .function("getEdges", &MeshAttachment::getEdges, allow_raw_pointer<SPVectorUnsignedShort>())
+        .function("getEdges", optional_override([](MeshAttachment &obj) {
+            return &obj.getEdges(); }), allow_raw_pointer<SPVectorUnsignedShort>())
         .function("updateUVs", &MeshAttachment::updateUVs)
         .function("getParentMesh", &MeshAttachment::getParentMesh, allow_raw_pointers())
         .function("setParentMesh", &MeshAttachment::setParentMesh, allow_raw_pointers())
@@ -654,7 +690,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<PathAttachment, base<VertexAttachment>>("PathAttachment")
         .constructor<const String &>()
-        .function("getLengths", &PathAttachment::getLengths, allow_raw_pointer<SPVectorFloat>())
+        .function("getLengths", optional_override([](PathAttachment &obj) {
+            return &obj.getLengths(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getClosed", &PathAttachment::isClosed)
         .function("setClosed", &PathAttachment::setClosed)
         .function("getConstantSpeed", &PathAttachment::isConstantSpeed)
@@ -698,9 +735,11 @@ EMSCRIPTEN_BINDINGS(spine) {
             const String &pathSP = STRING_STD2SP(path);
             obj.setPath(pathSP); }))
         .function("getRendererObject", &RegionAttachment::getRendererObject, allow_raw_pointers())
-        .function("getOffset", &RegionAttachment::getOffset, allow_raw_pointer<SPVectorFloat>())
+        .function("getOffset", optional_override([](RegionAttachment &obj) {
+            return &obj.getOffset(); }), allow_raw_pointer<SPVectorFloat>())
         .function("setUVs", &RegionAttachment::setUVs)
-        .function("getUVs", &RegionAttachment::getUVs, allow_raw_pointer<SPVectorFloat>())
+        .function("getUVs", optional_override([](RegionAttachment &obj) {
+            return &obj.getUVs(); }), allow_raw_pointer<SPVectorFloat>())
         .function("updateOffset", &RegionAttachment::updateOffset)
         .function("computeWorldVertices", select_overload<void(Bone&, Vector<float>&, size_t, size_t)>
         (&RegionAttachment::computeWorldVertices), allow_raw_pointer<SPVectorFloat>())
@@ -781,7 +820,8 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<IkConstraint, base<Updatable>>("IkConstraint")
         .constructor<IkConstraintData &, Skeleton &>()
         .function("getData", &IkConstraint::getData, allow_raw_pointers())
-        .function("getBones", &IkConstraint::getBones, allow_raw_pointer<SPVectorBonePtr>())
+        .function("getBones", optional_override([](IkConstraint &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getTarget", &IkConstraint::getTarget, allow_raw_pointer<Bone>())
         .function("setTarget", &IkConstraint::setTarget, allow_raw_pointer<Bone>())
         .function("getBendDirection", &IkConstraint::getBendDirection)
@@ -813,7 +853,8 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<PathConstraint, base<Updatable>>("PathConstraint")
         .constructor<PathConstraintData &, Skeleton &>()
         .function("getData", &PathConstraint::getData, allow_raw_pointers())
-        .function("getBones", &PathConstraint::getBones, allow_raw_pointer<SPVectorBonePtr>())
+        .function("getBones", optional_override([](PathConstraint &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getTarget", &PathConstraint::getTarget, allow_raw_pointer<Slot>())
         .function("setTarget", &PathConstraint::setTarget, allow_raw_pointer<Slot>())
         .function("getPosition", &PathConstraint::getPosition)
@@ -832,7 +873,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<TransformConstraintData, base<ConstraintData>>("TransformConstraintData")
         .constructor<const String &>()
-        .function("getBones", &TransformConstraintData::getBones, allow_raw_pointer<SPVectorBoneDataPtr>())
+        .function("getBones", optional_override([](TransformConstraintData &obj) { 
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
         .function("getTarget", &TransformConstraintData::getTarget, allow_raw_pointers())
         .function("getRotateMix", &TransformConstraintData::getRotateMix)
         .function("getTranslateMix", &TransformConstraintData::getTranslateMix)
@@ -850,7 +892,8 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<TransformConstraint, base<Updatable>>("TransformConstraint")
         .constructor<TransformConstraintData &, Skeleton &>()
         .function("getData", &TransformConstraint::getData, allow_raw_pointers())
-        .function("getBones", &TransformConstraint::getBones, allow_raw_pointer<SPVectorBonePtr>())
+        .function("getBones", optional_override([](TransformConstraint &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getTarget", &TransformConstraint::getTarget, allow_raw_pointers())
         .function("getRotateMix", &TransformConstraint::getRotateMix)
         .function("setRotateMix", &TransformConstraint::setRotateMix)
@@ -874,7 +917,8 @@ EMSCRIPTEN_BINDINGS(spine) {
             return &obj.getSkeleton(); }), allow_raw_pointers())
         .function("getParent", optional_override([](Bone &obj) {
             return obj.getParent(); }), allow_raw_pointers())
-        .function("getChildren",  &Bone::getChildren, allow_raw_pointer<SPVectorBonePtr>())
+        .function("getChildren", optional_override([](Bone &obj) {
+            return &obj.getChildren(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getX", &Bone::getX)
         .function("setX", &Bone::setX)
         .function("getY", &Bone::getY)
@@ -997,8 +1041,10 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<const String &>()
         .function("getName", optional_override([](Skin &obj) {
             return STRING_SP2STD(obj.getName()); }))
-        .function("getBones", &Skin::getBones, allow_raw_pointer<SPVectorBoneDataPtr>())
-        .function("getConstraints", &Skin::getConstraints, allow_raw_pointer<SPVectorConstraintDataPtr>())
+        .function("getBones", optional_override([](Skin &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
+        .function("getConstraints", optional_override([](Skin &obj) {
+            return &obj.getConstraints(); }), allow_raw_pointer<SPVectorConstraintDataPtr>())
         .function("setAttachment", optional_override([](Skin &obj, size_t index,
         const std::string &name, Attachment *attachment) {
             return obj.setAttachment(index, STRING_STD2SP(name), attachment);
@@ -1061,16 +1107,24 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getName", optional_override([](SkeletonData &obj) {
             return STRING_SP2STD(obj.getName()); }))
         .function("setName", &SkeletonData::setName)
-        .function("getBones", &SkeletonData::getBones, allow_raw_pointer<SPVectorBoneDataPtr>())
-        .function("getSlots", &SkeletonData::getSlots, allow_raw_pointer<SPVectorSlotPtr>())
-        .function("getSkins", &SkeletonData::getSkins, allow_raw_pointer<SPVectorSkinPtr>())
+        .function("getBones", optional_override([](SkeletonData &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
+        .function("getSlots", optional_override([](SkeletonData &obj) {
+            return &obj.getSlots(); }), allow_raw_pointer<SPVectorSlotPtr>())
+        .function("getSkins", optional_override([](SkeletonData &obj) {
+            return &obj.getSkins(); }), allow_raw_pointer<SPVectorSkinPtr>())
         .function("getDefaultSkin", &SkeletonData::getDefaultSkin, allow_raw_pointers())
         .function("setDefaultSkin", &SkeletonData::setDefaultSkin, allow_raw_pointers())
-        .function("getEvents", &SkeletonData::getEvents, allow_raw_pointer<SPVectorEventDataPtr>())
-        .function("getAnimations", &SkeletonData::getAnimations, allow_raw_pointer<SPVectorAnimationPtr>())
-        .function("getIkConstraints", &SkeletonData::getIkConstraints, allow_raw_pointer<SPVectorIkConstraintDataPtr>())
-        .function("getTransformConstraints", &SkeletonData::getTransformConstraints, allow_raw_pointer<SPVectorTransformConstraintPtr>())
-        .function("getPathConstraints", &SkeletonData::getPathConstraints, allow_raw_pointer<SPVectorPathConstraintPtr>())
+        .function("getEvents", optional_override([](SkeletonData &obj) {
+            return &obj.getEvents(); }), allow_raw_pointer<SPVectorEventDataPtr>())
+        .function("getAnimations", optional_override([](SkeletonData &obj) {
+            return &obj.getAnimations(); }), allow_raw_pointer<SPVectorAnimationPtr>())
+        .function("getIkConstraints", optional_override([](SkeletonData &obj) {
+            return &obj.getIkConstraints(); }), allow_raw_pointer<SPVectorIkConstraintDataPtr>())
+        .function("getTransformConstraints", optional_override([](SkeletonData &obj) {
+            return &obj.getTransformConstraints(); }), allow_raw_pointer<SPVectorTransformConstraintPtr>())
+        .function("getPathConstraints", optional_override([](SkeletonData &obj) {
+            return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintPtr>())
         .function("getX", &SkeletonData::getX)
         .function("setX", &SkeletonData::setX)
         .function("getY", &SkeletonData::getY)
@@ -1125,7 +1179,8 @@ EMSCRIPTEN_BINDINGS(spine) {
             obj.apply(skeleton, lastTime, time, loop, &pEvents, alpha, blend, direction);
         }))
         .function("getName", optional_override([](Animation &obj) { return STRING_SP2STD(obj.getName()); }))
-        .function("getTimelines", &Animation::getTimelines, allow_raw_pointer<SPVectorTimelinePtr>())
+        .function("getTimelines", optional_override([](Animation &obj) {
+            return &obj.getTimelines(); }), allow_raw_pointer<SPVectorTimelinePtr>())
         .function("hasTimeline", &Animation::hasTimeline)
         .function("getDuration", &Animation::getDuration)
         .function("setDuration", &Animation::setDuration);
@@ -1191,7 +1246,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         //.class_property("ENTRIES", &RotateTimeline::ENTRIES) not bind
         .function("getBoneIndex", &RotateTimeline::getBoneIndex)
         .function("setBoneIndex", &RotateTimeline::setBoneIndex)
-        .function("getFrames", &RotateTimeline::getFrames, allow_raw_pointer<SPVectorFloat>())
+        .function("getFrames", optional_override([](RotateTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &RotateTimeline::getPropertyId)
         .function("setFrame", &RotateTimeline::setFrame)
         .function("apply", optional_override([](RotateTimeline &obj, Skeleton &skeleton,
@@ -1206,7 +1262,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .class_property("ENTRIES", &ColorTimeline::ENTRIES) 
         .function("getSlotIndex", &ColorTimeline::getSlotIndex)
         .function("setSlotIndex", &ColorTimeline::setSlotIndex)
-        .function("getFrames", &ColorTimeline::getFrames, allow_raw_pointer<SPVectorFloat>())
+        .function("getFrames", optional_override([](ColorTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &ColorTimeline::getPropertyId)
         .function("setFrame", &ColorTimeline::setFrame)
         .function("apply", optional_override([](ColorTimeline &obj, Skeleton &skeleton,
@@ -1234,7 +1291,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<int>()
         .function("getSlotIndex", &AttachmentTimeline::getSlotIndex)
         .function("setSlotIndex", &AttachmentTimeline::setSlotIndex)
-        .function("getFrames", &AttachmentTimeline::getFrames, allow_raw_pointer<SPVectorFloat>())
+        .function("getFrames", optional_override([](AttachmentTimeline &obj) {
+             return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getAttachmentNames",optional_override([](AttachmentTimeline &obj) {
             Vector<String> attachmentNames = obj.getAttachmentNames();
             return VECTOR_SP2STD_STRING(attachmentNames); }), allow_raw_pointers())
@@ -1257,8 +1315,10 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setSlotIndex", &DeformTimeline::setSlotIndex)
         .function("getAttachment", &DeformTimeline::getAttachment, allow_raw_pointers())
         .function("setAttachment", &DeformTimeline::setAttachment, allow_raw_pointers())
-        .function("getFrames",  &DeformTimeline::getFrames, allow_raw_pointer<SPVectorFloat>())
-        .function("getFrameVertices", &DeformTimeline::getVertices, allow_raw_pointer<SPVectorVectorFloat>())
+        .function("getFrames", optional_override([](DeformTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getFrameVertices", optional_override([](DeformTimeline &obj) {
+            return &obj.getVertices(); }), allow_raw_pointer<SPVectorVectorFloat>())
         .function("getPropertyId", &DeformTimeline::getPropertyId)
         .function("setFrame", optional_override([](DeformTimeline &obj, int frameIndex, float time, std::vector<float> &vertices){
             Vector<float> sp_vertices = VECTOR_STD2SP(vertices);
@@ -1273,8 +1333,10 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<EventTimeline, base<Timeline>>("EventTimeline")
         .constructor<int>()
-        .function("getFrames", &EventTimeline::getFrames, allow_raw_pointer<SPVectorFloat>())
-        .function("getEvents", &EventTimeline::getEvents, allow_raw_pointer<SPVectorEventDataPtr>())
+        .function("getFrames", optional_override([](EventTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getEvents",  optional_override([](EventTimeline &obj) {
+            return &obj.getEvents(); }), allow_raw_pointer<SPVectorEventDataPtr>())
         .function("getPropertyId", &EventTimeline::getPropertyId)
         .function("getFrameCount", &EventTimeline::getFrameCount)
         .function("setFrame", &EventTimeline::setFrame, allow_raw_pointers())
@@ -1287,10 +1349,12 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<DrawOrderTimeline, base<Timeline>>("DrawOrderTimeline")
         .constructor<int>()
-        .function("getFrames", &DrawOrderTimeline::getFrames, allow_raw_pointer<SPVectorFloat>())
+        .function("getFrames", optional_override([](DrawOrderTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &DrawOrderTimeline::getPropertyId)
         .function("getFrameCount", &DrawOrderTimeline::getFrameCount)
-        .function("getDrawOrders", &DrawOrderTimeline::getDrawOrders, allow_raw_pointer<SPVectorVectorInt>())
+        .function("getDrawOrders", optional_override([](DrawOrderTimeline &obj) { 
+            return &obj.getDrawOrders(); }), allow_raw_pointer<SPVectorVectorInt>())
         .function("setFrame", &DrawOrderTimeline::setFrame, allow_raw_pointers())
         .function("apply", optional_override([](DrawOrderTimeline &obj, Skeleton &skeleton,
         float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
@@ -1413,7 +1477,8 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<AnimationState>("AnimationState")
         .constructor<AnimationStateData *>()
         .function("getData", &AnimationState::getData, allow_raw_pointers())
-        .function("getTracks", &AnimationState::getTracks, allow_raw_pointer<SPVectorTrackEntryPtr>())
+        .function("getTracks", optional_override([](AnimationState &obj) {
+            return &obj.getTracks(); }), allow_raw_pointer<SPVectorTrackEntryPtr>())
         .function("getTimeScale", &AnimationState::getTimeScale)
         .function("setTimeScale", &AnimationState::setTimeScale)
         .function("update", &AnimationState::update)
@@ -1461,13 +1526,20 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<Skeleton>("Skeleton")
         .constructor<SkeletonData *>()
         .function("getData", &Skeleton::getData, allow_raw_pointer<SkeletonData>())
-        .function("getBones", &Skeleton::getBones, allow_raw_pointer<SPVectorBonePtr>())
-        .function("getSlots", &Skeleton::getSlots, allow_raw_pointer<SPVectorSlotPtr>())
-        .function("getDrawOrder", &Skeleton::getDrawOrder, allow_raw_pointer<SPVectorSlotPtr>())
-        .function("getIkConstraints", &Skeleton::getIkConstraints, allow_raw_pointer<SPVectorIkConstraintPtr>())
-        .function("getTransformConstraints", &Skeleton::getTransformConstraints, allow_raw_pointer<SPVectorTransformConstraintPtr>())
-        .function("getPathConstraints", &Skeleton::getPathConstraints, allow_raw_pointer<SPVectorPathConstraintPtr>())
-        .function("getUpdateCacheList", &Skeleton::getUpdateCacheList, allow_raw_pointer<Updatable>())
+        .function("getBones", optional_override([](Skeleton &obj){
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
+        .function("getSlots", optional_override([](Skeleton &obj){ 
+            return &obj.getSlots(); }), allow_raw_pointer<SPVectorSlotPtr>())
+        .function("getDrawOrder", optional_override([](Skeleton &obj){
+            return &obj.getDrawOrder(); }), allow_raw_pointer<SPVectorSlotPtr>())
+        .function("getIkConstraints", optional_override([](Skeleton &obj){
+            return &obj.getIkConstraints(); }), allow_raw_pointer<SPVectorIkConstraintPtr>())
+        .function("getTransformConstraints", optional_override([](Skeleton &obj){
+            return &obj.getTransformConstraints(); }), allow_raw_pointer<SPVectorTransformConstraintPtr>())
+        .function("getPathConstraints", optional_override([](Skeleton &obj){
+            return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintPtr>())
+        .function("getUpdateCacheList", optional_override([](Skeleton &obj){
+            return &obj.getUpdateCacheList(); }), allow_raw_pointer<SPVectorUpdatablePtr>())
         .function("getSkin", &Skeleton::getSkin, allow_raw_pointer<Skin>())
         .function("getColor", optional_override([](Skeleton &obj){
             return &obj.getColor(); }), allow_raw_pointers())

@@ -26,20 +26,28 @@
 
 import spine from './spine-core.js';
 import { js } from '../../core';
-import { array, value } from 'cocos/core/utils/js.js';
+import { array } from 'cocos/core/utils/js.js';
+
+
+function resizeArray(array, newSize) {
+    if (newSize == array.length) return array;
+    if (newSize < array.length) return array.slice(0, newSize);
+    else return new Array(newSize);
+}
+
+function getVectorArray(self: any, array: any, getPropVector: any) {
+    const vectors = getPropVector.call(self);
+    const count = vectors.size();
+    array = resizeArray(array, count);
+    for (let i = 0; i < count; i++) array[i] = vectors.get(i);
+    return array;
+}
 
 function overrideDefineArrayProp (prototype: any, getPropVector: any, name: string): void {
+    let array : any[] = new Array(100);
     Object.defineProperty(prototype, name, {
         get (): any[] {
-            const array: any[] = [];
-            const vectors = getPropVector.call(this);
-            const count = vectors.size();
-            for (let i = 0; i < count; i++) {
-                const objPtr = vectors.get(i);
-                array.push(objPtr);
-            }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return array;
+            return getVectorArray(this, array, getPropVector);
         },
     });
 }
@@ -66,17 +74,10 @@ function overrideDefineArrayArrayProp (prototype: any, getPropVector: any, name:
 }
 
 function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: string): void {
+    let array : any[] = new Array(100);
     Object.defineProperty(prototype, name, {
         value () {
-            const array: any[] = [];
-            const vectors = getPropVector.call(this);
-            const count = vectors.size();
-            for (let i = 0; i < count; i++) {
-                const objPtr = vectors.get(i);
-                array.push(objPtr);
-            }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return array;
+            return getVectorArray(this, array, getPropVector);
         },
     });
 }
@@ -792,13 +793,14 @@ function overrideProperty_RegionAttachment (): void {
     overrideDefineArrayProp(prototype, prototype.getOffset, 'offset');
     const getUVs = prototype.getUVs;
     const setUVs = prototype.setUVs;
+    let uvs = new Array(8);
     Object.defineProperty(prototype, 'uvs', {
         get (): any {
-            if(this._uvs == undefined) this._uvs = new Array(8);
             const vectors = getUVs.call(this);
             const count = vectors.size();
-            for (let i = 0; i < count; i++) this._uvs[i] = vectors.get(i);
-            return this._uvs;
+            uvs = resizeArray(uvs, count);
+            for (let i = 0; i < count; i++) uvs[i] = vectors.get(i);
+            return uvs;
         },
         set (value: number[]) {
             setUVs.call(this, value[0], value[1], value[2], value[3], value[4] == 1);
@@ -1319,27 +1321,24 @@ function overrideProperty_Skin (): void {
     overrideDefineArrayProp(prototype, prototype.getAttachments, 'attachments');
     overrideDefineArrayProp(prototype, prototype.getConstraints, 'constraints');
     overrideDefineArrayFunction(prototype, prototype.getAttachments, 'getAttachments');
-    const originGetAttachmentsForSlot = prototype.getAttachmentsForSlot;
+    const originGetAttachmentsForSlot = prototype.getAttachmentsForSlot; 
     Object.defineProperty(prototype, 'getAttachmentsForSlot', {
         value (slotIndex: number, attachments: Array<spine.SkinEntry>) {
             const vectors = originGetAttachmentsForSlot.call(this, slotIndex);
             const count = vectors.size();
-            for (let i = 0; i < count; i++) {
-                const objPtr = vectors.get(i);
-                attachments.push(objPtr);
-            }
+            attachments = resizeArray(attachments, count);
+            for (let i = 0; i < count; i++) attachments[i] = vectors.get(i);
             vectors.delete();
         },
     });
     const originFindNamesForSlot = prototype.findNamesForSlot;
+    const names = new Array(5);
     Object.defineProperty(prototype, 'findNamesForSlot', {
         value (slotIndex: number, names: Array<string>) {
             const vectors = originFindNamesForSlot.call(this, slotIndex);
             const count = vectors.size();
-            for (let i = 0; i < count; i++) {
-                const objPtr = vectors.get(i);
-                names.push(objPtr);
-            }
+            names = resizeArray(names, count);
+            for (let i = 0; i < count; i++) names[i] = vectors.get(i);
             vectors.delete();
         },
     });
@@ -1813,7 +1812,7 @@ function overrideProperty_Skeleton (): void {
     overrideDefineArrayProp(prototype, prototype.getIkConstraints, 'ikConstraints');
     overrideDefineArrayProp(prototype, prototype.getTransformConstraints, 'transformConstraints');
     overrideDefineArrayProp(prototype, prototype.getPathConstraints, 'pathConstraints');
-    overrideDefineArrayProp(prototype, prototype.getUpdateCache, '_updateCache');
+    overrideDefineArrayProp(prototype, prototype.getUpdateCacheList, '_updateCache');
 }
 
 function overrideProperty_JitterEffect (): void {
