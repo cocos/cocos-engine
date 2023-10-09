@@ -38,7 +38,7 @@ interface IRequiringFrame {
 
 let requiringFrames: IRequiringFrame[] = [];  // the requiring frame infos
 
-export function push (module: IRequiringFrame['module'], uuid: string, scriptName: string, importMeta?: Record<string, unknown>): void {
+export function push (module: IRequiringFrame['module'], uuid: IRequiringFrame['uuid'], scriptName: IRequiringFrame['script'], importMeta?: IRequiringFrame['importMeta']): void {
     if (scriptName === undefined) {
         scriptName = uuid;
         uuid = '';
