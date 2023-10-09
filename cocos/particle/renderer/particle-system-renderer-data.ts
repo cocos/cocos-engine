@@ -309,13 +309,18 @@ export default class ParticleSystemRenderer {
         }
         if (!useGPU) {
             if (this.particleMaterial && this.particleMaterial.effectName.indexOf('particle-gpu') !== -1) {
-                this.particleMaterial = null;
+                if (!this.cpuMaterial) {
+                    this.particleMaterial = null;
+                } else {
+                    this.particleMaterial = this.cpuMaterial;
+                }
                 warnID(6035);
             }
             this.cpuMaterial = this.particleMaterial;
         } else {
             this.gpuMaterial = this.particleMaterial;
         }
+        this._switchProcessor();
     }
 
     private _switchProcessor (): void {
