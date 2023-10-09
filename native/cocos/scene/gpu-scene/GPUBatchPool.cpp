@@ -173,7 +173,7 @@ void GPUBatchPool::update(uint32_t stamp) {
     const auto &meshPool = _gpuScene->getMeshPool();
 
     for (auto &batch : _batches) {
-        auto *pass = batch.second->getPass();
+        const auto *pass = batch.second->getPass();
         const auto phaseId = pass->getPhaseID();
         auto &items = batch.second->getItems();
 
