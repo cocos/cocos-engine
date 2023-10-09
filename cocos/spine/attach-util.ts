@@ -67,13 +67,16 @@ export class AttachUtil {
         const socketNodes = skeletonComp!.socketNodes;
         //const keysToDelete = [];
 
-        /*
+        
         for (let l = sockets.length - 1; l >= 0; l--) {
             const sock = sockets[l];
             const boneNode = sock.target;
             if (!boneNode) continue;
+            const bone = boneInfos[sock.boneIndex];
+            if (bone) this.matrixHandle(boneNode, bone);
         }
-        */
+
+        /*
     
         for (const [boneIdx, boneNode] of socketNodes) {
             
@@ -84,10 +87,10 @@ export class AttachUtil {
             }
             */
     
-            const bone = boneInfos[boneIdx];
-            if (bone) this.matrixHandle(boneNode, bone);
-        }
-
+            //const bone = boneInfos[boneIdx];
+            //if (bone) this.matrixHandle(boneNode, bone);
+        //}
+        */
         /*
         for (const boneIdx of keysToDelete) {
             socketNodes.delete(boneIdx);
