@@ -134,6 +134,13 @@ export interface SkeletonDrawData {
     indexCount: number;
 }
 
+export interface TempColor {
+    r:number;
+    g:number;
+    b:number;
+    a:number;
+}
+
 /**
  * @en
  * The Sockets attached to bones, synchronous transform with spine animation.
@@ -306,7 +313,7 @@ export class Skeleton extends UIRenderer {
     _iLength = 0;
     _iBuffer: Uint8Array | null = null;
     _model: any;
-    _tempColor: Color = new Color(1, 1, 1, 1);
+    _tempColor: TempColor = {r: 0, g: 0, b: 0, a: 0};
 
     constructor () {
         super();
@@ -1605,15 +1612,21 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public _updateColor (): void {
+        const a = this.node._uiProps.opacity;
+        if (this._tempColor.r === this._color.r &&
+            this._tempColor.g === this.color.g &&
+            this._tempColor.b === this.color.b &&
+            this._tempColor.a === a) {
+            return;
+        }
         this.node._uiProps.colorDirty = true;
+        this._tempColor.r = this._color.r;
+        this._tempColor.g = this._color.g;
+        this._tempColor.b = this._color.b;
+        this._tempColor.a = a;
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
-        const a = this.node._uiProps.opacity;
-        if (this._tempColor.r === r && this._tempColor.g === g && this._tempColor.b === b) {
-            return;
-        }
-        this._tempColor.set(r, g, b, this._tempColor.a);
         this._instance.setColor(r, g, b, a);
     }
 
