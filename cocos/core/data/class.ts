@@ -25,10 +25,10 @@
 
 import { DEV, EDITOR, SUPPORT_JIT, TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
-import { errorID, warnID, error } from '@base/debug';
+import { errorID, warnID, error, _throw, StringSubstitution, getError } from '@base/debug';
 import { js } from '@base/utils';
 import { BitMask } from '../value-types';
-import { Enum } from '../value-types/enum';
+import { Enum, EnumType } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs } from './utils/preprocess-class';
@@ -73,7 +73,7 @@ function appendProp (cls, name): void {
     pushUnique(cls.__props__, name);
 }
 
-function defineProp (cls, className, propName, val): void {
+function defineProp (cls: Constructor, className: string, propName: string, val: PropertyStash): void {
     if (DEV) {
         // check base prototype to avoid name collision
         if (CCClass.getInheritanceChain(cls)
@@ -96,12 +96,12 @@ function defineProp (cls, className, propName, val): void {
     }
 }
 
-function defineGetSet (cls, name, propName, val): void {
+function defineGetSet (cls: Constructor, className: string, propName: string, val: PropertyStash): void {
     const getter = val.get;
     const setter = val.set;
 
     if (getter) {
-        parseAttributes(cls, val, name, propName, true);
+        parseAttributes(cls, val, className, propName, true);
         if ((EDITOR && !window.Build) || TEST) {
             onAfterProps_ET.length = 0;
         }
@@ -131,7 +131,7 @@ function getDefault (defaultVal): any {
             try {
                 return defaultVal();
             } catch (e) {
-                cclegacy._throw(e);
+                _throw(e);
                 return undefined;
             }
         } else {
@@ -141,36 +141,36 @@ function getDefault (defaultVal): any {
     return defaultVal;
 }
 
-function doDefine (className, baseClass, options): any {
-    const ctor = options.ctor;
+function doDefine (className: string | undefined, baseClass: Constructor | null, options: Parameters<typeof CCClass>[0]): Constructor {
+    const ctor = options.ctor as Constructor;
 
     if (DEV) {
         // check ctor
-        if (CCClass._isCCClass(ctor)) {
+        if (CCClass._isCCClass(ctor) && className) {
             errorID(3618, className);
         }
     }
 
     js.value(ctor, CCCLASS_TAG, true, true);
 
-    const prototype = ctor.prototype;
     if (baseClass) {
-        ctor.$super = baseClass;
+        (ctor as any).$super = baseClass;
     }
 
-    js.setClassName(className, ctor);
+    if (className) {
+        js.setClassName(className, ctor);
+    }
     return ctor;
 }
 
-function define (className, baseClass, options): any {
+function define (className: string | undefined, baseClass: Constructor | null, options: Parameters<typeof CCClass>[0]): Constructor {
     const Component = cclegacy.Component;
     const frame = RF.peek();
 
     if (frame && js.isChildClassOf(baseClass, Component)) {
         // project component
         if (js.isChildClassOf(frame.cls, Component)) {
-            errorID(3615);
-            return null;
+            _throw(getError(3615));
         }
         if (DEV && frame.uuid && className) {
             // warnID(3616, className);
@@ -204,7 +204,9 @@ function define (className, baseClass, options): any {
         // cc-class is defined by `cc.Class({/* ... */})`.
         // In such case, `options.ctor` may be `undefined`.
         // So we can not use `options.ctor`. Instead, we should use `cls` which is the "real" registered cc-class.
-        EditorExtends.emit('class-registered', cls, frame, className);
+        if (className) {
+            EditorExtends.emit('class-registered', cls, frame, className);
+        }
     }
 
     if (frame) {
@@ -258,19 +260,18 @@ function escapeForJS (s): string {
 // simple test variable name
 const IDENTIFIER_RE = /^[A-Za-z_$][0-9A-Za-z_$]*$/;
 
-function declareProperties (cls, className, properties, baseClass): void {
-    cls.__props__ = [];
+function declareProperties (cls: Constructor, className: string, properties, baseClass): void {
+    (cls as any).__props__ = [];
 
     if (baseClass && baseClass.__props__) {
-        cls.__props__ = baseClass.__props__.slice();
+        (cls as any).__props__ = baseClass.__props__.slice();
     }
 
     if (properties) {
-        // 预处理属性
         preprocessAttrs(properties, className, cls);
 
         for (const propName in properties) {
-            const val = properties[propName];
+            const val: PropertyStash = properties[propName];
             if (!val.get && !val.set) {
                 defineProp(cls, className, propName, val);
             } else {
@@ -280,12 +281,12 @@ function declareProperties (cls, className, properties, baseClass): void {
     }
 
     const attrs = attributeUtils.getClassAttrs(cls);
-    cls.__values__ = cls.__props__.filter((prop) => attrs[`${prop}${DELIMETER}serializable`] !== false);
+    (cls as any).__values__ = (cls as any).__props__.filter((prop) => attrs[`${prop}${DELIMETER}serializable`] !== false);
 }
 
 export function CCClass<TFunction> (options: {
     name?: string;
-    extends: null | (Function & { __props__?: any; _sealed?: boolean });
+    extends: null | (Constructor & { __props__?: any; _sealed?: boolean });
     ctor: TFunction;
     properties?: any;
     editor?: any;
@@ -296,10 +297,10 @@ export function CCClass<TFunction> (options: {
     // create constructor
     const cls = define(name, base, options);
     if (!name) {
-        name = cclegacy.js.getClassName(cls);
+        name = js.getClassName(cls);
     }
 
-    cls._sealed = true;
+    (cls as any)._sealed = true;
     if (base) {
         base._sealed = false;
     }
@@ -313,7 +314,7 @@ export function CCClass<TFunction> (options: {
         if (js.isChildClassOf(base, cclegacy.Component)) {
             cclegacy.Component._registerEditorProps(cls, editor);
         } else if (DEV) {
-            warnID(3623, name!);
+            warnID(3623, name);
         }
     }
 
@@ -346,9 +347,9 @@ CCClass._isCCClass = function isCCClass (constructor): boolean {
 // @param {Object} serializableFields
 // @private
 //
-CCClass.fastDefine = function (className, constructor, serializableFields): void {
+CCClass.fastDefine = function (className: string, constructor: Constructor, serializableFields: Record<string, unknown>): void {
     js.setClassName(className, constructor);
-    const props = constructor.__props__ = constructor.__values__ = Object.keys(serializableFields);
+    const props = (constructor as any).__props__ = (constructor as any).__values__ = Object.keys(serializableFields);
     const attrs = attributeUtils.getClassAttrs(constructor);
     for (let i = 0; i < props.length; i++) {
         const key = props[i];
@@ -378,7 +379,7 @@ CCClass.isCCClassOrFastDefined = isCCClassOrFastDefined;
  * Return all super classes.
  * @param constructor The Constructor.
  */
-function getInheritanceChain (constructor): any[] {
+function getInheritanceChain (constructor: Constructor): any[] {
     const chain: any[] = [];
     for (; ;) {
         constructor = getSuper(constructor);
@@ -405,11 +406,11 @@ const PrimitiveTypes = {
 };
 
 interface IParsedAttribute extends IAcceptableAttributes {
-    ctor?: Function;
+    ctor?: Constructor;
     enumList?: readonly any[];
     bitmaskList?: any[];
 }
-type OnAfterProp = (constructor: Function, mainPropertyName: string) => void;
+type OnAfterProp = (constructor: Constructor, mainPropertyName: string) => void;
 const onAfterProps_ET: OnAfterProp[] = [];
 
 interface AttributesRecord {
@@ -418,7 +419,7 @@ interface AttributesRecord {
     default?: unknown;
 }
 
-function parseAttributes (constructor: Function, attributes: PropertyStash, className: string, propertyName: string, usedInGetter): void {
+function parseAttributes (constructor: Constructor, attributes: PropertyStash, className: string, propertyName: string, usedInGetter): void {
     const ERR_Type = DEV ? 'The %s of %s must be type %s' : '';
 
     let attrs: IParsedAttribute | null = null;
@@ -440,7 +441,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
 
     const type = attributes.type;
     if (type) {
-        const primitiveType = PrimitiveTypes[type];
+        const primitiveType = PrimitiveTypes[type] as string;
         if (primitiveType) {
             (attrs || initAttrs())[`${propertyNamePrefix}type`] = type;
             if (((EDITOR && !window.Build) || TEST) && !attributes._short) {
@@ -450,23 +451,18 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
             if (DEV) {
                 errorID(3644, className, propertyName);
             }
-        }
-        // else if (type === Attr.ScriptUuid) {
-        //     (attrs || initAttrs())[propertyNamePrefix + 'type'] = 'Script';
-        //     attrs[propertyNamePrefix + 'ctor'] = cc.ScriptAsset;
-        // }
-        else if (typeof type === 'object') {
+        } else if (typeof type === 'object') {
             if (Enum.isEnum(type)) {
                 setPropertyEnumTypeOnAttrs(
-                    attrs || initAttrs(),
+                    (attrs || initAttrs()) as Record<string, any>,
                     propertyName,
-                    type,
+                    type as EnumType,
                 );
             } else if (BitMask.isBitMask(type)) {
                 (attrs || initAttrs())[`${propertyNamePrefix}type`] = BITMASK_TAG;
                 attrs![`${propertyNamePrefix}bitmaskList`] = BitMask.getList(type);
             } else if (DEV) {
-                errorID(3645, className, propertyName, type);
+                errorID(3645, className, propertyName, type as StringSubstitution);
             }
         } else if (typeof type === 'function') {
             // Do not warn missing-default if the type is object
@@ -477,7 +473,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
                 onAfterProps_ET.push(attributeUtils.getObjTypeChecker_ET(type));
             }
         } else if (DEV) {
-            errorID(3646, className, propertyName, type);
+            errorID(3646, className, propertyName, type as StringSubstitution);
         }
     }
 
@@ -492,6 +488,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     const parseSimpleAttribute = (attributeName: keyof IAcceptableAttributes, expectType: string): void => {
         if (attributeName in attributes) {
             const val = attributes[attributeName];
+            // eslint-disable-next-line valid-typeof
             if (typeof val === expectType) {
                 (attrs || initAttrs())[propertyNamePrefix + attributeName] = val;
             } else if (DEV) {

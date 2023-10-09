@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
@@ -33,7 +34,7 @@ const { formatStr, get, getClassName, isChildClassOf, value } = js;
 
 export const DELIMETER = '$_$';
 
-export function createAttrsSingle (owner: Object, superAttrs?: any): any {
+export function createAttrsSingle (owner: Record<string | number, unknown>, superAttrs?: unknown): any {
     const attrs = superAttrs ? Object.create(superAttrs) : {};
     value(owner, '__attrs__', attrs);
     return attrs;
@@ -46,7 +47,7 @@ export function createAttrs (subclass: any): any {
     if (typeof subclass !== 'function') {
         // attributes only in instance
         const instance = subclass;
-        return createAttrsSingle(instance, getClassAttrs(instance.constructor));
+        return createAttrsSingle(instance as Record<string | number, unknown>, getClassAttrs(instance.constructor));
     }
     let superClass: any;
     const chains: any[] = cclegacy.Class.getInheritanceChain(subclass);
@@ -55,11 +56,11 @@ export function createAttrs (subclass: any): any {
         const attrs = cls.hasOwnProperty('__attrs__') && cls.__attrs__;
         if (!attrs) {
             superClass = chains[i + 1];
-            createAttrsSingle(cls, superClass && superClass.__attrs__);
+            createAttrsSingle(cls as Record<string | number, unknown>, superClass && superClass.__attrs__);
         }
     }
     superClass = chains[0];
-    createAttrsSingle(subclass, superClass && superClass.__attrs__);
+    createAttrsSingle(subclass as Record<string | number, unknown>, superClass && superClass.__attrs__);
     return subclass.__attrs__;
 }
 
@@ -207,7 +208,7 @@ cclegacy.CCString = CCString;
 
 // Ensures the type matches its default value
 export function getTypeChecker_ET (type: string, attributeName: string) {
-    return function (constructor: Function, mainPropertyName: string): void {
+    return function (constructor: Constructor, mainPropertyName: string): void {
         const propInfo = `"${getClassName(constructor)}.${mainPropertyName}"`;
         const mainPropAttrs = attr(constructor, mainPropertyName);
         let mainPropAttrsType = mainPropAttrs.type;
@@ -259,15 +260,19 @@ export function getTypeChecker_ET (type: string, attributeName: string) {
 
 // Ensures the type matches its default value
 export function getObjTypeChecker_ET (typeCtor) {
-    return function (classCtor, mainPropName): void {
+    return function (classCtor: Constructor, mainPropName: string): void {
         getTypeChecker_ET('Object', 'type')(classCtor, mainPropName);
         // check ValueType
         const defaultDef = getClassAttrs(classCtor)[`${mainPropName + DELIMETER}default`];
         const defaultVal = cclegacy.Class.getDefault(defaultDef);
         if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, cclegacy.ValueType)) {
             const typename = getClassName(typeCtor);
-            const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
-                getClassName(classCtor), mainPropName, typename);
+            const info = formatStr(
+                'No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
+                getClassName(classCtor),
+                mainPropName,
+                typename,
+            );
             if (defaultDef) {
                 log(info);
             } else {
