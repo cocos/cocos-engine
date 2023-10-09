@@ -305,7 +305,7 @@ export class Skeleton extends UIRenderer {
     _vBuffer: Uint8Array | null = null;
     _iLength = 0;
     _iBuffer: Uint8Array | null = null;
-    _model: any | undefined;
+    _model: any;
     _tempColor: Color = new Color(1, 1, 1, 1);
 
     constructor () {
@@ -1015,7 +1015,7 @@ export class Skeleton extends UIRenderer {
             }
             this._updateCache(dt);
         } else {
-            if(EDITOR_NOT_IN_PREVIEW) this._instance.updateAnimation(dt);
+            if (EDITOR_NOT_IN_PREVIEW) this._instance.updateAnimation(dt);
         }
     }
 
@@ -1610,11 +1610,9 @@ export class Skeleton extends UIRenderer {
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
         const a = this.node._uiProps.opacity;
-
-        if (this._tempColor.r === r ||
-            this._tempColor.g === g ||
-            this._tempColor.b === b)
-            { return; }
+        if (this._tempColor.r === r && this._tempColor.g === g && this._tempColor.b === b) {
+            return;
+        }
         this._tempColor.set(r, g, b, this._tempColor.a);
         this._instance.setColor(r, g, b, a);
     }

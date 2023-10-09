@@ -700,7 +700,7 @@ declare namespace spine {
         scale: number;
         private linkedMeshes;
         constructor(attachmentLoader: AttachmentLoader);
-        readSkeletonData(json: string | any): SkeletonData;
+        readSkeletonData(json: any): SkeletonData;
         readAttachment(map: any, skin: Skin, slotIndex: number, name: string, skeletonData: SkeletonData): Attachment;
         readVertices(map: any, attachment: VertexAttachment, verticesLength: number): void;
         readAnimation(map: any, name: string, skeletonData: SkeletonData): void;
