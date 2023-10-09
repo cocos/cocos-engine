@@ -1997,7 +1997,7 @@ export class Terrain extends Component {
         if (EDITOR && this._asset) {
             this._asset.weights[index * 4 + 0] = w.x * 255;
             this._asset.weights[index * 4 + 1] = w.y * 255;
-            this._asset.weights[index * 4 + 2] = w.x * 255;
+            this._asset.weights[index * 4 + 2] = w.z * 255;
             this._asset.weights[index * 4 + 3] = w.w * 255;
         }
     }

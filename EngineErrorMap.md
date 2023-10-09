@@ -168,6 +168,14 @@ Expected 'data' dict, but not found. Config file: %s
 
 Please load the resource first : %s
 
+### 1102
+
+Effect settings not found, effects will not be imported.
+
+### 1103
+
+Success to load scene: %s
+
 ### 1200
 
 cocos2d: Director: Error in gettimeofday
