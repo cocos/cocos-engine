@@ -36,6 +36,7 @@ import { director } from '../../game';
 import spine from '../lib/spine-core.js';
 import { Color, Vec3 } from '../../core';
 import { MaterialInstance } from '../../render-scene';
+import { SkeletonSystem } from '../skeleton-system';
 
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);
@@ -57,6 +58,8 @@ const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 
 const DEBUG_TYPE_REGION = 0;
 const DEBUG_TYPE_MESH = 1;
+
+const tempVecPos = new Vec3(0, 0, 0);
 
 function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance {
     let src: BlendFactor;
@@ -84,6 +87,7 @@ function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance 
 }
 
 export const simple: IAssembler = {
+
     fillBuffers (render: UIRenderable, batcher: Batcher2D) {
 
     },
@@ -151,60 +155,75 @@ function realTimeTraverse (comp: Skeleton): void {
     const vc = model.vCount as number;
     const ic = model.iCount as number;
     const rd = comp.renderData!;
-
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
+        comp._vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride; 
+        comp._vBuffer = new Uint8Array(rd.chunk.vb.buffer, rd.chunk.vb.byteOffset, Float32Array.BYTES_PER_ELEMENT * rd.chunk.vb.length);
+        comp._iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
+        comp._iBuffer = new Uint8Array(rd.indices.buffer);
     }
     if (vc < 1 || ic < 1) return;
-
-    const vbuf = rd.chunk.vb;
-    const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
-
+    let vbuf = rd.chunk.vb;
     const vPtr = model.vPtr;
-    const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    const vData = spine.wasmUtil.wasm.HEAPU8.subarray(vPtr, vPtr + vLength);
-    vUint8Buf.set(vData as TypedArray);
-
+    const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
+    comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
     const iPtr = model.iPtr;
     const ibuf = rd.indices!;
-    const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
-    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-    const iData = spine.wasmUtil.wasm.HEAPU8.subarray(iPtr, iPtr + iLength);
-    const iUint8Buf = new Uint8Array(ibuf.buffer);
-    iUint8Buf.set(iData as TypedArray);
+    comp._iBuffer?.set(HEAPU8.subarray(iPtr, iPtr + comp._iLength), 0);
     const chunkOffset = rd.chunk.vertexOffset;
-    for (let i = 0; i < ic; i++) {
-        ibuf[i] += chunkOffset;
+    for (let i = 0; i < ic; i++) ibuf[i] += chunkOffset;
+
+    const data = model.getData();
+    const count = data.size();
+    let indexOffset = 0;
+    let indexCount = 0;
+    for (let i = 0; i < count; i += 6) {
+        indexCount = data.get(i+3);
+        const material = _getSlotMaterial(data.get(i+4), comp);
+        const textureID = data.get(i+5);
+        comp.requestDrawData(material, textureID, indexOffset, indexCount);
+        indexOffset += indexCount;
     }
 
+    /*
     const meshes = model.getMeshes();
     const count = meshes.size();
     let indexOffset = 0;
     let indexCount = 0;
     for (let i = 0; i < count; i++) {
         const mesh = meshes.get(i);
-        const material = _getSlotMaterial(mesh.blendMode as number, comp);
-        const textureID = mesh.textureID as number;
+        const material = _getSlotMaterial(mesh.blendMode, comp);
+        const textureID = mesh.textureID;
         indexCount = mesh.iCount;
         comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
     }
+    */
+    /*
+    let indexOffset = 0;
+    let indexCount = 0;
+    for (let i = 0; i < 1; i++) {
+        const material = _getSlotMaterial(0, comp);
+        const textureID = 0
+        indexCount = 1029;
+        comp.requestDrawData(material, textureID, indexOffset, indexCount);
+        indexOffset += indexCount;
+    }
+    */
     // if enableBatch apply worldMatrix
     if (comp.enableBatch) {
         const worldMat = comp.node.worldMatrix;
         let index = 0;
-        const tempVecPos = new Vec3(0, 0, 0);
         for (let i = 0; i < vc; i++) {
             index = i * floatStride;
             tempVecPos.x = vbuf[index];
             tempVecPos.y = vbuf[index + 1];
-            tempVecPos.z = 0;
             tempVecPos.transformMat4(worldMat);
             vbuf[index] = tempVecPos.x;
             vbuf[index + 1] = tempVecPos.y;
-            vbuf[index + 2] = tempVecPos.z;
+            vbuf[index + 2] = 0
         }
     }
 

@@ -301,6 +301,13 @@ export class Skeleton extends UIRenderer {
 
     private _slotTextures: Map<number, Texture2D> | null = null;
 
+    _vLength = 0;
+    _vBuffer:Uint8Array | null = null;
+    _iLength = 0;
+    _iBuffer:Uint8Array | null = null;
+    _model:any | undefined;
+    _tempColor:Color = new Color(1, 1, 1, 1);
+
     constructor () {
         super();
         this._useVertexOpacity = true;
@@ -310,6 +317,8 @@ export class Skeleton extends UIRenderer {
         this._endSlotIndex = -1;
         if (!JSB) {
             this._instance = new spine.SkeletonInstance();
+            this._instance.dtRate = this._timeScale * timeScale;
+            this._instance.isCache = this.isAnimationCached();
         }
         this.attachUtil = new AttachUtil();
     }
@@ -499,6 +508,9 @@ export class Skeleton extends UIRenderer {
     set timeScale (value) {
         if (value !== this._timeScale) {
             this._timeScale = value;
+            if(this._instance) {
+                this._instance.dtRate = this._timeScale * timeScale;
+            }
         }
     }
     /**
@@ -659,6 +671,7 @@ export class Skeleton extends UIRenderer {
      */
     public onEnable (): void {
         super.onEnable();
+        this._instance.enable = true;
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
     }
@@ -668,15 +681,31 @@ export class Skeleton extends UIRenderer {
      */
     public onDisable (): void {
         super.onDisable();
+        this._instance.enable = false;
         SkeletonSystem.getInstance().remove(this);
+
     }
 
     public onDestroy (): void {
+        this._drawList.destroy();
         this.destroyRenderData();
         this._cleanMaterialCache();
+        this._vBuffer = null;
+        this._iBuffer = null;
+        this.attachUtil.reset();
+        this.attachUtil = null;
+        this._textures = null;
+        this._slotTextures?.clear();
+        this._slotTextures = null;
+        this._cachedSockets.clear();
+        this._cachedSockets = null;
+        this._socketNodes.clear();
+        this._socketNodes = null;
+        SkeletonSystem.getInstance().remove(this);
         if (!JSB) {
             spine.wasmUtil.destroySpineInstance(this._instance);
         }
+        this._instance = null;
         super.onDestroy();
     }
     /**
@@ -700,6 +729,7 @@ export class Skeleton extends UIRenderer {
             this._refreshInspector();
             return;
         }
+        this._instance.dtRate = this._timeScale * timeScale;
         this._needUpdateSkeltonData = false;
         const data = this.skeletonData?.getRuntimeData();
         if (!data) return;
@@ -986,7 +1016,7 @@ export class Skeleton extends UIRenderer {
             }
             this._updateCache(dt);
         } else {
-            this._instance.updateAnimation(dt);
+            //this._instance.updateAnimation(dt);
         }
     }
 
@@ -997,7 +1027,7 @@ export class Skeleton extends UIRenderer {
         }
         const frames = frameCache.frames;
         const frameTime = SkeletonCache.FrameTime;
-        // Animation Start, the event different from dragonbones inner event,
+        // Animation Start, the event different from _customMaterial inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
             this._startEntry.animation.name = this._animationName;
@@ -1238,7 +1268,7 @@ export class Skeleton extends UIRenderer {
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
-        this.attachUtil._syncAttachedNode();
+        this.attachUtil._syncAttachedNode(this);
     }
 
     /**
@@ -1264,6 +1294,7 @@ export class Skeleton extends UIRenderer {
         if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
+            this._instance.isCache = this.isAnimationCached();
             this._updateSkeletonData();
             this.setSkin(this.defaultSkin);
             this._updateUseTint();
@@ -1579,6 +1610,12 @@ export class Skeleton extends UIRenderer {
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
         const a = this.node._uiProps.opacity;
+
+        if (this._tempColor.r == r ||
+            this._tempColor.g == g ||
+            this._tempColor.b == b)
+            return;
+        this._tempColor.set(r, g, b, this._tempColor.a);
         this._instance.setColor(r, g, b, a);
     }
 

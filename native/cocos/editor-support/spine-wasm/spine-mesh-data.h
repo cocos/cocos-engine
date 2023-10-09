@@ -9,8 +9,8 @@ public:
     static void reset();
     static void moveVB(uint32_t count);
     static void moveIB(uint32_t count);
-    static uint8_t *queryVBuffer(uint32_t count);
-    static uint16_t *queryIBuffer(uint32_t count);
+    static uint8_t *queryVBuffer();
+    static uint16_t *queryIBuffer();
     static uint8_t *vb();
     static uint16_t *ib();
 

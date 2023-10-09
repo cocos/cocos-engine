@@ -24,6 +24,22 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 
 declare namespace spine {
+
+    class String {
+        length: number;
+        isEmpty: boolean;
+        strPtr: number;
+        str: string;
+    }
+
+    class SPVectorFloat {
+        size(): number;
+        resize(newSize: number, defaultValue: number);
+        set(index: number, value: number);
+        get(index: number): number;
+        delete();
+    }
+
     class Animation {
         constructor(name: string, timelines: Array<Timeline>, duration: number);
         duration: number;
@@ -555,7 +571,6 @@ declare namespace spine {
         transformConstraints: Array<TransformConstraint>;
         pathConstraints: Array<PathConstraint>;
         _updateCache: Updatable[];
-        updateCacheReset: Updatable[];
         skin: Skin;
         color: Color;
         time: number;
@@ -1140,6 +1155,7 @@ declare namespace spine {
         updateOffset(): void;
         computeWorldVertices(bone: Bone, worldVertices: ArrayLike<number>, offset: number, stride: number): void;
         copy(): Attachment;
+        private _uvs: ArrayLike<number> | undefined;
     }
     class JitterEffect implements VertexEffect {
         jitterX: number;
@@ -1163,7 +1179,17 @@ declare namespace spine {
         end(): void;
     }
 
+    class SkeletonSystem {
+        public static updateAnimation(deltaTime:number): void;
+        public static updateRenderData(): void;
+        public static getCount(): number;
+    }
+
     class SkeletonInstance {
+        dtRate: number;
+        isCache: boolean;
+        isDelete: boolean;
+        enable: boolean;
         initSkeleton(data: SkeletonData);
         getAnimationState();
         setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;
