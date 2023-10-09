@@ -28,6 +28,8 @@ jobs:
           add-to-path: false
           local-cache: true
       - name: Generate decorators
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           bash ./native/utils/generate_decorators.sh
           git checkout HEAD package.json package-lock.json
