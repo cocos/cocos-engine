@@ -499,6 +499,10 @@ void XRInterface::initialize(void *javaVM, void *activity) {
             });
         } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isInt()) {
             _isFlipPixelY = value.getInt() == static_cast<int>(gfx::API::GLES3);
+        } else if (key == xr::XRConfigKey::TS_EVENT_CALLBACK) {
+            se::ValueArray args;
+            args.emplace_back(se::Value(value.getString()));
+            EventDispatcher::doDispatchJsEvent("onXREvent", args);
         }
     });
     #if XR_OEM_PICO
