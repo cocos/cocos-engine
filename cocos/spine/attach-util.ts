@@ -62,28 +62,37 @@ export class AttachUtil {
         if (!boneInfos || boneInfos.length < 1) {
             return;
         }
+
+        const sockets = skeletonComp!.sockets;
         const socketNodes = skeletonComp!.socketNodes;
-        const keysToDelete = [];
+        //const keysToDelete = [];
+
+        /*
+        for (let l = sockets.length - 1; l >= 0; l--) {
+            const sock = sockets[l];
+            const boneNode = sock.target;
+            if (!boneNode) continue;
+        }
+        */
     
         for (const [boneIdx, boneNode] of socketNodes) {
+            
+            /*
             if (!boneNode || !boneNode.isValid) {
                 keysToDelete.push(boneIdx);
                 continue;
             }
+            */
     
             const bone = boneInfos[boneIdx];
-            if (!bone) {
-                boneNode.removeFromParent();
-                boneNode.destroy();
-                keysToDelete.push(boneIdx);
-                continue;
-            }
-    
-           this.matrixHandle(boneNode, bone);
+            if (bone) this.matrixHandle(boneNode, bone);
         }
+
+        /*
         for (const boneIdx of keysToDelete) {
             socketNodes.delete(boneIdx);
         }
+        */
     }
 
     matrixHandle (node: Node, bone: any): void {

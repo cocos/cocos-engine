@@ -145,6 +145,7 @@ function updateComponentRenderData (comp: Skeleton, batcher: Batcher2D): void {
     }
     const rd = comp.renderData!;
     const accessor = _useTint ? _tintAccessor : _accessor;
+    comp.syncAttachedNode();
     if (rd.vertexCount > 0 || rd.indexCount > 0) accessor.getMeshBuffer(rd.chunk.bufferId).setDirty();
 }
 

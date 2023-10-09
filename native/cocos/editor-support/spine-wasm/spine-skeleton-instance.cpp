@@ -83,7 +83,6 @@ void SpineSkeletonInstance::updateAnimation(float dltTime) {
     _skeleton->update(dltTime);
     _animState->update(dltTime);
     _animState->apply(*_skeleton);
-    _skeleton->updateWorldTransform();
     //preUpdateRenderData();
 }
 
@@ -106,6 +105,7 @@ SpineModel *SpineSkeletonInstance::updateRenderData() {
     if (_userData.debugMode) {
         _debugShapes.clear();
     }
+    _skeleton->updateWorldTransform();
     SpineMeshData::reset();
     _model->clearMeshes();
     if (_userData.useTint) {
@@ -113,11 +113,8 @@ SpineModel *SpineSkeletonInstance::updateRenderData() {
     } else {
         _model->byteStride = sizeof(V3F_T2F_C4B);
     }
-
     collectMeshData();
-
     _model->setBufferPtr(SpineMeshData::vb(), SpineMeshData::ib());
-    
     return _model;
 }
 
