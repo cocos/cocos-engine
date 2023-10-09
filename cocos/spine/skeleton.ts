@@ -559,7 +559,7 @@ export class Skeleton extends UIRenderer {
         }
         this._sockets = val;
         this._updateSocketBindings();
-        this.syncAttachedNode();
+        this.attachUtil.init(this); 
     }
 
     /**
@@ -1268,7 +1268,7 @@ export class Skeleton extends UIRenderer {
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
-        this.attachUtil._syncAttachedNode(this);
+        this.attachUtil._syncAttachedNode();
     }
 
     /**
@@ -1295,6 +1295,7 @@ export class Skeleton extends UIRenderer {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
             this._instance.isCache = this.isAnimationCached();
+            this.attachUtil.init(this);
             this._updateSkeletonData();
             this.setSkin(this.defaultSkin);
             this._updateUseTint();
