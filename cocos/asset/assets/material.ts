@@ -429,6 +429,7 @@ export class Material extends Asset {
             }
             if (passInfo.switch && !defines[passInfo.switch]) { continue; }
             const pass = new Pass(cclegacy.director.root);
+            pass.effectProps = this._effectAsset!.props;
             pass.initialize(passInfo);
             passes.push(pass);
         }
@@ -448,9 +449,8 @@ export class Material extends Asset {
                 this._passes.forEach((pass, i): void => {
                     let props = this._props[i];
                     if (!props) { props = this._props[i] = {}; }
-                    Object.assign(props, this._effectAsset!.props[i]);
                     if (pass.propertyIndex !== undefined) {
-                        Object.assign(props, this._props[pass.propertyIndex], this._effectAsset!.props[pass.propertyIndex]);
+                        Object.assign(props, this._props[pass.propertyIndex]);
                     }
                     for (const p in props) {
                         this._uploadProperty(pass, p, props[p]);

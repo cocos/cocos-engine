@@ -42,6 +42,7 @@ import {
 import { RenderPassStage, RenderPriority, SetIndex } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { ProgramLibrary } from '../../rendering/custom/private';
+import { MaterialPropertyFull } from '../../asset/assets/material';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part
@@ -203,10 +204,15 @@ export class Pass {
     protected _root: Root;
     protected _device: Device;
     protected _rootBufferDirty = false;
+    protected _effectProps: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 
     constructor (root: Root) {
         this._root = root;
         this._device = deviceManager.gfxDevice;
+    }
+
+    set effectProps (props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[]) {
+        Object.assign(this._effectProps, props);
     }
 
     /**
@@ -433,8 +439,7 @@ export class Pass {
         const info = this._properties[name];
         const value = info && info.value;
         const texName = value ? `${value as string}${getStringFromType(type)}` : getDefaultFromType(type) as string;
-        const textureBase = builtinResMgr.get<TextureBase>(texName);
-        if (!textureBase) return;
+        const textureBase = builtinResMgr.get<TextureBase>(texName) || this._getTextureFromEffectProps(name);
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerInfo = info && info.samplerHash !== undefined
             ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
@@ -600,6 +605,18 @@ export class Pass {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     public endChangeStatesSilently (): void {}
+
+    protected _getTextureFromEffectProps (name: string): TextureBase | null {
+        for (let i = 0; i < this._effectProps.length; i++) {
+            const props = this._effectProps[i];
+            for (const p in props) {
+                if (p === name) {
+                    return props[p] as TextureBase;
+                }
+            }
+        }
+        return null;
+    }
 
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         this._priority = RenderPriority.DEFAULT;
