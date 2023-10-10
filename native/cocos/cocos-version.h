@@ -24,10 +24,10 @@ THE SOFTWARE.
 #pragma once
 
 #define COCOS_MAJOR_VERSION     3
-#define COCOS_MINJOR_VERSION    8
-#define COCOS_PATCH_VERSION     2
-#define COCOS_VERSION_STRING    "3.8.2"
+#define COCOS_MINJOR_VERSION    9
+#define COCOS_PATCH_VERSION     0
+#define COCOS_VERSION_STRING    "3.9.0"
 #define COCOS_VERSION_DEFINED   1
-#define COCOS_VERSION           30802
+#define COCOS_VERSION           30900
 
 // #define COCOS_PRE_RELEASE       "release"
