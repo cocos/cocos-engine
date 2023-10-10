@@ -106,7 +106,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          Engine_VERSION=`grep -i '"version"' package.json |awk -F "\"" '{print $4}'`
+          Engine_VERSION=`grep -i '"version"' package.json |cut -b 15-17`
           AUTOTEST_VERSION="v$Engine_VERSION"
           TEST_PROJECTS_EXTERNAL="E:/pr-test/cocos-test-projects"
           CCTEST_PLUGINS="E:/pr-test/TestPlugin"
@@ -257,7 +257,7 @@ jobs:
         shell: bash
         run: |
           set -x
-          Engine_VERSION=`grep -i '"version"' package.json |awk -F "\"" '{print $4}'`
+          Engine_VERSION=`grep -i '"version"' package.json |cut -b 15-17`
           AUTOTEST_VERSION="v$Engine_VERSION"
           TEST_PROJECTS_EXTERNAL="../../cocos-test-projects"
           CCTEST_PLUGINS="../../TestPlugin"
