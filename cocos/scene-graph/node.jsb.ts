@@ -1258,7 +1258,6 @@ nodeProto._onActiveNode = function (shouldActiveNow: boolean) {
 
 nodeProto._onBatchCreated = function (dontSyncChildPrefab: boolean) {
     this.hasChangedFlags = TRANSFORMBIT_TRS;
-    this._transformFlags |= TRANSFORMBIT_TRS;
     const children = this._children;
     const len = children.length;
     let child;

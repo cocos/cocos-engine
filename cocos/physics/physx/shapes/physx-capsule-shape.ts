@@ -57,7 +57,7 @@ export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {
 
     onComponentSet (): void {
         this.updateGeometry();
-        const pxmat = this.getSharedMaterial(this._collider.sharedMaterial!);
+        const pxmat = this.getSharedMaterial(this._collider.sharedMaterial);
         this._impl = PhysXInstance.physics.createShape(PhysXCapsuleShape.CAPSULE_GEOMETRY, pxmat, true, this._flags);
     }
 

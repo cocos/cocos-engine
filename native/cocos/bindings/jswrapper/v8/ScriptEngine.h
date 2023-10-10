@@ -361,7 +361,14 @@ public:
 private:
     static void privateDataFinalize(PrivateObjectBase *privateObj);
     static void onFatalErrorCallback(const char *location, const char *message);
-    static void onOOMErrorCallback(const char *location, bool isHeapOom);
+
+    static void onOOMErrorCallback(const char *location,
+#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+                                      const v8::OOMDetails& details
+#else
+                                      bool isHeapOom
+#endif
+                                   );
     static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
     static void onPromiseRejectCallback(v8::PromiseRejectMessage msg);
 

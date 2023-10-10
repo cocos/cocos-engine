@@ -136,10 +136,22 @@ export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {
         Vec3.normalize(v3_2, v3_2);
 
         mat_0.set(
-            v3_0.x, v3_0.y, v3_0.z, 0, // x
-            v3_1.x, v3_1.y, v3_1.z, 0, // y
-            v3_2.x, v3_2.y, v3_2.z, 0, // z
-            0, 0, 0, 1,
+            v3_0.x,
+            v3_0.y,
+            v3_0.z,
+            0, // x
+            v3_1.x,
+            v3_1.y,
+            v3_1.z,
+            0, // y
+            v3_2.x,
+            v3_2.y,
+            v3_2.z,
+            0, // z
+            0,
+            0,
+            0,
+            1,
         );
 
         mat_0.getRotation(quat_0);
