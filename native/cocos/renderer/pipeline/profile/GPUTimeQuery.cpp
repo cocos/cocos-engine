@@ -59,7 +59,7 @@ void GPUTimeQuery::resize(uint32_t size) {
 }
 
 void GPUTimeQuery::reset(gfx::CommandBuffer *cmdBuffer) {
-    cmdBuffer->resetQueryPool(_queryPool, 0, _count);
+    cmdBuffer->resetQueryPool(_queryPool, 0, _capacity);
     _count = 0;
 }
 

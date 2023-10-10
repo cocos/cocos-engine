@@ -26,6 +26,7 @@
 
 #include "base/std/container/map.h"
 #include "GPUTimeQuery.h"
+#include "GPUStatisticsQuery.h"
 #include "profiler/DebugRenderer.h"
 #include "core/assets/Material.h"
 #include "scene/Pass.h"
@@ -42,12 +43,18 @@ public:
     void endFrame(gfx::CommandBuffer *cmdBuffer);
     void resolveData(NativePipeline &pipeline);
 
-    void writeGpuTimeStamp(gfx::CommandBuffer *cmdBuffer, uint32_t passID);
+    void beginScope(gfx::CommandBuffer *cmdBuffer, uint32_t passID);
+    void endScope(gfx::CommandBuffer *cmdBuffer, uint32_t passID);
+
     void render(gfx::RenderPass *renderPass, uint32_t subpass, gfx::CommandBuffer *cmdBuff);
 
 private:
     GPUTimeQuery _timeQuery;
+    GPUStatisticsQuery _statsQuery;
+
+    uint32_t currentPassId = CC_INVALID_INDEX;
     ccstd::map<uint32_t, uint64_t> _passTimes;
+    ccstd::map<uint32_t, GPUPipelineStats> _passStats;
 #if CC_USE_DEBUG_RENDERER
     std::unique_ptr<TextRenderer> _textRenderer;
     IntrusivePtr<Material> _material;
