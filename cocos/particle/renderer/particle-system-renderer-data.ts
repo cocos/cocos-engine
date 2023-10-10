@@ -172,6 +172,11 @@ export default class ParticleSystemRenderer {
                 return;
             }
         }
+        if (this._cpuMaterial !== val) {
+            if (this._particleSystem.processor) {
+                this._particleSystem.processor.getInfo()!.mainTexture = null;
+            }
+        }
         this._cpuMaterial = val;
         this.particleMaterial = this._cpuMaterial;
     }
@@ -199,6 +204,11 @@ export default class ParticleSystemRenderer {
             if (effectName.indexOf('particle-gpu') === -1) {
                 warnID(6035);
                 return;
+            }
+        }
+        if (this._gpuMaterial !== val) {
+            if (this._particleSystem.processor) {
+                this._particleSystem.processor.getInfo()!.mainTexture = null;
             }
         }
         this._gpuMaterial = val;
@@ -317,10 +327,10 @@ export default class ParticleSystemRenderer {
                 warnID(6035);
             }
             this.cpuMaterial = this.particleMaterial;
+            this._switchProcessor();
         } else {
             this.gpuMaterial = this.particleMaterial;
         }
-        this._switchProcessor();
     }
 
     private _switchProcessor (): void {
