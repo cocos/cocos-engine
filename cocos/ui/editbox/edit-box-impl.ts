@@ -137,7 +137,6 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     public update (): void {
-        if (!this._dirtyFlag) return;
         this._updateMatrix();
     }
 
@@ -242,9 +241,22 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._scrollBackWindow();
     }
 
+    private _isElementInViewport (): boolean {
+        if (this._edTxt) {
+            const rect = this._edTxt.getBoundingClientRect();
+
+            return (
+                rect.top >= 0 && rect.left >= 0
+                && rect.bottom <= (ccwindow.innerHeight || ccdocument.documentElement.clientHeight)
+                && rect.right <= (ccwindow.innerWidth || ccdocument.documentElement.clientWidth)
+            );
+        }
+        return false;
+    }
+
     private _adjustWindowScroll (): void {
         setTimeout(() => {
-            if (ccwindow.scrollY < SCROLLY) {
+            if (ccwindow.scrollY < SCROLLY && !this._isElementInViewport()) {
                 this._edTxt!.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'smooth' });
             }
         }, DELAY_TIME);
@@ -270,6 +282,9 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         const node = this._delegate!.node;
+        if (!node.hasChangedFlags) {
+            return;
+        }
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
         const viewport = view.getViewportRect();
