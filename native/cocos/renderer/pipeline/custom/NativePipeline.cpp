@@ -36,6 +36,7 @@
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "cocos/scene/SpotLight.h"
 #include "cocos/scene/gpu-scene/GPUScene.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -1151,31 +1152,54 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         gpuCullQueue->addDispatch(groupCount, 1, 1, pipelineSceneData->getGPUCullingMaterial(materialIndex), 0);
 
         if (light) {
-            auto *layers = pipelineSceneData->getCSMLayers();
-            layers->update(pipelineSceneData, camera);
-
-            auto *layer = layers->getLayers()[level];
+            const auto cap = device->getCapabilities();
             const auto size = pipelineSceneData->getShadows()->getSize();
             const auto width = static_cast<uint32_t>(size.x) / 2;
             const auto height = static_cast<uint32_t>(size.y) / 2;
+            const geometry::Frustum *frustum = nullptr;
+            Mat4 viewMat, projMat;
+            uint32_t perspective = 1;
+            float nearPlane = 0.1F;
+            float farPlane = 1000.0F;
+
+            if (light->getType() == scene::LightType::SPOT) {
+                const auto *spotLight = dynamic_cast<const scene::SpotLight *>(light);
+                frustum = &spotLight->getFrustum();
+                nearPlane = 0.001F;
+                farPlane = spotLight->getRange();
+                viewMat = spotLight->getNode()->getWorldMatrix().getInversed();
+                Mat4::createPerspective(spotLight->getAngle(), 1.0F, nearPlane, farPlane, true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0, &projMat);
+                perspective = 1;
+            } else if (light->getType() == scene::LightType::DIRECTIONAL) {
+                auto *layers = pipelineSceneData->getCSMLayers();
+                layers->update(pipelineSceneData, camera);
+                auto *layer = layers->getLayers()[level];
+                frustum = &layer->getValidFrustum();
+                nearPlane = layer->getSplitCameraNear();
+                farPlane = layer->getSplitCameraFar();
+                viewMat = layer->getMatShadowView();
+                projMat = layer->getMatShadowProj();
+                perspective = 0;
+            } else {
+                CC_EXPECTS(false);
+            }
 
             ccstd::vector<float> planes;
-            const auto &frustum = layer->getValidFrustum();
-            for (auto *plane : frustum.planes) {
+            for (auto *plane : frustum->planes) {
                 planes.push_back(plane->n.x);
                 planes.push_back(plane->n.y);
                 planes.push_back(plane->n.z);
                 planes.push_back(plane->d);
             }
             ArrayBuffer planesBuffer(reinterpret_cast<uint8_t *>(&planes[0]), sizeof(float) * static_cast<uint32_t>(planes.size()));
-            gpuCullPass->setMat4("cc_view", layer->getMatShadowView());
-            gpuCullPass->setMat4("cc_proj", layer->getMatShadowProj());
+            gpuCullPass->setMat4("cc_view", viewMat);
+            gpuCullPass->setMat4("cc_proj", projMat);
             gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
-            gpuCullPass->setFloat("cc_znear", layer->getSplitCameraNear());
-            gpuCullPass->setFloat("cc_zfar", layer->getSplitCameraFar());
+            gpuCullPass->setFloat("cc_znear", nearPlane);
+            gpuCullPass->setFloat("cc_zfar", farPlane);
             gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(width)));
             gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(height)));
-            gpuCullPass->setUint("cc_isPerspective", light->getType() == scene::LightType::DIRECTIONAL ? 0 : 1);
+            gpuCullPass->setUint("cc_isPerspective", perspective);
             gpuCullPass->setUint("cc_orientation", 0);
             gpuCullPass->setUint("cc_instanceCount", instanceCount);
             gpuCullPass->setUint("cc_phaseId", phaseID);
