@@ -500,6 +500,7 @@ void XRInterface::initialize(void *javaVM, void *activity) {
         } else if (key == xr::XRConfigKey::ASYNC_LOAD_ASSETS_IMAGE && value.isInt()) {
             _isFlipPixelY = value.getInt() == static_cast<int>(gfx::API::GLES3);
         } else if (key == xr::XRConfigKey::TS_EVENT_CALLBACK) {
+            se::AutoHandleScope scope;
             se::ValueArray args;
             args.emplace_back(se::Value(value.getString()));
             EventDispatcher::doDispatchJsEvent("onXREvent", args);
@@ -875,6 +876,7 @@ bool XRInterface::beginRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] beginRenderEyeFrame %d", eye);
     if (_isEnabledEyeRenderJsCallback) {
+        se::AutoHandleScope scope;
         se::ValueArray args;
         args.emplace_back(se::Value(eye));
         EventDispatcher::doDispatchJsEvent("onXREyeRenderBegin", args);
@@ -899,6 +901,7 @@ bool XRInterface::endRenderEyeFrame(uint32_t eye) {
 #if CC_USE_XR
     if (IS_ENABLE_XR_LOG) CC_LOG_INFO("[XR] endRenderEyeFrame %d", eye);
     if (_isEnabledEyeRenderJsCallback) {
+        se::AutoHandleScope scope;
         se::ValueArray args;
         args.emplace_back(se::Value(eye));
         EventDispatcher::doDispatchJsEvent("onXREyeRenderEnd", args);
