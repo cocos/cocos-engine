@@ -137,6 +137,10 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     public update (): void {
+        const node = this._delegate!.node;
+        if (!node.hasChangedFlags) {
+            return;
+        }
         this._updateMatrix();
     }
 
@@ -282,9 +286,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         const node = this._delegate!.node;
-        if (!node.hasChangedFlags) {
-            return;
-        }
         let scaleX = view.getScaleX();
         let scaleY = view.getScaleY();
         const viewport = view.getViewportRect();
