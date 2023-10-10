@@ -130,7 +130,7 @@ if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
     elseif(LINUX)
         set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-nullability-completeness -Wno-deprecated-declarations")
     elseif(ANDROID)
-        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations -Wno-deprecated-builtins")
+        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations -Wno-unknown-warning-option -Wno-deprecated-builtins")
     endif()
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
