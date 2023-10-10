@@ -42,7 +42,6 @@ import {
 import { RenderPassStage, RenderPriority, SetIndex } from '../../rendering/define';
 import { InstancedBuffer } from '../../rendering/instanced-buffer';
 import { ProgramLibrary } from '../../rendering/custom/private';
-import { MaterialPropertyFull } from '../../asset/assets/material';
 
 export interface IPassInfoFull extends EffectAsset.IPassInfo {
     // generated part

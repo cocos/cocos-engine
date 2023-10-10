@@ -34,7 +34,6 @@ import { Asset } from './asset';
 import { cclegacy, warnID } from '../../core';
 import { ProgramLibrary } from '../../rendering/custom/private';
 import { addEffectDefaultProperties, getCombinationDefines } from '../../render-scene/core/program-utils';
-import { MaterialPropertyFull } from './material';
 import { TextureBase } from './texture-base';
 
 export declare namespace EffectAsset {
