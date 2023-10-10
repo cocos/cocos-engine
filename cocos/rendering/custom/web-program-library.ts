@@ -101,13 +101,20 @@ function overwriteShaderSourceBinding (shaderInfo: ShaderInfo, source: string): 
         code = code.replace(samplerIter[0], replaceStr);
         samplerIter = samplerExp.exec(code);
     }
-    const blockExp = /layout\s*\(([^\)])+\)\s*(readonly)?\s*\b(uniform|buffer)\b\s+(\b\w+\b)\s*[{;]/g;
+    const blockExp = /layout\s*\(([^\)]+)\)\s*(readonly|writeonly)?\s*\b((uniform\s+|buffer|image2D){1,2})\b\s+(\b\w+\b)\s*[{;]/g;
     let blockIter = blockExp.exec(code);
     while (blockIter) {
-        const name = blockIter[4];
+        const name = blockIter[5];
         const { set, binding } = findBinding(shaderInfo, name);
         const accessStr = blockIter[2] ? blockIter[2] : '';
-        const replaceStr = `layout(set = ${set}, binding = ${binding}) ${accessStr} ${blockIter[3]} ${blockIter[4]} {`;
+        let endStr = ' {';
+        if (blockIter[3].includes('image')) {
+            endStr = `;`;
+        }
+        let desc = blockIter[1];
+        desc = desc.replace(/set\s*=\s*\d+/g, `set = ${set}`);
+        desc = desc.replace(/binding\s*=\s*\d+/g, `binding = ${binding}`);
+        const replaceStr = `layout(${desc}) ${accessStr} ${blockIter[3]} ${blockIter[5]}` + endStr;
         code = code.replace(blockIter[0], replaceStr);
         blockIter = blockExp.exec(code);
     }
