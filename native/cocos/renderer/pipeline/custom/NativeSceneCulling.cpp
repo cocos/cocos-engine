@@ -775,6 +775,9 @@ void LightResource::clear() {
 }
 
 void LightResource::buildLightBuffer(gfx::CommandBuffer* cmdBuffer) const {
+    if (lights.empty()) {
+        return;
+    }
     cmdBuffer->updateBuffer(
         lightBuffer,
         cpuBuffer.data(),
