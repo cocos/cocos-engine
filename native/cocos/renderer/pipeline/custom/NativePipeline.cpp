@@ -1157,7 +1157,8 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
             const auto width = static_cast<uint32_t>(size.x) / 2;
             const auto height = static_cast<uint32_t>(size.y) / 2;
             const geometry::Frustum *frustum = nullptr;
-            Mat4 viewMat, projMat;
+            Mat4 viewMat;
+            Mat4 projMat;
             uint32_t perspective = 1;
             float nearPlane = 0.1F;
             float farPlane = 1000.0F;
