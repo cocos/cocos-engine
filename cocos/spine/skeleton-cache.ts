@@ -163,8 +163,8 @@ export class AnimationCache {
     }
 
     private updateRenderData (index: number, model: any): void {
-        const vc = model.vCount;
-        const ic = model.iCount;
+        const vc: number = model.vCount;
+        const ic: number = model.iCount;
         const floatStride = (_useTint ?  _byteStrideTwoColor : _byteStrideOneColor) / Float32Array.BYTES_PER_ELEMENT;
         const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
         const iUint16Buf = new Uint16Array(ic);

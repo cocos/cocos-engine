@@ -27,7 +27,7 @@
 import spine from './spine-core.js';
 import { js } from '../../core';
 
-function resizeArray (array, newSize) {
+function resizeArray (array, newSize): Array<any> {
     if (!array) return new Array(newSize);
     if (newSize === array.length) return array;
     if (newSize < array.length) return array.slice(0, newSize);
@@ -42,7 +42,6 @@ function overrideDefineArrayProp (prototype: any, getPropVector: any, name: stri
             const count = vectors.size();
             let array = this[_name];
             array = resizeArray(array, count);
-            //if (array[0]) return array;
             for (let i = 0; i < count; i++) array[i] = vectors.get(i);
             this[_name] = array;
             return array;

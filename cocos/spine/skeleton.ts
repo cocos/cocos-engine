@@ -313,7 +313,7 @@ export class Skeleton extends UIRenderer {
     _iLength = 0;
     _iBuffer: Uint8Array | null = null;
     _model: any;
-    _tempColor: TempColor = {r: 0, g: 0, b: 0, a: 0};
+    _tempColor: TempColor = { r: 0, g: 0, b: 0, a: 0 };
 
     constructor () {
         super();
@@ -1037,7 +1037,9 @@ export class Skeleton extends UIRenderer {
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
             this._startEntry.animation.name = this._animationName;
-            if (this._listener && this._listener.start) this._listener.start(this._startEntry);
+            if (this._listener && this._listener.start) {
+                this._listener.start(this._startEntry);
+            }
         }
 
         this._accTime += dt;
