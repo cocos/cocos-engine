@@ -126,11 +126,11 @@ public:
     void setFixedTimeStep(float fixedTimeStep) override { _fixedTimeStep = fixedTimeStep; }
 
 #if CC_USE_GEOMETRY_RENDERER
-    virtual void setDebugDrawFlags(EPhysicsDrawFlags flags) override;
-    virtual EPhysicsDrawFlags getDebugDrawFlags() override;
+    void setDebugDrawFlags(EPhysicsDrawFlags flags) override;
+    EPhysicsDrawFlags getDebugDrawFlags() override;
 
-    virtual void setDebugDrawConstraintSize(float size) override;
-    virtual float getDebugDrawConstraintSize() override;
+    void setDebugDrawConstraintSize(float size) override;
+    float getDebugDrawConstraintSize() override;
 
 private:
     pipeline::GeometryRenderer *getDebugRenderer();
