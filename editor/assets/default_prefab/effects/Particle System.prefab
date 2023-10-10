@@ -604,7 +604,10 @@
     "_mainTexture": {
       "__uuid__": "b5b27ab1-e740-4398-b407-848fc2b2c897@6c48a"
     },
-    "_useGPU": false
+    "_useGPU": false,
+    "_gpuMaterial": {
+      "__uuid__": "18658b90-e43c-4303-9933-68f2a1537358"
+    }
   },
   {
     "__type__": "cc.CompPrefabInfo",
