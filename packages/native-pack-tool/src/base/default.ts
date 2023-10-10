@@ -538,6 +538,7 @@ export abstract class NativePackTool {
 
     abstract create(): Promise<boolean>;
     generate?(): Promise<boolean>;
+    openWithIde?(): Promise<boolean>;
     make?(): Promise<boolean>;
     run?(): Promise<boolean>;
 }
@@ -551,6 +552,10 @@ export class CocosParams<T> {
     public platform: string;
     public platformName: string;
     public executableName: string;
+    /**
+     * batch file directory of native ide
+     */
+    public nativeIdeDir: string;
     /**
      * engine root
      */
@@ -611,6 +616,7 @@ export class CocosParams<T> {
         this.platform = params.platform;
         this.platformName = params.platformName;
         this.enginePath = params.enginePath;
+        this.nativeIdeDir = params.nativeIdeDir;
         this.nativeEnginePath = params.nativeEnginePath;
         this.projDir = params.projDir;
         this.buildDir = params.buildDir;
