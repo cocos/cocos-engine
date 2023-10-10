@@ -125,9 +125,12 @@ void PhysXWorld::step(float fixedTimeStep) {
     _mScene->simulate(fixedTimeStep);
     _mScene->fetchResults(true);
     syncPhysicsToScene();
+#if CC_USE_GEOMETRY_RENDERER
     debugDraw();
+#endif
 }
 
+#if CC_USE_GEOMETRY_RENDERER
 pipeline::GeometryRenderer* PhysXWorld::getDebugRenderer () {
     auto cameras = Root::getInstance()->getMainWindow()->getCameras();
     scene::Camera* camera = nullptr;
@@ -222,6 +225,7 @@ void PhysXWorld::setDebugDrawConstraintSize(float size) {
 float PhysXWorld::getDebugDrawConstraintSize() {
     return _debugConstraintSize;
 }
+#endif
 
 void PhysXWorld::setGravity(float x, float y, float z) {
     _mScene->setGravity(physx::PxVec3(x, y, z));
