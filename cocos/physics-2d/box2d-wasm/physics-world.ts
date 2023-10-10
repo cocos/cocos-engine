@@ -23,7 +23,7 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM, getTSObjectFromWASMObject,
+import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM,
     getTSObjectFromWASMObjectPtr, removeImplPtrReference, removeImplPtrReferenceWASM, B2ObjectType } from './instantiated';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';

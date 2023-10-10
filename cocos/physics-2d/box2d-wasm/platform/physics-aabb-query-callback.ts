@@ -22,11 +22,9 @@
  THE SOFTWARE.
 */
 
-import { B2, getTSObjectFromWASMObject, getWASMObjectFromWASMObjectPtr } from '../instantiated';
+import { B2 } from '../instantiated';
 import { Vec2 } from '../../../core';
-import { B2RigidBody2D } from '../rigid-body';
 
-const tempVec2 = { x: 0, y: 0 };
 export class PhysicsAABBQueryCallback {
     static _point = { x: 0, y: 0 };
     static _isPoint = false;

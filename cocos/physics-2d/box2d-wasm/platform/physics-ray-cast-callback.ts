@@ -22,11 +22,9 @@
  THE SOFTWARE.
 */
 
-import { B2, getTSObjectFromWASMObject, getWASMObjectFromWASMObjectPtr } from '../instantiated';
+import { B2 } from '../instantiated';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
-import { B2Shape2D } from '../shapes/shape-2d';
-import { B2RigidBody2D } from '../rigid-body';
 
 export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
     static _type = ERaycast2DType.Closest;

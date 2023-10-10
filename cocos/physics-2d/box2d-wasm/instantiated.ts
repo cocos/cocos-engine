@@ -87,13 +87,6 @@ export function getTSObjectFromWASMObjectPtr<T> (Type: B2ObjectType, implPtr: nu
     return map?.get(implPtr);
 }
 
-export function getTSObjectFromWASMObject<T> (Type: B2ObjectType, impl: any): T {
-    const implPtr = getImplPtr(impl);
-    const map = WASM_OBJECT_PTR_2_TS_OBJECT.get(Type);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return map?.get(implPtr);
-}
-
 /**
 * mapping wasm-object-ptr to wasm-object
 *  B2.Fixture pointer -->B2.Fixture
