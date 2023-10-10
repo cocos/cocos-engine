@@ -429,7 +429,6 @@ export class Material extends Asset {
             }
             if (passInfo.switch && !defines[passInfo.switch]) { continue; }
             const pass = new Pass(cclegacy.director.root);
-            pass.effectProps = this._effectAsset!.props;
             pass.initialize(passInfo);
             passes.push(pass);
         }
