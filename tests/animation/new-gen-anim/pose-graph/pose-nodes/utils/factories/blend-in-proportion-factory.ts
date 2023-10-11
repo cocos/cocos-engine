@@ -2,7 +2,6 @@
 import { PoseNodeBlendInProportion } from '../../../../../../../cocos/animation/marionette/pose-graph/pose-nodes/blend-in-proportion';
 import { connectNode } from '../../../../../../../cocos/animation/marionette/pose-graph/op/internal';
 import { poseGraphOp } from '../../../../../../../cocos/animation/marionette/pose-graph/op';
-import '../../../../utils/factory';
 import { addPoseNodeFactory, createPoseNode, PoseNodeParams } from '../../../../utils/factory';
 
 declare global {

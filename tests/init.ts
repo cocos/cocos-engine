@@ -164,7 +164,6 @@ jest.mock('serialization-test-helper/run-test', () => {
     virtual: true,
 });
 
-import '../exports/base';
 import { DebugMode } from '@base/debug';
 import { EffectAsset, Game, game, IGameConfig } from '../exports/base';
 import './asset-manager/init';

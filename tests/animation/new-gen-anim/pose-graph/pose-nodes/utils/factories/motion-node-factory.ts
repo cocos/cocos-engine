@@ -1,7 +1,6 @@
 
 import { Motion } from '../../../../../../../cocos/animation/marionette/motion';
 import { PoseNodePlayMotion } from '../../../../../../../cocos/animation/marionette/pose-graph/pose-nodes/play-motion';
-import '../../../../utils/factory';
 import { addPoseNodeFactory, createMotion, MotionParams } from '../../../../utils/factory';
 
 declare global {
