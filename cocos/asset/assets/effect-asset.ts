@@ -34,13 +34,14 @@ import { Asset } from './asset';
 import { cclegacy, warnID } from '../../core';
 import { ProgramLibrary } from '../../rendering/custom/private';
 import { addEffectDefaultProperties, getCombinationDefines } from '../../render-scene/core/program-utils';
+import { TextureBase } from './texture-base';
 
 export declare namespace EffectAsset {
     export interface IPropertyInfo {
         type: number; // auto-extracted from shader
         handleInfo?: [string, number, number]; // auto-generated from 'target'
         samplerHash?: number; // auto-generated from 'sampler'
-        value?: number[] | string; // default value
+        value?: number[] | string | TextureBase; // default value
         linear?: boolean; // whether to convert the input to linear space first before applying
     }
     // Pass instance itself are compliant to IPassStates too

@@ -432,8 +432,12 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];
         const value = info && info.value;
-        const texName = value ? `${value as string}${getStringFromType(type)}` : getDefaultFromType(type) as string;
-        const textureBase = builtinResMgr.get<TextureBase>(texName);
+        let textureBase: TextureBase;
+        if (typeof value === 'string') {
+            textureBase = builtinResMgr.get<TextureBase>(`${value}${getStringFromType(type)}`);
+        } else {
+            textureBase = value as TextureBase || builtinResMgr.get<TextureBase>(getDefaultFromType(type) as string);
+        }
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerInfo = info && info.samplerHash !== undefined
             ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
