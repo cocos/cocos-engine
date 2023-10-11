@@ -26,7 +26,7 @@
 import { TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { js, memop } from '@base/utils';
-import { isCCObject, isValid } from '@base/object/internal';
+import { isCCObject, isValid } from '@base/object';
 
 const { Pool } = memop;
 const { array, createMap } = js;

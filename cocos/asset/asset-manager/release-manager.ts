@@ -24,7 +24,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { js } from '@base/utils';
-import { isValid } from '@base/object/internal';
+import { isValid } from '@base/object';
 import { callInNextTick } from '../../core/utils/internal';
 import { Asset } from '../assets/asset';
 import { misc } from '../../core';

@@ -33,3 +33,5 @@ export type { IExposedAttributes, IAcceptableAttributes } from './utils/attribut
 export { getFullFormOfProperty, doValidateMethodWithProps_DEV } from './utils/preprocess-class';
 export { RF };
 export { PropertyStashInternalFlag, type ClassStash, type PropertyStash } from './class-stash';
+export { setPropertyEnumType, setPropertyEnumTypeOnAttrs } from './utils/attribute-internal';
+export { isCCObject, isValid } from './object';
