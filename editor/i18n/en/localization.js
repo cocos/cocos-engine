@@ -1229,12 +1229,6 @@ module.exports = link(mixin({
                 strength: 'The strength of the driver',
             },
         },
-        material: {
-            friction: 'The friction coefficient of the material',
-            rollingFriction: 'The rolling friction coefficient of the material',
-            spinningFriction: 'The spinning friction coefficient of the material',
-            restitution: 'The coefficient of restitution of the material',
-        },
         character_controller: {
             group: 'Collision Group of the character controller.',
             minMoveDistance: 'The minimum movement distance of the character controller.',
@@ -1316,6 +1310,7 @@ module.exports = link(mixin({
     },
 },
 
+require('./modules/physics'),
 require('./modules/rendering'),
 require('./modules/ui.js'),
 require('./animation'),
