@@ -36,7 +36,7 @@ const _useTint = true;
 const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
 const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);
 
-class FrameBoneInfo {
+export class FrameBoneInfo {
     a = 0;
     b = 0;
     c = 0;
@@ -46,9 +46,9 @@ class FrameBoneInfo {
 }
 
 export interface SkeletonCacheItemInfo {
-    skeleton: spine.Skeleton;
-    clipper: spine.SkeletonClipping;
-    state: spine.AnimationState;
+    skeleton: spine.Skeleton | null;
+    clipper: spine.SkeletonClipping | null;
+    state: spine.AnimationState | null;
     listener: TrackEntryListeners;
     curAnimationCache: AnimationCache | null;
     animationsCache: { [key: string]: AnimationCache };
@@ -97,6 +97,7 @@ export class AnimationCache {
         this._inited = false;
         this._invalid = true;
         this._instance = new spine.SkeletonInstance();
+        this._instance.isCache = true;
         this._skeletonData = data;
         this._skeleton = this._instance.initSkeleton(data);
         this._instance.setUseTint(_useTint);
@@ -169,19 +170,17 @@ export class AnimationCache {
         const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
         const iUint16Buf = new Uint16Array(ic);
 
+        const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
         const vPtr = model.vPtr;
         const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        const vData = spine.wasmUtil.wasm.HEAPU8.subarray(vPtr, vPtr + vLength);
-
-        vUint8Buf.set(vData);
+        vUint8Buf.set(HEAPU8.subarray(vPtr, vPtr + vLength));
 
         const iPtr = model.iPtr;
         const iLength = Uint16Array.BYTES_PER_ELEMENT * ic;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
-        const iData = spine.wasmUtil.wasm.HEAPU8.subarray(iPtr, iPtr + iLength);
         const iUint8Buf = new Uint8Array(iUint16Buf.buffer);
-        iUint8Buf.set(iData);
+        iUint8Buf.set(HEAPU8.subarray(iPtr, iPtr + iLength));
 
         const modelData = new SpineModel();
         modelData.vCount = vc;
@@ -300,7 +299,7 @@ export class AnimationCache {
         this.invalidAllFrame();
     }
 
-    public destory (): void {
+    public destroy (): void {
         spine.wasmUtil.destroySpineInstance(this._instance);
     }
 }
@@ -358,10 +357,10 @@ class SkeletonCache {
     public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData): SkeletonCacheItemInfo {
         let skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) {
-            const skeleton = new spine.Skeleton(skeletonData);
-            const clipper = new spine.SkeletonClipping();
-            const stateData = new spine.AnimationStateData(skeleton.data);
-            const state = new spine.AnimationState(stateData);
+            const skeleton = null; //new spine.Skeleton(skeletonData);
+            const clipper = null; //new spine.SkeletonClipping();
+            //const stateData = null; //new spine.AnimationStateData(skeleton.data);
+            const state = null; //new spine.AnimationState(stateData);
             const listener = new TrackEntryListeners();
 
             this._skeletonCache[uuid] = skeletonInfo = {
@@ -416,14 +415,14 @@ class SkeletonCache {
             const animationPool = this._animationPool;
             for (const key in animationPool) {
                 if (key.includes(uuid)) {
-                    animationPool[key].destory();
+                    animationPool[key].destroy();
                     delete animationPool[key];
                 }
             }
         } else {
             const animationPool = this._animationPool;
             for (const key in animationPool) {
-                animationPool[key].destory();
+                animationPool[key].destroy();
                 delete animationPool[key];
             }
         }

@@ -6,6 +6,7 @@ SpineModel::SpineModel() {
 
 SpineModel::~SpineModel() {
     delete SpineModel::data; 
+    SpineModel::data = nullptr;
 }
 
 /*

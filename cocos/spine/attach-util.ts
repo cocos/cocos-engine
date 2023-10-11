@@ -26,6 +26,7 @@ import { Mat4 } from '../core';
 import { Skeleton } from './skeleton';
 import { Node } from '../scene-graph';
 import spine from './lib/spine-core';
+import { FrameBoneInfo } from './skeleton-cache';
 
 const tempMat4 = new Mat4();
 
@@ -36,8 +37,8 @@ const tempMat4 = new Mat4();
  */
 export class AttachUtil {
     protected isInitialized = false;
-    protected skeletonBones: spine.Bone[] | FrameBoneInfo[] | undefined;
-    protected socketNodes: Map<number, Node> | undefined;
+    protected skeletonBones: spine.Bone[] | FrameBoneInfo[] | null = null;
+    protected socketNodes: Map<number, Node> | null = null;
     private keysToDelete: number[] = [];
 
     constructor () {
@@ -46,20 +47,20 @@ export class AttachUtil {
 
     init (skeletonComp: Skeleton): void {
         this.isInitialized = false;
-        if (!skeletonComp || skeletonComp.socketNodes.size === 0) return;
+        if (!skeletonComp || skeletonComp.socketNodes?.size === 0) return;
         const isCached = skeletonComp.isAnimationCached();
         this.skeletonBones = isCached && skeletonComp._curFrame ? skeletonComp._curFrame.boneInfos : skeletonComp._skeleton.bones;
         if (!this.skeletonBones || this.skeletonBones.length < 1) return;
         this.socketNodes = skeletonComp.socketNodes;
-        if (this.socketNodes.size <= 0) return;
+        if (!this.socketNodes || this.socketNodes.size <= 0) return;
         this.isInitialized = true;
         this._syncAttachedNode();
     }
 
     reset (): void {
         this.isInitialized = false;
-        this.skeletonBones = undefined;
-        this.socketNodes = undefined;
+        this.skeletonBones = null;
+        this.socketNodes = null;
         this.keysToDelete.length = 0;
     }
 
