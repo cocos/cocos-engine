@@ -46,8 +46,6 @@ Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData *data) {
     _clipper = new SkeletonClipping();
     _skeleton->setToSetupPose();
     _skeleton->updateWorldTransform();
-    //LogUtil::PrintToJs("initSkeleton ok.");
-
     _animState->setRendererObject(this);
     _animState->setListener(animationCallback);
     return _skeleton;
@@ -57,7 +55,6 @@ TrackEntry *SpineSkeletonInstance::setAnimation(float trackIndex, const std::str
     if (!_skeleton) return nullptr;
     spine::Animation *animation = _skeleton->getData()->findAnimation(name.c_str());
     if (!animation) {
-        //LogUtil::PrintToJs("Spine: Animation not found:!!!");
         _animState->clearTracks();
         _skeleton->setToSetupPose();
         return nullptr;
@@ -74,7 +71,6 @@ void SpineSkeletonInstance::setSkin(const std::string &name) {
     _skeleton->setSlotsToSetupPose();
     _animState->apply(*_skeleton);
     _skeleton->updateWorldTransform();
-    //LogUtil::PrintToJs(name.c_str());
 }
 
 void SpineSkeletonInstance::updateAnimation(float dltTime) {
@@ -83,22 +79,6 @@ void SpineSkeletonInstance::updateAnimation(float dltTime) {
     _skeleton->update(dltTime);
     _animState->update(dltTime);
     _animState->apply(*_skeleton);
-    //preUpdateRenderData();
-}
-
-void SpineSkeletonInstance::preUpdateRenderData() {
-    if (_userData.debugMode) {
-        _debugShapes.clear();
-    }
-    //SpineMeshData::reset();
-    _model->clearMeshes();
-    if (_userData.useTint) {
-        _model->byteStride = sizeof(V3F_T2F_C4B_C4B);
-    } else {
-        _model->byteStride = sizeof(V3F_T2F_C4B);
-    }
-    _model->setBufferPtr(SpineMeshData::vb(), SpineMeshData::ib());
-    collectMeshData();
 }
 
 SpineModel *SpineSkeletonInstance::updateRenderData() {

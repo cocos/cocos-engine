@@ -36,43 +36,43 @@ const tempMat4 = new Mat4();
  * @class sp.AttachUtil
  */
 export class AttachUtil {
-    protected isInitialized = false;
-    protected skeletonBones: spine.Bone[] | FrameBoneInfo[] | null = null;
-    protected socketNodes: Map<number, Node> | null = null;
+    protected _isInitialized = false;
+    protected _skeletonBones: spine.Bone[] | FrameBoneInfo[] | null = null;
+    protected _socketNodes: Map<number, Node> | null = null;
     private keysToDelete: number[] = [];
 
     constructor () {
-        this.isInitialized = false;
+        this._isInitialized = false;
     }
 
     init (skeletonComp: Skeleton): void {
-        this.isInitialized = false;
+        this._isInitialized = false;
         if (!skeletonComp || skeletonComp.socketNodes?.size === 0) return;
         const isCached = skeletonComp.isAnimationCached();
-        this.skeletonBones = isCached && skeletonComp._curFrame ? skeletonComp._curFrame.boneInfos : skeletonComp._skeleton.bones;
-        if (!this.skeletonBones || this.skeletonBones.length < 1) return;
-        this.socketNodes = skeletonComp.socketNodes;
-        if (!this.socketNodes || this.socketNodes.size <= 0) return;
-        this.isInitialized = true;
+        this._skeletonBones = isCached && skeletonComp._curFrame ? skeletonComp._curFrame.boneInfos : skeletonComp._skeleton.bones;
+        if (!this._skeletonBones || this._skeletonBones.length < 1) return;
+        this._socketNodes = skeletonComp.socketNodes;
+        if (!this._socketNodes || this._socketNodes.size <= 0) return;
+        this._isInitialized = true;
         this._syncAttachedNode();
     }
 
     reset (): void {
-        this.isInitialized = false;
-        this.skeletonBones = null;
-        this.socketNodes = null;
+        this._isInitialized = false;
+        this._skeletonBones = null;
+        this._socketNodes = null;
         this.keysToDelete.length = 0;
     }
 
     _syncAttachedNode (): void {
-        if (!this.isInitialized) return;
-        const socketNodes = this.socketNodes!;
+        if (!this._isInitialized) return;
+        const socketNodes = this._socketNodes!;
         for (const [boneIdx, boneNode] of socketNodes) {
             if (!boneNode || !boneNode.isValid) {
                 this.keysToDelete.push(boneIdx);
                 continue;
             }
-            const bone =  this.skeletonBones![boneIdx];
+            const bone =  this._skeletonBones![boneIdx];
             if (bone) this.matrixHandle(boneNode, bone);
         }
         if (this.keysToDelete.length <= 0) return;
