@@ -246,7 +246,11 @@ public:
 
     ~ScriptEngineV8Context() {
         v8::V8::Dispose();
+#if V8_MAJOR_VERSION > 9 || ( V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION > 7)
+        v8::V8::DisposePlatform();
+#else
         v8::V8::ShutdownPlatform();
+#endif
         delete platform;
     }
     v8::Platform *platform = nullptr;
@@ -279,12 +283,22 @@ void ScriptEngine::onFatalErrorCallback(const char *location, const char *messag
     getInstance()->callExceptionCallback(location, message, "(no stack information)");
 }
 
-void ScriptEngine::onOOMErrorCallback(const char *location, bool isHeapOom) {
+void ScriptEngine::onOOMErrorCallback(const char *location,
+#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+                                      const v8::OOMDetails& details
+#else
+                                      bool isHeapOom
+#endif
+                                      ) {
     ccstd::string errorStr = "[OOM ERROR] location: ";
     errorStr += location;
     ccstd::string message;
     message = "is heap out of memory: ";
+#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+    if (details.is_heap_oom) {
+#else
     if (isHeapOom) {
+#endif
         message += "true";
     } else {
         message += "false";
@@ -899,6 +913,7 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
     if (!success) {
         SE_LOGE("ScriptEngine::evalString script %s, failed!\n", fileName);
     }
+
     return success;
 }
 

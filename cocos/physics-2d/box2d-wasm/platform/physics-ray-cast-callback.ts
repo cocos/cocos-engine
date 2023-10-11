@@ -22,15 +22,13 @@
  THE SOFTWARE.
 */
 
-import { B2, getTSObjectFromWASMObject, getWASMObjectFromWASMObjectPtr } from '../instantiated';
+import { B2 } from '../instantiated';
 import { Vec2 } from '../../../core';
 import { ERaycast2DType } from '../../framework';
-import { B2Shape2D } from '../shapes/shape-2d';
-import { B2RigidBody2D } from '../rigid-body';
 
 export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
     static _type = ERaycast2DType.Closest;
-    static _fixtures: B2.Fixture[] = [];
+    static _fixtures: number[] = [];//B2.Fixture ptr
     static _points: Vec2[] = [];
     static _normals: Vec2[] = [];
     static _fractions: number[] = [];
@@ -46,8 +44,8 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
         PhysicsRayCastCallback._fractions.length = 0;
     }
 
-    static ReportFixture (fixture: B2.Fixture, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
-        if ((fixture.GetFilterData().categoryBits & PhysicsRayCastCallback._mask) === 0) {
+    static ReportFixture (fixture: number, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
+        if ((B2.FixtureGetFilterData(fixture).categoryBits & PhysicsRayCastCallback._mask) === 0) {
             return 0;
         }
 
@@ -73,7 +71,7 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
         return fraction;
     }
 
-    static getFixtures (): B2.Fixture[] {
+    static getFixtures (): number[] {
         return PhysicsRayCastCallback._fixtures;
     }
 
@@ -91,8 +89,7 @@ export class PhysicsRayCastCallback {// extends B2.RayCastCallback {
 
     static callback = {
         ReportFixture (fixture: number, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
-            const f = getWASMObjectFromWASMObjectPtr<B2.Fixture>(fixture);
-            return PhysicsRayCastCallback.ReportFixture(f, point, normal, fraction);
+            return PhysicsRayCastCallback.ReportFixture(fixture, point, normal, fraction);
         },
     };
 }
