@@ -27,7 +27,7 @@
 
 import { errorID, logID } from '@base/debug';
 import { cclegacy } from '@base/global';
-import { isCCObject } from '@base/object';
+import { isCCObject } from '@base/object/internal';
 import { Action } from './action';
 import { Node } from '../../scene-graph';
 import type { ActionInterval } from './action-interval';

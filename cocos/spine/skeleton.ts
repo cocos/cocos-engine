@@ -26,7 +26,8 @@ import { ccclass, executeInEditMode, help, menu, serializable, type, displayName
 import { error, logID, warn } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { js, memop } from '@base/utils';
-import { Enum, EnumType, ccenum, CCObject, setPropertyEnumType } from '@base/object';
+import { Enum, EnumType, ccenum, CCObject } from '@base/object';
+import { setPropertyEnumType } from '@base/object/internal';
 import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 import { Color } from '../core';

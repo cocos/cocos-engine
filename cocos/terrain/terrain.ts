@@ -25,7 +25,8 @@
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
-import { CCObject, isValid, CCFloat } from '@base/object';
+import { CCObject, CCFloat } from '@base/object';
+import { isValid } from '@base/object/internal';
 import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../misc/model-renderer';
 import { EffectAsset, Texture2D } from '../asset/assets';

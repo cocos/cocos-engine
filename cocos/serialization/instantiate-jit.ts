@@ -28,7 +28,8 @@
 import { TEST } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
-import { CCClass, isCCClassOrFastDefined, CCObject, isCCObject } from '@base/object';
+import { CCClass, isCCClassOrFastDefined, CCObject } from '@base/object';
+import { isCCObject } from '@base/object/internal';
 import { flattenCodeArray } from '../core';
 
 const Destroyed = CCObject.Flags.Destroyed;

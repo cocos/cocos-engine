@@ -1,4 +1,4 @@
-import { isValid } from '@base/object';
+import { isValid } from '@base/object/internal';
 import { SpriteFrame } from '../../cocos/2d/assets/sprite-frame';
 import { Sprite } from '../../cocos/2d/components/sprite';
 import { assetManager, loader } from '../../cocos/asset/asset-manager';

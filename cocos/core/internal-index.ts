@@ -40,9 +40,6 @@ export type { DeserializationContext } from './data/custom-serializable';
 
 export * from './data/utils/compiler';
 
-export { setPropertyEnumType, setPropertyEnumTypeOnAttrs, ENUM_TAG, BITMASK_TAG, isCCObject, isValid } from '@base/object';
-
-
 export { EasingMethod } from './curves/easing-method';
 
 export { CallbacksInvoker } from './event/callbacks-invoker';

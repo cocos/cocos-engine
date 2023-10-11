@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,19 +22,6 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '@base/global';
-import * as _decorator from './class-decorator';
-
-cclegacy._decorator = _decorator;
-export { _decorator };
-export { CompactValueTypeArray } from './utils/compact-value-type-array';
-export { deserializeTag, serializeTag } from './custom-serializable';
-export type {
-    SerializationInput,
-    SerializationOutput,
-    SerializationContext,
-    CustomSerializable,
-} from './custom-serializable';
-export { getSerializationMetadata } from './serialization-metadata';
-export type { SerializationMetadata } from './serialization-metadata';
-export { EditorExtendable } from './editor-extendable';
+export { setPropertyEnumType } from './utils/attribute-internal';
+export { ENUM_TAG, BITMASK_TAG } from './class';
+export { isCCObject, isValid } from './object';

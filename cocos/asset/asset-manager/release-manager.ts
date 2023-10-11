@@ -24,7 +24,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { js } from '@base/utils';
-import { isValid } from '@base/object';
+import { isValid } from '@base/object/internal';
 import { Asset } from '../assets/asset';
 import { misc } from '../../core';
 import { Node, Scene } from '../../scene-graph';
