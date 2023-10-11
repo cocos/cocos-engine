@@ -35,7 +35,6 @@ public:
     void setBufferPtr(uint8_t* vp, uint16_t* ip);
     std::vector<uint32_t>* data;
     std::vector<uint32_t>* getData();
-    //std::vector<SlotMesh>* getMeshes();
 
 public:
     uint32_t vCount;
@@ -43,8 +42,6 @@ public:
     uint32_t vPtr;
     uint32_t iPtr;
     uint32_t byteStride;
-    //std::vector<SlotMesh> meshArray{};
-    
 };
 
 #endif

@@ -357,10 +357,9 @@ class SkeletonCache {
     public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData): SkeletonCacheItemInfo {
         let skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) {
-            const skeleton = null; //new spine.Skeleton(skeletonData);
-            const clipper = null; //new spine.SkeletonClipping();
-            //const stateData = null; //new spine.AnimationStateData(skeleton.data);
-            const state = null; //new spine.AnimationState(stateData);
+            const skeleton = null;
+            const clipper = null;
+            const state = null;
             const listener = new TrackEntryListeners();
 
             this._skeletonCache[uuid] = skeletonInfo = {
