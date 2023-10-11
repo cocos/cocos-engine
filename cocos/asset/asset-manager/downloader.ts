@@ -25,6 +25,7 @@
 import { BUILD, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
+import { callInNextTick } from '../../core/utils/internal';
 import { sys, misc, path } from '../../core';
 import Cache from './cache';
 import downloadFile, { FileProgressCallback } from './download-file';
@@ -532,7 +533,7 @@ export class Downloader {
 
     private _handleQueueInNextFrame (maxConcurrency: number, maxRequestsPerFrame: number): void {
         if (!this._checkNextPeriod && this._queue.length > 0) {
-            misc.callInNextTick(this._handleQueue.bind(this), maxConcurrency, maxRequestsPerFrame);
+            callInNextTick(this._handleQueue.bind(this), maxConcurrency, maxRequestsPerFrame);
             this._checkNextPeriod = true;
         }
     }
