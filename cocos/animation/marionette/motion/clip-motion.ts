@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { editorExtrasTag, _decorator, EditorExtendable, editable, serializable } from '../../../core';
+import { editorExtrasTag } from '@base/object';
+import { _decorator, EditorExtendable, editable, serializable } from '../../../core';
 import { additiveSettingsTag, AnimationClip } from '../../animation-clip';
 import { cloneAnimationGraphEditorExtrasFrom } from '../animation-graph-editor-extras-clone-helper';
 import { createEval } from '../create-eval';

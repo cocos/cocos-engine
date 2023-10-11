@@ -24,7 +24,7 @@
 
 import { assertIsTrue } from '@base/debug/internal';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
-import { CCClass } from '../data/class';
+import { CCClass } from '@base/object';
 import { approx } from '../math';
 import type { CurveBase } from './curve-base';
 

@@ -1,4 +1,4 @@
-import { CCFloat } from '../../../core';
+import { CCFloat } from '@base/object';
 import { type } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, serializable, slide, tooltip } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';

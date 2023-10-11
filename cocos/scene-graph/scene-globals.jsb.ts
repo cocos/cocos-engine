@@ -21,7 +21,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { CCFloat, CCInteger } from '../core/data';
+import { CCFloat, CCInteger } from '@base/object';
 import { TextureCube } from '../asset/assets/texture-cube';
 import { Enum } from '../core/value-types';
 import { Ambient, EnvironmentLightingType, ToneMappingType } from '../render-scene/scene';

@@ -26,7 +26,7 @@ import { BAIDU } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { TextureCube } from '../asset/assets/texture-cube';
-import { CCFloat, CCInteger } from '../core/data/utils/attribute';
+import { CCFloat, CCInteger } from '@base/object';
 import { Color, Quat, Vec3, Vec2, Vec4 } from '../core/math';
 import { Ambient } from '../render-scene/scene/ambient';
 import { Shadows, ShadowType, ShadowSize } from '../render-scene/scene/shadows';

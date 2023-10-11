@@ -32,7 +32,8 @@ import { BlendFactor } from '../gfx';
 import { TMXMapInfo } from './tmx-xml-parser';
 import { TiledTextureGrids, GID, TileFlag, Orientation, StaggerAxis, TMXObjectType, PropertiesInfo, TiledAnimationType, TMXObject, TMXObjectGroupInfo } from './tiled-types';
 import { UITransform } from '../2d/framework/ui-transform';
-import { CCBoolean, Vec2, Color, CCObject } from '../core';
+import { CCBoolean, CCObject } from '@base/object';
+import { Vec2, Color } from '../core';
 import { SpriteFrame } from '../2d/assets';
 import { Node } from '../scene-graph/node';
 

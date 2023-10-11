@@ -25,29 +25,14 @@
 
 import { ccclass, serializable, type, editable } from 'cc.decorator';
 
-import {
-    RasterizerState,
-    DepthStencilState,
-    BlendTarget,
-    BlendState,
-} from './pipeline-state';
+import { RasterizerState, DepthStencilState, BlendTarget, BlendState } from './pipeline-state';
 
-import {
-    PolygonMode,
-    ShadeModel,
-    CullMode,
-    ComparisonFunc,
-    StencilOp,
-    BlendFactor,
-    BlendOp,
-    ColorMask,
-    PrimitiveMode,
-    DynamicStateFlagBit,
-} from './define';
+import { PolygonMode, ShadeModel, CullMode, ComparisonFunc, StencilOp, BlendFactor, BlendOp, ColorMask, PrimitiveMode, DynamicStateFlagBit } from './define';
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { RenderPassStage } from '../../rendering/define';
-import { CCString, Enum, Color } from '../../core';
+import { CCString } from '@base/object';
+import { Enum, Color } from '../../core';
 
 function isNumber(obj: any) {
     return typeof obj === 'number' && !isNaN(obj);

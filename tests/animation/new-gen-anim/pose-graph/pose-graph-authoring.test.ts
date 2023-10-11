@@ -16,7 +16,7 @@ import { PoseGraphNodeEditorMetadata, getPoseGraphNodeEditorMetadata } from '../
 import { composeInputKeyInternally, createPoseGraph, getTheOnlyInputKey, getTheOnlyOutputKey, normalizeNodeInputMetadata, UnimplementedPoseNode, UnimplementedPVNode } from './utils/misc';
 import { PoseNode } from '../../../../cocos/animation/marionette/pose-graph/pose-node';
 import { ccclass } from '../../../../cocos/core/data/class-decorator';
-import { attr } from '../../../../cocos/core/data/utils/attribute';
+import { attr } from '@base/object';
 
 const { unregisterClass } = js;
 

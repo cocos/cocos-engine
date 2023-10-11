@@ -25,7 +25,8 @@
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, range, visible, override, displayName } from 'cc.decorator';
 import { cclegacy } from '@base/global';
 import { Material, Texture2D } from '../asset/assets';
-import { Vec3, Vec4, Vec2, CCBoolean } from '../core';
+import { Vec3, Vec4, Vec2 } from '../core';
+import { CCBoolean } from '@base/object';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';

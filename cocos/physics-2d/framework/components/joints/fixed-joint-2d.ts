@@ -23,7 +23,8 @@
 */
 
 import { Joint2D } from './joint-2d';
-import { CCFloat, _decorator } from '../../../../core';
+import { CCFloat } from '@base/object';
+import { _decorator } from '../../../../core';
 import { IFixedJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';

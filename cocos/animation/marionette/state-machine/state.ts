@@ -25,7 +25,8 @@
 import { js } from '@base/utils';
 import { OwnedBy, ownerSymbol } from '../ownership';
 import type { Layer, StateMachine, TransitionInternal } from '../animation-graph';
-import { EditorExtendable, editorExtrasTag, _decorator } from '../../../core';
+import { EditorExtendable, _decorator } from '../../../core';
+import { editorExtrasTag } from '@base/object';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';
 import { StateMachineComponent } from './state-machine-component';
 import { instantiate } from '../../../serialization/instantiate';

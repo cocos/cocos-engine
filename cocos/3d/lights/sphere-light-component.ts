@@ -27,7 +27,7 @@ import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, se
 import { cclegacy } from '@base/global';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
-import { CCFloat, CCInteger } from '../../core';
+import { CCFloat, CCInteger } from '@base/object';
 import { Camera } from '../../render-scene/scene';
 import { Root } from '../../root';
 

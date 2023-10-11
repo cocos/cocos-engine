@@ -23,7 +23,7 @@ import { Light } from './light-component';
 import { ccclass, help, property, menu, executeInEditMode, formerlySerializedAs, serializable, tooltip, editable, type } from '../../core/data/class-decorator';
 import { Camera, LightType } from '../../render-scene/scene';
 import { scene } from '../../render-scene';
-import { CCInteger } from '../../core';
+import { CCInteger } from '@base/object';
 import { range } from '../../core/data/decorators';
 
 /**

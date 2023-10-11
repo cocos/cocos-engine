@@ -24,7 +24,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { CCClass } from '../data/class';
+import { CCClass } from '@base/object';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { Size } from './size';

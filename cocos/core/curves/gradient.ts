@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CCClass } from '../data';
+import { CCClass } from '@base/object';
 import { Enum } from '../value-types';
 import { Color, lerp, repeat, EPSILON, approx, random } from '../math';
 

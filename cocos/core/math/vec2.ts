@@ -25,7 +25,7 @@
 
 import { cclegacy } from '@base/global';
 import { warn } from '@base/debug';
-import { CCClass } from '../data/class';
+import { CCClass } from '@base/object';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IVec2Like } from './type-define';

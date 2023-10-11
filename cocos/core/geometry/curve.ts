@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CCClass } from '../data/class';
+import { CCClass } from '@base/object';
 import { clamp, pingPong, repeat } from '../math/utils';
 import { ExtrapolationMode, RealCurve, RealInterpolationMode } from '../curves';
 

@@ -27,7 +27,7 @@ import { cclegacy } from '@base/global';
 import { assert, errorID, getError, log } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
 import { js } from '@base/utils';
-import { CCObject, isValid } from '../core/data/object';
+import { CCObject, isValid } from '@base/object';
 import { tryCatchFunctor_EDITOR } from './utils';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { NodeEventType } from './node-event';

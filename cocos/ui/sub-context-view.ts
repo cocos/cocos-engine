@@ -36,7 +36,7 @@ import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../asset/assets/image-asset';
 import { Size } from '../core/math';
 
-import { CCObject } from '../core';
+import { CCObject } from '@base/object';
 import { NodeEventType } from '../scene-graph/node-event';
 import { Texture2D } from '../asset/assets';
 

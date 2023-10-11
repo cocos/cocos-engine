@@ -31,7 +31,7 @@ import { Layers } from './layers';
 import { Node } from './node';
 import { Vec2 } from '../core/math/vec2';
 import { Size } from '../core/math/size';
-import { CCObject } from '../core/data/object';
+import { CCObject } from '@base/object';
 import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../input/types';
 import { SystemEvent } from '../input';

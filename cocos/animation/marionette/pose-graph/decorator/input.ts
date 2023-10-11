@@ -2,7 +2,7 @@
 
 import { error } from '@base/debug';
 import { js } from '@base/utils';
-import { PropertyStashInternalFlag } from '../../../../core/data/class-stash';
+import { PropertyStashInternalFlag } from '@base/object';
 import { getOrCreatePropertyStash } from '../../../../core/data/decorators/property';
 import { PoseGraphNodeInputMappingOptions, globalPoseGraphNodeInputManager } from '../foundation/authoring/input-authoring';
 import { PoseGraphType } from '../foundation/type-system';

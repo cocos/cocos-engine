@@ -26,7 +26,8 @@
 import { EDITOR, PREVIEW } from 'internal:constants';
 import { debug, getError } from '@base/debug';
 import { cclegacy } from '@base/global';
-import { _decorator, Eventify, path, CCObject } from '../../core';
+import { _decorator, Eventify, path } from '../../core';
+import { CCObject } from '@base/object';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Node } from '../../scene-graph';
 

@@ -1,5 +1,6 @@
 import { js } from '@base/utils';
-import { CCClass, ccenum } from '../../../cocos/core';
+import { CCClass } from '@base/object';
+import { ccenum } from '../../../cocos/core';
 import { property } from '../../../cocos/core/data/class-decorator';
 import { ccclass, type } from '../../../cocos/core/data/decorators';
 import { deserialize } from '../../../cocos/serialization/deserialize';

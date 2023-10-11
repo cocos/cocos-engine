@@ -29,7 +29,7 @@ import { cclegacy } from '@base/global';
 import { errorID, warnID, assertID } from '@base/debug';
 import { js } from '@base/utils';
 import { Script } from '../asset/assets/scripts';
-import { CCObject } from '../core/data/object';
+import { CCObject } from '@base/object';
 import { RenderScene } from '../render-scene/core/render-scene';
 import { Rect } from '../core/math';
 import * as RF from '../core/data/utils/requiring-frame';

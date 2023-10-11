@@ -27,7 +27,7 @@ import { cclegacy } from '@base/global';
 import { scene } from '../../render-scene';
 import { Camera, LightType } from '../../render-scene/scene';
 import { Light, PhotometricTerm } from './light-component';
-import { CCFloat, CCInteger } from '../../core';
+import { CCFloat, CCInteger } from '@base/object';
 
 /**
  * @en The point light component, multiple point lights can be added to one scene.
