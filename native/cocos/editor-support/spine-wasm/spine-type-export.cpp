@@ -22,27 +22,6 @@ const spine::String STRING_STD2SP(const std::string &str) {
     return spString;
 }
 
-/*
-template <typename T>
-std::vector<T> VECTOR_SP2STD(Vector<T> &container) {
-    int count = container.size();
-    std::vector<T> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = container[i];
-    }
-    return stdVector;
-}
-
-std::vector<float> VECTOR_SP2STD_SIZE_T(Vector<size_t> &container) {
-    int count = container.size();
-    std::vector<float> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = container[i];
-    }
-    return stdVector;
-}
-*/
-
 const std::vector<std::string> VECTOR_SP2STD_STRING(Vector<String> &container) {
     int count = container.size();
     std::vector<std::string> stdVector(count);
@@ -51,29 +30,6 @@ const std::vector<std::string> VECTOR_SP2STD_STRING(Vector<String> &container) {
     }
     return stdVector;
 }
-
-/*
-template <typename T>
-std::vector<std::vector<T>> VECTOR_2_SP2STD(Vector<Vector<T>> &container) {
-    int count = container.size();
-    std::vector<std::vector<T>> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = VECTOR_SP2STD(container[i]);
-    }
-    return stdVector;
-}
-
-
-template <typename T>
-std::vector<T> VECTOR_SP2STD2(Vector<T> container) {
-    int count = container.size();
-    std::vector<T> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = container[i];
-    }
-    return stdVector;
-}
-*/
 
 template <typename T>
 Vector<T> VECTOR_STD2SP(std::vector<T> &container) {
@@ -125,9 +81,6 @@ using SPVectorPathConstraintPtr = Vector<PathConstraint*>;
 using SPVectorTimelinePtr = Vector<Timeline*>;
 using SPVectorTrackEntryPtr = Vector<TrackEntry*>;
 using SPVectorUpdatablePtr = Vector<Updatable*>;
-
-//using SPVectorEntry = Vector<Skin::AttachmentMap::Entry>;
-//using SPVectorVectorEntry = Vector<Vector<Skin::AttachmentMap::Entry>>;
 
 } // namespace
 
@@ -348,31 +301,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("set", &Vector2::set)
         .function("length", &Vector2::length)
         .function("normalize", &Vector2::normalize);
-/*
-    class_<SPVectorEntry>("SPVectorEntry") 
-        .function("size", &SPVectorEntry::size)
-        .function("get", &SPVectorEntry::operator[], allow_raw_pointers());
-    
-    class_<SPVectorVectorEntry>("SPVectorVectorEntry") 
-        .function("size", &SPVectorVectorEntry::size)
-        .function("get", &SPVectorVectorEntry::operator[], allow_raw_pointers());
 
-    
-    class_<Skin::AttachmentMap>("AttachmentMap")
-        .function("get", &Skin::AttachmentMap::get, allow_raw_pointers());
-
-    
-    class_<Skin::AttachmentMap::Entries>("Entries")
-        .function("hasNext", &Skin::AttachmentMap::Entries::hasNext)
-        .function("next", &Skin::AttachmentMap::Entries::next);
-
-    value_object<Skin::AttachmentMap::Entry>("Entry")
-        //.constructor<>()
-        //.constructor<size_t, String, Attachment*>()
-        .field("_slotIndex",&Skin::AttachmentMap::Entry::_slotIndex)
-        .field("_name",&Skin::AttachmentMap::Entry::_name);
-        ///.field("_attachment", &Skin::AttachmentMap::Entry::_attachment, allow_raw_pointer<spine::Attachment>());
-        */
     class_<String>("String")
         .function("length", &String::length)
         .function("isEmpty", &String::isEmpty)
@@ -1645,9 +1574,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .property("iCount", &SpineModel::iCount)
         .property("vPtr", &SpineModel::vPtr)
         .property("iPtr", &SpineModel::iPtr)
-        //.property("data", &SpineModel::data, allow_raw_pointer<std::vector<uint32_t>>());
         .function("getData", &SpineModel::getData, allow_raw_pointer<std::vector<unsigned int>>());
-        //.function("getMeshes", &SpineModel::getMeshes, allow_raw_pointer<std::vector<SlotMesh>>());
 
     class_<SpineDebugShape>("SpineDebugShape")
         .property("type", &SpineDebugShape::type)

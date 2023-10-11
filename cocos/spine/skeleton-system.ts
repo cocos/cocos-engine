@@ -74,12 +74,10 @@ export class SkeletonSystem extends System {
         }
     }
 
-    index = 0;
     postUpdate (dt: number): void {
         if (!this._skeletons) {
             return;
         }
-        this.index++;
         if (!EDITOR_NOT_IN_PREVIEW) spine.SkeletonSystem.updateAnimation(dt);
         this._skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
