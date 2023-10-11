@@ -8,16 +8,16 @@ module.exports = {
                     'friction': {
                         displayName: '摩擦系数',
                         tooltip:
-                            '摩擦系数。取值范围通常为 [0, 1]。值越大，越难让物体在接触面移动且移动速度也会降低得更快。' +
+                            '摩擦系数。值越大，越难让物体在接触面移动且移动速度也会降低得更快。' +
                             '摩擦系数为 0 的感觉就像冰。',
                     },
                     'rollingFriction': {
                         displayName: '滚动摩擦系数',
-                        tooltip: '滚动摩擦系数。取值范围通常为 [0, 1]。注意，此属性仅在 Bullet 后端中支持。',
+                        tooltip: '滚动摩擦系数。注意，此属性仅在 Bullet 后端中支持。',
                     },
                     'spinningFriction': {
                         displayName: '自旋摩擦系数',
-                        tooltip: '自旋摩擦系数。取值范围通常为 [0, 1]。注意，此属性仅在 Bullet 后端中支持。',
+                        tooltip: '自旋摩擦系数。注意，此属性仅在 Bullet 后端中支持。',
                     },
                     'restitution': {
                         displayName: '弹性系数',
