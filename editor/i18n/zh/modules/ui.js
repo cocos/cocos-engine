@@ -54,7 +54,7 @@ module.exports = {
                         tooltip: '自动换行。',
                     },
                     'useSystemFont': {
-                        displayName: '使用系统字体',
+                        displayName: '系统字体',
                         tooltip: '是否使用系统默认字体，选中此项会将引用的字体资产置空。',
                     },
                     'fontFamily': {
@@ -87,6 +87,34 @@ module.exports = {
                     'underlineHeight': {
                         displayName: '下划线高度',
                         tooltip: '下划线高度。',
+                    },
+                    'enableOutline': {
+                        displayName: '启用描边',
+                        tooltip: '是否启用描边。',
+                    },
+                    'outlineColor': {
+                        displayName: '描边颜色',
+                        tooltip: '描边颜色。',
+                    },
+                    'outlineWidth': {
+                        displayName: '描边宽度',
+                        tooltip: '描边宽度。',
+                    },
+                    'enableShadow': {
+                        displayName: '启用阴影',
+                        tooltip: '是否启用阴影。',
+                    },
+                    'shadowColor': {
+                        displayName: '阴影颜色',
+                        tooltip: '阴影颜色。',
+                    },
+                    'shadowOffset': {
+                        displayName: '阴影偏移',
+                        tooltip: '阴影偏移量。',
+                    },
+                    'shadowBlur': {
+                        displayName: '阴影模糊',
+                        tooltip: '阴影模糊程度。',
                     },
                 },
             },

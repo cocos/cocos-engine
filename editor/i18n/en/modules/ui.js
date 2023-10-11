@@ -54,7 +54,7 @@ module.exports = {
                         tooltip: 'Automatic newline.',
                     },
                     'useSystemFont': {
-                        displayName: 'Use System Fonts',
+                        displayName: 'System Fonts',
                         tooltip: 'Whether to use system default fonts. The referenced font asset would be dereferenced once this option was checked.',
                     },
                     'fontFamily': {
@@ -88,6 +88,34 @@ module.exports = {
                     'underlineHeight': {
                         displayName: 'Underline Height',
                         tooltip: 'The underline\'s height.',
+                    },
+                    'enableOutline': {
+                        displayName: 'Enable Outline',
+                        tooltip: 'Whether outline is enabled.',
+                    },
+                    'outlineColor': {
+                        displayName: 'Outline Color',
+                        tooltip: 'The color of outline.',
+                    },
+                    'outlineWidth': {
+                        displayName: 'Outline Width',
+                        tooltip: 'The width of outline',
+                    },
+                    'enableShadow': {
+                        displayName: 'Enable Shadow',
+                        tooltip: 'Whether shadow is enabled.',
+                    },
+                    'shadowColor': {
+                        displayName: 'Enable Outline',
+                        tooltip: 'The color of shadow.',
+                    },
+                    'shadowOffset': {
+                        displayName: 'Shadow Offset',
+                        tooltip: 'Offset between font and shadow.',
+                    },
+                    'shadowBlur': {
+                        displayName: 'Shadow Blur',
+                        tooltip: 'A non-negative float specifying the level of shadow blur.',
                     },
                 },
             },

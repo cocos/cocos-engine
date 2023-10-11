@@ -597,7 +597,6 @@ export class Label extends UIRenderer {
     @editable
     @visible(function (this: Label) { return !(this._font instanceof BitmapFont); })
     @displayOrder(19)
-    @tooltip('i18n:label.outline_enable')
     get enableOutline (): boolean {
         return this._enableOutline;
     }
@@ -617,7 +616,6 @@ export class Label extends UIRenderer {
     @editable
     @visible(function (this: Label) { return this._enableOutline && !(this._font instanceof BitmapFont); })
     @displayOrder(20)
-    @tooltip('i18n:label.outline_color')
     get outlineColor (): Color {
         return this._outlineColor;
     }
@@ -637,7 +635,6 @@ export class Label extends UIRenderer {
     @editable
     @visible(function (this: Label) { return this._enableOutline && !(this._font instanceof BitmapFont); })
     @displayOrder(21)
-    @tooltip('i18n:label.outline_width')
     get outlineWidth (): number {
         return this._outlineWidth;
     }
@@ -654,7 +651,6 @@ export class Label extends UIRenderer {
     @editable
     @visible(function (this: Label) { return !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(22)
-    @tooltip('i18n:label.shadow_enable')
     get enableShadow (): boolean {
         return this._enableShadow;
     }
@@ -674,7 +670,6 @@ export class Label extends UIRenderer {
     @editable
     @visible(function (this: Label) { return this._enableShadow && !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(23)
-    @tooltip('i18n:label.shadow_color')
     get shadowColor (): Color {
         return this._shadowColor;
     }
@@ -694,7 +689,6 @@ export class Label extends UIRenderer {
     @editable
     @visible(function (this: Label) { return this._enableShadow && !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(24)
-    @tooltip('i18n:label.shadow_offset')
     get shadowOffset (): Vec2 {
         return this._shadowOffset;
     }
@@ -714,7 +708,6 @@ export class Label extends UIRenderer {
     @editable
     @visible(function (this: Label) { return this._enableShadow && !(this._font instanceof BitmapFont) && (this.cacheMode !== CacheMode.CHAR); })
     @displayOrder(25)
-    @tooltip('i18n:label.shadow_blur')
     get shadowBlur (): number {
         return this._shadowBlur;
     }
