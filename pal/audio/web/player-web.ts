@@ -245,6 +245,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         game.on(Game.EVENT_RESUME, this._onInterruptedEnd, this);
     }
     destroy (): void {
+        window.clearTimeout(this._currentTimer);
         this._audioTimer.destroy();
         if (this._audioBuffer) {
             // NOTE: need to release AudioBuffer instance
