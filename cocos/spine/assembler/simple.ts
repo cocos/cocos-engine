@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { UIRenderable } from '../../2d';
 import { IAssembler } from '../../2d/renderer/base';
 
 import { Batcher2D } from '../../2d/renderer/batcher-2d';
@@ -36,7 +35,6 @@ import { director } from '../../game';
 import spine from '../lib/spine-core.js';
 import { Color, Vec3 } from '../../core';
 import { MaterialInstance } from '../../render-scene';
-import { SkeletonSystem } from '../skeleton-system';
 
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);

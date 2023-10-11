@@ -223,8 +223,6 @@ export class Skeleton extends UIRenderer {
     @serializable
     protected _cacheMode = AnimationCacheMode.REALTIME;
     @serializable
-    protected _defaultCacheMode: AnimationCacheMode = AnimationCacheMode.REALTIME;
-    @serializable
     protected _sockets: SpineSocket[] = [];
     @serializable
     protected _useTint = false;
@@ -475,11 +473,11 @@ export class Skeleton extends UIRenderer {
     @editable
     @type(AnimationCacheMode)
     get defaultCacheMode (): AnimationCacheMode {
-        return this._defaultCacheMode;
+        return this._cacheMode;
     }
     set defaultCacheMode (mode: AnimationCacheMode) {
-        this._defaultCacheMode = mode;
-        this.setAnimationCacheMode(this._defaultCacheMode);
+        this._cacheMode = mode;
+        this.setAnimationCacheMode(this._cacheMode);
     }
 
     /**
@@ -613,7 +611,7 @@ export class Skeleton extends UIRenderer {
             this.markForUpdateRenderData();
         }
     }
-    get socketNodes (): Map<number, Node> { return this._socketNodes; }
+    get socketNodes (): Map<number, Node> | null { return this._socketNodes; }
 
     /**
      * @en The name of current playing animation.
@@ -699,19 +697,17 @@ export class Skeleton extends UIRenderer {
         this._vBuffer = null;
         this._iBuffer = null;
         this.attachUtil.reset();
-        this.attachUtil = null;
-        this._textures = null;
+        //this._textures.length = 0;
         this._slotTextures?.clear();
         this._slotTextures = null;
         this._cachedSockets.clear();
-        this._cachedSockets = null;
         this._socketNodes.clear();
-        this._socketNodes = null;
+        //if (this._cacheMode == AnimationCacheMode.PRIVATE_CACHE) this._animCache?.destroy();
+        this._animCache = null;
         SkeletonSystem.getInstance().remove(this);
         if (!JSB) {
             spine.wasmUtil.destroySpineInstance(this._instance);
         }
-        this._instance = null;
         super.onDestroy();
     }
     /**
@@ -737,17 +733,19 @@ export class Skeleton extends UIRenderer {
         }
         this._instance.dtRate = this._timeScale * timeScale;
         this._needUpdateSkeltonData = false;
-        const data = this.skeletonData?.getRuntimeData();
-        if (!data) return;
-        this.setSkeletonData(data);
-        if (this.defaultSkin) this.setSkin(this.defaultSkin);
-        this._textures = skeletonData.textures;
+        //const data = this.skeletonData?.getRuntimeData();
+        //if (!data) return;
+        //this.setSkeletonData(data);
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
+
+        if (this.defaultSkin) this.setSkin(this.defaultSkin);
+        this._textures = skeletonData.textures;
+
         this._refreshInspector();
         if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
-        if (this.defaultSkin) this.setSkin(this.defaultSkin);
+        //if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
@@ -782,7 +780,10 @@ export class Skeleton extends UIRenderer {
             }
             if (this.skeletonData) {
                 const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData);
-                this._skeleton = skeletonInfo.skeleton;
+                if (skeletonInfo.skeleton == null) {
+                    skeletonInfo.skeleton = this._instance.initSkeleton(skeletonData);
+                }
+                this._skeleton = skeletonInfo.skeleton!;
             }
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
@@ -1303,11 +1304,11 @@ export class Skeleton extends UIRenderer {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
             this._instance.isCache = this.isAnimationCached();
-            this.attachUtil.init(this);
+            //this.attachUtil.init(this);
             this._updateSkeletonData();
-            this.setSkin(this.defaultSkin);
-            this._updateUseTint();
-            this._updateSocketBindings();
+            //this.setSkin(this.defaultSkin);
+            //this._updateUseTint();
+            //this._updateSocketBindings();
             this.markForUpdateRenderData();
         }
     }
