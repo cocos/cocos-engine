@@ -34,6 +34,8 @@ import { IBaseShape } from '../../../spec/i-physics-shape';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { selector, createShape } from '../../physics-selector';
 
+type Callback = (...args: any[]) => any;
+
 /**
  * @en
  * Base class for colliders.
@@ -248,8 +250,12 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType | CharacterTriggerEventType,
-        callback: TFunction, target?, once?: boolean): any {
+    public on<TFunction extends Callback> (
+        type: TriggerEventType | CollisionEventType | CharacterTriggerEventType,
+        callback: TFunction,
+        target?,
+        once?: boolean,
+    ): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -264,7 +270,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: TriggerEventType | CollisionEventType | CharacterTriggerEventType, callback?: (...any) => void, target?): void {
+    public off (type: TriggerEventType | CollisionEventType | CharacterTriggerEventType, callback?: Callback, target?): void {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -278,8 +284,11 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType | CharacterTriggerEventType,
-        callback: TFunction, target?): any {
+    public once<TFunction extends Callback> (
+        type: TriggerEventType | CollisionEventType | CharacterTriggerEventType,
+        callback: TFunction,
+        target?,
+    ): any {
         // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);

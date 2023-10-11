@@ -206,6 +206,7 @@ bool Class::defineFunction(const char *name, v8::FunctionCallback func, void *da
     if (jsName.IsEmpty()) {
         return false;
     }
+
     _constructorTemplate.Get(__isolate)->PrototypeTemplate()->Set(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, func, createExternal(__isolate, data)));
     return true;
 }
@@ -218,7 +219,18 @@ bool Class::defineProperty(const char *name, v8::FunctionCallback getter, v8::Fu
 
     auto prototypeTemplate = _constructorTemplate.Get(__isolate)->PrototypeTemplate();
     auto externalData = createExternal(__isolate, data);
-    prototypeTemplate->SetAccessorProperty(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, getter, externalData), v8::FunctionTemplate::New(__isolate, setter, externalData));
+
+    v8::Local<v8::FunctionTemplate> getterTemplate = v8::Local<v8::FunctionTemplate>();
+    v8::Local<v8::FunctionTemplate> setterTemplate = v8::Local<v8::FunctionTemplate>();
+
+    if (getter != nullptr) {
+        getterTemplate = v8::FunctionTemplate::New(__isolate, getter, externalData);
+    }
+
+    if (setter != nullptr) {
+        setterTemplate = v8::FunctionTemplate::New(__isolate, setter, externalData);
+    }
+    prototypeTemplate->SetAccessorProperty(jsName.ToLocalChecked(), getterTemplate, setterTemplate);
     return true;
 }
 
@@ -246,7 +258,18 @@ bool Class::defineStaticProperty(const char *name, v8::FunctionCallback getter, 
     }
 
     auto externalData = createExternal(__isolate, data);
-    _constructorTemplate.Get(__isolate)->SetAccessorProperty(jsName.ToLocalChecked(), v8::FunctionTemplate::New(__isolate, getter, externalData), v8::FunctionTemplate::New(__isolate, setter, externalData));
+    v8::Local<v8::FunctionTemplate> getterTemplate = v8::Local<v8::FunctionTemplate>();
+    v8::Local<v8::FunctionTemplate> setterTemplate = v8::Local<v8::FunctionTemplate>();
+
+    if (getter != nullptr) {
+        getterTemplate = v8::FunctionTemplate::New(__isolate, getter, externalData);
+    }
+
+    if (setter != nullptr) {
+        setterTemplate = v8::FunctionTemplate::New(__isolate, setter, externalData);
+    }
+
+    _constructorTemplate.Get(__isolate)->SetAccessorProperty(jsName.ToLocalChecked(), getterTemplate, setterTemplate);
     return true;
 }
 

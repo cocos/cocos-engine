@@ -59,6 +59,7 @@ export class PhysXFixedJoint extends PhysXJoint implements IFixedConstraint {
         this.setBreakForce(this.constraint.breakForce);
         this.setBreakTorque(this.constraint.breakTorque);
         this.updateFrame();
+        this.enableDebugVisualization(true);
     }
 
     updateFrame (): void {

@@ -31,18 +31,13 @@ import { toRadian } from '../../../core';
 
 export class B2WheelJoint extends B2Joint implements IWheelJoint {
     setFrequency (v: number): void {
-        this.updateStiffnessAndDamping();
+        if (this._b2joint) {
+            (this._b2joint as B2.WheelJoint as any).SetSpringFrequencyHz(v);
+        }
     }
     setDampingRatio (v: number): void {
-        this.updateStiffnessAndDamping();
-    }
-    updateStiffnessAndDamping (): void {
         if (this._b2joint) {
-            B2.SetLinearFrequencyAndDampingRatio(
-                this._b2joint,
-                (this._jointComp as WheelJoint2D).frequency,
-                (this._jointComp as WheelJoint2D).dampingRatio,
-            );
+            (this._b2joint as B2.WheelJoint as any).SetSpringDampingRatio(v);
         }
     }
 
@@ -73,8 +68,8 @@ export class B2WheelJoint extends B2Joint implements IWheelJoint {
         def.maxMotorTorque = comp.maxMotorTorque;
         def.motorSpeed = toRadian(comp.motorSpeed);
         def.enableMotor = comp.enableMotor;
-        def.damping = 0;//comp.dampingRatio;
-        def.stiffness = 1;//comp.frequency;
+        def.dampingRatio = comp.dampingRatio;
+        def.frequencyHz = comp.frequency;
         return def;
     }
 }

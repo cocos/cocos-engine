@@ -26,7 +26,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint,
+import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IFixedConstraint,
     IConfigurableConstraint } from '../spec/i-physics-constraint';
 import {
     IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
@@ -58,10 +58,6 @@ interface IPhysicsWrapperObject {
     PlaneShape?: Constructor<IPlaneShape>,
     PointToPointConstraint?: Constructor<IPointToPointConstraint>,
     HingeConstraint?: Constructor<IHingeConstraint>,
-    /**
-     * @deprecated cone twist constraint is deprecated, please use configurable instead
-     */
-    ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
     FixedConstraint?: Constructor<IFixedConstraint>,
     ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
 }
@@ -202,6 +198,8 @@ export function constructDefaultWorld (data: IWorldInitData): void {
 const FUNC = (...v: any): any => 0 as any;
 const ENTIRE_WORLD: IPhysicsWorld = {
     impl: null,
+    debugDrawFlags: 0,
+    debugDrawConstraintSize: 0,
     setGravity: FUNC,
     setAllowSleep: FUNC,
     setDefaultMaterial: FUNC,
@@ -236,10 +234,6 @@ enum ECheckType {
     // JOINT //
     PointToPointConstraint,
     HingeConstraint,
-    /**
-     * @deprecated cone twist constraint is deprecated, please use configurable instead
-     */
-    ConeTwistConstraint,
     FixedConstraint,
     ConfigurableConstraint,
     // CHARACTER CONTROLLER //
@@ -422,7 +416,7 @@ function initColliderProxy (): void {
 
 const CREATE_CONSTRAINT_PROXY = { INITED: false };
 
-interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint, IConfigurableConstraint { }
+interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IFixedConstraint, IConfigurableConstraint { }
 const ENTIRE_CONSTRAINT: IEntireConstraint = {
     impl: null,
     initialize: FUNC,
@@ -486,11 +480,6 @@ function initConstraintProxy (): void {
     CREATE_CONSTRAINT_PROXY[EConstraintType.HINGE] = function createHingeConstraint (): IHingeConstraint {
         if (check(selector.wrapper.HingeConstraint, ECheckType.HingeConstraint)) { return ENTIRE_CONSTRAINT; }
         return new selector.wrapper.HingeConstraint!();
-    };
-
-    CREATE_CONSTRAINT_PROXY[EConstraintType.CONE_TWIST] = function createConeTwistConstraint (): IConeTwistConstraint {
-        if (check(selector.wrapper.ConeTwistConstraint, ECheckType.ConeTwistConstraint)) { return ENTIRE_CONSTRAINT; }
-        return new selector.wrapper.ConeTwistConstraint!();
     };
 
     CREATE_CONSTRAINT_PROXY[EConstraintType.FIXED] = function createFixedConstraint (): IFixedConstraint {

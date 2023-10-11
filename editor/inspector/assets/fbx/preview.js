@@ -74,7 +74,6 @@ exports.style = /* css*/`
 }
 .preview-container {
     min-height: 200px;
-    border-top: 1px solid var(--color-normal-border);
 }
 .preview-container > .animation-info {
     padding-right: 4px;
@@ -96,7 +95,7 @@ exports.style = /* css*/`
     margin-right: 6px;
 }
 .preview-container > .image {
-    height: 200px;
+    height: var(--inspector-footer-preview-height, 200px);
     overflow: hidden;
     display: flex;
     flex: 1;

@@ -35,6 +35,7 @@
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/character-controllers/PhysXCharacterController.h"
 #include "physics/spec/IWorld.h"
+#include "renderer/pipeline/GeometryRenderer.h"
 
 namespace cc {
 namespace physics {
@@ -60,17 +61,17 @@ public:
     RaycastResult &raycastClosestResult() override;
 
     bool sweep(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation);
-    bool sweepClosest(RaycastOptions& opt, const physx::PxGeometry& geometry, const physx::PxQuat& orientation);
+    bool sweepClosest(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation);
     bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                  float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                         float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepSphere(RaycastOptions &opt, float radius) override;
     bool sweepSphereClosest(RaycastOptions &opt, float radius) override;
     bool sweepCapsule(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                      float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                             float orientationW, float orientationX, float orientationY, float orientationZ) override;
     ccstd::vector<RaycastResult> &sweepResult() override;
     RaycastResult &sweepClosestResult() override;
 
@@ -85,7 +86,7 @@ public:
     inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
         return _mEventMgr->getConatctPairs();
     }
-    inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override {
+    inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>> &getCCTShapeEventPairs() override {
         return _mEventMgr->getCCTShapePairs();
     }
     inline ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &getCCTTriggerEventPairs() override {
@@ -108,13 +109,13 @@ public:
     void removeActor(const PhysXSharedBody &sb);
     void addCCT(const PhysXCharacterController &cct);
     void removeCCT(const PhysXCharacterController &cct);
-    
-    //Mapping PhysX Object ID and Pointer
+
+    // Mapping PhysX Object ID and Pointer
     uint32_t addPXObject(uintptr_t PXObjectPtr);
     void removePXObject(uint32_t pxObjectID);
     uintptr_t getPXPtrWithPXObjectID(uint32_t pxObjectID);
 
-    //Mapping Wrapper PhysX Object ID and Pointer
+    // Mapping Wrapper PhysX Object ID and Pointer
     uint32_t addWrapperObject(uintptr_t wrapperObjectPtr);
     void removeWrapperObject(uint32_t wrapperObjectID);
     uintptr_t getWrapperPtrWithObjectID(uint32_t wrapperObjectID);
@@ -124,6 +125,24 @@ public:
     float getFixedTimeStep() const override { return _fixedTimeStep; }
     void setFixedTimeStep(float fixedTimeStep) override { _fixedTimeStep = fixedTimeStep; }
 
+#if CC_USE_GEOMETRY_RENDERER
+    void setDebugDrawFlags(EPhysicsDrawFlags flags) override;
+    EPhysicsDrawFlags getDebugDrawFlags() override;
+
+    void setDebugDrawConstraintSize(float size) override;
+    float getDebugDrawConstraintSize() override;
+
+private:
+    pipeline::GeometryRenderer *getDebugRenderer();
+    void debugDraw();
+    void setDebugDrawMode();
+#else
+    void setDebugDrawFlags(EPhysicsDrawFlags flags) override{};
+    EPhysicsDrawFlags getDebugDrawFlags() override { return EPhysicsDrawFlags::NONE; };
+
+    void setDebugDrawConstraintSize(float size) override{};
+    float getDebugDrawConstraintSize() override { return 0.0; };
+#endif
 private:
     static PhysXWorld *instance;
     physx::PxFoundation *_mFoundation;
@@ -147,6 +166,11 @@ private:
     ccstd::unordered_map<uint32_t, uintptr_t> _mWrapperObjects;
 
     float _fixedTimeStep{1 / 60.0F};
+
+    uint32_t _debugLineCount = 0;
+    uint32_t _MAX_DEBUG_LINE_COUNT = 16384;
+    EPhysicsDrawFlags _debugDrawFlags = EPhysicsDrawFlags::NONE;
+    float _debugConstraintSize = 0.3;
 };
 
 } // namespace physics

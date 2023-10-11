@@ -44,6 +44,7 @@ void PhysXFixedJoint::onComponentSet() {
     _mJoint = PxFixedJointCreate(PxGetPhysics(), actor0, _transA, actor1, _transB);
 
     updatePose();
+    setEnableDebugVisualization(true);
 }
 
 void PhysXFixedJoint::setBreakForce(float force) {

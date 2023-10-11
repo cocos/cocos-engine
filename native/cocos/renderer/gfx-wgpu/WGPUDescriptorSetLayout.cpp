@@ -190,9 +190,9 @@ void CCWGPUDescriptorSetLayout::print() const {
             1) {
             printf("******missing %d, %d, %d, %d, %d\n", entry.binding, entry.buffer.type, entry.sampler.type, entry.texture.sampleType, entry.storageTexture.access);
         }
-        printf("%d, %d, %d\n", entry.binding, entry.visibility, entries.size());
+        printf("%d, %d, %d\n", entry.binding, entry.visibility, static_cast<int>(entries.size()));
         if (entry.buffer.type != WGPUBufferBindingType_Undefined) {
-            printf("b %d %d %d\n", entry.buffer.type, entry.buffer.hasDynamicOffset ? 1 : 0, entry.buffer.minBindingSize);
+            printf("b %d %d %llu\n", entry.buffer.type, entry.buffer.hasDynamicOffset ? 1 : 0, entry.buffer.minBindingSize);
         }
         if (entry.sampler.type != WGPUSamplerBindingType_Undefined) {
             printf("s %d\n", entry.sampler.type);

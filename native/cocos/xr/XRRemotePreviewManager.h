@@ -47,7 +47,8 @@ enum class XRDataPackageType {
 enum class XRKeyEventType {
     KET_CLICK,
     KET_STICK,
-    KET_GRAB
+    KET_GRAB,
+    KET_TOUCH,
 };
 
     #pragma pack(1)
@@ -88,6 +89,8 @@ struct XRControllerKeyInfo {
     float stickAxisValue{0};
     int16_t stickKeyCode{0};
     bool isButtonPressed{false};
+    int16_t stickTouchCode{0};
+    float stickTouchValue{0};
 };
     #pragma pack()
 
@@ -100,6 +103,7 @@ public:
     void sendPoseInfo(const XRPoseInfo &info);
     void sendControllerKeyInfo(const ControllerInfo::ButtonInfo &info);
     void sendControllerKeyInfo(const ControllerInfo::AxisInfo &info);
+    void sendControllerKeyInfo(const ControllerInfo::TouchInfo &info);
     void tick();
     void resume();
     void pause();

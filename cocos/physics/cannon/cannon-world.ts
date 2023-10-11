@@ -23,15 +23,20 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { Vec3, RecyclePool, error, js, geometry, IVec3Like, IQuatLike, warnID } from '../../core';
+import { Vec3, RecyclePool, error, js, geometry, IVec3Like, IQuatLike, warnID, Color } from '../../core';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
 import { CannonSharedBody } from './cannon-shared-body';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicsMaterial, PhysicsRayResult } from '../framework';
+import { EPhysicsDrawFlags, PhysicsMaterial, PhysicsRayResult } from '../framework';
 import { CannonRigidBody } from './cannon-rigid-body';
 import { Node } from '../../scene-graph';
+import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { director } from '../../game';
+
+const aabbTemp = new geometry.AABB();
+const AABB_LINE_COUNT = 12;
 
 export class CannonWorld implements IPhysicsWorld {
     get impl (): CANNON.World {
@@ -64,6 +69,13 @@ export class CannonWorld implements IPhysicsWorld {
     private _world: CANNON.World;
     static readonly rayResult = new CANNON.RaycastResult();
 
+    private _debugLineCount = 0;
+    private _MAX_DEBUG_LINE_COUNT = 16384;
+    private _debugDrawFlags = EPhysicsDrawFlags.NONE;
+    private _debugConstraintSize = 0.3;
+    private _aabbColor = new Color(0, 255, 255, 255);
+    private _wireframeColor = new Color(255, 0, 255, 255);
+
     constructor () {
         this._world = new CANNON.World();
         this._world.broadphase = new CANNON.NaiveBroadphase();
@@ -76,38 +88,71 @@ export class CannonWorld implements IPhysicsWorld {
         this._world.defaultContactMaterial.frictionEquationRelaxation = 3;
     }
 
-    sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepBox (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepBoxClosest (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepBoxClosest (
+        worldRay: geometry.Ray,
+        halfExtent: IVec3Like,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepSphere (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepSphereClosest (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
-        result: PhysicsRayResult): boolean {
+    sweepSphereClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    sweepCapsule (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        pool: RecyclePool<PhysicsRayResult>,
+        results: PhysicsRayResult[],
+    ): boolean {
         warnID(9641);
         return false;
     }
 
-    sweepCapsuleClosest (worldRay: geometry.Ray, radius: number, height: number,
-        orientation: IQuatLike, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    sweepCapsuleClosest (
+        worldRay: geometry.Ray,
+        radius: number,
+        height: number,
+        orientation: IQuatLike,
+        options: IRaycastOptions,
+        result: PhysicsRayResult,
+    ): boolean {
         warnID(9641);
         return false;
     }
@@ -141,6 +186,8 @@ export class CannonWorld implements IPhysicsWorld {
         for (let i = 0; i < this.bodies.length; i++) {
             this.bodies[i].syncPhysicsToScene();
         }
+
+        this._debugDraw();
     }
 
     raycastClosest (worldRay: geometry.Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
@@ -201,6 +248,52 @@ export class CannonWorld implements IPhysicsWorld {
         if (i >= 0) {
             js.array.fastRemoveAt(this.constraints, i);
             this._world.removeConstraint(constraint.impl);
+        }
+    }
+
+    get debugDrawFlags (): EPhysicsDrawFlags {
+        return this._debugDrawFlags;
+    }
+
+    set debugDrawFlags (v: EPhysicsDrawFlags) {
+        this._debugDrawFlags = v;
+    }
+
+    get debugDrawConstraintSize (): number {
+        return this._debugConstraintSize;
+    }
+
+    set debugDrawConstraintSize (v) {
+        this._debugConstraintSize = v;
+    }
+
+    private _getDebugRenderer (): GeometryRenderer|null {
+        const cameras = director.root!.mainWindow?.cameras;
+        if (!cameras) return null;
+        if (cameras.length === 0) return null;
+        if (!cameras[0]) return null;
+        cameras[0].initGeometryRenderer();
+
+        return cameras[0].geometryRenderer;
+    }
+
+    private _debugDraw (): void {
+        const debugRenderer = this._getDebugRenderer();
+        if (!debugRenderer) return;
+
+        this._debugLineCount = 0;
+        if (this._debugDrawFlags & EPhysicsDrawFlags.AABB) {
+            for (let i = 0; i < this.bodies.length; i++) {
+                const body = this.bodies[i];
+                for (let j = 0; j < body.wrappedShapes.length; j++) {
+                    const shape = body.wrappedShapes[j];
+                    if (this._debugLineCount + AABB_LINE_COUNT < this._MAX_DEBUG_LINE_COUNT) {
+                        this._debugLineCount += AABB_LINE_COUNT;
+                        shape.getAABB(aabbTemp);
+                        debugRenderer.addBoundingBox(aabbTemp, this._aabbColor);
+                    }
+                }
+            }
         }
     }
 }

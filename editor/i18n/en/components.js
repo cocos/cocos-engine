@@ -46,5 +46,7 @@ module.exports = {
             applyCameraSizeLessThanMinimum: 'Current screen ratio is less than its limit, applying current minimum instead. Please reduce lower LOD levels screen size and try again later.',
             applyCameraSizeGreaterThanMaximum: 'Current screen ratio is greater than its limit, applying current maximum instead. Please Increase higher LOD levels screen size and try again later.',
         },
+
+        blockInputEventsTip: 'This component will block all input events, preventing the input from penetrating to other nodes below the screen, typically for the background of the top-level UI of the screen.',
     },
 };

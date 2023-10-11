@@ -66,6 +66,7 @@ export class PhysXSphericalJoint extends PhysXJoint implements IPointToPointCons
         this._impl = PX.createSphericalJoint(PhysXJoint.tempActor, _pxtrans, null, _pxtrans);
         this.setPivotA(this.constraint.pivotA);
         this.setPivotB(this.constraint.pivotB);
+        this.enableDebugVisualization(true);
     }
 
     updateScale0 (): void {

@@ -92,6 +92,12 @@ export class PhysXJoint implements IBaseConstraint {
         }
     }
 
+    enableDebugVisualization (v: boolean): void {
+        if (this.impl) {
+            this.impl.setConstraintFlag(1 << 4, v);// PxConstraintFlag::eVISUALIZATION
+        }
+    }
+
     // virtual
     protected onComponentSet (): void { }
 

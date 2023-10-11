@@ -31,12 +31,21 @@ import { game } from '../../game';
 import { getError, error, sys, debug, IVec2Like } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
-export const B2 = {} as any;
+// eslint-disable-next-line import/no-mutable-exports
+export let B2 = {} as any;
 
 export function getImplPtr (wasmObject: any): number {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     if (!wasmObject) return 0;
     return (wasmObject).$$.ptr as number;
+}
+
+// type : Fixture, Body, Contact, Joint, ...
+export const enum B2ObjectType {
+    Fixture = 0,
+    Body,
+    Contact,
+    Joint,
 }
 
 /**
@@ -47,22 +56,35 @@ export function getImplPtr (wasmObject: any): number {
 *  B2.Joint pointer --> B2Joint
 *  ...
 */
-const WASM_OBJECT_PTR_2_TS_OBJECT = {};
-export function addImplPtrReference (TSObject: any, implPtr: number): void {
-    if (implPtr) { WASM_OBJECT_PTR_2_TS_OBJECT[implPtr] = TSObject; }
-}
-export function removeImplPtrReference (implPtr: number): void {
+const WASM_OBJECT_PTR_2_TS_OBJECT = new Map<B2ObjectType, Map<number, any>>();
+
+export function addImplPtrReference (Type: B2ObjectType, TSObject: any, implPtr: number): void {
     if (implPtr) {
-        delete WASM_OBJECT_PTR_2_TS_OBJECT[implPtr];
+        let map = WASM_OBJECT_PTR_2_TS_OBJECT.get(Type);
+        if (!map) {
+            map = new Map<number, any>();
+            WASM_OBJECT_PTR_2_TS_OBJECT.set(Type, map);
+        }
+        map.set(implPtr, TSObject);
     }
 }
-export function getTSObjectFromWASMObjectPtr<T> (implPtr: number): T {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return WASM_OBJECT_PTR_2_TS_OBJECT[implPtr];
+
+export function removeImplPtrReference (Type: B2ObjectType, implPtr: number): void {
+    if (implPtr) {
+        const map = WASM_OBJECT_PTR_2_TS_OBJECT.get(Type);
+        if (map && map.has(implPtr)) {
+            map.delete(implPtr);
+            if (map.size === 0) {
+                WASM_OBJECT_PTR_2_TS_OBJECT.delete(Type);
+            }
+        }
+    }
 }
-export function getTSObjectFromWASMObject<T> (impl: any): T {
+
+export function getTSObjectFromWASMObjectPtr<T> (Type: B2ObjectType, implPtr: number): T {
+    const map = WASM_OBJECT_PTR_2_TS_OBJECT.get(Type);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return WASM_OBJECT_PTR_2_TS_OBJECT[getImplPtr(impl)];
+    return map?.get(implPtr);
 }
 
 /**
@@ -73,20 +95,34 @@ export function getTSObjectFromWASMObject<T> (impl: any): T {
 *  B2.Joint pointer --> B2.Joint
 *  ...
 */
-const WASM_OBJECT_PTR_2_WASM_OBJECT = {};
-export function addImplPtrReferenceWASM (WASMObject: any, implPtr: number): void {
-    if (implPtr) { WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr] = WASMObject; }
-}
-
-export function removeImplPtrReferenceWASM (implPtr: number): void {
+const WASM_OBJECT_PTR_2_WASM_OBJECT  = new Map<B2ObjectType, Map<number, any>>();
+export function addImplPtrReferenceWASM (Type: B2ObjectType, WASMObject: any, implPtr: number): void {
     if (implPtr) {
-        delete WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr];
+        let map = WASM_OBJECT_PTR_2_WASM_OBJECT.get(Type);
+        if (!map) {
+            map = new Map<number, any>();
+            WASM_OBJECT_PTR_2_WASM_OBJECT.set(Type, map);
+        }
+        map.set(implPtr, WASMObject);
     }
 }
 
-export function getWASMObjectFromWASMObjectPtr<T> (implPtr: number): T {
+export function removeImplPtrReferenceWASM (Type: B2ObjectType, implPtr: number): void {
+    if (implPtr) {
+        const map = WASM_OBJECT_PTR_2_WASM_OBJECT.get(Type);
+        if (map && map.has(implPtr)) {
+            map.delete(implPtr);
+            if (map.size === 0) {
+                WASM_OBJECT_PTR_2_WASM_OBJECT.delete(Type);
+            }
+        }
+    }
+}
+
+export function getWASMObjectFromWASMObjectPtr<T> (Type: B2ObjectType, implPtr: number): T {
+    const map = WASM_OBJECT_PTR_2_WASM_OBJECT.get(Type);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return WASM_OBJECT_PTR_2_WASM_OBJECT[implPtr];
+    return map?.get(implPtr);
 }
 
 /**
@@ -113,7 +149,7 @@ function initWasm (wasmUrl: string): Promise<void> {
             },
         }).then((Instance: any) => {
             if (!EDITOR && !TEST) debug('[box2d]:box2d wasm lib loaded.');
-            Object.assign(B2, Instance);
+            B2 = Instance;
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }
@@ -122,7 +158,7 @@ function initAsm (): Promise<void> {
     if (asmFactory != null) {
         return asmFactory().then((instance: any) => {
             if (!EDITOR && !TEST) debug('[box2d]:box2d asm lib loaded.');
-            Object.assign(B2, instance);
+            B2 = instance;
         });
     } else {
         return new Promise<void>((resolve, reject) => {

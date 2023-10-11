@@ -726,9 +726,14 @@ elseif(ANDROID OR OHOS)
         cocos/platform/java/modules/SystemWindow.h
         cocos/platform/java/modules/SystemWindowManager.cpp
         cocos/platform/java/modules/SystemWindowManager.h
-        cocos/platform/java/modules/XRInterface.cpp
-        cocos/platform/java/modules/XRInterface.h
     )
+
+    if(USE_XR)
+        cocos_source_files(
+            cocos/platform/java/modules/XRInterface.cpp
+            cocos/platform/java/modules/XRInterface.h
+        )
+    endif()
 endif()
 
 if(ANDROID)
@@ -3297,6 +3302,13 @@ if(APPLE)
             CC_KEYBOARD_SUPPORT
         )
     elseif(IOS)
+
+        if("${XCODE_VERSION}" VERSION_GREATER_EQUAL "15.0")
+            # For Xcode 15 and newer, add extra link flags to fix crash in __cxx_global_var_init.
+            message(STATUS "Using Xcode 15 or newer, adding extra link flags: -Wl,-ld_classic.")
+            target_link_options(${ENGINE_NAME} PUBLIC -Wl,-ld_classic)
+        endif()
+
         target_link_libraries(${ENGINE_NAME} PUBLIC
             "-framework QuartzCore"
             "-framework MetalPerformanceShaders"

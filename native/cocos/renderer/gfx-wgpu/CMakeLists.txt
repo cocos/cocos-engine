@@ -128,7 +128,7 @@ set(EMS_LINK_FLAGS
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    string(APPEND EMS_LINK_FLAGS " -s ASSERTIONS=2")
+    string(APPEND EMS_LINK_FLAGS " -g -s ASSERTIONS=2")
 endif()
 
 set_target_properties(${APP_NAME}_wasm PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${ENGINE_ROOT_DIR}/external/emscripten/webgpu)

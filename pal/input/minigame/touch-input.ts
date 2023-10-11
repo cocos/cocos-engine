@@ -52,7 +52,7 @@ export class TouchInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (event: any): void => {
+        return (event: TouchEvent): void => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
             const dpr = screenAdapter.devicePixelRatio;
@@ -64,7 +64,7 @@ export class TouchInputSource {
                     continue;
                 }
                 const location = this._getLocation(changedTouch, windowSize, dpr);
-                const touch = touchManager.getTouch(touchID, location.x, location.y);
+                const touch = touchManager.getOrCreateTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
                 }
@@ -74,8 +74,12 @@ export class TouchInputSource {
                 handleTouches.push(touch);
             }
             if (handleTouches.length > 0) {
-                const eventTouch = new EventTouch(handleTouches, false, eventType,
-                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches);
+                const eventTouch = new EventTouch(
+                    handleTouches,
+                    false,
+                    eventType,
+                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches,
+                );
                 this._eventTarget.emit(eventType, eventTouch);
             }
         };

@@ -97,7 +97,7 @@ exports.template = /* html */ `
     <ui-prop>
         <ui-label slot="label">Effect</ui-label>
         <ui-select class="effect" slot="content"></ui-select>
-        <ui-button class="location" slot="content">
+        <ui-button class="location" slot="content" tooltip="i18n:ENGINE.assets.locate_asset">
             <ui-icon value="location"></ui-icon>
         </ui-button>
     </ui-prop>

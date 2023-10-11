@@ -80,6 +80,7 @@ declare namespace jsb {
         id: number;
         axisInfoList: AxisInfo[],
         buttonInfoList: ButtonInfo[],
+        touchInfoList: TouchInfo[],
     }
 
     export interface AxisInfo {
@@ -90,6 +91,11 @@ declare namespace jsb {
     export interface ButtonInfo {
         code: number,
         isPressed: boolean,
+    }
+
+    export interface TouchInfo {
+        code: number,
+        value: number,
     }
 
     export let onControllerInput: (infoList: ControllerInfo[]) => void | undefined;

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2, getTSObjectFromWASMObject, getTSObjectFromWASMObjectPtr } from './instantiated';
+import { B2, B2ObjectType, getTSObjectFromWASMObjectPtr } from './instantiated';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
@@ -32,7 +32,6 @@ import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-typ
 
 import { Node } from '../../scene-graph/node';
 import { Collider2D, Joint2D } from '../framework';
-import { NodeEventType } from '../../scene-graph/node-event';
 import { B2Shape2D } from './shapes/shape-2d';
 import { B2Joint } from './joints/joint-2d';
 
@@ -119,11 +118,11 @@ export class B2RigidBody2D implements IRigidBody2D {
         //collect all fixtures attached to this rigid body and process them
         const fixtureList = this.impl?.GetFixtureList();
         if (fixtureList) {
-            let shapeTSObj = getTSObjectFromWASMObject<B2Shape2D>(fixtureList);
+            let shapeTSObj = getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, fixtureList);
             while (shapeTSObj && shapeTSObj.impl) {
                 shapeTSObj.destroy();
-                const nextFixture = fixtureList.GetNext();
-                shapeTSObj = getTSObjectFromWASMObject<B2Shape2D>(nextFixture);
+                const nextFixture = B2.FixtureGetNext(fixtureList) as number;
+                shapeTSObj = getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, nextFixture);
             }
         }
 
@@ -131,11 +130,11 @@ export class B2RigidBody2D implements IRigidBody2D {
         const jointListPtr = this.impl?.GetJointList();
         if (jointListPtr) {
             let jointWASMPtr = B2.JointEdgeGetJoint(jointListPtr) as number;
-            let jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(jointWASMPtr);
+            let jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(B2ObjectType.Fixture, jointWASMPtr);
             while (jointTSObj) {
                 jointTSObj.destroy();
                 jointWASMPtr = B2.JointEdgeGetNext(jointListPtr) as number;
-                jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(jointWASMPtr);
+                jointTSObj = getTSObjectFromWASMObjectPtr<B2Joint>(B2ObjectType.Fixture, jointWASMPtr);
             }
         }
 
@@ -231,8 +230,15 @@ export class B2RigidBody2D implements IRigidBody2D {
     }
 
     setType (v: ERigidBody2DType): void {
-        this._body!.SetType(v as number);
+        if (v === ERigidBody2DType.Dynamic) {
+            this._body!.SetType(B2.BodyType.b2_dynamicBody as B2.BodyType);
+        } else if (v === ERigidBody2DType.Kinematic) {
+            this._body!.SetType(B2.BodyType.b2_kinematicBody as B2.BodyType);
+        } else if (v === ERigidBody2DType.Static) {
+            this._body!.SetType(B2.BodyType.b2_staticBody as B2.BodyType);
+        }
     }
+
     setLinearDamping (v: number): void {
         this._body!.SetLinearDamping(v);
     }

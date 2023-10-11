@@ -2,7 +2,8 @@
 const path = require('path');
 const { injectionStyle } = require('../../utils/prop');
 
-let cacheActiveTab = 'animation';
+const defaultActiveTab = 'animation';
+let cacheActiveTab = defaultActiveTab;
 
 exports.template = /* html */`
 <div class="asset-fbx">
@@ -97,9 +98,13 @@ const Elements = {
         },
         update() {
             const panel = this;
-            Editor.Message.broadcast('fbx-inspector:change-tab', panel.activeTab);
             panel.$.tabPanel.setAttribute('src', Components[panel.activeTab]);
             panel.$.tabPanel.update(panel.assetList, panel.metaList);
+
+            // Delay, waiting for the fbx preview area initialization to complete
+            setTimeout(() => {
+                Editor.Message.broadcast('fbx-inspector:change-tab', panel.activeTab);
+            });
         },
     },
 };

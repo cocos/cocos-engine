@@ -24,9 +24,11 @@
 
 import { BuiltinShape } from './builtin-shape';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-import { geometry } from '../../../core';
+import { Vec3, geometry } from '../../../core';
 import { EAxisDirection, CapsuleCollider } from '../../framework';
 
+const temp0 = new Vec3();
+const temp1 = new Vec3();
 export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
     get localCapsule (): geometry.Capsule {
         return this._localShape as geometry.Capsule;
@@ -89,5 +91,21 @@ export class BuiltinCapsuleShape extends BuiltinShape implements ICapsuleShape {
         super.onLoad();
         this.setRadius(this.collider.radius);
         this.setDirection(this.collider.direction);
+    }
+
+    getAABB (v: geometry.AABB): void {
+        //capsule has not implemented getBoundary
+        v.center.set(this.worldCapsule.center);
+        v.halfExtents.set(0, 0, 0);
+        temp0.set(this.worldCapsule.radius, this.worldCapsule.radius, this.worldCapsule.radius);
+
+        Vec3.add(temp1, this.worldCapsule.ellipseCenter0, temp0);
+        v.mergePoint(temp1);
+        Vec3.subtract(temp1, this.worldCapsule.ellipseCenter0, temp0);
+        v.mergePoint(temp1);
+        Vec3.add(temp1, this.worldCapsule.ellipseCenter1, temp0);
+        v.mergePoint(temp1);
+        Vec3.subtract(temp1, this.worldCapsule.ellipseCenter1, temp0);
+        v.mergePoint(temp1);
     }
 }

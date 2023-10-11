@@ -29,7 +29,7 @@ import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID } from '../core';
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
@@ -723,6 +723,7 @@ export class Game extends EventTarget {
             })
             .then((): void => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init Base');
                 }
                 const debugMode = config.debugMode || DebugMode.NONE;
@@ -735,6 +736,7 @@ export class Game extends EventTarget {
             .then((): Promise<void> => settings.init(config.settingsPath, config.overrideSettings))
             .then((): Promise<void[]> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init Base');
                 }
                 this.emit(Game.EVENT_POST_BASE_INIT);
@@ -748,6 +750,7 @@ export class Game extends EventTarget {
             })
             .then((): void => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init Infrastructure');
                 }
                 macro.init();
@@ -769,6 +772,7 @@ export class Game extends EventTarget {
                 Layers.init();
                 this.initPacer();
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init Infrastructure');
                 }
             })
@@ -795,13 +799,21 @@ export class Game extends EventTarget {
                 }
                 const data = effectSettings.data;
                 if (data === null) {
-                    console.error('Effect settings not found, effects will not be imported.');
+                    errorID(1102);
                     return;
                 }
                 cclegacy.rendering.init(deviceManager.gfxDevice, data);
             })
+            .then((): Promise<any[]> => {
+                const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
+                if (scriptPackages) {
+                    return Promise.all(scriptPackages.map((pack): Promise<any> => import(pack)));
+                }
+                return Promise.resolve([]);
+            })
             .then((): Promise<void> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init SubSystem');
                 }
                 director.init();
@@ -809,13 +821,14 @@ export class Game extends EventTarget {
             })
             .then((): Promise<void[]> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init SubSystem');
                 }
                 this.emit(Game.EVENT_POST_SUBSYSTEM_INIT);
                 return this.onPostSubsystemInitDelegate.dispatch();
             })
             .then((): void => {
-                console.log(`Cocos Creator v${VERSION}`);
+                log(`Cocos Creator v${VERSION}`);
                 this.emit(Game.EVENT_ENGINE_INITED);
                 this._engineInited = true;
             })
@@ -827,6 +840,7 @@ export class Game extends EventTarget {
             })
             .then((): Promise<void> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.time('Init Project');
                 }
                 const jsList = settings.querySettings<string[]>(Settings.Category.PLUGINS, 'jsList');
@@ -838,13 +852,6 @@ export class Game extends EventTarget {
                 }
                 return promise;
             })
-            .then((): Promise<any[]> => {
-                const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
-                if (scriptPackages) {
-                    return Promise.all(scriptPackages.map((pack): Promise<any> => import(pack)));
-                }
-                return Promise.resolve([]);
-            })
             .then((): Promise<any[]> => this._loadProjectBundles())
             .then((): Promise<void> => this._loadCCEScripts())
             .then((): void | Promise<void> => this._setupRenderPipeline())
@@ -855,6 +862,7 @@ export class Game extends EventTarget {
             })
             .then((): Promise<void[]> => {
                 if (DEBUG) {
+                    // eslint-disable-next-line no-console
                     console.timeEnd('Init Project');
                 }
                 this.emit(Game.EVENT_POST_PROJECT_INIT);
@@ -1013,11 +1021,11 @@ export class Game extends EventTarget {
             SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
-            const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene');
+            const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene') as string;
             if (launchScene) {
                 // load scene
                 director.loadScene(launchScene, (): void => {
-                    console.log(`Success to load scene: ${launchScene}`);
+                    logID(1103, launchScene);
                     this._initTime = performance.now();
                     director.startAnimation();
                     this.onStart?.();
@@ -1098,7 +1106,7 @@ export class Game extends EventTarget {
     }
 
     private _setupRenderPipeline (): void | Promise<void> {
-        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline');
+        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
         if (!renderPipeline) {
             return this._setRenderPipeline();
         }
@@ -1124,7 +1132,7 @@ export class Game extends EventTarget {
         this._safeEmit(Game.EVENT_RENDERER_INITED);
     }
 
-    private _safeEmit (event): void {
+    private _safeEmit (event: string | number): void {
         if (EDITOR) {
             try {
                 this.emit(event);
