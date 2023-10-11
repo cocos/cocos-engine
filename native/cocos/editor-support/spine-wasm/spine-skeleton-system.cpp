@@ -7,7 +7,6 @@ using namespace spine;
 std::vector<SpineSkeletonInstance*> SpineSkeletonSystem::vectorSpines;
 
 void SpineSkeletonSystem::updateAnimation(float deltaTime) {
-    //SpineMeshData::reset();
     auto count = static_cast<int>(vectorSpines.size());
     for (int i = count - 1; i >= 0; --i) {
         SpineSkeletonInstance* spineInstance = vectorSpines[i];
@@ -21,7 +20,6 @@ void SpineSkeletonSystem::updateAnimation(float deltaTime) {
         if (!spineInstance->isCache) {
             spineInstance->updateAnimation(deltaTime);
         }
-
     }
 }
 
@@ -41,16 +39,14 @@ void SpineSkeletonSystem::updateRenderData() {
     } 
 }
 
-void SpineSkeletonSystem::addSpineInstance(SpineSkeletonInstance* instance)
-{
+void SpineSkeletonSystem::addSpineInstance(SpineSkeletonInstance* instance) {
     if(vectorSpines.size() == vectorSpines.capacity()){
         vectorSpines.reserve(vectorSpines.size() + 20);
     }
     vectorSpines.push_back(instance);
 }
 
-void SpineSkeletonSystem::removeSpineInstance(SpineSkeletonInstance* instance)
-{
+void SpineSkeletonSystem::removeSpineInstance(SpineSkeletonInstance* instance) {
     auto it = std::find(vectorSpines.begin(), vectorSpines.end(), instance);
     if (it != vectorSpines.end()) {
         vectorSpines.erase(it);
