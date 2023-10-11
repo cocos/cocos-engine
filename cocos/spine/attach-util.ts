@@ -39,7 +39,7 @@ export class AttachUtil {
     protected _isInitialized = false;
     protected _skeletonBones: spine.Bone[] | FrameBoneInfo[] | null = null;
     protected _socketNodes: Map<number, Node> | null = null;
-    private keysToDelete: number[] = [];
+    private _keysToDelete: number[] = [];
 
     constructor () {
         this._isInitialized = false;
@@ -61,7 +61,7 @@ export class AttachUtil {
         this._isInitialized = false;
         this._skeletonBones = null;
         this._socketNodes = null;
-        this.keysToDelete.length = 0;
+        this._keysToDelete.length = 0;
     }
 
     _syncAttachedNode (): void {
@@ -69,17 +69,17 @@ export class AttachUtil {
         const socketNodes = this._socketNodes!;
         for (const [boneIdx, boneNode] of socketNodes) {
             if (!boneNode || !boneNode.isValid) {
-                this.keysToDelete.push(boneIdx);
+                this._keysToDelete.push(boneIdx);
                 continue;
             }
             const bone =  this._skeletonBones![boneIdx];
             if (bone) this.matrixHandle(boneNode, bone);
         }
-        if (this.keysToDelete.length <= 0) return;
-        for (const boneIdx of this.keysToDelete) {
+        if (this._keysToDelete.length <= 0) return;
+        for (const boneIdx of this._keysToDelete) {
             socketNodes.delete(boneIdx);
         }
-        this.keysToDelete.length = 0;
+        this._keysToDelete.length = 0;
     }
 
     matrixHandle (node: Node, bone: any): void {
