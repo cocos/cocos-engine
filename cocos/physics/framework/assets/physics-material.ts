@@ -61,7 +61,6 @@ export class PhysicsMaterial extends Asset {
      */
     @editable
     @type(CCFloat)
-    @range([0, 1, 0.01])
     get friction (): number {
         return this._friction;
     }
