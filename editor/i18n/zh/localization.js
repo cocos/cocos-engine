@@ -1203,12 +1203,6 @@ module.exports = link(mixin({
                 strength: '驱动器的强度',
             },
         },
-        material: {
-            friction: '材质的摩擦系数',
-            rollingFriction: '材质的滚动摩擦系数',
-            spinningFriction: '材质的旋转摩擦系数',
-            restitution: '材质的弹性系数',
-        },
         character_controller: {
             group: '碰撞分组',
             minMoveDistance: '最小移动距离',
@@ -1290,6 +1284,7 @@ module.exports = link(mixin({
     },
 },
 
+require('./modules/physics'),
 require('./modules/rendering'),
 require('./modules/ui.js'),
 require('./animation'),
