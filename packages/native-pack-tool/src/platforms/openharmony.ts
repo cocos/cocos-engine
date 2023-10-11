@@ -122,6 +122,24 @@ export class OpenHarmonyPackTool extends NativePackTool {
         await cchelper.runCmd('npm', ['run', 'build'], false, ohosProjDir);
         return true;
     }
+
+    async openWithIde() {
+        let projPath = ps.join(this.params.buildDir, 'proj');
+        let DevEcoFile = "./devecostudio"
+        let DevEcoDir = this.params.nativeIdeDir;
+        if (!DevEcoDir || !fs.existsSync(DevEcoDir)) {
+            throw new Error(`deveco's runnable file Dir not set or not exist`);
+        }
+        if (process.platform === 'win32') {
+            DevEcoFile = "devecostudio.bat"
+            projPath = projPath.replace(/\\/g, '/');
+            DevEcoDir = this.params.nativeIdeDir.replace(/\\/g, '/');
+        }
+
+        cchelper.runCmd(DevEcoFile, [projPath], false, DevEcoDir);
+        return true;
+    }
+
     // --------------- run ------------------//
     async run(): Promise<boolean> {
         this.initEnv();

@@ -64,6 +64,12 @@ export class WindowsPackTool extends NativePackTool {
         return true;
     }
 
+    async openWithIde() {
+        const nativePrjDir = this.paths.nativePrjDir;
+        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`]);
+        return true;
+    }
+
     async windowsSelectCmakeGeneratorArgs(): Promise<string[]> {
 
         console.log(`selecting visual studio generator ...`);

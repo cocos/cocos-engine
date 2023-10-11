@@ -3,7 +3,7 @@ import * as ps from 'path';
 import * as os from 'os';
 import { execSync } from "child_process";
 import { CocosParams, NativePackTool } from "../base/default";
-import { toolHelper } from "../utils";
+import { cchelper, toolHelper } from "../utils";
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -70,6 +70,12 @@ export abstract class MacOSPackTool extends NativePackTool {
             }
             await this.xcodeFixAssetsReferences();
         }
+    }
+
+    async openWithIde() {
+        const nativePrjDir = this.paths.nativePrjDir;
+        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`]);
+        return true;
     }
 
     /**
