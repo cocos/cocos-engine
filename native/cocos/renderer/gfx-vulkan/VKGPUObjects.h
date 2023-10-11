@@ -1063,8 +1063,10 @@ private:
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
             } else if (hasFlag(texture->gpuTexture->usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-            } else {
+            } else if (flags == AccessFlags::NONE) {
                 descriptor->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            } else {
+                descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
             }
         }
     }

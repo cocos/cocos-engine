@@ -760,6 +760,7 @@ void NativeRenderQueueBuilder::addGpuDrivenResource(const scene::Camera *camera,
     }
 
     if (any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
+        auto &data = get(RenderGraph::DataTag{}, *renderGraph, rgSceneID);
         const auto passID = renderGraph->getPassID(nodeID);
         const auto &sceneCulling = dynamic_cast<const NativePipeline *>(pipelineRuntime)->nativeContext.sceneCulling;
         const auto sceneID = sceneCulling.sceneIDs.at(scene);
@@ -771,6 +772,9 @@ void NativeRenderQueueBuilder::addGpuDrivenResource(const scene::Camera *camera,
             objectBuffer.append(std::to_string(sceneID));
             ccstd::pmr::string drawInstanceBuffer("CCDrawInstanceBuffer");
             drawInstanceBuffer.append(std::to_string(cullingID));
+
+            const auto instanceNameID = layoutGraph->attributeIndex.at("CCDrawInstanceBuffer");
+            data.bufferNames[instanceNameID.value] = drawInstanceBuffer;
 
             auto &rasterPass = get(RasterPassTag{}, passID, *renderGraph);
             if (rasterPass.computeViews.find(objectBuffer) == rasterPass.computeViews.end()) {
@@ -795,6 +799,9 @@ void NativeRenderQueueBuilder::addGpuDrivenResource(const scene::Camera *camera,
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
             }
+            ccstd::pmr::string indirectBuffer("CCDrawIndirectBuffer");
+            indirectBuffer.append(std::to_string(cullingID));
+            rasterPass.resources.emplace(indirectBuffer, ResourceFlags::INDIRECT);
         }
     }
 }

@@ -129,11 +129,13 @@ export class Scene extends Node {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public _onHierarchyChanged (): void { }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public _onPostActivated (active: boolean): void {
 
     }
@@ -155,10 +157,11 @@ export class Scene extends Node {
      * @zh
      * 参考 [[Node.updateWorldTransform]]
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public updateWorldTransform (): void {}
 
     // life-cycle call backs
-
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     protected _instantiate (): void { }
 
     /**
@@ -191,9 +194,6 @@ export class Scene extends Node {
         }
         cclegacy.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
-        if (!TEST) {
-            this._globals.activate(this);
-        }
     }
 }
 

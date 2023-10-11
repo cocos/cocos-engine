@@ -466,10 +466,14 @@ bool Model::isInGPUScene(index_t subModelIndex) const {
     return mesh->isInGPUScene();
 }
 
-bool Model::supportGPUScene(index_t subModelIndex) const {
+bool Model::supportGPUDriven(index_t subModelIndex) const {
     const auto *pipeline = Root::getInstance()->getPipeline();
     const auto *sceneData = pipeline->getPipelineSceneData();
     if (!sceneData || !sceneData->isGPUDrivenEnabled()) {
+        return false;
+    }
+
+    if (!_gpuDrivenEnabled) {
         return false;
     }
 
@@ -552,7 +556,7 @@ ccstd::vector<IMacroPatch> Model::getMacroPatches(index_t subModelIndex) {
         }
     }
     patches.emplace_back(IMacroPatch{CC_DISABLE_DIRECTIONAL_LIGHT, !_receiveDirLight});
-    patches.emplace_back(IMacroPatch{CC_USE_GPU_DRIVEN, supportGPUScene(subModelIndex) && isInGPUScene(subModelIndex)});
+    patches.emplace_back(IMacroPatch{CC_USE_GPU_DRIVEN, supportGPUDriven(subModelIndex) && isInGPUScene(subModelIndex)});
 
     return patches;
 }
@@ -597,7 +601,11 @@ void Model::updateInstancedAttributes(const ccstd::vector<gfx::Attribute> &attri
     _localDataUpdated = true;
 }
 
-void Model::initLocalDescriptors(index_t /*subModelIndex*/) {
+void Model::initLocalDescriptors(index_t subModelIndex) {
+    if (supportGPUDriven(subModelIndex)) {
+        return;
+    }
+
     if (!_localBuffer) {
         _localBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                               gfx::MemoryUsageBit::DEVICE,
@@ -628,7 +636,11 @@ void Model::initLocalSHDescriptors(index_t /*subModelIndex*/) {
     }
 }
 
-void Model::initWorldBoundDescriptors(index_t /*subModelIndex*/) {
+void Model::initWorldBoundDescriptors(index_t subModelIndex) {
+    if (supportGPUDriven(subModelIndex)) {
+        return;
+    }
+
     if (!_worldBoundBuffer) {
         _worldBoundBuffer = _device->createBuffer({gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
                                                    gfx::MemoryUsageBit::DEVICE,

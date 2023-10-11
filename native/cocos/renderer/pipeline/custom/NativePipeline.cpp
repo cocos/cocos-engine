@@ -36,6 +36,7 @@
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
+#include "cocos/scene/SpotLight.h"
 #include "cocos/scene/gpu-scene/GPUScene.h"
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -297,15 +298,28 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.mipFilter = gfx::Filter::NONE;
 
-    auto resID = addVertex(
-        ManagedTextureTag{},
-        std::forward_as_tuple(name.c_str()),
-        std::forward_as_tuple(desc),
-        std::forward_as_tuple(ResourceTraits{residency}),
-        std::forward_as_tuple(),
-        std::forward_as_tuple(samplerInfo),
-        std::forward_as_tuple(),
-        resourceGraph);
+    ResourceGraph::vertex_descriptor resID = ResourceGraph::null_vertex();
+    if (residency == ResourceResidency::PERSISTENT) {
+        resID = addVertex(
+            PersistentTextureTag{},
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple(desc),
+            std::forward_as_tuple(ResourceTraits{residency}),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(samplerInfo),
+            std::forward_as_tuple(),
+            resourceGraph);
+    } else {
+        resID = addVertex(
+            ManagedTextureTag{},
+            std::forward_as_tuple(name.c_str()),
+            std::forward_as_tuple(desc),
+            std::forward_as_tuple(ResourceTraits{residency}),
+            std::forward_as_tuple(),
+            std::forward_as_tuple(samplerInfo),
+            std::forward_as_tuple(),
+            resourceGraph);
+    }
 
     addSubresourceNode<gfx::Format::DEPTH_STENCIL>(resID, name, resourceGraph);
     return resID;
@@ -886,7 +900,7 @@ constexpr uint32_t getMipLevels(uint32_t width, uint32_t height) noexcept {
     return result;
 }
 
-void setupGpuDrivenResources(
+bool setupGpuDrivenResources(
     NativePipeline &ppl, const scene::Camera *camera, scene::GPUScene *gpuScene,
     uint32_t sceneID, uint32_t cullingID, ResourceGraph &resg, const std::string &hzbName) {
     ccstd::pmr::string name(resg.get_allocator());
@@ -1011,7 +1025,7 @@ void setupGpuDrivenResources(
     {
         name = "CCVisibilityBuffer";
         name.append(std::to_string(cullingID));
-        const auto bufferSize = gpuScene->getInstanceCount() * static_cast<uint32_t>(sizeof(uint32_t));
+        const auto bufferSize = std::max(gpuScene->getInstanceCount(), 1U) * static_cast<uint32_t>(sizeof(uint32_t));
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
             ppl.addStorageBuffer(std::string(name), gfx::Format::UNKNOWN, bufferSize, ResourceResidency::MANAGED);
@@ -1020,8 +1034,11 @@ void setupGpuDrivenResources(
             ppl.updateStorageBuffer(std::string(name), bufferSize, gfx::Format::UNKNOWN);
         }
     }
+
+    bool firstMeet = false;
     if (!hzbName.empty()) {
         name = hzbName;
+        name.append(std::to_string(cullingID));
         const auto width = utils::previousPOT(camera->getWidth());
         const auto height = utils::previousPOT(camera->getHeight());
         const auto mipLevels = getMipLevels(width, height);
@@ -1029,18 +1046,21 @@ void setupGpuDrivenResources(
         auto resID = findVertex(name, resg);
         if (resID == ResourceGraph::null_vertex()) {
             ppl.addResource(std::string(name), ResourceDimension::TEXTURE2D, gfx::Format::R32F, width, height, 1, 1,
-                            mipLevels, gfx::SampleCount::X1, ResourceFlags::SAMPLED | ResourceFlags::STORAGE, ResourceResidency::MANAGED);
+                            mipLevels, gfx::SampleCount::X1, ResourceFlags::COLOR_ATTACHMENT | ResourceFlags::SAMPLED | ResourceFlags::STORAGE, ResourceResidency::PERSISTENT);
+            firstMeet = true;
         } else {
-            CC_EXPECTS(holds<ManagedTextureTag>(resID, resg));
+            CC_EXPECTS(holds<PersistentTextureTag>(resID, resg));
             ppl.updateResource(std::string(name), gfx::Format::R32F, width, height, 1, 1, mipLevels, gfx::SampleCount::X1);
         }
     }
+    return firstMeet;
 }
 
 } // namespace
 
 void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
-                                              const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) {
+    const scene::Camera *camera, const std::string &layoutPath,
+    const std::string &hzbName, const scene::Light *light, uint32_t level, bool bMainPass) {
     auto *scene = camera->getScene();
     if (!scene) {
         return;
@@ -1058,12 +1078,7 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     }
 
     const uint32_t sceneID = iter->second;
-    setupGpuDrivenResources(*this, camera, gpuScene, sceneID, cullingID, resourceGraph, hzbName);
-
-    if (light) {
-        // build light culling pass
-        return;
-    }
+    bool firstPass = setupGpuDrivenResources(*this, camera, gpuScene, sceneID, cullingID, resourceGraph, hzbName);
 
     const std::string objectBuffer = "CCObjectBuffer" + std::to_string(sceneID);
     const std::string instanceBuffer = "CCInstanceBuffer" + std::to_string(sceneID);
@@ -1071,6 +1086,18 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
     const std::string drawIndirectBuffer = "CCDrawIndirectBuffer" + std::to_string(cullingID);
     const std::string drawInstanceBuffer = "CCDrawInstanceBuffer" + std::to_string(cullingID);
     const std::string visibilityBuffer = "CCVisibilityBuffer" + std::to_string(cullingID);
+
+    // first pass hzb clear
+    {
+        if (firstPass) {
+            const auto width = utils::previousPOT(camera->getWidth());
+            const auto height = utils::previousPOT(camera->getHeight());
+            std::unique_ptr<RenderPassBuilder> clearPass(addRenderPass(width, height, "default"));
+            clearPass->addRenderTarget(hzbName + std::to_string(cullingID), gfx::LoadOp::CLEAR, gfx::StoreOp::STORE, gfx::Color{1.0, 0.0, 0.0, 0.0});
+            std::unique_ptr<RenderQueueBuilder> clearQueue(clearPass->addQueue());
+            clearQueue->addScene(camera, SceneFlags::OPAQUE);
+        }
+    }
 
     // init indirect buffers
     {
@@ -1104,35 +1131,101 @@ void NativePipeline::addBuiltinGpuCullingPass(uint32_t cullingID,
         gpuCullPass->addStorageBuffer(drawInstanceBuffer, AccessType::WRITE, "CCDrawInstanceBuffer");
         gpuCullPass->addStorageBuffer(visibilityBuffer, AccessType::READ_WRITE, "CCVisibilityBuffer");
         if (!hzbName.empty()) {
-            auto *sampler = device->getSampler({gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::NONE,
-                                                gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP});
+            gfx::Sampler *sampler = nullptr;
+            if (device->getCapabilities().supportFilterMinMax) {
+                sampler = device->getSampler({gfx::Filter::LINEAR, gfx::Filter::LINEAR, gfx::Filter::NONE,
+                                                    gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP,
+                                                    0, gfx::ComparisonFunc::ALWAYS, gfx::Reduction::MAX});
+            } else {
+                sampler = device->getSampler({gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::NONE,
+                                              gfx::Address::CLAMP, gfx::Address::CLAMP, gfx::Address::CLAMP});
+            }
 
-            gpuCullPass->addTexture(hzbName, "CCDepthMap", sampler, 0);
+            gpuCullPass->addTexture(hzbName + std::to_string(cullingID), "CCDepthMap", sampler, 0);
         }
 
         const auto materialIndex = hzbName.empty() ? 2 : (bMainPass ? 0 : 1);
         const auto instanceCount = gpuScene->getInstanceCount();
         const auto groupCount = getGroupCount(instanceCount, scene::CS_GPU_CULLING_LOCAL_SIZE);
-        std::unique_ptr<ComputeQueueBuilder> gpuCullQueue(gpuCullPass->addQueue());
+        const auto phaseID = locate(LayoutGraph::null_vertex(), layoutPath, programLibrary->layoutGraph);
+        std::unique_ptr<NativeComputeQueueBuilder> gpuCullQueue(dynamic_cast<NativeComputeQueueBuilder*>(gpuCullPass->addQueue()));
         gpuCullQueue->addDispatch(groupCount, 1, 1, pipelineSceneData->getGPUCullingMaterial(materialIndex), 0);
 
-        ccstd::vector<Vec4> planes;
-        const auto &frustum = camera->getFrustum();
-        for (auto *plane : frustum.planes) {
-            planes.emplace_back(Vec4{plane->n.x, plane->n.y, plane->n.z, plane->d});
+        if (light) {
+            const auto cap = device->getCapabilities();
+            const auto size = pipelineSceneData->getShadows()->getSize();
+            const auto width = static_cast<uint32_t>(size.x) / 2;
+            const auto height = static_cast<uint32_t>(size.y) / 2;
+            const geometry::Frustum *frustum = nullptr;
+            Mat4 viewMat;
+            Mat4 projMat;
+            uint32_t perspective = 1;
+            float nearPlane = 0.1F;
+            float farPlane = 1000.0F;
+
+            if (light->getType() == scene::LightType::SPOT) {
+                const auto *spotLight = dynamic_cast<const scene::SpotLight *>(light);
+                frustum = &spotLight->getFrustum();
+                nearPlane = 0.001F;
+                farPlane = spotLight->getRange();
+                viewMat = spotLight->getNode()->getWorldMatrix().getInversed();
+                Mat4::createPerspective(spotLight->getAngle(), 1.0F, nearPlane, farPlane, true, cap.clipSpaceMinZ, cap.clipSpaceSignY, 0, &projMat);
+                perspective = 1;
+            } else if (light->getType() == scene::LightType::DIRECTIONAL) {
+                auto *layers = pipelineSceneData->getCSMLayers();
+                layers->update(pipelineSceneData, camera);
+                auto *layer = layers->getLayers()[level];
+                frustum = &layer->getValidFrustum();
+                nearPlane = layer->getSplitCameraNear();
+                farPlane = layer->getSplitCameraFar();
+                viewMat = layer->getMatShadowView();
+                projMat = layer->getMatShadowProj();
+                perspective = 0;
+            } else {
+                CC_EXPECTS(false);
+            }
+
+            ccstd::vector<float> planes;
+            for (auto *plane : frustum->planes) {
+                planes.push_back(plane->n.x);
+                planes.push_back(plane->n.y);
+                planes.push_back(plane->n.z);
+                planes.push_back(plane->d);
+            }
+            ArrayBuffer planesBuffer(reinterpret_cast<uint8_t *>(&planes[0]), sizeof(float) * static_cast<uint32_t>(planes.size()));
+            gpuCullPass->setMat4("cc_view", viewMat);
+            gpuCullPass->setMat4("cc_proj", projMat);
+            gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
+            gpuCullPass->setFloat("cc_znear", nearPlane);
+            gpuCullPass->setFloat("cc_zfar", farPlane);
+            gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(width)));
+            gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(height)));
+            gpuCullPass->setUint("cc_isPerspective", perspective);
+            gpuCullPass->setUint("cc_orientation", 0);
+            gpuCullPass->setUint("cc_instanceCount", instanceCount);
+            gpuCullPass->setUint("cc_phaseId", phaseID);
+        } else {
+            ccstd::vector<float> planes;
+            const auto &frustum = camera->getFrustum();
+            for (auto *plane : frustum.planes) {
+                planes.push_back(plane->n.x);
+                planes.push_back(plane->n.y);
+                planes.push_back(plane->n.z);
+                planes.push_back(plane->d);
+            }
+            ArrayBuffer planesBuffer(reinterpret_cast<uint8_t *>(&planes[0]), sizeof(float) * static_cast<uint32_t>(planes.size()));
+            gpuCullPass->setMat4("cc_view", camera->getMatView());
+            gpuCullPass->setMat4("cc_proj", camera->getMatProj());
+            gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
+            gpuCullPass->setFloat("cc_znear", camera->getNearClip());
+            gpuCullPass->setFloat("cc_zfar", camera->getFarClip());
+            gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(camera->getWidth())));
+            gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(camera->getHeight())));
+            gpuCullPass->setUint("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
+            gpuCullPass->setUint("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
+            gpuCullPass->setUint("cc_instanceCount", instanceCount);
+            gpuCullPass->setUint("cc_phaseId", phaseID);
         }
-        ArrayBuffer planesBuffer(reinterpret_cast<uint8_t *>(&planes[0]), sizeof(Vec4) * 6);
-        gpuCullPass->setMat4("cc_view", camera->getMatView());
-        gpuCullPass->setMat4("cc_proj", camera->getMatProj());
-        gpuCullPass->setArrayBuffer("cc_planes", &planesBuffer);
-        gpuCullPass->setFloat("cc_znear", camera->getNearClip());
-        gpuCullPass->setFloat("cc_zfar", camera->getFarClip());
-        gpuCullPass->setFloat("cc_depthWidth", static_cast<float>(utils::previousPOT(camera->getWidth())));
-        gpuCullPass->setFloat("cc_depthHeight", static_cast<float>(utils::previousPOT(camera->getHeight())));
-        gpuCullPass->setUint("cc_isPerspective", static_cast<uint32_t>(camera->getProjectionType()));
-        gpuCullPass->setUint("cc_orientation", static_cast<uint32_t>(camera->getSurfaceTransform()));
-        gpuCullPass->setUint("cc_instanceCount", instanceCount);
-        gpuCullPass->setUint("cc_sceneFlags", 0); // Stanley TODO
     }
 }
 
@@ -1156,6 +1249,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
     currMipName.reserve(targetHzbName.size() + 6);
     currMipName.append(targetHzbName);
 
+    const std::string hzbSubreIDStr = std::to_string(renderGraph.computePasses.size());
     MovePass move(renderGraph.get_allocator());
     move.movePairs.reserve(targetDesc.mipLevels);
     // register all mips
@@ -1169,6 +1263,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         for (uint32_t k = 0; k != targetDesc.mipLevels; ++k) {
             currMipName.resize(targetHzbName.size());
             CC_ENSURES(currMipName == std::string_view{targetHzbName});
+            currMipName.append(hzbSubreIDStr);
             currMipName.append("_Mip");
             currMipName.append(std::to_string(k));
 
@@ -1183,34 +1278,37 @@ void NativePipeline::addBuiltinHzbGenerationPass(
                     std::forward_as_tuple(),
                     std::forward_as_tuple(),
                     resourceGraph);
-
-                MovePair pair(move.get_allocator());
-                pair.source = currMipName;
-                pair.target = targetHzbName;
-                pair.mipLevels = 1;
-                pair.numSlices = 1;
-                pair.targetMostDetailedMip = k;
-                move.movePairs.emplace_back(std::move(pair));
             } else {
                 CC_EXPECTS(holds<ManagedTextureTag>(resID, resourceGraph));
+                const auto &localDesc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
                 updateResourceImpl(
                     resourceGraph,
                     currMipName,
                     desc.format,
-                    desc.width,
-                    desc.height,
+                    localDesc.width,
+                    localDesc.height,
                     1, 1, 1, gfx::SampleCount::X1);
             }
+
+            MovePair pair(move.get_allocator());
+            pair.source = currMipName;
+            pair.target = targetHzbName;
+            pair.mipLevels = 1;
+            pair.numSlices = 1;
+            pair.targetMostDetailedMip = k;
+            pair.possibleUsage = gfx::AccessFlagBit::COMPUTE_SHADER_READ_OTHER;
+            move.movePairs.emplace_back(std::move(pair));
+
             desc.width = getHalfSize(desc.width);
-            desc.height = getHalfSize(desc.height);
+            desc.height =getHalfSize(desc.height);
         }
     }
 
     gfx::Sampler *sampler = nullptr;
     if (device->getCapabilities().supportFilterMinMax) {
         sampler = device->getSampler({
-            gfx::Filter::POINT,
-            gfx::Filter::POINT,
+            gfx::Filter::LINEAR,
+            gfx::Filter::LINEAR,
             gfx::Filter::NONE,
             gfx::Address::CLAMP,
             gfx::Address::CLAMP,
@@ -1253,6 +1351,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         } else {
             prevMipName.resize(targetHzbName.size());
             CC_ENSURES(prevMipName == std::string_view{targetHzbName});
+            prevMipName.append(hzbSubreIDStr);
             prevMipName.append("_Mip");
             CC_EXPECTS(k > 0);
             prevMipName.append(std::to_string(k - 1)); // previous mip, k - 1
@@ -1280,6 +1379,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         // target
         currMipName.resize(targetHzbName.size());
         CC_ENSURES(currMipName == std::string_view{targetHzbName});
+        currMipName.append(hzbSubreIDStr);
         currMipName.append("_Mip");
         currMipName.append(std::to_string(k));
         auto res = pass.computeViews.emplace(
@@ -1296,7 +1396,7 @@ void NativePipeline::addBuiltinHzbGenerationPass(
         // uniforms
         auto &data = get(RenderGraph::DataTag{}, renderGraph, passID);
         setVec2Impl(
-            data, lg, "imageSize",
+            data, lg, "cc_imageSize",
             Vec2{
                 static_cast<float>(width),
                 static_cast<float>(height),

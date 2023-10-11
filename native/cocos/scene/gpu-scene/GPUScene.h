@@ -49,7 +49,6 @@ public:
 
     void build(const ccstd::vector<Mesh*>& meshes);
 
-    void addMesh(Mesh* mesh);
     void addModel(const Model* model);
     void removeModel(const Model* model);
     void removeAllModels();

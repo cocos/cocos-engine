@@ -1404,8 +1404,10 @@ export interface Pipeline extends BasicPipeline {
     addBuiltinGpuCullingPass (
         cullingID: number,
         camera: Camera,
+        layoutPath?: string,
         hzbName?: string,
         light?: Light | null,
+        level?: number,
         bMainPass?: boolean): void;
     /**
      * @en Add hierarchical z buffer generation pass

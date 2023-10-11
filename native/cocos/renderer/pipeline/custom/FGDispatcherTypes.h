@@ -163,6 +163,11 @@ struct ResourceNode {
     ccstd::vector<TextureNode> planes;
 };
 
+struct MoveStatus {
+    bool finalAccess{true};
+    AccessStatus status;
+};
+
 struct ResourceAccessGraph {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
@@ -297,7 +302,7 @@ struct ResourceAccessGraph {
     ccstd::pmr::vector<vertex_descriptor> topologicalOrder;
     PmrTransparentMap<ccstd::pmr::string, PmrFlatMap<uint32_t, AccessStatus>> resourceAccess;
     PmrFlatMap<ccstd::pmr::string, PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string>> movedTarget;
-    PmrFlatMap<ccstd::pmr::string, AccessStatus> movedSourceStatus;
+    PmrFlatMap<ccstd::pmr::string, MoveStatus> movedSourceStatus;
     PmrFlatMap<ccstd::pmr::string, ResourceNode> movedTargetStatus;
 };
 

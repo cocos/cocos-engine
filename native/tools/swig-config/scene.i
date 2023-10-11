@@ -518,6 +518,7 @@ using namespace cc;
 %attribute(cc::scene::Model, int32_t, reflectionProbeId, getReflectionProbeId, setReflectionProbeId);
 %attribute(cc::scene::Model, int32_t, reflectionProbeBlendId, getReflectionProbeBlendId, setReflectionProbeBlendId);
 %attribute(cc::scene::Model, float, reflectionProbeBlendWeight, getReflectionProbeBlendWeight, setReflectionProbeBlendWeight);
+%attribute(cc::scene::Model, bool, gpuDrivenEnabled, isGPUDrivenEnabled, setGPUDrivenEnabled);
 
 %attribute(cc::scene::SubModel, cc::scene::SharedPassArray &, passes, getPasses, setPasses);
 %attribute(cc::scene::SubModel, ccstd::vector<cc::IntrusivePtr<cc::gfx::Shader>> &, shaders, getShaders, setShaders);

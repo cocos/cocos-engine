@@ -252,7 +252,8 @@ public:
     }
     inline void setModelBounds(geometry::AABB *bounds) { _modelBounds = bounds; }
     inline bool isModelImplementedInJS() const { return (_type != Type::DEFAULT && _type != Type::SKINNING && _type != Type::BAKED_SKINNING); };
-    inline const gfx::Texture *getLightmap() const { return _lightmap ? _lightmap->getGFXTexture() : nullptr; }
+    inline void setGPUDrivenEnabled(bool b) { _gpuDrivenEnabled = b; }
+    inline bool isGPUDrivenEnabled() const { return _gpuDrivenEnabled; }
 
 protected:
     static SubModel *createSubModel();
@@ -260,7 +261,7 @@ protected:
     void updateAttributesAndBinding(index_t subModelIndex);
     bool isLightProbeAvailable() const;
     void updateSHBuffer();
-    bool supportGPUScene(index_t subModelIndex) const;
+    bool supportGPUDriven(index_t subModelIndex) const;
     bool isInGPUScene(index_t subModelIndex) const;
 
     // Please declare variables in descending order of memory size occupied by variables.
@@ -275,6 +276,7 @@ protected:
     int32_t _reflectionProbeId{-1};
     int32_t _reflectionProbeBlendId{-1};
     float _reflectionProbeBlendWeight{0.F};
+    bool _gpuDrivenEnabled{true};
 
     OctreeNode *_octreeNode{nullptr};
     RenderScene *_scene{nullptr};

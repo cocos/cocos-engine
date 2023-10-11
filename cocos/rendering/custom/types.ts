@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock, AccessFlags, AccessFlagBit } from '../../gfx';
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
@@ -475,6 +475,7 @@ export class MovePair {
         targetMostDetailedMip = 0,
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
+        possibleUsage = AccessFlagBit.NONE,
     ) {
         this.source = source;
         this.target = target;
@@ -483,6 +484,7 @@ export class MovePair {
         this.targetMostDetailedMip = targetMostDetailedMip;
         this.targetFirstSlice = targetFirstSlice;
         this.targetPlaneSlice = targetPlaneSlice;
+        this.possibleUsage = possibleUsage;
     }
     source: string;
     target: string;
@@ -491,6 +493,7 @@ export class MovePair {
     targetMostDetailedMip: number;
     targetFirstSlice: number;
     targetPlaneSlice: number;
+    possibleUsage: AccessFlagBit;
 }
 
 export class PipelineStatistics {

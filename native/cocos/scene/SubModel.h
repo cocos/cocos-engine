@@ -86,6 +86,7 @@ public:
     int32_t getInstancedAttributeIndex(const ccstd::string &name) const;
 
     void initialize(RenderingSubMesh *subMesh, const SharedPassArray &passes, const ccstd::vector<IMacroPatch> &patches);
+    void initInputAssembler();
     void destroy();
     void onPipelineStateChanged();
     void onMacroPatchesStateChanged(const ccstd::vector<IMacroPatch> &patches);

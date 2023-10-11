@@ -146,6 +146,7 @@ void SPIRVUtils::compileGLSL(ShaderStageFlagBit type, const ccstd::string &sourc
 
     spvOptions.disableOptimizer = false; // Do not disable optimizer in debug mode. It will cause the shader to fail to compile.
     spvOptions.optimizeSize = true;
+    spvOptions.stripDebugInfo = false;
 #if CC_DEBUG > 0
     // spvOptions.validate = true;
 #else

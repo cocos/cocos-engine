@@ -43,6 +43,7 @@
 #include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
+#include "cocos/renderer/pipeline/helper/Utils.h"
 #include "cocos/scene/Model.h"
 #include "cocos/scene/Octree.h"
 #include "cocos/scene/Pass.h"
@@ -78,7 +79,7 @@ struct RenderGraphVisitorContext {
     LayoutGraphData& lg;
     const RenderGraph& g;
     ResourceGraph& resourceGraph;
-    const FrameGraphDispatcher& fgd;
+    FrameGraphDispatcher& fgd;
     const ccstd::pmr::vector<bool>& validPasses;
     gfx::Device* device = nullptr;
     gfx::CommandBuffer* cmdBuff = nullptr;
@@ -541,7 +542,21 @@ gfx::DescriptorSet* initDescriptorSet(
                         // render graph textures
                         auto* texture = resg.getTexture(iter->second);
                         CC_ENSURES(texture);
-                        newSet->bindTexture(bindID, texture);
+                        gfx::AccessFlags access = gfx::AccessFlagBit::NONE;
+                        if (accessNode != nullptr) {
+                            auto resID = iter->second;
+                            // whole access only now.
+                            auto parentID = parent(resID, resg);
+                            parentID = parentID == ResourceGraph::null_vertex() ? resID : parentID;
+                            const auto& resName = get(ResourceGraph::NameTag{}, resg, parentID);
+
+                            auto iter2 = std::find_if(accessNode->resourceStatus.begin(), accessNode->resourceStatus.end(), [&resName, &resg](const auto& pair) {
+                                return strstr(resName.c_str(), pair.first.c_str()) || strstr(pair.first.c_str(), resName.c_str());
+                            });
+
+                            access = iter2->second.accessFlag;
+                        }
+                        newSet->bindTexture(bindID, texture, 0, access);
                     }
                     bindID += d.count;
                 }
@@ -578,6 +593,7 @@ gfx::DescriptorSet* initDescriptorSet(
 
 gfx::DescriptorSet* updatePerPassDescriptorSet(
     gfx::CommandBuffer* cmdBuff,
+    ResourceGraph& resg,
     const LayoutGraphData& lg,
     const DescriptorSetData& set,
     const RenderData& user,
@@ -662,7 +678,15 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                 for (const auto& d : block.descriptors) {
                     bool found = false;
                     CC_EXPECTS(d.count == 1);
-                    if (auto iter = user.buffers.find(d.descriptorID.value);
+                    if (auto iter = user.bufferNames.find(d.descriptorID.value);
+                        iter != user.bufferNames.end()) {
+                        const auto resID = findVertex(iter->second, resg);
+                        CC_ENSURES(resID != ResourceGraph::null_vertex());
+                        auto* buffer = resg.getBuffer(resID);
+                        CC_ENSURES(buffer);
+                        newSet->bindBuffer(bindID, buffer);
+                        found = true;
+                    } else if (auto iter = user.buffers.find(d.descriptorID.value);
                         iter != user.buffers.end()) {
                         newSet->bindBuffer(bindID, iter->second.get());
                         found = true;
@@ -717,7 +741,7 @@ gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
         auto& set = iter->second;
         auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
         const auto& user = get(RenderGraph::DataTag{}, ctx.g, sceneID); // notice: sceneID
-        perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
+        perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.resourceGraph, ctx.lg, set, user, node);
     }
     return perPassSet;
 }
@@ -925,11 +949,12 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             auto& set = iter->second;
             const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
+            const auto& accessNode = ctx.fgd.getAccessNode(vertID);
             auto* perPassSet = initDescriptorSet(
                 ctx.resourceGraph,
                 ctx.device, ctx.cmdBuff,
                 *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node);
+                resourceIndex, set, user, node, &accessNode);
             CC_ENSURES(perPassSet);
             ctx.renderGraphDescriptorSet[vertID] = perPassSet;
         } else if (holds<QueueTag>(vertID, ctx.g)) {
@@ -1379,12 +1404,22 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto* scene = camera->getScene();
         const auto& queueDesc = ctx.context.sceneCulling.sceneQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget];
+        if (any(sceneData.flags & SceneFlags::GPU_DRIVEN)) {
+            const auto renderQueueID = parent(sceneID, ctx.g);
+            CC_EXPECTS(holds<QueueTag>(renderQueueID, ctx.g));
+            const auto& renderQueue = get(QueueTag{}, renderQueueID, ctx.g);
+            const auto phaseLayoutID = renderQueue.phaseID;
+            CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
+
+            queue.gpuDrivenQueue.recordCommandBuffer(
+                ctx.resourceGraph, ctx.device, camera,
+                ctx.currentPass, ctx.cmdBuff, phaseLayoutID, queue.sceneFlags, sceneData.cullingID);
+            return;
+        }
         queue.opaqueQueue.recordCommandBuffer(
             ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
         queue.opaqueInstancingQueue.recordCommandBuffer(
             ctx.currentPass, ctx.cmdBuff);
-        queue.opaqueBatchingQueue.recordCommandBuffer(ctx.resourceGraph, ctx.device, camera,
-                                                      ctx.currentPass, ctx.cmdBuff, queue.sceneFlags, sceneData.cullingID);
         queue.transparentQueue.recordCommandBuffer(
             ctx.device, camera, ctx.currentPass, ctx.cmdBuff, 0);
         queue.transparentInstancingQueue.recordCommandBuffer(
@@ -1473,6 +1508,9 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
 
         if (pass.showStatistics) {
+#if CC_USE_DEBUG_RENDERER
+            renderDebugRenderer(ctx.currentPass, ctx.cmdBuff, ctx.ppl->pipelineSceneData, nullptr);
+#endif
             submitProfilerCommands(ctx, vertID, pass);
         }
         ctx.cmdBuff->endRenderPass();

@@ -65,7 +65,7 @@
 #define ENABLE_FGD_WARNNING 1
 
 #ifdef ENABLE_FGD_WARNNING
-    #define FGD_WARNING(...) printf(##__VA_ARGS__)
+    #define FGD_WARNING(...) printf(__VA_ARGS__)
 #else
     #define FGD_WARNING(...)
 #endif
@@ -545,9 +545,16 @@ auto dependencyCheck(ResourceAccessGraph &rag, ResourceAccessGraph::vertex_descr
     const auto &states = get(ResourceGraph::StatesTag{}, resourceGraph, resourceID);
     const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resourceID);
 
-    auto range = originRange;
-    if (rag.movedSourceStatus.find(name) != rag.movedSourceStatus.end()) {
-        range = rag.movedSourceStatus.at(name).range;
+    const auto& range = originRange;
+    if (rag.movedTargetStatus.find(name) != rag.movedTargetStatus.end() && !rag.movedTarget.at(name).empty()) {
+        CC_ASSERT(rag.movedTargetStatus.at(name).full);
+        for (const auto &[src, ignored] : rag.movedTarget.at(name)) {
+            auto &srcStatus = rag.movedSourceStatus.at(src);
+            srcStatus.finalAccess = false;
+            rag.resourceAccess.at(src).emplace(curVertID, AccessStatus{accessFlag, srcStatus.status.range});
+        }
+        // invalidate last move source
+        //rag.movedTarget.at(name).clear();
     }
 
     bool isExternalPass = get(get(ResourceGraph::TraitsTag{}, resourceGraph), resourceID).hasSideEffects();
@@ -581,7 +588,7 @@ auto dependencyCheck(ResourceAccessGraph &rag, ResourceAccessGraph::vertex_descr
         auto &transMap = iter->second;
         CC_ASSERT(!transMap.empty());
 
-        const auto lastRecordIter = (--transMap.end());
+        auto lastRecordIter = transMap.rbegin();
         const auto &lastStatus = lastRecordIter->second;
         lastAccess = lastStatus.accessFlag;
         bool isBuffer = desc.dimension == ResourceDimension::BUFFER;
@@ -728,7 +735,11 @@ auto getTextureStatus(std::string_view name, AccessType access, gfx::ShaderStage
     }
 
     if (access != AccessType::READ) {
-        texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsage::STORAGE));
+        if (rasterized) {
+            texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::COLOR_ATTACHMENT | gfx::TextureUsage::DEPTH_STENCIL_ATTACHMENT));
+        } else {
+            texUsage |= (mapTextureFlags(desc.flags) & (gfx::TextureUsage::STORAGE));
+        }
     }
     accesFlag = gfx::getAccessFlags(texUsage, toGfxAccess(access), vis);
 
@@ -916,6 +927,42 @@ void extractNames(const ccstd::pmr::string &resName,
     if (names.empty()) {
         names.emplace_back(resName, 0);
     }
+}
+
+gfx::AccessFlags mapAccess(ResourceFlags flags){
+    gfx::AccessFlags ret{gfx::AccessFlags::NONE};
+    if (flags == ResourceFlags::INDIRECT) {
+        ret = gfx::AccessFlags::INDIRECT_BUFFER;
+    } else if (flags == ResourceFlags::VERTEX) {
+        ret = gfx::AccessFlags::VERTEX_BUFFER;
+    } else if (flags == ResourceFlags::INDEX) {
+        ret = gfx::AccessFlags::INDEX_BUFFER;
+    }
+    return ret;
+}
+
+auto checkManuallyTrackResources(const Graphs &graphs,
+                                 ResourceAccessGraph::vertex_descriptor ragVertID,
+                                 ResourceAccessNode &node,
+                                 const PmrTransparentMap<ccstd::pmr::string, ResourceFlags>& resources) {
+    const auto &[renderGraph, layoutGraphData, resourceGraph, resourceAccessGraph, relationGraph] = graphs;
+
+    bool dependent = false;
+    for (const auto &[name, usage] : resources) {
+        auto manuallyAccess = mapAccess(usage);
+        if (manuallyAccess != gfx::AccessFlags::NONE) {
+            const auto &range = getResourceRange(vertex(name, resourceGraph), resourceGraph);
+            ViewStatus view{name, AccessType::READ_WRITE /*no use*/, gfx::ShaderStageFlagBit::NONE, manuallyAccess, range};
+            addAccessStatus(resourceAccessGraph, resourceGraph, node, view);
+            const auto &[lastVertId, nearestAccess] = dependencyCheck(resourceAccessGraph, ragVertID, resourceGraph, view);
+            tryAddEdge(lastVertId, ragVertID, resourceAccessGraph);
+            tryAddEdge(lastVertId, ragVertID, relationGraph);
+            dependent |= (lastVertId != EXPECT_START_ID);
+        } else {
+            FGD_WARNING("Trying to manually add an undefined access at pass %d on resource %s, ignnored. Have you set the resource flags?\n", get(ResourceAccessGraph::PassIDTag{}, resourceAccessGraph, ragVertID), name.c_str());
+        }
+    }
+    return dependent;
 }
 
 auto checkRasterViews(const Graphs &graphs,
@@ -1134,6 +1181,7 @@ void startRenderPass(const Graphs &graphs, uint32_t passID, const RasterPass &pa
         auto &accessNode = get(ResourceAccessGraph::PassNodeTag{}, resourceAccessGraph, vertID);
         std::ignore = checkRasterViews(graphs, rlgVertID, accessNode, pass.rasterViews, colorMap);
         std::ignore = checkComputeViews(graphs, rlgVertID, accessNode, pass.computeViews);
+        std::ignore = checkManuallyTrackResources(graphs, rlgVertID, accessNode, pass.resources);
         fillRenderPassInfo(colorMap, fgRenderPassInfo, resourceGraph);
     } else {
         const auto &subpasses = pass.subpassGraph.subpasses;
@@ -1547,27 +1595,57 @@ SubresourceView makeSubresourceView(const ResourceDesc &srcDesc, const ResourceD
     return view;
 }
 
+constexpr gfx::AccessFlags allStageReadAccess(const ResourceDesc& desc) {
+    auto flags = desc.flags;
+    auto isBuffer = desc.dimension == ResourceDimension::BUFFER;
+    gfx::AccessFlags ret{gfx::AccessFlags::NONE};
+    if ((flags & ResourceFlags::STORAGE) != ResourceFlags::NONE) {
+        ret = gfx::AccessFlags::COMPUTE_SHADER_READ_OTHER | gfx::AccessFlags::FRAGMENT_SHADER_READ_OTHER | gfx::AccessFlags::VERTEX_SHADER_READ_OTHER;
+    } else if (isBuffer) { // NOLINT(misc-redundant-expression)
+        ret = gfx::AccessFlags::COMPUTE_SHADER_READ_UNIFORM_BUFFER | gfx::AccessFlags::FRAGMENT_SHADER_READ_UNIFORM_BUFFER | gfx::AccessFlags::VERTEX_SHADER_READ_UNIFORM_BUFFER;
+    } else {
+        ret = gfx::AccessFlags::COMPUTE_SHADER_READ_TEXTURE | gfx::AccessFlags::FRAGMENT_SHADER_READ_TEXTURE | gfx::AccessFlags::VERTEX_SHADER_READ_TEXTURE;
+    }
+    return ret;
+}
+
 void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) {
     const auto &[renderGraph, layoutGraphData, resourceGraph, resourceAccessGraph, relationGraph] = graphs;
 
     if (moveValidation(pass, resourceAccessGraph, resourceGraph)) {
         for (const auto &pair : pass.movePairs) {
-            auto toleranceRange = getResourceRange(vertex(pair.target, resourceGraph), resourceGraph);
-            auto srcResourceRange = getResourceRange(vertex(pair.source, resourceGraph), resourceGraph);
+            auto targetResID = findVertex(pair.target, resourceGraph);
+            auto sourceResID = findVertex(pair.source, resourceGraph);
+            auto toleranceRange = getResourceRange(targetResID, resourceGraph);
+            auto srcResourceRange = getResourceRange(sourceResID, resourceGraph);
             srcResourceRange.firstSlice = pair.targetFirstSlice;
             srcResourceRange.mipLevel = pair.targetMostDetailedMip;
             srcResourceRange.basePlane = pair.targetPlaneSlice;
 
             auto lastStatusIter = resourceAccessGraph.resourceAccess.at(pair.source).rbegin();
-            resourceAccessGraph.movedSourceStatus.emplace(pair.source, AccessStatus{lastStatusIter->second.accessFlag, srcResourceRange});
-            resourceAccessGraph.movedTarget[pair.target].emplace(getSubresourceNameByRange(srcResourceRange, resourceAccessGraph.resource()), pair.source);
 
-            const auto &srcAccess = resourceAccessGraph.resourceAccess.at(pair.source);
-            auto &targetAccess = resourceAccessGraph.resourceAccess[pair.target];
-            targetAccess.clear();
-            targetAccess.emplace(*srcAccess.rbegin());
+            auto nextPossibleAccess = pair.possibleUsage;
+            if (nextPossibleAccess == gfx::AccessFlags::NONE) {
+                const auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, sourceResID);
+                nextPossibleAccess = allStageReadAccess(desc);
+            }
+            resourceAccessGraph.movedSourceStatus.emplace(std::piecewise_construct,
+                                                          std::forward_as_tuple(pair.source),
+                                                          std::forward_as_tuple(MoveStatus{true, nextPossibleAccess, srcResourceRange}));
+            resourceAccessGraph.movedTarget[pair.target].emplace(pair.source, getSubresourceNameByRange(srcResourceRange, resourceAccessGraph.resource()));
 
-            auto targetResID = findVertex(pair.target, resourceGraph);
+            auto &srcAccess = resourceAccessGraph.resourceAccess.at(pair.source);
+            auto targetAccessIter = resourceAccessGraph.resourceAccess.find(pair.target);
+
+            srcAccess.erase(0);
+            if (targetAccessIter != resourceAccessGraph.resourceAccess.end() && !targetAccessIter->second.empty()) {
+                auto lastAccessIter = targetAccessIter->second.rbegin();
+                srcAccess.emplace(lastAccessIter->first, AccessStatus{lastAccessIter->second.accessFlag, srcResourceRange});
+            } else {
+                const auto &lastStates = get(ResourceGraph::StatesTag{}, resourceGraph, targetResID);
+                srcAccess.emplace(0, AccessStatus{lastStates.states, srcResourceRange});
+            }
+
             resourceAccessGraph.resourceIndex[pair.target] = targetResID;
 
             auto &rag = resourceAccessGraph;
@@ -1577,7 +1655,7 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
                 rag.resourceIndex[source] = v;
 
                 if (rag.movedTarget.find(source) != rag.movedTarget.end()) {
-                    for (const auto &[rangeStr, prt] : rag.movedTarget[source]) {
+                    for (const auto &[prt, rangeStr] : rag.movedTarget[source]) {
                         feedBack(prt, v);
                     }
                 }
@@ -1596,6 +1674,12 @@ void startMovePass(const Graphs &graphs, uint32_t passID, const MovePass &pass) 
             startCopyPass(graphs, passID, copyPass);
         }
     }
+}
+
+void startScene(const Graphs &graphs, RenderGraph::vertex_descriptor /*sceneID*/, const SceneData &sceneData) { // NOLINT(readability-convert-member-functions-to-static)
+    const auto &[renderGraph, layoutGraphData, resourceGraph, resourceAccessGraph, relationGraph] = graphs;
+    const auto *const camera = sceneData.camera;
+    CC_EXPECTS(camera);
 }
 
 struct DependencyVisitor : boost::dfs_visitor<> {
@@ -1624,6 +1708,9 @@ struct DependencyVisitor : boost::dfs_visitor<> {
             [&](const RaytracePass &pass) {
                 startRaytracePass(graphs, passID, pass);
             },
+            [&](const SceneData &scene) {
+                startScene(graphs, passID, scene);
+            },
             [&](const auto & /*pass*/) {
                 // do nothing
             });
@@ -1648,23 +1735,23 @@ void subresourceAnalysis(ResourceAccessGraph &rag, ResourceGraph &resg) {
     using RecursiveFuncType = std::function<void(const PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string> &, const ccstd::pmr::string &)>;
     RecursiveFuncType addSubres = [&](const PmrFlatMap<ccstd::pmr::string, ccstd::pmr::string> &subreses, const ccstd::pmr::string &resName) {
         if (subreses.size() == 1) {
-            const auto &src = subreses.begin()->second;
+            const auto &src = subreses.begin()->first;
             rag.resourceIndex[src] = rag.resourceIndex.at(resName);
 
             if (rag.movedTarget.find(src) != rag.movedTarget.end()) {
                 addSubres(rag.movedTarget.at(src), src);
             }
         } else {
-            for (const auto &[rangeStr, subres] : subreses) {
+            for (const auto &[subres, rangeStr] : subreses) {
                 auto descResViewID = findVertex(subres, resg);
                 auto targetResID = rag.resourceIndex.at(resName);
 
                 const auto &srcDesc = get(ResourceGraph::DescTag{}, resg, descResViewID);
                 const auto &targetName = get(ResourceGraph::NameTag{}, resg, targetResID);
                 const auto &targetDesc = get(ResourceGraph::DescTag{}, resg, targetResID);
-                const auto &srcResourceRange = rag.movedSourceStatus.at(subres).range;
+                const auto &srcResourceRange = rag.movedSourceStatus.at(subres).status.range;
                 const auto &targetTraits = get(ResourceGraph::TraitsTag{}, resg, targetResID);
-                const auto &indexName = concatResName(targetName, subres, rag.resource());
+                const auto &indexName = concatResName(targetName, rangeStr, rag.resource());
                 auto subresID = findVertex(indexName, resg);
                 if (subresID == ResourceGraph::null_vertex()) {
                     const auto &subView = makeSubresourceView(srcDesc, targetDesc, srcResourceRange);
@@ -1681,6 +1768,7 @@ void subresourceAnalysis(ResourceAccessGraph &rag, ResourceGraph &resg) {
                         targetResID);
                 }
                 rag.resourceIndex[subres] = subresID;
+                rag.resourceIndex[indexName] = subresID;
 
                 if (rag.movedTarget.find(subres) != rag.movedTarget.end()) {
                     addSubres(rag.movedTarget.at(subres), subres);
@@ -1875,6 +1963,13 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         return gfxBarrier;
     };
 
+    struct AccessWeight{
+        ccstd::pmr::string name;
+        gfx::AccessFlags access{gfx::AccessFlags::NONE};
+        ResourceAccessGraph::vertex_descriptor vertID{0};
+    };
+    ccstd::unordered_map<ResourceGraph::vertex_descriptor, ccstd::unordered_map<gfx::ResourceRange, AccessWeight, gfx::Hasher<gfx::ResourceRange>>> rangeLastAccess;
+
     // found pass id in this map ? barriers you should commit when run into this pass
     // : or no extra barrier needed.
     for (auto &accessPair : rag.resourceAccess) {
@@ -1889,11 +1984,43 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
         auto iter = accessRecord.begin();
         auto nextIter = iter;
         std::advance(nextIter, 1);
+
+        auto sRange = iter->second.range;
+        if (rag.movedSourceStatus.find(resName) != rag.movedSourceStatus.end()) {
+            // resource id
+            realResourceID = rag.resourceIndex.at(resName);
+            const auto &tName = get(ResourceGraph::NameTag{}, resourceGraph, realResourceID);
+            // parent id
+            realResourceID = realID(tName, resourceGraph);
+            sRange = rag.movedSourceStatus.at(resName).status.range;
+        }
+
         for (; nextIter != accessRecord.end(); ++iter, ++nextIter) {
             auto srcRagVertID = iter->first;
             auto dstRagVertID = nextIter->first;
             auto srcPassID = get(ResourceAccessGraph::PassIDTag{}, rag, srcRagVertID);
             auto dstPassID = get(ResourceAccessGraph::PassIDTag{}, rag, dstRagVertID);
+
+            std::function<bool(ccstd::pmr::string, ResourceAccessGraph::vertex_descriptor, ResourceAccessGraph::vertex_descriptor)> interAccessCheck =
+                [&](const ccstd::pmr::string &sName, ResourceAccessGraph::vertex_descriptor startVert, ResourceAccessGraph::vertex_descriptor endVert) {
+                bool interAccessed = false;
+                if (rag.movedTarget.find(sName) != rag.movedTarget.end()) {
+                    for (const auto &[src, ignored] : rag.movedTarget.at(sName)) {
+                        const auto srcStart = rag.resourceAccess.at(src).begin()->first;
+                        const auto srcEnd = rag.resourceAccess.at(src).rbegin()->first;
+                        interAccessed |= !((srcStart >= endVert) || (srcEnd <= startVert));
+                        interAccessed |= interAccessCheck(src, startVert, endVert);
+                        if (interAccessed) {
+                            return true;
+                        }
+                    }
+                }
+                return interAccessed;
+            };
+
+            if (interAccessCheck(resName, srcRagVertID, dstRagVertID)) {
+                continue;
+            }
 
             if (holds<RasterPassTag>(dstPassID, renderGraph) || holds<RasterSubpassTag>(dstPassID, renderGraph)) {
                 const auto &fgRenderPassInfo = get(ResourceAccessGraph::RenderPassInfoTag{}, rag, dstRagVertID);
@@ -1905,7 +2032,8 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
             }
 
             // subpass layout transition
-            if ((srcRagVertID != 0) && (holds<RasterPassTag>(srcPassID, renderGraph) || holds<RasterSubpassTag>(srcPassID, renderGraph))) {
+            bool dstRenderPass = (srcRagVertID != 0) && (holds<RasterPassTag>(srcPassID, renderGraph) || holds<RasterSubpassTag>(srcPassID, renderGraph));
+            if (dstRenderPass && !isBuffer) {
                 auto ragVertID = srcRagVertID;
                 if (holds<RasterSubpassTag>(srcPassID, renderGraph)) {
                     auto parentID = parent(srcPassID, renderGraph);
@@ -1938,10 +2066,6 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 continue;
             }
 
-            if (rag.movedSourceStatus.find(resName) != rag.movedSourceStatus.end()) {
-                realResourceID = rag.resourceIndex.at(resName);
-            }
-
             // undefined access
             if (srcRagVertID == 0) {
                 auto &dstBarrierNode = get(ResourceAccessGraph::BarrierTag{}, rag, dstRagVertID);
@@ -1950,8 +2074,8 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 firstMeetBarrier.type = gfx::BarrierType::FULL;
                 firstMeetBarrier.beginVert = dstPassID;
                 firstMeetBarrier.endVert = dstPassID;
-                firstMeetBarrier.beginStatus = iter->second;
-                firstMeetBarrier.endStatus = nextIter->second;
+                firstMeetBarrier.beginStatus = {iter->second.accessFlag, sRange};
+                firstMeetBarrier.endStatus = {nextIter->second.accessFlag, sRange};
                 firstMeetBarrier.barrier = getGFXBarrier(firstMeetBarrier);
             } else if (accessDependent(iter->second.accessFlag, nextIter->second.accessFlag, isBuffer)) {
                 auto &srcBarrierNode = get(ResourceAccessGraph::BarrierTag{}, rag, srcRagVertID);
@@ -1959,8 +2083,8 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                 beginBarrier.resourceID = realResourceID;
                 beginBarrier.beginVert = srcPassID;
                 beginBarrier.endVert = dstPassID;
-                beginBarrier.beginStatus = iter->second;
-                beginBarrier.endStatus = nextIter->second;
+                beginBarrier.beginStatus = {iter->second.accessFlag, sRange};
+                beginBarrier.endStatus = {nextIter->second.accessFlag, sRange};
                 if (isPassExecAdjecent(iter->first, nextIter->first)) {
                     beginBarrier.type = gfx::BarrierType::FULL;
                 } else {
@@ -1972,16 +2096,38 @@ void buildBarriers(FrameGraphDispatcher &fgDispatcher) {
                     endBarrier.type = gfx::BarrierType::SPLIT_END;
                     endBarrier.beginVert = srcPassID;
                     endBarrier.endVert = dstPassID;
-                    endBarrier.beginStatus = iter->second;
-                    endBarrier.endStatus = nextIter->second;
+                    endBarrier.beginStatus = {iter->second.accessFlag, sRange};
+                    endBarrier.endStatus = {nextIter->second.accessFlag, sRange};
                     endBarrier.barrier = getGFXBarrier(endBarrier);
                 }
                 beginBarrier.barrier = getGFXBarrier(beginBarrier);
             }
         }
+
+        // - final access check: what if moved but no later access in this frame, while subresource access of parent resource varies?
+        // - : if there is a hint, submit a transition from last layout/access to suggested, otherwise trasition to all-stage-read access.
+        if (rag.movedSourceStatus.find(resName) != rag.movedSourceStatus.end() && rag.movedSourceStatus.at(resName).finalAccess) {
+            auto possibleNextAccess = rag.movedSourceStatus.at(resName).status.accessFlag;
+            if (accessDependent(iter->second.accessFlag, possibleNextAccess, isBuffer)) {
+                auto &srcBarrierNode = get(ResourceAccessGraph::BarrierTag{}, rag, iter->first);
+                auto &predictBarrier = srcBarrierNode.rearBarriers.emplace_back();
+                auto srcPassID = get(ResourceAccessGraph::PassIDTag{}, rag, iter->first);
+                predictBarrier.type = gfx::BarrierType::FULL;
+                predictBarrier.resourceID = realResourceID;
+                predictBarrier.beginVert = srcPassID;
+                predictBarrier.endVert = srcPassID;
+                predictBarrier.beginStatus = {iter->second.accessFlag, sRange};
+                predictBarrier.endStatus = {rag.movedSourceStatus.at(resName).status.accessFlag, sRange};
+                predictBarrier.barrier = getGFXBarrier(predictBarrier);
+            }
+        }
+
+        // external res
         const auto &traits = get(ResourceGraph::TraitsTag{}, resourceGraph, realResourceID);
         auto &states = get(ResourceGraph::StatesTag{}, resourceGraph, realResourceID);
-        if (traits.hasSideEffects()) {
+        // whole access or last subres access
+        bool lastAccess = (realResourceID == resID) || rag.movedSourceStatus.at(resName).finalAccess;
+        if (traits.hasSideEffects() && lastAccess) {
             states.states = iter->second.accessFlag;
             if (traits.residency == ResourceResidency::BACKBUFFER) {
                 auto lastAccessPassID = get(ResourceAccessGraph::PassIDTag{}, rag, iter->first);

@@ -86,7 +86,7 @@ void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, sc
 
 #if CC_USE_DEBUG_RENDERER
 void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData, const scene::Camera *camera) {
-    if (camera != profilerCamera) {
+    if (camera && camera != profilerCamera) {
         return;
     }
 

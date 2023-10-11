@@ -387,9 +387,11 @@ export class Director extends EventTarget {
             onBeforeLoadScene();
         }
 
-        if (scene.renderScene) {
-            scene.renderScene.activate();
+        if (scene) {
+            scene.renderScene?.activate();
+            scene.globals.activate(scene);
         }
+
         this.emit(Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
 
         // Run an Entity Scene
@@ -535,8 +537,8 @@ export class Director extends EventTarget {
         for (let i = 0; i < renderers.length; i++) {
             const renderer = renderers[i];
             const mesh = renderer.mesh;
-            if (renderer.supportGPUScene()) {
-                meshes.push(mesh!);
+            if (mesh && mesh.supportGPUScene()) {
+                meshes.push(mesh);
             }
         }
 

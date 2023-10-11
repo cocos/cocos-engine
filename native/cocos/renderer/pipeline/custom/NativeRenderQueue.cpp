@@ -178,10 +178,10 @@ void RenderInstancingQueue::recordCommandBuffer(
     }
 }
 
-void RenderBatchingQueue::recordCommandBuffer(
+void GPUDrivenQueue::recordCommandBuffer(
     const ResourceGraph& resg,
     gfx::Device *device, const scene::Camera *camera, 
-    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags, uint32_t cullingID) const {
+    gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, uint32_t phaseLayoutID, SceneFlags sceneFlags, uint32_t cullingID) const {
     if (!any(sceneFlags & SceneFlags::GPU_DRIVEN)) {
         return;
     }
@@ -191,63 +191,72 @@ void RenderBatchingQueue::recordCommandBuffer(
         return;
     }
 
+    const bool bDrawBlend = any(sceneFlags & SceneFlags::TRANSPARENT_OBJECT);
+    const bool bDrawOpaqueOrMask = any(sceneFlags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
+    const bool bDrawShadowCaster = any(sceneFlags & SceneFlags::SHADOW_CASTER);
+    if (!bDrawShadowCaster && !bDrawBlend && !bDrawOpaqueOrMask) {
+        return; // nothing to draw
+    }
+
     CC_EXPECTS(cullingID != 0xFFFFFFFF);
-    ccstd::pmr::string name("CCDrawIndirectBuffer", get_allocator());
-    name.append(std::to_string(cullingID));
-    auto resID = findVertex(name, resg);
-    const auto &indirectBuffer = get(ManagedBufferTag{}, resID, resg).buffer.get();
+    ccstd::pmr::string indirectName("CCDrawIndirectBuffer", get_allocator());
+    indirectName.append(std::to_string(cullingID));
+    auto indirectResID = findVertex(indirectName, resg);
+    const auto &indirectBuffer = get(ManagedBufferTag{}, indirectResID, resg).buffer.get();
 
     // Draw visible instances
-    gfx::BufferBarrierInfo barrierInfo{
-        gfx::AccessFlagBit::COMPUTE_SHADER_WRITE,
-        gfx::AccessFlagBit::INDIRECT_BUFFER,
-        gfx::BarrierType::FULL,
-        0,
-        indirectBuffer->getSize()
-    };
-    auto *bufferBarrier = gfx::Device::getInstance()->getBufferBarrier(barrierInfo);
-    cmdBuffer->pipelineBarrier(nullptr, {bufferBarrier}, {indirectBuffer}, {}, {});
-
     const auto supportFirstInstance = device->getCapabilities().supportFirstInstance;
     auto *batchPool = gpuScene->getBatchPool();
     gfx::PipelineState *lastPSO = nullptr;
     const auto indirectStride = scene::GPUBatchPool::getIndirectStride();
 
-    for (const auto &lightmapIter : batchPool->getBatches()) {
-        const auto *lightmap = lightmapIter.first;
-        // Stanley TODO: bindDescriptorSet for lightmap & sampler here, lightmap can be nullptr.
+    for (const auto &iter : batchPool->getBatches()) {
+        const auto *batch = iter.second;
+        if (batch->empty()) {
+            continue;
+        }
 
-        for (const auto &passIter : lightmapIter.second) {
-            const auto *batch = passIter.second;
-            if (batch->empty()) {
+        const auto *drawPass = batch->getPass();
+        if (phaseLayoutID != drawPass->getPhaseID()) {
+            continue;
+        }
+
+        const bool bBlend = drawPass->isBlend();
+        const bool bOpaqueOrMask = !bBlend;
+        if (!bDrawBlend && bBlend) {
+            // skip transparent object
+            continue;
+        }
+        if (!bDrawOpaqueOrMask && bOpaqueOrMask) {
+            // skip opaque object
+            continue;
+        }
+
+        cmdBuffer->bindDescriptorSet(pipeline::materialSet, drawPass->getDescriptorSet());
+
+        const auto &items = batch->getItems();
+        for (const auto &item : items) {
+            if (!item.count) {
                 continue;
             }
 
-            const auto *drawPass = batch->getPass();
-            cmdBuffer->bindDescriptorSet(pipeline::materialSet, drawPass->getDescriptorSet());
+            auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
+                drawPass, item.shader, item.inputAssembler, renderPass);
 
-            const auto &items = batch->getItems();
-            for (const auto &item : items) {
-                if (!item.count) {
-                    continue;
-                }
+            if (lastPSO != pso) {
+                cmdBuffer->bindPipelineState(pso);
+                lastPSO = pso;
+            }
 
-                auto *pso = pipeline::PipelineStateManager::getOrCreatePipelineState(
-                    drawPass, item.shader, item.inputAssembler, renderPass);
+            cmdBuffer->bindInputAssembler(item.inputAssembler);
+            cmdBuffer->bindDescriptorSet(pipeline::localSet, item.descriptorSet);
 
-                if (lastPSO != pso) {
-                    cmdBuffer->bindPipelineState(pso);
-                    lastPSO = pso;
-                }
-
-                cmdBuffer->bindInputAssembler(item.inputAssembler);
-                if (supportFirstInstance) {
-                    cmdBuffer->drawIndexedIndirect(indirectBuffer, item.first * indirectStride, item.count, indirectStride);
-                } else {
-                    for (auto i = 0; i < item.count; i++) {
-                        // Stanley TODO: bindDescriptorSet for cc_drawInstances with dynamicOffsets here.
-                        cmdBuffer->drawIndexedIndirect(indirectBuffer, (item.first + i) * indirectStride, 1, indirectStride);
-                    }
+            if (supportFirstInstance) {
+                cmdBuffer->drawIndexedIndirect(indirectBuffer, item.first * indirectStride, item.count, indirectStride);
+            } else {
+                for (auto i = 0; i < item.count; i++) {
+                    // Stanley TODO: bindDescriptorSet for cc_drawInstances with dynamicOffsets here.
+                    cmdBuffer->drawIndexedIndirect(indirectBuffer, (item.first + i) * indirectStride, 1, indirectStride);
                 }
             }
         }

@@ -381,4 +381,22 @@ gfx::Buffer *RenderingSubMesh::allocVertexIdBuffer(gfx::Device *device) {
     return vertexIdBuffer;
 }
 
+void RenderingSubMesh::resetBuffers(const gfx::BufferList &vertexBuffers,
+                                       gfx::Buffer* indexBuffer,
+                                       uint32_t vertexCount,
+                                       uint32_t firstVertex,
+                                       uint32_t indexCount,
+                                       uint32_t firstIndex,
+                                       int32_t vertexOffset) {
+    _vertexBuffers = vertexBuffers;
+    _indexBuffer = indexBuffer;
+    _iaInfo.vertexBuffers = vertexBuffers;
+    _iaInfo.indexBuffer = indexBuffer;
+    _iaInfo.vertexCount = vertexCount;
+    _iaInfo.firstVertex = firstVertex;
+    _iaInfo.indexCount = indexCount;
+    _iaInfo.firstIndex = firstIndex;
+    _iaInfo.vertexOffset = vertexOffset;
+}
+
 } // namespace cc
