@@ -23,8 +23,8 @@
 */
 
 import { assertIsTrue } from '@base/debug/internal';
-import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { CCClass } from '@base/object';
+import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { approx } from '../math';
 import type { CurveBase } from './curve-base';
 

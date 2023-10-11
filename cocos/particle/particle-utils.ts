@@ -23,8 +23,8 @@
 */
 
 import { memop } from '@base/utils';
-import { instantiate } from '../serialization';
 import { CCObject } from '@base/object';
+import { instantiate } from '../serialization';
 import { Director, director } from '../game/director';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';

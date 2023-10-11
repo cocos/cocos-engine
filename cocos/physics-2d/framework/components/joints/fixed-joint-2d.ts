@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Joint2D } from './joint-2d';
 import { CCFloat } from '@base/object';
+import { Joint2D } from './joint-2d';
 import { _decorator } from '../../../../core';
 import { IFixedJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';

@@ -24,8 +24,8 @@
 
 import { ccclass, help, menu, serializable, formerlySerializedAs, type, tooltip } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { Constraint } from './constraint';
 import { CCFloat } from '@base/object';
+import { Constraint } from './constraint';
 import { IVec3Like, Vec3 } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IFixedConstraint } from '../../../spec/i-physics-constraint';

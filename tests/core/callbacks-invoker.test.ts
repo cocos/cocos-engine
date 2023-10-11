@@ -1,8 +1,8 @@
+import { CCObject } from '@base/object';
 import { CallbacksInvoker } from '../../cocos/core/event/callbacks-invoker';
 import { Event } from '../../cocos/input/types';
 import { Node } from '../../cocos/scene-graph/node';
 import { Component } from '../../cocos/scene-graph/component';
-import { CCObject } from '@base/object';
 
 test('test', function () {
     let ci = new CallbacksInvoker();

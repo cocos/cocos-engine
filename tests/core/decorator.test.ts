@@ -1,8 +1,8 @@
 import { js } from '@base/utils';
+import { CCClass, CCBoolean, CCFloat, CCInteger, CCString, PrimitiveType } from '@base/object';
 import { getSerializationMetadata } from '../../cocos/core/data/serialization-metadata';
 import { uniquelyReferenced } from '../../cocos/core/data/decorators/serializable';
 import { visible, editable, tooltip, ccclass, serializable, formerlySerializedAs, readOnly, displayName, group, range, rangeMin, rangeMax, rangeStep, slide, displayOrder, unit, radian, multiline, disallowAnimation, editorOnly, type, float } from '../../cocos/core/data/decorators';
-import { CCClass, CCBoolean, CCFloat, CCInteger, CCString, PrimitiveType } from '@base/object';
 import { property } from '../../cocos/core/data/decorators/property';
 import { LegacyPropertyDecorator } from '../../cocos/core/data/decorators/utils';
 

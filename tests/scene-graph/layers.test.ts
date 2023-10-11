@@ -1,5 +1,5 @@
-import { ccclass, property } from '../../cocos/core/data/class-decorator';
 import { attr } from '@base/object';
+import { ccclass, property } from '../../cocos/core/data/class-decorator';
 import { Layers } from '../../cocos/scene-graph/layers';
 
 @ccclass('LayerFlagUser')

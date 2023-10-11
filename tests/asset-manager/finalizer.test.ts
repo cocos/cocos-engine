@@ -1,9 +1,9 @@
+import { isValid } from '@base/object';
 import { SpriteFrame } from '../../cocos/2d/assets/sprite-frame';
 import { Sprite } from '../../cocos/2d/components/sprite';
 import { assetManager, loader } from '../../cocos/asset/asset-manager';
 import { releaseManager } from '../../cocos/asset/asset-manager/release-manager';
 import { Texture2D } from '../../cocos/asset/assets/texture-2d';
-import { isValid } from '@base/object';
 import { Scene, Node } from '../../cocos/scene-graph';
 
 describe('releaseManager', () => {

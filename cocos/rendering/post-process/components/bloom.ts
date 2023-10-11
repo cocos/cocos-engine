@@ -1,6 +1,6 @@
 import { cclegacy } from '@base/global';
-import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeMin, serializable, slide, tooltip, type, visible } from '../../../core/data/decorators';
 import { CCBoolean, CCFloat, CCInteger } from '@base/object';
+import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, rangeMin, serializable, slide, tooltip, type, visible } from '../../../core/data/decorators';
 import { Root } from '../../../root';
 import { PostProcessSetting } from './post-process-setting';
 

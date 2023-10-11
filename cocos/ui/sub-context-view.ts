@@ -27,6 +27,7 @@ import { EDITOR, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { cclegacy } from '@base/global';
+import { CCObject } from '@base/object';
 import { Component } from '../scene-graph/component';
 import { view } from './view';
 import { Sprite } from '../2d/components/sprite';
@@ -36,7 +37,6 @@ import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../asset/assets/image-asset';
 import { Size } from '../core/math';
 
-import { CCObject } from '@base/object';
 import { NodeEventType } from '../scene-graph/node-event';
 import { Texture2D } from '../asset/assets';
 

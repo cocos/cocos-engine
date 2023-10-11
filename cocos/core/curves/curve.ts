@@ -24,13 +24,13 @@
 
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '@base/debug/internal';
+import { CCClass, editorExtrasTag } from '@base/object';
 import { approx, lerp, pingPong, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
 import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { solveCubic } from './solve-cubic';
 import { EditorExtendable } from '../data/editor-extendable';
-import { CCClass, editorExtrasTag } from '@base/object';
 import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';

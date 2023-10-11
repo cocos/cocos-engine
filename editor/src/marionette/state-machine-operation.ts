@@ -1,8 +1,8 @@
 import { assertIsTrue } from '@base/debug/internal';
+import { editorExtrasTag } from '@base/object';
 import { EmptyStateTransition, State, StateMachine, Transition, isAnimationTransition, EmptyState, SubStateMachine, ProceduralPoseState } from '../../../cocos/animation/marionette/animation-graph';
 import { cloneAnimationGraphEditorExtrasFrom } from '../../../cocos/animation/marionette/animation-graph-editor-extras-clone-helper';
 import { MotionState } from '../../../cocos/animation/marionette/state-machine/motion-state';
-import { editorExtrasTag } from '@base/object';
 import { copyPoseGraphNodes, pastePoseGraphNodes } from '../../exports/new-gen-anim';
 
 function copyTransitionConditions(lhs: Transition, rhs: Transition) {

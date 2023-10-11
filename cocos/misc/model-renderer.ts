@@ -24,10 +24,10 @@
 
 import { ccclass, serializable, tooltip, type, disallowAnimation } from 'cc.decorator';
 import { cclegacy } from '@base/global';
+import { CCBoolean } from '@base/object';
 import { scene } from '../render-scene';
 import { Layers } from '../scene-graph/layers';
 import { Renderer } from './renderer';
-import { CCBoolean } from '@base/object';
 import { _decorator } from '../core';
 import { Model, SubModel } from '../render-scene/scene';
 import { isEnableEffect } from '../rendering/define';

@@ -1,5 +1,5 @@
-import { Texture2D } from '../../../asset/assets';
 import { CCFloat } from '@base/object';
+import { Texture2D } from '../../../asset/assets';
 import { property } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, help, menu, range, serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';

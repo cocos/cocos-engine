@@ -25,10 +25,10 @@
 
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
+import { CCBoolean, CCFloat, CCInteger } from '@base/object';
 import { Light } from './light-component';
 import { scene } from '../../render-scene';
 import { clamp, _decorator, settings, Settings } from '../../core';
-import { CCBoolean, CCFloat, CCInteger } from '@base/object';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
 import { MeshRenderer } from '../framework/mesh-renderer';

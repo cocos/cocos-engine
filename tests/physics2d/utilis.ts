@@ -1,5 +1,5 @@
-import { Vec2, IVec2Like } from '../../cocos/core';
 import { isValid } from '@base/object';
+import { Vec2, IVec2Like } from '../../cocos/core';
 import * as physics2d from '../../exports/physics-2d-framework';
 
 /**
