@@ -432,8 +432,12 @@ export class Pass {
         const binding = Pass.getBindingFromHandle(handle);
         const info = this._properties[name];
         const value = info && info.value;
-        // eslint-disable-next-line max-len
-        const textureBase = typeof value === 'string' ? builtinResMgr.get<TextureBase>(value ? `${value}${getStringFromType(type)}` : getDefaultFromType(type) as string) : value as TextureBase;
+        let textureBase: TextureBase;
+        if (typeof value === 'string') {
+            textureBase = builtinResMgr.get<TextureBase>(`${value}${getStringFromType(type)}`);
+        } else {
+            textureBase = value as TextureBase || builtinResMgr.get<TextureBase>(getDefaultFromType(type) as string);
+        }
         const texture = textureBase && textureBase.getGFXTexture()!;
         const samplerInfo = info && info.samplerHash !== undefined
             ? Sampler.unpackFromHash(info.samplerHash) : textureBase && textureBase.getSamplerInfo();
