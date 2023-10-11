@@ -31,6 +31,7 @@ import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
 import { isPlainEmptyObj } from '@base/utils/internal';
+import { callInNextTick as _callInNextTick } from './internal';
 import { toRadian, toDegree, clamp } from '../math';
 import values from '../../../external/compression/base64-values';
 
@@ -100,13 +101,14 @@ export function isDomNode (node): boolean {
  * @param callback @en The function to be invoked next frame. @zh 下一帧要执行的函数。
  * @param p1 @en The first parameter passed to `callback`. @zh 传给回调函数的第一个参数。
  * @param p2 @en The seconde parameter passed to `callback`. @zh 传给回调函数的第二个参数。
+ *
+ * @deprecated since v3.9.0, please use `component.scheduleOnce(callback)` instead.
  */
-export function callInNextTick (callback, p1?: any, p2?: any): void {
-    if (callback) {
-        setTimeoutRAF((): void => {
-            callback(p1, p2);
-        }, 0);
+export function callInNextTick (callback: AnyFunction, p1?: unknown, p2?: unknown): void {
+    if (DEBUG) {
+        warnID(16001, 'misc.callInNextTick', '3.9.0', 'component.scheduleOnce');
     }
+    _callInNextTick(callback, p1, p2);
 }
 
 // use anonymous function here to ensure it will not being hoisted without EDITOR

@@ -1,3 +1,5 @@
+import { setTimeoutRAF } from "@pal/utils";
+
 /**
  * @zh
  * 重命名对象[自身的、可枚举的](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/propertyIsEnumerable)指定属性，并且保持原本的属性顺序。
@@ -208,3 +210,15 @@ type ExcludeConstructor<T> = T;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type CreateInstanceofProxySignature = <TConstructor extends Function> (constructor: TConstructor) => ExcludeConstructor<TConstructor>;
+
+/**
+ * Invoke a function in next frame.
+ * @param callback The function to be invoked next frame.
+ * @param p1 The first parameter passed to `callback`.
+ * @param p2 The seconde parameter passed to `callback`.
+ */
+export function callInNextTick (callback: AnyFunction, p1?: unknown, p2?: unknown): void {
+    setTimeoutRAF(() => {
+        callback(p1, p2);
+    }, 0);
+}

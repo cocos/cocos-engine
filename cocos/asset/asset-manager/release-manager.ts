@@ -24,6 +24,7 @@
 
 import { EDITOR, TEST } from 'internal:constants';
 import { js } from '@base/utils';
+import { callInNextTick } from '../../core/utils/internal';
 import { Asset } from '../assets/asset';
 import { isValid, misc } from '../../core';
 import { Node, Scene } from '../../scene-graph';
@@ -217,7 +218,7 @@ class ReleaseManager {
         if (TEST) return;
         if (!this._eventListener) {
             this._eventListener = true;
-            misc.callInNextTick(this._freeAssets.bind(this));
+            callInNextTick(this._freeAssets.bind(this));
         }
     }
 
