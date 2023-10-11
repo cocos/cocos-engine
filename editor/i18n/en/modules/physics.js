@@ -8,7 +8,7 @@ module.exports = {
                     'friction': {
                         displayName: 'Friction',
                         tooltip:
-                            'Friction coefficient. Higher the value, harder to get the object move and faster the move speed decreases. ' +
+                            'Friction coefficient. As the value increases, it becomes more difficult to move the object and the speed of movement decreases more quickly. ' +
                             'A friction of 0 feels like ice.',
                     },
                     'rollingFriction': {
