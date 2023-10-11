@@ -29,6 +29,7 @@ import type { EffectAsset as JsbEffectAsset } from './effect-asset';
 import type { BlendState, DepthStencilState, RasterizerState, DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format} from "../../gfx/index.jsb";
 import type { RenderPassStage } from '../../rendering/define';
 import type { MacroRecord } from '../../render-scene/core/pass-utils';
+import { TextureBase } from './texture-base';
 
 declare const jsb: any;
 
@@ -50,7 +51,7 @@ export declare namespace EffectAsset {
         type: number; // auto-extracted from shader
         handleInfo?: [string, number, number]; // auto-generated from 'target'
         samplerHash?: number; // auto-generated from 'sampler'
-        value?: number[] | string; // default value
+        value?: number[] | string | TextureBase; // default value
         linear?: boolean; // whether to convert the input to linear space first before applying
     }
     // Pass instance itself are compliant to IPassStates too
