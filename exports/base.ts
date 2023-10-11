@@ -37,7 +37,6 @@ export * from '@base/utils';
 export { cclegacy, VERSION } from '@base/global';
 export { debug, log, error, warn, assert, logID, errorID, warnID, assertID, isDisplayStats, setDisplayStats, getError, DebugMode } from '@base/debug';
 export { BitMask, Enum, ccenum, ValueType } from '@base/object';
-export type { EnumType } from '@base/object';
 
 export * from '../cocos/rendering';
 export * from '../cocos/rendering/custom/builtin-pipelines';

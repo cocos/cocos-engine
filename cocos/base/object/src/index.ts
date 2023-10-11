@@ -27,7 +27,7 @@ import *  as RF from './utils/requiring-frame';
 export { CCObject } from './object';
 export { type EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 export { CCClass, isCCClassOrFastDefined } from './class';
-export { BitMask, Enum, ccenum, ValueType, type EnumType } from './value-types';
+export { BitMask, Enum, ccenum, ValueType } from './value-types';
 export { DELIMETER, createAttrsSingle, createAttrs, attr, getClassAttrs, setClassAttr, PrimitiveType, CCInteger, CCFloat, CCBoolean, CCString } from './utils/attribute';
 export type { IExposedAttributes, IAcceptableAttributes } from './utils/attribute-defines';
 export { getFullFormOfProperty, doValidateMethodWithProps_DEV } from './utils/preprocess-class';

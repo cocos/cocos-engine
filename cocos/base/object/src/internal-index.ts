@@ -25,3 +25,4 @@
 export { setPropertyEnumType } from './utils/attribute-internal';
 export { ENUM_TAG, BITMASK_TAG } from './class';
 export { isCCObject, isValid } from './object';
+export { type EnumType } from './value-types';
