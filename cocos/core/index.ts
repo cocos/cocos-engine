@@ -36,7 +36,7 @@ cclegacy.geometry = geometry;
 export { math, memop, geometry };
 
 export * from './math';
-export * from './value-types';
+export { BitMask, Enum, ccenum, ValueType, type EnumType } from '@base/object';
 export * from './utils';
 export * from './data';
 export * from './event';

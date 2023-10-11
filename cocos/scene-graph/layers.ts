@@ -26,7 +26,7 @@ import { cclegacy } from '@base/global';
 import { assertIsTrue } from '@base/debug/internal';
 import { getError, warn } from '@base/debug';
 import { js } from '@base/utils';
-import { BitMask, Enum } from '../core/value-types';
+import { BitMask, Enum } from '@base/object';
 import { log2 } from '../core/math/bits';
 import { Settings, settings } from '../core/settings';
 

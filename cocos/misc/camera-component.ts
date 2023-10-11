@@ -26,10 +26,11 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable, visible, range, rangeMin } from 'cc.decorator';
 import { cclegacy } from '@base/global';
+import { Enum } from '@base/object';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { UITransform } from '../2d/framework';
 import { Component } from '../scene-graph';
-import { Color, Rect, toRadian, Vec3, geometry, Enum } from '../core';
+import { Color, Rect, toRadian, Vec3, geometry } from '../core';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { scene } from '../render-scene';
 import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter, CameraType, TrackingType } from '../render-scene/scene/camera';

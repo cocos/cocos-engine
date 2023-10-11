@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Enum, EnumType } from '../../value-types/enum';
+import { Enum, EnumType } from '../value-types';
 import { getClassAttrs, DELIMETER } from './attribute';
 
 // eslint-disable-next-line @typescript-eslint/ban-types

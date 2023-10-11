@@ -27,9 +27,9 @@ import { Armature, Bone, EventObject, AnimationState } from '@cocos/dragonbones-
 import { errorID, warn, error } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { js, memop } from '@base/utils';
+import { ccenum, Enum, CCObject, setPropertyEnumType } from '@base/object';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Enum, ccenum, EventTarget, _decorator } from '../core';
-import { CCObject, setPropertyEnumType } from '@base/object';
+import { Color, EventTarget, _decorator } from '../core';
 import { BlendFactor } from '../gfx';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';

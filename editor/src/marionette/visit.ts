@@ -1,10 +1,10 @@
 
+import { EditorExtendableObject } from '@base/object';
 import { AnimationClip } from '../../../cocos/animation/animation-clip';
 import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D, AnimationBlendDirect } from '../../../cocos/animation/marionette/motion';
 import { AnimationController } from '../../../cocos/animation/marionette/animation-controller';
 import { StateMachine, SubStateMachine, AnimationGraph, ProceduralPoseState } from '../../../cocos/animation/marionette/animation-graph';
 import { MotionState } from '../../../cocos/animation/marionette/state-machine/motion-state';
-import { EditorExtendableObject } from '@base/object';
 import { PoseGraphNode } from '../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node';
 import { PoseNodeStateMachine } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine';
 import { PoseNodePlayMotion } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/play-motion';

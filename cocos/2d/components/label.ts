@@ -27,9 +27,10 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, mu
 import { BYTEDANCE, EDITOR, JSB } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
 import { ImageAsset, Texture2D } from '../../asset/assets';
-import { ccenum, Color, Vec2 } from '../../core';
+import { Color, Vec2 } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { FontAtlas } from '../assets/bitmap-font';
 import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/label/font-utils';

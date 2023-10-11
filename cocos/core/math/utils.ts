@@ -23,8 +23,8 @@
 */
 
 // Fix Circular dependency
+import { ValueType } from '@base/object';
 import * as bits from './bits';
-import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
 
 const _d2r = Math.PI / 180.0;

@@ -26,7 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { ccclass, editorOnly } from 'cc.decorator';
 import { assertIsTrue } from '@base/debug/internal';
 import { js } from '@base/utils';
-import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
+import { EditorExtendableObject, editorExtrasTag } from '@base/object';
 
 const { getClassName } = js;
 

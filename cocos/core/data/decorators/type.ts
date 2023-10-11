@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from '@base/object';
 import { LegacyPropertyDecorator } from './utils';
 import { property } from './property';
-import { CCString, CCInteger, CCFloat, CCBoolean, PrimitiveType } from '../utils/attribute';
 
 /**
  * @en Declare the property as integer

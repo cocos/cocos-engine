@@ -26,9 +26,10 @@
 import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
+import { Enum } from '@base/object';
 import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
-import { Vec3, screen, Enum, visibleRect } from '../../core';
+import { Vec3, screen, visibleRect } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
 import { NodeEventType } from '../../scene-graph/node-event';

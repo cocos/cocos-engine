@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Enum } from '../../core/value-types';
+import { Enum } from '@base/object';
 /**
  * 键盘的返回键类型。
  * @readonly

@@ -1,8 +1,8 @@
 import { EDITOR } from 'internal:constants';
+import { ccenum } from '@base/object';
 import { ccclass, editable, serializable, type } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseTransformSpaceRequirement } from '../pose-node';
-import { ccenum } from '../../../../core';
 import { TransformHandle } from '../../../core/animation-handle';
 import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
 import { POSE_GRAPH_NODE_MENU_PREFIX_POSE } from './menu-common';

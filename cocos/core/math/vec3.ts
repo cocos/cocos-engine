@@ -25,8 +25,7 @@
 
 import { cclegacy } from '@base/global';
 import { warn } from '@base/debug';
-import { CCClass } from '@base/object';
-import { ValueType } from '../value-types/value-type';
+import { CCClass, ValueType } from '@base/object';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, lerp, random } from './utils';
@@ -389,7 +388,7 @@ export class Vec3 extends ValueType {
      * from normalized `from` to normalized `to`,
      * then scaled by linear interpolation of lengths from `from` to `to`.
      */
-    public static slerp= ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
+    public static slerp = ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
         const cacheV1 = new Vec3();
         const cacheV2 = new Vec3();
         const cacheV3 = new Vec3();

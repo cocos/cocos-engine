@@ -21,8 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { Vec3, Enum } from '../../core';
 import { cclegacy } from '@base/global';
+import { Enum } from '@base/object';
+import { Vec3 } from '../../core';
 import type { LODData as JsbLODData, LODGroup as JsbLODGroup } from './lod-group';
 
 export const LODData: typeof JsbLODData = jsb.LODData;

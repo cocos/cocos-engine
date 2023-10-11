@@ -1,4 +1,4 @@
-import { ccenum } from '../../../../core';
+import { ccenum } from '@base/object';
 import { ccclass, editable, range, serializable, type, visible } from '../../../../core/data/decorators';
 import { AuxiliaryCurveHandle } from '../../../core/animation-handle';
 import { Pose } from '../../../core/pose';
