@@ -1,8 +1,8 @@
 import { ccclass } from 'cc.decorator';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
+import { RF } from '@base/object';
 import { float, property } from '../../cocos/core/data/class-decorator';
-import * as requiringFrame from '../../cocos/core/data/utils/requiring-frame';
 import { Component } from '../../cocos/scene-graph/component';
 
 const { getClassName, unregisterClass, getClassId } = js;
@@ -107,7 +107,7 @@ describe('Class id & class name', () => {
         })();
 
         if (withinRequiringFrame) {
-            requiringFrame.push(
+            RF.push(
                 {}, // module
                 FRAME_UUID, // uuid
                 FRAME_NAME, // script
@@ -128,7 +128,7 @@ describe('Class id & class name', () => {
         }
 
         if (withinRequiringFrame) {
-            requiringFrame.pop();
+            RF.pop();
         }
 
         try {

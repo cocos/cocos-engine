@@ -25,7 +25,6 @@
  THE SOFTWARE.
 */
 
-import '../core/data/class';
 import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { errorID } from '@base/debug';
