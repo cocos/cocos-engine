@@ -24,7 +24,7 @@
 
 // @ts-check
 
-import { ccclass, editable, help, menu, serializable, type } from 'cc.decorator';
+import { ccclass, editable, help, menu, range, serializable, type } from 'cc.decorator';
 import { Asset } from '../../../asset/assets/asset';
 import { CCFloat, math } from '../../../core';
 
@@ -61,6 +61,7 @@ export class PhysicsMaterial extends Asset {
      */
     @editable
     @type(CCFloat)
+    @range([0, 1, 0.01])
     get friction (): number {
         return this._friction;
     }
