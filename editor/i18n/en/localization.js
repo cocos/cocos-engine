@@ -384,37 +384,12 @@ module.exports = link(mixin({
         space: 'Space where acceleration calculated',
     },
     label: {
-        string: 'Text of the Label',
-        horizontal_align: 'Horizontal alignment',
         horizontal_align_left: 'Align Left',
         horizontal_align_center: 'Align Horizontal Center',
         horizontal_align_right: 'Align Right',
-        vertical_align: 'Vertical alignment',
         vertical_align_top: 'Align Top',
         vertical_align_center: 'Align Vertical Center',
         vertical_align_bottom: 'Align Bottom',
-        font_size: 'Font size, in points',
-        font_family: 'Font family name',
-        line_height: 'Line height, in points',
-        overflow:
-            'Text layout modes: <br> 1. CLAMP: Text nodes outside the bounding box will be truncated. <br> 2. SHRINK: Automatically shrink text box according to the constraint node. <br> 3. RESIZE: Automatically updates the Node based on heightof the text.',
-        wrap: 'Wrap text?',
-        font: 'What font to use',
-        system_font: 'Whether to use the system default font',
-        cache_mode:
-            'Text cache modes：<br> 1. NONE: No cache，draw once. <br> 2. BITMAP: Text is added as a static image to the dynamic atlas for batch merging, but its content cannot be dynamically modified frequently. <br> 3. CHAR: Split the text into characters and cache the character texture into a character atlas for reuse, which is suitable for text content with repeated character content and frequently updated.',
-        font_bold: 'Font bold',
-        font_italic: 'Font italic',
-        font_underline: 'Font underlined',
-        spacing_x: 'The spacing between text characters, only available in BMFont',
-        underline_height: 'The height of underline',
-        outline_enable: 'Whether outline is enabled',
-        outline_width: 'The width of outline',
-        outline_color: 'The color of outline',
-        shadow_enable: 'Whether shadow is enabled',
-        shadow_color: 'The color of shadow',
-        shadow_offset: 'Offset between font and shadow',
-        shadow_blur: 'A non-negative float specifying the level of shadow blur',
     },
     labelOutline: {
         color: 'Outline color',
@@ -500,8 +475,6 @@ module.exports = link(mixin({
     UIRenderer: {
         srcBlendFactor: 'Source blend factor',
         dstBlendFactor: 'Destination blend factor',
-        customMaterial: 'User specified material',
-        color: 'Render color',
     },
     rotationOvertimeModule: {
         separateAxes: 'Set rotation of X, Y and Z respectively (not supported now)',
@@ -1344,6 +1317,7 @@ module.exports = link(mixin({
 },
 
 require('./modules/rendering'),
+require('./modules/ui.js'),
 require('./animation'),
 
 ));
