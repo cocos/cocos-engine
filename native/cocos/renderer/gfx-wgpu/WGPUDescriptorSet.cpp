@@ -193,7 +193,7 @@ void CCWGPUDescriptorSet::update() {
             auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries.emplace_back();
             bindGroupEntry.binding = binding.binding;
             bindGroupEntry.textureView = static_cast<WGPUTextureView>(ccTexture->getPlaneView(0));
-            dsLayout->updateTextureLayout(i, ccTexture);
+            dsLayout->updateSampledTextureLayout(i, ccTexture);
             _gpuDescriptorObj->gpuDescriptors[i].texture = ccTexture;
 
             auto &sBindGroupEntry = _gpuBindGroupObj->bindGroupEntries.emplace_back();
@@ -204,14 +204,18 @@ void CCWGPUDescriptorSet::update() {
             _gpuDescriptorObj->gpuDescriptors[i].sampler = ccSampler;
         } else if (DescriptorType::STORAGE_IMAGE == bindings[i].descriptorType || DescriptorType::TEXTURE == bindings[i].descriptorType) {
             auto *ccTexture = _textures[resourceIndex].ptr ? static_cast<CCWGPUTexture *>(_textures[resourceIndex].ptr) : CCWGPUTexture::defaultCommonTexture();
-            auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries[resourceIndex];
+            auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries.emplace_back();
             bindGroupEntry.binding = binding.binding;
             bindGroupEntry.textureView = static_cast<WGPUTextureView>(ccTexture->getPlaneView(0));
-            dsLayout->updateTextureLayout(i, ccTexture);
+            if (DescriptorType::STORAGE_IMAGE == bindings[i].descriptorType) {
+                dsLayout->updateStorageTextureLayout(i, ccTexture);
+            } else {
+                dsLayout->updateSampledTextureLayout(i, ccTexture);
+            }
             _gpuDescriptorObj->gpuDescriptors[i].texture = ccTexture;
         } else if (DescriptorType::SAMPLER == bindings[i].descriptorType) {
             auto *ccSampler = _samplers[resourceIndex].ptr ? static_cast<CCWGPUSampler *>(_samplers[resourceIndex].ptr) : CCWGPUSampler::defaultFilterableSampler();
-            auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries[resourceIndex];
+            auto &bindGroupEntry = _gpuBindGroupObj->bindGroupEntries.emplace_back();
             bindGroupEntry.binding = binding.binding;
             bindGroupEntry.sampler = ccSampler->gpuSampler();
             dsLayout->updateSamplerLayout(i, ccSampler);

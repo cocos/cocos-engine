@@ -45,7 +45,8 @@ public:
     inline CCWGPUBindGroupLayoutObject *gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
 
     void updateBufferLayout(uint8_t index, const CCWGPUBuffer *buffer, AccessFlags flags);
-    void updateTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane = 0);
+    void updateSampledTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane = 0);
+    void updateStorageTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane = 0);
     void updateSamplerLayout(uint8_t index, const CCWGPUSampler *sampler);
 
     inline void setBindings(const DescriptorSetLayoutBindingList &list) { _bindings.assign(list.begin(), list.end()); }

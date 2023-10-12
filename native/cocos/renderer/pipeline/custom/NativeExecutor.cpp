@@ -537,10 +537,20 @@ gfx::DescriptorSet* initDescriptorSet(
 
                     auto iter = resourceIndex.find(d.descriptorID);
                     if (iter != resourceIndex.end()) {
+                        gfx::AccessFlags access = gfx::AccessFlagBit::NONE;
+                        if (accessNode != nullptr) {
+                            const auto& resID = iter->second;
+                            // whole access only now.
+                            auto parentID = parent(resID, resg);
+                            parentID = parentID == ResourceGraph::null_vertex() ? resID : parentID;
+                            const auto& resName = get(ResourceGraph::NameTag{}, resg, parentID);
+                            access = accessNode->resourceStatus.at(resName).accessFlag;
+                        }
+
                         // render graph textures
                         auto* texture = resg.getTexture(iter->second);
                         CC_ENSURES(texture);
-                        newSet->bindTexture(bindID, texture);
+                        newSet->bindTexture(bindID, texture, 0, access);
                     }
                     bindID += d.count;
                 }
@@ -940,11 +950,12 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             auto& set = iter->second;
             const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
             auto& node = ctx.context.layoutGraphResources.at(layoutID);
+            const auto& accessNode = ctx.fgd.getAccessNode(vertID);
             auto* perPassSet = initDescriptorSet(
                 ctx.resourceGraph,
                 ctx.device, ctx.cmdBuff,
                 *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node);
+                resourceIndex, set, user, node, &accessNode);
             CC_ENSURES(perPassSet);
             ctx.renderGraphDescriptorSet[vertID] = perPassSet;
         } else if (holds<QueueTag>(vertID, ctx.g)) {
