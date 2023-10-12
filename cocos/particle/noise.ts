@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Vec3 } from '../core/math';
+import { Vec2, Vec3 } from '@base/math';
 
 /**
  * @en Noise generation class.

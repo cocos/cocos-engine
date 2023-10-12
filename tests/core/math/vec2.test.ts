@@ -1,9 +1,5 @@
 import { log } from '../../test.log';
-import { v2, Vec2 } from '../../../cocos/core/math/vec2';
-import { Vec3 } from '../../../cocos/core/math/vec3';
-import { Mat3 } from '../../../cocos/core/math/mat3';
-import { Mat4 } from '../../../cocos/core/math/mat4';
-import { toRadian, toDegree } from '../../../exports/base';
+import { v2, Vec2, Vec3, Mat3, Mat4, toRadian, toDegree } from '@base/math';
 
 describe('Test Vec2', () => {
     test('normalize', () => {

@@ -34,7 +34,7 @@ import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { Texture2D } from '../../asset/assets/texture-2d';
-import { Mat4, Vec2, Vec3 } from '../../core';
+import { Mat4, Vec2, Vec3 } from '@base/math';
 import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy } from '../../gfx';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';

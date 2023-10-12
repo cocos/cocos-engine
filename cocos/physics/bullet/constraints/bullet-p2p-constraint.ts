@@ -25,7 +25,7 @@
 /* eslint-disable new-cap */
 import { BulletConstraint } from './bullet-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
-import { IVec3Like, Vec3 } from '../../../core';
+import { IVec3Like, Vec3 } from '@base/math';
 import { PointToPointConstraint } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_V3_0 } from '../bullet-cache';

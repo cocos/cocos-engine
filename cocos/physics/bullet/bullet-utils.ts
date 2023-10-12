@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, IQuatLike } from '../../core';
+import { IVec3Like, IQuatLike } from '@base/math';
 import { Mesh } from '../../3d';
 import { PrimitiveMode } from '../../gfx';
 import { bt } from './instantiated';

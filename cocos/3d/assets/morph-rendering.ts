@@ -31,7 +31,7 @@ import { Texture2D } from '../../asset/assets/texture-2d';
 import { ImageAsset } from '../../asset/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
 import { Morph, SubMeshMorph } from './morph';
-import { bits, nextPow2 } from '../../core';
+import { bits, nextPow2 } from '@base/math';
 import { IMacroPatch } from '../../render-scene';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 

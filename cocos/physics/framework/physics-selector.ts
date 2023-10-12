@@ -33,7 +33,7 @@ import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, 
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { IBoxCharacterController, ICapsuleCharacterController } from '../spec/i-character-controller';
-import { IVec3Like } from '../../core';
+import { IVec3Like } from '@base/math';
 import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 

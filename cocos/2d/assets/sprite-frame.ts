@@ -31,7 +31,7 @@ import { errorID, warnID } from '@base/debug';
 import { cclegacy, ccwindow } from '@base/global';
 import { js } from '@base/utils';
 import { IMemoryImageSource } from '../../../pal/image/types';
-import { Mat4, Rect, Size, Vec2, Vec3, Vec4 } from '../../core';
+import { Mat4, Rect, Size, Vec2, Vec3, Vec4 } from '@base/math';
 import { Asset } from '../../asset/assets/asset';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { ImageAsset } from '../../asset/assets/image-asset';

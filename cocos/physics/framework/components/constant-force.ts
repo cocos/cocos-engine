@@ -22,21 +22,11 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass,
-    help,
-    executeInEditMode,
-    menu,
-    requireComponent,
-    disallowMultiple,
-    tooltip,
-    displayOrder,
-    serializable,
-} from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, requireComponent, disallowMultiple, tooltip, displayOrder, serializable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Component } from '../../../scene-graph/component';
 import { RigidBody } from './rigid-body';
-import { Vec3 } from '../../../core';
+import { Vec3 } from '@base/math';
 
 /**
  * @en

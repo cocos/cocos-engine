@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
-import b2, { Vec2 } from '@cocos/box2d';
+import b2 from '@cocos/box2d';
+import { Vec2 } from '@cocos/box2d';
 
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
-import { Rect, Vec3 } from '../../../core';
+import { Rect, Vec3 } from '@base/math';
 import { b2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 

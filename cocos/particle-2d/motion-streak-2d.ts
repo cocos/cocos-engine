@@ -28,7 +28,7 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UIRenderer } from '../2d/framework';
 import { Texture2D } from '../asset/assets/texture-2d';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { Vec2 } from '../core';
+import { Vec2 } from '@base/math';
 
 class Point {
     public point = new Vec2();

@@ -30,7 +30,7 @@ import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2, clamp } from '../../core';
+import { Vec2, clamp } from '@base/math';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';

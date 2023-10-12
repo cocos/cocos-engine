@@ -24,7 +24,7 @@
 
 import { ILifecycle } from './i-lifecycle';
 import { IGroupMask } from './i-group-mask';
-import { IVec3Like } from '../../core';
+import { IVec3Like } from '@base/math';
 import { RigidBody } from '../framework/components/rigid-body';
 import { ERigidBodyType } from '../framework';
 

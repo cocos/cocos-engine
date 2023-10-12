@@ -6,7 +6,7 @@ import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from '../../animation-graph-context';
 import { input } from '../decorator/input';
-import { approx, Quat, Vec3 } from '../../../../core';
+import { approx, Quat, Vec3 } from '@base/math';
 import { TransformHandle } from '../../../core/animation-handle';
 import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
 import { POSE_GRAPH_NODE_MENU_PREFIX_POSE } from './menu-common';

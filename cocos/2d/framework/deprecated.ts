@@ -25,7 +25,7 @@
 
 import { cclegacy } from '@base/global';
 import { js, markAsWarning, removeProperty, replaceProperty } from '@base/utils';
-import { Color } from '../../core';
+import { Color } from '@base/math';
 import { UIComponent } from './ui-component';
 import { UITransform } from './ui-transform';
 import { UIRenderer } from './ui-renderer';

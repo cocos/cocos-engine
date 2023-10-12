@@ -24,7 +24,7 @@
 
 import { ILifecycle } from './i-lifecycle';
 import { Constraint, RigidBody, EConstraintMode, EDriverMode } from '../framework';
-import { IVec3Like } from '../../core';
+import { IVec3Like } from '@base/math';
 
 export interface IBaseConstraint extends ILifecycle {
     readonly impl: any;

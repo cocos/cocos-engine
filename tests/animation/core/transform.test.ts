@@ -1,5 +1,5 @@
-import { Transform } from "../../../cocos/animation/core/transform";
-import { Mat4, Quat, toRadian, Vec3 } from "../../../cocos/core";
+import { Transform } from '../../../cocos/animation/core/transform';
+import { Mat4, Quat, toRadian, Vec3 } from '@base/math';
 
 test('Constructor/Well-known transforms', () => {
     const transform = new Transform();

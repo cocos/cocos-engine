@@ -27,7 +27,7 @@ import { ISliderJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { SliderJoint2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
-import { toRadian } from '../../../core';
+import { toRadian } from '@base/math';
 
 export class B2SliderJoint extends B2Joint implements ISliderJoint {
     // limit

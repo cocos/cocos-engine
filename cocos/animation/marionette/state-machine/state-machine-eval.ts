@@ -8,7 +8,7 @@ import { createEval } from '../create-eval';
 import { BindContext, validateVariableExistence, validateVariableType, VariableType } from '../parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { MotionState } from './motion-state';
-import { approx, clamp01 } from '../../../core';
+import { approx, clamp01 } from '@base/math';
 import { AnimationClip } from '../../animation-clip';
 import type { AnimationController } from '../animation-controller';
 import { StateMachineComponent } from './state-machine-component';

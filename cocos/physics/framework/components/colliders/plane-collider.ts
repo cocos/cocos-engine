@@ -24,7 +24,7 @@
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, editable, serializable } from 'cc.decorator';
 import { warnID } from '@base/debug';
-import { Vec3 } from '../../../../core';
+import { Vec3 } from '@base/math';
 import { Collider } from './collider';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
 import { EColliderType, ERigidBodyType } from '../../physics-enum';

@@ -29,7 +29,7 @@ import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { EventTarget } from '@base/event';
-import { Size } from '../../../cocos/core/math';
+import { Size } from '@base/math';
 import { Orientation } from '../enum-type';
 
 interface ICachedStyle {

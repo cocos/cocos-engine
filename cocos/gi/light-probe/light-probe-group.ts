@@ -27,7 +27,7 @@ import { EDITOR } from 'internal:constants';
 import { CCInteger } from '@base/object';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Component } from '../../scene-graph/component';
-import { Vec3 } from '../../core';
+import { Vec3 } from '@base/math';
 import { AutoPlacement, PlaceMethod } from './auto-placement';
 
 /**

@@ -24,7 +24,7 @@
 */
 
 import { BulletShape } from './bullet-shape';
-import { Vec3 } from '../../../core';
+import { Vec3 } from '@base/math';
 import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { absolute, VEC3_0 } from '../../utils/util';

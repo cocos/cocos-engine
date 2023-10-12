@@ -29,7 +29,7 @@ import { assertIsTrue } from '@base/debug/internal';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
-import { Mat4 } from '../../core';
+import { Mat4 } from '@base/math';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../../animation/animation-clip';

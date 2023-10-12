@@ -32,7 +32,7 @@ import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component, Node } from '../scene-graph';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, Vec2, Vec3 } from '../core';
+import { Color, IVec2Like, Mat4, Size, Vec2, Vec3 } from '@base/math';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';

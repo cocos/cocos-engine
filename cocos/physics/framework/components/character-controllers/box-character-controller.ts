@@ -26,7 +26,7 @@ import { ccclass, help, disallowMultiple, executeInEditMode, menu, executionOrde
 import { DEBUG } from 'internal:constants';
 import { error, warn } from '@base/debug';
 import { CCFloat } from '@base/object';
-import { Vec3 } from '../../../../core';
+import { Vec3 } from '@base/math';
 import { Component } from '../../../../scene-graph';
 import { IBoxCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';

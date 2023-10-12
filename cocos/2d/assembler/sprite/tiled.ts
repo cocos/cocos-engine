@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import { error } from '@base/debug';
 import { IUV, SpriteFrame } from '../../assets/sprite-frame';
-import { Mat4, Vec3, Color } from '../../../core';
+import { Mat4, Vec3, Color } from '@base/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components/sprite';

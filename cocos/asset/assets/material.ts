@@ -31,7 +31,7 @@ import { Texture, Type } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { IPassInfoFull, Pass, PassOverrides } from '../../render-scene/core/pass';
 import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-utils';
-import { Color, Vec4 } from '../../core';
+import { Color, Vec4 } from '@base/math';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../misc/renderer';
 import { getPhaseID } from '../../rendering/pass-phase';

@@ -23,7 +23,7 @@
 */
 
 import { IRigidBody } from '../spec/i-rigid-body';
-import { IVec3Like } from '../../core';
+import { IVec3Like } from '@base/math';
 import { RigidBody, PhysicsSystem, ERigidBodyType } from '../framework';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltInWorld } from './builtin-world';

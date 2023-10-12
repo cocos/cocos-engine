@@ -25,7 +25,7 @@
 import { error } from '@base/debug';
 import { MeshRenderer } from '../framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
-import { Mat4 } from '../../core';
+import { Mat4 } from '@base/math';
 import { Node } from '../../scene-graph/node';
 
 function checkMaterialisSame (comp1: MeshRenderer, comp2: MeshRenderer): boolean {

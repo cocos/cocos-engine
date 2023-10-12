@@ -30,7 +30,7 @@ import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
 import { view } from '../../../ui/view';
-import { approx } from '../../../core';
+import { approx } from '@base/math';
 
 const Overflow = Label.Overflow;
 

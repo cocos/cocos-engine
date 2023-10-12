@@ -25,7 +25,8 @@
 import { warn, warnID } from '@base/debug';
 import { ccwindow } from '@base/global';
 import { FontAtlas } from '../../assets/bitmap-font';
-import { Color, macro, ImageData } from '../../../core';
+import { Color } from '@base/math';
+import { macro, ImageData } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';

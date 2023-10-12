@@ -1,8 +1,8 @@
-import { Vec3 } from "../../cocos/core";
-import { physics } from "../../exports/physics-framework";
-import { Node } from "../../cocos/scene-graph";
-import { director } from "../../cocos/game";
-import { PhysicsTestEnv } from "./physics.test";
+import { Vec3 } from '@base/math';
+import { physics } from '../../exports/physics-framework';
+import { Node } from '../../cocos/scene-graph';
+import { director } from '../../cocos/game';
+import { PhysicsTestEnv } from './physics.test';
 
 export default function(env: PhysicsTestEnv) {
     describe(`Stability test`, () => {

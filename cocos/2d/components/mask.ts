@@ -28,7 +28,7 @@ import { JSB } from 'internal:constants';
 import { warnID, error } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
-import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core';
+import { clamp, Color, Mat4, Vec2, Vec3 } from '@base/math';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Stage } from '../renderer/stencil-manager';

@@ -23,7 +23,7 @@
 */
 
 import { error } from '@base/debug';
-import { IVec3Like, Vec3 } from '../../../core';
+import { IVec3Like, Vec3 } from '@base/math';
 import { PhysicsSystem } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';

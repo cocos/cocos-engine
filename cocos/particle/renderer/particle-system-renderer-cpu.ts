@@ -28,7 +28,7 @@ import { memop } from '@base/utils';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx } from '../../core';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx } from '@base/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';

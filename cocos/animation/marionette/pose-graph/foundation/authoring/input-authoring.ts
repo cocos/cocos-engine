@@ -1,6 +1,6 @@
 import { assertIsTrue } from '@base/debug/internal';
 import { js } from '@base/utils';
-import { Quat, Vec3 } from '../../../../../core';
+import { Quat, Vec3 } from '@base/math';
 import { PoseGraphNode } from '../pose-graph-node';
 import { PoseGraphType } from '../type-system';
 import { NodeInputPath } from '../node-shell';

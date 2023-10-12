@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Vec3 } from '../../core';
+import { IVec3Like, Vec3 } from '@base/math';
 import { CharacterController } from './components/character-controllers/character-controller';
 import { Collider } from './components/colliders/collider';
 

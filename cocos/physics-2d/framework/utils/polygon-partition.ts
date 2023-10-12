@@ -23,7 +23,7 @@
 */
 
 import { log } from '@base/debug';
-import { IVec2Like } from '../../../core';
+import { IVec2Like } from '@base/math';
 
 //https://github.com/x6ud/poly-partition-js
 

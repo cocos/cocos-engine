@@ -1,7 +1,7 @@
 import { JSB } from 'internal:constants';
 import { assertIsTrue } from '@base/debug/internal';
 import { ValueType } from '@base/object';
-import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '../../core';
+import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '@base/math';
 import type { IRuntimeFileData } from '../deserialize';
 
 /**

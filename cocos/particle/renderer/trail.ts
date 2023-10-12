@@ -30,7 +30,7 @@ import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { director } from '../../game/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
-import { Color, Mat4, Quat, toRadian, Vec3 } from '../../core';
+import { Color, Mat4, Quat, toRadian, Vec3 } from '@base/math';
 import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';

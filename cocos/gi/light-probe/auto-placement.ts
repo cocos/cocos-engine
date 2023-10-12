@@ -23,7 +23,7 @@
 */
 
 import { Enum } from '@base/object';
-import { Vec3 } from '../../core';
+import { Vec3 } from '@base/math';
 
 export const PlaceMethod = Enum({
     UNIFORM: 0,

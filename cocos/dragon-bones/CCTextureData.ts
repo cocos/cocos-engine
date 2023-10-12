@@ -25,7 +25,8 @@
 import { BaseObject, TextureAtlasData, TextureData } from '@cocos/dragonbones-js';
 import { SpriteFrame } from '../2d';
 import { TextureBase } from '../asset/assets/texture-base';
-import { Rect, _decorator } from '../core';
+import { Rect } from '@base/math';
+import { _decorator } from '../core';
 
 const { ccclass } = _decorator;
 

@@ -26,7 +26,7 @@ import { HandleCallback } from 'pal/input';
 import { EventTarget } from '@base/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation } from '../input-source';
-import { Vec3, Quat } from '../../../cocos/core/math';
+import { Vec3, Quat } from '@base/math';
 
 export class HandleInputDevice {
     public get buttonNorth (): InputSourceButton { return this._buttonNorth; }

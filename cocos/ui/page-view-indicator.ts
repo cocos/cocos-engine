@@ -28,7 +28,7 @@ import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
 import { SpriteFrame } from '../2d/assets';
 import { Component } from '../scene-graph/component';
-import { Color, Size } from '../core/math';
+import { Color, Size } from '@base/math';
 import { Node } from '../scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';

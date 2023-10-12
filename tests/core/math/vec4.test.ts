@@ -1,4 +1,4 @@
-import { Mat4, Quat, Vec4, Vec3, Color} from "../../../cocos/core";
+import { Mat4, Quat, Vec4, Vec3, Color } from '@base/math';
 
 describe('Test Vec4', () => {
     test('clone', () => {

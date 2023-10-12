@@ -25,7 +25,8 @@
 import CANNON from '@cocos/cannon';
 import { error, warnID } from '@base/debug';
 import { js, memop } from '@base/utils';
-import { Vec3, geometry, IVec3Like, IQuatLike } from '../../core';
+import { Vec3, IVec3Like, IQuatLike } from '@base/math';
+import { geometry } from '../../core';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';

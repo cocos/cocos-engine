@@ -23,7 +23,7 @@
 */
 
 import { errorID } from '@base/debug';
-import { Mat4 } from '../../../core';
+import { Mat4 } from '@base/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';

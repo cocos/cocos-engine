@@ -27,7 +27,7 @@ import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.deco
 import { error, warn } from '@base/debug';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../scene-graph/component';
-import { clamp } from '../core';
+import { clamp } from '@base/math';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 import { Node } from '../scene-graph';

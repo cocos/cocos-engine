@@ -1,4 +1,4 @@
-import { Vec4 } from '../../../core';
+import { Vec4 } from '@base/math';
 import { Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom/pipeline';

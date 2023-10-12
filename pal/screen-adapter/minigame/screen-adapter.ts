@@ -29,7 +29,7 @@ import { systemInfo, OS } from '@pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { error, warn, warnID } from '@base/debug';
 import { EventTarget } from '@base/event';
-import { Size } from '../../../cocos/core/math';
+import { Size } from '@base/math';
 import { Orientation } from '../enum-type';
 
 declare const my: any;

@@ -26,7 +26,7 @@ import { ccclass, help, menu, serializable, formerlySerializedAs, type, tooltip 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { CCFloat, CCBoolean } from '@base/object';
 import { Constraint } from './constraint';
-import { Vec3 } from '../../../../core';
+import { Vec3 } from '@base/math';
 import { EConstraintType } from '../../physics-enum';
 import { IHingeConstraint } from '../../../spec/i-physics-constraint';
 

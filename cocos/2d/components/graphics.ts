@@ -30,7 +30,7 @@ import { cclegacy } from '@base/global';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { director } from '../../game/director';
-import { Color } from '../../core';
+import { Color } from '@base/math';
 import { scene } from '../../render-scene';
 import { IAssembler } from '../renderer/base';
 import { IBatcher } from '../renderer/i-batcher';

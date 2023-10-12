@@ -30,7 +30,7 @@ import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../scene-graph/component';
 import { EventHandler as ComponentEventHandler } from '../../scene-graph/component-event-handler';
-import { Size } from '../../core/math';
+import { Size } from '@base/math';
 import { EventTouch } from '../../input/types';
 import { Node } from '../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';

@@ -23,7 +23,8 @@
 */
 
 import { CCFloat, CCInteger } from '@base/object';
-import { _decorator, Vec3, random } from '../../core';
+import { _decorator } from '../../core';
+import { Vec3, random } from '@base/math';
 import { ParticleNoise } from '../noise';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
 

@@ -31,7 +31,7 @@ import { Camera, Model } from '../../render-scene/scene';
 import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
-import { Mat4, approx, EPSILON } from '../../core';
+import { Mat4, approx, EPSILON } from '@base/math';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';

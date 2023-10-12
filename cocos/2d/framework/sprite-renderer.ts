@@ -26,7 +26,7 @@ import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, t
 import { cclegacy } from '@base/global';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
-import { Color, Vec2 } from '../../core';
+import { Color, Vec2 } from '@base/math';
 import { ModelLocalBindings } from '../../rendering/define';
 import { Model } from '../../render-scene/scene';
 import { Root } from '../../root';

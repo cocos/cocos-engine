@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Color, Vec2 } from '../../../../core';
+import { Color, Vec2 } from '@base/math';
 import { Graphics } from '../../../components';
 import { RenderData, MeshRenderData } from '../../../renderer/render-data';
 import { RenderDrawInfoType } from '../../../renderer/render-draw-info';

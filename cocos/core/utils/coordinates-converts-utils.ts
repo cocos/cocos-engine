@@ -25,7 +25,7 @@
 import { cclegacy } from '@base/global';
 import { replaceProperty } from '@base/utils';
 import { Camera } from '../../misc/camera-component';
-import { Vec3 } from '../math';
+import { Vec3 } from '@base/math';
 import { Node } from '../../scene-graph';
 
 const _vec3 = new Vec3();

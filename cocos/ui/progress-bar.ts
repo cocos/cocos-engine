@@ -29,8 +29,7 @@ import { cclegacy } from '@base/global';
 import { Enum } from '@base/object';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework';
-import { Size, Vec2, Vec3 } from '../core/math';
-import { clamp01 } from '../core/math/utils';
+import { Size, Vec2, Vec3, clamp01 } from '@base/math';
 import { Sprite } from '../2d/components/sprite';
 
 /**

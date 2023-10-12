@@ -7,7 +7,7 @@ import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
 import { getRenderArea } from '../../custom/define';
-import { Vec4 } from '../../../core';
+import { Vec4 } from '@base/math';
 
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;

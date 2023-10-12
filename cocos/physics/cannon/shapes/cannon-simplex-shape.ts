@@ -24,7 +24,7 @@
 
 /* eslint-disable func-names */
 import CANNON from '@cocos/cannon';
-import { Vec3, IVec3Like } from '../../../core';
+import { Vec3, IVec3Like } from '@base/math';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISimplexShape } from '../../spec/i-physics-shape';

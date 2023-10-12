@@ -28,7 +28,7 @@ import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { BulletCache, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';
-import { absMaxComponent } from '../../../core';
+import { absMaxComponent } from '@base/math';
 
 export class BulletSphereShape extends BulletShape implements ISphereShape {
     updateRadius (): void {

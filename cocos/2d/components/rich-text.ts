@@ -31,7 +31,7 @@ import { js } from '@base/utils';
 import { CCObject } from '@base/object';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { Color, Vec2, Size } from '../../core';
+import { Color, Vec2, Size } from '@base/math';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';

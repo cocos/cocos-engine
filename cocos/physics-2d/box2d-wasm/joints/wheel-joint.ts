@@ -27,7 +27,7 @@ import { IWheelJoint } from '../../spec/i-physics-joint';
 import { WheelJoint2D } from '../../framework';
 import { B2Joint } from './joint-2d';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
-import { toRadian } from '../../../core';
+import { toRadian } from '@base/math';
 
 export class B2WheelJoint extends B2Joint implements IWheelJoint {
     setFrequency (v: number): void {

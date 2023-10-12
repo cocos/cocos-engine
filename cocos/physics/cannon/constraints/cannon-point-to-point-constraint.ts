@@ -25,7 +25,7 @@
 import CANNON from '@cocos/cannon';
 import { CannonConstraint } from './cannon-constraint';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
-import { IVec3Like, Vec3 } from '../../../core';
+import { IVec3Like, Vec3 } from '@base/math';
 import { PointToPointConstraint } from '../../framework';
 import { CannonRigidBody } from '../cannon-rigid-body';
 

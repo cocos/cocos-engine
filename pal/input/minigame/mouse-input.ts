@@ -27,7 +27,7 @@ import { MouseEventData, MouseWheelEventData, minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';
-import { Vec2 } from '../../../cocos/core/math';
+import { Vec2 } from '@base/math';
 import { EventMouse } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 

@@ -23,7 +23,7 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { Vec3, IVec3Like } from '../../../core';
+import { Vec3, IVec3Like } from '@base/math';
 import { CannonShape } from './cannon-shape';
 import { IConeShape } from '../../spec/i-physics-shape';
 import { ConeCollider } from '../../../../exports/physics-framework';

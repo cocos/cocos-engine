@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Rect } from '../../core';
+import { Vec2, Rect } from '@base/math';
 
 /**
  * @en Test line and line

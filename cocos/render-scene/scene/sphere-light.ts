@@ -23,7 +23,8 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Vec3, geometry } from '../../core';
+import { Vec3 } from '@base/math';
+import { geometry } from '../../core';
 import { Light, LightType, nt2lm } from './light';
 
 /**

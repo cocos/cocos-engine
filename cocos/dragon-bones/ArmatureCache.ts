@@ -24,7 +24,7 @@
 
 import { Armature, BlendMode, Matrix } from '@cocos/dragonbones-js';
 import { Texture2D } from '../asset/assets';
-import { Color, Mat4 } from '../core';
+import { Color, Mat4 } from '@base/math';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { CCSlot } from './CCSlot';

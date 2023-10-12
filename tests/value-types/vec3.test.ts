@@ -1,6 +1,4 @@
-import { lerp, toRadian } from '../../cocos/core/math/utils';
-import { Vec3 } from '../../cocos/core/math/vec3';
-import { clamp } from '../../cocos/core/math';
+import { lerp, toRadian, Vec3, clamp } from '@base/math';
 
 test('basic test', function () {
     const vec3 = new Vec3(1, 2, 3);

@@ -23,7 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Mat4, Vec3, Vec4 } from '../math';
+import { Mat4, Vec3, Vec4 } from '@base/math';
 import enums from './enums';
 
 const v1 = new Vec3(0, 0, 0);

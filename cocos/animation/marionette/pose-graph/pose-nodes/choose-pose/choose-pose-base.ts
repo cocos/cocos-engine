@@ -4,11 +4,9 @@ import { ccclass, serializable } from '../../../../../core/data/decorators';
 import { blendPoseInto, Pose } from '../../../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../../pose-node';
-import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext,
-    AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator,
-} from '../../../animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator } from '../../../animation-graph-context';
 import { poseGraphNodeHide } from '../../decorator/node';
-import { lerp } from '../../../../../core';
+import { lerp } from '@base/math';
 import { isIgnorableWeight } from '../../utils';
 
 const ZERO_ALTERING_DURATION_THRESHOLD = 1e-5;

@@ -23,7 +23,7 @@
 */
 
 import { BuiltinShape2D } from './shape-2d';
-import { Vec2, Rect } from '../../../core';
+import { Vec2, Rect } from '@base/math';
 import { BoxCollider2D } from '../../framework';
 import Intersection2D from '../intersection-2d';
 

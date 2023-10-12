@@ -31,7 +31,7 @@ import { Event } from '@base/event';
 import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
-import { Size, Vec2, Vec3, approx } from '../core/math';
+import { Size, Vec2, Vec3, approx } from '@base/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
 import { ViewGroup } from './view-group';

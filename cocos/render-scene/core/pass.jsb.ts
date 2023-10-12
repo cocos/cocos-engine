@@ -24,7 +24,7 @@
 import { MacroRecord, MaterialProperty } from './pass-utils';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import type { Pass as JsbPass } from './pass';
-import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core';
+import { Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '@base/math';
 import { error } from '@base/debug';
 import { MathType } from '../../core/math/math-native-ext';
 

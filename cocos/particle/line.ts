@@ -26,7 +26,7 @@ import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, se
 import { cclegacy } from '@base/global';
 import { CCBoolean } from '@base/object';
 import { Material, Texture2D } from '../asset/assets';
-import { Vec3, Vec4, Vec2 } from '../core';
+import { Vec3, Vec4, Vec2 } from '@base/math';
 import { LineModel } from './models/line-model';
 import { builtinResMgr } from '../asset/asset-manager';
 import CurveRange from './animator/curve-range';

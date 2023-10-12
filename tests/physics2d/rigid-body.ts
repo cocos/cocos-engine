@@ -1,7 +1,7 @@
-import { EPSILON, Quat, Vec2, Vec3 } from "../../cocos/core";
-import { director } from "../../cocos/game";
-import { Node } from "../../cocos/scene-graph";
-import * as physics2d from "../../exports/physics-2d-framework";
+import { EPSILON, Quat, Vec2, Vec3 } from '@base/math';
+import { director } from '../../cocos/game';
+import { Node } from '../../cocos/scene-graph';
+import * as physics2d from '../../exports/physics-2d-framework';
 
 /**
  * This function is used to test the api of the RigidBody

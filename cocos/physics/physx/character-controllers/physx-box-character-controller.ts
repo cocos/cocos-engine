@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../../../core';
+import { Vec3 } from '@base/math';
 import { PhysicsSystem } from '../../framework';
 import { BoxCharacterController } from '../../framework/components/character-controllers/box-character-controller';
 import { IBoxCharacterController } from '../../spec/i-character-controller';

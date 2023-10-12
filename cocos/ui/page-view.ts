@@ -30,7 +30,7 @@ import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
 import { EventHandler as ComponentEventHandler, Node } from '../scene-graph';
 import { EventTouch } from '../input/types';
-import { Vec2, Vec3 } from '../core/math';
+import { Vec2, Vec3 } from '@base/math';
 import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
 import { ScrollView, EventType as ScrollEventType } from './scroll-view';

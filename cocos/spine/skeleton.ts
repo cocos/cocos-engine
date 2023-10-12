@@ -30,7 +30,7 @@ import { Enum, ccenum, CCObject, setPropertyEnumType } from '@base/object';
 import { EnumType } from '@base/object/internal';
 import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
-import { Color } from '../core';
+import { Color } from '@base/math';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
@@ -43,7 +43,8 @@ import { AttachUtil } from './attach-util';
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
+import SkeletonCache from './skeleton-cache';
+import { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 
 const spineTag = SPINE_WASM;

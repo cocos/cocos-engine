@@ -1,5 +1,5 @@
-import * as Utils from "../../../cocos/core/math/utils";
-import { Vec3 } from "../../../cocos/core";
+import * as Utils from '../../../cocos/core/math/utils';
+import { Vec3 } from '@base/math';
 
 describe('Test Utils', () => {
     test('equals', () => {

@@ -27,7 +27,7 @@ import { IRelativeJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { RelativeJoint2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
-import { Vec2, toRadian } from '../../../core';
+import { Vec2, toRadian } from '@base/math';
 
 const tempB2Vec2 = { x: 0, y: 0 };//new b2.Vec2();
 

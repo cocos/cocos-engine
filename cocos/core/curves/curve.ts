@@ -25,7 +25,7 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '@base/debug/internal';
 import { CCClass, editorExtrasTag } from '@base/object';
-import { approx, lerp, pingPong, repeat } from '../math';
+import { approx, lerp, pingPong, repeat } from '@base/math';
 import { KeyframeCurve } from './keyframe-curve';
 import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';

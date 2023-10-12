@@ -1,5 +1,6 @@
 
-import { Quat, QuatCurve, QuatInterpolationMode } from '../../cocos/core';
+import { Quat } from '@base/math';
+import { QuatCurve, QuatInterpolationMode } from '../../cocos/core';
 import { EasingMethod } from '../../cocos/core/curves/curve';
 import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
 

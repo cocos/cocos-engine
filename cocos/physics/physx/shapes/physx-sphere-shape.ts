@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { absMaxComponent } from '../../../core';
+import { absMaxComponent } from '@base/math';
 import { SphereCollider } from '../../framework';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { PX } from '../physx-adapter';

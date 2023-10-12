@@ -24,7 +24,7 @@
 
 /* eslint-disable @typescript-eslint/no-namespace */
 
-import type { Color, Vec2 } from '../core';
+import type { Color, Vec2 } from '@base/math';
 
 export * from 'internal:native';
 

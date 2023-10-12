@@ -27,7 +27,7 @@ import { ccclass, tooltip, range, slide, type, displayOrder, serializable, edita
 import { cclegacy } from '@base/global';
 import { Enum } from '@base/object';
 import { Component } from '../../scene-graph/component';
-import { Color, Vec3 } from '../../core';
+import { Color, Vec3 } from '@base/math';
 import { scene } from '../../render-scene';
 import { Root } from '../../root';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';

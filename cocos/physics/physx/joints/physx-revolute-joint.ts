@@ -22,12 +22,11 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Mat4, Quat, Vec3 } from '../../../core';
+import { IVec3Like, Mat4, Quat, Vec3, toRadian } from '@base/math';
 import { HingeConstraint, PhysicsSystem } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
-import { toRadian } from '../../../core/math';
 
 const v3_0 = new Vec3();
 const v3_1 = new Vec3();

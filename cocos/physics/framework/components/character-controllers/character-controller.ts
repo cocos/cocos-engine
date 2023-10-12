@@ -27,7 +27,7 @@ import { DEBUG } from 'internal:constants';
 import { warn } from '@base/debug';
 import { CCFloat } from '@base/object';
 import { Eventify } from '@base/event';
-import { Vec3 } from '../../../../core';
+import { Vec3 } from '@base/math';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';

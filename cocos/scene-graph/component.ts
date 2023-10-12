@@ -31,7 +31,7 @@ import { js } from '@base/utils';
 import { CCObject, RF } from '@base/object';
 import { Script } from '../asset/assets/scripts';
 import { RenderScene } from '../render-scene/core/render-scene';
-import { Rect } from '../core/math';
+import { Rect } from '@base/math';
 import { Node } from './node';
 import { CompPrefabInfo } from './prefab/prefab-info';
 import { EventHandler } from './component-event-handler';

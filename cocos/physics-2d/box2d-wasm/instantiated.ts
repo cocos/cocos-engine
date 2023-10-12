@@ -29,7 +29,8 @@ import { wasmFactory, box2dWasmUrl } from './box2d.wasmjs';
 import { asmFactory } from './box2d.asmjs';
 
 import { game } from '../../game';
-import { sys, IVec2Like } from '../../core';
+import { sys } from '../../core';
+import { IVec2Like } from '@base/math';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 export const B2 = {} as any;

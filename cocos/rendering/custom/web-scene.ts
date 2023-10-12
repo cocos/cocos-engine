@@ -23,7 +23,7 @@
 ****************************************************************************/
 
 import { Frustum, intersect } from '../../core/geometry';
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '@base/math';
 import { RenderScene, scene } from '../../render-scene';
 import { Camera, Model, ShadowType, SKYBOX_FLAG } from '../../render-scene/scene';
 import { IRenderObject, IRenderPass, UBOShadow } from '../define';

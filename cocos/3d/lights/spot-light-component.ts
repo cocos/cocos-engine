@@ -24,7 +24,8 @@
 */
 import { cclegacy } from '@base/global';
 import { CCBoolean, CCFloat } from '@base/object';
-import { toRadian, _decorator } from '../../core';
+import { toRadian } from '@base/math';
+import { _decorator } from '../../core';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
 import { Root } from '../../root';

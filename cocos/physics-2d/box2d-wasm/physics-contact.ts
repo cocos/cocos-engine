@@ -23,7 +23,7 @@
 */
 
 import { B2, addImplPtrReference, getTSObjectFromWASMObjectPtr, removeImplPtrReference } from './instantiated';
-import { Vec2 } from '../../core';
+import { Vec2 } from '@base/math';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
 import { B2Shape2D } from './shapes/shape-2d';

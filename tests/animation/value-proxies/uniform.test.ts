@@ -4,7 +4,8 @@ import { AnimationClip } from '../../../cocos/animation/animation-clip';
 import { AnimationState } from '../../../cocos/animation/animation-state';
 import { Pass } from '../../../cocos/render-scene';
 import { Component, Node } from '../../../cocos/scene-graph';
-import { director, EffectAsset, Material, Vec3 } from '../../../exports/base';
+import { director, EffectAsset, Material } from '../../../exports/base';
+import { Vec3 } from '@base/math';
 import { captureWarnIDs } from '../../utils/log-capture';
 
 describe(`Error sentences`, () => {

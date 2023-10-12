@@ -29,7 +29,7 @@ import { RasterizerState, DepthStencilState, BlendTarget, BlendState } from './p
 import { PolygonMode, ShadeModel, CullMode, ComparisonFunc, StencilOp, BlendFactor, BlendOp, ColorMask, PrimitiveMode, DynamicStateFlagBit } from './define';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { RenderPassStage } from '../../rendering/define';
-import { Color } from '../../core';
+import { Color } from '@base/math';
 
 function isNumber(obj: any) {
     return typeof obj === 'number' && !isNaN(obj);

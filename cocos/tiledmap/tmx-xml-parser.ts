@@ -28,7 +28,7 @@ import codec from '../../external/compression/ZipUtils.js';
 import zlib from '../../external/compression/zlib.min.js';
 import { SAXParser } from '../asset/asset-manager/plist-parser';
 import { GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType, TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo } from './tiled-types';
-import { Color, Size, Vec2 } from '../core';
+import { Color, Size, Vec2 } from '@base/math';
 import { SpriteFrame } from '../2d/assets';
 
 function uint8ArrayToUint32Array (uint8Arr: Uint8Array): null | Uint32Array | number[] {

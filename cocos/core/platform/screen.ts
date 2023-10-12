@@ -28,7 +28,7 @@
 import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
 import { cclegacy } from '@base/global';
 import { error, warn, warnID } from '@base/debug';
-import { Size } from '../math';
+import { Size } from '@base/math';
 import { Settings, settings } from '../settings';
 import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**

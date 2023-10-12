@@ -25,7 +25,7 @@
 import { assertIsTrue } from '@base/debug/internal';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { ccclass, serializable } from '../data/decorators';
-import { approx, IQuatLike, lerp, Quat } from '../math';
+import { approx, IQuatLike, lerp, Quat } from '@base/math';
 import { ExtrapolationMode, RealCurve } from './curve';
 import { QuatCurve, QuatInterpolationMode } from './quat-curve';
 import { RealInterpolationMode } from './real-curve-param';

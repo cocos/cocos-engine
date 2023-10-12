@@ -31,7 +31,7 @@ import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../../2d/renderer/vertex-format';
 import { Skeleton, SpineMaterialType } from '../skeleton';
 import { BlendFactor } from '../../gfx';
-import { Color, Vec3 } from '../../core';
+import { Color, Vec3 } from '@base/math';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';

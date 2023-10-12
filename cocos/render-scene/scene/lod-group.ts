@@ -23,7 +23,7 @@
 */
 import { assertIsTrue } from '@base/debug/internal';
 import { Model } from './model';
-import { Vec3 } from '../../core';
+import { Vec3 } from '@base/math';
 import { RenderScene } from '..';
 import { Device, deviceManager } from '../../gfx';
 import { Node } from '../../scene-graph';

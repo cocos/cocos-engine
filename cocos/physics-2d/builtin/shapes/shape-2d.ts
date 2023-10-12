@@ -24,7 +24,7 @@
 
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D } from '../../../../exports/physics-2d-framework';
-import { Rect, Vec2 } from '../../../core';
+import { Rect, Vec2 } from '@base/math';
 import { BuiltinPhysicsWorld } from '../builtin-world';
 import { BuiltinContact } from '../builtin-contact';
 

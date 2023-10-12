@@ -2,7 +2,7 @@ import { cclegacy } from '@base/global';
 import { MeshRenderer } from '../../../../../3d';
 import { createMesh } from '../../../../../3d/misc';
 import { Material } from '../../../../../asset/assets';
-import { Color, Vec3 } from '../../../../../core';
+import { Color, Vec3 } from '@base/math';
 import { PrimitiveMode } from '../../../../../gfx';
 import { Node } from '../../../../../scene-graph';
 

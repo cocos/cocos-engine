@@ -33,7 +33,7 @@ import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
-import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
+import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '@base/math';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { Component } from './component';
