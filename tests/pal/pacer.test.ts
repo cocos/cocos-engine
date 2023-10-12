@@ -1,5 +1,5 @@
 
-import { Pacer } from '../../pal/pacer/pacer-web';
+import { Pacer } from '@pal/pacer';
 
 test('pacer', (cb) => {
     const pacer = new Pacer();

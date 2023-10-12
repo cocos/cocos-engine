@@ -39,7 +39,7 @@ jest.mock(
 
 jest.mock(
     '@pal/system-info',
-    () => jest.requireActual('../pal/system-info/web/system-info'),
+    () => jest.requireActual('../pal/system-info/src/web/system-info'),
     { virtual: true, },
 );
 
@@ -99,7 +99,7 @@ jest.mock(
 
 jest.mock(
     '@pal/pacer',
-    () => jest.requireActual('../pal/pacer/pacer-web'),
+    () => jest.requireActual('../pal/pacer/src/pacer-web'),
     { virtual: true, },
 );
 
