@@ -23,8 +23,8 @@
 */
 
 import { HandheldCallback } from 'pal/input';
-import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '@base/event';
+import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { InputSourcePosition, InputSourceOrientation } from '../input-source';
 import { Quat, Vec3 } from '../../../cocos/core/math';
 

@@ -1,4 +1,5 @@
 import { assertIsNonNullable } from '@base/debug/internal';
+import { EventTarget } from '@base/event';
 import { Node } from '../../../cocos/scene-graph';
 import { Motion, MotionEval, MotionPort } from '../../../cocos/animation/marionette/motion';
 import { createEval } from '../../../cocos/animation/marionette/create-eval';
@@ -8,7 +9,6 @@ import type { RuntimeID } from '../../../cocos/animation/marionette/graph-debug'
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, AuxiliaryCurveRegistry } from '../../../cocos/animation/marionette/animation-graph-context';
 import { blendPoseInto, Pose } from '../../../cocos/animation/core/pose';
 import { AnimationController } from '../../../cocos/animation/marionette/animation-controller';
-import { EventTarget } from '@base/event';
 
 class AnimationGraphPartialPreviewer {
     constructor(root: Node) {

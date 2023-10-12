@@ -25,8 +25,8 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { Enum } from '@base/object';
-import { System, Vec2, IVec2Like, Rect, Settings, settings } from '../../core';
 import { Eventify } from '@base/event';
+import { System, Vec2, IVec2Like, Rect, Settings, settings } from '../../core';
 import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
 import { DelayEvent } from './physics-internal-types';

@@ -23,8 +23,8 @@
 */
 
 import { HandleCallback } from 'pal/input';
-import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventTarget } from '@base/event';
+import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation } from '../input-source';
 import { Vec3, Quat } from '../../../cocos/core/math';
 

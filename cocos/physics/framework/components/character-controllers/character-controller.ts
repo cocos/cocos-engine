@@ -26,8 +26,8 @@ import { ccclass, disallowMultiple, tooltip, displayOrder, type, serializable } 
 import { DEBUG } from 'internal:constants';
 import { warn } from '@base/debug';
 import { CCFloat } from '@base/object';
-import { Vec3 } from '../../../../core';
 import { Eventify } from '@base/event';
+import { Vec3 } from '../../../../core';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';
