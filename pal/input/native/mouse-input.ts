@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { EventTarget } from '@base/event';
 import { screenAdapter } from 'pal/screen-adapter';
 import { EventMouse } from '../../../cocos/input/types';
-import { EventTarget } from '../../../cocos/core/event';
 import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 

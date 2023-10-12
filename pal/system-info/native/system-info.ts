@@ -24,7 +24,7 @@
 
 import { OPEN_HARMONY } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
-import { EventTarget } from '../../../cocos/core/event';
+import { EventTarget } from '@base/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 type IFeatureMap = {

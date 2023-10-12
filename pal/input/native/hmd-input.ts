@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { EventTarget } from '@base/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventHMD } from '../../../cocos/input/types';
 import { InputSourcePosition, InputSourceOrientation } from '../input-source';
 import { Vec3, Quat } from '../../../cocos/core/math';

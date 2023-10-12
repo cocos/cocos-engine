@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,29 +22,4 @@
  THE SOFTWARE.
 */
 
-// This file only exports functions/classes that are only visible to engine internal.
-
-import * as jsbUtils from './utils/jsb-utils';
-
-export { editable, tooltip, visible, displayName, displayOrder, range, rangeStep, slide, disallowAnimation } from './data/decorators/editable';
-export { override } from './data/decorators/override';
-export { formerlySerializedAs, serializable } from './data/decorators/serializable';
-
-export * from './algorithm/binary-search';
-export { shift } from './algorithm/move';
-
-export { garbageCollectionManager } from './data/garbage-collection';
-export { GCObject } from './data/gc-object';
-
-export type { DeserializationContext } from './data/custom-serializable';
-
-export * from './data/utils/compiler';
-
-export { EasingMethod } from './curves/easing-method';
-
-export { CallbacksInvoker } from '@base/event/internal';
-
-/**
- * @engineInternal
- */
-export  { jsbUtils };
+export { CallbacksInvoker } from './callbacks-invoker';
