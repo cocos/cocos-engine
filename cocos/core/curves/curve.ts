@@ -35,7 +35,9 @@ import { deserializeTag, SerializationContext, SerializationInput, Serialization
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';
 import { getOrCreateSerializationMetadata } from '../data/serialization-metadata';
-import { popCount } from '../math/bits';
+import { bits } from '@base/math';
+
+const { popCount } = bits;
 
 export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode, EasingMethod };
 

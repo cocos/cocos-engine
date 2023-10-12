@@ -24,7 +24,7 @@
 
 import { EventTarget } from '@base/event';
 import { screenAdapter } from 'pal/screen-adapter';
-import { Size, Vec2 } from '../../../cocos/core/math';
+import { Size, Vec2 } from '@base/math';
 import { EventTouch, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
