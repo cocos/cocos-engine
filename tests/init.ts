@@ -32,8 +32,8 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/minigame',
-    () => jest.requireActual('../pal/minigame/non-minigame'),
+    '@pal/minigame',
+    () => jest.requireActual('../pal/minigame/src/non-minigame'),
     { virtual: true, },
 );
 

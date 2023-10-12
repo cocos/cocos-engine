@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { minigame } from 'pal/minigame';
+import { minigame, InnerAudioContext } from '@pal/minigame';
 import { systemInfo } from '@pal/system-info';
 import { TAOBAO, TAOBAO_MINIGAME, HUAWEI, VIVO, OPPO } from 'internal:constants';
 import { EventTarget } from '@base/event';

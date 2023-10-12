@@ -22,13 +22,11 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame, SystemInfo } from 'pal/minigame';
+import type { IMiniGame, SystemInfo, AccelerometerChangeCallback, SafeArea } from './types';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill, versionCompare } from '@pal/utils';
 import { Orientation } from '@pal/screen-adapter';
 
 declare let wx: any;
-// NOTE: getApp is defined on wechat miniprogram platform
-declare const getApp: any;
 
 const minigame: IMiniGame = {} as IMiniGame;
 cloneObject(minigame, wx);
@@ -45,6 +43,7 @@ minigame.wx.onWheel = wx.onWheel?.bind(wx);
 
 // #region SystemInfo
 let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
+
 function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number): void {
     let successfullyTestTimes = 0;
     let intervalTimer: number | null = null;
@@ -63,7 +62,8 @@ function testAndUpdateSystemInfoCache (testAmount: number, testInterval: number)
     intervalTimer = setInterval(testCachedSystemInfo, testInterval);
 }
 testAndUpdateSystemInfoCache(10, 500);
-minigame.onWindowResize?.((): void => {
+
+minigame.onWindowResize?.(() => {
     // update cached system info
     _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
 });
@@ -157,9 +157,11 @@ minigame.getSafeArea = function (): SafeArea {
 };
 // #endregion SafeArea
 
+declare const canvas: any;  // defined in global
+
 // HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
 if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '2.16.0') < 0) {
-    const locCanvas = window.canvas;
+    const locCanvas = canvas;
     if (locCanvas) {
         const webglRC = locCanvas.getContext('webgl');
         const originalUseProgram = webglRC.useProgram.bind(webglRC);
@@ -171,38 +173,7 @@ if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '
     }
 }
 
-// HACK: adapt gl.texSubImage2D: gl.texSubImage2D do not support 2d canvas in wechat miniprogram
-const gl = getApp().GameGlobal.canvas.getContext('webgl');
-const oldTexSubImage2D = gl.texSubImage2D;
-gl.texSubImage2D = function (...args): void {
-    if (args.length === 7) {
-        const canvas = args[6] as HTMLCanvasElement;
-        // NOTE: type property is not web standard
-        if (typeof (canvas as any).type !== 'undefined' && (canvas as any).type === 'canvas') {
-            const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-            const texOffsetX: number = args[2];
-            const texOffsetY: number = args[3];
-            const imgData = ctx.getImageData(texOffsetX, texOffsetY, canvas.width, canvas.height);
-            oldTexSubImage2D.call(
-                gl,
-                args[0],
-                args[1],
-                texOffsetX,
-                texOffsetY,
-                canvas.width,
-                canvas.height,
-                args[4],
-                args[5],
-                new Uint8Array(imgData.data),
-            );
-        } else {
-            oldTexSubImage2D.apply(gl, args);
-        }
-    } else {
-        oldTexSubImage2D.apply(gl, args);
-    }
-};
-
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./wechat_mini_program')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./wechat')>());

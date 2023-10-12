@@ -23,7 +23,7 @@
 */
 
 import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
-import { SystemInfo, IMiniGame } from 'pal/minigame';
+import type { IMiniGame, SystemInfo, AccelerometerChangeCallback, SafeArea } from './types';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { warn } from '@base/debug';
 import { Orientation } from '@pal/screen-adapter';
@@ -152,5 +152,6 @@ minigame.getSafeArea = function (): SafeArea {
 // #endregion SafeArea
 
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./runtime')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./runtime')>());

@@ -24,6 +24,7 @@
 
 import { warn } from '@base/debug';
 import { EDITOR } from 'internal:constants';
+import { InnerAudioContext } from '@pal/minigame';
 
 declare const guard: unique symbol;
 

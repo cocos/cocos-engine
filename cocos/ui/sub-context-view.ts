@@ -24,7 +24,7 @@
 
 import { ccclass, help, menu, executionOrder, requireComponent, tooltip, serializable } from 'cc.decorator';
 import { EDITOR, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
-import { minigame } from 'pal/minigame';
+import { minigame } from '@pal/minigame';
 import { screenAdapter } from '@pal/screen-adapter';
 import { cclegacy } from '@base/global';
 import { CCObject } from '@base/object';

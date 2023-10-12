@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame, SystemInfo } from 'pal/minigame';
+import type { IMiniGame, SystemInfo, AccelerometerChangeCallback, SafeArea } from './types';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { Orientation } from '@pal/screen-adapter';
 
@@ -125,5 +125,6 @@ minigame.getSafeArea = function (): SafeArea {
 // #endregion SafeArea
 
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./bytedance')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./bytedance')>());

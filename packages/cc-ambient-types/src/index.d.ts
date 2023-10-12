@@ -13,7 +13,6 @@
 // pal types
 /// <reference path="./pal/audio.d.ts"/>
 /// <reference path="./pal/input.d.ts"/>
-/// <reference path="./pal/minigame.d.ts"/>
 /// <reference path="./pal/wasm.d.ts"/>
 /// <reference path="./pal/image.d.ts"/>
 

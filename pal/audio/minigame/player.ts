@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { minigame } from 'pal/minigame';
+import { minigame } from '@pal/minigame';
 import { cclegacy } from '@base/global';
 import { AudioLoadOptions, AudioType, AudioState, AudioPCMDataView } from '../type';
 import { AudioPlayerMinigame, OneShotAudioMinigame } from './player-minigame';

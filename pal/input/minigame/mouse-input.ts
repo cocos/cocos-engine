@@ -23,7 +23,7 @@
 */
 
 import { MouseCallback } from 'pal/input';
-import { MouseEventData, MouseWheelEventData, minigame } from 'pal/minigame';
+import { MouseEventData, MouseWheelEventData, minigame } from '@pal/minigame';
 import { screenAdapter } from '@pal/screen-adapter';
 import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';

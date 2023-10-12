@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame, SystemInfo } from 'pal/minigame';
+import type { IMiniGame, SystemInfo, InnerAudioContext, AccelerometerChangeCallback } from './types';
 import { cloneObject, createInnerAudioContextPolyfill, versionCompare, checkPalIntegrity, withImpl } from '@pal/utils';
 import { error, warn } from '@base/debug';
 import { Language } from '@pal/system-info';
@@ -230,5 +230,6 @@ function adapterGL (gl): void {
 minigame.loadSubpackage = my.loadSubPackage.bind(my);
 
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./taobao_minigame')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./taobao_minigame')>());

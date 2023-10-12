@@ -299,7 +299,6 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/web/player.ts",
                 "pal/input": "pal/input/web/index.ts",
                 "pal/wasm": "pal/wasm/wasm-web.ts",
@@ -310,7 +309,6 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.NATIVE",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/native/player.ts",
                 "pal/input": "pal/input/native/index.ts",
                 "pal/wasm": "pal/wasm/wasm-native.ts",
@@ -321,7 +319,6 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
@@ -332,7 +329,6 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/runtime.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",

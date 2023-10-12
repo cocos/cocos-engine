@@ -22,31 +22,30 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame } from 'pal/minigame';
+import type { IMiniGame, AccelerometerChangeCallback, SafeArea } from './types';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { warn } from '@base/debug';
 import { Orientation } from '@pal/screen-adapter';
 
-declare let qg: any;
+declare let swan: any;
 
 const minigame: IMiniGame = {} as IMiniGame;
-cloneObject(minigame, qg);
+cloneObject(minigame, swan);
 
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isDevTool = false;
+minigame.isDevTool = systemInfo.platform === 'devtools';
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 // init landscapeOrientation as LANDSCAPE_RIGHT
-const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-// NOTE: onDeviceOrientationChange is not supported on this platform
-// qg.onDeviceOrientationChange((res) => {
-//     if (res.value === 'landscape') {
-//         landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-//     } else if (res.value === 'landscapeReverse') {
-//         landscapeOrientation = Orientation.LANDSCAPE_LEFT;
-//     }
-// });
+let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+swan.onDeviceOrientationChange((res) => {
+    if (res.value === 'landscape') {
+        landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+    } else if (res.value === 'landscapeReverse') {
+        landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+    }
+});
 Object.defineProperty(minigame, 'orientation', {
     get () {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
@@ -54,32 +53,11 @@ Object.defineProperty(minigame, 'orientation', {
 });
 // #endregion SystemInfo
 
-// #region TouchEvent
-minigame.onTouchStart = function (cb): void {
-    window.canvas.ontouchstart = cb;
-};
-minigame.onTouchMove = function (cb): void {
-    window.canvas.ontouchmove = cb;
-};
-minigame.onTouchEnd = function (cb): void {
-    window.canvas.ontouchend = cb;
-};
-minigame.onTouchCancel = function (cb): void {
-    window.canvas.ontouchcancel = cb;
-};
-// #endregion TouchEvent
-
-// // Keyboard
-// globalAdapter.showKeyboard = function (res) {
-//     res.confirmHold = true;  // HACK: confirmHold not working on Xiaomi platform
-//     qg.showKeyboard(res);
-// };
-
 // #region Accelerometer
 let _customAccelerometerCb: AccelerometerChangeCallback | undefined;
 let _innerAccelerometerCb: AccelerometerChangeCallback | undefined;
 minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
-    // qg.offAccelerometerChange() is not supported.
+    // swan.offAccelerometerChange() is not supported.
     // so we can only register AccelerometerChange callback, but can't unregister.
     if (!_innerAccelerometerCb) {
         _innerAccelerometerCb = (res: any): void => {
@@ -92,9 +70,6 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): voi
                 y = tmp * orientationFactor;
             }
 
-            const standardFactor = -0.1;
-            x *= standardFactor;
-            y *= standardFactor;
             const resClone = {
                 x,
                 y,
@@ -102,38 +77,24 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): voi
             };
             _customAccelerometerCb?.(resClone);
         };
-        qg.onAccelerometerChange(_innerAccelerometerCb);
+        swan.onAccelerometerChange(_innerAccelerometerCb);
+        // onAccelerometerChange would start accelerometer, need to stop it mannually
+        swan.stopAccelerometer({});
     }
     _customAccelerometerCb = cb;
 };
 minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
-    // qg.offAccelerometerChange() is not supported.
+    // swan.offAccelerometerChange() is not supported.
     _customAccelerometerCb = undefined;
 };
 // #endregion Accelerometer
 
-// #region InnerAudioContext
-minigame.createInnerAudioContext = createInnerAudioContextPolyfill(qg, {
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(swan, {
     onPlay: true,
     onPause: true,
     onStop: true,
     onSeek: false,
 });
-const originalCreateInnerAudioContext = minigame.createInnerAudioContext;
-minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audioContext = originalCreateInnerAudioContext.call(minigame);
-    const originalStop = audioContext.stop;
-    Object.defineProperty(audioContext, 'stop', {
-        configurable: true,
-        value (): void {
-            // NOTE: stop won't seek to 0 when audio is paused on Xiaomi platform.
-            audioContext.seek(0);
-            originalStop.call(audioContext);
-        },
-    });
-    return audioContext;
-};
-// #endregion InnerAudioContext
 
 // #region SafeArea
 minigame.getSafeArea = function (): SafeArea {
@@ -151,5 +112,6 @@ minigame.getSafeArea = function (): SafeArea {
 // #endregion SafeArea
 
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./xiaomi')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./baidu')>());
