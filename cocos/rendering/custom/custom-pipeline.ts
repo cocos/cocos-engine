@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
+import { systemInfo } from '@pal/system-info';
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../gfx/base/define';

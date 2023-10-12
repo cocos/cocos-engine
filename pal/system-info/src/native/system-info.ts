@@ -24,12 +24,10 @@
 
 import { OPEN_HARMONY } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
-import { EventTarget } from '../../../cocos/core/event';
-import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+import { EventTarget } from '@base/event';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature, IFeatureMap } from '../enum-type';
 
-type IFeatureMap = {
-    [feature in Feature]: boolean;
-};
+export * from '../enum-type';
 
 // NOTE: these methods are implemented on native.
 declare function __getPlatform(): string;
@@ -196,4 +194,4 @@ class SystemInfo extends EventTarget {
 
 export const systemInfo = new SystemInfo();
 
-checkPalIntegrity<typeof import('pal/system-info')>(withImpl<typeof import('./system-info')>());
+checkPalIntegrity<typeof import('@pal/system-info')>(withImpl<typeof import('./system-info')>());

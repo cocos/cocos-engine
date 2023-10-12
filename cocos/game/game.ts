@@ -24,14 +24,15 @@
 */
 
 import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { systemInfo } from 'pal/system-info';
+import { systemInfo } from '@pal/system-info';
 import { findCanvas, loadJsFile } from '@pal/env';
-import { Pacer } from 'pal/pacer';
+import { Pacer } from '@pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import { assert, DebugMode, warn, _resetDebugSetting, log, error } from '@base/debug';
 import { VERSION, cclegacy } from '@base/global';
+import { EventTarget, AsyncDelegate } from '@base/event';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, screen, Settings, settings, garbageCollectionManager } from '../core';
+import { sys, macro, screen, Settings, settings, garbageCollectionManager } from '../core';
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';

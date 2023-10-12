@@ -23,13 +23,12 @@
 */
 
 import { GamepadCallback } from 'pal/input';
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, Feature } from '@pal/system-info';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
+import { EventTarget } from '@base/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Quat, Vec3 } from '../../../cocos/core/index';
-import { Feature } from '../../system-info/enum-type';
 import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
 import { EventGamepad } from '../../../cocos/input/types';
 

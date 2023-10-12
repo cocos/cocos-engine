@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,6 +22,4 @@
  THE SOFTWARE.
 */
 
-export { EventTarget } from './event-target';
-export { Eventify } from './eventify';
-export { AsyncDelegate } from './async-delegate';
+export { CallbacksInvoker } from './callbacks-invoker';

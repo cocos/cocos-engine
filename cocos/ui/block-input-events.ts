@@ -24,8 +24,8 @@
 */
 
 import { ccclass, help, menu } from 'cc.decorator';
+import { Event } from '@base/event';
 import { Component } from '../scene-graph/component';
-import { Event } from '../input/types';
 import { NodeEventType } from '../scene-graph/node-event';
 
 const BlockEvents = [NodeEventType.TOUCH_START, NodeEventType.TOUCH_END, NodeEventType.TOUCH_MOVE,

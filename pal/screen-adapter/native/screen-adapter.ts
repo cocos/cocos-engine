@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { warn } from '@base/debug';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '@base/event';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 

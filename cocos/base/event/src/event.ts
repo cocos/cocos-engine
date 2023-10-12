@@ -24,7 +24,6 @@
 */
 
 import { cclegacy } from '@base/global';
-import { SystemEventTypeUnion } from '../event-enum';
 
 /**
  * @en
@@ -134,7 +133,7 @@ export class Event {
      * @zh
      * 事件类型。
      */
-    public type: SystemEventTypeUnion;
+    public type: string;
 
     /**
      * @en
@@ -202,7 +201,7 @@ export class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    constructor (type: SystemEventTypeUnion, bubbles?: boolean) {
+    constructor (type: string, bubbles?: boolean) {
         this.type = type;
         this.bubbles = !!bubbles;
     }
@@ -231,7 +230,7 @@ export class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    public reuse (type: SystemEventTypeUnion, bubbles?: boolean): void {
+    public reuse (type: string, bubbles?: boolean): void {
         this.type = type;
         this.bubbles = bubbles || false;
     }

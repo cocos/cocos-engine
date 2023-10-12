@@ -28,6 +28,7 @@ import { cclegacy } from '@base/global';
 import { errorID, warnID, error, log, getError } from '@base/debug';
 import { js } from '@base/utils';
 import { CCObject, editorExtrasTag } from '@base/object';
+import { Event } from '@base/event';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { nodePolyfill } from './node-dev';
@@ -40,7 +41,6 @@ import { property } from '../core/data/decorators/property';
 import type { Scene } from './scene';
 import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
-import { Event } from '../input/types';
 import type { NodeEventProcessor } from './node-event-processor';
 
 const Destroying = CCObject.Flags.Destroying;

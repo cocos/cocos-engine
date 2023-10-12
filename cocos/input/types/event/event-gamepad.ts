@@ -29,7 +29,7 @@
  */
 
 import { GamepadInputDevice as Gamepad } from 'pal/input';
-import { Event } from './event';
+import { Event } from '@base/event';
 
 /**
   * @en

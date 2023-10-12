@@ -23,7 +23,7 @@
 */
 
 import { HandheldInputDevice } from 'pal/input';
-import { Event } from './event';
+import { Event } from '@base/event';
 import { SystemEventTypeUnion } from '../event-enum';
 
 /**

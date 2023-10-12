@@ -38,8 +38,8 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/system-info',
-    () => jest.requireActual('../pal/system-info/web/system-info'),
+    '@pal/system-info',
+    () => jest.requireActual('../pal/system-info/src/web/system-info'),
     { virtual: true, },
 );
 
@@ -86,8 +86,20 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/pacer',
-    () => jest.requireActual('../pal/pacer/pacer-web'),
+    '@base/event',
+    () => jest.requireActual('../cocos/base/event/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/event/internal',
+    () => jest.requireActual('../cocos/base/event/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@pal/pacer',
+    () => jest.requireActual('../pal/pacer/src/pacer-web'),
     { virtual: true, },
 );
 

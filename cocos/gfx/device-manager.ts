@@ -26,11 +26,11 @@
 import { JSB, WEBGPU } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { error, getError } from '@base/debug';
+import { BrowserType } from '@pal/system-info';
 import { sys, screen, Settings, settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
-import { BrowserType } from '../../pal/system-info/enum-type';
 
 /**
  * @en

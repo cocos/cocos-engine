@@ -24,7 +24,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Event } from './event';
+import { Event } from '@base/event';
 import { Vec2 } from '../../../core';
 import { SystemEventTypeUnion } from '../event-enum';
 

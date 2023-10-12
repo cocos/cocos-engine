@@ -23,13 +23,14 @@
 */
 
 import { DEBUG, EDITOR, PREVIEW, TEST } from 'internal:constants';
-import { IFeatureMap } from 'pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { warn } from '@base/debug';
-import { EventTarget } from '../../../cocos/core/event';
-import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+import { EventTarget } from '@base/event';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature, IFeatureMap } from '../enum-type';
 
-class SystemInfo extends EventTarget {
+export * from '../enum-type';
+
+export class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -386,4 +387,4 @@ class SystemInfo extends EventTarget {
 
 export const systemInfo = new SystemInfo();
 
-checkPalIntegrity<typeof import('pal/system-info')>(withImpl<typeof import('./system-info')>());
+checkPalIntegrity<typeof import('@pal/system-info')>(withImpl<typeof import('./system-info')>());

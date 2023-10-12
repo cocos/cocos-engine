@@ -26,8 +26,9 @@
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { error } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { EventTarget } from '@base/event';
 import { Asset } from '../assets/asset';
-import { sys, Settings, settings, path, EventTarget } from '../../core';
+import { sys, Settings, settings, path } from '../../core';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';

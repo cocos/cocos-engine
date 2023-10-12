@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/module-config.schema.json",
+  "name": "@pal/pacer",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "minigame": "./src/pacer-minigame.ts",
+      "native": "./src/pacer-native.ts",
+      "web": "./src/pacer-web.ts"
+    }
+  }
+}

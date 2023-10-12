@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { Event } from '@base/event';
 import { Vec3 } from '../../core/math';
-import { Event } from '../../input/types';
 
 export enum DeviceType {
     Other = 0,

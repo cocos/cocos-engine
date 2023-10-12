@@ -22,16 +22,16 @@
  THE SOFTWARE.
 */
 
+import { minigame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { assertIsTrue } from '@base/debug/internal';
 
-declare const jsb: any;
 export class Pacer {
     private _rafHandle = 0;
     private _onTick: (() => void) | null = null;
+    private _updateCallback: () => void;
     private _targetFrameRate = 60;
     private _isPlaying = false;
-    private _updateCallback: () => void;
     constructor () {
         this._updateCallback = (): void => {
             if (this._isPlaying) {
@@ -51,7 +51,7 @@ export class Pacer {
         if (this._targetFrameRate !== val) {
             assertIsTrue(val > 0);
             this._targetFrameRate = val;
-            jsb.setPreferredFramesPerSecond(this._targetFrameRate);
+            minigame.setPreferredFramesPerSecond(this._targetFrameRate);
             if (this._isPlaying) {
                 this.stop();
                 this.start();
@@ -81,4 +81,4 @@ export class Pacer {
     }
 }
 
-checkPalIntegrity<typeof import('pal/pacer')>(withImpl<typeof import('./pacer-native')>());
+checkPalIntegrity<typeof import('@pal/pacer')>(withImpl<typeof import('./pacer-minigame')>());
