@@ -42,8 +42,6 @@ export * from './data/utils/compiler';
 
 export { EasingMethod } from './curves/easing-method';
 
-export { CallbacksInvoker } from '@base/event/internal';
-
 /**
  * @engineInternal
  */

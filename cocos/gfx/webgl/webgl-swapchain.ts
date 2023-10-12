@@ -311,7 +311,6 @@ export class WebGLSwapchain extends Swapchain {
         WebGLDeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube,
-
             [nullTexRegion],
         );
         this._blitManager = new IWebGLBlitManager();

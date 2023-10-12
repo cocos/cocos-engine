@@ -38,7 +38,6 @@ export { math, memop, geometry };
 export * from './math';
 export * from './utils';
 export * from './data';
-export * from '@base/event';
 export * from './platform';
 export * from './scheduler';
 export * from './curves';

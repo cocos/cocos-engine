@@ -248,7 +248,6 @@ export class WebGL2Swapchain extends Swapchain {
         WebGL2DeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube,
-
             [nullTexRegion],
         );
 

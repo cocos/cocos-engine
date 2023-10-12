@@ -34,6 +34,7 @@ import * as gfx from '../cocos/gfx';
 // LOAD ENGINE CORE
 export * from '../cocos/core';
 export * from '@base/utils';
+export * from '@base/event';
 export { cclegacy, VERSION } from '@base/global';
 export { debug, log, error, warn, assert, logID, errorID, warnID, assertID, isDisplayStats, setDisplayStats, getError, DebugMode } from '@base/debug';
 export { BitMask, Enum, ccenum, ValueType, CCClass, isCCClassOrFastDefined, CCObject, CCInteger, CCFloat, CCBoolean, CCString, editorExtrasTag, setPropertyEnumType, setPropertyEnumTypeOnAttrs, isCCObject, isValid } from '@base/object';
