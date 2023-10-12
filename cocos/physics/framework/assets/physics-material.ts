@@ -24,7 +24,7 @@
 
 // @ts-check
 
-import { ccclass, editable, help, menu, serializable, tooltip, type } from 'cc.decorator';
+import { ccclass, editable, help, menu, range, serializable, type } from 'cc.decorator';
 import { Asset } from '../../../asset/assets/asset';
 import { CCFloat, math } from '../../../core';
 
@@ -61,7 +61,6 @@ export class PhysicsMaterial extends Asset {
      */
     @editable
     @type(CCFloat)
-    @tooltip('i18n:physics3d.material.friction')
     get friction (): number {
         return this._friction;
     }
@@ -81,7 +80,6 @@ export class PhysicsMaterial extends Asset {
      */
     @editable
     @type(CCFloat)
-    @tooltip('i18n:physics3d.material.rollingFriction')
     get rollingFriction (): number {
         return this._rollingFriction;
     }
@@ -101,7 +99,6 @@ export class PhysicsMaterial extends Asset {
      */
     @editable
     @type(CCFloat)
-    @tooltip('i18n:physics3d.material.spinningFriction')
     get spinningFriction (): number {
         return this._spinningFriction;
     }
@@ -121,7 +118,7 @@ export class PhysicsMaterial extends Asset {
      */
     @editable
     @type(CCFloat)
-    @tooltip('i18n:physics3d.material.restitution')
+    @range([0, 1, 0.01])
     get restitution (): number {
         return this._restitution;
     }

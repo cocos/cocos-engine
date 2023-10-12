@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2, addImplPtrReference, addImplPtrReferenceWASM, getImplPtr, removeImplPtrReference, removeImplPtrReferenceWASM } from '../instantiated';
+import { B2, B2ObjectType, addImplPtrReference, addImplPtrReferenceWASM, getImplPtr, removeImplPtrReference, removeImplPtrReferenceWASM } from '../instantiated';
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { B2PhysicsWorld } from '../physics-world';
@@ -105,8 +105,8 @@ export class B2Joint implements IJoint2D {
         def.collideConnected = comp.collideConnected;
 
         this._b2joint = (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.CreateJoint(def);
-        addImplPtrReference(this, getImplPtr(this._b2joint));
-        addImplPtrReferenceWASM(this._b2joint, getImplPtr(this._b2joint));
+        addImplPtrReference(B2ObjectType.Joint, this, getImplPtr(this._b2joint));
+        addImplPtrReferenceWASM(B2ObjectType.Joint, this._b2joint, getImplPtr(this._b2joint));
 
         this._inited = true;
     }
@@ -114,8 +114,8 @@ export class B2Joint implements IJoint2D {
     destroy (): void {
         if (!this._inited) return;
 
-        removeImplPtrReference(getImplPtr(this._b2joint));
-        removeImplPtrReferenceWASM(getImplPtr(this._b2joint));
+        removeImplPtrReference(B2ObjectType.Joint, getImplPtr(this._b2joint));
+        removeImplPtrReferenceWASM(B2ObjectType.Joint, getImplPtr(this._b2joint));
         (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).impl.DestroyJoint(this._b2joint!);
 
         this._b2joint = null;
