@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Event } from './event';
+import { Event } from '../../../core/event';
 import { SystemEventTypeUnion, SystemEventType } from '../event-enum';
 import { KeyCode } from '../key-code';
 
