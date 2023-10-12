@@ -24,7 +24,7 @@
 
 import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill, versionCompare } from '@pal/utils';
-import { Orientation } from '../screen-adapter/enum-type';
+import { Orientation } from '@pal/screen-adapter';
 
 declare let wx: any;
 // NOTE: getApp is defined on wechat miniprogram platform

@@ -24,7 +24,7 @@
 */
 
 import { EDITOR, DEV } from 'internal:constants';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
 import { Vec2, Vec3, approx, EPSILON } from '@base/math';

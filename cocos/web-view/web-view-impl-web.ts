@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { error, warn } from '@base/debug';
 import { ccwindow } from '@base/global';
 import { isDescendantElementOf } from '@pal/utils';

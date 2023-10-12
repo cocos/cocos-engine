@@ -25,7 +25,7 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { MouseCallback } from 'pal/input';
 import { systemInfo, Feature } from '@pal/system-info';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { EventTarget } from '@base/event';
 import { Rect, Vec2 } from '@base/math';
 import { EventMouse } from '../../../cocos/input/types';

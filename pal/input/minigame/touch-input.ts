@@ -24,7 +24,7 @@
 
 import { TouchCallback } from 'pal/input';
 import { minigame } from 'pal/minigame';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';
 import { Size, Vec2 } from '@base/math';

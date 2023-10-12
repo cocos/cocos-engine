@@ -23,7 +23,7 @@
 */
 
 import { EventTarget } from '@base/event';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { Vec2 } from '@base/math';
 import { EventMouse } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';

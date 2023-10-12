@@ -22,37 +22,47 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
-import { minigame } from 'pal/minigame';
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
-import { systemInfo, OS } from '@pal/system-info';
+import { EDITOR } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
-import { error, warn, warnID } from '@base/debug';
+import { warn } from '@base/debug';
 import { EventTarget } from '@base/event';
 import { Size } from '@base/math';
 import { Orientation } from '../enum-type';
 
-declare const my: any;
+export * from '../enum-type';
 
-// HACK: In some platform like CocosPlay or Alipay iOS end
-// the windowSize need to rotate when init screenAdapter if it's landscape
-let rotateLandscape = false;
-try {
-    if (ALIPAY) {
-        if (systemInfo.os === OS.IOS && !minigame.isDevTool) {
-            // TODO: use pal/fs
-            // issue: https://github.com/cocos/cocos-engine/issues/14647
-            const fs = my.getFileSystemManager();
-            const screenOrientation = JSON.parse(fs.readFileSync({
-                filePath: 'game.json',
-                encoding: 'utf8',
-            }).data as string).screenOrientation;
-            rotateLandscape = (screenOrientation === 'landscape');
-        }
-    }
-} catch (e) {
-    error(e);
+export interface SafeAreaEdge {
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
 }
+
+export type ConfigOrientation = 'auto' | 'landscape' | 'portrait';
+
+export interface IScreenOptions {
+    /**
+     * Orientation options from editor builder.
+     */
+    configOrientation: ConfigOrientation;
+    /**
+     * Determine whether the game frame exact fits the screen.
+     * Now it only works on Web platform.
+     */
+    exactFitScreen: boolean,
+    /**
+     * Determine whether use headless renderer, which means do not support some screen operations.
+     */
+    isHeadlessMode: boolean;
+}
+
+// these value is defined in the native layer
+const orientationMap: Record<string, Orientation> = {
+    0: Orientation.PORTRAIT,
+    '-90': Orientation.LANDSCAPE_LEFT,
+    90: Orientation.LANDSCAPE_RIGHT,
+    180: Orientation.PORTRAIT_UPSIDE_DOWN,
+};
 
 class ScreenAdapter extends EventTarget {
     public isFrameRotated = false;
@@ -66,28 +76,21 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get devicePixelRatio (): number {
-        const sysInfo = minigame.getSystemInfoSync();
-        return sysInfo.pixelRatio;
+        return jsb.device.getDevicePixelRatio() || 1;
     }
 
     public get windowSize (): Size {
-        const sysInfo = minigame.getSystemInfoSync();
         const dpr = this.devicePixelRatio;
-        let screenWidth = sysInfo.windowWidth;
-        let screenHeight = sysInfo.windowHeight;
-        if (BYTEDANCE) {
-            screenWidth = sysInfo.screenWidth;
-            screenHeight = sysInfo.screenHeight;
-        }
-        if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
-            const temp = screenWidth;
-            screenWidth = screenHeight;
-            screenHeight = temp;
-        }
-        return new Size(screenWidth * dpr, screenHeight * dpr);
+        // NOTE: fix precision issue on Metal render end.
+        const width: number = jsb.window.innerWidth;
+        const height: number = jsb.window.innerHeight;
+        // NOTE: fix precision issue on Metal render end.
+        const roundWidth = Math.round(width);
+        const roundHeight = Math.round(height);
+        return new Size(roundWidth * dpr, roundHeight * dpr);
     }
     public set windowSize (size: Size) {
-        warnID(1221);
+        warn('Setting window size is not supported yet.');
     }
 
     public get resolution (): Size {
@@ -98,31 +101,28 @@ class ScreenAdapter extends EventTarget {
     public get resolutionScale (): number {
         return this._resolutionScale;
     }
-    public set resolutionScale (value: number) {
-        if (value === this._resolutionScale) {
+    public set resolutionScale (v: number) {
+        if (v === this._resolutionScale) {
             return;
         }
-        this._resolutionScale = value;
+        this._resolutionScale = v;
         this._cbToUpdateFrameBuffer?.();
     }
 
     public get orientation (): Orientation {
-        return minigame.orientation;
+        return orientationMap[jsb.device.getDeviceOrientation()];
     }
     public set orientation (value: Orientation) {
         warn('Setting orientation is not supported yet.');
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
-        const minigameSafeArea = minigame.getSafeArea();
-        const windowSize = this.windowSize;
-        // NOTE: safe area info on vivo platform is in physical pixel.
-        // No need to multiply with DPR.
-        const dpr = VIVO ? 1 : this.devicePixelRatio;
-        let topEdge = minigameSafeArea.top * dpr;
-        let bottomEdge = windowSize.height - minigameSafeArea.bottom * dpr;
-        let leftEdge = minigameSafeArea.left * dpr;
-        let rightEdge = windowSize.width - minigameSafeArea.right * dpr;
+        const nativeSafeArea = jsb.device.getSafeAreaEdge();
+        const dpr = this.devicePixelRatio;
+        let topEdge = nativeSafeArea.x * dpr;
+        let bottomEdge = nativeSafeArea.z * dpr;
+        let leftEdge = nativeSafeArea.y * dpr;
+        let rightEdge = nativeSafeArea.w * dpr;
         const orientation = this.orientation;
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {
@@ -143,7 +143,6 @@ class ScreenAdapter extends EventTarget {
             right: rightEdge,
         };
     }
-
     public get isProportionalToFrame (): boolean {
         return this._isProportionalToFrame;
     }
@@ -155,24 +154,36 @@ class ScreenAdapter extends EventTarget {
 
     constructor () {
         super();
-        minigame.onWindowResize?.(() => {
-            this.emit('window-resize', this.windowSize.width, this.windowSize.height);
-        });
+        this._registerEvent();
     }
 
     public init (options: IScreenOptions, cbToRebuildFrameBuffer: () => void): void {
         this._cbToUpdateFrameBuffer = cbToRebuildFrameBuffer;
-        this._cbToUpdateFrameBuffer();
+        if (!EDITOR) {
+            this._cbToUpdateFrameBuffer();
+        }
     }
 
     public requestFullScreen (): Promise<void> {
-        return Promise.reject(new Error('request fullscreen is not supported on this platform.'));
+        return Promise.reject(new Error('request fullscreen has not been supported yet on this platform.'));
     }
     public exitFullScreen (): Promise<void> {
-        return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
+        return Promise.reject(new Error('exit fullscreen has not been supported yet on this platform.'));
+    }
+
+    private _registerEvent (): void {
+        jsb.onResize = (event: jsb.WindowEvent): void => {
+            if (event.width === 0 || event.height === 0) return;
+            // TODO: remove this function calling
+            window.resize(event.width / this.devicePixelRatio, event.height / this.devicePixelRatio);
+            this.emit('window-resize', event.width, event.height, event.windowId);
+        };
+        jsb.onOrientationChanged = (event): void => {
+            this.emit('orientation-change');
+        };
     }
 }
 
 export const screenAdapter = new ScreenAdapter();
 
-checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());
+checkPalIntegrity<typeof import('@pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

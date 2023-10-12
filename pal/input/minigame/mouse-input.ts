@@ -24,7 +24,7 @@
 
 import { MouseCallback } from 'pal/input';
 import { MouseEventData, MouseWheelEventData, minigame } from 'pal/minigame';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';
 import { Vec2 } from '@base/math';

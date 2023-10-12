@@ -27,7 +27,7 @@ import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW } from 'int
 import { systemInfo } from '@pal/system-info';
 import { findCanvas, loadJsFile } from '@pal/env';
 import { Pacer } from '@pal/pacer';
-import { ConfigOrientation } from 'pal/screen-adapter';
+import { ConfigOrientation } from '@pal/screen-adapter';
 import { assert, DebugMode, warn, _resetDebugSetting, log, error } from '@base/debug';
 import { VERSION, cclegacy } from '@base/global';
 import { EventTarget, AsyncDelegate } from '@base/event';

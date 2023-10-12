@@ -1,4 +1,4 @@
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { Rect, Size, Vec2 } from '@base/math';
 import { screen, sys } from '../../cocos/core';
 import { view, ResolutionPolicy } from '../../cocos/ui/view';

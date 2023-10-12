@@ -25,7 +25,7 @@
 import { IMiniGame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { warn } from '@base/debug';
-import { Orientation } from '../screen-adapter/enum-type';
+import { Orientation } from '@pal/screen-adapter';
 
 declare let qg: any;
 

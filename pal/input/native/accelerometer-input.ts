@@ -23,9 +23,9 @@
 */
 
 import { systemInfo, OS } from '@pal/system-info';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { EventTarget } from '@base/event';
-import { Orientation } from '../../screen-adapter/enum-type';
+import { Orientation } from '@pal/screen-adapter';
 import { Acceleration, EventAcceleration } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 

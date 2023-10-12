@@ -26,7 +26,7 @@ import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { cloneObject, createInnerAudioContextPolyfill, versionCompare, checkPalIntegrity, withImpl } from '@pal/utils';
 import { error, warn } from '@base/debug';
 import { Language } from '@pal/system-info';
-import { Orientation } from '../screen-adapter/enum-type';
+import { Orientation } from '@pal/screen-adapter';
 
 //taobao IDE language   ("Chinese")
 //taobao phone language (Andrond: "cn", iPad: 'zh_CN')

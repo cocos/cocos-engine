@@ -10,7 +10,7 @@ declare module 'pal/minigame' {
         // system
         isDevTool: boolean;
         isLandscape: boolean;
-        orientation: import('../../../../pal/screen-adapter/enum-type').Orientation;
+        orientation: import('@pal/screen-adapter').Orientation;
         getSystemInfoSync(): SystemInfo;
         onShow(callback: () => void): void;
         offShow(callback: () => void): void;

@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { ccwindow } from '@base/global';
 import { isDescendantElementOf } from '@pal/utils';
 import { BrowserType, OS } from '@pal/system-info';
