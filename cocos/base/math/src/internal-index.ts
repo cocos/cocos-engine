@@ -23,3 +23,4 @@
 */
 
 export { packRGBE, linearToSrgb8Bit, srgbToLinear, srgb8BitToLinear } from './color';
+export { MathType } from './math-native-ext';
