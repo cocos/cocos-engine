@@ -25,17 +25,14 @@
 
 import { cclegacy } from '@base/global';
 import { memop } from '@base/utils';
-import * as math from '@base/math';
 import * as geometry from './geometry';
 import './deprecated';
 import './deprecated-3.7.0';
 
-cclegacy.math = math;
 cclegacy.geometry = geometry;
 
-export { math, memop, geometry };
+export { memop, geometry };
 
-export * from '@base/math';
 export * from './utils';
 export * from './data';
 export * from './platform';
