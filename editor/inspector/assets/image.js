@@ -327,26 +327,22 @@ exports.methods = {
         // any -> sprite : texture.wrapMode -> Clamp
         if (['sprite-frame', 'texture'].includes(this.meta.userData.type)) {
             const textureKey = Editor.Utils.UUID.nameToSubId('texture');
-            let wrapModeCache;
-            if (this.meta.subMetas[textureKey]) {
-                const textureUUID = this.meta.subMetas[textureKey].uuid;
-                wrapModeCache = await Editor.Profile.getConfig('inspector', `${textureUUID}.texture.wrapMode`);
-            }
-            if (!wrapModeCache) {
-                // use default wrapMode if not changed
-                const wrapModeName = this.meta.userData.type === 'texture' ? 'Repeat' : 'Clamp';
-                this.metaList.forEach((meta) => {
-                    const data = ModeMap.wrap[wrapModeName];
-                    if (!meta.subMetas[textureKey]) {
-                        meta.subMetas[textureKey] = {
-                            userData: {}
-                        }
-                    }
+            // use default wrapMode if not changed
+            const wrapModeName = this.meta.userData.type === 'texture' ? 'Repeat' : 'Clamp';
+            this.metaList.forEach(async (meta) => {
+                const data = ModeMap.wrap[wrapModeName];
+                if (!meta.subMetas[textureKey]) {
+                    meta.subMetas[textureKey] = {
+                        userData: {},
+                    };
+                }
+                let wrapModeCache = await Editor.Profile.getConfig('inspector', `${meta.uuid}@${textureKey}.texture.wrapMode`, 'default');
+                if (!wrapModeCache) {
                     for (const key of Object.keys(data)) {
                         meta.subMetas[textureKey].userData[key] = data[key];
                     }
-                });
-            }
+                }
+            });
         }
         if (this.originImageType === 'sprite-frame' || this.meta.userData.type === 'sprite-frame') {
             const changeTypes = ['texture', 'normal map', 'texture cube', 'sprite-frame'];
