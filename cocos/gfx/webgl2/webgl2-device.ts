@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { ImageData } from 'pal/image';
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, BrowserType, OS } from '@pal/system-info';
 import { debug, error } from '@base/debug';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
@@ -62,7 +62,6 @@ import { sys } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2BindingMapping, IWebGL2BlitManager } from './webgl2-gpu-objects';
-import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import type { WebGL2StateCache } from './webgl2-state-cache';
 
 export class WebGL2Device extends Device {

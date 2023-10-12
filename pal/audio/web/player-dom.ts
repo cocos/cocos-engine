@@ -22,12 +22,11 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
-import { AudioEvent, AudioState, AudioPCMDataView, AudioType } from '../type';
+import { systemInfo, BrowserType, OS } from '@pal/system-info';
 import { EventTarget } from '@base/event';
+import { AudioEvent, AudioState, AudioPCMDataView, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { BrowserType, OS } from '../../system-info/enum-type';
 import { Game, game } from '../../../cocos/game';
 
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {

@@ -24,11 +24,10 @@
 
 import { KeyboardCallback } from 'pal/input';
 import { KeyboardEventData, minigame } from 'pal/minigame';
-import { systemInfo } from 'pal/system-info';
-import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
+import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';
+import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { Feature } from '../../system-info/enum-type';
 
 const code2KeyCode: Record<string, KeyCode> = {
     Backspace: KeyCode.BACKSPACE,

@@ -301,7 +301,6 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/web/player.ts",
-                "pal/system-info": "pal/system-info/web/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
                 "pal/wasm": "pal/wasm/wasm-web.ts",
@@ -314,7 +313,6 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/native/player.ts",
-                "pal/system-info": "pal/system-info/native/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
                 "pal/wasm": "pal/wasm/wasm-native.ts",
@@ -327,7 +325,6 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
@@ -340,7 +337,6 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/runtime.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system-info": "pal/system-info/minigame/system-info.ts",
                 "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",

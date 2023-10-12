@@ -23,14 +23,13 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, NetworkType, Language, OS, Platform, BrowserType, Feature } from '@pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { warnID, log } from '@base/debug';
 import { Rect } from '../math/rect';
 import { Vec2 } from '../math/vec2';
-import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
 
 // TODO: the type Storage conflicts with the one on OH platform.

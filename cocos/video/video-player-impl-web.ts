@@ -26,13 +26,13 @@ import { screenAdapter } from 'pal/screen-adapter';
 import { warn } from '@base/debug';
 import { ccwindow } from '@base/global';
 import { isDescendantElementOf } from '@pal/utils';
+import { BrowserType, OS } from '@pal/system-info';
 import { mat4, visibleRect } from '../core';
 import { sys, screen } from '../core/platform';
 import { game } from '../game';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
-import { BrowserType, OS } from '../../pal/system-info/enum-type';
 import type { VideoClip } from './assets/video-clip';
 
 const ccdocument = ccwindow.document;

@@ -23,7 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, OS } from '@pal/system-info';
 import { warnID, warn, debug } from '@base/debug';
 import { macro } from '../../core';
 import { WebGL2StateCache } from './webgl2-state-cache';
@@ -31,7 +31,6 @@ import { WebGL2Texture } from './webgl2-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
-import { OS } from '../../../pal/system-info/enum-type';
 import { IWebGL2BlitManager } from './webgl2-gpu-objects';
 
 const eventWebGLContextLost = 'webglcontextlost';
@@ -248,7 +247,9 @@ export class WebGL2Swapchain extends Swapchain {
         nullTexRegion.texSubres.layerCount = 6;
         WebGL2DeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion],
+            this.nullTexCube,
+
+            [nullTexRegion],
         );
 
         this._blitManager = new IWebGL2BlitManager();

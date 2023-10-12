@@ -23,7 +23,7 @@
 */
 
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, OS } from '@pal/system-info';
 import { cclegacy } from '@base/global';
 import { sceneCulling, validPunctualLightsCulling } from './scene-culling';
 import { Asset } from '../asset/assets/asset';
@@ -39,7 +39,6 @@ import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
 import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 import { decideProfilerCamera } from './pipeline-funcs';
-import { OS } from '../../pal/system-info/enum-type';
 import { macro, murmurhash2_32_gc } from '../core';
 import { UBOSkinning } from './define';
 import { PipelineRuntime } from './custom/pipeline';

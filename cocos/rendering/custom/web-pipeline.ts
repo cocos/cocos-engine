@@ -23,7 +23,7 @@
  ****************************************************************************/
 
 /* eslint-disable max-len */
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, OS } from '@pal/system-info';
 import { DEBUG } from 'internal:constants';
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
@@ -41,7 +41,6 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { isEnableEffect, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
-import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
 import { builtinResMgr } from '../../asset/asset-manager';

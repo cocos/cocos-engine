@@ -24,11 +24,12 @@
 
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, TEST, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { minigame } from 'pal/minigame';
-import { IFeatureMap } from 'pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { warn } from '@base/debug';
 import { EventTarget } from '@base/event';
-import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language, Feature, IFeatureMap } from '../enum-type';
+
+export * from '../enum-type';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -259,4 +260,4 @@ class SystemInfo extends EventTarget {
 
 export const systemInfo = new SystemInfo();
 
-checkPalIntegrity<typeof import('pal/system-info')>(withImpl<typeof import('./system-info')>());
+checkPalIntegrity<typeof import('@pal/system-info')>(withImpl<typeof import('./system-info')>());
