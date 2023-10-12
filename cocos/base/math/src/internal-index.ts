@@ -22,4 +22,4 @@
  THE SOFTWARE.
 */
 
-export { packRGBE, linearToSrgb8Bit, srgbToLinear } from './color';
+export { packRGBE, linearToSrgb8Bit, srgbToLinear, srgb8BitToLinear } from './color';
