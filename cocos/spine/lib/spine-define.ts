@@ -590,15 +590,14 @@ function overrideProperty_VertexAttachment (): void {
     overrideDefineArrayProp(prototype, prototype.getBones, 'bones');
     overrideDefineArrayProp(prototype, prototype.getVertices, 'vertices');
     const originComputeWorldVertices = prototype.computeWorldVertices;
+    const vectors = new spine.SPVectorFloat();
     Object.defineProperty(prototype, 'computeWorldVertices', {
         value (slot: spine.Slot, start: number, count: number, worldVertices: number[], offset: number, stride: number) {
-            const vectors = new spine.SPVectorFloat();
             const length = worldVertices.length;
             vectors.resize(length, 0);
             for (let i = 0; i < length; i++) vectors.set(i, worldVertices[i]);
             originComputeWorldVertices.call(this, slot, start, count, vectors, offset, stride);
             for (let i = 0; i < length; i++) worldVertices[i] = vectors.get(i);
-            vectors.delete();
         },
     });
 }
@@ -809,15 +808,14 @@ function overrideProperty_RegionAttachment (): void {
     });
 
     const originComputeWorldVertices = prototype.computeWorldVertices;
+    const vectors = new spine.SPVectorFloat();
     Object.defineProperty(prototype, 'computeWorldVertices', {
         value (bone: spine.Bone, worldVertices: number[], offset: number, stride: number) {
-            const vectors = new spine.SPVectorFloat();
             const length = worldVertices.length;
             vectors.resize(length, 0);
             for (let i = 0; i < length; i++) vectors.set(i, worldVertices[i]);
             originComputeWorldVertices.call(this, bone, vectors, offset, stride);
             for (let i = 0; i < length; i++) worldVertices[i] = vectors.get(i);
-            vectors.delete();
         },
     });
 }
