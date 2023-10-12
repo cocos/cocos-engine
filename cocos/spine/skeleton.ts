@@ -1023,7 +1023,9 @@ export class Skeleton extends UIRenderer {
             }
             this._updateCache(dt);
         } else {
-            if (EDITOR_NOT_IN_PREVIEW) this._instance.updateAnimation(dt);
+            if (EDITOR_NOT_IN_PREVIEW) {
+                this._instance.updateAnimation(dt);
+            }
         }
     }
 
@@ -1616,6 +1618,7 @@ export class Skeleton extends UIRenderer {
      */
     public _updateColor (): void {
         const a = this.node._uiProps.opacity;
+        // eslint-disable-next-line max-len
         if (this._tempColor.r === this._color.r && this._tempColor.g === this.color.g && this._tempColor.b === this.color.b && this._tempColor.a === a) {
             return;
         }
