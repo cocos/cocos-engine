@@ -29,7 +29,8 @@ import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldI
 import { error } from '@base/debug';
 import { touchManager } from '../../pal/input/touch-manager';
 import { EventTarget, sys } from '../core';
-import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
+import { Event } from '../core/event';
+import { EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
 export enum EventDispatcherPriority {

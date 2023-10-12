@@ -40,7 +40,7 @@ import { property } from '../core/data/decorators/property';
 import type { Scene } from './scene';
 import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
-import { Event } from '../input/types';
+import { Event } from '../core/event';
 import type { NodeEventProcessor } from './node-event-processor';
 
 const Destroying = CCObject.Flags.Destroying;

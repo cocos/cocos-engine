@@ -26,7 +26,8 @@ import './deprecated-3.3.0';
 import './deprecated-3.4.0';
 import { markAsWarning, replaceProperty } from '@base/utils';
 import { macro } from '../core';
-import { Event, EventMouse, EventTouch, SystemEventType } from './types';
+import { Event } from '../core/event';
+import { EventMouse, EventTouch, SystemEventType } from './types';
 import { SystemEvent } from './system-event';
 
 replaceProperty(SystemEventType, 'Node.EventType', [
