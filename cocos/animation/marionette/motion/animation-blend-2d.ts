@@ -23,7 +23,8 @@
 */
 
 import { assertIsTrue } from '@base/debug/internal';
-import { Vec2, _decorator, ccenum, editable } from '../../../core';
+import { ccenum } from '@base/object';
+import { Vec2, _decorator, editable } from '../../../core';
 import { createEval } from '../create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { BindableNumber, bindOr, VariableType } from '../parametric';

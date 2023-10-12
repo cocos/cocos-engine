@@ -24,10 +24,10 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { lerp, RealCurve, CCClass, geometry, Enum, approx, EPSILON } from '../../core';
+import { CCClass, Enum, setPropertyEnumType } from '@base/object';
+import { lerp, RealCurve, geometry, approx, EPSILON } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
-import { setPropertyEnumType } from '../../core/internal-index';
 
 const setClassAttr = CCClass.Attr.setClassAttr;
 

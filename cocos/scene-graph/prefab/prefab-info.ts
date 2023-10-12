@@ -25,8 +25,8 @@
 import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
+import { CCObject, CCString } from '@base/object';
 import { Prefab } from './prefab';
-import { CCObject, CCString } from '../../core/data';
 import { Component } from '../component';
 import { Node } from '../node';
 

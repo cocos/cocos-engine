@@ -26,10 +26,11 @@ import { ccclass, executeInEditMode, help, menu, serializable, type, displayName
 import { error, logID, warn } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { js, memop } from '@base/utils';
+import { Enum, ccenum, CCObject, setPropertyEnumType } from '@base/object';
+import { EnumType } from '@base/object/internal';
 import { Material, Texture2D } from '../asset/assets';
-import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
-import { CCObject, Color } from '../core';
+import { Color } from '../core';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
@@ -44,7 +45,6 @@ import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
-import { setPropertyEnumType } from '../core/internal-index';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;

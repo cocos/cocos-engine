@@ -23,7 +23,6 @@
 */
 
 import { DEV } from 'internal:constants';
-import { CCClass } from '../class';
 import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
 
 /**
@@ -43,7 +42,7 @@ import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartCl
  * }
  * ```
  */
-export const requireComponent: (requiredComponent: Function | Function[]) => ClassDecorator = makeEditorClassDecoratorFn('requireComponent');
+export const requireComponent: (requiredComponent: AnyFunction | AnyFunction[]) => ClassDecorator = makeEditorClassDecoratorFn('requireComponent');
 
 /**
  * @en Set the component priority, it decides at which order the life cycle functions of components will be invoked. Smaller priority gets invoked before larger priority.

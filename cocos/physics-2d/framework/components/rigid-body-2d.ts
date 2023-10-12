@@ -23,8 +23,9 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { CCBoolean, CCFloat } from '@base/object';
 import { IRigidBody2D } from '../../spec/i-rigid-body';
-import { _decorator, Vec2, IVec2Like, CCBoolean, CCFloat } from '../../../core';
+import { _decorator, Vec2, IVec2Like } from '../../../core';
 import { ERigidBody2DType } from '../physics-types';
 import { createRigidBody } from '../physics-selector';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';

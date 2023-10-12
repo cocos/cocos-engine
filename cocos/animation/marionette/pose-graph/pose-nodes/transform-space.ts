@@ -1,4 +1,4 @@
-import { ccenum } from '../../../../core';
+import { ccenum } from '@base/object';
 
 /**
  * @zh

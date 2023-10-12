@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,15 +22,5 @@
  THE SOFTWARE.
 */
 
-import { Enum, EnumType } from '../../value-types/enum';
-import { getClassAttrs, DELIMETER } from './attribute';
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function setPropertyEnumType (objectOrConstructor: object, propertyName: string, enumType: EnumType): void {
-    setPropertyEnumTypeOnAttrs(getClassAttrs(objectOrConstructor) as Record<string, unknown>, propertyName, enumType);
-}
-
-export function setPropertyEnumTypeOnAttrs (attrs: Record<string, unknown>, propertyName: string, enumType: EnumType): void {
-    attrs[`${propertyName}${DELIMETER}type`] = 'Enum';
-    attrs[`${propertyName}${DELIMETER}enumList`] = Enum.getList(enumType);
-}
+export { ENUM_TAG, BITMASK_TAG } from './class';
+export { type EnumType } from './value-types';

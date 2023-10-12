@@ -23,7 +23,7 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { editorExtrasTag } from '../../core';
+import { editorExtrasTag } from '@base/object';
 import { Motion } from './motion';
 
 export const RUNTIME_ID_ENABLED = EDITOR;

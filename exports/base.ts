@@ -36,6 +36,7 @@ export * from '../cocos/core';
 export * from '@base/utils';
 export { cclegacy, VERSION } from '@base/global';
 export { debug, log, error, warn, assert, logID, errorID, warnID, assertID, isDisplayStats, setDisplayStats, getError, DebugMode } from '@base/debug';
+export { BitMask, Enum, ccenum, ValueType, CCClass, isCCClassOrFastDefined, CCObject, CCInteger, CCFloat, CCBoolean, CCString, editorExtrasTag, setPropertyEnumType, setPropertyEnumTypeOnAttrs, isCCObject, isValid } from '@base/object';
 
 export * from '../cocos/rendering';
 export * from '../cocos/rendering/custom/builtin-pipelines';

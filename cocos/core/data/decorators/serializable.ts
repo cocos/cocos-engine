@@ -23,9 +23,9 @@
 */
 
 import { EDITOR, TEST } from 'internal:constants';
+import { PropertyStash, PropertyStashInternalFlag } from '@base/object';
 import { emptyDecorator, LegacyPropertyDecorator } from './utils';
 import { getOrCreatePropertyStash } from './property';
-import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
 import { getOrCreateSerializationMetadata } from '../serialization-metadata';
 
 /**

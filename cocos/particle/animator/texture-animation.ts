@@ -24,7 +24,8 @@
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, range } from 'cc.decorator';
 import { error } from '@base/debug';
-import { lerp, pseudoRandom, repeat, Enum, random } from '../../core';
+import { Enum } from '@base/object';
+import { lerp, pseudoRandom, repeat, random } from '../../core';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';

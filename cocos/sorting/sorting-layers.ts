@@ -22,10 +22,10 @@
 
 import { EDITOR } from 'internal:constants';
 import { errorID } from '@base/debug';
+import { Enum } from '@base/object';
 import { director } from '../game/director';
 import { Game, game } from '../game';
 import { Settings, settings } from '../core/settings';
-import { Enum } from '../core/value-types';
 
 interface SortingItem {
     id: number;

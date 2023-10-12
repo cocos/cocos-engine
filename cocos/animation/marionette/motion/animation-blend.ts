@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { _decorator, EditorExtendable, editorExtrasTag } from '../../../core';
+import { editorExtrasTag } from '@base/object';
+import { _decorator, EditorExtendable } from '../../../core';
 import { Motion, MotionEval, MotionPort } from './motion';
 import { createEval } from '../create-eval';
 import { VariableTypeMismatchedError } from '../errors';

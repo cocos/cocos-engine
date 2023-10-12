@@ -28,10 +28,11 @@ import { ccclass, serializable } from 'cc.decorator';
 import { errorID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
+import { ccenum } from '@base/object';
 import { Asset } from './asset';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import { Sampler, Texture, Device, Format, SamplerInfo, Address, Filter as GFXFilter, deviceManager } from '../../gfx';
-import { murmurhash2_32_gc, ccenum } from '../../core';
+import { murmurhash2_32_gc } from '../../core';
 
 ccenum(Format);
 

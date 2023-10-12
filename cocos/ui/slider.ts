@@ -26,11 +26,11 @@
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, slide, range, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
 import { Component, EventHandler } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { EventTouch, Touch } from '../input/types';
 import { Vec3 } from '../core/math';
-import { ccenum } from '../core/value-types/enum';
 import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
 import { NodeEventType } from '../scene-graph/node-event';

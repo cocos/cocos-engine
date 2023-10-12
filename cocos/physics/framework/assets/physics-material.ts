@@ -25,8 +25,9 @@
 // @ts-check
 
 import { ccclass, editable, help, menu, serializable, tooltip, type } from 'cc.decorator';
+import { CCFloat } from '@base/object';
 import { Asset } from '../../../asset/assets/asset';
-import { CCFloat, math } from '../../../core';
+import { math } from '../../../core';
 
 /**
  * @en

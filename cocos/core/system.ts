@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { Enum } from '@base/object';
 import { ISchedulable } from './scheduler';
-import { Enum } from './value-types/enum';
 
 /**
  * @en Base class for all functional system managed by [[Director]].

@@ -1,7 +1,7 @@
 import { js } from '@base/utils';
+import { CCClass, CCInteger } from '@base/object';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../cocos/animation/define';
 import { ccclass, property } from '../../../cocos/core/data/class-decorator';
-import { CCClass, CCInteger } from '../../../exports/base';
 import { VariableDescription, VariableType } from '../../exports/new-gen-anim';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}internal/VariableValueAttributeRegistry`)

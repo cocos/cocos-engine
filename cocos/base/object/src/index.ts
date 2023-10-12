@@ -1,6 +1,5 @@
 /*
- Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -23,6 +22,16 @@
  THE SOFTWARE.
 */
 
-export { BitMask } from './bitmask';
-export { Enum, ccenum } from './enum';
-export { ValueType } from './value-type';
+import *  as RF from './utils/requiring-frame';
+
+export { CCObject } from './object';
+export { type EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
+export { CCClass, isCCClassOrFastDefined } from './class';
+export { BitMask, Enum, ccenum, ValueType } from './value-types';
+export { DELIMETER, createAttrsSingle, createAttrs, attr, getClassAttrs, setClassAttr, PrimitiveType, CCInteger, CCFloat, CCBoolean, CCString } from './utils/attribute';
+export type { IExposedAttributes, IAcceptableAttributes } from './utils/attribute-defines';
+export { getFullFormOfProperty, doValidateMethodWithProps_DEV } from './utils/preprocess-class';
+export { RF };
+export { PropertyStashInternalFlag, type ClassStash, type PropertyStash } from './class-stash';
+export { setPropertyEnumType, setPropertyEnumTypeOnAttrs } from './utils/attribute-internal';
+export { isCCObject, isValid } from './object';

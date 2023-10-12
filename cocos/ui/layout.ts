@@ -26,9 +26,9 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible } from 'cc.decorator';
 import { warn } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
 import { Component } from '../scene-graph/component';
 import { Size, Vec2, Vec3 } from '../core/math';
-import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
 import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';

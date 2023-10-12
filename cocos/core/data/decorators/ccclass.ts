@@ -24,8 +24,7 @@
 
 import { DEV } from 'internal:constants';
 import { js } from '@base/utils';
-import { CCClass } from '../class';
-import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
+import { CCClass, doValidateMethodWithProps_DEV } from '@base/object';
 import { getClassDecoratorStash, makeSmartClassDecorator, deleteClassDecoratorStash } from './utils';
 
 const { getSuper, mixin, getClassName } = js;

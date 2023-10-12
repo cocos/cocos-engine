@@ -22,8 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CCClass } from '../data';
-import { Enum } from '../value-types';
+import { CCClass, Enum } from '@base/object';
 import { Color, lerp, repeat, EPSILON, approx, random } from '../math';
 
 const Mode = Enum({

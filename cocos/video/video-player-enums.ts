@@ -26,7 +26,7 @@
  * @en Enum for video resource type.
  * @zh 视频资源类型枚举。
  */
-import { Enum } from '../core/value-types';
+import { Enum } from '@base/object';
 
 export const ResourceType = Enum({
     /**

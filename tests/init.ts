@@ -74,6 +74,18 @@ jest.mock(
 );
 
 jest.mock(
+    '@base/object',
+    () => jest.requireActual('../cocos/base/object/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/object/internal',
+    () => jest.requireActual('../cocos/base/object/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
     'pal/pacer',
     () => jest.requireActual('../pal/pacer/pacer-web'),
     { virtual: true, },
@@ -164,7 +176,6 @@ jest.mock('serialization-test-helper/run-test', () => {
     virtual: true,
 });
 
-import '../exports/base';
 import { DebugMode } from '@base/debug';
 import { EffectAsset, Game, game, IGameConfig } from '../exports/base';
 import './asset-manager/init';

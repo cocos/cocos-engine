@@ -27,10 +27,10 @@ import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visib
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { warnID, logID } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
 import { EventHandler as ComponentEventHandler, Node } from '../scene-graph';
 import { EventTouch } from '../input/types';
 import { Vec2, Vec3 } from '../core/math';
-import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
 import { ScrollView, EventType as ScrollEventType } from './scroll-view';

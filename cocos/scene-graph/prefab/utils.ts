@@ -26,11 +26,10 @@
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { errorID, warn } from '@base/debug';
-import { editorExtrasTag } from '../../core';
+import { editorExtrasTag, ValueType } from '@base/object';
 import { Node } from '../node';
 import { Component } from '../component';
 import { MountedChildrenInfo, PropertyOverrideInfo, MountedComponentsInfo, TargetInfo, TargetMap, PrefabInstance, TargetOverrideInfo } from './prefab-info';
-import { ValueType } from '../../core/value-types';
 
 export * from './prefab-info';
 

@@ -1,5 +1,5 @@
 import { js } from '@base/utils';
-import { CCClass } from '../../cocos/core/data/class';
+import { CCClass } from '@base/object';
 
 describe('Attribute', function () {
     test('base', function () {

@@ -27,7 +27,8 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visib
 import { JSB } from 'internal:constants';
 import { warnID, error } from '@base/debug';
 import { cclegacy } from '@base/global';
-import { clamp, Color, Mat4, Vec2, Vec3, ccenum } from '../../core';
+import { ccenum } from '@base/object';
+import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core';
 import { Graphics } from './graphics';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Stage } from '../renderer/stencil-manager';

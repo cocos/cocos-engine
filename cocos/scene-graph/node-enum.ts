@@ -23,7 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Enum } from '../core/value-types';
+import { Enum } from '@base/object';
 
 /**
  * @en Node's coordinate space

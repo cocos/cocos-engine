@@ -23,10 +23,8 @@
 */
 
 import { DEV } from 'internal:constants';
-import { IExposedAttributes } from '../utils/attribute-defines';
+import { IExposedAttributes, PropertyStash, PropertyStashInternalFlag } from '@base/object';
 import { getOrCreatePropertyStash } from './property';
-import { PropertyStash, PropertyStashInternalFlag } from '../class-stash';
-
 import { LegacyPropertyDecorator, emptyDecorator, makeSmartEditorClassDecorator, makeEditorClassDecoratorFn, emptySmartClassDecorator, emptyDecoratorFn } from './utils';
 
 /**

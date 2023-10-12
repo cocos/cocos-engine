@@ -24,8 +24,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
+import { CCClass, ValueType } from '@base/object';
 import { ISizeLike } from './type-define';
 
 /**

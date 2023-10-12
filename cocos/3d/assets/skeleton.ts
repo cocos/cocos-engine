@@ -24,7 +24,8 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { cclegacy } from '@base/global';
-import { CCString, Mat4, murmurhash2_32_gc } from '../../core';
+import { CCString } from '@base/object';
+import { Mat4, murmurhash2_32_gc } from '../../core';
 import type { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../asset/assets/asset';
 

@@ -23,8 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
+import { CCClass, ValueType } from '@base/object';
 import { Mat3 } from './mat3';
 import { Quat } from './quat';
 import { IMat4Like, IVec3Like } from './type-define';

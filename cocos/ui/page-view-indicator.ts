@@ -25,10 +25,10 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
 import { SpriteFrame } from '../2d/assets';
 import { Component } from '../scene-graph/component';
 import { Color, Size } from '../core/math';
-import { ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
 import { Layout } from './layout';
 import { PageView } from './page-view';

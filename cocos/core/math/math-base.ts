@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { ValueType } from '../value-types/value-type';
+import { ValueType } from '@base/object';
 import { FloatArray } from './type-define';
 
 export const MATH_FLOAT_ARRAY = JSB ? Float32Array : Float64Array;
