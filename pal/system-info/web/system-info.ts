@@ -26,7 +26,7 @@ import { DEBUG, EDITOR, PREVIEW, TEST } from 'internal:constants';
 import { IFeatureMap } from 'pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { warn } from '@base/debug';
-import { EventTarget } from '../../../cocos/core/event';
+import { EventTarget } from '@base/event';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
 
 class SystemInfo extends EventTarget {

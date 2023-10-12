@@ -1,6 +1,6 @@
 import { CCObject } from '@base/object';
 import { CallbacksInvoker } from '../../cocos/core/event/callbacks-invoker';
-import { Event } from '../../cocos/core/event';
+import { Event } from '@base/event';
 import { Node } from '../../cocos/scene-graph/node';
 import { Component } from '../../cocos/scene-graph/component';
 

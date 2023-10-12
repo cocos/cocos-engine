@@ -28,7 +28,7 @@ import { systemInfo } from 'pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '@base/event';
 import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 

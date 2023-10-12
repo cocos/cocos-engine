@@ -28,7 +28,7 @@ import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adap
 import { systemInfo } from 'pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { error, warn, warnID } from '@base/debug';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '@base/event';
 import { Size } from '../../../cocos/core/math';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../enum-type';

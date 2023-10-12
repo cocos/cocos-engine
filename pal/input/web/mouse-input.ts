@@ -27,7 +27,7 @@ import { MouseCallback } from 'pal/input';
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
 import { EventMouse } from '../../../cocos/input/types';
-import { EventTarget } from '../../../cocos/core/event';
+import { EventTarget } from '@base/event';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';

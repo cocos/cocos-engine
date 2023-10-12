@@ -29,7 +29,7 @@ import { errorID, logID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
-import { Event } from '../core/event';
+import { Event } from '@base/event';
 import { EventMouse, EventTouch, Touch, SystemEventType, EventHandle, EventGamepad } from '../input/types';
 import { Size, Vec2, Vec3, approx } from '../core/math';
 import { Layout } from './layout';

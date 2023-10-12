@@ -24,7 +24,7 @@
 
 import { GamepadCallback } from 'pal/input';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
+import { EventTarget } from '@base/event';
 import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
 import { Quat, Vec3 } from '../../../cocos/core';
 

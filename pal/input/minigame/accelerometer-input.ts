@@ -25,7 +25,7 @@
 import { AccelerometerCallback } from 'pal/input';
 import { minigame, AccelerometerIntervalMode } from 'pal/minigame';
 import { Acceleration, EventAcceleration } from '../../../cocos/input/types';
-import { EventTarget } from '../../../cocos/core/event';
+import { EventTarget } from '@base/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export class AccelerometerInputSource {

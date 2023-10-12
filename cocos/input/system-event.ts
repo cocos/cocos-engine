@@ -24,7 +24,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { EventTarget } from '../core';
+import { EventTarget } from '@base/event';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch, SystemEventType, Touch } from './types';
 import { input } from './input';
 import { InputEventType } from './types/event-enum';

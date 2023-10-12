@@ -28,7 +28,7 @@ import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
 import { Component } from '../scene-graph/component';
-import { Eventify } from '../core';
+import { Eventify } from '@base/event';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';

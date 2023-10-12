@@ -27,7 +27,7 @@ import { ccclass, requireComponent, displayOrder, type, readOnly, serializable, 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Component } from '../../../../scene-graph';
 import { RigidBody } from '../rigid-body';
-import { Eventify } from '../../../../core';
+import { Eventify } from '@base/event';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
 import { selector, createConstraint } from '../../physics-selector';
 import { EConstraintType } from '../../physics-enum';

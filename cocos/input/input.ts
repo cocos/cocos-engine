@@ -28,8 +28,8 @@ import { EDITOR_NOT_IN_PREVIEW, NATIVE } from 'internal:constants';
 import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldInputDevice, HandleInputDevice, KeyboardInputSource, MouseInputSource, TouchInputSource } from 'pal/input';
 import { error } from '@base/debug';
 import { touchManager } from '../../pal/input/touch-manager';
-import { EventTarget, sys } from '../core';
-import { Event } from '../core/event';
+import { EventTarget, Event } from '@base/event';
+import { sys } from '../core';
 import { EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 

@@ -24,7 +24,7 @@
 
 import { js } from '@base/utils';
 import { Node } from '../../scene-graph/node';
-import { Event } from '../../core/event';
+import { Event } from '@base/event';
 import { Input, input } from '../../input';
 import { EventMouse, EventTouch } from '../../input/types';
 import { DispatcherEventType, NodeEventProcessor } from '../../scene-graph/node-event-processor';
