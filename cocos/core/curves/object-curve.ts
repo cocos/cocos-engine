@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { ccclass } from '../data/decorators';
 import { clamp } from '@base/math';
+import { ccclass } from '../data/decorators';
 import { KeyframeCurve } from './keyframe-curve';
 
 export type ObjectCurveKeyframe<T> = T;

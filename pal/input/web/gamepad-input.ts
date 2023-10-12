@@ -27,8 +27,8 @@ import { systemInfo, Feature } from '@pal/system-info';
 import { cclegacy } from '@base/global';
 import { js } from '@base/utils';
 import { EventTarget } from '@base/event';
-import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Quat, Vec3 } from '@base/math';
+import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
 import { EventGamepad } from '../../../cocos/input/types';
 

@@ -1,6 +1,6 @@
+import { Quat, Vec3 } from '@base/math';
 import { Transform } from '../../../../cocos/animation/core/transform';
 import { Node } from '../../../../exports/base';
-import { Quat, Vec3 } from '@base/math';
 import { PoseRecord } from './pose-record';
 
 /**

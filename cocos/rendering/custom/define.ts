@@ -25,6 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
+import { Vec2, Vec3, Vec4, toRadian, nextPow2 } from '@base/math';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp, Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
 import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
@@ -38,7 +39,6 @@ import { SpotLight } from '../../render-scene/scene/spot-light';
 import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline, Pipeline } from './pipeline';
 import { AccessType, AttachmentType, CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
-import { Vec2, Vec3, Vec4, toRadian, nextPow2 } from '@base/math';
 import { macro, geometry } from '../../core';
 import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';

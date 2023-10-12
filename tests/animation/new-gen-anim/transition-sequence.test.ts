@@ -1,9 +1,9 @@
 import { assertIsTrue } from '@base/debug/internal';
+import { lerp } from '@base/math';
 import { AnimationController, VariableType } from '../../../cocos/animation/animation';
 import { AnimationGraph, AnimationTransition, EmptyState, EmptyStateTransition, isAnimationTransition, Layer, State, SubStateMachine, Transition } from '../../../cocos/animation/marionette/animation-graph';
 import { UnaryCondition } from '../../../cocos/animation/marionette/state-machine/condition';
 import { MotionState } from '../../../cocos/animation/marionette/state-machine/motion-state';
-import { lerp } from '@base/math';
 import { AnimationGraphEvalMock } from './utils/eval-mock';
 import { ConstantRealValueAnimationFixture, LinearRealValueAnimationFixture } from './utils/fixtures';
 import { SingleRealValueObserver } from './utils/single-real-value-observer';

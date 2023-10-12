@@ -22,10 +22,10 @@
 
 import { cclegacy } from '@base/global';
 import { memop } from '@base/utils';
+import { Mat4, Vec3, Vec2, Vec4 } from '@base/math';
 import { Shadows, CSMLevel, CSMOptimizationMode } from '../../render-scene/scene/shadows';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Camera } from '../../render-scene/scene/camera';
-import { Mat4, Vec3, Vec2, Vec4 } from '@base/math';
 import { Frustum, AABB } from '../../core/geometry';
 import { IRenderObject } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';

@@ -1,8 +1,8 @@
+import { Quat, toDegree, toRadian, Vec3 } from '@base/math';
 import { QuatTrack, VectorTrack } from '../../../../cocos/animation/animation';
 import { additiveSettingsTag, AnimationClip } from '../../../../cocos/animation/animation-clip';
 import { ClipMotion } from '../../../../cocos/animation/marionette/motion';
 import { WrapMode } from '../../../../cocos/animation/types';
-import { Quat, toDegree, toRadian, Vec3 } from '@base/math';
 import { Node } from '../../../../cocos/scene-graph';
 import { CreateMotionContext } from './fixtures';
 

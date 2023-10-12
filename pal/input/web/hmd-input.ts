@@ -25,10 +25,10 @@
 import { HMDCallback } from 'pal/input';
 import { cclegacy } from '@base/global';
 import { EventTarget } from '@base/event';
+import { Vec3, Quat } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventHMD } from '../../../cocos/input/types';
 import { InputSourcePosition, InputSourceOrientation } from '../input-source';
-import { Vec3, Quat } from '@base/math';
 
 enum Pose {
     VIEW_LEFT = 0,

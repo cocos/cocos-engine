@@ -23,9 +23,9 @@
 */
 
 /* eslint-disable new-cap */
+import { IVec3Like, Quat, Vec3, toRadian } from '@base/math';
 import { BulletConstraint } from './bullet-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
-import { IVec3Like, Quat, Vec3, toRadian } from '@base/math';
 import { HingeConstraint, PhysicsSystem } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0 } from '../bullet-cache';

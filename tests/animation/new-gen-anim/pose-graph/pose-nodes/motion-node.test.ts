@@ -1,8 +1,8 @@
+import { lerp, repeat } from '@base/math';
 import { createAnimationGraph } from '../../utils/factory';
 import { AnimationGraphEvalMock } from '../../utils/eval-mock';
 import { ConstantRealValueAnimationFixture, LinearRealValueAnimationFixture } from '../../utils/fixtures';
 import { SingleRealValueObserver } from '../../utils/single-real-value-observer';
-import { lerp, repeat } from '@base/math';
 import './utils/factories/all';
 import { PoseNodePlayMotion } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/play-motion';
 import { ClipMotion, Motion } from '../../../../../cocos/animation/marionette/motion';

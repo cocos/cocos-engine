@@ -1,6 +1,6 @@
+import { lerp } from '@base/math';
 import { Transform } from '../../../../../cocos/animation/core/transform';
 import { PoseNodeFilteringBlend } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/filtering-blend';
-import { lerp } from '@base/math';
 import { BlendTwoOperator } from '../../utils/abstract-operators';
 import { includeTestsFor_BlendTwoPoseLike_PoseNode } from './blend-two-pose-shared';
 

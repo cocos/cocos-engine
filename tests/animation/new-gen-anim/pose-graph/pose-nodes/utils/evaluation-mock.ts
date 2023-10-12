@@ -1,4 +1,5 @@
 import { assertIsTrue } from '@base/debug/internal';
+import { Vec3 } from '@base/math';
 import { AnimationController } from '../../../../../../cocos/animation/animation';
 import { TransformHandle } from '../../../../../../cocos/animation/core/animation-handle';
 import { Pose } from '../../../../../../cocos/animation/core/pose';
@@ -11,7 +12,6 @@ import { RuntimeStashManager } from '../../../../../../cocos/animation/marionett
 import { RuntimeMotionSyncManager } from '../../../../../../cocos/animation/marionette/pose-graph/motion-sync/runtime-motion-sync';
 import { VarInstance } from '../../../../../../cocos/animation/marionette/variable';
 import { Node } from '../../../../../../cocos/scene-graph';
-import { Vec3 } from '@base/math';
 
 export class TransformHierarchy {
     private _node = new Node();

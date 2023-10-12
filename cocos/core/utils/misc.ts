@@ -31,8 +31,8 @@ import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { js } from '@base/utils';
 import { isPlainEmptyObj } from '@base/utils/internal';
-import { callInNextTick as _callInNextTick } from './internal';
 import { toRadian, toDegree, clamp } from '@base/math';
+import { callInNextTick as _callInNextTick } from './internal';
 import values from '../../../external/compression/base64-values';
 
 /**

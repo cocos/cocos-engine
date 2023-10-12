@@ -1,6 +1,6 @@
+import { Color, Vec2 } from '@base/math';
 import { Label, LabelOutline, LabelShadow } from '../../cocos/2d/components';
 import { Node } from '../../cocos/scene-graph/node';
-import { Color, Vec2 } from '@base/math';
 
 test('label.string.setter', () => {
     let node = new Node();

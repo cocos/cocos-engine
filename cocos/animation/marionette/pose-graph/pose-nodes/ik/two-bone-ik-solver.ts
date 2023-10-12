@@ -1,10 +1,10 @@
 import { EDITOR } from 'internal:constants';
 import { assertIsTrue } from '@base/debug/internal';
 import { ccenum } from '@base/object';
+import { Vec3 } from '@base/math';
 import { ccclass, editable, serializable, type, visible } from '../../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../../define';
 import { PoseTransformSpaceRequirement } from '../../pose-node';
-import { Vec3 } from '@base/math';
 import { TransformHandle } from '../../../../core/animation-handle';
 import { input } from '../../decorator/input';
 import { poseGraphNodeCategory } from '../../decorator/node';

@@ -23,8 +23,8 @@
 */
 
 import { js } from '@base/utils';
-import { SpriteFrame } from '../../assets/sprite-frame';
 import { Color, Rect } from '@base/math';
+import { SpriteFrame } from '../../assets/sprite-frame';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';

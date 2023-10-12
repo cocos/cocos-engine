@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
+import { Rect, Vec3 } from '@base/math';
 import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM, removeImplPtrReference, removeImplPtrReferenceWASM } from '../instantiated';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
-import { Rect, Vec3 } from '@base/math';
 import { B2PhysicsWorld } from '../physics-world';
 import { PhysicsGroup } from '../../../physics/framework/physics-enum';
 

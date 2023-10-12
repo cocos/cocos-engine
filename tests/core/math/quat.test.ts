@@ -1,5 +1,5 @@
-import { log } from '../../test.log';
 import { Mat3, Quat, Vec3, toDegree } from '@base/math';
+import { log } from '../../test.log';
 
 describe('Test Quat', () => {
     test('rotationTo', () => {

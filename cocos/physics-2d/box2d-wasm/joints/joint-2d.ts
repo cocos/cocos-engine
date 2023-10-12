@@ -23,11 +23,11 @@
 */
 
 import { warn } from '@base/debug';
+import { Vec2 } from '@base/math';
 import { B2, addImplPtrReference, addImplPtrReferenceWASM, getImplPtr, removeImplPtrReference, removeImplPtrReferenceWASM } from '../instantiated';
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { B2PhysicsWorld } from '../physics-world';
-import { Vec2 } from '@base/math';
 
 export class B2Joint implements IJoint2D {
     get impl (): B2.Joint | null {

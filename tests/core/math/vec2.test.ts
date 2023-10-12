@@ -1,5 +1,5 @@
-import { log } from '../../test.log';
 import { v2, Vec2, Vec3, Mat3, Mat4, toRadian, toDegree } from '@base/math';
+import { log } from '../../test.log';
 
 describe('Test Vec2', () => {
     test('normalize', () => {

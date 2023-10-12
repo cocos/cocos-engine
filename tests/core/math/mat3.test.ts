@@ -1,5 +1,5 @@
-import { log } from '../../test.log';
 import { Vec3, Mat3, Mat4, Quat } from '@base/math';
+import { log } from '../../test.log';
 
 describe('Test Mat3', () => {
     test('transpose', () => {

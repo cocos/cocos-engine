@@ -26,8 +26,8 @@ import { minigame } from 'pal/minigame';
 import { systemInfo } from '@pal/system-info';
 import { TAOBAO, TAOBAO_MINIGAME, HUAWEI, VIVO, OPPO } from 'internal:constants';
 import { EventTarget } from '@base/event';
-import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '@base/math';
+import { AudioEvent, AudioPCMDataView, AudioState, AudioType } from '../type';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
 export class OneShotAudioMinigame {

@@ -24,10 +24,10 @@
 
 import { cclegacy } from '@base/global';
 import { memop } from '@base/utils';
+import { Vec3, nextPow2, Mat4, Color } from '@base/math';
 import { BatchingSchemes, Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Vec3, nextPow2, Mat4, Color } from '@base/math';
 import { geometry } from '../core';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, CommandBuffer, deviceManager } from '../gfx';
 import { RenderInstancedQueue } from './render-instanced-queue';

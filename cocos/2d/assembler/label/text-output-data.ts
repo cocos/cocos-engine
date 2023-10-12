@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Texture2D } from '../../../asset/assets';
 import { Rect, Size, Vec2 } from '@base/math';
+import { Texture2D } from '../../../asset/assets';
 import { SpriteFrame } from '../../assets';
 import { IRenderData } from './text-processing';
 

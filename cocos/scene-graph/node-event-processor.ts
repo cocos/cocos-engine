@@ -25,8 +25,8 @@
 import { cclegacy } from '@base/global';
 import { CallbacksInvoker } from '@base/event/internal';
 import { Event } from '@base/event';
-import { EventMouse, EventTouch, Touch } from '../input/types';
 import { Vec2 } from '@base/math';
+import { EventMouse, EventTouch, Touch } from '../input/types';
 import { Node } from './node';
 import { Component } from './component';
 import { NodeEventType } from './node-event';

@@ -23,8 +23,8 @@
 */
 
 import { JSB } from 'internal:constants';
-import { SpriteFrame } from '../../assets';
 import { Mat4, Vec2 } from '@base/math';
+import { SpriteFrame } from '../../assets';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';

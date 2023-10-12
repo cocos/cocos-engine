@@ -25,9 +25,9 @@
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 import { js } from '@base/utils';
 import { CCObject } from '@base/object';
+import { Vec3, Color, IVec2Like, Vec2, Rect } from '@base/math';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 // import { Graphics } from '../../2d';
-import { Vec3, Color, IVec2Like, Vec2, Rect } from '@base/math';
 // import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';

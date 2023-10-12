@@ -1,4 +1,5 @@
 import { assertIsTrue } from '@base/debug/internal';
+import { Vec2 } from '@base/math';
 import { AnimationClip } from '../../../../cocos/animation/animation-clip';
 import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, ProceduralPoseState, ProceduralPoseTransition, State, StateMachine, SubStateMachine, Transition } from '../../../../cocos/animation/marionette/animation-graph';
 import { PoseGraph, poseGraphOp, TCBinding, TCBindingValueType } from '../../../../cocos/animation/marionette/asset-creation';
@@ -7,7 +8,6 @@ import { BinaryCondition, TriggerCondition, UnaryCondition } from '../../../../c
 import { MotionState } from '../../../../cocos/animation/marionette/state-machine/motion-state';
 import { Bindable } from '../../../../cocos/animation/marionette/parametric';
 import { TriggerResetMode, VariableType } from '../../../../cocos/animation/marionette/variable';
-import { Vec2 } from '@base/math';
 import { TCVariableBinding } from '../../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
 import { TCAuxiliaryCurveBinding } from '../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding';
 import { TCStateWeightBinding } from '../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding';

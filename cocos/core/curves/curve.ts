@@ -25,7 +25,7 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '@base/debug/internal';
 import { CCClass, editorExtrasTag } from '@base/object';
-import { approx, lerp, pingPong, repeat } from '@base/math';
+import { approx, lerp, pingPong, repeat , bits } from '@base/math';
 import { KeyframeCurve } from './keyframe-curve';
 import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
@@ -35,7 +35,6 @@ import { deserializeTag, SerializationContext, SerializationInput, Serialization
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';
 import { getOrCreateSerializationMetadata } from '../data/serialization-metadata';
-import { bits } from '@base/math';
 
 const { popCount } = bits;
 

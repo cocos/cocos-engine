@@ -24,8 +24,8 @@
 
 import { assertIsTrue } from '@base/debug/internal';
 import { CCClass } from '@base/object';
-import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { approx } from '@base/math';
+import { binarySearchEpsilon } from '../algorithm/binary-search';
 import type { CurveBase } from './curve-base';
 
 type KeyFrame<TKeyframeValue> = [number, TKeyframeValue];

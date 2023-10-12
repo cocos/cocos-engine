@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Collider, TriggerEventType, CollisionEventType, IContactEquation, CharacterController } from '../../../exports/physics-framework';
 import { Vec3, Quat, Mat4 } from '@base/math';
+import { Collider, TriggerEventType, CollisionEventType, IContactEquation, CharacterController } from '../../../exports/physics-framework';
 import { CharacterTriggerEventType } from '../framework';
 import { bt } from './instantiated';
 

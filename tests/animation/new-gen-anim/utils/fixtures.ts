@@ -1,9 +1,9 @@
+import { lerp } from '@base/math';
 import { Track, VectorTrack } from '../../../../cocos/animation/animation';
 import { AnimationClip } from '../../../../cocos/animation/animation-clip';
 import { ClipMotion, AnimationBlend1D } from '../../../../cocos/animation/marionette/motion';
 import { blend1D } from '../../../../cocos/animation/marionette/motion/blend-1d';
 import { WrapMode } from '../../../../cocos/animation/types';
-import { lerp } from '@base/math';
 import { RealCurve } from '../../../../cocos/core';
 
 export interface CreateMotionContext {

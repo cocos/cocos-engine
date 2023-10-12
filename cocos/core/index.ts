@@ -25,8 +25,8 @@
 
 import { cclegacy } from '@base/global';
 import { memop } from '@base/utils';
-import * as geometry from './geometry';
 import * as math from '@base/math';
+import * as geometry from './geometry';
 import './deprecated';
 import './deprecated-3.7.0';
 

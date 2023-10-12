@@ -1,9 +1,9 @@
+import { Quat, Vec3 } from '@base/math';
 import { Transform } from '../../../../../cocos/animation/core/transform';
 import { PoseGraph, poseGraphOp } from '../../../../../cocos/animation/marionette/asset-creation';
 import { PoseNodeApplyTransform, TransformOperation } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/apply-transform';
 import { TransformSpace } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/transform-space';
 import { Node } from '../../../../../exports/base';
-import { Quat, Vec3 } from '@base/math';
 import { AnimationGraphEvalMock } from '../../utils/eval-mock';
 import { createAnimationGraph } from '../../utils/factory';
 import '../../../../utils/matchers/value-type-asymmetric-matchers';

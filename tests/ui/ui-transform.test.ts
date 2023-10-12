@@ -1,6 +1,6 @@
+import { Rect, Size, Vec2, Vec3 } from '@base/math';
 import { UITransform } from '../../cocos/2d';
 import { Node } from '../../cocos/scene-graph/node';
-import { Rect, Size, Vec2, Vec3 } from '@base/math';
 
 test('UI transform properties test', function () {
     const node = new Node();

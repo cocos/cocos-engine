@@ -24,8 +24,8 @@
 import { EDITOR } from 'internal:constants';
 import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
-import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import { lerp, Mat4, Rect, toRadian, Vec3, IVec4Like, preTransforms, Vec4 } from '@base/math';
+import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import { geometry } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
 import { Node } from '../../scene-graph';

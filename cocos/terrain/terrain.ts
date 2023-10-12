@@ -26,6 +26,7 @@ import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, seri
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { CCObject, CCFloat, isValid } from '@base/object';
+import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '@base/math';
 import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../misc/model-renderer';
 import { EffectAsset, Texture2D } from '../asset/assets';
@@ -35,7 +36,6 @@ import { RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
 import { Component } from '../scene-graph/component';
 import { director } from '../game/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager, Texture } from '../gfx';
-import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '@base/math';
 import { MacroRecord } from '../render-scene/core/pass-utils';
 import { Pass, scene } from '../render-scene';
 import { Camera } from '../render-scene/scene/camera';

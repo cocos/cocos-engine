@@ -27,10 +27,10 @@ import { ccclass, help, executionOrder, menu, requireComponent, tooltip, type, s
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
+import { Vec3, clamp01 } from '@base/math';
 import { Component, EventHandler } from '../scene-graph';
 import { UITransform } from '../2d/framework';
 import { EventTouch, Touch } from '../input/types';
-import { Vec3, clamp01 } from '@base/math';
 import { Sprite } from '../2d/components/sprite';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEvent, XrUIPressEventType } from '../xr/event/xr-event-handle';

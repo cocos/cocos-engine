@@ -1,5 +1,5 @@
-import { log } from '../../test.log';
 import { Vec3, Mat3, Mat4, Quat } from '@base/math';
+import { log } from '../../test.log';
 import '../../utils/matchers/value-type-asymmetric-matchers';
 
 describe('Test Vec3', () => {

@@ -23,13 +23,13 @@
 */
 
 import { warn } from '@base/debug';
+import { Vec2, IVec2Like } from '@base/math';
 import { B2 } from '../instantiated';
 import { B2Shape2D } from './shape-2d';
 import * as PolygonPartition from '../../framework/utils/polygon-partition';
 import { PolygonCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IPolygonShape } from '../../spec/i-physics-shape';
-import { Vec2, IVec2Like } from '@base/math';
 
 export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
     _worldPoints: Vec2[] = [];

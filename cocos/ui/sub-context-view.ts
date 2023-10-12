@@ -28,6 +28,7 @@ import { minigame } from 'pal/minigame';
 import { screenAdapter } from 'pal/screen-adapter';
 import { cclegacy } from '@base/global';
 import { CCObject } from '@base/object';
+import { Size } from '@base/math';
 import { Component } from '../scene-graph/component';
 import { view } from './view';
 import { Sprite } from '../2d/components/sprite';
@@ -35,7 +36,6 @@ import { Node } from '../scene-graph';
 import { UITransform } from '../2d/framework/ui-transform';
 import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../asset/assets/image-asset';
-import { Size } from '@base/math';
 
 import { NodeEventType } from '../scene-graph/node-event';
 import { Texture2D } from '../asset/assets';

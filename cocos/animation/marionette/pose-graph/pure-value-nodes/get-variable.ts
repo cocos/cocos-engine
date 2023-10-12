@@ -1,6 +1,6 @@
 import { EDITOR } from 'internal:constants';
-import { editable, serializable } from '../../../../core';
 import { Quat, Vec3 } from '@base/math';
+import { editable, serializable } from '../../../../core';
 import { ccclass } from '../../../../core/data/class-decorator';
 import { VariableType, VarInstance } from '../../variable';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';

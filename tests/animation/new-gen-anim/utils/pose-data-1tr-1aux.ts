@@ -1,6 +1,6 @@
+import { lerp, Quat, Vec3 } from '@base/math';
 import { AnimationController } from '../../../../cocos/animation/animation';
 import { Transform } from '../../../../cocos/animation/core/transform';
-import { lerp, Quat, Vec3 } from '@base/math';
 import { Node } from '../../../../exports/base';
 import { BlendTwoOperator } from './abstract-operators';
 import { PoseRecord } from './pose-record';

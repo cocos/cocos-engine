@@ -1,5 +1,5 @@
-import { geometry } from '../../cocos/core';
 import { Quat, Vec3 } from '@base/math';
+import { geometry } from '../../cocos/core';
 import { physics } from '../../exports/physics-framework';
 import { Node } from '../../cocos/scene-graph';
 import { director } from '../../cocos/game';

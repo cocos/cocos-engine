@@ -23,10 +23,10 @@
 */
 
 import { CCFloat } from '@base/object';
+import { Vec2 } from '@base/math';
 import { Joint2D } from './joint-2d';
 import { IMouseJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec2 } from '@base/math';
 import { _decorator } from '../../../../core';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 

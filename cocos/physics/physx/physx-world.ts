@@ -25,9 +25,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { error } from '@base/debug';
 import { js, memop } from '@base/utils';
+import { IVec3Like, IQuatLike, Vec3, Quat } from '@base/math';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsMaterial, PhysicsRayResult, CollisionEventType, TriggerEventType, CharacterTriggerEventType, CharacterControllerContact } from '../framework';
-import { IVec3Like, IQuatLike, Vec3, Quat } from '@base/math';
 import { geometry } from '../../core';
 import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';

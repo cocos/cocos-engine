@@ -1,6 +1,6 @@
+import { color } from '@base/math';
 import { builtinResMgr } from '../../cocos/asset/asset-manager';
 import { Material } from '../../cocos/asset/assets/material';
-import { color } from '@base/math';
 import { game, Game } from '../../cocos/game';
 
 export function initBuiltinMaterial () {

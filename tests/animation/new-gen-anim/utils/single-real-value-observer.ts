@@ -1,3 +1,4 @@
+import { Vec3 } from '@base/math';
 import { VectorTrack } from '../../../../cocos/animation/animation';
 import { additiveSettingsTag, AnimationClip } from '../../../../cocos/animation/animation-clip';
 import { Pose } from '../../../../cocos/animation/core/pose';
@@ -5,7 +6,6 @@ import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from '.
 import { ClipMotion } from '../../../../cocos/animation/marionette/motion';
 import { WrapMode } from '../../../../cocos/animation/types';
 import { Node } from '../../../../cocos/scene-graph';
-import { Vec3 } from '@base/math';
 import { CreateMotionContext } from './fixtures';
 
 type NonNullableClipMotion = Omit<ClipMotion, 'clip'> & { 'clip': NonNullable<ClipMotion['clip']> };

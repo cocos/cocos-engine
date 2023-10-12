@@ -1,5 +1,5 @@
-import { log } from '../../test.log';
 import { AffineTransform, Vec2, Size, Rect } from '@base/math';
+import { log } from '../../test.log';
 
 // test Vec2
 describe('Test AffineTransform', () => {

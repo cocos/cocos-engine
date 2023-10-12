@@ -27,8 +27,8 @@ import { ccclass, editable, type, displayOrder, menu, executeInEditMode, seriali
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { warnID, errorID, error } from '@base/debug';
 import { ccwindow } from '@base/global';
-import { UIRenderer } from '../2d/framework/ui-renderer';
 import { Color, Vec2 } from '@base/math';
+import { UIRenderer } from '../2d/framework/ui-renderer';
 import { path } from '../core';
 import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';

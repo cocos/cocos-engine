@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { IContactEquation, ICollisionEvent } from '../framework';
 import { IVec3Like, Vec3, Quat } from '@base/math';
+import { IContactEquation, ICollisionEvent } from '../framework';
 import { BulletShape } from './shapes/bullet-shape';
 import { CC_QUAT_0, BulletCache } from './bullet-cache';
 import { bt } from './instantiated';

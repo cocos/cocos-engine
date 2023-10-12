@@ -1,5 +1,5 @@
-import { LegacyBlendStateBuffer } from '../../cocos/3d/skeletal-animation/skeletal-animation-blending';
 import { lerp, Vec3 } from '@base/math';
+import { LegacyBlendStateBuffer } from '../../cocos/3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationClip, AnimationManager, AnimationState } from '../../cocos/animation';
 import { VectorTrack } from '../../cocos/animation/animation';
 import { WrappedInfo } from '../../cocos/animation/types';

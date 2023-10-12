@@ -23,10 +23,10 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
+import { absMax } from '@base/math';
 import { Collider } from './collider';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
 import { EAxisDirection, EColliderType } from '../../physics-enum';
-import { absMax } from '@base/math';
 
 /**
  * @en

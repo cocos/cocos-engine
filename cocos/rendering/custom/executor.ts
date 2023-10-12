@@ -31,11 +31,11 @@
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { memop } from '@base/utils';
+import { Vec3, Vec4 } from '@base/math';
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
 import { AccessFlagBit, Attribute, Buffer, BufferFlagBit, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, DispatchInfo, Format, Framebuffer, FramebufferInfo, GeneralBarrierInfo, InputAssembler, InputAssemblerInfo, LoadOp, MemoryUsageBit, PipelineBindPoint, PipelineState, PipelineStateInfo, Rect, RenderPass, RenderPassInfo, Shader, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo, TextureType, TextureUsageBit, Viewport } from '../../gfx';
-import { Vec3, Vec4 } from '@base/math';
 import { Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';

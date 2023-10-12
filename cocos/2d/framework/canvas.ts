@@ -27,9 +27,9 @@ import { ccclass, help, disallowMultiple, executeInEditMode, executionOrder, men
 import { EDITOR } from 'internal:constants';
 import { cclegacy } from '@base/global';
 import { Enum } from '@base/object';
+import { Vec3 } from '@base/math';
 import { Camera } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
-import { Vec3 } from '@base/math';
 import { screen, visibleRect } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
