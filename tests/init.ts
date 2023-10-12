@@ -98,7 +98,7 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/pacer',
+    '@pal/pacer',
     () => jest.requireActual('../pal/pacer/pacer-web'),
     { virtual: true, },
 );

@@ -147,4 +147,4 @@ export class Pacer {
     }
 }
 
-checkPalIntegrity<typeof import('pal/pacer')>(withImpl<typeof import('./pacer-web')>());
+checkPalIntegrity<typeof import('@pal/pacer')>(withImpl<typeof import('./pacer-web')>());

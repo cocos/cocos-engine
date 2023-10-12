@@ -14,7 +14,6 @@
 /// <reference path="./pal/audio.d.ts"/>
 /// <reference path="./pal/input.d.ts"/>
 /// <reference path="./pal/minigame.d.ts"/>
-/// <reference path="./pal/pacer.d.ts"/>
 /// <reference path="./pal/screen-adapter.d.ts"/>
 /// <reference path="./pal/system-info.d.ts"/>
 /// <reference path="./pal/wasm.d.ts"/>
