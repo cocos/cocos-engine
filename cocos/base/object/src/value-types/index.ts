@@ -24,5 +24,6 @@
 */
 
 export { BitMask } from './bitmask';
-export { Enum, ccenum, type EnumType } from './enum';
+export { Enum, ccenum } from './enum';
+export type { EnumType } from './enum';
 export { ValueType } from './value-type';

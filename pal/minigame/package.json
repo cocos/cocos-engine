@@ -10,7 +10,7 @@
     ".": {
       "types": "./src/index.ts",
       "native": "./src/non-minigame.ts",
-      "web": "./src/web/non-minigame.ts",
+      "web": "./src/non-minigame.ts",
       "minigame": {
         "default": "./src/wechat.ts.ts",
         "wechat": "./src/wechat.ts",
