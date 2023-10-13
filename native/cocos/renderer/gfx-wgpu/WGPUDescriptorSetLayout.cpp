@@ -131,21 +131,13 @@ WGPUTextureSampleType sampletypeTraits(const CCWGPUTexture *texture, uint32_t pl
 }
 } // namespace
 
-void CCWGPUDescriptorSetLayout::updateTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane) {
+void CCWGPUDescriptorSetLayout::updateSampledTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane) {
     WGPUBindGroupLayoutEntry textureEntry{};
     textureEntry.binding = _bindings[index].binding;
     textureEntry.visibility = toWGPUShaderStageFlag(_bindings[index].stageFlags);
 
     CC_ASSERT(texture);
 
-    if (texture->getInfo().usage == TextureUsageBit::STORAGE) {
-        WGPUStorageTextureBindingLayout storageTextureLayout{};
-        storageTextureLayout.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
-        storageTextureLayout.format = formatTraits(texture, plane);
-        TextureType type = texture->isTextureView() ? texture->getViewInfo().type : texture->getInfo().type;
-        storageTextureLayout.viewDimension = toWGPUTextureViewDimension(type);
-        textureEntry.storageTexture = storageTextureLayout;
-    } else {
         WGPUTextureBindingLayout textureLayout{};
         textureLayout.sampleType = sampletypeTraits(texture, plane); // textureSampleTypeTrait(texture->getFormat());
         const CCWGPUTexture *ccTex = static_cast<const CCWGPUTexture *>(texture->isTextureView() ? texture->getViewInfo().texture : texture);
@@ -153,7 +145,19 @@ void CCWGPUDescriptorSetLayout::updateTextureLayout(uint8_t index, const CCWGPUT
         textureLayout.viewDimension = toWGPUTextureViewDimension(type);
         textureLayout.multisampled = ccTex->getInfo().samples != SampleCount::X1;
         textureEntry.texture = textureLayout;
+    _gpuLayoutEntryObj->bindGroupLayoutEntries[textureEntry.binding] = textureEntry;
     }
+void CCWGPUDescriptorSetLayout::updateStorageTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane) {
+    WGPUBindGroupLayoutEntry textureEntry{};
+    textureEntry.binding = _bindings[index].binding;
+    textureEntry.visibility = toWGPUShaderStageFlag(_bindings[index].stageFlags);
+    CC_ASSERT(texture);
+    WGPUStorageTextureBindingLayout storageTextureLayout{};
+    storageTextureLayout.access = WGPUStorageTextureAccess::WGPUStorageTextureAccess_WriteOnly;
+    storageTextureLayout.format = formatTraits(texture, plane);
+    TextureType type = texture->isTextureView() ? texture->getViewInfo().type : texture->getInfo().type;
+    storageTextureLayout.viewDimension = toWGPUTextureViewDimension(type);
+    textureEntry.storageTexture = storageTextureLayout;
     _gpuLayoutEntryObj->bindGroupLayoutEntries[textureEntry.binding] = textureEntry;
 }
 

@@ -47,8 +47,8 @@ export class OpenHarmonyPackTool extends NativePackTool {
         // entry/build-profile.json5
         const buildCfgFile = ps.join(ohosProjDir, 'entry/build-profile.json5');
         await cchelper.replaceInFile([
-            { reg: '={DRES_DIR}', text: `=${cchelper.fixPath(this.paths.buildDir!)}` },
-            { reg: '={DCOMMON_DIR}', text: `=${cchelper.fixPath(process.env.COMMON_DIR || '')}` },
+            { reg: 'DRES_DIR=[^ ]*', text: `DRES_DIR=${cchelper.fixPath(this.paths.buildDir!)}` },
+            { reg: 'DCOMMON_DIR=[^ ]*', text: `DCOMMON_DIR=${cchelper.fixPath(process.env.COMMON_DIR || '')}` },
             { reg: /"compileSdkVersion": *,/, text: `"compileSdkVersion": ${platformParams.apiLevel},}` },
         ], buildCfgFile);
 
@@ -93,6 +93,11 @@ export class OpenHarmonyPackTool extends NativePackTool {
         let configJSON = this.readJSON5Sync(cfgFile);
         configJSON.app.bundleName = platformParams.packageName;
         outputJSONSync(cfgFile, configJSON, { spaces: 2 });
+
+        const appScopeStringJSONPath = ps.join(ohosProjDir, 'AppScope/resources/base/element/string.json');
+        const appScopeStringJSON = fs.readJSONSync(appScopeStringJSONPath);
+        appScopeStringJSON.string.find((item: any) => item.name === 'app_name').value = this.params.projectName;
+        outputJSONSync(appScopeStringJSONPath, appScopeStringJSON, { spaces: 2 });
 
         const stringJSONPath = ps.join(ohosProjDir, 'entry/src/main/resources/base/element/string.json');
         const stringJSON = fs.readJSONSync(stringJSONPath);

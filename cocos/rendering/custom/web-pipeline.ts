@@ -238,7 +238,11 @@ export class WebSetter {
         this._copyToBuffer(v, offset, Type.FLOAT);
     }
     public setBuffer (name: string, buffer: Buffer): void {
-        // TODO
+        if (this._getCurrDescriptorBlock(name) === -1) {
+            return;
+        }
+        const num = this._lg.attributeIndex.get(name)!;
+        this._data.buffers.set(num, buffer);
     }
     public setTexture (name: string, texture: Texture): void {
         if (this._getCurrDescriptorBlock(name) === -1) {
@@ -1344,7 +1348,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._addComputeResource(name, accessType, slotName);
     }
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
-        throw new Error('Method not implemented.');
+        this._addComputeResource(name, accessType, slotName);
     }
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
         throw new Error('Method not implemented.');
@@ -1493,6 +1497,9 @@ export class WebPipeline implements BasicPipeline {
     }
     updateRenderWindow (name: string, renderWindow: RenderWindow): void {
         const resId = this.resourceGraph.vertex(name);
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = renderWindow.width;
+        desc.height = renderWindow.height;
         const currFbo = this.resourceGraph._vertices[resId]._object;
         if (currFbo !== renderWindow.framebuffer) {
             this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;

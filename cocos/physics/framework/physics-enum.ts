@@ -272,14 +272,6 @@ export enum EConstraintType {
     HINGE,
     /**
      * @en
-     * Cone twist constraint.
-     * @zh
-     * 锥形扭转约束。
-     * @deprecated coneTwist is deprecated, please use configurable instead
-     */
-    CONE_TWIST,
-    /**
-     * @en
      * Fixed constraint.
      * @zh
      * 固定约束。

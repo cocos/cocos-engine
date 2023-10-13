@@ -1525,7 +1525,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _transformFlags = TransformBit.NONE; // does the world transform need to update?
+    protected _transformFlags = TransformBit.TRS; // does the world transform need to update?
     protected _eulerDirty = false;
 
     protected _flagChangeVersion = 0;
@@ -1883,7 +1883,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean): void {
         this.hasChangedFlags = TransformBit.TRS;
-        this._transformFlags |= TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;

@@ -26,7 +26,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint,
+import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IFixedConstraint,
     IConfigurableConstraint } from '../spec/i-physics-constraint';
 import {
     IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
@@ -58,10 +58,6 @@ interface IPhysicsWrapperObject {
     PlaneShape?: Constructor<IPlaneShape>,
     PointToPointConstraint?: Constructor<IPointToPointConstraint>,
     HingeConstraint?: Constructor<IHingeConstraint>,
-    /**
-     * @deprecated cone twist constraint is deprecated, please use configurable instead
-     */
-    ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
     FixedConstraint?: Constructor<IFixedConstraint>,
     ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
 }
@@ -238,10 +234,6 @@ enum ECheckType {
     // JOINT //
     PointToPointConstraint,
     HingeConstraint,
-    /**
-     * @deprecated cone twist constraint is deprecated, please use configurable instead
-     */
-    ConeTwistConstraint,
     FixedConstraint,
     ConfigurableConstraint,
     // CHARACTER CONTROLLER //
@@ -424,7 +416,7 @@ function initColliderProxy (): void {
 
 const CREATE_CONSTRAINT_PROXY = { INITED: false };
 
-interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint, IConfigurableConstraint { }
+interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IFixedConstraint, IConfigurableConstraint { }
 const ENTIRE_CONSTRAINT: IEntireConstraint = {
     impl: null,
     initialize: FUNC,

@@ -987,9 +987,9 @@ interface Macro {
 
     /**
      * @en
-     * Used to set float output, the default value is false.
+     * Used to set float output render target, more accurate multiple light sources, fog, and translucent effects, custom pipeline only, the default value is false.
      * @zh
-     * 用于开启浮点格式的输出, 默认值为 false。
+     * 用于开启浮点格式的RT输出, 更精确的多光源、雾化和半透明效果, 仅用于自定义管线, 默认值为 false。
      * @default false
      */
     ENABLE_FLOAT_OUTPUT: boolean;

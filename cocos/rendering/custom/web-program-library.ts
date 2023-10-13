@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -91,7 +92,7 @@ function findBinding (shaderInfo: ShaderInfo, name: string): { set: number, bind
 
 function overwriteShaderSourceBinding (shaderInfo: ShaderInfo, source: string): string {
     let code = source;
-    const samplerExp = /layout\s*\(([^\)])+\)\s+uniform\s+(\b\w+\b\s+)?sampler(\w+)\s+(\b\w+\b)/g;
+    const samplerExp = /layout\s*\(([^)])+\)\s+uniform\s+(\b\w+\b\s+)?sampler(\w+)\s+(\b\w+\b)/g;
     let samplerIter = samplerExp.exec(code);
     while (samplerIter) {
         const name = samplerIter[4];
@@ -101,13 +102,20 @@ function overwriteShaderSourceBinding (shaderInfo: ShaderInfo, source: string): 
         code = code.replace(samplerIter[0], replaceStr);
         samplerIter = samplerExp.exec(code);
     }
-    const blockExp = /layout\s*\(([^\)])+\)\s*(readonly)?\s*\b(uniform|buffer)\b\s+(\b\w+\b)\s*[{;]/g;
+    const blockExp = /layout\s*\(([^)]+)\)\s*(readonly|writeonly)?\s*\b((uniform\s*|buffer\s*|image2D\s*){1,2})\b\s*(\b\w+\b)\s*[{;]/g;
     let blockIter = blockExp.exec(code);
     while (blockIter) {
-        const name = blockIter[4];
+        const name = blockIter[5];
         const { set, binding } = findBinding(shaderInfo, name);
         const accessStr = blockIter[2] ? blockIter[2] : '';
-        const replaceStr = `layout(set = ${set}, binding = ${binding}) ${accessStr} ${blockIter[3]} ${blockIter[4]} {`;
+        let endStr = ' {';
+        if (blockIter[3].includes('image')) {
+            endStr = `;`;
+        }
+        let desc = blockIter[1];
+        desc = desc.replace(/set\s*=\s*\d+/g, `set = ${set}`);
+        desc = desc.replace(/binding\s*=\s*\d+/g, `binding = ${binding}`);
+        const replaceStr = `layout(${desc}) ${accessStr} ${blockIter[3]} ${blockIter[5]}${endStr}`;
         code = code.replace(blockIter[0], replaceStr);
         blockIter = blockExp.exec(code);
     }
@@ -474,7 +482,7 @@ function calculateFlattenedBinding (
     shaderInfo: ShaderInfo,
 ): void {
     // Descriptors of UniformBlock starts from 0, and Descriptors of SamplerTexture starts from the end of UniformBlock.
-    const uniformBlockCapacities = new Array(4);
+    const uniformBlockCapacities = new Array<number>(4);
     {
         const passCapacity = descriptorSets[UpdateFrequency.PER_PASS]?.uniformBlockCapacity || 0;
         const phaseCapacity = descriptorSets[UpdateFrequency.PER_PHASE]?.uniformBlockCapacity || 0;
@@ -496,7 +504,7 @@ function calculateFlattenedBinding (
         const batchOffset = instanceOffset + instanceCapacity;
 
         // save uniform block offsets by set index
-        const uniformBlockOffsets = new Array(4);
+        const uniformBlockOffsets = new Array<number>(4);
         uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
         uniformBlockOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
         uniformBlockOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;
@@ -521,7 +529,7 @@ function calculateFlattenedBinding (
         const batchOffset = instanceOffset + instanceCapacity;
 
         // save sampler texture offsets by set index
-        const samplerTextureOffsets = new Array(4);
+        const samplerTextureOffsets = new Array<number>(4);
         samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PASS]] = passOffset;
         samplerTextureOffsets[_setIndex[UpdateFrequency.PER_PHASE]] = phaseOffset;
         samplerTextureOffsets[_setIndex[UpdateFrequency.PER_BATCH]] = batchOffset;

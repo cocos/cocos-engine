@@ -23,7 +23,8 @@
 */
 
 import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM, removeImplPtrReference,
-    removeImplPtrReferenceWASM } from '../instantiated';
+    removeImplPtrReferenceWASM,
+    B2ObjectType } from '../instantiated';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { Collider2D, PhysicsSystem2D, RigidBody2D, PHYSICS_2D_PTM_RATIO } from '../../../../exports/physics-2d-framework';
 import { Rect, Vec3 } from '../../../core';
@@ -46,8 +47,8 @@ function getFilter (shape: B2Shape2D): B2.Filter {
 }
 
 export class B2Shape2D implements IBaseShape {
-    protected _shapes: B2.Shape[] = [];
-    protected _fixtures: B2.Fixture[] = [];
+    protected _shapes: number[] = [];
+    protected _fixtures: number[] = [];//B2.Fixture ptr
 
     protected _collider: Collider2D | null = null;
     protected _body: B2.Body | null = null;
@@ -56,7 +57,7 @@ export class B2Shape2D implements IBaseShape {
 
     private _rect = new Rect();
 
-    get impl (): B2.Shape[] {
+    get impl (): number[] {
         return this._shapes;
     }
 
@@ -87,7 +88,7 @@ export class B2Shape2D implements IBaseShape {
     onGroupChanged (): void {
         const filter = getFilter(this);
         this._fixtures.forEach((f): void => {
-            f.SetFilterData(filter);
+            B2.FixtureSetFilterData(f, filter);
         });
     }
 
@@ -108,15 +109,16 @@ export class B2Shape2D implements IBaseShape {
         for (let i = 0; i < fixtures.length; i++) {
             const fixture = fixtures[i];
 
-            const count = fixture.GetShape().GetChildCount();
+            const shape = B2.FixtureGetShape(fixture) as number;
+            const count = B2.ShapeGetChildCount(shape);
             for (let j = 0; j < count; j++) {
-                const aabb = fixture.GetAABB(j);
+                const aabb = B2.FixtureGetAABB(fixture, j);
                 lowerBound.x = aabb.lowerBound.x;
                 lowerBound.y = aabb.lowerBound.y;
                 upperBound.x = aabb.upperBound.x;
                 upperBound.y = aabb.upperBound.y;
-                if (fixture.GetShape().m_type === B2.ShapeType.e_polygon) { //b2ShapeType.e_polygonShape
-                    const skinWidth = fixture.GetShape().m_radius;
+                if (B2.ShapeGetType(shape) === 2) { //b2ShapeType.e_polygonShape
+                    const skinWidth = B2.ShapeGetRadius(shape);
                     lowerBound.x += skinWidth;
                     lowerBound.y += skinWidth;
                     upperBound.x += skinWidth;
@@ -143,12 +145,12 @@ export class B2Shape2D implements IBaseShape {
         return r;
     }
 
-    getFixtureIndex (fixture: B2.Fixture): number {
+    getFixtureIndex (fixture: number): number { //B2.Fixture ptr
         return this._fixtures.indexOf(fixture);
     }
 
     //relativePositionX/Y : relative Position from shape to rigid body
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): B2.Shape[] {
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): number[] {
         return [];
     }
 
@@ -177,17 +179,23 @@ export class B2Shape2D implements IBaseShape {
         for (let i = 0; i < shapes.length; i++) {
             const shape = shapes[i];
 
-            const fixDef = new B2.FixtureDef();
-            fixDef.density = comp.density;
-            fixDef.isSensor = comp.sensor;
-            fixDef.friction = comp.friction;
-            fixDef.restitution = comp.restitution;
-            fixDef.SetShape(shape);
-            fixDef.filter = filter;
-            const fixture = this._body.CreateFixture(fixDef as B2.FixtureDef);
-            //fixture.m_userData = this;
-            addImplPtrReference(this, getImplPtr(fixture));
-            addImplPtrReferenceWASM(fixture, getImplPtr(fixture));
+            const fixDef = (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).tempB2FixtureDefPtr;
+            B2.FixtureDefSetAll(
+                fixDef,
+                shape,
+                0,
+                comp.friction,
+                comp.restitution,
+                comp.density,
+                comp.sensor,
+                filter.categoryBits,
+                filter.maskBits,
+                filter.groupIndex,
+            );
+
+            const fixture =  B2.BodyCreateFixture(getImplPtr(this._body), fixDef) as number;
+            addImplPtrReference(B2ObjectType.Fixture, this, fixture);
+            addImplPtrReferenceWASM(B2ObjectType.Fixture, fixture, fixture);
 
             if (body?.enabledContactListener) {
                 (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).registerContactFixture(fixture);
@@ -209,13 +217,13 @@ export class B2Shape2D implements IBaseShape {
         for (let i = fixtures.length - 1; i >= 0; i--) {
             const fixture = fixtures[i];
             //fixture.m_userData = null;
-            removeImplPtrReference(getImplPtr(fixture));
-            removeImplPtrReferenceWASM(getImplPtr(fixture));
+            removeImplPtrReference(B2ObjectType.Fixture, fixture);
+            removeImplPtrReferenceWASM(B2ObjectType.Fixture, fixture);
 
             (PhysicsSystem2D.instance.physicsWorld as B2PhysicsWorld).unregisterContactFixture(fixture);
 
             if (body) {
-                body.DestroyFixture(fixture);
+                B2.BodyDestroyFixture(getImplPtr(body), fixture);
             }
         }
 

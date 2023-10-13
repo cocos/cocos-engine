@@ -168,7 +168,6 @@ export class UIRenderer extends Renderer {
      */
     @type(Material)
     @displayOrder(0)
-    @tooltip('i18n:UIRenderer.customMaterial')
     @displayName('CustomMaterial')
     @disallowAnimation
     get customMaterial (): Material | null {
@@ -185,7 +184,6 @@ export class UIRenderer extends Renderer {
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
     @displayOrder(1)
-    @tooltip('i18n:UIRenderer.color')
     get color (): Readonly<Color> {
         return this._color;
     }

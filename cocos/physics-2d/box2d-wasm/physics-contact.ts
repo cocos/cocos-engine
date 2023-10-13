@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { B2, addImplPtrReference, getTSObjectFromWASMObjectPtr, removeImplPtrReference } from './instantiated';
+import { B2, B2ObjectType, addImplPtrReference, getTSObjectFromWASMObjectPtr, removeImplPtrReference } from './instantiated';
 import { Vec2 } from '../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
@@ -74,7 +74,7 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     static put (b2contact: number): void {
-        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(b2contact);
+        const c = getTSObjectFromWASMObjectPtr<PhysicsContact>(B2ObjectType.Contact, b2contact);
         if (!c) return;
 
         pools.push(c);
@@ -97,15 +97,16 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     init (b2contact: number): void {
-        this.colliderA = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureA(b2contact) as number)).collider;
-        this.colliderB = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2.ContactGetFixtureB(b2contact) as number)).collider;
+        const ab = B2.ContactGetFixture(b2contact) as Vec2;
+        this.colliderA = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, ab.x)).collider;
+        this.colliderB = (getTSObjectFromWASMObjectPtr<B2Shape2D>(B2ObjectType.Fixture, ab.y)).collider;
         this.disabled = false;
         this.disabledOnce = false;
         this._impulsePtr = 0;
         this._inverted = false;
 
         this._implPtr = b2contact;
-        addImplPtrReference(this, this._implPtr);
+        addImplPtrReference(B2ObjectType.Contact, this, this._implPtr);
         this._b2WorldmanifoldPtr = B2.WorldManifoldNew();
     }
 
@@ -119,7 +120,7 @@ export class PhysicsContact implements IPhysics2DContact {
         this.disabled = false;
         this._impulsePtr = 0;
 
-        removeImplPtrReference(this._implPtr);
+        removeImplPtrReference(B2ObjectType.Contact, this._implPtr);
         this._implPtr = 0;
 
         B2.WorldManifoldDelete(this._b2WorldmanifoldPtr);
