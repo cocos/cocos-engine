@@ -48,7 +48,7 @@ class CocosLooper {
 public:
     CocosLooper();
     ~CocosLooper();
-    AndroidAppMessage getMessage();
+    AndroidAppMessage getMessage() const;
     void writeMessage(AndroidAppMessage&& msg) const;
     inline ALooper* getALooper() const { return _looper; }
     void prepare(void* userData);

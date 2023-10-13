@@ -68,7 +68,7 @@ CocosLooper::~CocosLooper() {
     close(_writePipe);
 }
 
-AndroidAppMessage CocosLooper::getMessage() {
+AndroidAppMessage CocosLooper::getMessage() const {
     AndroidAppMessage msg;
     if (read(_readPipe, &msg, sizeof(msg)) != sizeof(msg)) {
         LOGE("No data on command pipe!");
