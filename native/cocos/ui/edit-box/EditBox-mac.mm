@@ -242,10 +242,6 @@ void initTextField(const cc::EditBox::ShowInfo &showInfo) {
 }
 
 void init(const cc::EditBox::ShowInfo &showInfo) {
-    // SDL has an internal implementation of textinput ,
-    // which internally sends the SDL_TEXTINPUT event. Causing two events to be sent.
-    // So we need to stop the implementation of TextInput.
-    cc::SDLHelper::stopTextInput();
     if (showInfo.isMultiline)
         initTextView(showInfo);
     else
