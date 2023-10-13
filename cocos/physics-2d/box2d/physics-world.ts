@@ -309,6 +309,13 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         b2Body.m_userData = body;
         body._imp = b2Body;
 
+        // set default rotation inertia for b2Body
+        // which is zero in box2d, here we set to nonzero
+        const massData: b2.MassData = new b2.MassData();
+        b2Body.GetMassData(massData);
+        massData.I = massData.mass * 10;
+        b2Body.SetMassData(massData);
+
         this._bodies.push(body);
     }
 
