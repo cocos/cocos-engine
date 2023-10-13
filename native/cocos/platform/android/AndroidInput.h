@@ -17,13 +17,13 @@ class AndroidPlatform;
  */
 #define POINTER_INFO_AXIS_COUNT 48
 
-typedef struct AndroidPointerAxes {
+using AndroidPointerAxes = struct AndroidPointerAxes {
     int32_t id;
     int32_t toolType;
     float axisValues[POINTER_INFO_AXIS_COUNT];
     float rawX;
     float rawY;
-} AndroidPointerAxes;
+} ;
 
 using AndroidMotionEvent =  struct AndroidMotionEvent {
     int32_t windowId;

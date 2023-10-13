@@ -49,7 +49,7 @@ public:
     CocosLooper();
     ~CocosLooper();
     AndroidAppMessage getMessage();
-    void writeMessage(AndroidAppMessage&& msg);
+    void writeMessage(AndroidAppMessage&& msg) const;
     inline ALooper* getALooper() const { return _looper; }
     void prepare(void* userData);
     void prepareMainLooper(MainCallback* callback);
@@ -63,7 +63,7 @@ private:
 
 class MessageHandler {
 public:
-    MessageHandler(CocosLooper* looper);
+    explicit MessageHandler(CocosLooper* looper);
     ~MessageHandler();
     template <typename T>
     T* obtainObject();

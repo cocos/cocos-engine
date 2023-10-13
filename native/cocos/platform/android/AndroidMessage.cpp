@@ -27,7 +27,7 @@
 #include <android/log.h>
 #include <cerrno>
 #include <fcntl.h>
-#include <string.h>
+#include <cstring>
 #include <unistd.h>
 #include <algorithm>
 
@@ -58,12 +58,12 @@ CocosLooper::CocosLooper() {
 
 CocosLooper::~CocosLooper() {
     if (_isMainLooper) {
-        if (_looper != NULL && _readPipe >= 0) {
+        if (_looper != nullptr && _readPipe >= 0) {
             ALooper_removeFd(_looper, _readPipe);
         }
         ALooper_release(_looper);
     }
-    _looper = NULL;
+    _looper = nullptr;
     close(_readPipe);
     close(_writePipe);
 }
@@ -77,7 +77,7 @@ AndroidAppMessage CocosLooper::getMessage() {
     return msg;
 }
 
-void CocosLooper::writeMessage(AndroidAppMessage&& msg) {
+void CocosLooper::writeMessage(AndroidAppMessage&& msg) const {
     if (write(_readPipe, &msg, sizeof(msg)) != sizeof(msg)) {
         LOGE("Failure writing android_app cmd: %s", strerror(errno));
     }
@@ -86,7 +86,7 @@ void CocosLooper::writeMessage(AndroidAppMessage&& msg) {
 void CocosLooper::prepare(void* userData) {
     _looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
     ALooper_addFd(_looper, _readPipe, LOOPER_ID_MAIN,
-                  ALOOPER_EVENT_INPUT, NULL, userData);
+                  ALOOPER_EVENT_INPUT, nullptr, userData);
 }
 
 void CocosLooper::prepareMainLooper(MainCallback* callback) {
@@ -135,7 +135,7 @@ T* MessageHandler::obtainObject() {
 
 void MessageHandler::sendMessage(AndroidAppMessage&& msg) {
     if (_looper) {
-        _looper->writeMessage(std::move(msg));
+        _looper->writeMessage(std::forward<AndroidAppMessage>(msg));
     }
 }
 
