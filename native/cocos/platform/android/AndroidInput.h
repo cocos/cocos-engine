@@ -25,7 +25,7 @@ typedef struct AndroidPointerAxes {
     float rawY;
 } AndroidPointerAxes;
 
-typedef struct AndroidMotionEvent {
+using AndroidMotionEvent =  struct AndroidMotionEvent {
     int32_t windowId;
     int32_t deviceId;
     int32_t source;
@@ -50,13 +50,13 @@ typedef struct AndroidMotionEvent {
     float precisionY;
 
     int historySize;
-    long* historicalEventTimesMillis;
-    long* historicalEventTimesNanos;
+    int64_t* historicalEventTimesMillis;
+    int64_t* historicalEventTimesNanos;
     float* historicalAxisValues;
 
-} AndroidMotionEvent;
+};
 
-typedef struct AndroidKeyEvent {
+using AndroidKeyEvent = struct AndroidKeyEvent {
     int32_t windowId;
     int32_t deviceId;
     int32_t source;
@@ -71,7 +71,7 @@ typedef struct AndroidKeyEvent {
     int32_t modifiers;
     int32_t repeatCount;
     int32_t keyCode;
-} AndroidKeyEvent;
+};
 
 
 class AndroidInput {

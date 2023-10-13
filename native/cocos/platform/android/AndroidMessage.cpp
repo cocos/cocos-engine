@@ -25,7 +25,7 @@
 #include "AndroidMessage.h"
 
 #include <android/log.h>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>

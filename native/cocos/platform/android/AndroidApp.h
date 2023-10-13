@@ -31,6 +31,7 @@
 #include <android/native_window.h>
 #include "base/std/container/vector.h"
 #include "AndroidInput.h"
+#include "AndroidMessage.h"
 
 namespace cc {
 
@@ -39,7 +40,7 @@ class MessageHandler;
 #define NATIVE_APP_GLUE_MAX_NUM_MOTION_EVENTS 16
 #define NATIVE_APP_GLUE_MAX_NUM_KEY_EVENTS    4
 
-struct android_input_buffer {
+struct AndroidInputBuffer {
     /**
      * Pointer to a read-only array of pointers to AndroidMotionEvent.
      * Only the first motionEventsCount events are valid.
@@ -76,9 +77,9 @@ public:
     void setSurface(jobject surface);
 
     inline ANativeWindow *getNativeWindow() const { return _nativeWindow; }
-    inline int getWindowId() const { return _windowId; }
-    inline int getWidth() const { return _width; }
-    inline int getHeight() const { return _height; }
+    inline uint32_t getWindowId() const { return _windowId; }
+    inline uint32_t getWidth() const { return _width; }
+    inline uint32_t getHeight() const { return _height; }
 
     JNIEnv *env{nullptr};
     ANativeWindow* _pendingWindow{nullptr};
@@ -96,46 +97,46 @@ public:
     /**
      * An optional pointer.
      */
-    void* userData;
+    void* userData{nullptr};
 
     /**
      * The global handle on the process's Java VM.
      */
-    JavaVM* vm;
+    JavaVM* vm{nullptr};
 
     /**
      * JNI context for the main thread of the app.  Note that this field
      * can ONLY be used from the main thread of the process; that is, the
      * thread that calls into the GameActivityCallbacks.
      */
-    JNIEnv* env;
+    JNIEnv* env{nullptr};
 
     /**
      * The Context object handle.
      */
-    jobject javaContext;
+    jobject javaContext{nullptr};
 
     /** The current configuration the app is running in. */
-    AConfiguration* config;
+    AConfiguration* config{nullptr};
 
     /**
      * Pointer to the Asset Manager instance for the application.  The
      * application uses this to access binary assets bundled inside its own .apk
      * file.
      */
-    AAssetManager* assetManager;
+    AAssetManager* assetManager{nullptr};
 
     /**
      * Current state of the app.  May be either APP_CMD_START,
      * APP_CMD_RESUME, APP_CMD_PAUSE, or APP_CMD_STOP.
      */
-    int appState;
+    int appState{UNUSED_APP_CMD};
 
     /**
      * This is non-zero when the application's GameActivity is being
      * destroyed and waiting for the app thread to complete.
      */
-    int destroyRequested;
+    int destroyRequested{0};
 
 #define NATIVE_APP_GLUE_MAX_INPUT_BUFFERS 2
 
@@ -144,9 +145,9 @@ public:
      * application thread switches the buffers and processes what was
      * accumulated.
      */
-    struct android_input_buffer inputBuffers[NATIVE_APP_GLUE_MAX_INPUT_BUFFERS];
+    struct AndroidInputBuffer inputBuffers[NATIVE_APP_GLUE_MAX_INPUT_BUFFERS]{0};
 
-    int currentInputBuffer;
+    int currentInputBuffer{0};
 
     // Below are "private" implementation of the glue code.
     /** @cond INTERNAL */
@@ -156,9 +157,8 @@ public:
 
     pthread_t thread;
 
-    int running;
-    int destroyed;
-    ARect pendingContentRect;
+    int running{0};
+    int destroyed{0};
 
     AndroidApp();
     ~AndroidApp();

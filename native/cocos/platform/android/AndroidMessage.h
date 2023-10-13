@@ -55,9 +55,9 @@ public:
     void prepareMainLooper(MainCallback* callback);
 
 private:
-    ALooper* _looper;
-    int _readPipe;
-    int _writePipe;
+    ALooper* _looper{nullptr};
+    int _readPipe{-1};
+    int _writePipe{-1};
     bool _isMainLooper{false};
 };
 

@@ -24,6 +24,7 @@
 
 #include "AndroidApp.h"
 #include <android/native_window_jni.h>
+#include "base/Macros.h"
 
 #include "AndroidMessage.h"
 
@@ -52,12 +53,9 @@ AndroidApp::~AndroidApp() {
 }
 
 bool AndroidApp::hasWindow() {
-    for (auto* nativeWindow : _vecNativeWindow) {
-        if (nativeWindow->getNativeWindow()) {
-            return true;
-        }
-    }
-    return false;
+    return std::any_of(_vecNativeWindow.begin(), _vecNativeWindow.end(), [](auto *nativeWindow) {
+        return nativeWindow != nullptr;
+    });
 }
 
 void AndroidApp::processAppCmd(AndroidApp* app) {
@@ -71,7 +69,10 @@ void AndroidApp::processAppCmd(AndroidApp* app) {
 }
 
 void AndroidApp::processGameRequest(int fd, int events, void* data) {
+    CC_UNUSED_PARAM(fd);
+    CC_UNUSED_PARAM(events);
     auto* app = static_cast<AndroidApp*>(data);
+
     auto msg = app->_gameRequestHandler->getLooper()->getMessage();
     switch (msg.cmd) {
         case GAME_CMD_REQUEST_EXIT:
