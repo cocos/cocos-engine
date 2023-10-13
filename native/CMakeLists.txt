@@ -554,6 +554,12 @@ elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
+        cocos/platform/android/AndroidApp.cpp
+        cocos/platform/android/AndroidApp.h
+        cocos/platform/android/AndroidInput.cpp
+        cocos/platform/android/AndroidInput.h
+        cocos/platform/android/AndroidMessage.cpp
+        cocos/platform/android/AndroidMessage.h
         cocos/platform/android/AndroidKeyCodes.cpp
         cocos/platform/android/AndroidCountdownTrigger.cpp
     )
