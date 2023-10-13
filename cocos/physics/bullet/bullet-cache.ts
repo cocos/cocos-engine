@@ -25,7 +25,7 @@
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation, CharacterController } from '../../../exports/physics-framework';
 import { Vec3, Quat, Mat4, Color } from '../../core';
 import { CharacterTriggerEventType } from '../framework';
-import { bt } from './instantiated';
+import { bt, btCache } from './instantiated';
 
 export const TriggerEventObject = {
     type: 'onTriggerEnter' as unknown as TriggerEventType,
@@ -90,4 +90,4 @@ export const CC_MAT4_0 = new Mat4();
 export const CC_MAT4_1 = new Mat4();
 export const CC_COLOR_0 = new Color();
 
-bt.CACHE = BulletCache;
+btCache.CACHE = BulletCache;

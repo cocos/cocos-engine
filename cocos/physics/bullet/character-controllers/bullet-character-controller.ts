@@ -29,7 +29,7 @@ import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { BulletCache } from '../bullet-cache';
 import { bullet2CocosVec3, cocos2BulletVec3 } from '../bullet-utils';
 import { BulletWorld } from '../bullet-world';
-import { bt, EBulletType } from '../instantiated';
+import { bt, btCache, EBulletType } from '../instantiated';
 import { PhysicsGroup } from '../../framework/physics-enum';
 import { BulletShape } from '../shapes/bullet-shape';
 import { degreesToRadians } from '../../../core/utils/misc';
@@ -87,9 +87,9 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     }
 
     setWrapper (): void {
-        BulletCache.setWrapper(this._impl, bt.CCT_CACHE_NAME, this);
+        BulletCache.setWrapper(this._impl, btCache.CCT_CACHE_NAME, this);
         const cctCollisionShapeImpl = bt.CharacterController_getCollisionShape(this.impl);
-        BulletCache.setWrapper(cctCollisionShapeImpl, bt.CCT_CACHE_NAME, this);
+        BulletCache.setWrapper(cctCollisionShapeImpl, btCache.CCT_CACHE_NAME, this);
     }
 
     onEnable (): void {
@@ -112,7 +112,7 @@ export abstract class BulletCharacterController implements IBaseCharacterControl
     onDestroy (): void {
         //(this._comp as any) = null;
         bt._safe_delete(this._impl, EBulletType.EBulletTypeCharacterController);
-        BulletCache.delWrapper(this._impl, bt.CCT_CACHE_NAME);
+        BulletCache.delWrapper(this._impl, btCache.CCT_CACHE_NAME);
         this._impl = 0;
         //(this.wrappedWorld as any) = null;
     }
