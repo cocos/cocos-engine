@@ -141,8 +141,9 @@ import {
     validPunctualLightsCulling,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { SceneCulling } from './scene-culling';
+import { LightResource, SceneCulling } from './scene-culling';
 import { Pass } from '../../render-scene';
+import { WebProgramLibrary } from './web-program-library';
 
 class ResourceVisitor implements ResourceGraphVisitor {
     name: string;
@@ -1280,23 +1281,15 @@ class DeviceSceneTransversal extends WebSceneTransversal {
     }
     get graphScene (): GraphScene { return this._graphScene; }
     public preRenderPass (visitor: WebSceneVisitor): DevicePreSceneTask {
-        if (!this._preSceneTask) {
-            this._preSceneTask = new DevicePreSceneTask(this._currentQueue, this._graphScene, visitor);
-        }
-        this._preSceneTask.apply(this._currentQueue, this.graphScene);
+        this._preSceneTask = new DevicePreSceneTask(this._currentQueue, this._graphScene, visitor);
         return this._preSceneTask;
     }
     public transverse (visitor: WebSceneVisitor): DeviceSceneTask {
-        if (!this._sceneTask) {
-            this._sceneTask = new DeviceSceneTask(this._currentQueue, this._graphScene, visitor);
-        }
-        this._sceneTask.apply(this._currentQueue, this.graphScene);
+        this._sceneTask = new DeviceSceneTask(this._currentQueue, this._graphScene, visitor);
         return this._sceneTask;
     }
     public postRenderPass (visitor: WebSceneVisitor): DevicePostSceneTask {
-        if (!this._postSceneTask) {
-            this._postSceneTask = new DevicePostSceneTask(this._sceneData, context.ubo, this._camera, visitor);
-        }
+        this._postSceneTask = new DevicePostSceneTask(this._sceneData, context.ubo, this._camera, visitor);
         return this._postSceneTask;
     }
 }
@@ -1372,17 +1365,9 @@ class DevicePreSceneTask extends WebSceneTask {
     public start (): void {
         if (this.graphScene.blit) {
             this._currentQueue.createBlitDesc(this.graphScene.blit);
-            return;
         }
-        if (!this.camera) {
-            return;
-        }
-        const sceneFlag = this._graphScene.scene!.flags;
-        if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
-            this._sceneCulling();
-            validPunctualLightsCulling(context.pipeline, this.camera);
-            context.additiveLight.gatherLightPasses(this.camera, this._cmdBuff, this._currentQueue.devicePass.layoutName);
-        }
+        context.lightResource.buildLightBuffer(context.commandBuffer);
+        context.lightResource.tryUpdateRenderSceneLocalDescriptorSet(context.culling);
     }
 
     public submit (): void {
@@ -1562,14 +1547,6 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
 
-    private _recordAdditiveLights (): void {
-        context.additiveLight?.recordCommandBuffer(
-            context.device,
-            this._renderPass,
-            context.commandBuffer,
-        );
-    }
-
     public submit (): void {
         const devicePass = this._currentQueue.devicePass;
         const sceneCulling = context.culling;
@@ -1580,21 +1557,10 @@ class DeviceSceneTask extends WebSceneTask {
             this._recordBlit();
             return;
         }
-        const renderQueueDesc = sceneCulling.sceneQueryIndex.get(this.graphScene.sceneID)!;
+        const renderQueueDesc = sceneCulling.renderQueueIndex.get(this.graphScene.sceneID)!;
         const renderQueue = sceneCulling.renderQueues[renderQueueDesc.renderQueueTarget];
         const graphSceneData = this.graphScene.scene!;
-        renderQueue.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
-        renderQueue.opaqueInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
-        if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
-            this._recordAdditiveLights();
-            this.visitor.bindDescriptorSet(
-                SetIndex.GLOBAL,
-                context.descriptorSet!,
-            );
-        }
-
-        renderQueue.transparentInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
-        renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
+        renderQueue.recordCommands(context.commandBuffer, this._renderPass);
         if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.removeMacro();
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(
@@ -1877,6 +1843,7 @@ class ExecutorContext {
         for (const infoMap of this.submitMap) {
             for (const info of infoMap[1]) info[1].reset();
         }
+        this.lightResource.clear();
     }
     resize (width: number, height: number): void {
         this.width = width;
@@ -1899,6 +1866,7 @@ class ExecutorContext {
     readonly pools: ExecutorPools;
     readonly blit: BlitInfo;
     readonly culling: SceneCulling;
+    lightResource: LightResource = new LightResource();
     renderGraph: RenderGraph;
     width: number;
     height: number;
@@ -1926,6 +1894,8 @@ export class Executor {
             width,
             height,
         );
+        const programLib: WebProgramLibrary = cclegacy.rendering.programLib;
+        context.lightResource.init(programLib, device, 16);
     }
 
     resize (width: number, height: number): void {
@@ -1979,8 +1949,10 @@ export class Executor {
         context.renderGraph = rg;
         context.reset();
         const cmdBuff = context.commandBuffer;
-        context.culling.buildRenderQueues(rg, context.layoutGraph, context.pipelineSceneData);
-        context.culling.uploadInstancing(cmdBuff);
+        const culling = context.culling;
+        culling.buildRenderQueues(rg, context.layoutGraph, context.pipelineSceneData);
+        context.lightResource.buildLights(culling, context.pipelineSceneData.isHDR, context.pipelineSceneData.shadows);
+        culling.uploadInstancing(cmdBuff);
         this._removeDeviceResource();
         cmdBuff.begin();
         if (!this._visitor) this._visitor = new RenderVisitor();

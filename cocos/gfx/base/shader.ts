@@ -45,6 +45,10 @@ export abstract class Shader extends GFXObject {
         return this._samplers;
     }
 
+    get stages (): ShaderStage[] {
+        return this._stages;
+    }
+
     protected _name = '';
     protected _stages: ShaderStage[] = [];
     protected _attributes: Attribute[] = [];

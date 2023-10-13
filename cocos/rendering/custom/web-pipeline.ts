@@ -59,6 +59,7 @@ import { Scene } from '../../scene-graph';
 import { Director } from '../../game';
 import { ReflectionProbeManager } from '../../3d';
 import { legacyCC } from '../../core/global-exports';
+import { WebProgramLibrary } from './web-program-library';
 
 const _uboVec = new Vec4();
 const _uboVec3 = new Vec3();
@@ -1198,7 +1199,14 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
 
     addSceneOfCamera (camera: Camera, light: LightInfo, sceneFlags = SceneFlags.NONE, name = 'Camera'): void {
-        const sceneData = renderGraphPool.createSceneData(camera.scene, camera, sceneFlags, CullingFlags.NONE, light.light);
+        const lightTarget = light.light;
+        const sceneData = renderGraphPool.createSceneData(
+            camera.scene,
+            camera,
+            sceneFlags,
+            lightTarget ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
+            lightTarget,
+        );
         this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', renderGraphPool.createRenderData(), false, this._vertID);
         const layoutName = this.getParentLayout();
         const scene: Scene = cclegacy.director.getScene();
@@ -1210,7 +1218,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             layoutName,
         );
         if (sceneFlags & SceneFlags.SHADOW_CASTER) {
-            setShadowUBOLightView(this, camera, light.light!, light.level, layoutName);
+            setShadowUBOLightView(this, camera, lightTarget!, light.level, layoutName);
         } else {
             setShadowUBOView(this, camera, layoutName);
         }
@@ -1218,10 +1226,13 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         initGlobalDescBinding(this._data, layoutName);
     }
     addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined = undefined): SceneBuilder {
-        const sceneData = renderGraphPool.createSceneData(camera.scene, camera, sceneFlags);
-        if (light) {
-            sceneData.light.light = light;
-        }
+        const sceneData = renderGraphPool.createSceneData(
+            camera.scene,
+            camera,
+            sceneFlags,
+            light ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
+            light,
+        );
         const renderData = renderGraphPool.createRenderData();
         const sceneId = this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, 'Scene', '', renderData, false, this._vertID);
         if (!(sceneFlags & SceneFlags.NON_BUILTIN)) {
@@ -2134,7 +2145,6 @@ export class WebPipeline implements BasicPipeline {
         if (this.usesDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
         }
-
         this._forward = new ForwardPipelineBuilder();
         this._deferred = new DeferredPipelineBuilder();
         this.builder = new CustomPipelineBuilder();

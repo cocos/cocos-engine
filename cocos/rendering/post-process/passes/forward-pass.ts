@@ -70,13 +70,15 @@ export class ForwardPass extends BasePass {
                 }
             }
         }
-        pass.addQueue(QueueHint.RENDER_OPAQUE)
-            .addSceneOfCamera(
-                camera,
-                new LightInfo(),
-                SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT
+        const forwardQueue = pass.addQueue(QueueHint.RENDER_OPAQUE);
+        forwardQueue.addSceneOfCamera(
+            camera,
+            new LightInfo(),
+            SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT
                 | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
-            );
+        );
+        const forwardAddQueue = pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add');
+        passContext.addSceneLights(forwardAddQueue, camera);
         const shadowInfo = ppl.pipelineSceneData.shadows;
         if (camera.scene?.mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.Planar) {
             pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'planar-shadow')
