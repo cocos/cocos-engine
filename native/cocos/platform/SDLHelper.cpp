@@ -158,6 +158,12 @@ int SDLHelper::init() {
         CC_LOG_ERROR("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return -1;
     }
+    // (1) Disable IDE on windows platform.
+    // (2) On mac platform, SDL has an internal implementation of textinput ,
+    // which internally sends the SDL_TEXTINPUT event. Causing two events to be sent.
+    // So we need to stop the implementation of TextInput.
+	// (3) Other platforms do not use textinput in sdl.
+    stopTextInput();
     return 0;
 }
 
