@@ -68,6 +68,11 @@ export interface INativePlatformOptions {
     init: (params: CocosParams<Object>) => void;
 }
 
+export interface IOpenWithIdeOptions {
+    buildDir: string;
+    nativeIdeDir: string,
+}
+
 export abstract class NativePackTool {
     // 传入的打包参数
     params!: CocosParams<Object>;
@@ -538,9 +543,9 @@ export abstract class NativePackTool {
 
     abstract create(): Promise<boolean>;
     generate?(): Promise<boolean>;
-    openWithIde?(): Promise<boolean>;
     make?(): Promise<boolean>;
     run?(): Promise<boolean>;
+    openWithIde?(options: IOpenWithIdeOptions): Promise<boolean>;
 }
 
 // cocos.compile.json 

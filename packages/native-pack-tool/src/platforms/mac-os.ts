@@ -2,8 +2,8 @@ import * as fs from 'fs-extra';
 import * as ps from 'path';
 import * as os from 'os';
 import { execSync } from "child_process";
-import { CocosParams, NativePackTool } from "../base/default";
-import { cchelper, toolHelper } from "../utils";
+import { CocosParams, IOpenWithIdeOptions, NativePackTool } from "../base/default";
+import { Paths, cchelper, toolHelper } from "../utils";
 
 export interface IOrientation {
     landscapeLeft: boolean;
@@ -72,9 +72,9 @@ export abstract class MacOSPackTool extends NativePackTool {
         }
     }
 
-    async openWithIde() {
-        const nativePrjDir = this.paths.nativePrjDir;
-        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`]);
+    async openWithIde(options: IOpenWithIdeOptions) {
+        const nativePrjDir = ps.join(options.buildDir, 'proj');
+        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`], options.nativeIdeDir);
         return true;
     }
 

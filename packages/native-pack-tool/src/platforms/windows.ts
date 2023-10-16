@@ -4,7 +4,7 @@ import * as os from 'os';
 import { spawn } from "child_process";
 import { cchelper, toolHelper, Paths } from "../utils";
 import { cocosConfig } from "../cocosConfig";
-import { CocosParams, NativePackTool } from "../base/default";
+import { CocosParams, IOpenWithIdeOptions, NativePackTool } from "../base/default";
 
 export interface IWindowsParam {
     targetPlatform: 'x64';
@@ -64,9 +64,9 @@ export class WindowsPackTool extends NativePackTool {
         return true;
     }
 
-    async openWithIde() {
-        const nativePrjDir = this.paths.nativePrjDir;
-        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`]);
+    async openWithIde(options: IOpenWithIdeOptions) {
+        const nativePrjDir = ps.join(options.buildDir, 'proj');
+        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`], options.nativeIdeDir);
         return true;
     }
 
