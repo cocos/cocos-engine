@@ -256,6 +256,18 @@ export class Shadows {
     }
 
     /**
+     * @en Positional offset values in planar shading calculations.
+     * @zh 平面阴影计算中的位置偏移值。
+     */
+    get planeBias (): number {
+        return this._planeBias;
+    }
+
+    set planeBias (val: number) {
+        this._planeBias = val;
+    }
+
+    /**
      * @en Shadow color.
      * @zh 阴影颜色。
      */
@@ -326,6 +338,7 @@ export class Shadows {
     protected _enabled = false;
     protected _type = SHADOW_TYPE_NONE;
     protected _distance = 0;
+    protected _planeBias = 1.0;
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _size: Vec2 = new Vec2(1024, 1024);
@@ -356,6 +369,7 @@ export class Shadows {
 
         this.normal = shadowsInfo.planeDirection;
         this.distance = shadowsInfo.planeHeight;
+        this.planeBias = shadowsInfo.planeBias;
         this.shadowColor = shadowsInfo.shadowColor;
         this.maxReceived = shadowsInfo.maxReceived;
         if (shadowsInfo.shadowMapSize !== this._size.x) {

@@ -22,7 +22,7 @@ void main()
   In.worldPos = shadowPos.xyz;
 
   // Clip Space
-  In.clipPos = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar);
+  In.clipPos = CalculatePlanarShadowClipPos(shadowPos, cc_cameraPos.xyz, cc_matView, cc_matProj, cc_nearFar, cc_shadowWHPBInfo.w);
   In.clipPos = SurfacesVertexModifyClipPos(In);
 
   // Other Surfaces Function
