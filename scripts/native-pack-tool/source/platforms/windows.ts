@@ -91,31 +91,19 @@ export class WindowsPackTool extends NativePackTool {
             await fs.writeFile(testCppFile, cppSrc);
         }
 
-        const tryRunCmakeWithArguments = (args: string[], workdir: string) => {
-            return new Promise<boolean>((resolve, reject) => {
-                const cp = spawn(Paths.cmakePath, args, {
-                    cwd: workdir,
-                    env: process.env,
-                    shell: true,
-                });
-                cp.on('close', (code, sig) => {
-                    if (code !== 0) {
-                        resolve(false);
-                        return;
-                    }
-                    resolve(true);
-                });
-            });
-        };
         const availableGenerators: string[] = [];
         for (const cfg of visualstudioGenerators) {
             const nativePrjDir = ps.join(testProjDir, `build_${cfg.G.replace(/ /g, '_')}`);
             const args: string[] = [`-S"${testProjDir}"`, `-G"${cfg.G}"`, `-B"${nativePrjDir}"`];
             args.push('-A', this.params.platformParams.targetPlatform);
             await fs.mkdir(nativePrjDir);
-            if (await tryRunCmakeWithArguments(args, nativePrjDir)) {
+            try {
+                await toolHelper.runCmake(args, nativePrjDir);
                 availableGenerators.push(cfg.G);
                 break;
+
+            } catch (error) {
+                console.debug(error);
             }
             await cchelper.removeDirectoryRecursive(nativePrjDir);
         }
