@@ -14,3 +14,4 @@ export * from './forward-transparency-pass';
 export * from './forward-transparency-simple-pass';
 export * from './skin-pass';
 export * from './post-final-pass';
+export * from './dof-pass';
