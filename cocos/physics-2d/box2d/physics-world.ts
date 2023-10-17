@@ -27,8 +27,8 @@ import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 
 import { js } from '@base/utils';
 import { CCObject } from '@base/object';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect } from '@base/math';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 // import { Canvas } from '../../2d/framework';
 // import { Graphics } from '../../2d/components';

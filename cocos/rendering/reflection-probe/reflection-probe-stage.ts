@@ -23,6 +23,8 @@
 */
 
 import { ccclass } from 'cc.decorator';
+import { Vec3 } from '@base/math';
+import { packRGBE } from '@base/math/internal';
 import { Color, Rect, Framebuffer, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { ForwardStagePriority } from '../enum';
@@ -31,8 +33,6 @@ import { SetIndex } from '../define';
 import { ReflectionProbeFlow } from './reflection-probe-flow';
 import { Camera, ReflectionProbe } from '../../render-scene/scene';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { Vec3 } from '../../core';
-import { packRGBE } from '../../core/math/color';
 
 const colors: Color[] = [new Color(1, 1, 1, 1)];
 

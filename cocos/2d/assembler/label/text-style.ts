@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Color } from '../../../core';
+import { Color } from '@base/math';
 import { IConfig } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 

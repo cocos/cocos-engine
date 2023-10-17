@@ -23,7 +23,7 @@
 */
 
 import { CCClass, Enum } from '@base/object';
-import { Color, lerp, repeat, EPSILON, approx, random } from '../math';
+import { Color, lerp, repeat, EPSILON, approx, random } from '@base/math';
 
 const Mode = Enum({
     Blend: 0,

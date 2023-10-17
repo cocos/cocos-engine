@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { IVec3Like } from '@base/math';
 import { ILifecycle } from './i-lifecycle';
 import { IGroupMask } from './i-group-mask';
-import { IVec3Like } from '../../core';
 import { CharacterController } from '../framework/components/character-controllers/character-controller';
 //import { ERigidBodyType } from '../framework';
 

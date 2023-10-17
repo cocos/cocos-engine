@@ -23,8 +23,8 @@
 */
 
 import { assertIsTrue } from '@base/debug/internal';
-import { LODGroup } from "../3d/lod/lodgroup-component";
-import { Vec3 } from '../core';
+import { Vec3 } from '@base/math';
+import { LODGroup } from '../3d/lod/lodgroup-component';
 import { Camera, CameraProjection } from '../render-scene/scene';
 import { scene } from '../render-scene';
 

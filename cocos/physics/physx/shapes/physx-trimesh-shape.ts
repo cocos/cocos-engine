@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { IVec3Like, Quat, Vec3 } from '@base/math';
 
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider, PhysicsMaterial } from '../../framework';

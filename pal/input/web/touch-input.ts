@@ -25,10 +25,10 @@
 import { TouchCallback } from 'pal/input';
 import { EDITOR, TEST } from 'internal:constants';
 import { systemInfo, Feature } from '@pal/system-info';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { warn } from '@base/debug';
 import { EventTarget } from '@base/event';
-import { Rect, Vec2 } from '../../../cocos/core/math';
+import { Rect, Vec2 } from '@base/math';
 import { Touch, EventTouch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';

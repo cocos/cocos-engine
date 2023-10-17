@@ -23,7 +23,7 @@
 */
 
 import { Event } from '@base/event';
-import { Vec3 } from '../../core/math';
+import { Vec3 } from '@base/math';
 
 export enum DeviceType {
     Other = 0,

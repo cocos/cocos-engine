@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { Rect } from '@base/math';
 import { SpriteFrame } from '../2d/assets';
 import { Texture2D } from '../asset/assets';
-import { Rect } from '../core';
 import { GID, TiledGrid, TiledTextureGrids, TMXTilesetInfo } from './tiled-types';
 
 export function fillTextureGrids (tileset: TMXTilesetInfo, texGrids: TiledTextureGrids, spFrame?: SpriteFrame): void {

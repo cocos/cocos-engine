@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
 import { assertIsTrue } from '@base/debug/internal';
-import { approx } from '../../../../core';
+import { approx } from '@base/math';
 import { MotionSyncInfo } from './motion-sync-info';
 
 export class RuntimeMotionSyncManager {

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Color, Vec3, Mat4, Quat } from '../core';
+import { Color, Vec3, Mat4, Quat } from '@base/math';
 import { ParticleSystem } from './particle-system';
 import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 

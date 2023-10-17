@@ -24,7 +24,8 @@
 
 import { assertIsTrue } from '@base/debug/internal';
 import { ccenum } from '@base/object';
-import { Vec2, _decorator, editable } from '../../../core';
+import { Vec2 } from '@base/math';
+import { _decorator, editable } from '../../../core';
 import { createEval } from '../create-eval';
 import { AnimationBlend, AnimationBlendEval, AnimationBlendItem } from './animation-blend';
 import { BindableNumber, bindOr, VariableType } from '../parametric';

@@ -1,6 +1,4 @@
-import { Vec3 } from '../../core/math/vec3';
-import { Quat } from '../../core/math/quat';
-import { EPSILON, Mat4 } from '../../core';
+import { Vec3, Quat, EPSILON, Mat4 } from '@base/math';
 
 const CACHE_VECTOR_A = new Vec3();
 const CACHE_VECTOR_B = new Vec3();

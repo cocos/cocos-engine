@@ -1,4 +1,5 @@
 
+import { lerp, Vec3 } from '@base/math';
 import { Pose } from '../../../../cocos/animation/core/pose';
 import { AnimationGraphBindingContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphEvaluationContext } from '../../../../cocos/animation/marionette/animation-graph-context';
 import { PoseNode } from '../../../../cocos/animation/marionette/pose-graph/pose-node';
@@ -6,7 +7,6 @@ import { createAnimationGraph } from '../utils/factory';
 import { AnimationGraphEvalMock, generateIntervals } from '../utils/eval-mock';
 import { SingleRealValueObserver } from '../utils/single-real-value-observer';
 import { TransformHandle } from '../../../../cocos/animation/core/animation-handle';
-import { lerp, Vec3 } from '../../../../exports/base';
 import '../../../utils/matchers/value-type-asymmetric-matchers';
 
 describe(`Pose state evaluation behaviors`, () => {

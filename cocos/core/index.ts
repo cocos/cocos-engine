@@ -26,16 +26,13 @@
 import { cclegacy } from '@base/global';
 import { memop } from '@base/utils';
 import * as geometry from './geometry';
-import * as math from './math';
 import './deprecated';
 import './deprecated-3.7.0';
 
-cclegacy.math = math;
 cclegacy.geometry = geometry;
 
-export { math, memop, geometry };
+export { memop, geometry };
 
-export * from './math';
 export * from './utils';
 export * from './data';
 export * from './platform';

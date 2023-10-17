@@ -23,7 +23,7 @@
 */
 
 import b2 from '@cocos/box2d';
-import { Vec2 } from '../../../core';
+import { Vec2 } from '@base/math';
 import { ERaycast2DType } from '../../framework';
 
 export class PhysicsRayCastCallback extends b2.RayCastCallback {

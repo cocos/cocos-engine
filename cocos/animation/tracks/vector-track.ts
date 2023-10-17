@@ -23,7 +23,8 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { RealCurve, Vec2, Vec3, Vec4 } from '../../core';
+import { Vec2, Vec3, Vec4 } from '@base/math';
+import { RealCurve } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { Channel, RealChannel, RuntimeBinding, Track, TrackEval } from './track';
 import { maskIfEmpty } from './utils';

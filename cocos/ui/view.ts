@@ -26,13 +26,12 @@
 */
 
 import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter, Orientation } from '@pal/screen-adapter';
 import { errorID } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { Eventify } from '@base/event';
-import { Rect, Size, Vec2 } from '../core/math';
+import { Rect, Size, Vec2 } from '@base/math';
 import { visibleRect, screen, macro, System } from '../core';
-import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
 import { Settings, settings } from '../core/settings';
 

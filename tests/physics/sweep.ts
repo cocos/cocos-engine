@@ -1,8 +1,9 @@
-import { geometry, Quat, Vec3 } from "../../cocos/core";
-import { physics } from "../../exports/physics-framework";
-import { Node } from "../../cocos/scene-graph";
-import { director } from "../../cocos/game";
-import { PhysicsTestEnv } from "./physics.test";
+import { Quat, Vec3 } from '@base/math';
+import { geometry } from '../../cocos/core';
+import { physics } from '../../exports/physics-framework';
+import { Node } from '../../cocos/scene-graph';
+import { director } from '../../cocos/game';
+import { PhysicsTestEnv } from './physics.test';
 
 /**
  * This function is used to test the raycast

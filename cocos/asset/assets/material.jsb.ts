@@ -26,7 +26,7 @@ import { EffectAsset } from './effect-asset';
 import { Texture } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { PassOverrides, MacroRecord, MaterialProperty } from '../../render-scene';
-import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '../../core';
+import { Color, Mat3, Mat4, Quat, Vec2, Vec3, Vec4 } from '@base/math';
 import { cclegacy } from '@base/global';
 import './asset';
 import { patch_cc_Material } from '../../native-binding/decorators';

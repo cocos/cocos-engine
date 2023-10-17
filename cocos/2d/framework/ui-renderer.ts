@@ -27,7 +27,7 @@ import { ccclass, executeInEditMode, requireComponent, tooltip, type, displayOrd
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
-import { Color } from '../../core';
+import { Color } from '@base/math';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
 import { BlendFactor, BlendOp, ColorMask } from '../../gfx';

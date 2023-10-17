@@ -23,7 +23,7 @@
 */
 
 import { CCString } from '@base/object';
-import { Mat4 } from '../../core';
+import { Mat4 } from '@base/math';
 import { cclegacy } from '@base/global';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../asset/assets/asset';

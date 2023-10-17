@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
+import { IVec2Like, Vec2 } from '@base/math';
 import { B2 } from '../instantiated';
 import { IMouseJoint } from '../../spec/i-physics-joint';
 import { B2Joint } from './joint-2d';
 import { MouseJoint2D, PhysicsSystem2D, Joint2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
-import { IVec2Like, Vec2 } from '../../../core';
 import { Touch } from '../../../input/types';
 import { B2PhysicsWorld } from '../physics-world';
 import { NodeEventType } from '../../../scene-graph/node-event';

@@ -23,7 +23,7 @@
 */
 import { cclegacy } from '@base/global';
 import { Enum } from '@base/object';
-import { Vec3 } from '../../core';
+import { Vec3 } from '@base/math';
 import type { LODData as JsbLODData, LODGroup as JsbLODGroup } from './lod-group';
 
 export const LODData: typeof JsbLODData = jsb.LODData;

@@ -24,7 +24,8 @@
 
 import { warnID } from '@base/debug';
 import { cclegacy } from '@base/global';
-import { Color, Mat4, Vec3, Vec4, geometry, toRadian } from '../core';
+import { Color, Mat4, Vec3, Vec4, toRadian } from '@base/math';
+import { geometry } from '../core';
 import { SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit, CommandBuffer, Device, DrawInfo, Format, InputAssembler, InputAssemblerInfo, MemoryUsageBit, RenderPass } from '../gfx';

@@ -27,8 +27,8 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponen
 import { warn } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
+import { Size, Vec2, Vec3 } from '@base/math';
 import { Component } from '../scene-graph/component';
-import { Size, Vec2, Vec3 } from '../core/math';
 import { UITransform } from '../2d/framework/ui-transform';
 import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';

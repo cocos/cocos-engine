@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EPSILON, Mat3, Vec3 } from '../math';
+import { EPSILON, Mat3, Vec3, IVec3Like } from '@base/math';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';
 import * as distance from './distance';
@@ -34,8 +34,7 @@ import { Plane } from './plane';
 import { Ray } from './ray';
 import { Sphere } from './sphere';
 import { Triangle } from './triangle';
-import { IVec3Like } from '../math/type-define';
-import type { RenderingSubMesh }  from '../../asset/assets';
+import type { RenderingSubMesh } from '../../asset/assets';
 import type { IRaySubMeshOptions, IRayModelOptions, IRayMeshOptions } from './spec';
 import type { Model } from '../../render-scene/scene';
 import type { Mesh } from '../../3d';

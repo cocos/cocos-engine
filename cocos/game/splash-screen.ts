@@ -25,8 +25,9 @@
 import { EDITOR, TAOBAO } from 'internal:constants';
 import { ImageData } from 'pal/image';
 import { cclegacy, ccwindow } from '@base/global';
+import { clamp01, Mat4, Vec2, preTransforms } from '@base/math';
 import { Material } from '../asset/assets/material';
-import { clamp01, Mat4, Vec2, Settings, settings, sys, easing, preTransforms } from '../core';
+import { Settings, settings, sys, easing } from '../core';
 import { Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer, BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format, MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain, Framebuffer } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';

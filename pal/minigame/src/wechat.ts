@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame, SystemInfo } from 'pal/minigame';
+import type { IMiniGame, SystemInfo, AccelerometerChangeCallback, SafeArea } from './types';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill, versionCompare } from '@pal/utils';
-import { Orientation } from '../screen-adapter/enum-type';
+import { Orientation } from '@pal/screen-adapter';
 
 declare let wx: any;
 
@@ -174,5 +174,6 @@ if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '
 }
 
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./wechat')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./wechat')>());

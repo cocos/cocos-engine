@@ -1,8 +1,8 @@
-import { Transform } from "../../../../../cocos/animation/core/transform";
-import { PoseNodeFilteringBlend } from "../../../../../cocos/animation/marionette/pose-graph/pose-nodes/filtering-blend";
-import { lerp } from "../../../../../exports/base";
-import { BlendTwoOperator } from "../../utils/abstract-operators";
-import { includeTestsFor_BlendTwoPoseLike_PoseNode } from "./blend-two-pose-shared";
+import { lerp } from '@base/math';
+import { Transform } from '../../../../../cocos/animation/core/transform';
+import { PoseNodeFilteringBlend } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/filtering-blend';
+import { BlendTwoOperator } from '../../utils/abstract-operators';
+import { includeTestsFor_BlendTwoPoseLike_PoseNode } from './blend-two-pose-shared';
 
 const BlendTwoPose_ExpectedOperator: BlendTwoOperator = {
     blendTransform (transform1: Transform, transform2: Transform, ratio: number): Transform {

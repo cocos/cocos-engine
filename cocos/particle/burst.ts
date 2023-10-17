@@ -23,7 +23,7 @@
 */
 
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
-import { repeat } from '../core/math';
+import { repeat } from '@base/math';
 import CurveRange from './animator/curve-range';
 
 /**

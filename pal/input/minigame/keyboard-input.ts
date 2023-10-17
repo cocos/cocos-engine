@@ -23,7 +23,7 @@
 */
 
 import { KeyboardCallback } from 'pal/input';
-import { KeyboardEventData, minigame } from 'pal/minigame';
+import { KeyboardEventData, minigame } from '@pal/minigame';
 import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';
 import { KeyCode, EventKeyboard } from '../../../cocos/input/types';

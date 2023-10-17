@@ -23,7 +23,7 @@
 */
 
 import { log } from '@base/debug';
-import { Vec2 } from '../../cocos/core/math/vec2';
+import { Vec2 } from '@base/math';
 import { macro } from '../../cocos/core/platform/macro';
 import { Touch } from '../../cocos/input/types';
 

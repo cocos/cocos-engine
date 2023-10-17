@@ -24,9 +24,9 @@
 
 import { GamepadCallback } from 'pal/input';
 import { EventTarget } from '@base/event';
+import { Quat, Vec3 } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
-import { Quat, Vec3 } from '../../../cocos/core';
 
 export class GamepadInputDevice {
     public static all: GamepadInputDevice[] = [];

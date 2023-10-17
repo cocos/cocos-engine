@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { absMax, Quat } from '../../../core';
+import { absMax, Quat } from '@base/math';
 import { CapsuleCollider, EAxisDirection } from '../../framework';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
 import { PX } from '../physx-adapter';

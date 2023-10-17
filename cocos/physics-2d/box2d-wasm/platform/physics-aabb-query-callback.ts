@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { Vec2 } from '@base/math';
 import { B2, getTSObjectFromWASMObject, getWASMObjectFromWASMObjectPtr } from '../instantiated';
-import { Vec2 } from '../../../core';
 import { B2RigidBody2D } from '../rigid-body';
 
 export class PhysicsAABBQueryCallback {

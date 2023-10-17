@@ -28,12 +28,12 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { Vec3, Vec4 } from '@base/math';
 import { Camera } from '../../render-scene/scene/camera';
 import { LightType } from '../../render-scene/scene/light';
 import { UBODeferredLight, SetIndex, UBOForwardLight, UBOLocal } from '../define';
 import { getPhaseID } from '../pass-phase';
-import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet,
-    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
+import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from '../enum';
 import { MainFlow } from './main-flow';
@@ -42,7 +42,6 @@ import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../asset/assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../core/geometry';
-import { Vec3, Vec4 } from '../../core/math';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
 import { RenderQueueDesc } from '../pipeline-serialization';

@@ -26,5 +26,6 @@ import { checkPalIntegrity, withImpl } from '@pal/utils';
 
 const minigame: any = {};
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./non-minigame')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./non-minigame')>());

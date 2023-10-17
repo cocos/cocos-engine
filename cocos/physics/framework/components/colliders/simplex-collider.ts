@@ -24,18 +24,8 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass,
-    help,
-    executeInEditMode,
-    menu,
-    visible,
-    type,
-    editable,
-    serializable,
-    tooltip,
-} from 'cc.decorator';
-import { Vec3, IVec3Like } from '../../../../core';
+import { ccclass, help, executeInEditMode, menu, visible, type, editable, serializable, tooltip } from 'cc.decorator';
+import { Vec3, IVec3Like } from '@base/math';
 import { Collider } from './collider';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
 import { ESimplexType, EColliderType } from '../../physics-enum';

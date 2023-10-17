@@ -24,7 +24,8 @@
 
 import { error, warnID } from '@base/debug';
 import { js, memop } from '@base/utils';
-import { Vec3, IVec3Like, geometry, IQuatLike } from '../../core';
+import { Vec3, IVec3Like, IQuatLike } from '@base/math';
+import { geometry } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { BuiltinSharedBody } from './builtin-shared-body';
 import { BuiltinShape } from './shapes/builtin-shape';

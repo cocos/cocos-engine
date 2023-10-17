@@ -23,11 +23,11 @@
 */
 
 import b2 from '@cocos/box2d';
+import { IVec2Like, Vec2 } from '@base/math';
 import { IMouseJoint } from '../../spec/i-physics-joint';
 import { b2Joint } from './joint-2d';
 import { MouseJoint2D, PhysicsSystem2D, Joint2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
-import { IVec2Like, Vec2 } from '../../../core';
 import { Touch } from '../../../input/types';
 import { b2PhysicsWorld } from '../physics-world';
 import { NodeEventType } from '../../../scene-graph/node-event';

@@ -23,7 +23,7 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { Vec3, IVec3Like } from '../../core';
+import { Vec3, IVec3Like } from '@base/math';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { CannonSharedBody } from './cannon-shared-body';
 import { CannonWorld } from './cannon-world';

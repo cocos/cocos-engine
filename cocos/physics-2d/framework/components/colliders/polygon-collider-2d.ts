@@ -23,7 +23,8 @@
 */
 
 import { CCFloat } from '@base/object';
-import { Vec2, _decorator } from '../../../../core';
+import { Vec2 } from '@base/math';
+import { _decorator } from '../../../../core';
 import { Collider2D } from './collider-2d';
 import { ECollider2DType } from '../../physics-types';
 import { IPolygonShape } from '../../../spec/i-physics-shape';

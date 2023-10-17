@@ -25,7 +25,7 @@ import { ccclass, executeInEditMode, help, menu, playOnFocus, serializable, tool
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { warn } from '@base/debug';
 import { CCBoolean, CCObject, Enum } from '@base/object';
-import { Color, Vec3 } from '../../core';
+import { Color, Vec3 } from '@base/math';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';

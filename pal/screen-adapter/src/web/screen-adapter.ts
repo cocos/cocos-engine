@@ -23,14 +23,16 @@
 */
 
 import { EDITOR, TEST } from 'internal:constants';
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
+import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from '@pal/screen-adapter';
 import { systemInfo } from '@pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { cclegacy } from '@base/global';
 import { warnID } from '@base/debug';
 import { EventTarget } from '@base/event';
-import { Size } from '../../../cocos/core/math';
+import { Size } from '@base/math';
 import { Orientation } from '../enum-type';
+
+export * from '../enum-type';
 
 interface ICachedStyle {
     width: string;
@@ -564,4 +566,4 @@ class ScreenAdapter extends EventTarget {
 
 export const screenAdapter = new ScreenAdapter();
 
-checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());
+checkPalIntegrity<typeof import('@pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

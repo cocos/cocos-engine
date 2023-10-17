@@ -1,8 +1,8 @@
-import { Asset } from "../../cocos/asset/assets/asset"
-import { serializable, type } from "../../cocos/core/data/decorators";
-import { ccclass } from "../../cocos/core/data/decorators/ccclass";
-import { Vec2 } from "../../cocos/core/math";
-import { Component } from "../../cocos/scene-graph";
+import { Vec2 } from '@base/math';
+import { Asset } from '../../cocos/asset/assets/asset';
+import { serializable, type } from '../../cocos/core/data/decorators';
+import { ccclass } from '../../cocos/core/data/decorators/ccclass';
+import { Component } from '../../cocos/scene-graph';
 
 
 @ccclass('TestTexture')

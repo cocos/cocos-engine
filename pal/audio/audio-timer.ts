@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { clamp } from '../../cocos/core/math/utils';
+import { clamp } from '@base/math';
 
 /**
  * Tool class to calculate audio current time.

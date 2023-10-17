@@ -25,8 +25,8 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { CCString } from '@base/object';
+import { Size } from '@base/math';
 import { Asset } from '../asset/assets/asset';
-import { Size } from '../core';
 import { SpriteFrame } from '../2d/assets';
 import { TextAsset } from '../asset/assets';
 

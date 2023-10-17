@@ -1,7 +1,7 @@
-import { Transform } from "../../../cocos/animation/core/transform";
-import { TransformArray } from "../../../cocos/animation/core/transform-array";
+import { Transform } from '../../../cocos/animation/core/transform';
+import { TransformArray } from '../../../cocos/animation/core/transform-array';
 import 'jest-extended';
-import { Quat, Vec3 } from "../../../cocos/core";
+import { Quat, Vec3 } from '@base/math';
 
 test('Constructor/Class statics/Buffer related', () => {
     expect(TransformArray.BYTES_PER_ELEMENT).toBe(80);

@@ -25,14 +25,15 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { ccwindow } from '@base/global';
 import { isDescendantElementOf } from '@pal/utils';
 import { BrowserType, OS } from '@pal/system-info';
+import { Mat4, Vec3 } from '@base/math';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../game/director';
 import { game } from '../../game';
-import { Mat4, Vec3, visibleRect, sys } from '../../core';
+import { visibleRect, sys } from '../../core';
 import { view } from '../view';
 import { KeyCode } from '../../input/types';
 import { Label } from '../../2d/components/label';

@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
+import { IVec3Like } from '@base/math';
 import { BulletShape } from './bullet-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISimplexShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core';
 import { bt } from '../instantiated';
 import { BulletCache } from '../bullet-cache';
 

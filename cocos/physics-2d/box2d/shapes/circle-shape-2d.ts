@@ -23,11 +23,11 @@
 */
 
 import b2 from '@cocos/box2d';
+import { Vec2 } from '@base/math';
 import { b2Shape2D } from './shape-2d';
 import { CircleCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { ICircleShape } from '../../spec/i-physics-shape';
-import { Vec2 } from '../../../core';
 
 export class b2CircleShape extends b2Shape2D implements ICircleShape {
     get worldRadius (): number {
