@@ -443,7 +443,7 @@ export const toolHelper = {
         });
     },
 
-    runCmake(args: string[]) {
+    runCmake(args: string[], workDir?: string) {
         let cmakePath = Paths.cmakePath;
         if (process.platform === 'win32' && cmakePath.indexOf(' ') > -1) {
             cmakePath = `"${cmakePath}"`;
@@ -461,6 +461,7 @@ export const toolHelper = {
                 stdio: ['pipe', 'pipe', 'pipe'],
                 env: newEnv,
                 shell: true,
+                cwd: workDir,
             });
             cp.stdout.on('data', (data: any) => {
                 const msg = iconv.decode(data, 'gbk').toString();
