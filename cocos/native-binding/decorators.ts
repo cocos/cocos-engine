@@ -932,6 +932,7 @@ export function patch_cc_ShadowsInfo(ctx: cc_ShadowsInfo_Context_Args, apply = d
   const shadowColorDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfo.prototype, 'shadowColor');
   const planeDirectionDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfo.prototype, 'planeDirection');
   const planeHeightDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfo.prototype, 'planeHeight');
+  const planeBiasDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfo.prototype, 'planeBias');
   const maxReceivedDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfo.prototype, 'maxReceived');
   const shadowMapSizeDescriptor = Object.getOwnPropertyDescriptor(ShadowsInfo.prototype, 'shadowMapSize');
   apply(() => { $.tooltip('i18n:shadow.enabled')(ShadowsInfo.prototype, 'enabled',  enabledDescriptor); }, 'tooltip', 'enabled');
@@ -954,6 +955,12 @@ export function patch_cc_ShadowsInfo(ctx: cc_ShadowsInfo_Context_Args, apply = d
   apply(() => { $.editable(ShadowsInfo.prototype, 'planeHeight',  planeHeightDescriptor); }, 'editable', 'planeHeight');
   apply(() => { $.tooltip('i18n:shadow.planeHeight')(ShadowsInfo.prototype, 'planeHeight',  planeHeightDescriptor); }, 'tooltip', 'planeHeight');
   apply(() => { $.visible(function (this: ShadowsInfo) {
+  return this._type === ShadowType.Planar;
+})(ShadowsInfo.prototype, 'planeBias',  planeBiasDescriptor); }, 'visible', 'planeBias');
+  apply(() => { $.type(CCFloat)(ShadowsInfo.prototype, 'planeBias',  planeBiasDescriptor); }, 'type', 'planeBias');
+  apply(() => { $.editable(ShadowsInfo.prototype, 'planeBias',  planeBiasDescriptor); }, 'editable', 'planeBias');
+  apply(() => { $.tooltip('i18n:shadow.planeBias')(ShadowsInfo.prototype, 'planeBias',  planeBiasDescriptor); }, 'tooltip', 'planeBias');
+  apply(() => { $.visible(function (this: ShadowsInfo) {
   return this._type === ShadowType.ShadowMap;
 })(ShadowsInfo.prototype, 'maxReceived',  maxReceivedDescriptor); }, 'visible', 'maxReceived');
   apply(() => { $.type(CCInteger)(ShadowsInfo.prototype, 'maxReceived',  maxReceivedDescriptor); }, 'type', 'maxReceived');
@@ -967,6 +974,7 @@ export function patch_cc_ShadowsInfo(ctx: cc_ShadowsInfo_Context_Args, apply = d
   apply(() => { $.serializable(ShadowsInfo.prototype, '_type',  () => { return ShadowType.Planar; }); }, 'serializable', '_type');
   apply(() => { $.serializable(ShadowsInfo.prototype, '_normal',  () => { return new Vec3(0, 1, 0); }); }, 'serializable', '_normal');
   apply(() => { $.serializable(ShadowsInfo.prototype, '_distance',  () => { return 0; }); }, 'serializable', '_distance');
+  apply(() => { $.serializable(ShadowsInfo.prototype, '_planeBias',  () => { return 1.0; }); }, 'serializable', '_planeBias');
   apply(() => { $.serializable(ShadowsInfo.prototype, '_shadowColor',  () => { return new Color(0, 0, 0, 76); }); }, 'serializable', '_shadowColor');
   apply(() => { $.serializable(ShadowsInfo.prototype, '_maxReceived',  () => { return 4; }); }, 'serializable', '_maxReceived');
   apply(() => { $.serializable(ShadowsInfo.prototype, '_size',  () => { return new Vec2(1024, 1024); }); }, 'serializable', '_size');
