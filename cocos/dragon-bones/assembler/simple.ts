@@ -455,7 +455,6 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D): 
         if (comp.debugBones && graphics) {
             graphics.clear();
 
-            graphics.lineWidth = 5;
             graphics.strokeColor = _boneColor;
             graphics.fillColor = _slotColor; // Root bone color is same as slot color.
 

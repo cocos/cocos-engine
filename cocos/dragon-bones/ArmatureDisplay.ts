@@ -40,7 +40,7 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { RenderDrawInfo } from '../2d/renderer/render-draw-info';
 import { Material, Texture2D } from '../asset/assets';
-import { Node } from '../scene-graph';
+import { Node, NodeEventType } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager';
 import { setPropertyEnumType } from '../core/internal-index';
 
@@ -279,7 +279,7 @@ export class ArmatureDisplay extends UIRenderer {
     @editable
     @type(DefaultArmaturesEnum)
     @tooltip('i18n:COMPONENT.dragon_bones.armature_name')
-    get _defaultArmatureIndex (): DefaultArmaturesEnum {
+    get _defaultArmatureIndex (): DefaultArmaturesEnum | number {
         return this._defaultArmatureIndexValue;
     }
     set _defaultArmatureIndex (value) {
@@ -626,6 +626,7 @@ export class ArmatureDisplay extends UIRenderer {
 
     onLoad (): void {
         super.onLoad();
+        this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
     }
 
     /**
@@ -989,6 +990,7 @@ export class ArmatureDisplay extends UIRenderer {
         }
         this._drawList.destroy();
         super.onDestroy();
+        this.node.off(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
     }
     /**
      * @en Update the debugging component show.
@@ -998,9 +1000,10 @@ export class ArmatureDisplay extends UIRenderer {
         if (this.debugBones) {
             if (!this._debugDraw) {
                 const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.layer = this.node.layer;
                 debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
-                debugDraw.lineWidth = 1;
+                debugDraw.lineWidth = 1.5;
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);
 
                 this._debugDraw = debugDraw;
@@ -1538,6 +1541,12 @@ export class ArmatureDisplay extends UIRenderer {
     public syncAttachedNode (): void {
         // sync attached node matrix
         this.attachUtil._syncAttachedNode();
+    }
+
+    protected _applyLayer(): void {
+        if (this._debugDraw) {
+            this._debugDraw.node.layer = this.node.layer;
+        }
     }
 }
 
