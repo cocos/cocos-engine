@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warnID, warn, easing } from '../core';
+import { warnID, warn, easing, Color, log, Vec2, Vec3, Vec4, Size, Quat, Rect } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { VERSION } from '../core/global-exports';
@@ -139,6 +139,7 @@ export class TweenAction extends ActionInterval {
             if (value.value !== undefined && (value.easing || value.progress)) {
                 if (typeof value.easing === 'string') {
                     customEasing = easing[value.easing];
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     if (!customEasing) warnID(1031, value.easing);
                 } else {
                     customEasing = value.easing;
@@ -149,6 +150,7 @@ export class TweenAction extends ActionInterval {
 
             const prop = Object.create(null);
             prop.value = value;
+            prop.type = '';
             prop.easing = customEasing;
             prop.progress = progress;
             this._props[name] = prop;
@@ -159,6 +161,7 @@ export class TweenAction extends ActionInterval {
     }
 
     clone (): TweenAction {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const action = new TweenAction(this._duration, this._originProps, this._opts);
         this._cloneDecoration(action);
         return action;
@@ -180,15 +183,77 @@ export class TweenAction extends ActionInterval {
                 prop.current = _t;
                 // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 prop.end = relative ? _t + value : value;
-            } else if (typeof _t === 'object') {
+            } else if (_t instanceof Color) {
                 if (prop.start == null) {
+                    prop.start = new Color(); prop.current = new Color(); prop.end = new Color();
+                }
+                prop.start.set(_t);
+                prop.current.set(_t);
+                if (relative) {
+                    Color.add(prop.end, _t, value);
+                } else {
+                    prop.end.set(value);
+                }
+                prop.type = 'color';
+            } else if (_t instanceof Rect) {
+                if (prop.start == null) {
+                    prop.start = new Rect(); prop.current = new Rect(); prop.end = new Rect();
+                }
+                prop.start.set(_t);
+                prop.current.set(_t);
+                if (relative) {
+                    prop.end.xMin = _t.xMin + value.xMin;
+                    prop.end.yMin = _t.yMin + value.yMin;
+                    prop.end.z = _t.z + value.z;
+                    prop.end.w = _t.w + value.w;
+                } else {
+                    prop.end.xMin = value.xMin;
+                    prop.end.yMin = value.yMin;
+                    prop.end.z = value.z;
+                    prop.end.w = value.w;
+                }
+                prop.type = 'rect';
+            } else if (_t instanceof Quat) {
+                if (prop.start == null) {
+                    prop.start = new Quat(); prop.current = new Quat(); prop.end = new Quat();
+                }
+                prop.start.set(_t);
+                prop.current.set(_t);
+                if (relative) {
+                    Quat.multiply(prop.end, _t, value);
+                } else {
+                    prop.end.set(value);
+                }
+                prop.type = 'quat';
+            } else if (typeof _t === 'object') {
+                if (_t instanceof Vec2) {
+                    if (prop.start == null) {
+                        prop.start = new Vec2(); prop.current = new Vec2(); prop.end = new Vec2();
+                    }
+                    prop.type = 'vec2';
+                } else if (_t instanceof Vec3) {
+                    if (prop.start == null) {
+                        prop.start = new Vec3(); prop.current = new Vec3(); prop.end = new Vec3();
+                    }
+                    prop.type = 'vec3';
+                } else if (_t instanceof Vec4) {
+                    if (prop.start == null) {
+                        prop.start = new Vec4(); prop.current = new Vec4(); prop.end = new Vec4();
+                    }
+                    prop.type = 'vec4';
+                } else if (_t instanceof Size) {
+                    if (prop.start == null) {
+                        prop.start = new Size(); prop.current = new Size(); prop.end = new Size();
+                    }
+                    prop.type = 'size';
+                } else if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
 
                 for (const k in value) {
                     // filtering if it not a number
                     // eslint-disable-next-line no-restricted-globals
-                    if (isNaN(_t[k])) continue;
+                    if (isNaN(_t[k] as number)) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
                     // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
@@ -217,18 +282,45 @@ export class TweenAction extends ActionInterval {
 
             const start = prop.start;
             const end = prop.end;
+
             if (typeof start === 'number') {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
                 // const value = prop.value;
-                for (const k in start) {
-                    // if (value[k].easing) {
-                    //     time = value[k].easing(t);
-                    // }
-                    // if (value[k].progress) {
-                    //     interpolation = value[k].easing(t);
-                    // }
-                    prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
+                if (prop.type && prop.type === 'color') {
+                    prop.current.r = interpolation(start.r, end.r, prop.current.r, time);
+                    prop.current.g = interpolation(start.g, end.g, prop.current.g, time);
+                    prop.current.b = interpolation(start.b, end.b, prop.current.b, time);
+                    prop.current.a = interpolation(start.a, end.a, prop.current.a, time);
+                } else if (prop.type && prop.type === 'rect') {
+                    prop.current.xMin = interpolation(start.xMin, end.xMin, prop.current.xMin, time);
+                    prop.current.yMin = interpolation(start.yMin, end.yMin, prop.current.yMin, time);
+                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
+                    prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
+                } else if (prop.type && prop.type === 'vec2') {
+                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
+                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
+                } else if (prop.type && prop.type === 'vec3') {
+                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
+                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
+                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
+                } else if (prop.type && prop.type === 'vec4') {
+                    prop.current.x = interpolation(start.x, end.x, prop.current.x, time);
+                    prop.current.y = interpolation(start.y, end.y, prop.current.y, time);
+                    prop.current.z = interpolation(start.z, end.z, prop.current.z, time);
+                    prop.current.w = interpolation(start.w, end.w, prop.current.w, time);
+                } else if (prop.type && prop.type === 'size') {
+                    prop.current.width = interpolation(start.width, end.width, prop.current.width, time);
+                    prop.current.height = interpolation(start.height, end.height, prop.current.height, time);
+                } else if (prop.type && prop.type === 'quat') {
+                    Quat.slerp(prop.current, start, end, time as number);
+                    if (prop.progress) {
+                        warn('Quaternion only support slerp interpolation method.');
+                    }
+                } else {
+                    for (const k in start) {
+                        prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
+                    }
                 }
             }
 
