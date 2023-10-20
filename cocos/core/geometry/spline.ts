@@ -24,7 +24,7 @@
 
 import { assertIsTrue } from '@base/debug/internal';
 import { warnID } from '@base/debug';
-import { clamp, Vec3 } from '../math';
+import { clamp, Vec3 } from '@base/math';
 import enums from './enums';
 
 export enum SplineMode {

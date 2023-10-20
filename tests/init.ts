@@ -32,8 +32,8 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/minigame',
-    () => jest.requireActual('../pal/minigame/non-minigame'),
+    '@pal/minigame',
+    () => jest.requireActual('../pal/minigame/src/non-minigame'),
     { virtual: true, },
 );
 
@@ -98,14 +98,26 @@ jest.mock(
 );
 
 jest.mock(
+    '@base/math',
+    () => jest.requireActual('../cocos/base/math/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/math/internal',
+    () => jest.requireActual('../cocos/base/math/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
     '@pal/pacer',
     () => jest.requireActual('../pal/pacer/src/pacer-web'),
     { virtual: true, },
 );
 
 jest.mock(
-    'pal/screen-adapter',
-    () => jest.requireActual('../pal/screen-adapter/web/screen-adapter'),
+    '@pal/screen-adapter',
+    () => jest.requireActual('../pal/screen-adapter/src/web/screen-adapter'),
     { virtual: true, },
 );
 

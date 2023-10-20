@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3, IVec3Like } from '../../core';
+import { Vec3, IVec3Like } from '@base/math';
 import { Collider } from '../../../exports/physics-framework';
 
 /**

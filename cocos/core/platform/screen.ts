@@ -25,12 +25,11 @@
  THE SOFTWARE.
 */
 
-import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
+import { PalScreenEvent, screenAdapter } from '@pal/screen-adapter';
 import { cclegacy } from '@base/global';
 import { error, warn, warnID } from '@base/debug';
-import { Size } from '../math';
+import { Size } from '@base/math';
 import { Settings, settings } from '../settings';
-import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。

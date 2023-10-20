@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
+import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, bits } from '@base/math';
 import { IParticleModule, Particle, PARTICLE_MODULE_ORDER } from './particle';
 import { Node } from '../scene-graph/node';
 import { TransformBit } from '../scene-graph/node-enum';
 import { RenderMode, Space } from './enum';
-import { approx, EPSILON, Mat4, pseudoRandom, Quat, randomRangeInt, Vec3, Vec4, geometry, bits } from '../core';
+import { geometry } from '../core';
 import { isCurveTwoValues, particleEmitZAxis } from './particle-general-function';
 import { ParticleSystemRendererBase } from './renderer/particle-system-renderer-base';
 import { Mesh } from '../3d';

@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { Mat4, Vec2, Vec4 } from '../../../core';
+import { Mat4, Vec2, Vec4 } from '@base/math';
 import { game } from '../../../game';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera, CameraUsage } from '../../../render-scene/scene';

@@ -21,8 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { Mat3, Vec3, _decorator } from "../../core";
-import { patch_cc_CircumSphere, patch_cc_Tetrahedron, patch_cc_Vertex } from "../../native-binding/decorators";
+import { Mat3, Vec3 } from '@base/math';
+import { _decorator } from '../../core';
+import { patch_cc_CircumSphere, patch_cc_Tetrahedron, patch_cc_Vertex } from '../../native-binding/decorators';
 import type { Vertex as JsbVertex, CircumSphere as JsbCircumSphere, Tetrahedron as JsbTetrahedron } from './delaunay';
 
 declare const jsb: any;

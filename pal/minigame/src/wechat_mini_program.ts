@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame, SystemInfo } from 'pal/minigame';
+import type { IMiniGame, SystemInfo, AccelerometerChangeCallback, SafeArea } from './types';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill, versionCompare } from '@pal/utils';
-import { Orientation } from '../screen-adapter/enum-type';
+import { Orientation } from '@pal/screen-adapter';
 
 declare let wx: any;
 // NOTE: getApp is defined on wechat miniprogram platform
@@ -204,5 +204,6 @@ gl.texSubImage2D = function (...args): void {
 };
 
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./wechat_mini_program')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./wechat_mini_program')>());

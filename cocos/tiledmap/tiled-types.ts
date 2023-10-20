@@ -23,7 +23,7 @@
 */
 
 import { ccenum } from '@base/object';
-import { Color, Rect, Size, Vec2 } from '../core';
+import { Color, Rect, Size, Vec2 } from '@base/math';
 import { SpriteFrame } from '../2d/assets';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 import { Texture2D } from '../asset/assets';

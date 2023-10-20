@@ -1,4 +1,5 @@
 import { EDITOR } from 'internal:constants';
+import { clamp01 } from '@base/math';
 import { ccclass, displayName, editable, serializable, unit } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { ClipMotion } from '../../motion/clip-motion';
@@ -12,10 +13,7 @@ import { RuntimeMotionSyncRecord } from '../motion-sync/runtime-motion-sync';
 import { poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
 import { POSE_GRAPH_NODE_MENU_PREFIX_POSE } from './menu-common';
 import { getEnterInfo, getTileBase, makeCreateNodeFactory } from './play-or-sample-motion-pose-node-shared';
-import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
-    AnimationGraphSettleContext, AnimationGraphUpdateContext,
-} from '../../animation-graph-context';
-import { clamp01 } from '../../../../core';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../../animation-graph-context';
 import type { Pose } from '../../../core/pose';
 
 const ZERO_DURATION_THRESHOLD = 1e-5;

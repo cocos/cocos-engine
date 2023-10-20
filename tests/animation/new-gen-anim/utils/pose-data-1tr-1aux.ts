@@ -1,8 +1,9 @@
-import { AnimationController } from "../../../../cocos/animation/animation";
-import { Transform } from "../../../../cocos/animation/core/transform";
-import { lerp, Node, Quat, Vec3 } from "../../../../exports/base";
-import { BlendTwoOperator } from "./abstract-operators";
-import { PoseRecord } from "./pose-record";
+import { lerp, Quat, Vec3 } from '@base/math';
+import { AnimationController } from '../../../../cocos/animation/animation';
+import { Transform } from '../../../../cocos/animation/core/transform';
+import { Node } from '../../../../exports/base';
+import { BlendTwoOperator } from './abstract-operators';
+import { PoseRecord } from './pose-record';
 
 /** Pose data with 1 transform and 1 aux curve. */
 export class PoseData_1tr_1aux {

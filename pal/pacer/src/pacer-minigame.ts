@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { minigame } from 'pal/minigame';
+import { minigame } from '@pal/minigame';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { assertIsTrue } from '@base/debug/internal';
 

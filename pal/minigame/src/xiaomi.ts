@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { IMiniGame } from 'pal/minigame';
+import type { IMiniGame, AccelerometerChangeCallback, InnerAudioContext, SafeArea } from './types';
 import { checkPalIntegrity, withImpl, cloneObject, createInnerAudioContextPolyfill } from '@pal/utils';
 import { warn } from '@base/debug';
-import { Orientation } from '../screen-adapter/enum-type';
+import { Orientation } from '@pal/screen-adapter';
 
 declare let qg: any;
 
@@ -151,5 +151,6 @@ minigame.getSafeArea = function (): SafeArea {
 // #endregion SafeArea
 
 export { minigame };
+export * from './types';
 
-checkPalIntegrity<typeof import('pal/minigame')>(withImpl<typeof import('./xiaomi')>());
+checkPalIntegrity<typeof import('@pal/minigame')>(withImpl<typeof import('./xiaomi')>());

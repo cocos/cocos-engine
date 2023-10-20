@@ -26,8 +26,8 @@
 import { cclegacy } from '@base/global';
 import { assertIsTrue } from '@base/debug/internal';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
+import { Color } from '@base/math';
 import { Component } from '../../scene-graph/component';
-import { Color } from '../../core';
 import { Label } from './label';
 
 /**

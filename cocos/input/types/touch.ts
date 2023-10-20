@@ -24,7 +24,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Vec2 } from '../../core';
+import { Vec2 } from '@base/math';
 
 const _vec2 = new Vec2();
 /**

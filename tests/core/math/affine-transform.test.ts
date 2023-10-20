@@ -1,8 +1,5 @@
+import { AffineTransform, Vec2, Size, Rect } from '@base/math';
 import { log } from '../../test.log';
-import { AffineTransform } from '../../../cocos/core/math/affine-transform';
-import { Vec2 } from '../../../cocos/core/math/vec2';
-import { Size } from '../../../cocos/core/math/size';
-import { Rect } from '../../../cocos/core/math/rect';
 
 // test Vec2
 describe('Test AffineTransform', () => {

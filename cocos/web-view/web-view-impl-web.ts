@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
 import { error, warn } from '@base/debug';
 import { ccwindow } from '@base/global';
 import { isDescendantElementOf } from '@pal/utils';
+import { mat4 } from '@base/math';
 import { EventType } from './web-view-enums';
 import { WebViewImpl } from './web-view-impl';
 import { game } from '../game';
-import { mat4 } from '../core/math';
 
 const ccdocument = ccwindow.document;
 

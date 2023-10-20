@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { minigame } from 'pal/minigame';
+import { minigame } from '@pal/minigame';
 import { systemInfo } from '@pal/system-info';
 import * as debug from '@base/debug';
 import { EventTarget } from '@base/event';
-import { clamp01 } from '../../../cocos/core';
+import { clamp01 } from '@base/math';
 import { audioBufferManager } from '../audio-buffer-manager';
 import AudioTimer from '../audio-timer';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';

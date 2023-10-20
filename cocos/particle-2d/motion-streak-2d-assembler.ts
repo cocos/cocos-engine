@@ -24,9 +24,9 @@
 */
 
 import { JSB } from 'internal:constants';
+import { Vec2, Color } from '@base/math';
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak } from './motion-streak-2d';
-import { Vec2, Color } from '../core';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { RenderData } from '../2d/renderer/render-data';
 

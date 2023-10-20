@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { cclegacy } from '@base/global';
-import { Vec3 } from '../../core';
+import { Vec3 } from '@base/math';
 import { patch_cc_Mesh } from '../../native-binding/decorators';
 import type { Mesh as JsbMesh } from './mesh';
 

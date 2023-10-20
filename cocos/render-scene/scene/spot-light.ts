@@ -23,7 +23,8 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Mat4, Quat, Vec3, geometry } from '../../core';
+import { Mat4, Quat, Vec3 } from '@base/math';
+import { geometry } from '../../core';
 import type { Frustum } from '../../core/geometry';
 import { Light, LightType, nt2lm } from './light';
 import { PCFType } from './shadows';

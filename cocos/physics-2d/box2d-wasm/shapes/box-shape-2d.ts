@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
+import { Vec2, Rect } from '@base/math';
 import { B2 } from '../instantiated';
 import { B2Shape2D } from './shape-2d';
 import { BoxCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { Vec2, Rect } from '../../../core';
 
 const tempAabb = new Rect();
 const tempB2Vec2_1 = { x: 0, y: 0 };

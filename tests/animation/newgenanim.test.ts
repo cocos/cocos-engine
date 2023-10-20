@@ -1,7 +1,7 @@
 
 import { warnID } from '@base/debug';
 import { assertIsTrue } from '@base/debug/internal';
-import { lerp, Quat, Vec3 } from '../../cocos/core';
+import { lerp, Quat, Vec3 } from '@base/math';
 import { AnimationBlend1D, AnimationBlend2D, Condition, InvalidTransitionError, VariableNotDefinedError, ClipMotion, AnimationBlendDirect, VariableType, AnimationMask, AnimationGraphVariant } from '../../cocos/animation/marionette/asset-creation';
 import { AnimationGraph, StateMachine, Transition, isAnimationTransition, AnimationTransition, State, Layer } from '../../cocos/animation/marionette/animation-graph';
 import { VariableTypeMismatchedError } from '../../cocos/animation/marionette/errors';

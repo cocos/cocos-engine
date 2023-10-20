@@ -24,10 +24,10 @@
 
 import { HandleCallback } from 'pal/input';
 import { EventTarget } from '@base/event';
+import { Vec3, Quat } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventHandle } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation } from '../input-source';
-import { Vec3, Quat } from '../../../cocos/core/math';
 
 enum Button {
     BUTTON_EAST,

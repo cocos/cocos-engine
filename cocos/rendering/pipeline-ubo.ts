@@ -23,10 +23,10 @@
 */
 
 import { cclegacy } from '@base/global';
+import { Mat4, Vec3, Vec4, Color, toRadian } from '@base/math';
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM, isEnableEffect } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../render-scene/scene/camera';
-import { Mat4, Vec3, Vec4, Color, toRadian } from '../core';
 import { PipelineRuntime } from './custom/pipeline';
 import { CSMLevel, PCFType, Shadows, ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';

@@ -23,14 +23,16 @@
 */
 
 import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
-import { minigame } from 'pal/minigame';
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
+import { minigame } from '@pal/minigame';
+import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from '@pal/screen-adapter';
 import { systemInfo, OS } from '@pal/system-info';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { error, warn, warnID } from '@base/debug';
 import { EventTarget } from '@base/event';
-import { Size } from '../../../cocos/core/math';
+import { Size } from '@base/math';
 import { Orientation } from '../enum-type';
+
+export * from '../enum-type';
 
 declare const my: any;
 
@@ -175,4 +177,4 @@ class ScreenAdapter extends EventTarget {
 
 export const screenAdapter = new ScreenAdapter();
 
-checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());
+checkPalIntegrity<typeof import('@pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

@@ -26,10 +26,9 @@
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { cclegacy } from '@base/global';
 import { ccenum } from '@base/object';
+import { Color, Size, Vec2, Vec3, clamp01 } from '@base/math';
 import { Component } from '../scene-graph/component';
 import { UITransform } from '../2d/framework';
-import { Color, Size, Vec2, Vec3 } from '../core/math';
-import { clamp01 } from '../core/math/utils';
 import { ScrollView } from './scroll-view';
 import { Sprite } from '../2d/components/sprite';
 import { Node } from '../scene-graph';

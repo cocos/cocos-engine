@@ -24,7 +24,7 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { js } from '@base/utils';
-import { Quat, Vec3 } from '../../core';
+import { Quat, Vec3 } from '@base/math';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';

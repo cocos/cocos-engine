@@ -1,8 +1,8 @@
-import { VectorTrack } from "../../../../cocos/animation/animation";
-import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { AnimationMask } from "../../../../cocos/animation/marionette/animation-mask";
-import { approx, lerp } from "../../../../cocos/core";
-import { Node } from "../../../../cocos/scene-graph";
+import { approx, lerp } from '@base/math';
+import { VectorTrack } from '../../../../cocos/animation/animation';
+import { AnimationClip } from '../../../../cocos/animation/animation-clip';
+import { AnimationMask } from '../../../../cocos/animation/marionette/animation-mask';
+import { Node } from '../../../../cocos/scene-graph';
 
 export enum NodeName {
     _1 = '1',

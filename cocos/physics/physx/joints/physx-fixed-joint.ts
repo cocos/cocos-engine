@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Vec3, Quat, Mat4 } from '../../../core';
+import { IVec3Like, Vec3, Quat, Mat4 } from '@base/math';
 import { FixedConstraint, PhysicsSystem } from '../../framework';
 import { IFixedConstraint } from '../../spec/i-physics-constraint';
 import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';

@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
+import { Vec2 } from '@base/math';
 import { B2 } from '../instantiated';
 import { B2Shape2D } from './shape-2d';
 import { CircleCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { ICircleShape } from '../../spec/i-physics-shape';
-import { Vec2 } from '../../../core';
 
 export class B2CircleShape extends B2Shape2D implements ICircleShape {
     get worldRadius (): number {

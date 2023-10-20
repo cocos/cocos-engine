@@ -25,10 +25,10 @@
 import { js } from '@base/utils';
 import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';
+import { Quat, Vec3 } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { EventGamepad } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
-import { Quat, Vec3 } from '../../../cocos/core';
 
 export type GamepadCallback = (res: EventGamepad) => void;
 

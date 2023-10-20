@@ -1,0 +1,30 @@
+{
+  "$schema": "../../schemas/module-config.schema.json",
+  "name": "@pal/minigame",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "native": "./src/non-minigame.ts",
+      "web": "./src/non-minigame.ts",
+      "minigame": {
+        "default": "./src/wechat.ts.ts",
+        "wechat": "./src/wechat.ts",
+        "wechat_mini_program": "./src/wechat_mini_program.ts",
+        "alipay": "./src/alipay.ts",
+        "baidu": "./src/baidu.ts",
+        "xiaomi": "./src/xiaomi.ts",
+        "bytedance": "./src/bytedance.ts",
+        "taobao": "./src/taobao.ts",
+        "taobao_minigame": "./src/taobao_minigame.ts",
+        "oppo": "./src/runtime/env.ts",
+        "vivo": "./src/runtime/env.ts",
+        "huawei": "./src/runtime/env.ts"
+      }
+    }
+  }
+}

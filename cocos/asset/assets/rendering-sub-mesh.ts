@@ -23,9 +23,9 @@
 */
 
 import { cclegacy } from '@base/global';
+import { Vec3, approx, floatToHalf, halfToFloat, pseudoRandomRange } from '@base/math';
 import { mapBuffer } from '../../3d/misc/buffer';
 import { Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo, AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode, DrawInfo } from '../../gfx';
-import { Vec3, approx, floatToHalf, halfToFloat, pseudoRandomRange } from '../../core';
 import { Mesh } from '../../3d/assets/mesh';
 import { Root } from '../../root';
 

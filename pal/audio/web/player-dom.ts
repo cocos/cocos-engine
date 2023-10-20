@@ -24,8 +24,8 @@
 
 import { systemInfo, BrowserType, OS } from '@pal/system-info';
 import { EventTarget } from '@base/event';
+import { clamp, clamp01 } from '@base/math';
 import { AudioEvent, AudioState, AudioPCMDataView, AudioType } from '../type';
-import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { Game, game } from '../../../cocos/game';
 

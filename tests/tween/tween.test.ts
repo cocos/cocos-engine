@@ -1,8 +1,9 @@
-import { Vec3, System } from "../../cocos/core";
-import { tween, Tween, TweenSystem } from "../../cocos/tween";
-import { Node, Scene } from "../../cocos/scene-graph";
-import { Component } from "../../cocos/scene-graph/component";
-import { game, director } from "../../cocos/game";
+import { Vec3 } from '@base/math';
+import { System } from '../../cocos/core';
+import { tween, Tween, TweenSystem } from '../../cocos/tween';
+import { Node, Scene } from '../../cocos/scene-graph';
+import { Component } from '../../cocos/scene-graph/component';
+import { game, director } from '../../cocos/game';
 
 test('remove actions by tag', function () {
     const scene = new Scene('test-tags');

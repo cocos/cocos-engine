@@ -23,7 +23,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Vec4 } from '../../core';
+import { Vec4 } from '@base/math';
 import { AmbientInfo } from '../../scene-graph/scene-globals';
 
 /**

@@ -299,9 +299,7 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/web/player.ts",
-                "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
                 "pal/wasm": "pal/wasm/wasm-web.ts",
                 "pal/image":"pal/image/web/image-data.ts"
@@ -311,9 +309,7 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.NATIVE",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/native/player.ts",
-                "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
                 "pal/wasm": "pal/wasm/wasm-native.ts",
                 "pal/image":"pal/image/native/image-data.ts"
@@ -323,9 +319,7 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
                 "pal/image":"pal/image/minigame/image-data.ts"
@@ -335,9 +329,7 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/runtime.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
                 "pal/image":"pal/image/minigame/image-data.ts"

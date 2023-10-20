@@ -23,7 +23,7 @@
 */
 
 import { HUAWEI, TAOBAO_MINIGAME, WASM_SUBPACKAGE, XIAOMI } from 'internal:constants';
-import { minigame } from 'pal/minigame';
+import { minigame } from '@pal/minigame';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { error, log } from '@base/debug';
 import { basename } from '../../cocos/core/utils/path';

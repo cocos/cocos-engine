@@ -23,7 +23,8 @@
 */
 
 import { memop } from '@base/utils';
-import { IVec3Like, geometry, IQuatLike } from '../../core';
+import { IVec3Like, IQuatLike } from '@base/math';
+import { geometry } from '../../core';
 import { PhysicsRayResult } from '../framework/physics-ray-result';
 import { PhysicsMaterial } from '../framework';
 

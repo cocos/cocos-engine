@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2 } from '../../core';
+import { Vec2 } from '@base/math';
 import { Collider2D } from '../framework/components/colliders/collider-2d';
 
 /**

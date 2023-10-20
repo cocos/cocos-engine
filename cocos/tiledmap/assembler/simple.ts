@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { Mat4, Size, Vec3 } from '../../core/math';
+import { Mat4, Size, Vec3 } from '@base/math';
 import { IAssembler } from '../../2d/renderer/base';
 import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledRenderData, TiledTile } from '..';

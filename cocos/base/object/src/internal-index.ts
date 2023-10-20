@@ -23,4 +23,4 @@
 */
 
 export { ENUM_TAG, BITMASK_TAG } from './class';
-export { type EnumType } from './value-types';
+export type { EnumType } from './value-types';

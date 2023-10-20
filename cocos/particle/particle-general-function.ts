@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3, bits } from '../core/math';
+import { Mat4, Quat, random, randomRange, randomRangeInt, Vec2, Vec3, bits } from '@base/math';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import { Space } from './enum';

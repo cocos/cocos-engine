@@ -25,7 +25,7 @@
 */
 
 import { cclegacy } from '@base/global';
-import { Rect } from '../math';
+import { Rect } from '@base/math';
 
 /**
  * @zh `visibleRect` is a singleton object which defines the actual visible rect of the current view.

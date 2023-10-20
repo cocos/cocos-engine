@@ -1,4 +1,4 @@
-import { Vec2 } from "../../../../cocos/core";
+import { Vec2 } from '@base/math';
 
 export function inverseDistanceWeighting2D (weights: number[], samples: readonly Vec2[], value: Readonly<Vec2>, power: number) {
     const invDistances = new Array(samples.length).fill(0.0);

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../core';
+import { Vec3 } from '@base/math';
 
 /**
  * @en

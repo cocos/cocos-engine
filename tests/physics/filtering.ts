@@ -1,7 +1,7 @@
-import { Vec3 } from "../../cocos/core";
-import { Node } from "../../cocos/scene-graph";
-import { physics } from "../../exports/physics-framework";
-import { PhysicsTestEnv } from "./physics.test";
+import { Vec3 } from '@base/math';
+import { Node } from '../../cocos/scene-graph';
+import { physics } from '../../exports/physics-framework';
+import { PhysicsTestEnv } from './physics.test';
 
 /**
  * This function is used to test the filtering

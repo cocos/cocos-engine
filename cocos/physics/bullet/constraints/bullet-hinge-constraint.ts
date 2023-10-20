@@ -23,15 +23,14 @@
 */
 
 /* eslint-disable new-cap */
+import { IVec3Like, Quat, Vec3, toRadian } from '@base/math';
 import { BulletConstraint } from './bullet-constraint';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
-import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint, PhysicsSystem } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';
 import { cocos2BulletQuat, cocos2BulletVec3, force2Impulse } from '../bullet-utils';
-import { toRadian } from '../../../core/math';
 
 export class BulletHingeConstraint extends BulletConstraint implements IHingeConstraint {
     setPivotA (v: IVec3Like): void {

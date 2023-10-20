@@ -23,11 +23,11 @@
 */
 
 import b2 from '@cocos/box2d';
+import { Vec2, Rect } from '@base/math';
 import { b2Shape2D } from './shape-2d';
 import { BoxCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { Vec2, Rect } from '../../../core';
 
 const tempAabb = new Rect();
 

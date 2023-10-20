@@ -25,7 +25,7 @@ import { geometry } from '../../core';
 import { RenderWindow } from '../core/render-window';
 import { ClearFlagBit } from '../../gfx';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from '../../scene-graph/utils.jsb';
-import { Mat4, Vec3 } from '../../core';
+import { Mat4, Vec3 } from '@base/math';
 import type { Camera as JsbCamera } from './camera';
 
 declare const jsb: any;

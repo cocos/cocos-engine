@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { Vec3, absMax } from '../../../core';
+import { Vec3, absMax } from '@base/math';
 import { PhysicsSystem } from '../../framework';
 import { CapsuleCharacterController } from '../../framework/components/character-controllers/capsule-character-controller';
 import { ICapsuleCharacterController } from '../../spec/i-character-controller';
-import {  PX, _trans } from '../physx-adapter';
+import { PX, _trans } from '../physx-adapter';
 import { PhysXCharacterController } from './physx-character-controller';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';

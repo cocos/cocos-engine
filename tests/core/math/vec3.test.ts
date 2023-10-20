@@ -1,8 +1,5 @@
+import { Vec3, Mat3, Mat4, Quat } from '@base/math';
 import { log } from '../../test.log';
-import { Vec3 } from '../../../cocos/core/math/vec3';
-import { Mat3 } from '../../../cocos/core/math/mat3';
-import { Mat4 } from '../../../cocos/core/math/mat4';
-import { Quat } from '../../../cocos/core/math/quat';
 import '../../utils/matchers/value-type-asymmetric-matchers';
 
 describe('Test Vec3', () => {

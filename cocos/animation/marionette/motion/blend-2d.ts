@@ -23,7 +23,7 @@
 */
 
 import { assertIsTrue } from '@base/debug/internal';
-import { approx, Vec2, Vec3 } from '../../../core';
+import { approx, Vec2, Vec3 } from '@base/math';
 
 /**
  * Blends given samples using simple directional algorithm.

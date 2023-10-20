@@ -29,7 +29,7 @@ import { NodeEventType } from './node-event';
 import { CCObject, editorExtrasTag } from '@base/object';
 import { NodeUIProperties } from './node-ui-properties';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
-import { Mat4, Quat, Vec3 } from '../core/math';
+import { Mat4, Quat, Vec3 } from '@base/math';
 import { Layers } from './layers';
 import { SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { _tempFloatArray, fillMat4WithTempFloatArray } from './utils.jsb';

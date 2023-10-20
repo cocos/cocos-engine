@@ -23,11 +23,11 @@
 */
 
 import { TouchCallback } from 'pal/input';
-import { minigame } from 'pal/minigame';
-import { screenAdapter } from 'pal/screen-adapter';
+import { minigame } from '@pal/minigame';
+import { screenAdapter } from '@pal/screen-adapter';
 import { systemInfo, Feature } from '@pal/system-info';
 import { EventTarget } from '@base/event';
-import { Size, Vec2 } from '../../../cocos/core/math';
+import { Size, Vec2 } from '@base/math';
 import { EventTouch, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';

@@ -25,8 +25,8 @@
 
 import { assertIsTrue } from '@base/debug/internal';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
+import { Color, Vec2 } from '@base/math';
 import { Component } from '../../scene-graph/component';
-import { Color, Vec2 } from '../../core';
 import { Label } from './label';
 
 /**

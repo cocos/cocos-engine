@@ -25,7 +25,8 @@
 import { ccclass } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { CCClass, Enum, setPropertyEnumType } from '@base/object';
-import { lerp, RealCurve, geometry, approx, EPSILON } from '../../core';
+import { lerp, approx, EPSILON } from '@base/math';
+import { RealCurve, geometry } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 

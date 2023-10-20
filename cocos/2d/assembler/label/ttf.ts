@@ -28,7 +28,7 @@
  */
 
 import { js } from '@base/utils';
-import { Color } from '../../../core';
+import { Color } from '@base/math';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';

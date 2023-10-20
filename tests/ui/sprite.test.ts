@@ -1,9 +1,10 @@
-import { Canvas, SpriteFrame, UITransform } from "../../cocos/2d";
-import { Sprite, UIOpacity } from "../../cocos/2d/components";
-import { Texture2D } from "../../cocos/asset/assets";
-import { Node } from "../../cocos/scene-graph/node";
-import { Camera, Scene, Size, Vec3, director, game } from "../../exports/base";
-import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
+import { Size, Vec3 } from '@base/math';
+import { Canvas, SpriteFrame, UITransform } from '../../cocos/2d';
+import { Sprite, UIOpacity } from '../../cocos/2d/components';
+import { Texture2D } from '../../cocos/asset/assets';
+import { Node } from '../../cocos/scene-graph/node';
+import { Camera, Scene, director, game } from '../../exports/base';
+import { Batcher2D } from '../../cocos/2d/renderer/batcher-2d';
 
 test('sprite.updateWorldMatrix', () => {
 

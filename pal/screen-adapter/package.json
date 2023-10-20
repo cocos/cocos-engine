@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/module-config.schema.json",
+  "name": "@pal/screen-adapter",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "minigame": "./src/minigame/screen-adapter.ts",
+      "native": "./src/native/screen-adapter.ts",
+      "web": "./src/web/screen-adapter.ts"
+    }
+  }
+}

@@ -1,8 +1,8 @@
-import { Quat, Vec3 } from "../../cocos/core";
-import { director } from "../../cocos/game";
-import { Node } from "../../cocos/scene-graph";
-import { ICollisionEvent, physics } from "../../exports/physics-framework";
-import { PhysicsTestEnv } from "./physics.test";
+import { Quat, Vec3 } from '@base/math';
+import { director } from '../../cocos/game';
+import { Node } from '../../cocos/scene-graph';
+import { ICollisionEvent, physics } from '../../exports/physics-framework';
+import { PhysicsTestEnv } from './physics.test';
 
 /**
  * This function is used to test the api of the CharacterController

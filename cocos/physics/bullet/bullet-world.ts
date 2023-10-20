@@ -25,6 +25,7 @@
 
 import { error } from '@base/debug';
 import { js, memop } from '@base/utils';
+import { Vec3, IVec3Like, IQuatLike, Quat } from '@base/math';
 import { BulletSharedBody } from './bullet-shared-body';
 import { BulletRigidBody } from './bullet-rigid-body';
 import { BulletShape } from './shapes/bullet-shape';
@@ -34,7 +35,7 @@ import { TriggerEventObject, CollisionEventObject, CC_V3_0, CC_V3_1, CC_V3_2, Bu
 import { bullet2CocosVec3, cocos2BulletQuat, cocos2BulletVec3 } from './bullet-utils';
 import { IRaycastOptions, IPhysicsWorld } from '../spec/i-physics-world';
 import { PhysicsRayResult, PhysicsMaterial, CharacterControllerContact } from '../framework';
-import { Vec3, IVec3Like, geometry, IQuatLike, Quat } from '../../core';
+import { geometry } from '../../core';
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { BulletCharacterController } from './character-controllers/bullet-character-controller';

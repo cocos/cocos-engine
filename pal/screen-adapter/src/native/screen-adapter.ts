@@ -26,8 +26,10 @@ import { EDITOR } from 'internal:constants';
 import { checkPalIntegrity, withImpl } from '@pal/utils';
 import { warn } from '@base/debug';
 import { EventTarget } from '@base/event';
-import { Size } from '../../../cocos/core/math';
+import { Size } from '@base/math';
 import { Orientation } from '../enum-type';
+
+export * from '../enum-type';
 
 export interface SafeAreaEdge {
     top: number;
@@ -184,4 +186,4 @@ class ScreenAdapter extends EventTarget {
 
 export const screenAdapter = new ScreenAdapter();
 
-checkPalIntegrity<typeof import('pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());
+checkPalIntegrity<typeof import('@pal/screen-adapter')>(withImpl<typeof import('./screen-adapter')>());

@@ -31,52 +31,11 @@
 import { assert } from '@base/debug';
 import { cclegacy } from '@base/global';
 import { memop } from '@base/utils';
+import { Vec3, Vec4 } from '@base/math';
 import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
-import {
-    AccessFlagBit,
-    Attribute,
-    Buffer,
-    BufferFlagBit,
-    BufferInfo,
-    BufferUsageBit,
-    BufferViewInfo,
-    Color,
-    ColorAttachment,
-    CommandBuffer,
-    DepthStencilAttachment,
-    DescriptorSet,
-    DescriptorSetInfo,
-    Device,
-    deviceManager,
-    DispatchInfo,
-    Format,
-    Framebuffer,
-    FramebufferInfo,
-    GeneralBarrierInfo,
-    InputAssembler,
-    InputAssemblerInfo,
-    LoadOp,
-    MemoryUsageBit,
-    PipelineBindPoint,
-    PipelineState,
-    PipelineStateInfo,
-    Rect,
-    RenderPass,
-    RenderPassInfo,
-    Shader,
-    StoreOp,
-    SurfaceTransform,
-    Swapchain,
-    Texture,
-    TextureInfo,
-    TextureType,
-    TextureUsageBit,
-    Viewport,
-} from '../../gfx';
-import { Vec3 } from '../../core/math/vec3';
-import { Vec4 } from '../../core/math/vec4';
+import { AccessFlagBit, Attribute, Buffer, BufferFlagBit, BufferInfo, BufferUsageBit, BufferViewInfo, Color, ColorAttachment, CommandBuffer, DepthStencilAttachment, DescriptorSet, DescriptorSetInfo, Device, deviceManager, DispatchInfo, Format, Framebuffer, FramebufferInfo, GeneralBarrierInfo, InputAssembler, InputAssemblerInfo, LoadOp, MemoryUsageBit, PipelineBindPoint, PipelineState, PipelineStateInfo, Rect, RenderPass, RenderPassInfo, Shader, StoreOp, SurfaceTransform, Swapchain, Texture, TextureInfo, TextureType, TextureUsageBit, Viewport } from '../../gfx';
 import { Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
@@ -87,48 +46,8 @@ import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
 import { SceneVisitor } from './scene';
-import {
-    Blit,
-    ClearView,
-    ComputePass,
-    ComputeSubpass,
-    ComputeView,
-    CopyPass,
-    Dispatch,
-    FormatView,
-    ManagedBuffer,
-    ManagedResource,
-    ManagedTexture,
-    MovePass,
-    PersistentBuffer,
-    PersistentTexture,
-    RasterPass,
-    RasterSubpass,
-    RasterView,
-    RaytracePass,
-    RenderData,
-    RenderGraph,
-    RenderGraphVisitor,
-    RenderQueue,
-    RenderSwapchain,
-    ResolvePass,
-    ResourceDesc,
-    ResourceGraph,
-    ResourceGraphVisitor,
-    ResourceTraits,
-    SceneData,
-    SubresourceView,
-} from './render-graph';
-import {
-    AccessType,
-    AttachmentType,
-    QueueHint,
-    ResourceDimension,
-    ResourceFlags,
-    ResourceResidency,
-    SceneFlags,
-    UpdateFrequency,
-} from './types';
+import { Blit, ClearView, ComputePass, ComputeSubpass, ComputeView, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass, PersistentBuffer, PersistentTexture, RasterPass, RasterSubpass, RasterView, RaytracePass, RenderData, RenderGraph, RenderGraphVisitor, RenderQueue, RenderSwapchain, ResolvePass, ResourceDesc, ResourceGraph, ResourceGraphVisitor, ResourceTraits, SceneData, SubresourceView } from './render-graph';
+import { AccessType, AttachmentType, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
 import { PipelineUBO } from '../pipeline-ubo';
 import { WebSceneTask, WebSceneTransversal } from './web-scene';
 import { WebSceneVisitor } from './web-scene-visitor';

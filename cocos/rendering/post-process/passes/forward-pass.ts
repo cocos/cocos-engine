@@ -1,4 +1,4 @@
-import { Vec4 } from '../../../core';
+import { Vec4 } from '@base/math';
 
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Camera, ShadowType } from '../../../render-scene/scene';
