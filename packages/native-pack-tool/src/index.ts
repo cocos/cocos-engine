@@ -16,6 +16,8 @@ nativePackToolMg.register('openharmony', new OpenHarmonyPackTool());
 nativePackToolMg.register('ohos', new OHOSPackTool());
 nativePackToolMg.register('huawei-agc', new HuaweiAGCPackTool());
 
+export { MacPackTool, WindowsPackTool, AndroidPackTool, IOSPackTool };
+
 export * from './base/manager';
 export * from './base/process-manager';
 export * from './base/default';

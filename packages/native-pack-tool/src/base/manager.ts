@@ -65,15 +65,6 @@ export class NativePackToolManager {
         await tool.run();
         return true;
     }
-    
-    async openWithIde(platform: string) { 
-        const tool = this.getPackTool(platform); 
-        if (!tool.openWithIde) { 
-            return false; 
-        } 
-        await tool.openWithIde(); 
-        return true; 
-    }
 }
 
 export const nativePackToolMg = new NativePackToolManager();

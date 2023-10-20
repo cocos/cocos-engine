@@ -68,6 +68,11 @@ export interface INativePlatformOptions {
     init: (params: CocosParams<Object>) => void;
 }
 
+export interface IOpenWithIdeOptions {
+    buildDir: string;
+    nativeIdePath: string,
+}
+
 export abstract class NativePackTool {
     // 传入的打包参数
     params!: CocosParams<Object>;
