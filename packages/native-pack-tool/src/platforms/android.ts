@@ -79,19 +79,20 @@ export class AndroidPackTool extends NativePackTool {
         return true;
     }
 
-    async openWithIde(options: IOpenWithIdeOptions) {
+    // static method, if needs to access instance properties, you can define a instance method
+    static async openWithIde(options: IOpenWithIdeOptions) {
         let projPath = ps.join(options.buildDir, 'proj');
-        let ASFile = "./studio"
-        let ASDir = options.nativeIdeDir;
+        let ASFile = "./studio";
+        let ASDir = options.nativeIdePath;
         if (!ASDir || !fs.existsSync(ASDir)) {
             throw new Error(`android studio's runnable file Dir not set or not exist`);
         }
         if (process.platform === 'win32') {
-            ASFile = "studio.bat"
+            ASFile = "studio.bat";
             projPath = projPath.replace(/\\/g, '/');
-            ASDir = options.nativeIdeDir.replace(/\\/g, '/');
+            ASDir = options.nativeIdePath.replace(/\\/g, '/');
         }
-        
+
         cchelper.runCmd(ASFile, [projPath], false, ASDir);
         return true;
     }

@@ -70,7 +70,7 @@ export interface INativePlatformOptions {
 
 export interface IOpenWithIdeOptions {
     buildDir: string;
-    nativeIdeDir: string,
+    nativeIdePath: string,
 }
 
 export abstract class NativePackTool {
@@ -543,9 +543,9 @@ export abstract class NativePackTool {
 
     abstract create(): Promise<boolean>;
     generate?(): Promise<boolean>;
+    openWithIde?(): Promise<boolean>;
     make?(): Promise<boolean>;
     run?(): Promise<boolean>;
-    openWithIde?(options: IOpenWithIdeOptions): Promise<boolean>;
 }
 
 // cocos.compile.json 

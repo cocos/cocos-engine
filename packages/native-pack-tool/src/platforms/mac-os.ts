@@ -72,9 +72,11 @@ export abstract class MacOSPackTool extends NativePackTool {
         }
     }
 
-    async openWithIde(options: IOpenWithIdeOptions) {
+    // static method, if needs to access instance properties, you can define a instance method
+    static async openWithIde(options: IOpenWithIdeOptions) {
         const nativePrjDir = ps.join(options.buildDir, 'proj');
-        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`], options.nativeIdeDir);
+        Paths.cmakePath = options.nativeIdePath;
+        await toolHelper.runCmake(['--open', `"${cchelper.fixPath(nativePrjDir)}"`]);
         return true;
     }
 

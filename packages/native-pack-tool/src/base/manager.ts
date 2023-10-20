@@ -1,6 +1,6 @@
 
 import { Paths } from "../utils";
-import { IOpenWithIdeOptions, NativePackTool } from "./default";
+import { NativePackTool } from "./default";
 
 export type ISupportPlatform = 'mac-os' | 'mac' | 'ios' | 'android' | 'ohos';
 
@@ -63,15 +63,6 @@ export class NativePackToolManager {
             return false;
         }
         await tool.run();
-        return true;
-    }
-    
-    async openWithIde(platform: string, options: IOpenWithIdeOptions) { 
-        const tool = this.getPackTool(platform);
-        if (!tool.openWithIde) {
-            return false;
-        }
-        await tool.openWithIde(options);
         return true;
     }
 }

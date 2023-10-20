@@ -459,8 +459,8 @@ export const toolHelper = {
         });
     },
 
-    runCmake(args: string[], customCmakePath?: string) {
-        let cmakePath = customCmakePath || Paths.cmakePath;
+    runCmake(args: string[]) {
+        let cmakePath =  Paths.cmakePath;
         if (process.platform === 'win32' && cmakePath.indexOf(' ') > -1) {
             cmakePath = `"${cmakePath}"`;
         } else {
