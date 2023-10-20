@@ -460,7 +460,7 @@ export const toolHelper = {
     },
 
     runCmake(args: string[]) {
-        let cmakePath =  Paths.cmakePath;
+        let cmakePath = Paths.cmakePath;
         if (process.platform === 'win32' && cmakePath.indexOf(' ') > -1) {
             cmakePath = `"${cmakePath}"`;
         } else {
