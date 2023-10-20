@@ -248,6 +248,15 @@ public:
     }
 
     /**
+     * @en Positional offset values in planar shading calculations.
+     * @zh 平面阴影计算中的位置偏移值
+     */
+    void setPlaneBias(float val);
+    inline float getPlaneBias() const {
+        return _planeBias;
+    }
+
+    /**
      * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
@@ -275,14 +284,21 @@ public:
     void activate(Shadows *resource);
 
     bool _enabled{false};
+
     ShadowType _type{ShadowType::PLANAR};
-    Vec3 _normal{0.F, 1.F, 0.F};
-    float _distance{0.F};
-    Color _shadowColor{0, 0, 0, 76};
-    uint32_t _maxReceived{4};
-    Vec2 _size{1024.F, 1024.F};
 
     Shadows *_resource{nullptr};
+
+    uint32_t _maxReceived{4};
+
+    float _distance{0.F};
+    float _planeBias{1.0F};
+
+    Vec2 _size{1024.F, 1024.F};
+
+    Vec3 _normal{0.F, 1.F, 0.F};
+
+    Color _shadowColor{0, 0, 0, 76};
 };
 
 class Shadows final {
@@ -331,6 +347,13 @@ public:
      */
     inline float getDistance() const { return _distance; }
     inline void setDistance(float val) { _distance = val; }
+
+    /**
+     * @en Positional offset values in planar shading calculations.
+     * @zh 平面阴影计算中的位置偏移值
+     */
+    inline float getPlaneBias() const { return _planeBias; }
+    inline void setPlaneBias(float val) { _planeBias = val; }
 
     /**
      * @en Shadow color.
@@ -398,11 +421,16 @@ private:
     void createInstanceMaterial();
     void createMaterial();
 
-    /**
-     * @en The bounding sphere of the shadow map.
-     * @zh 用于计算固定区域阴影 Shadow map 的场景包围球.
-     */
-    geometry::Sphere _fixedSphere{0.0F, 0.0F, 0.0F, 0.01F};
+    bool _enabled{false};
+    bool _shadowMapDirty{false};
+
+    ShadowType _type{ShadowType::NONE};
+
+    IntrusivePtr<Material> _material{nullptr};
+    IntrusivePtr<Material> _instancingMaterial{nullptr};
+
+    float _distance{0.F};
+    float _planeBias{1.0F};
 
     /**
      * @en get or set shadow max received.
@@ -410,18 +438,21 @@ private:
      */
     uint32_t _maxReceived{4};
 
+    /**
+     * @en The bounding sphere of the shadow map.
+     * @zh 用于计算固定区域阴影 Shadow map 的场景包围球.
+     */
+    geometry::Sphere _fixedSphere{0.0F, 0.0F, 0.0F, 0.01F};
+
+    Vec2 _size{1024.F, 1024.F};
+
     // public properties of shadow
     Vec3 _normal{0.F, 1.F, 0.F};
+
     Color _shadowColor{0, 0, 0, 76};
     ccstd::array<float, 4> _shadowColor4f{0.F, 0.F, 0.F, 76.F / 255.F};
+
     Mat4 _matLight;
-    IntrusivePtr<Material> _material{nullptr};
-    IntrusivePtr<Material> _instancingMaterial{nullptr};
-    Vec2 _size{1024.F, 1024.F};
-    bool _enabled{false};
-    float _distance{0.F};
-    ShadowType _type{ShadowType::NONE};
-    bool _shadowMapDirty{false};
 };
 
 } // namespace scene

@@ -931,6 +931,22 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en Positional offset values in planar shading calculations.
+     * @zh 平面阴影计算中的位置偏移值。
+     */
+    @tooltip('i18n:shadow.planeBias')
+    @editable
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
+    set planeBias (val: number) {
+        this._planeBias = val;
+        if (this._resource) { this._resource.planeBias = val; }
+    }
+    get planeBias (): number {
+        return this._planeBias;
+    }
+
+    /**
      * @en get or set shadow max received
      * @zh 获取或者设置阴影接收的最大光源数量
      */
@@ -971,6 +987,8 @@ export class ShadowsInfo {
     protected _normal = new Vec3(0, 1, 0);
     @serializable
     protected _distance = 0;
+    @serializable
+    protected _planeBias = 1.0;
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable

@@ -75,7 +75,7 @@ jest.mock(
 
 // Mock external wasm module here
 [
-    'external:emscripten/bullet/bullet.wasm',
+    'external:emscripten/bullet/bullet.release.wasm.wasm',
     'external:emscripten/webgpu/webgpu_wasm.wasm',
     'external:emscripten/webgpu/glslang.wasm',
     'external:emscripten/physx/physx.release.wasm.wasm',

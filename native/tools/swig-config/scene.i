@@ -531,6 +531,7 @@ using namespace cc;
 %attribute(cc::scene::ShadowsInfo, cc::Color&, shadowColor, getShadowColor, setShadowColor);
 %attribute(cc::scene::ShadowsInfo, cc::Vec3&, planeDirection, getPlaneDirection, setPlaneDirection);
 %attribute(cc::scene::ShadowsInfo, float, planeHeight, getPlaneHeight, setPlaneHeight);
+%attribute(cc::scene::ShadowsInfo, float, planeBias, getPlaneBias, setPlaneBias);
 %attribute(cc::scene::ShadowsInfo, uint32_t, maxReceived, getMaxReceived, setMaxReceived);
 %attribute(cc::scene::ShadowsInfo, float, shadowMapSize, getShadowMapSize, setShadowMapSize);
 
@@ -538,6 +539,7 @@ using namespace cc;
 %attribute(cc::scene::Shadows, cc::scene::ShadowType, type, getType, setType);
 %attribute(cc::scene::Shadows, cc::Vec3&, normal, getNormal, setNormal);
 %attribute(cc::scene::Shadows, float, distance, getDistance, setDistance);
+%attribute(cc::scene::Shadows, float, planeBias, getPlaneBias, setPlaneBias);
 %attribute(cc::scene::Shadows, cc::Color&, shadowColor, getShadowColor, setShadowColor);
 %attribute(cc::scene::Shadows, uint32_t, maxReceived, getMaxReceived, setMaxReceived);
 %attribute(cc::scene::Shadows, cc::Vec2&, size, getSize, setSize);

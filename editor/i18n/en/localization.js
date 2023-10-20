@@ -239,6 +239,7 @@ module.exports = link(mixin({
         shadowColor: 'The planar shadow color',
         planeDirection: 'The normal vector of the plane which receives shadow.',
         planeHeight: 'The height from the origin of the plane which receives shadow.',
+        planeBias:'Positional offset values in planar shading calculations.',
         shadowMapSize: 'Shadowmap resolutions.',
         maxReceived: 'Number of the effective light sources that produce shadows.',
     },

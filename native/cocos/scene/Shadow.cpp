@@ -76,6 +76,13 @@ void ShadowsInfo::setPlaneHeight(float val) {
     }
 }
 
+void ShadowsInfo::setPlaneBias(float val) {
+    _planeBias = val;
+    if (_resource != nullptr) {
+        _resource->setPlaneBias(val);
+    }
+}
+
 void ShadowsInfo::setMaxReceived(uint32_t val) {
     _maxReceived = val;
     if (_resource != nullptr) {
@@ -112,6 +119,7 @@ void Shadows::initialize(const ShadowsInfo &shadowsInfo) {
     setType(shadowsInfo.getType());
     setNormal(shadowsInfo.getPlaneDirection());
     setDistance(shadowsInfo.getPlaneHeight());
+    setPlaneBias(shadowsInfo.getPlaneBias());
     setMaxReceived(shadowsInfo.getMaxReceived());
     if (fabsf(shadowsInfo.getShadowMapSize() - _size.x) > 0.1F) {
         setSize(Vec2(shadowsInfo.getShadowMapSize(), shadowsInfo.getShadowMapSize()));
