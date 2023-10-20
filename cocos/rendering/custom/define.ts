@@ -1128,6 +1128,7 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
     const constants = data.constants;
     const samplers = data.samplers;
     const textures = data.textures;
+    const buffers = data.buffers;
     const root = cclegacy.director.root;
     const device = root.device;
     const pipeline = root.pipeline as WebPipeline;
@@ -1172,6 +1173,14 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
         if (bindId === -1) { continue; }
         const sampler = descriptorSet.getSampler(bindId);
         if (!sampler || (isUpdate && value !== pipeline.defaultSampler)) {
+            bindGlobalDesc(descriptorSet, bindId, value);
+        }
+    }
+    for (const [key, value] of buffers) {
+        const bindId = getDescBinding(key, descriptorSetData);
+        if (bindId === -1) { continue; }
+        const buffer = descriptorSet.getBuffer(bindId);
+        if (!buffer || isUpdate) {
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }

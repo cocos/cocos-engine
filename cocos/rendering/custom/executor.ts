@@ -1072,10 +1072,13 @@ class DeviceRenderPass {
             this.clearDepth,
             this.clearStencil,
         );
-        cmdBuff.bindDescriptorSet(
-            SetIndex.GLOBAL,
-            context.descriptorSet!,
-        );
+        if (context.descriptorSet) {
+            cmdBuff.bindDescriptorSet(
+                SetIndex.GLOBAL,
+                context.descriptorSet,
+            );
+        }
+
         for (const queue of this._deviceQueues) {
             queue.record();
         }
@@ -1265,10 +1268,13 @@ class DeviceComputePass {
     record (): void {
         const cmdBuff = context.commandBuffer;
 
-        cmdBuff.bindDescriptorSet(
-            SetIndex.GLOBAL,
-            context.descriptorSet!,
-        );
+        if (context.descriptorSet) {
+            cmdBuff.bindDescriptorSet(
+                SetIndex.GLOBAL,
+                context.descriptorSet,
+            );
+        }
+
         for (const queue of this._deviceQueues) {
             queue.record();
         }
