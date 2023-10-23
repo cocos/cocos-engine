@@ -624,7 +624,7 @@ export class ArmatureDisplay extends UIRenderer {
         this._factory = CCFactory.getInstance();
     }
 
-    onLoad (): void {
+    public onLoad (): void {
         super.onLoad();
         this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
     }
@@ -1543,7 +1543,7 @@ export class ArmatureDisplay extends UIRenderer {
         this.attachUtil._syncAttachedNode();
     }
 
-    protected _applyLayer(): void {
+    protected _applyLayer (): void {
         if (this._debugDraw) {
             this._debugDraw.node.layer = this.node.layer;
         }

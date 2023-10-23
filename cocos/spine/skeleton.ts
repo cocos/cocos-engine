@@ -654,6 +654,7 @@ export class Skeleton extends UIRenderer {
     }
 
     public onLoad (): void {
+        super.onLoad();
         this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
     }
 
@@ -1795,7 +1796,7 @@ export class Skeleton extends UIRenderer {
         this._instance.setSlotTexture(slotName, textureID);
     }
 
-    protected _applyLayer(): void {
+    protected _applyLayer (): void {
         if (this._debugRenderer) {
             this._debugRenderer.node.layer = this.node.layer;
         }
