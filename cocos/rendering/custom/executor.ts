@@ -1308,6 +1308,7 @@ class GraphScene {
             this.scene.light.light = scene.light.light;
             this.scene.flags = scene.flags;
             this.scene.camera = scene.camera;
+            this.scene.shadingLight = scene.shadingLight;
             return;
         }
         this.scene = null;

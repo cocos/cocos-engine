@@ -390,11 +390,11 @@ export class RenderQueue {
     }
 
     recordCommands (cmdBuffer: CommandBuffer, renderPass: RenderPass): void {
-        const offset = this.lightByteOffset === 0xFFFFFFFF ? 0 : this.lightByteOffset / Float32Array.BYTES_PER_ELEMENT;
-        this.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, [offset]);
-        this.opaqueInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, [offset]);
+        const offsets = this.lightByteOffset === 0xFFFFFFFF ? null : [this.lightByteOffset / Float32Array.BYTES_PER_ELEMENT];
+        this.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
+        this.opaqueInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
 
-        this.transparentInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, [offset]);
-        this.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, [offset]);
+        this.transparentInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
+        this.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
     }
 }

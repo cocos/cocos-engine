@@ -783,7 +783,7 @@ export class LightResource {
     }
 
     tryUpdateRenderSceneLocalDescriptorSet (sceneCulling: SceneCulling): void {
-        if (!this.resized) {
+        if (!this.resized || !sceneCulling.lightBoundsCullings.size) {
             return;
         }
 
