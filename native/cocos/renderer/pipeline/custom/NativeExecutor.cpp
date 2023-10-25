@@ -227,7 +227,12 @@ PersistentRenderPassAndFramebuffer createPersistentRenderPassAndFramebuffer(
                         // data.framebuffer = fb;
                     },
                     [&](const RenderSwapchain& sc) {
-                        fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
+                        if (sc.swapchain) {
+                            fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
+                        } else {
+                            CC_EXPECTS(sc.renderWindow);
+                            fbInfo.colorTextures.emplace_back(sc.renderWindow->getFramebuffer()->getColorTextures().front());
+                        }
                     },
                     [&](const FormatView& view) {
                         // TODO(zhouzhenglong): add ImageView support
