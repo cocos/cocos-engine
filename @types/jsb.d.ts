@@ -64,13 +64,13 @@ declare namespace jsb {
         wheelDeltaX: number,
         wheelDeltaY: number,
     }
-    type  MouseWheelEventCallback = (mouseEvent: MouseWheelEvent) => void;
+    type MouseWheelEventCallback = (mouseEvent: MouseWheelEvent) => void;
     export let onMouseDown: MouseEventCallback | undefined;
     export let onMouseMove: MouseEventCallback | undefined;
     export let onMouseUp: MouseEventCallback | undefined;
     export let onMouseWheel: MouseWheelEventCallback | undefined;
 
-    type TouchEventCallback = (touchList: TouchList, windowId?: number) =>  void;
+    type TouchEventCallback = (touchList: TouchList, windowId?: number) => void;
     export let onTouchStart: TouchEventCallback | undefined;
     export let onTouchMove: TouchEventCallback | undefined;
     export let onTouchEnd: TouchEventCallback | undefined;
@@ -129,7 +129,7 @@ declare namespace jsb {
     }
     type KeyboardEventCallback = (keyboardEvent: KeyboardEvent) => void;
     export let onKeyDown: KeyboardEventCallback | undefined;
-    export let onKeyUp: KeyboardEventCallback| undefined;
+    export let onKeyUp: KeyboardEventCallback | undefined;
 
     export interface WindowEvent {
         windowId: number;
@@ -142,7 +142,7 @@ declare namespace jsb {
      * @zh WindowEvent.width 和 WindowEvent.height 都已乘以 DPR
      */
     export let onResize: (event: WindowEvent) => void | undefined;
-    export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type
+    export let onOrientationChanged: (event: { orientation: number }) => void | undefined;  // TODO: enum orientation type
     export let onResume: () => void | undefined;
     export let onPause: () => void | undefined;
     export let onClose: () => void | undefined;
@@ -167,43 +167,43 @@ declare namespace jsb {
         channelCount: number;
     }
     export namespace AudioEngine {
-        export function preload (url: string, cb: (isSuccess: boolean) => void);
+        export function preload(url: string, cb: (isSuccess: boolean) => void);
 
-        export function play2d (url: string, loop: boolean, volume: number): number;
-        export function pause (id: number);
-        export function pauseAll ();
-        export function resume (id: number);
-        export function resumeAll ();
-        export function stop (id: number);
-        export function stopAll ();
+        export function play2d(url: string, loop: boolean, volume: number): number;
+        export function pause(id: number);
+        export function pauseAll();
+        export function resume(id: number);
+        export function resumeAll();
+        export function stop(id: number);
+        export function stopAll();
 
-        export function getPlayingAudioCount (): number;
-        export function getMaxAudioInstance (): number;
-        export function getState (id: number): any;
-        export function getDuration (id: number): number;
-        export function getVolume (id: number): number;
-        export function isLoop (id: number): boolean;
-        export function getCurrentTime (id: number): number;
+        export function getPlayingAudioCount(): number;
+        export function getMaxAudioInstance(): number;
+        export function getState(id: number): any;
+        export function getDuration(id: number): number;
+        export function getVolume(id: number): number;
+        export function isLoop(id: number): boolean;
+        export function getCurrentTime(id: number): number;
 
-        export function setVolume (id: number, val: number);
-        export function setLoop (id: number, val: boolean);
-        export function setCurrentTime (id: number, val: number);
+        export function setVolume(id: number, val: number);
+        export function setLoop(id: number, val: boolean);
+        export function setCurrentTime(id: number, val: number);
 
-        export function uncache (url: string);
-        export function uncacheAll ();
-        export function setErrorCallback (id: number, cb: (err: any) => void);
-        export function setFinishCallback (id: number, cb: () => void);
+        export function uncache(url: string);
+        export function uncacheAll();
+        export function setErrorCallback(id: number, cb: (err: any) => void);
+        export function setFinishCallback(id: number, cb: () => void);
 
         /**
          * Get PCM header without pcm data. if you want to get pcm data, use getOriginalPCMBuffer instead
          */
-        export function getPCMHeader (url: string): PCMHeader;
+        export function getPCMHeader(url: string): PCMHeader;
         /**
          * Get PCM Data in decode format for example Int16Array, the format information is written in PCMHeader.
          * @param url: file relative path, for example player._path
          * @param channelID: ChannelID which should smaller than channel count, start from 0
          */
-        export function getOriginalPCMBuffer (url: string, channelID: number): ArrayBuffer | undefined;
+        export function getOriginalPCMBuffer(url: string, channelID: number): ArrayBuffer | undefined;
     }
 
     class NativePOD {
@@ -236,22 +236,22 @@ declare namespace jsb {
     }
 
     export class Manifest {
-        constructor (manifestUrl: string);
-        constructor (content: string, manifestRoot: string);
-        parseFile (manifestUrl: string): void;
-        parseJSONString (content: string, manifestRoot: string): void;
+        constructor(manifestUrl: string);
+        constructor(content: string, manifestRoot: string);
+        parseFile(manifestUrl: string): void;
+        parseJSONString(content: string, manifestRoot: string): void;
 
-        getManifestRoot (): string;
-        getManifestFileUrl (): string;
-        getVersionFileUrl (): string;
-        getSearchPaths (): [string];
-        getVersion (): string;
-        getPackageUrl (): boolean;
+        getManifestRoot(): string;
+        getManifestFileUrl(): string;
+        getVersionFileUrl(): string;
+        getSearchPaths(): [string];
+        getVersion(): string;
+        getPackageUrl(): boolean;
 
-        setUpdating (isUpdating: boolean): void;
-        isUpdating (): boolean;
-        isVersionLoaded (): boolean;
-        isLoaded (): boolean;
+        setUpdating(isUpdating: boolean): void;
+        isUpdating(): boolean;
+        isVersionLoaded(): boolean;
+        isLoaded(): boolean;
     }
 
     export class EventAssetsManager {
@@ -268,23 +268,23 @@ declare namespace jsb {
         static UPDATE_FAILED: number;
         static ERROR_DECOMPRESS: number;
 
-        constructor (eventName: string, manager: AssetsManager, eventCode: number,
+        constructor(eventName: string, manager: AssetsManager, eventCode: number,
             assetId?: string, message?: string, curleCode?: number, curlmCode?: number);
-        getAssetsManagerEx (): AssetsManager;
-        isResuming (): boolean;
+        getAssetsManagerEx(): AssetsManager;
+        isResuming(): boolean;
 
-        getDownloadedFiles (): number;
-        getDownloadedBytes (): number;
-        getTotalFiles (): number;
-        getTotalBytes (): number;
-        getPercent (): number;
-        getPercentByFile (): number;
+        getDownloadedFiles(): number;
+        getDownloadedBytes(): number;
+        getTotalFiles(): number;
+        getTotalBytes(): number;
+        getPercent(): number;
+        getPercentByFile(): number;
 
-        getEventCode (): number;
-        getMessage (): string;
-        getAssetId (): string;
-        getCURLECode (): number;
-        getCURLMCode (): number;
+        getEventCode(): number;
+        getMessage(): string;
+        getAssetId(): string;
+        getCURLECode(): number;
+        getCURLMCode(): number;
     }
 
     export namespace AssetsManager {
@@ -307,30 +307,30 @@ declare namespace jsb {
     }
 
     export class AssetsManager {
-        constructor (manifestUrl: string, storagePath: string, versionCompareHandle?: (versionA: string, versionB: string) => number);
-        static create (manifestUrl: string, storagePath: string): AssetsManager;
+        constructor(manifestUrl: string, storagePath: string, versionCompareHandle?: (versionA: string, versionB: string) => number);
+        static create(manifestUrl: string, storagePath: string): AssetsManager;
 
-        getState (): AssetsManager.State;
-        getStoragePath (): string
-        getMaxConcurrentTask (): number;
+        getState(): AssetsManager.State;
+        getStoragePath(): string
+        getMaxConcurrentTask(): number;
         // setMaxConcurrentTask (max: number): void;  // actually not supported
 
-        checkUpdate (): void;
-        prepareUpdate (): void;
-        update (): void;
-        isResuming (): boolean;
+        checkUpdate(): void;
+        prepareUpdate(): void;
+        update(): void;
+        isResuming(): boolean;
 
-        getDownloadedFiles (): number;
-        getDownloadedBytes (): number;
-        getTotalFiles (): number;
-        getTotalBytes (): number;
-        downloadFailedAssets (): void;
+        getDownloadedFiles(): number;
+        getDownloadedBytes(): number;
+        getTotalFiles(): number;
+        getTotalBytes(): number;
+        downloadFailedAssets(): void;
 
-        getLocalManifest (): Manifest;
-        loadLocalManifest (manifestUrl: string): boolean;
-        loadLocalManifest (localManifest: Manifest, storagePath: string): boolean;
-        getRemoteManifest (): Manifest;
-        loadRemoteManifest (remoteManifest: Manifest): boolean;
+        getLocalManifest(): Manifest;
+        loadLocalManifest(manifestUrl: string): boolean;
+        loadLocalManifest(localManifest: Manifest, storagePath: string): boolean;
+        getRemoteManifest(): Manifest;
+        loadRemoteManifest(remoteManifest: Manifest): boolean;
 
         /**
          * Setup your own version compare handler, versionA and B is versions in string.
@@ -338,13 +338,23 @@ declare namespace jsb {
          * if the return value equals 0, versionA equals to B,
          * if the return value smaller than 0, versionA is smaller than B.
          */
-        setVersionCompareHandle (versionCompareHandle?: (versionA: string, versionB: string) => number): void;
+        setVersionCompareHandle(versionCompareHandle?: (versionA: string, versionB: string) => number): void;
         /**
          * Setup the verification callback, Return true if the verification passed, otherwise return false
          */
-        setVerifyCallback (verifyCallback: (path: string, asset: ManifestAsset) => boolean): void;
-        setEventCallback (eventCallback: (event: EventAssetsManager) => void): void;
+        setVerifyCallback(verifyCallback: (path: string, asset: ManifestAsset) => boolean): void;
+        setEventCallback(eventCallback: (event: EventAssetsManager) => void): void;
     }
+
+    // Android ADPF module
+    const adpf: {
+        readonly thermalHeadroom: number;
+        readonly thermalStatus: number;
+        readonly thermalStatusMin: number;
+        readonly thermalStatusMax: number;
+        readonly thermalStatusNormalized: number;
+        onThermalStatusChanged?: (previousStatus: number, newStatus: number, statusMin: number, statusMax: number) => void;
+    } | undefined;
 }
 
 declare namespace ns {

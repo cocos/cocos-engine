@@ -551,6 +551,8 @@ elseif(ANDROID)
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
         cocos/platform/android/AndroidKeyCodes.cpp
+        cocos/platform/android/adpf_manager.h
+        cocos/platform/android/adpf_manager.cpp
     )
 elseif(OPENHARMONY)
     cocos_source_files(

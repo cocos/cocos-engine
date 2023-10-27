@@ -156,4 +156,5 @@ export const native = {
     Manifest: globalJsb.Manifest,
     saveImageData: globalJsb.saveImageData,
     process: globalJsb.process,
+    adpf: globalJsb.adpf,
 };

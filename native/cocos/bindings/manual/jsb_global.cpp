@@ -24,6 +24,7 @@
 
 #include "jsb_global.h"
 #include "application/ApplicationManager.h"
+#include "base/Assertf.h"
 #include "base/Data.h"
 #include "base/DeferredReleasePool.h"
 #include "base/Scheduler.h"
@@ -42,17 +43,18 @@
 #include "ui/edit-box/EditBox.h"
 #include "xxtea/xxtea.h"
 
+#include <chrono>
+#include <regex>
+#include <sstream>
+
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include "platform/android/adpf_manager.h"
     #include "platform/java/jni/JniImp.h"
 #endif
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
     #include "platform/openharmony/napi/NapiHelper.h"
 #endif
-
-#include <chrono>
-#include <regex>
-#include <sstream>
 
 using namespace cc; // NOLINT
 
@@ -218,7 +220,7 @@ static bool doModuleRequire(const ccstd::string &path, se::Value *ret, const ccs
         const ccstd::string &reletivePath = fullPath;
 #endif
 
-        auto se = se::ScriptEngine::getInstance();
+        auto *se = se::ScriptEngine::getInstance();
         bool succeed = se->evalString(scriptBuffer.c_str(), static_cast<uint32_t>(scriptBuffer.length()), nullptr, reletivePath.c_str());
         se::Value moduleVal;
         if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject()) {
@@ -356,7 +358,7 @@ static bool JSBCore_os(se::State &s) { // NOLINT
 SE_BIND_FUNC(JSBCore_os)
 
 static bool JSBCore_getCurrentLanguage(se::State &s) { // NOLINT
-    ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+    auto *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string languageStr = systemIntf->getCurrentLanguageToString();
     s.rval().setString(languageStr);
@@ -365,7 +367,7 @@ static bool JSBCore_getCurrentLanguage(se::State &s) { // NOLINT
 SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
 static bool JSBCore_getCurrentLanguageCode(se::State &s) { // NOLINT
-    ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+    auto *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string language = systemIntf->getCurrentLanguageCode();
     s.rval().setString(language);
@@ -374,7 +376,7 @@ static bool JSBCore_getCurrentLanguageCode(se::State &s) { // NOLINT
 SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
 static bool JSB_getOSVersion(se::State &s) { // NOLINT
-    ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+    auto *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
     CC_ASSERT_NOT_NULL(systemIntf);
     ccstd::string systemVersion = systemIntf->getSystemVersion();
     s.rval().setString(systemVersion);
@@ -399,13 +401,13 @@ static bool JSB_core_restartVM(se::State &s) { // NOLINT
 }
 SE_BIND_FUNC(JSB_core_restartVM)
 
-static bool JSB_closeWindow(se::State &s) {
+static bool JSB_closeWindow(se::State &s) { // NOLINT
     CC_CURRENT_APPLICATION()->close();
     return true;
 }
 SE_BIND_FUNC(JSB_closeWindow)
 
-static bool JSB_exit(se::State &s) {
+static bool JSB_exit(se::State &s) { // NOLINT
     BasePlatform::getPlatform()->exit();
     return true;
 }
@@ -680,7 +682,7 @@ static bool js_loadImage(se::State &s) { // NOLINT
         ok &= sevalue_to_native(args[0], &path);
         SE_PRECONDITION2(ok, false, "Error processing arguments");
 
-        se::Value callbackVal = args[1];
+        const auto &callbackVal = args[1];
         CC_ASSERT(callbackVal.isObject());
         CC_ASSERT(callbackVal.toObject()->isFunction());
 
@@ -702,8 +704,8 @@ static bool js_saveImageData(se::State &s) { // NOLINT
         uint8ArrayObj->root();
         uint8ArrayObj->incRef();
         uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
-        uint32_t width;
-        uint32_t height;
+        int32_t width;
+        int32_t height;
         ok &= sevalue_to_native(args[1], &width);
         ok &= sevalue_to_native(args[2], &height);
 
@@ -775,7 +777,7 @@ static bool JSB_openURL(se::State &s) { // NOLINT
         ccstd::string url;
         ok = sevalue_to_native(args[0], &url);
         SE_PRECONDITION2(ok, false, "url is invalid!");
-        ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+        auto *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
         CC_ASSERT_NOT_NULL(systemIntf);
         systemIntf->openURL(url);
         return true;
@@ -794,7 +796,7 @@ static bool JSB_copyTextToClipboard(se::State &s) { // NOLINT
         ccstd::string text;
         ok = sevalue_to_native(args[0], &text);
         SE_PRECONDITION2(ok, false, "text is invalid!");
-        ISystem *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
+        auto *systemIntf = CC_GET_PLATFORM_INTERFACE(ISystem);
         CC_ASSERT_NOT_NULL(systemIntf);
         systemIntf->copyTextToClipboard(text);
         return true;
@@ -897,13 +899,13 @@ static bool JSB_showInputBox(se::State &s) { // NOLINT
         if (obj->getProperty("fontSize", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontSize is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontSize = tmp.toDouble();
+                showInfo.fontSize = tmp.toUint32();
             }
         }
         if (obj->getProperty("fontColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "fontColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.fontColor = tmp.toDouble();
+                showInfo.fontColor = tmp.toUint32();
             }
         }
         if (obj->getProperty("isBold", &tmp)) {
@@ -927,25 +929,25 @@ static bool JSB_showInputBox(se::State &s) { // NOLINT
         if (obj->getProperty("underlineColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "underlinrColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.underlineColor = tmp.toDouble();
+                showInfo.underlineColor = tmp.toUint32();
             }
         }
         if (obj->getProperty("backColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backColor = tmp.toDouble();
+                showInfo.backColor = tmp.toUint32();
             }
         }
         if (obj->getProperty("backgroundColor", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "backgroundColor is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.backgroundColor = tmp.toDouble();
+                showInfo.backgroundColor = tmp.toUint32();
             }
         }
         if (obj->getProperty("textAlignment", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "textAlignment is invalid!");
             if (!tmp.isUndefined()) {
-                showInfo.textAlignment = tmp.toDouble();
+                showInfo.textAlignment = tmp.toUint32();
             }
         }
         EditBox::show(showInfo);
@@ -965,7 +967,7 @@ SE_BIND_FUNC(JSB_hideInputBox)
 
 #endif
 
-static bool jsb_createExternalArrayBuffer(se::State &s) {
+static bool jsb_createExternalArrayBuffer(se::State &s) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -1024,7 +1026,7 @@ static bool JSB_zipUtils_inflateMemory(se::State &s) { // NOLINT
         }
         SE_PRECONDITION2(ok, false, "args[0] is not in type of string | ArrayBuffer | TypedArray");
         unsigned char *arg2 = nullptr;
-        int32_t len = 0;
+        uint32_t len = 0;
         if (argc == 1) {
             len = ZipUtils::inflateMemory(arg0, static_cast<uint32_t>(arg1), &arg2);
         } else if (argc == 2) {
@@ -1274,9 +1276,9 @@ static bool JSB_zipUtils_setPvrEncryptionKey(se::State &s) { // NOLINT
 SE_BIND_FUNC(JSB_zipUtils_setPvrEncryptionKey)
 
 // TextEncoder
-static se::Class *__jsb_TextEncoder_class = nullptr;
+static se::Class *__jsb_TextEncoder_class = nullptr; // NOLINT
 
-static bool js_TextEncoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+static bool js_TextEncoder_finalize(se::State &) // NOLINT
 {
     return true;
 }
@@ -1319,9 +1321,9 @@ static bool js_TextEncoder_encode(se::State &s) // NOLINT(readability-identifier
 SE_BIND_FUNC(js_TextEncoder_encode)
 
 // TextDecoder
-static se::Class *__jsb_TextDecoder_class = nullptr;
+static se::Class *__jsb_TextDecoder_class = nullptr; // NOLINT
 
-static bool js_TextDecoder_finalize(se::State &s) // NOLINT(readability-identifier-naming)
+static bool js_TextDecoder_finalize(se::State &) // NOLINT
 {
     return true;
 }
@@ -1368,7 +1370,7 @@ static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_TextDecoder_decode)
 
-static bool jsb_register_TextEncoder(se::Object *globalObj) {
+static bool jsb_register_TextEncoder(se::Object *globalObj) { // NOLINT
     auto *cls = se::Class::create("TextEncoder", globalObj, nullptr, _SE(js_TextEncoder_constructor));
     cls->defineFunction("encode", _SE(js_TextEncoder_encode));
     cls->defineFinalizeFunction(_SE(js_TextEncoder_finalize));
@@ -1380,7 +1382,7 @@ static bool jsb_register_TextEncoder(se::Object *globalObj) {
     return true;
 }
 
-static bool jsb_register_TextDecoder(se::Object *globalObj) {
+static bool jsb_register_TextDecoder(se::Object *globalObj) { // NOLINT
     auto *cls = se::Class::create("TextDecoder", globalObj, nullptr, _SE(js_TextDecoder_constructor));
     cls->defineFunction("decode", _SE(js_TextDecoder_decode));
     cls->defineFinalizeFunction(_SE(js_TextDecoder_finalize));
@@ -1392,6 +1394,110 @@ static bool jsb_register_TextDecoder(se::Object *globalObj) {
     return true;
 }
 
+#if CC_PLATFORM == CC_PLATFORM_ANDROID && CC_SUPPORT_ADPF
+
+struct VmCallback {
+    uint32_t vmId{0xFEFEFEFE};
+    se::Value *cbFn{nullptr};
+    void reset() {
+        vmId = 0xFEFEFEFE;
+        delete cbFn;
+        cbFn = nullptr;
+    }
+};
+static VmCallback vmCallback;
+static bool jsb_adpf_onThermalStatusChanged_set(se::State &state) { // NOLINT
+
+    auto fn = state.args()[0];
+    vmCallback.reset();
+    if (fn.isNullOrUndefined()) {
+        return true;
+    }
+    CC_ASSERT_TRUE(fn.toObject()->isFunction());
+    auto *scriptEngine = se::ScriptEngine::getInstance();
+    if (vmCallback.vmId != scriptEngine->getVMId()) {
+        vmCallback.vmId = scriptEngine->getVMId();
+        scriptEngine->addBeforeCleanupHook([]() {
+            vmCallback.reset();
+        });
+    }
+
+    vmCallback.cbFn = new se::Value(fn.toObject(), true);
+    // NOLINTNEXTLINE
+    ADPFManager::getInstance().SetThermalListener(+[](int prevStatus, int currentStatus) {
+        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
+            se::AutoHandleScope scope;
+            se::ValueArray args;
+            args.push_back(se::Value(prevStatus));
+            args.push_back(se::Value(currentStatus));
+            args.push_back(se::Value(ATHERMAL_STATUS_NONE));
+            args.push_back(se::Value(ATHERMAL_STATUS_SHUTDOWN));
+            CC_ASSERT_EQ(vmCallback.vmId, se::ScriptEngine::getInstance()->getVMId());
+            if (vmCallback.cbFn && vmCallback.cbFn->isObject() && vmCallback.cbFn->toObject()->isFunction()) {
+                vmCallback.cbFn->toObject()->call(args, nullptr);
+            }
+        });
+    });
+    return true;
+}
+SE_BIND_PROP_SET(jsb_adpf_onThermalStatusChanged_set)
+
+static bool jsb_adpf_onThermalStatusChanged_get(se::State &state) { // NOLINT
+    if (!vmCallback.cbFn) {
+        state.rval().setUndefined();
+    } else {
+        state.rval().setObject(vmCallback.cbFn->toObject());
+    }
+    return true;
+}
+SE_BIND_PROP_GET(jsb_adpf_onThermalStatusChanged_get)
+
+static bool jsb_adpf_getThermalStatus(se::State &state) { // NOLINT
+    int statusInt = ADPFManager::getInstance().GetThermalStatus();
+    state.rval().setUint32(statusInt);
+    return true;
+}
+SE_BIND_PROP_GET(jsb_adpf_getThermalStatus)
+
+static bool jsb_adpf_getThermalStatusMin(se::State &state) { // NOLINT
+    state.rval().setUint32(ATHERMAL_STATUS_NONE);
+    return true;
+}
+SE_BIND_PROP_GET(jsb_adpf_getThermalStatusMin)
+static bool jsb_adpf_getThermalStatusMax(se::State &state) { // NOLINT
+    state.rval().setUint32(ATHERMAL_STATUS_SHUTDOWN);
+    return true;
+}
+SE_BIND_PROP_GET(jsb_adpf_getThermalStatusMax)
+
+static bool jsb_adpf_getThermalStatusNormalized(se::State &state) { // NOLINT
+    float statusNormalized = ADPFManager::getInstance().GetThermalStatusNormalized();
+    state.rval().setFloat(statusNormalized);
+    return true;
+}
+SE_BIND_PROP_GET(jsb_adpf_getThermalStatusNormalized)
+
+static bool jsb_adpf_getThermalHeadroom(se::State &state) { // NOLINT
+    float headroom = ADPFManager::getInstance().GetThermalHeadroom();
+    state.rval().setFloat(headroom);
+    return true;
+}
+SE_BIND_PROP_GET(jsb_adpf_getThermalHeadroom)
+
+static void jsb_register_ADPF(se::Object *ns) { // NOLINT
+    se::Value adpfObj{se::Object::createPlainObject()};
+    adpfObj.toObject()->defineProperty("thermalHeadroom", _SE(jsb_adpf_getThermalHeadroom), nullptr);
+    adpfObj.toObject()->defineProperty("thermalStatus", _SE(jsb_adpf_getThermalStatus), nullptr);
+    adpfObj.toObject()->defineProperty("thermalStatusMin", _SE(jsb_adpf_getThermalStatusMin), nullptr);
+    adpfObj.toObject()->defineProperty("thermalStatusMax", _SE(jsb_adpf_getThermalStatusMax), nullptr);
+    adpfObj.toObject()->defineProperty("thermalStatusNormalized", _SE(jsb_adpf_getThermalStatusNormalized), nullptr);
+    adpfObj.toObject()->defineProperty("thermalHeadroom", _SE(jsb_adpf_getThermalHeadroom), nullptr);
+    adpfObj.toObject()->defineProperty("onThermalStatusChanged", _SE(jsb_adpf_onThermalStatusChanged_get), _SE(jsb_adpf_onThermalStatusChanged_set));
+    ns->setProperty("adpf", adpfObj);
+}
+
+#endif // CC_PLATFORM_ANDROID
+
 static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-naming)
 {
     const auto &args = CC_CURRENT_APPLICATION()->getArguments();
@@ -1402,14 +1508,14 @@ SE_BIND_PROP_GET(JSB_process_get_argv)
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
 
-static bool sevalue_to_napivalue(const se::Value& seVal, Napi::Value* napiVal, Napi::Env env);
+static bool sevalue_to_napivalue(const se::Value &seVal, Napi::Value *napiVal, Napi::Env env);
 
-static bool seobject_to_napivalue(se::Object *seObj, Napi::Value* napiVal, Napi::Env env) {
+static bool seobject_to_napivalue(se::Object *seObj, Napi::Value *napiVal, Napi::Env env) {
     auto napiObj = Napi::Object::New(env);
     ccstd::vector<ccstd::string> allKeys;
     bool ok = seObj->getAllKeys(&allKeys);
     if (ok && !allKeys.empty()) {
-        for (const auto& key : allKeys) {
+        for (const auto &key : allKeys) {
             Napi::Value napiProp;
             se::Value prop;
             ok = seObj->getProperty(key, &prop);
@@ -1425,7 +1531,7 @@ static bool seobject_to_napivalue(se::Object *seObj, Napi::Value* napiVal, Napi:
     return true;
 }
 
-static bool sevalue_to_napivalue(const se::Value& seVal, Napi::Value* napiVal, Napi::Env env) {
+static bool sevalue_to_napivalue(const se::Value &seVal, Napi::Value *napiVal, Napi::Env env) {
     // Only supports number or {tag: number, url: string} now
     if (seVal.isNumber()) {
         *napiVal = Napi::Number::New(env, seVal.toDouble());
@@ -1507,7 +1613,7 @@ static bool JSB_openharmony_postSyncMessage(se::State &s) { // NOLINT(readabilit
 
         Napi::Value napiPromise = NapiHelper::postSyncMessageToUIThread(msgType.c_str(), napiArg1);
 
-        //TODO(cjh): Implement Promise for se
+        // TODO(cjh): Implement Promise for se
         se::HandleObject retObj(se::Object::createPlainObject());
         retObj->defineFunction("then", _SE(JSB_empty_promise_then));
         s.rval().setObject(retObj);
@@ -1586,15 +1692,18 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
-        se::HandleObject ohObj(se::Object::createPlainObject());
-        global->setProperty("oh", se::Value(ohObj));
-        ohObj->defineFunction("postMessage", _SE(JSB_openharmony_postMessage));
-        ohObj->defineFunction("postSyncMessage", _SE(JSB_openharmony_postSyncMessage));
+    se::HandleObject ohObj(se::Object::createPlainObject());
+    global->setProperty("oh", se::Value(ohObj));
+    ohObj->defineFunction("postMessage", _SE(JSB_openharmony_postMessage));
+    ohObj->defineFunction("postSyncMessage", _SE(JSB_openharmony_postSyncMessage));
     #endif
 #endif
 
     jsb_register_TextEncoder(global);
     jsb_register_TextDecoder(global);
+#if CC_PLATFORM == CC_PLATFORM_ANDROID && CC_SUPPORT_ADPF
+    jsb_register_ADPF(__jsbObj);
+#endif
 
     se::ScriptEngine::getInstance()->clearException();
 
