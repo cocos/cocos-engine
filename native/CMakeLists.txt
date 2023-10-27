@@ -534,6 +534,18 @@ elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/AndroidPlatform.cpp
         cocos/platform/android/AndroidPlatform.h
+        cocos/platform/android/adpf_manager.h
+        cocos/platform/android/adpf_manager.cpp
+    )
+elseif(OPENHARMONY)
+    cocos_source_files(
+        cocos/platform/openharmony/napi/NapiHelper.cpp
+        cocos/platform/openharmony/napi/NapiHelper.h
+
+        cocos/platform/openharmony/WorkerMessageQueue.cpp
+        cocos/platform/openharmony/WorkerMessageQueue.h
+        cocos/platform/openharmony/OpenHarmonyPlatform.cpp
+        cocos/platform/openharmony/OpenHarmonyPlatform.h
     )
 elseif(OHOS)
     cocos_source_files(
@@ -2502,6 +2514,7 @@ cocos_source_files(
             cocos/bindings/manual/jsb_xmlhttprequest.h
             cocos/bindings/manual/jsb_pipeline_manual.h
             cocos/bindings/manual/jsb_pipeline_manual.cpp
+            cocos/bindings/manual/jsb_adpf.cpp
 )
 if(USE_AUDIO)
     cocos_source_files(
