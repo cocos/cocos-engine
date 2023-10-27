@@ -1338,7 +1338,7 @@ void Mesh::tryConvertVertexData() {
         const uint32_t stride = view.stride;
         uint32_t dstStride = stride;
 
-        CC_ASSERT_EQ(count * stride == length);
+        CC_ASSERT_EQ(count * stride, length);
 
         checkAttributesNeedConvert(orignalAttributes, attributes, attributeIndicsNeedConvert, dstStride);
         if (attributeIndicsNeedConvert.empty()) {
