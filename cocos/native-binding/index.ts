@@ -1433,9 +1433,9 @@ export declare namespace native {
         readonly thermalStatusMax: number;
         /**
          * @en  A normalized value of the current thermal status.  It's computed based on the formula:
-         *     (thermalStatus - thermalStatusMax) / thermalStatusMax.
+         *     (thermalStatus - thermalStatusMin) / thermalStatusMax.
          *     This value ranges between 0 and 1, giving a relative measure of the current thermal status against its minimum and maximum thresholds.
-         * @zh 当前热状态的归一化值，范围在 0 到 1 之间.  它是基于以下公式计算的：  (thermalStatus - thermalStatusMax) / thermalStatusMax.
+         * @zh 当前热状态的归一化值，范围在 0 到 1 之间.  它是基于以下公式计算的：  (thermalStatus - thermalStatusMin) / thermalStatusMax.
          *     提供了当前热状态相对于其最小和最大阈值的相对测量。
          */
         readonly thermalStatusNormalized: number;
