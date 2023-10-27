@@ -70,14 +70,6 @@ rules:
     import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
     import/prefer-default-export: off # prefer named exports
-    indent: [error, 4, {
-      SwitchCase: 0,
-      ignoredNodes: [ # https://stackoverflow.com/a/72897089
-          'FunctionExpression > .params[decorators.length > 0]',
-          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
-          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key',
-      ]
-    }]
 
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
@@ -255,3 +247,11 @@ rules:
             }
         }
      }]
+    '@typescript-eslint/indent': [error, 4, {
+      SwitchCase: 0,
+      ignoredNodes: [ # https://stackoverflow.com/a/72897089
+          'FunctionExpression > .params[decorators.length > 0]',
+          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
+          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key',
+      ]
+    }]
