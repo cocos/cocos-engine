@@ -291,7 +291,7 @@ export class Sequence extends ActionInterval {
         const sequence = new Sequence();
         sequence.initWithTwoActions(actionOne, actionTwo);
         return sequence;
-    };
+    }
 
     private _actions: ActionInterval[] = [];
     private _split = 0;
@@ -457,8 +457,6 @@ export class Sequence extends ActionInterval {
 export function sequence (/* Multiple Arguments */tempArray: any): ActionInterval {
     const paramArray = (tempArray instanceof Array) ? tempArray : arguments;
     if (paramArray.length === 1) {
-        // errorID(1019);
-        // return null as any;
         return paramArray[0] as ActionInterval;
     }
     const last = paramArray.length - 1;
