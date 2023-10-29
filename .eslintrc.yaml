@@ -172,9 +172,8 @@ rules:
     # no-var: error
     # prefer-const: error
     # prefer-numeric-literals: off
-    # prefer-template: error
 
-
+    prefer-template: off
     '@typescript-eslint/no-unsafe-argument': warn
 
     max-len: [warn, 250] # more lenient on max length per line
@@ -211,6 +210,7 @@ rules:
             'align': colon
         }
     }]
+
     func-names: off
     default-param-last: off
     one-var: [error, never]
