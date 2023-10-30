@@ -22,10 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-var fs = wx.getFileSystemManager ? wx.getFileSystemManager() : null;
-var outOfStorageRegExp = /the maximum size of the file storage/;
+const fs = wx.getFileSystemManager ? wx.getFileSystemManager() : null;
+const outOfStorageRegExp = /the maximum size of the file storage/;
 
-var fsUtils = {
+const fsUtils = {
 
     fs,
 
@@ -47,25 +47,24 @@ var fsUtils = {
 
     deleteFile (filePath, onComplete) {
         fs.unlink({
-            filePath: filePath,
-            success: function () {
+            filePath,
+            success () {
                 onComplete && onComplete(null);
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Delete file failed: path: ${filePath} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error(res.errMsg));
-            }
+            },
         });
     },
 
     downloadFile (remoteUrl, filePath, header, onProgress, onComplete) {
-        var options = {
+        const options = {
             url: remoteUrl,
-            success: function (res) {
+            success (res) {
                 if (res.statusCode === 200) {
                     onComplete && onComplete(null, res.tempFilePath || res.filePath);
-                }
-                else {
+                } else {
                     if (res.filePath) {
                         fsUtils.deleteFile(res.filePath);
                     }
@@ -73,14 +72,14 @@ var fsUtils = {
                     onComplete && onComplete(new Error(res.statusCode), null);
                 }
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Download file failed: path: ${remoteUrl} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error(res.errMsg), null);
-            }
-        }
+            },
+        };
         if (filePath) options.filePath = filePath;
         if (header) options.header = header;
-        var task = wx.downloadFile(options);
+        const task = wx.downloadFile(options);
         onProgress && task.onProgressUpdate(onProgress);
     },
 
@@ -88,42 +87,42 @@ var fsUtils = {
         wx.saveFile({
             tempFilePath: srcPath,
             filePath: destPath,
-            success: function (res) {
+            success (res) {
                 onComplete && onComplete(null);
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Save file failed: path: ${srcPath} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error(res.errMsg));
-            }
+            },
         });
     },
 
     copyFile (srcPath, destPath, onComplete) {
         fs.copyFile({
-            srcPath: srcPath,
-            destPath: destPath,
-            success: function () {
+            srcPath,
+            destPath,
+            success () {
                 onComplete && onComplete(null);
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Copy file failed: path: ${srcPath} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error(res.errMsg));
-            }
+            },
         });
     },
 
     writeFile (path, data, encoding, onComplete) {
         fs.writeFile({
             filePath: path,
-            encoding: encoding,
-            data: data,
-            success: function () {
+            encoding,
+            data,
+            success () {
                 onComplete && onComplete(null);
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Write file failed: path: ${path} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error(res.errMsg));
-            }
+            },
         });
     },
 
@@ -131,8 +130,7 @@ var fsUtils = {
         try {
             fs.writeFileSync(path, data, encoding);
             return null;
-        }
-        catch (e) {
+        } catch (e) {
             console.warn(`Write file failed: path: ${path} message: ${e.message}`);
             return new Error(e.message);
         }
@@ -140,28 +138,28 @@ var fsUtils = {
 
     readFile (filePath, encoding, onComplete) {
         fs.readFile({
-            filePath: filePath,
-            encoding: encoding,
-            success: function (res) {
+            filePath,
+            encoding,
+            success (res) {
                 onComplete && onComplete(null, res.data);
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Read file failed: path: ${filePath} message: ${res.errMsg}`);
-                onComplete && onComplete (new Error(res.errMsg), null);
-            }
+                onComplete && onComplete(new Error(res.errMsg), null);
+            },
         });
     },
 
     readDir (filePath, onComplete) {
         fs.readdir({
             dirPath: filePath,
-            success: function (res) {
+            success (res) {
                 onComplete && onComplete(null, res.files);
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Read directory failed: path: ${filePath} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error(res.errMsg), null);
-            }
+            },
         });
     },
 
@@ -174,13 +172,12 @@ var fsUtils = {
     },
 
     readJson (filePath, onComplete) {
-        fsUtils.readFile(filePath, 'utf8', function (err, text) {
-            var out = null;
+        fsUtils.readFile(filePath, 'utf8', (err, text) => {
+            let out = null;
             if (!err) {
                 try {
                     out = JSON.parse(text);
-                }
-                catch (e) {
+                } catch (e) {
                     console.warn(`Read json failed: path: ${filePath} message: ${e.message}`);
                     err = new Error(e.message);
                 }
@@ -191,10 +188,9 @@ var fsUtils = {
 
     readJsonSync (path) {
         try {
-            var str = fs.readFileSync(path, 'utf8');
+            const str = fs.readFileSync(path, 'utf8');
             return JSON.parse(str);
-        }
-        catch (e) {
+        } catch (e) {
             console.warn(`Read json failed: path: ${path} message: ${e.message}`);
             return new Error(e.message);
         }
@@ -204,8 +200,7 @@ var fsUtils = {
         try {
             fs.mkdirSync(path, recursive);
             return null;
-        }
-        catch (e) {
+        } catch (e) {
             console.warn(`Make directory failed: path: ${path} message: ${e.message}`);
             return new Error(e.message);
         }
@@ -214,8 +209,7 @@ var fsUtils = {
     rmdirSync (dirPath, recursive) {
         try {
             fs.rmdirSync(dirPath, recursive);
-        }
-        catch (e) {
+        } catch (e) {
             console.warn(`rm directory failed: path: ${dirPath} message: ${e.message}`);
             return new Error(e.message);
         }
@@ -224,25 +218,25 @@ var fsUtils = {
     exists (filePath, onComplete) {
         fs.access({
             path: filePath,
-            success: function () {
+            success () {
                 onComplete && onComplete(true);
             },
-            fail: function () {
+            fail () {
                 onComplete && onComplete(false);
-            }
+            },
         });
     },
 
     loadSubpackage (name, onProgress, onComplete) {
-        var task = wx.loadSubpackage({
-            name: name,
-            success: function () {
+        const task = wx.loadSubpackage({
+            name,
+            success () {
                 onComplete && onComplete();
             },
-            fail: function (res) {
+            fail (res) {
                 console.warn(`Load Subpackage failed: path: ${name} message: ${res.errMsg}`);
                 onComplete && onComplete(new Error(`Failed to load subpackage ${name}: ${res.errMsg}`));
-            }
+            },
         });
         onProgress && task.onProgressUpdate(onProgress);
         return task;
@@ -257,9 +251,9 @@ var fsUtils = {
             },
             fail (res) {
                 console.warn(`unzip failed: path: ${zipFilePath} message: ${res.errMsg}`);
-                onComplete && onComplete(new Error('unzip failed: ' + res.errMsg));
+                onComplete && onComplete(new Error(`unzip failed: ${res.errMsg}`));
             },
-        })
+        });
     },
 };
 
