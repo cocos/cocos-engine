@@ -41,6 +41,7 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
 #include "jsb_conversions_spec.h"
+#include "core/data/JSBNativeDataHolder.h"
 
 #if CC_USE_SPINE
     #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
@@ -733,8 +734,13 @@ sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLI
     } else if (data->isTypedArray()) {
         data->getTypedArrayData(&tmp, nullptr);
     } else {
-        CC_ABORT(); // bad type
-        return false;
+        auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(data->getPrivateData());
+        if (dataHolder != nullptr) {
+            tmp = dataHolder->getData();
+        } else {
+            CC_ABORT(); // bad type
+            return false;
+        }
     }
     *to = reinterpret_cast<T *>(tmp);
     return true;
