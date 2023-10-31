@@ -26,14 +26,42 @@ import nativerender from "libcocos.so";
 
 import { WorkerManager } from '../cocos/WorkerManager'
 import { ContextType } from "../common/Constants"
-import featureAbility from '@ohos.ability.featureAbility'
 import { EditBoxDialog } from '../components/EditBoxDialog'
 import { WebViewInfo, CocosWebView } from '../components/CocosWebView'
 import { VideoInfo, CocosVideoPlayer } from '../components/CocosVideoPlayer'
 
 import {PortProxy} from '../common/PortProxy'
+import { MessageEvent } from '@ohos.worker';
 const nativePageLifecycle = nativerender.getContext(ContextType.JSPAGE_LIFECYCLE);
-const engineUtils = nativerender.getContext(ContextType.ENGINE_UTILS);
+
+interface WorkerMessage {
+  type: string,
+  data: data
+}
+
+interface data {
+  id: string,
+  name: string,
+  param: number | string | param
+}
+
+interface param {
+  tag?: number,
+  url?: string,
+  contents?: string,
+  mimeType?: string,
+  encoding?: string,
+  baseUrl?: string,
+  jsContents?: string,
+  x?: number,
+  y?: number,
+  w?: number,
+  h?: number,
+  visible?: boolean,
+  resourceType?: number,
+  time?: number,
+  fullScreen?: boolean
+}
 
 @Entry
 @Component
@@ -41,9 +69,8 @@ struct Index {
   @State showMessage: string = ''
   @State webViewArray: WebViewInfo[] = [];
   @State videoArray:VideoInfo[] = [];
-  //private index: number = 0;
-  private webViewIndexMap: Map<number, number> = new Map;
-  private videoIndexMap: Map<number, number> = new Map;
+  private webViewIndexMap: Map<number, number> = new Map<number, number>();
+  private videoIndexMap: Map<number, number> = new Map<number, number>();
    
   private workPort : PortProxy = new PortProxy(WorkerManager.getInstance().getWorker());
   dialogController: CustomDialogController = new CustomDialogController({
@@ -68,173 +95,179 @@ struct Index {
 
   aboutToAppear(): void  {
     console.log('[LIFECYCLE-Index] cocos aboutToAppear');
-    this.workPort._messageHandle = (e) => {
-      //let data = e['data'];
-      var data = e.data;
-      var msg = data.data;
-      var result;
+    this.workPort._messageHandle = async (e:MessageEvent<WorkerMessage>): Promise<void> => {
+      let data:WorkerMessage = e.data;
+      let msg = data.data;
+      let result:boolean | string | number | null = null;
       switch (msg.name) {
         // EditBox
         case "showEditBox": {
-          this.showMessage = msg.param
-          this.dialogController.open()
+          this.showMessage = msg.param as string;
+          this.dialogController.open();
           break;
         }
         case "hideEditBox": {
-          this.showMessage = ''
-          this.dialogController.close()
+          this.showMessage = '';
+          this.dialogController.close();
           break;
         }
         // WebView
         case "createWebView": {
-          this.webViewArray.push(new WebViewInfo(0, 0, 0, 0, msg.param))
-          this.webViewIndexMap.set(msg.param, this.webViewArray.length - 1);
+          this.webViewArray.push(new WebViewInfo(0, 0, 0, 0, msg.param as number));
+          this.webViewIndexMap.set(msg.param as number, this.webViewArray.length - 1);
           break;
         }
         case "removeWebView": {
           if (this.webViewArray.length > 0) {
-            this.webViewArray.splice(this.webViewIndexMap.get(msg.param), 1)
+            this.webViewArray.splice(this.webViewIndexMap.get(msg.param as number) as number, 1);
           }
           break;
         }
         case "loadUrl": {
-          var web = msg.param;
-          var index = this.webViewIndexMap.get(web.tag);
-          this.webViewArray[index].controller.loadUrl({url: web.url});
+          let web = msg.param as param;
+          let index = this.webViewIndexMap.get(web?.tag as number) as number;
+          this.webViewArray[index].controller.loadUrl({url: web?.url as string});
           break;
         }
         case "loadHTMLString": {
-          var web = msg.param;
-          var index = this.webViewIndexMap.get(web.tag);
-          this.webViewArray[index].controller.loadData({data: web.contents, mimeType:"text/html",encoding:"UTF-8", baseUrl:web.baseUrl});
+          let web = msg.param as param;
+          let index = this.webViewIndexMap.get(web?.tag as number) as number;
+          this.webViewArray[index].controller.loadData({data: web?.contents as string, mimeType:"text/html",encoding:"UTF-8", baseUrl:web?.baseUrl});
           break;
         }
         case "loadData": {
-          var web = msg.param;
-          var index = this.webViewIndexMap.get(web.tag);
-          this.webViewArray[index].controller.loadData({data: web.contents, mimeType:web.mimeType,encoding:web.encoding, baseUrl:web.baseUrl});
+          let web = msg.param as param;
+          let index = this.webViewIndexMap.get(web?.tag as number) as number;
+          this.webViewArray[index].controller.loadData({data: web?.contents as string, mimeType:web?.mimeType as string,encoding:web?.encoding as string, baseUrl:web?.baseUrl as string});
           break;
         }
         case "evaluateJS": {
-          var web = msg.param;
-          var index = this.webViewIndexMap.get(web.tag)
+          let web = msg.param as param;
+          let index = this.webViewIndexMap.get(web?.tag as number) as number;
           this.webViewArray[index].controller.runJavaScript({
-            script: web.jsContents
+            script: web?.jsContents as string
           });
           break;
         }
         case "reload": {
-          var index = this.webViewIndexMap.get(msg.param);
+          let index = this.webViewIndexMap.get(msg.param as number) as number;
           this.webViewArray[index].controller.refresh();
           break;
         }
         case "stopLoading": {
-          var index = this.webViewIndexMap.get(msg.param);
+          let index = this.webViewIndexMap.get(msg.param as number) as number;
           this.webViewArray[index].controller.stop();
           break;
         }
         case "canGoForward": {
-          var index = this.webViewIndexMap.get(msg.param);
+          let index = this.webViewIndexMap.get(msg.param as number) as number;
           result = this.webViewArray[index].controller.accessForward();
           break;
         }
         case "canGoBack": {
-          var index = this.webViewIndexMap.get(msg.param);
+          let index = this.webViewIndexMap.get(msg.param as number) as number;
           result = this.webViewArray[index].controller.accessBackward();
           break;
         }
         case "goForward": {
-          var index = this.webViewIndexMap.get(msg.param);
+          let index = this.webViewIndexMap.get(msg.param as number) as number;
           this.webViewArray[index].controller.forward();
           break;
         }
         case "goBack": {
-          var index = this.webViewIndexMap.get(msg.param);
+          let index = this.webViewIndexMap.get(msg.param as number) as number;
           this.webViewArray[index].controller.backward();
           break;
         }
         case "setWebViewRect": {
-          var web = msg.param;
-          var index = this.webViewIndexMap.get(web.tag);
-          this.webViewArray[index].x = px2vp(web.x);
-          this.webViewArray[index].y = px2vp(web.y);
-          this.webViewArray[index].w = px2vp(web.w);
-          this.webViewArray[index].h = px2vp(web.h);
+          let web = msg.param as param;
+          let index = this.webViewIndexMap.get(web?.tag as number) as number;
+          this.webViewArray[index].x = px2vp(web?.x as number) as number;
+          this.webViewArray[index].y = px2vp(web?.y as number) as number;
+          this.webViewArray[index].w = px2vp(web?.w as number) as number;
+          this.webViewArray[index].h = px2vp(web?.h as number) as number;
         }
         case "setVisible":
-          var web = msg.param;
-          var index = this.webViewIndexMap.get(web.tag);
-          this.webViewArray[index].visible = web.visible;
+          let web = msg.param as param;
+          let index = this.webViewIndexMap.get(web?.tag as number) as number;
+          this.webViewArray[index].visible = web?.visible as boolean;
           break;
         // video
         case "createVideo":
-          this.videoArray.push(new VideoInfo(0, 0, 0, 0, msg.param))
-          this.videoIndexMap.set(msg.param, this.videoArray.length - 1);
+          this.videoArray.push(new VideoInfo(0, 0, 0, 0, msg.param as number))
+          this.videoIndexMap.set(msg.param as number, this.videoArray.length - 1);
           break;
         case "removeVideo":
           if (this.videoArray.length > 0) {
-            this.videoArray.splice(this.videoIndexMap.get(msg.param), 1)
+            this.videoArray.splice(this.videoIndexMap.get(msg.param as number) as number, 1);
           }
           break;
-        case "setVideoUrl":
-          var video = msg.param;
-          var index = this.videoIndexMap.get(video.tag);
-          this.videoArray[index].url = video.url;
+        case "setVideoUrl":{
+          let video = msg.param as param;
+          const reg:RegExp = /^http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/;
+          let resourceType = reg.test(video?.url) ? 0 : 1;
+          let index = this.videoIndexMap.get(video?.tag as number) as number;
+          if (resourceType == 1) {
+            this.videoArray[index].url = $rawfile("Resources/" + video?.url as string);
+          } else {
+            this.videoArray[index].url = video?.url as string;
+          }
           break;
+        }
         case "setVideoRect": {
-          var video = msg.param;
-          var index = this.videoIndexMap.get(video.tag);
-          this.videoArray[index].x = px2vp(video.x);
-          this.videoArray[index].y = px2vp(video.y);
-          this.videoArray[index].w = px2vp(video.w);
-          this.videoArray[index].h = px2vp(video.h);
+          let video = msg.param as param;
+          let index = this.videoIndexMap.get(video?.tag as number) as number;
+          this.videoArray[index].x = px2vp(video?.x as number) as number;
+          this.videoArray[index].y = px2vp(video?.y as number) as number;
+          this.videoArray[index].w = px2vp(video?.w as number) as number;
+          this.videoArray[index].h = px2vp(video?.h as number) as number;
           break;
         }
         case "startVideo": {
-          var index = this.videoIndexMap.get(msg.param);
+          let index = this.videoIndexMap.get(msg.param as number) as number;
           this.videoArray[index].controller.start();
           break;
         }
         case "pauseVideo" : {
-          var index = this.videoIndexMap.get(msg.param);
+          let index = this.videoIndexMap.get(msg.param as number) as number;
           this.videoArray[index].controller.pause();
           break;
         }
         case "stopVideo" : {
-          var index = this.videoIndexMap.get(msg.param);
+          let index = this.videoIndexMap.get(msg.param as number) as number;
           this.videoArray[index].controller.stop();
           break;
         }
         case "resumeVideo": {
-          var index = this.videoIndexMap.get(msg.param);
+          let index = this.videoIndexMap.get(msg.param as number) as number;
           this.videoArray[index].controller.start();
           break;
         }
         case "getVideoDuration": {
-          var index = this.videoIndexMap.get(msg.param);
+          let index = this.videoIndexMap.get(msg.param as number) as number;
           result = this.videoArray[index].duration;
           break;
         }
         case "seekVideoTo" : {
-          var video = msg.param;
-          var index = this.videoIndexMap.get(video.tag);
-          this.videoArray[index].controller.setCurrentTime(video.time, SeekMode.Accurate);
+          let video = msg.param as param;
+          let index = this.videoIndexMap.get(video?.tag as number) as number;
+          this.videoArray[index].controller.setCurrentTime(video?.time as number, SeekMode.Accurate);
           break;
         }
         case "setVideoVisible" : {
-          var video = msg.param;
-          var index = this.videoIndexMap.get(video.tag);
-          this.videoArray[index].visible = video.visible;
+          let video = msg.param as param;
+          let index = this.videoIndexMap.get(video?.tag as number) as number;
+          this.videoArray[index].visible = video.visible as boolean;
           break;
         }
         case "setFullScreenEnabled": {
-          var video = msg.param;
-          var index = this.videoIndexMap.get(video.tag);
-          this.videoArray[index].isFullScreen = video.fullScreen;
+          let video = msg.param as param;
+          let index = this.videoIndexMap.get(video?.tag as number) as number;
+          this.videoArray[index].isFullScreen = video.fullScreen as boolean;
           break;
         }
         case "currentTime": {
-          var index = this.videoIndexMap.get(msg.param);
+          let index = this.videoIndexMap.get(msg.param as number) as number;
           result = this.videoArray[index].currentTime;
         }
         default: {
@@ -264,7 +297,7 @@ struct Index {
   }
 
   build() {
-    Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
+    Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center } as FlexOptions) {
       XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos'})
         .onLoad((context) => {
           // Set the cache directory in the ts layer.
@@ -274,13 +307,13 @@ struct Index {
           console.log('cocos onDestroy')
         })
 
-        ForEach(this.webViewArray, (item: WebViewInfo, index: number) => {
+        ForEach(this.webViewArray, (item: WebViewInfo) => {
             CocosWebView({ viewInfo: item, workPort: this.workPort})
-        }, item => item.viewTag)
+        }, (item: WebViewInfo): string => item.viewTag.toString())
 
-        ForEach(this.videoArray, (item: VideoInfo, index: number) => {
+        ForEach(this.videoArray, (item: VideoInfo) => {
           CocosVideoPlayer({ videoInfo: item, workPort: this.workPort})
-        }, item => item.viewTag)
+        }, (item: VideoInfo): string => item.viewTag.toString())
     }
     .width('100%')
     .height('100%')
