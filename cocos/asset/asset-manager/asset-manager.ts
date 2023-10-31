@@ -100,6 +100,14 @@ export interface IAssetManagerOptions {
      */
     remoteBundles?: string[];
 
+    /**
+     * @en
+     * The maximum number of concurrent when downloading.
+     *
+     * @zh
+     * 下载时的最大并发数。
+     */
+    downloadMaxConcurrency?: number;
 }
 
 /**
@@ -407,6 +415,13 @@ export class AssetManager {
         const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';
         const bundleVers = options.bundleVers || settings.querySettings(Settings.Category.ASSETS, 'bundleVers') || {};
         const remoteBundles = options.remoteBundles || settings.querySettings(Settings.Category.ASSETS, 'remoteBundles') || [];
+        let downloadMaxConcurrency = options.downloadMaxConcurrency || settings.querySettings(Settings.Category.ASSETS, 'downloadMaxConcurrency');
+        if (!downloadMaxConcurrency || downloadMaxConcurrency <= 0) {
+            downloadMaxConcurrency = this.downloader.maxConcurrency;
+        }
+        
+        this.downloader.maxConcurrency = downloadMaxConcurrency;
+
         this._files.clear();
         this._parsed.clear();
         this._releaseManager.init();
