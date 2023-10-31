@@ -291,7 +291,7 @@ export class Sequence extends ActionInterval {
         const sequence = new Sequence();
         sequence.initWithTwoActions(actionOne, actionTwo);
         return sequence;
-    }
+    };
 
     private _actions: ActionInterval[] = [];
     private _split = 0;
