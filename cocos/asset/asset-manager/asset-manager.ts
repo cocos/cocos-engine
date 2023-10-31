@@ -419,7 +419,7 @@ export class AssetManager {
         if (!downloadMaxConcurrency || downloadMaxConcurrency <= 0) {
             downloadMaxConcurrency = this.downloader.maxConcurrency;
         }
-        
+
         this.downloader.maxConcurrency = downloadMaxConcurrency;
 
         this._files.clear();
