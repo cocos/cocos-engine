@@ -454,7 +454,7 @@ export class Sequence extends ActionInterval {
  * const seq = sequence(actArray);
  */
 // todo: It should be use new
-export function sequence (/* Multiple Arguments */tempArray: any): ActionInterval | null {
+export function sequence (/* Multiple Arguments */tempArray: any): ActionInterval {
     const paramArray = (tempArray instanceof Array) ? tempArray : arguments;
     if (paramArray.length === 1) {
         return paramArray[0] as ActionInterval;
@@ -462,19 +462,17 @@ export function sequence (/* Multiple Arguments */tempArray: any): ActionInterva
     const last = paramArray.length - 1;
     if ((last >= 0) && (paramArray[last] == null)) logID(1015);
 
-    let result: ActionInterval | null = null;
+    let result: any = null;
     if (last >= 0) {
-        result = paramArray[0] as ActionInterval;
+        result = paramArray[0];
         for (let i = 1; i <= last; i++) {
             if (paramArray[i]) {
-                result = Sequence._actionOneTwo(result, paramArray[i] as ActionInterval);
+                result = Sequence._actionOneTwo(result as ActionInterval, paramArray[i] as ActionInterval);
             }
         }
-    } else if(result == null) {
-        logID(1015);
     }
 
-    return result;
+    return result as ActionInterval;
 }
 
 /*
