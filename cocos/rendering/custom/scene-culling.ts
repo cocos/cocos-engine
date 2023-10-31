@@ -847,7 +847,7 @@ export class LightResource {
         this.lightIndex.set(light, lightID);
 
         // Update buffer
-        const offset = this.elementSize * lightID;
+        const offset = this.elementSize / Float32Array.BYTES_PER_ELEMENT * lightID;
         SetLightUBO(light, bHDR, exposure, shadowInfo, this.cpuBuffer, offset, this.elementSize);
 
         return lightID * this.elementSize;
