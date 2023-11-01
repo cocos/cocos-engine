@@ -13,8 +13,8 @@ import { CCClass } from '../../cocos/core/data/class';
 import { property } from '../../cocos/core/data/decorators/property';
 import { getClassByName, unregisterClass } from '../../cocos/core/utils/js-typed';
 import { LegacyPropertyDecorator } from '../../cocos/core/data/decorators/utils';
-import { CCBoolean, CCFloat, CCInteger, CCString } from '../../exports/base';
-import { PrimitiveType } from '../../cocos/core/data/utils/attribute';
+import { CCBoolean, ccenum, CCFloat, CCInteger, CCString } from '../../exports/base';
+import { attr, PrimitiveType } from '../../cocos/core/data/utils/attribute';
 
 test('Decorators signature', () => {
     class Foo {}
@@ -332,6 +332,21 @@ describe(`Decorators`, () => {
             });
             
         });
+    });
+
+    test(`Enum type`, () => {
+        enum SomeEnum { A }
+        ccenum(SomeEnum);
+
+        @ccclass('Foo')
+        class Foo {
+            @property({ type: SomeEnum })
+            bar = SomeEnum.A;
+        }
+
+        expect(attr(Foo, 'bar')).toStrictEqual(expect.objectContaining({
+            enumType: SomeEnum,
+        }));
     });
 });
 

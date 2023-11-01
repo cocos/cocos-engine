@@ -28,7 +28,7 @@ import { errorID, warnID, error } from '../platform/debug';
 import * as js from '../utils/js';
 import { getSuper } from '../utils/js';
 import { BitMask } from '../value-types';
-import { Enum } from '../value-types/enum';
+import { Enum, EnumType } from '../value-types/enum';
 import * as attributeUtils from './utils/attribute';
 import { IAcceptableAttributes } from './utils/attribute-defines';
 import { preprocessAttrs } from './utils/preprocess-class';
@@ -406,6 +406,7 @@ const PrimitiveTypes = {
 interface IParsedAttribute extends IAcceptableAttributes {
     ctor?: Function;
     enumList?: readonly any[];
+    enumType?: EnumType;
     bitmaskList?: any[];
 }
 type OnAfterProp = (constructor: Function, mainPropertyName: string) => void;
