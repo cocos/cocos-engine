@@ -166,5 +166,18 @@ uint8_t *BufferAgent::getStagingAddress() const {
     return _stagingBuffer.get() + _size * frameIndex;
 }
 
+void BufferAgent::readBack(void *dst, uint32_t offset, uint32_t size) {
+    auto *mq = DeviceAgent::getInstance()->getMessageQueue();
+    ENQUEUE_MESSAGE_4(
+        mq, BufferUpdate,
+        actor, getActor(),
+        dst, dst,
+        offset, offset,
+        size, size,
+        {
+            actor->readBack(dst, offset, size);
+        });
+}
+
 } // namespace gfx
 } // namespace cc

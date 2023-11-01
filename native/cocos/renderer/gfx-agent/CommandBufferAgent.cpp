@@ -557,15 +557,17 @@ void CommandBufferAgent::endQuery(QueryPool *queryPool, uint32_t id) {
         });
 }
 
-void CommandBufferAgent::resetQueryPool(QueryPool *queryPool) {
+void CommandBufferAgent::resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) {
     auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
 
-    ENQUEUE_MESSAGE_2(
+    ENQUEUE_MESSAGE_4(
         _messageQueue, CommandBufferResetQueryPool,
         actor, getActor(),
         queryPool, actorQueryPool,
+        first, first,
+        count, count,
         {
-            actor->resetQueryPool(queryPool);
+            actor->resetQueryPool(queryPool, first, count);
         });
 }
 
@@ -578,6 +580,37 @@ void CommandBufferAgent::completeQueryPool(QueryPool *queryPool) {
         queryPool, actorQueryPool,
         {
             actor->completeQueryPool(queryPool);
+        });
+}
+
+void CommandBufferAgent::writeTimestamp(QueryPool *queryPool, uint32_t id) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+
+    ENQUEUE_MESSAGE_3(
+        _messageQueue, CommandBufferWriteTimestamp,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        id, id,
+        {
+            actor->writeTimestamp(queryPool, id);
+        });
+}
+
+void CommandBufferAgent::copyQueryResult(QueryPool *queryPool, Buffer* buffer, uint32_t offset, uint32_t stride, uint32_t first, uint32_t count) {
+    auto *actorQueryPool = static_cast<QueryPoolAgent *>(queryPool)->getActor();
+    auto *actorBuffer = static_cast<BufferAgent *>(buffer)->getActor();
+
+    ENQUEUE_MESSAGE_7(
+        _messageQueue, CommandBufferGetQueryResult,
+        actor, getActor(),
+        queryPool, actorQueryPool,
+        buffer, actorBuffer,
+        offset, offset,
+        stride, stride,
+        first, first,
+        count, count,
+        {
+            actor->copyQueryResult(queryPool, buffer, offset, stride, first, count);
         });
 }
 

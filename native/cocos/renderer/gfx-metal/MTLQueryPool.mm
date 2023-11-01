@@ -47,7 +47,6 @@ void CCMTLQueryPool::doInit(const QueryPoolInfo& info) {
     _gpuQueryPool = ccnew CCMTLGPUQueryPool;
     _gpuQueryPool->type = _type;
     _gpuQueryPool->maxQueryObjects = _maxQueryObjects;
-    _gpuQueryPool->forceWait = _forceWait;
     _gpuQueryPool->visibilityResultBuffer = [mtlDevice newBufferWithLength:_maxQueryObjects * sizeof(uint64_t) options:MTLResourceStorageModeShared];
     _gpuQueryPool->semaphore = ccnew CCMTLSemaphore(1);
 }

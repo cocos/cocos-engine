@@ -183,6 +183,10 @@ void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     _lastUpdateFrame = cur;
 }
 
+void BufferValidator::readBack(void *dst, uint32_t offset, uint32_t size) {
+    _actor->readBack(dst, offset, size);
+}
+
 void BufferValidator::addView(BufferValidator *view) {
     _views.emplace_back(view);
 }

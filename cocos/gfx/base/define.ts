@@ -702,6 +702,19 @@ export enum PassType {
     PRESENT,
 }
 
+export enum PipelineStatisticFlagBit {
+    NONE = 0,
+    IA_VERTICES = 0x01,
+    IA_PRIMITIVES = 0x02,
+    VS_INVOCATIONS = 0x04,
+    CLIP_INVOCATIONS = 0x08,
+    CLIP_PRIMITIVES = 0x10,
+    FS_INVOCATIONS = 0x20,
+    CS_INVOCATIONS = 0x40,
+    ALL = IA_VERTICES | IA_PRIMITIVES | VS_INVOCATIONS | CLIP_INVOCATIONS | CLIP_PRIMITIVES
+        | FS_INVOCATIONS | CS_INVOCATIONS,
+}
+
 export type BufferUsage = BufferUsageBit;
 export type BufferFlags = BufferFlagBit;
 export type MemoryAccess = MemoryAccessBit;
@@ -713,6 +726,7 @@ export type ShaderStageFlags = ShaderStageFlagBit;
 export type AccessFlags = AccessFlagBit;
 export type DynamicStateFlags = DynamicStateFlagBit;
 export type ClearFlags = ClearFlagBit;
+export type PipelineStatisticFlags = PipelineStatisticFlagBit;
 
 export class Size {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
@@ -755,6 +769,7 @@ export class DeviceCaps {
         public maxComputeWorkGroupInvocations: number = 0,
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
+        public timestampPeriod: number = 1,
         public supportQuery: boolean = false,
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,

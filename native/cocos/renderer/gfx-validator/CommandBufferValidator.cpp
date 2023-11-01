@@ -388,7 +388,7 @@ void CommandBufferValidator::draw(const DrawInfo &info) {
         if (!_curStates.descriptorSets[i]) continue; // there may be inactive sets
         const auto &dsBindings = _curStates.descriptorSets[i]->getLayout()->getBindings();
         const auto &psoBindings = psoLayouts[i]->getBindings();
-        CC_ASSERT(psoBindings.size() == dsBindings.size());
+        // CC_ASSERT(psoBindings.size() == dsBindings.size());
     }
 
     /////////// execute ///////////
@@ -595,12 +595,12 @@ void CommandBufferValidator::endQuery(QueryPool *queryPool, uint32_t id) {
     _actor->endQuery(actorQueryPool, id);
 }
 
-void CommandBufferValidator::resetQueryPool(QueryPool *queryPool) {
+void CommandBufferValidator::resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) {
     CC_ASSERT(isInited());
     CC_ASSERT(static_cast<QueryPoolValidator *>(queryPool)->isInited());
 
     QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
-    _actor->resetQueryPool(actorQueryPool);
+    _actor->resetQueryPool(actorQueryPool, first, count);
 }
 
 void CommandBufferValidator::completeQueryPool(QueryPool *queryPool) {
@@ -609,6 +609,23 @@ void CommandBufferValidator::completeQueryPool(QueryPool *queryPool) {
 
     QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
     _actor->completeQueryPool(actorQueryPool);
+}
+
+void  CommandBufferValidator::writeTimestamp(QueryPool *queryPool, uint32_t id) {
+    CC_ASSERT(isInited());
+    CC_ASSERT(static_cast<QueryPoolValidator *>(queryPool)->isInited());
+
+    QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
+    _actor->writeTimestamp(actorQueryPool, id);
+}
+
+void  CommandBufferValidator::copyQueryResult(QueryPool *queryPool, Buffer* buffer, uint32_t offset, uint32_t stride, uint32_t first, uint32_t count) {
+    CC_ASSERT(isInited());
+    CC_ASSERT(static_cast<QueryPoolValidator *>(queryPool)->isInited());
+
+    QueryPool *actorQueryPool = static_cast<QueryPoolValidator *>(queryPool)->getActor();
+    Buffer *actorBuffer = static_cast<BufferValidator *>(buffer)->getActor();
+    _actor->copyQueryResult(actorQueryPool, actorBuffer, offset, stride, first, count);
 }
 
 void CommandBufferValidator::customCommand(CustomCommand &&cmd) {

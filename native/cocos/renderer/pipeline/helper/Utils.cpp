@@ -85,12 +85,12 @@ void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, sc
 }
 
 #if CC_USE_DEBUG_RENDERER
-void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData, const scene::Camera *camera) {
+void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, const scene::Camera *camera) {
     if (camera != profilerCamera) {
         return;
     }
 
-    CC_DEBUG_RENDERER->render(renderPass, cmdBuff, sceneData);
+    CC_DEBUG_RENDERER->render(renderPass, cmdBuff);
 }
 #endif
 

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,30 +24,48 @@
 
 #pragma once
 
-#include <mutex>
-#include "VKStd.h"
+#include <string>
+#include "base/Ptr.h"
+#include "base/std/variant.h"
+#include "base/std/container/vector.h"
 #include "gfx-base/GFXQueryPool.h"
-#include "gfx-vulkan/VKGPUObjects.h"
+#include "gfx-base/GFXCommandBuffer.h"
 
-namespace cc {
-namespace gfx {
+namespace cc::render {
 
-class CC_VULKAN_API CCVKQueryPool final : public QueryPool {
+class GPUTimeQuery {
 public:
-    CCVKQueryPool();
-    ~CCVKQueryPool() override;
+    GPUTimeQuery() = default;
+    ~GPUTimeQuery() = default;
 
-    inline CCVKGPUQueryPool *gpuQueryPool() const { return _gpuQueryPool; }
+    using KeyType = ccstd::variant<uint32_t, uint64_t>;
 
-protected:
-    friend class CCVKCommandBuffer;
-    friend class CCVKDevice;
+    void resize(uint32_t size);
 
-    void doInit(const QueryPoolInfo &info) override;
-    void doDestroy() override;
+    void reset(gfx::CommandBuffer *cmdBuffer);
+    void writeTimestamp(gfx::CommandBuffer *cmdBuffer);
+    void writeTimestampWithKey(gfx::CommandBuffer *cmdBuffer, const KeyType &key);
 
-    IntrusivePtr<CCVKGPUQueryPool> _gpuQueryPool;
+    void copyResult(gfx::CommandBuffer *cmdBuffer);
+
+    template <typename Func>
+    void foreachData(Func &&func) const {
+        const uint64_t *data = getReadBuffer();
+        for (uint32_t i = 0; i < _count; ++i) {
+            func(_keys[i], data[i]);
+        }
+    }
+
+private:
+    const uint64_t *getReadBuffer() const;
+
+    uint32_t _capacity = 0;
+    uint32_t _count = 0;
+    uint32_t _frameIndex = 0;
+    ccstd::vector<KeyType> _keys;
+    ccstd::vector<uint64_t> _results;
+    IntrusivePtr<gfx::QueryPool> _queryPool;
+    IntrusivePtr<gfx::Buffer> _readBackBuffer;
 };
 
-} // namespace gfx
-} // namespace cc
+} // namespace cc::render

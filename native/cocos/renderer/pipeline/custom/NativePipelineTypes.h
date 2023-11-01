@@ -41,6 +41,7 @@
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/details/Map.h"
 #include "cocos/renderer/pipeline/custom/details/Set.h"
+#include "cocos/renderer/pipeline/profile/PipelineProfiler.h"
 
 #ifdef _MSC_VER
     #pragma warning(push)
@@ -1245,6 +1246,7 @@ struct NativeRenderContext {
     ccstd::pmr::unordered_map<const scene::RenderScene*, SceneResource> renderSceneResources;
     QuadResource fullscreenQuad;
     SceneCulling sceneCulling;
+    PipelineProfiler pipelineProfiler;
 };
 
 class NativeProgramLibrary final : public ProgramLibrary {

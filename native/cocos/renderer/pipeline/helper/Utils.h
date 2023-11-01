@@ -71,7 +71,7 @@ extern const scene::Camera *profilerCamera;
 void decideProfilerCamera(const ccstd::vector<scene::Camera *> &cameras);
 void renderProfiler(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, scene::Model *profiler, const scene::Camera *camera);
 #if CC_USE_DEBUG_RENDERER
-void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, PipelineSceneData *sceneData, const scene::Camera *camera);
+void renderDebugRenderer(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, const scene::Camera *camera);
 #endif
 
 } // namespace pipeline

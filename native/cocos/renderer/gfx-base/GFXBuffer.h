@@ -50,6 +50,7 @@ public:
     void write(const uint8_t *value, uint32_t offset, uint32_t size) const;
 
     virtual void update(const void *buffer, uint32_t size) = 0;
+    virtual void readBack(void *dst, uint32_t offset, uint32_t size) {};
 
     inline void update(const void *buffer) { update(buffer, _size); }
 

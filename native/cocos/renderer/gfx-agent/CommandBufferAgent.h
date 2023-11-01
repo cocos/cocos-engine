@@ -70,8 +70,10 @@ public:
     void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
     void beginQuery(QueryPool *queryPool, uint32_t id) override;
     void endQuery(QueryPool *queryPool, uint32_t id) override;
-    void resetQueryPool(QueryPool *queryPool) override;
+    void resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) override;
     void completeQueryPool(QueryPool *queryPool) override;
+    void writeTimestamp(QueryPool *queryPool, uint32_t id) override;
+    void copyQueryResult(QueryPool *queryPool, Buffer* buffer, uint32_t offset, uint32_t stride, uint32_t first, uint32_t count) override;
     void customCommand(CustomCommand &&cmd) override;
 
     uint32_t getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }

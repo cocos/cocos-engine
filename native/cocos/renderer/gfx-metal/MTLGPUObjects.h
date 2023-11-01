@@ -331,7 +331,6 @@ struct CCMTLGPUDeviceObject {
 struct CCMTLGPUQueryPool {
     QueryType type = QueryType::OCCLUSION;
     uint32_t maxQueryObjects = 0;
-    bool forceWait = true;
     id<MTLBuffer> visibilityResultBuffer = nil;
     CCMTLSemaphore *semaphore = nullptr;
 };

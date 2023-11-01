@@ -112,6 +112,11 @@ void cmdFuncCCVKCreateQueryPool(CCVKDevice *device, CCVKGPUQueryPool *gpuQueryPo
     queryPoolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
     queryPoolInfo.queryType = mapVkQueryType(gpuQueryPool->type);
     queryPoolInfo.queryCount = gpuQueryPool->maxQueryObjects;
+
+    if (queryPoolInfo.queryType == VK_QUERY_TYPE_PIPELINE_STATISTICS) {
+        mapVKPipelineStatisticFlags(gpuQueryPool->psFlags, queryPoolInfo.pipelineStatistics);
+    }
+
     VK_CHECK(vkCreateQueryPool(device->gpuDevice()->vkDevice, &queryPoolInfo, nullptr, &gpuQueryPool->vkPool));
 }
 
@@ -1219,6 +1224,17 @@ void bufferUpload(const CCVKGPUBufferView &stagingBuffer, CCVKGPUBuffer &gpuBuff
     vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, stagingBuffer.gpuBuffer->vkBuffer, gpuBuffer.vkBuffer, 1, &region);
 };
 } // namespace
+
+void cmdFuncCCVKReadBackBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, void *dst, uint32_t offset, uint32_t size) {
+    if (!gpuBuffer || gpuBuffer->mappedData == nullptr) return;
+
+    auto curBackBufferIndex = device->gpuDevice()->curBackBufferIndex;
+    auto backBufferCount = device->gpuDevice()->backBufferCount;
+    uint32_t lastBufferIndex = (device->gpuDevice()->curBackBufferIndex + backBufferCount - 1) % backBufferCount;
+
+    uint8_t *src = gpuBuffer->mappedData + lastBufferIndex * gpuBuffer->instanceSize + offset;
+    memcpy(dst, src, size);
+}
 
 void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const void *buffer, uint32_t size, const CCVKGPUCommandBuffer *cmdBuffer) {
     if (!gpuBuffer) return;

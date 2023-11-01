@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights to
@@ -27,9 +27,16 @@
 #include <math/Vec4.h>
 #include "base/std/container/array.h"
 #include "base/std/container/string.h"
+#include "base/Ptr.h"
+#include "core/assets/Material.h"
+#include "renderer/gfx-base/GFXBuffer.h"
 #include "renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {
+
+namespace scene {
+class Pass;
+}
 
 namespace pipeline {
 class PipelineSceneData;
@@ -74,6 +81,36 @@ struct DebugFontInfo {
 constexpr uint32_t DEBUG_FONT_COUNT = 4U;
 using DebugFontArray = ccstd::array<DebugFontInfo, DEBUG_FONT_COUNT>;
 
+class TextRenderer {
+public:
+    TextRenderer() = default;
+    ~TextRenderer();
+
+    void initialize(gfx::Device *device, const DebugRendererInfo &info, uint32_t fontSize, const std::string &effect);
+    void updateWindowSize(uint32_t width, uint32_t height, uint32_t screenTransform, float flip);
+    void updateTextData();
+    void render(gfx::RenderPass *renderPass, uint32_t subPassId, gfx::CommandBuffer *cmdBuff);
+
+    void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info);
+    uint32_t getLineHeight(bool bold = false, bool italic = false) const;
+
+private:
+    void preparePso(gfx::InputAssembler *ia, gfx::RenderPass *renderPass, uint32_t subPassId, scene::Pass *pass);
+
+    gfx::Device *_device{nullptr};
+    DebugVertexBuffer *_buffer{nullptr};
+    DebugFontArray _fonts;
+    IntrusivePtr<gfx::Buffer> _ubo;
+    IntrusivePtr<gfx::PipelineState> _pso;
+    IntrusivePtr<gfx::DescriptorSet> _passSet;
+    IntrusivePtr<gfx::DescriptorSetLayout> _passLayout;
+    IntrusivePtr<gfx::PipelineLayout> _pipelineLayout;
+    IntrusivePtr<Material> _material;
+    uint32_t _psoHash = 0;
+    uint32_t _windowWidth = 1;
+    uint32_t _windowHeight = 1;
+};
+
 class DebugRenderer {
 public:
     static DebugRenderer *getInstance();
@@ -86,7 +123,7 @@ public:
     ~DebugRenderer();
 
     void activate(gfx::Device *device, const DebugRendererInfo &info = DebugRendererInfo());
-    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff, pipeline::PipelineSceneData *sceneData);
+    void render(gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuff);
     void destroy();
     void update();
 
@@ -94,13 +131,9 @@ public:
     void addText(const ccstd::string &text, const Vec2 &screenPos, const DebugTextInfo &info);
 
 private:
-    static void addQuad(DebugBatch &batch, const Vec4 &rect, const Vec4 &uv, gfx::Color color);
     uint32_t getLineHeight(bool bold = false, bool italic = false);
-
     static DebugRenderer *instance;
-    gfx::Device *_device{nullptr};
-    DebugVertexBuffer *_buffer{nullptr};
-    DebugFontArray _fonts;
+    std::unique_ptr<TextRenderer> _textRenderer;
 
     friend class Profiler;
 };

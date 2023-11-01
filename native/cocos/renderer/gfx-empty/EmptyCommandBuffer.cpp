@@ -122,7 +122,7 @@ void EmptyCommandBuffer::beginQuery(QueryPool *queryPool, uint32_t id) {
 void EmptyCommandBuffer::endQuery(QueryPool *queryPool, uint32_t id) {
 }
 
-void EmptyCommandBuffer::resetQueryPool(QueryPool *queryPool) {
+void EmptyCommandBuffer::resetQueryPool(QueryPool *queryPool, uint32_t first, uint32_t count) {
 }
 
 } // namespace gfx

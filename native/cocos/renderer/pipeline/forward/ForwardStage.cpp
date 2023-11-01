@@ -269,7 +269,7 @@ void ForwardStage::render(scene::Camera *camera) {
         _uiPhase->render(camera, renderPass);
         renderProfiler(renderPass, cmdBuff, _pipeline->getProfiler(), camera);
 #if CC_USE_DEBUG_RENDERER
-        renderDebugRenderer(renderPass, cmdBuff, _pipeline->getPipelineSceneData(), camera);
+        renderDebugRenderer(renderPass, cmdBuff, camera);
 #endif
     };
 

@@ -51,6 +51,7 @@ private:
 
     void flush(const uint8_t *buffer) override;
     uint8_t *getStagingAddress() const override;
+    void readBack(void *dst, uint32_t offset, uint32_t size) override;
 
     static constexpr uint32_t STAGING_BUFFER_THRESHOLD = MessageQueue::MEMORY_CHUNK_SIZE / 2;
 

@@ -92,6 +92,8 @@ namespace cc {
 %ignore SAXParser::endElement;
 %ignore SAXParser::textHandler;
 
+%ignore TextRenderer;
+
 %ignore DebugRenderer::activate;
 %ignore DebugRenderer::render;
 %ignore DebugRenderer::destroy;

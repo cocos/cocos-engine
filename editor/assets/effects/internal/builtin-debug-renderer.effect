@@ -2,8 +2,9 @@
 CCEffect %{
   techniques:
   - passes:
-    - vert: debug-renderer-vs:vert
-      frag: debug-renderer-fs:frag
+    - vert: debug-renderer-vs
+      frag: debug-renderer-fs
+      pass: debug-profiler
       priority: max
       depthStencilState:
         depthTest: false
@@ -20,8 +21,13 @@ CCEffect %{
 
 CCProgram debug-renderer-vs %{
   precision mediump float;
-  #include <builtin/uniforms/cc-global>
-  #include <common/common-define>
+  #pragma rate CCProfiler pass
+  layout(std140, set = 0, binding = 0) uniform CCProfiler {
+    mediump vec4 cc_surfaceTransform; // 0: orientation, 1: flip
+    mediump vec4 cc_screenSize;
+  };
+
+  #define CC_HANDLE_GET_CLIP_FLIP(uv) uv = cc_surfaceTransform.y == 0.0 ? vec2(uv.x, -uv.y) : uv
 
   in vec2 a_position;
   in vec2 a_texCoord;
@@ -30,7 +36,7 @@ CCProgram debug-renderer-vs %{
   out vec2 v_texCoord;
   out vec4 v_color;
 
-  vec4 vert () {
+  void main () {
     int orientation = int(cc_surfaceTransform.x);
     vec4 transform = vec4(1.0, 0.0, 0.0, 1.0);
 
@@ -43,7 +49,6 @@ CCProgram debug-renderer-vs %{
     } else if (orientation == 3) {
       transform =  vec4(0.0, -1.0, 1.0, 0.0);
     }
-
     vec2 invScreenSize = (orientation == 1 || orientation == 3) ? cc_screenSize.wz : cc_screenSize.zw;
     vec2 position = a_position * invScreenSize;
     position = position * vec2(2.0, -2.0) + vec2(-1.0, 1.0);
@@ -54,21 +59,21 @@ CCProgram debug-renderer-vs %{
     v_texCoord = a_texCoord;
     v_color = a_color;
 
-    return vec4(clipPos, 0.0, 1.0);
+    gl_Position = vec4(clipPos, 0.0, 1.0);
   }
 }%
 
 CCProgram debug-renderer-fs %{
   precision mediump float;
-  #include <legacy/output>
 
   in vec2 v_texCoord;
   in vec4 v_color;
 
   uniform sampler2D mainTexture;
 
-  vec4 frag () {
-    vec4 color = vec4(v_color.rgb, v_color.a * texture(mainTexture, v_texCoord).r);
-    return CCFragOutput(color);
+  layout(location = 0) out vec4 outColor;
+
+  void main () {
+    outColor = vec4(v_color.rgb, v_color.a * texture(mainTexture, v_texCoord).r);
   }
 }%

@@ -25,6 +25,7 @@
 #pragma once
 #include "base/std/container/unordered_map.h"
 #include "base/std/container/vector.h"
+#include "base/Ptr.h"
 #include "core/assets/Asset.h"
 
 namespace cc {
@@ -107,7 +108,7 @@ public:
     inline Font *getFont() const { return _font; }
     inline uint32_t getFontSize() const { return _fontSize; }
     inline uint32_t getLineHeight() const { return _lineHeight; }
-    inline const ccstd::vector<gfx::Texture *> &getTextures() const { return _textures; }
+    inline const ccstd::vector<IntrusivePtr<gfx::Texture>> &getTextures() const { return _textures; }
     inline gfx::Texture *getTexture(uint32_t page) const { return _textures[page]; }
     inline uint32_t getTextureWidth() const { return _textureWidth; }
     inline uint32_t getTextureHeight() const { return _textureHeight; }
@@ -120,7 +121,7 @@ protected:
     uint32_t _lineHeight{0U};
     ccstd::unordered_map<uint32_t, FontGlyph> _glyphs;
     ccstd::unordered_map<KerningPair, float, KerningHash> _kernings;
-    ccstd::vector<gfx::Texture *> _textures;
+    ccstd::vector<IntrusivePtr<gfx::Texture>> _textures;
     uint32_t _textureWidth{0U};
     uint32_t _textureHeight{0U};
 };

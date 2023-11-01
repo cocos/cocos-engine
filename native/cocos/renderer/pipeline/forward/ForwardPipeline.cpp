@@ -107,7 +107,7 @@ void ForwardPipeline::render(const ccstd::vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->begin();
 
     if (enableOcclusionQuery) {
-        _commandBuffers[0]->resetQueryPool(_queryPools[0]);
+        _commandBuffers[0]->resetQueryPool(_queryPools[0], 0, _queryPools[0]->getMaxQueryObjects());
     }
 
     _pipelineUBO->updateMultiCameraUBO(_globalDSManager, cameras);

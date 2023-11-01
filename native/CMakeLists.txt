@@ -1472,6 +1472,12 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/details/SerializationUtils.h
                  cocos/renderer/pipeline/custom/details/Set.h
                  cocos/renderer/pipeline/custom/details/Utility.h
+                 cocos/renderer/pipeline/profile/GPUTimeQuery.cpp
+                 cocos/renderer/pipeline/profile/GPUTimeQuery.h
+                 cocos/renderer/pipeline/profile/GPUStatisticsQuery.cpp
+                 cocos/renderer/pipeline/profile/GPUStatisticsQuery.h
+                 cocos/renderer/pipeline/profile/PipelineProfiler.cpp
+                 cocos/renderer/pipeline/profile/PipelineProfiler.h
 )
 
 if (USE_GEOMETRY_RENDERER)
@@ -3350,7 +3356,7 @@ set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
 set(COCOS_GENERATED_LIST)
 foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
     get_source_file_property(IS_GENERATED ${src} GENERATED)
-    if(IS_GENERATED) 
+    if(IS_GENERATED)
         list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
         list(APPEND COCOS_GENERATED_LIST ${src})
     endif()
