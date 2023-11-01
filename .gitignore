@@ -1,30 +1,30 @@
-lib/
-.turbo/
+/.project
 /bin
-/web.config
+/package
+/Cocos-Creator-API.json
+/declarations
+
+.turbo
 .idea
 .history
 .DS_Store
+
+lib
 build
 aspnet_client
 node_modules
-/tools/jsdoc_toolkit-2.4.0
-/package
-/tools/jsdoc_toolkit/jsdoc_toolkit-2.4.0
-/.project
-/dist
 npm-debug.log
 DebugInfos.json
-/rollup/out
 playground/library
-/declarations
-3d-api-docs
-scripts/build-engine/node_modules
+tests/core/serialization/ccob-serialized-gallery
 scripts/build-engine/dist
 scripts/native-pack-tool/dist
-scripts/native-pack-tool/node_modules
+scripts/runtime-web-adapter
+scripts/typedoc-plugin/lib/
+native/external/
 
-tests/core/serialization/ccob-serialized-gallery
+!templates/**/*
+templates/**/.DS_Store
 
 platforms/runtime/local-commit.json
 platforms/runtime/common/web-adapter.js
@@ -41,13 +41,6 @@ platforms/runtime/platforms/qtt/ral.js
 platforms/runtime/platforms/qtt/ral.min.js
 platforms/runtime/platforms/vivo-mini-game/ral.js
 platforms/runtime/platforms/vivo-mini-game/ral.min.js
-scripts/runtime-web-adapter
-
-native/external/
-
-scripts/typedoc-plugin/lib/
-!templates/**/*
-templates/**/.DS_Store
 
 @types/consts.d.ts
 
