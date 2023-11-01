@@ -22,6 +22,10 @@ exports.template = /* html */`
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.depthWriteInAlphaModeBlend.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.depthWriteInAlphaModeBlend.title"></ui-label>
         <ui-checkbox slot="content" class="depthWriteInAlphaModeBlend-checkbox"></ui-checkbox>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.overrideExistingImages.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.overrideExistingImages.title"></ui-label>
+        <ui-checkbox slot="content" class="overrideExistingImages-checkbox"></ui-checkbox>
+    </ui-prop>
     <div class="images"></div>
 </div>
 `;
@@ -64,6 +68,7 @@ exports.$ = {
     materialDumpDirFile: '.materialDumpDir-file',
     useVertexColorsCheckbox: '.useVertexColors-checkbox',
     depthWriteInAlphaModeBlendCheckbox: '.depthWriteInAlphaModeBlend-checkbox',
+    overrideExistingImagesCheckbox: '.overrideExistingImages-checkbox',
     images: '.images',
 };
 
@@ -180,6 +185,24 @@ const Elements = {
 
             updateElementInvalid.call(panel, panel.$.depthWriteInAlphaModeBlendCheckbox, 'depthWriteInAlphaModeBlend');
             updateElementReadonly.call(panel, panel.$.depthWriteInAlphaModeBlendCheckbox);
+        },
+    },
+    overrideExistingImages: {
+        ready() {
+            const panel = this;
+
+            panel.$.overrideExistingImagesCheckbox.addEventListener('change', panel.setProp.bind(panel, 'overrideExistingImages'));
+            panel.$.overrideExistingImagesCheckbox.addEventListener('confirm', () => {
+                panel.dispatch('snapshot');
+            });
+        },
+        update() {
+            const panel = this;
+
+            panel.$.overrideExistingImagesCheckbox.value = panel.getDefault(panel.meta.userData.overrideExistingImages, false);
+
+            updateElementInvalid.call(panel, panel.$.overrideExistingImagesCheckbox, 'overrideExistingImages');
+            updateElementReadonly.call(panel, panel.$.overrideExistingImagesCheckbox);
         },
     },
     images: {

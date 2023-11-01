@@ -311,6 +311,10 @@ module.exports = {
                     name: '混合模式下的深度写入',
                     title: '当 Alpha 模式为 "BLEND" 时开启深度写入。',
                 },
+                overrideExistingImages: {
+                    name: '覆盖已有图片',
+                    title: '是否覆盖 assetdb 中已存在的图片资源。',
+                },
                 skipValidation: {
                     name: '跳过验证',
                     title: '跳过对模型文件的验证。',
