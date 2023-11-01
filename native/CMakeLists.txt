@@ -2531,6 +2531,7 @@ cocos_source_files(
             cocos/bindings/manual/jsb_xmlhttprequest.h
             cocos/bindings/manual/jsb_pipeline_manual.h
             cocos/bindings/manual/jsb_pipeline_manual.cpp
+            cocos/bindings/manual/jsb_adpf.cpp
 )
 if(USE_AUDIO)
     cocos_source_files(

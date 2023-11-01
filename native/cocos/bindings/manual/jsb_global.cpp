@@ -41,6 +41,7 @@
 #include "platform/interfaces/modules/ISystem.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "ui/edit-box/EditBox.h"
+#include "v8/Object.h"
 #include "xxtea/xxtea.h"
 
 #include <chrono>
@@ -48,13 +49,14 @@
 #include <sstream>
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    #include "platform/android/adpf_manager.h"
     #include "platform/java/jni/JniImp.h"
 #endif
 
 #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
     #include "platform/openharmony/napi/NapiHelper.h"
 #endif
+
+extern void jsb_register_ADPF(se::Object *); // NOLINT
 
 using namespace cc; // NOLINT
 
@@ -1394,110 +1396,6 @@ static bool jsb_register_TextDecoder(se::Object *globalObj) { // NOLINT
     return true;
 }
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID && CC_SUPPORT_ADPF
-
-struct VmCallback {
-    uint32_t vmId{0xFEFEFEFE};
-    se::Value *cbFn{nullptr};
-    void reset() {
-        vmId = 0xFEFEFEFE;
-        delete cbFn;
-        cbFn = nullptr;
-    }
-};
-static VmCallback vmCallback;
-static bool jsb_adpf_onThermalStatusChanged_set(se::State &state) { // NOLINT
-
-    auto fn = state.args()[0];
-    vmCallback.reset();
-    if (fn.isNullOrUndefined()) {
-        return true;
-    }
-    CC_ASSERT_TRUE(fn.toObject()->isFunction());
-    auto *scriptEngine = se::ScriptEngine::getInstance();
-    if (vmCallback.vmId != scriptEngine->getVMId()) {
-        vmCallback.vmId = scriptEngine->getVMId();
-        scriptEngine->addBeforeCleanupHook([]() {
-            vmCallback.reset();
-        });
-    }
-
-    vmCallback.cbFn = new se::Value(fn.toObject(), true);
-    // NOLINTNEXTLINE
-    ADPFManager::getInstance().SetThermalListener(+[](int prevStatus, int currentStatus) {
-        CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
-            se::AutoHandleScope scope;
-            se::ValueArray args;
-            args.push_back(se::Value(prevStatus));
-            args.push_back(se::Value(currentStatus));
-            args.push_back(se::Value(ATHERMAL_STATUS_NONE));
-            args.push_back(se::Value(ATHERMAL_STATUS_SHUTDOWN));
-            CC_ASSERT_EQ(vmCallback.vmId, se::ScriptEngine::getInstance()->getVMId());
-            if (vmCallback.cbFn && vmCallback.cbFn->isObject() && vmCallback.cbFn->toObject()->isFunction()) {
-                vmCallback.cbFn->toObject()->call(args, nullptr);
-            }
-        });
-    });
-    return true;
-}
-SE_BIND_PROP_SET(jsb_adpf_onThermalStatusChanged_set)
-
-static bool jsb_adpf_onThermalStatusChanged_get(se::State &state) { // NOLINT
-    if (!vmCallback.cbFn) {
-        state.rval().setUndefined();
-    } else {
-        state.rval().setObject(vmCallback.cbFn->toObject());
-    }
-    return true;
-}
-SE_BIND_PROP_GET(jsb_adpf_onThermalStatusChanged_get)
-
-static bool jsb_adpf_getThermalStatus(se::State &state) { // NOLINT
-    int statusInt = ADPFManager::getInstance().GetThermalStatus();
-    state.rval().setUint32(statusInt);
-    return true;
-}
-SE_BIND_PROP_GET(jsb_adpf_getThermalStatus)
-
-static bool jsb_adpf_getThermalStatusMin(se::State &state) { // NOLINT
-    state.rval().setUint32(ATHERMAL_STATUS_NONE);
-    return true;
-}
-SE_BIND_PROP_GET(jsb_adpf_getThermalStatusMin)
-static bool jsb_adpf_getThermalStatusMax(se::State &state) { // NOLINT
-    state.rval().setUint32(ATHERMAL_STATUS_SHUTDOWN);
-    return true;
-}
-SE_BIND_PROP_GET(jsb_adpf_getThermalStatusMax)
-
-static bool jsb_adpf_getThermalStatusNormalized(se::State &state) { // NOLINT
-    float statusNormalized = ADPFManager::getInstance().GetThermalStatusNormalized();
-    state.rval().setFloat(statusNormalized);
-    return true;
-}
-SE_BIND_PROP_GET(jsb_adpf_getThermalStatusNormalized)
-
-static bool jsb_adpf_getThermalHeadroom(se::State &state) { // NOLINT
-    float headroom = ADPFManager::getInstance().GetThermalHeadroom();
-    state.rval().setFloat(headroom);
-    return true;
-}
-SE_BIND_PROP_GET(jsb_adpf_getThermalHeadroom)
-
-static void jsb_register_ADPF(se::Object *ns) { // NOLINT
-    se::Value adpfObj{se::Object::createPlainObject()};
-    adpfObj.toObject()->defineProperty("thermalHeadroom", _SE(jsb_adpf_getThermalHeadroom), nullptr);
-    adpfObj.toObject()->defineProperty("thermalStatus", _SE(jsb_adpf_getThermalStatus), nullptr);
-    adpfObj.toObject()->defineProperty("thermalStatusMin", _SE(jsb_adpf_getThermalStatusMin), nullptr);
-    adpfObj.toObject()->defineProperty("thermalStatusMax", _SE(jsb_adpf_getThermalStatusMax), nullptr);
-    adpfObj.toObject()->defineProperty("thermalStatusNormalized", _SE(jsb_adpf_getThermalStatusNormalized), nullptr);
-    adpfObj.toObject()->defineProperty("thermalHeadroom", _SE(jsb_adpf_getThermalHeadroom), nullptr);
-    adpfObj.toObject()->defineProperty("onThermalStatusChanged", _SE(jsb_adpf_onThermalStatusChanged_get), _SE(jsb_adpf_onThermalStatusChanged_set));
-    ns->setProperty("adpf", adpfObj);
-}
-
-#endif // CC_PLATFORM_ANDROID
-
 static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-naming)
 {
     const auto &args = CC_CURRENT_APPLICATION()->getArguments();
@@ -1701,9 +1599,8 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
 
     jsb_register_TextEncoder(global);
     jsb_register_TextDecoder(global);
-#if CC_PLATFORM == CC_PLATFORM_ANDROID && CC_SUPPORT_ADPF
+
     jsb_register_ADPF(__jsbObj);
-#endif
 
     se::ScriptEngine::getInstance()->clearException();
 
