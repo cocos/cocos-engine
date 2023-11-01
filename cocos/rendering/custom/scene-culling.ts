@@ -20,6 +20,9 @@ const vec3Pool = new ObjectPool(() => new Vec3());
 class CullingPools {
     frustumCullingKeyRecycle = new RecyclePool(() => new FrustumCullingKey(), 8);
     frustumCullingsRecycle = new RecyclePool(() => new FrustumCulling(), 8);
+    lightBoundsCullingRecycle = new RecyclePool(() => new LightBoundsCulling(), 8);
+    lightBoundsCullingResultRecycle = new RecyclePool(() => new LightBoundsCullingResult(), 8);
+    lightBoundsCullingKeyRecycle = new RecyclePool(() => new LightBoundsCullingKey(), 8);
     renderQueueRecycle = new RecyclePool(() => new RenderQueue(), 8);
     renderQueueDescRecycle = new RecyclePool(() => new RenderQueueDesc(), 8);
 }
@@ -124,6 +127,11 @@ class LightBoundsCulling {
 class LightBoundsCullingResult {
     instances: Array<Model> = new Array<Model>();
     lightByteOffset: number = 0xFFFFFFFF;
+    update (): LightBoundsCullingResult {
+        this.instances.length = 0;
+        this.lightByteOffset = 0xFFFFFFFF;
+        return this;
+    }
 }
 
 type FrustumCullingID = number;
@@ -298,7 +306,8 @@ function addRenderObject (
         }
     }
 }
-
+const rangedDirLightBoundingBox = new AABB(0, 0, 0, 0.5, 0.5, 0.5);
+const lightAABB = new AABB();
 export class SceneCulling {
     frustumCullings: Map<RenderScene, FrustumCulling> = new Map<RenderScene, FrustumCulling>();
     frustumCullingResults: Array<Array<Model>> = new Array<Array<Model>>();
@@ -315,10 +324,14 @@ export class SceneCulling {
     layoutGraph;
     renderGraph;
     resetPool (): void {
-        this.cullingPools.frustumCullingKeyRecycle.reset();
-        this.cullingPools.frustumCullingsRecycle.reset();
-        this.cullingPools.renderQueueRecycle.reset();
-        this.cullingPools.renderQueueDescRecycle.reset();
+        const cullingPools = this.cullingPools;
+        cullingPools.frustumCullingKeyRecycle.reset();
+        cullingPools.frustumCullingsRecycle.reset();
+        cullingPools.lightBoundsCullingRecycle.reset();
+        cullingPools.lightBoundsCullingResultRecycle.reset();
+        cullingPools.lightBoundsCullingKeyRecycle.reset();
+        cullingPools.renderQueueRecycle.reset();
+        cullingPools.renderQueueDescRecycle.reset();
         instancePool.reset();
     }
     clear (): void {
@@ -354,7 +367,7 @@ export class SceneCulling {
 
         let queries = this.lightBoundsCullings.get(scene);
         if (!queries) {
-            const cullingQuery = new LightBoundsCulling();
+            const cullingQuery = this.cullingPools.lightBoundsCullingRecycle.add();
             cullingQuery.update();
             this.lightBoundsCullings.set(scene, cullingQuery);
             queries = this.lightBoundsCullings.get(scene)!;
@@ -367,13 +380,10 @@ export class SceneCulling {
         const lightBoundsCullingID: LightBoundsCullingID = this.numLightBoundsCulling++;
         if (this.numLightBoundsCulling >  this.lightBoundsCullingResults.length) {
             assert(this.numLightBoundsCulling === (this.lightBoundsCullingResults.length + 1));
-            this.lightBoundsCullingResults.push(new LightBoundsCullingResult());
+            this.lightBoundsCullingResults.push(this.cullingPools.lightBoundsCullingResultRecycle.add().update());
         }
         queries.resultIndex.set(key, lightBoundsCullingID);
-        const cullingKey = new LightBoundsCullingKey(
-            sceneData,
-            frustumCullingID,
-        );
+        const cullingKey = this.cullingPools.lightBoundsCullingKeyRecycle.add();
         cullingKey.update(
             sceneData,
             frustumCullingID,
@@ -567,8 +577,6 @@ export class SceneCulling {
         frustumCullingResult: Array<Model>,
         lightBoundsCullingResult: Array<Model>,
     ): void {
-        const rangedDirLightBoundingBox = new AABB(0, 0, 0, 0.5, 0.5, 0.5);
-        const lightAABB = new AABB();
         rangedDirLightBoundingBox.transform(light.node!.worldMatrix, null, null, null, lightAABB);
         for (const model of frustumCullingResult) {
             assert(!!model);
@@ -839,7 +847,7 @@ export class LightResource {
         this.lightIndex.set(light, lightID);
 
         // Update buffer
-        const offset = this.elementSize * lightID;
+        const offset = this.elementSize / Float32Array.BYTES_PER_ELEMENT * lightID;
         SetLightUBO(light, bHDR, exposure, shadowInfo, this.cpuBuffer, offset, this.elementSize);
 
         return lightID * this.elementSize;

@@ -390,7 +390,7 @@ export class RenderQueue {
     }
 
     recordCommands (cmdBuffer: CommandBuffer, renderPass: RenderPass): void {
-        const offsets = this.lightByteOffset === 0xFFFFFFFF ? null : [this.lightByteOffset / Float32Array.BYTES_PER_ELEMENT];
+        const offsets = this.lightByteOffset === 0xFFFFFFFF ? null : [this.lightByteOffset];
         this.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
         this.opaqueInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
 
