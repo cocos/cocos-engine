@@ -1,0 +1,27 @@
+// Effect Syntax Guide: https://docs.cocos.com/creator/manual/zh/shader/index.html
+
+CCEffect %{
+  techniques:
+  - name: opaque
+    passes:
+    - vert: legacy/main-functions/general-vs:vert # builtin header
+      frag: unlit-oes-fs:frag
+      properties: &props
+        mainTexture:    { value: white }
+}%
+
+CCProgram unlit-oes-fs %{
+  precision highp float;
+  #include <common/texture/texture-lod>
+  #include <legacy/output>
+
+  in vec2 v_uv;
+  in vec3 v_position;
+
+  uniform samplerExternalOES mainTexture;
+
+  vec4 frag () {
+    vec4 col = texture(mainTexture, v_uv);
+    return CCFragOutput(col);
+  }
+}%
