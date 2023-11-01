@@ -225,6 +225,10 @@ module.exports = {
                 '警告：WebGL 1.0 平台不支持非 2 次幂贴图的 Repeat 过滤模式，运行时会自动改为 Clamp 模式，这会使材质的 tilingOffset 等属性完全失效。',
             filterDiffenent: 'Filter 设置与 {atlasFile} 中的配置不符，可能无法生效。',
         },
+        scaleFactor: {
+            name: '缩放因子',
+            tooltip: '模型缩放比例。',
+        },
         fbx: {
             browse: '更换贴图',
             model: '模型',
