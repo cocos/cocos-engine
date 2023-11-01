@@ -60,8 +60,8 @@ inline
 
 ValueArray EmptyValueArray; // NOLINT(readability-identifier-naming)
 
-Value Value::Null = Value(Type::Null);           //NOLINT(readability-identifier-naming)
-Value Value::Undefined = Value(Type::Undefined); //NOLINT(readability-identifier-naming)
+Value Value::Null = Value(Type::Null);           // NOLINT(readability-identifier-naming)
+Value Value::Undefined = Value(Type::Undefined); // NOLINT(readability-identifier-naming)
 
 Value::Value()
 : _type(Type::Undefined),
@@ -571,6 +571,11 @@ unsigned long Value::toUlong() const { // NOLINT(google-runtime-int)
 
 double Value::toNumber() const {
     return toDouble();
+}
+
+Value Value::operator[](std::string_view name) {
+    CC_ASSERT(isObject());
+    return (*toObject())[name];
 }
 
 } // namespace se

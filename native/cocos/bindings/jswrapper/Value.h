@@ -474,6 +474,14 @@ public:
         return static_cast<uintptr_t>(toUint64());
     }
 
+    /**
+     * @brief Gets the property from this object.
+     * @param An utf-8 string containing the property's name.
+     * @returns It's undefined if `*this` is not an object,
+     * otherwise return the property's value if object has the property, otherwise the undefined value.
+     */
+    Value operator[](std::string_view name);
+
 private:
     explicit Value(Type type);
     void reset(Type type);
