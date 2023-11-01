@@ -1,0 +1,25 @@
+[
+  {
+    "defaultDeducedFromInitializer_defaultHit": {
+      "__id__": 1
+    },
+    "defaultDeducedFromInitializer_defaultMissing": {
+      "__id__": 2
+    }
+  },
+  {
+    "__type__": "strip-default.DefaultDeducedFromInitializer"
+  },
+  {
+    "__type__": "strip-default.DefaultDeducedFromInitializer",
+    "numField": 1.2,
+    "nullishNumField": 1.3,
+    "stringField": "bar",
+    "nullishStringField": "baz",
+    "boolField": false,
+    "nullishBoolField": true,
+    "nullField": {
+      "foo1": "bar1"
+    }
+  }
+]
