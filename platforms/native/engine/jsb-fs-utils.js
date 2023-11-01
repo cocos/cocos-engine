@@ -18,6 +18,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+
 const fs = jsb.fileUtils;
 let jsb_downloader = null;
 const downloading = new cc.AssetManager.Cache();
@@ -27,7 +28,7 @@ jsb.Downloader.prototype._ctor = function () {
     this.__nativeRefs = {};
 };
 
-var fsUtils = {
+const fsUtils = {
 
     fs,
 
@@ -77,7 +78,7 @@ var fsUtils = {
         const result = fs.removeFile(filePath);
         if (result === true) {
             onComplete && onComplete(null);
-} else {
+        } else {
             cc.warn(`Delete file failed: path: ${filePath}`);
             onComplete && onComplete(new Error('delete file failed'));
         }

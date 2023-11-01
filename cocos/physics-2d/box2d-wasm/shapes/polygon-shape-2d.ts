@@ -48,8 +48,8 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
         return this._worldPoints;
     }
 
-    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): B2.PolygonShape[] {
-        const shapes: B2.PolygonShape[] = [];
+    _createShapes (scaleX: number, scaleY: number, relativePositionX: number, relativePositionY: number): number[] {
+        const shapes: number[] = [];
 
         const comp = this.collider as PolygonCollider2D;
         const points = comp.points;
@@ -70,44 +70,43 @@ export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
         for (let i = 0; i < polys.length; i++) {
             const poly = polys[i];
 
-            let shape: B2.PolygonShape | null = null;
-            const vertices = new B2.Vec2Vector();
+            let shape: number = 0;//B2.PolygonShape ptr
+            const vertices = B2.Vec2VectorNew();
             let firstVertice: B2.Vec2 | null = null;
 
             for (let j = 0, l = poly.length; j < l; j++) {
                 if (!shape) {
-                    shape = new B2.PolygonShape();
+                    shape = B2.PolygonShapeNew() as number;
                 }
                 const p = poly[j];
                 const x = (relativePositionX + (p.x + offset.x) * scaleX) / PHYSICS_2D_PTM_RATIO;
                 const y = (relativePositionY + (p.y + offset.y) * scaleY) / PHYSICS_2D_PTM_RATIO;
                 const v = { x, y };
-                vertices.push_back(v);
+                B2.Vec2VectorPush(vertices, x, y);
 
                 if (!firstVertice) {
                     firstVertice = v;
                 }
 
-                if (vertices.size() === B2.maxPolygonVertices) {
-                    shape!.Set(vertices, vertices.size() as number);
-                    shapes.push(shape!);
-
-                    shape = null;
+                if (B2.Vec2VectorSize(vertices) === B2.maxPolygonVertices) {
+                    B2.PolygonShapeSet(shape, B2.Vec2VectorGetPtr(vertices), B2.Vec2VectorSize(vertices));
+                    shapes.push(shape);
+                    shape = 0;
 
                     if (j < l - 1) {
-                        const temp = vertices.get(vertices.size() - 1);
-                        vertices.resize(0, { x: 0, y: 0 });//clear
-                        vertices.push_back(firstVertice);
-                        vertices.push_back(temp);
+                        const temp = B2.Vec2VectorGet(vertices, B2.Vec2VectorSize(vertices) - 1);
+                        B2.Vec2VectorResize(vertices, 0, 0, 0);//clear
+                        B2.Vec2VectorPush(vertices, firstVertice.x, firstVertice.y);
+                        B2.Vec2VectorPush(vertices, temp.x, temp.y);
                     }
                 }
             }
 
             if (shape) {
-                shape.Set(vertices, vertices.size() as number);
+                B2.PolygonShapeSet(shape, B2.Vec2VectorGetPtr(vertices), B2.Vec2VectorSize(vertices) as number);
                 shapes.push(shape);
             }
-            vertices.delete();
+            B2.Vec2VectorDelete(vertices);
         }
 
         return shapes;

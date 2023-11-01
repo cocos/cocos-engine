@@ -239,6 +239,7 @@ module.exports = link(mixin({
         shadowColor: '平面阴影颜色',
         planeDirection: '阴影接收平面的法线，垂直于阴影，用于调整阴影的倾斜度',
         planeHeight: '阴影接收平面距离原点的高度',
+        planeBias: '平面阴影计算中的位置偏移值',
         shadowMapSize: '阴影贴图分辨率，目前支持 Low_256x256、Medium_512x512、High_1024x1024、Ultra_2048x2048 四种精度的纹理',
         maxReceived: '产生阴影的有效光源数量',
     },
@@ -373,37 +374,12 @@ module.exports = link(mixin({
         space: '加速度计算时采用的坐标系',
     },
     label: {
-        string: 'Label 显示的文本内容字符串',
-        horizontal_align: '文字水平对齐模式',
         horizontal_align_left: '左对齐',
         horizontal_align_center: '水平居中对齐',
         horizontal_align_right: '右对齐',
-        vertical_align: '文字垂直对齐模式',
         vertical_align_top: '顶对齐',
         vertical_align_center: '垂直居中对齐',
         vertical_align_bottom: '底对齐',
-        font_size: '文字尺寸，以 point 为单位',
-        font_family: '文字字体名字',
-        line_height: '文字行高，以 point 为单位',
-        overflow:
-            '文字排版模式，包括以下三种：<br> 1. CLAMP: 节点约束框之外的文字会被截断 <br> 2. SHRINK: 自动根据节点约束框缩小文字<br> 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
-        wrap: '是否允许自动换行',
-        font: 'Label 使用的字体资源',
-        system_font: '是否使用系统默认字体，选中此项会将 file 属性置空',
-        cache_mode:
-            '文本缓存模式，包括以下三种：<br> 1. NONE: 不做任何缓存，文本内容进行一次绘制 <br> 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 <br> 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
-        font_bold: '字体加粗',
-        font_italic: '字体倾斜',
-        font_underline: '字体加下划线',
-        spacing_x: '文本字符之间的间距。仅在使用 BMFont 位图字体时生效',
-        underline_height: '下划线高度',
-        outline_enable: '是否启用描边',
-        outline_width: '描边宽度',
-        outline_color: '描边颜色',
-        shadow_enable: '是否启用阴影',
-        shadow_color: '阴影颜色',
-        shadow_offset: '阴影偏移量',
-        shadow_blur: '阴影模糊程度',
     },
     labelOutline: {
         color: '描边的颜色',
@@ -487,8 +463,6 @@ module.exports = link(mixin({
     UIRenderer: {
         srcBlendFactor: '原始混合因子',
         dstBlendFactor: '目标混合因子',
-        customMaterial: '用户指定的材质',
-        color: '渲染颜色',
     },
     rotationOvertimeModule: {
         separateAxes: '是否三个轴分开设定旋转（暂不支持）',
@@ -1230,12 +1204,6 @@ module.exports = link(mixin({
                 strength: '驱动器的强度',
             },
         },
-        material: {
-            friction: '材质的摩擦系数',
-            rollingFriction: '材质的滚动摩擦系数',
-            spinningFriction: '材质的旋转摩擦系数',
-            restitution: '材质的弹性系数',
-        },
         character_controller: {
             group: '碰撞分组',
             minMoveDistance: '最小移动距离',
@@ -1317,7 +1285,9 @@ module.exports = link(mixin({
     },
 },
 
+require('./modules/physics'),
 require('./modules/rendering'),
+require('./modules/ui.js'),
 require('./animation'),
 
 ));

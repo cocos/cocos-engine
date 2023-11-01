@@ -492,9 +492,6 @@ export class EditBox extends Component {
     public _editBoxEditingDidBegan (): void {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit(EventType.EDITING_DID_BEGAN, this);
-        if (this._impl) {
-            this._impl._dirtyFlag = true;
-        }
     }
 
     /**
@@ -506,9 +503,6 @@ export class EditBox extends Component {
     public _editBoxEditingDidEnded (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit(EventType.EDITING_DID_ENDED, this, text);
-        if (this._impl) {
-            this._impl._dirtyFlag = false;
-        }
     }
 
     /**

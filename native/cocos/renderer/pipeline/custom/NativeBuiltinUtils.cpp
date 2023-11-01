@@ -361,6 +361,10 @@ void setShadowUBOView(
             setVec4Impl(data, layoutGraph,
                         "cc_planarNDInfo",
                         Vec4(tempVec3.x, tempVec3.y, tempVec3.z, -shadowInfo.getDistance()));
+            vec4ShadowInfo.set(
+                0, 0,
+                0, shadowInfo.getPlaneBias());
+            setVec4Impl(data, layoutGraph, "cc_shadowWHPBInfo", vec4ShadowInfo);
         }
         {
             const auto &color = shadowInfo.getShadowColor4f();

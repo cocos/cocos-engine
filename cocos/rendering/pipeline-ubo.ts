@@ -319,6 +319,8 @@ export class PipelineUBO {
                 }
             } else {
                 PipelineUBO.updatePlanarNormalAndDistance(shadowInfo, sv);
+                _vec4ShadowInfo.set(0, 0, 0, shadowInfo.planeBias);
+                Vec4.toArray(sv, _vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);
             }
 
             Color.toArray(sv, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);

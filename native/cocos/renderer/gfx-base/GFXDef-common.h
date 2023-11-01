@@ -479,6 +479,7 @@ enum class TextureFlagBit : uint32_t {
     EXTERNAL_NORMAL = 0x8,      // External normal texture
     LAZILY_ALLOCATED = 0x10,    // Try lazily allocated mode.
     MUTABLE_VIEW_FORMAT = 0x40, // texture view as different format
+    MUTABLE_STORAGE = 0x80,     // mutable storage for gl image
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);

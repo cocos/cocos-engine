@@ -51,6 +51,7 @@ export class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
     protected _firstTick = false;
+    // eslint-disable-next-line @typescript-eslint/ban-types
     protected _easeList: Function[] = [];
     protected _speed = 1;
     protected _repeatForever = false;
@@ -59,7 +60,7 @@ export class ActionInterval extends FiniteTimeAction {
 
     constructor (d?: number) {
         super();
-        if (d !== undefined && !isNaN(d)) {
+        if (d !== undefined && !Number.isNaN(d)) {
             this.initWithDuration(d);
         }
     }
@@ -128,6 +129,7 @@ export class ActionInterval extends FiniteTimeAction {
     easing (easeObj: any): ActionInterval {
         if (this._easeList) this._easeList.length = 0;
         else this._easeList = [];
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         for (let i = 0; i < arguments.length; i++) this._easeList.push(arguments[i]);
         return this;
     }
@@ -256,7 +258,7 @@ export class ActionInterval extends FiniteTimeAction {
      */
     repeat (times: number): ActionInterval {
         times = Math.round(times);
-        if (isNaN(times) || times < 1) {
+        if (Number.isNaN(times) || times < 1) {
             logID(1014);
             return this;
         }
@@ -289,7 +291,7 @@ export class Sequence extends ActionInterval {
         const sequence = new Sequence();
         sequence.initWithTwoActions(actionOne, actionTwo);
         return sequence;
-    }
+    };
 
     private _actions: ActionInterval[] = [];
     private _split = 0;
@@ -323,7 +325,7 @@ export class Sequence extends ActionInterval {
             for (let i = 1; i < last; i++) {
                 if (paramArray[i]) {
                     action1 = prev;
-                    prev = Sequence._actionOneTwo(action1, paramArray[i]);
+                    prev = Sequence._actionOneTwo(action1 as ActionInterval, paramArray[i] as ActionInterval);
                 }
             }
             this.initWithTwoActions(prev, paramArray[last]);
@@ -346,7 +348,7 @@ export class Sequence extends ActionInterval {
         durationOne *= actionOne._repeatMethod ? actionOne._timesForRepeat : 1;
         durationTwo *= actionTwo._repeatMethod ? actionTwo._timesForRepeat : 1;
         const d = durationOne + durationTwo;
-        this.initWithDuration(d);
+        this.initWithDuration(d as number);
 
         this._actions[0] = actionOne;
         this._actions[1] = actionTwo;
@@ -355,7 +357,7 @@ export class Sequence extends ActionInterval {
 
     clone (): any {
         const action = new Sequence();
-        this._cloneDecoration(action as any);
+        this._cloneDecoration(action as ActionInterval);
         action.initWithTwoActions(this._actions[0].clone(), this._actions[1].clone());
         return action as any;
     }
@@ -411,6 +413,7 @@ export class Sequence extends ActionInterval {
             }
         }
 
+        // eslint-disable-next-line prefer-const
         actionFound = locActions[found];
         // Last action found and it is done.
         if (locLast === found && actionFound.isDone()) return;
@@ -454,8 +457,7 @@ export class Sequence extends ActionInterval {
 export function sequence (/* Multiple Arguments */tempArray: any): ActionInterval {
     const paramArray = (tempArray instanceof Array) ? tempArray : arguments;
     if (paramArray.length === 1) {
-        errorID(1019);
-        return null as any;
+        return paramArray[0] as ActionInterval;
     }
     const last = paramArray.length - 1;
     if ((last >= 0) && (paramArray[last] == null)) logID(1015);
@@ -465,12 +467,12 @@ export function sequence (/* Multiple Arguments */tempArray: any): ActionInterva
         result = paramArray[0];
         for (let i = 1; i <= last; i++) {
             if (paramArray[i]) {
-                result = Sequence._actionOneTwo(result, paramArray[i]);
+                result = Sequence._actionOneTwo(result as ActionInterval, paramArray[i] as ActionInterval);
             }
         }
     }
 
-    return result;
+    return result as ActionInterval;
 }
 
 /*
@@ -493,7 +495,7 @@ export class Repeat extends ActionInterval {
 
     constructor (action?: any, times?: any) {
         super();
-        times !== undefined && this.initWithAction(action, times);
+        times !== undefined && this.initWithAction(action as FiniteTimeAction, times as number);
     }
 
     /*
@@ -666,7 +668,7 @@ export class RepeatForever extends ActionInterval {
 
     step (dt: any): void {
         const locInnerAction = this._innerAction!;
-        locInnerAction.step(dt);
+        locInnerAction.step(dt as number);
         if (locInnerAction.isDone()) {
             // var diff = locInnerAction.getElapsed() - locInnerAction._duration;
             locInnerAction.startWithTarget(this.target);
@@ -731,7 +733,7 @@ export class Spawn extends ActionInterval {
         const pSpawn = new Spawn();
         pSpawn.initWithTwoActions(action1, action2);
         return pSpawn;
-    }
+    };
 
     private _one: ActionInterval | null = null;
     private _two: ActionInterval | null = null;
@@ -775,14 +777,14 @@ export class Spawn extends ActionInterval {
         const d1 = action1._duration;
         const d2 = action2._duration;
 
-        if (this.initWithDuration(Math.max(d1, d2))) {
+        if (this.initWithDuration(Math.max(d1 as number, d2 as number))) {
             this._one = action1;
             this._two = action2;
 
             if (d1 > d2) {
-                this._two = Sequence._actionOneTwo(action2, delayTime(d1 - d2));
+                this._two = Sequence._actionOneTwo(action2 as ActionInterval, delayTime(d1 - d2));
             } else if (d1 < d2) {
-                this._one = Sequence._actionOneTwo(action1, delayTime(d2 - d1));
+                this._one = Sequence._actionOneTwo(action1 as ActionInterval, delayTime(d2 - d1));
             }
 
             ret = true;
@@ -811,8 +813,8 @@ export class Spawn extends ActionInterval {
 
     update (dt: any): void {
         dt = this._computeEaseTime(dt);
-        if (this._one) this._one.update(dt);
-        if (this._two) this._two.update(dt);
+        if (this._one) this._one.update(dt as number);
+        if (this._two) this._two.update(dt as number);
     }
 
     reverse (): any {
@@ -839,6 +841,7 @@ export function spawn (/* Multiple Arguments */tempArray: any): FiniteTimeAction
     const paramArray = (tempArray instanceof Array) ? tempArray : arguments;
     if (paramArray.length === 1) {
         errorID(1020);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return null as any;
     }
     if ((paramArray.length > 0) && (paramArray[paramArray.length - 1] == null)) logID(1015);
@@ -847,7 +850,7 @@ export function spawn (/* Multiple Arguments */tempArray: any): FiniteTimeAction
     for (let i = 1; i < paramArray.length; i++) {
         if (paramArray[i] != null) prev = Spawn._actionOneTwo(prev, paramArray[i]);
     }
-    return prev;
+    return prev as FiniteTimeAction;
 }
 
 /* Delays the action a certain amount of seconds
@@ -855,6 +858,7 @@ export function spawn (/* Multiple Arguments */tempArray: any): FiniteTimeAction
  * @extends ActionInterval
  */
 class DelayTime extends ActionInterval {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     update (dt: any): void { }
 
     reverse (): any {
@@ -905,7 +909,7 @@ export class ReverseTime extends ActionInterval {
 
     constructor (action?: any) {
         super();
-        action && this.initWithAction(action);
+        action && this.initWithAction(action as ActionInterval);
     }
 
     /*

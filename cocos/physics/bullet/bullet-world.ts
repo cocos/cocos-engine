@@ -36,10 +36,11 @@ import { error, RecyclePool, Vec3, js, IVec3Like, geometry, IQuatLike, Quat, Col
 import { BulletContactData } from './bullet-contact-data';
 import { BulletConstraint } from './constraints/bullet-constraint';
 import { BulletCharacterController } from './character-controllers/bullet-character-controller';
-import { bt, EBulletType, EBulletTriangleRaycastFlag, EBulletDebugDrawModes } from './instantiated';
+import { bt, EBulletType, EBulletTriangleRaycastFlag, EBulletDebugDrawModes, btCache } from './instantiated';
 import { Node } from '../../scene-graph';
 import { director } from '../../game';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
+import { importFunc } from './bullet-env';
 
 const contactsPool: BulletContactData[] = [];
 const v3_0 = CC_V3_0;
@@ -145,12 +146,14 @@ export class BulletWorld implements IPhysicsWorld {
     private static _sweepCapsuleGeometry: number;
 
     constructor () {
-        bt.CACHE.world = this;
+        btCache.CACHE.world = this;
         this._broadphase = bt.DbvtBroadphase_new();
         this._dispatcher = bt.CollisionDispatcher_new();
         this._solver = bt.SequentialImpulseConstraintSolver_new();
-        this._debugDraw = bt.DebugDraw_new();
         this._world = bt.ccDiscreteDynamicsWorld_new(this._dispatcher, this._broadphase, this._solver);
+
+        const debugDraw = bt.DebugDraw.implement(importFunc);//new PhysicsDebugDraw();
+        this._debugDraw = debugDraw.$$.ptr;
         bt.CollisionWorld_setDebugDrawer(this._world, this._debugDraw);
 
         bt.DebugDraw_setDebugMode(this._debugDraw, EBulletDebugDrawModes.DBG_NoDebug);
@@ -225,7 +228,7 @@ export class BulletWorld implements IPhysicsWorld {
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const allHitsCB = bt.ccAllRayCallback_static();
-        bt.ccAllRayCallback_reset(allHitsCB, from, to, options.mask, options.queryTrigger);
+        bt.ccAllRayCallback_reset(allHitsCB, from, to, options.mask >>> 0, options.queryTrigger);
         bt.ccAllRayCallback_setFlags(allHitsCB, EBulletTriangleRaycastFlag.UseSubSimplexConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, allHitsCB);
         if (bt.RayCallback_hasHit(allHitsCB)) {
@@ -249,7 +252,7 @@ export class BulletWorld implements IPhysicsWorld {
         const to = cocos2BulletVec3(BulletCache.instance.BT_V3_0, v3_0);
         const from = cocos2BulletVec3(BulletCache.instance.BT_V3_1, worldRay.o);
         const closeHitCB = bt.ccClosestRayCallback_static();
-        bt.ccClosestRayCallback_reset(closeHitCB, from, to, options.mask, options.queryTrigger);
+        bt.ccClosestRayCallback_reset(closeHitCB, from, to, options.mask >>> 0, options.queryTrigger);
         bt.ccClosestRayCallback_setFlags(closeHitCB, EBulletTriangleRaycastFlag.UseSubSimplexConvexCastRaytest);
         bt.CollisionWorld_rayTest(this._world, from, to, closeHitCB);
         if (bt.RayCallback_hasHit(closeHitCB)) {
@@ -387,7 +390,7 @@ export class BulletWorld implements IPhysicsWorld {
         bt.Transform_setRotation(BT_toTransform, BT_orientation);
 
         const allHitsCB = bt.ccAllConvexCallback_static();
-        bt.ccAllConvexCallback_reset(allHitsCB, BT_fromTransform, BT_toTransform, options.mask, options.queryTrigger);
+        bt.ccAllConvexCallback_reset(allHitsCB, BT_fromTransform, BT_toTransform, options.mask >>> 0, options.queryTrigger);
         bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, allHitsCB, 0);
         if (bt.ConvexCallback_hasHit(allHitsCB)) {
             const posArray = bt.ccAllConvexCallback_getHitPointWorld(allHitsCB);
@@ -428,7 +431,7 @@ export class BulletWorld implements IPhysicsWorld {
         bt.Transform_setRotation(BT_toTransform, BT_orientation);
 
         const closeHitCB = bt.ccClosestConvexCallback_static();
-        bt.ccClosestConvexCallback_reset(closeHitCB, BT_fromTransform, BT_toTransform, options.mask, options.queryTrigger);
+        bt.ccClosestConvexCallback_reset(closeHitCB, BT_fromTransform, BT_toTransform, options.mask >>> 0, options.queryTrigger);
         bt.CollisionWorld_convexSweepTest(this._world, btShapePtr, BT_fromTransform, BT_toTransform, closeHitCB, 0);
         if (bt.ConvexCallback_hasHit(closeHitCB)) {
             bullet2CocosVec3(v3_0, bt.ccClosestConvexCallback_getHitPointWorld(closeHitCB));
@@ -448,7 +451,9 @@ export class BulletWorld implements IPhysicsWorld {
         const i = this.bodies.indexOf(sharedBody);
         if (i < 0) {
             this.bodies.push(sharedBody);
-            bt.DynamicsWorld_addRigidBody(this._world, sharedBody.body, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            const group = sharedBody.collisionFilterGroup;
+            const mask = sharedBody.collisionFilterMask;
+            bt.DynamicsWorld_addRigidBody(this._world, sharedBody.body, group >>> 0, mask >>> 0);
         }
     }
 
@@ -464,7 +469,9 @@ export class BulletWorld implements IPhysicsWorld {
         const i = this.ghosts.indexOf(sharedBody);
         if (i < 0) {
             this.ghosts.push(sharedBody);
-            bt.CollisionWorld_addCollisionObject(this._world, sharedBody.ghost, sharedBody.collisionFilterGroup, sharedBody.collisionFilterMask);
+            const group = sharedBody.collisionFilterGroup;
+            const mask = sharedBody.collisionFilterMask;
+            bt.CollisionWorld_addCollisionObject(this._world, sharedBody.ghost, group >>> 0, mask >>> 0);
         }
     }
 
@@ -481,7 +488,9 @@ export class BulletWorld implements IPhysicsWorld {
         if (index < 0) {
             this.ccts.push(cct);
             const cctGhost = bt.CharacterController_getGhostObject(cct.impl);
-            bt.CollisionWorld_addCollisionObject(this._world, cctGhost, cct.getGroup(), cct.getMask());
+            const group = cct.getGroup();
+            const mask = cct.getMask();
+            bt.CollisionWorld_addCollisionObject(this._world, cctGhost, group >>> 0, mask >>> 0);
             bt.DynamicsWorld_addAction(this._world, cct.impl);
         }
     }
@@ -790,7 +799,7 @@ export class BulletWorld implements IPhysicsWorld {
                 //cct - collider trigger event
                 if (!processed) {
                     const shape: BulletShape = BulletCache.getWrapper(s0, BulletShape.TYPE);
-                    const cct: BulletCharacterController = BulletCache.getWrapper(s1, bt.CCT_CACHE_NAME);
+                    const cct: BulletCharacterController = BulletCache.getWrapper(s1, btCache.CCT_CACHE_NAME);
                     if (shape && cct) {
                         processed = true;
                         if (shape.collider.needTriggerEvent) {
@@ -811,7 +820,7 @@ export class BulletWorld implements IPhysicsWorld {
 
                 //cct - collider trigger event
                 if (!processed) {
-                    const cct: BulletCharacterController = BulletCache.getWrapper(s0, bt.CCT_CACHE_NAME);
+                    const cct: BulletCharacterController = BulletCache.getWrapper(s0, btCache.CCT_CACHE_NAME);
                     const shape: BulletShape = BulletCache.getWrapper(s1, BulletShape.TYPE);
                     if (shape && cct) {
                         processed = true;
