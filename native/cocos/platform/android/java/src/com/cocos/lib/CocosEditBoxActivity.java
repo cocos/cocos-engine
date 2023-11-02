@@ -220,6 +220,13 @@ public class CocosEditBoxActivity extends Activity {
                         if (!keyboardVisible) {
                             keyboardVisible = true;
                         }
+                        int bottomOffset = 0;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            bottomOffset = getWindow().getDecorView().getRootWindowInsets().getSystemWindowInsetBottom();
+                        }
+                        if (Math.abs(heightDiff - bottomOffset) < 10) {
+                            heightDiff = 0;// view will be scrolled to the target position by system
+                        }
                         getRootView().scrollTo(0, heightDiff);
                     } else {
                         getRootView().scrollTo(0, 0);
