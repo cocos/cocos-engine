@@ -381,7 +381,7 @@ export declare namespace native {
       * @param storagePath @en Storage path for downloaded file @zh 下载文件存储路径
       * @param identifier  @en identifier @zh 标识符
       */
-    export type DownloadTask = { requestURL: string, storagePath: string, identifier: string };
+    export interface DownloadTask { requestURL: string, storagePath: string, identifier: string }
 
     /**
      * @en DownloaderTask @zh 下载任务对象
@@ -390,7 +390,7 @@ export declare namespace native {
      * @param identifier  @en identifier @zh 标识符
      * @deprecated since v3.7.0, please use `DownloadTask` to instead.
      */
-    export type DownloaderTask = { requestURL: string, storagePath: string, identifier: string };
+    export interface DownloaderTask { requestURL: string, storagePath: string, identifier: string }
 
     /**
      * @en DownloaderHints @zh 下载任务的配置接口
@@ -1401,4 +1401,54 @@ export declare namespace native {
          */
         export const argv: Readonly<string[]>;
     }
+
+    /**
+     * @en This object provides properties related to thermal characteristics and an optional callback function to track changes in thermal status.
+     *     It is supported only on Android platforms with an API level of 31 or higher.
+     * @zh 该对象提供与热特性相关的属性以及用于跟踪热状态变化的可选回调函数。仅支持 API 等级为 31 或更高的 Android 平台。
+     *
+     * @see https://developer.android.com/ndk/reference/group/thermal#group___thermal_1ga1055f6c8d5910a1904162bea75807314
+     */
+    const adpf: {
+        /**
+         * @en Provides an estimate of how much thermal headroom the device currently has before hitting severe throttling. The value range is a non-negative float, where 0.0 represents a fixed distance from overheating, 1.0 indicates the device will be severely throttled, and values greater than 1.0 may imply even heavier throttling.
+         * @zh 提供设备在达到严重节流之前当前有多少热余量的估计值。值的范围是非负浮点数，其中0.0表示距离过热的固定距离，1.0表示设备将被严重限制，而大于1.0的值可能表示更重的限制。
+         * @see https://developer.android.com/ndk/reference/group/thermal#group___thermal_1ga1055f6c8d5910a1904162bea75807314
+         */
+        readonly thermalHeadroom: number;
+        /**
+         * @en A number indicating the current thermal status
+         * @zh 表示当前热状态的数字
+         */
+        readonly thermalStatus: number;
+        /**
+         * @en  A number indicating the minimum threshold for thermal status
+         * @zh 表示热状态的最大阈值的数字
+         */
+        readonly thermalStatusMin: number;
+        /**
+         * @en  A number indicating the maximum threshold for thermal status
+         * @zh 表示热状态的最大阈值的数字
+         */
+        readonly thermalStatusMax: number;
+        /**
+         * @en  A normalized value of the current thermal status.  It's computed based on the formula:
+         *     (thermalStatus - thermalStatusMin) / thermalStatusMax.
+         *     This value ranges between 0 and 1, giving a relative measure of the current thermal status against its minimum and maximum thresholds.
+         * @zh 当前热状态的归一化值，范围在 0 到 1 之间.  它是基于以下公式计算的：  (thermalStatus - thermalStatusMin) / thermalStatusMax.
+         *     提供了当前热状态相对于其最小和最大阈值的相对测量。
+         */
+        readonly thermalStatusNormalized: number;
+        /**
+         * @en An optional callback function that is triggered when the thermal status changes
+         * @zh 该对象提供与热特性相关的属性以及用于跟踪热状态变化的可选回调函数
+         *
+         * @param previousStatus @zh 之前的热状态 @en The previous thermal status
+         * @param newStatus @zh 更改后的新热状态 @en The new thermal status after the change
+         * @param statusMin @zh 热状态的最小阈值 @en The minimum threshold for thermal status
+         * @param statusMax @zh 热状态的最大阈值 @en The maximum threshold for thermal status
+         * @returns
+         */
+        onThermalStatusChanged?: (previousStatus: number, newStatus: number, statusMin: number, statusMax: number) => void;
+    } | undefined;
 }

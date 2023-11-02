@@ -286,7 +286,7 @@ void Engine::tick() {
 
         // iOS/macOS use its own fps limitation algorithm.
         // Windows for Editor should not sleep,because Editor call tick function synchronously
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !CC_EDITOR) || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY || CC_PLATFORM == CC_PLATFORM_MACOS) 
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || (CC_PLATFORM == CC_PLATFORM_WINDOWS && !CC_EDITOR) || CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_OPENHARMONY || CC_PLATFORM == CC_PLATFORM_MACOS)
         if (dtNS < static_cast<double>(_preferredNanosecondsPerFrame)) {
             CC_PROFILE(EngineSleep);
             std::this_thread::sleep_for(
@@ -294,6 +294,8 @@ void Engine::tick() {
             dtNS = static_cast<double>(_preferredNanosecondsPerFrame);
         }
 #endif
+
+        events::BeforeTick::broadcast();
 
         prevTime = std::chrono::steady_clock::now();
         if (_xr) _xr->beginRenderFrame();
@@ -308,6 +310,8 @@ void Engine::tick() {
         now = std::chrono::steady_clock::now();
         dtNS = dtNS * 0.1 + 0.9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - prevTime).count());
         dt = static_cast<float>(dtNS) / NANOSECONDS_PER_SECOND;
+
+        events::AfterTick::broadcast();
     }
 
     CC_PROFILER_END_FRAME;
@@ -339,7 +343,7 @@ bool Engine::redirectWindowEvent(const WindowEvent &ev) {
         CC_ASSERT(w);
         w->setViewSize(ev.width, ev.height);
         // Because the ts layer calls the getviewsize interface in response to resize.
-		// So we need to set the view size when sending the message.
+        // So we need to set the view size when sending the message.
         events::Resize::broadcast(ev.width, ev.height, ev.windowId);
         isHandled = true;
     } else if (ev.type == WindowEvent::Type::HIDDEN ||
