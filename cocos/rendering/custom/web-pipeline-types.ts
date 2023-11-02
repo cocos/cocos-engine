@@ -217,7 +217,7 @@ export class RenderDrawQueue {
 
 export class RenderInstancingQueue {
     passInstances: Map<Pass, number> = new Map<Pass, number>();
-    instanceBuffers: Set<InstancedBuffer> = new Set<InstancedBuffer>();
+    instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
     sortedBatches: Array<InstancedBuffer> = new Array<InstancedBuffer>();
 
     empty (): boolean {
@@ -228,19 +228,19 @@ export class RenderInstancingQueue {
         const iter = this.passInstances.get(pass);
         if (iter === undefined) {
             const instanceBufferID = this.passInstances.size;
-            if (instanceBufferID >= this.instanceBuffers.size) {
-                assert(instanceBufferID === this.instanceBuffers.size);
+            if (instanceBufferID >= this.instanceBuffers.length) {
+                assert(instanceBufferID === this.instanceBuffers.length);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this.instanceBuffers.add(new InstancedBuffer(new Pass(cclegacy.director.root)));
+                this.instanceBuffers.push(new InstancedBuffer(new Pass(cclegacy.director.root)));
             }
             this.passInstances.set(pass, instanceBufferID);
 
-            assert(instanceBufferID < this.instanceBuffers.size);
+            assert(instanceBufferID < this.instanceBuffers.length);
             const instanceBuffer = this.instanceBuffers[instanceBufferID];
-            instanceBuffer.setPass(pass);
-            const instances = instanceBuffer.getInstances();
+            instanceBuffer.pass = pass;
+            const instances = instanceBuffer.instances;
             for (const item of instances) {
-                assert(item.drawInfo.instanceCount === 0);
+                assert(item.count === 0);
             }
         }
 
@@ -251,12 +251,11 @@ export class RenderInstancingQueue {
     clear (): void {
         this.sortedBatches.length = 0;
         this.passInstances.clear();
-        const it = this.instanceBuffers.values(); let res = it.next();
-        while (!res.done) {
-            res.value.clear();
-            res = it.next();
-        }
-        this.instanceBuffers.clear();
+        const instanceBuffers = this.instanceBuffers;
+        instanceBuffers.forEach((instance) => {
+            instance.clear();
+        });
+        this.instanceBuffers.length = 0;
     }
 
     sort (): void {
