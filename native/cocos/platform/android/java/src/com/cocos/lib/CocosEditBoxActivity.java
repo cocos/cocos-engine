@@ -208,6 +208,18 @@ public class CocosEditBoxActivity extends Activity {
             this.removeTextChangedListener(mTextWatcher);
         }
 
+        private boolean isScrollBySystem(int bottom) {
+            int bottomOffset = 0;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                bottomOffset = getWindow().getDecorView().getRootWindowInsets().getSystemWindowInsetBottom();
+            }
+            // view will be scrolled to the target position by system,
+            if (Math.abs(bottom - bottomOffset) < 10) {
+                return true;
+            }
+            return false;
+        }
+
         private void registKeyboardVisible() {
             getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
@@ -220,14 +232,9 @@ public class CocosEditBoxActivity extends Activity {
                         if (!keyboardVisible) {
                             keyboardVisible = true;
                         }
-                        int bottomOffset = 0;
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            bottomOffset = getWindow().getDecorView().getRootWindowInsets().getSystemWindowInsetBottom();
+                        if (!isScrollBySystem(heightDiff)) {
+                            getRootView().scrollTo(0, heightDiff);
                         }
-                        if (Math.abs(heightDiff - bottomOffset) < 10) {
-                            heightDiff = 0;// view will be scrolled to the target position by system
-                        }
-                        getRootView().scrollTo(0, heightDiff);
                     } else {
                         getRootView().scrollTo(0, 0);
                         if (mCheckKeyboardShowNormally && !keyboardVisible) {
