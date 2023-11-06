@@ -71,14 +71,19 @@ rules:
     import/no-unresolved: off # TODO: fix internal modules
     import/prefer-default-export: off # prefer named exports
     indent: [error, 4, {
-        SwitchCase: 0
+      SwitchCase: 0,
+      ignoredNodes: [ # https://stackoverflow.com/a/72897089
+          'FunctionExpression > .params[decorators.length > 0]',
+          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
+          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
+      ]
     }]
     '@typescript-eslint/indent': [error, 4, {
       SwitchCase: 0,
       ignoredNodes: [ # https://stackoverflow.com/a/72897089
           'FunctionExpression > .params[decorators.length > 0]',
           'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
-          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key',
+          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
       ]
     }]
     lines-between-class-members: off # be more lenient on member declarations
@@ -206,8 +211,8 @@ rules:
         },
         'multiLine': {
             'beforeColon': false,
-            'afterColon': true,
-            'align': colon
+            'afterColon': true
+            # 'align': colon
         }
     }]
 
