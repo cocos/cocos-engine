@@ -208,7 +208,7 @@ public class CocosEditBoxActivity extends Activity {
             this.removeTextChangedListener(mTextWatcher);
         }
 
-        private boolean isScrollBySystem(int bottom) {
+        private boolean isSystemAdjustUIWhenPopKeyboard(int bottom) {
             int bottomOffset = 0;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 bottomOffset = getWindow().getDecorView().getRootWindowInsets().getSystemWindowInsetBottom();
@@ -232,7 +232,7 @@ public class CocosEditBoxActivity extends Activity {
                         if (!keyboardVisible) {
                             keyboardVisible = true;
                         }
-                        if (!isScrollBySystem(heightDiff)) {
+                        if (!isSystemAdjustUIWhenPopKeyboard(heightDiff)) {
                             getRootView().scrollTo(0, heightDiff);
                         }
                     } else {
