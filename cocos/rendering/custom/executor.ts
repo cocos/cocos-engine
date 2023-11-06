@@ -1526,7 +1526,9 @@ class DeviceSceneTask extends WebSceneTask {
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
         this._updateGlobal(queueRenderData);
-
+        const sceneId = this.graphScene.sceneID;
+        const sceneRenderData = context.renderGraph.getData(sceneId)!;
+        if (sceneRenderData) this._updateGlobal(sceneRenderData);
         const layoutName = context.renderGraph.getLayout(rasterId);
         const descSetData = getDescriptorSetDataFromLayout(layoutName);
         mergeSrcToTargetDesc(descSetData!.descriptorSet, context.descriptorSet, true);

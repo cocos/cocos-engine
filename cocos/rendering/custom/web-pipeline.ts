@@ -688,6 +688,8 @@ function setShadowUBOLightView (
                 Mat4.invert(_matView, spotLight.node!.getWorldMatrix());
             }
             if (setter.hasUniform(matViewOffset)) setter.offsetMat4(_matView, matViewOffset);
+            let matShadowInvProj!: Mat4;
+            let matShadowProj!: Mat4;
             if (setter.hasUniform(matViewProOffset)) {
                 Mat4.perspective(
                     _mulMatView,
@@ -700,6 +702,8 @@ function setShadowUBOLightView (
                     cap.clipSpaceSignY,
                     0,
                 );
+                matShadowProj = _mulMatView.clone();
+                matShadowInvProj = _mulMatView.clone().invert();
                 Mat4.multiply(_matView, _mulMatView, _matView);
                 setter.offsetMat4(_matView, matViewProOffset);
             }
@@ -718,6 +722,47 @@ function setShadowUBOLightView (
                 _uboVec.set(LightType.SPOT, packing, spotLight.shadowNormalBias, 0.0);
                 setter.offsetVec4(_uboVec, uniformOffset);
             }
+            uniformOffset = setter.getUniformOffset('cc_shadowProjDepthInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                _uboVec.set(matShadowProj.m10, matShadowProj.m14, matShadowProj.m11, matShadowProj.m15);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
+            uniformOffset = setter.getUniformOffset('cc_shadowInvProjDepthInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                _uboVec.set(matShadowInvProj.m10, matShadowInvProj.m14, matShadowInvProj.m11, matShadowInvProj.m15);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
+            uniformOffset = setter.getUniformOffset('cc_shadowProjInfo', Type.FLOAT4);
+            if (setter.hasUniform(uniformOffset)) {
+                _uboVec.set(matShadowProj.m00, matShadowProj.m05, 1.0 / matShadowProj.m00, 1.0 / matShadowProj.m05);
+                setter.offsetVec4(_uboVec, uniformOffset);
+            }
+        }
+        break;
+    }
+    case LightType.SPHERE: {
+        uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(shadowInfo.size.x, shadowInfo.size.y, 1.0, 0.0);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(LightType.SPHERE, packing, 0.0, 0.0);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        break;
+    }
+    case LightType.POINT: {
+        uniformOffset = setter.getUniformOffset('cc_shadowWHPBInfo', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(shadowInfo.size.x, shadowInfo.size.y, 1.0, 0.0);
+            setter.offsetVec4(_uboVec, uniformOffset);
+        }
+        uniformOffset = setter.getUniformOffset('cc_shadowLPNNInfo', Type.FLOAT4);
+        if (setter.hasUniform(uniformOffset)) {
+            _uboVec.set(LightType.POINT, packing, 0.0, 0.0);
+            setter.offsetVec4(_uboVec, uniformOffset);
         }
         break;
     }
@@ -1226,7 +1271,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             camera.scene || (scene ? scene.renderScene : null),
             layoutName,
         );
-        if (sceneFlags & SceneFlags.SHADOW_CASTER) {
+        if (sceneFlags & SceneFlags.SHADOW_CASTER || (lightTarget && lightTarget.type !== LightType.DIRECTIONAL)) {
             setShadowUBOLightView(this, camera, lightTarget!, light.level, layoutName);
         } else {
             setShadowUBOView(this, camera, layoutName);
@@ -1253,7 +1298,8 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
                 camera.scene,
                 layoutName,
             );
-            setShadowUBOView(this, camera, layoutName);
+            if (light && light.type !== LightType.DIRECTIONAL) setShadowUBOLightView(this, camera, light, 0, layoutName);
+            else if (!(sceneFlags & SceneFlags.SHADOW_CASTER)) setShadowUBOView(this, camera, layoutName);
             setTextureUBOView(this, camera, this._pipeline);
             initGlobalDescBinding(this._data, layoutName);
         }

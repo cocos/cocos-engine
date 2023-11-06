@@ -682,11 +682,10 @@ export function buildShadowPass (
         );
     }
     const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
-    queue.addSceneOfCamera(
+    queue.addScene(
         camera,
-        new LightInfo(light, level),
-        SceneFlags.SHADOW_CASTER | SceneFlags.OPAQUE_OBJECT | SceneFlags.TRANSPARENT_OBJECT,
-    );
+        SceneFlags.SHADOW_CASTER | SceneFlags.OPAQUE_OBJECT | SceneFlags.MASK,
+    ).useLightFrustum(light, light.type !== LightType.DIRECTIONAL ? 0 : level);
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 }
 

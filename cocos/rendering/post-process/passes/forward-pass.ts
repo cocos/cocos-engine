@@ -75,7 +75,7 @@ export class ForwardPass extends BasePass {
             camera,
             new LightInfo(),
             SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT
-                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
+             | SceneFlags.GEOMETRY,
         );
         const forwardAddQueue = pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add');
         passContext.addSceneLights(forwardAddQueue, camera);
@@ -86,7 +86,7 @@ export class ForwardPass extends BasePass {
                     camera,
                     new LightInfo(camera.scene?.mainLight),
                     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.SHADOW_CASTER
-                    | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
+                    | SceneFlags.GEOMETRY,
                 );
         }
         passContext.forwardPass = this;
