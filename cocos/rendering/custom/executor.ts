@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { getPhaseID, InstancedBuffer, PipelineStateManager } from '..';
+import { getPhaseID, PipelineStateManager } from '..';
 import { assert, cclegacy, RecyclePool } from '../../core';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
@@ -36,7 +36,6 @@ import {
     AccessFlagBit,
     Attribute,
     Buffer,
-    BufferFlagBit,
     BufferInfo,
     BufferUsageBit,
     BufferViewInfo,
@@ -63,7 +62,6 @@ import {
     Rect,
     RenderPass,
     RenderPassInfo,
-    Shader,
     StoreOp,
     SurfaceTransform,
     Swapchain,
@@ -76,11 +74,10 @@ import {
 import { legacyCC } from '../../core/global-exports';
 import { Vec3 } from '../../core/math/vec3';
 import { Vec4 } from '../../core/math/vec4';
-import { Pass } from '../../render-scene';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
-import { IRenderPass, isEnableEffect, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
+import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
 import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
@@ -135,6 +132,7 @@ import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
+    bool,
     getDescriptorSetDataFromLayout,
     getDescriptorSetDataFromLayoutId,
     getRenderArea,
@@ -143,8 +141,9 @@ import {
     validPunctualLightsCulling,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
-import { SceneCulling } from './scene-culling';
-import { WebPipeline } from './web-pipeline';
+import { LightResource, SceneCulling } from './scene-culling';
+import { Pass } from '../../render-scene';
+import { WebProgramLibrary } from './web-program-library';
 
 class ResourceVisitor implements ResourceGraphVisitor {
     name: string;
@@ -221,10 +220,10 @@ class ResourceVisitor implements ResourceGraphVisitor {
         this.createDeviceTex(value);
     }
     formatView (value: FormatView): void {
-        // noop
+        // do nothing
     }
     subresourceView (value: SubresourceView): void {
-        // noop
+        // do nothing
     }
 }
 
@@ -248,26 +247,11 @@ class DeviceTexture extends DeviceResource {
     get description (): ResourceDesc | null { return this._desc; }
     get trait (): ResourceTraits | null { return this._trait; }
     get swapchain (): Swapchain | null { return this._swapchain; }
-    private _setDesc (desc: ResourceDesc): void {
-        if (!this._desc) {
-            this._desc = new ResourceDesc();
-        }
-        this._desc.alignment = desc.alignment;
-        this._desc.depthOrArraySize = desc.depthOrArraySize;
-        this._desc.dimension = desc.dimension;
-        this._desc.flags = desc.flags;
-        this._desc.format = desc.format;
-        this._desc.height = desc.height;
-        this._desc.mipLevels = desc.mipLevels;
-        this._desc.sampleCount = desc.sampleCount;
-        this._desc.textureFlags = desc.textureFlags;
-        this._desc.width = desc.width;
-    }
     constructor (name: string, tex: PersistentTexture | Framebuffer | RenderSwapchain | ManagedResource) {
         super(name);
         const resGraph = context.resourceGraph;
         const verID = resGraph.vertex(name);
-        this._setDesc(resGraph.getDesc(verID));
+        this._desc = resGraph.getDesc(verID);
         this._trait = resGraph.getTraits(verID);
         if (tex instanceof Texture) {
             this._texture = tex;
@@ -282,7 +266,7 @@ class DeviceTexture extends DeviceResource {
             return;
         }
 
-        const info = this._desc!;
+        const info = this._desc;
         let type = TextureType.TEX2D;
 
         switch (info.dimension) {
@@ -523,7 +507,6 @@ class BlitDesc {
             const deferredLitsBufView = context.blit.deferredLitsBufView;
             this._lightBufferData = context.blit.lightBufferData;
             this._lightBufferData.fill(0);
-            // const binding = isEnableEffect() ? getDescBindingFromName('CCForwardLight') : UBOForwardLight.BINDING;
             this._stageDesc.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
         }
         this._stageDesc.bindBuffer(UBOLocal.BINDING, context.blit.emptyLocalUBO);
@@ -728,51 +711,45 @@ class RenderPassLayoutInfo {
         this._stage = lg.getRenderStage(layoutId);
         this._layout = lg.getLayout(layoutId);
         const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
-        // const globalDesc = context.descriptorSet;
-        if (layoutData) {
-            const layoutDesc = layoutData.descriptorSet!;
-            // find resource
-            const deviceTex = context.deviceTextures.get(this._inputName);
-            const gfxTex = deviceTex?.texture;
+        if (!layoutData) {
+            return;
+        }
+        const layoutDesc = layoutData.descriptorSet!;
+        // find resource
+        const deviceTex = context.deviceTextures.get(this._inputName);
+        const gfxTex = deviceTex?.texture;
 
-            const deviceBuf = context.deviceBuffers.get(this._inputName);
-            const gfxBuf = deviceBuf?.buffer;
-            if (!gfxTex && !gfxBuf) {
-                throw Error(`Could not find texture with resource name ${this._inputName}`);
-            }
-            const resId = context.resourceGraph.vertex(this._inputName);
-            const samplerInfo = context.resourceGraph.getSampler(resId);
-            // bind descriptors
-            for (const descriptor of input[1]) {
-                const descriptorName = descriptor.name;
-                const descriptorID = lg.attributeIndex.get(descriptorName);
-                // find descriptor binding
-                for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
-                    for (let i = 0; i !== block.descriptors.length; ++i) {
-                        // const buffer = layoutDesc.getBuffer(block.offset + i);
-                        // const texture = layoutDesc.getTexture(block.offset + i);
-                        if (descriptorID === block.descriptors[i].descriptorID) {
-                            if (gfxTex) {
-                                layoutDesc.bindTexture(block.offset + i, gfxTex);
-                                layoutDesc.bindSampler(block.offset + i, context.device.getSampler(samplerInfo));
+        const deviceBuf = context.deviceBuffers.get(this._inputName);
+        const gfxBuf = deviceBuf?.buffer;
+        if (!gfxTex && !gfxBuf) {
+            throw Error(`Could not find texture with resource name ${this._inputName}`);
+        }
+        const resId = context.resourceGraph.vertex(this._inputName);
+        const samplerInfo = context.resourceGraph.getSampler(resId);
+        // bind descriptors
+        for (const descriptor of input[1]) {
+            const descriptorName = descriptor.name;
+            const descriptorID = lg.attributeIndex.get(descriptorName);
+            // find descriptor binding
+            for (const block of layoutData.descriptorSetLayoutData.descriptorBlocks) {
+                for (let i = 0; i !== block.descriptors.length; ++i) {
+                    if (descriptorID === block.descriptors[i].descriptorID) {
+                        if (gfxTex) {
+                            layoutDesc.bindTexture(block.offset + i, gfxTex);
+                            const renderData = context.renderGraph.getData(this._vertID);
+                            layoutDesc.bindSampler(block.offset + i, renderData.samplers.get(descriptorID) || context.device.getSampler(samplerInfo));
+                        } else {
+                            const desc = context.resourceGraph.getDesc(resId);
+                            if (desc.flags & ResourceFlags.STORAGE) {
+                                const access = input[1][0].accessType !== AccessType.READ ? AccessFlagBit.COMPUTE_SHADER_WRITE
+                                    : AccessFlagBit.COMPUTE_SHADER_READ_OTHER;
+                                (layoutDesc as any).bindBuffer(block.offset + i, gfxBuf!, 0, access);
                             } else {
-                                const desc = context.resourceGraph.getDesc(resId);
-                                if (desc.flags & ResourceFlags.STORAGE) {
-                                    const access = input[1][0].accessType !== AccessType.READ ? AccessFlagBit.COMPUTE_SHADER_WRITE
-                                        : AccessFlagBit.COMPUTE_SHADER_READ_OTHER;
-                                    (layoutDesc as any).bindBuffer(block.offset + i, gfxBuf!, 0, access);
-                                } else {
-                                    layoutDesc.bindBuffer(block.offset + i, gfxBuf!);
-                                }
+                                layoutDesc.bindBuffer(block.offset + i, gfxBuf!);
                             }
-                            if (!this._descriptorSet) this._descriptorSet = layoutDesc;
-                            continue;
                         }
-                        // if (!buffer && !texture) {
-                        //     layoutDesc.bindBuffer(block.offset + i, globalDesc.getBuffer(block.offset + i));
-                        //     layoutDesc.bindTexture(block.offset + i, globalDesc.getTexture(block.offset + i));
-                        //     layoutDesc.bindSampler(block.offset + i, globalDesc.getSampler(block.offset + i));
-                        // }
+                        if (!this._descriptorSet) this._descriptorSet = layoutDesc;
+                        continue;
                     }
                 }
             }
@@ -945,15 +922,6 @@ class DeviceRenderPass {
             const currTex = device.createTexture(new TextureInfo());
             colorTexs.push(currTex);
         }
-        // if (!depthTex && !swapchain && !framebuffer) {
-        //     depthTex = device.createTexture(new TextureInfo(
-        //         TextureType.TEX2D,
-        //         TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
-        //         Format.DEPTH_STENCIL,
-        //         colorTexs[0].width,
-        //         colorTexs[0].height,
-        //     ));
-        // }
         const depth = swapchain ? swapchain.depthStencilTexture : depthTex;
         if (!depth) {
             depthStencilAttachment.format = Format.UNKNOWN;
@@ -1089,7 +1057,6 @@ class DeviceRenderPass {
     }
 
     postPass (): void {
-        // this.submitMap.clear();
         for (const queue of this._deviceQueues) {
             queue.postRecord();
         }
@@ -1320,23 +1287,15 @@ class DeviceSceneTransversal extends WebSceneTransversal {
     }
     get graphScene (): GraphScene { return this._graphScene; }
     public preRenderPass (visitor: WebSceneVisitor): DevicePreSceneTask {
-        if (!this._preSceneTask) {
-            this._preSceneTask = new DevicePreSceneTask(this._currentQueue, this._graphScene, visitor);
-        }
-        this._preSceneTask.apply(this._currentQueue, this.graphScene);
+        this._preSceneTask = new DevicePreSceneTask(this._currentQueue, this._graphScene, visitor);
         return this._preSceneTask;
     }
     public transverse (visitor: WebSceneVisitor): DeviceSceneTask {
-        if (!this._sceneTask) {
-            this._sceneTask = new DeviceSceneTask(this._currentQueue, this._graphScene, visitor);
-        }
-        this._sceneTask.apply(this._currentQueue, this.graphScene);
+        this._sceneTask = new DeviceSceneTask(this._currentQueue, this._graphScene, visitor);
         return this._sceneTask;
     }
     public postRenderPass (visitor: WebSceneVisitor): DevicePostSceneTask {
-        if (!this._postSceneTask) {
-            this._postSceneTask = new DevicePostSceneTask(this._sceneData, context.ubo, this._camera, visitor);
-        }
+        this._postSceneTask = new DevicePostSceneTask(this._sceneData, context.ubo, this._camera, visitor);
         return this._postSceneTask;
     }
 }
@@ -1355,6 +1314,7 @@ class GraphScene {
             this.scene.light.light = scene.light.light;
             this.scene.flags = scene.flags;
             this.scene.camera = scene.camera;
+            this.scene.shadingLight = scene.shadingLight;
             return;
         }
         this.scene = null;
@@ -1412,30 +1372,17 @@ class DevicePreSceneTask extends WebSceneTask {
     public start (): void {
         if (this.graphScene.blit) {
             this._currentQueue.createBlitDesc(this.graphScene.blit);
-            return;
         }
-        if (!this.camera) {
-            return;
-        }
-        const sceneFlag = this._graphScene.scene!.flags;
-        if (sceneFlag & SceneFlags.DEFAULT_LIGHTING) {
-            this._sceneCulling();
-            validPunctualLightsCulling(context.pipeline, this.camera);
-            context.additiveLight.gatherLightPasses(this.camera, this._cmdBuff, this._currentQueue.devicePass.layoutName);
-        }
+        context.lightResource.buildLightBuffer(context.commandBuffer);
+        context.lightResource.tryUpdateRenderSceneLocalDescriptorSet(context.culling);
     }
 
     public submit (): void {
         if (this.graphScene.blit) {
             this._currentQueue.blitDesc!.update();
         }
-        // if (isShadowMap(this.graphScene)) {
-
-        // }
-        // this._uploadInstanceBuffers();
     }
 }
-
 const sceneViewport = new Viewport();
 class DeviceSceneTask extends WebSceneTask {
     protected _currentQueue: DeviceRenderQueue;
@@ -1464,7 +1411,7 @@ class DeviceSceneTask extends WebSceneTask {
     }
     get graphScene (): GraphScene { return this._graphScene; }
     public start (): void {
-        // noop
+        // do nothing
     }
 
     protected _recordUI (): void {
@@ -1510,17 +1457,6 @@ class DeviceSceneTask extends WebSceneTask {
                 this.visitor.draw(inputAssembler);
             }
         }
-    }
-
-    protected _recordReflectionProbe (): void {
-        const submitMap = context.submitMap;
-        const currSubmitInfo = submitMap.get(this.camera!)!.get(this._currentQueue.phaseID)!;
-        currSubmitInfo.reflectionProbe?.recordCommandBuffer(
-            context.device,
-            this._renderPass,
-
-            context.commandBuffer,
-        );
     }
 
     private _clearExtBlitDesc (desc, extResId: number[]): void {
@@ -1590,7 +1526,9 @@ class DeviceSceneTask extends WebSceneTask {
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
         this._updateGlobal(queueRenderData);
-
+        const sceneId = this.graphScene.sceneID;
+        const sceneRenderData = context.renderGraph.getData(sceneId)!;
+        if (sceneRenderData) this._updateGlobal(sceneRenderData);
         const layoutName = context.renderGraph.getLayout(rasterId);
         const descSetData = getDescriptorSetDataFromLayout(layoutName);
         mergeSrcToTargetDesc(descSetData!.descriptorSet, context.descriptorSet, true);
@@ -1618,14 +1556,6 @@ class DeviceSceneTask extends WebSceneTask {
         }
     }
 
-    private _recordAdditiveLights (): void {
-        context.additiveLight?.recordCommandBuffer(
-            context.device,
-            this._renderPass,
-            context.commandBuffer,
-        );
-    }
-
     public submit (): void {
         const devicePass = this._currentQueue.devicePass;
         const sceneCulling = context.culling;
@@ -1636,21 +1566,11 @@ class DeviceSceneTask extends WebSceneTask {
             this._recordBlit();
             return;
         }
-        const renderQueueDesc = sceneCulling.sceneQueryIndex.get(this.graphScene.sceneID)!;
+        const renderQueueDesc = sceneCulling.renderQueueIndex.get(this.graphScene.sceneID)!;
         const renderQueue = sceneCulling.renderQueues[renderQueueDesc.renderQueueTarget];
         const graphSceneData = this.graphScene.scene!;
-        renderQueue.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
-        renderQueue.opaqueInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
-        if (graphSceneData.flags & SceneFlags.DEFAULT_LIGHTING) {
-            this._recordAdditiveLights();
-            this.visitor.bindDescriptorSet(
-                SetIndex.GLOBAL,
-                context.descriptorSet!,
-            );
-        }
-
-        renderQueue.transparentInstancingQueue.recordCommandBuffer(this._renderPass, context.commandBuffer);
-        renderQueue.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, this._renderPass, context.commandBuffer);
+        renderQueue.recordCommands(context.commandBuffer, this._renderPass);
+        if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.removeMacro();
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(
                 devicePass.renderPass,
@@ -1660,9 +1580,6 @@ class DeviceSceneTask extends WebSceneTask {
         }
         if (graphSceneData.flags & SceneFlags.UI) {
             this._recordUI();
-        }
-        if (graphSceneData.flags & SceneFlags.REFLECTION_PROBE) {
-            this._recordReflectionProbe();
         }
     }
 }
@@ -1685,12 +1602,6 @@ class ExecutorPools {
             subModel: null!,
             passIdx: 0,
         }), 64);
-    }
-    addPassInfo (): IRenderPass {
-        return this.passPool.add();
-    }
-    resetPassInfo (): void {
-        this.passPool.reset();
     }
     addDeviceQueue (): DeviceRenderQueue {
         return this.deviceQueuePool.add();
@@ -1715,7 +1626,6 @@ class ExecutorPools {
         this.computeQueuePool.reset();
         this.graphScenePool.reset();
         this.reflectionProbe.reset();
-        this.resetPassInfo();
         this.computePassInfoPool.reset();
     }
     readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
@@ -1942,6 +1852,7 @@ class ExecutorContext {
         for (const infoMap of this.submitMap) {
             for (const info of infoMap[1]) info[1].reset();
         }
+        this.lightResource.clear();
     }
     resize (width: number, height: number): void {
         this.width = width;
@@ -1964,6 +1875,7 @@ class ExecutorContext {
     readonly pools: ExecutorPools;
     readonly blit: BlitInfo;
     readonly culling: SceneCulling;
+    lightResource: LightResource = new LightResource();
     renderGraph: RenderGraph;
     width: number;
     height: number;
@@ -1991,6 +1903,8 @@ export class Executor {
             width,
             height,
         );
+        const programLib: WebProgramLibrary = cclegacy.rendering.programLib;
+        context.lightResource.init(programLib, device, 16);
     }
 
     resize (width: number, height: number): void {
@@ -2044,8 +1958,10 @@ export class Executor {
         context.renderGraph = rg;
         context.reset();
         const cmdBuff = context.commandBuffer;
-        context.culling.buildRenderQueues(rg, context.layoutGraph, context.pipelineSceneData);
-        context.culling.uploadInstancing(cmdBuff);
+        const culling = context.culling;
+        culling.buildRenderQueues(rg, context.layoutGraph, context.pipelineSceneData);
+        context.lightResource.buildLights(culling, context.pipelineSceneData.isHDR, context.pipelineSceneData.shadows);
+        culling.uploadInstancing(cmdBuff);
         this._removeDeviceResource();
         cmdBuff.begin();
         if (!this._visitor) this._visitor = new RenderVisitor();
@@ -2139,19 +2055,19 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         }
     }
     rasterSubpass (value: RasterSubpass): void {
-        // noop
+        // do nothing
     }
     computeSubpass (value: ComputeSubpass): void {
-        // noop
+        // do nothing
     }
     resolve (value: ResolvePass): void {
-        // noop
+        // do nothing
     }
     move (value: MovePass): void {
-        // noop
+        // do nothing
     }
     raytrace (value: RaytracePass): void {
-        // noop
+        // do nothing
     }
     compute (pass: ComputePass): void {
         if (!this.rg.getValid(this.passID)) return;
@@ -2267,25 +2183,25 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         this.currPass.postPass();
     }
     rasterSubpass (value: RasterSubpass): void {
-        // noop
+        // do nothing
     }
     computeSubpass (value: ComputeSubpass): void {
-        // noop
+        // do nothing
     }
     resolve (value: ResolvePass): void {
-        // noop
+        // do nothing
     }
     compute (value: ComputePass): void {
-        // noop
+        // do nothing
     }
     copy (value: CopyPass): void {
-        // noop
+        // do nothing
     }
     move (value: MovePass): void {
-        // noop
+        // do nothing
     }
     raytrace (value: RaytracePass): void {
-        // noop
+        // do nothing
     }
     queue (value: RenderQueue): void {
         // collect scene results
@@ -2294,10 +2210,10 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         // scene command list finished
     }
     blit (value: Blit): void {
-        // noop
+        // do nothing
     }
     dispatch (value: Dispatch): void {
-        // noop
+        // do nothing
     }
 }
 

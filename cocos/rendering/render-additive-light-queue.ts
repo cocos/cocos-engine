@@ -183,7 +183,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    private _bindForwardAddLight(validPunctualLights: Light[], passLayout = 'default'): void {
+    private _bindForwardAddLight (validPunctualLights: Light[], passLayout = 'default'): void {
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];

@@ -312,12 +312,12 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                     CC_EXPECTS(tex.texture);
                     fbInfo.colorTextures.emplace_back(tex.texture);
                 },
-                [&](const IntrusivePtr<gfx::Buffer> &res) {
+                [&](const PersistentBuffer &res) {
                     std::ignore = res;
                     CC_EXPECTS(false);
                 },
-                [&](const IntrusivePtr<gfx::Texture> &tex) {
-                    fbInfo.colorTextures.emplace_back(tex);
+                [&](const PersistentTexture &tex) {
+                    fbInfo.colorTextures.emplace_back(tex.texture);
                 },
                 [&](const IntrusivePtr<gfx::Framebuffer> &fb) {
                     CC_EXPECTS(fb->getColorTextures().size() == 1);
@@ -1566,7 +1566,7 @@ gfx::SamplerInfo makePointSamplerInfo() {
     return gfx::SamplerInfo{gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::POINT};
 }
 
-SubresourceView makeSubresourceView(const ResourceDesc &srcDesc, const ResourceDesc &targetDesc, const gfx::ResourceRange &range) {
+SubresourceView makeSubresourceView(const ResourceDesc &targetDesc, const gfx::ResourceRange& range) {
     SubresourceView view{};
     view.firstArraySlice = range.firstSlice;
     view.numArraySlices = range.numSlices;
@@ -1575,7 +1575,6 @@ SubresourceView makeSubresourceView(const ResourceDesc &srcDesc, const ResourceD
     view.firstPlane = range.basePlane;
     view.numPlanes = range.planeCount;
     view.format = targetDesc.format;
-    view.viewType = srcDesc.viewType;
     view.textureView = nullptr;
     return view;
 }
@@ -1692,7 +1691,6 @@ void subresourceAnalysis(ResourceAccessGraph &rag, ResourceGraph &resg) {
                 auto descResViewID = findVertex(subres, resg);
                 auto targetResID = rag.resourceIndex.at(resName);
 
-                const auto &srcDesc = get(ResourceGraph::DescTag{}, resg, descResViewID);
                 const auto &targetName = get(ResourceGraph::NameTag{}, resg, targetResID);
                 const auto &targetDesc = get(ResourceGraph::DescTag{}, resg, targetResID);
                 const auto &srcResourceRange = rag.movedSourceStatus.at(subres).range;
@@ -1700,7 +1698,7 @@ void subresourceAnalysis(ResourceAccessGraph &rag, ResourceGraph &resg) {
                 const auto &indexName = concatResName(targetName, subres, rag.resource());
                 auto subresID = findVertex(indexName, resg);
                 if (subresID == ResourceGraph::null_vertex()) {
-                    const auto &subView = makeSubresourceView(srcDesc, targetDesc, srcResourceRange);
+                    const auto &subView = makeSubresourceView(targetDesc, srcResourceRange);
                     // register to resourcegraph
                     subresID = addVertex(
                         SubresourceViewTag{},

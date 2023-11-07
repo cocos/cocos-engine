@@ -29,10 +29,27 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/custom/NativeFwd.h"
+
+namespace cc {
+
+namespace scene {
+
+class ReflectionProbe;
+
+} // namespace scene
+
+namespace render {
+
+template <class T>
+using Array4 = std::array<T, 4>;
+
+} // namespace render
+
+} // namespace cc
+
+#include "cocos/base/std/hash/hash.h"
 
 namespace cc {
 
@@ -40,6 +57,7 @@ namespace render {
 
 class NativeRenderNode;
 class NativeSetter;
+class NativeSceneBuilder;
 class NativeRenderSubpassBuilderImpl;
 class NativeRenderQueueBuilder;
 class NativeRenderSubpassBuilder;
@@ -51,6 +69,7 @@ class NativeComputeQueueBuilder;
 class NativeComputePassBuilder;
 struct RenderInstancingQueue;
 struct DrawInstance;
+struct ProbeHelperQueue;
 struct RenderDrawQueue;
 struct NativeRenderQueue;
 struct ResourceGroup;
@@ -64,13 +83,23 @@ struct QuadResource;
 enum class ResourceType;
 
 struct SceneResource;
-struct CullingKey;
-struct CullingQueries;
+struct FrustumCullingKey;
+struct FrustumCullingID;
+struct FrustumCulling;
+struct LightBoundsCullingID;
+struct LightBoundsCullingKey;
+struct LightBoundsCulling;
+struct NativeRenderQueueID;
 struct NativeRenderQueueDesc;
+struct LightBoundsCullingResult;
 struct SceneCulling;
+struct LightResource;
 struct NativeRenderContext;
 class NativeProgramLibrary;
 struct PipelineCustomization;
+struct BuiltinShadowTransform;
+struct BuiltinCascadedShadowMapKey;
+struct BuiltinCascadedShadowMap;
 class NativePipeline;
 class NativeProgramProxy;
 class NativeRenderingModule;
@@ -82,8 +111,18 @@ class NativeRenderingModule;
 namespace ccstd {
 
 template <>
-struct hash<cc::render::CullingKey> {
-    hash_t operator()(const cc::render::CullingKey& val) const noexcept;
+struct hash<cc::render::FrustumCullingKey> {
+    hash_t operator()(const cc::render::FrustumCullingKey& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::FrustumCullingID> {
+    hash_t operator()(const cc::render::FrustumCullingID& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::LightBoundsCullingKey> {
+    hash_t operator()(const cc::render::LightBoundsCullingKey& val) const noexcept;
 };
 
 } // namespace ccstd

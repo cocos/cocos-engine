@@ -39,6 +39,16 @@
 
 namespace cc {
 
+namespace scene {
+
+class ReflectionProbe;
+
+} // namespace scene
+
+} // namespace cc
+
+namespace cc {
+
 namespace render {
 
 enum class UpdateFrequency {
@@ -126,6 +136,10 @@ constexpr bool operator!(ResourceFlags e) noexcept {
     return e == static_cast<ResourceFlags>(0);
 }
 
+constexpr ResourceFlags operator~(ResourceFlags e) noexcept {
+    return static_cast<ResourceFlags>(~static_cast<std::underlying_type_t<ResourceFlags>>(e));
+}
+
 constexpr bool any(ResourceFlags e) noexcept {
     return !!e;
 }
@@ -158,6 +172,7 @@ enum class SceneFlags : uint32_t {
     DRAW_NON_INSTANCING = 0x1000,
     REFLECTION_PROBE = 0x2000,
     GPU_DRIVEN = 0x4000,
+    NON_BUILTIN = 0x8000,
     ALL = 0xFFFFFFFF,
 };
 
@@ -179,6 +194,10 @@ constexpr SceneFlags& operator&=(SceneFlags& lhs, const SceneFlags rhs) noexcept
 
 constexpr bool operator!(SceneFlags e) noexcept {
     return e == static_cast<SceneFlags>(0);
+}
+
+constexpr SceneFlags operator~(SceneFlags e) noexcept {
+    return static_cast<SceneFlags>(~static_cast<std::underlying_type_t<SceneFlags>>(e));
 }
 
 constexpr bool any(SceneFlags e) noexcept {
@@ -211,8 +230,9 @@ enum class ClearValueType {
 
 struct LightInfo {
     LightInfo() = default;
-    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn, bool culledByLightIn) noexcept
+    LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn, bool culledByLightIn, scene::ReflectionProbe* probeIn) noexcept
     : light(std::move(lightIn)),
+      probe(probeIn),
       level(levelIn),
       culledByLight(culledByLightIn) {}
     LightInfo(IntrusivePtr<scene::Light> lightIn, uint32_t levelIn) noexcept
@@ -220,6 +240,7 @@ struct LightInfo {
       level(levelIn) {}
 
     IntrusivePtr<scene::Light> light;
+    scene::ReflectionProbe* probe{nullptr};
     uint32_t level{0};
     bool culledByLight{false};
 };
@@ -305,6 +326,10 @@ constexpr ResolveFlags& operator&=(ResolveFlags& lhs, const ResolveFlags rhs) no
 
 constexpr bool operator!(ResolveFlags e) noexcept {
     return e == static_cast<ResolveFlags>(0);
+}
+
+constexpr ResolveFlags operator~(ResolveFlags e) noexcept {
+    return static_cast<ResolveFlags>(~static_cast<std::underlying_type_t<ResolveFlags>>(e));
 }
 
 constexpr bool any(ResolveFlags e) noexcept {

@@ -405,10 +405,13 @@ export class WebGLCommandBuffer extends CommandBuffer {
         }
     }
 
-    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, bufferBarriers?: Readonly<BufferBarrier[]>,
+    public pipelineBarrier (
+        GeneralBarrier: Readonly<GeneralBarrier>,
+        bufferBarriers?: Readonly<BufferBarrier[]>,
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
-        textures?: Readonly<Texture[]>): void {}
+        textures?: Readonly<Texture[]>,
+    ): void {}
 
     protected bindStates (): void {
         const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGLCmdBindStates);

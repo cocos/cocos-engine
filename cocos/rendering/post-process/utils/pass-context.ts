@@ -1,14 +1,17 @@
 import { EDITOR } from 'internal:constants';
 
-import { QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
+import { LightInfo, QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
-import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
-import { Camera } from '../../../render-scene/scene';
+import { Pipeline, RenderPassBuilder, RenderQueueBuilder } from '../../custom/pipeline';
+import { Camera, SKYBOX_FLAG } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
 import { getRenderArea } from '../../custom/define';
-import { Vec4 } from '../../../core';
+import { Vec4, geometry } from '../../../core';
 
+const sphere = geometry.Sphere.create(0, 0, 0, 1);
+const boundingBox = new geometry.AABB();
+const rangedDirLightBoundingBox = new geometry.AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;
     clearColor = new Color();
@@ -81,6 +84,50 @@ export class PassContext {
         return this;
     }
 
+    addSceneLights (queue: RenderQueueBuilder, camera: Camera, flags: SceneFlags = SceneFlags.BLEND): void {
+        const scene = camera.scene!;
+        for (let i = 0; i < scene.spotLights.length; i++) {
+            const light = scene.spotLights[i];
+            if (light.baked) {
+                continue;
+            }
+            geometry.Sphere.set(sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (geometry.intersect.sphereFrustum(sphere, camera.frustum)) {
+                queue.addSceneOfCamera(camera, new LightInfo(light), flags);
+            }
+        }
+        // sphere lights
+        for (let i = 0; i < scene.sphereLights.length; i++) {
+            const light = scene.sphereLights[i];
+            if (light.baked) {
+                continue;
+            }
+            geometry.Sphere.set(sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (geometry.intersect.sphereFrustum(sphere, camera.frustum)) {
+                queue.addSceneOfCamera(camera, new LightInfo(light), flags);
+            }
+        }
+        // point lights
+        for (let i = 0; i < scene.pointLights.length; i++) {
+            const light = scene.pointLights[i];
+            if (light.baked) {
+                continue;
+            }
+            geometry.Sphere.set(sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (geometry.intersect.sphereFrustum(sphere, camera.frustum)) {
+                queue.addSceneOfCamera(camera, new LightInfo(light), flags);
+            }
+        }
+        // ranged dir lights
+        for (let i = 0; i < scene.rangedDirLights.length; i++) {
+            const light = scene.rangedDirLights[i];
+            geometry.AABB.transform(boundingBox, rangedDirLightBoundingBox, light.node!.getWorldMatrix());
+            if (geometry.intersect.aabbFrustum(boundingBox, camera.frustum)) {
+                queue.addSceneOfCamera(camera, new LightInfo(light), flags);
+            }
+        }
+    }
+
     updateViewPort (): void {
         const camera = this.camera;
         if (!camera) {
@@ -111,7 +158,7 @@ export class PassContext {
     //     return this;
     // }
 
-    addRasterView (name: string, format: Format, offscreen = true, residency?: ResourceResidency): PassContext {
+    addRasterView (name: string, format: Format, offscreen = true, residency: ResourceResidency = ResourceResidency.MANAGED): PassContext {
         const ppl = this.ppl;
         const camera = this.camera;
         const pass = this.pass;
@@ -154,10 +201,11 @@ export class PassContext {
 
             const clearFlag = this.clearFlag & ClearFlagBit.COLOR;
             let loadOp = LoadOp.CLEAR;
-            if (clearFlag === ClearFlagBit.NONE) {
+            if (clearFlag === ClearFlagBit.NONE && !(this.clearFlag & SKYBOX_FLAG)) {
                 loadOp = LoadOp.LOAD;
+            } else if (this.clearFlag & SKYBOX_FLAG) {
+                clearColor.set(0, 0, 0, 1);
             }
-
             pass.addRenderTarget(name, loadOp, StoreOp.STORE, clearColor);
         }
         return this;

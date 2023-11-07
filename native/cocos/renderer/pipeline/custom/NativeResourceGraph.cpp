@@ -143,12 +143,12 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc) {
     };
 }
 
-gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView) {
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, gfx::TextureType viewType) {
     using namespace gfx; // NOLINT(google-build-using-namespace)
 
     return {
         nullptr,
-        subresView.viewType,
+        viewType,
         subresView.format,
         subresView.indexOrFirstMipLevel,
         subresView.numMipLevels,
@@ -207,12 +207,12 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
         },
-        [&](const IntrusivePtr<gfx::Buffer>& buffer) {
-            CC_EXPECTS(buffer);
+        [&](const PersistentBuffer& buffer) {
+            CC_EXPECTS(buffer.buffer);
             std::ignore = buffer;
         },
-        [&](const IntrusivePtr<gfx::Texture>& texture) {
-            CC_EXPECTS(texture);
+        [&](const PersistentTexture& texture) {
+            CC_EXPECTS(texture.texture);
             std::ignore = texture;
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
@@ -252,7 +252,8 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             mount(device, parentID); // NOLINT(misc-no-recursion)
             auto* parentTexture = resg.getTexture(parentID);
             if (!view.textureView) {
-                auto textureViewInfo = getTextureViewInfo(originView);
+                const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
+                auto textureViewInfo = getTextureViewInfo(originView, desc.viewType);
                 textureViewInfo.texture = parentTexture;
                 view.textureView = device->createTexture(textureViewInfo);
             }

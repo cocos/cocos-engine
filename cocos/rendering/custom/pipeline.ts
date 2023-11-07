@@ -385,8 +385,18 @@ export interface Setter extends RenderNode {
     setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
     setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
     setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
-    setBuiltinDirectionalLightViewConstants (light: DirectionalLight, level?: number): void;
-    setBuiltinSpotLightViewConstants (light: SpotLight): void;
+    setBuiltinDirectionalLightFrustumConstants (
+        camera: Camera,
+        light: DirectionalLight,
+        csmLevel?: number): void;
+    setBuiltinSpotLightFrustumConstants (light: SpotLight): void;
+}
+
+export interface SceneBuilder extends Setter {
+    useLightFrustum (
+        light: Light,
+        csmLevel?: number,
+        optCamera?: Camera): void;
 }
 
 /**
@@ -413,16 +423,7 @@ export interface RenderQueueBuilder extends Setter {
     addScene (
         camera: Camera,
         sceneFlags: SceneFlags,
-        light?: Light | null): void;
-    addSceneCulledByDirectionalLight (
-        camera: Camera,
-        sceneFlags: SceneFlags,
-        light: DirectionalLight,
-        level: number): void;
-    addSceneCulledBySpotLight (
-        camera: Camera,
-        sceneFlags: SceneFlags,
-        light: SpotLight): void;
+        light?: Light): SceneBuilder;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -515,7 +516,7 @@ export interface BasicRenderPassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add render queue.
@@ -689,14 +690,15 @@ export interface BasicPipeline extends PipelineRuntime {
         size: number,
         flags: ResourceFlags,
         residency: ResourceResidency): number;
-    updateBuffer (
+    updateBuffer (name: string, size: number): void;
+    addExternalTexture (
         name: string,
-        size: number): void;
-    addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number;
+        texture: Texture,
+        flags: ResourceFlags): number;
     updateExternalTexture (name: string, texture: Texture): void;
     addTexture (
         name: string,
-        textureType: TextureType,
+        type: TextureType,
         format: Format,
         width: number,
         height: number,
@@ -809,10 +811,11 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     addCopyPass (copyPairs: CopyPair[]): void;
+    addBuiltinReflectionProbePass (camera: Camera): void;
     /**
      * @engineInternal
      */
-    getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | null;
+    getDescriptorSetLayout (shaderName: string, freq: UpdateFrequency): DescriptorSetLayout | undefined;
 }
 
 /**
@@ -875,7 +878,7 @@ export interface RenderSubpassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add storage buffer.
@@ -1019,7 +1022,7 @@ export interface ComputeSubpassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add storage buffer.
@@ -1175,7 +1178,7 @@ export interface ComputePassBuilder extends Setter {
     addTexture (
         name: string,
         slotName: string,
-        sampler?: Sampler | null,
+        sampler?: Sampler,
         plane?: number): void;
     /**
      * @en Add storage buffer.
@@ -1389,7 +1392,7 @@ export interface Pipeline extends BasicPipeline {
     addBuiltinGpuCullingPass (
         camera: Camera,
         hzbName?: string,
-        light?: Light | null): void;
+        light?: Light): void;
     addBuiltinHzbGenerationPass (sourceDepthStencilName: string, targetHzbName: string): void;
     /**
      * @experimental
@@ -1423,8 +1426,7 @@ export interface PipelineBuilder {
      * @param pipeline @en Current render pipeline @zh 当前管线
      */
     setup (cameras: Camera[], pipeline: BasicPipeline): void;
-
-    onGlobalPipelineStateChanged?(): void;
+    onGlobalPipelineStateChanged? (): void;
 }
 
 /**

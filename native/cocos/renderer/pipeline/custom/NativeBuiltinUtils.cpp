@@ -26,14 +26,18 @@
 #include "cocos/application/ApplicationManager.h"
 #include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
+#include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/scene/Camera.h"
+#include "cocos/scene/DirectionalLight.h"
 #include "cocos/scene/Fog.h"
+#include "cocos/scene/Shadow.h"
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
 
@@ -254,12 +258,12 @@ float getPCFRadius(
 void setShadowUBOView(
     gfx::Device &device,
     const LayoutGraphData &layoutGraph,
-    const pipeline::PipelineSceneData &sceneData,
+    const pipeline::PipelineSceneData &pplSceneData,
     const scene::DirectionalLight &mainLight,
     RenderData &data) {
-    const auto &shadowInfo = *sceneData.getShadows();
-    const auto &csmLayers = *sceneData.getCSMLayers();
-    const auto &csmSupported = sceneData.getCSMSupported();
+    const auto &shadowInfo = *pplSceneData.getShadows();
+    const auto &csmLayers = *pplSceneData.getCSMLayers();
+    const auto &csmSupported = pplSceneData.getCSMSupported();
     const auto &packing = pipeline::supportsR32FloatTexture(&device) ? 0.0F : 1.0F;
     Vec4 vec4ShadowInfo{};
     if (shadowInfo.isEnabled()) {
@@ -373,12 +377,12 @@ void setShadowUBOView(
 void setShadowUBOLightView(
     gfx::Device *device,
     const LayoutGraphData &layoutGraph,
-    const pipeline::PipelineSceneData &sceneData,
+    const pipeline::PipelineSceneData &pplSceneData,
+    const BuiltinCascadedShadowMap *csm,
     const scene::Light &light,
     uint32_t level,
     RenderData &data) {
-    const auto &shadowInfo = *sceneData.getShadows();
-    const auto &csmLayers = *sceneData.getCSMLayers();
+    const auto &shadowInfo = *pplSceneData.getShadows();
     const auto &packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
     const auto &cap = device->getCapabilities();
     Vec4 vec4ShadowInfo{};
@@ -395,29 +399,31 @@ void setShadowUBOLightView(
                     Mat4 matShadowProj;
                     Mat4 matShadowViewProj;
                     scene::CSMLevel levelCount{};
+                    CC_EXPECTS(csm);
                     if (mainLight.isShadowFixedArea() || mainLight.getCSMLevel() == scene::CSMLevel::LEVEL_1) {
-                        matShadowView = csmLayers.getSpecialLayer()->getMatShadowView();
-                        matShadowProj = csmLayers.getSpecialLayer()->getMatShadowProj();
-                        matShadowViewProj = csmLayers.getSpecialLayer()->getMatShadowViewProj();
+                        matShadowView = csm->specialLayer.shadowView;
+                        matShadowProj = csm->specialLayer.shadowProj;
+                        matShadowViewProj = csm->specialLayer.shadowViewProj;
                         if (mainLight.isShadowFixedArea()) {
                             near = mainLight.getShadowNear();
                             far = mainLight.getShadowFar();
                             levelCount = static_cast<scene::CSMLevel>(0);
                         } else {
                             near = 0.1F;
-                            far = csmLayers.getSpecialLayer()->getShadowCameraFar();
+                            far = csm->specialLayer.shadowCameraFar;
                             levelCount = scene::CSMLevel::LEVEL_1;
                         }
                         vec4ShadowInfo.set(static_cast<float>(scene::LightType::DIRECTIONAL), packing, mainLight.getShadowNormalBias(), 0);
                         setVec4Impl(data, layoutGraph, "cc_shadowLPNNInfo", vec4ShadowInfo);
                     } else {
-                        const auto &layer = *csmLayers.getLayers()[level];
-                        matShadowView = layer.getMatShadowView();
-                        matShadowProj = layer.getMatShadowProj();
-                        matShadowViewProj = layer.getMatShadowViewProj();
+                        CC_EXPECTS(level < csm->layers.size());
+                        const auto &layer = csm->layers[level];
+                        matShadowView = layer.shadowView;
+                        matShadowProj = layer.shadowProj;
+                        matShadowViewProj = layer.shadowViewProj;
 
-                        near = layer.getSplitCameraNear();
-                        far = layer.getSplitCameraFar();
+                        near = layer.splitCameraNear;
+                        far = layer.splitCameraFar;
                         levelCount = mainLight.getCSMLevel();
                     }
                     setMat4Impl(data, layoutGraph, "cc_matLightView", matShadowView);
@@ -489,12 +495,120 @@ void setShadowUBOLightView(
     setColorImpl(data, layoutGraph, "cc_shadowColor", gfx::Color{color[0], color[1], color[2], color[3]});
 }
 
+namespace {
+
+void updatePlanarNormalAndDistance(
+    const LayoutGraphData &layoutGraph,
+    const scene::Shadows &shadowInfo,
+    RenderData &data) {
+    const Vec3 normal = shadowInfo.getNormal().getNormalized();
+    const Vec4 planarNDInfo{normal.x, normal.y, normal.z, -shadowInfo.getDistance()};
+    setVec4Impl(data, layoutGraph, "cc_planarNDInfo", planarNDInfo);
+}
+
+std::tuple<Mat4, Mat4, Mat4, Mat4>
+computeShadowMatrices(
+    const gfx::DeviceCaps &cap,
+    const Mat4 &matShadowCamera,
+    float fov, float farPlane) {
+    auto matShadowView = matShadowCamera.getInversed();
+
+    Mat4 matShadowProj;
+    Mat4::createPerspective(
+        fov, 1.0F, 0.001F, farPlane,
+        true, cap.clipSpaceMinZ, cap.clipSpaceSignY,
+        0, &matShadowProj);
+
+    Mat4 matShadowViewProj = matShadowProj;
+    Mat4 matShadowInvProj = matShadowProj;
+
+    matShadowInvProj.inverse();
+    matShadowViewProj.multiply(matShadowView);
+
+    return {matShadowView, matShadowViewProj, matShadowProj, matShadowInvProj};
+}
+
+} // namespace
+
+void setPunctualLightShadowUBO(
+    gfx::Device *device,
+    const LayoutGraphData &layoutGraph,
+    const pipeline::PipelineSceneData &pplSceneData,
+    const scene::DirectionalLight *mainLight,
+    const scene::Light &light,
+    RenderData &data) {
+    const auto &shadowInfo = *pplSceneData.getShadows();
+    const auto &packing = pipeline::supportsR32FloatTexture(device) ? 0.0F : 1.0F;
+    const auto &cap = device->getCapabilities();
+    Vec4 vec4ShadowInfo{};
+
+    if (mainLight) {
+        // update planar PROJ
+        updatePlanarNormalAndDistance(layoutGraph, shadowInfo, data);
+    }
+
+    // ShadowMap
+    switch (light.getType()) {
+        case scene::LightType::DIRECTIONAL:
+            // noop
+            break;
+        case scene::LightType::SPHERE: {
+            const auto &shadowSize = shadowInfo.getSize();
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowWHPBInfo",
+                Vec4{shadowSize.x, shadowSize.y, 1.0F, 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowLPNNInfo",
+                Vec4{static_cast<float>(scene::LightType::SPHERE), packing, 0.0F, 0.0F});
+        } break;
+        case scene::LightType::SPOT: {
+            const auto &shadowSize = shadowInfo.getSize();
+            const auto &spotLight = dynamic_cast<const scene::SpotLight &>(light);
+            const auto &matShadowCamera = spotLight.getNode()->getWorldMatrix();
+            const auto [matShadowView, matShadowViewProj, matShadowProj, matShadowInvProj] =
+                computeShadowMatrices(cap, matShadowCamera, spotLight.getAngle(), spotLight.getRange());
+
+            setMat4Impl(data, layoutGraph, "cc_matLightView", matShadowView);
+            setMat4Impl(data, layoutGraph, "cc_matLightViewProj", matShadowViewProj);
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowNFLSInfo",
+                Vec4{0.1F, spotLight.getRange(), 0.0F, 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowWHPBInfo",
+                Vec4{shadowSize.x, shadowSize.y, spotLight.getShadowPcf(), spotLight.getShadowBias()});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowLPNNInfo",
+                Vec4{static_cast<float>(scene::LightType::SPOT), packing, spotLight.getShadowNormalBias(), 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowInvProjDepthInfo",
+                Vec4{matShadowInvProj.m[10], matShadowInvProj.m[14], matShadowInvProj.m[11], matShadowInvProj.m[15]});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowProjDepthInfo",
+                Vec4{matShadowProj.m[10], matShadowProj.m[14], matShadowProj.m[11], matShadowProj.m[15]});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowProjInfo",
+                Vec4{matShadowProj.m[00], matShadowProj.m[05], 1.0F / matShadowProj.m[00], 1.0F / matShadowProj.m[05]});
+        } break;
+        case scene::LightType::POINT: {
+            const auto &shadowSize = shadowInfo.getSize();
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowWHPBInfo",
+                Vec4{shadowSize.x, shadowSize.y, 1.0F, 0.0F});
+            setVec4Impl(
+                data, layoutGraph, "cc_shadowLPNNInfo",
+                Vec4{static_cast<float>(scene::LightType::POINT), packing, 0.0F, 0.0F});
+        } break;
+        default:
+            break;
+    }
+}
+
 void setLegacyTextureUBOView(
     gfx::Device &device,
     const LayoutGraphData &layoutGraph,
-    const pipeline::PipelineSceneData &sceneData,
+    const pipeline::PipelineSceneData &pplSceneData,
     RenderData &data) {
-    const auto &skybox = *sceneData.getSkybox();
+    const auto &skybox = *pplSceneData.getSkybox();
     if (skybox.getReflectionMap()) {
         auto &texture = *skybox.getReflectionMap()->getGFXTexture();
         auto *sampler = device.getSampler(skybox.getReflectionMap()->getSamplerInfo());
@@ -534,6 +648,251 @@ void setLegacyTextureUBOView(
     // setTextureImpl(data, layoutGraph, "cc_shadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
     setSamplerImpl(data, layoutGraph, "cc_spotShadowMap", pointSampler);
     // setTextureImpl(data, layoutGraph, "cc_spotShadowMap", BuiltinResMgr::getInstance()->get<Texture2D>("default-texture")->getGFXTexture());
+}
+
+namespace {
+
+float kLightMeterScale{10000.0F};
+
+} // namespace
+
+void setLightUBO(
+    const scene::Light *light, bool bHDR, float exposure,
+    const scene::Shadows *shadowInfo,
+    char *buffer, size_t bufferSize) {
+    CC_EXPECTS(bufferSize % sizeof(float) == 0);
+    const auto maxSize = bufferSize / sizeof(float);
+    auto *lightBufferData = reinterpret_cast<float *>(buffer);
+
+    size_t offset = 0;
+
+    Vec3 position = Vec3(0.0F, 0.0F, 0.0F);
+    float size = 0.F;
+    float range = 0.F;
+    float luminanceHDR = 0.F;
+    float luminanceLDR = 0.F;
+    if (light->getType() == scene::LightType::SPHERE) {
+        const auto *sphereLight = static_cast<const scene::SphereLight *>(light);
+        position = sphereLight->getPosition();
+        size = sphereLight->getSize();
+        range = sphereLight->getRange();
+        luminanceHDR = sphereLight->getLuminanceHDR();
+        luminanceLDR = sphereLight->getLuminanceLDR();
+    } else if (light->getType() == scene::LightType::SPOT) {
+        const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+        position = spotLight->getPosition();
+        size = spotLight->getSize();
+        range = spotLight->getRange();
+        luminanceHDR = spotLight->getLuminanceHDR();
+        luminanceLDR = spotLight->getLuminanceLDR();
+    } else if (light->getType() == scene::LightType::POINT) {
+        const auto *pointLight = static_cast<const scene::PointLight *>(light);
+        position = pointLight->getPosition();
+        size = 0.0F;
+        range = pointLight->getRange();
+        luminanceHDR = pointLight->getLuminanceHDR();
+        luminanceLDR = pointLight->getLuminanceLDR();
+    } else if (light->getType() == scene::LightType::RANGED_DIRECTIONAL) {
+        const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+        position = rangedDirLight->getPosition();
+        size = 0.0F;
+        range = 0.0F;
+        luminanceHDR = rangedDirLight->getIlluminanceHDR();
+        luminanceLDR = rangedDirLight->getIlluminanceLDR();
+    }
+    auto index = offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET;
+    CC_EXPECTS(index + 4 < maxSize);
+    lightBufferData[index++] = position.x;
+    lightBufferData[index++] = position.y;
+    lightBufferData[index] = position.z;
+
+    index = offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET;
+    CC_EXPECTS(index + 4 < maxSize);
+    lightBufferData[index++] = size;
+    lightBufferData[index] = range;
+
+    index = offset + pipeline::UBOForwardLight::LIGHT_COLOR_OFFSET;
+    CC_EXPECTS(index + 4 < maxSize);
+    const auto &color = light->getColor();
+    if (light->isUseColorTemperature()) {
+        const auto &tempRGB = light->getColorTemperatureRGB();
+        lightBufferData[index++] = color.x * tempRGB.x;
+        lightBufferData[index++] = color.y * tempRGB.y;
+        lightBufferData[index++] = color.z * tempRGB.z;
+    } else {
+        lightBufferData[index++] = color.x;
+        lightBufferData[index++] = color.y;
+        lightBufferData[index++] = color.z;
+    }
+
+    if (bHDR) {
+        lightBufferData[index] = luminanceHDR * exposure * kLightMeterScale;
+    } else {
+        lightBufferData[index] = luminanceLDR;
+    }
+
+    switch (light->getType()) {
+        case scene::LightType::SPHERE:
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] =
+                static_cast<float>(scene::LightType::SPHERE);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+            break;
+        case scene::LightType::SPOT: {
+            const auto *spotLight = static_cast<const scene::SpotLight *>(light);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::SPOT);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] =
+                (shadowInfo->isEnabled() &&
+                 spotLight->isShadowEnabled() &&
+                 shadowInfo->getType() == scene::ShadowType::SHADOW_MAP)
+                    ? 1.0F
+                    : 0.0F;
+
+            index = offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET;
+            const auto &direction = spotLight->getDirection();
+            lightBufferData[index++] = direction.x;
+            lightBufferData[index++] = direction.y;
+            lightBufferData[index] = direction.z;
+        } break;
+        case scene::LightType::POINT:
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::POINT);
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+            break;
+        case scene::LightType::RANGED_DIRECTIONAL: {
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::RANGED_DIRECTIONAL);
+
+            const auto *rangedDirLight = static_cast<const scene::RangedDirectionalLight *>(light);
+            const Vec3 &right = rangedDirLight->getRight();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+
+            const auto &direction = rangedDirLight->getDirection();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 0] = direction.x;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 1] = direction.y;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 2] = direction.z;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_DIR_OFFSET + 3] = 0;
+
+            const auto &scale = rangedDirLight->getScale();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5F;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5F;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5F;
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
+        } break;
+        default:
+            break;
+    }
+}
+
+const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
+    const PipelineRuntime &pplRuntime,
+    const scene::Camera &camera,
+    const scene::DirectionalLight *mainLight) {
+    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
+    // no main light
+    if (!mainLight) {
+        return nullptr;
+    }
+    // not attached to a node
+    if (!mainLight->getNode()) {
+        return nullptr;
+    }
+    const pipeline::PipelineSceneData &pplSceneData = *pplRuntime.getPipelineSceneData();
+    auto &csmLayers = *pplSceneData.getCSMLayers();
+    const auto &shadows = *pplSceneData.getShadows();
+    // shadow not enabled
+    if (!shadows.isEnabled()) {
+        return nullptr;
+    }
+    // shadow type is planar
+    if (shadows.getType() == scene::ShadowType::PLANAR) {
+        return nullptr;
+    }
+
+    // find csm
+    const BuiltinCascadedShadowMapKey key{&camera, mainLight};
+    auto iter = ppl.builtinCSMs.find(key);
+    if (iter != ppl.builtinCSMs.end()) {
+        return &iter->second;
+    }
+
+    // add new csm info
+    bool added = false;
+    std::tie(iter, added) = ppl.builtinCSMs.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(key),
+        std::forward_as_tuple());
+    CC_ENSURES(added);
+
+    auto &csm = iter->second;
+
+    // update csm layers
+    csmLayers.update(&pplSceneData, &camera);
+
+    // copy csm data
+    CC_EXPECTS(csm.layers.size() == csmLayers.getLayers().size());
+    for (uint32_t i = 0; i != csm.layers.size(); ++i) {
+        const auto &src = *csmLayers.getLayers()[i];
+        auto &dst = csm.layers[i];
+        dst.shadowView = src.getMatShadowView();
+        dst.shadowProj = src.getMatShadowProj();
+        dst.shadowViewProj = src.getMatShadowViewProj();
+        dst.validFrustum = src.getValidFrustum();
+        dst.splitFrustum = src.getSplitFrustum();
+        dst.lightViewFrustum = src.getLightViewFrustum();
+        dst.castLightViewBoundingBox = src.getCastLightViewBoundingBox();
+        dst.shadowCameraFar = src.getShadowCameraFar();
+        dst.splitCameraNear = src.getSplitCameraNear();
+        dst.splitCameraFar = src.getSplitCameraFar();
+        dst.csmAtlas = src.getCSMAtlas();
+    }
+
+    {
+        const auto &src = *csmLayers.getSpecialLayer();
+        auto &dst = csm.specialLayer;
+        dst.shadowView = src.getMatShadowView();
+        dst.shadowProj = src.getMatShadowProj();
+        dst.shadowViewProj = src.getMatShadowViewProj();
+        dst.validFrustum = src.getValidFrustum();
+        dst.splitFrustum = src.getSplitFrustum();
+        dst.lightViewFrustum = src.getLightViewFrustum();
+        dst.castLightViewBoundingBox = src.getCastLightViewBoundingBox();
+        dst.shadowCameraFar = src.getShadowCameraFar();
+    }
+
+    csm.shadowDistance = mainLight->getShadowDistance();
+
+    return &csm;
+}
+
+const geometry::Frustum &getBuiltinShadowFrustum(
+    const PipelineRuntime &pplRuntime,
+    const scene::Camera &camera,
+    const scene::DirectionalLight *mainLight,
+    uint32_t level) {
+    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
+
+    const auto &shadows = *ppl.pipelineSceneData->getShadows();
+    if (shadows.getType() == scene::ShadowType::PLANAR) {
+        return camera.getFrustum();
+    }
+
+    BuiltinCascadedShadowMapKey key{&camera, mainLight};
+    auto iter = ppl.builtinCSMs.find(key);
+    if (iter == ppl.builtinCSMs.end()) {
+        throw std::runtime_error("Builtin shadow CSM not found");
+    }
+
+    const auto &csmLevel = mainLight->getCSMLevel();
+    const auto &csm = iter->second;
+
+    if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
+        return csm.specialLayer.validFrustum;
+    }
+    return csm.layers[level].validFrustum;
 }
 
 } // namespace render

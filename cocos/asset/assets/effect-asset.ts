@@ -332,7 +332,9 @@ export class EffectAsset extends Asset {
     public onLoaded (): void {
         if (cclegacy.rendering && cclegacy.rendering.enableEffectImport) {
             addEffectDefaultProperties(this);
-            (cclegacy.rendering.programLib as ProgramLibrary).addEffect(this);
+            const programLib = cclegacy.rendering.programLib;
+            programLib.addEffect(this);
+            programLib.init(deviceManager.gfxDevice);
         } else {
             programLib.register(this);
         }

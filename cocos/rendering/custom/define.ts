@@ -24,17 +24,17 @@
 
 import { EDITOR } from 'internal:constants';
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
-    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
+    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address, DescriptorSetLayoutInfo, DescriptorSetLayoutBinding } from '../../gfx';
 import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
-import { CSMLevel, ShadowType } from '../../render-scene/scene/shadows';
+import { CSMLevel, ShadowType, Shadows } from '../../render-scene/scene/shadows';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
 import { PointLight } from '../../render-scene/scene/point-light';
 import { SphereLight } from '../../render-scene/scene/sphere-light';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
+import { UBOForwardLight, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline, Pipeline } from './pipeline';
 import {
     AccessType, AttachmentType, CopyPair, LightInfo,
@@ -46,7 +46,7 @@ import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData, RenderGraph } from './render-graph';
 import { WebComputePassBuilder, WebPipeline } from './web-pipeline';
-import { DescriptorSetData, LayoutGraph, LayoutGraphData } from './layout-graph';
+import { DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
 import { ReflectionProbeManager } from '../../3d/reflection-probe/reflection-probe-manager';
@@ -682,11 +682,10 @@ export function buildShadowPass (
         );
     }
     const queue = shadowPass.addQueue(QueueHint.RENDER_OPAQUE, 'shadow-caster');
-    queue.addSceneOfCamera(
+    queue.addScene(
         camera,
-        new LightInfo(light, level),
-        SceneFlags.SHADOW_CASTER | SceneFlags.OPAQUE_OBJECT | SceneFlags.TRANSPARENT_OBJECT,
-    );
+        SceneFlags.SHADOW_CASTER | SceneFlags.OPAQUE_OBJECT | SceneFlags.MASK,
+    ).useLightFrustum(light, light.type !== LightType.DIRECTIONAL ? 0 : level);
     queue.setViewport(new Viewport(area.x, area.y, area.width, area.height));
 }
 
@@ -755,8 +754,10 @@ export function buildReflectionProbePass (
         probeCamera.clearStencil,
         probeCamera.clearFlag,
     );
-    const passBuilder = probePass.addQueue(QueueHint.RENDER_OPAQUE);
-    passBuilder.addSceneOfCamera(camera, new LightInfo(), SceneFlags.REFLECTION_PROBE);
+    const passBuilder = probePass.addQueue(QueueHint.RENDER_OPAQUE, 'reflect-map');
+    const lightInfo = new LightInfo();
+    lightInfo.probe = probe;
+    passBuilder.addSceneOfCamera(camera, lightInfo, SceneFlags.REFLECTION_PROBE | SceneFlags.OPAQUE_OBJECT);
     updateCameraUBO(passBuilder as unknown as any, probeCamera, ppl);
 }
 
@@ -2481,6 +2482,140 @@ export function bool (val): boolean {
     return !!val;
 }
 
+export function AlignUp (value: number, alignment: number): number {
+    return (value + (alignment - 1)) & ~(alignment - 1);
+}
+const kLightMeterScale = 10000;
+export function SetLightUBO (
+    light: Light | null,
+    bHDR: boolean,
+    exposure: number,
+    shadowInfo: Shadows | null,
+    buffer: Float32Array,
+    offset: number,
+    elemSize: number,
+): void {
+    const vec4Array = new Float32Array(4);
+    let size = 0.0;
+    let range = 0.0;
+    let luminanceHDR = 0.0;
+    let luminanceLDR = 0.0;
+
+    if (light && light.type === LightType.SPHERE) {
+        const sphereLight = light as SphereLight;
+        vec4Array[0] = sphereLight.position.x;
+        vec4Array[1] = sphereLight.position.y;
+        vec4Array[2] = sphereLight.position.z;
+        vec4Array[3] = LightType.SPHERE;
+        size = sphereLight.size;
+        range = sphereLight.range;
+        luminanceHDR = sphereLight.luminanceHDR;
+        luminanceLDR = sphereLight.luminanceLDR;
+    } else if (light && light.type === LightType.SPOT) {
+        const spotLight = light as SpotLight;
+        vec4Array[0] = spotLight.position.x;
+        vec4Array[1] = spotLight.position.y;
+        vec4Array[2] = spotLight.position.z;
+        vec4Array[3] = LightType.SPOT;
+        size = spotLight.size;
+        range = spotLight.range;
+        luminanceHDR = spotLight.luminanceHDR;
+        luminanceLDR = spotLight.luminanceLDR;
+    } else if (light && light.type === LightType.POINT) {
+        const pointLight = light as PointLight;
+        vec4Array[0] = pointLight.position.x;
+        vec4Array[1] = pointLight.position.y;
+        vec4Array[2] = pointLight.position.z;
+        vec4Array[3] = LightType.POINT;
+        size = 0.0;
+        range = pointLight.range;
+        luminanceHDR = pointLight.luminanceHDR;
+        luminanceLDR = pointLight.luminanceLDR;
+    } else if (light && light.type === LightType.RANGED_DIRECTIONAL) {
+        const rangedDirLight = light as RangedDirectionalLight;
+        vec4Array[0] = rangedDirLight.position.x;
+        vec4Array[1] = rangedDirLight.position.y;
+        vec4Array[2] = rangedDirLight.position.z;
+        vec4Array[3] = LightType.RANGED_DIRECTIONAL;
+        size = 0.0;
+        range = 0.0;
+        luminanceHDR = rangedDirLight.illuminanceHDR;
+        luminanceLDR = rangedDirLight.illuminanceLDR;
+    }
+
+    let index = offset + UBOForwardLight.LIGHT_POS_OFFSET;
+    buffer.set(vec4Array, index);
+
+    index = offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET;
+    vec4Array.set([size, range, 0, 0]);
+    buffer.set(vec4Array, index);
+
+    index = offset + UBOForwardLight.LIGHT_COLOR_OFFSET;
+    const color = light ? light.color : new Color();
+    if (light && light.useColorTemperature) {
+        const tempRGB = light.colorTemperatureRGB;
+        buffer[index++] = color.x * tempRGB.x;
+        buffer[index++] = color.y * tempRGB.y;
+        buffer[index++] = color.z * tempRGB.z;
+    } else {
+        buffer[index++] = color.x;
+        buffer[index++] = color.y;
+        buffer[index++] = color.z;
+    }
+
+    if (bHDR) {
+        buffer[index] = luminanceHDR * exposure * kLightMeterScale;
+    } else {
+        buffer[index] = luminanceLDR;
+    }
+
+    switch (light ? light.type : LightType.UNKNOWN) {
+    case LightType.SPHERE:
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        break;
+    case LightType.SPOT: {
+        const spotLight = light as SpotLight;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight.spotAngle;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] =                (shadowInfo && shadowInfo.enabled
+                 && spotLight.shadowEnabled
+                 && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
+
+        index = offset + UBOForwardLight.LIGHT_DIR_OFFSET;
+        const direction = spotLight.direction;
+        buffer[index++] = direction.x;
+        buffer[index++] = direction.y;
+        buffer[index] = direction.z;
+    } break;
+    case LightType.POINT:
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        break;
+    case LightType.RANGED_DIRECTIONAL: {
+        const rangedDirLight = light as RangedDirectionalLight;
+        const right = rangedDirLight.right;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+
+        const direction = rangedDirLight.direction;
+        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 0] = direction.x;
+        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 1] = direction.y;
+        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 2] = direction.z;
+        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 3] = 0;
+
+        const scale = rangedDirLight.scale;
+        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5;
+        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5;
+        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5;
+        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
+    } break;
+    default:
+        break;
+    }
+}
+
 export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: LayoutGraphData): number {
     const queueId = rg.getParent(sceneId);
     assert(queueId !== 0xFFFFFFFF);
@@ -2500,10 +2635,13 @@ export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: Layout
         assert(passLayoutId !== lg.nullVertex());
 
         const subpassLayoutName: string = rg.getLayout(subpassOrPassID);
-        assert(!!subpassLayoutName);
-        const subpassLayoutId = lg.locateChild(passLayoutId, subpassLayoutName);
-        assert(subpassLayoutId !== lg.nullVertex());
-        layoutId = subpassLayoutId;
+        if (subpassLayoutName.length === 0) {
+            layoutId = passLayoutId;
+        } else {
+            const subpassLayoutId = lg.locateChild(passLayoutId, subpassLayoutName);
+            assert(subpassLayoutId !== lg.nullVertex());
+            layoutId = subpassLayoutId;
+        }
     }
     assert(layoutId !== lg.nullVertex());
     return layoutId;
