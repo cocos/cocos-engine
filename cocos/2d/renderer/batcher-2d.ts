@@ -840,7 +840,8 @@ export class Batcher2D implements IBatcher {
         // ATTENTION: Will also reset colorDirty inside postUpdateAssembler
         if (render && render.enabledInHierarchy) {
             render.postUpdateAssembler(this);
-            if ((render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)
+            if (!approx(opacity, 0, EPSILON) 
+            && (render.stencilStage === Stage.ENTER_LEVEL || render.stencilStage === Stage.ENTER_LEVEL_INVERTED)
             && (StencilManager.sharedManager!.getMaskStackSize() > 0)) {
                 this.autoMergeBatches(this._currComponent!);
                 this.resetRenderStates();
