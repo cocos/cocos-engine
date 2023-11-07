@@ -231,6 +231,13 @@ namespace cc { namespace gfx {
 %attribute(cc::gfx::GFXObject, uint32_t, objectID, getObjectID);
 %attribute(cc::gfx::GFXObject, uint32_t, typedID, getTypedID);
 
+// GeneralBarrier
+%attribute(cc::gfx::GeneralBarrier, ccstd::hash_t, hash, getHash);
+%attribute(cc::gfx::GeneralBarrier, cc::gfx::GeneralBarrierInfo&, info, getInfo);
+
+// TextureBarrier
+%attribute(cc::gfx::TextureBarrier, ccstd::hash_t, hash, getHash);
+%attribute(cc::gfx::TextureBarrier, cc::gfx::TextureBarrierInfo&, info, getInfo);
 
 
 // ----- Release Returned Cpp Object in GC Section ------
