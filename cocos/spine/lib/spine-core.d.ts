@@ -323,7 +323,7 @@ declare namespace spine {
     }
     class AnimationStateData {
         skeletonData: SkeletonData;
-        animationToMixTime: Map<number>;
+        animationToMixTime: Map<string, number>;
         defaultMix: number;
         constructor(skeletonData: SkeletonData);
         setMix(fromName: string, toName: string, duration: number): void;
@@ -354,7 +354,7 @@ declare namespace spine {
         getLoaded(): number;
         dispose(): void;
         hasErrors(): boolean;
-        getErrors(): Map<string>;
+        getErrors(): Map<string, string>;
     }
     class AtlasAttachmentLoader implements AttachmentLoader {
         atlas: TextureAtlas;
@@ -560,7 +560,7 @@ declare namespace spine {
         isLoadingComplete(clientId: string): boolean;
         dispose(): void;
         hasErrors(): boolean;
-        getErrors(): Map<string>;
+        getErrors(): Map<string, string>;
     }
     class Skeleton {
         data: SkeletonData;
@@ -700,7 +700,7 @@ declare namespace spine {
         scale: number;
         private linkedMeshes;
         constructor(attachmentLoader: AttachmentLoader);
-        readSkeletonData(json: any): SkeletonData;
+        readSkeletonData(json: string): SkeletonData;
         readAttachment(map: any, skin: Skin, slotIndex: number, name: string, skeletonData: SkeletonData): Attachment;
         readVertices(map: any, attachment: VertexAttachment, verticesLength: number): void;
         readAnimation(map: any, name: string, skeletonData: SkeletonData): void;
@@ -720,7 +720,7 @@ declare namespace spine {
     }
     class Skin {
         name: string;
-        attachments: Map<Attachment>[];
+        attachments: Map<string, Attachment>[];
         bones: BoneData[];
         constraints: ConstraintData[];
         constructor(name: string);
@@ -775,7 +775,7 @@ declare namespace spine {
     enum TextureFilter {
         Nearest = 9728,
         Linear = 9729,
-        MipMap = 9987,
+        MipMap = 9930,
         MipMapNearestNearest = 9984,
         MipMapLinearNearest = 9985,
         MipMapNearestLinear = 9986,
@@ -881,9 +881,6 @@ declare namespace spine {
     abstract class Updatable {
         update(): void;
         isActive(): boolean;
-    }
-    interface Map<T> {
-        [key: string]: T;
     }
     class IntSet {
         array: number[];

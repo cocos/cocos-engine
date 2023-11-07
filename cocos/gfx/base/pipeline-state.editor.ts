@@ -319,7 +319,7 @@ export class PassStatesEditor implements EffectAsset.IPassStates {
     @type(BlendStateEditor)
     @serializable
     @editable
-    public blendState: BlendStateEditor = new BlendStateEditor();
+    public blendState: any = new BlendStateEditor();
 
     @type([toEnum.DynamicStateFlagBit])
     @serializable
