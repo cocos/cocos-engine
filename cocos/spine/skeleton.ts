@@ -676,7 +676,9 @@ export class Skeleton extends UIRenderer {
      */
     public onEnable (): void {
         super.onEnable();
-        this._instance.enable = true;
+        if (this._instance) {
+            this._instance.enable = true;
+        }
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
     }
@@ -686,7 +688,9 @@ export class Skeleton extends UIRenderer {
      */
     public onDisable (): void {
         super.onDisable();
-        this._instance.enable = false;
+        if (this._instance) {
+            this._instance.enable = false;
+        }
         SkeletonSystem.getInstance().remove(this);
     }
 
@@ -731,7 +735,9 @@ export class Skeleton extends UIRenderer {
             this._refreshInspector();
             return;
         }
-        this._instance.dtRate = this._timeScale * timeScale;
+        if (this._instance) {
+            this._instance.dtRate = this._timeScale * timeScale;
+        }
         this._needUpdateSkeltonData = false;
         //const data = this.skeletonData?.getRuntimeData();
         //if (!data) return;
@@ -1022,10 +1028,8 @@ export class Skeleton extends UIRenderer {
                 return;
             }
             this._updateCache(dt);
-        } else {
-            if (EDITOR_NOT_IN_PREVIEW) {
-                this._instance.updateAnimation(dt);
-            }
+        } else if (EDITOR_NOT_IN_PREVIEW) {
+            this._instance.updateAnimation(dt);
         }
     }
 
@@ -1305,7 +1309,9 @@ export class Skeleton extends UIRenderer {
         if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
-            this._instance.isCache = this.isAnimationCached();
+            if (this._instance) {
+                this._instance.isCache = this.isAnimationCached();
+            }
             //this.attachUtil.init(this);
             this._updateSkeletonData();
             //this.setSkin(this.defaultSkin);
