@@ -30,13 +30,13 @@ int SpineSkeletonSystem::getCount() {
 
 void SpineSkeletonSystem::updateRenderData() {
     SpineMeshData::reset();
-    auto count = vectorSpines.size();
-    for (size_t i = 0; i < count; ++i) {
-        SpineSkeletonInstance* spineInstance = vectorSpines[i];
-        if (!spineInstance->isCache) {
-            spineInstance->preUpdateRenderData();
-        }
-    } 
+//     auto count = vectorSpines.size();
+//     for (size_t i = 0; i < count; ++i) {
+//         SpineSkeletonInstance* spineInstance = vectorSpines[i];
+//         if (!spineInstance->isCache) {
+//             spineInstance->preUpdateRenderData();
+//         }
+//     } 
 }
 
 void SpineSkeletonSystem::addSpineInstance(SpineSkeletonInstance* instance) {

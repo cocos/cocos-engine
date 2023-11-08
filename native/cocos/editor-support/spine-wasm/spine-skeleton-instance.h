@@ -47,7 +47,7 @@ public:
     TrackEntry *setAnimation(float trackIndex, const std::string &name, bool loop);
     void setSkin(const std::string &name);
     void updateAnimation(float dltTime);
-    void preUpdateRenderData();
+    // void preUpdateRenderData();
     SpineModel *updateRenderData();
     void setPremultipliedAlpha(bool val);
     void setUseTint(bool useTint);
