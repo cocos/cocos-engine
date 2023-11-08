@@ -1258,7 +1258,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             camera.scene,
             camera,
             sceneFlags,
-            lightTarget ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
+            lightTarget && !(sceneFlags & SceneFlags.SHADOW_CASTER) ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
             lightTarget,
         );
         this._renderGraph.addVertex<RenderGraphValue.Scene>(RenderGraphValue.Scene, sceneData, name, '', renderGraphPool.createRenderData(), false, this._vertID);
@@ -1284,7 +1284,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             camera.scene,
             camera,
             sceneFlags,
-            light ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
+            light && !(sceneFlags & SceneFlags.SHADOW_CASTER) ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
             light,
         );
         const renderData = renderGraphPool.createRenderData();
