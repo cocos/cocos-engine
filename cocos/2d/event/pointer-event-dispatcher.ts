@@ -128,7 +128,16 @@ class PointerEventDispatcher implements IEventDispatcher {
             if (pointerEventProcessor.isEnabled && pointerEventProcessor.shouldHandleEventTouch) {
                 if (eventTouch.type === InputEventType.TOUCH_START) {
                     if (pointerEventProcessor._handleEventTouch(eventTouch)) {
-                        pointerEventProcessor.claimedTouchIdList.push(touch.getID());
+                        // pointerEventProcessor may be disabled in handling touch event above.
+                        if (pointerEventProcessor.isEnabled) {
+                            pointerEventProcessor.claimedTouchIdList.push(touch.getID());
+                        } else {
+                            const cancelEvent = new EventTouch([eventTouch.touch!], true, InputEventType.TOUCH_CANCEL);
+                            cancelEvent.touch = eventTouch.touch!;
+                            pointerEventProcessor.dispatchEvent(cancelEvent);
+                            pointerEventProcessor.claimedTouchIdList.length = 0;
+                        }
+
                         dispatchToNextEventDispatcher = false;
                         if (!eventTouch.preventSwallow) {
                             break;
