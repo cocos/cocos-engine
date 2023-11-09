@@ -134,6 +134,13 @@ export interface SkeletonDrawData {
     indexCount: number;
 }
 
+export interface TempColor {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+}
+
 /**
  * @en
  * The Sockets attached to bones, synchronous transform with spine animation.
@@ -215,8 +222,6 @@ export class Skeleton extends UIRenderer {
     protected _preCacheMode: AnimationCacheMode = AnimationCacheMode.UNSET;
     @serializable
     protected _cacheMode = AnimationCacheMode.REALTIME;
-    @serializable
-    protected _defaultCacheMode: AnimationCacheMode = AnimationCacheMode.REALTIME;
     @serializable
     protected _sockets: SpineSocket[] = [];
     @serializable
@@ -301,6 +306,13 @@ export class Skeleton extends UIRenderer {
 
     private _slotTextures: Map<number, Texture2D> | null = null;
 
+    _vLength = 0;
+    _vBuffer: Uint8Array | null = null;
+    _iLength = 0;
+    _iBuffer: Uint8Array | null = null;
+    _model: any;
+    _tempColor: TempColor = { r: 0, g: 0, b: 0, a: 0 };
+
     constructor () {
         super();
         this._useVertexOpacity = true;
@@ -310,6 +322,8 @@ export class Skeleton extends UIRenderer {
         this._endSlotIndex = -1;
         if (!JSB) {
             this._instance = new spine.SkeletonInstance();
+            this._instance.dtRate = this._timeScale * timeScale;
+            this._instance.isCache = this.isAnimationCached();
         }
         this.attachUtil = new AttachUtil();
     }
@@ -459,11 +473,11 @@ export class Skeleton extends UIRenderer {
     @editable
     @type(AnimationCacheMode)
     get defaultCacheMode (): AnimationCacheMode {
-        return this._defaultCacheMode;
+        return this._cacheMode;
     }
     set defaultCacheMode (mode: AnimationCacheMode) {
-        this._defaultCacheMode = mode;
-        this.setAnimationCacheMode(this._defaultCacheMode);
+        this._cacheMode = mode;
+        this.setAnimationCacheMode(this._cacheMode);
     }
 
     /**
@@ -499,6 +513,9 @@ export class Skeleton extends UIRenderer {
     set timeScale (value) {
         if (value !== this._timeScale) {
             this._timeScale = value;
+            if (this._instance) {
+                this._instance.dtRate = this._timeScale * timeScale;
+            }
         }
     }
     /**
@@ -547,7 +564,7 @@ export class Skeleton extends UIRenderer {
         }
         this._sockets = val;
         this._updateSocketBindings();
-        this.syncAttachedNode();
+        this.attachUtil.init(this);
     }
 
     /**
@@ -594,7 +611,7 @@ export class Skeleton extends UIRenderer {
             this.markForUpdateRenderData();
         }
     }
-    get socketNodes (): Map<number, Node> { return this._socketNodes; }
+    get socketNodes (): Map<number, Node> | null { return this._socketNodes; }
 
     /**
      * @en The name of current playing animation.
@@ -659,6 +676,9 @@ export class Skeleton extends UIRenderer {
      */
     public onEnable (): void {
         super.onEnable();
+        if (this._instance) {
+            this._instance.enable = true;
+        }
         this._flushAssembler();
         SkeletonSystem.getInstance().add(this);
     }
@@ -668,12 +688,27 @@ export class Skeleton extends UIRenderer {
      */
     public onDisable (): void {
         super.onDisable();
+        if (this._instance) {
+            this._instance.enable = false;
+        }
         SkeletonSystem.getInstance().remove(this);
     }
 
     public onDestroy (): void {
+        this._drawList.destroy();
         this.destroyRenderData();
         this._cleanMaterialCache();
+        this._vBuffer = null;
+        this._iBuffer = null;
+        this.attachUtil.reset();
+        //this._textures.length = 0;
+        this._slotTextures?.clear();
+        this._slotTextures = null;
+        this._cachedSockets.clear();
+        this._socketNodes.clear();
+        //if (this._cacheMode == AnimationCacheMode.PRIVATE_CACHE) this._animCache?.destroy();
+        this._animCache = null;
+        SkeletonSystem.getInstance().remove(this);
         if (!JSB) {
             spine.wasmUtil.destroySpineInstance(this._instance);
         }
@@ -700,18 +735,23 @@ export class Skeleton extends UIRenderer {
             this._refreshInspector();
             return;
         }
+        if (this._instance) {
+            this._instance.dtRate = this._timeScale * timeScale;
+        }
         this._needUpdateSkeltonData = false;
-        const data = this.skeletonData?.getRuntimeData();
-        if (!data) return;
-        this.setSkeletonData(data);
-        if (this.defaultSkin) this.setSkin(this.defaultSkin);
-        this._textures = skeletonData.textures;
+        //const data = this.skeletonData?.getRuntimeData();
+        //if (!data) return;
+        //this.setSkeletonData(data);
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
+
+        if (this.defaultSkin) this.setSkin(this.defaultSkin);
+        this._textures = skeletonData.textures;
+
         this._refreshInspector();
         if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
-        if (this.defaultSkin) this.setSkin(this.defaultSkin);
+        //if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();
@@ -746,7 +786,10 @@ export class Skeleton extends UIRenderer {
             }
             if (this.skeletonData) {
                 const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData);
-                this._skeleton = skeletonInfo.skeleton;
+                if (skeletonInfo.skeleton == null) {
+                    skeletonInfo.skeleton = this._instance.initSkeleton(skeletonData);
+                }
+                this._skeleton = skeletonInfo.skeleton!;
             }
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
@@ -985,7 +1028,7 @@ export class Skeleton extends UIRenderer {
                 return;
             }
             this._updateCache(dt);
-        } else {
+        } else if (EDITOR_NOT_IN_PREVIEW) {
             this._instance.updateAnimation(dt);
         }
     }
@@ -997,11 +1040,13 @@ export class Skeleton extends UIRenderer {
         }
         const frames = frameCache.frames;
         const frameTime = SkeletonCache.FrameTime;
-        // Animation Start, the event different from dragonbones inner event,
+        // Animation Start, the event different from _customMaterial inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
             this._startEntry.animation.name = this._animationName;
-            if (this._listener && this._listener.start) this._listener.start(this._startEntry);
+            if (this._listener && this._listener.start) {
+                this._listener.start(this._startEntry);
+            }
         }
 
         this._accTime += dt;
@@ -1264,10 +1309,14 @@ export class Skeleton extends UIRenderer {
         if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
+            if (this._instance) {
+                this._instance.isCache = this.isAnimationCached();
+            }
+            //this.attachUtil.init(this);
             this._updateSkeletonData();
-            this.setSkin(this.defaultSkin);
-            this._updateUseTint();
-            this._updateSocketBindings();
+            //this.setSkin(this.defaultSkin);
+            //this._updateUseTint();
+            //this._updateSocketBindings();
             this.markForUpdateRenderData();
         }
     }
@@ -1574,11 +1623,19 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public _updateColor (): void {
+        const a = this.node._uiProps.opacity;
+        // eslint-disable-next-line max-len
+        if (this._tempColor.r === this._color.r && this._tempColor.g === this.color.g && this._tempColor.b === this.color.b && this._tempColor.a === a) {
+            return;
+        }
         this.node._uiProps.colorDirty = true;
+        this._tempColor.r = this._color.r;
+        this._tempColor.g = this._color.g;
+        this._tempColor.b = this._color.b;
+        this._tempColor.a = a;
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
-        const a = this.node._uiProps.opacity;
         this._instance.setColor(r, g, b, a);
     }
 

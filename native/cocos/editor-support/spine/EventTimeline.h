@@ -51,7 +51,7 @@ public:
     /// Sets the time and value of the specified keyframe.
     void setFrame(size_t frameIndex, Event* event);
 
-    Vector<float> getFrames();
+    Vector<float>& getFrames();
     Vector<Event*>& getEvents();
     size_t getFrameCount();
 

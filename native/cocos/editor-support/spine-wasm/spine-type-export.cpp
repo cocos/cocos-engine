@@ -3,8 +3,10 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include "spine-skeleton-system.h"
 #include "spine-skeleton-instance.h"
 #include "spine-wasm.h"
+#include "Vector2.h"
 
 using namespace emscripten;
 using namespace spine;
@@ -20,50 +22,11 @@ const spine::String STRING_STD2SP(const std::string &str) {
     return spString;
 }
 
-template <typename T>
-std::vector<T> VECTOR_SP2STD(Vector<T> &container) {
-    int count = container.size();
-    std::vector<T> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = container[i];
-    }
-    return stdVector;
-}
-
-std::vector<float> VECTOR_SP2STD_SIZE_T(Vector<size_t> &container) {
-    int count = container.size();
-    std::vector<float> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = container[i];
-    }
-    return stdVector;
-}
-
 const std::vector<std::string> VECTOR_SP2STD_STRING(Vector<String> &container) {
     int count = container.size();
     std::vector<std::string> stdVector(count);
     for (int i = 0; i < count; i++) {
         stdVector[i] = STRING_SP2STD(container[i]);
-    }
-    return stdVector;
-}
-
-template <typename T>
-std::vector<std::vector<T>> VECTOR_2_SP2STD(Vector<Vector<T>> &container) {
-    int count = container.size();
-    std::vector<std::vector<T>> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = VECTOR_SP2STD(container[i]);
-    }
-    return stdVector;
-}
-
-template <typename T>
-std::vector<T> VECTOR_SP2STD2(Vector<T> container) {
-    int count = container.size();
-    std::vector<T> stdVector(count);
-    for (int i = 0; i < count; i++) {
-        stdVector[i] = container[i];
     }
     return stdVector;
 }
@@ -98,12 +61,35 @@ void VECTOR_STD_COPY_SP(std::vector<T> &stdVector, Vector<T> &spVector) {
     }
 }
 
+using SPVectorFloat = Vector<float>;
+using SPVectorVectorFloat = Vector<Vector<float>>;
+using SPVectorInt = Vector<int>;
+using SPVectorVectorInt = Vector<Vector<int>>;
+using SPVectorSize_t = Vector<size_t>;
+using SPVectorBonePtr = Vector<Bone*>;
+using SPVectorBoneDataPtr = Vector<BoneData*>;
+using SPVectorUnsignedShort = Vector<unsigned short>;
+using SPVectorConstraintDataPtr = Vector<ConstraintData*>;
+using SPVectorSlotPtr = Vector<Slot*>;
+using SPVectorSkinPtr = Vector<Skin*>;
+using SPVectorEventDataPtr = Vector<spine::EventData*>;
+using SPVectorAnimationPtr = Vector<Animation*>;
+using SPVectorIkConstraintPtr = Vector<IkConstraint*>;
+using SPVectorIkConstraintDataPtr = Vector<IkConstraintData*>;
+using SPVectorTransformConstraintPtr = Vector<TransformConstraint*>;
+using SPVectorPathConstraintPtr = Vector<PathConstraint*>;
+using SPVectorTimelinePtr = Vector<Timeline*>;
+using SPVectorTrackEntryPtr = Vector<TrackEntry*>;
+using SPVectorUpdatablePtr = Vector<Updatable*>;
+
 } // namespace
 
 EMSCRIPTEN_BINDINGS(spine) {
+
     register_vector<float>("VectorFloat");
     register_vector<std::vector<float>>("VectorVectorFloat");
     register_vector<unsigned short>("VectorUnsignedShort");
+    register_vector<unsigned int>("VectorOfUInt");
     register_vector<std::string>("VectorString");
     register_vector<BoneData *>("VectorBoneData");
     register_vector<Bone *>("VectorBone");
@@ -123,6 +109,213 @@ EMSCRIPTEN_BINDINGS(spine) {
     register_vector<TransformConstraintData *>("VectorTransformConstraintData");
     register_vector<PathConstraintData *>("VectorPathConstraintData");
     register_vector<TrackEntry *>("VectorTrackEntry");
+
+    class_<SPVectorFloat>("SPVectorFloat")
+        .constructor<>()
+        .function("resize", &SPVectorFloat::setSize)
+        .function("size", &SPVectorFloat::size)
+        .function("get", &SPVectorFloat::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorFloat &obj, int index, float value) {
+            obj[index] = value;
+        }));
+
+    class_<SPVectorVectorFloat>("SPVectorVectorFloat")
+        .constructor<>()
+        .function("resize", &SPVectorVectorFloat::setSize)
+        .function("size", &SPVectorVectorFloat::size)
+        .function("get", &SPVectorVectorFloat::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorVectorFloat &obj, int index, SPVectorFloat &value) {
+            obj[index] = value;
+        }));
+
+    class_<SPVectorInt>("SPVectorInt")
+        .constructor<>()
+        .function("resize", &SPVectorInt::setSize)
+        .function("size", &SPVectorInt::size)
+        .function("get", &SPVectorInt::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorInt &obj, int index, int value) { 
+            obj[index] = value;
+        }));
+    
+    class_<SPVectorVectorInt>("SPVectorVectorInt")
+        .constructor<>()
+        .function("resize", &SPVectorVectorInt::setSize)
+        .function("size", &SPVectorVectorInt::size)
+        .function("get", &SPVectorVectorInt::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorVectorInt &obj, int index, SPVectorInt &value) {
+            obj[index] = value;
+        }));
+
+    class_<SPVectorSize_t>("SPVectorSize_t")
+        .constructor<>()
+        .function("resize", &SPVectorSize_t::setSize)
+        .function("size", &SPVectorSize_t::size)
+        .function("get", &SPVectorSize_t::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorSize_t &obj, size_t index, size_t value) { 
+            obj[index] = value;
+        }));
+    
+    class_<SPVectorUnsignedShort>("SPVectorUnsignedShort")
+        .constructor<>()
+        .function("resize", &SPVectorUnsignedShort::setSize)
+        .function("size", &SPVectorUnsignedShort::size)
+        .function("get", &SPVectorUnsignedShort::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorUnsignedShort &obj, int index, int value) { 
+            obj[index] = value;
+        }));
+
+    class_<SPVectorBonePtr>("SPVectorBonePtr")
+        .constructor<>()
+        .function("resize", &SPVectorBonePtr::setSize)
+        .function("size", &SPVectorBonePtr::size)
+        .function("get", &SPVectorBonePtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorBonePtr &obj, int index, Bone *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<Bone*>());
+
+    class_<SPVectorBoneDataPtr>("SPVectorBoneDataPtr")
+        .constructor<>()
+        .function("resize", &SPVectorBoneDataPtr::setSize)
+        .function("size", &SPVectorBoneDataPtr::size)
+        .function("get", &SPVectorBoneDataPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorBoneDataPtr &obj, int index, BoneData *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<BoneData*>());
+
+    class_<SPVectorConstraintDataPtr>("SPVectorConstraintDataPtr")
+        .constructor<>()
+        .function("resize", &SPVectorConstraintDataPtr::setSize)
+        .function("size", &SPVectorConstraintDataPtr::size)
+        .function("get", &SPVectorConstraintDataPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorConstraintDataPtr &obj, int index, ConstraintData *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<ConstraintData*>());
+
+    class_<SPVectorSlotPtr>("SPVectorSlotPtr")
+        .constructor<>()
+        .function("resize", &SPVectorSlotPtr::setSize)
+        .function("size", &SPVectorSlotPtr::size)
+        .function("get", &SPVectorSlotPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorSlotPtr &obj, int index, Slot *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<Slot*>());
+
+    class_<SPVectorSkinPtr>("SPVectorSkinPtr")
+        .constructor<>()
+        .function("resize", &SPVectorSkinPtr::setSize)
+        .function("size", &SPVectorSkinPtr::size)
+        .function("get", &SPVectorSkinPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorSkinPtr &obj, int index, Skin *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<Skin*>());
+    
+    class_<SPVectorEventDataPtr>("SPVectorEventDataPtr")
+        .constructor<>()
+        .function("resize", &SPVectorEventDataPtr::setSize)
+        .function("size", &SPVectorEventDataPtr::size)
+        .function("get", &SPVectorEventDataPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorEventDataPtr &obj, int index, EventData *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<EventData*>());
+
+    class_<SPVectorAnimationPtr>("SPVectorAnimationPtr")
+        .constructor<>()
+        .function("resize", &SPVectorAnimationPtr::setSize)
+        .function("size", &SPVectorAnimationPtr::size)
+        .function("get", &SPVectorAnimationPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorAnimationPtr &obj, int index, Animation *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<Animation*>());
+    
+    class_<SPVectorIkConstraintPtr>("SPVectorIkConstraintPtr")
+        .constructor<>()
+        .function("resize", &SPVectorIkConstraintPtr::setSize)
+        .function("size", &SPVectorIkConstraintPtr::size)
+        .function("get", &SPVectorIkConstraintPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorIkConstraintPtr &obj, int index, IkConstraint *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<IkConstraint*>());
+    
+    class_<SPVectorIkConstraintDataPtr>("SPVectorIkConstraintDataPtr")
+        .constructor<>()
+        .function("resize", &SPVectorIkConstraintDataPtr::setSize)
+        .function("size", &SPVectorIkConstraintDataPtr::size)
+        .function("get", &SPVectorIkConstraintDataPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorIkConstraintDataPtr &obj, int index, IkConstraintData *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<IkConstraintData*>());
+
+    class_<SPVectorTransformConstraintPtr>("SPVectorTransformConstraintPtr")
+        .constructor<>()
+        .function("resize", &SPVectorTransformConstraintPtr::setSize)
+        .function("size", &SPVectorTransformConstraintPtr::size)
+        .function("get", &SPVectorTransformConstraintPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorTransformConstraintPtr &obj, int index, TransformConstraint *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<TransformConstraint*>());
+    
+    class_<SPVectorPathConstraintPtr>("SPVectorPathConstraintPtr")
+        .constructor<>()
+        .function("resize", &SPVectorPathConstraintPtr::setSize)
+        .function("size", &SPVectorPathConstraintPtr::size)
+        .function("get", &SPVectorPathConstraintPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorPathConstraintPtr &obj, int index, PathConstraint *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<PathConstraint*>());
+     
+    class_<SPVectorTimelinePtr>("SPVectorTimelinePtr")
+        .constructor<>()
+        .function("resize", &SPVectorTimelinePtr::setSize)
+        .function("size", &SPVectorTimelinePtr::size)
+        .function("get", &SPVectorTimelinePtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorTimelinePtr &obj, int index, Timeline *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<Timeline*>());
+
+    class_<SPVectorTrackEntryPtr>("SPVectorTrackEntryPtr")
+        .constructor<>()
+        .function("resize", &SPVectorTrackEntryPtr::setSize)
+        .function("size", &SPVectorTrackEntryPtr::size)
+        .function("get", &SPVectorTrackEntryPtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorTrackEntryPtr &obj, int index, TrackEntry *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<TrackEntry*>());
+
+    class_<SPVectorUpdatablePtr>("SPVectorUpdatablePtr")
+        .constructor<>()
+        .function("resize", &SPVectorUpdatablePtr::setSize)
+        .function("size", &SPVectorUpdatablePtr::size)
+        .function("get", &SPVectorUpdatablePtr::operator[], allow_raw_pointers())
+        .function("set",optional_override([](SPVectorUpdatablePtr &obj, int index, Updatable *value) {
+            obj[index] = value;
+        }), allow_raw_pointer<Updatable*>());
+
+
+    class_<Vector2>("Vector2")
+        .constructor<>()
+        .constructor<float, float>()
+        .function("setX", &Vector2::setX)
+        .function("getX", &Vector2::getX)
+        .function("setY", &Vector2::setY)
+        .function("getY", &Vector2::getY)
+        .function("set", &Vector2::set)
+        .function("length", &Vector2::length)
+        .function("normalize", &Vector2::normalize);
+
+    class_<String>("String")
+        .function("length", &String::length)
+        .function("isEmpty", &String::isEmpty)
+        .function("append", select_overload<String&(const String&)>(&String::append))
+        .function("equals", select_overload<String&(const String&)>(&String::operator=))
+        .function("buffer", &String::buffer, allow_raw_pointer<const char*>())
+        //.function("estr", optional_override([](String &obj) {
+        //    auto str = emscripten::val(obj.buffer());
+        //    return str; }), allow_raw_pointers())
+        .function("strPtr", optional_override([](String &obj) {
+            return reinterpret_cast<uintptr_t>(obj.buffer());}), allow_raw_pointers())
+        .function("str", optional_override([](String &obj) {
+            std::string stdStr(obj.buffer(), obj.length());
+            return stdStr; }), allow_raw_pointers());
 
     enum_<TimelineType>("TimelineType")
         .value("rotate", TimelineType_Rotate)
@@ -211,7 +404,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .value("Clipping", AttachmentType_Clipping);
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
 
     class_<MathUtil>("MathUtils")
         .class_property("PI", &MathUtil::Pi)
@@ -266,7 +459,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<IkConstraintData, base<ConstraintData>>("IkConstraintData")
         .constructor<const String &>()
-        .function("getBones", optional_override([](IkConstraintData &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
+        .function("getBones", optional_override([](IkConstraintData &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>()) 
         .function("getTarget", &IkConstraintData::getTarget, allow_raw_pointer<BoneData>())
         .function("setTarget", &IkConstraintData::setTarget, allow_raw_pointer<BoneData>())
         .function("getBendDirection", &IkConstraintData::getBendDirection)
@@ -284,7 +478,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<PathConstraintData, base<ConstraintData>>("PathConstraintData")
         .constructor<const String &>()
-        .function("getBones", optional_override([](PathConstraintData &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
+        .function("getBones",optional_override([](PathConstraintData &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
         .function("getTarget", &PathConstraintData::getTarget, allow_raw_pointer<SlotData>())
         .function("setTarget", &PathConstraintData::setTarget, allow_raw_pointer<SlotData>())
         .function("getPositionMode", &PathConstraintData::getPositionMode)
@@ -309,23 +504,31 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("aabbContainsPoint", &SkeletonBounds::aabbcontainsPoint)
         .function("aabbIntersectsSegment", &SkeletonBounds::aabbintersectsSegment)
         .function("aabbIntersectsSkeleton", &SkeletonBounds::aabbIntersectsSkeleton)
-        .function("containsPoint", optional_override([](SkeletonBounds &obj, float x, float y) { return obj.containsPoint(x, y); }), allow_raw_pointers())
-        .function("containsPointPolygon", optional_override([](SkeletonBounds &obj, Polygon *polygon, float x, float y) { return obj.containsPoint(polygon, x, y); }), allow_raw_pointers())
-        .function("intersectsSegment", optional_override([](SkeletonBounds &obj, float x1, float y1, float x2, float y2) { return obj.intersectsSegment(x1, y1, x2, y2); }), allow_raw_pointers())
-        .function("intersectsSegmentPolygon", optional_override([](SkeletonBounds &obj, Polygon *polygon, float x1, float y1, float x2, float y2) { return obj.intersectsSegment(polygon, x1, y1, x2, y2); }), allow_raw_pointers())
+        .function("containsPoint", optional_override([](SkeletonBounds &obj, float x, float y) {
+            return obj.containsPoint(x, y); }),allow_raw_pointers())
+        .function("containsPointPolygon", optional_override([](SkeletonBounds &obj,Polygon* polygon, float x, float y) {
+            return obj.containsPoint(polygon, x, y); }),allow_raw_pointers())
+        .function("intersectsSegment", optional_override([](SkeletonBounds &obj, float x1, float y1, float x2, float y2){
+            return obj.intersectsSegment(x1, y1, x2, y2); }),allow_raw_pointers())
+        .function("intersectsSegmentPolygon", optional_override([](SkeletonBounds &obj,Polygon* polygon,
+        float x1, float y1, float x2, float y2){
+            return obj.intersectsSegment(polygon, x1, y1, x2, y2); }),allow_raw_pointers())
         .function("getPolygon", &SkeletonBounds::getPolygon, allow_raw_pointers())
         .function("getWidth", &SkeletonBounds::getWidth)
         .function("getHeight", &SkeletonBounds::getHeight);
 
     class_<Event>("Event")
         .constructor<float, const EventData &>()
-        .function("getData", optional_override([](Event &obj) { return const_cast<EventData *>(&obj.getData()); }), allow_raw_pointers())
+        .function("getData", optional_override([](Event &obj) {
+            return const_cast<EventData*>(&obj.getData()); }), allow_raw_pointers())
         .function("getIntValue", &Event::getIntValue)
         .function("setIntValue", &Event::setIntValue)
         .function("getFloatValue", &Event::getFloatValue)
         .function("setFloatValue", &Event::setFloatValue)
-        .function("getStringValue", optional_override([](Event &obj) { return STRING_SP2STD(obj.getStringValue()); }))
-        .function("setStringValue", optional_override([](Event &obj, const std::string &name) { return obj.setStringValue(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("getStringValue", optional_override([](Event &obj) { 
+            return STRING_SP2STD(obj.getStringValue()); }))
+        .function("setStringValue", optional_override([](Event &obj, const std::string &name) {
+            return obj.setStringValue(STRING_STD2SP(name)); }), allow_raw_pointers())
         .function("getTime", &Event::getTime)
         .function("getVolume", &Event::getVolume)
         .function("setVolume", &Event::setVolume)
@@ -334,42 +537,49 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<EventData>("EventData")
         .constructor<const String &>()
-        .function("getName", optional_override([](EventData &obj) { return STRING_SP2STD(obj.getName()); }))
+        .function("getName", optional_override([](EventData &obj) {
+            return STRING_SP2STD(obj.getName()); }))
         .function("getIntValue", &EventData::getIntValue)
         .function("setIntValue", &EventData::setIntValue)
         .function("getFloatValue", &EventData::getFloatValue)
         .function("setFloatValue", &EventData::setFloatValue)
-        .function("getStringValue", optional_override([](EventData &obj) { return STRING_SP2STD(obj.getStringValue()); }))
-        .function("setStringValue", optional_override([](EventData &obj, const std::string &name) { return obj.setStringValue(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("getAudioPath", optional_override([](EventData &obj) { return STRING_SP2STD(obj.getAudioPath()); }))
-        .function("setAudioPath", optional_override([](EventData &obj, const std::string &name) { return obj.setAudioPath(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("getStringValue", optional_override([](EventData &obj) {
+            return STRING_SP2STD(obj.getStringValue()); }))
+        .function("setStringValue", optional_override([](EventData &obj, const std::string &name) {
+            return obj.setStringValue(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("getAudioPath", optional_override([](EventData &obj) {
+            return STRING_SP2STD(obj.getAudioPath()); }))
+        .function("setAudioPath", optional_override([](EventData &obj, const std::string &name) {
+            return obj.setAudioPath(STRING_STD2SP(name)); }), allow_raw_pointers())
         .function("getVolume", &EventData::getVolume)
         .function("setVolume", &EventData::setVolume)
         .function("getBalance", &EventData::getBalance)
         .function("setBalance", &EventData::setBalance);
 
     class_<Attachment>("Attachment")
-        .function("getName", optional_override([](Attachment &obj) { return STRING_SP2STD(obj.getName()); }));
+        //.function("getName", optional_override([](Attachment &obj) { 
+        //    return emscripten::val(obj.getName().buffer()); }));
+        .function("getName", &Attachment::getName, allow_raw_pointers());
 
     // pure_virtual and raw pointer
     class_<VertexAttachment, base<Attachment>>("VertexAttachment")
         .function("getId", &VertexAttachment::getId)
-        .function("getBones", optional_override([](VertexAttachment &obj) { return VECTOR_SP2STD_SIZE_T(obj.getBones()); }), allow_raw_pointers())
-        .function("getVertices", optional_override([](VertexAttachment &obj) { return VECTOR_SP2STD(obj.getVertices()); }), allow_raw_pointers())
+        .function("getBones", optional_override([](VertexAttachment &obj){
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorSize_t>())
+        .function("getVertices", optional_override([](VertexAttachment &obj){
+            return &obj.getVertices(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getWorldVerticesLength", &VertexAttachment::getWorldVerticesLength)
         .function("setWorldVerticesLength", &VertexAttachment::setWorldVerticesLength)
         .function("getDeformAttachment", &VertexAttachment::getDeformAttachment, allow_raw_pointer<VertexAttachment>())
         .function("setDeformAttachment", &VertexAttachment::setDeformAttachment, allow_raw_pointer<VertexAttachment>())
-        .function("computeWorldVertices", optional_override([](VertexAttachment &obj, Slot &slot, size_t start, size_t count, std::vector<float> worldVertices, size_t offset, size_t stride) {
-                      auto spWorldVertices = VECTOR_STD2SP(worldVertices);
-                      obj.computeWorldVertices(slot, start, count, spWorldVertices, offset, stride);
-                      VECTOR_STD_COPY_SP(worldVertices, spWorldVertices);
-                  }))
+        .function("computeWorldVertices", select_overload<void(Slot&, size_t, size_t, Vector<float>&, size_t, size_t)>
+        (&VertexAttachment::computeWorldVertices), allow_raw_pointer<SPVectorFloat>())
         .function("copyTo", &VertexAttachment::copyTo, allow_raw_pointers());
 
     class_<BoundingBoxAttachment, base<VertexAttachment>>("BoundingBoxAttachment")
         .constructor<const String &>()
-        .function("getName", optional_override([](BoundingBoxAttachment &obj) { return STRING_SP2STD(obj.getName()); }))
+        .function("getName", optional_override([](BoundingBoxAttachment &obj) {
+            return STRING_SP2STD(obj.getName()); }))
         .function("copy", &BoundingBoxAttachment::copy, allow_raw_pointers());
 
     class_<ClippingAttachment, base<VertexAttachment>>("ClippingAttachment")
@@ -380,21 +590,27 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<MeshAttachment, base<VertexAttachment>>("MeshAttachment")
         .constructor<const String &>()
-        .function("getPath", optional_override([](MeshAttachment &obj) { return STRING_SP2STD(obj.getPath()); }))
+        .function("getPath", optional_override([](MeshAttachment &obj) {
+            return STRING_SP2STD(obj.getPath()); }))
         .function("setPath", optional_override([](MeshAttachment &obj, const std::string &path) {
             const String &pathSP = STRING_STD2SP(path);
             obj.setPath(pathSP); }))
-        .function("getRegionUVs", optional_override([](MeshAttachment &obj) { return VECTOR_SP2STD(obj.getRegionUVs()); }))
-        .function("getUVs", optional_override([](MeshAttachment &obj) { return VECTOR_SP2STD(obj.getUVs()); }), allow_raw_pointers())
-        .function("getTriangles", optional_override([](MeshAttachment &obj) { return VECTOR_SP2STD(obj.getTriangles()); }), allow_raw_pointers())
-        .function("getColor", optional_override([](MeshAttachment &obj) { return &obj.getColor(); }), allow_raw_pointers())
+        .function("getRegionUVs", optional_override([](MeshAttachment &obj) {
+            return &obj.getRegionUVs(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getUVs", optional_override([](MeshAttachment &obj) { 
+            return &obj.getUVs(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getTriangles", optional_override([](MeshAttachment &obj) {
+            return &obj.getTriangles(); }), allow_raw_pointer<SPVectorUnsignedShort>())
+        .function("getColor", optional_override([](MeshAttachment &obj) {
+            return &obj.getColor(); }), allow_raw_pointers())
         .function("getWidth", &MeshAttachment::getWidth)
         .function("setWidth", &MeshAttachment::setWidth)
         .function("getHeight", &MeshAttachment::getHeight)
         .function("setHeight", &MeshAttachment::setHeight)
         .function("getHullLength", &MeshAttachment::getHullLength)
         .function("setHullLength", &MeshAttachment::setHullLength)
-        .function("getEdges", optional_override([](MeshAttachment &obj) { return VECTOR_SP2STD(obj.getEdges()); }))
+        .function("getEdges", optional_override([](MeshAttachment &obj) {
+            return &obj.getEdges(); }), allow_raw_pointer<SPVectorUnsignedShort>())
         .function("updateUVs", &MeshAttachment::updateUVs)
         .function("getParentMesh", &MeshAttachment::getParentMesh, allow_raw_pointers())
         .function("setParentMesh", &MeshAttachment::setParentMesh, allow_raw_pointers())
@@ -403,7 +619,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<PathAttachment, base<VertexAttachment>>("PathAttachment")
         .constructor<const String &>()
-        .function("getLengths", optional_override([](PathAttachment &obj) { return VECTOR_SP2STD(obj.getLengths()); }))
+        .function("getLengths", optional_override([](PathAttachment &obj) {
+            return &obj.getLengths(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getClosed", &PathAttachment::isClosed)
         .function("setClosed", &PathAttachment::setClosed)
         .function("getConstantSpeed", &PathAttachment::isConstantSpeed)
@@ -418,7 +635,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setY", &PointAttachment::setY)
         .function("getRotation", &PointAttachment::getRotation)
         .function("setRotation", &PointAttachment::setRotation)
-        .function("computeWorldPosition", optional_override([](PointAttachment &obj, Bone &bone, float ox, float oy) { obj.computeWorldPosition(bone, ox, oy); }))
+        .function("computeWorldPosition", optional_override([](PointAttachment &obj, Bone &bone, float ox, float oy) {
+            obj.computeWorldPosition(bone, ox, oy);}))
         .function("computeWorldRotation", &PointAttachment::computeWorldRotation)
         .function("copy", &PointAttachment::copy, allow_raw_pointers());
 
@@ -438,33 +656,22 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setWidth", &RegionAttachment::setWidth)
         .function("getHeight", &RegionAttachment::getHeight)
         .function("setHeight", &RegionAttachment::setHeight)
-        .function("getColor", optional_override([](RegionAttachment &obj) { return &obj.getColor(); }), allow_raw_pointers())
-        .function("getPath", optional_override([](RegionAttachment &obj) { return STRING_SP2STD(obj.getPath()); }))
+        .function("getColor", optional_override([](RegionAttachment &obj) {
+            return &obj.getColor(); }), allow_raw_pointers())
+        .function("getPath", optional_override([](RegionAttachment &obj) {
+            return STRING_SP2STD(obj.getPath()); }))
         .function("setPath", optional_override([](RegionAttachment &obj, const std::string &path) {
             const String &pathSP = STRING_STD2SP(path);
             obj.setPath(pathSP); }))
         .function("getRendererObject", &RegionAttachment::getRendererObject, allow_raw_pointers())
-        .function("getOffset", optional_override([](RegionAttachment &obj) { return VECTOR_SP2STD(obj.getOffset()); }), allow_raw_pointers())
-        .function("setUVs", optional_override([](RegionAttachment &obj, std::vector<float> &data) {
-                      auto uvs = obj.getUVs();
-                      int count = data.size();
-                      float u = count > 1 ? data[0] : uvs[0];
-                      float v = count > 2 ? data[1] : uvs[1];
-                      float u2 = count > 3 ? data[2] : uvs[2];
-                      float v2 = count > 4 ? data[3] : uvs[3];
-                      bool rotate = count > 5 ? (data[4] != 0) : false;
-                      obj.setUVs(u, v, u2, v2, rotate);
-                  }),
-                  allow_raw_pointers())
-        .function("getUVs", optional_override([](RegionAttachment &obj) { return VECTOR_SP2STD(obj.getUVs()); }), allow_raw_pointers())
+        .function("getOffset", optional_override([](RegionAttachment &obj) {
+            return &obj.getOffset(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("setUVs", &RegionAttachment::setUVs)
+        .function("getUVs", optional_override([](RegionAttachment &obj) {
+            return &obj.getUVs(); }), allow_raw_pointer<SPVectorFloat>())
         .function("updateOffset", &RegionAttachment::updateOffset)
-        .function("computeWorldVertices", optional_override([](
-                                                                RegionAttachment &obj, Bone &bone, std::vector<float> worldVertices,
-                                                                size_t offset, size_t stride) {
-                      auto spWorldVertices = VECTOR_STD2SP(worldVertices);
-                      obj.computeWorldVertices(bone, spWorldVertices, offset, stride);
-                      VECTOR_STD_COPY_SP(worldVertices, spWorldVertices);
-                  }))
+        .function("computeWorldVertices", select_overload<void(Bone&, Vector<float>&, size_t, size_t)>
+        (&RegionAttachment::computeWorldVertices), allow_raw_pointer<SPVectorFloat>())
         .function("copy", &RegionAttachment::copy, allow_raw_pointer<Attachment>());
 
     class_<AttachmentLoader>("AttachmentLoader")
@@ -487,7 +694,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<AtlasPage>("TextureAtlasPage")
         .constructor<const String &>()
-        .function("getName", optional_override([](AtlasPage &obj) { return STRING_SP2STD((const String)obj.name); }))
+        .function("getName", optional_override([](AtlasPage &obj) {
+            return STRING_SP2STD((const String)obj.name); }))
         .property("minFilter", &AtlasPage::minFilter)
         .property("magFilter", &AtlasPage::magFilter)
         .property("uWrap", &AtlasPage::uWrap)
@@ -498,17 +706,19 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<AtlasRegion>("TextureAtlasRegion")
         //.property("page", &AtlasRegion::page)
-        .function("getName", optional_override([](AtlasRegion &obj) { return STRING_SP2STD((const String)obj.name); }))
+        .function("getName", optional_override([](AtlasRegion &obj) {
+            return STRING_SP2STD((const String)obj.name); }))
         .property("x", &AtlasRegion::x)
         .property("y", &AtlasRegion::y)
         .property("index", &AtlasRegion::index)
         .property("rotate", &AtlasRegion::rotate)
         .property("degrees", &AtlasRegion::degrees);
-    //.property("texture", &AtlasRegion::height)
+        //.property("texture", &AtlasRegion::height)
 
     class_<Atlas>("TextureAtlas")
         .constructor<const String &, TextureLoader *, bool>()
-        .function("findRegion", optional_override([](Atlas &obj, const std::string &name) { return obj.findRegion(STRING_STD2SP(name)); }), allow_raw_pointers());
+        .function("findRegion", optional_override([](Atlas &obj, const std::string &name) {
+            return obj.findRegion(STRING_STD2SP(name)); }), allow_raw_pointers());
 
     class_<PowInterpolation, base<Interpolation>>("Pow")
         .constructor<int>()
@@ -518,21 +728,17 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<int>()
         .function("apply", &PowInterpolation::apply);
 
-    // class_<Vector2>("Vector2")
-    //     .constructor<float, float>()
-    //     .function("set", static_cast<Vector2&(Vector2::*)(float, float)>(&Vector2::set))
-    //     .function("length", &Vector2::length)
-    //     .function("normalize", static_cast<Vector2&(Vector2::*)()>(&Vector2::normalize))
-    //     .property("x", &Vector2::x)
-    //     .property("y", &Vector2::y);
-
     class_<SlotData>("SlotData")
         .constructor<int, const String &, BoneData &>()
         .function("getIndex", &SlotData::getIndex)
-        .function("getName", optional_override([](SlotData &obj) { return STRING_SP2STD(obj.getName()); }))
-        .function("getBoneData", optional_override([](SlotData &obj) { return &obj.getBoneData(); }), allow_raw_pointers())
-        .function("getColor", optional_override([](SlotData &obj) { return &obj.getColor(); }), allow_raw_pointers())
-        .function("getDarkColor", optional_override([](SlotData &obj) { return &obj.getDarkColor(); }), allow_raw_pointers())
+        .function("getName", optional_override([](SlotData &obj) {
+            return STRING_SP2STD(obj.getName()); }))
+        .function("getBoneData", optional_override([](SlotData &obj) {
+            return &obj.getBoneData(); }), allow_raw_pointers())
+        .function("getColor", optional_override([](SlotData &obj) {
+            return &obj.getColor();}), allow_raw_pointers())
+        .function("getDarkColor", optional_override([](SlotData &obj) {
+            return &obj.getDarkColor();}), allow_raw_pointers())
         .function("getBlendMode", &SlotData::getBlendMode)
         .function("setBlendMode", &SlotData::setBlendMode);
 
@@ -542,8 +748,9 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<IkConstraint, base<Updatable>>("IkConstraint")
         .constructor<IkConstraintData &, Skeleton &>()
-        .function("getData", optional_override([](IkConstraint &obj) { return &obj.getData(); }), allow_raw_pointers())
-        .function("getBones", optional_override([](IkConstraint &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
+        .function("getData", &IkConstraint::getData, allow_raw_pointers())
+        .function("getBones", optional_override([](IkConstraint &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getTarget", &IkConstraint::getTarget, allow_raw_pointer<Bone>())
         .function("setTarget", &IkConstraint::setTarget, allow_raw_pointer<Bone>())
         .function("getBendDirection", &IkConstraint::getBendDirection)
@@ -562,20 +769,21 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("apply", static_cast<void (IkConstraint::*)()>(&IkConstraint::apply))
         .function("update", &IkConstraint::update)
         .class_function("apply1", optional_override([](
-                                                        IkConstraint &obj, Bone &bone, float targetX, float targetY,
-                                                        bool compress, bool stretch, bool uniform, float alpha) {
-                            obj.apply(bone, targetX, targetY, compress, stretch, uniform, alpha);
-                        }))
+            IkConstraint &obj, Bone &bone, float targetX, float targetY, 
+            bool compress, bool stretch, bool uniform, float alpha){
+                obj.apply(bone, targetX, targetY, compress, stretch, uniform, alpha);
+        }))
         .class_function("apply2", optional_override([](
-                                                        IkConstraint &obj, Bone &parent, Bone &child, float targetX, float targetY,
-                                                        int bendDir, bool stretch, float softness, float alpha) {
-                            obj.apply(parent, child, targetX, targetY, bendDir, stretch, softness, alpha);
-                        }));
+            IkConstraint &obj, Bone &parent, Bone &child, float targetX, float targetY,
+            int bendDir, bool stretch, float softness, float alpha){
+                obj.apply(parent, child, targetX, targetY, bendDir, stretch, softness, alpha);
+        }));
 
     class_<PathConstraint, base<Updatable>>("PathConstraint")
         .constructor<PathConstraintData &, Skeleton &>()
-        .function("getData", optional_override([](PathConstraint &obj) { return &obj.getData(); }), allow_raw_pointers())
-        .function("getBones", optional_override([](PathConstraint &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
+        .function("getData", &PathConstraint::getData, allow_raw_pointers())
+        .function("getBones", optional_override([](PathConstraint &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getTarget", &PathConstraint::getTarget, allow_raw_pointer<Slot>())
         .function("setTarget", &PathConstraint::setTarget, allow_raw_pointer<Slot>())
         .function("getPosition", &PathConstraint::getPosition)
@@ -594,7 +802,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<TransformConstraintData, base<ConstraintData>>("TransformConstraintData")
         .constructor<const String &>()
-        .function("getBones", optional_override([](TransformConstraintData &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
+        .function("getBones", optional_override([](TransformConstraintData &obj) { 
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
         .function("getTarget", &TransformConstraintData::getTarget, allow_raw_pointers())
         .function("getRotateMix", &TransformConstraintData::getRotateMix)
         .function("getTranslateMix", &TransformConstraintData::getTranslateMix)
@@ -611,8 +820,9 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<TransformConstraint, base<Updatable>>("TransformConstraint")
         .constructor<TransformConstraintData &, Skeleton &>()
-        .function("getData", optional_override([](TransformConstraint &obj) { return &obj.getData(); }), allow_raw_pointers())
-        .function("getBones", optional_override([](TransformConstraint &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
+        .function("getData", &TransformConstraint::getData, allow_raw_pointers())
+        .function("getBones", optional_override([](TransformConstraint &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getTarget", &TransformConstraint::getTarget, allow_raw_pointers())
         .function("getRotateMix", &TransformConstraint::getRotateMix)
         .function("setRotateMix", &TransformConstraint::setRotateMix)
@@ -630,10 +840,14 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<Bone, base<Updatable>>("Bone")
         .constructor<BoneData &, Skeleton &, Bone *>()
-        .function("getData", optional_override([](Bone &obj) { return &obj.getData(); }), allow_raw_pointers())
-        .function("getSkeleton", optional_override([](Bone &obj) { return &obj.getSkeleton(); }), allow_raw_pointers())
-        .function("getParent", optional_override([](Bone &obj) { return obj.getParent(); }), allow_raw_pointers())
-        .function("getChildren", optional_override([](Bone &obj) { return VECTOR_SP2STD(obj.getChildren()); }), allow_raw_pointers())
+        .function("getData", optional_override([](Bone &obj) {
+            return &obj.getData(); }), allow_raw_pointers())
+        .function("getSkeleton", optional_override([](Bone &obj) {
+            return &obj.getSkeleton(); }), allow_raw_pointers())
+        .function("getParent", optional_override([](Bone &obj) {
+            return obj.getParent(); }), allow_raw_pointers())
+        .function("getChildren", optional_override([](Bone &obj) {
+            return &obj.getChildren(); }), allow_raw_pointer<SPVectorBonePtr>())
         .function("getX", &Bone::getX)
         .function("setX", &Bone::setX)
         .function("getY", &Bone::getY)
@@ -686,19 +900,23 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getWorldRotationX", &Bone::getWorldRotationX)
         .function("getWorldRotationY", &Bone::getWorldRotationY)
         .function("getWorldScaleX", &Bone::getWorldScaleX)
-        .function("getWorldScaleY", &Bone::getWorldScaleY)
-        .function("worldToLocal", optional_override([](Bone &obj, float a, float b) {
-                      std::vector<float> vec2(2);
-                      obj.worldToLocal(a, b, vec2[0], vec2[1]);
-                      return vec2;
-                  }),
-                  allow_raw_pointers())
-        .function("localToWorld", optional_override([](Bone &obj, float a, float b) {
-                      std::vector<float> vec2(2);
-                      obj.localToWorld(a, b, vec2[0], vec2[1]);
-                      return vec2;
-                  }),
-                  allow_raw_pointers())
+        .function("getWorldScaleY", &Bone::getWorldScaleY) 
+        .function("worldToLocal", optional_override([](Bone &obj, Vector2 &vec2) {
+                float outLocalX, outLocalY;
+                obj.worldToLocal(vec2.x, vec2.y, outLocalX, outLocalY);
+                vec2.x = outLocalX;
+                vec2.y = outLocalY;
+            }), 
+            allow_raw_pointers()
+        )
+        .function("localToWorld", optional_override([](Bone &obj, Vector2 &vec2) {
+                float outWorldX, outWorldY;
+                obj.localToWorld(vec2.x, vec2.y, outWorldX, outWorldY);
+                vec2.x = outWorldX;
+                vec2.y = outWorldY;
+            }), 
+            allow_raw_pointers()
+        )
         .function("worldToLocalRotation", &Bone::worldToLocalRotation)
         .function("localToWorldRotation", &Bone::localToWorldRotation)
         .function("rotateWorld", &Bone::rotateWorld);
@@ -731,12 +949,17 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<Slot>("Slot")
         .constructor<SlotData &, Bone &>()
-        .function("getData", optional_override([](Slot &obj) { return &obj.getData(); }), allow_raw_pointers())
-        .function("getBone", optional_override([](Slot &obj) { return &obj.getBone(); }), allow_raw_pointers())
-        .function("getColor", optional_override([](Slot &obj) { return &obj.getColor(); }), allow_raw_pointers())
-        .function("getDarkColor", optional_override([](Slot &obj) { return &obj.getDarkColor(); }), allow_raw_pointers())
-        .function("getDeform", optional_override([](Slot &obj) { return VECTOR_SP2STD(obj.getDeform()); }), allow_raw_pointers())
-        .function("getSkeleton", optional_override([](Slot &obj) { return &obj.getSkeleton(); }), allow_raw_pointers())
+        .function("getData", optional_override([](Slot &obj) {
+            return &obj.getData(); }), allow_raw_pointers())
+        .function("getBone", optional_override([](Slot &obj) {
+            return &obj.getBone(); }), allow_raw_pointers())
+        .function("getColor", optional_override([](Slot &obj) {
+            return &obj.getColor(); }), allow_raw_pointers())
+        .function("getDarkColor", optional_override([](Slot &obj) {
+            return &obj.getDarkColor(); }), allow_raw_pointers())
+        .function("getDeform", &Slot::getDeform, allow_raw_pointers())
+        .function("getSkeleton", optional_override([](Slot &obj) {
+            return &obj.getSkeleton(); }), allow_raw_pointers())
         .function("getAttachment", &Slot::getAttachment, allow_raw_pointers())
         .function("setAttachment", &Slot::setAttachment, allow_raw_pointers())
         .function("setAttachmentTime", &Slot::setAttachmentTime)
@@ -745,51 +968,52 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<Skin>("Skin")
         .constructor<const String &>()
-        .function("getName", optional_override([](Skin &obj) { return STRING_SP2STD(obj.getName()); }))
-        .function("getBones", optional_override([](Skin &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
-        .function("getConstraints", optional_override([](Skin &obj) { return VECTOR_SP2STD(obj.getConstraints()); }), allow_raw_pointers())
-        .function("setAttachment", optional_override([](Skin &obj, size_t index, const std::string &name, Attachment *attachment) {
-                      return obj.setAttachment(index, STRING_STD2SP(name), attachment);
-                  }),
-                  allow_raw_pointers())
+        .function("getName", optional_override([](Skin &obj) {
+            return STRING_SP2STD(obj.getName()); }))
+        .function("getBones", optional_override([](Skin &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
+        .function("getConstraints", optional_override([](Skin &obj) {
+            return &obj.getConstraints(); }), allow_raw_pointer<SPVectorConstraintDataPtr>())
+        .function("setAttachment", optional_override([](Skin &obj, size_t index,
+        const std::string &name, Attachment *attachment) {
+            return obj.setAttachment(index, STRING_STD2SP(name), attachment);
+        }), allow_raw_pointers())
         .function("addSkin", select_overload<void(Skin *)>(&Skin::addSkin), allow_raw_pointers())
         .function("copySkin", select_overload<void(Skin *)>(&Skin::copySkin), allow_raw_pointers())
         .function("findNamesForSlot", optional_override([](Skin &obj, size_t slotIndex) {
-                      std::vector<std::string> vetNames;
-                      std::vector<Skin::AttachmentMap::Entry *> entriesVector;
-                      auto entries = obj.getAttachments();
-                      while (entries.hasNext()) {
-                          Skin::AttachmentMap::Entry &entry = entries.next();
-                          if (entry._slotIndex == slotIndex) vetNames.push_back(STRING_SP2STD(entry._name));
-                      }
-                      return vetNames;
-                  }),
-                  allow_raw_pointers())
-        .function("getAttachment", optional_override([](Skin &obj, size_t slotIndex, const std::string &name) {
-                      return obj.getAttachment(slotIndex, STRING_STD2SP(name));
-                  }),
-                  allow_raw_pointers())
+            std::vector<std::string> vetNames;
+            std::vector<Skin::AttachmentMap::Entry *> entriesVector;
+            auto entries = obj.getAttachments();
+            while (entries.hasNext()) {
+                Skin::AttachmentMap::Entry &entry = entries.next();
+                if (entry._slotIndex == slotIndex) vetNames.push_back(STRING_SP2STD(entry._name));
+            }
+            return vetNames; 
+        }), allow_raw_pointers())
+        .function("getAttachment", optional_override([](Skin &obj, size_t slotIndex,
+        const std::string &name) {
+            return obj.getAttachment(slotIndex, STRING_STD2SP(name));
+        }), allow_raw_pointers())
         .function("getAttachments", optional_override([](Skin &obj) {
-                      std::vector<Skin::AttachmentMap::Entry *> entriesVector;
-                      auto entries = obj.getAttachments();
-                      while (entries.hasNext()) {
-                          entriesVector.push_back(&entries.next());
-                      }
-                      return entriesVector;
-                  }),
-                  allow_raw_pointers())
+            std::vector<Skin::AttachmentMap::Entry *> entriesVector;
+            auto entries = obj.getAttachments();
+            while (entries.hasNext()) {
+                entriesVector.push_back(&entries.next());
+            }
+            return entriesVector;
+        }),allow_raw_pointers())
         .function("removeAttachment", optional_override([](Skin &obj, size_t index,
-                                                           const std::string &name) { obj.removeAttachment(index, STRING_STD2SP(name)); }))
+        const std::string &name) {
+            obj.removeAttachment(index, STRING_STD2SP(name)); }))
         .function("getAttachmentsForSlot", optional_override([](Skin &obj, size_t index) {
-                      std::vector<Skin::AttachmentMap::Entry *> entriesVector;
-                      auto entries = obj.getAttachments();
-                      while (entries.hasNext()) {
-                          Skin::AttachmentMap::Entry &entry = entries.next();
-                          if (entry._slotIndex == index) entriesVector.push_back(&entry);
-                      }
-                      return entriesVector;
-                  }),
-                  allow_raw_pointers());
+            std::vector<Skin::AttachmentMap::Entry *> entriesVector;
+            auto entries = obj.getAttachments();
+            while (entries.hasNext()) {
+                Skin::AttachmentMap::Entry &entry = entries.next();
+                if (entry._slotIndex == index) entriesVector.push_back(&entry);
+            }
+            return entriesVector;
+        }),allow_raw_pointers());
 
     class_<Skin::AttachmentMap::Entry>("SkinEntry")
         .constructor<size_t, const String &, Attachment *>()
@@ -809,18 +1033,27 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<SkeletonData>("SkeletonData")
         .constructor<>()
-        .function("getName", optional_override([](SkeletonData &obj) { return STRING_SP2STD(obj.getName()); }))
+        .function("getName", optional_override([](SkeletonData &obj) {
+            return STRING_SP2STD(obj.getName()); }))
         .function("setName", &SkeletonData::setName)
-        .function("getBones", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
-        .function("getSlots", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getSlots()); }), allow_raw_pointers())
-        .function("getSkins", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getSkins()); }), allow_raw_pointers())
+        .function("getBones", optional_override([](SkeletonData &obj) {
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
+        .function("getSlots", optional_override([](SkeletonData &obj) {
+            return &obj.getSlots(); }), allow_raw_pointer<SPVectorSlotPtr>())
+        .function("getSkins", optional_override([](SkeletonData &obj) {
+            return &obj.getSkins(); }), allow_raw_pointer<SPVectorSkinPtr>())
         .function("getDefaultSkin", &SkeletonData::getDefaultSkin, allow_raw_pointers())
         .function("setDefaultSkin", &SkeletonData::setDefaultSkin, allow_raw_pointers())
-        .function("getEvents", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getEvents()); }), allow_raw_pointers())
-        .function("getAnimations", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getAnimations()); }), allow_raw_pointers())
-        .function("getIkConstraints", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getIkConstraints()); }), allow_raw_pointers())
-        .function("getTransformConstraints", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getTransformConstraints()); }), allow_raw_pointers())
-        .function("getPathConstraints", optional_override([](SkeletonData &obj) { return VECTOR_SP2STD(obj.getPathConstraints()); }), allow_raw_pointers())
+        .function("getEvents", optional_override([](SkeletonData &obj) {
+            return &obj.getEvents(); }), allow_raw_pointer<SPVectorEventDataPtr>())
+        .function("getAnimations", optional_override([](SkeletonData &obj) {
+            return &obj.getAnimations(); }), allow_raw_pointer<SPVectorAnimationPtr>())
+        .function("getIkConstraints", optional_override([](SkeletonData &obj) {
+            return &obj.getIkConstraints(); }), allow_raw_pointer<SPVectorIkConstraintDataPtr>())
+        .function("getTransformConstraints", optional_override([](SkeletonData &obj) {
+            return &obj.getTransformConstraints(); }), allow_raw_pointer<SPVectorTransformConstraintPtr>())
+        .function("getPathConstraints", optional_override([](SkeletonData &obj) {
+            return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintPtr>())
         .function("getX", &SkeletonData::getX)
         .function("setX", &SkeletonData::setX)
         .function("getY", &SkeletonData::getY)
@@ -829,56 +1062,74 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setWidth", &SkeletonData::setWidth)
         .function("getHeight", &SkeletonData::getHeight)
         .function("setHeight", &SkeletonData::setHeight)
-        .function("getVersion", optional_override([](SkeletonData &obj) { return STRING_SP2STD(obj.getVersion()); }))
+        .function("getVersion", optional_override([](SkeletonData &obj) {
+            return STRING_SP2STD(obj.getVersion()); }))
         .function("setVersion", &SkeletonData::setVersion)
-        .function("getHash", optional_override([](SkeletonData &obj) { return STRING_SP2STD(obj.getHash()); }))
+        .function("getHash", optional_override([](SkeletonData &obj) {
+            return STRING_SP2STD(obj.getHash()); }))
         .function("setHash", &SkeletonData::setHash)
         .function("getFps", &SkeletonData::getFps)
         .function("setFps", &SkeletonData::setFps)
-        .function("getImagesPath", optional_override([](SkeletonData &obj) { return STRING_SP2STD(obj.getImagesPath()); }))
+        .function("getImagesPath", optional_override([](SkeletonData &obj) {
+            return STRING_SP2STD(obj.getImagesPath()); }))
         .function("setImagesPath", &SkeletonData::setImagesPath)
-        .function("getAudioPath", optional_override([](SkeletonData &obj) { return STRING_SP2STD(obj.getAudioPath()); }))
+        .function("getAudioPath", optional_override([](SkeletonData &obj) {
+            return STRING_SP2STD(obj.getAudioPath()); }))
         .function("setAudioPath", &SkeletonData::setAudioPath)
-        .function("findBone", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findBone(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findBoneIndex", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findBoneIndex(STRING_STD2SP(name)); }))
-        .function("findSlot", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findSlot(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findSlotIndex", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findSlotIndex(STRING_STD2SP(name)); }))
-        .function("findSkin", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findSkin(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findEvent", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findEvent(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findAnimation", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findAnimation(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findIkConstraint", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findIkConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findTransformConstraint", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findTransformConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findPathConstraint", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findPathConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findPathConstraintIndex", optional_override([](SkeletonData &obj, const std::string &name) { return obj.findPathConstraintIndex(STRING_STD2SP(name)); }));
+        .function("findBone", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findBone(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findBoneIndex", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findBoneIndex(STRING_STD2SP(name)); }))
+        .function("findSlot", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findSlot(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findSlotIndex", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findSlotIndex(STRING_STD2SP(name)); }))
+        .function("findSkin", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findSkin(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findEvent", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findEvent(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findAnimation", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findAnimation(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findIkConstraint", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findIkConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findTransformConstraint", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findTransformConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findPathConstraint", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findPathConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
+        .function("findPathConstraintIndex", optional_override([](SkeletonData &obj, const std::string &name) {
+            return obj.findPathConstraintIndex(STRING_STD2SP(name)); }));
 
     class_<Animation>("Animation")
         .constructor<const String &, Vector<Timeline *> &, float>()
         .function("apply", optional_override([](Animation &obj, Skeleton &skeleton,
-                                                float lastTime, float time, bool loop, std::vector<Event *> &stdPEvents, float alpha,
-                                                MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, loop, &pEvents, alpha, blend, direction);
-                  }))
+        float lastTime, float time, bool loop, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, loop, &pEvents, alpha, blend, direction);
+        }))
         .function("getName", optional_override([](Animation &obj) { return STRING_SP2STD(obj.getName()); }))
-        .function("getTimelines", optional_override([](Animation &obj) { return VECTOR_SP2STD(obj.getTimelines()); }), allow_raw_pointers())
+        .function("getTimelines", optional_override([](Animation &obj) {
+            return &obj.getTimelines(); }), allow_raw_pointer<SPVectorTimelinePtr>())
         .function("hasTimeline", &Animation::hasTimeline)
         .function("getDuration", &Animation::getDuration)
         .function("setDuration", &Animation::setDuration);
 
     class_<Timeline>("Timeline")
-        .function("apply", optional_override([](Timeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  pure_virtual())
+        .function("apply", optional_override([](Timeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), pure_virtual())
         .function("getPropertyId", &Timeline::getPropertyId, pure_virtual());
 
     class_<CurveTimeline, base<Timeline>>("CurveTimeline")
-        .function("apply", optional_override([](CurveTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  pure_virtual())
+        .function("apply", optional_override([](CurveTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), pure_virtual())
         .function("getPropertyId", &CurveTimeline::getPropertyId, pure_virtual())
         .function("getFrameCount", &CurveTimeline::getFrameCount)
         .function("setLinear", &CurveTimeline::setLinear)
@@ -892,57 +1143,64 @@ EMSCRIPTEN_BINDINGS(spine) {
         .class_property("ENTRIES", &TranslateTimeline::ENTRIES)
         .function("getPropertyId", &TranslateTimeline::getPropertyId)
         .function("setFrame", &TranslateTimeline::setFrame)
-        .function("apply", optional_override([](TranslateTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](TranslateTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<ScaleTimeline, base<TranslateTimeline>>("ScaleTimeline")
         .constructor<int>()
         .function("getPropertyId", &ScaleTimeline::getPropertyId)
-        .function("apply", optional_override([](ScaleTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](ScaleTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<ShearTimeline, base<TranslateTimeline>>("ShearTimeline")
         .constructor<int>()
         .function("getPropertyId", &ShearTimeline::getPropertyId)
-        .function("apply", optional_override([](ShearTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](ShearTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<RotateTimeline, base<CurveTimeline>>("RotateTimeline")
         .constructor<int>()
         //.class_property("ENTRIES", &RotateTimeline::ENTRIES) not bind
         .function("getBoneIndex", &RotateTimeline::getBoneIndex)
         .function("setBoneIndex", &RotateTimeline::setBoneIndex)
-        .function("getFrames", optional_override([](RotateTimeline &obj) { return VECTOR_SP2STD(obj.getFrames()); }), allow_raw_pointers())
+        .function("getFrames", optional_override([](RotateTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &RotateTimeline::getPropertyId)
         .function("setFrame", &RotateTimeline::setFrame)
-        .function("apply", optional_override([](RotateTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](RotateTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<ColorTimeline, base<CurveTimeline>>("ColorTimeline")
         .constructor<int>()
-        .class_property("ENTRIES", &ColorTimeline::ENTRIES)
+        .class_property("ENTRIES", &ColorTimeline::ENTRIES) 
         .function("getSlotIndex", &ColorTimeline::getSlotIndex)
         .function("setSlotIndex", &ColorTimeline::setSlotIndex)
-        .function("getFrames", optional_override([](ColorTimeline &obj) { return VECTOR_SP2STD(obj.getFrames()); }), allow_raw_pointers())
+        .function("getFrames", optional_override([](ColorTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &ColorTimeline::getPropertyId)
         .function("setFrame", &ColorTimeline::setFrame)
-        .function("apply", optional_override([](ColorTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](ColorTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<TwoColorTimeline, base<CurveTimeline>>("TwoColorTimeline")
         .constructor<int>()
@@ -951,32 +1209,34 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setSlotIndex", &TwoColorTimeline::setSlotIndex)
         .function("getPropertyId", &TwoColorTimeline::getPropertyId)
         .function("setFrame", &TwoColorTimeline::setFrame)
-        .function("apply", optional_override([](TwoColorTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](TwoColorTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<AttachmentTimeline, base<Timeline>>("AttachmentTimeline")
         .constructor<int>()
         .function("getSlotIndex", &AttachmentTimeline::getSlotIndex)
         .function("setSlotIndex", &AttachmentTimeline::setSlotIndex)
-        .function("getFrames", optional_override([](AttachmentTimeline &obj) { return VECTOR_SP2STD((Vector<float> &)obj.getFrames()); }), allow_raw_pointers())
-        .function("getAttachmentNames", optional_override([](AttachmentTimeline &obj) {
+        .function("getFrames", optional_override([](AttachmentTimeline &obj) {
+             return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getAttachmentNames",optional_override([](AttachmentTimeline &obj) {
             Vector<String> attachmentNames = obj.getAttachmentNames();
             return VECTOR_SP2STD_STRING(attachmentNames); }), allow_raw_pointers())
         .function("getPropertyId", &AttachmentTimeline::getPropertyId)
         .function("getFrameCount", &AttachmentTimeline::getFrameCount)
-        .function("setFrame", optional_override([](AttachmentTimeline &obj, int frameIndex, float time, const std::string &attachmentName) {
-                      const String attachmentNameSP = STRING_STD2SP(attachmentName);
-                      obj.setFrame(frameIndex, time, attachmentNameSP);
-                  }),
-                  allow_raw_pointers())
-        .function("apply", optional_override([](AttachmentTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("setFrame", optional_override([](AttachmentTimeline &obj, int frameIndex, float time, const std::string &attachmentName){
+            const String attachmentNameSP = STRING_STD2SP(attachmentName);
+            obj.setFrame(frameIndex, time, attachmentNameSP);
+        }), allow_raw_pointers())
+        .function("apply", optional_override([](AttachmentTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<DeformTimeline, base<CurveTimeline>>("DeformTimeline")
         .constructor<int>()
@@ -984,95 +1244,100 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setSlotIndex", &DeformTimeline::setSlotIndex)
         .function("getAttachment", &DeformTimeline::getAttachment, allow_raw_pointers())
         .function("setAttachment", &DeformTimeline::setAttachment, allow_raw_pointers())
-        .function("getFrames", optional_override([](DeformTimeline &obj) { return VECTOR_SP2STD((Vector<float> &)obj.getFrames()); }))
+        .function("getFrames", optional_override([](DeformTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getFrameVertices", optional_override([](DeformTimeline &obj) {
-                      return VECTOR_2_SP2STD(obj.getVertices());
-                  }),
-                  allow_raw_pointers())
+            return &obj.getVertices(); }), allow_raw_pointer<SPVectorVectorFloat>())
         .function("getPropertyId", &DeformTimeline::getPropertyId)
-        .function("setFrame", optional_override([](DeformTimeline &obj, int frameIndex, float time, std::vector<float> &vertices) {
-                      Vector<float> sp_vertices = VECTOR_STD2SP(vertices);
-                      obj.setFrame(frameIndex, time, sp_vertices);
-                  }),
-                  allow_raw_pointers())
-        .function("apply", optional_override([](DeformTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("setFrame", optional_override([](DeformTimeline &obj, int frameIndex, float time, std::vector<float> &vertices){
+            Vector<float> sp_vertices = VECTOR_STD2SP(vertices);
+            obj.setFrame(frameIndex, time, sp_vertices);
+        }), allow_raw_pointers())
+        .function("apply", optional_override([](DeformTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<EventTimeline, base<Timeline>>("EventTimeline")
         .constructor<int>()
-        .function("getFrames", optional_override([](EventTimeline &obj) { return VECTOR_SP2STD2(obj.getFrames()); }))
-        .function("getEvents", optional_override([](EventTimeline &obj) { return VECTOR_SP2STD(obj.getEvents()); }), allow_raw_pointers())
+        .function("getFrames", optional_override([](EventTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
+        .function("getEvents",  optional_override([](EventTimeline &obj) {
+            return &obj.getEvents(); }), allow_raw_pointer<SPVectorEventDataPtr>())
         .function("getPropertyId", &EventTimeline::getPropertyId)
         .function("getFrameCount", &EventTimeline::getFrameCount)
         .function("setFrame", &EventTimeline::setFrame, allow_raw_pointers())
-        .function("apply", optional_override([](EventTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](EventTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<DrawOrderTimeline, base<Timeline>>("DrawOrderTimeline")
         .constructor<int>()
-        .function("getFrames", optional_override([](DrawOrderTimeline &obj) { return VECTOR_SP2STD(obj.getFrames()); }))
+        .function("getFrames", optional_override([](DrawOrderTimeline &obj) {
+            return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &DrawOrderTimeline::getPropertyId)
         .function("getFrameCount", &DrawOrderTimeline::getFrameCount)
-        .function("getDrawOrders", optional_override([](DrawOrderTimeline &obj) {
-                      auto drawOrders = obj.getDrawOrders();
-                      return VECTOR_2_SP2STD(drawOrders);
-                  }),
-                  allow_raw_pointers())
+        .function("getDrawOrders", optional_override([](DrawOrderTimeline &obj) { 
+            return &obj.getDrawOrders(); }), allow_raw_pointer<SPVectorVectorInt>())
         .function("setFrame", &DrawOrderTimeline::setFrame, allow_raw_pointers())
-        .function("apply", optional_override([](DrawOrderTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](DrawOrderTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<IkConstraintTimeline, base<CurveTimeline>>("IkConstraintTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &IkConstraintTimeline::ENTRIES)
         .function("getPropertyId", &IkConstraintTimeline::getPropertyId)
         .function("setFrame", &IkConstraintTimeline::setFrame)
-        .function("apply", optional_override([](IkConstraintTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](IkConstraintTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<TransformConstraintTimeline, base<CurveTimeline>>("TransformConstraintTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &TransformConstraintTimeline::ENTRIES)
         .function("getPropertyId", &TransformConstraintTimeline::getPropertyId)
         .function("setFrame", &TransformConstraintTimeline::setFrame)
-        .function("apply", optional_override([](TransformConstraintTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](TransformConstraintTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<PathConstraintPositionTimeline, base<CurveTimeline>>("PathConstraintPositionTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &TransformConstraintTimeline::ENTRIES)
         .function("getPropertyId", &PathConstraintPositionTimeline::getPropertyId)
         .function("setFrame", &PathConstraintPositionTimeline::setFrame)
-        .function("apply", optional_override([](PathConstraintPositionTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](PathConstraintPositionTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<PathConstraintMixTimeline, base<CurveTimeline>>("PathConstraintMixTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &PathConstraintMixTimeline::ENTRIES)
         .function("getPropertyId", &PathConstraintMixTimeline::getPropertyId)
-        .function("apply", optional_override([](PathConstraintMixTimeline &obj, Skeleton &skeleton, float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha, MixBlend blend, MixDirection direction) {
-                      auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-                      obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-                  }),
-                  allow_raw_pointers());
+        .function("apply", optional_override([](PathConstraintMixTimeline &obj, Skeleton &skeleton,
+        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
+        MixBlend blend, MixDirection direction) {
+            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
+            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
+        }), allow_raw_pointers());
 
     class_<TrackEntry>("TrackEntry")
         .constructor<>()
@@ -1132,14 +1397,17 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getDefaultMix", &AnimationStateData::getDefaultMix)
         .function("setDefaultMix", &AnimationStateData::setDefaultMix)
         .function("getSkeletonData", &AnimationStateData::getSkeletonData, allow_raw_pointers())
-        .function("setMix", optional_override([](AnimationStateData &obj, const std::string &fromName, const std::string &toName, float duration) { return obj.setMix(STRING_STD2SP(fromName), STRING_STD2SP(toName), duration); }))
-        .function("setMixWith", optional_override([](AnimationStateData &obj, Animation *from, Animation *to, float duration) { return obj.setMix(from, to, duration); }), allow_raw_pointers())
+        .function("setMix", optional_override([](AnimationStateData &obj, const std::string& fromName, const std::string& toName, float duration) { 
+            return obj.setMix(STRING_STD2SP(fromName), STRING_STD2SP(toName), duration);}))
+        .function("setMixWith", optional_override([](AnimationStateData &obj, Animation* from, Animation* to, float duration) { 
+            return obj.setMix(from, to, duration);}), allow_raw_pointers())
         .function("getMix", &AnimationStateData::getMix, allow_raw_pointers());
 
     class_<AnimationState>("AnimationState")
         .constructor<AnimationStateData *>()
         .function("getData", &AnimationState::getData, allow_raw_pointers())
-        .function("getTracks", optional_override([](AnimationState &obj) { return VECTOR_SP2STD(obj.getTracks()); }), allow_raw_pointers())
+        .function("getTracks", optional_override([](AnimationState &obj) {
+            return &obj.getTracks(); }), allow_raw_pointer<SPVectorTrackEntryPtr>())
         .function("getTimeScale", &AnimationState::getTimeScale)
         .function("setTimeScale", &AnimationState::setTimeScale)
         .function("update", &AnimationState::update)
@@ -1154,13 +1422,15 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("addEmptyAnimation", &AnimationState::addEmptyAnimation, allow_raw_pointers())
         .function("setEmptyAnimations", &AnimationState::setEmptyAnimations)
         .function("getCurrent", &AnimationState::getCurrent, allow_raw_pointer<TrackEntry>())
-        .function("setListener", optional_override([](AnimationState &obj, AnimationStateListener inValue) { obj.setListener(inValue); }), allow_raw_pointers())
-        .function("setListenerObject", optional_override([](AnimationState &obj, AnimationStateListenerObject *inValue) { obj.setListener(inValue); }), allow_raw_pointers())
+        .function("setListener",  optional_override([](AnimationState &obj, AnimationStateListener inValue) {
+            obj.setListener(inValue); }),allow_raw_pointers())
+        .function("setListenerObject", optional_override([](AnimationState &obj, AnimationStateListenerObject *inValue) {
+            obj.setListener(inValue); }),allow_raw_pointers())
         .function("disableQueue", &AnimationState::disableQueue)
         .function("enableQueue", &AnimationState::enableQueue);
-    //.function("addListener", &AnimationState::addListener)
-    //.function("removeListener", &AnimationState::removeListener)
-    //.function("clearListeners", &AnimationState::clearListeners) // no have clearListeners
+        //.function("addListener", &AnimationState::addListener)
+        //.function("removeListener", &AnimationState::removeListener)
+        //.function("clearListeners", &AnimationState::clearListeners) // no have clearListeners
 
     //private
     // class_<EventQueue>("EventQueue")
@@ -1185,15 +1455,23 @@ EMSCRIPTEN_BINDINGS(spine) {
     class_<Skeleton>("Skeleton")
         .constructor<SkeletonData *>()
         .function("getData", &Skeleton::getData, allow_raw_pointer<SkeletonData>())
-        .function("getBones", optional_override([](Skeleton &obj) { return VECTOR_SP2STD(obj.getBones()); }), allow_raw_pointers())
-        .function("getSlots", optional_override([](Skeleton &obj) { return VECTOR_SP2STD(obj.getSlots()); }), allow_raw_pointers())
-        .function("getDrawOrder", optional_override([](Skeleton &obj) { return VECTOR_SP2STD(obj.getDrawOrder()); }), allow_raw_pointers())
-        .function("getIkConstraints", optional_override([](Skeleton &obj) { return VECTOR_SP2STD(obj.getIkConstraints()); }), allow_raw_pointers())
-        .function("getTransformConstraints", optional_override([](Skeleton &obj) { return VECTOR_SP2STD(obj.getTransformConstraints()); }), allow_raw_pointers())
-        .function("getPathConstraints", optional_override([](Skeleton &obj) { return VECTOR_SP2STD(obj.getPathConstraints()); }), allow_raw_pointers())
-        .function("getUpdateCacheList", &Skeleton::getUpdateCacheList, allow_raw_pointer<Updatable>())
+        .function("getBones", optional_override([](Skeleton &obj){
+            return &obj.getBones(); }), allow_raw_pointer<SPVectorBonePtr>())
+        .function("getSlots", optional_override([](Skeleton &obj){ 
+            return &obj.getSlots(); }), allow_raw_pointer<SPVectorSlotPtr>())
+        .function("getDrawOrder", optional_override([](Skeleton &obj){
+            return &obj.getDrawOrder(); }), allow_raw_pointer<SPVectorSlotPtr>())
+        .function("getIkConstraints", optional_override([](Skeleton &obj){
+            return &obj.getIkConstraints(); }), allow_raw_pointer<SPVectorIkConstraintPtr>())
+        .function("getTransformConstraints", optional_override([](Skeleton &obj){
+            return &obj.getTransformConstraints(); }), allow_raw_pointer<SPVectorTransformConstraintPtr>())
+        .function("getPathConstraints", optional_override([](Skeleton &obj){
+            return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintPtr>())
+        .function("getUpdateCacheList", optional_override([](Skeleton &obj){
+            return &obj.getUpdateCacheList(); }), allow_raw_pointer<SPVectorUpdatablePtr>())
         .function("getSkin", &Skeleton::getSkin, allow_raw_pointer<Skin>())
-        .function("getColor", optional_override([](Skeleton &obj) { return &obj.getColor(); }), allow_raw_pointers())
+        .function("getColor", optional_override([](Skeleton &obj){
+            return &obj.getColor(); }), allow_raw_pointers())
         .function("getTime", &Skeleton::getTime)
         .function("setTime", &Skeleton::setTime)
         .function("getScaleX", &Skeleton::getScaleX)
@@ -1210,15 +1488,23 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setBonesToSetupPose", &Skeleton::setBonesToSetupPose)
         .function("setSlotsToSetupPose", &Skeleton::setSlotsToSetupPose)
         .function("getRootBone", &Skeleton::getRootBone, allow_raw_pointer<Bone>())
-        .function("findBone", optional_override([](Skeleton &obj, const std::string &name) { return obj.findBone(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findBoneIndex", optional_override([](Skeleton &obj, const std::string &name) { return obj.findBoneIndex(STRING_STD2SP(name)); }))
-        .function("findSlot", optional_override([](Skeleton &obj, const std::string &name) { return obj.findSlot(STRING_STD2SP(name)); }), allow_raw_pointers())
-        .function("findSlotIndex", optional_override([](Skeleton &obj, const std::string &name) { return obj.findSlotIndex(STRING_STD2SP(name)); }))
-        .function("setSkinByName", optional_override([](Skeleton &obj, const std::string &name) { return obj.setSkin(STRING_STD2SP(name)); }))
+        .function("findBone", optional_override([](Skeleton &obj, const std::string& name) {
+            return obj.findBone(STRING_STD2SP(name));}), allow_raw_pointers())
+        .function("findBoneIndex", optional_override([](Skeleton &obj, const std::string& name) {
+            return obj.findBoneIndex(STRING_STD2SP(name));}))
+        .function("findSlot", optional_override([](Skeleton &obj, const std::string& name) {
+            return obj.findSlot(STRING_STD2SP(name));}), allow_raw_pointers())
+        .function("findSlotIndex", optional_override([](Skeleton &obj, const std::string& name) {
+            return obj.findSlotIndex(STRING_STD2SP(name));}))
+        .function("setSkinByName", optional_override([](Skeleton &obj, const std::string& name) {
+            return obj.setSkin(STRING_STD2SP(name));}))
         .function("setSkin", static_cast<void (Skeleton::*)(Skin *)>(&Skeleton::setSkin), allow_raw_pointer<Skin>())
-        .function("getAttachmentByName", optional_override([](Skeleton &obj, const std::string &slotName, const std::string &attachmentName) { return obj.getAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName)); }), allow_raw_pointers())
-        .function("getAttachment", optional_override([](Skeleton &obj, int slotIndex, const std::string &attachmentName) { return obj.getAttachment(slotIndex, STRING_STD2SP(attachmentName)); }), allow_raw_pointers())
-        .function("setAttachment", optional_override([](Skeleton &obj, const std::string &slotName, const std::string &attachmentName) { return obj.setAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName)); }))
+        .function("getAttachmentByName", optional_override([](Skeleton &obj, const std::string& slotName, const std::string& attachmentName) { 
+            return obj.getAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName));}), allow_raw_pointers())
+        .function("getAttachment", optional_override([](Skeleton &obj, int slotIndex, const std::string& attachmentName) { 
+            return obj.getAttachment(slotIndex, STRING_STD2SP(attachmentName));}),allow_raw_pointers())
+        .function("setAttachment", optional_override([](Skeleton &obj, const std::string& slotName, const std::string& attachmentName) { 
+            return obj.setAttachment(STRING_STD2SP(slotName), STRING_STD2SP(attachmentName));}))
         .function("findIkConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findIkConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
         .function("findTransformConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findTransformConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
         .function("findPathConstraint", optional_override([](Skeleton &obj, const std::string &name) { return obj.findPathConstraint(STRING_STD2SP(name)); }), allow_raw_pointers())
@@ -1242,7 +1528,8 @@ EMSCRIPTEN_BINDINGS(spine) {
 
     class_<VertexEffect>("VertexEffect")
         .function("begin", &VertexEffect::begin, pure_virtual())
-        .function("transform", optional_override([](VertexEffect &obj, float x, float y) { obj.transform(x, y); }), pure_virtual())
+        .function("transform", optional_override([](VertexEffect &obj, float x, float y) {
+            obj.transform(x, y); }), pure_virtual())
         .function("end", &VertexEffect::end, pure_virtual());
 
     class_<JitterVertexEffect, base<VertexEffect>>("JitterEffect")
@@ -1252,13 +1539,15 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getJitterY", &JitterVertexEffect::getJitterY)
         .function("setJitterY", &JitterVertexEffect::setJitterY)
         .function("begin", &JitterVertexEffect::begin)
-        .function("transform", optional_override([](VertexEffect &obj, float x, float y) { obj.transform(x, y); }), pure_virtual())
+        .function("transform", optional_override([](VertexEffect &obj, float x, float y) {
+            obj.transform(x, y); }), pure_virtual())
         .function("end", &JitterVertexEffect::end);
 
     class_<SwirlVertexEffect, base<VertexEffect>>("SwirlEffect")
         .constructor<float, Interpolation &>()
         .function("begin", &SwirlVertexEffect::begin)
-        .function("transform", optional_override([](VertexEffect &obj, float x, float y) { obj.transform(x, y); }), pure_virtual())
+        .function("transform", optional_override([](VertexEffect &obj, float x, float y) {
+            obj.transform(x, y); }), pure_virtual())
         .function("end", &SwirlVertexEffect::end)
         .function("getCenterX", &SwirlVertexEffect::getCenterX)
         .function("setCenterX", &SwirlVertexEffect::setCenterX)
@@ -1285,7 +1574,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .property("iCount", &SpineModel::iCount)
         .property("vPtr", &SpineModel::vPtr)
         .property("iPtr", &SpineModel::iPtr)
-        .function("getMeshes", &SpineModel::getMeshes);
+        .function("getData", &SpineModel::getData, allow_raw_pointer<std::vector<unsigned int>>());
 
     class_<SpineDebugShape>("SpineDebugShape")
         .property("type", &SpineDebugShape::type)
@@ -1297,6 +1586,10 @@ EMSCRIPTEN_BINDINGS(spine) {
     register_vector<SpineDebugShape>("VectorDebugShape");
     class_<SpineSkeletonInstance>("SkeletonInstance")
         .constructor<>()
+        .property("isCache", &SpineSkeletonInstance::isCache)
+        .property("dtRate", &SpineSkeletonInstance::dtRate)
+        .property("isDelete", &SpineSkeletonInstance::isDelete)
+        .property("enable", &SpineSkeletonInstance::enable)
         .function("initSkeleton", &SpineSkeletonInstance::initSkeleton, allow_raw_pointers())
         .function("setAnimation", &SpineSkeletonInstance::setAnimation, allow_raw_pointers())
         .function("setSkin", &SpineSkeletonInstance::setSkin)
@@ -1315,21 +1608,26 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getDebugShapes", &SpineSkeletonInstance::getDebugShapes)
         .function("resizeSlotRegion", &SpineSkeletonInstance::resizeSlotRegion)
         .function("setSlotTexture", &SpineSkeletonInstance::setSlotTexture);
+
+    class_<SpineSkeletonSystem>("SkeletonSystem")
+        .class_function("getCount", &SpineSkeletonSystem::getCount) 
+        .class_function("updateAnimation", &SpineSkeletonSystem::updateAnimation)
+        .class_function("updateRenderData", &SpineSkeletonSystem::updateRenderData);
 }
 
 EMSCRIPTEN_BINDINGS(cocos_spine) {
     class_<SpineWasmUtil>("SpineWasmUtil")
-        .class_function("spineWasmInit", &SpineWasmUtil::spineWasmInit)
-        .class_function("spineWasmDestroy", &SpineWasmUtil::spineWasmDestroy)
-        .class_function("queryStoreMemory", &SpineWasmUtil::queryStoreMemory)
-        .class_function("querySpineSkeletonDataByUUID", &SpineWasmUtil::querySpineSkeletonDataByUUID, allow_raw_pointers())
-        .class_function("createSpineSkeletonDataWithJson", &SpineWasmUtil::createSpineSkeletonDataWithJson, allow_raw_pointers())
-        .class_function("createSpineSkeletonDataWithBinary", &SpineWasmUtil::createSpineSkeletonDataWithBinary, allow_raw_pointers())
-        .class_function("registerSpineSkeletonDataWithUUID", &SpineWasmUtil::registerSpineSkeletonDataWithUUID, allow_raw_pointers())
-        .class_function("destroySpineSkeletonDataWithUUID", &SpineWasmUtil::destroySpineSkeletonDataWithUUID)
-        .class_function("destroySpineInstance", &SpineWasmUtil::destroySpineInstance, allow_raw_pointers())
-        .class_function("getCurrentListenerID", &SpineWasmUtil::getCurrentListenerID)
-        .class_function("getCurrentEventType", &SpineWasmUtil::getCurrentEventType)
-        .class_function("getCurrentTrackEntry", &SpineWasmUtil::getCurrentTrackEntry, allow_raw_pointers())
-        .class_function("getCurrentEvent", &SpineWasmUtil::getCurrentEvent, allow_raw_pointers());
+    .class_function("spineWasmInit", &SpineWasmUtil::spineWasmInit)
+    .class_function("spineWasmDestroy", &SpineWasmUtil::spineWasmDestroy)
+    .class_function("queryStoreMemory", &SpineWasmUtil::queryStoreMemory)
+    .class_function("querySpineSkeletonDataByUUID", &SpineWasmUtil::querySpineSkeletonDataByUUID, allow_raw_pointers())
+    .class_function("createSpineSkeletonDataWithJson", &SpineWasmUtil::createSpineSkeletonDataWithJson, allow_raw_pointers())
+    .class_function("createSpineSkeletonDataWithBinary", &SpineWasmUtil::createSpineSkeletonDataWithBinary, allow_raw_pointers())
+    .class_function("registerSpineSkeletonDataWithUUID", &SpineWasmUtil::registerSpineSkeletonDataWithUUID, allow_raw_pointers())
+    .class_function("destroySpineSkeletonDataWithUUID", &SpineWasmUtil::destroySpineSkeletonDataWithUUID)
+    .class_function("destroySpineInstance", &SpineWasmUtil::destroySpineInstance, allow_raw_pointers())
+    .class_function("getCurrentListenerID", &SpineWasmUtil::getCurrentListenerID)
+    .class_function("getCurrentEventType", &SpineWasmUtil::getCurrentEventType)
+    .class_function("getCurrentTrackEntry", &SpineWasmUtil::getCurrentTrackEntry, allow_raw_pointers())
+    .class_function("getCurrentEvent", &SpineWasmUtil::getCurrentEvent, allow_raw_pointers());
 }
