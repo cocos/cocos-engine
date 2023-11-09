@@ -785,7 +785,7 @@ void LightResource::buildLightBuffer(gfx::CommandBuffer* cmdBuffer) const {
 }
 
 void LightResource::tryUpdateRenderSceneLocalDescriptorSet(const SceneCulling& sceneCulling) {
-    if (!resized) {
+    if (sceneCulling.lightBoundsCullingResults.empty()) {
         return;
     }
 
@@ -794,8 +794,11 @@ void LightResource::tryUpdateRenderSceneLocalDescriptorSet(const SceneCulling& s
             CC_EXPECTS(model);
             for (const auto& submodel : model->getSubModels()) {
                 auto* set = submodel->getDescriptorSet();
-                set->bindBuffer(binding, firstLightBufferView);
-                set->update();
+                const auto& prev = set->getBuffer(binding);
+                if (resized || prev != firstLightBufferView) {
+                    set->bindBuffer(binding, firstLightBufferView);
+                    set->update();
+                }
             }
         }
     }
