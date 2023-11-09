@@ -791,7 +791,7 @@ export class LightResource {
     }
 
     tryUpdateRenderSceneLocalDescriptorSet (sceneCulling: SceneCulling): void {
-        if (!this.resized || !sceneCulling.lightBoundsCullings.size) {
+        if (!sceneCulling.lightBoundsCullings.size) {
             return;
         }
 
@@ -802,8 +802,11 @@ export class LightResource {
                 }
                 for (const submodel of model.subModels) {
                     const set = submodel.descriptorSet;
-                    set.bindBuffer(this.binding, this.firstLightBufferView!);
-                    set.update();
+                    const prev = set.getBuffer(this.binding);
+                    if (this.resized || prev !== this.firstLightBufferView) {
+                        set.bindBuffer(this.binding, this.firstLightBufferView!);
+                        set.update();
+                    }
                 }
             }
         }
