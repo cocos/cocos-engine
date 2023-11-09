@@ -174,7 +174,7 @@ const ModeMap = {
         },
     },
 };
-
+exports.ModeMap = ModeMap;
 const Elements = {
     anisotropy: {
         ready() {
@@ -395,7 +395,9 @@ const Elements = {
             panel.$.mipfilterSelect.innerHTML = optionsHtml;
 
             panel.$.mipfilterSelect.value = panel.userData.mipfilter || 'nearest';
-
+            panel.metaList && panel.metaList.forEach((meta) => {
+                Editor.Profile.setTemp('inspector', `${meta.uuid}.texture.mipfilter`, panel.userData.mipfilter);
+            });
             panel.updateInvalid(panel.$.mipfilterSelect, 'mipfilter');
             updateElementReadonly.call(panel, panel.$.mipfilterSelect);
         },
@@ -406,7 +408,8 @@ const Elements = {
 
             panel.$.wrapModeSelect.addEventListener('change', (event) => {
                 // 根据 wrapModeSelect 组合值同步相应的 wrapModeS/wrapModeT 到 userData
-                const value = event.target.value;
+                // 临时记录用户的修改配置
+                Editor.Profile.setTemp('inspector', `${this.meta.uuid}.texture.wrapMode`, value, 'default');
                 if (ModeMap.wrap[value]) {
                     panel.userDataList.forEach((userData) => {
                         const data = ModeMap.wrap[value];

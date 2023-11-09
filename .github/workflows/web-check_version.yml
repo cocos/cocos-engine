@@ -29,11 +29,11 @@ jobs:
         run: |
           branch=`echo ${{ github.base_ref }} | awk -F'/' '{print $NF}'`
           echo "Branch： ${branch}"
-          npm run varify-engine-version -- ${branch}
+          npm run verify-engine-version -- ${branch}
 
       - name: check version create
         if: github.event_name == 'create'
         run: |
           branch=`echo ${{ github.ref }} | awk -F'/' '{print $NF}'`
             echo "Branch： ${branch}"
-            npm run varify-engine-version -- ${branch}
+            npm run verify-engine-version -- ${branch}

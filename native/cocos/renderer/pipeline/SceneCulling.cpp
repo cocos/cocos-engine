@@ -57,7 +57,8 @@ RenderObject genRenderObject(const scene::Model *model, const scene::Camera *cam
     if (model->getNode()) {
         const auto *node = model->getTransform();
         cc::Vec3 position;
-        cc::Vec3::subtract(node->getWorldPosition(), camera->getPosition(), &position);
+        const auto *bounds = model->getWorldBounds();
+        Vec3::subtract(bounds ? bounds->center : node->getWorldPosition(), camera->getPosition(), &position);
         depth = position.dot(camera->getForward());
     }
 

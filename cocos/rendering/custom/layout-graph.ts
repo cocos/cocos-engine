@@ -30,15 +30,22 @@
 /* eslint-disable max-len */
 import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, reindexEdgeList, traversal } from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency } from './types';
+import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
+import { RecyclePool } from '../../core/memop';
 
 export class DescriptorDB {
+    reset (): void {
+        this.blocks.clear();
+    }
     readonly blocks: Map<string, DescriptorBlock> = new Map<string, DescriptorBlock>();
 }
 
 export class RenderPhase {
+    reset (): void {
+        this.shaders.clear();
+    }
     readonly shaders: Set<string> = new Set<string>();
 }
 
@@ -587,6 +594,12 @@ export class UniformData {
         this.uniformType = uniformType;
         this.offset = offset;
     }
+    reset (uniformID = 0xFFFFFFFF, uniformType: Type = Type.UNKNOWN, offset = 0): void {
+        this.uniformID = uniformID;
+        this.uniformType = uniformType;
+        this.offset = offset;
+        this.size = 0;
+    }
     uniformID: number;
     uniformType: Type;
     offset: number;
@@ -594,12 +607,21 @@ export class UniformData {
 }
 
 export class UniformBlockData {
+    reset (): void {
+        this.bufferSize = 0;
+        this.uniforms.length = 0;
+    }
     bufferSize = 0;
     readonly uniforms: UniformData[] = [];
 }
 
 export class DescriptorData {
     constructor (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1) {
+        this.descriptorID = descriptorID;
+        this.type = type;
+        this.count = count;
+    }
+    reset (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1): void {
         this.descriptorID = descriptorID;
         this.type = type;
         this.count = count;
@@ -614,6 +636,13 @@ export class DescriptorBlockData {
         this.type = type;
         this.visibility = visibility;
         this.capacity = capacity;
+    }
+    reset (type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, capacity = 0): void {
+        this.type = type;
+        this.visibility = visibility;
+        this.offset = 0;
+        this.capacity = capacity;
+        this.descriptors.length = 0;
     }
     type: DescriptorTypeOrder;
     visibility: ShaderStageFlagBit;
@@ -636,6 +665,18 @@ export class DescriptorSetLayoutData {
         this.uniformBlocks = uniformBlocks;
         this.bindingMap = bindingMap;
     }
+    reset (
+        slot = 0xFFFFFFFF,
+        capacity = 0,
+    ): void {
+        this.slot = slot;
+        this.capacity = capacity;
+        this.uniformBlockCapacity = 0;
+        this.samplerTextureCapacity = 0;
+        this.descriptorBlocks.length = 0;
+        this.uniformBlocks.clear();
+        this.bindingMap.clear();
+    }
     slot: number;
     capacity: number;
     uniformBlockCapacity = 0;
@@ -651,6 +692,12 @@ export class DescriptorSetData {
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
+    reset (descriptorSetLayout: DescriptorSetLayout | null = null, descriptorSet: DescriptorSet | null = null): void {
+        this.descriptorSetLayoutData.reset();
+        this.descriptorSetLayoutInfo.reset();
+        this.descriptorSetLayout = descriptorSetLayout;
+        this.descriptorSet = descriptorSet;
+    }
     readonly descriptorSetLayoutData: DescriptorSetLayoutData;
     readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
     /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
@@ -658,36 +705,65 @@ export class DescriptorSetData {
 }
 
 export class PipelineLayoutData {
+    reset (): void {
+        this.descriptorSets.clear();
+    }
     readonly descriptorSets: Map<UpdateFrequency, DescriptorSetData> = new Map<UpdateFrequency, DescriptorSetData>();
 }
 
 export class ShaderBindingData {
+    reset (): void {
+        this.descriptorBindings.clear();
+    }
     readonly descriptorBindings: Map<number, number> = new Map<number, number>();
 }
 
 export class ShaderLayoutData {
+    reset (): void {
+        this.layoutData.clear();
+        this.bindingData.clear();
+    }
     readonly layoutData: Map<UpdateFrequency, DescriptorSetLayoutData> = new Map<UpdateFrequency, DescriptorSetLayoutData>();
     readonly bindingData: Map<UpdateFrequency, ShaderBindingData> = new Map<UpdateFrequency, ShaderBindingData>();
 }
 
 export class TechniqueData {
+    reset (): void {
+        this.passes.length = 0;
+    }
     readonly passes: ShaderLayoutData[] = [];
 }
 
 export class EffectData {
+    reset (): void {
+        this.techniques.clear();
+    }
     readonly techniques: Map<string, TechniqueData> = new Map<string, TechniqueData>();
 }
 
 export class ShaderProgramData {
+    reset (): void {
+        this.layout.reset();
+        this.pipelineLayout = null;
+    }
     readonly layout: PipelineLayoutData = new PipelineLayoutData();
     /*refcount*/ pipelineLayout: PipelineLayout | null = null;
 }
 
 export class RenderStageData {
+    reset (): void {
+        this.descriptorVisibility.clear();
+    }
     readonly descriptorVisibility: Map<number, ShaderStageFlagBit> = new Map<number, ShaderStageFlagBit>();
 }
 
 export class RenderPhaseData {
+    reset (): void {
+        this.rootSignature = '';
+        this.shaderPrograms.length = 0;
+        this.shaderIndex.clear();
+        this.pipelineLayout = null;
+    }
     rootSignature = '';
     readonly shaderPrograms: ShaderProgramData[] = [];
     readonly shaderIndex: Map<string, number> = new Map<string, number>();
@@ -1260,10 +1336,222 @@ export class LayoutGraphData implements BidirectionalGraph
     constantMacros = '';
 }
 
+export class LayoutGraphObjectPoolSettings {
+    constructor (batchSize: number) {
+        this.descriptorDBBatchSize = batchSize;
+        this.renderPhaseBatchSize = batchSize;
+        this.layoutGraphBatchSize = batchSize;
+        this.uniformDataBatchSize = batchSize;
+        this.uniformBlockDataBatchSize = batchSize;
+        this.descriptorDataBatchSize = batchSize;
+        this.descriptorBlockDataBatchSize = batchSize;
+        this.descriptorSetLayoutDataBatchSize = batchSize;
+        this.descriptorSetDataBatchSize = batchSize;
+        this.pipelineLayoutDataBatchSize = batchSize;
+        this.shaderBindingDataBatchSize = batchSize;
+        this.shaderLayoutDataBatchSize = batchSize;
+        this.techniqueDataBatchSize = batchSize;
+        this.effectDataBatchSize = batchSize;
+        this.shaderProgramDataBatchSize = batchSize;
+        this.renderStageDataBatchSize = batchSize;
+        this.renderPhaseDataBatchSize = batchSize;
+        this.layoutGraphDataBatchSize = batchSize;
+    }
+    descriptorDBBatchSize = 16;
+    renderPhaseBatchSize = 16;
+    layoutGraphBatchSize = 16;
+    uniformDataBatchSize = 16;
+    uniformBlockDataBatchSize = 16;
+    descriptorDataBatchSize = 16;
+    descriptorBlockDataBatchSize = 16;
+    descriptorSetLayoutDataBatchSize = 16;
+    descriptorSetDataBatchSize = 16;
+    pipelineLayoutDataBatchSize = 16;
+    shaderBindingDataBatchSize = 16;
+    shaderLayoutDataBatchSize = 16;
+    techniqueDataBatchSize = 16;
+    effectDataBatchSize = 16;
+    shaderProgramDataBatchSize = 16;
+    renderStageDataBatchSize = 16;
+    renderPhaseDataBatchSize = 16;
+    layoutGraphDataBatchSize = 16;
+}
+
+export class LayoutGraphObjectPool {
+    constructor (settings: LayoutGraphObjectPoolSettings, renderCommon: RenderCommonObjectPool) {
+        this.renderCommon = renderCommon;
+        this._descriptorDB = new RecyclePool<DescriptorDB>(() => new DescriptorDB(), settings.descriptorDBBatchSize);
+        this._renderPhase = new RecyclePool<RenderPhase>(() => new RenderPhase(), settings.renderPhaseBatchSize);
+        this._layoutGraph = new RecyclePool<LayoutGraph>(() => new LayoutGraph(), settings.layoutGraphBatchSize);
+        this._uniformData = new RecyclePool<UniformData>(() => new UniformData(), settings.uniformDataBatchSize);
+        this._uniformBlockData = new RecyclePool<UniformBlockData>(() => new UniformBlockData(), settings.uniformBlockDataBatchSize);
+        this._descriptorData = new RecyclePool<DescriptorData>(() => new DescriptorData(), settings.descriptorDataBatchSize);
+        this._descriptorBlockData = new RecyclePool<DescriptorBlockData>(() => new DescriptorBlockData(), settings.descriptorBlockDataBatchSize);
+        this._descriptorSetLayoutData = new RecyclePool<DescriptorSetLayoutData>(() => new DescriptorSetLayoutData(), settings.descriptorSetLayoutDataBatchSize);
+        this._descriptorSetData = new RecyclePool<DescriptorSetData>(() => new DescriptorSetData(), settings.descriptorSetDataBatchSize);
+        this._pipelineLayoutData = new RecyclePool<PipelineLayoutData>(() => new PipelineLayoutData(), settings.pipelineLayoutDataBatchSize);
+        this._shaderBindingData = new RecyclePool<ShaderBindingData>(() => new ShaderBindingData(), settings.shaderBindingDataBatchSize);
+        this._shaderLayoutData = new RecyclePool<ShaderLayoutData>(() => new ShaderLayoutData(), settings.shaderLayoutDataBatchSize);
+        this._techniqueData = new RecyclePool<TechniqueData>(() => new TechniqueData(), settings.techniqueDataBatchSize);
+        this._effectData = new RecyclePool<EffectData>(() => new EffectData(), settings.effectDataBatchSize);
+        this._shaderProgramData = new RecyclePool<ShaderProgramData>(() => new ShaderProgramData(), settings.shaderProgramDataBatchSize);
+        this._renderStageData = new RecyclePool<RenderStageData>(() => new RenderStageData(), settings.renderStageDataBatchSize);
+        this._renderPhaseData = new RecyclePool<RenderPhaseData>(() => new RenderPhaseData(), settings.renderPhaseDataBatchSize);
+        this._layoutGraphData = new RecyclePool<LayoutGraphData>(() => new LayoutGraphData(), settings.layoutGraphDataBatchSize);
+    }
+    reset (): void {
+        this._descriptorDB.reset();
+        this._renderPhase.reset();
+        this._layoutGraph.reset();
+        this._uniformData.reset();
+        this._uniformBlockData.reset();
+        this._descriptorData.reset();
+        this._descriptorBlockData.reset();
+        this._descriptorSetLayoutData.reset();
+        this._descriptorSetData.reset();
+        this._pipelineLayoutData.reset();
+        this._shaderBindingData.reset();
+        this._shaderLayoutData.reset();
+        this._techniqueData.reset();
+        this._effectData.reset();
+        this._shaderProgramData.reset();
+        this._renderStageData.reset();
+        this._renderPhaseData.reset();
+        this._layoutGraphData.reset();
+    }
+    createDescriptorDB (): DescriptorDB {
+        const v = this._descriptorDB.add();
+        v.reset();
+        return v;
+    }
+    createRenderPhase (): RenderPhase {
+        const v = this._renderPhase.add();
+        v.reset();
+        return v;
+    }
+    createLayoutGraph (): LayoutGraph {
+        const v = this._layoutGraph.add();
+        v.clear();
+        return v;
+    }
+    createUniformData (
+        uniformID = 0xFFFFFFFF,
+        uniformType: Type = Type.UNKNOWN,
+        offset = 0,
+    ): UniformData {
+        const v = this._uniformData.add();
+        v.reset(uniformID, uniformType, offset);
+        return v;
+    }
+    createUniformBlockData (): UniformBlockData {
+        const v = this._uniformBlockData.add();
+        v.reset();
+        return v;
+    }
+    createDescriptorData (
+        descriptorID = 0,
+        type: Type = Type.UNKNOWN,
+        count = 1,
+    ): DescriptorData {
+        const v = this._descriptorData.add();
+        v.reset(descriptorID, type, count);
+        return v;
+    }
+    createDescriptorBlockData (
+        type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
+        visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        capacity = 0,
+    ): DescriptorBlockData {
+        const v = this._descriptorBlockData.add();
+        v.reset(type, visibility, capacity);
+        return v;
+    }
+    createDescriptorSetLayoutData (
+        slot = 0xFFFFFFFF,
+        capacity = 0,
+    ): DescriptorSetLayoutData {
+        const v = this._descriptorSetLayoutData.add();
+        v.reset(slot, capacity);
+        return v;
+    }
+    createDescriptorSetData (
+        descriptorSetLayout: DescriptorSetLayout | null = null,
+        descriptorSet: DescriptorSet | null = null,
+    ): DescriptorSetData {
+        const v = this._descriptorSetData.add();
+        v.reset(descriptorSetLayout, descriptorSet);
+        return v;
+    }
+    createPipelineLayoutData (): PipelineLayoutData {
+        const v = this._pipelineLayoutData.add();
+        v.reset();
+        return v;
+    }
+    createShaderBindingData (): ShaderBindingData {
+        const v = this._shaderBindingData.add();
+        v.reset();
+        return v;
+    }
+    createShaderLayoutData (): ShaderLayoutData {
+        const v = this._shaderLayoutData.add();
+        v.reset();
+        return v;
+    }
+    createTechniqueData (): TechniqueData {
+        const v = this._techniqueData.add();
+        v.reset();
+        return v;
+    }
+    createEffectData (): EffectData {
+        const v = this._effectData.add();
+        v.reset();
+        return v;
+    }
+    createShaderProgramData (): ShaderProgramData {
+        const v = this._shaderProgramData.add();
+        v.reset();
+        return v;
+    }
+    createRenderStageData (): RenderStageData {
+        const v = this._renderStageData.add();
+        v.reset();
+        return v;
+    }
+    createRenderPhaseData (): RenderPhaseData {
+        const v = this._renderPhaseData.add();
+        v.reset();
+        return v;
+    }
+    createLayoutGraphData (): LayoutGraphData {
+        const v = this._layoutGraphData.add();
+        v.clear();
+        return v;
+    }
+    public readonly renderCommon: RenderCommonObjectPool;
+    private readonly _descriptorDB: RecyclePool<DescriptorDB>;
+    private readonly _renderPhase: RecyclePool<RenderPhase>;
+    private readonly _layoutGraph: RecyclePool<LayoutGraph>;
+    private readonly _uniformData: RecyclePool<UniformData>;
+    private readonly _uniformBlockData: RecyclePool<UniformBlockData>;
+    private readonly _descriptorData: RecyclePool<DescriptorData>;
+    private readonly _descriptorBlockData: RecyclePool<DescriptorBlockData>;
+    private readonly _descriptorSetLayoutData: RecyclePool<DescriptorSetLayoutData>;
+    private readonly _descriptorSetData: RecyclePool<DescriptorSetData>;
+    private readonly _pipelineLayoutData: RecyclePool<PipelineLayoutData>;
+    private readonly _shaderBindingData: RecyclePool<ShaderBindingData>;
+    private readonly _shaderLayoutData: RecyclePool<ShaderLayoutData>;
+    private readonly _techniqueData: RecyclePool<TechniqueData>;
+    private readonly _effectData: RecyclePool<EffectData>;
+    private readonly _shaderProgramData: RecyclePool<ShaderProgramData>;
+    private readonly _renderStageData: RecyclePool<RenderStageData>;
+    private readonly _renderPhaseData: RecyclePool<RenderPhaseData>;
+    private readonly _layoutGraphData: RecyclePool<LayoutGraphData>;
+}
+
 export function saveDescriptorDB (ar: OutputArchive, v: DescriptorDB): void {
     ar.writeNumber(v.blocks.size); // Map<string, DescriptorBlock>
     for (const [k1, v1] of v.blocks) {
-        saveDescriptorBlockIndex(ar, JSON.parse(k1));
+        saveDescriptorBlockIndex(ar, JSON.parse(k1) as DescriptorBlockIndex);
         saveDescriptorBlock(ar, v1);
     }
 }

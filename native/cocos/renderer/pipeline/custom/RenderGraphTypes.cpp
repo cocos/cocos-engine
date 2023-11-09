@@ -171,6 +171,11 @@ SubpassGraph::Vertex::Vertex(Vertex const& rhs, const allocator_type& alloc)
 : outEdges(rhs.outEdges, alloc),
   inEdges(rhs.inEdges, alloc) {}
 
+RasterSubpass::RasterSubpass(const allocator_type& alloc) noexcept
+: rasterViews(alloc),
+  computeViews(alloc),
+  resolvePairs(alloc) {}
+
 RasterSubpass::RasterSubpass(uint32_t subpassIDIn, uint32_t countIn, uint32_t qualityIn, const allocator_type& alloc) noexcept
 : rasterViews(alloc),
   computeViews(alloc),
@@ -198,6 +203,10 @@ RasterSubpass::RasterSubpass(RasterSubpass const& rhs, const allocator_type& all
   count(rhs.count),
   quality(rhs.quality),
   showStatistics(rhs.showStatistics) {}
+
+ComputeSubpass::ComputeSubpass(const allocator_type& alloc) noexcept
+: rasterViews(alloc),
+  computeViews(alloc) {}
 
 ComputeSubpass::ComputeSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept
 : rasterViews(alloc),

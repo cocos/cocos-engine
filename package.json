@@ -13,7 +13,7 @@
   },
   "scripts": {
     "server": "http-server . -p 8002 -o playground/index.html",
-    "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:typedoc-plugin && npm run install:native-pack-tool",
+    "postinstall": "gulp build-debug-infos && npm run build-declaration && npm run bundle-adapter && npm run fetch-ral && npm run install:native-pack-tool",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -21,15 +21,15 @@
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
     "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
-    "varify-engine-version": "node ./scripts/varify-engine-version.js",
+    "verify-engine-version": "node ./scripts/verify-engine-version.js",
     "fetch-ral": "node ./scripts/fetch-ral.js",
     "bundle-adapter": "node ./scripts/bundle-adapter.js",
-    "build-const": "node ./scripts/build-consts.js",
+    "build-const": "node ./scripts/build-const.js",
     "clear": "node ./scripts/clear-cache.js",
     "clear-platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "update:native-external": "node ./native/utils/update-external.js",
     "test": "gulp test",
-    "install:typedoc-plugin": "cd ./scripts/typedoc-plugin && npm install --only=production",
+    "generate-doc-info": "node ./scripts/generate-doc-info",
     "install:native-pack-tool": "cd ./scripts/native-pack-tool && npm install && npm run build"
   },
   "repository": {
@@ -83,8 +83,6 @@
     "tmp": "^0.2.1",
     "tree-kill": "^1.2.0",
     "ts-jest": "^28.0.8",
-    "typedoc": "^0.22.13",
-    "typedoc-plugin-cc": "file:scripts/typedoc-plugin",
     "typescript": "^4.3.5",
     "vconsole": "^3.3.0",
     "vinyl-buffer": "^1.0.1",
@@ -95,7 +93,7 @@
   "dependencies": {
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
-    "@cocos/ccbuild": "2.0.3-alpha.7",
+    "@cocos/ccbuild": "2.0.3-alpha.18",
     "@cocos/dragonbones-js": "^1.0.1"
   }
 }

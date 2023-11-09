@@ -49,6 +49,15 @@ RenderInstancingQueue::RenderInstancingQueue(RenderInstancingQueue const& rhs, c
   passInstances(rhs.passInstances, alloc),
   instanceBuffers(rhs.instanceBuffers, alloc) {}
 
+ProbeHelperQueue::ProbeHelperQueue(const allocator_type& alloc) noexcept
+: probeMap(alloc) {}
+
+ProbeHelperQueue::ProbeHelperQueue(ProbeHelperQueue&& rhs, const allocator_type& alloc)
+: probeMap(std::move(rhs.probeMap), alloc) {}
+
+ProbeHelperQueue::ProbeHelperQueue(ProbeHelperQueue const& rhs, const allocator_type& alloc)
+: probeMap(rhs.probeMap, alloc) {}
+
 RenderDrawQueue::RenderDrawQueue(const allocator_type& alloc) noexcept
 : instances(alloc) {}
 
@@ -61,12 +70,14 @@ RenderDrawQueue::RenderDrawQueue(RenderDrawQueue const& rhs, const allocator_typ
 NativeRenderQueue::NativeRenderQueue(const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
+  probeQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc) {}
 
 NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept
 : opaqueQueue(alloc),
   transparentQueue(alloc),
+  probeQueue(alloc),
   opaqueInstancingQueue(alloc),
   transparentInstancingQueue(alloc),
   sceneFlags(sceneFlagsIn),
@@ -75,10 +86,12 @@ NativeRenderQueue::NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOr
 NativeRenderQueue::NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc)
 : opaqueQueue(std::move(rhs.opaqueQueue), alloc),
   transparentQueue(std::move(rhs.transparentQueue), alloc),
+  probeQueue(std::move(rhs.probeQueue), alloc),
   opaqueInstancingQueue(std::move(rhs.opaqueInstancingQueue), alloc),
   transparentInstancingQueue(std::move(rhs.transparentInstancingQueue), alloc),
   sceneFlags(rhs.sceneFlags),
-  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID) {}
+  subpassOrPassLayoutID(rhs.subpassOrPassLayoutID),
+  lightByteOffset(rhs.lightByteOffset) {}
 
 ResourceGroup::ResourceGroup(const allocator_type& alloc) noexcept
 : instancingBuffers(alloc) {}
@@ -159,36 +172,56 @@ SceneResource::SceneResource(SceneResource&& rhs, const allocator_type& alloc)
   storageBuffers(std::move(rhs.storageBuffers), alloc),
   storageImages(std::move(rhs.storageImages), alloc) {}
 
-CullingQueries::CullingQueries(const allocator_type& alloc) noexcept
-: culledResultIndex(alloc) {}
+FrustumCulling::FrustumCulling(const allocator_type& alloc) noexcept
+: resultIndex(alloc) {}
 
-CullingQueries::CullingQueries(CullingQueries&& rhs, const allocator_type& alloc)
-: culledResultIndex(std::move(rhs.culledResultIndex), alloc) {}
+FrustumCulling::FrustumCulling(FrustumCulling&& rhs, const allocator_type& alloc)
+: resultIndex(std::move(rhs.resultIndex), alloc) {}
 
-CullingQueries::CullingQueries(CullingQueries const& rhs, const allocator_type& alloc)
-: culledResultIndex(rhs.culledResultIndex, alloc) {}
+FrustumCulling::FrustumCulling(FrustumCulling const& rhs, const allocator_type& alloc)
+: resultIndex(rhs.resultIndex, alloc) {}
+
+LightBoundsCulling::LightBoundsCulling(const allocator_type& alloc) noexcept
+: resultIndex(alloc) {}
+
+LightBoundsCulling::LightBoundsCulling(LightBoundsCulling&& rhs, const allocator_type& alloc)
+: resultIndex(std::move(rhs.resultIndex), alloc) {}
+
+LightBoundsCulling::LightBoundsCulling(LightBoundsCulling const& rhs, const allocator_type& alloc)
+: resultIndex(rhs.resultIndex, alloc) {}
 
 SceneCulling::SceneCulling(const allocator_type& alloc) noexcept
-: sceneQueries(alloc),
-  culledResults(alloc),
+: frustumCullings(alloc),
+  frustumCullingResults(alloc),
+  lightBoundsCullings(alloc),
+  lightBoundsCullingResults(alloc),
   renderQueues(alloc),
-  sceneQueryIndex(alloc) {}
+  renderQueueIndex(alloc) {}
 
 SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
-: sceneQueries(std::move(rhs.sceneQueries), alloc),
-  culledResults(std::move(rhs.culledResults), alloc),
+: frustumCullings(std::move(rhs.frustumCullings), alloc),
+  frustumCullingResults(std::move(rhs.frustumCullingResults), alloc),
+  lightBoundsCullings(std::move(rhs.lightBoundsCullings), alloc),
+  lightBoundsCullingResults(std::move(rhs.lightBoundsCullingResults), alloc),
   renderQueues(std::move(rhs.renderQueues), alloc),
-  sceneQueryIndex(std::move(rhs.sceneQueryIndex), alloc),
-  numCullingQueries(rhs.numCullingQueries),
+  renderQueueIndex(std::move(rhs.renderQueueIndex), alloc),
+  numFrustumCulling(rhs.numFrustumCulling),
+  numLightBoundsCulling(rhs.numLightBoundsCulling),
   numRenderQueues(rhs.numRenderQueues),
   gpuCullingPassID(rhs.gpuCullingPassID) {}
+
+LightResource::LightResource(const allocator_type& alloc) noexcept
+: cpuBuffer(alloc),
+  lights(alloc),
+  lightIndex(alloc) {}
 
 NativeRenderContext::NativeRenderContext(std::unique_ptr<gfx::DefaultResource> defaultResourceIn, const allocator_type& alloc) noexcept
 : defaultResource(std::move(defaultResourceIn)),
   resourceGroups(alloc),
   layoutGraphResources(alloc),
   renderSceneResources(alloc),
-  sceneCulling(alloc) {}
+  sceneCulling(alloc),
+  lightResources(alloc) {}
 
 NativeProgramLibrary::NativeProgramLibrary(const allocator_type& alloc) noexcept
 : layoutGraph(alloc),

@@ -272,6 +272,9 @@ const Elements = {
             this.$.mipfilter.innerHTML = optionsHtml;
 
             this.$.mipfilter.value = this.meta.userData.mipfilter || 'nearest';
+            this.metaList && this.metaList.forEach((meta) => {
+                Editor.Profile.setTemp('inspector', `${meta.uuid}.texture.mipfilter`, this.meta.userData.mipfilter);
+            });
             this.updateInvalid(this.$.mipfilter, 'mipfilter');
             updateElementReadonly.call(this, this.$.mipfilter);
         },
