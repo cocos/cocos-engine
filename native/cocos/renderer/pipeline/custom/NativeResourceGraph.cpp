@@ -31,6 +31,7 @@
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
+#include "cocos/scene/RenderWindow.h"
 
 namespace cc {
 
@@ -171,6 +172,9 @@ bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
 void ResourceGraph::validateSwapchains() {
     bool swapchainInvalidated = false;
     for (auto& sc : swapchains) {
+        if (!sc.swapchain) {
+            continue;
+        }
         if (sc.generation != sc.swapchain->getGeneration()) {
             swapchainInvalidated = true;
             sc.generation = sc.swapchain->getGeneration();
@@ -216,12 +220,14 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             std::ignore = texture;
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            // deprecated
+            CC_EXPECTS(false);
             CC_EXPECTS(fb);
             std::ignore = fb;
         },
-        [&](const RenderSwapchain& queue) {
-            CC_EXPECTS(queue.swapchain);
-            std::ignore = queue;
+        [&](const RenderSwapchain& window) {
+            CC_EXPECTS(window.swapchain || window.renderWindow);
+            std::ignore = window;
         },
         [&](const FormatView& view) { // NOLINT(misc-no-recursion)
             std::ignore = view;
@@ -349,12 +355,23 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
             texture = tex.get();
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            // deprecated
+            CC_EXPECTS(false);
             CC_EXPECTS(fb->getColorTextures().size() == 1);
             CC_EXPECTS(fb->getColorTextures().at(0));
             texture = fb->getColorTextures()[0];
         },
         [&](const RenderSwapchain& sc) {
-            texture = sc.swapchain->getColorTexture();
+            if (sc.swapchain) {
+                texture = sc.swapchain->getColorTexture();
+            } else {
+                CC_EXPECTS(sc.renderWindow);
+                const auto& fb = sc.renderWindow->getFramebuffer();
+                CC_EXPECTS(fb);
+                CC_EXPECTS(fb->getColorTextures().size() == 1);
+                CC_EXPECTS(fb->getColorTextures().at(0));
+                texture = fb->getColorTextures()[0];
+            }
         },
         [&](const FormatView& view) {
             // TODO(zhouzhenglong): add ImageView support

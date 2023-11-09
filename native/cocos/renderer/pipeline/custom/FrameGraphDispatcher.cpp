@@ -57,6 +57,7 @@
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
+#include "cocos/scene/RenderWindow.h"
 
 #ifndef BRANCH_CULLING
     #define BRANCH_CULLING 0
@@ -327,7 +328,12 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                     fbInfo.colorTextures.emplace_back(fb->getColorTextures().at(0));
                 },
                 [&](const RenderSwapchain &sc) {
-                    fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
+                    if (sc.swapchain) {
+                        fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
+                    } else {
+                        CC_EXPECTS(sc.renderWindow);
+                        fbInfo.colorTextures.emplace_back(sc.renderWindow->getFramebuffer()->getColorTextures().front());
+                    }
                 },
                 [&](const FormatView &view) {
                     // TODO(zhouzhenglong): add ImageView support

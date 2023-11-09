@@ -194,14 +194,16 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
         desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
+        RenderSwapchain sc{};
+        sc.renderWindow = renderWindow;
         return addVertex(
-            FramebufferTag{},
+            SwapchainTag{},
             std::forward_as_tuple(name.c_str()),
             std::forward_as_tuple(desc),
             std::forward_as_tuple(ResourceTraits{ResourceResidency::EXTERNAL}),
             std::forward_as_tuple(),
             std::forward_as_tuple(),
-            std::forward_as_tuple(IntrusivePtr<gfx::Framebuffer>(renderWindow->getFramebuffer())),
+            std::forward_as_tuple(sc),
             resourceGraph);
     }
 
@@ -533,22 +535,37 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
     visitObject(
         resID, resourceGraph,
         [&](IntrusivePtr<gfx::Framebuffer> &fb) {
+            // deprecated
+            CC_EXPECTS(false);
             CC_EXPECTS(!renderWindow->getSwapchain());
             desc.width = renderWindow->getWidth();
             desc.height = renderWindow->getHeight();
             fb = renderWindow->getFramebuffer();
         },
         [&](RenderSwapchain &sc) {
-            CC_EXPECTS(renderWindow->getSwapchain());
             auto *newSwapchain = renderWindow->getSwapchain();
-            if (sc.generation != newSwapchain->getGeneration()) {
-                resourceGraph.invalidatePersistentRenderPassAndFramebuffer(
-                    sc.swapchain->getColorTexture());
+            const auto& oldTexture = resourceGraph.getTexture(resID);
+            resourceGraph.invalidatePersistentRenderPassAndFramebuffer(oldTexture);
+            if (newSwapchain) {
+                desc.width = newSwapchain->getWidth();
+                desc.height = newSwapchain->getHeight();
+
+                sc.renderWindow = nullptr;
+                sc.swapchain = renderWindow->getSwapchain();
                 sc.generation = newSwapchain->getGeneration();
+            } else {
+                CC_EXPECTS(renderWindow->getFramebuffer());
+                CC_EXPECTS(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
+                CC_EXPECTS(renderWindow->getFramebuffer()->getColorTextures().front());
+
+                const auto& texture = renderWindow->getFramebuffer()->getColorTextures().front();
+                desc.width = texture->getWidth();
+                desc.height = texture->getHeight();
+
+                sc.renderWindow = renderWindow;
+                sc.swapchain = nullptr;
+                sc.generation = 0xFFFFFFFF;
             }
-            desc.width = renderWindow->getSwapchain()->getWidth();
-            desc.height = renderWindow->getSwapchain()->getHeight();
-            sc.swapchain = renderWindow->getSwapchain();
         },
         [](const auto & /*res*/) {});
 }
