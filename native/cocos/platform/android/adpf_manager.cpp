@@ -15,6 +15,7 @@
  */
 
 #include "adpf_manager.h"
+#include "platform/BasePlatform.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID && __ANDROID_API__ >= 30
 
@@ -69,10 +70,9 @@ void ADPFManager::Initialize() {
     });
 
     afterTick.bind([&]() {
-        auto frameDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                                 std::chrono::milliseconds(16))
-                                 .count();
-        this->EndPerfHintSession(frameDuration);
+        auto fps = cc::BasePlatform::getPlatform()->getFps();
+        auto frameDurationNS = 1000000000LL / fps;
+        this->EndPerfHintSession(frameDurationNS);
     });
 
     if (thermal_manager_) {
