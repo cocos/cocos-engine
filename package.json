@@ -18,8 +18,6 @@
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
     "build-declaration": "npm run build-const && gulp build-declarations",
-    "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
-    "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
     "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
     "verify-engine-version": "node ./scripts/verify-engine-version.js",
     "fetch-ral": "node ./scripts/fetch-ral.js",
