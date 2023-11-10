@@ -81,7 +81,7 @@ export class StateMachineComponent {
 
     /**
      * @en
-     * Called when a state machine right after it entered.
+     * Called when a state machine is going to be exited.
      * @zh
      * 在即将退出状态机时调用。
      * @param controller The animation controller it within.
