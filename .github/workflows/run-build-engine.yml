@@ -9,7 +9,7 @@ on:
 
 jobs:
   run_build_engine:
-    name: "Run build-engine to NPM"
+    name: "Run build-engine"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
