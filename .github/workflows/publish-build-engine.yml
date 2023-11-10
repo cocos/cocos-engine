@@ -1,0 +1,25 @@
+name: Publish build-engine module to NPM
+
+on: workflow_dispatch
+
+jobs:
+  publish_to_npm:
+    name: "Publish build-engine to NPM"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.17.0'
+
+      - run: |
+        cd scripts/build-engine
+        npm ci
+        npm run build
+        npm run test
+
+      - uses: JS-DevTools/npm-publish@4b07b26a2f6e0a51846e1870223e545bae91c552
+        with:
+          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          registry: "https://registry.npmjs.org"
+          package: scripts/build-engine
