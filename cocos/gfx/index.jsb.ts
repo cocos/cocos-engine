@@ -27,28 +27,82 @@ declare const gfx: any;
 import { cclegacy } from '../core';
 import * as defines from './base/define';
 import * as pso from './base/pipeline-state';
+import type { DescriptorSet as JsbDescriptorSet } from './base/descriptor-set';
+import type { Buffer as JsbBuffer } from './base/buffer';
+import type { CommandBuffer as JsbCommandBuffer } from './base/command-buffer';
+import type { Device as JsbDevice } from './base/device';
+import type { Swapchain as JsbSwapchain } from './base/swapchain';
+import type { Framebuffer as JsbFramebuffer } from './base/framebuffer'
+import type { InputAssembler as JsbInputAssembler } from './base/input-assembler';
+import type { DescriptorSetLayout as JsbDescriptorSetLayout } from './base/descriptor-set-layout';
+import type { PipelineLayout as JsbPipelineLayout } from './base/pipeline-layout';
+import type { PipelineState as JsbPipelineState } from './base/pipeline-state';
+import type { Queue as JsbQueue } from './base/queue';
+import type { RenderPass as JsbRenderPass } from './base/render-pass';
+import type { Shader as JsbShader } from './base/shader';
+import type { Texture as JsbTexture } from './base/texture';
+import type { Sampler as JsbSampler } from './base/states/sampler';
+import type { GeneralBarrier as JsbGeneralBarrier } from './base/states/general-barrier';
+import type { TextureBarrier as JsbTextureBarrier } from './base/states/texture-barrier';
 
-export * from './base/descriptor-set';
-export * from './base/buffer';
-export * from './base/command-buffer';
+export * from './base/pipeline-state'
 export * from './base/define';
-export * from './base/device';
-export * from './base/swapchain';
-export * from './base/framebuffer';
-export * from './base/input-assembler';
-export * from './base/descriptor-set-layout';
-export * from './base/pipeline-layout';
-export * from './base/pipeline-state';
-export * from './base/queue';
-export * from './base/render-pass';
-export * from './base/shader';
-export * from './base/texture';
-export * from './base/states/sampler';
-export * from './base/states/general-barrier';
-export * from './base/states/texture-barrier';
 export * from './device-manager';
 
+export const DescriptorSet: typeof JsbDescriptorSet = gfx.DescriptorSet;
+export type DescriptorSet = JsbDescriptorSet;
+
+export const Buffer: typeof JsbBuffer = gfx.Buffer;
+export type Buffer = JsbBuffer;
+
+export const CommandBuffer: typeof JsbCommandBuffer = gfx.CommandBuffer;
+export type CommandBuffer = JsbCommandBuffer;
+
+export const Device: typeof JsbDevice = gfx.Device;
+export type Device = JsbDevice;
+
+export const Swapchain: typeof JsbSwapchain = gfx.Swapchain;
+export type Swapchain = JsbSwapchain;
+
+export const Framebuffer: typeof JsbFramebuffer = gfx.Framebuffer;
+export type Framebuffer = JsbFramebuffer;
+
+export const InputAssembler: typeof JsbInputAssembler = gfx.InputAssembler;
+export type InputAssembler = JsbInputAssembler;
+
+export const DescriptorSetLayout: typeof JsbDescriptorSetLayout = gfx.DescriptorSetLayout;
+export type DescriptorSetLayout = JsbDescriptorSetLayout;
+
+export const PipelineLayout: typeof JsbPipelineLayout = gfx.PipelineLayout;
+export type PipelineLayout = JsbPipelineLayout;
+
+export const PipelineState: typeof JsbPipelineState = gfx.PipelineState;
+export type PipelineState = JsbPipelineState;
+
+export const Queue: typeof JsbQueue = gfx.Queue;
+export type Queue = JsbQueue;
+
+export const RenderPass: typeof JsbRenderPass = gfx.RenderPass;
+export type RenderPass = JsbRenderPass;
+
+export const Shader: typeof JsbShader = gfx.Shader;
+export type Shader = JsbShader;
+
+export const Texture: typeof JsbTexture = gfx.Texture;
+export type Texture = JsbTexture;
+
+export const Sampler: typeof JsbSampler = gfx.Sampler;
+export type Sampler = JsbSampler;
+
+export const GeneralBarrier: typeof JsbGeneralBarrier = gfx.GeneralBarrier;
+export type GeneralBarrier = JsbGeneralBarrier;
+
+export const TextureBarrier: typeof JsbTextureBarrier = gfx.TextureBarrier;
+export type TextureBarrier = JsbTextureBarrier;
+
+
 const polyfillCC: Record<string, unknown> = Object.assign({}, defines);
+polyfillCC.GFXObject = gfx.GFXObject;
 polyfillCC.Device = gfx.Device;
 polyfillCC.Swapchain = gfx.Swapchain;
 polyfillCC.Buffer = gfx.Buffer;
@@ -64,6 +118,9 @@ polyfillCC.PipelineLayout = gfx.PipelineLayout;
 polyfillCC.PipelineState = gfx.PipelineState;
 polyfillCC.CommandBuffer = gfx.CommandBuffer;
 polyfillCC.Queue = gfx.Queue;
+polyfillCC.GeneralBarrier = gfx.GeneralBarrier;
+polyfillCC.TextureBarrier = gfx.TextureBarrier;
+
 cclegacy.gfx = polyfillCC;
 
 polyfillCC.BlendTarget = pso.BlendTarget;
