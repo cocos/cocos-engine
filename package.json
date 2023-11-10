@@ -41,7 +41,7 @@
     "@babel/plugin-proposal-export-default-from": "^7.17.12",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.4.2",
+    "@cocos/build-engine": "4.4.3",
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^24.9.1",
     "@types/yargs": "^12.0.14",
