@@ -27,6 +27,6 @@ jobs:
       - uses: JS-DevTools/npm-publish@4b07b26a2f6e0a51846e1870223e545bae91c552
         if: github.event_name == 'workflow_dispatch'
         with:
-          token: ${{ secrets.NPM_AUTH_TOKEN }}
+          token: ${{ secrets.NPM_PUBLISH_FOR_PUBLIC_REPO }}
           registry: "https://registry.npmjs.org"
           package: scripts/build-engine
