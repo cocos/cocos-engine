@@ -539,14 +539,13 @@ async function doBuild({
     if (visualizeOptions) {
         let rpVisualizer;
         try {
-            // @ts-expect-error: No typing
             rpVisualizer = await import('rollup-plugin-visualizer');
         } catch {
             console.warn('Visualizing needs \'rollup-plugin-visualizer\' to be installed. It\'s installed as dev-dependency.');
         }
         if (rpVisualizer) {
             const visualizeFile = visualizeOptions.file ?? ps.join(options.out, 'visualize.html');
-            rollupPlugins.push(rpVisualizer({
+            rollupPlugins.push(rpVisualizer.default({
                 filename: visualizeFile,
                 title: 'Cocos Creator build visualizer',
                 template: 'treemap',
