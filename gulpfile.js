@@ -135,13 +135,3 @@ gulp.task('unit-tests', () => {
 });
 
 gulp.task('test', gulp.series('code-check', 'unit-tests'));
-
-gulp.task('build-api-json', async () => {
-    const APIBuilder = require('./gulp/util/api-docs-build');
-    return await Promise.resolve(APIBuilder.generateJson());
-});
-
-gulp.task('build-3d-api', async () => {
-    const APIBuilder = require('./gulp/util/api-docs-build');
-    return await Promise.resolve(APIBuilder.generateHTMLWithLocalization());
-});
