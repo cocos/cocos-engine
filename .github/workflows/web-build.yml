@@ -35,5 +35,5 @@ jobs:
 
     - run: npm ci
     - run: echo "::add-matcher::.github/workflows/build-problem-matcher.json"
-    - run: npm run build:h5-source
+    - run: npm run build:dev
     #- run: echo "::remove-matcher owner=circular-reference-check::"
