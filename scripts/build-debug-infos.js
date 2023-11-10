@@ -1,7 +1,9 @@
-const Fs = require('fs');
+'use strict';
 
-module.exports = function buildDebugInfos () {
-    let readContent = Fs.readFileSync('EngineErrorMap.md', 'utf-8');
+const { readFileSync, writeFileSync } = require('fs');
+
+function buildDebugInfos () {
+    let readContent = readFileSync('EngineErrorMap.md', 'utf-8');
     let titleRegExp = /### \d+/g;
     let debugInfos = {};
 
@@ -25,5 +27,7 @@ module.exports = function buildDebugInfos () {
     }
 
     let writeContent = JSON.stringify(debugInfos, null, 4);
-    Fs.writeFileSync('DebugInfos.json', writeContent);
+    writeFileSync('DebugInfos.json', writeContent);
 };
+
+buildDebugInfos();

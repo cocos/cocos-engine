@@ -33,8 +33,7 @@ jobs:
         EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
         git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
 
-    - run: npm install -g gulp
     - run: npm ci
     - run: echo "::add-matcher::.github/workflows/build-problem-matcher.json"
-    - run: gulp build-h5-source
+    - run: npm run build:h5-source
     #- run: echo "::remove-matcher owner=circular-reference-check::"

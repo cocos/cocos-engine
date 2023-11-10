@@ -41,7 +41,7 @@ jobs:
           vulkan-use-cache: true
       - name: gen simulator
         run: |
-          gulp gen-simulator
+          npx gulp gen-simulator
       - name: check result
         run: |
           Get-ChildItem ./simulator/Release -Name SimulatorApp-Win32.exe
@@ -66,7 +66,7 @@ jobs:
 
       - name: gen simulator
         run: |
-          gulp gen-simulator-release
+          npx gulp gen-simulator-release
       - name: check result
         run: |
           find ./ -name SimulatorApp-Mac
