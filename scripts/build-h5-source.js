@@ -1,12 +1,14 @@
-'use strict';
-
 const { join } = require('path');
 const { ensureDir, emptyDir } = require('fs-extra');
 const { spawn } = require('child_process');
+const { magenta } = require('chalk');
 
 const cli = require.resolve('@cocos/build-engine/dist/cli');
 
-(async function () {
+const prefix = ''.padStart(20, '=');
+console.log(magenta(`${prefix} Build H5 source ${prefix}`));
+
+(async function exec () {
     const outDir = join(__dirname, '..', 'bin', 'dev', 'cc');
     await ensureDir(outDir);
     await emptyDir(outDir);
@@ -32,4 +34,4 @@ const cli = require.resolve('@cocos/build-engine/dist/cli');
     if (exitCode) {
         throw new Error(`Build process exit with ${exitCode}`);
     }
-})();
+}());

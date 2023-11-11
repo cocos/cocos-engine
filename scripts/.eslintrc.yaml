@@ -1,18 +1,8 @@
 root: true
 
-parser: '@typescript-eslint/parser'
-
-parserOptions:
-    project: 
-        - ./tsconfig.json
-
 extends:
     - eslint:recommended
     - airbnb-base
-    - plugin:@typescript-eslint/recommended
-    - plugin:@typescript-eslint/recommended-requiring-type-checking
-
-plugins: ["@typescript-eslint"]
 
 settings:
     import/resolver:
@@ -34,13 +24,10 @@ globals:
     cc: false
     wx: false
     Editor: false
-    _Scene: false
-    _ccsg: false
 
 rules:
 
     # https://eslint.org/docs/rules/
-    # https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin
 
     # !!!!!!!!!!!!!!!!!!!!!!!!!
     # BEFORE ADDING ANY RULES
@@ -48,6 +35,8 @@ rules:
 
     ##### RECOMMENDED RULE OVERRIDES #####
 
+    global-require: off # we use dynamic requires a lot
+    no-await-in-loop: off # we use async/await a lot
     camelcase: off # underscores may come in handy in some cases
     eqeqeq: warn # important check missing from recommended
     keyword-spacing: warn # we require this explicitly
@@ -61,17 +50,15 @@ rules:
     no-underscore-dangle: off
     quotes: [warn, single, { allowTemplateLiterals: true }] # force single, but allow template literal
     no-else-return: off # else-return is a common pattern which clearly expresses the control flow
-    no-unused-expressions: off # taken over by '@typescript-eslint/no-unused-expressions'
-    no-empty-function: off # taken over by '@typescript-eslint/no-empty-function'
 
     ##### AIRBNB-SPECIFIC RULE OVERRIDES #####
 
     class-methods-use-this: off # so empty functions could work
     guard-for-in: off # for-in is a efficient choice for plain objects
     import/export: off # so export declare namespace could work
-    import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
     import/prefer-default-export: off # prefer named exports
+    import/no-extraneous-dependencies: off # we have a lot of internal modules
     indent: [error, 4, {
       SwitchCase: 0,
       ignoredNodes: [ # https://stackoverflow.com/a/72897089
@@ -84,7 +71,7 @@ rules:
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
-    no-console: error # prefer the uniform logging methods
+    no-console: off # prefer the uniform logging methods
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
     no-mixed-operators: off # this is just cumbersome
@@ -104,63 +91,3 @@ rules:
     linebreak-style: off # we don't enforce this on everyone's dev environment for now
     spaced-comment: off # for license declarations
     default-case-last: off # Place default case clause to first make it more clear that this switch statement has handled all cases
-
-    ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
-
-    '@typescript-eslint/ban-ts-comment': [error, {
-        'ts-expect-error': true,
-        'ts-ignore': true,
-        'ts-nocheck': true,
-        'ts-check': false,
-    }]
-    '@typescript-eslint/no-unused-expressions': warn
-
-    # TODO: this is just too much work
-    '@typescript-eslint/explicit-module-boundary-types': off
-
-    # NOTE: We don't want to rely on TS automatic type inference
-    '@typescript-eslint/no-inferrable-types': off
-
-    # TODO: sadly we still rely heavily on legacyCC
-    '@typescript-eslint/no-unsafe-assignment': off
-    '@typescript-eslint/no-unsafe-call': off
-    '@typescript-eslint/no-unsafe-member-access': off
-
-    '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
-    '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
-
-    '@typescript-eslint/no-empty-function': [error, {
-      allow: [
-        private-constructors,
-        protected-constructors,
-        decoratedFunctions,
-        overrideMethods,
-      ]
-    }]
-
-    '@typescript-eslint/no-unused-vars': off # may become useful in some parent classes
-    '@typescript-eslint/no-non-null-assertion': off # sometimes we just know better than the compiler
-    '@typescript-eslint/no-namespace': [warn, { # we need to declare static properties
-        allowDeclarations: true,
-        allowDefinitionFiles: true
-    }]
-    '@typescript-eslint/restrict-template-expressions': [warn, { # concatenations of different types are common, e.g. hash calculations
-        allowNumber: true,
-        allowBoolean: true
-    }]
-
-    '@typescript-eslint/type-annotation-spacing': warn
-
-    # We choose to use style `... as foo` since it's more common.
-    # In the other hand, angle bracket style can be ambiguous with j/tsx syntax.
-    # For example, https://babeljs.io/docs/en/babel-plugin-transform-typescript#istsx
-    # forbids angle bracket style if `isTSX` is enabled.
-    '@typescript-eslint/consistent-type-assertions': [error, {
-        assertionStyle: 'as'
-    }]
-
-    # Prefer the interface style.
-    '@typescript-eslint/consistent-type-definitions': [error, interface]
-    '@typescript-eslint/explicit-function-return-type': [error, {
-      allowIIFEs: true, # IIFEs are widely used, writing their signature twice is painful
-    }]

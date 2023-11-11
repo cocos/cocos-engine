@@ -3,7 +3,10 @@ const ps = require('path');
 const fs = require('fs-extra');
 const ts = require('typescript');
 const del = require('del');
-const chalk = require('chalk').default;
+const { magenta, green, red } = require('chalk');
+
+const prefix = ''.padStart(20, '=');
+console.log(magenta(`${prefix} Compile native TS ${prefix}`));
 
 let clean = true;
 const argv2 = process.argv[2];
@@ -21,10 +24,10 @@ function normalizePath (path) {
 (async function main () {
     await buildTsEngine();
     await compileTsEngine();
-})();
+}());
 
 async function buildTsEngine () {
-    console.log(chalk.green('building TS engine ...\n'));
+    console.log(green('building TS engine ...\n'));
     await ccbuild.buildEngine({
         // NOTE: for now only OH platform supports building TS engine
         platform: 'OPEN_HARMONY',
@@ -32,41 +35,41 @@ async function buildTsEngine () {
         engine: engineRoot,
         // TODO: some modules still cannot be compile
         features: [
-            "base",
-            "gfx-webgl",
-            "gfx-webgl2",
-            "3d",
-            "animation",
-            "skeletal-animation",
-            "2d",
-            "ui",
-            "particle",
-            "particle-2d",
-            "physics-framework",
+            'base',
+            'gfx-webgl',
+            'gfx-webgl2',
+            '3d',
+            'animation',
+            'skeletal-animation',
+            '2d',
+            'ui',
+            'particle',
+            'particle-2d',
+            'physics-framework',
             // "physics-cannon",
             // "physics-physx",
             // "physics-ammo",
-            "physics-builtin",
+            'physics-builtin',
             // "physics-2d-framework",
             // "physics-2d-box2d",
             // "physics-2d-builtin",
-            "intersection-2d",
-            "primitive",
-            "profiler",
+            'intersection-2d',
+            'primitive',
+            'profiler',
             // "occlusion-query",
             // "geometry-renderer",
             // "debug-renderer",
-            "audio",
-            "video",
+            'audio',
+            'video',
             // "xr",
             // "terrain",
-            "webview",
-            "tween",
+            'webview',
+            'tween',
             // "tiled-map",
             // "spine",
             // "dragon-bones",
             // "marionette",
-            "custom-pipeline",
+            'custom-pipeline',
             // "light-probe",
         ],
         mode: 'BUILD',
@@ -78,36 +81,36 @@ async function buildTsEngine () {
 }
 
 async function compileTsEngine () {
-    console.log(chalk.green('compiling TS engine ...\n'));
+    console.log(green('compiling TS engine ...\n'));
     const entryDir = normalizePath(ps.join(buildOutput, 'exports'));
-    const entries = fs.readdirSync(entryDir).map(file => normalizePath(ps.join(entryDir, file)));
-    
-    console.log('typescript version: ' + ts.version);
+    const entries = fs.readdirSync(entryDir).map((file) => normalizePath(ps.join(entryDir, file)));
+
+    console.log(`typescript version: ${ts.version}`);
     console.log('compile source file: ', entries);
 
     const compilerOptions = {
         strict: true,
         noImplicitAny: false,
         experimentalDecorators: true,
-        lib: ["lib.es2015.d.ts", "lib.es2017.d.ts"],
+        lib: ['lib.es2015.d.ts', 'lib.es2017.d.ts'],
         types: [
-            "./@types/editor-extends",
-            "./@types/globals",
-            "./@types/jsb",
-            "./@types/lib.dom",
-            "./@types/webGL.extras",
-            "./@types/webGL2.extras",
+            './@types/editor-extends',
+            './@types/globals',
+            './@types/jsb',
+            './@types/lib.dom',
+            './@types/webGL.extras',
+            './@types/webGL2.extras',
 
             // pal
-            "./@types/pal/system-info",
-            "./@types/pal/screen-adapter",
-            "./@types/pal/minigame",
-            "./@types/pal/audio",
-            "./@types/pal/input",
-            "./@types/pal/env",
-            "./@types/pal/pacer",
-            "./@types/pal/wasm",
-        ].map(typePath => normalizePath(ps.join(buildOutput, typePath))),
+            './@types/pal/system-info',
+            './@types/pal/screen-adapter',
+            './@types/pal/minigame',
+            './@types/pal/audio',
+            './@types/pal/input',
+            './@types/pal/env',
+            './@types/pal/pacer',
+            './@types/pal/wasm',
+        ].map((typePath) => normalizePath(ps.join(buildOutput, typePath))),
         skipLibCheck: true,
         rootDir: buildOutput,
         // outDir: normalizePath(ps.join(buildOutput, '__out__')),
@@ -119,7 +122,7 @@ async function compileTsEngine () {
 
     const program = ts.createProgram(entries, compilerOptions);
     const emitResult = program.emit();
-    const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);    
+    const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
     let hasError = false;
     for (const diagnostic of allDiagnostics) {
         let printer;
@@ -127,7 +130,7 @@ async function compileTsEngine () {
         case ts.DiagnosticCategory.Error:
             printer = console.error;
             if (!hasError) {
-                printer(chalk.red('\n============= | Error | ========================\n'))
+                printer(red('\n============= | Error | ========================\n'));
                 hasError = true;
             }
             break;
@@ -153,14 +156,13 @@ async function compileTsEngine () {
     }
 
     if (clean) {
-        console.log(chalk.green(`\nclean output: ${buildOutput}\n`));
-        await del(buildOutput, {force: true});
+        console.log(green(`\nclean output: ${buildOutput}\n`));
+        await del(buildOutput, { force: true });
     }
-
 
     if (hasError) {
         if (clean) {
-            console.log(chalk.red(`\nNOTE: please run 'node ./scripts/compile-native-ts.js --no-clean' locally to locate the error !\n`));
+            console.log(red(`\nNOTE: please run 'node ./scripts/compile-native-ts.js --no-clean' locally to locate the error !\n`));
         }
         process.exit(1);
     } else {

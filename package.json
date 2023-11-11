@@ -14,7 +14,7 @@
   "scripts": {
     "postinstall": "npm run build:debug-infos && npm run build:declaration && npm run build:adapter && npm run fetch-ral && npm run build:native-pack-tool",
     "build": "npm run build:min && npm run build:declaration",
-    "build:adapter": "node ./scripts/bundle-adapter.js",
+    "build:adapter": "node ./scripts/build-adapter.js",
     "build:const": "node ./scripts/build-const.js",
     "build:dev": "npm run build:debug-infos && node ./scripts/build-h5-source",
     "build:debug-infos": "node ./scripts/build-debug-infos",
@@ -24,7 +24,7 @@
     "clear": "node ./scripts/clear-cache.js",
     "clear:platform": "node ./native/utils/clear-platform.js && node ./scripts/clear-file.js",
     "fetch-ral": "node ./scripts/fetch-ral.js",
-    "generate:doc-info": "node ./scripts/generate:doc-info",
+    "generate:doc-info": "node ./scripts/generate-doc-info",
     "test": "tsc --noEmit && jest",
     "update:engine-version": "node ./scripts/checkout-engine-version.js",
     "update:native-external": "node ./native/utils/update-external.js",
@@ -49,7 +49,7 @@
     "axios": "^1.4.0",
     "babelify": "^10.0.0",
     "browserify": "^17.0.0",
-    "chalk": "^2.4.1",
+    "chalk": "^4.1.2",
     "del": "^6.0.0",
     "eslint": "^8.44.0",
     "eslint-config-airbnb-base": "^15.0.0",
@@ -78,6 +78,7 @@
     "yargs": "^12.0.5"
   },
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
     "@cocos/ccbuild": "2.0.3-alpha.18",

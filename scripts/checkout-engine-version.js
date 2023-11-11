@@ -7,7 +7,7 @@ const fs = require('fs');
 //     .argv;
 
 const targetEngineVersion = process.argv[2];
-const versionRegExp = /^\d+\.\d+\.\d+$/
+const versionRegExp = /^\d+\.\d+\.\d+$/;
 if (!targetEngineVersion) {
     console.error('please specify a target engine version');
     process.exit(1);
@@ -22,21 +22,21 @@ if (!targetEngineVersion) {
  * each handler needs to return the handle result.
  */
 const fileHandlers = {
-    './package.json' (content) {
+    './package.json': function (content) {
         const versionRegExp = /"version": ".*"/;
         content = content.replace(versionRegExp, `"version": "${targetEngineVersion}"`);
         return content;
     },
 
-    './cocos/core/global-exports.ts' (content) {
+    './cocos/core/global-exports.ts': function (content) {
         const versionRegExp = /engineVersion = '.*'/;
         content = content.replace(versionRegExp, `engineVersion = '${targetEngineVersion}'`);
         return content;
     },
 };
 
-for (filePath in fileHandlers) {
-    let handler = fileHandlers[filePath];
+for (const filePath in fileHandlers) {
+    const handler = fileHandlers[filePath];
     let content = fs.readFileSync(filePath, 'utf8');
     content = handler(content);
     if (!content) {
@@ -45,5 +45,5 @@ for (filePath in fileHandlers) {
     }
     fs.writeFileSync(filePath, content, 'utf8');
 }
-console.log('Checkout engine version complete!')
+console.log('Checkout engine version complete!');
 process.exit(0);
