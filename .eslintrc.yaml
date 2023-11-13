@@ -75,17 +75,10 @@ rules:
       ignoredNodes: [ # https://stackoverflow.com/a/72897089
           'FunctionExpression > .params[decorators.length > 0]',
           'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
-          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
+          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key',
       ]
     }]
-    '@typescript-eslint/indent': [error, 4, {
-      SwitchCase: 0,
-      ignoredNodes: [ # https://stackoverflow.com/a/72897089
-          'FunctionExpression > .params[decorators.length > 0]',
-          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
-          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
-      ]
-    }]
+
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
 
@@ -132,7 +125,7 @@ rules:
     '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
     '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
 
-    '@typescript-eslint/no-empty-function': [error, {
+    '@typescript-eslint/no-empty-function': [off, {
       allow: [
         private-constructors,
         protected-constructors,
@@ -162,7 +155,7 @@ rules:
 
     # Prefer the interface style.
     '@typescript-eslint/consistent-type-definitions': [error, interface]
-    '@typescript-eslint/explicit-function-return-type': [error, {
+    '@typescript-eslint/explicit-function-return-type': [off, {
       allowIIFEs: true, # IIFEs are widely used, writing their signature twice is painful
     }]
 
@@ -177,12 +170,13 @@ rules:
     # no-var: error
     # prefer-const: error
     # prefer-numeric-literals: off
+    # prefer-template: error
 
-    prefer-template: off
+
     '@typescript-eslint/no-unsafe-argument': warn
 
     max-len: [warn, 250] # more lenient on max length per line
-    no-console: warn # prefer the uniform logging methods
+    no-console: off # prefer the uniform logging methods
     no-multi-spaces: [warn, {
         'ignoreEOLComments': true,
         'exceptions': {
@@ -191,7 +185,7 @@ rules:
         }
     }]
     no-multiple-empty-lines: [warn, {max: 2, maxEOF: 1}]
-    no-multi-assign: [error, { 'ignoreNonDeclaration': true }]
+    no-multi-assign: [off, { 'ignoreNonDeclaration': true }]
     max-statements-per-line: [error, { max: 1 }]
 
     comma-dangle: [error, {
@@ -211,11 +205,10 @@ rules:
         },
         'multiLine': {
             'beforeColon': false,
-            'afterColon': true
-            # 'align': colon
+            'afterColon': true,
+            'align': colon
         }
     }]
-
     func-names: off
     default-param-last: off
     one-var: [error, never]
@@ -232,14 +225,22 @@ rules:
         'classes': always
     }]
 
+    semi: off
+    no-extra-semi: ["error"]
+    "@typescript-eslint/semi": ["error", "always"]
+    "@typescript-eslint/member-delimiter-style": ["error", {
+        "multiline": { "delimiter": "semi" },
+        "singleline": { "delimiter": "semi" },
+    }]
+
     '@typescript-eslint/no-this-alias': [off]
     '@typescript-eslint/no-extra-parens': [error, all, {
-      'conditionalAssign': false,
-      'returnAssign': false,
-      'nestedBinaryExpressions': false,
-      'enforceForArrowConditionals': false,
-      'enforceForFunctionPrototypeMethods': false,
-      'ignoreJSX': all
+        'conditionalAssign': false,
+        'returnAssign': false,
+        'nestedBinaryExpressions': false,
+        'enforceForArrowConditionals': false,
+        'enforceForFunctionPrototypeMethods': false,
+        'ignoreJSX': all
     }]
     '@typescript-eslint/no-unused-expressions': [error, {
         'allowShortCircuit': true,
@@ -252,7 +253,6 @@ rules:
     }]
     '@typescript-eslint/keyword-spacing': [error]
     '@typescript-eslint/space-infix-ops': [error]
-    '@typescript-eslint/member-delimiter-style': [error]
     '@typescript-eslint/type-annotation-spacing': [error, {
         'before': false,
         'after': true,
