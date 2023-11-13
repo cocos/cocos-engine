@@ -28,7 +28,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci --ignore-scripts
-    - run: npx gulp build-debug-infos
+    - run: npm run build:debug-infos
     - name: Download external
       run: |
         EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`

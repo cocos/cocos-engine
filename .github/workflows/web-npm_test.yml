@@ -18,10 +18,6 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '18.x'
-
-    - name: install gulp
-      run: |
-        npm install -g gulp
         
     - name: Download external
       run: |
@@ -34,7 +30,7 @@ jobs:
        
     - name: build-debug-infos
       run: |
-        gulp build-debug-infos
+        npm run build:debug-infos
         
     - name: run test
       run: |
