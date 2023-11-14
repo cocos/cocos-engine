@@ -724,6 +724,10 @@ sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLI
     return true;
 }
 
+// duplicate extern to resolve the circular reference jsb_cocos_auto.h
+// see jsb_cocos_auto.h 
+extern se::Class *__jsb_cc_JSBNativeDataHolder_class; // NOLINT
+
 template <typename T>
 typename std::enable_if_t<!std::is_pointer<T>::value && std::is_arithmetic<T>::value, bool>
 sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
@@ -734,9 +738,15 @@ sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLI
     } else if (data->isTypedArray()) {
         data->getTypedArrayData(&tmp, nullptr);
     } else {
-        auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(data->getPrivateData());
-        if (dataHolder != nullptr) {
-            tmp = dataHolder->getData();
+        void *privateData = data->getPrivateData();
+        if (privateData != nullptr && data->_getClass() == __jsb_cc_JSBNativeDataHolder_class) {
+            auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(privateData);
+            if (dataHolder != nullptr) {
+                tmp = dataHolder->getData();
+            } else {
+                CC_ABORT(); // bad type
+                return false;
+            }
         } else {
             CC_ABORT(); // bad type
             return false;
