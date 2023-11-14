@@ -25,7 +25,7 @@
 
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
-import { Attribute, DescriptorSetLayout, DescriptorType, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Type, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture, deviceManager } from '../../gfx';
+import { Attribute, DescriptorSetLayout, DescriptorType, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE, Device, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, Shader, ShaderInfo, ShaderStage, ShaderStageFlagBit, Type, Uniform, UniformBlock, UniformInputAttachment, UniformSampler, UniformSamplerTexture, UniformStorageBuffer, UniformStorageImage, UniformTexture, deviceManager, PipelineState, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../../gfx';
 import { genHandles, getActiveAttributes, getCombinationDefines, getShaderInstanceName, getSize, getVariantKey, populateMacros, prepareDefines } from '../../render-scene/core/program-utils';
 import { getDeviceShaderVersion, MacroRecord } from '../../render-scene';
 import { IProgramInfo } from '../../render-scene/core/program-lib';
@@ -33,15 +33,15 @@ import { DescriptorBlockData, DescriptorData, DescriptorSetData, DescriptorSetLa
 import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramInfo } from './web-types';
-import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID, ENABLE_SUBPASS, getCustomSubpassID } from './layout-graph-utils';
-import { assert } from '../../core/platform/debug';
-import { IDescriptorSetLayoutInfo, localDescriptorSetLayout } from '../define';
+import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID, ENABLE_SUBPASS, getCustomSubpassID, generateConstantMacros, populatePipelineLayoutInfo } from './layout-graph-utils';
+import { assert, error } from '../../core/platform/debug';
+import { IDescriptorSetLayoutInfo, UBOSkinning, localDescriptorSetLayout } from '../define';
 import { PipelineRuntime } from './pipeline';
 
 const _setIndex = [2, 1, 3, 0];
 
 // make IProgramInfo from IShaderInfo
-function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): IProgramInfo {
+export function makeProgramInfo (effectName: string, shader: EffectAsset.IShaderInfo): IProgramInfo {
     const programInfo = { ...shader } as IProgramInfo;
     programInfo.effectName = effectName;
 
@@ -87,7 +87,7 @@ function findBinding (shaderInfo: ShaderInfo, name: string): { set: number, bind
         }
     }
     // eslint-disable-next-line no-console
-    throw console.error('binding not found in shaderInfo!');
+    throw error('binding not found in shaderInfo!');
 }
 
 function overwriteShaderSourceBinding (shaderInfo: ShaderInfo, source: string): string {
@@ -138,7 +138,7 @@ function overwriteShaderProgramBinding (shaderInfo: ShaderInfo, programInfo: IPr
 }
 
 // overwrite IProgramInfo using gfx.ShaderInfo
-function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgramInfo): void {
+export function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgramInfo): void {
     overwriteShaderProgramBinding(shaderInfo, programInfo);
     const set = _setIndex[UpdateFrequency.PER_BATCH];
     for (const block of programInfo.blocks) {
@@ -154,7 +154,7 @@ function overwriteProgramBlockInfo (shaderInfo: ShaderInfo, programInfo: IProgra
             }
         }
         if (!found) {
-            console.error(`Block ${block.name} not found in shader ${shaderInfo.name}`);
+            error(`Block ${block.name} not found in shader ${shaderInfo.name}`);
         }
     }
 }
@@ -270,7 +270,7 @@ function populateMergedShaderInfo (
             for (const block of descriptorBlock.descriptors) {
                 const uniformBlock = layout.uniformBlocks.get(block.descriptorID);
                 if (uniformBlock === undefined) {
-                    console.error(`Failed to find uniform block ${block.descriptorID} in layout`);
+                    error(`Failed to find uniform block ${block.descriptorID} in layout`);
                     continue;
                 }
                 blockSizes.push(getSize(uniformBlock.members));
@@ -286,7 +286,7 @@ function populateMergedShaderInfo (
                 ++binding;
             }
             if (binding !== descriptorBlock.offset + descriptorBlock.capacity) {
-                console.error(`Uniform buffer binding mismatch for set ${set}`);
+                error(`Uniform buffer binding mismatch for set ${set}`);
             }
             break;
         case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
@@ -541,7 +541,7 @@ function calculateFlattenedBinding (
 }
 
 // make gfx.ShaderInfo
-function makeShaderInfo (
+export function makeShaderInfo (
     lg: LayoutGraphData,
     passLayouts: PipelineLayoutData,
     phaseLayouts: PipelineLayoutData,
@@ -650,14 +650,23 @@ function makeShaderInfo (
     return [shaderInfo, blockSizes];
 }
 
-class WebProgramProxy implements ProgramProxy {
-    constructor (shader: Shader) {
+export function getGLSLSource (info: IProgramInfo, version: string): { vert: string, frag: string, compute?: string }  {
+    if (version === 'glsl1') return info.glsl1;
+    if (version === 'glsl3') return info.glsl3;
+    if (version === 'glsl4') return info.glsl4;
+    return { vert: '', frag: '' };
+}
+
+export class WebProgramProxy implements ProgramProxy {
+    constructor (shader: Shader, pipelineStateIn: PipelineState | null = null) {
         this.shader = shader;
+        this.pipelineState = pipelineStateIn;
     }
     get name (): string {
         return this.shader.name;
     }
     readonly shader: Shader;
+    pipelineState: PipelineState | null = null;
 }
 
 // find name and type from local descriptor set info
@@ -675,12 +684,12 @@ function getDescriptorNameAndType (source: IDescriptorSetLayoutInfo, binding: nu
             return [v.name, type];
         }
     }
-    console.error('descriptor not found');
+    error('descriptor not found');
     return ['', Type.UNKNOWN];
 }
 
 // make DescriptorSetLayoutData from local descriptor set info
-function makeLocalDescriptorSetLayoutData (
+export function makeLocalDescriptorSetLayoutData (
     lg: LayoutGraphData,
     source: IDescriptorSetLayoutInfo,
 ): DescriptorSetLayoutData {
@@ -695,7 +704,7 @@ function makeLocalDescriptorSetLayoutData (
         data.descriptorBlocks.push(block);
         const binding = data.bindingMap.get(nameID);
         if (binding !== undefined) {
-            console.error(`duplicate descriptor name '${name}'`);
+            error(`duplicate descriptor name '${name}'`);
         }
         data.bindingMap.set(nameID, b.binding);
         const v = source.layouts[name];
@@ -707,7 +716,7 @@ function makeLocalDescriptorSetLayoutData (
 }
 
 // make descriptor sets for ShaderProgramData (PerBatch, PerInstance)
-function buildProgramData (
+export function buildProgramData (
     programName: string,
     srcShaderInfo: EffectAsset.IShaderInfo,
     lg: LayoutGraphData,
@@ -737,7 +746,7 @@ function buildProgramData (
             setData.descriptorSetLayoutInfo,
         );
         if (localDescriptorSetLayout.bindings.length !== setData.descriptorSetLayoutInfo.bindings.length) {
-            console.error('local descriptor set layout inconsistent');
+            error('local descriptor set layout inconsistent');
         } else {
             for (let k = 0; k !== localDescriptorSetLayout.bindings.length; ++k) {
                 const b = localDescriptorSetLayout.bindings[k];
@@ -746,7 +755,7 @@ function buildProgramData (
                     || b.descriptorType !== b2.descriptorType
                     || b.count !== b2.count
                     || b.stageFlags !== b2.stageFlags) {
-                    console.error('local descriptor set layout inconsistent');
+                    error('local descriptor set layout inconsistent');
                 }
             }
         }
@@ -771,7 +780,7 @@ function buildProgramData (
 }
 
 // get or create PerProgram gfx.DescriptorSetLayout
-function getOrCreateProgramDescriptorSetLayout (
+export function getOrCreateProgramDescriptorSetLayout (
     device: Device,
     lg: LayoutGraphData,
     phaseID: number,
@@ -798,7 +807,7 @@ function getOrCreateProgramDescriptorSetLayout (
 }
 
 // get PerProgram gfx.DescriptorSetLayout
-function getProgramDescriptorSetLayout (
+export function getProgramDescriptorSetLayout (
     device: Device,
     lg: LayoutGraphData,
     phaseID: number,
@@ -825,7 +834,7 @@ function getProgramDescriptorSetLayout (
 }
 
 // find shader program in LayoutGraphData
-function getEffectShader (
+export function getEffectShader (
     lg: LayoutGraphData,
     effect: EffectAsset,
     pass: EffectAsset.IPassInfo,
@@ -833,20 +842,20 @@ function getEffectShader (
     const programName = pass.program;
     const passID = getCustomPassID(lg, pass.pass);
     if (passID === INVALID_ID) {
-        console.error(`Invalid render pass, program: ${programName}`);
+        error(`Invalid render pass, program: ${programName}`);
         return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
 
     const enableSubpass = pass.subpass && pass.subpass !== '' && ENABLE_SUBPASS;
     const subpassID = enableSubpass ? getCustomSubpassID(lg, passID, pass.subpass!) : INVALID_ID;
     if (enableSubpass && subpassID === INVALID_ID) {
-        console.error(`Invalid render subpass, program: ${programName}`);
+        error(`Invalid render subpass, program: ${programName}`);
         return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
 
     const phaseID = getCustomPhaseID(lg, subpassID === INVALID_ID ? passID : subpassID, pass.phase);
     if (phaseID === INVALID_ID) {
-        console.error(`Invalid render phase, program: ${programName}`);
+        error(`Invalid render phase, program: ${programName}`);
         return [INVALID_ID, INVALID_ID, INVALID_ID, null, INVALID_ID];
     }
     let srcShaderInfo: EffectAsset.IShaderInfo | null = null;
@@ -863,10 +872,10 @@ function getEffectShader (
 }
 
 // valid IShaderInfo is compatible
-function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): number {
+export function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): number {
     // source shader info
     if (srcShaderInfo.descriptors === undefined) {
-        console.error(`No descriptors in shader: ${srcShaderInfo.name}, please reimport ALL effects`);
+        error(`No descriptors in shader: ${srcShaderInfo.name}, please reimport ALL effects`);
         return 1;
     }
     return 0;
@@ -881,6 +890,75 @@ export class WebProgramLibrary implements ProgramLibrary {
             }
         }
     }
+    init (deviceIn: Device): void {
+        if (this.device === deviceIn) {
+            return;
+        }
+        this.device = deviceIn;
+        this.emptyDescriptorSetLayout = this.device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
+        this.emptyPipelineLayout = this.device.createPipelineLayout(new PipelineLayoutInfo());
+
+        // update ubo
+        // tips: for compatibility with old version, when maxVertexUniformVectors is 128, maxJoints = 30
+        let maxJoints: number = (this.device.capabilities.maxVertexUniformVectors - 38) / 3;
+        maxJoints = maxJoints < 256 ? maxJoints : 256;
+        UBOSkinning.initLayout(maxJoints);
+
+        // init layout graph
+        const lg = this.layoutGraph;
+        for (const v of lg.vertices()) {
+            const layout: PipelineLayoutData = lg.get('Layout').get(v) as PipelineLayoutData;
+            for (const [update, set] of layout.descriptorSets) {
+                initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData, set.descriptorSetLayoutInfo);
+                set.descriptorSetLayout = this.device.createDescriptorSetLayout(set.descriptorSetLayoutInfo);
+                assert(!!set.descriptorSetLayout);
+                set.descriptorSet = this.device.createDescriptorSet(new DescriptorSetInfo(set.descriptorSetLayout));
+                assert(!!set.descriptorSet);
+            }
+        }
+
+        for (const v of lg.vertices()) {
+            if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+                continue;
+            }
+            const phaseID = v;
+            const subpassOrPassID = lg.getParent(phaseID);
+            const passLayout = lg.getLayout(subpassOrPassID);
+            const phaseLayout = lg.getLayout(phaseID);
+            const info = new PipelineLayoutInfo();
+            populatePipelineLayoutInfo(passLayout, UpdateFrequency.PER_PASS, info);
+            populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_PHASE, info);
+            populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_BATCH, info);
+            populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_INSTANCE, info);
+            const phase = lg.getRenderPhase(phaseID);
+            phase.pipelineLayout = this.device.createPipelineLayout(info);
+        }
+
+        // init local descriptor set
+        {
+            const localSetLayout = localDescriptorSetLayout;
+            this.localLayoutData = makeLocalDescriptorSetLayoutData(lg, localSetLayout);
+            const info = new DescriptorSetLayoutInfo();
+            initializeDescriptorSetLayoutInfo(this.localLayoutData, info);
+            this.localDescriptorSetLayout = this.device.createDescriptorSetLayout(info);
+            assert(!!this.localDescriptorSetLayout);
+
+            let numUniformBuffers = 0;
+            for (const block of this.localLayoutData.descriptorBlocks) {
+                if (block.type !== DescriptorTypeOrder.UNIFORM_BUFFER
+                && block.type !== DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER) {
+                    continue;
+                }
+                for (const d of block.descriptors) {
+                    numUniformBuffers += d.count;
+                }
+            }
+            assert(numUniformBuffers === 7); // 7 is currently max uniform binding
+        }
+
+        // generate constant macros string
+        generateConstantMacros(this.device, this.layoutGraph.constantMacros);
+    }
     // add effect to database
     addEffect (effect: EffectAsset): void {
         const lg = this.layoutGraph;
@@ -889,7 +967,7 @@ export class WebProgramLibrary implements ProgramLibrary {
                 const programName = pass.program;
                 const [passID, subpassID, phaseID, srcShaderInfo] = getEffectShader(lg, effect, pass);
                 if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
-                    console.error(`program: ${programName} not found`);
+                    error(`program: ${programName} not found`);
                     continue;
                 }
                 assert(passID !== INVALID_ID && phaseID !== INVALID_ID);
@@ -950,7 +1028,7 @@ export class WebProgramLibrary implements ProgramLibrary {
                 const programName = pass.program;
                 const [passID, subpassID, phaseID, srcShaderInfo, shaderID] = getEffectShader(lg, effect, pass);
                 if (srcShaderInfo === null || validateShaderInfo(srcShaderInfo)) {
-                    console.error(`program: ${programName} not valid`);
+                    error(`program: ${programName} not valid`);
                     continue;
                 }
                 assert(passID !== INVALID_ID && phaseID !== INVALID_ID && shaderID !== INVALID_ID);
@@ -986,13 +1064,13 @@ export class WebProgramLibrary implements ProgramLibrary {
         // get phase
         const group = this.phases.get(phaseID);
         if (group === undefined) {
-            console.error(`Invalid render phase, program: ${programName}`);
+            error(`Invalid render phase, program: ${programName}`);
             return '';
         }
         // get info
         const info = group.programInfos.get(programName);
         if (info === undefined) {
-            console.error(`Invalid program, program: ${programName}`);
+            error(`Invalid program, program: ${programName}`);
             return '';
         }
         return getVariantKey(info.programInfo, defines);
@@ -1004,13 +1082,13 @@ export class WebProgramLibrary implements ProgramLibrary {
         // get phase
         const group = this.phases.get(phaseID);
         if (group === undefined) {
-            console.error(`Invalid render phase, program: ${name}`);
+            error(`Invalid render phase, program: ${name}`);
             return null;
         }
         // get info
         const info = group.programInfos.get(name);
         if (info === undefined) {
-            console.error(`Invalid program, program: ${name}`);
+            error(`Invalid program, program: ${name}`);
             return null;
         }
         const programInfo = info.programInfo;
@@ -1035,7 +1113,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         if (deviceShaderVersion) {
             src = programInfo[deviceShaderVersion];
         } else {
-            console.error('Invalid GFX API!');
+            error('Invalid GFX API!');
         }
 
         // prepare shader info
@@ -1096,12 +1174,12 @@ export class WebProgramLibrary implements ProgramLibrary {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID);
         if (!group) {
-            console.error(`Invalid render phase, program: ${programName}`);
+            error(`Invalid render phase, program: ${programName}`);
             return [];
         }
         const info = group.programInfos.get(programName);
         if (!info) {
-            console.error(`Invalid program, program: ${programName}`);
+            error(`Invalid program, program: ${programName}`);
             return [];
         }
         return info.blockSizes;
@@ -1111,12 +1189,12 @@ export class WebProgramLibrary implements ProgramLibrary {
         assert(phaseID !== INVALID_ID);
         const group = this.phases.get(phaseID);
         if (!group) {
-            console.error(`Invalid render phase, program: ${programName}`);
+            error(`Invalid render phase, program: ${programName}`);
             return {};
         }
         const info = group.programInfos.get(programName);
         if (!info) {
-            console.error(`Invalid program, program: ${programName}`);
+            error(`Invalid program, program: ${programName}`);
             return {};
         }
         return info.handleMap;
@@ -1177,7 +1255,12 @@ export class WebProgramLibrary implements ProgramLibrary {
     }
     readonly layoutGraph: LayoutGraphData;
     readonly phases: Map<number, ProgramGroup> = new Map<number, ProgramGroup>();
-    mergeHighFrequency = false;
-    fixedLocal = true;
-    pipeline: PipelineRuntime | null = null;
+    public mergeHighFrequency: boolean = false;
+    public fixedLocal: boolean = true;
+    public localLayoutData: DescriptorSetLayoutData = new DescriptorSetLayoutData();
+    public localDescriptorSetLayout: DescriptorSetLayout | null = null;
+    public emptyDescriptorSetLayout: DescriptorSetLayout | null = null;
+    public emptyPipelineLayout: PipelineLayout | null = null;
+    public pipeline: PipelineRuntime | null = null;
+    public device: Device | null = null;
 }

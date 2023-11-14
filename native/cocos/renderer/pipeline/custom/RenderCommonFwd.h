@@ -31,7 +31,6 @@
 #pragma once
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/base/std/variant.h"
-#include "cocos/renderer/gfx-base/GFXDef-common.h"
 
 namespace cc {
 

@@ -3,13 +3,17 @@ const fs = require('fs');
 const fsExt = require('fs-extra');
 const { exec } = require('child_process');
 const del = require('del');
-const chalk = require('chalk').default;
+const chalk = require('chalk');
 
 const distDir = join(__dirname, '../bin/adapter/runtime');
+const { magenta } = require('chalk');
+
+const prefix = ''.padStart(20, '=');
+console.log(magenta(`${prefix} Fetch RAL ${prefix}`));
 
 function forceCopyFileSync (src, dst) {
     const content = fs.readFileSync(src, 'utf8');
-    fsExt.outputFileSync(dst, content, {encoding: 'utf8'});
+    fsExt.outputFileSync(dst, content, { encoding: 'utf8' });
 }
 
 function join (...paths) {
@@ -70,7 +74,7 @@ function checkFile () {
 }
 
 /**
- * @param {string} cmd 
+ * @param {string} cmd
  * @param {string} cwd
  * @returns {Promise<void>}
  */
@@ -94,21 +98,21 @@ function runCommand (cmd, cwd) {
         ls.stdout.on('close', () => {
             resolve(ls.exitCode);
         });
-    })
+    });
 }
 
 function copyRal () {
     console.log(`Copy files from '${repositoryPath}' to '${distDir}'\n`);
 
     // copy web-adapter
-    ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
+    ['web-adapter.js', 'web-adapter.min.js'].forEach((fileName) => {
         const src = join(repositoryPath, 'dist/common', fileName);
         const dst = join(distDir, fileName);
         forceCopyFileSync(src, dst);
     });
     // copy ral
-    ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach(platformName => {
-        ['ral.js', 'ral.min.js'].forEach(fileName => {
+    ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach((platformName) => {
+        ['ral.js', 'ral.min.js'].forEach((fileName) => {
             const src = join(repositoryPath, 'dist/platforms', platformName, fileName);
             const dst = join(distDir, platformName, fileName);
             forceCopyFileSync(src, dst);
@@ -122,13 +126,13 @@ async function cleanOldRal () {
     // del local commit
     delPatterns.push(localCommitFile);
     // del web adapter
-    ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
+    ['web-adapter.js', 'web-adapter.min.js'].forEach((fileName) => {
         const dst = join(distDir, fileName);
         delPatterns.push(dst);
     });
     // del ral
-    ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach(platformName => {
-        ['ral.js', 'ral.min.js'].forEach(fileName => {
+    ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach((platformName) => {
+        ['ral.js', 'ral.min.js'].forEach((fileName) => {
             const dst = join(distDir, platformName, fileName);
             delPatterns.push(dst);
         });
@@ -143,7 +147,7 @@ async function writeLocalCommitFile () {
 }
 
 /**
- * @param {string} dirPath 
+ * @param {string} dirPath
  * @returns {Promise<void>}
  */
 async function removeDir (dirPath) {
@@ -162,7 +166,7 @@ async function removeDir (dirPath) {
         await cleanOldRal();
         await removeDir(repositoryPath);
         try {
-            let exitCode = await runCommand('git clone git@github.com:yangws/runtime-web-adapter.git', __dirname);
+            const exitCode = await runCommand('git clone git@github.com:yangws/runtime-web-adapter.git', __dirname);
             if (exitCode !== 0) {
                 await removeDir(repositoryPath);
                 await runCommand('git clone https://github.com/yangws/runtime-web-adapter', __dirname);

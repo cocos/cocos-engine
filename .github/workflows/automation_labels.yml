@@ -33,4 +33,4 @@ jobs:
         uses: OperationsYU/auto-assignment@v1
         with:
           token: ${{ secrets.LABEl_TOKEN }}
-          users: '["holycanvas"]'
+          users: '["minggo"]'

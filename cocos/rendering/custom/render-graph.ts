@@ -31,13 +31,21 @@
 import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, reindexEdgeList, traversal } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, Viewport, TextureType } from '../../gfx';
-import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair } from './types';
+import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
+import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair, RenderCommonObjectPool } from './types';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
+import { Light } from '../../render-scene/scene';
+import { RecyclePool } from '../../core/memop';
 
 export class ClearValue {
     constructor (x = 0, y = 0, z = 0, w = 0) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
+    }
+    reset (x = 0, y = 0, z = 0, w = 0): void {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -69,6 +77,26 @@ export class RasterView {
         this.clearColor = clearColor;
         this.shaderStageFlags = shaderStageFlags;
     }
+    reset (
+        slotName = '',
+        accessType: AccessType = AccessType.WRITE,
+        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
+        loadOp: LoadOp = LoadOp.LOAD,
+        storeOp: StoreOp = StoreOp.STORE,
+        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): void {
+        this.slotName = slotName;
+        this.slotName1 = '';
+        this.accessType = accessType;
+        this.attachmentType = attachmentType;
+        this.loadOp = loadOp;
+        this.storeOp = storeOp;
+        this.clearFlags = clearFlags;
+        this.clearColor.reset();
+        this.slotID = 0;
+        this.shaderStageFlags = shaderStageFlags;
+    }
     slotName: string;
     slotName1 = '';
     accessType: AccessType;
@@ -97,6 +125,21 @@ export class ComputeView {
         this.clearValue = clearValue;
         this.shaderStageFlags = shaderStageFlags;
     }
+    reset (
+        name = '',
+        accessType: AccessType = AccessType.READ,
+        clearFlags: ClearFlagBit = ClearFlagBit.NONE,
+        clearValueType: ClearValueType = ClearValueType.NONE,
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): void {
+        this.name = name;
+        this.accessType = accessType;
+        this.plane = 0;
+        this.clearFlags = clearFlags;
+        this.clearValueType = clearValueType;
+        this.clearValue.reset();
+        this.shaderStageFlags = shaderStageFlags;
+    }
     name: string;
     accessType: AccessType;
     plane = 0;
@@ -107,6 +150,19 @@ export class ComputeView {
 }
 
 export class ResourceDesc {
+    reset (): void {
+        this.dimension = ResourceDimension.BUFFER;
+        this.alignment = 0;
+        this.width = 0;
+        this.height = 0;
+        this.depthOrArraySize = 0;
+        this.mipLevels = 0;
+        this.format = Format.UNKNOWN;
+        this.sampleCount = SampleCount.X1;
+        this.textureFlags = TextureFlagBit.NONE;
+        this.flags = ResourceFlags.NONE;
+        this.viewType = TextureType.TEX2D;
+    }
     dimension: ResourceDimension = ResourceDimension.BUFFER;
     alignment = 0;
     width = 0;
@@ -124,12 +180,22 @@ export class ResourceTraits {
     constructor (residency: ResourceResidency = ResourceResidency.MANAGED) {
         this.residency = residency;
     }
+    reset (residency: ResourceResidency = ResourceResidency.MANAGED): void {
+        this.residency = residency;
+    }
     residency: ResourceResidency;
 }
 
 export class RenderSwapchain {
     constructor (swapchain: Swapchain | null = null) {
         this.swapchain = swapchain;
+    }
+    reset (swapchain: Swapchain | null = null): void {
+        this.swapchain = swapchain;
+        this.renderWindow = null;
+        this.currentID = 0;
+        this.numBackBuffers = 0;
+        this.generation = 0xFFFFFFFF;
     }
     /*pointer*/ swapchain: Swapchain | null;
     /*pointer*/ renderWindow: RenderWindow | null = null;
@@ -139,12 +205,19 @@ export class RenderSwapchain {
 }
 
 export class ResourceStates {
+    reset (): void {
+        this.states = AccessFlagBit.NONE;
+    }
     states: AccessFlagBit = AccessFlagBit.NONE;
 }
 
 export class ManagedBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
+    }
+    reset (buffer: Buffer | null = null): void {
+        this.buffer = buffer;
+        this.fenceValue = 0;
     }
     /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
@@ -154,6 +227,10 @@ export class PersistentBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
     }
+    reset (buffer: Buffer | null = null): void {
+        this.buffer = buffer;
+        this.fenceValue = 0;
+    }
     /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
 }
@@ -161,6 +238,10 @@ export class PersistentBuffer {
 export class ManagedTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
+    }
+    reset (texture: Texture | null = null): void {
+        this.texture = texture;
+        this.fenceValue = 0;
     }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
@@ -170,15 +251,27 @@ export class PersistentTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
     }
+    reset (texture: Texture | null = null): void {
+        this.texture = texture;
+        this.fenceValue = 0;
+    }
     /*refcount*/ texture: Texture | null;
     fenceValue = 0;
 }
 
 export class ManagedResource {
+    reset (): void {
+        this.unused = 0;
+    }
     unused = 0;
 }
 
 export class Subpass {
+    reset (): void {
+        this.rasterViews.clear();
+        this.computeViews.clear();
+        this.resolvePairs.length = 0;
+    }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly resolvePairs: ResolvePair[] = [];
@@ -486,10 +579,20 @@ export class SubpassGraph implements BidirectionalGraph
 }
 
 export class RasterSubpass {
-    constructor (subpassID: number, count: number, quality: number) {
+    constructor (subpassID = 0xFFFFFFFF, count = 1, quality = 0) {
         this.subpassID = subpassID;
         this.count = count;
         this.quality = quality;
+    }
+    reset (subpassID = 0xFFFFFFFF, count = 1, quality = 0): void {
+        this.rasterViews.clear();
+        this.computeViews.clear();
+        this.resolvePairs.length = 0;
+        this.viewport.reset();
+        this.subpassID = subpassID;
+        this.count = count;
+        this.quality = quality;
+        this.showStatistics = false;
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
@@ -502,7 +605,12 @@ export class RasterSubpass {
 }
 
 export class ComputeSubpass {
-    constructor (subpassID: number) {
+    constructor (subpassID = 0xFFFFFFFF) {
+        this.subpassID = subpassID;
+    }
+    reset (subpassID = 0xFFFFFFFF): void {
+        this.rasterViews.clear();
+        this.computeViews.clear();
         this.subpassID = subpassID;
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
@@ -511,6 +619,22 @@ export class ComputeSubpass {
 }
 
 export class RasterPass {
+    reset (): void {
+        this.rasterViews.clear();
+        this.computeViews.clear();
+        this.attachmentIndexMap.clear();
+        this.textures.clear();
+        this.subpassGraph.clear();
+        this.width = 0;
+        this.height = 0;
+        this.count = 1;
+        this.quality = 0;
+        this.viewport.reset();
+        this.versionName = '';
+        this.version = 0;
+        this.hashValue = 0;
+        this.showStatistics = false;
+    }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly attachmentIndexMap: Map<string, number> = new Map<string, number>();
@@ -528,22 +652,42 @@ export class RasterPass {
 }
 
 export class PersistentRenderPassAndFramebuffer {
-    constructor (renderPass: RenderPass, framebuffer: Framebuffer) {
+    constructor (renderPass: RenderPass | null = null, framebuffer: Framebuffer | null = null) {
         this.renderPass = renderPass;
         this.framebuffer = framebuffer;
     }
-    /*refcount*/ renderPass: RenderPass;
-    /*refcount*/ framebuffer: Framebuffer;
+    reset (renderPass: RenderPass | null = null, framebuffer: Framebuffer | null = null): void {
+        this.renderPass = renderPass;
+        this.framebuffer = framebuffer;
+        this.clearColors.length = 0;
+        this.clearDepth = 0;
+        this.clearStencil = 0;
+    }
+    /*refcount*/ renderPass: RenderPass | null;
+    /*refcount*/ framebuffer: Framebuffer | null;
     readonly clearColors: Color[] = [];
     clearDepth = 0;
     clearStencil = 0;
 }
 
 export class FormatView {
+    reset (): void {
+        this.format = Format.UNKNOWN;
+    }
     format: Format = Format.UNKNOWN;
 }
 
 export class SubresourceView {
+    reset (): void {
+        this.textureView = null;
+        this.format = Format.UNKNOWN;
+        this.indexOrFirstMipLevel = 0;
+        this.numMipLevels = 0;
+        this.firstArraySlice = 0;
+        this.numArraySlices = 0;
+        this.firstPlane = 0;
+        this.numPlanes = 0;
+    }
     /*refcount*/ textureView: Texture | null = null;
     format: Format = Format.UNKNOWN;
     indexOrFirstMipLevel = 0;
@@ -612,14 +756,12 @@ export interface ResourceGraphVisitor {
 export type ResourceGraphObject = ManagedResource
 | ManagedBuffer
 | ManagedTexture
-| Buffer
-| Texture
+| PersistentBuffer
+| PersistentTexture
 | Framebuffer
 | RenderSwapchain
 | FormatView
-| SubresourceView
-| PersistentBuffer
-| PersistentTexture;
+| SubresourceView;
 
 //-----------------------------------------------------------------
 // Graph Concept
@@ -1308,24 +1450,41 @@ export class ResourceGraph implements BidirectionalGraph
 }
 
 export class ComputePass {
+    reset (): void {
+        this.computeViews.clear();
+        this.textures.clear();
+    }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
 }
 
 export class ResolvePass {
+    reset (): void {
+        this.resolvePairs.length = 0;
+    }
     readonly resolvePairs: ResolvePair[] = [];
 }
 
 export class CopyPass {
+    reset (): void {
+        this.copyPairs.length = 0;
+        this.uploadPairs.length = 0;
+    }
     readonly copyPairs: CopyPair[] = [];
     readonly uploadPairs: UploadPair[] = [];
 }
 
 export class MovePass {
+    reset (): void {
+        this.movePairs.length = 0;
+    }
     readonly movePairs: MovePair[] = [];
 }
 
 export class RaytracePass {
+    reset (): void {
+        this.computeViews.clear();
+    }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
 }
 
@@ -1334,6 +1493,11 @@ export class ClearView {
         this.slotName = slotName;
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
+    }
+    reset (slotName = '', clearFlags: ClearFlagBit = ClearFlagBit.ALL): void {
+        this.slotName = slotName;
+        this.clearFlags = clearFlags;
+        this.clearColor.reset();
     }
     slotName: string;
     clearFlags: ClearFlagBit;
@@ -1345,32 +1509,82 @@ export class RenderQueue {
         this.hint = hint;
         this.phaseID = phaseID;
     }
+    reset (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF): void {
+        this.hint = hint;
+        this.phaseID = phaseID;
+        this.viewport = null;
+    }
     hint: QueueHint;
     phaseID: number;
     viewport: Viewport | null = null;
 }
 
+export enum CullingFlags {
+    NONE = 0,
+    CAMERA_FRUSTUM = 0x1,
+    LIGHT_FRUSTUM = 0x2,
+    LIGHT_BOUNDS = 0x4,
+}
+
 export class SceneData {
-    constructor (scene: RenderScene | null = null, camera: Camera | null = null, flags: SceneFlags = SceneFlags.NONE, light: LightInfo = new LightInfo()) {
+    constructor (
+        scene: RenderScene | null = null,
+        camera: Camera | null = null,
+        flags: SceneFlags = SceneFlags.NONE,
+        light: LightInfo = new LightInfo(),
+        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+        shadingLight: Light | null = null,
+    ) {
         this.scene = scene;
         this.camera = camera;
         this.light = light;
         this.flags = flags;
+        this.cullingFlags = cullingFlags;
+        this.shadingLight = shadingLight;
+    }
+    reset (
+        scene: RenderScene | null = null,
+        camera: Camera | null = null,
+        flags: SceneFlags = SceneFlags.NONE,
+        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+        shadingLight: Light | null = null,
+    ): void {
+        this.scene = scene;
+        this.camera = camera;
+        this.light.reset();
+        this.flags = flags;
+        this.cullingFlags = cullingFlags;
+        this.shadingLight = shadingLight;
     }
     /*pointer*/ scene: RenderScene | null;
     /*pointer*/ camera: Camera | null;
     readonly light: LightInfo;
     flags: SceneFlags;
+    cullingFlags: CullingFlags;
+    /*refcount*/ shadingLight: Light | null;
 }
 
 export class Dispatch {
     constructor (
-        material: Material | null,
-        passID: number,
-        threadGroupCountX: number,
-        threadGroupCountY: number,
-        threadGroupCountZ: number,
+        material: Material | null = null,
+        passID = 0,
+        threadGroupCountX = 0,
+        threadGroupCountY = 0,
+        threadGroupCountZ = 0,
     ) {
+        this.material = material;
+        this.passID = passID;
+        this.threadGroupCountX = threadGroupCountX;
+        this.threadGroupCountY = threadGroupCountY;
+        this.threadGroupCountZ = threadGroupCountZ;
+    }
+    reset (
+        material: Material | null = null,
+        passID = 0,
+        threadGroupCountX = 0,
+        threadGroupCountY = 0,
+        threadGroupCountZ = 0,
+    ): void {
         this.material = material;
         this.passID = passID;
         this.threadGroupCountX = threadGroupCountX;
@@ -1385,7 +1599,13 @@ export class Dispatch {
 }
 
 export class Blit {
-    constructor (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null) {
+    constructor (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null) {
+        this.material = material;
+        this.passID = passID;
+        this.sceneFlags = sceneFlags;
+        this.camera = camera;
+    }
+    reset (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null): void {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
@@ -1398,6 +1618,13 @@ export class Blit {
 }
 
 export class RenderData {
+    reset (): void {
+        this.constants.clear();
+        this.buffers.clear();
+        this.textures.clear();
+        this.samplers.clear();
+        this.custom = '';
+    }
     readonly constants: Map<number, number[]> = new Map<number, number[]>();
     readonly buffers: Map<number, Buffer> = new Map<number, Buffer>();
     readonly textures: Map<number, Texture> = new Map<number, Texture>();
@@ -2287,4 +2514,411 @@ export class RenderGraph implements BidirectionalGraph
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
     readonly sortedVertices: number[] = [];
+}
+
+export class RenderGraphObjectPoolSettings {
+    constructor (batchSize: number) {
+        this.clearValueBatchSize = batchSize;
+        this.rasterViewBatchSize = batchSize;
+        this.computeViewBatchSize = batchSize;
+        this.resourceDescBatchSize = batchSize;
+        this.resourceTraitsBatchSize = batchSize;
+        this.renderSwapchainBatchSize = batchSize;
+        this.resourceStatesBatchSize = batchSize;
+        this.managedBufferBatchSize = batchSize;
+        this.persistentBufferBatchSize = batchSize;
+        this.managedTextureBatchSize = batchSize;
+        this.persistentTextureBatchSize = batchSize;
+        this.managedResourceBatchSize = batchSize;
+        this.subpassBatchSize = batchSize;
+        this.subpassGraphBatchSize = batchSize;
+        this.rasterSubpassBatchSize = batchSize;
+        this.computeSubpassBatchSize = batchSize;
+        this.rasterPassBatchSize = batchSize;
+        this.persistentRenderPassAndFramebufferBatchSize = batchSize;
+        this.formatViewBatchSize = batchSize;
+        this.subresourceViewBatchSize = batchSize;
+        this.resourceGraphBatchSize = batchSize;
+        this.computePassBatchSize = batchSize;
+        this.resolvePassBatchSize = batchSize;
+        this.copyPassBatchSize = batchSize;
+        this.movePassBatchSize = batchSize;
+        this.raytracePassBatchSize = batchSize;
+        this.clearViewBatchSize = batchSize;
+        this.renderQueueBatchSize = batchSize;
+        this.sceneDataBatchSize = batchSize;
+        this.dispatchBatchSize = batchSize;
+        this.blitBatchSize = batchSize;
+        this.renderDataBatchSize = batchSize;
+        this.renderGraphBatchSize = batchSize;
+    }
+    clearValueBatchSize = 16;
+    rasterViewBatchSize = 16;
+    computeViewBatchSize = 16;
+    resourceDescBatchSize = 16;
+    resourceTraitsBatchSize = 16;
+    renderSwapchainBatchSize = 16;
+    resourceStatesBatchSize = 16;
+    managedBufferBatchSize = 16;
+    persistentBufferBatchSize = 16;
+    managedTextureBatchSize = 16;
+    persistentTextureBatchSize = 16;
+    managedResourceBatchSize = 16;
+    subpassBatchSize = 16;
+    subpassGraphBatchSize = 16;
+    rasterSubpassBatchSize = 16;
+    computeSubpassBatchSize = 16;
+    rasterPassBatchSize = 16;
+    persistentRenderPassAndFramebufferBatchSize = 16;
+    formatViewBatchSize = 16;
+    subresourceViewBatchSize = 16;
+    resourceGraphBatchSize = 16;
+    computePassBatchSize = 16;
+    resolvePassBatchSize = 16;
+    copyPassBatchSize = 16;
+    movePassBatchSize = 16;
+    raytracePassBatchSize = 16;
+    clearViewBatchSize = 16;
+    renderQueueBatchSize = 16;
+    sceneDataBatchSize = 16;
+    dispatchBatchSize = 16;
+    blitBatchSize = 16;
+    renderDataBatchSize = 16;
+    renderGraphBatchSize = 16;
+}
+
+export class RenderGraphObjectPool {
+    constructor (settings: RenderGraphObjectPoolSettings, renderCommon: RenderCommonObjectPool) {
+        this.renderCommon = renderCommon;
+        this._clearValue = new RecyclePool<ClearValue>(() => new ClearValue(), settings.clearValueBatchSize);
+        this._rasterView = new RecyclePool<RasterView>(() => new RasterView(), settings.rasterViewBatchSize);
+        this._computeView = new RecyclePool<ComputeView>(() => new ComputeView(), settings.computeViewBatchSize);
+        this._resourceDesc = new RecyclePool<ResourceDesc>(() => new ResourceDesc(), settings.resourceDescBatchSize);
+        this._resourceTraits = new RecyclePool<ResourceTraits>(() => new ResourceTraits(), settings.resourceTraitsBatchSize);
+        this._renderSwapchain = new RecyclePool<RenderSwapchain>(() => new RenderSwapchain(), settings.renderSwapchainBatchSize);
+        this._resourceStates = new RecyclePool<ResourceStates>(() => new ResourceStates(), settings.resourceStatesBatchSize);
+        this._managedBuffer = new RecyclePool<ManagedBuffer>(() => new ManagedBuffer(), settings.managedBufferBatchSize);
+        this._persistentBuffer = new RecyclePool<PersistentBuffer>(() => new PersistentBuffer(), settings.persistentBufferBatchSize);
+        this._managedTexture = new RecyclePool<ManagedTexture>(() => new ManagedTexture(), settings.managedTextureBatchSize);
+        this._persistentTexture = new RecyclePool<PersistentTexture>(() => new PersistentTexture(), settings.persistentTextureBatchSize);
+        this._managedResource = new RecyclePool<ManagedResource>(() => new ManagedResource(), settings.managedResourceBatchSize);
+        this._subpass = new RecyclePool<Subpass>(() => new Subpass(), settings.subpassBatchSize);
+        this._subpassGraph = new RecyclePool<SubpassGraph>(() => new SubpassGraph(), settings.subpassGraphBatchSize);
+        this._rasterSubpass = new RecyclePool<RasterSubpass>(() => new RasterSubpass(), settings.rasterSubpassBatchSize);
+        this._computeSubpass = new RecyclePool<ComputeSubpass>(() => new ComputeSubpass(), settings.computeSubpassBatchSize);
+        this._rasterPass = new RecyclePool<RasterPass>(() => new RasterPass(), settings.rasterPassBatchSize);
+        this._persistentRenderPassAndFramebuffer = new RecyclePool<PersistentRenderPassAndFramebuffer>(() => new PersistentRenderPassAndFramebuffer(), settings.persistentRenderPassAndFramebufferBatchSize);
+        this._formatView = new RecyclePool<FormatView>(() => new FormatView(), settings.formatViewBatchSize);
+        this._subresourceView = new RecyclePool<SubresourceView>(() => new SubresourceView(), settings.subresourceViewBatchSize);
+        this._resourceGraph = new RecyclePool<ResourceGraph>(() => new ResourceGraph(), settings.resourceGraphBatchSize);
+        this._computePass = new RecyclePool<ComputePass>(() => new ComputePass(), settings.computePassBatchSize);
+        this._resolvePass = new RecyclePool<ResolvePass>(() => new ResolvePass(), settings.resolvePassBatchSize);
+        this._copyPass = new RecyclePool<CopyPass>(() => new CopyPass(), settings.copyPassBatchSize);
+        this._movePass = new RecyclePool<MovePass>(() => new MovePass(), settings.movePassBatchSize);
+        this._raytracePass = new RecyclePool<RaytracePass>(() => new RaytracePass(), settings.raytracePassBatchSize);
+        this._clearView = new RecyclePool<ClearView>(() => new ClearView(), settings.clearViewBatchSize);
+        this._renderQueue = new RecyclePool<RenderQueue>(() => new RenderQueue(), settings.renderQueueBatchSize);
+        this._sceneData = new RecyclePool<SceneData>(() => new SceneData(), settings.sceneDataBatchSize);
+        this._dispatch = new RecyclePool<Dispatch>(() => new Dispatch(), settings.dispatchBatchSize);
+        this._blit = new RecyclePool<Blit>(() => new Blit(), settings.blitBatchSize);
+        this._renderData = new RecyclePool<RenderData>(() => new RenderData(), settings.renderDataBatchSize);
+        this._renderGraph = new RecyclePool<RenderGraph>(() => new RenderGraph(), settings.renderGraphBatchSize);
+    }
+    reset (): void {
+        this._clearValue.reset();
+        this._rasterView.reset();
+        this._computeView.reset();
+        this._resourceDesc.reset();
+        this._resourceTraits.reset();
+        this._renderSwapchain.reset();
+        this._resourceStates.reset();
+        this._managedBuffer.reset();
+        this._persistentBuffer.reset();
+        this._managedTexture.reset();
+        this._persistentTexture.reset();
+        this._managedResource.reset();
+        this._subpass.reset();
+        this._subpassGraph.reset();
+        this._rasterSubpass.reset();
+        this._computeSubpass.reset();
+        this._rasterPass.reset();
+        this._persistentRenderPassAndFramebuffer.reset();
+        this._formatView.reset();
+        this._subresourceView.reset();
+        this._resourceGraph.reset();
+        this._computePass.reset();
+        this._resolvePass.reset();
+        this._copyPass.reset();
+        this._movePass.reset();
+        this._raytracePass.reset();
+        this._clearView.reset();
+        this._renderQueue.reset();
+        this._sceneData.reset();
+        this._dispatch.reset();
+        this._blit.reset();
+        this._renderData.reset();
+        this._renderGraph.reset();
+    }
+    createClearValue (
+        x = 0,
+        y = 0,
+        z = 0,
+        w = 0,
+    ): ClearValue {
+        const v = this._clearValue.add();
+        v.reset(x, y, z, w);
+        return v;
+    }
+    createRasterView (
+        slotName = '',
+        accessType: AccessType = AccessType.WRITE,
+        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
+        loadOp: LoadOp = LoadOp.LOAD,
+        storeOp: StoreOp = StoreOp.STORE,
+        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): RasterView {
+        const v = this._rasterView.add();
+        v.reset(slotName, accessType, attachmentType, loadOp, storeOp, clearFlags, shaderStageFlags);
+        return v;
+    }
+    createComputeView (
+        name = '',
+        accessType: AccessType = AccessType.READ,
+        clearFlags: ClearFlagBit = ClearFlagBit.NONE,
+        clearValueType: ClearValueType = ClearValueType.NONE,
+        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+    ): ComputeView {
+        const v = this._computeView.add();
+        v.reset(name, accessType, clearFlags, clearValueType, shaderStageFlags);
+        return v;
+    }
+    createResourceDesc (): ResourceDesc {
+        const v = this._resourceDesc.add();
+        v.reset();
+        return v;
+    }
+    createResourceTraits (
+        residency: ResourceResidency = ResourceResidency.MANAGED,
+    ): ResourceTraits {
+        const v = this._resourceTraits.add();
+        v.reset(residency);
+        return v;
+    }
+    createRenderSwapchain (
+        swapchain: Swapchain | null = null,
+    ): RenderSwapchain {
+        const v = this._renderSwapchain.add();
+        v.reset(swapchain);
+        return v;
+    }
+    createResourceStates (): ResourceStates {
+        const v = this._resourceStates.add();
+        v.reset();
+        return v;
+    }
+    createManagedBuffer (
+        buffer: Buffer | null = null,
+    ): ManagedBuffer {
+        const v = this._managedBuffer.add();
+        v.reset(buffer);
+        return v;
+    }
+    createPersistentBuffer (
+        buffer: Buffer | null = null,
+    ): PersistentBuffer {
+        const v = this._persistentBuffer.add();
+        v.reset(buffer);
+        return v;
+    }
+    createManagedTexture (
+        texture: Texture | null = null,
+    ): ManagedTexture {
+        const v = this._managedTexture.add();
+        v.reset(texture);
+        return v;
+    }
+    createPersistentTexture (
+        texture: Texture | null = null,
+    ): PersistentTexture {
+        const v = this._persistentTexture.add();
+        v.reset(texture);
+        return v;
+    }
+    createManagedResource (): ManagedResource {
+        const v = this._managedResource.add();
+        v.reset();
+        return v;
+    }
+    createSubpass (): Subpass {
+        const v = this._subpass.add();
+        v.reset();
+        return v;
+    }
+    createSubpassGraph (): SubpassGraph {
+        const v = this._subpassGraph.add();
+        v.clear();
+        return v;
+    }
+    createRasterSubpass (
+        subpassID = 0xFFFFFFFF,
+        count = 1,
+        quality = 0,
+    ): RasterSubpass {
+        const v = this._rasterSubpass.add();
+        v.reset(subpassID, count, quality);
+        return v;
+    }
+    createComputeSubpass (
+        subpassID = 0xFFFFFFFF,
+    ): ComputeSubpass {
+        const v = this._computeSubpass.add();
+        v.reset(subpassID);
+        return v;
+    }
+    createRasterPass (): RasterPass {
+        const v = this._rasterPass.add();
+        v.reset();
+        return v;
+    }
+    createPersistentRenderPassAndFramebuffer (
+        renderPass: RenderPass | null = null,
+        framebuffer: Framebuffer | null = null,
+    ): PersistentRenderPassAndFramebuffer {
+        const v = this._persistentRenderPassAndFramebuffer.add();
+        v.reset(renderPass, framebuffer);
+        return v;
+    }
+    createFormatView (): FormatView {
+        const v = this._formatView.add();
+        v.reset();
+        return v;
+    }
+    createSubresourceView (): SubresourceView {
+        const v = this._subresourceView.add();
+        v.reset();
+        return v;
+    }
+    createResourceGraph (): ResourceGraph {
+        const v = this._resourceGraph.add();
+        v.clear();
+        return v;
+    }
+    createComputePass (): ComputePass {
+        const v = this._computePass.add();
+        v.reset();
+        return v;
+    }
+    createResolvePass (): ResolvePass {
+        const v = this._resolvePass.add();
+        v.reset();
+        return v;
+    }
+    createCopyPass (): CopyPass {
+        const v = this._copyPass.add();
+        v.reset();
+        return v;
+    }
+    createMovePass (): MovePass {
+        const v = this._movePass.add();
+        v.reset();
+        return v;
+    }
+    createRaytracePass (): RaytracePass {
+        const v = this._raytracePass.add();
+        v.reset();
+        return v;
+    }
+    createClearView (
+        slotName = '',
+        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
+    ): ClearView {
+        const v = this._clearView.add();
+        v.reset(slotName, clearFlags);
+        return v;
+    }
+    createRenderQueue (
+        hint: QueueHint = QueueHint.RENDER_OPAQUE,
+        phaseID = 0xFFFFFFFF,
+    ): RenderQueue {
+        const v = this._renderQueue.add();
+        v.reset(hint, phaseID);
+        return v;
+    }
+    createSceneData (
+        scene: RenderScene | null = null,
+        camera: Camera | null = null,
+        flags: SceneFlags = SceneFlags.NONE,
+        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
+        shadingLight: Light | null = null,
+    ): SceneData {
+        const v = this._sceneData.add();
+        v.reset(scene, camera, flags, cullingFlags, shadingLight);
+        return v;
+    }
+    createDispatch (
+        material: Material | null = null,
+        passID = 0,
+        threadGroupCountX = 0,
+        threadGroupCountY = 0,
+        threadGroupCountZ = 0,
+    ): Dispatch {
+        const v = this._dispatch.add();
+        v.reset(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
+        return v;
+    }
+    createBlit (
+        material: Material | null = null,
+        passID = 0,
+        sceneFlags: SceneFlags = SceneFlags.NONE,
+        camera: Camera | null = null,
+    ): Blit {
+        const v = this._blit.add();
+        v.reset(material, passID, sceneFlags, camera);
+        return v;
+    }
+    createRenderData (): RenderData {
+        const v = this._renderData.add();
+        v.reset();
+        return v;
+    }
+    createRenderGraph (): RenderGraph {
+        const v = this._renderGraph.add();
+        v.clear();
+        return v;
+    }
+    public readonly renderCommon: RenderCommonObjectPool;
+    private readonly _clearValue: RecyclePool<ClearValue>;
+    private readonly _rasterView: RecyclePool<RasterView>;
+    private readonly _computeView: RecyclePool<ComputeView>;
+    private readonly _resourceDesc: RecyclePool<ResourceDesc>;
+    private readonly _resourceTraits: RecyclePool<ResourceTraits>;
+    private readonly _renderSwapchain: RecyclePool<RenderSwapchain>;
+    private readonly _resourceStates: RecyclePool<ResourceStates>;
+    private readonly _managedBuffer: RecyclePool<ManagedBuffer>;
+    private readonly _persistentBuffer: RecyclePool<PersistentBuffer>;
+    private readonly _managedTexture: RecyclePool<ManagedTexture>;
+    private readonly _persistentTexture: RecyclePool<PersistentTexture>;
+    private readonly _managedResource: RecyclePool<ManagedResource>;
+    private readonly _subpass: RecyclePool<Subpass>;
+    private readonly _subpassGraph: RecyclePool<SubpassGraph>;
+    private readonly _rasterSubpass: RecyclePool<RasterSubpass>;
+    private readonly _computeSubpass: RecyclePool<ComputeSubpass>;
+    private readonly _rasterPass: RecyclePool<RasterPass>;
+    private readonly _persistentRenderPassAndFramebuffer: RecyclePool<PersistentRenderPassAndFramebuffer>;
+    private readonly _formatView: RecyclePool<FormatView>;
+    private readonly _subresourceView: RecyclePool<SubresourceView>;
+    private readonly _resourceGraph: RecyclePool<ResourceGraph>;
+    private readonly _computePass: RecyclePool<ComputePass>;
+    private readonly _resolvePass: RecyclePool<ResolvePass>;
+    private readonly _copyPass: RecyclePool<CopyPass>;
+    private readonly _movePass: RecyclePool<MovePass>;
+    private readonly _raytracePass: RecyclePool<RaytracePass>;
+    private readonly _clearView: RecyclePool<ClearView>;
+    private readonly _renderQueue: RecyclePool<RenderQueue>;
+    private readonly _sceneData: RecyclePool<SceneData>;
+    private readonly _dispatch: RecyclePool<Dispatch>;
+    private readonly _blit: RecyclePool<Blit>;
+    private readonly _renderData: RecyclePool<RenderData>;
+    private readonly _renderGraph: RecyclePool<RenderGraph>;
 }

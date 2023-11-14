@@ -31,6 +31,7 @@
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
+#include "cocos/scene/RenderWindow.h"
 
 namespace cc {
 
@@ -143,12 +144,12 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc) {
     };
 }
 
-gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView) {
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, gfx::TextureType viewType) {
     using namespace gfx; // NOLINT(google-build-using-namespace)
 
     return {
         nullptr,
-        subresView.viewType,
+        viewType,
         subresView.format,
         subresView.indexOrFirstMipLevel,
         subresView.numMipLevels,
@@ -171,6 +172,9 @@ bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
 void ResourceGraph::validateSwapchains() {
     bool swapchainInvalidated = false;
     for (auto& sc : swapchains) {
+        if (!sc.swapchain) {
+            continue;
+        }
         if (sc.generation != sc.swapchain->getGeneration()) {
             swapchainInvalidated = true;
             sc.generation = sc.swapchain->getGeneration();
@@ -207,21 +211,23 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
         },
-        [&](const IntrusivePtr<gfx::Buffer>& buffer) {
-            CC_EXPECTS(buffer);
+        [&](const PersistentBuffer& buffer) {
+            CC_EXPECTS(buffer.buffer);
             std::ignore = buffer;
         },
-        [&](const IntrusivePtr<gfx::Texture>& texture) {
-            CC_EXPECTS(texture);
+        [&](const PersistentTexture& texture) {
+            CC_EXPECTS(texture.texture);
             std::ignore = texture;
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            // deprecated
+            CC_EXPECTS(false);
             CC_EXPECTS(fb);
             std::ignore = fb;
         },
-        [&](const RenderSwapchain& queue) {
-            CC_EXPECTS(queue.swapchain);
-            std::ignore = queue;
+        [&](const RenderSwapchain& window) {
+            CC_EXPECTS(window.swapchain || window.renderWindow);
+            std::ignore = window;
         },
         [&](const FormatView& view) { // NOLINT(misc-no-recursion)
             std::ignore = view;
@@ -252,7 +258,8 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             mount(device, parentID); // NOLINT(misc-no-recursion)
             auto* parentTexture = resg.getTexture(parentID);
             if (!view.textureView) {
-                auto textureViewInfo = getTextureViewInfo(originView);
+                const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
+                auto textureViewInfo = getTextureViewInfo(originView, desc.viewType);
                 textureViewInfo.texture = parentTexture;
                 view.textureView = device->createTexture(textureViewInfo);
             }
@@ -348,12 +355,23 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
             texture = tex.get();
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+            // deprecated
+            CC_EXPECTS(false);
             CC_EXPECTS(fb->getColorTextures().size() == 1);
             CC_EXPECTS(fb->getColorTextures().at(0));
             texture = fb->getColorTextures()[0];
         },
         [&](const RenderSwapchain& sc) {
-            texture = sc.swapchain->getColorTexture();
+            if (sc.swapchain) {
+                texture = sc.swapchain->getColorTexture();
+            } else {
+                CC_EXPECTS(sc.renderWindow);
+                const auto& fb = sc.renderWindow->getFramebuffer();
+                CC_EXPECTS(fb);
+                CC_EXPECTS(fb->getColorTextures().size() == 1);
+                CC_EXPECTS(fb->getColorTextures().at(0));
+                texture = fb->getColorTextures()[0];
+            }
         },
         [&](const FormatView& view) {
             // TODO(zhouzhenglong): add ImageView support

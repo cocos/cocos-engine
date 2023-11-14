@@ -1,17 +1,26 @@
+#include "cocos/renderer/pipeline/Define.h"
+#include "cocos/renderer/pipeline/custom/LayoutGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/NativeBuiltinUtils.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/Octree.h"
+#include "cocos/scene/ReflectionProbe.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/Skybox.h"
 #include "cocos/scene/SpotLight.h"
+
+#include <boost/align/align_up.hpp>
 
 namespace cc {
 
 namespace render {
 
+const static uint32_t REFLECTION_PROBE_DEFAULT_MASK = ~static_cast<uint32_t>(pipeline::LayerList::UI_2D) & ~static_cast<uint32_t>(pipeline::LayerList::PROFILER) & ~static_cast<uint32_t>(pipeline::LayerList::UI_3D) & ~static_cast<uint32_t>(pipeline::LayerList::GIZMOS) & ~static_cast<uint32_t>(pipeline::LayerList::SCENE_GIZMO) & ~static_cast<uint32_t>(pipeline::LayerList::EDITOR);
+
 void NativeRenderQueue::clear() noexcept {
+    probeQueue.clear();
     opaqueQueue.instances.clear();
     transparentQueue.instances.clear();
     opaqueInstancingQueue.clear();
@@ -27,43 +36,84 @@ bool NativeRenderQueue::empty() const noexcept {
            transparentInstancingQueue.empty();
 }
 
-uint32_t SceneCulling::getOrCreateSceneCullingQuery(const SceneData& sceneData) {
+FrustumCullingID SceneCulling::getOrCreateFrustumCulling(const SceneData& sceneData) {
     const auto* const scene = sceneData.scene;
     // get or add scene to queries
-    auto& queries = sceneQueries[scene];
+    auto& queries = frustumCullings[scene];
 
     // check cast shadow
     const bool bCastShadow = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
 
     // get or create query source
     // make query key
-    const auto key = CullingKey{
+    const auto key = FrustumCullingKey{
         sceneData.camera,
+        sceneData.light.probe,
         sceneData.light.light,
-        bCastShadow,
         sceneData.light.level,
+        bCastShadow,
     };
 
     // find query source
-    auto iter = queries.culledResultIndex.find(key);
-    if (iter == queries.culledResultIndex.end()) {
+    auto iter = queries.resultIndex.find(key);
+    if (iter == queries.resultIndex.end()) {
         // create query source
         // make query source id
-        const auto sourceID = numCullingQueries++;
-        if (numCullingQueries > culledResults.size()) {
+        const FrustumCullingID frustomCulledResultID{numFrustumCulling++};
+        if (numFrustumCulling > frustumCullingResults.size()) {
             // space is not enough, create query source
-            CC_EXPECTS(numCullingQueries == culledResults.size() + 1);
-            culledResults.emplace_back();
+            CC_EXPECTS(numFrustumCulling == frustumCullingResults.size() + 1);
+            frustumCullingResults.emplace_back();
         }
         // add query source to query index
         bool added = false;
-        std::tie(iter, added) = queries.culledResultIndex.emplace(key, sourceID);
+        std::tie(iter, added) = queries.resultIndex.emplace(key, frustomCulledResultID);
         CC_ENSURES(added);
     }
     return iter->second;
 }
 
-uint32_t SceneCulling::createRenderQueue(
+LightBoundsCullingID SceneCulling::getOrCreateLightBoundsCulling(
+    const SceneData& sceneData, FrustumCullingID frustumCullingID) {
+    if (!any(sceneData.cullingFlags & CullingFlags::LIGHT_BOUNDS)) {
+        return {};
+    }
+
+    CC_EXPECTS(sceneData.shadingLight);
+    const auto* const scene = sceneData.scene;
+    CC_EXPECTS(scene);
+
+    auto& queries = lightBoundsCullings[scene];
+
+    // get or create query source
+    // make query key
+    const auto key = LightBoundsCullingKey{
+        frustumCullingID,
+        sceneData.camera,
+        sceneData.light.probe,
+        sceneData.shadingLight,
+    };
+
+    // find query source
+    auto iter = queries.resultIndex.find(key);
+    if (iter == queries.resultIndex.end()) {
+        // create query source
+        // make query source id
+        const LightBoundsCullingID lightBoundsCullingID{numLightBoundsCulling++};
+        if (numLightBoundsCulling > lightBoundsCullingResults.size()) {
+            // space is not enough, create query source
+            CC_EXPECTS(numLightBoundsCulling == lightBoundsCullingResults.size() + 1);
+            lightBoundsCullingResults.emplace_back();
+        }
+        // add query source to query index
+        bool added = false;
+        std::tie(iter, added) = queries.resultIndex.emplace(key, lightBoundsCullingID);
+        CC_ENSURES(added);
+    }
+    return iter->second;
+}
+
+NativeRenderQueueID SceneCulling::createRenderQueue(
     SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID) {
     const auto targetID = numRenderQueues++;
     if (numRenderQueues > renderQueues.size()) {
@@ -77,7 +127,7 @@ uint32_t SceneCulling::createRenderQueue(
     CC_EXPECTS(rq.subpassOrPassLayoutID == 0xFFFFFFFF);
     rq.sceneFlags = sceneFlags;
     rq.subpassOrPassLayoutID = subpassOrPassLayoutID;
-    return targetID;
+    return NativeRenderQueueID{targetID};
 }
 
 void SceneCulling::collectCullingQueries(
@@ -91,7 +141,8 @@ void SceneCulling::collectCullingQueries(
             CC_EXPECTS(false);
             continue;
         }
-        const auto sourceID = getOrCreateSceneCullingQuery(sceneData);
+        const auto frustomCulledResultID = getOrCreateFrustumCulling(sceneData);
+        const auto lightBoundsCullingID = getOrCreateLightBoundsCulling(sceneData, frustomCulledResultID);
         const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
         const auto targetID = createRenderQueue(sceneData.flags, layoutID);
         const auto lightType = sceneData.light.light
@@ -99,12 +150,23 @@ void SceneCulling::collectCullingQueries(
                                    : scene::LightType::UNKNOWN;
 
         // add render queue to query source
-        sceneQueryIndex.emplace(vertID, NativeRenderQueueDesc(sourceID, targetID, lightType));
+        renderQueueIndex.emplace(
+            vertID,
+            NativeRenderQueueDesc{
+                frustomCulledResultID,
+                lightBoundsCullingID,
+                targetID,
+                lightType,
+            });
     }
 }
 
 namespace {
-const pipeline::PipelineSceneData* pSceneData = nullptr;
+
+const pipeline::PipelineSceneData* kPipelineSceneData = nullptr;
+
+const LayoutGraphData* kLayoutGraph = nullptr;
+
 bool isNodeVisible(const Node* node, uint32_t visibility) {
     return node && ((visibility & node->getLayer()) == node->getLayer());
 }
@@ -113,46 +175,46 @@ uint32_t isModelVisible(const scene::Model& model, uint32_t visibility) {
     return visibility & static_cast<uint32_t>(model.getVisFlags());
 }
 
+bool isReflectProbeMask(const scene::Model& model) {
+    return ((model.getNode()->getLayer() & REFLECTION_PROBE_DEFAULT_MASK) == model.getNode()->getLayer()) || (REFLECTION_PROBE_DEFAULT_MASK & static_cast<uint32_t>(model.getVisFlags()));
+}
+
+bool isIntersectAABB(const geometry::AABB& lAABB, const geometry::AABB& rAABB) {
+    return !lAABB.aabbAabb(rAABB);
+}
+
 bool isFrustumVisible(const scene::Model& model, const geometry::Frustum& frustum, bool castShadow) {
     const auto* const modelWorldBounds = model.getWorldBounds();
     if (!modelWorldBounds) {
-        return true;
+        return false;
     }
     geometry::AABB transWorldBounds{};
     transWorldBounds.set(modelWorldBounds->getCenter(), modelWorldBounds->getHalfExtents());
-    const scene::Shadows& shadows = *pSceneData->getShadows();
+    const scene::Shadows& shadows = *kPipelineSceneData->getShadows();
     if (shadows.getType() == scene::ShadowType::PLANAR && castShadow) {
         modelWorldBounds->transform(shadows.getMatLight(), &transWorldBounds);
     }
-    return transWorldBounds.aabbFrustum(frustum);
+    return !transWorldBounds.aabbFrustum(frustum);
 }
 
 void octreeCulling(
     const scene::Octree& octree,
-    const scene::Model* skyboxModelToSkip,
+    const scene::Model* skyboxModel,
     const scene::RenderScene& scene,
     const scene::Camera& camera,
     const geometry::Frustum& cameraOrLightFrustum,
     bool bCastShadow,
     ccstd::vector<const scene::Model*>& models) {
     const auto visibility = camera.getVisibility();
+    const auto camSkyboxFlag = (static_cast<int32_t>(camera.getClearFlag()) & scene::Camera::SKYBOX_FLAG);
+    if (!bCastShadow && skyboxModel && camSkyboxFlag) {
+        models.emplace_back(skyboxModel);
+    }
     // add instances without world bounds
     for (const auto& pModel : scene.getModels()) {
         CC_EXPECTS(pModel);
         const auto& model = *pModel;
-        if (!model.isEnabled()) {
-            continue;
-        }
-        // has world bounds, should be in octree
-        if (model.getWorldBounds()) {
-            continue;
-        }
-        // is skybox, skip
-        if (&model == skyboxModelToSkip) {
-            continue;
-        }
-        // check cast shadow
-        if (bCastShadow && !model.isCastShadow()) {
+        if (!model.isEnabled() || !model.getNode() || model.getWorldBounds() || (bCastShadow && !model.isCastShadow())) {
             continue;
         }
         // filter model by view visibility
@@ -173,113 +235,117 @@ void octreeCulling(
 }
 
 void bruteForceCulling(
-    const scene::Model* skyboxModelToSkip,
+    const scene::Model* skyboxModel,
     const scene::RenderScene& scene,
     const scene::Camera& camera,
     const geometry::Frustum& cameraOrLightFrustum,
     bool bCastShadow,
+    const scene::ReflectionProbe* probe,
     ccstd::vector<const scene::Model*>& models) {
     const auto visibility = camera.getVisibility();
+    const auto camSkyboxFlag = (static_cast<int32_t>(camera.getClearFlag()) & scene::Camera::SKYBOX_FLAG);
+    if (!bCastShadow && skyboxModel && camSkyboxFlag) {
+        models.emplace_back(skyboxModel);
+    }
     for (const auto& pModel : scene.getModels()) {
         CC_EXPECTS(pModel);
         const auto& model = *pModel;
-        if (!model.isEnabled()) {
+        if (!model.isEnabled() || !model.getNode() || (bCastShadow && !model.isCastShadow())) {
             continue;
         }
-        if (bCastShadow && !model.isCastShadow()) {
+        // lod culling
+        if (scene.isCulledByLod(&camera, &model)) {
             continue;
         }
-        // filter model by view visibility
-        if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
-            // frustum culling
-            if (!isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) {
-                continue;
+        if (!probe || (probe && probe->getProbeType() == cc::scene::ReflectionProbe::ProbeType::CUBE)) {
+            // filter model by view visibility
+            if (isNodeVisible(model.getNode(), visibility) || isModelVisible(model, visibility)) {
+                const auto* const wBounds = model.getWorldBounds();
+                // frustum culling
+                if (wBounds && ((!probe && isFrustumVisible(model, cameraOrLightFrustum, bCastShadow)) ||
+                                (probe && isIntersectAABB(*wBounds, *probe->getBoundingBox())))) {
+                    continue;
+                }
+
+                models.emplace_back(&model);
             }
-            // is skybox, skip
-            if (&model == skyboxModelToSkip) {
-                continue;
-            }
-            // lod culling
-            if (scene.isCulledByLod(&camera, &model)) {
-                continue;
-            }
+        } else if (isReflectProbeMask(model)) {
             models.emplace_back(&model);
         }
     }
 }
 
 void sceneCulling(
-    const scene::Model* skyboxModelToSkip,
+    const scene::Model* skyboxModel,
     const scene::RenderScene& scene,
     const scene::Camera& camera,
     const geometry::Frustum& cameraOrLightFrustum,
     bool bCastShadow,
+    const scene::ReflectionProbe* probe,
     ccstd::vector<const scene::Model*>& models) {
     const auto* const octree = scene.getOctree();
-    if (octree && octree->isEnabled()) {
+    if (octree && octree->isEnabled() && !probe) {
         octreeCulling(
-            *octree, skyboxModelToSkip,
+            *octree, skyboxModel,
             scene, camera, cameraOrLightFrustum, bCastShadow, models);
     } else {
         bruteForceCulling(
-            skyboxModelToSkip,
-            scene, camera, cameraOrLightFrustum, bCastShadow, models);
+            skyboxModel,
+            scene, camera, cameraOrLightFrustum, bCastShadow, probe, models);
     }
 }
 
 } // namespace
 
-void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData) {
+void SceneCulling::batchFrustumCulling(const NativePipeline& ppl) {
+    const auto& pplSceneData = *ppl.getPipelineSceneData();
     const auto* const skybox = pplSceneData.getSkybox();
-    const auto* const skyboxModelToSkip = skybox ? skybox->getModel() : nullptr;
+    const auto* const skyboxModel = skybox && skybox->isEnabled() ? skybox->getModel() : nullptr;
 
-    for (const auto& [scene, queries] : sceneQueries) {
+    for (const auto& [scene, queries] : frustumCullings) {
         CC_ENSURES(scene);
-        for (const auto& [key, sourceID] : queries.culledResultIndex) {
+        for (const auto& [key, frustomCulledResultID] : queries.resultIndex) {
             CC_EXPECTS(key.camera);
             CC_EXPECTS(key.camera->getScene() == scene);
-            const auto& camera = *key.camera;
             const auto* light = key.light;
             const auto level = key.lightLevel;
             const auto bCastShadow = key.castShadow;
+            const auto* probe = key.probe;
+            const auto& camera = probe ? *probe->getCamera() : *key.camera;
+            CC_EXPECTS(frustomCulledResultID.value < frustumCullingResults.size());
+            auto& models = frustumCullingResults[frustomCulledResultID.value];
 
-            CC_EXPECTS(sourceID < culledResults.size());
-            auto& models = culledResults[sourceID];
+            if (probe) {
+                sceneCulling(
+                    skyboxModel,
+                    *scene, camera,
+                    camera.getFrustum(),
+                    bCastShadow,
+                    probe,
+                    models);
+                continue;
+            }
 
             if (light) {
                 switch (light->getType()) {
                     case scene::LightType::SPOT:
                         sceneCulling(
-                            skyboxModelToSkip,
+                            skyboxModel,
                             *scene, camera,
                             dynamic_cast<const scene::SpotLight*>(light)->getFrustum(),
                             bCastShadow,
+                            nullptr,
                             models);
                         break;
                     case scene::LightType::DIRECTIONAL: {
-                        auto& csmLayers = *pplSceneData.getCSMLayers();
                         const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
-                        const auto& csmLevel = mainLight->getCSMLevel();
-                        const geometry::Frustum* frustum = nullptr;
-                        const auto& shadows = *pplSceneData.getShadows();
-                        if (shadows.getType() == scene::ShadowType::PLANAR) {
-                            frustum = &camera.getFrustum();
-                        } else {
-                            if (shadows.isEnabled() && shadows.getType() == scene::ShadowType::SHADOW_MAP && mainLight && mainLight->getNode()) {
-                                csmLayers.update(&pplSceneData, &camera);
-                            }
-                            // const
-                            if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
-                                frustum = &csmLayers.getSpecialLayer()->getValidFrustum();
-                            } else {
-                                frustum = &csmLayers.getLayers()[level]->getValidFrustum();
-                            }
-                        }
+                        const auto& frustum = getBuiltinShadowFrustum(ppl, camera, mainLight, level);
                         sceneCulling(
-                            skyboxModelToSkip,
+                            skyboxModel,
                             *scene, camera,
-                            *frustum,
+                            frustum,
                             bCastShadow,
+                            nullptr,
                             models);
                     } break;
                     default:
@@ -288,10 +354,11 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
                 }
             } else {
                 sceneCulling(
-                    skyboxModelToSkip,
+                    skyboxModel,
                     *scene, camera,
                     camera.getFrustum(),
                     bCastShadow,
+                    nullptr,
                     models);
             }
         }
@@ -299,6 +366,112 @@ void SceneCulling::batchCulling(const pipeline::PipelineSceneData& pplSceneData)
 }
 
 namespace {
+
+void executeSphereLightCulling(
+    const scene::SphereLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const auto& lightAABB = light.getAABB();
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || modelBounds->aabbAabb(lightAABB)) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+void executeSpotLightCulling(
+    const scene::SpotLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const auto& lightAABB = light.getAABB();
+    const auto& lightFrustum = light.getFrustum();
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || (modelBounds->aabbAabb(lightAABB) && modelBounds->aabbFrustum(lightFrustum))) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+void executePointLightCulling(
+    const scene::PointLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const auto& lightAABB = light.getAABB();
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || modelBounds->aabbAabb(lightAABB)) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+void executeRangedDirectionalLightCulling(
+    const scene::RangedDirectionalLight& light,
+    const ccstd::vector<const scene::Model*>& frustumCullingResult,
+    ccstd::vector<const scene::Model*>& lightBoundsCullingResult) {
+    const geometry::AABB rangedDirLightBoundingBox(0.0F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
+    // when execute render graph, we should never update world matrix
+    // light->getNode()->updateWorldTransform();
+    geometry::AABB lightAABB{};
+    rangedDirLightBoundingBox.transform(light.getNode()->getWorldMatrix(), &lightAABB);
+    for (const auto* const model : frustumCullingResult) {
+        CC_EXPECTS(model);
+        const auto* const modelBounds = model->getWorldBounds();
+        if (!modelBounds || modelBounds->aabbAabb(lightAABB)) {
+            lightBoundsCullingResult.emplace_back(model);
+        }
+    }
+}
+
+} // namespace
+
+void SceneCulling::batchLightBoundsCulling() {
+    for (const auto& [scene, queries] : lightBoundsCullings) {
+        CC_ENSURES(scene);
+        for (const auto& [key, cullingID] : queries.resultIndex) {
+            CC_EXPECTS(key.camera);
+            CC_EXPECTS(key.camera->getScene() == scene);
+            const auto& frustumCullingResult = frustumCullingResults.at(key.frustumCullingID.value);
+            auto& lightBoundsCullingResult = lightBoundsCullingResults.at(cullingID.value);
+            CC_EXPECTS(lightBoundsCullingResult.instances.empty());
+            switch (key.cullingLight->getType()) {
+                case scene::LightType::SPHERE: {
+                    const auto* light = dynamic_cast<const scene::SphereLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executeSphereLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
+                } break;
+                case scene::LightType::SPOT: {
+                    const auto* light = dynamic_cast<const scene::SpotLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executeSpotLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
+                } break;
+                case scene::LightType::POINT: {
+                    const auto* light = dynamic_cast<const scene::PointLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executePointLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
+                } break;
+                case scene::LightType::RANGED_DIRECTIONAL: {
+                    const auto* light = dynamic_cast<const scene::RangedDirectionalLight*>(key.cullingLight);
+                    CC_ENSURES(light);
+                    executeRangedDirectionalLightCulling(*light, frustumCullingResult, lightBoundsCullingResult.instances);
+                } break;
+                case scene::LightType::DIRECTIONAL:
+                case scene::LightType::UNKNOWN:
+                default:
+                    // noop
+                    break;
+            }
+        }
+    }
+}
+
+namespace {
+
 bool isBlend(const scene::Pass& pass) {
     bool bBlend = false;
     for (const auto& target : pass.getBlendState()->targets) {
@@ -314,7 +487,8 @@ float computeSortingDepth(const scene::Camera& camera, const scene::Model& model
     if (model.getNode()) {
         const auto* node = model.getTransform();
         Vec3 position;
-        Vec3::subtract(node->getWorldPosition(), camera.getPosition(), &position);
+        const auto* bounds = model.getWorldBounds();
+        Vec3::subtract(bounds ? bounds->center : node->getWorldPosition(), camera.getPosition(), &position);
         depth = position.dot(camera.getForward());
     }
     return depth;
@@ -324,15 +498,23 @@ void addRenderObject(
     LayoutGraphData::vertex_descriptor phaseLayoutID,
     const bool bDrawOpaqueOrMask,
     const bool bDrawBlend,
+    const bool bDrawProbe,
     const scene::Camera& camera,
     const scene::Model& model,
     NativeRenderQueue& queue) {
+    if (bDrawProbe) {
+        queue.probeQueue.applyMacro(*kLayoutGraph, model, phaseLayoutID);
+    }
     const auto& subModels = model.getSubModels();
     const auto subModelCount = subModels.size();
     for (uint32_t subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
         const auto& subModel = subModels[subModelIdx];
         const auto& passes = *(subModel->getPasses());
         const auto passCount = passes.size();
+        auto probeIt = std::find(queue.probeQueue.probeMap.begin(), queue.probeQueue.probeMap.end(), subModel.get());
+        if (probeIt != queue.probeQueue.probeMap.end()) {
+            phaseLayoutID = ProbeHelperQueue::getDefaultId(*kLayoutGraph);
+        }
         for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
             auto& pass = *passes[passIdx];
             // check phase
@@ -378,9 +560,10 @@ void addRenderObject(
 void SceneCulling::fillRenderQueues(
     const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData) {
     const auto* const skybox = pplSceneData.getSkybox();
-    for (auto&& [sceneID, desc] : sceneQueryIndex) {
+    for (auto&& [sceneID, desc] : renderQueueIndex) {
         CC_EXPECTS(holds<SceneTag>(sceneID, rg));
-        const auto sourceID = desc.culledSource;
+        const auto frustomCulledResultID = desc.frustumCulledResultID;
+        const auto lightBoundsCullingID = desc.lightBoundsCulledResultID;
         const auto targetID = desc.renderQueueTarget;
         const auto& sceneData = get(SceneTag{}, sceneID, rg);
 
@@ -388,8 +571,8 @@ void SceneCulling::fillRenderQueues(
         const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
         const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
         const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
-
-        if (!bDrawShadowCaster && !bDrawBlend && !bDrawOpaqueOrMask) {
+        const bool bDrawProbe = any(sceneData.flags & SceneFlags::REFLECTION_PROBE);
+        if (!bDrawShadowCaster && !bDrawBlend && !bDrawOpaqueOrMask && !bDrawProbe) {
             // nothing to draw
             continue;
         }
@@ -402,37 +585,32 @@ void SceneCulling::fillRenderQueues(
         CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
 
         // culling source
-        CC_EXPECTS(sourceID < culledResults.size());
-        const auto& sourceModels = culledResults[sourceID];
+        CC_EXPECTS(frustomCulledResultID.value < frustumCullingResults.size());
+        const auto& sourceModels = [&]() -> const auto& {
+            // is culled by light bounds
+            if (lightBoundsCullingID.value != 0xFFFFFFFF) {
+                CC_EXPECTS(lightBoundsCullingID.value < lightBoundsCullingResults.size());
+                return lightBoundsCullingResults.at(lightBoundsCullingID.value).instances;
+            }
+            // not culled by light bounds
+            return frustumCullingResults.at(frustomCulledResultID.value);
+        }
+        ();
 
         // native queue target
-        CC_EXPECTS(targetID < renderQueues.size());
-        auto& nativeQueue = renderQueues[targetID];
+        CC_EXPECTS(targetID.value < renderQueues.size());
+        auto& nativeQueue = renderQueues[targetID.value];
         CC_EXPECTS(nativeQueue.empty());
 
         // skybox
         const auto* camera = sceneData.camera;
         CC_EXPECTS(camera);
-        if (!any(sceneData.flags & SceneFlags::SHADOW_CASTER) &&
-            skybox && skybox->isEnabled() &&
-            (static_cast<int32_t>(camera->getClearFlag()) & scene::Camera::SKYBOX_FLAG)) {
-            CC_EXPECTS(skybox->getModel());
-            const auto& model = *skybox->getModel();
-            const auto* node = model.getNode();
-            float depth = 0;
-            if (node) {
-                Vec3 tempVec3{};
-                tempVec3 = node->getWorldPosition() - camera->getPosition();
-                depth = tempVec3.dot(camera->getForward());
-            }
-            nativeQueue.opaqueQueue.add(model, depth, 0, 0);
-        }
 
         // fill native queue
         for (const auto* const model : sourceModels) {
             addRenderObject(
                 phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend,
-                *sceneData.camera, *model, nativeQueue);
+                bDrawProbe, *sceneData.camera, *model, nativeQueue);
         }
 
         // post-processing
@@ -442,24 +620,189 @@ void SceneCulling::fillRenderQueues(
 
 void SceneCulling::buildRenderQueues(
     const RenderGraph& rg, const LayoutGraphData& lg,
-    const pipeline::PipelineSceneData& pplSceneData) {
-    pSceneData = &pplSceneData;
+    const NativePipeline& ppl) {
+    kPipelineSceneData = ppl.pipelineSceneData;
+    kLayoutGraph = &lg;
     collectCullingQueries(rg, lg);
-    batchCulling(pplSceneData);
-    fillRenderQueues(rg, pplSceneData);
+    batchFrustumCulling(ppl);
+    batchLightBoundsCulling(); // cull frustum-culling's results by light bounds
+    fillRenderQueues(rg, *ppl.pipelineSceneData);
 }
 
 void SceneCulling::clear() noexcept {
-    sceneQueries.clear();
-    for (auto& c : culledResults) {
+    // frustum culling
+    frustumCullings.clear();
+    for (auto& c : frustumCullingResults) {
         c.clear();
     }
+    // light bounds culling
+    lightBoundsCullings.clear();
+    for (auto& c : lightBoundsCullingResults) {
+        c.instances.clear();
+        c.lightByteOffset = 0xFFFFFFFF;
+    }
+    // native render queues
     for (auto& q : renderQueues) {
         q.clear();
     }
-    sceneQueryIndex.clear();
-    numCullingQueries = 0;
+
+    // clear render graph scene vertex query index
+    renderQueueIndex.clear();
+    // do not clear this->renderQueues, it is reused to avoid memory allocation
+
+    // reset all counters
+    numFrustumCulling = 0;
+    numLightBoundsCulling = 0;
     numRenderQueues = 0;
+}
+
+void LightResource::init(const NativeProgramLibrary& programLib, gfx::Device* deviceIn, uint32_t maxNumLightsIn) {
+    CC_EXPECTS(!device);
+    device = deviceIn;
+    programLibrary = &programLib;
+
+    const auto& instanceLayout = programLibrary->localLayoutData;
+    const auto attrID = at(programLib.layoutGraph.attributeIndex, std::string_view{"CCForwardLight"});
+    const auto& uniformBlock = instanceLayout.uniformBlocks.at(attrID);
+
+    elementSize = boost::alignment::align_up(
+        getUniformBlockSize(uniformBlock.members),
+        device->getCapabilities().uboOffsetAlignment);
+    maxNumLights = maxNumLightsIn;
+    binding = programLib.localLayoutData.bindingMap.at(attrID);
+
+    const auto bufferSize = elementSize * maxNumLights;
+
+    lightBuffer = device->createBuffer(gfx::BufferInfo{
+        gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
+        gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
+        bufferSize,
+        elementSize,
+    });
+    firstLightBufferView = device->createBuffer({lightBuffer, 0, elementSize});
+
+    cpuBuffer.resize(bufferSize);
+    lights.reserve(maxNumLights);
+    lightIndex.reserve(maxNumLights);
+
+    CC_ENSURES(elementSize);
+    CC_ENSURES(maxNumLights);
+
+    resized = true;
+}
+
+uint32_t LightResource::addLight(
+    const scene::Light* light,
+    bool bHDR,
+    float exposure,
+    const scene::Shadows* shadowInfo) {
+    // already added
+    auto iter = lightIndex.find(light);
+    if (iter != lightIndex.end()) {
+        return iter->second;
+    }
+
+    // resize buffer
+    if (lights.size() == maxNumLights) {
+        resized = true;
+        maxNumLights *= 2;
+        const auto bufferSize = elementSize * maxNumLights;
+        lightBuffer->resize(bufferSize);
+        firstLightBufferView = device->createBuffer({lightBuffer, 0, elementSize});
+        cpuBuffer.resize(bufferSize);
+        lights.reserve(maxNumLights);
+        lightIndex.reserve(maxNumLights);
+    }
+    CC_ENSURES(lights.size() < maxNumLights);
+
+    // add light
+    const auto lightID = static_cast<uint32_t>(lights.size());
+    lights.emplace_back(light);
+    auto res = lightIndex.emplace(light, lightID);
+    CC_ENSURES(res.second);
+
+    // update buffer
+    const auto offset = elementSize * lightID;
+    setLightUBO(light, bHDR, exposure, shadowInfo, cpuBuffer.data() + offset, elementSize);
+
+    return lightID * elementSize;
+}
+
+void LightResource::buildLights(
+    SceneCulling& sceneCulling,
+    bool bHDR,
+    const scene::Shadows* shadowInfo) {
+    // build light buffer
+    for (const auto& [scene, lightBoundsCullings] : sceneCulling.lightBoundsCullings) {
+        for (const auto& [key, lightBoundsCullingID] : lightBoundsCullings.resultIndex) {
+            float exposure = 1.0F;
+            if (key.camera) {
+                exposure = key.camera->getExposure();
+            } else if (key.probe && key.probe->getCamera()) {
+                exposure = key.probe->getCamera()->getExposure();
+            } else {
+                CC_EXPECTS(false);
+            }
+            const auto lightByteOffset = addLight(
+                key.cullingLight,
+                bHDR,
+                exposure,
+                shadowInfo);
+
+            // save light byte offset for each light bounds culling
+            auto& result = sceneCulling.lightBoundsCullingResults.at(lightBoundsCullingID.value);
+            result.lightByteOffset = lightByteOffset;
+        }
+    }
+
+    // assign light byte offset to each queue
+    for (const auto& [sceneID, desc] : sceneCulling.renderQueueIndex) {
+        if (desc.lightBoundsCulledResultID.value == 0xFFFFFFFF) {
+            continue;
+        }
+        const auto lightByteOffset = sceneCulling.lightBoundsCullingResults.at(
+                                                                               desc.lightBoundsCulledResultID.value)
+                                         .lightByteOffset;
+
+        sceneCulling.renderQueues.at(desc.renderQueueTarget.value).lightByteOffset = lightByteOffset;
+    }
+}
+
+void LightResource::clear() {
+    std::fill(cpuBuffer.begin(), cpuBuffer.end(), 0);
+    lights.clear();
+    lightIndex.clear();
+}
+
+void LightResource::buildLightBuffer(gfx::CommandBuffer* cmdBuffer) const {
+    if (lights.empty()) {
+        return;
+    }
+    cmdBuffer->updateBuffer(
+        lightBuffer,
+        cpuBuffer.data(),
+        static_cast<uint32_t>(lights.size()) * elementSize);
+}
+
+void LightResource::tryUpdateRenderSceneLocalDescriptorSet(const SceneCulling& sceneCulling) {
+    if (sceneCulling.lightBoundsCullingResults.empty()) {
+        return;
+    }
+
+    for (const auto& [scene, culling] : sceneCulling.frustumCullings) {
+        for (const auto& model : scene->getModels()) {
+            CC_EXPECTS(model);
+            for (const auto& submodel : model->getSubModels()) {
+                auto* set = submodel->getDescriptorSet();
+                const auto& prev = set->getBuffer(binding);
+                if (resized || prev != firstLightBufferView) {
+                    set->bindBuffer(binding, firstLightBufferView);
+                    set->update();
+                }
+            }
+        }
+    }
+    resized = false;
 }
 
 } // namespace render

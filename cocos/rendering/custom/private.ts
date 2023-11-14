@@ -64,7 +64,7 @@ export interface ProgramLibrary {
         phaseID: number,
         name: string,
         defines: MacroRecord,
-        key?: string | null): ProgramProxy | null;
+        key?: string): ProgramProxy | null;
     getBlockSizes (phaseID: number, programName: string): number[];
     getHandleMap (phaseID: number, programName: string): Record<string, number>;
     getProgramID (phaseID: number, programName: string): number;

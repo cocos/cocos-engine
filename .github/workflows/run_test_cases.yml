@@ -1,9 +1,11 @@
 name: run test cases
 
 on:
-  pull_request_target:
+  pull_request:
   issue_comment:
     types: [created, edited]
+
+permissions: read-all
 
 # github.head_ref is only defined on pull_request events
 concurrency:
@@ -104,21 +106,59 @@ jobs:
         shell: bash
         run: |
           set -x
-          AUTOTEST_VERSION=`echo ${{ steps.parse_pr.outputs.pr_base_ref }} | cut -b -4`
           TEST_PROJECTS_EXTERNAL="E:/pr-test/cocos-test-projects"
           CCTEST_PLUGINS="E:/pr-test/TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
               mkdir -p $TEST_PROJECTS_EXTERNAL
-              git clone https://github.com/cctests/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
+              git clone https://github.com/cocos/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
           else
               echo "directory $TEST_PROJECTS_EXTERNAL is ready"
           fi
           git -C $TEST_PROJECTS_EXTERNAL reset --hard
           git -C $TEST_PROJECTS_EXTERNAL fetch --all --prune
-          git -C $TEST_PROJECTS_EXTERNAL checkout origin/$AUTOTEST_VERSION
-          git -C $TEST_PROJECTS_EXTERNAL pull origin $AUTOTEST_VERSION --allow-unrelated-histories
+          git -C $TEST_PROJECTS_EXTERNAL checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
+          git -C $TEST_PROJECTS_EXTERNAL pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
           rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
           7z x -y $CCTEST_PLUGINS/*.zip -o$TEST_PROJECTS_EXTERNAL/extensions/automation-framework
+
+      - name: Run test cases
+        timeout-minutes: 90
+        id: run_test_cases
+        run: |
+          scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -i "0,1,3" -d  E:\cctest\devices.json -r https://cctest.cocos.org 
+          $JOBID = Get-Content C:\Users\Administrator\AppData\Roaming\npm\node_modules\@cctest\scheduler\logs\PR-TEST\nowJobId.log
+          cd ..
+          python3 -u ./python/main.py  --target=job_editor --jobid=$JOBID
+      - name: Write comment body and issue number to file
+        uses: actions/github-script@v5
+        env:
+          PR_AUTHOR: ${{ steps.parse_pr.outputs.pr_author }}
+          EDITOR_VERSION: ${{ steps.run_test_cases.outputs.editor }}
+          TASK_STATUS: ${{ steps.run_test_cases.outputs.status }}
+          TASK_REPORT: ${{ steps.run_test_cases.outputs.report }}
+          JOB_ID: ${{ steps.run_test_cases.outputs.jobid }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          PR_NUMBER: ${{ steps.get_pr.outputs.pr_number }}
+        with:
+          script: |
+            const fs = require('fs');
+            fs.writeFileSync('commentwin.txt', `@${process.env.PR_AUTHOR}, Please check the result of \`run test cases\`:
+            - Test Platform: PR-Test
+            - Editor Version: ${process.env.EDITOR_VERSION}
+            - Task Result: ${process.env.TASK_STATUS}
+            - Task URL: https://cctest.cocos.org/#/reportview/PR-TEST/${process.env.JOB_ID}/-1
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
+            ## Task Details
+            ${process.env.TASK_REPORT}`);
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: commentwin.txt
+          path: |
+            commentwin.txt
+
+
+
   macOS-RunTestCases:
     if: |
       contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
@@ -188,7 +228,7 @@ jobs:
           PRECLONE_EXTERNAL="/Users/admin/Documents/actions-runner/preclone/cocos-engine-external"
           if [ ! -d $PRECLONE_EXTERNAL ]; then
               echo "create directory $PRECLONE_EXTERNAL"
-              # remove all sub-folders 
+              # remove all sub-folders
               rm -rf /Users/admin/Documents/actions-runner/preclone
               mkdir -p $PRECLONE_EXTERNAL
               git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
@@ -215,80 +255,59 @@ jobs:
         shell: bash
         run: |
           set -x
-          AUTOTEST_VERSION=`echo ${{ steps.parse_pr.outputs.pr_base_ref }} | cut -b -4`
           TEST_PROJECTS_EXTERNAL="../../cocos-test-projects"
           CCTEST_PLUGINS="../../TestPlugin"
           if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
               mkdir -p $TEST_PROJECTS_EXTERNAL
-              git clone https://github.com/cctests/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
+              git clone https://github.com/cocos/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
           else
               echo "directory $TEST_PROJECTS_EXTERNAL is ready"
           fi
           git -C $TEST_PROJECTS_EXTERNAL reset --hard
           git -C $TEST_PROJECTS_EXTERNAL fetch --all --prune
-          git -C $TEST_PROJECTS_EXTERNAL checkout origin/$AUTOTEST_VERSION
-          git -C $TEST_PROJECTS_EXTERNAL pull origin $AUTOTEST_VERSION --allow-unrelated-histories
+          git -C $TEST_PROJECTS_EXTERNAL checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
+          git -C $TEST_PROJECTS_EXTERNAL pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
           rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
           unzip -oq $CCTEST_PLUGINS/*.zip -d $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
-  Creator-PR-RunTestCases:
-    runs-on: self-hosted-mac
-    needs: [macOS-RunTestCases, Win-RunTestCases]
-    steps:
-      - name: Get PR Number
-        id: get_pr
-        shell: pwsh
-        run: |
-          if ("${{ github.event_name }}" -eq "issue_comment") {
-            Write-Host "::set-output name=pr_number::${{ github.event.issue.number }}"
-          }
-          else {
-            Write-Host "::set-output name=pr_number::${{ github.event.pull_request.number }}"
-          }
-      - name: Get PR Details
-        id: pr_deatils
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/cocos/cocos-engine/pulls/${{ steps.get_pr.outputs.pr_number }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Parse Pull Request
-        id: parse_pr
-        shell: pwsh
-        run: |
-          $pull_request = @"
-          ${{ steps.pr_deatils.outputs.data }}
-          "@ | ConvertFrom-Json
-          Write-Host $pull_request
-          Write-Host "::set-output name=pr_html_url::$($pull_request.html_url)"
-          Write-Host "::set-output name=pr_author::$($pull_request.user.login)"
-          Write-Host "::set-output name=pr_head_ref::$($pull_request.head.ref)"
-          Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
-          Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
-          Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
-      - name: Check Job Parameter
-        run: |
-          echo "${{ steps.parse_pr.outputs.pr_head_ref }}"
-          echo "${{ steps.parse_pr.outputs.pr_head_sha }}"
-          echo "${{ steps.parse_pr.outputs.pr_base_ref }}"
-          echo "${{ steps.parse_pr.outputs.pr_base_sha }}"
       - name: Run test cases
         timeout-minutes: 90
         id: run_test_cases
         run: |
-          scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -r cctest.cocos.org 
+          scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -i 2,4 -d  /Users/admin/Documents/cctest/devices.json  -r https://cctest.cocos.org 
           JOBID=`cat  /usr/local/lib/node_modules/@cctest/scheduler/logs/PR-TEST/nowJobId.log`
           cd ..
-          python3 -u ./python/main.py --target=job_editor --jobid=$JOBID
-      - name: Update Comment
-        uses: peter-evans/create-or-update-comment@v1
+          python3 -u ./python/main.py  --target=job_editor --jobid=$JOBID
+      - name: Write comment body and issue number to file
+        uses: actions/github-script@v5
+        env:
+          PR_AUTHOR: ${{ steps.parse_pr.outputs.pr_author }}
+          EDITOR_VERSION: ${{ steps.run_test_cases.outputs.editor }}
+          TASK_STATUS: ${{ steps.run_test_cases.outputs.status }}
+          TASK_REPORT: ${{ steps.run_test_cases.outputs.report }}
+          JOB_ID: ${{ steps.run_test_cases.outputs.jobid }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          PR_NUMBER: ${{ steps.get_pr.outputs.pr_number }}
         with:
-          issue-number: ${{ steps.get_pr.outputs.pr_number }}
-          body: |
-            @${{ steps.parse_pr.outputs.pr_author }}, Please check the result of `run test cases`:
+          script: |
+            const fs = require('fs');
+            fs.writeFileSync('pr.txt', process.env.PR_NUMBER);
+            fs.writeFileSync('comment.txt', `@${process.env.PR_AUTHOR}, Please check the result of \`run test cases\`:
             - Test Platform: PR-Test
-            - Editor Version: ${{ steps.run_test_cases.outputs.editor }}
-            - Task Result: ${{ steps.run_test_cases.outputs.status }}
-            - Task URL: http://cctest.cocos.org/#/reportview/PR-TEST/${{ steps.run_test_cases.outputs.jobid }}/-1
-            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${{ github.run_id }}
+            - Editor Version: ${process.env.EDITOR_VERSION}
+            - Task Result: ${process.env.TASK_STATUS}
+            - Task URL: https://cctest.cocos.org/#/reportview/PR-TEST/${process.env.JOB_ID}/-1
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
             ## Task Details
-            ${{ steps.run_test_cases.outputs.report }}
+            ${process.env.TASK_REPORT}`);
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: pr.txt
+          path: |
+            pr.txt
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: comment.txt
+          path: |
+            comment.txt

@@ -1,7 +1,7 @@
 import { Vec4 } from '../../../core';
 
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera, ShadowType } from '../../../render-scene/scene';
+import { Camera, ShadowType, SKYBOX_FLAG } from '../../../render-scene/scene';
 import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
@@ -38,7 +38,7 @@ export class ForwardPass extends BasePass {
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
-        passContext.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL);
+        passContext.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) | (camera.clearFlag & SKYBOX_FLAG);
         Vec4.set(passContext.clearColor, 0, 0, 0, 0);
         Vec4.set(passContext.clearDepthColor, camera.clearDepth, camera.clearStencil, 0, 0);
 
@@ -70,13 +70,15 @@ export class ForwardPass extends BasePass {
                 }
             }
         }
-        pass.addQueue(QueueHint.RENDER_OPAQUE)
-            .addSceneOfCamera(
-                camera,
-                new LightInfo(),
-                SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT
-                | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
-            );
+        const forwardQueue = pass.addQueue(QueueHint.RENDER_OPAQUE);
+        forwardQueue.addSceneOfCamera(
+            camera,
+            new LightInfo(),
+            SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT
+             | SceneFlags.GEOMETRY,
+        );
+        const forwardAddQueue = pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'forward-add');
+        passContext.addSceneLights(forwardAddQueue, camera);
         const shadowInfo = ppl.pipelineSceneData.shadows;
         if (camera.scene?.mainLight && shadowInfo.enabled && shadowInfo.type === ShadowType.Planar) {
             pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'planar-shadow')
@@ -84,7 +86,7 @@ export class ForwardPass extends BasePass {
                     camera,
                     new LightInfo(camera.scene?.mainLight),
                     SceneFlags.TRANSPARENT_OBJECT | SceneFlags.SHADOW_CASTER
-                    | SceneFlags.DEFAULT_LIGHTING | SceneFlags.GEOMETRY,
+                    | SceneFlags.GEOMETRY,
                 );
         }
         passContext.forwardPass = this;

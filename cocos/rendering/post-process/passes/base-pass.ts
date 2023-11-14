@@ -41,14 +41,14 @@ export function disablePostProcessForDebugView (): boolean {
     return debugView.singleMode as number > 0;
 }
 
-export function getShadowMapSampler (): Sampler | null {
+export function getShadowMapSampler (): Sampler | undefined {
     if (!_pointSampler) {
         const director = cclegacy.director;
         const pipeline = director.root.pipeline;
         const device = pipeline.device;
         _pointSampler = device.getSampler(_samplerPointInfo);
     }
-    return _pointSampler;
+    return _pointSampler || undefined;
 }
 
 export abstract class BasePass {

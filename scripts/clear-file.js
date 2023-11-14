@@ -1,14 +1,16 @@
-'use strict';
-
 const { readdirSync, statSync, unlinkSync } = require('fs');
 const { join } = require('path');
 
-(() => {
+const { magenta } = require('chalk');
 
+const prefix = ''.padStart(20, '=');
+console.log(magenta(`${prefix} Clear file ${prefix}`));
+
+(() => {
     let total = 0;
     let m = 0;
 
-    function step(dir) {
+    function step (dir) {
         total++;
         const names = readdirSync(dir);
 
@@ -17,17 +19,15 @@ const { join } = require('path');
             const stat = statSync(file);
             if (stat.isDirectory()) {
                 step(file);
+            } else if (
+                /\.d\.ts$/.test(file)
+                    || /\.md$/.test(file)
+                    || /\.markdown$/.test(file)
+            ) {
+                m++;
+                unlinkSync(file);
             } else {
-                if (
-                    /\.d\.ts$/.test(file) ||
-                    /\.md$/.test(file) ||
-                    /\.markdown$/.test(file)
-                ) {
-                    m++;
-                    unlinkSync(file);
-                } else {
-                    total++;
-                }
+                total++;
             }
         });
     }

@@ -136,13 +136,13 @@ export class WebSceneTask implements SceneTask {
     }
 
     public start (): void {
-        this._sceneCulling();
+        // do nothing
     }
     public join (): void {
         // for web-pipeline, do nothing
     }
     public submit (): void {
-
+        // do nothing
     }
     get camera (): scene.Camera | null { return this._camera; }
     get renderScene (): RenderScene | null {

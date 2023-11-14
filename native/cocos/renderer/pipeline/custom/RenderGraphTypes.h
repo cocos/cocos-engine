@@ -211,9 +211,29 @@ struct ManagedBuffer {
     uint64_t fenceValue{0};
 };
 
+struct PersistentBuffer {
+    PersistentBuffer() = default;
+    PersistentBuffer(IntrusivePtr<gfx::Buffer> bufferIn) noexcept // NOLINT
+    : buffer(std::move(bufferIn)) {}
+
+    IntrusivePtr<gfx::Buffer> buffer;
+    uint64_t fenceValue{0};
+};
+
 struct ManagedTexture {
     ManagedTexture() = default;
     ManagedTexture(IntrusivePtr<gfx::Texture> textureIn) noexcept // NOLINT
+    : texture(std::move(textureIn)) {}
+
+    bool checkResource(const ResourceDesc &desc) const;
+
+    IntrusivePtr<gfx::Texture> texture;
+    uint64_t fenceValue{0};
+};
+
+struct PersistentTexture {
+    PersistentTexture() = default;
+    PersistentTexture(IntrusivePtr<gfx::Texture> textureIn) noexcept // NOLINT
     : texture(std::move(textureIn)) {}
 
     bool checkResource(const ResourceDesc &desc) const;
@@ -390,6 +410,7 @@ struct RasterSubpass {
         return {rasterViews.get_allocator().resource()};
     }
 
+    RasterSubpass(const allocator_type& alloc) noexcept; // NOLINT
     RasterSubpass(uint32_t subpassIDIn, uint32_t countIn, uint32_t qualityIn, const allocator_type& alloc) noexcept;
     RasterSubpass(RasterSubpass&& rhs, const allocator_type& alloc);
     RasterSubpass(RasterSubpass const& rhs, const allocator_type& alloc);
@@ -415,6 +436,7 @@ struct ComputeSubpass {
         return {rasterViews.get_allocator().resource()};
     }
 
+    ComputeSubpass(const allocator_type& alloc) noexcept; // NOLINT
     ComputeSubpass(uint32_t subpassIDIn, const allocator_type& alloc) noexcept;
     ComputeSubpass(ComputeSubpass&& rhs, const allocator_type& alloc);
     ComputeSubpass(ComputeSubpass const& rhs, const allocator_type& alloc);
@@ -516,7 +538,6 @@ struct SubresourceView {
     uint16_t numArraySlices{0};
     uint16_t firstPlane{0};
     uint16_t numPlanes{0};
-    gfx::TextureType viewType;
 };
 
 struct ResourceGraph {
@@ -637,8 +658,8 @@ struct ResourceGraph {
 
     // PolymorphicGraph
     using VertexTag         = ccstd::variant<ManagedTag, ManagedBufferTag, ManagedTextureTag, PersistentBufferTag, PersistentTextureTag, FramebufferTag, SwapchainTag, FormatViewTag, SubresourceViewTag>;
-    using VertexValue       = ccstd::variant<ManagedResource*, ManagedBuffer*, ManagedTexture*, IntrusivePtr<gfx::Buffer>*, IntrusivePtr<gfx::Texture>*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*, FormatView*, SubresourceView*>;
-    using VertexConstValue = ccstd::variant<const ManagedResource*, const ManagedBuffer*, const ManagedTexture*, const IntrusivePtr<gfx::Buffer>*, const IntrusivePtr<gfx::Texture>*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*, const FormatView*, const SubresourceView*>;
+    using VertexValue       = ccstd::variant<ManagedResource*, ManagedBuffer*, ManagedTexture*, PersistentBuffer*, PersistentTexture*, IntrusivePtr<gfx::Framebuffer>*, RenderSwapchain*, FormatView*, SubresourceView*>;
+    using VertexConstValue = ccstd::variant<const ManagedResource*, const ManagedBuffer*, const ManagedTexture*, const PersistentBuffer*, const PersistentTexture*, const IntrusivePtr<gfx::Framebuffer>*, const RenderSwapchain*, const FormatView*, const SubresourceView*>;
     using VertexHandle      = ccstd::variant<
         impl::ValueHandle<ManagedTag, vertex_descriptor>,
         impl::ValueHandle<ManagedBufferTag, vertex_descriptor>,
@@ -701,8 +722,8 @@ struct ResourceGraph {
     ccstd::pmr::vector<ManagedResource> resources;
     ccstd::pmr::vector<ManagedBuffer> managedBuffers;
     ccstd::pmr::vector<ManagedTexture> managedTextures;
-    ccstd::pmr::vector<IntrusivePtr<gfx::Buffer>> buffers;
-    ccstd::pmr::vector<IntrusivePtr<gfx::Texture>> textures;
+    ccstd::pmr::vector<PersistentBuffer> buffers;
+    ccstd::pmr::vector<PersistentTexture> textures;
     ccstd::pmr::vector<IntrusivePtr<gfx::Framebuffer>> framebuffers;
     ccstd::pmr::vector<RenderSwapchain> swapchains;
     ccstd::pmr::vector<FormatView> formatViews;
@@ -847,18 +868,57 @@ struct RenderQueue {
     gfx::Viewport viewport;
 };
 
+enum class CullingFlags : uint32_t {
+    NONE = 0,
+    CAMERA_FRUSTUM = 0x1,
+    LIGHT_FRUSTUM = 0x2,
+    LIGHT_BOUNDS = 0x4,
+};
+
+constexpr CullingFlags operator|(const CullingFlags lhs, const CullingFlags rhs) noexcept {
+    return static_cast<CullingFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+
+constexpr CullingFlags operator&(const CullingFlags lhs, const CullingFlags rhs) noexcept {
+    return static_cast<CullingFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}
+
+constexpr CullingFlags& operator|=(CullingFlags& lhs, const CullingFlags rhs) noexcept {
+    return lhs = lhs | rhs;
+}
+
+constexpr CullingFlags& operator&=(CullingFlags& lhs, const CullingFlags rhs) noexcept {
+    return lhs = lhs & rhs;
+}
+
+constexpr bool operator!(CullingFlags e) noexcept {
+    return e == static_cast<CullingFlags>(0);
+}
+
+constexpr CullingFlags operator~(CullingFlags e) noexcept {
+    return static_cast<CullingFlags>(~static_cast<std::underlying_type_t<CullingFlags>>(e));
+}
+
+constexpr bool any(CullingFlags e) noexcept {
+    return !!e;
+}
+
 struct SceneData {
     SceneData() = default;
-    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn) noexcept
+    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn, IntrusivePtr<scene::Light> shadingLightIn) noexcept
     : scene(sceneIn),
       camera(cameraIn),
       light(std::move(lightIn)),
-      flags(flagsIn) {}
+      flags(flagsIn),
+      cullingFlags(cullingFlagsIn),
+      shadingLight(std::move(shadingLightIn)) {}
 
     const scene::RenderScene* scene{nullptr};
     const scene::Camera* camera{nullptr};
     LightInfo light;
     SceneFlags flags{SceneFlags::NONE};
+    CullingFlags cullingFlags{CullingFlags::CAMERA_FRUSTUM};
+    IntrusivePtr<scene::Light> shadingLight;
 };
 
 struct Dispatch {

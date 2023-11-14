@@ -24,6 +24,22 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 
 declare namespace spine {
+
+    class String {
+        length: number;
+        isEmpty: boolean;
+        strPtr: number;
+        str: string;
+    }
+
+    class SPVectorFloat {
+        size(): number;
+        resize(newSize: number, defaultValue: number);
+        set(index: number, value: number);
+        get(index: number): number;
+        delete();
+    }
+
     class Animation {
         constructor(name: string, timelines: Array<Timeline>, duration: number);
         duration: number;
@@ -555,7 +571,6 @@ declare namespace spine {
         transformConstraints: Array<TransformConstraint>;
         pathConstraints: Array<PathConstraint>;
         _updateCache: Updatable[];
-        updateCacheReset: Updatable[];
         skin: Skin;
         color: Color;
         time: number;
@@ -685,7 +700,7 @@ declare namespace spine {
         scale: number;
         private linkedMeshes;
         constructor(attachmentLoader: AttachmentLoader);
-        readSkeletonData(json: string | any): SkeletonData;
+        readSkeletonData(json: any): SkeletonData;
         readAttachment(map: any, skin: Skin, slotIndex: number, name: string, skeletonData: SkeletonData): Attachment;
         readVertices(map: any, attachment: VertexAttachment, verticesLength: number): void;
         readAnimation(map: any, name: string, skeletonData: SkeletonData): void;
@@ -1163,7 +1178,17 @@ declare namespace spine {
         end(): void;
     }
 
+    class SkeletonSystem {
+        public static updateAnimation(deltaTime: number): void;
+        public static updateRenderData(): void;
+        public static getCount(): number;
+    }
+
     class SkeletonInstance {
+        dtRate: number;
+        isCache: boolean;
+        isDelete: boolean;
+        enable: boolean;
         initSkeleton(data: SkeletonData);
         getAnimationState();
         setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;

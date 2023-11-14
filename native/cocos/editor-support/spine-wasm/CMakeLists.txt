@@ -9,10 +9,14 @@ project(${APP_NAME}_wasm)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-exceptions -frtti -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=1")
 
+message("Current directory: ${CMAKE_CURRENT_SOURCE_DIR}")
 
-include_directories(../ ../../)
-file(GLOB SPINE_CORE_SRC "../spine/*.cpp")
+#include_directories(../ ../../)
+include_directories(../ ../../ ../spine-creator-support/)
+file(GLOB SPINE_CORE_SRC "../spine/*.cpp" ../spine-creator-support/Vector2.cpp)
 file(GLOB COCOS_ADAPTER_SRC "./*.cpp")
+
+#file(GLOB SPINE_CORE_SRC ../spine-creator-support/Vector2.cpp)
 
 add_executable(${APP_NAME} ${SPINE_CORE_SRC} ${COCOS_ADAPTER_SRC} )
 #add_executable(${APP_NAME} ${COCOS_ADAPTER_SRC})
