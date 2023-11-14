@@ -1,7 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
-const { magenta } = require('chalk');
+
+let magenta;
+try {
+    magenta = require('chalk').magenta;
+} catch (error) {
+    magenta = (str) => str;
+}
 
 const prefix = ''.padStart(20, '=');
 console.log(magenta(`${prefix} Clear cache ${prefix}`));
