@@ -256,7 +256,7 @@ CCProgram combine-fs %{
   void main() {
     vec4 hdrColor = texture(outputResultMap, v_uv);
     vec3 bloomColor = texture(bloomTexture, v_uv).rgb;
-    vec3 result = hdrColor.rgb + bloomColor * texSize.w * hdrColor.a;
+    vec3 result = hdrColor.rgb + bloomColor * texSize.w;
 
     fragColor = vec4(result, hdrColor.a);
   }
