@@ -41,6 +41,7 @@
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_classtype.h"
 #include "jsb_conversions_spec.h"
+#include "core/data/JSBNativeDataHolder.h"
 
 #if CC_USE_SPINE
     #include "cocos/editor-support/spine-creator-support/spine-cocos2dx.h"
@@ -723,6 +724,10 @@ sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLI
     return true;
 }
 
+// duplicate extern to resolve the circular reference jsb_cocos_auto.h
+// see jsb_cocos_auto.h 
+extern se::Class *__jsb_cc_JSBNativeDataHolder_class; // NOLINT
+
 template <typename T>
 typename std::enable_if_t<!std::is_pointer<T>::value && std::is_arithmetic<T>::value, bool>
 sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)
@@ -733,8 +738,19 @@ sevalue_to_native(const se::Value &from, T **to, se::Object * /*ctx*/) { // NOLI
     } else if (data->isTypedArray()) {
         data->getTypedArrayData(&tmp, nullptr);
     } else {
-        CC_ABORT(); // bad type
-        return false;
+        void *privateData = data->getPrivateData();
+        if (privateData != nullptr && data->_getClass() == __jsb_cc_JSBNativeDataHolder_class) {
+            auto *dataHolder = static_cast<cc::JSBNativeDataHolder *>(privateData);
+            if (dataHolder != nullptr) {
+                tmp = dataHolder->getData();
+            } else {
+                CC_ABORT(); // bad type
+                return false;
+            }
+        } else {
+            CC_ABORT(); // bad type
+            return false;
+        }
     }
     *to = reinterpret_cast<T *>(tmp);
     return true;
