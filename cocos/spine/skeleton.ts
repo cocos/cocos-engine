@@ -1744,7 +1744,7 @@ export class Skeleton extends UIRenderer {
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackStartListener (entry: spine.TrackEntry, listener: TrackListener): void {
-        TrackEntryListeners.getListeners(entry).start = listener;
+        TrackEntryListeners.getListeners(entry, this._instance).start = listener;
     }
 
     /**
@@ -1754,7 +1754,7 @@ export class Skeleton extends UIRenderer {
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackInterruptListener (entry: spine.TrackEntry, listener: TrackListener): void {
-        TrackEntryListeners.getListeners(entry).interrupt = listener;
+        TrackEntryListeners.getListeners(entry, this._instance).interrupt = listener;
     }
 
     /**
@@ -1764,7 +1764,7 @@ export class Skeleton extends UIRenderer {
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackEndListener (entry: spine.TrackEntry, listener: TrackListener): void {
-        TrackEntryListeners.getListeners(entry).end = listener;
+        TrackEntryListeners.getListeners(entry, this._instance).end = listener;
     }
 
     /**
@@ -1774,7 +1774,7 @@ export class Skeleton extends UIRenderer {
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackDisposeListener (entry: spine.TrackEntry, listener: TrackListener): void {
-        TrackEntryListeners.getListeners(entry).dispose = listener;
+        TrackEntryListeners.getListeners(entry, this._instance).dispose = listener;
     }
 
     /**
@@ -1788,10 +1788,10 @@ export class Skeleton extends UIRenderer {
             const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
             const listenerID = TrackEntryListeners.addListener(listener);
             listener(trackEntry, loopCount);
-            this._instance.setListener(listenerID, spine.EventType.event);
-            this._listener!.event = listener;
+            // this._instance.setListener(listenerID, spine.EventType.event);
+            // this._listener!.event = listener;
         };
-        TrackEntryListeners.getListeners(entry).complete = onComplete;
+        TrackEntryListeners.getListeners(entry, this._instance).complete = onComplete;
     }
 
     /**
@@ -1801,7 +1801,7 @@ export class Skeleton extends UIRenderer {
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackEventListener (entry: spine.TrackEntry, listener: TrackListener|TrackListener2): void {
-        TrackEntryListeners.getListeners(entry).event = listener;
+        TrackEntryListeners.getListeners(entry, this._instance).event = listener;
     }
 
     /**

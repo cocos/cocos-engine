@@ -25,6 +25,7 @@
 import spine from './lib/spine-core.js';
 
 let _listener_ID = 0;
+let _track_ID = 0;
 
 type TrackListener = (x: spine.TrackEntry) => void;
 type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
@@ -38,9 +39,12 @@ export class TrackEntryListeners {
     complete?: ((entry: spine.TrackEntry) => void);
     event?: ((entry: spine.TrackEntry, event: spine.Event) => void);
 
-    static getListeners (entry: spine.TrackEntry): spine.AnimationStateListener {
+    static getListeners (entry: spine.TrackEntry, instance: spine.SkeletonInstance): spine.AnimationStateListener {
         if (!entry.listener) {
             entry.listener = new TrackEntryListeners() as any;
+            const id = ++_track_ID;
+            instance.setTrackListener(id, entry);
+            TrackEntryListeners._trackSet.set(id, entry);
         }
         return entry.listener;
     }
@@ -54,6 +58,45 @@ export class TrackEntryListeners {
         }
     }
 
+    static emitTrackListener (id: number, entry: spine.TrackEntry, event: spine.Event, eventType: spine.EventType): void {
+        const curTrack = this._trackSet.get(id);
+        if (!curTrack) return;
+        // eslint-disable-next-line default-case
+        switch (eventType as number) {
+        case spine.EventType.start:
+            if (curTrack.listener.start) {
+                curTrack.listener.start(entry);
+            }
+            break;
+        case spine.EventType.interrupt:
+            if (curTrack.listener.interrupt) {
+                curTrack.listener.interrupt(entry);
+            }
+            break;
+        case spine.EventType.end:
+            if (curTrack.listener.end) {
+                curTrack.listener.end(entry);
+            }
+            break;
+        case spine.EventType.dispose:
+            if (curTrack.listener.dispose) {
+                curTrack.listener.dispose(entry);
+            }
+            this._trackSet.delete(id);
+            break;
+        case spine.EventType.complete:
+            if (curTrack.listener.complete) {
+                curTrack.listener.complete(entry);
+            }
+            break;
+        case spine.EventType.event:
+            if (curTrack.listener.event) {
+                curTrack.listener.event(entry, event);
+            }
+            break;
+        }
+    }
+
     static addListener (listener: CommonTrackEntryListener): number {
         const id = ++_listener_ID;
         TrackEntryListeners._listenerSet.set(id, listener);
@@ -61,6 +104,7 @@ export class TrackEntryListeners {
     }
 
     private static _listenerSet = new Map<number, CommonTrackEntryListener>();
+    private static _trackSet = new Map<number, spine.TrackEntry>();
 }
 
 globalThis.TrackEntryListeners = TrackEntryListeners;
