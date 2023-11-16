@@ -20,11 +20,14 @@ static void animationCallback(AnimationState *state, EventType type, TrackEntry 
     instance->onAnimationStateEvent(entry, type, event);
 }
 
-void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    (static_cast<SpineSkeletonInstance *>(state->getRendererObject()))->onTrackEntryEvent(entry, type, event);
-    if (type == EventType_Dispose) {
-        if (entry->getRendererObject()) {
-            entry->setRendererObject(nullptr);
+static void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
+    void* renderObj = state->getRendererObject();
+    if (renderObj) {
+        (static_cast<SpineSkeletonInstance *>(renderObj))->onTrackEntryEvent(entry, type, event);
+        if (type == EventType_Dispose) {
+            if (entry->getRendererObject()) {
+                entry->setRendererObject(nullptr);
+            }
         }
     }
 }
