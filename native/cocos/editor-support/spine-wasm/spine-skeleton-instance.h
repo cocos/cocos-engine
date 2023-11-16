@@ -52,7 +52,7 @@ public:
     AnimationState *getAnimationState();
     void setMix(const std::string &from, const std::string &to, float duration);
     void setListener(uint32_t listenerID, uint32_t type);
-    void setTrackListener(uint32_t trackId, TrackEntry *entry);
+    void setTrackEntryListener(uint32_t trackId, TrackEntry *entry);
     void onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event);
     void onTrackEntryEvent(TrackEntry *entry, EventType type, Event *event);
     std::vector<SpineDebugShape> &getDebugShapes();
@@ -79,7 +79,7 @@ private:
     uint32_t _disposeListenerID = 0;
     uint32_t _completeListenerID = 0;
     uint32_t _eventListenerID = 0;
-    uint32_t _trackListenerID = 0;
+    uint32_t _trackEntryListenerID = 0;
     UserData _userData;
     std::vector<SpineDebugShape> _debugShapes{};
     std::map<Slot *, uint32_t> slotTextureSet{};

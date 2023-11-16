@@ -1604,7 +1604,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getAnimationState", &SpineSkeletonInstance::getAnimationState, allow_raw_pointer<AnimationState>())
         .function("setMix", &SpineSkeletonInstance::setMix)
         .function("setListener", &SpineSkeletonInstance::setListener)
-        .function("setTrackListener", &SpineSkeletonInstance::setTrackListener, allow_raw_pointer<TrackEntry *>())
+        .function("setTrackEntryListener", &SpineSkeletonInstance::setTrackEntryListener, allow_raw_pointer<TrackEntry *>())
         .function("setDebugMode", &SpineSkeletonInstance::setDebugMode)
         .function("getDebugShapes", &SpineSkeletonInstance::getDebugShapes)
         .function("resizeSlotRegion", &SpineSkeletonInstance::resizeSlotRegion)

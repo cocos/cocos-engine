@@ -23,6 +23,7 @@
 */
 
 import spine from './lib/spine-core.js';
+import { warn } from '../core';
 
 let _listener_ID = 0;
 let _track_ID = 0;
@@ -43,7 +44,7 @@ export class TrackEntryListeners {
         if (!entry.listener) {
             entry.listener = new TrackEntryListeners() as any;
             const id = ++_track_ID;
-            instance.setTrackListener(id, entry);
+            instance.setTrackEntryListener(id, entry);
             TrackEntryListeners._trackSet.set(id, entry);
         }
         return entry.listener;
@@ -58,11 +59,10 @@ export class TrackEntryListeners {
         }
     }
 
-    static emitTrackListener (id: number, entry: spine.TrackEntry, event: spine.Event, eventType: spine.EventType): void {
+    static emitTrackEntryListener (id: number, entry: spine.TrackEntry, event: spine.Event, eventType: spine.EventType): void {
         const curTrack = this._trackSet.get(id);
         if (!curTrack) return;
-        // eslint-disable-next-line default-case
-        switch (eventType as number) {
+        switch (eventType) {
         case spine.EventType.start:
             if (curTrack.listener.start) {
                 curTrack.listener.start(entry);
@@ -83,6 +83,7 @@ export class TrackEntryListeners {
                 curTrack.listener.dispose(entry);
             }
             this._trackSet.delete(id);
+            curTrack.listener = null as any;
             break;
         case spine.EventType.complete:
             if (curTrack.listener.complete) {
@@ -93,6 +94,9 @@ export class TrackEntryListeners {
             if (curTrack.listener.event) {
                 curTrack.listener.event(entry, event);
             }
+            break;
+        default:
+            warn('TrackEntry doesn\'t handled', eventType);
             break;
         }
     }

@@ -13,6 +13,6 @@ mergeInto(LibraryManager.library, {
         var eventType = wasmUtil.getCurrentEventType();
         var trackEntry = wasmUtil.getCurrentTrackEntry();
         var event = wasmUtil.getCurrentEvent();
-        globalThis.TrackEntryListeners.emitTrackListener(listenerID, trackEntry, event, eventType.value);
+        globalThis.TrackEntryListeners.emitTrackEntryListener(listenerID, trackEntry, event, eventType.value);
     }
 });
