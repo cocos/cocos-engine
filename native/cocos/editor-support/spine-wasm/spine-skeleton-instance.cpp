@@ -11,12 +11,25 @@ SlotMesh globalMesh(nullptr, nullptr, 0, 0);
 
 extern "C" {
 extern void spineListenerCallBackFromJS();
+extern void spineTrackListenerCallback();
 }
 using namespace spine;
 
 static void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    SpineSkeletonInstance *instance = (SpineSkeletonInstance *)state->getRendererObject();
+    SpineSkeletonInstance *instance = (static_cast<SpineSkeletonInstance *>(state->getRendererObject()));
     instance->onAnimationStateEvent(entry, type, event);
+}
+
+static void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
+    void* renderObj = state->getRendererObject();
+    if (renderObj) {
+        (static_cast<SpineSkeletonInstance *>(renderObj))->onTrackEntryEvent(entry, type, event);
+        if (type == EventType_Dispose) {
+            if (entry->getRendererObject()) {
+                entry->setRendererObject(nullptr);
+            }
+        }
+    }
 }
 
 SpineSkeletonInstance::SpineSkeletonInstance() {
@@ -420,12 +433,29 @@ void SpineSkeletonInstance::setListener(uint32_t listenerID, uint32_t type) {
     }
 }
 
+void SpineSkeletonInstance::setTrackEntryListener(uint32_t trackId, TrackEntry *entry) {
+    if (!entry->getRendererObject()) {
+        _trackEntryListenerID = trackId;
+        entry->setRendererObject(this);
+        entry->setListener(trackEntryCallback);
+    }
+}
+
 void SpineSkeletonInstance::setUseTint(bool useTint) {
     _userData.useTint = useTint;
 }
 
 void SpineSkeletonInstance::setDebugMode(bool debug) {
     _userData.debugMode = debug;
+}
+
+void SpineSkeletonInstance::onTrackEntryEvent(TrackEntry *entry, EventType type, Event *event) {
+    if (!entry->getRendererObject()) return;
+    SpineWasmUtil::s_listenerID = _trackEntryListenerID;
+    SpineWasmUtil::s_currentType = type;
+    SpineWasmUtil::s_currentEntry = entry;
+    SpineWasmUtil::s_currentEvent = event;
+    spineTrackListenerCallback();
 }
 
 void SpineSkeletonInstance::onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event) {

@@ -9,12 +9,6 @@
 #include "spine-model.h"
 using namespace spine;
 
-typedef std::function<void(TrackEntry *entry)> StartListener;
-typedef std::function<void(TrackEntry *entry)> InterruptListener;
-typedef std::function<void(TrackEntry *entry)> EndListener;
-typedef std::function<void(TrackEntry *entry)> DisposeListener;
-typedef std::function<void(TrackEntry *entry)> CompleteListener;
-typedef std::function<void(TrackEntry *entry, Event *event)> EventListener;
 
 enum DEBUG_SHAPE_TYPE {
     DEBUG_REGION = 0,
@@ -58,7 +52,9 @@ public:
     AnimationState *getAnimationState();
     void setMix(const std::string &from, const std::string &to, float duration);
     void setListener(uint32_t listenerID, uint32_t type);
+    void setTrackEntryListener(uint32_t trackId, TrackEntry *entry);
     void onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event);
+    void onTrackEntryEvent(TrackEntry *entry, EventType type, Event *event);
     std::vector<SpineDebugShape> &getDebugShapes();
     void resizeSlotRegion(const std::string &slotName, uint32_t width, uint32_t height, bool createNew = false);
     void setSlotTexture(const std::string &slotName, uint32_t index);
@@ -83,6 +79,7 @@ private:
     uint32_t _disposeListenerID = 0;
     uint32_t _completeListenerID = 0;
     uint32_t _eventListenerID = 0;
+    uint32_t _trackEntryListenerID = 0;
     UserData _userData;
     std::vector<SpineDebugShape> _debugShapes{};
     std::map<Slot *, uint32_t> slotTextureSet{};
