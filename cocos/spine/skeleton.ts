@@ -742,21 +742,15 @@ export class Skeleton extends UIRenderer {
         //const data = this.skeletonData?.getRuntimeData();
         //if (!data) return;
         //this.setSkeletonData(data);
+        this.setAnimationCacheMode(this._cacheMode);
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
-
-        if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._textures = skeletonData.textures;
 
         this._refreshInspector();
         if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
-        //if (this.defaultSkin) this.setSkin(this.defaultSkin);
-        this._updateUseTint();
-        this._indexBoneSockets();
-        this._updateSocketBindings();
-        this.attachUtil.init(this);
-        this._preCacheMode = this._cacheMode;
+        if (this.defaultSkin && this.defaultSkin !== '') this.setSkin(this.defaultSkin);
     }
 
     /**
@@ -786,7 +780,7 @@ export class Skeleton extends UIRenderer {
             }
             if (this.skeletonData) {
                 const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData);
-                if (skeletonInfo.skeleton == null) {
+                if (!skeletonInfo.skeleton) {
                     skeletonInfo.skeleton = this._instance.initSkeleton(skeletonData);
                 }
                 this._skeleton = skeletonInfo.skeleton!;
@@ -1028,7 +1022,7 @@ export class Skeleton extends UIRenderer {
                 return;
             }
             this._updateCache(dt);
-        } else if (EDITOR_NOT_IN_PREVIEW) {
+        } else {
             this._instance.updateAnimation(dt);
         }
     }
@@ -1308,15 +1302,16 @@ export class Skeleton extends UIRenderer {
     public setAnimationCacheMode (cacheMode: AnimationCacheMode): void {
         if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
+            this._preCacheMode = cacheMode;
             //this.setSkin(this.defaultSkin);
             if (this._instance) {
                 this._instance.isCache = this.isAnimationCached();
             }
-            //this.attachUtil.init(this);
             this._updateSkeletonData();
-            //this.setSkin(this.defaultSkin);
-            //this._updateUseTint();
-            //this._updateSocketBindings();
+            this.setSkin(this.defaultSkin);
+            this._updateUseTint();
+            this._updateSocketBindings();
+            this.attachUtil.init(this);
             this.markForUpdateRenderData();
         }
     }

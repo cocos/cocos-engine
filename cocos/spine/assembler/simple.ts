@@ -267,12 +267,12 @@ function cacheTraverse (comp: Skeleton): void {
 
     const vc = model.vCount as number;
     const ic = model.iCount as number;
+    if (vc < 1 || ic < 1) return;
     const rd = comp.renderData!;
     if (rd.vertexCount !== vc || rd.indexCount !== ic) {
         rd.resize(vc, ic);
         rd.indices = new Uint16Array(ic);
     }
-    if (vc < 1 || ic < 1) return;
 
     const vbuf = rd.chunk.vb;
     const vUint8Buf = new Uint8Array(vbuf.buffer, vbuf.byteOffset, Float32Array.BYTES_PER_ELEMENT * vbuf.length);
