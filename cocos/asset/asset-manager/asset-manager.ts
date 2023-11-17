@@ -415,12 +415,10 @@ export class AssetManager {
         const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';
         const bundleVers = options.bundleVers || settings.querySettings(Settings.Category.ASSETS, 'bundleVers') || {};
         const remoteBundles = options.remoteBundles || settings.querySettings(Settings.Category.ASSETS, 'remoteBundles') || [];
-        let downloadMaxConcurrency = options.downloadMaxConcurrency || settings.querySettings(Settings.Category.ASSETS, 'downloadMaxConcurrency');
-        if (!downloadMaxConcurrency || downloadMaxConcurrency <= 0) {
-            downloadMaxConcurrency = this.downloader.maxConcurrency;
+        const downloadMaxConcurrency = options.downloadMaxConcurrency || settings.querySettings(Settings.Category.ASSETS, 'downloadMaxConcurrency');
+        if (downloadMaxConcurrency && downloadMaxConcurrency > 0) {
+            this.downloader.maxConcurrency = downloadMaxConcurrency;
         }
-
-        this.downloader.maxConcurrency = downloadMaxConcurrency;
 
         this._files.clear();
         this._parsed.clear();
