@@ -1444,13 +1444,13 @@ export class ScrollView extends ViewGroup {
         }
     }
 
-    protected _dispatchEvent (event: EventType): void {
-        if (event === EventType.SCROLL_ENDED) {
+    protected _dispatchEvent (event: string): void {
+        if (event === EventType.SCROLL_ENDED as string) {
             this._scrollEventEmitMask = 0;
-        } else if (event === EventType.SCROLL_TO_TOP
-            || event === EventType.SCROLL_TO_BOTTOM
-            || event === EventType.SCROLL_TO_LEFT
-            || event === EventType.SCROLL_TO_RIGHT) {
+        } else if (event === EventType.SCROLL_TO_TOP as string
+            || event === EventType.SCROLL_TO_BOTTOM as string
+            || event === EventType.SCROLL_TO_LEFT as string
+            || event === EventType.SCROLL_TO_RIGHT as string) {
             const flag = (1 << eventMap[event]);
             if (this._scrollEventEmitMask & flag) {
                 return;
