@@ -1027,7 +1027,8 @@ export class Skeleton extends UIRenderer {
             }
             this._updateCache(dt);
         } else {
-            this._instance.updateAnimation(dt);
+            //Trigger by skeletonSystem's updateAnimation
+            // this._instance.updateAnimation(dt);
         }
     }
 
