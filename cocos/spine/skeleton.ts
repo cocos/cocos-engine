@@ -1026,8 +1026,6 @@ export class Skeleton extends UIRenderer {
                 return;
             }
             this._updateCache(dt);
-        } else {
-            this._instance.updateAnimation(dt);
         }
     }
 
