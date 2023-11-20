@@ -742,7 +742,6 @@ export class Skeleton extends UIRenderer {
         //const data = this.skeletonData?.getRuntimeData();
         //if (!data) return;
         //this.setSkeletonData(data);
-        this.setAnimationCacheMode(this._cacheMode);
         this._runtimeData = skeletonData.getRuntimeData();
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
@@ -751,6 +750,11 @@ export class Skeleton extends UIRenderer {
         this._refreshInspector();
         if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
         if (this.defaultSkin && this.defaultSkin !== '') this.setSkin(this.defaultSkin);
+        this._updateUseTint();
+        this._indexBoneSockets();
+        this._updateSocketBindings();
+        this.attachUtil.init(this);
+        this._preCacheMode = this._cacheMode;
     }
 
     /**
@@ -1303,15 +1307,10 @@ export class Skeleton extends UIRenderer {
         if (this._preCacheMode  !== cacheMode) {
             this._cacheMode = cacheMode;
             this._preCacheMode = cacheMode;
-            //this.setSkin(this.defaultSkin);
             if (this._instance) {
                 this._instance.isCache = this.isAnimationCached();
             }
             this._updateSkeletonData();
-            this.setSkin(this.defaultSkin);
-            this._updateUseTint();
-            this._updateSocketBindings();
-            this.attachUtil.init(this);
             this.markForUpdateRenderData();
         }
     }
