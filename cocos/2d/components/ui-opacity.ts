@@ -107,6 +107,7 @@ export class UIOpacity extends Component {
                 // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
                 render.renderEntity.localOpacity = interruptOpacity;
             }
+            render.node._uiProps.localOpacity = render.renderEntity.localOpacity;
             interruptOpacity = 1;
         } else if (uiOp) {
             // there is a just UIOpacity but no UIRenderer on the node.
@@ -123,11 +124,25 @@ export class UIOpacity extends Component {
     protected _opacity = 255;
 
     public onEnable (): void {
+        // If the parent node has a uiopacity component, it does not need to be initialized.
+        if (this.node.parent) {
+            const uiOp = this.node.parent.getComponent<UIOpacity>(UIOpacity);
+            if (uiOp) {
+                return;
+            }
+        }
         this.node._uiProps.localOpacity = this._opacity / 255;
         this.setEntityLocalOpacityDirtyRecursively(true);
     }
 
     public onDisable (): void {
+        // If the parent node has a uiopacity component, it does not need to be reinitialized.
+        if (this.node.parent) {
+            const uiOp = this.node.parent.getComponent<UIOpacity>(UIOpacity);
+            if (uiOp) {
+                return;
+            }
+        }
         this.node._uiProps.localOpacity = 1;
         this.setEntityLocalOpacityDirtyRecursively(true);
     }
