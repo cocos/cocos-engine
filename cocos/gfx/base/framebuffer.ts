@@ -56,10 +56,20 @@ export abstract class Framebuffer extends GFXObject {
     }
 
     public get width (): number {
+        if (this.colorTextures.length > 0) {
+            return this.colorTextures[0]!.width;
+        } else if (this.depthStencilTexture) {
+            return this.depthStencilTexture.width;
+        }
         return this._width;
     }
 
     public get height (): number {
+        if (this.colorTextures.length > 0) {
+            return this.colorTextures[0]!.height;
+        } else if (this.depthStencilTexture) {
+            return this.depthStencilTexture.height;
+        }
         return this._height;
     }
 
