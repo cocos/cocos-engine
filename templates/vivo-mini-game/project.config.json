@@ -8,10 +8,8 @@
     "deviceOrientation": "portrait",
     "type": "game",
     "config": {
-      "logLevel": "log"
+        "logLevel": "log"
     },
     "display": {},
-    "subpackages": [],
-    "plugins": {}
-  }
-  
+    "subpackages": []
+}
