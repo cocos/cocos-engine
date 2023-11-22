@@ -1179,7 +1179,7 @@ declare namespace spine {
     }
 
     class SkeletonSystem {
-        public static removeSpineInstance(instance: SkeletonInstance): void;
+        public static destroySpineInstance(instance: SkeletonInstance): void;
         public static updateAnimation(deltaTime: number): void;
         public static updateRenderData(): void;
         public static getCount(): number;

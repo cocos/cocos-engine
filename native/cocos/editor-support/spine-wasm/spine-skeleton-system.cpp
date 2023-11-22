@@ -33,7 +33,7 @@ void SpineSkeletonSystem::addSpineInstance(SpineSkeletonInstance* instance) {
     vectorSpines.push_back(instance);
 }
 
-void SpineSkeletonSystem::removeSpineInstance(SpineSkeletonInstance* instance) {
+void SpineSkeletonSystem::destroySpineInstance(SpineSkeletonInstance* instance) {
     auto it = std::find(vectorSpines.begin(), vectorSpines.end(), instance);
     if (it != vectorSpines.end()) {
         vectorSpines.erase(it);
