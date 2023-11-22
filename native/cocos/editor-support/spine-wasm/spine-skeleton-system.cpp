@@ -10,12 +10,6 @@ void SpineSkeletonSystem::updateAnimation(float deltaTime) {
     auto count = static_cast<int>(vectorSpines.size());
     for (int i = count - 1; i >= 0; --i) {
         SpineSkeletonInstance* spineInstance = vectorSpines[i];
-        if(spineInstance->isDelete) {
-            std::swap(spineInstance, vectorSpines.back());
-            vectorSpines.pop_back();
-            delete spineInstance;
-            continue;
-        }
         if(!spineInstance->enable) continue;
         if (!spineInstance->isCache) {
             spineInstance->updateAnimation(deltaTime);
