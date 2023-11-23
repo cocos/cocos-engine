@@ -24,6 +24,8 @@
 
 #pragma once
 
+#include "../config.h"
+
 #include <cerrno>
 #include <cstddef>
 #include <cstring>
