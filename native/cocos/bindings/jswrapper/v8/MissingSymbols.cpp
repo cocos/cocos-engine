@@ -22,6 +22,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "../config.h"
+
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_V8
 
     //TODO(PatriceJiang): modify this when OHOS llvm upgrade
