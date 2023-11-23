@@ -408,6 +408,7 @@ const Elements = {
 
             panel.$.wrapModeSelect.addEventListener('change', (event) => {
                 // 根据 wrapModeSelect 组合值同步相应的 wrapModeS/wrapModeT 到 userData
+                const value = event.target.value;
                 // 临时记录用户的修改配置
                 Editor.Profile.setTemp('inspector', `${this.meta.uuid}.texture.wrapMode`, value, 'default');
                 if (ModeMap.wrap[value]) {
@@ -697,7 +698,7 @@ exports.methods = {
     },
 };
 
-exports.ready = function() {
+exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
