@@ -1179,6 +1179,7 @@ declare namespace spine {
     }
 
     class SkeletonSystem {
+        public static destroySpineInstance(instance: SkeletonInstance): void;
         public static updateAnimation(deltaTime: number): void;
         public static updateRenderData(): void;
         public static getCount(): number;
@@ -1219,7 +1220,6 @@ declare namespace spine {
         static createSpineSkeletonDataWithBinary(byteSize: number, atlasText: string): SkeletonData;
         static registerSpineSkeletonDataWithUUID(data: SkeletonData, uuid: string);
         static destroySpineSkeletonDataWithUUID(uuid: string);
-        static destroySpineInstance(instance: SkeletonInstance);
         static getCurrentListenerID(): number;
         static getCurrentEventType(): EventType;
         static getCurrentTrackEntry(): TrackEntry;

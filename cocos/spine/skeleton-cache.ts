@@ -300,7 +300,7 @@ export class AnimationCache {
     }
 
     public destroy (): void {
-        spine.wasmUtil.destroySpineInstance(this._instance);
+        spine.SkeletonSystem.destroySpineInstance(this._instance);
     }
 }
 

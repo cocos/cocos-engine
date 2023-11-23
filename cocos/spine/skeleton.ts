@@ -710,7 +710,7 @@ export class Skeleton extends UIRenderer {
         this._animCache = null;
         SkeletonSystem.getInstance().remove(this);
         if (!JSB) {
-            spine.wasmUtil.destroySpineInstance(this._instance);
+            spine.SkeletonSystem.destroySpineInstance(this._instance);
         }
         super.onDestroy();
     }
