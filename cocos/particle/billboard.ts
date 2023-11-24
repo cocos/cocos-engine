@@ -124,12 +124,12 @@ export class Billboard extends Component {
     public set technique (val: number) {
         // clamp technique index
         val = Math.floor(val);
-        if (val < 0) {
-            val = 0;
-        }
         const techs = this._material?.effectAsset?.techniques;
         if (techs && val >= techs.length) {
             val = techs.length - 1;
+        }
+        if (val < 0) {
+            val = 0;
         }
         // set technique index
         this._techIndex = val;
