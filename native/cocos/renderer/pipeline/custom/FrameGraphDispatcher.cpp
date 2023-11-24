@@ -658,8 +658,20 @@ gfx::ShaderStageFlagBit getVisibility(const RenderGraph &renderGraph, const Layo
     }
     auto slotID = iter->second;
 
-    auto layoutName = get(RenderGraph::LayoutTag{}, renderGraph, passID);
-    auto layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lgd);
+    auto layoutID = LayoutGraphData::null_vertex();
+    const auto& layoutName = get(RenderGraph::LayoutTag{}, renderGraph, passID);
+    if (layoutName.empty()) { // must be single subpass
+        auto parentID = parent(passID, renderGraph);
+        CC_EXPECTS(parentID != RenderGraph::null_vertex() &&
+            parent(parentID, renderGraph) == RenderGraph::null_vertex());
+        const auto &layoutName2 = get(RenderGraph::LayoutTag{}, renderGraph, parentID);
+        CC_EXPECTS(!layoutName2.empty());
+        layoutID = locate(LayoutGraphData::null_vertex(), layoutName2, lgd);
+    } else {
+        layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lgd);
+    }
+    CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
+
     const auto &layout = get(LayoutGraphData::LayoutTag{}, lgd, layoutID);
     for (const auto &pair : layout.descriptorSets) {
         for (const auto &block : pair.second.descriptorSetLayoutData.descriptorBlocks) {
