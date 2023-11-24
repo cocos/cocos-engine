@@ -149,8 +149,9 @@ export class Billboard extends Component {
             // set properties
             this.width = this._width;
             this.height = this._height;
+            // eslint-disable-next-line no-self-assign
             this.rotation = this.rotation;
-            this.texture = this.texture;
+            this.texture = this._texture;
             // enable/disable model
             if (this.enabled) {
                 this.attachToScene();
@@ -182,9 +183,10 @@ export class Billboard extends Component {
         this._model!.enabled = true;
         this.width = this._width;
         this.height = this._height;
+        // eslint-disable-next-line no-self-assign
         this.rotation = this.rotation;
-        this.texture = this.texture;
-        this.technique = this.technique;
+        this.texture = this._texture;
+        this.technique = this._techIndex;
     }
 
     public onDisable (): void {
