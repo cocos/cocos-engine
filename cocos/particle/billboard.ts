@@ -51,8 +51,12 @@ export class Billboard extends Component {
 
     set texture (val) {
         this._texture = val;
+        this.updateTexture();
+    }
+
+    private updateTexture (): void {
         if (this._material) {
-            this._material.setProperty('mainTexture', val);
+            this._material.setProperty('mainTexture', this._texture);
         }
     }
 
@@ -69,8 +73,12 @@ export class Billboard extends Component {
 
     set height (val) {
         this._height = val;
+        this.updateHeight();
+    }
+
+    private updateHeight (): void {
         if (this._material) {
-            this._uniform.y = val;
+            this._uniform.y = this._height;
             this._material.setProperty('cc_size_rotation', this._uniform);
         }
     }
@@ -88,8 +96,12 @@ export class Billboard extends Component {
 
     public set width (val) {
         this._width = val;
+        this.updateWidth();
+    }
+
+    private updateWidth (): void {
         if (this._material) {
-            this._uniform.x = val;
+            this._uniform.x = this._width;
             this._material.setProperty('cc_size_rotation', this._uniform);
         }
     }
@@ -107,6 +119,10 @@ export class Billboard extends Component {
 
     public set rotation (val) {
         this._rotation = toRadian(val);
+        this.updateRotation();
+    }
+
+    private updateRotation (): void {
         if (this._material) {
             this._uniform.z = this._rotation;
             this._material.setProperty('cc_size_rotation', this._uniform);
@@ -133,9 +149,12 @@ export class Billboard extends Component {
         }
         // set technique index
         this._techIndex = val;
-
         // recreate model
-        if (this._model && this._mesh && this._material && this._material.technique !== val) {
+        this.updateTechnique();
+    }
+
+    private updateTechnique (): void {
+        if (this._model && this._mesh && this._material && this._material.technique !== this._techIndex) {
             // destroy model
             this.detachFromScene();
             this._model.destroy();
@@ -147,11 +166,10 @@ export class Billboard extends Component {
             // recreate model
             this.createModel();
             // set properties
-            this.width = this._width;
-            this.height = this._height;
-            // eslint-disable-next-line no-self-assign
-            this.rotation = this.rotation;
-            this.texture = this._texture;
+            this.updateWidth();
+            this.updateHeight();
+            this.updateRotation();
+            this.updateTexture();
             // enable/disable model
             if (this.enabled) {
                 this.attachToScene();
@@ -181,12 +199,11 @@ export class Billboard extends Component {
     public onEnable (): void {
         this.attachToScene();
         this._model!.enabled = true;
-        this.width = this._width;
-        this.height = this._height;
-        // eslint-disable-next-line no-self-assign
-        this.rotation = this.rotation;
-        this.texture = this._texture;
-        this.technique = this._techIndex;
+        this.updateWidth();
+        this.updateHeight();
+        this.updateRotation();
+        this.updateTexture();
+        this.updateTechnique();
     }
 
     public onDisable (): void {
