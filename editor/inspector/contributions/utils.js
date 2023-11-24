@@ -60,7 +60,7 @@ function translate(dump, path, dumps, assets, ignoreCollectAssets) {
                             return dump[name].value;
                         }
                     });
-                    // 只要有一个是 readonly 都要标记为 readonly
+                    // When merging dumps, as long as there is a value of readonly is ture, it must be set to true
                     const readonly = dumps.some(dump => {
                         if (dump[name]) {
                             return dump[name].readonly;
