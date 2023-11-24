@@ -95,6 +95,7 @@ rules:
     id-match: off
     no-cond-assign: off
     no-constant-condition: off
+    no-prototype-builtins: off
 
     # constructor-super: error
     # curly: [error, all]
