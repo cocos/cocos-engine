@@ -30,7 +30,6 @@
     #include "../MappingUtils.h"
     #include "../State.h"
     #include "Class.h"
-    #include "MissingSymbols.h"
     #include "Object.h"
     #include "Utils.h"
     #include "base/Log.h"
