@@ -1082,7 +1082,6 @@ export class ScrollView extends ViewGroup {
 
         this._mouseWheelEventElapsedTime = 0;
         this._deltaAmount.add(deltaMove);
-        // this._processDeltaMove(deltaMove);
 
         if (!this._stopMouseWheel) {
             this._handlePressLogic();
@@ -1526,7 +1525,6 @@ export class ScrollView extends ViewGroup {
     protected _handleMoveLogic (touch: Touch): void {
         this._getLocalAxisAlignDelta(this._deltaPos, touch);
         this._deltaAmount.add(this._deltaPos);
-        // this._processDeltaMove(this._deltaPos);
     }
 
     protected _handleReleaseLogic (touch: Touch): void {
@@ -1945,7 +1943,6 @@ export class ScrollView extends ViewGroup {
 
         this._mouseWheelEventElapsedTime = 0;
         this._deltaAmount.add(deltaMove);
-        // this._processDeltaMove(deltaMove);
 
         if (!this._stopMouseWheel) {
             this._handlePressLogic();
