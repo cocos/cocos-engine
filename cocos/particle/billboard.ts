@@ -113,6 +113,54 @@ export class Billboard extends Component {
         }
     }
 
+    @serializable
+    private _techIndex = 0;
+
+    @tooltip('i18n:billboard.technique')
+    public get technique (): number {
+        return this._techIndex;
+    }
+
+    public set technique (val: number) {
+        // clamp technique index
+        val = Math.floor(val);
+        if (val < 0) {
+            val = 0;
+        }
+        const techs = this._material?.effectAsset?.techniques;
+        if (techs && val >= techs.length) {
+            val = techs.length - 1;
+        }
+        // set technique index
+        this._techIndex = val;
+
+        // recreate model
+        if (this._model && this._mesh && this._material && this._material.technique !== val) {
+            // destroy model
+            this.detachFromScene();
+            this._model.destroy();
+            this._model = null;
+            this._material.destroy();
+            this._material = null;
+            this._mesh.destroy();
+            this._mesh = null;
+            // recreate model
+            this.createModel();
+            // set properties
+            this.width = this._width;
+            this.height = this._height;
+            this.rotation = this.rotation;
+            this.texture = this.texture;
+            // enable/disable model
+            if (this.enabled) {
+                this.attachToScene();
+                this._model!.enabled = true;
+            } else {
+                this._model!.enabled = false;
+            }
+        }
+    }
+
     private _model: scene.Model | null = null;
 
     private _mesh: Mesh | null = null;
@@ -136,6 +184,7 @@ export class Billboard extends Component {
         this.height = this._height;
         this.rotation = this.rotation;
         this.texture = this.texture;
+        this.technique = this.technique;
     }
 
     public onDisable (): void {
@@ -184,7 +233,10 @@ export class Billboard extends Component {
         model.node = model.transform = this.node;
         if (this._material == null) {
             this._material = new Material();
-            this._material.copy(builtinResMgr.get<Material>('default-billboard-material'));
+            this._material.copy(
+                builtinResMgr.get<Material>('default-billboard-material'),
+                { technique: this._techIndex },
+            );
         }
         model.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material);
     }

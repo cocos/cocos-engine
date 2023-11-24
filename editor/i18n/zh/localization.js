@@ -334,6 +334,7 @@ module.exports = link(mixin({
         height: 'billboard 高度',
         width: 'billboard 宽度',
         rotation: 'billboard 绕中心点旋转的角度',
+        technique: 'billboard 渲染方式',
     },
     button: {
         click_event: {
