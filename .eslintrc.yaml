@@ -235,7 +235,10 @@ rules:
         objects: always-multiline,
         imports: never,
         exports: never,
-        functions: never
+        functions: never,
+        enums: always-multiline,
+        generics: never,
+        tuples: never,
     }]
     '@stylistic/quote-props': [error, consistent-as-needed]
     '@stylistic/function-paren-newline': off
