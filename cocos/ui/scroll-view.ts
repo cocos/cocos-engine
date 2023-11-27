@@ -27,7 +27,7 @@ import { ccclass, displayOrder, executionOrder, help, menu, range, requireCompon
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
-import { Size, Vec2, Vec3 } from '../core/math';
+import { Size, Vec2, Vec3, approx } from '../core/math';
 import { errorID, logID } from '../core/platform/debug';
 import { Director, director } from '../game/director';
 import { Input, input } from '../input/input';
@@ -53,7 +53,7 @@ const _tempVec2_1 = new Vec2();
 
 const quintEaseOut = (time: number): number => {
     time -= 1;
-    return (time * time * time * time * time + 1);
+    return time * time * time * time * time + 1;
 };
 
 const getTimeInMilliseconds = (): number => {
@@ -1229,7 +1229,7 @@ export class ScrollView extends ViewGroup {
 
     protected _calculateAttenuatedFactor (distance: number): number {
         if (this.brake <= 0) {
-            return (1 - this.brake);
+            return 1 - this.brake;
         }
 
         // attenuate formula from: http://learnopengl.com/#!Lighting/Light-casters
@@ -1243,8 +1243,8 @@ export class ScrollView extends ViewGroup {
             const contentSize = this._content._uiProps.uiTransformComp!.contentSize;
             const scrollViewSize = this.view.contentSize;
 
-            const totalMoveWidth = (contentSize.width - scrollViewSize.width);
-            const totalMoveHeight = (contentSize.height - scrollViewSize.height);
+            const totalMoveWidth = contentSize.width - scrollViewSize.width;
+            const totalMoveHeight = contentSize.height - scrollViewSize.height;
 
             const attenuatedFactorX = this._calculateAttenuatedFactor(totalMoveWidth);
             const attenuatedFactorY = this._calculateAttenuatedFactor(totalMoveHeight);
@@ -1450,7 +1450,7 @@ export class ScrollView extends ViewGroup {
             || event === EventType.SCROLL_TO_BOTTOM as string
             || event === EventType.SCROLL_TO_LEFT as string
             || event === EventType.SCROLL_TO_RIGHT as string) {
-            const flag = (1 << eventMap[event]);
+            const flag = 1 << eventMap[event];
             if (this._scrollEventEmitMask & flag) {
                 return;
             } else {
@@ -1565,8 +1565,8 @@ export class ScrollView extends ViewGroup {
         let outOfBoundary: Vec3;
         if (this.elastic) {
             outOfBoundary = this._getHowMuchOutOfBoundary();
-            realMove.x *= (outOfBoundary.x === 0 ? 1 : 0.5);
-            realMove.y *= (outOfBoundary.y === 0 ? 1 : 0.5);
+            realMove.x *= outOfBoundary.x === 0 ? 1 : 0.5;
+            realMove.y *= outOfBoundary.y === 0 ? 1 : 0.5;
         }
 
         if (!this.elastic) {
@@ -2083,4 +2083,4 @@ export class ScrollView extends ViewGroup {
  * @param {ScrollView} scrollView - The ScrollView component.
  */
 
-cclegacy.ScrollView = ScrollView;
+legacyCC.ScrollView = ScrollView;
