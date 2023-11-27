@@ -144,7 +144,9 @@ rules:
       allowIIFEs: true, # IIFEs are widely used, writing their signature twice is painful
     }]
     '@typescript-eslint/no-unsafe-argument': warn
-
+    '@typescript-eslint/no-unsafe-return': error
+    '@typescript-eslint/no-var-requires': error
+    '@typescript-eslint/ban-types': error
 
     # TODO: this is just too much work
     '@typescript-eslint/explicit-module-boundary-types': off
@@ -279,3 +281,4 @@ rules:
         ignoreJSX: all
     }]
     '@stylistic/space-infix-ops': [error]
+
