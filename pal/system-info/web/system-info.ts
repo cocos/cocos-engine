@@ -184,7 +184,7 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
-        if (this.browserType === BrowserType.SAFARI) {
+        if (this.os === OS.IOS) {
             // if we're on iOS all major browsers will identify as BrowserType.SAFARI but Chrome and Firefox DO NOT have the
             // version in the browser identifier, using "applewebkit" solves this issue for all browsers on iOS
             const result = / applewebkit\/(\d+)/.exec(ua)?.[1];
