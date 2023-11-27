@@ -82,9 +82,9 @@ CCProgram color-grading-8x8-fs %{
     vec2 row = floor(mulB / 8.0 + EPS);
     vec4 row_col = vec4(row, mulB - row * 8.0);
     vec4 lookup = orgColor.ggrr * (63.0 / SIZE) + row_col * (TOTAL / SIZE) + (0.5 / SIZE);
- 
+
     float b1w = bValue - mulB.x;
- 
+
     vec3 sampled1 = texture(colorGradingMap, lookup.zx).rgb;
     vec3 sampled2 = texture(colorGradingMap, lookup.wy).rgb;
 

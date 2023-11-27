@@ -110,23 +110,23 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
 
 
 float FxaaLuma(float3 rgb) {
-    return rgb.y * (0.587/0.299) + rgb.x; } 
+    return rgb.y * (0.587/0.299) + rgb.x; }
 float3 FxaaLerp3(float3 a, float3 b, float amountOfA) {
-    return (FxaaToFloat3(-amountOfA) * b) + 
-        ((a * FxaaToFloat3(amountOfA)) + b); } 
+    return (FxaaToFloat3(-amountOfA) * b) +
+        ((a * FxaaToFloat3(amountOfA)) + b); }
 float3 FxaaFilterReturn(float3 rgb) {
     #if FXAA_SRGB_ROP
         return FxaaSel3(
-            rgb * FxaaToFloat3(1.0/12.92), 
+            rgb * FxaaToFloat3(1.0/12.92),
             FxaaPow3(
-                rgb * FxaaToFloat3(1.0/1.055) + FxaaToFloat3(0.055/1.055), 
+                rgb * FxaaToFloat3(1.0/1.055) + FxaaToFloat3(0.055/1.055),
                 FxaaToFloat3(2.4)),
-            rgb > FxaaToFloat3(0.04045)); 
+            rgb > FxaaToFloat3(0.04045));
     #else
         return rgb;
     #endif
 }
- 
+
 
 float3 FxaaPixelShader(
 float2 pos,
@@ -147,7 +147,7 @@ float2 rcpFrame) {
     float range = rangeMax - rangeMin;
     #if FXAA_DEBUG
         float lumaO = lumaM / (1.0 + (0.587/0.299));
-    #endif        
+    #endif
     if(range < max(FXAA_EDGE_THRESHOLD_MIN, rangeMax * FXAA_EDGE_THRESHOLD)) {
         #if FXAA_DEBUG
             return FxaaFilterReturn(FxaaToFloat3(lumaO));
@@ -155,27 +155,27 @@ float2 rcpFrame) {
         return FxaaFilterReturn(rgbM); }
     #if FXAA_SUBPIX > 0
         #if FXAA_SUBPIX_FASTER
-            float3 rgbL = (rgbN + rgbW + rgbE + rgbS + rgbM) * 
+            float3 rgbL = (rgbN + rgbW + rgbE + rgbS + rgbM) *
                 FxaaToFloat3(1.0/5.0);
         #else
             float3 rgbL = rgbN + rgbW + rgbM + rgbE + rgbS;
         #endif
-    #endif        
-    
+    #endif
+
 
     #if FXAA_SUBPIX != 0
         float lumaL = (lumaN + lumaW + lumaE + lumaS) * 0.25;
         float rangeL = abs(lumaL - lumaM);
-    #endif        
+    #endif
     #if FXAA_SUBPIX == 1
-        float blendL = max(0.0, 
-            (rangeL / range) - FXAA_SUBPIX_TRIM) * FXAA_SUBPIX_TRIM_SCALE; 
+        float blendL = max(0.0,
+            (rangeL / range) - FXAA_SUBPIX_TRIM) * FXAA_SUBPIX_TRIM_SCALE;
         blendL = min(FXAA_SUBPIX_CAP, blendL);
     #endif
     #if FXAA_SUBPIX == 2
-        float blendL = rangeL / range; 
+        float blendL = rangeL / range;
     #endif
- 
+
 
 
     float3 rgbNW = FxaaTexOff(tex, pos.xy, FxaaInt2(-1,-1), rcpFrame).xyz;
@@ -190,11 +190,11 @@ float2 rcpFrame) {
     float lumaNE = FxaaLuma(rgbNE);
     float lumaSW = FxaaLuma(rgbSW);
     float lumaSE = FxaaLuma(rgbSE);
-    float edgeVert = 
+    float edgeVert =
         abs((0.25 * lumaNW) + (-0.5 * lumaN) + (0.25 * lumaNE)) +
         abs((0.50 * lumaW ) + (-1.0 * lumaM) + (0.50 * lumaE )) +
         abs((0.25 * lumaSW) + (-0.5 * lumaS) + (0.25 * lumaSE));
-    float edgeHorz = 
+    float edgeHorz =
         abs((0.25 * lumaNW) + (-0.5 * lumaW) + (0.25 * lumaSW)) +
         abs((0.50 * lumaN ) + (-1.0 * lumaM) + (0.50 * lumaS )) +
         abs((0.25 * lumaNE) + (-0.5 * lumaE) + (0.25 * lumaSE));
@@ -206,9 +206,9 @@ float2 rcpFrame) {
     float gradientS = abs(lumaS - lumaM);
     lumaN = (lumaN + lumaM) * 0.5;
     lumaS = (lumaS + lumaM) * 0.5;
-    
 
- 
+
+
     bool pairN = gradientN >= gradientS;
     if(!pairN) lumaN = lumaS;
     if(!pairN) gradientN = gradientS;
@@ -216,15 +216,15 @@ float2 rcpFrame) {
     float2 posN;
     posN.x = pos.x + (horzSpan ? 0.0 : lengthSign * 0.5);
     posN.y = pos.y + (horzSpan ? lengthSign * 0.5 : 0.0);
-    
+
 
     gradientN *= FXAA_SEARCH_THRESHOLD;
-    
+
 
     float2 posP = posN;
-    float2 offNP = horzSpan ? 
+    float2 offNP = horzSpan ?
         FxaaFloat2(rcpFrame.x, 0.0) :
-        FxaaFloat2(0.0, rcpFrame.y); 
+        FxaaFloat2(0.0, rcpFrame.y);
     float lumaEndN = lumaN;
     float lumaEndP = lumaN;
     bool doneN = false;
@@ -250,14 +250,14 @@ float2 rcpFrame) {
     #endif
     for(int i = 0; i < FXAA_SEARCH_STEPS; i++) {
         #if FXAA_SEARCH_ACCELERATION == 1
-            if(!doneN) lumaEndN = 
+            if(!doneN) lumaEndN =
                 FxaaLuma(FxaaTexLod0(tex, posN.xy).xyz);
-            if(!doneP) lumaEndP = 
+            if(!doneP) lumaEndP =
                 FxaaLuma(FxaaTexLod0(tex, posP.xy).xyz);
         #else
-            if(!doneN) lumaEndN = 
+            if(!doneN) lumaEndN =
                 FxaaLuma(FxaaTexGrad(tex, posN.xy, offNP).xyz);
-            if(!doneP) lumaEndP = 
+            if(!doneP) lumaEndP =
                 FxaaLuma(FxaaTexGrad(tex, posP.xy, offNP).xyz);
         #endif
         doneN = doneN || (abs(lumaEndN - lumaN) >= gradientN);
@@ -265,19 +265,19 @@ float2 rcpFrame) {
         if(doneN && doneP) break;
         if(!doneN) posN -= offNP;
         if(!doneP) posP += offNP; }
-    
+
 
 
     float dstN = horzSpan ? pos.x - posN.x : pos.y - posN.y;
     float dstP = horzSpan ? posP.x - pos.x : posP.y - pos.y;
     bool directionN = dstN < dstP;
     lumaEndN = directionN ? lumaEndN : lumaEndP;
-    
 
 
-    if(((lumaM - lumaN) < 0.0) == ((lumaEndN - lumaN) < 0.0)) 
+
+    if(((lumaM - lumaN) < 0.0) == ((lumaEndN - lumaN) < 0.0))
         lengthSign = 0.0;
- 
+
 
 
     float spanLength = (dstP + dstN);
@@ -287,8 +287,8 @@ float2 rcpFrame) {
         pos.x + (horzSpan ? 0.0 : subPixelOffset),
         pos.y + (horzSpan ? subPixelOffset : 0.0))).xyz;
     #if FXAA_SUBPIX == 0
-        return FxaaFilterReturn(rgbF); 
-    #else        
-        return FxaaFilterReturn(FxaaLerp3(rgbL, rgbF, blendL)); 
+        return FxaaFilterReturn(rgbF);
+    #else
+        return FxaaFilterReturn(FxaaLerp3(rgbL, rgbF, blendL));
     #endif
 }

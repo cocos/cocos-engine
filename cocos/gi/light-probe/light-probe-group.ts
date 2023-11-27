@@ -22,24 +22,12 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass,
-    disallowMultiple,
-    displayName,
-    editable,
-    executeInEditMode,
-    help,
-    menu,
-    range,
-    serializable,
-    tooltip,
-    type,
-    visible,
-} from 'cc.decorator';
+import { ccclass, disallowMultiple, displayName, editable, executeInEditMode, help, menu, range, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { CCInteger } from '@base/object';
+import { Vec3 } from '@base/math';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { Component } from '../../scene-graph/component';
-import { Vec3, CCInteger } from '../../core';
 import { AutoPlacement, PlaceMethod } from './auto-placement';
 
 /**

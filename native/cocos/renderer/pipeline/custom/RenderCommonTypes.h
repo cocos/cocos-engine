@@ -104,6 +104,8 @@ enum class ResourceFlags : uint32_t {
     SHADING_RATE = 0x80,
     TRANSFER_SRC = 0x100,
     TRANSFER_DST = 0x200,
+    VERTEX = 0x400,
+    INDEX = 0x800,
 };
 
 constexpr ResourceFlags operator|(const ResourceFlags lhs, const ResourceFlags rhs) noexcept {
@@ -422,6 +424,7 @@ struct MovePair {
     uint32_t targetMostDetailedMip{0};
     uint32_t targetFirstSlice{0};
     uint32_t targetPlaneSlice{0};
+    gfx::AccessFlagBit possibleUsage{gfx::AccessFlagBit::NONE};
 };
 
 struct PipelineStatistics {

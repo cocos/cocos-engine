@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { EDITOR, TEST } from 'internal:constants';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
 import { patch_cc_RenderTexture } from '../../native-binding/decorators';

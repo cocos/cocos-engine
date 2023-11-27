@@ -22,13 +22,12 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, Platform } from '@pal/system-info';
+import { cclegacy } from '@base/global';
+import { EventTarget } from '@base/event';
+import { clamp01 } from '@base/math';
 import { AudioType, AudioState, AudioEvent, AudioPCMDataView, AudioBufferView, AudioLoadOptions } from '../type';
-import { EventTarget } from '../../../cocos/core/event';
-import { legacyCC } from '../../../cocos/core/global-exports';
-import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { Platform } from '../../system-info/enum-type';
 import { Game, game } from '../../../cocos/game';
 
 const urlCount: Record<string, number> = {};
@@ -125,7 +124,7 @@ export class AudioPlayer implements OperationQueueable {
         loop: false,
         currentTime: 0,
         volume: 1,
-    }
+    };
 
     constructor (url: string) {
         this._url = url;
@@ -340,4 +339,4 @@ export class AudioPlayer implements OperationQueueable {
 }
 
 // REMOVE_ME
-legacyCC.AudioPlayer = AudioPlayer;
+cclegacy.AudioPlayer = AudioPlayer;

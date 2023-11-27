@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3, IVec3Like } from '../../core';
+import { Vec3, IVec3Like } from '@base/math';
 import { BulletWorld } from './bullet-world';
 import { cocos2BulletVec3, bullet2CocosVec3 } from './bullet-utils';
 import { RigidBody, PhysicsSystem } from '../../../exports/physics-framework';

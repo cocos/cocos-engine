@@ -1,4 +1,4 @@
-import { Vec4 } from '../../../core';
+import { Vec4 } from '@base/math';
 import { Format } from '../../../gfx';
 import { Camera } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom/pipeline';
@@ -27,6 +27,11 @@ export class BloomPass extends SettingPass {
     name = 'BloomPass';
     effectName = 'pipeline/post-process/bloom';
     outputNames = ['BloomColor'];
+    private _hdrInputName: string = '';
+
+    set hdrInputName (name: string) {
+        this._hdrInputName = name;
+    }
 
     public render (camera: Camera, ppl: Pipeline): void {
         const cameraID = getCameraUniqueID(camera);
@@ -44,11 +49,14 @@ export class BloomPass extends SettingPass {
         const output = `BLOOM_PREFILTER_COLOR${cameraID}`;
         // prefilter pass
         let shadingScale = 1 / 2;
-        passContext.material.setProperty('texSize', new Vec4(0, 0, setting.threshold, 0), 0);
+        const enableAlphaMask = setting.enableAlphaMask as unknown as number;
+        const useHDRIntensity = setting.useHdrIlluminance as unknown as number;
+        passContext.material.setProperty('texSize', new Vec4(useHDRIntensity, 0, setting.threshold, enableAlphaMask), 0);
         passContext
             .updatePassViewPort(shadingScale)
             .addRenderPass('bloom-prefilter', `bloom-prefilter${cameraID}`)
             .setPassInput(input, 'outputResultMap')
+            .setPassInput(this._hdrInputName, 'hdrInputMap')
             .addRasterView(output, Format.RGBA8)
             .blitScreen(0)
             .version();

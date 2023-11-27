@@ -26,12 +26,16 @@
 #include "platform/openharmony/modules/Screen.h"
 #include "platform/openharmony/napi/NapiHelper.h"
 
+#include "bindings/jswrapper/SeApi.h"
+
 namespace cc {
 
 int Screen::getDPI() const {
-    float value;
-    NapiHelper::napiCallFunction("getDPI", &value);
-    return value;
+    auto dpi = NapiHelper::napiCallFunction("getDPI");
+    if (dpi.IsNumber()) {
+        return dpi.As<Napi::Number>().Int32Value();
+    }
+    return 0;
 }
 
 float Screen::getDevicePixelRatio() const {
@@ -43,15 +47,19 @@ float Screen::getDevicePixelRatio() const {
 }
 
 Screen::Orientation Screen::getDeviceOrientation() const {
+    auto dpi = NapiHelper::napiCallFunction("getDeviceOrientation");
     int32_t value = 0;
-    NapiHelper::napiCallFunction("getDeviceOrientation", &value);
-    if(value == 0) {
+    if (dpi.IsNumber()) {
+        value = dpi.As<Napi::Number>().Int32Value();
+    }
+
+    if (value == 0) {
         return Orientation::PORTRAIT;
-    } else if(value == 1) {
+    } else if (value == 1) {
         return Orientation::LANDSCAPE_LEFT;
-    } else if(value == 2) {
+    } else if (value == 2) {
         return Orientation::PORTRAIT_UPSIDE_DOWN;
-    } else if(value == 3) {
+    } else if (value == 3) {
         return Orientation::LANDSCAPE_RIGHT;
     }
     CC_ASSERT(false);
@@ -69,7 +77,7 @@ Vec4 Screen::getSafeAreaEdge() const {
 bool Screen::isDisplayStats() {
     se::AutoHandleScope hs;
     se::Value ret;
-    char commandBuf[100] = "cc.profiler.isShowingStats();";
+    const char commandBuf[100] = "cc.profiler.isShowingStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
@@ -80,6 +88,5 @@ void Screen::setDisplayStats(bool isShow) {
     sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
-
 
 } // namespace cc

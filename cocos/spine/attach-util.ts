@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Mat4 } from '../core';
+import { Mat4 } from '@base/math';
 import { Skeleton } from './skeleton';
 import { Node } from '../scene-graph';
 import spine from './lib/spine-core';

@@ -21,8 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { screenAdapter } from 'pal/screen-adapter';
-import { Orientation } from '../../../pal/screen-adapter/enum-type';
+import { screenAdapter, Orientation } from '@pal/screen-adapter';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureFlagBit, TextureFlags,

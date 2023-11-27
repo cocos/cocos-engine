@@ -89,7 +89,7 @@ const BUILD_CONFIG = {
 
 process.env.ENGINE_PATH = engineDir;
 
-const buildEngine = require(`${engineDir}/scripts/build-engine/dist/index.js`);
+const buildEngine = require(`${engineDir}/packages/build-engine/lib/index.js`);
 
 buildEngine.build(BUILD_CONFIG.options).then((result) => {
     console.log('done!!!');

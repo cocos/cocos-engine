@@ -23,9 +23,11 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { assertIsTrue } from '@base/debug/internal';
 import { ccclass, help, executionOrder, menu, tooltip, requireComponent, executeInEditMode, serializable } from 'cc.decorator';
+import { Color } from '@base/math';
 import { Component } from '../../scene-graph/component';
-import { Color, cclegacy } from '../../core';
 import { Label } from './label';
 
 /**
@@ -35,15 +37,7 @@ import { Label } from './label';
  * @zh
  * 描边效果组件,用于字体描边,只能用于系统字体。
  *
- * @example
- * ```ts
- * import { Node, Label, LabelOutline } from 'cc';
- * // Create a new node and add label components.
- * const node = new Node("New Label");
- * const label = node.addComponent(Label);
- * const outline = node.addComponent(LabelOutline);
- * node.parent = this.node;
- * ```
+ * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
  */
 @ccclass('cc.LabelOutline')
 @help('i18n:cc.LabelOutline')
@@ -52,11 +46,6 @@ import { Label } from './label';
 @requireComponent(Label)
 @executeInEditMode
 export class LabelOutline extends Component {
-    @serializable
-    protected _color = new Color(0, 0, 0, 255);
-    @serializable
-    protected _width = 2;
-
     /**
      * @en
      * Outline color.
@@ -64,25 +53,19 @@ export class LabelOutline extends Component {
      * @zh
      * 改变描边的颜色。
      *
-     * @example
-     * ```ts
-     * import { Color } from 'cc';
-     * outline.color = new Color(0.5, 0.3, 0.7, 1.0);
-     * ```
+     * @deprecated since v3.8.2, please use [[Label.outlineColor]] instead.
      */
     @tooltip('i18n:labelOutline.color')
-    // @constget
     get color (): Readonly<Color> {
-        return this._color;
+        const label = this.node.getComponent(Label);
+        assertIsTrue(label);
+        return label.outlineColor;
     }
 
     set color (value) {
-        if (this._color === value) {
-            return;
-        }
-
-        this._color.set(value);
-        this._updateRenderData();
+        const label = this.node.getComponent(Label);
+        assertIsTrue(label);
+        label.outlineColor = value;
     }
 
     /**
@@ -92,38 +75,37 @@ export class LabelOutline extends Component {
      * @zh
      * 改变描边的宽度。
      *
-     * @example
-     * ```ts
-     * outline.width = 3;
-     * ```
+     * @deprecated since v3.8.2, please use [[Label.outlineWidth]] instead.
      */
     @tooltip('i18n:labelOutline.width')
     get width (): number {
-        return this._width;
+        const label = this.node.getComponent(Label);
+        assertIsTrue(label);
+        return label.outlineWidth;
     }
 
     set width (value) {
-        if (this._width === value) {
-            return;
-        }
-
-        this._width = value;
-        this._updateRenderData();
-    }
-
-    public onEnable (): void {
-        this._updateRenderData();
-    }
-
-    public onDisable (): void {
-        this._updateRenderData();
-    }
-
-    protected _updateRenderData (): void {
         const label = this.node.getComponent(Label);
-        if (label) {
-            label.updateRenderData(true);
-        }
+        assertIsTrue(label);
+        label.outlineWidth = value;
+    }
+
+    /**
+     * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
+     */
+    public onEnable (): void {
+        const label = this.node.getComponent(Label);
+        assertIsTrue(label);
+        label.enableOutline = true;
+    }
+
+    /**
+     * @deprecated since v3.8.2, please use [[Label.enableOutline]] instead.
+     */
+    public onDisable (): void {
+        const label = this.node.getComponent(Label);
+        assertIsTrue(label);
+        label.enableOutline = false;
     }
 }
 

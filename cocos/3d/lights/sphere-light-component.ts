@@ -23,11 +23,11 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs,
-    editable, slide, rangeMin, range } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, formerlySerializedAs, editable, slide, rangeMin, range } from 'cc.decorator';
+import { cclegacy } from '@base/global';
+import { CCFloat, CCInteger } from '@base/object';
 import { scene } from '../../render-scene';
 import { Light, PhotometricTerm } from './light-component';
-import { CCFloat, CCInteger, cclegacy } from '../../core';
 import { Camera } from '../../render-scene/scene';
 import { Root } from '../../root';
 

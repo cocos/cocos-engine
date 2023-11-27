@@ -23,7 +23,7 @@
 */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
-import { CCString, ccenum } from '../core';
+import { CCString, ccenum } from '@base/object';
 import { AccessFlagBit, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } from '../gfx';
 import { RenderTexture } from '../asset/assets/render-texture';
 import { Material } from '../asset/assets/material';

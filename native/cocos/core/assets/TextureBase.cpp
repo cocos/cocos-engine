@@ -107,8 +107,8 @@ void TextureBase::setAnisotropy(uint32_t anisotropy) {
 
 bool TextureBase::destroy() {
     const bool destroyed = Super::destroy();
-    //cjh TODO:    if (destroyed && legacyCC.director.root?.batcher2D) {
-    //        legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
+    //cjh TODO:    if (destroyed && cclegacy.director.root?.batcher2D) {
+    //        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this._textureHash);
     //    }
     return destroyed;
 }

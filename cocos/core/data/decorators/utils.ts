@@ -23,10 +23,12 @@
 */
 
 import { DEV } from 'internal:constants';
-import { CCClass } from '../class';
-import { error } from '../../platform/debug';
-import { getClassName } from '../../utils/js-typed';
-import type { ClassStash } from '../class-stash';
+import { error } from '@base/debug';
+import { js } from '@base/utils';
+import { CCClass } from '@base/object';
+import type { ClassStash } from '@base/object';
+
+const { getClassName } = js;
 
 export type Initializer = () => unknown;
 

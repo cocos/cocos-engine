@@ -28,7 +28,7 @@ exports.template = /* html */`
                 </div>
                 <div class="time flex toolbar f1">
                     <ui-label value="Frame"></ui-label>
-                    <ui-num-input id="currentTime"></ui-num-input>
+                    <ui-num-input id="currentTime" step="1" preci="0"></ui-num-input>
                     <div class="duration"></div>
                 </div>
             </div>
@@ -310,7 +310,10 @@ const Elements = {
             const panel = this;
 
             function observer() {
-                panel.isPreviewDataDirty = true;
+                window.requestAnimationFrame(() => {
+                    panel.isPreviewDataDirty = true;
+                    panel.updateEventInfo();
+                });
             }
 
             panel.resizeObserver = new window.ResizeObserver(observer);

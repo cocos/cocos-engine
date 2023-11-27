@@ -25,11 +25,11 @@
  THE SOFTWARE.
 */
 
-import { errorID, logID } from '../../core/platform/debug';
+import { errorID, logID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { isCCObject } from '@base/object';
 import { Action } from './action';
 import { Node } from '../../scene-graph';
-import { legacyCC } from '../../core/global-exports';
-import { isCCObject } from '../../core/data/object';
 import type { ActionInterval } from './action-interval';
 
 let ID_COUNTER = 0;
@@ -408,7 +408,7 @@ export class ActionManager {
      * @method purgeSharedManager
      */
     purgeSharedManager (): void {
-        legacyCC.director.getScheduler().unscheduleUpdate(this);
+        cclegacy.director.getScheduler().unscheduleUpdate(this);
     }
 
     // protected

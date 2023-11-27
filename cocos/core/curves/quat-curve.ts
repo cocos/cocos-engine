@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { assertIsTrue } from '../data/utils/asserts';
-import { IQuatLike, pingPong, Quat, repeat } from '../math';
+import { assertIsTrue } from '@base/debug/internal';
+import { IQuatLike, pingPong, Quat, repeat } from '@base/math';
 import { KeyframeCurve } from './keyframe-curve';
 import { EasingMethod, ExtrapolationMode } from './curve';
 import { binarySearchEpsilon } from '../algorithm/binary-search';

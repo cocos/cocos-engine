@@ -14,6 +14,33 @@ module.exports = {
         reset: '重置',
         save: '保存',
         locate_asset: '资源面板上定位该资源',
+        newFolder: '文件夹',
+        newJavaScript: '脚本 (JavaScript)',
+        newTypeScript: '脚本 (TypeScript)',
+        newCubeMap: '立方体贴图',
+        newScene: '场景',
+        newPrefab: '预制 (Prefab)',
+        newRenderTexture: '渲染纹理 (Render Texture)',
+        newMaterial: '材质',
+        newPhysicsMaterial: '物理材质',
+        newEffect: '传统无光照着色器 (Effect)',
+        newSurfaceEffect: '表面着色器 (Effect)',
+        newChunk: '着色器片段 (Chunk)',
+        newAnimation: '动画剪辑 (Animation Clip)',
+        newAnimationGraph: '动画图 (Animation Graph)',
+        newAnimationGraphVariant: '动画图变体 (Animation Graph Variant)',
+        newAnimationMask: '动画遮罩 (Animation Mask)',
+        newAnimationGraphTS: '动画状态组件 (Animation Graph Script)',
+        renderPipeline: '渲染管线',
+        renderPipelineAsset: '渲染管线资源',
+        forwardPipelineAsset: '前向渲染管线',
+        renderPipelineTS: 'Render Pipeline Script',
+        RenderFlowTS: 'Render Flow Script',
+        RenderStageTS: 'Render Stage Script',
+        newPac: '自动图集配置',
+        newLabelAtlas: '艺术字配置',
+        newTerrain: '地形',
+        autoGenerateMaterial: '自动生成材质',
         'label-atlas': {
             SpriteFrameTip: 'Sprite Frame',
             ItemWidthTip: 'Item Width',
@@ -93,7 +120,7 @@ module.exports = {
             propertyTips: {
                 // macros
                 USE_DITHERED_ALPHA_TEST: '使用抖动透贴的方式来实现半透明效果，最好同时开启 TAA',
-                USE_TWOSIDE: '双面材质，通常用于单面物体，正面和背面的法线相反。还需将 Cull Mode 设为 None',
+                USE_TWOSIDE: '双面材质，仅影响光照，通常用于单面物体，正面和背面的法线会自动取反。还需将 Cull Mode 设为 None',
                 IS_ANISOTROPY: '各向异性材质，通常用于头发、光碟、拉丝金属等',
                 USE_VERTEX_COLOR: '使用顶点色，如果模型本身没有顶点色可能会发黑',
                 FIX_ANISOTROPIC_ROTATION_MAP: '修复各向异性旋转图黑白相接处的异常接缝，遇到此问题再开启',
@@ -119,6 +146,7 @@ module.exports = {
             },
         },
         image: {
+            label: '图像资源',
             type: '类型',
             typeTip: '类型',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
@@ -133,6 +161,7 @@ module.exports = {
             flipGreenChannel: '翻转绿色通道',
         },
         spriteFrame: {
+            label: '精灵帧资源（SpriteFrame）',
             packable: 'Packable',
             packableTip: '是否参与动态合图或者自动图集的构建处理',
             rotated: 'Rotated',
@@ -325,84 +354,65 @@ module.exports = {
                 name: '填充顶点色',
                 title: '如果模型没有顶点颜色属性，添加颜色属性，填充为白色。',
             },
-            meshOptimizer: {
-                name: 'Mesh 优化',
-                title: 'Mesh 优化可以被用来简化导入的模型，可以在需要模型减面时使用。<br>在一些少数情况下减面后的模型可能会出现显示异常，如发生这种情况请尝试调整参数并重试。',
-                simplification: {
-                    name: 'Simplification',
-                    title: 'Simplification',
-                    si: {
-                        name: 'Achieve The Ratio R',
-                        title: 'Achieve The Ratio R',
-                    },
-                    sa: {
-                        name: 'Aggressively Simplify',
-                        title: 'Aggressively Simplify',
-                    },
+            meshOptimize: {
+                name: '网格优化',
+                title: '是否优化网格数据。',
+                vertexCache: {
+                    name: '顶点缓存',
+                    title: '优化顶点缓冲区以提高顶点缓存命中率。<br>建议对顶点数较高的模型启用此选项。',
                 },
-                scene: {
-                    name: 'Scene',
-                    title: 'Scene',
-                    kn: {
-                        name: 'Keep Nodes Transform',
-                        title: 'Keep Nodes Transform',
-                    },
-                    ke: {
-                        name: 'Keep Extras Data',
-                        title: 'Keep Extras Data',
-                    },
+                vertexFetch: {
+                    name: '顶点提取',
+                    title: '优化顶点缓冲区以提高顶点提取效率。<br>建议对顶点数较高的模型启用此选项。',
                 },
-                miscellaneous: {
-                    name: 'Miscellaneous',
-                    title: 'Miscellaneous',
-                    noq: {
-                        name: 'Disable Quantization',
-                        title: 'Disable Quantization',
-                    },
-                    v: {
-                        name: 'Verbose Output',
-                        title: 'Verbose Output',
-                    },
+                overdraw: {
+                    name: '过度绘制',
+                    title: '优化顶点缓冲区以减少过度绘制。<br>建议对顶点数较高的模型启用此选项。',
                 },
-                algorithm: {
-                    name: '减面算法',
-                    simplify: 'simplify',
-                    gltfpack: 'gltfpack (已废弃)',
+            },
+            meshSimplify: {
+                name: '网格简化',
+                title: '是否简化网格数据。',
+                targetRatio: {
+                    name: '目标比率',
+                    title: '简化网格数据的目标顶点数的比例。<br>建议将此值设置为 0.5。',
                 },
-                simplify: {
-                    targetRatio: {
-                        name: 'LOD 压缩比例',
-                        title: '减面之后的目标面数比例，0 代表减面至最少，1 代表没有减面的原模型。',
-                    },
-                    preserveSurfaceCurvature: {
-                        name: '保留表面曲率',
-                        title: 'Preserve Surface Curvature',
-                    },
-                    preserveBorderEdges: {
-                        name: '保留边界边',
-                        title: 'Preserve Border Edges',
-                    },
-                    preserveUVSeamEdges: {
-                        name: '保留 UV 缝合边',
-                        title: 'Preserve UV Seam Edges',
-                    },
-                    preserveUVFoldoverEdges: {
-                        name: '保留 UV 折叠边',
-                        title: 'Preserve UV Foldover Edges',
-                    },
-                    agressiveness: {
-                        name: '误差距离',
-                        title: '模型减面算法的激进程度。<br>当设置数值越高时，算法的减面策略会越激进，但是过于激进的策略更有可能导致结果错误。',
-                    },
-                    maxIterationCount: {
-                        name: '计算迭代次数',
-                        title: '最大重复计数代表减面算法运行的重复次数。<br>高数值可以使算法运行结果更接近目标，但也会增加运行时间和结果错误的概率。',
-                    },
+                autoErrorRate: {
+                    name: '自动误差率',
+                    title: '是否自动计算简化网格数据的误差率。',
                 },
-                gltfpack: {
-                    warn: '当前资源使用的减面算法 gltfpack 已被废弃，请选用新的 simplify 减面算法。',
+                errorRate: {
+                    name: '误差率',
+                    title: '简化网格数据的最大误差率。<br>此值还会影响结果大小。<br>建议调整直到获得良好的结果。',
                 },
-                warn: '警告：优化后，网格资源的数量和名称会发生改变，这将会造成组件引用的资源丢失，请及时手动更新；（另外，对于模型资源中预生成的预制体，资源同步机制会自动更新）',
+                lockBoundary: {
+                    name: '锁定边界',
+                    title: '是否锁定简化网格数据的边界。',
+                },
+            },
+            meshCluster: {
+                name: '网格切块',
+                title: '是否分割网格数据。',
+                generateBounding: {
+                    name: '生成包围体',
+                    title: '是否为聚类的网格数据生成包围球和法线锥。',
+                },
+            },
+            meshCompress:{
+                name: '网格压缩',
+                title: '是否压缩网格数据。',
+                encode: {
+                    name: '编码',
+                    title: '对网格数据进行编码以减少数据大小。',
+                },
+                compress: {
+                    name: '压缩',
+                    title: '对网格数据进行压缩以减少数据大小。',
+                },
+                quantize: {
+                    name: '量化',
+                    title: '对网格数据进行量化以减少数据大小。',
+                },
             },
             animationBakeRate: {
                 name: '动画烘焙速率',
@@ -420,6 +430,10 @@ module.exports = {
             preferLocalTimeSpan: {
                 name: '优先使用文件时间范围',
                 title: '在导出 FBX 动画时，是否优先使用 FBX 文件中记录的动画时间范围。<br>若不使用该时间范围或此范围不可能用，则会粗略地计算动画时间范围。有些 FBX 生产工具中可能并未导出该信息。',
+            },
+            preserveMeshInstances: {
+                name: '保留网格实例',
+                title: 'FBX 模型中，若网格被多个节点引用（亦称网格实例化），是否仅创建一份网格资产。<br>若否，每处引用都将创建一份网格资产副本。<br>此选项默认勾选，但那些从 v3.9.0 之前的版本迁移上来的模型会自动不勾选，因为之前版本总是不保留网格实例的。<br>此选项在此处仅可读取，若要进行修改，见文档手册。',
             },
             smartMaterialEnabled: {
                 name: '材质智能转换',

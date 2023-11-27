@@ -22,10 +22,12 @@
  THE SOFTWARE.
 */
 
+import { warnID } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { Color, Quat, Size, Vec2, Vec3, Vec4 } from '@base/math';
 import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
-import { easing, QuatCurve, QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode,
-    warnID, Color, Quat, Size, Vec2, Vec3, Vec4, assertIsTrue, EasingMethod, BezierControlPoints, CompactValueTypeArray } from '../core';
+import { easing, QuatCurve, QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode, EasingMethod, BezierControlPoints, CompactValueTypeArray } from '../core';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';

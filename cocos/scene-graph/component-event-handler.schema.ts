@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CCClass } from '../core/data';
+import { CCClass } from '@base/object';
 import { Node } from './node';
 import { EventHandler } from './component-event-handler';
 

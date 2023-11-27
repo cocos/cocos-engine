@@ -25,9 +25,9 @@
 
 import { ccclass, requireComponent, displayOrder, type, readOnly, serializable, tooltip } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { Eventify } from '@base/event';
 import { Component } from '../../../../scene-graph';
 import { RigidBody } from '../rigid-body';
-import { Eventify } from '../../../../core';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
 import { selector, createConstraint } from '../../physics-selector';
 import { EConstraintType } from '../../physics-enum';

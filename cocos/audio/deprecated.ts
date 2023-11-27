@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { replaceProperty, markAsWarning } from '@base/utils';
 import { AudioSource } from './audio-source';
-import { replaceProperty, markAsWarning } from '../core';
 import { AudioClip } from './audio-clip';
 
 // remove AudioClip static property

@@ -1,9 +1,10 @@
-import { Color, js, lerp, Quat, Rect, Size, Vec2, Vec3, Vec4 } from '../../cocos/core';
+import { ccclass } from 'cc.decorator';
+import { js } from '@base/utils';
+import { Color, lerp, Quat, Rect, Size, Vec2, Vec3, Vec4 } from '@base/math';
 import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/animation';
 import { AnimationController, ColorTrack, ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, SizeTrack, Track, VectorTrack } from '../../cocos/animation/animation';
-import { ccclass } from 'cc.decorator';
 import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
-import { Node,Component } from '../../cocos/scene-graph';
+import { Node, Component } from '../../cocos/scene-graph';
 import { LegacyBlendStateBuffer } from '../../cocos/3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationGraph } from '../../cocos/animation/marionette/animation-graph';
 import { ClipMotion } from '../../cocos/animation/marionette/motion';

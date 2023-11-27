@@ -23,14 +23,14 @@
 */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
-import { CCObject } from '../core/data/object';
-import * as js from '../core/utils/js';
-import { legacyCC } from '../core/global-exports';
-import { error, errorID, getError, warn } from '../core/platform/debug';
+import { cclegacy } from '@base/global';
+import { error, errorID, getError, warn } from '@base/debug';
+import { js } from '@base/utils';
+import { CCObject } from '@base/object';
 import { Component } from './component';
 
 const Destroying = CCObject.Flags.Destroying;
-const IS_PREVIEW = !!legacyCC.GAME_VIEW;
+const IS_PREVIEW = !!cclegacy.GAME_VIEW;
 
 export function nodePolyfill (Node): void {
     if ((EDITOR && !IS_PREVIEW) || TEST) {
@@ -66,7 +66,7 @@ export function nodePolyfill (Node): void {
             const dependant: Component[] = [];
             for (let i = 0; i < this._components.length; i++) {
                 const comp = this._components[i];
-                if (comp !== depended && comp.isValid && !legacyCC.Object._willDestroy(comp)) {
+                if (comp !== depended && comp.isValid && !cclegacy.Object._willDestroy(comp)) {
                     const reqComps = comp.constructor._requireComponent;
                     if (reqComps) {
                         if (Array.isArray(reqComps)) {
@@ -93,7 +93,7 @@ export function nodePolyfill (Node): void {
             if (this._objFlags & Destroying) {
                 return error('isDestroying');
             }
-            if (!(comp instanceof legacyCC.Component)) {
+            if (!(comp instanceof cclegacy.Component)) {
                 return errorID(3811);
             }
             if (index > this._components.length) {
@@ -131,7 +131,7 @@ export function nodePolyfill (Node): void {
                 }
             }
             if (this._activeInHierarchy) {
-                legacyCC.director._nodeActivator.activateComp(comp);
+                cclegacy.director._nodeActivator.activateComp(comp);
             }
             return undefined;
         };
@@ -140,7 +140,7 @@ export function nodePolyfill (Node): void {
             // check activity state
             const shouldActiveNow = this._active && !!(this._parent && this._parent._activeInHierarchy);
             if (this._activeInHierarchy !== shouldActiveNow) {
-                legacyCC.director._nodeActivator.activateNode(this, shouldActiveNow);
+                cclegacy.director._nodeActivator.activateNode(this, shouldActiveNow);
             }
         };
         Node.prototype._onRestoreBase = Node.prototype.onRestore;
@@ -190,7 +190,7 @@ export function nodePolyfill (Node): void {
             let path = '';
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             let node: any = this;
-            while (node && !(node instanceof legacyCC.Scene)) {
+            while (node && !(node instanceof cclegacy.Scene)) {
                 if (path) {
                     path = `${node.name}/${path}`;
                 } else {

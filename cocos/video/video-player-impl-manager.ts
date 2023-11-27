@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 import { VideoPlayer } from './video-player';
 import { VideoPlayerImplWeb } from './video-player-impl-web';
 
@@ -33,4 +33,4 @@ export class VideoPlayerImplManager {
     }
 }
 
-legacyCC.internal.VideoPlayerImplManager = VideoPlayerImplManager;
+cclegacy.internal.VideoPlayerImplManager = VideoPlayerImplManager;

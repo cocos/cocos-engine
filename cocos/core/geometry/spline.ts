@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { assertIsTrue } from '../data/utils/asserts';
-import { clamp, Vec3 } from '../math';
-import { warnID } from '../platform/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { warnID } from '@base/debug';
+import { clamp, Vec3 } from '@base/math';
 import enums from './enums';
 
 export enum SplineMode {

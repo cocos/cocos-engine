@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-import { CCClass } from '../data';
-import { Enum } from '../value-types';
-import { Color, lerp, repeat, EPSILON, approx, random } from '../math';
+import { CCClass, Enum } from '@base/object';
+import { Color, lerp, repeat, EPSILON, approx, random } from '@base/math';
 
 const Mode = Enum({
     Blend: 0,

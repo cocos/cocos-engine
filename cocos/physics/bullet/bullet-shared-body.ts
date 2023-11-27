@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { js } from '@base/utils';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { Node } from '../../scene-graph';
 import { BulletWorld } from './bullet-world';
@@ -33,7 +34,6 @@ import { IBulletBodyStruct, IBulletGhostStruct } from './bullet-interface';
 import { CC_V3_0, CC_QUAT_0, BulletCache } from './bullet-cache';
 import { PhysicsSystem } from '../framework';
 import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
-import { js } from '../../core';
 import { bt, EBulletType } from './instantiated';
 import { BulletConstraint } from './constraints/bullet-constraint';
 

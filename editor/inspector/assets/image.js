@@ -3,6 +3,23 @@
 const { join } = require('path');
 const { updateElementReadonly, updateElementInvalid } = require('../utils/assets');
 const { injectionStyle } = require('../utils/prop');
+const { ModeMap } = require('./texture/texture');
+
+const imageTypeToImporter = {
+    raw: '',
+    texture: 'texture',
+    'normal map': 'texture',
+    'sprite-frame': 'sprite-frame',
+    'texture cube': 'erp-texture-cube',
+};
+
+const imageTypeToName = {
+    raw: '',
+    texture: 'texture',
+    'normal map': 'normalMap',
+    'sprite-frame': 'spriteFrame',
+    'texture cube': 'textureCube',
+};
 
 exports.template = /* html */`
 <div class="asset-image">
@@ -59,10 +76,12 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.typeSelect.addEventListener('change', (event) => {
+            panel.$.typeSelect.addEventListener('change', async (event) => {
                 panel.metaList.forEach((meta) => {
                     meta.userData.type = event.target.value;
                 });
+
+                await panel.changeSubMetaWithType();
 
                 // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.call(panel);
@@ -203,10 +222,6 @@ const Elements = {
 };
 
 exports.methods = {
-    apply() {
-        // if the image type changes between sprite-frame
-        this.spriteFrameChange = this.checkSpriteFrameChange(this.originImageType, this.meta.userData.type);
-    },
     updatePanel() {
         this.setPanel(this.$.panelSection, this.meta.userData.type);
 
@@ -221,14 +236,6 @@ exports.methods = {
     setPanel($section, type) {
         const assetList = [];
         const metaList = [];
-
-        const imageTypeToImporter = {
-            raw: '',
-            texture: 'texture',
-            'normal map': 'texture',
-            'sprite-frame': 'sprite-frame',
-            'texture cube': 'erp-texture-cube',
-        };
 
         const imageImporter = imageTypeToImporter[type];
 
@@ -279,70 +286,78 @@ exports.methods = {
 
         const asset = assetList[0];
         const $label = $section.querySelector('ui-label');
-        $label.setAttribute('value', type);
+        $label.setAttribute('value', asset.name);
         const $panel = $section.querySelector('ui-panel');
         $panel.setAttribute('src', join(__dirname, `./${asset.importer}.js`));
         $panel.injectionStyle(injectionStyle);
         $panel.update(assetList, metaList, this.assetList);
     },
 
-    checkSpriteFrameChange(srcType, destType) {
-        const changeTypes = ['texture', 'normal map', 'texture cube'];
-        // imageAsset type changed contains spriteFrame
-        let spriteFrameChange = '';
-        if (srcType === 'sprite-frame' && changeTypes.includes(destType)) {
-            spriteFrameChange = 'spriteFrameToOthers';
-        } else if (destType === 'sprite-frame' && changeTypes.includes(srcType)) {
-            spriteFrameChange = 'othersToSpriteFrame';
+    changeMipFilter(targetSubMetaKey) {
+        if (this.originImageType === 'sprite-frame') {
+            // spriteFrame -> any 
+            this.metaList.forEach(async (meta) => {
+                if (!meta.subMetas[targetSubMetaKey]) {
+                    meta.subMetas[targetSubMetaKey] = {
+                        userData: {},
+                    }
+                }
+                // hack only record the configuration of the type that has been updated, not the accurate configuration of the child resources after import.
+                // If targetSubMeta does not have mipfilter or miupfilter is none, set mipfilter to nearest
+                const preMipfilter = await Editor.Profile.getConfig('inspector', `${meta.uuid}@${targetSubMetaKey}.texture.mipfilter`, 'default');
+                if (!preMipfilter || preMipfilter === 'none') {
+                    meta.subMetas[targetSubMetaKey].userData.mipfilter = 'nearest';
+                }
+            });
+        } else if (this.meta.userData.type === 'sprite-frame') {
+            // any -> sprite，disabled mipmaps
+            this.metaList.forEach((meta) => {
+                if (!meta.subMetas[targetSubMetaKey]) {
+                    meta.subMetas[targetSubMetaKey] = {
+                        userData: {},
+                    }
+                }
+                meta.subMetas[targetSubMetaKey].userData.mipfilter = 'none';
+            });
         }
-        return spriteFrameChange;
     },
 
-    handleTypeChange(spriteFrameChange, type) {
-        if (!spriteFrameChange || !type) {
-            return;
+    async changeSubMetaWithType() {
+        // any -> texture : texture.wrapMode -> Repeat
+        // any -> sprite : texture.wrapMode -> Clamp
+        if (['sprite-frame', 'texture'].includes(this.meta.userData.type)) {
+            const textureKey = Editor.Utils.UUID.nameToSubId('texture');
+            // use default wrapMode if not changed
+            const wrapModeName = this.meta.userData.type === 'texture' ? 'Repeat' : 'Clamp';
+            this.metaList.forEach(async (meta) => {
+                const data = ModeMap.wrap[wrapModeName];
+                if (!meta.subMetas[textureKey]) {
+                    meta.subMetas[textureKey] = {
+                        userData: {},
+                    };
+                }
+                let wrapModeCache = await Editor.Profile.getConfig('inspector', `${meta.uuid}@${textureKey}.texture.wrapMode`, 'default');
+                if (!wrapModeCache) {
+                    for (const key of Object.keys(data)) {
+                        meta.subMetas[textureKey].userData[key] = data[key];
+                    }
+                }
+            });
         }
-
-        const imageTypeToImporter = {
-            raw: '',
-            texture: 'texture',
-            'normal map': 'texture',
-            'sprite-frame': 'sprite-frame',
-            'texture cube': 'erp-texture-cube',
-        };
-        // change mipFilter
-        const imageImporter = imageTypeToImporter[type];
-        this.metaList.forEach((meta) => {
-            let mipChanged = false;
-            if (!meta) {
+        if (this.originImageType === 'sprite-frame' || this.meta.userData.type === 'sprite-frame') {
+            const changeTypes = ['texture', 'normal map', 'texture cube', 'sprite-frame'];
+            if (!changeTypes.includes(this.meta.userData.type)) {
                 return;
             }
-            for (const subUuid in meta.subMetas) {
-                const subMeta = meta.subMetas[subUuid];
-                if (!subMeta || subMeta.importer === '*') {
-                    continue;
-                }
-                if (subMeta.importer === imageImporter) {
-                    if (spriteFrameChange === 'othersToSpriteFrame' && imageImporter === 'texture' && subMeta.userData.mipfilter !== 'none') {
-                        // imageAsset type change to spriteFrame，disabled mipmaps
-                        subMeta.userData.mipfilter = 'none';
-                        mipChanged = true;
-                    } else if (spriteFrameChange === 'spriteFrameToOthers' && subMeta.userData.mipfilter === 'none') {
-                        // imageAsset type change to other type from spriteFrame
-                        subMeta.userData.mipfilter = 'nearest';
-                        mipChanged = true;
-                    }
-                    break;
-                }
+            let targetName = imageTypeToName[this.meta.userData.type];
+            if (targetName === 'spriteFrame') {
+                // change texture asset when import as sprite
+                targetName = 'texture';
             }
-
-            // sync meta
-            if (mipChanged) {
-                const content = JSON.stringify(meta);
-                Editor.Message.request('asset-db', 'save-asset-meta', meta.uuid, content);
-            }
-        });
-    },
+            const targetSubMetaKey = Editor.Utils.UUID.nameToSubId(targetName);
+            targetSubMetaKey && this.changeMipFilter(targetSubMetaKey);
+        }
+    }
 };
 
 exports.ready = function() {
@@ -373,17 +388,7 @@ exports.update = function(assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
-
-    if (this.spriteFrameChange && this.originMetaList && !this.asset.readonly) {
-        this.handleTypeChange(this.spriteFrameChange, this.meta.userData.type);
-        // same as panel handle
-        if (this.meta.userData.type === 'sprite-frame') {
-            this.handleTypeChange(this.spriteFrameChange, 'texture');
-        }
-    }
     this.originImageType = this.meta.userData.type;
-    // change originMetaList
-    this.originMetaList = JSON.parse(JSON.stringify(this.metaList));
 
     for (const prop in Elements) {
         const element = Elements[prop];

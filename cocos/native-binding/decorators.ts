@@ -31,22 +31,21 @@ export function patch_BloomStage(ctx: BloomStage_Context_Args, apply = defaultEx
 //---- class cc_AmbientInfo
 interface cc_AmbientInfo_Context_Args {
    AmbientInfo: any;
-   legacyCC: any;
+   cclegacy: any;
    CCFloat: any;
    Vec4: any;
    Ambient: any;
 }
 export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = defaultExec) {
-  const { AmbientInfo, legacyCC, CCFloat, Vec4, Ambient } = { ...ctx };
+  const { AmbientInfo, cclegacy, CCFloat, Vec4, Ambient } = { ...ctx };
   const skyLightingColorDescriptor = Object.getOwnPropertyDescriptor(AmbientInfo.prototype, 'skyLightingColor');
   const skyIllumDescriptor = Object.getOwnPropertyDescriptor(AmbientInfo.prototype, 'skyIllum');
   const groundLightingColorDescriptor = Object.getOwnPropertyDescriptor(AmbientInfo.prototype, 'groundLightingColor');
   apply(() => { $.tooltip('i18n:ambient.skyLightingColor')(AmbientInfo.prototype, 'skyLightingColor',  skyLightingColorDescriptor); }, 'tooltip', 'skyLightingColor');
   apply(() => { $.editable(AmbientInfo.prototype, 'skyLightingColor',  skyLightingColorDescriptor); }, 'editable', 'skyLightingColor');
   apply(() => { $.visible(() => {
-  const scene = legacyCC.director.getScene();
+  const scene = cclegacy.director.getScene();
   const skybox = scene.globals.skybox;
-
   if (skybox.useIBL && skybox.applyDiffuseMap) {
     return false;
   } else {
@@ -60,9 +59,8 @@ export function patch_cc_AmbientInfo(ctx: cc_AmbientInfo_Context_Args, apply = d
   apply(() => { $.tooltip('i18n:ambient.groundLightingColor')(AmbientInfo.prototype, 'groundLightingColor',  groundLightingColorDescriptor); }, 'tooltip', 'groundLightingColor');
   apply(() => { $.editable(AmbientInfo.prototype, 'groundLightingColor',  groundLightingColorDescriptor); }, 'editable', 'groundLightingColor');
   apply(() => { $.visible(() => {
-  const scene = legacyCC.director.getScene();
+  const scene = cclegacy.director.getScene();
   const skybox = scene.globals.skybox;
-
   if (skybox.useIBL && skybox.applyDiffuseMap) {
     return false;
   } else {
@@ -515,7 +513,6 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   const giSamplesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'giSamples');
   const bouncesDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'bounces');
   const reduceRingingDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'reduceRinging');
-  const showProbeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showProbe');
   const showWireframeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showWireframe');
   const showConvexDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'showConvex');
   const lightProbeSphereVolumeDescriptor = Object.getOwnPropertyDescriptor(LightProbeInfo.prototype, 'lightProbeSphereVolume');
@@ -538,8 +535,6 @@ export function patch_cc_LightProbeInfo(ctx: cc_LightProbeInfo_Context_Args, app
   apply(() => { $.slide(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'slide', 'reduceRinging');
   apply(() => { $.range([0.0, 0.05, 0.001])(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'range', 'reduceRinging');
   apply(() => { $.editable(LightProbeInfo.prototype, 'reduceRinging',  reduceRingingDescriptor); }, 'editable', 'reduceRinging');
-  apply(() => { $.tooltip('i18n:light_probe.showProbe')(LightProbeInfo.prototype, 'showProbe',  showProbeDescriptor); }, 'tooltip', 'showProbe');
-  apply(() => { $.editable(LightProbeInfo.prototype, 'showProbe',  showProbeDescriptor); }, 'editable', 'showProbe');
   apply(() => { $.tooltip('i18n:light_probe.showWireframe')(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'tooltip', 'showWireframe');
   apply(() => { $.editable(LightProbeInfo.prototype, 'showWireframe',  showWireframeDescriptor); }, 'editable', 'showWireframe');
   apply(() => { $.tooltip('i18n:light_probe.showConvex')(LightProbeInfo.prototype, 'showConvex',  showConvexDescriptor); }, 'tooltip', 'showConvex');
@@ -1074,7 +1069,6 @@ export function patch_cc_SkyboxInfo(ctx: cc_SkyboxInfo_Context_Args, apply = def
   if (this.useIBL && this.applyDiffuseMap) {
     return true;
   }
-
   return false;
 })(SkyboxInfo.prototype, 'diffuseMap',  diffuseMapDescriptor); }, 'visible', 'diffuseMap');
   apply(() => { $.displayOrder(100)(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'displayOrder', 'reflectionMap');
@@ -1085,7 +1079,6 @@ export function patch_cc_SkyboxInfo(ctx: cc_SkyboxInfo_Context_Args, apply = def
   if (this._resource?.reflectionMap) {
     return true;
   }
-
   return false;
 })(SkyboxInfo.prototype, 'reflectionMap',  reflectionMapDescriptor); }, 'visible', 'reflectionMap');
   apply(() => { $.tooltip('i18n:skybox.material')(SkyboxInfo.prototype, 'skyboxMaterial',  skyboxMaterialDescriptor); }, 'tooltip', 'skyboxMaterial');

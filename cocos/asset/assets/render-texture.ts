@@ -24,9 +24,10 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { clamp, cclegacy, errorID } from '../../core';
-import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager,
-    BufferTextureCopy, TextureFlags, TextureFlagBit } from '../../gfx';
+import { errorID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { clamp } from '@base/math';
+import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager, BufferTextureCopy, TextureFlags, TextureFlagBit } from '../../gfx';
 import { RenderWindow, IRenderWindowInfo } from '../../render-scene/core/render-window';
 import { Root } from '../../root';
 import { TextureBase } from './texture-base';

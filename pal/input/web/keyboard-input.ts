@@ -23,8 +23,8 @@
 */
 
 import { KeyboardCallback } from 'pal/input';
+import { EventTarget } from '@base/event';
 import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
-import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { code2KeyCode } from '../keycodes';
 

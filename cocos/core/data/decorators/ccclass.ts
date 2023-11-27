@@ -23,10 +23,11 @@
 */
 
 import { DEV } from 'internal:constants';
-import { getSuper, mixin, getClassName } from '../../utils/js-typed';
-import { CCClass } from '../class';
-import { doValidateMethodWithProps_DEV } from '../utils/preprocess-class';
+import { js } from '@base/utils';
+import { CCClass, doValidateMethodWithProps_DEV } from '@base/object';
 import { getClassDecoratorStash, makeSmartClassDecorator, deleteClassDecoratorStash } from './utils';
+
+const { getSuper, mixin, getClassName } = js;
 
 /**
  * @en Declare a standard class as a CCClass, please refer to the [document](https://docs.cocos.com/creator3d/manual/en/scripting/ccclass.html)

@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from "../../core";
-import { Attribute, PrimitiveMode, Buffer } from "../../gfx";
+import { Vec3 } from '@base/math';
+import { Attribute, PrimitiveMode, Buffer } from '../../gfx';
 import type { RenderingSubMesh as JsbRenderingSubMesh } from './rendering-sub-mesh';
 
 declare const jsb: any;

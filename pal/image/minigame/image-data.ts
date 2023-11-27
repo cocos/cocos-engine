@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 import { ALIPAY, XIAOMI, JSB, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { ccwindow } from '@base/global';
+import { getError } from '@base/debug';
 import { BaseImageData } from '../base-image-data';
-import { ccwindow } from '../../../cocos/core/global-exports';
-import { getError } from '../../../cocos/core/platform/debug';
 
 export class ImageData extends BaseImageData {
     static loadImage (url: string): Promise<ImageData> {

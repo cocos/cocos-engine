@@ -23,18 +23,20 @@
 */
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
+import { error, logID, warn } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { js, memop } from '@base/utils';
+import { Enum, ccenum, CCObject, setPropertyEnumType } from '@base/object';
+import { EnumType } from '@base/object/internal';
+import { Color } from '@base/math';
 import { Material, Texture2D } from '../asset/assets';
-import { error, logID, warn } from '../core/platform/debug';
-import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
-import { CCObject, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
 import { builtinResMgr } from '../asset/asset-manager';
-import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { AttachUtil } from './attach-util';
@@ -43,7 +45,6 @@ import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
-import { setPropertyEnumType } from '../core/internal-index';
 
 const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
@@ -51,7 +52,7 @@ const CUSTOM_SLOT_TEXTURE_BEGIN = 10000;
 let _slotTextureID = CUSTOM_SLOT_TEXTURE_BEGIN;
 
 type TrackListener = (x: spine.TrackEntry) => void;
-type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event) => void;
+type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
 /**
  * @en
  * Animation playback rate.
@@ -95,7 +96,7 @@ interface AnimationItem {
 }
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultSkinsEnum {
     default = 0,
@@ -103,7 +104,7 @@ export enum DefaultSkinsEnum {
 ccenum(DefaultSkinsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum, only used in editor.
+ * @engineInternal
  */
 export enum DefaultAnimsEnum {
     '<None>' = 0
@@ -111,7 +112,7 @@ export enum DefaultAnimsEnum {
 ccenum(DefaultAnimsEnum);
 
 /**
- * @internal Since v3.7.2, this is an engine private enum.
+ * @engineInternal
  */
 export enum SpineMaterialType {
     COLORED_TEXTURED = 0,
@@ -125,7 +126,7 @@ interface AnimationItem {
 }
 
 /**
- * @engineInternal Since v3.7.2, this is an engine private interface.
+ * @engineInternal
  */
 export interface SkeletonDrawData {
     material: Material | null;
@@ -238,7 +239,7 @@ export class Skeleton extends UIRenderer {
     // Animation name
     protected _animationName = '';
     protected _skinName = '';
-    protected _drawList = new RecyclePool<SkeletonDrawData>((): SkeletonDrawData => ({
+    protected _drawList = new memop.RecyclePool<SkeletonDrawData>((): SkeletonDrawData => ({
         material: null,
         texture: null,
         indexOffset: 0,
@@ -253,11 +254,11 @@ export class Skeleton extends UIRenderer {
     protected _cachedSockets: Map<string, number> = new Map<string, number>();
 
     /**
-     * @internal
+     * @engineInternal
      */
     public _startEntry: spine.TrackEntry;
     /**
-     * @internal
+     * @engineInternal
      */
     public _endEntry: spine.TrackEntry;
     // Paused or playing state
@@ -290,6 +291,14 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     public _debugRenderer: Graphics | null = null;
+    /**
+     * @engineInternal
+     */
+    public _startSlotIndex;
+    /**
+     * @engineInternal
+     */
+    public _endSlotIndex;
 
     private _slotTextures: Map<number, Texture2D> | null = null;
 
@@ -298,7 +307,8 @@ export class Skeleton extends UIRenderer {
         this._useVertexOpacity = true;
         this._startEntry = { animation: { name: '' }, trackIndex: 0 } as spine.TrackEntry;
         this._endEntry = { animation: { name: '' }, trackIndex: 0 } as spine.TrackEntry;
-
+        this._startSlotIndex = -1;
+        this._endSlotIndex = -1;
         if (!JSB) {
             this._instance = new spine.SkeletonInstance();
         }
@@ -306,9 +316,9 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
-    get drawList (): RecyclePool<SkeletonDrawData> { return this._drawList; }
+    get drawList (): memop.RecyclePool<SkeletonDrawData> { return this._drawList; }
 
     /**
      * @en
@@ -342,7 +352,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @internal Since v3.7.2, this is an engine private interface
+     * @engineInternal
      */
     @displayName('Default Skin')
     @type(DefaultSkinsEnum)
@@ -368,7 +378,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     set _defaultSkinIndex (value: number) {
         let skinsEnum;
@@ -393,7 +403,7 @@ export class Skeleton extends UIRenderer {
 
     // value of 0 represents no animation
     /**
-     * @internal
+     * @engineInternal
      */
     @displayName('Animation')
     @type(DefaultAnimsEnum)
@@ -416,7 +426,7 @@ export class Skeleton extends UIRenderer {
         return 0;
     }
     /**
-     * @internal
+     * @engineInternal
      */
     set _animationIndex (value: number) {
         let animsEnum;
@@ -427,7 +437,7 @@ export class Skeleton extends UIRenderer {
             error(`${this.name} animation enums are invalid`);
             return;
         }
-        const animName = animsEnum[value];
+        const animName = String(animsEnum[value]);
         if (animName !== undefined) {
             this.animation = animName;
             if (EDITOR_NOT_IN_PREVIEW) {
@@ -626,10 +636,14 @@ export class Skeleton extends UIRenderer {
         this._updateDebugDraw();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    /**
+     * @engineInternal
+     */
     public onRestore (): void {
-
+        this.updateMaterial();
+        this.markForUpdateRenderData();
     }
+
     /**
      * @en Gets the animation state object.
      * @zh 获取动画状态。
@@ -697,7 +711,7 @@ export class Skeleton extends UIRenderer {
         if (!this._runtimeData) return;
         this.setSkeletonData(this._runtimeData);
         this._refreshInspector();
-        if (this.defaultAnimation) this.animation = this.defaultAnimation;
+        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
         if (this.defaultSkin) this.setSkin(this.defaultSkin);
         this._updateUseTint();
         this._indexBoneSockets();
@@ -744,6 +758,71 @@ export class Skeleton extends UIRenderer {
         this._flushAssembler();
     }
 
+    /**
+     * @en Sets slots visible range.
+     * @zh 设置骨骼插槽可视范围。
+     * @param {Number} startSlotIndex @en start slot index. @zh 开始插槽的索引。
+     * @param {Number} endSlotIndex @en end slot index. @zh 结束插槽的索引。
+     */
+    public setSlotsRange (startSlotIndex: number, endSlotIndex: number): void {
+        if (this.isAnimationCached()) {
+            warn('Slots visible range can not be modified in cached mode.');
+        } else {
+            this._startSlotIndex = startSlotIndex;
+            this._endSlotIndex = endSlotIndex;
+        }
+    }
+
+    /**
+     * @en
+     * Returns the attachment for the slot and attachment name.
+     * The skeleton looks first in its skin, then in the skeleton data’s default skin.<br>
+     * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment object.
+     * @zh
+     * 通过 slot 和 attachment 的名称获取 attachment。Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。<br>
+     * 返回一个 {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.Attachment 对象。
+     *
+     * @method getAttachment
+     * @param {String} slotName @en slot name. @zh 插槽的名字。
+     * @param {String} attachmentName @en attachment name. @en 附件的名称。
+     * @return {sp.spine.Attachment}
+     */
+    public getAttachment (slotName: string, attachmentName: string): spine.Attachment | null {
+        if (this._skeleton) {
+            return this._skeleton.getAttachmentByName(slotName, attachmentName);
+        }
+        return null;
+    }
+
+    /**
+     * @en
+     * Sets the attachment for the slot and attachment name.
+     * The skeleton looks first in its skin, then in the skeleton data’s default skin.
+     * @zh
+     * 通过 slot 和 attachment 的名字来设置 attachment。
+     * Skeleton 优先查找它的皮肤，然后才是 Skeleton Data 中默认的皮肤。
+     * @method setAttachment
+     * @param {String} slotName @en slot name. @zh 插槽的名字。
+     * @param {String} attachmentName @en attachment name. @en 附件的名称。
+     */
+    public setAttachment (slotName: string, attachmentName: string): void {
+        if (this._skeleton) {
+            this._skeleton.setAttachment(slotName, attachmentName);
+        }
+        this.invalidAnimationCache();
+    }
+
+    /**
+     * @en
+     * Get Texture Atlas used in attachments.
+     * @zh
+     * 获取附件图集。
+     * @param regionAttachment @en An attachment type of RegionAttachment or BoundingBoxAttachment. @zh RegionAttachment 或 BoundingBoxAttachment 的附件。
+     * @return @en TextureRegion contains texture and atlas text information. @zh TextureRegion包含纹理和图集文本信息。
+     */
+    public getTextureAtlas (regionAttachment: spine.RegionAttachment | spine.BoundingBoxAttachment): spine.TextureRegion  {
+        return (regionAttachment as spine.RegionAttachment).region;
+    }
     /**
      * @en Set the current animation. Any queued animations are cleared.<br>
      * @zh 设置当前动画。队列中的任何的动画将被清除。<br>
@@ -792,7 +871,6 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
         return trackEntry;
     }
-
     /**
      * @en Adds an animation to be played delay seconds after the current or last queued animation.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.TrackEntry object.
@@ -1052,7 +1130,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal Since v3.7.2, this is an engine private interface.
+     * @engineInternal
      */
     public getMaterialForBlendAndTint (src: BlendFactor, dst: BlendFactor, type: SpineMaterialType): MaterialInstance {
         const key = `${type}/${src}/${dst}`;
@@ -1157,7 +1235,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @engineInternal since v3.7.2 this is an engine private function.
+     * @engineInternal
      */
     public syncAttachedNode (): void {
         // sync attached node matrix
@@ -1646,15 +1724,18 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Sets the complete event listener for specified TrackEntry.
      * @zh 用来为指定的 TrackEntry 设置动画一次循环播放结束的事件监听。
-     * @param entry
+     * @param entry @en AnimationState track. @zn 动画轨道属性。
      * @param listener @en Listener for registering callback functions. @zh 监听器对象，可注册回调方法。
      */
     public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2): void {
-        // TODO
-        // TrackEntryListeners.getListeners(entry).complete = function (trackEntry) {
-        //     const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
-        //     listener(trackEntry, loopCount);
-        // };
+        const onComplete = (trackEntry: spine.TrackEntry): void => {
+            const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
+            const listenerID = TrackEntryListeners.addListener(listener);
+            listener(trackEntry, loopCount);
+            this._instance.setListener(listenerID, spine.EventType.event);
+            this._listener!.event = listener;
+        };
+        TrackEntryListeners.getListeners(entry).complete = onComplete;
     }
 
     /**
@@ -1710,4 +1791,4 @@ export class Skeleton extends UIRenderer {
     }
 }
 
-legacyCC.internal.SpineSkeleton = Skeleton;
+cclegacy.internal.SpineSkeleton = Skeleton;

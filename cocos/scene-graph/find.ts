@@ -23,9 +23,9 @@
 */
 
 import { DEV } from 'internal:constants';
-import { warnID } from '../core/platform/debug';
+import { warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { Node } from './node';
-import { legacyCC } from '../core/global-exports';
 
 /**
  * @en Finds a node by hierarchy path, the path is case-sensitive.
@@ -39,7 +39,7 @@ import { legacyCC } from '../core/global-exports';
  */
 export function find (path: string, referenceNode?: Node): Node | null {
     if (!referenceNode) {
-        const scene = legacyCC.director.getScene();
+        const scene = cclegacy.director.getScene();
         if (!scene) {
             if (DEV) {
                 warnID(5601);
@@ -57,4 +57,4 @@ export function find (path: string, referenceNode?: Node): Node | null {
     return referenceNode!.getChildByPath(path);
 }
 
-legacyCC.find = find;
+cclegacy.find = find;

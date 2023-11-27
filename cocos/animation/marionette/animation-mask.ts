@@ -23,9 +23,9 @@
 */
 
 import { ccclass, serializable, editable, type } from 'cc.decorator';
+import { js } from '@base/utils';
 import type { Node } from '../../scene-graph/node';
 import { Asset } from '../../asset/assets/asset';
-import { js } from '../../core';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 
 interface JointMaskInfo {

@@ -32,32 +32,92 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/minigame',
-    () => jest.requireActual('../pal/minigame/non-minigame'),
+    '@pal/minigame',
+    () => jest.requireActual('../pal/minigame/src/non-minigame'),
     { virtual: true, },
 );
 
 jest.mock(
-    'pal/system-info',
-    () => jest.requireActual('../pal/system-info/web/system-info'),
+    '@pal/system-info',
+    () => jest.requireActual('../pal/system-info/src/web/system-info'),
     { virtual: true, },
 );
 
 jest.mock(
-    'pal/env',
-    () => jest.requireActual('../pal/env/web/env'),
+    '@pal/env',
+    () => jest.requireActual('../pal/env/src/web/env.ts'),
     { virtual: true, },
 );
 
 jest.mock(
-    'pal/pacer',
-    () => jest.requireActual('../pal/pacer/pacer-web'),
+    '@pal/utils',
+    () => jest.requireActual('../pal/utils/src/index.ts'),
     { virtual: true, },
 );
 
 jest.mock(
-    'pal/screen-adapter',
-    () => jest.requireActual('../pal/screen-adapter/web/screen-adapter'),
+    '@base/global',
+    () => jest.requireActual('../cocos/base/global/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/utils',
+    () => jest.requireActual('../cocos/base/utils/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/utils/internal',
+    () => jest.requireActual('../cocos/base/utils/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/object',
+    () => jest.requireActual('../cocos/base/object/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/object/internal',
+    () => jest.requireActual('../cocos/base/object/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/event',
+    () => jest.requireActual('../cocos/base/event/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/event/internal',
+    () => jest.requireActual('../cocos/base/event/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/math',
+    () => jest.requireActual('../cocos/base/math/src/index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@base/math/internal',
+    () => jest.requireActual('../cocos/base/math/src/internal-index.ts'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@pal/pacer',
+    () => jest.requireActual('../pal/pacer/src/pacer-web'),
+    { virtual: true, },
+);
+
+jest.mock(
+    '@pal/screen-adapter',
+    () => jest.requireActual('../pal/screen-adapter/src/web/screen-adapter'),
     { virtual: true, },
 );
 
@@ -69,7 +129,7 @@ jest.mock(
 
 jest.mock(
     'pal/wasm',
-    () => jest.requireActual('../pal/wasm/wasm-native'),  // NOTE: fix CI, we used import.meta in wasm-web.ts
+    () => jest.requireActual('./utils/pal-wasm-testing'),  // NOTE: fix CI, we used import.meta in wasm-web.ts
     { virtual: true, },
 );
 
@@ -86,56 +146,22 @@ jest.mock(
     'external:emscripten/webgpu/glslang.wasm',
     'external:emscripten/physx/physx.release.wasm.wasm',
     'external:emscripten/spine/spine.wasm',
-].forEach(moduleId => {
-    jest.mock(moduleId, 
+    'external:emscripten/box2d/box2d.release.wasm.wasm',
+    'external:emscripten/meshopt/meshopt_decoder.wasm.wasm',
+].forEach(mockModuleId => {
+    jest.mock(mockModuleId, 
         () => ({
             __esModule: true,
-            default: 'this should be a wasm url',
+            default: mockModuleId,
         }),
         { virtual: true, },
     );
 });
 
-
-// Mock external wasm js module here
-[
-    'external:emscripten/webgpu/webgpu_wasm.js',
-    'external:emscripten/webgpu/glslang.js',
-    'external:emscripten/physx/physx.release.wasm.js',
-    'external:emscripten/spine/spine.js',
-].forEach(moduleId => {
-    jest.mock(moduleId, 
-        () => ({
-            __esModule: true,
-            default: function factory () { return Promise.resolve({}); },
-        }),
-        { virtual: true, },
-    );
-});
-
-jest.mock(
-    'external:emscripten/physx/physx.release.asm.js', 
-    () => jest.requireActual('../native/external/emscripten/physx/physx.release.asm.js'),
-    { virtual: true },
-);
-
-
-jest.mock(
-    'external:emscripten/bullet/bullet.asm.js', 
-    () => jest.requireActual('../native/external/emscripten/bullet/bullet.asm.js'),
-    { virtual: true },
-);
-
-jest.mock(
-    'external:emscripten/spine/spine.asm.js', 
-    () => jest.requireActual('../native/external/emscripten/spine/spine.asm.js'),
-    { virtual: true },
-);
-
-jest.mock('../cocos/core/platform/debug', () => {
+jest.mock('@base/debug', () => {
     const result = {
         __esModule: true, // Use it when dealing with esModules
-        ...jest.requireActual('../cocos/core/platform/debug')
+        ...jest.requireActual('../cocos/base/debug/src/index.ts')
     };
     const { feed } = require('./utils/log-capture');
     for (const logMethodName of ['warn', 'error', 'warnID', 'errorID']) {
@@ -152,6 +178,14 @@ jest.mock('../cocos/core/platform/debug', () => {
         }
     }
     return result;
+}, {
+    virtual: true,
+});
+jest.mock('@base/debug/internal', () => ({
+        __esModule: true, // Use it when dealing with esModules
+        ...jest.requireActual('../cocos/base/debug/src/internal-index.ts')
+}), {
+    virtual: true,
 });
 
 jest.mock(
@@ -166,8 +200,7 @@ jest.mock('serialization-test-helper/run-test', () => {
     virtual: true,
 });
 
-import '../exports/base';
-import { DebugMode } from "../cocos/core/platform/debug";
+import { DebugMode } from '@base/debug';
 import { EffectAsset, Game, game, IGameConfig } from '../exports/base';
 import './asset-manager/init';
 import '../cocos/gfx/empty/empty-device';

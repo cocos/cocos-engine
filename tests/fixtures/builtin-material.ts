@@ -1,7 +1,7 @@
-import { builtinResMgr } from "../../cocos/asset/asset-manager";
-import { Material } from "../../cocos/asset/assets/material";
-import { color } from "../../cocos/core";
-import { game, Game } from "../../cocos/game";
+import { color } from '@base/math';
+import { builtinResMgr } from '../../cocos/asset/asset-manager';
+import { Material } from '../../cocos/asset/assets/material';
+import { game, Game } from '../../cocos/game';
 
 export function initBuiltinMaterial () {
     const materialsToBeCompiled: any[] = [];

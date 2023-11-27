@@ -69,8 +69,8 @@ void ReflectionProbeStage::render(scene::Camera *camera) {
 
     _renderArea.x = 0;
     _renderArea.y = 0;
-    _renderArea.width = _probe->getRenderArea().x;
-    _renderArea.height = _probe->getRenderArea().y;
+    _renderArea.width = _probe->renderArea().x;
+    _renderArea.height = _probe->renderArea().y;
 
     if (hasFlag(static_cast<gfx::ClearFlags>(_probe->getCamera()->getClearFlag()), gfx::ClearFlagBit::COLOR)) {
         _clearColors[0] = _probe->getCamera()->getClearColor();

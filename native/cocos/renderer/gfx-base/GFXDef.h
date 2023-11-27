@@ -68,6 +68,7 @@ DEFINE_CMP_OP(SamplerInfo)
 DEFINE_CMP_OP(GeneralBarrierInfo)
 DEFINE_CMP_OP(TextureBarrierInfo)
 DEFINE_CMP_OP(BufferBarrierInfo)
+DEFINE_CMP_OP(ResourceRange)
 
 #undef DEFINE_CMP_OP
 

@@ -82,7 +82,7 @@ void Node::onBatchCreated(bool dontChildPrefab) {
 Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     if (!cloned) {
         CC_ABORT();
-        // TODO(): cloned = legacyCC.instantiate._clone(this, this);
+        // TODO(): cloned = cclegacy.instantiate._clone(this, this);
         return nullptr;
     }
     // TODO():
@@ -95,7 +95,7 @@ Node *Node::instantiate(Node *cloned, bool isSyncedNode) {
     //        // PrefabUtils.unlinkPrefab(cloned);
     //    }
     //}
-    // if (EDITOR && legacyCC.GAME_VIEW) {
+    // if (EDITOR && cclegacy.GAME_VIEW) {
     //    const syncing = newPrefabInfo&& cloned == = newPrefabInfo.root && newPrefabInfo.sync;
     //    if (!syncing) {
     //        cloned._name += ' (Clone)';

@@ -23,7 +23,8 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { cclegacy, toRadian, Vec2, Vec4, Vec3, v3 } from '../../../core';
+import { cclegacy } from '@base/global';
+import { toRadian, Vec2, Vec4, Vec3, v3 } from '@base/math';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom/pipeline';
 import { getCameraUniqueID } from '../../custom/define';
@@ -192,6 +193,17 @@ export class HBAOPass extends SettingPass {
             enable = false;
         }
         return enable;
+    }
+
+    onGlobalPipelineStateChanged (): void {
+        passContext.material = this.material;
+        const passes = passContext.material.passes;
+        for (let i = 0; i < passes.length; i++) {
+            const pass = passes[i];
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        }
     }
 
     public getSceneScale (camera: Camera): number {

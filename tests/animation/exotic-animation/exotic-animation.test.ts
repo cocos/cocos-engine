@@ -1,4 +1,4 @@
-import { lerp, Quat, Vec3 } from '../../../cocos/core';
+import { lerp, Quat, Vec3 } from '@base/math';
 import { ExoticAnimation } from '../../../cocos/animation/exotic-animation/exotic-animation';
 import { Binder, RuntimeBinding, TrackBinding } from '../../../cocos/animation/tracks/track';
 import { degreesToRadians } from '../../../cocos/core/utils/misc';

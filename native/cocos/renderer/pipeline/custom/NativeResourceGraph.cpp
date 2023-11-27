@@ -97,35 +97,8 @@ gfx::BufferInfo getBufferInfo(const ResourceDesc& desc) {
     };
 }
 
-gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
+gfx::TextureInfo getTextureInfo(const ResourceDesc& desc) {
     using namespace gfx; // NOLINT(google-build-using-namespace)
-    // type
-    auto type = TextureType::TEX1D;
-    switch (desc.dimension) {
-        case ResourceDimension::TEXTURE1D:
-            if (desc.depthOrArraySize > 1) {
-                type = TextureType::TEX1D_ARRAY;
-            } else {
-                type = TextureType::TEX1D;
-            }
-            break;
-        case ResourceDimension::TEXTURE2D:
-            if (desc.depthOrArraySize > 1) {
-                if (bCube) {
-                    type = TextureType::CUBE;
-                } else {
-                    type = TextureType::TEX2D_ARRAY;
-                }
-            } else {
-                type = TextureType::TEX2D;
-            }
-            break;
-        case ResourceDimension::TEXTURE3D:
-            type = TextureType::TEX3D;
-            break;
-        case ResourceDimension::BUFFER:
-            CC_EXPECTS(false);
-    }
 
     // usage
     TextureUsage usage = TextureUsage::NONE;
@@ -156,28 +129,26 @@ gfx::TextureInfo getTextureInfo(const ResourceDesc& desc, bool bCube = false) {
     }
 
     return {
-        type,
+        desc.viewType,
         usage,
         desc.format,
         desc.width,
         desc.height,
         desc.textureFlags,
-        type == TextureType::TEX3D ? 1U : desc.depthOrArraySize,
+        desc.viewType == TextureType::TEX3D ? 1U : desc.depthOrArraySize,
         desc.mipLevels,
         desc.sampleCount,
-        type == TextureType::TEX3D ? desc.depthOrArraySize : 1U,
+        desc.viewType == TextureType::TEX3D ? desc.depthOrArraySize : 1U,
         nullptr,
     };
 }
 
-gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, const ResourceDesc& desc, bool bCube = false) {
+gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView) {
     using namespace gfx; // NOLINT(google-build-using-namespace)
-
-    const auto& textureInfo = getTextureInfo(desc, bCube);
 
     return {
         nullptr,
-        textureInfo.type,
+        subresView.viewType,
         subresView.format,
         subresView.indexOrFirstMipLevel,
         subresView.numMipLevels,
@@ -244,9 +215,12 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             }
             CC_ENSURES(buffer);
         },
-        [&](const IntrusivePtr<gfx::Texture>& texture) {
-            CC_EXPECTS(texture);
-            std::ignore = texture;
+        [&](IntrusivePtr<gfx::Texture>& texture) {
+            if (!texture) {
+                auto info = getTextureInfo(desc);
+                texture = device->createTexture(info);
+            }
+            CC_ENSURES(texture);
         },
         [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
             CC_EXPECTS(fb);
@@ -284,9 +258,8 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(!resg.isTextureView(parentID));
             mount(device, parentID); // NOLINT(misc-no-recursion)
             auto* parentTexture = resg.getTexture(parentID);
-            const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
             if (!view.textureView) {
-                auto textureViewInfo = getTextureViewInfo(originView, desc);
+                auto textureViewInfo = getTextureViewInfo(originView);
                 textureViewInfo.texture = parentTexture;
                 view.textureView = device->createTexture(textureViewInfo);
             }

@@ -1,4 +1,4 @@
-import { Quat, Vec3 } from '../../../core';
+import { Quat, Vec3 } from '@base/math';
 
 /**
  * @en

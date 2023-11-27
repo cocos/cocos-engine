@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Quat, Vec3 } from '../../../core';
+import { IVec3Like, Quat, Vec3 } from '@base/math';
 
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider, PhysicsMaterial } from '../../framework';
@@ -54,10 +54,17 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             const meshScale = PhysXShape.MESH_SCALE;
             meshScale.setScale(Vec3.ONE);
             meshScale.setRotation(Quat.IDENTITY);
-            if (collider.convex) {
+            const posBuf = v.renderingSubMeshes[0].geometricInfo.positions;
+            let indBuf = v.renderingSubMeshes[0].geometricInfo.indices;
+            if (indBuf instanceof Uint16Array) {
+                indBuf = new Uint32Array(indBuf);
+            }
+            if (indBuf instanceof Uint8Array) {
+                indBuf = new Uint32Array(indBuf);
+            }
+            if (collider.convex || indBuf === undefined) {
                 if (PX.MESH_CONVEX[v._uuid] == null) {
                     const cooking = PhysXInstance.cooking;
-                    const posBuf = v.readAttribute(0, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
                     PX.MESH_CONVEX[v._uuid] = createConvexMesh(posBuf, cooking, physics);
                 }
                 const convexMesh = PX.MESH_CONVEX[v._uuid];
@@ -65,8 +72,6 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             } else {
                 if (PX.MESH_STATIC[v._uuid] == null) {
                     const cooking = PhysXInstance.cooking;
-                    const posBuf = v.readAttribute(0, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
-                    const indBuf = v.readIndices(0)! as unknown as Uint32Array; // Uint16Array ?
                     PX.MESH_STATIC[v._uuid] = createTriangleMesh(posBuf, indBuf, cooking, physics);
                 }
                 const trimesh = PX.MESH_STATIC[v._uuid];

@@ -126,20 +126,26 @@ if (cc.internal.VideoPlayer) {
             return this.video.duration();
         }
 
-        syncPlaybackRate() {
-            cc.warn('The platform does not support');
+        syncPlaybackRate(value) {
+            if (this.video) {
+                this.video.setPlaybackRate(value);
+            }
         }
 
         syncVolume() {
             cc.warn('The platform does not support');
         }
 
-        syncMute() {
-            cc.warn('The platform does not support');
+        syncMute(enable) {
+            if (this.video && this.video.muted !== enable) {
+                this.video.setMute(enable);
+            }
         }
 
-        syncLoop() {
-            cc.warn('The platform does not support');
+        syncLoop(enable) {
+            if (this.video && this.video.loop !== enable) {
+                this.video.setLoop(enable);
+            }
         }
 
         syncStayOnBottom() {

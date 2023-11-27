@@ -1,6 +1,6 @@
 
-import { ccclassAutoNamed, runTest } from '../utils';
 import { _decorator } from 'cc';
+import { ccclassAutoNamed, runTest } from '../utils';
 import { PORTS_BOTH_DYNAMIC_COMPILED, testEachPort } from '../port';
 
 @ccclassAutoNamed(__filename)

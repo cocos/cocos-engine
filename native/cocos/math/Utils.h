@@ -26,7 +26,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include "cocos/math/Vec3.h"
+#include "math/Vec3.h"
 
 namespace cc {
 
@@ -283,6 +283,10 @@ template <typename F>
 auto absMax(F a, F b) {
     return std::fabs(a) > std::fabs(b) ? a : b;
 }
+
+uint16_t floatToHalf(float fval);
+
+float halfToFloat(uint16_t hval);
 
 } // namespace mathutils
 } // namespace cc

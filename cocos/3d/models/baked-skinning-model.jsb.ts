@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
-import { cclegacy, geometry } from '../../core';
+import { cclegacy } from '@base/global';
+import { geometry } from '../../core';
 import { Skeleton } from '../assets/skeleton';
 import { Mesh } from '../assets/mesh';
-import { Node } from '../../scene-graph/node'
-import { AnimationClip } from "../../animation";
+import { Node } from '../../scene-graph/node';
+import { AnimationClip } from '../../animation';
 import { IJointTextureHandle } from '../skeletal-animation/skeletal-animation-utils';
 import type { BakedSkinningModel as JsbBakedSkinningModel } from './baked-skinning-model';
 

@@ -51,6 +51,7 @@ public:
     virtual void setPosition(float x, float y, float z) = 0;
     virtual bool onGround() = 0;
     virtual void move(float x, float y, float z, float minDist, float elapsedTime) = 0;
+    virtual void syncPhysicsToScene() = 0;
 
     virtual uint32_t getGroup() = 0;
     virtual void setGroup(uint32_t g) = 0;

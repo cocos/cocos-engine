@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { warn } from '../../../../core';
+import { warn } from '@base/debug';
 import { ccclass, editable, serializable } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseGraphCreateNodeFactory, poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';

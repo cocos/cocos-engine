@@ -22,10 +22,11 @@
  THE SOFTWARE.
 */
 
-import { warnID, warn, easing } from '../core';
+import { warnID, warn } from '@base/debug';
+import { VERSION } from '@base/global';
+import { easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
-import { VERSION } from '../core/global-exports';
 
 /** adapter */
 function TweenEasingAdapter (easingName: string): string {

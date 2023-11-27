@@ -23,14 +23,12 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
-import { screenAdapter } from 'pal/screen-adapter';
+import { systemInfo, NetworkType, Language, OS, Platform, BrowserType, Feature } from '@pal/system-info';
+import { screenAdapter } from '@pal/screen-adapter';
 import { WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
-import { legacyCC } from '../global-exports';
-import { Rect } from '../math/rect';
-import { Vec2 } from '../math/vec2';
-import { warnID, log } from './debug';
-import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
+import { cclegacy } from '@base/global';
+import { warnID, log } from '@base/debug';
+import { Rect, Vec2 } from '@base/math';
 import { screen } from './screen';
 
 // TODO: the type Storage conflicts with the one on OH platform.
@@ -286,7 +284,7 @@ export const sys = {
         str += `os : ${this.os}\r\n`;
         str += `osVersion : ${this.osVersion}\r\n`;
         str += `platform : ${this.platform}\r\n`;
-        str += `Using ${legacyCC.game.renderType === legacyCC.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS'} renderer.\r\n`;
+        str += `Using ${cclegacy.game.renderType === cclegacy.game.RENDER_TYPE_WEBGL ? 'WEBGL' : 'CANVAS'} renderer.\r\n`;
         log(str);
     },
 
@@ -364,7 +362,7 @@ export const sys = {
      * @return {Rect}
      */
     getSafeAreaRect (): Rect {
-        const locView = legacyCC.view;
+        const locView = cclegacy.view;
         const edge = screenAdapter.safeAreaEdge;
         const windowSize = screenAdapter.windowSize;
 
@@ -384,4 +382,4 @@ export const sys = {
     },
 };
 
-legacyCC.sys = sys;
+cclegacy.sys = sys;

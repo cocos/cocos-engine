@@ -22,14 +22,14 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Vec3, Vec4 } from '../math';
+import { cclegacy } from '@base/global';
+import { Mat4, Vec3, Vec4 } from '@base/math';
 import enums from './enums';
-import { legacyCC } from '../global-exports';
 
 const v1 = new Vec3(0, 0, 0);
 const v2 = new Vec3(0, 0, 0);
-const temp_mat = legacyCC.mat4();
-const temp_vec4 = legacyCC.v4();
+const temp_mat = cclegacy.mat4();
+const temp_vec4 = cclegacy.v4();
 
 /**
  * @en

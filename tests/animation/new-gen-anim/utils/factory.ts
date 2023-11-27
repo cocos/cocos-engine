@@ -1,17 +1,18 @@
-import { AnimationClip } from "../../../../cocos/animation/animation-clip";
-import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, ProceduralPoseState, ProceduralPoseTransition, State, StateMachine, SubStateMachine, Transition } from "../../../../cocos/animation/marionette/animation-graph";
-import { PoseGraph, poseGraphOp, TCBinding, TCBindingValueType } from "../../../../cocos/animation/marionette/asset-creation";
-import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../../../cocos/animation/marionette/motion";
-import { BinaryCondition, TriggerCondition, UnaryCondition } from "../../../../cocos/animation/marionette/state-machine/condition";
-import { MotionState } from "../../../../cocos/animation/marionette/state-machine/motion-state";
-import { Bindable } from "../../../../cocos/animation/marionette/parametric";
-import { TriggerResetMode, VariableType } from "../../../../cocos/animation/marionette/variable";
-import { assertIsTrue, Vec2 } from "../../../../exports/base";
-import { TCVariableBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding";
-import { TCAuxiliaryCurveBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
-import { TCStateWeightBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
-import { PoseNode } from "../../../../cocos/animation/marionette/pose-graph/pose-node";
-import { TCStateMotionTimeBinding } from "../../../../cocos/animation/marionette/state-machine/condition/binding/state-motion-time-binding";
+import { assertIsTrue } from '@base/debug/internal';
+import { Vec2 } from '@base/math';
+import { AnimationClip } from '../../../../cocos/animation/animation-clip';
+import { AnimationGraph, AnimationTransition, EmptyStateTransition, isAnimationTransition, ProceduralPoseState, ProceduralPoseTransition, State, StateMachine, SubStateMachine, Transition } from '../../../../cocos/animation/marionette/animation-graph';
+import { PoseGraph, poseGraphOp, TCBinding, TCBindingValueType } from '../../../../cocos/animation/marionette/asset-creation';
+import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from '../../../../cocos/animation/marionette/motion';
+import { BinaryCondition, TriggerCondition, UnaryCondition } from '../../../../cocos/animation/marionette/state-machine/condition';
+import { MotionState } from '../../../../cocos/animation/marionette/state-machine/motion-state';
+import { Bindable } from '../../../../cocos/animation/marionette/parametric';
+import { TriggerResetMode, VariableType } from '../../../../cocos/animation/marionette/variable';
+import { TCVariableBinding } from '../../../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
+import { TCAuxiliaryCurveBinding } from '../../../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding';
+import { TCStateWeightBinding } from '../../../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding';
+import { PoseNode } from '../../../../cocos/animation/marionette/pose-graph/pose-node';
+import { TCStateMotionTimeBinding } from '../../../../cocos/animation/marionette/state-machine/condition/binding/state-motion-time-binding';
 
 export function createAnimationGraph(params: AnimationGraphParams): AnimationGraph {
     const animationGraph = new AnimationGraph();

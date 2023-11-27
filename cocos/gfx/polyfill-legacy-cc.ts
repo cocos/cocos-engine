@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Buffer } from './base/buffer';
 import { CommandBuffer } from './base/command-buffer';
 import { Device } from './base/device';
@@ -40,7 +41,6 @@ import { Texture } from './base/texture';
 import { GeneralBarrier } from './base/states/general-barrier';
 import { TextureBarrier } from './base/states/texture-barrier';
 import { BufferBarrier } from './base/states/buffer-barrier';
-import { cclegacy } from '../core';
 import * as defines from './base/define';
 
 const polyfills: Record<string, unknown> = {

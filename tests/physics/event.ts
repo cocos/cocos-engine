@@ -1,53 +1,56 @@
-import { Vec3 } from "../../cocos/core";
-import { director } from "../../cocos/game";
-import { Node } from "../../cocos/scene-graph";
-import { physics } from "../../exports/physics-framework";
+import { Vec3 } from '@base/math';
+import { director } from '../../cocos/game';
+import { Node } from '../../cocos/scene-graph';
+import { physics } from '../../exports/physics-framework';
+import { PhysicsTestEnv } from './physics.test';
 
 /**
  * This function is used to test some event callback
  */
-export default function (parent: Node, steps = 300) {
-    const nodeDynamic = new Node('DynamicA');
-    parent.addChild(nodeDynamic);
-    nodeDynamic.worldPosition = new Vec3(0, 4, 0);
-    nodeDynamic.addComponent(physics.RigidBody);
-    const colliderDynamic: physics.SphereCollider = nodeDynamic.addComponent(physics.SphereCollider);
-    const colliderTrigger: physics.BoxCollider = nodeDynamic.addComponent(physics.BoxCollider);
-    colliderTrigger.isTrigger = true;
+export default function (env: PhysicsTestEnv) {
+    test(`Event`, () => {
+        const { rootNode: parent } = env;
+        const steps = 300;
 
-    const nodeStatic = new Node('StaticB');
-    parent.addChild(nodeStatic);
-    nodeStatic.addComponent(physics.BoxCollider);
+        const nodeDynamic = new Node('DynamicA');
+        parent.addChild(nodeDynamic);
+        nodeDynamic.worldPosition = new Vec3(0, 4, 0);
+        nodeDynamic.addComponent(physics.RigidBody);
+        const colliderDynamic: physics.SphereCollider = nodeDynamic.addComponent(physics.SphereCollider);
+        const colliderTrigger: physics.BoxCollider = nodeDynamic.addComponent(physics.BoxCollider);
+        colliderTrigger.isTrigger = true;
 
-    function onCollision(event: physics.ICollisionEvent) {
-        expect(event.selfCollider).toBe(colliderDynamic);
-    }
+        const nodeStatic = new Node('StaticB');
+        parent.addChild(nodeStatic);
+        nodeStatic.addComponent(physics.BoxCollider);
 
-    function onTrigger(event: physics.ITriggerEvent) {
-        expect(event.selfCollider).toBe(colliderTrigger);
-    }
+        function onCollision(event: physics.ICollisionEvent) {
+            expect(event.selfCollider).toBe(colliderDynamic);
+        }
 
-    // collision event
-    expect(colliderDynamic.needCollisionEvent).toBe(false);
-    colliderDynamic.on('onCollisionEnter', onCollision);
+        function onTrigger(event: physics.ITriggerEvent) {
+            expect(event.selfCollider).toBe(colliderTrigger);
+        }
 
-    expect(colliderDynamic.needCollisionEvent).toBe(true);
+        // collision event
+        expect(colliderDynamic.needCollisionEvent).toBe(false);
+        colliderDynamic.on('onCollisionEnter', onCollision);
 
-    // trigger event
-    expect(colliderTrigger.needTriggerEvent).toBe(false);
-    colliderTrigger.on('onTriggerEnter', onTrigger);
-    expect(colliderTrigger.needTriggerEvent).toBe(true);
+        expect(colliderDynamic.needCollisionEvent).toBe(true);
 
-    const dt = physics.PhysicsSystem.instance.fixedTimeStep;
-    for (let i = 0; i < steps; i++) {
-        director.tick(dt);
-    }
+        // trigger event
+        expect(colliderTrigger.needTriggerEvent).toBe(false);
+        colliderTrigger.on('onTriggerEnter', onTrigger);
+        expect(colliderTrigger.needTriggerEvent).toBe(true);
 
-    colliderDynamic.off('onCollisionEnter', onCollision);
-    expect(colliderDynamic.needCollisionEvent).toBe(false);
-    colliderTrigger.off('onTriggerEnter', onTrigger);
-    expect(colliderTrigger.needTriggerEvent).toBe(false);
+        const dt = physics.PhysicsSystem.instance.fixedTimeStep;
+        for (let i = 0; i < steps; i++) {
+            director.tick(dt);
+        }
 
-    parent.destroyAllChildren();
-    parent.removeAllChildren();
+        colliderDynamic.off('onCollisionEnter', onCollision);
+        expect(colliderDynamic.needCollisionEvent).toBe(false);
+        colliderTrigger.off('onTriggerEnter', onTrigger);
+        expect(colliderTrigger.needTriggerEvent).toBe(false);
+    });
 }

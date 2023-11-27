@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like, Vec3 } from '../../core';
+import { IVec3Like, Vec3 } from '@base/math';
 import { CharacterController } from './components/character-controllers/character-controller';
 import { Collider } from './components/colliders/collider';
 
@@ -241,6 +241,14 @@ export type CollisionEventType = 'onCollisionEnter' | 'onCollisionStay' | 'onCol
  * 碰撞事件的回调函数签名定义。
  */
 export type CollisionCallback = (event?: ICollisionEvent) => void;
+
+/**
+ * @en
+ * The definition of the trigger event of the character controller.
+ * @zh
+ * 角色控制器触发事件的值类型定义。
+ */
+export type CharacterTriggerEventType = 'onControllerTriggerEnter' | 'onControllerTriggerStay' | 'onControllerTriggerExit';
 
 /**
  * @en

@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
+import { warnID } from '@base/debug';
+import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like } from '@base/math';
 import { Type } from '../../gfx';
-import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like, warnID } from '../../core';
 
 const typeMask    = 0xfc000000; //  6 bits => 64 types
 const bindingMask = 0x03f00000; //  6 bits => 64 bindings

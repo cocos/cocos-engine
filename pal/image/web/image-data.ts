@@ -21,9 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { ccwindow } from '@base/global';
+import { getError } from '@base/debug';
 import { BaseImageData } from '../base-image-data';
-import { ccwindow } from '../../../cocos/core/global-exports';
-import { getError } from '../../../cocos/core/platform/debug';
 
 export class ImageData extends BaseImageData {
     static loadImage (urlOrBase64: string): Promise<ImageData> {

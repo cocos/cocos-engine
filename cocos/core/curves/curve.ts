@@ -23,18 +23,20 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../data/utils/asserts';
-import { approx, lerp, pingPong, repeat } from '../math';
+import { assertIsTrue } from '@base/debug/internal';
+import { CCClass, editorExtrasTag } from '@base/object';
+import { approx, lerp, pingPong, repeat , bits } from '@base/math';
 import { KeyframeCurve } from './keyframe-curve';
 import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { solveCubic } from './solve-cubic';
 import { EditorExtendable } from '../data/editor-extendable';
-import { CCClass, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import { EasingMethod, getEasingFn } from './easing-method';
 import { getOrCreateSerializationMetadata } from '../data/serialization-metadata';
-import { popCount } from '../math/bits';
+
+const { popCount } = bits;
 
 export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode, EasingMethod };
 

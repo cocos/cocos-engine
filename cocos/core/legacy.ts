@@ -22,24 +22,24 @@
  THE SOFTWARE.
 */
 
-import * as debug from './platform/debug';
+import * as debug from '@base/debug';
+import { cclegacy } from '@base/global';
 import { _normalize, basename, changeBasename, changeExtname, dirname, extname, getSeperator, join, mainFileName, stripSep } from './utils/path';
-import { legacyCC } from './global-exports';
 
 // CCDebug.js
-legacyCC.log = debug.log;
-legacyCC.warn = debug.warn;
-legacyCC.error = debug.error;
-legacyCC.assert = debug.assert;
-legacyCC._throw = debug._throw;
-legacyCC.logID = debug.logID;
-legacyCC.warnID = debug.warnID;
-legacyCC.errorID = debug.errorID;
-legacyCC.assertID = debug.assertID;
-legacyCC.debug = debug;
+cclegacy.log = debug.log;
+cclegacy.warn = debug.warn;
+cclegacy.error = debug.error;
+cclegacy.assert = debug.assert;
+cclegacy._throw = debug._throw;
+cclegacy.logID = debug.logID;
+cclegacy.warnID = debug.warnID;
+cclegacy.errorID = debug.errorID;
+cclegacy.assertID = debug.assertID;
+cclegacy.debug = debug;
 
 // path.js
-legacyCC.path = {
+cclegacy.path = {
     join,
     extname,
     mainFileName,

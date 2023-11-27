@@ -9,7 +9,7 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
 
   surfaceData.worldNormal = SurfacesFragmentModifyWorldNormal();
   SurfacesFragmentModifyWorldTangentAndBinormal(surfaceData.worldTangent, surfaceData.worldBinormal, surfaceData.worldNormal);
-  
+
   surfaceData.ior = SurfacesFragmentModifyIOR();
 
 #if CC_SURFACES_LIGHTING_ANISOTROPIC
@@ -91,14 +91,14 @@ void CCSurfacesFragmentGetMaterialData(inout SurfacesMaterialData surfaceData)
   // skip in shader graph, need extra code
   vec4 sheenParams = SurfacesFragmentModifySheenParams();
   surfaceData.roughness2ndSpecular = saturate(sheenParams.x);
-  surfaceData.ior2ndSpecular = sheenParams.y;
-  surfaceData.intensity2ndSpecular = sheenParams.z * sheenParams.w;
+  surfaceData.intensity2ndSpecular = sheenParams.y * sheenParams.w;
   surfaceData.metallic2ndSpecular = 1.0;
   surfaceData.baseColor2ndSpecular = SurfacesFragmentModifySheenColor();
   surfaceData.color2ndSpecular = vec3(1.0); // no extra coloration
   surfaceData.worldNormal2ndSpecular = surfaceData.worldNormal;
   surfaceData.worldTangent2ndSpecular = surfaceData.worldTangent;
   surfaceData.worldBinormal2ndSpecular = surfaceData.worldBinormal;
+  surfaceData.ior2ndSpecular = surfaceData.ior; //unused
   surfaceData.opacity2ndSpecular = 1.0; // unused
   #if CC_SURFACES_LIGHTING_ANISOTROPIC
     surfaceData.anisotropyShape2ndSpecular = surfaceData.anisotropyShape;
@@ -348,7 +348,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.directTransmitDiffuse
   #endif
   ;
-  
+
 #else
   vec3 fresnel = lightingResult.fresnel;
   vec3 invFresnel = vec3(1.0) - fresnel;
@@ -403,7 +403,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
     + lightingResult.environmentTransmitDiffuse
   #endif
   ;
-  
+
   color.xyz += lightingResult.emissive;
 #endif
 

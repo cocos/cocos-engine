@@ -132,16 +132,22 @@ void SimpleTexture::createTexture(gfx::Device *device) {
     }
 
     auto flags = gfx::TextureFlagBit::NONE;
+    auto usage = gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST;
     if (_mipFilter != Filter::NONE && canGenerateMipmap(_width, _height)) {
-        _mipmapLevel = getMipLevel(_width, _height);
         if (!isUsingOfflineMipmaps() && !isCompressed()) {
             flags = gfx::TextureFlagBit::GEN_MIPMAP;
+            _mipmapLevel = getMipLevel(_width, _height);
         }
     }
 
+    const auto gfxFormat = getGFXFormat();
+    if (hasFlag(gfx::Device::getInstance()->getFormatFeatures(gfxFormat), gfx::FormatFeatureBit::RENDER_TARGET)) {
+        usage |= gfx::TextureUsageBit::COLOR_ATTACHMENT;
+    }
+
     auto textureCreateInfo = getGfxTextureCreateInfo(
-        gfx::TextureUsageBit::SAMPLED | gfx::TextureUsageBit::TRANSFER_DST,
-        getGFXFormat(),
+        usage,
+        gfxFormat,
         _mipmapLevel,
         flags);
 

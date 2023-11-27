@@ -22,15 +22,15 @@
  THE SOFTWARE.
 */
 
+import { warn } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { TweenSystem } from './tween-system';
-import { warn } from '../core';
 import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { TweenAction } from './tween-action';
 import { SetAction } from './set-action';
-import { legacyCC } from '../core/global-exports';
 
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
@@ -475,7 +475,7 @@ export class Tween<T> {
         return spawn.apply(spawn, tmp_args as any);
     }
 }
-legacyCC.Tween = Tween;
+cclegacy.Tween = Tween;
 
 /**
  * @en
@@ -494,7 +494,7 @@ legacyCC.Tween = Tween;
 export function tween<T> (target?: T): Tween<T> {
     return new Tween<T>(target);
 }
-legacyCC.tween = tween;
+cclegacy.tween = tween;
 
 /**
  * @en
@@ -507,4 +507,4 @@ export function tweenUtil<T> (target?: T): Tween<T> {
     warn('tweenUtil\' is deprecated, please use \'tween\' instead ');
     return new Tween<T>(target);
 }
-legacyCC.tweenUtil = tweenUtil;
+cclegacy.tweenUtil = tweenUtil;

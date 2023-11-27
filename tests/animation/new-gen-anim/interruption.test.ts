@@ -1,4 +1,4 @@
-import { lerp } from '../../../exports/base';
+import { lerp } from '@base/math';
 import { AnimationGraphEvalMock } from './utils/eval-mock';
 import { createAnimationGraph } from './utils/factory';
 import { LinearRealValueAnimationFixture } from './utils/fixtures';

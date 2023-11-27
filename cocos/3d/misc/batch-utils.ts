@@ -22,9 +22,10 @@
  THE SOFTWARE.
 */
 
+import { error } from '@base/debug';
+import { Mat4 } from '@base/math';
 import { MeshRenderer } from '../framework/mesh-renderer';
 import { Mesh } from '../assets/mesh';
-import { Mat4, error } from '../../core';
 import { Node } from '../../scene-graph/node';
 
 function checkMaterialisSame (comp1: MeshRenderer, comp2: MeshRenderer): boolean {

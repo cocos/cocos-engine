@@ -23,7 +23,8 @@
 */
 
 import { AudioPlayer, OneShotAudio } from 'pal/audio';
-import { error, js } from '../core';
+import { error } from '@base/debug';
+import { js } from '@base/utils';
 
 type ManagedAudio = AudioPlayer | OneShotAudio;
 interface AudioInfo<T> {

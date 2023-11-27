@@ -1,4 +1,4 @@
-import { math } from '../../cocos/core';
+import { randomRange } from '@base/math';
 import { Animation, AnimationState, AnimationClip } from '../../cocos/animation';
 import { Node } from "../../cocos/scene-graph";
 
@@ -154,7 +154,7 @@ function createTestAnimation() {
     return animation;
 }
 
-function createTestClip(name: string, duration: number = math.randomRange(0, 1)) {
+function createTestClip(name: string, duration: number = randomRange(0, 1)) {
     const clip = new AnimationClip();
     clip.name = name;
     clip.duration = 0;

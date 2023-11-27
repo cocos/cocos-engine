@@ -40,6 +40,7 @@ namespace gfx {
 class Shader;
 class Buffer;
 class InputAssembler;
+class DescriptorSet;
 class Texture;
 }
 
@@ -51,6 +52,7 @@ class GPUScene;
 
 struct InstanceData {
     uint32_t objectId{UINT_MAX};
+    uint32_t phaseId{UINT_MAX};
     uint32_t batchId{UINT_MAX};
 };
 
@@ -66,6 +68,8 @@ struct CC_DLL BatchItem {
 
     gfx::Shader *shader{nullptr};
     gfx::InputAssembler *inputAssembler{nullptr};
+    gfx::DescriptorSet *descriptorSet{nullptr};
+    gfx::Texture *lightingMap{nullptr};
     uint32_t indexStride{0U};
 
     /**
@@ -98,9 +102,6 @@ private:
     BatchItemList _items;
 };
 
-using PassBatchMap = ccstd::unordered_map<Pass *, GPUBatch *>;
-using LightMapBatchMap = ccstd::unordered_map<const gfx::Texture *, PassBatchMap>;
-
 class CC_DLL GPUBatchPool final : public RefCounted {
 public:
     GPUBatchPool() = default;
@@ -114,7 +115,7 @@ public:
     void removeModel(const Model *model);
     void removeAllModels();
 
-    inline LightMapBatchMap &getBatches() { return _batches; }
+    inline ccstd::unordered_map<Pass *, GPUBatch *> &getBatches() { return _batches; }
     inline uint32_t getIndirectCount() const { return static_cast<uint32_t>(_indirectCmds.size()); }
     inline uint32_t getInstanceCount() const { return static_cast<uint32_t>(_instances.size()); }
     static uint32_t getIndirectStride();
@@ -127,7 +128,7 @@ private:
     void updateBuffers();
 
     GPUScene *_gpuScene{nullptr};
-    LightMapBatchMap _batches;
+    ccstd::unordered_map<Pass *, GPUBatch *> _batches;
     ccstd::vector<InstanceData> _instances;
     ccstd::vector<gfx::DrawIndexedIndirectCommand> _indirectCmds;
 

@@ -39,7 +39,7 @@ CCProgram surface-vertex %{
   vec3 SurfacesVertexModifyWorldPos(in SurfacesStandardVertexIntermediate In)
   {
     // Apply uniform scaling for atmosphere effects
-    return In.worldPos * params.w;
+    return cc_cameraPos.xyz + In.worldPos * params.w;
   }
 }%
 
@@ -62,13 +62,11 @@ CCProgram surface-fragment %{
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec3 c = vec3(1.0);
-    #if CC_USE_IBL
-      vec3 normal = normalize(FSInput_worldNormal);
-      vec3 rotationDir = RotationVecFromAxisY(normal.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
-      c = sampleEnvMap(environmentMap, rotationDir);
-      #if BLEND_ENV_MAP
-        c = mix(c, sampleEnvMap(blendEnvironmentMap, rotationDir), params.x);
-      #endif
+    vec3 normal = normalize(FSInput_worldNormal);
+    vec3 rotationDir = RotationVecFromAxisY(normal.xyz, cc_surfaceTransform.z, cc_surfaceTransform.w);
+    c = sampleEnvMap(environmentMap, rotationDir);
+    #if BLEND_ENV_MAP
+      c = mix(c, sampleEnvMap(blendEnvironmentMap, rotationDir), params.x);
     #endif
     return vec4(c * cc_ambientSky.w * params.y, 1.0);
   }

@@ -11,7 +11,7 @@ vec3 lerp_3Color(vec3 A, vec3 B, vec3 C, float alpha)
 vec3 GetIrisUVMask(float IrisUVRadius)
 {
   const float IrisBorderWidth = 0.04, IrisBleedWidth = 0.035, IrisMaskWidth = 0.045;
-  
+
   vec3 arg3_LimbusUVWidth = vec3(IrisBorderWidth, IrisBleedWidth, IrisMaskWidth);
   float arg8_IrisUVRadius = IrisUVRadius * 0.03 + 0.15;
   // vec3 out_IrisUVMask = Custom1(IrisUVRadius,UV,LimbusUVWidth)
@@ -30,7 +30,7 @@ vec2 GetIrisUV(vec2 refractedUV, float IrisUVRadius, float PupilScale)
 {
   // code between Refract->Parallax, for control pupil size
   const float PupilShiftX = 0.0, PupilShiftY = 0.0, ScaleIrisWithinMask = 1.0;
-  
+
   float uvRadius = (IrisUVRadius*0.03+0.15) * 2.0;
   vec2 UV1 = refractedUV - vec2(0.5);
   vec2 UV =(UV1 / uvRadius) + vec2(0.5);
@@ -91,7 +91,7 @@ vec3 GetGeneratedColorForIris(vec2 irisUV, sampler2D irisColorMap, float IrisCol
   vec3 a = lerp(desat_col2, desat_col1, alphaRB.y);
   vec3 lerpedColor = lerp(a, b, RadialStructuralBlendSwitch) * M_Tex.a;
   vec3 base = lerpedColor * lerp(1.0, M_Tex.g, AOinIris);
-  
+
   float radius = distance(irisUV - vec2(0.5), vec2(0.0));
   float alpha = smoothstep(0.275, 0.5, radius);
   return lerp(base, pow(base, vec3(LimbusDarkAmount + 1.0)), alpha);
@@ -118,7 +118,7 @@ vec3 GetBlendColorForIrisAndSclera(vec3 irisUVMask, vec3 irisGeneratedColor, sam
   vec3 irisColor = Desaturation(irisGeneratedColor * IrisBrightness, (IrisSaturation - 0.5) * -2.0);
   vec3 lerpedScleraAndIris = lerp(ScleraColor, irisColor, irisUVMask.r);
   vec3 cloudyPupilAddColor = SphereMask(FSInput_texcoord, vec2(0.5), CloudyIrisRadius, CloudyIrisHardness) * CloudyIrisColor.rgb;
-  
+
   float scleraCornerDarkMask = SphereMask(FSInput_texcoord, vec2(0.5), ScleraCornerDarkRadius, ScleraCornerDarkHardness);
   vec3 ScleraCorner = lerp(ScleraCornerDarkColor.rgb, vec3(1.0), scleraCornerDarkMask);
   vec3 BaseColor = ScleraCorner * (cloudyPupilAddColor + lerpedScleraAndIris);

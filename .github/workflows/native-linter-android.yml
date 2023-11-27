@@ -39,6 +39,7 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
+          local-cache: true
       - name: Get changed files
         uses: PatriceJiang/paths-filter@master
         id: listchanged

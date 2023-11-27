@@ -23,20 +23,14 @@
 */
 
 import * as env from 'internal:constants';
+import { debug, warn, error } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { EffectAsset } from '../../asset/assets/effect-asset';
 import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDescriptorSetLayout } from '../../rendering/define';
 import { PipelineRuntime } from '../../rendering/custom/pipeline';
 import { MacroRecord } from './pass-utils';
-import {
-    PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
-    Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
-    DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
-    DescriptorType, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout,
-    Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment,
-} from '../../gfx';
-import { genHandles, getActiveAttributes, getShaderInstanceName, getSize,
-    getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
-import { debug, cclegacy, warn, error } from '../../core';
+import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo, Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout, Shader, UniformStorageBuffer, UniformStorageImage, UniformSampler, UniformTexture, UniformInputAttachment } from '../../gfx';
+import { genHandles, getActiveAttributes, getShaderInstanceName, getSize, getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 

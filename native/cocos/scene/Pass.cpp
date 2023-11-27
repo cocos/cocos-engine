@@ -829,6 +829,16 @@ void Pass::syncBatchingScheme() {
     }
 }
 
+bool Pass::isBlend() const {
+    bool bBlend = false;
+    for (const auto &target : getBlendState()->targets) {
+        if (target.blend) {
+            bBlend = true;
+        }
+    }
+    return bBlend;
+}
+
 void Pass::initPassFromTarget(Pass *target, const gfx::DepthStencilState &dss, ccstd::hash_t hashFactor) {
     _priority = target->_priority;
     _stage = target->_stage;

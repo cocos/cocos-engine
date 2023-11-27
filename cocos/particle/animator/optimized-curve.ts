@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { repeat, geometry } from '../../core';
+import { repeat } from '@base/math';
+import { geometry } from '../../core';
 
 const CURVE_MODE_CONSTANT = 0;
 const CURVE_MODE_RANDOM_CONSTANT = 1;

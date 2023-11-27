@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
+import { cclegacy } from '@base/global';
 import { WebGLDevice } from '../cocos/gfx/webgl/webgl-device';
-import { legacyCC } from '../cocos/core/global-exports';
 
 export { WebGLDevice };
-legacyCC.WebGLDevice = WebGLDevice;
+cclegacy.WebGLDevice = WebGLDevice;

@@ -23,11 +23,11 @@
 */
 
 import { JSB } from 'internal:constants';
+import { Mat4, Vec2 } from '@base/math';
 import { SpriteFrame } from '../../assets';
-import { Mat4, Vec2 } from '../../../core';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite, UIOpacity } from '../../components';
+import { Sprite } from '../../components';
 import { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
@@ -43,9 +43,9 @@ const _intersectPoint_1: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2(
 const _intersectPoint_2: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _center = new Vec2();
 const _triangles: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
-let QUAD_INDICES;
+let QUAD_INDICES: Uint16Array | null = null;
 
-function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle, intersectPoints: Vec2[]): void {
+function _calcIntersectedPoints (left, right, bottom, top, center: Vec2, angle: number, intersectPoints: Vec2[]): void {
     // left bottom, right, top
     let sinAngle = Math.sin(angle);
     sinAngle = Math.abs(sinAngle) > EPSILON ? sinAngle : 0;
@@ -269,14 +269,22 @@ export const radialFilled: IAssembler = {
             // build uvs
             _calculateUVs(frame);
             _calcIntersectedPoints(
-                _vertices[0], _vertices[2],
-                _vertices[1], _vertices[3],
-                _center, fillStart, _intersectPoint_1,
+                _vertices[0],
+                _vertices[2],
+                _vertices[1],
+                _vertices[3],
+                _center,
+                fillStart,
+                _intersectPoint_1,
             );
             _calcIntersectedPoints(
-                _vertices[0], _vertices[2],
-                _vertices[1], _vertices[3],
-                _center, fillStart + fillRange, _intersectPoint_2,
+                _vertices[0],
+                _vertices[2],
+                _vertices[1],
+                _vertices[3],
+                _center,
+                fillStart + fillRange,
+                _intersectPoint_2,
             );
 
             let offset = 0;
@@ -307,14 +315,21 @@ export const radialFilled: IAssembler = {
                         if (endAngle >= fillEnd) {
                             // startAngle to fillEnd
                             _generateTriangle(
-                                dataList, offset, _center,
+                                dataList,
+                                offset,
+                                _center,
                                 _vertPos[triangle.x],
                                 _intersectPoint_2[triangleIndex],
                             );
                         } else {
                             // startAngle to endAngle
-                            _generateTriangle(dataList, offset, _center,
-                                _vertPos[triangle.x], _vertPos[triangle.y]);
+                            _generateTriangle(
+                                dataList,
+                                offset,
+                                _center,
+                                _vertPos[triangle.x],
+                                _vertPos[triangle.y],
+                            );
                         }
                         offset += 3;
                     } else if (endAngle > fillStart) {
@@ -322,16 +337,24 @@ export const radialFilled: IAssembler = {
                         if (endAngle <= fillEnd) {
                             renderData.dataLength = offset + 3;
                             // fillStart to endAngle
-                            _generateTriangle(dataList, offset, _center,
+                            _generateTriangle(
+                                dataList,
+                                offset,
+                                _center,
                                 _intersectPoint_1[triangleIndex],
-                                _vertPos[triangle.y]);
+                                _vertPos[triangle.y],
+                            );
                             offset += 3;
                         } else {
                             renderData.dataLength = offset + 3;
                             // fillStart to fillEnd
-                            _generateTriangle(dataList, offset, _center,
+                            _generateTriangle(
+                                dataList,
+                                offset,
+                                _center,
                                 _intersectPoint_1[triangleIndex],
-                                _intersectPoint_2[triangleIndex]);
+                                _intersectPoint_2[triangleIndex],
+                            );
                             offset += 3;
                         }
                     }
@@ -348,7 +371,7 @@ export const radialFilled: IAssembler = {
             if (JSB) {
                 const indexCount = renderData.indexCount;
                 this.createQuadIndices(indexCount);
-                renderData.chunk.setIndexBuffer(QUAD_INDICES);
+                renderData.chunk.setIndexBuffer(QUAD_INDICES!);
                 // may can update color & uv here
                 // need dirty
                 this.updateWorldUVData(sprite);
@@ -359,7 +382,7 @@ export const radialFilled: IAssembler = {
         }
     },
 
-    createQuadIndices (indexCount) {
+    createQuadIndices (indexCount: number) {
         QUAD_INDICES = null;
         QUAD_INDICES = new Uint16Array(indexCount);
         let offset = 0;
@@ -372,9 +395,10 @@ export const radialFilled: IAssembler = {
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
         const chunk = renderData.chunk;
-        if (node.hasChangedFlags || renderData.vertDirty) {
+        if (comp._flagChangedVersion !== node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexAndUVData(comp, chunk);
             renderData.vertDirty = false;
+            comp._flagChangedVersion = node.flagChangedVersion;
         }
 
         // forColor
@@ -464,5 +488,6 @@ export const radialFilled: IAssembler = {
 
     // Too early
     updateColor (sprite: Sprite) {
+        // Update color by updateColorLate
     },
 };

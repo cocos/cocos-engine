@@ -23,8 +23,7 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
-import { OS } from '../../../pal/system-info/enum-type';
+import { systemInfo, OS } from '@pal/system-info';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
 const DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;

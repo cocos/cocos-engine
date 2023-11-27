@@ -12,6 +12,6 @@ vec4 CCFragOutput (vec4 color) {
     #endif
     color.rgb = LinearToSRGB(color.rgb);
   #endif
-  
+
   return color;
 }

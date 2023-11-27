@@ -24,11 +24,11 @@
 
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
-import { CCObject } from '../core/data/object';
-import { assert, getError } from '../core/platform/debug';
+import { assert, getError } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { CCObject } from '@base/object';
 import { RenderScene } from '../render-scene/core/render-scene';
 import { Node } from './node';
-import { legacyCC } from '../core/global-exports';
 import { Component } from './component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';
@@ -88,10 +88,10 @@ export class Scene extends Node {
     constructor (name: string) {
         super(name);
         this._activeInHierarchy = false;
-        if (legacyCC.director && legacyCC.director.root) {
-            this._renderScene = legacyCC.director.root.createScene({});
+        if (cclegacy.director && cclegacy.director.root) {
+            this._renderScene = cclegacy.director.root.createScene({});
         }
-        this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
+        this._inited = cclegacy.game ? !cclegacy.game._isCloning : true;
     }
 
     /**
@@ -106,7 +106,7 @@ export class Scene extends Node {
                 children[i].active = false;
             }
         }
-        if (this._renderScene) legacyCC.director.root.destroyScene(this._renderScene);
+        if (this._renderScene) cclegacy.director.root.destroyScene(this._renderScene);
         this._active = false;
         this._activeInHierarchy = false;
         return success;
@@ -129,11 +129,13 @@ export class Scene extends Node {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public _onHierarchyChanged (): void { }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public _onPostActivated (active: boolean): void {
 
     }
@@ -155,10 +157,11 @@ export class Scene extends Node {
      * @zh
      * 参考 [[Node.updateWorldTransform]]
      */
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public updateWorldTransform (): void {}
 
     // life-cycle call backs
-
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     protected _instantiate (): void { }
 
     /**
@@ -189,12 +192,9 @@ export class Scene extends Node {
             // issue: https://github.com/cocos/cocos-engine/issues/14643
             (this as any)._registerIfAttached!(active);
         }
-        legacyCC.director._nodeActivator.activateNode(this, active);
+        cclegacy.director._nodeActivator.activateNode(this, active);
         // The test environment does not currently support the renderer
-        if (!TEST) {
-            this._globals.activate(this);
-        }
     }
 }
 
-legacyCC.Scene = Scene;
+cclegacy.Scene = Scene;

@@ -24,14 +24,14 @@
 
 import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { warnID } from '@base/debug';
 import { Root } from '../../root';
-import { BlendState, DepthStencilState, RasterizerState,
-    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo, Shader } from '../../gfx';
+import { BlendState, DepthStencilState, RasterizerState, DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, Uniform, MemoryAccess, Format, deviceManager, ShaderInfo, Shader } from '../../gfx';
 import { RenderPassStage } from '../../rendering/define';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { programLib } from '../../render-scene/core/program-lib';
 import { Asset } from './asset';
-import { cclegacy, warnID } from '../../core';
 import { ProgramLibrary } from '../../rendering/custom/private';
 import { addEffectDefaultProperties, getCombinationDefines } from '../../render-scene/core/program-utils';
 
@@ -203,7 +203,7 @@ const legacyBuiltinEffectNames = [
     'geometry-renderer',
     'debug-renderer',
     'ssss-blur',
-    'tone-mapping',
+    'float-output-process',
 ];
 
 /**

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
@@ -265,7 +265,7 @@ export enum SystemEventType {
      * @en The event type for node's sibling order changed.
      * @zh 当节点在兄弟节点中的顺序发生变化时触发的事件。
      *
-     * @deprecated since v3.3, please use Node.EventType.SIBLING_ORDER_CHANGED instead
+     * @deprecated since v3.3, please use Node.EventType.CHILDREN_ORDER_CHANGED instead
      */
     SIBLING_ORDER_CHANGED = 'sibling-order-changed',
 }

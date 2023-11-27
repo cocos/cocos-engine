@@ -27,7 +27,7 @@
 #include "platform/UniversalPlatform.h"
 
 namespace cc {
-
+class SystemWindowManager;
 class MacPlatform : public UniversalPlatform {
 public:
     MacPlatform() = default;
@@ -58,8 +58,11 @@ public:
     void onPause() override;
     void onResume() override;
     void onClose() override;
+    void pollEvent() override;
+
 private:
     bool _readyToExit{false};
+    std::shared_ptr<SystemWindowManager> _windowManager{nullptr};
 };
 
 } // namespace cc

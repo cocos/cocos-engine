@@ -1,8 +1,7 @@
-import { CCClass, ccenum } from '../../cocos/core';
+import { CCClass, ccenum, BitMask } from '@base/object';
 import { property } from '../../cocos/core/data/class-decorator';
 import { ccclass, type } from '../../cocos/core/data/decorators';
 import { deserialize } from '../../cocos/serialization/deserialize';
-import { BitMask } from '../../cocos/core/value-types/bitmask';
 import './serialization/deserialize-common-tests';
 
 describe('Deserialize', () => {

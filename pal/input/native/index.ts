@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { checkPalIntegrity, withImpl } from '../../integrity-check';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
 
 export * from './accelerometer-input';
 export * from './gamepad-input';

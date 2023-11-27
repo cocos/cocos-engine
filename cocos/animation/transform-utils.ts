@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Mat4 } from '../core';
+import { Mat4 } from '@base/math';
 import { Node } from '../scene-graph';
 
 const m4_1 = new Mat4();

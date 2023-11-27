@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like } from '../../../core';
+import { IVec3Like } from '@base/math';
 import { PhysicsMaterial, TerrainCollider } from '../../framework';
 import { ITerrainAsset } from '../../spec/i-external';
 import { ITerrainShape } from '../../spec/i-physics-shape';

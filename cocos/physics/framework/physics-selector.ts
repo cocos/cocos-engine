@@ -26,19 +26,18 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, TEST } from 'internal:constants';
-import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint,
-    IConfigurableConstraint } from '../spec/i-physics-constraint';
-import {
-    IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
-    IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape,
-} from '../spec/i-physics-shape';
+import { errorID, warn, debug } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { IVec3Like } from '@base/math';
+import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint, IFixedConstraint, IConfigurableConstraint } from '../spec/i-physics-constraint';
+import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { IBoxCharacterController, ICapsuleCharacterController } from '../spec/i-character-controller';
-import { errorID, IVec3Like, warn, cclegacy, debug } from '../../core';
 import { EColliderType, EConstraintType, ECharacterControllerType } from './physics-enum';
 import { PhysicsMaterial } from '.';
 
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'bullet' | 'physx' | string;
 
 interface IPhysicsWrapperObject {
@@ -57,6 +56,9 @@ interface IPhysicsWrapperObject {
     PlaneShape?: Constructor<IPlaneShape>,
     PointToPointConstraint?: Constructor<IPointToPointConstraint>,
     HingeConstraint?: Constructor<IHingeConstraint>,
+    /**
+     * @deprecated cone twist constraint is deprecated, please use configurable instead
+     */
     ConeTwistConstraint?: Constructor<IConeTwistConstraint>,
     FixedConstraint?: Constructor<IFixedConstraint>,
     ConfigurableConstraint?: Constructor<IConfigurableConstraint>,
@@ -232,6 +234,9 @@ enum ECheckType {
     // JOINT //
     PointToPointConstraint,
     HingeConstraint,
+    /**
+     * @deprecated cone twist constraint is deprecated, please use configurable instead
+     */
     ConeTwistConstraint,
     FixedConstraint,
     ConfigurableConstraint,
@@ -524,6 +529,7 @@ const ENTIRE_CHARACTER_CONTROLLER: IEntireCharacterController = {
     addMask: FUNC,
     removeMask: FUNC,
     move: FUNC,
+    syncPhysicsToScene: FUNC,
     updateEventListener: FUNC,
     //IBoxCharacterController
     setHalfHeight: FUNC,

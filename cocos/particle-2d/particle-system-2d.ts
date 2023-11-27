@@ -23,13 +23,13 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass, editable, type, displayOrder, menu,
-    executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override,
-} from 'cc.decorator';
+import { ccclass, editable, type, displayOrder, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs, override } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warnID, errorID, error } from '@base/debug';
+import { ccwindow } from '@base/global';
+import { Color, Vec2 } from '@base/math';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Vec2, warnID, errorID, error, path } from '../core';
+import { path } from '../core';
 import { Simulator } from './particle-simulator-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { ImageAsset } from '../asset/assets/image-asset';
@@ -41,7 +41,6 @@ import codec from '../../external/compression/ZipUtils';
 import { IBatcher } from '../2d/renderer/i-batcher';
 import { assetManager, builtinResMgr } from '../asset/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
-import { ccwindow } from '../core/global-exports';
 import type { IAssembler } from '../2d';
 import type { TextureBase } from '../asset/assets/texture-base';
 

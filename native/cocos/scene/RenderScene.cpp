@@ -338,7 +338,7 @@ void RenderScene::removePointLights() {
     _pointLights.clear();
 }
 
-void RenderScene::addRangedDirlLight(RangedDirectionalLight *rangedDirLight) {
+void RenderScene::addRangedDirLight(RangedDirectionalLight *rangedDirLight) {
     _rangedDirLights.emplace_back(rangedDirLight);
 }
 
@@ -392,13 +392,7 @@ void RenderScene::removeModels() {
     _models.clear();
 }
 
-void RenderScene::addGPUMesh(Mesh* mesh) {
-    if (_gpuScene) {
-        _gpuScene->addMesh(mesh);
-    }
-}
-
-void RenderScene::addGPUModel(Model* model) {
+void RenderScene::addGPUModel(Model *model) {
     model->attachToScene(this);
     _gpuModels.emplace_back(model);
     if (_gpuScene) {
@@ -406,7 +400,7 @@ void RenderScene::addGPUModel(Model* model) {
     }
 }
 
-void RenderScene::removeGPUModel(Model* model) {
+void RenderScene::removeGPUModel(Model *model) {
     auto iter = std::find(_gpuModels.begin(), _gpuModels.end(), model);
     if (iter != _gpuModels.end()) {
         model->detachFromScene();

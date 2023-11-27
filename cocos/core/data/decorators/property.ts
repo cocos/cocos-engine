@@ -23,16 +23,15 @@
 */
 
 import { DEV, EDITOR, JSB, TEST } from 'internal:constants';
-import { CCString, CCInteger, CCFloat, CCBoolean } from '../utils/attribute';
-import { IExposedAttributes } from '../utils/attribute-defines';
+import { warnID, errorID } from '@base/debug';
+import { js } from '@base/utils';
+import { CCString, CCInteger, CCBoolean, IExposedAttributes, getFullFormOfProperty, ClassStash, PropertyStash, PropertyStashInternalFlag } from '@base/object';
 import { LegacyPropertyDecorator, getSubDict, BabelPropertyDecoratorDescriptor, Initializer, getOrCreateClassDecoratorStash } from './utils';
-import { warnID, errorID } from '../../platform/debug';
-import { getFullFormOfProperty } from '../utils/preprocess-class';
-import { ClassStash, PropertyStash, PropertyStashInternalFlag } from '../class-stash';
-import { getClassName, mixin } from '../../utils/js-typed';
+
+const { getClassName, mixin } = js;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCFloat | typeof CCBoolean;
+export type SimplePropertyType = Function | string | typeof CCString | typeof CCInteger | typeof CCBoolean;
 
 export type PropertyType = SimplePropertyType | SimplePropertyType[];
 
@@ -80,7 +79,7 @@ export function property (
             target,
             propertyKey,
         );
-        const classConstructor = target.constructor;
+        const classConstructor = target.constructor as new () => unknown;
         mergePropertyOptions(
             classStash,
             propertyStash,
@@ -133,7 +132,8 @@ function extractActualDefaultValues (classConstructor: new () => unknown): unkno
         dummyObj = new classConstructor();
     } catch (e) {
         if (DEV) {
-            warnID(3652, getClassName(classConstructor), e);
+            // NOTE: here we use unknown e as a string, or sometheing supports toString() method.
+            warnID(3652, getClassName(classConstructor), e as string);
         }
         return {};
     }
@@ -183,14 +183,14 @@ export function getOrCreatePropertyStash (
 function mergePropertyOptions (
     cache: ClassStash,
     propertyStash: PropertyStash,
-    ctor,
+    ctor: new () => unknown,
     propertyKey: Parameters<LegacyPropertyDecorator>[1],
     options,
     descriptorOrInitializer: Parameters<LegacyPropertyDecorator>[2] | undefined,
 ): void {
     let fullOptions;
-    const isGetset = descriptorOrInitializer && typeof descriptorOrInitializer !== 'function'
-        && (descriptorOrInitializer.get || descriptorOrInitializer.set);
+    const isGetset = !!(descriptorOrInitializer && typeof descriptorOrInitializer !== 'function'
+        && (descriptorOrInitializer.get || descriptorOrInitializer.set));
     if (options) {
         fullOptions = getFullFormOfProperty(options, isGetset);
     }
@@ -205,11 +205,11 @@ function mergePropertyOptions (
                 warnID(3655, propertyKey as string, getClassName(ctor), propertyKey as string, propertyKey as string);
             }
         }
-        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get) {
-            propertyRecord.get = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).get;
+        if (descriptorOrInitializer.get) {
+            propertyRecord.get = descriptorOrInitializer.get;
         }
-        if ((descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set) {
-            propertyRecord.set = (descriptorOrInitializer as BabelPropertyDecoratorDescriptor).set;
+        if (descriptorOrInitializer.set) {
+            propertyRecord.set = descriptorOrInitializer.set;
         }
     } else { // Target property is non-accessor
         if (DEV && (propertyRecord.get || propertyRecord.set)) {

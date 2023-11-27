@@ -23,7 +23,10 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { Vec3, RecyclePool, error, js, geometry, IVec3Like, IQuatLike, warnID } from '../../core';
+import { error, warnID } from '@base/debug';
+import { js, memop } from '@base/utils';
+import { Vec3, IVec3Like, IQuatLike } from '@base/math';
+import { geometry } from '../../core';
 import { fillRaycastResult, toCannonRaycastOptions } from './cannon-util';
 import { CannonConstraint } from './constraints/cannon-constraint';
 import { CannonShape } from './shapes/cannon-shape';
@@ -77,7 +80,7 @@ export class CannonWorld implements IPhysicsWorld {
     }
 
     sweepBox (worldRay: geometry.Ray, halfExtent: IVec3Like, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         warnID(9641);
         return false;
     }
@@ -89,7 +92,7 @@ export class CannonWorld implements IPhysicsWorld {
     }
 
     sweepSphere (worldRay: geometry.Ray, radius: number, options: IRaycastOptions,
-        pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         warnID(9641);
         return false;
     }
@@ -101,7 +104,7 @@ export class CannonWorld implements IPhysicsWorld {
     }
 
     sweepCapsule (worldRay: geometry.Ray, radius: number, height: number, orientation: IQuatLike,
-        options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+        options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         warnID(9641);
         return false;
     }
@@ -153,7 +156,7 @@ export class CannonWorld implements IPhysicsWorld {
         return hit;
     }
 
-    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    raycast (worldRay: geometry.Ray, options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         setupFromAndTo(worldRay, options.maxDistance);
         toCannonRaycastOptions(raycastOpt, options);
         const hit = this._world.raycastAll(from, to, raycastOpt, (result: CANNON.RaycastResult): any => {

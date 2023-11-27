@@ -22,7 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, misc, random, IColorLike } from '../core';
+import { js } from '@base/utils';
+import { Vec2, Color, random, IColorLike, clamp } from '@base/math';
+import { misc } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -166,15 +168,15 @@ export class Simulator {
         const startColorVar = psys.startColorVar;
         const endColor = psys.endColor;
         const endColorVar = psys.endColorVar;
+        particle.color.r = sr = clamp(startColor.r + startColorVar.r * (random() - 0.5) * 2, 0, 255);
 
-        particle.color.r = sr = misc.clampf(startColor.r + startColorVar.r * (random() - 0.5) * 2, 0, 255);
-        particle.color.g = sg = misc.clampf(startColor.g + startColorVar.g * (random() - 0.5) * 2, 0, 255);
-        particle.color.b = sb = misc.clampf(startColor.b + startColorVar.b * (random() - 0.5) * 2, 0, 255);
-        particle.color.a = sa = misc.clampf(startColor.a + startColorVar.a * (random() - 0.5) * 2, 0, 255);
-        particle.deltaColor.r = (misc.clampf(endColor.r + endColorVar.r * (random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
-        particle.deltaColor.g = (misc.clampf(endColor.g + endColorVar.g * (random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
-        particle.deltaColor.b = (misc.clampf(endColor.b + endColorVar.b * (random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
-        particle.deltaColor.a = (misc.clampf(endColor.a + endColorVar.a * (random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
+        particle.color.g = sg = clamp(startColor.g + startColorVar.g * (random() - 0.5) * 2, 0, 255);
+        particle.color.b = sb = clamp(startColor.b + startColorVar.b * (random() - 0.5) * 2, 0, 255);
+        particle.color.a = sa = clamp(startColor.a + startColorVar.a * (random() - 0.5) * 2, 0, 255);
+        particle.deltaColor.r = (clamp(endColor.r + endColorVar.r * (random() - 0.5) * 2, 0, 255) - sr) / timeToLive;
+        particle.deltaColor.g = (clamp(endColor.g + endColorVar.g * (random() - 0.5) * 2, 0, 255) - sg) / timeToLive;
+        particle.deltaColor.b = (clamp(endColor.b + endColorVar.b * (random() - 0.5) * 2, 0, 255) - sb) / timeToLive;
+        particle.deltaColor.a = (clamp(endColor.a + endColorVar.a * (random() - 0.5) * 2, 0, 255) - sa) / timeToLive;
 
         // size
         let startS = psys.startSize + psys.startSizeVar * (random() - 0.5) * 2;

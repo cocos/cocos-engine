@@ -151,7 +151,7 @@ void CCSurfacesVertexTransferShadow(inout SurfacesStandardVertexIntermediate In)
       In.shadowBiasAndProbeId.xy += cc_localShadowBias.xy;
     #endif
   #endif
-  
+
   #if CC_USE_REFLECTION_PROBE
     #if CC_USE_GPU_DRIVEN
       vec4 localShadowBias = CCGetLocalShadowBias();

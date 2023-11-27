@@ -1,12 +1,13 @@
 import { EDITOR } from 'internal:constants';
 import { Material } from '../../../asset/assets';
-import { property } from '../../../core/data/class-decorator';
+import { property, serializable } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, help, menu } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.BlitScreenMaterial')
 class BlitScreenMaterial {
     @property(Material)
+    @serializable
     protected _material: Material | undefined;
 
     @property(Material)
@@ -17,7 +18,9 @@ class BlitScreenMaterial {
         this._material = v;
     }
 
-    @property
+    @property({
+        serializable: true
+    })
     enable = true;
 }
 
@@ -28,6 +31,7 @@ class BlitScreenMaterial {
 @executeInEditMode
 export class BlitScreen extends PostProcessSetting {
     @property(Material)
+    @serializable
     protected _activeMaterials: Material[] = [];
     @property({ type: Material, visible: false })
     get activeMaterials (): Material[] {
@@ -47,6 +51,7 @@ export class BlitScreen extends PostProcessSetting {
     }
 
     @property(BlitScreenMaterial)
+    @serializable
     protected _materials: BlitScreenMaterial[] = [];
 
     @property(BlitScreenMaterial)

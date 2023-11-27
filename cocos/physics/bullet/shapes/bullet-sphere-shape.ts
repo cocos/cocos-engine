@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 
+import { absMaxComponent } from '@base/math';
 import { BulletShape } from './bullet-shape';
 import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3 } from '../bullet-utils';
 import { ISphereShape } from '../../spec/i-physics-shape';
 import { BulletCache, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';
-import { absMaxComponent } from '../../../core';
 
 export class BulletSphereShape extends BulletShape implements ISphereShape {
     updateRadius (): void {

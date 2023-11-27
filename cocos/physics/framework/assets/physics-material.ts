@@ -25,8 +25,9 @@
 // @ts-check
 
 import { ccclass, editable, help, menu, serializable, tooltip, type } from 'cc.decorator';
+import { CCFloat } from '@base/object';
+import { equals } from '@base/math';
 import { Asset } from '../../../asset/assets/asset';
-import { CCFloat, math } from '../../../core';
 
 /**
  * @en
@@ -67,7 +68,7 @@ export class PhysicsMaterial extends Asset {
     }
 
     set friction (value) {
-        if (!math.equals(this._friction, value)) {
+        if (!equals(this._friction, value)) {
             this._friction = value;
             this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
@@ -87,7 +88,7 @@ export class PhysicsMaterial extends Asset {
     }
 
     set rollingFriction (value) {
-        if (!math.equals(this._rollingFriction, value)) {
+        if (!equals(this._rollingFriction, value)) {
             this._rollingFriction = value;
             this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
@@ -107,7 +108,7 @@ export class PhysicsMaterial extends Asset {
     }
 
     set spinningFriction (value) {
-        if (!math.equals(this._spinningFriction, value)) {
+        if (!equals(this._spinningFriction, value)) {
             this._spinningFriction = value;
             this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
@@ -127,7 +128,7 @@ export class PhysicsMaterial extends Asset {
     }
 
     set restitution (value) {
-        if (!math.equals(this._restitution, value)) {
+        if (!equals(this._restitution, value)) {
             this._restitution = value;
             this.emit(PhysicsMaterial.EVENT_UPDATE);
         }

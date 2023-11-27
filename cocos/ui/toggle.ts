@@ -25,13 +25,13 @@
 
 import { ccclass, help, requireComponent, executionOrder, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { EventHandler as ComponentEventHandler } from '../scene-graph/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Sprite } from '../2d/components/sprite';
 import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../core/data/utils/extends-enum';
 import { EventType as ButtonEventType, Button } from './button';
-import { legacyCC } from '../core/global-exports';
 
 enum EventType {
     TOGGLE = 'toggle',
@@ -105,7 +105,7 @@ export class Toggle extends Button {
      */
     get _toggleContainer (): ToggleContainer | null {
         const parent = this.node.parent!;
-        if (legacyCC.Node.isNode(parent)) {
+        if (cclegacy.Node.isNode(parent)) {
             return parent.getComponent('cc.ToggleContainer') as ToggleContainer;
         }
         return null;
@@ -212,4 +212,4 @@ export class Toggle extends Button {
  * @param toggle @en The Toggle component. @zh 切换键组件。
  */
 
-legacyCC.Toggle = Toggle;
+cclegacy.Toggle = Toggle;

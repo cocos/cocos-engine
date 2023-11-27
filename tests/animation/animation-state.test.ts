@@ -1,10 +1,10 @@
-import { LegacyBlendStateBuffer } from "../../cocos/3d/skeletal-animation/skeletal-animation-blending";
-import { lerp, Vec3 } from "../../cocos/core";
-import { AnimationClip, AnimationManager, AnimationState } from "../../cocos/animation";
-import { VectorTrack } from "../../cocos/animation/animation";
-import { WrappedInfo } from "../../cocos/animation/types";
-import { Component, Node } from "../../cocos/scene-graph";
-import { Director, director } from "../../cocos/game";
+import { lerp, Vec3 } from '@base/math';
+import { LegacyBlendStateBuffer } from '../../cocos/3d/skeletal-animation/skeletal-animation-blending';
+import { AnimationClip, AnimationManager, AnimationState } from '../../cocos/animation';
+import { VectorTrack } from '../../cocos/animation/animation';
+import { WrappedInfo } from '../../cocos/animation/types';
+import { Component, Node } from '../../cocos/scene-graph';
+import { Director, director } from '../../cocos/game';
 
 describe('Animation state', () => {
     test('Zero duration animation clip', () => {

@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { ccenum, geometry } from '../core';
+import { ccenum } from '@base/object';
+import { geometry } from '../core';
 
 /**
  * 动画使用的循环模式。

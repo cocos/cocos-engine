@@ -24,16 +24,13 @@
 
 import { EDITOR, TAOBAO } from 'internal:constants';
 import { ImageData } from 'pal/image';
+import { cclegacy, ccwindow } from '@base/global';
+import { clamp01, Mat4, Vec2, preTransforms } from '@base/math';
 import { Material } from '../asset/assets/material';
-import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
-import {
-    Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
-    BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain, Framebuffer,
-} from '../gfx';
+import { Settings, settings, sys, easing } from '../core';
+import { Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer, BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format, MemoryUsageBit, TextureType, TextureUsageBit, Address, Swapchain, Framebuffer } from '../gfx';
 import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
-import { ccwindow, legacyCC } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
 import { ImageAsset } from '../asset/assets';
 
@@ -495,11 +492,15 @@ export class SplashScreen {
                     // keep scale to [-1, 1] only use offset
                     this.projection.m00 = preTransforms[swapchain.surfaceTransform][0];
                     this.projection.m05 = preTransforms[swapchain.surfaceTransform][3] * device.capabilities.clipSpaceSignY;
-                    this.bgMat.setProperty('u_projection', this.projection);
-                    this.bgMat.passes[0].update();
-                    this.logoMat.setProperty('u_projection', this.projection);
-                    this.logoMat.passes[0].update();
-                    if (this.watermarkMat) {
+                    if (this.settings.background!.type === 'custom') {
+                        this.bgMat.setProperty('u_projection', this.projection);
+                        this.bgMat.passes[0].update();
+                    }
+                    if (this.settings.logo!.type !== 'none') {
+                        this.logoMat.setProperty('u_projection', this.projection);
+                        this.logoMat.passes[0].update();
+                    }
+                    if (this.settings.logo!.type === 'default' && this.watermarkMat) {
                         this.watermarkMat.setProperty('u_projection', this.projection);
                         this.watermarkMat.passes[0].update();
                     }
@@ -573,7 +574,7 @@ export class SplashScreen {
                 device.flushCommands([cmdBuff]);
                 device.queue.submit([cmdBuff]);
                 device.present();
-                device.enableAutoBarrier(!legacyCC.rendering);
+                device.enableAutoBarrier(!cclegacy.rendering);
 
                 if (sys.isXR) {
                     xr.entry.renderLoopEnd(xrEye);

@@ -1,6 +1,4 @@
-import { lerp, toRadian } from '../../cocos/core/math/utils';
-import { Vec3 } from '../../cocos/core/math/vec3';
-import { clampf } from '../../cocos/core/utils/misc';
+import { lerp, toRadian, Vec3, clamp } from '@base/math';
 
 test('basic test', function () {
     const vec3 = new Vec3(1, 2, 3);
@@ -46,7 +44,7 @@ test('misc', function () {
     let magSqr2 = vector.lengthSqr();
     let dot = vec1.dot(vector);
     let theta = dot / (Math.sqrt(magSqr1 * magSqr2));
-    theta = clampf(theta, -1.0, 1.0);
+    theta = clamp(theta, -1.0, 1.0);
 
     expect(Vec3.angle(vec1, vector)).toBeCloseTo(Math.acos(theta));
     expect(Vec3.project(new Vec3(), vec2, vector)).toEqual(new Vec3(10, 10, 10));

@@ -23,8 +23,10 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
-    Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
+import { assert } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { Vec2, Vec3, Vec4, toRadian, nextPow2 } from '@base/math';
+import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp, Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit, Filter, Address } from '../../gfx';
 import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
 import { CSMLevel, ShadowType } from '../../render-scene/scene/shadows';
@@ -36,16 +38,13 @@ import { SphereLight } from '../../render-scene/scene/sphere-light';
 import { SpotLight } from '../../render-scene/scene/spot-light';
 import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline, Pipeline } from './pipeline';
-import {
-    AccessType, AttachmentType, CopyPair, LightInfo,
-    QueueHint, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair,
-} from './types';
-import { Vec2, Vec3, Vec4, macro, geometry, toRadian, cclegacy, assert, nextPow2 } from '../../core';
+import { AccessType, AttachmentType, CopyPair, LightInfo, QueueHint, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
+import { macro, geometry } from '../../core';
 import { ImageAsset, Material, Texture2D } from '../../asset/assets';
 import { getProfilerCamera, SRGBToLinear } from '../pipeline-funcs';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData, RenderGraph } from './render-graph';
-import { WebPipeline } from './web-pipeline';
+import { WebComputePassBuilder, WebPipeline } from './web-pipeline';
 import { DescriptorSetData, LayoutGraph, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
 import { DebugViewCompositeType, DebugViewSingleType } from '../debug-view';
@@ -2178,7 +2177,7 @@ export function buildHBAOPasses (
     return { rtName: haboCombined.rtName, dsName: inputDS };
 }
 
-export const MAX_LIGHTS_PER_CLUSTER = 100;
+export const MAX_LIGHTS_PER_CLUSTER = 200;
 export const CLUSTERS_X = 16;
 export const CLUSTERS_Y = 8;
 export const CLUSTERS_Z = 24;
@@ -2240,6 +2239,9 @@ export function buildLightClusterBuildPass (
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    if ('setCurrConstant' in clusterPass) { // web-pipeline
+        (clusterPass as WebComputePassBuilder).addConstant('CCConst', 'cluster-build-cs');
+    }
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0));
     clusterPass.setVec4('cc_viewPort', new Vec4(0, 0, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));
@@ -2280,6 +2282,9 @@ export function buildLightClusterCullingPass (
 
     const width = camera.width * ppl.pipelineSceneData.shadingScale;
     const height = camera.height * ppl.pipelineSceneData.shadingScale;
+    if ('setCurrConstant' in clusterPass) { // web-pipeline
+        (clusterPass as WebComputePassBuilder).addConstant('CCConst', 'cluster-build-cs');
+    }
     clusterPass.setVec4('cc_nearFar', new Vec4(camera.nearClip, camera.farClip, camera.getClipSpaceMinz(), 0));
     clusterPass.setVec4('cc_viewPort', new Vec4(width, height, width, height));
     clusterPass.setVec4('cc_workGroup', new Vec4(CLUSTERS_X, CLUSTERS_Y, CLUSTERS_Z, 0));

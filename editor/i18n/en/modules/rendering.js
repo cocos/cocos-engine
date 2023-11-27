@@ -57,6 +57,10 @@ module.exports = {
                         displayName: 'Materials',
                         tooltip: 'Material array. Each item in turn specifies material of sub mesh.',
                     },
+                    'gpuDrivenEnabled': {
+                        displayName: 'Enable GPU Driven',
+                        tooltip: 'Whether to enable GPU Driven.',
+                    },
                     'shadowCastingModeForInspector': {
                         displayName: 'Cast Shadows',
                         tooltip: 'Whether if this mesh casts shadows.',

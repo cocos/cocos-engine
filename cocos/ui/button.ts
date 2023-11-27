@@ -23,19 +23,17 @@
  THE SOFTWARE.
 */
 
-import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin,
-    rangeMax, serializable, executeInEditMode } from 'cc.decorator';
+import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin, rangeMax, serializable, executeInEditMode } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
+import { Color, Vec3, lerp } from '@base/math';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform, UIRenderer } from '../2d/framework';
 import { EventMouse, EventTouch } from '../input/types';
-import { Color, Vec3 } from '../core/math';
-import { ccenum } from '../core/value-types/enum';
-import { lerp } from '../core/math/utils';
 import { Node } from '../scene-graph/node';
 import { Sprite } from '../2d/components/sprite';
-import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../scene-graph/node-enum';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEventType } from '../xr/event/xr-event-handle';
@@ -293,7 +291,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.normal_color')
-    // @constget
     get normalColor (): Readonly<Color> {
         return this._normalColor;
     }
@@ -316,7 +313,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.pressed_color')
-    // @constget
     get pressedColor (): Readonly<Color> {
         return this._pressedColor;
     }
@@ -338,7 +334,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.hover_color')
-    // @constget
     get hoverColor (): Readonly<Color> {
         return this._hoverColor;
     }
@@ -359,7 +354,6 @@ export class Button extends Component {
      */
     @displayOrder(3)
     @tooltip('i18n:button.disabled_color')
-    // @constget
     get disabledColor (): Readonly<Color> {
         return this._disabledColor;
     }
@@ -1032,4 +1026,4 @@ export class Button extends Component {
     }
 }
 
-legacyCC.Button = Button;
+cclegacy.Button = Button;

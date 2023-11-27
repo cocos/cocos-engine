@@ -24,8 +24,8 @@
 */
 
 import { TEST } from 'internal:constants';
-import { BASE64_VALUES } from './misc';
-import { legacyCC } from '../global-exports';
+import { cclegacy } from '@base/global';
+import BASE64_VALUES from '../../../external/compression/base64-values';
 
 const separator = '@';
 
@@ -70,5 +70,5 @@ export default function decodeUuid (base64: string): string {
 }
 
 if (TEST) {
-    legacyCC._Test.decodeUuid = decodeUuid;
+    cclegacy._Test.decodeUuid = decodeUuid;
 }

@@ -19,8 +19,8 @@
  THE SOFTWARE.
  */
 
-import { cclegacy } from '../../core';
-import { Vec3 } from '../../core/math/vec3';
+import { cclegacy } from '@base/global';
+import { Vec3 } from '@base/math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 

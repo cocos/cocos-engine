@@ -22,31 +22,14 @@
  THE SOFTWARE.
 */
 
-import {
-    BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
-    FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
-    Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
-    UniformSamplerTexture, alignTo, Extent, formatAlignment, getTypedArrayConstructor, Offset, TextureBlit,
-} from '../base/define';
+import { error, errorID, debug, assertID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
+import { BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo, FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit, Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates, UniformSamplerTexture, alignTo, Extent, formatAlignment, getTypedArrayConstructor, Offset, TextureBlit } from '../base/define';
 import { WebGL2EXT } from './webgl2-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import { WebGL2Device } from './webgl2-device';
-import {
-    IWebGL2GPUInputAssembler,
-    IWebGL2Attrib,
-    IWebGL2GPUDescriptorSet,
-    IWebGL2GPUBuffer,
-    IWebGL2GPUFramebuffer,
-    IWebGL2GPUInput,
-    IWebGL2GPUPipelineState,
-    IWebGL2GPUSampler,
-    IWebGL2GPUShader,
-    IWebGL2GPUTexture,
-    IWebGL2GPUUniformBlock,
-    IWebGL2GPUUniformSamplerTexture,
-    IWebGL2GPURenderPass,
-} from './webgl2-gpu-objects';
-import { CachedArray, error, errorID, debug, cclegacy, assertID } from '../../core';
+import { IWebGL2GPUInputAssembler, IWebGL2Attrib, IWebGL2GPUDescriptorSet, IWebGL2GPUBuffer, IWebGL2GPUFramebuffer, IWebGL2GPUInput, IWebGL2GPUPipelineState, IWebGL2GPUSampler, IWebGL2GPUShader, IWebGL2GPUTexture, IWebGL2GPUUniformBlock, IWebGL2GPUUniformSamplerTexture, IWebGL2GPURenderPass } from './webgl2-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -734,13 +717,13 @@ export class WebGL2CmdBlitTexture extends WebGL2CmdObject {
 }
 
 export class WebGL2CmdPackage {
-    public cmds: CachedArray<WebGL2Cmd> = new CachedArray(1);
-    public beginRenderPassCmds: CachedArray<WebGL2CmdBeginRenderPass> = new CachedArray(1);
-    public bindStatesCmds: CachedArray<WebGL2CmdBindStates> = new CachedArray(1);
-    public drawCmds: CachedArray<WebGL2CmdDraw> = new CachedArray(1);
-    public updateBufferCmds: CachedArray<WebGL2CmdUpdateBuffer> = new CachedArray(1);
-    public copyBufferToTextureCmds: CachedArray<WebGL2CmdCopyBufferToTexture> = new CachedArray(1);
-    public blitTextureCmds: CachedArray<WebGL2CmdBlitTexture> = new CachedArray(1);
+    public cmds: memop.CachedArray<WebGL2Cmd> = new memop.CachedArray(1);
+    public beginRenderPassCmds: memop.CachedArray<WebGL2CmdBeginRenderPass> = new memop.CachedArray(1);
+    public bindStatesCmds: memop.CachedArray<WebGL2CmdBindStates> = new memop.CachedArray(1);
+    public drawCmds: memop.CachedArray<WebGL2CmdDraw> = new memop.CachedArray(1);
+    public updateBufferCmds: memop.CachedArray<WebGL2CmdUpdateBuffer> = new memop.CachedArray(1);
+    public copyBufferToTextureCmds: memop.CachedArray<WebGL2CmdCopyBufferToTexture> = new memop.CachedArray(1);
+    public blitTextureCmds: memop.CachedArray<WebGL2CmdBlitTexture> = new memop.CachedArray(1);
 
     public clearCmds (allocator: WebGL2CommandAllocator): void {
         if (this.beginRenderPassCmds.length) {

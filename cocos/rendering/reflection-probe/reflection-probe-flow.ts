@@ -23,13 +23,13 @@
 */
 import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ReflectionProbeStage } from './reflection-probe-stage';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../render-scene/scene/camera';
 import { ProbeType, ReflectionProbe } from '../../render-scene/scene/reflection-probe';
-import { cclegacy } from '../../core';
 
 /**
  * @en reflection probe render flow

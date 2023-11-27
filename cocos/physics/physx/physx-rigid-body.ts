@@ -23,7 +23,7 @@
 */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { IVec3Like, Vec3 } from '../../core';
+import { IVec3Like, Vec3 } from '@base/math';
 import { ERigidBodyType, PhysicsSystem, RigidBody } from '../framework';
 import { IRigidBody } from '../spec/i-rigid-body';
 import { applyForce, applyImpulse, applyTorqueForce, PX, _trans } from './physx-adapter';

@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
+import { EventTarget } from '@base/event';
+import { Vec3, Quat } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventHandle } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceStick, InputSourcePosition, InputSourceOrientation } from '../input-source';
-import { Vec3, Quat } from '../../../cocos/core/math';
 
 export type HandleCallback = (res: EventHandle) => void;
 

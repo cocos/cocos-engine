@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CachedArray } from '../../core';
+import { memop } from '@base/utils';
 import {
     WebGL2CmdBeginRenderPass,
     WebGL2CmdBindStates,
@@ -37,11 +37,11 @@ import {
 export class WebGL2CommandPool<T extends WebGL2CmdObject> {
     private _frees: (T|null)[];
     private _freeIdx = 0;
-    private _freeCmds: CachedArray<T>;
+    private _freeCmds: memop.CachedArray<T>;
 
     constructor (Clazz: new() => T, count: number) {
         this._frees = new Array(count);
-        this._freeCmds = new CachedArray(count);
+        this._freeCmds = new memop.CachedArray(count);
         for (let i = 0; i < count; ++i) {
             this._frees[i] = new Clazz();
         }
@@ -84,7 +84,7 @@ export class WebGL2CommandPool<T extends WebGL2CmdObject> {
         }
     }
 
-    public freeCmds (cmds: CachedArray<T>): void {
+    public freeCmds (cmds: memop.CachedArray<T>): void {
         // return ;
         for (let i = 0; i < cmds.length; ++i) {
             if (--cmds.array[i].refCount === 0) {

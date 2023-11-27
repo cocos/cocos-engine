@@ -1,0 +1,22 @@
+{
+  "$schema": "../../schemas/module-config.schema.json",
+  "name": "typedoc-plugin-cc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "keywords": [
+    "typedocplugin"
+  ],
+  "dependencies": {
+    "fs-extra": "^10.0.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.13"
+  }
+}

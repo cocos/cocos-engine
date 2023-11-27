@@ -23,11 +23,11 @@
 */
 
 import b2 from '@cocos/box2d';
+import { toRadian } from '@base/math';
 import { IWheelJoint } from '../../spec/i-physics-joint';
 import { WheelJoint2D } from '../../framework';
 import { b2Joint } from './joint-2d';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
-import { toRadian } from '../../../core';
 
 export class b2WheelJoint extends b2Joint implements IWheelJoint {
     setDampingRatio (v: number): void {

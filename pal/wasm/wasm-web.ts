@@ -23,7 +23,8 @@
 */
 
 import { EDITOR, PREVIEW } from 'internal:constants';
-import { checkPalIntegrity, withImpl } from '../integrity-check';
+import { checkPalIntegrity, withImpl } from '@pal/utils';
+import { error } from '@base/debug';
 
 declare const require: any;
 
@@ -42,20 +43,20 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
                     // IDEA: it's better we implement another PAL for nodejs platform.
                     // eslint-disable-next-line @typescript-eslint/no-var-requires
                     const fs = require('fs');
-                    const arrayBuffer = fs.readFileSync(binaryUrl);
+                    const arrayBuffer = fs.readFileSync(binaryUrl) as ArrayBuffer;
                     resolve(arrayBuffer);
                 });
                 return;
             } else if (PREVIEW) {
                 // NOTE: we resolve '/engine_external/' in in editor preview server.
-                fetch(`/engine_external/?url=${binaryUrl}`).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {});
+                fetch(`/engine_external/?url=${binaryUrl}`).then((response) => response.arrayBuffer().then(resolve)).catch((e) => { error(e); });
                 return;
             }
             // here is in the BUILD mode
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore NOTE: we need to use 'import.meta' here, but the tsc won't allow this, so we need to force ignoring this error here.
             binaryUrl = new URL(binaryUrl, import.meta.url).href;
-            fetch(binaryUrl).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {});
+            fetch(binaryUrl).then((response) => response.arrayBuffer().then(resolve)).catch((e) => { error(e); });
         } catch (e) {
             reject(e);
         }

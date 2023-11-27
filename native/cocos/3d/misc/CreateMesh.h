@@ -87,6 +87,15 @@ public:
      * @zh 创建一个动态网格ICreateInfo。
      */
     static Mesh::ICreateInfo createDynamicMeshInfo(const IDynamicGeometry &geometry, const ICreateDynamicMeshOptions &options = {});
+
+    /**
+     * 
+     */
+    static void inflateMesh(const Mesh::IStruct &structInfo, Uint8Array &data);
+
+    static void decodeMesh(Mesh::IStruct &structInfo, Uint8Array &data);
+
+    static void dequantizeMesh(Mesh::IStruct &structInfo, Uint8Array &data);
 };
 
 } // namespace cc

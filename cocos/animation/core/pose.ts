@@ -1,6 +1,6 @@
 import { DEBUG } from 'internal:constants';
-import { lerp } from '../../core';
-import { assertIsTrue } from '../../core/data/utils/asserts';
+import { assertIsTrue } from '@base/debug/internal';
+import { lerp } from '@base/math';
 import { Transform, __applyDeltaTransform, __calculateDeltaTransform } from './transform';
 import { TransformArray } from './transform-array';
 

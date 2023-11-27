@@ -22,11 +22,10 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
-import { screenAdapter } from 'pal/screen-adapter';
-import { EventTarget } from '../../../cocos/core/event';
-import { OS } from '../../system-info/enum-type';
-import { Orientation } from '../../screen-adapter/enum-type';
+import { systemInfo, OS } from '@pal/system-info';
+import { screenAdapter } from '@pal/screen-adapter';
+import { EventTarget } from '@base/event';
+import { Orientation } from '@pal/screen-adapter';
 import { Acceleration, EventAcceleration } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
@@ -34,7 +33,7 @@ export type AccelerometerCallback = (res: EventAcceleration) => void;
 
 export class AccelerometerInputSource {
     private _intervalInSeconds = 0.2;
-    private _intervalId? :number;
+    private _intervalId?: number;
     private _isEnabled = false;
     private _eventTarget: EventTarget = new  EventTarget();
     private _didAccelerateFunc: () => void;

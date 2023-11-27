@@ -25,21 +25,22 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from '@pal/screen-adapter';
+import { ccwindow } from '@base/global';
+import { isDescendantElementOf } from '@pal/utils';
+import { BrowserType, OS } from '@pal/system-info';
+import { Mat4, Vec3 } from '@base/math';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../game/director';
 import { game } from '../../game';
-import { Mat4, Vec3, visibleRect, sys } from '../../core';
+import { visibleRect, sys } from '../../core';
 import { view } from '../view';
 import { KeyCode } from '../../input/types';
-import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
 import { tabIndexUtil } from './tabIndexUtil';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
-import { BrowserType, OS } from '../../../pal/system-info/enum-type';
-import { ccwindow } from '../../core/global-exports';
 
 const ccdocument = ccwindow.document;
 
@@ -64,15 +65,15 @@ export class EditBoxImpl extends EditBoxImplBase {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _inputMode: InputMode = -1;
+    public _inputMode: InputMode = InputMode.ANY;
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _inputFlag: InputFlag = -1;
+    public _inputFlag: InputFlag = InputFlag.DEFAULT;
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _returnType: KeyboardReturnType = -1;
+    public _returnType: KeyboardReturnType = KeyboardReturnType.DEFAULT;
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
@@ -137,6 +138,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     public update (): void {
+        if (!this._dirtyFlag) return;
         this._updateMatrix();
     }
 
@@ -159,6 +161,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         this._editing = true;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         _currentEditBoxImpl = this;
         this._delegate!._editBoxEditingDidBegan();
         this._showDom();
@@ -187,11 +190,11 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _removeDomFromGameContainer (): void {
-        const hasElem = contains(game.container, this._edTxt);
+        const hasElem = isDescendantElementOf(game.container, this._edTxt);
         if (hasElem && this._edTxt) {
             game.container!.removeChild(this._edTxt);
         }
-        const hasStyleSheet = contains(ccdocument.head, this._placeholderStyleSheet);
+        const hasStyleSheet = isDescendantElementOf(ccdocument.head, this._placeholderStyleSheet);
         if (hasStyleSheet) {
             ccdocument.head.removeChild(this._placeholderStyleSheet!);
         }
@@ -370,11 +373,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         let type = elem.type;
         if (inputMode === InputMode.EMAIL_ADDR) {
             type = 'email';
-        } else if (inputMode === InputMode.NUMERIC || inputMode === InputMode.DECIMAL) {
+        } else if (inputMode === InputMode.NUMERIC) {
             type = 'number';
+        } else if (inputMode === InputMode.DECIMAL) {
+            type = 'digit';
         } else if (inputMode === InputMode.PHONE_NUMBER) {
-            type = 'number';
-            elem.pattern = '[0-9]*';
+            type = 'tel';
             elem.addEventListener('wheel', () => false);
         } else if (inputMode === InputMode.URL) {
             type = 'url';
@@ -624,12 +628,12 @@ export class EditBoxImpl extends EditBoxImplBase {
             this._delegate!._editBoxEditingDidEnded();
         };
 
-        elem.addEventListener('compositionstart', cbs.compositionStart);
-        elem.addEventListener('compositionend', cbs.compositionEnd);
-        elem.addEventListener('input', cbs.onInput);
-        elem.addEventListener('keydown', cbs.onKeydown);
-        elem.addEventListener('blur', cbs.onBlur);
-        elem.addEventListener('touchstart', cbs.onClick);
+        elem.addEventListener('compositionstart', cbs.compositionStart as EventListenerOrEventListenerObject);
+        elem.addEventListener('compositionend', cbs.compositionEnd as EventListenerOrEventListenerObject);
+        elem.addEventListener('input', cbs.onInput as EventListenerOrEventListenerObject);
+        elem.addEventListener('keydown', cbs.onKeydown as EventListenerOrEventListenerObject);
+        elem.addEventListener('blur', cbs.onBlur as EventListenerOrEventListenerObject);
+        elem.addEventListener('touchstart', cbs.onClick as EventListenerOrEventListenerObject);
     }
     private _removeEventListeners (): void {
         if (!this._edTxt) {
@@ -639,12 +643,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         const elem = this._edTxt;
         const cbs = this.__eventListeners;
 
-        elem.removeEventListener('compositionstart', cbs.compositionStart);
-        elem.removeEventListener('compositionend', cbs.compositionEnd);
-        elem.removeEventListener('input', cbs.onInput);
-        elem.removeEventListener('keydown', cbs.onKeydown);
-        elem.removeEventListener('blur', cbs.onBlur);
-        elem.removeEventListener('touchstart', cbs.onClick);
+        elem.removeEventListener('compositionstart', cbs.compositionStart as EventListenerOrEventListenerObject);
+        elem.removeEventListener('compositionend', cbs.compositionEnd as EventListenerOrEventListenerObject);
+        elem.removeEventListener('input', cbs.onInput as EventListenerOrEventListenerObject);
+        elem.removeEventListener('keydown', cbs.onKeydown as EventListenerOrEventListenerObject);
+        elem.removeEventListener('blur', cbs.onBlur as EventListenerOrEventListenerObject);
+        elem.removeEventListener('touchstart', cbs.onClick as EventListenerOrEventListenerObject);
 
         cbs.compositionStart = null;
         cbs.compositionEnd = null;

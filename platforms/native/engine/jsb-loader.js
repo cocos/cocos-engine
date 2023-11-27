@@ -55,7 +55,7 @@ function downloadScript (url, options, onComplete) {
     if (loadedScripts[url]) return onComplete && onComplete();
 
     download(url, (src, options, onComplete) => {
-        if (window.oh) {
+        if (window.oh && window.scriptEngineType === 'napi') {
             // TODO(qgh):OpenHarmony does not currently support dynamic require expressions
             window.oh.loadModule(src);
         } else if (__EDITOR__) {

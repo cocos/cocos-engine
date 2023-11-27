@@ -72,6 +72,13 @@ public:
         gfx::AttributeList attributes;
     };
 
+    struct IMeshCluster {
+        IBufferView clusterView;
+        IBufferView triangleView;
+        IBufferView vertexView;
+        IBufferView coneView;
+    };
+
     /**
      * @en Sub mesh contains a list of primitives with the same type (Point, Line or Triangle)
      * @zh 子网格。子网格由一系列相同类型的图元组成（例如点、线、面等）。
@@ -101,6 +108,8 @@ public:
          * 如未定义或指向的映射表不存在，则默认 VB 内所有关节索引数据直接对应骨骼资源数据。
          */
         ccstd::optional<uint32_t> jointMapIndex;
+
+        ccstd::optional<IMeshCluster> cluster;
     };
 
     /**
@@ -196,6 +205,12 @@ public:
          * @zh 动态网格特有数据
          */
         ccstd::optional<IDynamicStruct> dynamic;
+
+        ccstd::optional<bool> encoded;
+
+        ccstd::optional<bool> compressed;
+
+        ccstd::optional<bool> quantized;
 
         /**
          * @en Whether to support GPU Scene

@@ -21,7 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { Mat3, EPSILON, Vec3, _decorator } from '../../core';
+import { Mat3, EPSILON, Vec3 } from '@base/math';
+import { _decorator } from '../../core';
 
 const { ccclass, serializable } = _decorator;
 

@@ -23,7 +23,8 @@
 */
 
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
-import { Color, Mat4, Vec3, cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
+import { Color, Mat4, Vec3 } from '@base/math';
 import { BlendFactor } from '../../gfx';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { MaterialInstance } from '../../render-scene/core/material-instance';

@@ -20,11 +20,11 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from "internal:constants";
-import { legacyCC } from '../core/global-exports';
+import { EDITOR, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { Node } from './node';
-import { applyTargetOverrides, expandNestedPrefabInstanceNode } from "./prefab/utils";
-import { assert } from "../core/platform/debug";
+import { applyTargetOverrides, expandNestedPrefabInstanceNode } from './prefab/utils';
+import { assert } from '@base/debug';
 import { updateChildrenForDeserialize } from '../core/utils/jsb-utils';
 import { SceneGlobals } from './scene-globals';
 import { patch_cc_Scene } from '../native-binding/decorators';
@@ -34,7 +34,7 @@ declare const jsb: any;
 
 export const Scene: typeof JsbScene = jsb.Scene;
 export type Scene = JsbScene;
-legacyCC.Scene = Scene;
+cclegacy.Scene = Scene;
 
 const sceneProto: any = Scene.prototype;
 
@@ -128,11 +128,8 @@ sceneProto._activate = function (active: boolean) {
         // register all nodes to editor
         this._registerIfAttached!(active);
     }
-    legacyCC.director._nodeActivator.activateNode(this, active);
+    cclegacy.director._nodeActivator.activateNode(this, active);
     // The test environment does not currently support the renderer
-    if (!TEST || EDITOR) {
-        this._globals.activate(this);
-    }
 };
 
 sceneProto._instantiate = function(): void {};

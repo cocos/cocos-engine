@@ -23,7 +23,8 @@
  THE SOFTWARE.
 */
 
-import { Vec2, cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
+import { Vec2 } from '@base/math';
 
 const _vec2 = new Vec2();
 /**
@@ -199,7 +200,7 @@ export class Touch {
 
         _vec2.set(this._point);
         _vec2.subtract(this._prevPoint);
-        out.set(cclegacy.view.getScaleX(), cclegacy.view.getScaleY());
+        out.set(cclegacy.view.getScaleX() as number, cclegacy.view.getScaleY() as number);
         Vec2.divide(out, _vec2, out);
         return out;
     }
@@ -261,7 +262,7 @@ export class Touch {
      * @param x - x position of the touch point
      * @param y - y position of the touch point
      */
-    public setTouchInfo (id = 0, x?: number, y?: number): void {
+    public setTouchInfo (id: number = 0, x: number = 0, y: number = 0): void {
         this._prevPoint = this._point;
         this._point = new Vec2(x || 0, y || 0);
         this._id = id;
@@ -320,6 +321,21 @@ export class Touch {
             this._prevPoint = new Vec2(x || 0, y || 0);
         }
         this._lastModified = cclegacy.game.frameStartTime;
+    }
+
+    /**
+     * @zh Touch 对象的原始数据不应该被修改。如果你需要这么做，最好克隆一个新的对象。
+     * @en The original Touch object shouldn't be modified. If you need to, it's better to clone a new one.
+     */
+    public clone (): Touch {
+        const touchID = this.getID();
+        this.getStartLocation(_vec2);
+        const clonedTouch = new Touch(_vec2.x, _vec2.y, touchID);
+        this.getLocation(_vec2);
+        clonedTouch.setPoint(_vec2.x, _vec2.y);
+        this.getPreviousLocation(_vec2);
+        clonedTouch.setPrevPoint(_vec2);
+        return clonedTouch;
     }
 }
 

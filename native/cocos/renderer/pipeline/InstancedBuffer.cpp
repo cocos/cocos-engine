@@ -157,6 +157,7 @@ void InstancedBuffer::uploadBuffers(gfx::CommandBuffer *cmdBuff) const {
         if (!instance.drawInfo.instanceCount) continue;
 
         cmdBuff->updateBuffer(instance.vb, instance.data, instance.vb->getSize());
+        instance.ia->setInstanceCount(instance.drawInfo.instanceCount);
     }
 }
 

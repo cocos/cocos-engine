@@ -23,12 +23,12 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, warn } from '../../core';
+import { warn } from '@base/debug';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '@base/math';
 
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
-import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
-    randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
+import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere, randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystem } from '../particle-system';
 
 const _intermediVec = new Vec3(0, 0, 0);

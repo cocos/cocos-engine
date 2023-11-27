@@ -1,10 +1,10 @@
 import { DEBUG } from 'internal:constants';
-import { approx, assertIsTrue, error } from '../../../../core';
+import { error } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { approx } from '@base/math';
 import { Pose } from '../../../core/pose';
 import { PoseGraphStash } from '../../animation-graph';
-import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,
-    AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator,
-} from '../../animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator } from '../../animation-graph-context';
 import { InstantiatedPoseGraph, instantiatePoseGraph } from '../instantiation';
 
 interface RuntimeStash {

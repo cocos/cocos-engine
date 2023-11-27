@@ -203,13 +203,14 @@ export class RenderScene {
     /**
      * @engineInternal
      */
-    public activate () {
+    public activate (): void {
+        // Do nothing
     }
 
     /**
      * @engineInternal
      */
-    public buildGPUScene (meshes: Mesh[]) {
+    public buildGPUScene (meshes: Mesh[]): void {
         // Only support in native.
     }
 
@@ -556,13 +557,6 @@ export class RenderScene {
         }
         this._models.length = 0;
     }
-
-    /**
-     * Add a mesh to GPUScene.
-     * Only support in native.
-     * @internal
-     */
-    public addGPUMesh (m: Mesh): void {}
 
     /**
      * @en Add a GPU Driven model, all models attached to the render scene will be submitted for rendering.

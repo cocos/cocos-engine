@@ -24,8 +24,9 @@
 
 import { instantiateWasm, fetchBuffer, ensureWasmModuleReady } from 'pal/wasm';
 import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
+import { getError, error } from '@base/debug';
 import { game } from '../../game';
-import { getError, error, sys } from '../../core';
+import { sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
 

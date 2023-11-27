@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from "../../core";
+import { cclegacy } from '@base/global';
 import type { SkinningModel as JsbSkinningModel } from './skinning-model';
 
 declare const jsb: any;

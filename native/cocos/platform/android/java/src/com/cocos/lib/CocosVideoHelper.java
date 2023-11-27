@@ -75,6 +75,10 @@ public class CocosVideoHelper {
     private final static int VideoTaskKeepRatio = 11;
     private final static int VideoTaskFullScreen = 12;
     private final static int VideoTaskSetVolume = 13;
+    private final static int VideoTaskSetPlaybackRate = 14;
+    private final static int VideoTaskSetMute = 15;
+    private final static int VideoTaskSetLoop = 16;
+    
 
     final static int KeyEventBack = 1000;
 
@@ -154,6 +158,27 @@ public class CocosVideoHelper {
             case VideoTaskSetVolume: {
                 float volume = (float) msg.arg2 / 10;
                 helper._setVolume(msg.arg1, volume);
+                break;
+            }
+            case VideoTaskSetPlaybackRate: {
+                float rate = (float) msg.arg2 / 10;
+                helper._setPlaybackRate(msg.arg1, rate);
+                break;
+            }
+            case VideoTaskSetMute: {
+                if (msg.arg2 == 1) {
+                    helper._setMute(msg.arg1, true);
+                } else {
+                    helper._setMute(msg.arg1, false);
+                }
+                break;
+            }
+            case VideoTaskSetLoop: {
+                if (msg.arg2 == 1) {
+                    helper._setLoop(msg.arg1, true);
+                } else {
+                    helper._setLoop(msg.arg1, false);
+                }
                 break;
             }
             default:
@@ -405,6 +430,59 @@ public class CocosVideoHelper {
             msg.arg2 = 0;
         }
         mVideoHandler.sendMessage(msg);
+    }
+
+    public static void setPlaybackRate(final int index, final float value) {
+        Message msg = new Message();
+        msg.what = VideoTaskSetPlaybackRate;
+        msg.arg1 = index;
+        msg.arg2 = (int) (value * 10);
+        mVideoHandler.sendMessage(msg);
+    }
+
+    private void _setPlaybackRate(final int index, final float value) {
+        CocosVideoView videoView = sVideoViews.get(index);
+        if (videoView != null) {
+            videoView.playbackRate(value);
+        }
+    }
+    
+    public static void setMute(int index, boolean enable) {
+        Message msg = new Message();
+        msg.what = VideoTaskSetMute;
+        msg.arg1 = index;
+        if (enable) {
+            msg.arg2 = 1;
+        } else {
+            msg.arg2 = 0;
+        }
+        mVideoHandler.sendMessage(msg);
+    }
+
+    private void _setMute(int index, boolean enable) {
+        CocosVideoView videoView = sVideoViews.get(index);
+        if (videoView != null) {
+            videoView.setMute(enable);
+        }
+    }
+
+    public static void setLoop(int index, boolean enable) {
+        Message msg = new Message();
+        msg.what = VideoTaskSetLoop;
+        msg.arg1 = index;
+        if (enable) {
+            msg.arg2 = 1;
+        } else {
+            msg.arg2 = 0;
+        }
+        mVideoHandler.sendMessage(msg);
+    }
+
+    private void _setLoop(int index, boolean enable) {
+        CocosVideoView videoView = sVideoViews.get(index);
+        if (videoView != null) {
+            videoView.setLoop(enable);
+        }
     }
 
     private void _setVideoKeepRatio(int index, boolean enable) {

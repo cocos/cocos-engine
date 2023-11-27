@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
-import { error, IVec3Like, Vec3 } from '../../../core';
-import { PhysicsSystem  } from '../../framework';
+import { error } from '@base/debug';
+import { IVec3Like, Vec3 } from '@base/math';
+import { PhysicsSystem } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { getWrapShape, PX, _trans, getJsTransform } from '../physx-adapter';
@@ -45,6 +46,9 @@ export class PhysXCharacterController implements IBaseCharacterController {
     protected _word3 = 0;
     protected _overlapRecovery = true;
 
+    readonly id: number;
+    private static idCounter = 0;
+
     get isEnabled (): boolean { return this._isEnabled; }
     get impl (): any {
         /* eslint-disable @typescript-eslint/no-unsafe-return */
@@ -63,6 +67,7 @@ export class PhysXCharacterController implements IBaseCharacterController {
     }
 
     constructor () {
+        this.id = PhysXCharacterController.idCounter++;
         this._filterData = { word0: 1, word1: 1, word2: 1, word3: 0 };
     }
 
@@ -116,6 +121,9 @@ export class PhysXCharacterController implements IBaseCharacterController {
             if (this._impl.$$) {
                 PX.IMPL_PTR[this._impl.$$.ptr] = null;
                 delete PX.IMPL_PTR[this._impl.$$.ptr];
+                const shapePtr = this._impl.getShape().$$.ptr;
+                PX.IMPL_PTR[shapePtr] = null;
+                delete PX.IMPL_PTR[shapePtr];
             }
             this._impl.release();
             this._impl = null;

@@ -235,6 +235,7 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.arrayLength = _info.type == TextureType::CUBE ? 1 : _info.layerCount;
 
     bool memoryless = false;
+#if !(CC_PLATFORM == CC_PLATFORM_MACOS && __MAC_OS_X_VERSION_MIN_REQUIRED < 110000)
     if (@available(macos 11.0, ios 10.0, *)) {
         memoryless = hasFlag(_info.flags, TextureFlagBit::LAZILY_ALLOCATED) &&
             hasAllFlags(TextureUsageBit::COLOR_ATTACHMENT | TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | TextureUsageBit::INPUT_ATTACHMENT, _info.usage);
@@ -243,7 +244,7 @@ bool CCMTLTexture::createMTLTexture() {
             _allocateMemory = false;
         }
     }
-
+#endif
     if (!memoryless && !_isPVRTC) {
         // pvrtc can not use blit encoder to upload data.
         descriptor.storageMode = MTLStorageModePrivate;

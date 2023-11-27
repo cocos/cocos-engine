@@ -23,13 +23,15 @@
 */
 
 import b2 from '@cocos/box2d';
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
 
+import { js } from '@base/utils';
+import { CCObject } from '@base/object';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect } from '@base/math';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
-import { Canvas } from '../../2d/framework';
-import { Graphics } from '../../2d/components';
+// import { Canvas } from '../../2d/framework';
+// import { Graphics } from '../../2d/components';
 
 import { b2RigidBody2D } from './rigid-body';
 import { PhysicsContactListener } from './platform/physics-contact-listener';
@@ -88,7 +90,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         this._raycastQueryCallback = new PhysicsRayCastCallback();
     }
 
-    _debugGraphics: Graphics | null = null;
+    _debugGraphics: any = null;
     _b2DebugDrawer: b2.Draw | null = null;
 
     _debugDrawFlags = 0;
@@ -118,7 +120,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
                 }
 
                 canvas = new Node('Canvas');
-                canvas.addComponent(Canvas);
+                canvas.addComponent('cc.Canvas');
                 canvas.parent = scene;
             }
 
@@ -129,9 +131,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.worldPosition = Vec3.ZERO;
             node.layer = Layers.Enum.UI_2D;
 
-            this._debugGraphics = node.addComponent(Graphics);
+            this._debugGraphics = node.addComponent('cc.Graphics');
             this._debugGraphics.lineWidth = 3;
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const debugDraw = new PhysicsDebugDraw(this._debugGraphics);
             this._b2DebugDrawer = debugDraw;
             this._world.SetDebugDraw(debugDraw);
@@ -177,7 +180,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         callback.init(type, mask);
         this._world.RayCast(callback, tempVec2_1, tempVec2_2);
 
-        const fixtures = callback.getFixtures();
+        const fixtures = callback.getFixtures() as b2.Fixture[];
         if (fixtures.length > 0) {
             const points = callback.getPoints();
             const normals = callback.getNormals();
@@ -299,10 +302,10 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
         // read private property
         const compPrivate = comp as any;
-        const linearVelocity = compPrivate._linearVelocity;
+        const linearVelocity = compPrivate._linearVelocity as Vec2;
         bodyDef.linearVelocity.Set(linearVelocity.x, linearVelocity.y);
 
-        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity);
+        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
 
         const b2Body = this._world.CreateBody(bodyDef);
         b2Body.m_userData = body;
@@ -382,6 +385,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     }
 
     drawDebug (): void {
+        if (TEST) return;
         this._checkDebugDrawValid();
 
         if (!this._debugGraphics) {

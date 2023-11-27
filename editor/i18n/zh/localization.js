@@ -50,6 +50,19 @@ module.exports = link(mixin({
                 },
             },
         },
+        CurveRange: {
+            properties: {
+                spline: {
+                    displayName: 'Spline',
+                },
+                splineMin: {
+                    displayName: 'Spline Min',
+                },
+                splineMax: {
+                    displayName: 'Spline Max',
+                },
+            },
+        },
     },
 
     help: {
@@ -384,6 +397,13 @@ module.exports = link(mixin({
         font_underline: '字体加下划线',
         spacing_x: '文本字符之间的间距。仅在使用 BMFont 位图字体时生效',
         underline_height: '下划线高度',
+        outline_enable: '是否启用描边',
+        outline_width: '描边宽度',
+        outline_color: '描边颜色',
+        shadow_enable: '是否启用阴影',
+        shadow_color: '阴影颜色',
+        shadow_offset: '阴影偏移量',
+        shadow_blur: '阴影模糊程度',
     },
     labelOutline: {
         color: '描边的颜色',
@@ -995,6 +1015,10 @@ module.exports = link(mixin({
             label: "基于 Box2D 的 2D 物理系统",
             description: "基于 Box2D 的 2D 物理系统支持。",
         },
+        physics_2d_box2d_wasm: {
+            label: "基于 Box2D-wasm 的 2D 物理系统",
+            description: "基于 Box2D-wasm 的 2D 物理系统支持。",
+        },
         intersection_2d: {
             label: "2D 相交检测算法",
             description: "包含用于二维相交检测的算法。",
@@ -1266,6 +1290,8 @@ module.exports = link(mixin({
         needBlur: '开启可以获得更柔和的效果，噪点更少，但会耗费一些性能',
     },
     bloom: {
+        enableAlphaMask: '透明通道标志位，如果开启此功能，请同时降低物体材质的固有色a通道输出，a 值小于 1 的物体将不会有泛光',
+        useHdrIlluminance: '使用场景 HDR 亮度来筛选泛光区域，必须同时开启 HDR 模式和 CC_USE_FLOAT_OUTPUT 宏',
         threshold: '光晕的亮度阈值，大于此亮度的区域才会产生泛光，该值单位是人眼所见的 LDR 亮度，和曝光无关',
         iterations: '模糊迭代次数，该值越大则光晕范围越大、越柔和，但性能也会有所降低',
         intensity: '泛光强度，该值越大则光晕越亮，请适度调节',

@@ -23,6 +23,8 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, serializable, disallowAnimation, visible } from 'cc.decorator';
+import { errorID, warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { Mesh } from '../../3d';
 import { Material, Texture2D } from '../../asset/assets';
 import { AlignmentSpace, RenderMode } from '../enum';
@@ -30,7 +32,6 @@ import ParticleSystemRendererCPU from './particle-system-renderer-cpu';
 import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../game/director';
 import { Device, Format, FormatFeatureBit } from '../../gfx';
-import { errorID, warnID, cclegacy } from '../../core';
 
 function isSupportGPUParticle (): boolean {
     const device: Device = director.root!.device;

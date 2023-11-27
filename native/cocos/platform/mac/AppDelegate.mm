@@ -25,95 +25,24 @@
 
 #import "AppDelegate.h"
 #include "base/std/container/string.h"
-//#import "Game.h"
-#import "ViewController.h"
 #include "engine/EngineEvents.h"
 #include "platform/mac/MacPlatform.h"
 
 @interface AppDelegate () {
     NSWindow* _window;
-    //    Game*     _game;
     cc::MacPlatform* _platform;
 }
 @end
 
 @implementation AppDelegate
 
-- (void)createLeftBottomWindow:(NSString*)title width:(int)w height:(int)h {
-    [self createWindow:title xPos:0 yPos:0 width:w height:h];
-}
-
-- (NSWindow*)createWindow:(NSString*)title xPos:(int)x yPos:(int)y width:(int)w height:(int)h {
-    //_window.title = title;
-    NSRect rect = NSMakeRect(x, y, w, h);
-    NSWindow* window = [[NSWindow alloc] initWithContentRect:rect
-                                          styleMask:NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
-                                            backing:NSBackingStoreBuffered
-                                              defer:NO];
-    if (!window) {
-        NSLog(@"Failed to allocated the window.");
-        return nullptr;
-    }
-    
-    ViewController* viewController = [[ViewController alloc] initWithSize:rect];
-    window.contentViewController = viewController;
-    window.contentView = viewController.view;
-    [viewController release];
-    viewController = nil;
-    
-    window.title = title;
-    [window.contentView setWantsBestResolutionOpenGLSurface:YES];
-    [window makeKeyAndOrderFront:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(windowWillMiniaturizeNotification)
-                                                 name:NSWindowWillMiniaturizeNotification
-                                               object:window];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(windowDidDeminiaturizeNotification)
-                                                 name:NSWindowDidDeminiaturizeNotification
-                                               object:window];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(windowWillCloseNotification)
-                                                 name:NSWindowWillCloseNotification
-                                               object:window];
-    if (!_window) {
-        _window = window;
-    }
-    return window;
-}
-
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification {
     _platform = dynamic_cast<cc::MacPlatform*>(cc::BasePlatform::getPlatform());
-    CC_ASSERT_NOT_NULL(_platform);
-    _platform->loop();
-}
-
-- (void)windowWillMiniaturizeNotification {
-    _platform->onPause();
-}
-
-- (void)windowDidDeminiaturizeNotification {
-    _platform->onResume();
-}
-
-- (void)windowWillCloseNotification {
-    _platform->onClose();
-}
-
-- (NSWindow*)getWindow {
-    return _window;
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender
 {
     return _platform->readyToExit() ? NSTerminateNow : NSTerminateLater;
-}
-
-- (void)applicationWillTerminate:(NSNotification*)aNotification {
-    //    delete _game;
-    //FIXME: will crash if relase it here.
-    // [_window release];
-    _platform->onDestroy();
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication {

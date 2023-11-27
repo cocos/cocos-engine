@@ -1,4 +1,4 @@
-import { Mat4, Quat, Vec3 } from "../../../cocos/core";
+import { Mat4, Quat, Vec3 } from '@base/math';
 
 describe('Test Mat4', () => {
     test('Conversion between TRS', () => {

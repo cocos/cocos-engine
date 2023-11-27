@@ -28,10 +28,5 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification;
-- (void)windowWillMiniaturizeNotification;
-- (void)windowDidDeminiaturizeNotification;
-- (void)windowWillCloseNotification;
-- (void)applicationWillTerminate:(NSNotification*)aNotification;
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)theApplication;
-- (NSWindow*)getWindow;
 @end

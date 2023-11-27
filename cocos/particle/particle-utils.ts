@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
+import { memop } from '@base/utils';
+import { CCObject } from '@base/object';
 import { instantiate } from '../serialization';
-import { CCObject, Pool } from '../core';
 import { Director, director } from '../game/director';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
@@ -46,7 +47,7 @@ export class ParticleUtils {
         }
         if (!this.particleSystemPool.has(prefab._uuid)) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>((): any => instantiate(prefab) || new Node(), 1, (prefab): boolean => prefab.destroy()));
+            this.particleSystemPool.set(prefab._uuid, new memop.Pool<CCObject>((): any => instantiate(prefab) || new Node(), 1, (prefab): boolean => prefab.destroy()));
         }
         return this.particleSystemPool.get(prefab._uuid)!.alloc();
     }
@@ -85,7 +86,7 @@ export class ParticleUtils {
         }
     }
 
-    private static particleSystemPool: Map<string, Pool<CCObject>> = new Map<string, Pool<CCObject>>();
+    private static particleSystemPool: Map<string, memop.Pool<CCObject>> = new Map<string, memop.Pool<CCObject>>();
     private static registeredSceneEvent = false;
 
     private static onSceneUnload (): void {

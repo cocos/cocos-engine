@@ -1,8 +1,2 @@
-#if CC_USE_GPU_DRIVEN
-  #pragma rate cc_lightingMap pass
-  #pragma glBinding(2)
-  uniform sampler2D cc_lightingMap;
-#else
-  #pragma builtin(local)
-  layout(set = 2, binding = 11) uniform sampler2D cc_lightingMap;
-#endif
+#pragma builtin(local)
+layout(set = 2, binding = 11) uniform sampler2D cc_lightingMap;

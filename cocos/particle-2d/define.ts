@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Enum } from '../core';
+import { Enum } from '@base/object';
 
 /**
  * @en The Particle emitter lives forever.

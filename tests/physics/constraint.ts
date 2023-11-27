@@ -1,13 +1,10 @@
-import { Quat, Vec3 } from "../../cocos/core";
-import { director } from "../../cocos/game";
-import { Node } from "../../cocos/scene-graph";
-import { ICollisionEvent, physics } from "../../exports/physics-framework";
+import { Quat, Vec3 } from '@base/math';
+import { director } from '../../cocos/game';
+import { Node } from '../../cocos/scene-graph';
+import { ICollisionEvent, physics } from '../../exports/physics-framework';
+import { PhysicsTestEnv } from './physics.test';
 
 function testConfigurableConstraintAPIs(child: Node) {
-    if (physics.selector.id === 'builtin' || physics.selector.id === 'cannon.js') {
-        return;
-    }
-
     const cs = child.addComponent(physics.ConfigurableConstraint) as physics.ConfigurableConstraint;
 
     {   
@@ -126,6 +123,12 @@ function testConfigurableConstraintAPIs(child: Node) {
     child.removeComponent(cs);
 }
 
-export default function (temp0: Node) {
-    testConfigurableConstraintAPIs(temp0);
+export default function (env: PhysicsTestEnv) {
+    if (env.backendId === 'builtin' || env.backendId === 'cannon.js') {
+        return;
+    }
+
+    test(`Configurable constraint`, () => {
+        testConfigurableConstraintAPIs(env.rootNode);
+    });
 }

@@ -23,12 +23,13 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCString, Enum, error } from '../core';
+import { error } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { CCString, Enum } from '@base/object';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
-import { legacyCC } from '../core/global-exports';
 import { Texture2D, Asset } from '../asset/assets';
 import { Node } from '../scene-graph';
 /**
@@ -281,4 +282,4 @@ export class SkeletonData extends Asset {
     }
 }
 
-legacyCC.internal.SpineSkeletonData = SkeletonData;
+cclegacy.internal.SpineSkeletonData = SkeletonData;

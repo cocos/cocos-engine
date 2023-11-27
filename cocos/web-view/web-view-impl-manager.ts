@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 import { WebViewImplWeb } from './web-view-impl-web';
 
 export class WebViewImplManager {
@@ -32,4 +32,4 @@ export class WebViewImplManager {
     }
 }
 
-legacyCC.internal.WebViewImplManager = WebViewImplManager;
+cclegacy.internal.WebViewImplManager = WebViewImplManager;

@@ -23,10 +23,10 @@
 */
 
 import { HandheldCallback } from 'pal/input';
+import { EventTarget } from '@base/event';
+import { Quat, Vec3 } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
 import { InputSourcePosition, InputSourceOrientation } from '../input-source';
-import { Quat, Vec3 } from '../../../cocos/core/math';
 
 export class HandheldInputDevice {
     public get handheldPosition (): InputSourcePosition { return this._handheldPosition; }

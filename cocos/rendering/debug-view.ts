@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { Root } from '../root';
 
 const enum RenderingDebugViewType {
@@ -161,6 +161,10 @@ export class DebugView {
         this._updatePipeline();
     }
 
+    get debugViewType (): RenderingDebugViewType {
+        return this._getType();
+    }
+
     protected _singleMode = DebugViewSingleType.NONE;
     protected _compositeModeValue = 0;
     protected _lightingWithAlbedo = true;
@@ -239,13 +243,16 @@ export class DebugView {
 
     private _enableCompositeMode (val: DebugViewCompositeType, enable: boolean): void {
         if (enable) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             this._compositeModeValue |= (1 << val);
         } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             this._compositeModeValue &= (~(1 << val));
         }
     }
 
     private _enableAllCompositeMode (enable: boolean): void {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         for (let i = 0; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
             if (enable) {
                 this._compositeModeValue |= (1 << i);
@@ -261,6 +268,7 @@ export class DebugView {
         } else if (this._lightingWithAlbedo !== true || this._csmLayerColoration !== false) {
             return RenderingDebugViewType.COMPOSITE_AND_MISC;
         } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             for (let i = 0; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
                 if (!this.isCompositeModeEnabled(i)) {
                     return RenderingDebugViewType.COMPOSITE_AND_MISC;

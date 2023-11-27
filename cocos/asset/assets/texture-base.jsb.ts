@@ -24,7 +24,7 @@
 
 import { TEST, EDITOR } from 'internal:constants';
 import { deviceManager } from '../../gfx';
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './asset';
 import { patch_cc_TextureBase } from '../../native-binding/decorators';
@@ -125,7 +125,7 @@ textureBaseProto.getSamplerInfo = function () {
 const oldDestroy = textureBaseProto.destroy;
 textureBaseProto.destroy = function () {
     if (cclegacy.director.root?.batcher2D) {
-        // legacyCC.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
+        // cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this.getHash());
         cclegacy.director.root.batcher2D._releaseDescriptorSetCache(this.getGFXTexture(), this.getGFXSampler());
     }
     // dispatch into C++ virtual function CCObject::destroy

@@ -24,9 +24,9 @@
 ****************************************************************************/
 import UIAbility from '@ohos.app.ability.UIAbility';
 import nativerender from "libcocos.so";
-import { ContextType } from "../common/Constants"
 import window from '@ohos.window';
 import resourceManager from '@ohos.resourceManager';
+import { ContextType } from "../common/Constants"
 //import avsession from '@ohos.multimedia.avsession';
 
 const nativeContext = nativerender.getContext(ContextType.ENGINE_UTILS);

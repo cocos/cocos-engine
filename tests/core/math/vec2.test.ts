@@ -1,8 +1,5 @@
+import { v2, Vec2, Vec3, Mat3, Mat4, toRadian, toDegree } from '@base/math';
 import { log } from '../../test.log';
-import { Vec2 } from '../../../cocos/core/math/vec2';
-import { Vec3 } from '../../../cocos/core/math/vec3';
-import { Mat3 } from '../../../cocos/core/math/mat3';
-import { Mat4 } from '../../../cocos/core/math/mat4';
 
 describe('Test Vec2', () => {
     test('normalize', () => {
@@ -71,4 +68,39 @@ describe('Test Vec2', () => {
         log('rotate: ', v0);
         expect(Vec2.equals(v0, expect0)).toBe(true);
     });
+
+    test(`Signed angle`, () => {
+        const t = (v1: Readonly<Vec2>, v2: Readonly<Vec2>, expectedDeg: number) => {
+            expect(toDegree(v1.signAngle(v2))).toBeCloseTo(expectedDeg, 1e-6);
+            expect(toDegree(v2.signAngle(v1))).toBeCloseTo(-expectedDeg, 1e-6);
+        };
+
+        t(v2(0, 0), v2(0, 0), 0.0);
+        t(v2(0, 0), v2(3, -4), 0.0);
+
+        {
+            const v1 = polar(toRadian(10), 2);
+            const v1Angle = 10;
+            const v2 = (deg: number) => polar(toRadian(deg), 0.1);
+
+            t(v1, v2(72.3), 62.3);
+            t(v1, v2(v1Angle + 90), 90);
+            t(v1, v2(v1Angle + 140), 140);
+            t(v1, v2(v1Angle + 179.9999), 179.9999);
+
+            // Opposite vector results singularity.
+            const v2_180 = v2(v1Angle + 180);
+            expect(Math.abs(v1.signAngle(v2_180))).toBeCloseTo(Math.PI);
+            expect(Math.abs(v2_180.signAngle(v1))).toBeCloseTo(Math.PI);
+
+            t(v1, v2(v1Angle + 180.0001), 180.0001 - 360);
+            t(v1, v2(v1Angle + 225), 225 - 360);
+            t(v1, v2(v1Angle + 279.9999), 279.9999 - 360);
+            t(v1, v2(v1Angle + 280.0001), 280.0001 - 360);
+        }
+    });
 });
+
+function polar(angle: number, length: number) {
+    return v2(Math.cos(angle) * length, Math.sin(angle) * length);
+}

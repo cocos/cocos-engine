@@ -1,25 +1,19 @@
 import { DEBUG } from 'internal:constants';
-import {
-    StateMachine, State, isAnimationTransition,
-    SubStateMachine, EmptyState, EmptyStateTransition,
-    ProceduralPoseState, ProceduralPoseTransition,
-} from '../animation-graph';
+import { warnID } from '@base/debug';
+import { assertIsTrue, assertIsNonNullable } from '@base/debug/internal';
+import { memop } from '@base/utils';
+import { approx, clamp01 } from '@base/math';
+import { StateMachine, State, isAnimationTransition, SubStateMachine, EmptyState, EmptyStateTransition, ProceduralPoseState, ProceduralPoseTransition } from '../animation-graph';
 import { MotionEval, MotionPort } from '../motion';
 import { createEval } from '../create-eval';
 import { BindContext, validateVariableExistence, validateVariableType, VariableType } from '../parametric';
 import { ConditionEval, TriggerCondition } from './condition';
 import { MotionState } from './motion-state';
-import { warnID, assertIsTrue, assertIsNonNullable, Pool, approx, clamp01 } from '../../../core';
 import { AnimationClip } from '../../animation-clip';
 import type { AnimationController } from '../animation-controller';
 import { StateMachineComponent } from './state-machine-component';
 import { InteractiveState } from './state';
-import {
-    AnimationGraphBindingContext, AnimationGraphEvaluationContext,
-    AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator,
-    AnimationGraphSettleContext,
-    TriggerResetter,
-} from '../animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphUpdateContext, AnimationGraphUpdateContextGenerator, AnimationGraphSettleContext, TriggerResetter } from '../animation-graph-context';
 import { blendPoseInto, Pose } from '../../core/pose';
 import { PoseNode } from '../pose-graph/pose-node';
 import { instantiatePoseGraph, InstantiatedPoseGraph } from '../pose-graph/instantiation';
@@ -1571,14 +1565,14 @@ class ActivatedTransition {
         }
     }
 
-    public static createPool (initialCapacity: number): Pool<ActivatedTransition> {
+    public static createPool (initialCapacity: number): memop.Pool<ActivatedTransition> {
         const destructor = !DEBUG
             ? undefined
             : (transitionInstance: ActivatedTransition): void => {
                 transitionInstance.normalizedElapsedTime = Number.NaN;
             };
 
-        const pool = new Pool<ActivatedTransition>(
+        const pool = new memop.Pool<ActivatedTransition>(
             () => new ActivatedTransition(),
             initialCapacity,
             destructor,

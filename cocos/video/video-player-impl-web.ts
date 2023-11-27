@@ -22,16 +22,19 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
-import { mat4, visibleRect } from '../core';
-import { sys, screen, warn } from '../core/platform';
+import { screenAdapter } from '@pal/screen-adapter';
+import { warn } from '@base/debug';
+import { ccwindow } from '@base/global';
+import { isDescendantElementOf } from '@pal/utils';
+import { BrowserType, OS } from '@pal/system-info';
+import { mat4 } from '@base/math';
+import { visibleRect } from '../core';
+import { sys, screen } from '../core/platform';
 import { game } from '../game';
-import { contains } from '../core/utils/misc';
 import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
-import { BrowserType, OS } from '../../pal/system-info/enum-type';
-import { ccwindow } from '../core/global-exports';
+import type { VideoClip } from './assets/video-clip';
 
 const ccdocument = ccwindow.document;
 
@@ -108,7 +111,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
         }
     }
 
-    public syncClip (clip: any): void {
+    public syncClip (clip: VideoClip | null): void {
         this.removeVideoPlayer();
         if (!clip) { return; }
         this.createVideoPlayer(clip.nativeUrl);
@@ -205,7 +208,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             }
             // Monitor video entry and exit full-screen events
             video.setAttribute('x5-video-player-fullscreen', 'true');
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises, @typescript-eslint/no-unsafe-argument
             screen.requestFullScreen(video, (document) => {
                 const fullscreenElement = sys.browserType === BrowserType.IE ? document.msFullscreenElement : document.fullscreenElement;
                 this._fullScreenOnAwake = (fullscreenElement === video);
@@ -237,7 +240,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
     public removeVideoPlayer (): void {
         const video = this._video;
         if (video) {
-            if (contains(game.container, video)) {
+            if (isDescendantElementOf(game.container, video)) {
                 game.container!.removeChild(video);
                 this.removeAllListeners();
             }

@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3, geometry } from '../../../core';
+import { Vec3 } from '@base/math';
+import { geometry } from '../../../core';
 import { BuiltinShape } from './builtin-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { BoxCollider } from '../../../../exports/physics-framework';

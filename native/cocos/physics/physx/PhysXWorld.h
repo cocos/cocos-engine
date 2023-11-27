@@ -60,17 +60,17 @@ public:
     RaycastResult &raycastClosestResult() override;
 
     bool sweep(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation);
-    bool sweepClosest(RaycastOptions& opt, const physx::PxGeometry& geometry, const physx::PxQuat& orientation);
+    bool sweepClosest(RaycastOptions &opt, const physx::PxGeometry &geometry, const physx::PxQuat &orientation);
     bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                  float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                         float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepSphere(RaycastOptions &opt, float radius) override;
     bool sweepSphereClosest(RaycastOptions &opt, float radius) override;
     bool sweepCapsule(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                      float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                             float orientationW, float orientationX, float orientationY, float orientationZ) override;
     ccstd::vector<RaycastResult> &sweepResult() override;
     RaycastResult &sweepClosestResult() override;
 
@@ -85,8 +85,11 @@ public:
     inline ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
         return _mEventMgr->getConatctPairs();
     }
-    inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override {
+    inline ccstd::vector<std::shared_ptr<CCTShapeEventPair>> &getCCTShapeEventPairs() override {
         return _mEventMgr->getCCTShapePairs();
+    }
+    inline ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &getCCTTriggerEventPairs() override {
+        return _mEventMgr->getCCTTriggerPairs();
     }
     void syncSceneToPhysics() override;
     void syncSceneWithCheck() override;
@@ -105,7 +108,7 @@ public:
     void removeActor(const PhysXSharedBody &sb);
     void addCCT(const PhysXCharacterController &cct);
     void removeCCT(const PhysXCharacterController &cct);
-    
+
     //Mapping PhysX Object ID and Pointer
     uint32_t addPXObject(uintptr_t PXObjectPtr);
     void removePXObject(uint32_t pxObjectID);

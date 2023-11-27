@@ -116,5 +116,50 @@ void IntegratedGFMultiplier (out vec3 integratedGF, out vec3 integratedF, vec3 s
   integratedGF = max(vec3(0.0), vec3(AB.x) + vec3(AB.y) / (specular + EPSILON_LOWP));
 }
 
-//Diffuse_Lambert
+// isotropic sheen
+float Sheen_HorizonFading(float NoL)
+{
+  const float horizonFade = 1.3;
+  float horiz = saturate( 1.0 + horizonFade * NoL);
+  return horiz * horiz;
+}
+
+float Sheen(float NoHSat, float NoL, float NoV, float roughness)
+{
+  if (NoL <= 0.0 || NoV <= 0.0)
+    return 0.0;
+  float NoH2 = NoHSat*NoHSat;
+  float NoL2 = NoL*NoL;
+  float NoV2 = NoV*NoV;
+  roughness += EPSILON_LOWP;
+  float r2 = roughness*roughness;
+
+  float t = 1.0 - NoH2 + NoH2/r2;
+  float Pi_D = 1.0 / (roughness * t * t);
+
+  float Li = sqrt(1.0 - NoL2 + r2*NoL2) / NoL;
+  float Lo = sqrt(1.0 - NoV2 + r2*NoV2) / NoV;
+  float G = (1.0 - exp(-(Li + Lo))) / (Li + Lo);
+
+  return Sheen_HorizonFading(NoL) * Pi_D * G / NoV;
+}
+// simplify estimation for env lighting convolution
+float Sheen(float NoV, float roughness)
+{
+  NoV *= NoV;
+  float NoV2 = NoV*NoV;
+  roughness += EPSILON_LOWP;
+  float r2 = roughness*roughness;
+
+  float t = 1.0 - NoV2 + NoV2/r2;
+  float Pi_D = 1.0 / (roughness * t * t);
+
+  float Lo = sqrt(1.0 - NoV2 + r2*NoV2) / NoV;
+  float G = (1.0 - exp(-Lo)) / Lo;
+
+  float sheen = Pi_D * G / NoV;
+  return pow(max(0.0, sheen), 0.5);
+}
+
+// Diffuse_Lambert
 #define DiffuseCoefficient_EnergyConservation INV_PI

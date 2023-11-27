@@ -1,0 +1,17 @@
+{
+  "$schema": "../../schemas/module-config.schema.json",
+  "name": "@pal/system-info",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "minigame": "./src/minigame/system-info.ts",
+      "native": "./src/native/system-info.ts",
+      "web": "./src/web/system-info.ts"
+    }
+  }
+}

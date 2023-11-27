@@ -22,24 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include <ace/xcomponent/native_interface_xcomponent.h>
-#include "bindings/jswrapper/SeApi.h"
+
 #include "platform/openharmony/napi/NapiHelper.h"
 
-const char kLibname[] = "cocos";
+static const char kLibname[] = "cocos";
 /*
  * function for module exports
  */
 static napi_value init(napi_env env, napi_value exports) {
-    napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("getContext", cc::NapiHelper::getContext),
-    };
-    
-    NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
-    bool ret = cc::NapiHelper::exportFunctions(env, exports);
-    if (!ret) {
-        LOGE("Init failed");
-    }
+    cc::NapiHelper::init(Napi::Env(env), Napi::Object(env, exports));
     return exports;
 }
 
@@ -47,17 +38,17 @@ static napi_value init(napi_env env, napi_value exports) {
  * Napi Module define
  */
 static napi_module cocos2dModule = {
-    .nm_version       = 1,
-    .nm_flags         = 0,
-    .nm_filename      = nullptr,
+    .nm_version = 1,
+    .nm_flags = 0,
+    .nm_filename = nullptr,
     .nm_register_func = init, // called by ACE XComponent
-    .nm_modname       = kLibname,
-    .nm_priv          = ((void*)0),
-    .reserved         = {0},
+    .nm_modname = kLibname,
+    .nm_priv = ((void*)0),
+    .reserved = {0},
 };
 /*
  * Module register function
  */
-extern "C" __attribute__((constructor)) void RegisterModule(void) {
+extern "C" __attribute__((visibility("default"))) __attribute__((constructor)) void RegisterModule(void) {
     napi_module_register(&cocos2dModule);
 }

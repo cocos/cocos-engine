@@ -24,8 +24,8 @@
 */
 
 import { ccclass } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { Asset } from '../../asset/assets';
-import { cclegacy } from '../../core';
 
 /**
  * @en Class for Font handling.

@@ -21,7 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { Label, LabelOutline, LabelShadow } from '../../components';
+import { approx } from '@base/math';
+import { Label } from '../../components';
 import { ISharedLabelData } from './font-utils';
 import { UITransform } from '../../framework/ui-transform';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
@@ -35,8 +36,14 @@ const Overflow = Label.Overflow;
 
 export const ttfUtils =  {
 
-    updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, comp: Label, trans: UITransform): void {
+    updateProcessingData (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        comp: Label,
+        trans: UITransform,
+    ): void {
         // font info // both
         style.isSystemFontUsed = comp.useSystemFont;
         style.fontSize = comp.fontSize;
@@ -62,25 +69,23 @@ export const ttfUtils =  {
         style.underlineHeight = comp.underlineHeight;
 
         // outline// both
-        let outlineComp = LabelOutline && comp.getComponent(LabelOutline);
-        outlineComp = (outlineComp && outlineComp.enabled && outlineComp.width > 0) ? outlineComp : null;
-        if (outlineComp) {
+        const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
+        if (isOutlined) {
             style.isOutlined = true;
-            style.outlineColor.set(outlineComp.color);
-            style.outlineWidth = outlineComp.width;
+            style.outlineColor.set(comp.outlineColor);
+            style.outlineWidth = comp.outlineWidth;
         } else {
             style.isOutlined = false;
         }
 
         // shadow// both
-        let shadowComp = LabelShadow && comp.getComponent(LabelShadow);
-        shadowComp = (shadowComp && shadowComp.enabled) ? shadowComp : null;
-        if (shadowComp) {
+        const isShadow = comp.enableShadow && (comp.shadowBlur > 0 || !approx(comp.shadowOffset.x, 0) || !approx(comp.shadowOffset.y, 0));
+        if (isShadow) {
             style.hasShadow = true;
-            style.shadowColor.set(shadowComp.color);
-            style.shadowBlur = shadowComp.blur;
-            style.shadowOffsetX = shadowComp.offset.x;
-            style.shadowOffsetY = shadowComp.offset.y;
+            style.shadowColor.set(comp.shadowColor);
+            style.shadowBlur = comp.shadowBlur;
+            style.shadowOffsetX = comp.shadowOffset.x;
+            style.shadowOffsetY = comp.shadowOffset.y;
         } else {
             style.hasShadow = false;
         }
@@ -126,8 +131,15 @@ export const ttfUtils =  {
 
             // TextProcessing
             processing.processingString(false, style, layout, outputLayoutData, comp.string);
-            processing.generateRenderInfo(false, style, layout, outputLayoutData, outputRenderData,
-                comp.string, this.generateVertexData);
+            processing.generateRenderInfo(
+                false,
+                style,
+                layout,
+                outputLayoutData,
+                outputRenderData,
+                comp.string,
+                this.generateVertexData,
+            );
 
             const renderData = comp.renderData;
             renderData.textureDirty = true;
@@ -173,9 +185,11 @@ export const ttfUtils =  {
     },
 
     updateVertexData (comp: Label): void {
+        // no needs to update vertex data
     },
 
     updateUVs (comp: Label): void {
+        // no needs to update uv data
     },
 
     _updateFontFamily (comp: Label): string {

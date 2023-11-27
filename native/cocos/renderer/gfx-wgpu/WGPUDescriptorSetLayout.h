@@ -44,13 +44,15 @@ public:
 
     inline CCWGPUBindGroupLayoutObject *gpuLayoutEntryObject() { return _gpuLayoutEntryObj; }
 
-    void updateBufferLayout(uint8_t binding, const CCWGPUBuffer *buffer);
-    void updateTextureLayout(uint8_t binding, const CCWGPUTexture *texture);
-    void updateSamplerLayout(uint8_t binding, const CCWGPUSampler *sampler);
+    void updateBufferLayout(uint8_t index, const CCWGPUBuffer *buffer, AccessFlags flags);
+    void updateTextureLayout(uint8_t index, const CCWGPUTexture *texture, uint32_t plane = 0);
+    void updateSamplerLayout(uint8_t index, const CCWGPUSampler *sampler);
+
+    inline void setBindings(const DescriptorSetLayoutBindingList &list) { _bindings.assign(list.begin(), list.end()); }
+    inline void setBindingIndices(const ccstd::vector<uint32_t> &list) { _bindingIndices.assign(list.begin(), list.end()); }
+    inline void setDescriptorIndices(const ccstd::vector<uint32_t> &indices) { _descriptorIndices.assign(indices.begin(), indices.end()); }
 
     void prepare(ccstd::set<uint8_t> &bindingInUse, bool forceUpdate = false);
-
-    inline uint8_t dynamicOffsetCount() { return _dynamicOffsetCount; }
 
     static void *defaultBindGroupLayout();
     static void *getBindGroupLayoutByHash(ccstd::hash_t hash);
@@ -65,13 +67,9 @@ protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;
     void doDestroy() override;
 
-    ccstd::hash_t hash() const;
     ccstd::hash_t _hash{0};
-    bool _internalChanged{false};
 
     CCWGPUBindGroupLayoutObject *_gpuLayoutEntryObj = nullptr;
-
-    uint8_t _dynamicOffsetCount = 0;
 };
 
 } // namespace gfx

@@ -1,4 +1,4 @@
-import { Color } from '../../cocos/core/math';
+import { Color } from '@base/math';
 
 const white = Number.parseInt('ffffffff', 16);
 

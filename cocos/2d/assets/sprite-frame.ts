@@ -27,8 +27,11 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
+import { errorID, warnID } from '@base/debug';
+import { cclegacy, ccwindow } from '@base/global';
+import { js } from '@base/utils';
+import { Mat4, Rect, Size, Vec2, Vec3, Vec4 } from '@base/math';
 import { IMemoryImageSource } from '../../../pal/image/types';
-import { Mat4, Rect, Size, Vec2, Vec3, Vec4, cclegacy, errorID, warnID, js } from '../../core';
 import { Asset } from '../../asset/assets/asset';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { ImageAsset } from '../../asset/assets/image-asset';
@@ -37,7 +40,6 @@ import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { Mesh } from '../../3d/assets/mesh';
 import { createMesh } from '../../3d/misc';
 import { Attribute, AttributeName, Format, PrimitiveMode, Sampler, SamplerInfo, Texture } from '../../gfx';
-import { ccwindow } from '../../core/global-exports';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -106,7 +108,7 @@ interface ISpriteFrameOriginal {
  * @en Information object interface for initialize a [[SpriteFrame]] asset.
  * @zh 用于初始化 [[SpriteFrame]] 资源的对象接口描述。
  */
-interface ISpriteFrameInitInfo {
+export interface ISpriteFrameInitInfo {
     /**
      * @en The texture of the sprite frame, could be `TextureBase`.
      * @zh 贴图对象资源，可以是 `TextureBase` 类型。

@@ -23,16 +23,14 @@
 */
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Quat, Vec3, js } from '../../core';
+import { js } from '@base/utils';
+import { Quat, Vec3 } from '@base/math';
 import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../scene-graph/node-enum';
-import {
-    addActorToScene, syncNoneStaticToSceneIfWaking, getJsTransform, getTempTransform, physXEqualsCocosQuat,
-    physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
-} from './physx-adapter';
+import { addActorToScene, syncNoneStaticToSceneIfWaking, getJsTransform, getTempTransform, physXEqualsCocosQuat, physXEqualsCocosVec3, PX, setMassAndUpdateInertia } from './physx-adapter';
 import { VEC3_0 } from '../utils/util';
 import { ERigidBodyType, PhysicsSystem } from '../framework';
 import { PhysXJoint } from './joints/physx-joint';

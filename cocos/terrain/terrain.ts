@@ -24,6 +24,9 @@
 
 import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { CCObject, CCFloat, isValid } from '@base/object';
+import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '@base/math';
 import { builtinResMgr } from '../asset/asset-manager';
 import { ModelRenderer } from '../misc/model-renderer';
 import { EffectAsset, Texture2D } from '../asset/assets';
@@ -31,21 +34,15 @@ import { Filter, PixelFormat, WrapMode } from '../asset/assets/asset-enum';
 import { Material } from '../asset/assets/material';
 import { RenderingSubMesh } from '../asset/assets/rendering-sub-mesh';
 import { Component } from '../scene-graph/component';
-import { CCObject, isValid } from '../core/data/object';
 import { director } from '../game/director';
 import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Attribute, Buffer, BufferInfo, deviceManager, Texture } from '../gfx';
-import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../render-scene/core/pass-utils';
 import { Pass, scene } from '../render-scene';
 import { Camera } from '../render-scene/scene/camera';
 import { Root } from '../root';
 import { HeightField } from './height-field';
-import { legacyCC } from '../core/global-exports';
 import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE, TerrainIndexData } from './terrain-lod';
-import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
-    TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
-    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
-import { CCFloat } from '../core';
+import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { PipelineEventType } from '../rendering';
 import { MobilityMode, Node } from '../scene-graph';
 
@@ -208,7 +205,7 @@ class TerrainRenderable extends ModelRenderer {
     public destroy (): boolean {
         // this._invalidMaterial();
         if (this._model != null) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
         }
 
@@ -221,7 +218,7 @@ class TerrainRenderable extends ModelRenderer {
     public _destroyModel (): void {
         // this._invalidMaterial();
         if (this._model != null) {
-            legacyCC.director.root.destroyModel(this._model);
+            cclegacy.director.root.destroyModel(this._model);
             this._model = null;
         }
 
@@ -454,7 +451,7 @@ export class TerrainBlock {
             null,
             false,
         );
-        this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
+        this._renderable._model = (cclegacy.director.root as Root).createModel(scene.Model);
         this._renderable._model.createBoundingShape(this._bbMin, this._bbMax);
         this._renderable._model.node = this._renderable._model.transform = this._node;
         // ensure the terrain node is in the scene
@@ -1689,7 +1686,7 @@ export class Terrain extends Component {
 
     public getEffectAsset (): EffectAsset {
         if (this._effectAsset === null) {
-            return legacyCC.EffectAsset.get(TERRAIN_EFFECT_UUID) as EffectAsset;
+            return cclegacy.EffectAsset.get(TERRAIN_EFFECT_UUID) as EffectAsset;
         }
 
         return this._effectAsset;
@@ -1704,11 +1701,11 @@ export class Terrain extends Component {
             this._blocks[i].visible = true;
         }
 
-        (legacyCC.director.root as Root).pipelineEvent.on(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
+        (cclegacy.director.root as Root).pipelineEvent.on(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
     }
 
     public onDisable (): void {
-        (legacyCC.director.root as Root).pipelineEvent.off(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
+        (cclegacy.director.root as Root).pipelineEvent.off(PipelineEventType.RENDER_CAMERA_BEGIN, this.onUpdateFromCamera, this);
 
         for (let i = 0; i < this._blocks.length; ++i) {
             this._blocks[i].visible = false;
@@ -2433,12 +2430,12 @@ export class Terrain extends Component {
                     const layer = new TerrainLayer();
                     const layerInfo = terrainAsset.layerBinaryInfos[i];
                     layer.tileSize = layerInfo.tileSize;
-                    legacyCC.assetManager.loadAny(layerInfo.detailMapId, (err, asset) => {
+                    cclegacy.assetManager.loadAny(layerInfo.detailMapId, (err, asset) => {
                         layer.detailMap = asset;
                     });
 
                     if (layerInfo.normalMapId !== '') {
-                        legacyCC.assetManager.loadAny(layerInfo.normalMapId, (err, asset) => {
+                        cclegacy.assetManager.loadAny(layerInfo.normalMapId, (err, asset) => {
                             layer.normalMap = asset;
                         });
                     }

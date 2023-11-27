@@ -11,12 +11,15 @@ CCProgram hiz-main %{
   precision highp float;
 
   #pragma rate CCImageData pass
-  layout(std140) uniform CCImageData { vec2 imageSize; };
+  #pragma glBinding(0)
+  layout(std140) uniform CCImageData { vec2 cc_imageSize; };
 
   #pragma rate targetImage pass
-  layout(r32f) writeonly uniform image2D targetImage;
+  #pragma glBinding(1)
+  layout(r32f) writeonly uniform highp image2D targetImage;
 
   #pragma rate sourceImage pass
+  #pragma glBinding(2)
   uniform sampler2D sourceImage;
 
   layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
@@ -26,9 +29,9 @@ CCProgram hiz-main %{
     uvec2 uv = gl_GlobalInvocationID.xy;
 
     #if CC_USE_SAMPLER_FILTER_MIN_MAX
-      float depth = texture(sourceImage, (vec2(uv) + vec2(0.5)) / imageSize).x;
+      float depth = texture(sourceImage, (vec2(uv) + vec2(0.5)) / cc_imageSize).x;
     #else
-      vec4 texels = textureGather(sourceImage, (vec2(uv) + vec2(0.5)) / imageSize, 0);
+      vec4 texels = textureGather(sourceImage, (vec2(uv) + vec2(0.5)) / cc_imageSize, 0);
       float depth = max(max(texels.x, texels.y), max(texels.z, texels.w));
     #endif
 

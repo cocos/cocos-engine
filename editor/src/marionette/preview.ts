@@ -1,19 +1,14 @@
+import { assertIsNonNullable } from '@base/debug/internal';
+import { EventTarget } from '@base/event';
 import { Node } from '../../../cocos/scene-graph';
 import { Motion, MotionEval, MotionPort } from '../../../cocos/animation/marionette/motion';
 import { createEval } from '../../../cocos/animation/marionette/create-eval';
 import { VarInstance, Value, VariableType, VariableDescription, createInstanceTag } from '../../../cocos/animation/marionette/variable';
-import { assertIsNonNullable } from '../../../cocos/core/data/utils/asserts';
-import {
-    AnimationBlendEval,
-} from '../../../cocos/animation/marionette/motion/animation-blend';
+import { AnimationBlendEval } from '../../../cocos/animation/marionette/motion/animation-blend';
 import type { RuntimeID } from '../../../cocos/animation/marionette/graph-debug';
-import {
-    AnimationGraphBindingContext, AnimationGraphEvaluationContext,
-    AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, AuxiliaryCurveRegistry,
-} from '../../../cocos/animation/marionette/animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphPoseLayoutMaintainer, defaultTransformsTag, AuxiliaryCurveRegistry } from '../../../cocos/animation/marionette/animation-graph-context';
 import { blendPoseInto, Pose } from '../../../cocos/animation/core/pose';
 import { AnimationController } from '../../../cocos/animation/marionette/animation-controller';
-import { EventTarget } from '../../../exports/base';
 
 class AnimationGraphPartialPreviewer {
     constructor(root: Node) {

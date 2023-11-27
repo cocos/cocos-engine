@@ -24,9 +24,10 @@
 
 import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
+import { error, warn } from '@base/debug';
+import { clamp } from '@base/math';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../scene-graph/component';
-import { clamp, error, warn } from '../core';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 import { Node } from '../scene-graph';

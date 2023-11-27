@@ -1,7 +1,7 @@
 import { EDITOR } from 'internal:constants';
+import { ccenum } from '@base/object';
 import { ccclass, editable, serializable, type } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
-import { ccenum } from '../../../../core';
 import { AuxiliaryCurveHandle } from '../../../core/animation-handle';
 import { input } from '../decorator/input';
 import { poseGraphNodeCategory } from '../decorator/node';

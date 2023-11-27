@@ -22,7 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Quat, Vec3, js, geometry } from '../../core';
+import { js } from '@base/utils';
+import { Mat4, Quat, Vec3 } from '@base/math';
+import { geometry } from '../../core';
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';

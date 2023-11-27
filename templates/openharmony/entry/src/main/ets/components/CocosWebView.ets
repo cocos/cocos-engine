@@ -22,8 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-import { WorkerManager } from '../cocos/WorkerManager'
 import { PortProxy } from '../common/PortProxy'
+import web from '@ohos.web.webview';
+
+interface param {
+  viewTag: number,
+  url: string
+}
+
 @Observed
 export class WebViewInfo {
   // position
@@ -33,18 +39,18 @@ export class WebViewInfo {
   public w: number = 0;
   public h: number = 0;
   // url
-  public url: string = ''
+  public url: string = '';
   // tag
-  public viewTag: string = ''
+  public viewTag: number = 0;
   // Whether to display
-  public visible: boolean = true
+  public visible: boolean = true;
   
   /*
    * doc : https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/reference/arkui-ts/ts-basic-components-web.md#webcontroller
    */
   public controller: WebController = new WebController()
 
-  constructor(x: number, y: number, w: number, h: number, viewTag: string) {
+  constructor(x: number, y: number, w: number, h: number, viewTag: number) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -56,7 +62,7 @@ export class WebViewInfo {
 @Component
 export struct CocosWebView {
   @ObjectLink viewInfo: WebViewInfo;
-  public workPort: PortProxy;
+  public workPort: PortProxy | null = null;
   build() {
     Web({ src: this.viewInfo.url, controller: this.viewInfo.controller })
       .position({ x: this.viewInfo.x, y: this.viewInfo.y })
@@ -64,16 +70,16 @@ export struct CocosWebView {
       .height(this.viewInfo.h)
       .border({ width: 1 })
       .onPageBegin((event) => {
-        this.workPort.postMessage("onPageBegin", {viewTag:this.viewInfo.viewTag, url:event.url});
+        this.workPort?.postMessage("onPageBegin", {viewTag:this.viewInfo.viewTag, url:event?.url} as param);
       })
       .onPageEnd((event) => {
-        this.workPort.postMessage("onPageEnd", {viewTag:this.viewInfo.viewTag, url:event.url})
+        this.workPort?.postMessage("onPageEnd", {viewTag:this.viewInfo.viewTag, url:event?.url} as param);
       })
       .onErrorReceive((event) => {
-        this.workPort.postMessage("onErrorReceive", {viewTag:this.viewInfo.viewTag, url:this.viewInfo.url})
+        this.workPort?.postMessage("onErrorReceive", {viewTag:this.viewInfo.viewTag, url:this.viewInfo.url} as param);
       })
       .onHttpErrorReceive((event) => {
-        this.workPort.postMessage("onErrorReceive", {viewTag:this.viewInfo.viewTag, url:this.viewInfo.url})
+        this.workPort?.postMessage("onErrorReceive", {viewTag:this.viewInfo.viewTag, url:this.viewInfo.url} as param);
       })
   }
 }

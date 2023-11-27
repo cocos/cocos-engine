@@ -23,11 +23,15 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { debug } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { ccenum } from '@base/object';
 import { Node } from '../scene-graph/node';
 import { AnimationClip } from './animation-clip';
 import { Playable } from './playable';
 import { WrapMode, WrappedInfo } from './types';
-import { cclegacy, debug, geometry, ccenum, assertIsTrue } from '../core';
+import { geometry } from '../core';
 import { AnimationMask } from './marionette/animation-mask';
 import { PoseOutput } from './pose-output';
 import { BlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';

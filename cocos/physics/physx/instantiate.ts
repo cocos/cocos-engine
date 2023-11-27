@@ -58,17 +58,14 @@ game.once(Game.EVENT_PRE_SUBSYSTEM_INIT, () => {
         CylinderShape: PhysXCylinderShape,
         ConeShape: PhysXConeShape,
         TerrainShape: PhysXTerrainShape,
-        // SimplexShape: PhysXSimplexShape,
         PlaneShape: PhysXPlaneShape,
 
         PointToPointConstraint: PhysXSphericalJoint,
-        // PointToPointConstraint: PhysXFixedJoint,
         HingeConstraint: PhysXRevoluteJoint,
         FixedConstraint: PhysXFixedJoint,
         ConfigurableConstraint: PhysXConfigurableJoint,
 
         BoxCharacterController: PhysXBoxCharacterController,
         CapsuleCharacterController: PhysXCapsuleCharacterController,
-
     });
 });

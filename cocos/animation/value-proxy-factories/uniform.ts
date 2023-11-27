@@ -23,6 +23,7 @@
 */
 
 import { ccclass, float, serializable } from 'cc.decorator';
+import { warn, warnID } from '@base/debug';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets/material';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
@@ -31,7 +32,6 @@ import { deviceManager, Type } from '../../gfx';
 import { Pass } from '../../render-scene/core/pass';
 import { getDefaultFromType, getStringFromType } from '../../render-scene/core/pass-utils';
 import { IValueProxy, IValueProxyFactory } from '../value-proxy';
-import { warn, warnID } from '../../core';
 
 /**
  * @en

@@ -1,6 +1,5 @@
 
 import { PoseNodeUseStashedPose } from '../../../../../../../cocos/animation/marionette/pose-graph/pose-nodes/use-stashed-pose';
-import '../../../../utils/factory';
 import { addPoseNodeFactory } from '../../../../utils/factory';
 
 declare global {

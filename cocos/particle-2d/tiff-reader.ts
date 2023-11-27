@@ -28,8 +28,8 @@
  THE SOFTWARE.
 */
 
-import { getError, log, logID } from '../core';
-import { ccwindow } from '../core/global-exports';
+import { getError, log, logID } from '@base/debug';
+import { ccwindow } from '@base/global';
 
 interface IFile {
     type: string,

@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { clamp01 } from '../../../../core';
+import { clamp01 } from '@base/math';
 import { ccclass, editable, serializable } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { ClipMotion } from '../../motion/clip-motion';

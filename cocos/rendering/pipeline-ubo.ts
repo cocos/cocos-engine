@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
-    supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM, isEnableEffect } from './define';
+import { cclegacy } from '@base/global';
+import { Mat4, Vec3, Vec4, Color, toRadian } from '@base/math';
+import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM, isEnableEffect } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../render-scene/scene/camera';
-import { Mat4, Vec3, Vec4, Color, toRadian, cclegacy } from '../core';
 import { PipelineRuntime } from './custom/pipeline';
 import { CSMLevel, PCFType, Shadows, ShadowType } from '../render-scene/scene/shadows';
 import { Light, LightType } from '../render-scene/scene/light';
@@ -36,6 +36,7 @@ import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
 import { getDescBindingFromName } from './custom/define';
+import { Root } from '../root';
 
 const _matShadowView = new Mat4();
 const _matShadowProj = new Mat4();
@@ -47,7 +48,7 @@ const _tempVec3 = new Vec3();
 export class PipelineUBO {
     public static updateGlobalUBOView (window: RenderWindow, bufferView: Float32Array): void {
         const director = cclegacy.director;
-        const root = director.root;
+        const root = director.root as Root;
         const fv = bufferView;
 
         const shadingWidth = Math.floor(window.width);
@@ -75,19 +76,21 @@ export class PipelineUBO {
         }
 
         const debugView = root.debugView;
-        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
-
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 0; i <= 3; i++) {
             fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + i] = 0.0;
         }
-        for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < DebugViewCompositeType.MAX_BIT_COUNT; i++) {
-            const offset = i >> 3;
-            const bit = i % 8;
-            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1 + offset] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
-        }
+        if (debugView.isEnabled()) {
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET] = debugView.singleMode as number;
 
-        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
-        fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
+            for (let i = DebugViewCompositeType.DIRECT_DIFFUSE as number; i < (DebugViewCompositeType.MAX_BIT_COUNT as unknown as number); i++) {
+                const offset = i >> 3;
+                const bit = i % 8;
+                fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 1 + offset] += (debugView.isCompositeModeEnabled(i) ? 1.0 : 0.0) * (10.0 ** bit);
+            }
+
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.lightingWithAlbedo ? 1.0 : 0.0) * (10.0 ** 6.0);
+            fv[UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 3] += (debugView.csmLayerColoration ? 1.0 : 0.0) * (10.0 ** 7.0);
+        }
     }
 
     public static updateCameraUBOView (
@@ -96,7 +99,7 @@ export class PipelineUBO {
         camera: Camera,
     ): void {
         const scene = camera.scene ? camera.scene : cclegacy.director.getScene().renderScene;
-        const mainLight = scene.mainLight;
+        const mainLight = scene.mainLight as DirectionalLight;
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
         const skybox = sceneData.skybox;
@@ -339,9 +342,9 @@ export class PipelineUBO {
                 if (shadowInfo.type === ShadowType.ShadowMap) {
                     let near = 0.1;
                     let far = 0;
-                    let matShadowView;
-                    let matShadowProj;
-                    let matShadowViewProj;
+                    let matShadowView: Mat4;
+                    let matShadowProj: Mat4;
+                    let matShadowViewProj: Mat4;
                     let levelCount = 0;
                     if (mainLight.shadowFixedArea || mainLight.csmLevel === CSMLevel.LEVEL_1 || !csmSupported) {
                         matShadowView = csmLayers.specialLayer.matShadowView;
@@ -403,10 +406,10 @@ export class PipelineUBO {
 
                 Mat4.perspective(
                     _matShadowProj,
-                    (light as any).angle,
+                    spotLight.angle,
                     1.0,
                     0.001,
-                    (light as any).range,
+                    spotLight.range,
                     true,
                     cap.clipSpaceMinZ,
                     cap.clipSpaceSignY,
@@ -564,6 +567,6 @@ export class PipelineUBO {
         }
     }
 
-    public destroy (): void {
-    }
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    public destroy (): void {}
 }

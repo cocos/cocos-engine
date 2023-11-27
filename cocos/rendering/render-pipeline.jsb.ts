@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import { RenderPipeline as NrRenderPipeline } from './render-pipeline';
 import { Buffer, InputAssembler } from '../gfx';
 

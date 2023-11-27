@@ -22,7 +22,10 @@
  THE SOFTWARE.
 */
 
-import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
+import { cclegacy } from '@base/global';
+import { warnID } from '@base/debug';
+import { memop } from '@base/utils';
+import { settings, Settings, macro } from './core';
 import type { RenderPipeline } from './rendering/render-pipeline';
 import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
 import { createDefaultPipeline } from './rendering/forward/forward-pipeline';
@@ -261,9 +264,9 @@ export class Root {
     private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
-    private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
-    private _cameraPool: Pool<Camera> | null = null;
-    private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
+    private _modelPools = new Map<Constructor<Model>, memop.Pool<Model>>();
+    private _cameraPool: memop.Pool<Camera> | null = null;
+    private _lightPools = new Map<Constructor<Light>, memop.Pool<Light>>();
     private _debugView = new DebugView();
     private _fpsTime = 0;
     private _frameCount = 0;
@@ -288,7 +291,7 @@ export class Root {
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
 
-        this._cameraPool = new Pool((): Camera => new Camera(this._device), 4, (cam): void => cam.destroy());
+        this._cameraPool = new memop.Pool((): Camera => new Camera(this._device), 4, (cam): void => cam.destroy());
     }
 
     /**
@@ -425,12 +428,6 @@ export class Root {
         //-----------------------------------------------
         // pipeline initialization completed
         //-----------------------------------------------
-        const scene = director.getScene();
-        if (scene) {
-            scene.globals.activate();
-        }
-
-        this.onGlobalPipelineStateChanged();
         if (!this._batcher && internal.Batcher2D) {
             this._batcher = new internal.Batcher2D(this);
             if (!this._batcher!.initialize()) {
@@ -597,7 +594,7 @@ export class Root {
     public createModel<T extends Model> (ModelCtor: typeof Model): T {
         let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(ModelCtor, new Pool((): Model => new ModelCtor(), 10, (obj): void => obj.destroy()));
+            this._modelPools.set(ModelCtor, new memop.Pool((): Model => new ModelCtor(), 10, (obj): void => obj.destroy()));
             p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
@@ -641,7 +638,7 @@ export class Root {
     public createLight<T extends Light> (LightCtor: new () => T): T {
         let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(LightCtor, new Pool<Light>((): T => new LightCtor(), 4, (obj): void => obj.destroy()));
+            this._lightPools.set(LightCtor, new memop.Pool<Light>((): T => new LightCtor(), 4, (obj): void => obj.destroy()));
             l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;

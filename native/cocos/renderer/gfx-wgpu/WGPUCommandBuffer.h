@@ -62,14 +62,21 @@ public:
     void setStencilCompareMask(StencilFace face, uint32_t ref, uint32_t mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
+
+    void drawIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override{};
+    void drawIndexedIndirect(Buffer *buffer, uint32_t offset, uint32_t count, uint32_t stride) override{};
+    void copyBuffer(Buffer *srcBuffer, Buffer *dstBuffer, const BufferCopy *regions, uint32_t count) override{};
+
     void updateBuffer(Buffer *buff, const void *data, uint32_t size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint32_t count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint32_t count, Filter filter) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GeneralBarrier *barrier, const BufferBarrier *const *bufferBarriers, const Buffer *const *buffers, uint32_t bufferBarrierCount, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint32_t textureBarrierCount) override;
+    void copyTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override;
 
     void updateIndirectBuffer(Buffer *buff, const DrawInfoList &info);
+    void resolveTexture(Texture *srcTexture, Texture *dstTexture, const TextureCopy *regions, uint32_t count) override{};
 
     // TODO_Zeqiang: wgpu query pool
     void beginQuery(QueryPool *queryPool, uint32_t id) override{};
@@ -94,8 +101,8 @@ public:
         void updateBuffer(Buffer *buff, const emscripten::val &v, uint32_t size);)
 
 protected:
-    virtual void doInit(const CommandBufferInfo &info);
-    virtual void doDestroy();
+    void doInit(const CommandBufferInfo &info) override;
+    void doDestroy() override;
 
     // delay binding.
     void bindStates();

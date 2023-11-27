@@ -24,15 +24,15 @@
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { EDITOR, DEBUG, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { errorID, log } from '@base/debug';
 import { IRigidBody2D } from '../spec/i-rigid-body';
 import { IBoxShape, ICircleShape, IPolygonShape, IBaseShape } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID, log } from '../../core';
-import { ECollider2DType, EJoint2DType  } from './physics-types';
-import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint,
-    IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
+import { ECollider2DType, EJoint2DType } from './physics-types';
+import { IJoint2D, IDistanceJoint, ISpringJoint, IFixedJoint, IMouseJoint, IRelativeJoint, ISliderJoint, IWheelJoint, IHingeJoint } from '../spec/i-physics-joint';
 
-export type IPhysicsEngineId = 'builtin' | 'box2d' | string;
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+export type IPhysicsEngineId = 'builtin' | 'box2d' | 'box2d-wasm'| string;
 
 interface IPhysicsWrapperObject {
     PhysicsWorld: any,

@@ -28,13 +28,13 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
+import { Mat4, Quat, Vec2, Vec4 } from '@base/math';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, Viewport } from '../../gfx';
+import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, TextureType, Viewport } from '../../gfx';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PointLight } from '../../render-scene/scene/point-light';
@@ -691,6 +691,37 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
+    addBuffer (
+        name: string,
+        size: number,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateBuffer (
+        name: string,
+        size: number): void;
+    addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number;
+    updateExternalTexture (name: string, texture: Texture): void;
+    addTexture (
+        name: string,
+        textureType: TextureType,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount,
+        flags: ResourceFlags,
+        residency: ResourceResidency): number;
+    updateTexture (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        depth: number,
+        arraySize: number,
+        mipLevels: number,
+        sampleCount: SampleCount): void;
     addResource (
         name: string,
         dimension: ResourceDimension,
@@ -1373,8 +1404,10 @@ export interface Pipeline extends BasicPipeline {
     addBuiltinGpuCullingPass (
         cullingID: number,
         camera: Camera,
+        layoutPath?: string,
         hzbName?: string,
         light?: Light | null,
+        level?: number,
         bMainPass?: boolean): void;
     /**
      * @en Add hierarchical z buffer generation pass
@@ -1415,6 +1448,8 @@ export interface PipelineBuilder {
      * @param pipeline @en Current render pipeline @zh 当前管线
      */
     setup (cameras: Camera[], pipeline: BasicPipeline): void;
+
+    onGlobalPipelineStateChanged?(): void;
 }
 
 /**

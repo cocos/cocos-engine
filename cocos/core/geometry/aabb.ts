@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { Mat3, Mat4, Quat, Vec3, IVec3, IVec3Like } from '@base/math';
 import enums from './enums';
-import { IVec3, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
 import { Frustum } from './frustum';
 

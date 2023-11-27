@@ -1,4 +1,5 @@
 const { trackEventWithTimer } = require('../utils/metrics');
+const { getMessageProtocolScene } = require('../utils/prop');
 
 exports.template = `
 <div class="light-probe-group">
@@ -41,10 +42,10 @@ exports.update = async function(dump) {
         panel.dump = dump;
     }
 
-    const mode = await Editor.Message.request('scene', 'query-light-probe-edit-mode');
+    const mode = await Editor.Message.request(getMessageProtocolScene(this.$this), 'query-light-probe-edit-mode');
     panel.changeProbeMode(mode);
 
-    const boxMode = await Editor.Message.request('scene', 'query-light-probe-bounding-box-edit-mode');
+    const boxMode = await Editor.Message.request(getMessageProtocolScene(this.$this), 'query-light-probe-bounding-box-edit-mode');
     panel.changeProbeBoxMode(boxMode);
 };
 
@@ -61,14 +62,14 @@ exports.ready = function() {
         if (result.response === 0) {
             // 先关闭盒子模式
             if (panel.sceneProbeBoxMode) {
-                await Editor.Message.request('scene', 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
+                await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
             }
 
             const uuidObject = panel.dump.value.uuid;
             const uuids = uuidObject.values ? uuidObject.values : [uuidObject.value];
-            const undoID = await Editor.Message.request('scene', 'begin-recording', uuids);
+            const undoID = await Editor.Message.request(getMessageProtocolScene(this.$this), 'begin-recording', uuids);
             for (const uuid of uuids) {
-                Editor.Message.send('scene', 'execute-component-method', {
+                Editor.Message.send(getMessageProtocolScene(this.$this), 'execute-component-method', {
                     uuid: uuid,
                     name: 'generateLightProbes',
                     args: [],
@@ -77,12 +78,12 @@ exports.ready = function() {
 
             trackEventWithTimer('bakingSystem', 'A100006');
 
-            await Editor.Message.request('scene', 'end-recording', undoID);
+            await Editor.Message.request(getMessageProtocolScene(this.$this), 'end-recording', undoID);
         }
     });
 
     panel.$.edit.addEventListener('confirm', async () => {
-        await Editor.Message.request('scene', 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
+        await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
         trackEventWithTimer('bakingSystem', 'A100008');
     });
 
@@ -90,7 +91,7 @@ exports.ready = function() {
     Editor.Message.addBroadcastListener('scene:light-probe-edit-mode-changed', panel.changeProbeModeBind);
 
     panel.$.box.addEventListener('confirm', async () => {
-        await Editor.Message.request('scene', 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
+        await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
         trackEventWithTimer('bakingSystem', 'A100007');
     });
 

@@ -22,12 +22,14 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass, executeInEditMode, executionOrder, help, menu, type, serializable, editable,
-} from 'cc.decorator';
+import { ccclass, executeInEditMode, executionOrder, help, menu, type, serializable, editable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warn } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { Mat4 } from '@base/math';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
-import { Mat4, cclegacy, js, assertIsTrue, warn } from '../../core';
 import { DataPoolManager } from './data-pool-manager';
 import { Node } from '../../scene-graph/node';
 import { AnimationClip } from '../../animation/animation-clip';

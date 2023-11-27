@@ -22,14 +22,12 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { SubModel } from '../render-scene/scene/submodel';
 import { Layers } from '../scene-graph/layers';
-import { cclegacy } from '../core';
-import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
-    Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format, API,
-} from '../gfx';
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format, API } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
 export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';

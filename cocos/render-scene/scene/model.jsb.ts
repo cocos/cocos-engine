@@ -23,7 +23,7 @@
 */
 
 import { Attribute, deviceManager } from '../../gfx';
-import { Vec3 } from '../../core';
+import { Vec3 } from '@base/math';
 import type { Model as JsbModel } from './model';
 
 declare const jsb: any;

@@ -22,9 +22,12 @@
  THE SOFTWARE.
 */
 
-import { Enum, Color, Vec4, cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
+import { Enum } from '@base/object';
+import { Color, Vec4 } from '@base/math';
 import { FogInfo } from '../../scene-graph/scene-globals';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
+import { Root } from '../../root';
 
 const _v4 = new Vec4();
 
@@ -71,7 +74,7 @@ export const FogType = Enum({
     LAYERED: 3,
 });
 
-const FOG_TYPE_NONE = FogType.LAYERED + 1;
+export const FOG_TYPE_NONE = FogType.LAYERED + 1;
 
 /**
  * @en The fog representation in the render scene.
@@ -229,7 +232,7 @@ export class Fog {
     protected _fogRange = 1.2;
     protected _activated = false;
 
-    public initialize (fogInfo : FogInfo): void {
+    public initialize (fogInfo: FogInfo): void {
         this._activated = false;
         this.fogColor = fogInfo.fogColor;
         this._enabled = fogInfo.enabled;
@@ -249,7 +252,7 @@ export class Fog {
     }
 
     protected _updatePipeline (): void {
-        const root = cclegacy.director.root;
+        const root = cclegacy.director.root as Root;
         const value = this.enabled ? this.type : FOG_TYPE_NONE;
         const accurateValue = this.accurate ? 1 : 0;
         const pipeline = root.pipeline;

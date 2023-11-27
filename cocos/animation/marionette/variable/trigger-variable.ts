@@ -1,4 +1,4 @@
-import { assertIsTrue } from '../../../core';
+import { assertIsTrue } from '@base/debug/internal';
 import { ccclass, serializable } from '../../../core/data/decorators';
 import { BasicVariableDescription, createInstanceTag, Value, VariableType, VarInstanceBase } from './basic';
 

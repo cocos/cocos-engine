@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../math';
+import { Vec3 } from '@base/math';
 import { AABB } from './aabb';
 import { OBB } from './obb';
 import { Plane } from './plane';

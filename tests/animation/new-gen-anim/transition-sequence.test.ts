@@ -1,15 +1,16 @@
-import { AnimationController, VariableType } from "../../../cocos/animation/animation";
-import { AnimationGraph, AnimationTransition, EmptyState, EmptyStateTransition, isAnimationTransition, Layer, State, SubStateMachine, Transition } from "../../../cocos/animation/marionette/animation-graph";
-import { UnaryCondition } from "../../../cocos/animation/marionette/state-machine/condition";
-import { MotionState } from "../../../cocos/animation/marionette/state-machine/motion-state";
-import { assertIsTrue, lerp } from "../../../cocos/core";
-import { AnimationGraphEvalMock } from "./utils/eval-mock";
-import { ConstantRealValueAnimationFixture, LinearRealValueAnimationFixture } from "./utils/fixtures";
-import { SingleRealValueObserver } from "./utils/single-real-value-observer";
+import { assertIsTrue } from '@base/debug/internal';
+import { lerp } from '@base/math';
+import { AnimationController, VariableType } from '../../../cocos/animation/animation';
+import { AnimationGraph, AnimationTransition, EmptyState, EmptyStateTransition, isAnimationTransition, Layer, State, SubStateMachine, Transition } from '../../../cocos/animation/marionette/animation-graph';
+import { UnaryCondition } from '../../../cocos/animation/marionette/state-machine/condition';
+import { MotionState } from '../../../cocos/animation/marionette/state-machine/motion-state';
+import { AnimationGraphEvalMock } from './utils/eval-mock';
+import { ConstantRealValueAnimationFixture, LinearRealValueAnimationFixture } from './utils/fixtures';
+import { SingleRealValueObserver } from './utils/single-real-value-observer';
 import '../../utils/matchers/value-type-asymmetric-matchers';
-import { createAnimationGraph, StateParams, TransitionParams } from "./utils/factory";
-import { ApplyAnimationFixturePoseNode } from "./utils/apply-animation-fixture-pose-node";
-import { MAX_TRANSITIONS_PER_FRAME } from "../../../cocos/animation/marionette/state-machine/state-machine-eval";
+import { createAnimationGraph, StateParams, TransitionParams } from './utils/factory';
+import { ApplyAnimationFixturePoseNode } from './utils/apply-animation-fixture-pose-node';
+import { MAX_TRANSITIONS_PER_FRAME } from '../../../cocos/animation/marionette/state-machine/state-machine-eval';
 
 const DEFAULT_VALUE = 6.666;
 

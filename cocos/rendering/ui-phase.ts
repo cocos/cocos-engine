@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { RenderPass } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { isEnableEffect, SetIndex } from './define';
 import { Camera } from '../render-scene/scene/camera';
 import { RenderPipeline } from './render-pipeline';
 import { getPhaseID } from './pass-phase';
-import { cclegacy } from '../core';
 
 export class UIPhase {
     private _phaseID = getPhaseID('default');

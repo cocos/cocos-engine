@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { approx } from '../core';
+import { approx } from '@base/math';
 
 /**
  * Removes keys which are linear interpolations of surrounding keys.

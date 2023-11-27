@@ -1,12 +1,11 @@
 import { EDITOR } from 'internal:constants';
-import { editable, Quat, serializable, Vec3 } from '../../../../core';
+import { Quat, Vec3 } from '@base/math';
+import { editable, serializable } from '../../../../core';
 import { ccclass } from '../../../../core/data/class-decorator';
 import { VariableType, VarInstance } from '../../variable';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { SingleOutputPVNode, PureValueNodeLinkContext } from '../pure-value-node';
-import {
-    PoseGraphCreateNodeEntry, PoseGraphCreateNodeFactory, poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeHide,
-} from '../decorator/node';
+import { PoseGraphCreateNodeEntry, PoseGraphCreateNodeFactory, poseGraphCreateNodeFactory, poseGraphNodeAppearance, poseGraphNodeHide } from '../decorator/node';
 import { PoseGraphType } from '../foundation/type-system';
 
 interface CreateNodeArg {

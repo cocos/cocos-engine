@@ -23,12 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "EditBox.h"
 #include "EditBox-openharmony.h"
+#include "EditBox.h"
 
-#include "cocos/application/ApplicationManager.h"
+#include "application/ApplicationManager.h"
+#include "bindings/jswrapper/SeApi.h"
 #include "platform/openharmony/napi/NapiHelper.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
 
 namespace cc {
 
@@ -70,11 +70,11 @@ void callJSFunc(const ccstd::string &type, const ccstd::string &text) {
 Implementation of EditBox.
 ************************************************************************/
 void EditBox::show(const EditBox::ShowInfo &showInfo) {
-   NapiHelper::postMessageToUIThread("showEditBox", showInfo.defaultValue.c_str());
+    NapiHelper::postMessageToUIThread("showEditBox", Napi::String::New(NapiHelper::getWorkerEnv(), showInfo.defaultValue));
 }
 
 void EditBox::hide() {
-    NapiHelper::postMessageToUIThread("hideEditBox", "");
+    NapiHelper::postMessageToUIThread("hideEditBox", Napi::String::New(NapiHelper::getWorkerEnv(), ""));
 }
 
 bool EditBox::complete() {
@@ -82,32 +82,24 @@ bool EditBox::complete() {
     return true;
 }
 
-void OpenHarmonyEditBox::GetInterfaces(std::vector<napi_property_descriptor> &descriptors) {
-#if CC_USE_EDITBOX
-    descriptors = {
-        DECLARE_NAPI_FUNCTION("onTextChange", OpenHarmonyEditBox::napiOnTextChange),
-        DECLARE_NAPI_FUNCTION("onComplete", OpenHarmonyEditBox::napiOnComplete),
-    };
-#endif
-}
-
-napi_value OpenHarmonyEditBox::napiOnComplete(napi_env env, napi_callback_info info) {
+void OpenHarmonyEditBox::napiOnComplete(const Napi::CallbackInfo &info) {
     EditBox::complete();
-    return nullptr;
 }
 
-napi_value OpenHarmonyEditBox::napiOnTextChange(napi_env env, napi_callback_info info) {
-    size_t      argc = 1;
-    napi_value  args[1];
-    NAPI_CALL(env, napi_get_cb_info(env, info, &argc, args, nullptr, nullptr));
-    napi_status status;
-    char   buffer[512];
-    size_t result = 0;
-    NODE_API_CALL(status, env, napi_get_value_string_utf8(env, args[0], buffer, 512, &result));
-    callJSFunc("input", std::string(buffer));
-    return nullptr;
+void OpenHarmonyEditBox::napiOnTextChange(const Napi::CallbackInfo &info) {
+    auto env = info.Env();
+    if (info.Length() != 1) {
+        Napi::Error::New(env, "napiOnTextChange, 1 argument expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    if (!info[0].IsString()) {
+        Napi::TypeError::New(env, "napiOnTextChange, string argument expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    ccstd::string buffer = info[0].As<Napi::String>().Utf8Value();
+    callJSFunc("input", buffer);
 }
 
 } // namespace cc
-
-

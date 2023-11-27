@@ -1,4 +1,5 @@
-import { Enum, cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
+import { Enum } from '@base/object';
 import { PostSettingsInfo } from '../../scene-graph/scene-globals';
 
 export const ToneMappingType = Enum({

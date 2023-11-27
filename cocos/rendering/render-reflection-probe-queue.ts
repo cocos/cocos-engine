@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { SubModel } from '../render-scene/scene/submodel';
 import { isEnableEffect, SetIndex } from './define';
 import { Device, RenderPass, Shader, CommandBuffer } from '../gfx';
@@ -33,12 +34,7 @@ import { ProbeType, ReflectionProbe } from '../render-scene/scene/reflection-pro
 import { Camera, SKYBOX_FLAG } from '../render-scene/scene/camera';
 import { PipelineRuntime } from './custom/pipeline';
 import { RenderInstancedQueue } from './render-instanced-queue';
-import { cclegacy, geometry } from '../core';
-import { Layers } from '../scene-graph/layers';
-
-// eslint-disable-next-line max-len
-const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
-    Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
+import { geometry } from '../core';
 
 const CC_USE_RGBE_OUTPUT = 'CC_USE_RGBE_OUTPUT';
 let _phaseID = getPhaseID('default');
@@ -96,25 +92,23 @@ export class RenderReflectionProbeQueue {
         }
 
         const models = scene.models;
-        const visibility = probe.camera.visibility;
+        const visibility = probe.visibility;
 
         for (let i = 0; i < models.length; i++) {
             const model = models[i];
-            if (scene.isCulledByLod(camera, model)) {
+            if (!model.node || scene.isCulledByLod(camera, model)) {
                 continue;
             }
-            // filter model by view visibility
-            if (model.enabled && model.node && model.worldBounds && model.bakeToReflectionProbe) {
+            if (((visibility & model.node.layer) !== model.node.layer) && (!(visibility & model.visFlags))) {
+                continue;
+            }
+            if (model.enabled && model.worldBounds && model.bakeToReflectionProbe) {
                 if (probe.probeType === ProbeType.CUBE) {
-                    if ((((visibility & model.node.layer) === model.node.layer) || (visibility & model.visFlags))
-                        && geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
+                    if (geometry.intersect.aabbWithAABB(model.worldBounds, probe.boundingBox!)) {
                         this.add(model);
                     }
-                } else if (((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer)
-                    || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags)) {
-                    if (geometry.intersect.aabbFrustum(model.worldBounds, probe.camera.frustum)) {
-                        this.add(model);
-                    }
+                } else if (geometry.intersect.aabbFrustum(model.worldBounds, probe.camera.frustum)) {
+                    this.add(model);
                 }
             }
         }

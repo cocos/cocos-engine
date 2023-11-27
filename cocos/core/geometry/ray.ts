@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3 } from '../math';
+import { Vec3, IVec3Like } from '@base/math';
 import enums from './enums';
-import { IVec3Like } from '../math/type-define';
 
 /**
  * @en

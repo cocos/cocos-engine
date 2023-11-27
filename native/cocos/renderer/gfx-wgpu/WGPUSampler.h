@@ -28,7 +28,7 @@
 #endif
 #include "gfx-base/states/GFXSampler.h"
 
-#include "WGPUobject.h"
+#include "WGPUObject.h"
 
 namespace cc {
 namespace gfx {

@@ -27,15 +27,11 @@
 */
 
 import { WEBGPU } from 'internal:constants';
-import { gfx, webgpuAdapter, glslalgWasmModule, promiseForWebGPUInstantiation } from '../../webgpu/instantiated';
-import {
-    Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader
-} from './override';
-import {
-    DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer,
-} from '../base/define';
+import { gfx, webgpuAdapter, glslangWasmModule, promiseForWebGPUInstantiation, twgslModule } from '../../webgpu/instantiated';
+import { Texture, CommandBuffer, DescriptorSet, Device, InputAssembler, Buffer, Shader } from './override';
+import { DeviceInfo, BufferTextureCopy, ShaderInfo, ShaderStageFlagBit, TextureViewInfo, TextureInfo, DrawInfo, BufferViewInfo, BufferInfo, BufferUsageBit, IndirectBuffer } from '../base/define';
 
-import { ccwindow } from '../../core/global-exports';
+import { ccwindow } from '@base/global';
 import { ImageData } from 'pal/image';
 
 
@@ -197,7 +193,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
         oldDeviceCopyBuffersToTexture.call(this, buffers, texture, regions);
     };
-
+    
     Device.prototype.copyImageDatasToTexture = function (imageDatas: ImageData[], texture: typeof Texture, regions: BufferTextureCopy[]) {
         const buffers: Uint8Array[] = [];
         for (let i = 0; i < regions.length; i++)  {
@@ -206,339 +202,157 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         oldDeviceCopyBuffersToTexture.call(this, buffers, texture, regions);
     }
 
-    function seperateCombinedSamplerTexture (shaderSource: string) {
-        // sampler and texture
-        const samplerTexturArr = shaderSource.match(/(.*?)\(set = \d+, binding = \d+\) uniform(.*?)sampler\w* \w+;/g);
-        const count = samplerTexturArr?.length ? samplerTexturArr?.length : 0;
+    const SEPARATE_SAMPLER_BINDING_OFFSET = 16;
+    function seperateCombinedSamplerTexture(shaderSource: string) {
+        // gather
+        let samplerReg = /.*?(\(set = \d+, binding = )(\d+)\) uniform[^;]+sampler(\w*) (\w+);/g;
+        let iter = samplerReg.exec(shaderSource);
+        // samplerName, samplerType
+        const referredMap = new Map<string, string>();
+        while (iter) {
+            const samplerName = iter[4];
+            const samplerType = iter[3];
+            referredMap.set(samplerName, samplerType);
+            iter = samplerReg.exec(shaderSource);
+        }
+
+        // replaceAll --> es 2021 required
         let code = shaderSource;
+        // referredMap.forEach((value, key)=> {
+        //     const samplerName = key;
+        //     const samplerType = value;
+        //     const exp = new RegExp(`\\b${samplerName}\\b([^;])`);
+        //     let it = exp.exec(code);
+        //     while (it) {
+        //         code = code.replace(exp, `sampler${samplerType}(_${samplerName}, _${samplerName}_sampler)${it[1]}`);
+        //         it = exp.exec(code);
+        //     }
+        // });
+        let sampReg = /.*?(\(set = \d+, binding = )(\d+)\) uniform[^;]+sampler(\w*) (\w+);/g;
+        let it = sampReg.exec(code);
+        while (it) {
+            code = code.replace(sampReg, `layout$1 $2) uniform texture$3 $4;\nlayout$1 $2 + ${SEPARATE_SAMPLER_BINDING_OFFSET}) uniform sampler $4_sampler;\n`);
+            it = sampReg.exec(code);
+        }
 
-        const referredFuncMap = new Map<string, [fnName: string, samplerType: string, samplerName: string]>();
-        const samplerSet = new Set<string>();
-        samplerTexturArr?.every((str) => {
-            // `(?<=)` not compatible with str.match on safari.
-            // let textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
-            const textureNameRegExpStr = '(?<=uniform(.*?)sampler\\w* )(\\w+)(?=;)';
-            let textureName = (new RegExp(textureNameRegExpStr, 'g')).exec(str)![0];
-
-            let samplerStr = str.replace(textureName, `${textureName}Sampler`);
-
-            // let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
-            const samplerRegExpStr = '(?<=uniform(.*?))sampler(\\w*)';
-            let samplerFunc = (new RegExp(samplerRegExpStr, 'g')).exec(str)![0];
-            samplerFunc = samplerFunc.replace('sampler', '');
-            if (samplerFunc === '') {
-                textureName = textureName.replace('Sampler', '');
-            } else {
-                const samplerReplaceReg = new RegExp('(?<=uniform(.*?))(sampler\\w*)', 'g');
-                samplerStr = samplerStr.replace(samplerReplaceReg, 'sampler');
-
-                // layout (set = a, binding = b) uniform sampler2D cctex;
-                // to:
-                // layout (set = a, binding = b) uniform sampler cctexSampler;
-                // layout (set = a, binding = b + maxTextureNum) uniform texture2D cctex;
-                const samplerReg = new RegExp('(?<=binding = )(\\d+)(?=\\))', 'g');
-                const samplerBindingStr = samplerReg.exec(str)![0];
-                const samplerBinding = Number(samplerBindingStr) + 16;
-                samplerStr = samplerStr.replace(samplerReg, samplerBinding.toString());
-
-                const textureReg = new RegExp('(?<=uniform(.*?))(sampler)(?=\\w*)', 'g');
-                const textureStr = str.replace(textureReg, 'texture');
-                code = code.replace(str, `${textureStr}\n${samplerStr}`);
-            }
-
-            if (!samplerSet.has(`${textureName}Sampler`)) {
-                samplerSet.add(`${textureName}Sampler`);
-                // gathering referred func
-                let referredFuncStr = `([\\w]+)[\\s]*\\([0-9a-zA-Z_\\s,]*?sampler${samplerFunc}[^\\)]+\\)[\\s]*{`;
-                if (samplerFunc === '') {
-                    referredFuncStr = `([\\w]+)[\\s]*\\([0-9a-zA-Z_\\s,]*?sampler([\\S]+)[^\\)]+\\)[\\s]*{`;
+        const builtinSample = ['texture', 'textureSize', 'texelFetch', 'textureLod'];
+        const replaceBultin = function (samplerName: string, samplerType: string, target: string) {
+            builtinSample.forEach((sampleFunc) => {
+                const builtinSampleReg = new RegExp(`${sampleFunc}\\s*\\(\\s*${samplerName}\\s*,`);
+                let builtinFuncIter = builtinSampleReg.exec(target);
+                while (builtinFuncIter) {
+                    target = target.replace(builtinFuncIter[0], `${sampleFunc}(sampler${samplerType}(${samplerName}, ${samplerName}_sampler),`);
+                    builtinFuncIter = builtinSampleReg.exec(target);
                 }
-                const referredFuncRe = new RegExp(referredFuncStr, 'g');
-                let reArr = referredFuncRe.exec(code);
-                while (reArr) {
-                    // first to see if it's wrapped by #if 0 \n ... \n #ndif
-                    let smpFunc = samplerFunc;
-                    if (smpFunc === '') {
-                        smpFunc = reArr[2];
+            });
+            return target;
+        }
+
+        let funcReg = /\s([\S]+)\s*\(([\w\s,]+)\)[\s|\\|n]*{/g;
+        let funcIter = funcReg.exec(code);
+        const funcSet = new Set<string>();
+        const paramTypeMap = new Map<string, string>();
+        while (funcIter) {
+            paramTypeMap.clear();
+
+            const params = funcIter[2];
+            let paramsRes = params.slice();
+            if (params.includes('sampler')) {
+                const paramIndexSet = new Set<number>();
+                const paramArr = params.split(',');
+
+                for (let i = 0; i < paramArr.length; ++i) {
+                    const paramDecl = paramArr[i].split(' ');
+                    // assert(paramDecl.length >= 2)
+                    const typeDecl = paramDecl[paramDecl.length - 2];
+                    if (typeDecl.includes('sampler') && typeDecl !== 'sampler') {
+                        const samplerType = typeDecl.replace('sampler', '');
+                        const paramName = paramDecl[paramDecl.length - 1];
+                        paramsRes = paramsRes.replace(paramArr[i], ` texture${samplerType} ${paramName}, sampler ${paramName}_sampler`);
+                        paramIndexSet.add(i);
+                        paramTypeMap.set(paramName, samplerType);
                     }
-                    const searchTarget = code.slice(0, reArr.index);
-                    const defValQueue: { str: string, b: boolean, condition: RegExpExecArray }[] = [];
-                    let searchIndex = 1;
-
-                    while (searchIndex > 0) {
-                        let ifIndex = searchTarget.indexOf('#if', searchIndex);
-                        let elseIndex = searchTarget.indexOf('#else', searchIndex);
-                        let endIndex = searchTarget.indexOf('#endif', searchIndex);
-
-                        if (ifIndex === -1 && elseIndex === -1 && endIndex === -1) {
-                            break;
-                        }
-
-                        if (ifIndex === -1) ifIndex = Number.MAX_SAFE_INTEGER;
-                        if (elseIndex === -1) elseIndex = Number.MAX_SAFE_INTEGER;
-                        if (endIndex === -1) endIndex = Number.MAX_SAFE_INTEGER;
-
-                        // next start with '#' is #if(def)
-                        if (ifIndex < elseIndex && ifIndex < endIndex) {
-                            const ifdef = (new RegExp(`#if(def)?[\\s]+(!)?([\\S]+)([\\s+]?(==)?(!=)[\\s+]?([\\S]+))?`, 'gm')).exec(searchTarget.slice(ifIndex))!;
-                            defValQueue[defValQueue.length] = { str: ifdef[3], b: true, condition: ifdef };
-                            searchIndex = ifIndex + 1;
-                            continue;
-                        }
-
-                        if (elseIndex < endIndex && elseIndex < ifIndex) {
-                            defValQueue[defValQueue.length - 1].b = false;
-                            searchIndex = elseIndex + 1;
-                            continue;
-                        }
-
-                        if (endIndex < elseIndex && endIndex < ifIndex) {
-                            defValQueue.pop();
-                            searchIndex = endIndex + 1;
-                            continue;
-                        }
-                    }
-
-                    let defCheck = true;
-                    for (let i = 0; i < defValQueue.length; i++) {
-                        const ifdef = defValQueue[i].condition;
-                        let evalRes = false;
-                        if (ifdef[1]) {
-                            evalRes = !!(new RegExp(`#define[\\s]+${ifdef[3]}`, 'gm')).exec(searchTarget);
-                        } else {
-                            const defVal = (new RegExp(`#define[\\s]+${ifdef[3]}[\\s]+([\\S]+).*`, 'gm')).exec(searchTarget)![1];
-                            if (ifdef[4]) {
-                                const conditionVal = ifdef[7];
-                                evalRes = ifdef[5] ? defVal === conditionVal : defVal !== conditionVal;
-                            } else if (ifdef[3]) {
-                                evalRes = (defVal !== '0' && !ifdef[2]);
-                            }
-                        }
-
-                        if (defValQueue[i].b !== evalRes) {
-                            defCheck = false;
-                            break;
-                        }
-                    }
-
-                    const key = `${reArr[1]}_${smpFunc}_${textureName}Sampler`;
-                    if (!referredFuncMap.has(key) && defCheck) {
-                        referredFuncMap.set(key, [reArr[1], smpFunc, `${textureName}Sampler`]);
-                    }
-                    reArr = referredFuncRe.exec(code);
                 }
-            }
+                // let singleParamReg = new RegExp(`(\\W?)(\\w+)\\s+\\b([^,)]+)\\b`);
 
-            // cctex in main() called directly
-            // .*?texture\(
-            const regStr = `texture\\(\\b(${textureName})\\b`;
-            const re = new RegExp(regStr);
-            let reArr = re.exec(code);
-            while (reArr) {
-                code = code.replace(re, `texture(sampler${samplerFunc}(${textureName},${textureName}Sampler)`);
-                reArr = re.exec(code);
-            }
-            return true;
-        });
+                code = code.replace(params, paramsRes);
 
-        const functionTemplates = new Map<string, string>();
-        const functionDeps = new Map<string, string[]>();
-        let forwardDecls = '';
-        // function
-        referredFuncMap.forEach((pair) => {
-            //pre: if existed, replace
-            //getVec3DisplacementFromTexture\(cc_TangentDisplacements[^\\n]+
-            const textureStr = pair[2].slice(0, -7);
-            const codePieceStr = `${pair[0]}\\((.*?)${textureStr}[^\\n]+`;
-            const codePieceRe = new RegExp(codePieceStr);
-            let res = codePieceRe.exec(code);
-            while (res) {
-                let replaceStr = res[0].replace(`${pair[0]}(`, `${pair[0]}_${pair[1]}_${pair[2]}_specialized(`);
-                replaceStr = replaceStr.replace(`${textureStr},`, '');
-                code = code.replace(codePieceRe, replaceStr);
-                res = codePieceRe.exec(code);
-            }
+                const funcName = funcIter[1];
+                // function may overload
+                if (!funcSet.has(funcName)) {
+                    // const samplerTypePrefix = '1D|2D|3D|Cube|Buffer';
+                    const funcSamplerReg = new RegExp(`${funcName}\\s*?\\((\\s*[^;\\{]+)`, 'g');
+                    const matches = code.matchAll(funcSamplerReg);
+                    for (let matched of matches) {
+                        if (!matched[1].match(/\b\w+\b\s*\b\w+\b/g)) {
+                            const stripStr = matched[1][matched[1].length - 1] === ')' ? matched[1].slice(0, -1) : matched[1];
+                            let params = stripStr.split(',');
+                            let queued = 0; // '('
+                            let paramIndex = 0;
+                            for (let i = 0; i < params.length; ++i) {
+                                if (params[i].includes('(')) {
+                                    ++queued;
+                                }
+                                if (params[i].includes(')')) {
+                                    --queued;
+                                }
 
-            // 1. fn definition
-            const fnDeclReStr = `[\\n|\\W][\\w]+[\\W]+${pair[0]}[\\s]*\\((.*?)sampler${pair[1]}[^{]+`;
-            const fnDeclRe = new RegExp(fnDeclReStr);
-            const fnDecl = fnDeclRe.exec(code);
-
-            let redefFunc = '';
-            if (!functionTemplates.has(`${pair[0]}_${pair[1]}`)) {
-                const funcBodyStart = code.slice(fnDecl!.index);
-
-                const funcRedefine = (funcStr: string) => {
-                    const samplerType = `sampler${pair[1]}`;
-                    const textureRe = (new RegExp(`.*?${samplerType}[\\s]+([\\S]+)[,\\)]`)).exec(funcStr)!;
-                    const textureName = textureRe[1];
-                    const paramReStr = `${samplerType}[\\s]+${textureName}`;
-                    let funcDef = funcStr.replace(new RegExp(paramReStr), `texture${pair[1]} ${textureName}`);
-                    funcDef = funcDef.replace(pair[0], `${pair[0]}SAMPLER_SPEC`);
-                    // 2. texture(...) inside, builtin funcs
-                    const textureOpArr = ['texture', 'textureSize', 'texelFetch', 'textureLod'];
-                    for (let i = 0; i < textureOpArr.length; i++) {
-                        const texFuncReStr = `(${textureOpArr[i]})\\(${textureName},`;
-                        const texFuncRe = new RegExp(texFuncReStr, 'g');
-                        funcDef = funcDef.replace(texFuncRe, `$1(${samplerType}(${textureName}TEXTURE_HOLDER, ${textureName}SAMPLER_HOLDER),`);
-                    }
-                    return funcDef;
-                };
-
-                const firstIfStatement = funcBodyStart.indexOf('#if');
-                const firstElseStatement = funcBodyStart.indexOf('#e'); //#endif, #else, #elif maybe?
-                if ((firstElseStatement !== -1 && firstIfStatement > firstElseStatement) || (firstElseStatement === -1 && firstElseStatement !== -1)) { // ooops, now func body starts in a #if statement.
-                    let startIndex = 0;
-                    let count = 1; // already in #if
-                    while (count > 0 && startIndex < funcBodyStart.length) {
-                        const nextSymbolIdx = funcBodyStart.indexOf('#', startIndex);
-                        const startSliceIdx = startIndex === 0 ? startIndex : startIndex - 1;
-                        if (funcBodyStart[nextSymbolIdx + 1] === 'i') { // #if
-                            count++;
-                            redefFunc += funcBodyStart.slice(startSliceIdx, nextSymbolIdx);
-                        } else if (funcBodyStart[nextSymbolIdx + 1] === 'e' && funcBodyStart[nextSymbolIdx + 2] === 'l') { //#elif, #else
-                            if (count === 1) {
-                                const tempFuncStr = funcBodyStart.slice(startSliceIdx, nextSymbolIdx - 1);
-                                const funcDefStr = funcRedefine(tempFuncStr);
-                                redefFunc += `\n${funcDefStr}`;
-                            } else {
-                                redefFunc += `\n${funcBodyStart.slice(startSliceIdx, nextSymbolIdx)}`;
+                                if (!queued || i === params.length - 1) {
+                                    if (paramIndexSet.has(paramIndex)) {
+                                        params[i] += `, ${params[i]}_sampler`;
+                                    }
+                                    ++paramIndex;
+                                }
                             }
-                        } else if (funcBodyStart[nextSymbolIdx + 1] === 'e' && funcBodyStart[nextSymbolIdx + 2] === 'n') { //#endif
-                            count--;
-                            if (count === 0) {
-                                const tempFuncStr = funcBodyStart.slice(startSliceIdx, nextSymbolIdx - 1);
-                                const funcDefStr = funcRedefine(tempFuncStr);
-                                redefFunc += `\n${funcDefStr}`;
-                            } else {
-                                redefFunc += `\n${funcBodyStart.slice(startSliceIdx, nextSymbolIdx)}`;
-                            }
-                        } else { // #define, dont care
-                            redefFunc += funcBodyStart.slice(startSliceIdx, nextSymbolIdx);
+                            const newParams = params.join(',');
+                            const newInvokeStr = matched[0].replace(stripStr, newParams);
+                            code = code.replace(matched[0], newInvokeStr);
                         }
-                        startIndex = nextSymbolIdx + 1;
+                        // else: function declare
                     }
-
-                    //`(?:.(?!layout))+${pair[2]};`
-                    const searchTarget = code.slice(0, fnDecl!.index);
-                    const res = (new RegExp(`#if.+[\\s]*$`)).exec(searchTarget);
-                    redefFunc = `${res![0]}${redefFunc}\n#endif`;
-                } else {
-                    let count = 0;
-                    let matchBegin = false;
-                    let startIndex = 0;
-                    let endIndex = 0;
-                    for (let i = 0; i < funcBodyStart.length; ++i) {
-                        if (funcBodyStart[i] === '{') {
-                            ++count;
-                            if (!matchBegin) {
-                                matchBegin = true;
-                                startIndex = i;
-                            }
-                        } else if (funcBodyStart[i] === '}') {
-                            --count;
-                        }
-
-                        if (matchBegin && count === 0) {
-                            endIndex = i;
-                            break;
-                        }
-                    }
-                    const rawFunc = `${fnDecl![0]}${funcBodyStart.slice(startIndex, endIndex + 1)}`;
-                    redefFunc = funcRedefine(rawFunc);
                 }
 
-                functionTemplates.set(`${pair[0]}_${pair[1]}`, redefFunc);
-            } else {
-                redefFunc = functionTemplates.get(`${pair[0]}_${pair[1]}`)!;
-            }
-
-            const depsFuncs: string[] = [];
-
-            const iterator = referredFuncMap.values();
-            let val = iterator.next().value;
-            while (val) {
-                const funcDepReStr = `\\b(${val[0] as string})\\b`;
-                if (redefFunc.search(funcDepReStr) !== -1) {
-                    depsFuncs[depsFuncs.length] = val[0];
-                }
-                val = iterator.next().value;
-            }
-            // for (let i = 0; i < referredFuncMap.values.length; ++i) {
-            //     const funcDepReStr = `\\b(${referredFuncMap.values[i].fnName as string})\\b`;
-            //     if (redefFunc.search(funcDepReStr) !== -1) {
-            //         depsFuncs[depsFuncs.length] = referredFuncMap.values[i].fnName;
-            //     }
-            // }
-            functionDeps.set(`${pair[0]}_${pair[1]}`, depsFuncs);
-
-            const specializedFuncs = new Map<string, string>();
-            const specialize = (funcs: string[]) => {
-                funcs.every((str) => {
-                    if (!specializedFuncs.has(`${pair[0]}_${pair[2]}_specialized`)) {
-                        const samplerReStr = `(\\w+)SAMPLER_HOLDER`;
-                        const textureName = pair[2].slice(0, pair[2].length - 7); // xxxxSampler
-                        const textureStr = `(\\w+)TEXTURE_HOLDER`;
-                        let funcTemplate = functionTemplates.get(str);
-                        funcTemplate = funcTemplate!.replace(new RegExp(samplerReStr, 'g'), pair[2]);
-                        funcTemplate = funcTemplate.replace(new RegExp(textureStr, 'g'), textureName);
-                        funcTemplate = funcTemplate.replace(new RegExp('SAMPLER_SPEC', 'g'), `_${pair[1]}_${pair[2]}_specialized`);
-                        funcTemplate = funcTemplate.replace(new RegExp(`texture${pair[1]}\\s+\\w+,`, 'g'), '');
-                        // funcTemplate = funcTemplate.replace('SAMPLER_SPEC', `_${pair[2]}_specialized`);
-
-                        for (let i = 0; i < depsFuncs.length; ++i) {
-                            const depFuncStr = `${depsFuncs[i]}([\\W]?)*\\([^,)]+(,)?`;
-                            funcTemplate = funcTemplate.replace(new RegExp(depFuncStr, 'g'), `${depsFuncs[i]}_${pair[1]}_${pair[2]}_specialized(`);
-                        }
-
-                        let declStr = fnDecl![0].replace(pair[0], `${str}_${pair[2]}_specialized`);
-                        declStr = declStr.replace(new RegExp(`sampler${pair[1]}[^,)]+(,)?`, 'g'), ``);
-                        declStr += `;`;
-                        specializedFuncs.set(declStr, funcTemplate);
-                    } else {
-                        return specialize(functionDeps.get(str)!);
+                let count = 1;
+                let startIndex = code.indexOf(funcIter[1], funcIter.index);
+                startIndex = code.indexOf('{', startIndex) + 1;
+                let endIndex = 0;
+                while (count) {
+                    if (code.at(startIndex) === '{') {
+                        ++count;
+                    } else if (code.at(startIndex) === '}') {
+                        --count;
                     }
-                    return true;
+
+                    if (count === 0) {
+                        endIndex = startIndex;
+                        break;
+                    }
+
+                    const nextLeft = code.indexOf('{', startIndex + 1);
+                    const nextRight = code.indexOf('}', startIndex + 1);
+                    startIndex = nextLeft === -1 ? nextRight : Math.min(nextLeft, nextRight);
+                }
+                const funcBody = code.slice(funcIter.index, endIndex);
+                let newFunc = funcBody;
+                paramTypeMap.forEach((type, name) => {
+                    newFunc = replaceBultin(name, type, newFunc);
                 });
-                return true;
-            };
-            specialize([`${pair[0]}_${pair[1]}`]);
-            //(?:.(?!layout))+cc_PositionDisplacementsSampler;
-            const samplerDefReStr = `(?:.(?!layout))+${pair[2]};`;
-            const samplerDef = (new RegExp(samplerDefReStr)).exec(code);
 
-            let funcImpls = '';
-            for (const [key, value] of specializedFuncs) {
-                forwardDecls += `\n${key}\n`;
-                funcImpls += `\n${value}\n`;
+                code = code.replace(funcBody, newFunc);
+                funcSet.add(funcIter[1]);
             }
+            funcIter = funcReg.exec(code);
+        }
 
-            code = code.replace(samplerDef![0], `${samplerDef![0]}\n${funcImpls}`);
+        referredMap.forEach((type, name) => {
+            code = replaceBultin(name, type, code);
         });
-
-        // some function appears before it's defined so forward declaration is needed
-        forwardDecls += '\nvec3 SRGBToLinear (vec3 gamma);\nfloat getDisplacementWeight(int index);\n';
-
-        const highpIdx = code.indexOf('precision highp');
-        const mediumpIdx = code.indexOf('precision mediump');
-        const lowpIdx = code.indexOf('precision lowp');
 
         ///////////////////////////////////////////////////////////
         // isNan, isInf has been removed in dawn:tint
 
         let functionDefs = '';
         const precisionKeyWord = 'highp';
-
-        // const getPrecision = (idx: number) => {
-        //     if (highpIdx !== -1 && highpIdx < idx) {
-        //         precisionKeyWord = 'highp';
-        //     } else if (mediumpIdx !== -1 && mediumpIdx < idx && highpIdx < mediumpIdx) {
-        //         precisionKeyWord = 'mediump';
-        //     } else if (lowpIdx !== -1 && lowpIdx < idx && mediumpIdx < lowpIdx && highpIdx < lowpIdx) {
-        //         precisionKeyWord = 'lowp';
-        //     }
-        // };
-
         const isNanIndex = code.indexOf('isnan');
         if (isNanIndex !== -1) {
             // getPrecision(isNanIndex);
@@ -566,31 +380,84 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
         let firstPrecisionIdx = code.indexOf('precision');
         firstPrecisionIdx = code.indexOf(';', firstPrecisionIdx);
         firstPrecisionIdx += 1;
-        code = `${code.slice(0, firstPrecisionIdx)}\n${forwardDecls}\n${functionDefs}\n${code.slice(firstPrecisionIdx)}`;
+        code = `${code.slice(0, firstPrecisionIdx)}\n${functionDefs}\n${code.slice(firstPrecisionIdx)}`;
 
         return code;
     }
 
+    function reflect(wgsl: string[]) {
+        const bindingList: number[][] = [];
+        for (let wgslStr of wgsl) {
+            // @group(1) @binding(0) var<uniform> x_78 : Constants;
+            // @group(1) @binding(1) var albedoMap : texture_2d<f32>;
+            const reg = new RegExp(/@group\((\d)\)\s+@binding\((\d+)\)/g);
+            let iter = reg.exec(wgslStr);
+            while (iter) {
+                const set = +iter[1];
+                const binding = +iter[2];
+                while (bindingList.length <= set) {
+                    bindingList.push([]);
+                }
+                bindingList[set][bindingList[set].length] = binding;
+                iter = reg.exec(wgslStr);
+            }
+        }
+        return bindingList;
+    }
+
+    function overwriteBlock(info: ShaderInfo, code: string): string {
+        const regexp = new RegExp(/layout\(([^\)]+)\)\s+uniform\s+\b(\w+)\b/g);
+        let src = code;
+        let iter = regexp.exec(src);
+        if (iter) {
+            const blockName = iter[2];
+            const block = info.blocks.find((ele) => { return ele.name === blockName; });
+            const binding = block?.binding;
+            const overwriteStr = iter[0].replace(iter[1], `${iter[1]}, set = 0, binding = ${binding}`);
+            src = src.replace(iter[0], overwriteStr);
+            iter = regexp.exec(src);
+        }
+        return src;
+    }
+
     const createShader = Device.prototype.createShader;
     Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
-        const spvDatas: any = [];
+        const wgslStages: string[] = [];
         for (let i = 0; i < shaderInfo.stages.length; ++i) {
-            shaderInfo.stages[i].source = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
+            let glslSource = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
             const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : shaderInfo.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
-            const sourceCode = `#version 450\n${shaderInfo.stages[i].source}`;
-            const spv = glslalgWasmModule.glslang.compileGLSL(sourceCode, stageStr, true, '1.3');
-            spvDatas.push(spv);
+            // if (stageStr === 'compute') {
+            //     glslSource = overwriteBlock(shaderInfo, glslSource);
+            // }
+            const sourceCode = `#version 450\n#define CC_USE_WGPU 1\n${glslSource}`;
+            const spv = glslangWasmModule.glslang.compileGLSL(sourceCode, stageStr, false, '1.3');
+
+            const twgsl = twgslModule.twgsl;
+            const wgsl = twgsl.convertSpirV2WGSL(spv);
+            if (wgsl === '') {
+                console.error("empty wgsl");
+            }
+            shaderInfo.stages[i].source = wgsl;
+            wgslStages.push(wgsl);
         }
 
-        const shader = this.createShaderNative(shaderInfo, spvDatas);
+        const shader = this.createShaderNative(shaderInfo);
+        // optioanl : reflect bindings in shader
+        {
+            const bindingList = reflect(wgslStages);
+            for (let bindings of bindingList) {
+                const u8Array = new Uint8Array(bindings);
+                shader.reflectBinding(u8Array);
+            }
+        }
         return shader;
     };
 
     // if property being frequently get in TS, try cache it
     // attention: invalid if got this object from a native object,
     // eg. inputAssembler.indexBuffer.objectID
-    function cacheReadOnlyWGPUProperties<T> (type: T, props: string[]) {
+    function cacheReadOnlyWGPUProperties<T>(type: T, props: string[]) {
         const descriptor = { writable: true };
         props.map((prop) => {
             return Object.defineProperty(type['prototype'], `_${prop}`, descriptor);
@@ -604,7 +471,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
             for (let prop of props) {
                 res[`_${prop}`] = res[`${prop}`];
                 Object.defineProperty(res, `${prop}`, {
-                    get () {
+                    get() {
                         return this[`_${prop}`];
                     }
                 });

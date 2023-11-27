@@ -40,7 +40,7 @@
         vec3 fresnel = vec3(1.0);
       #endif
         lightingResult.fresnel = fresnel;
-        
+
 
         float shadow = 1.0;
       #if CC_RECEIVE_SHADOW && CC_SHADOW_TYPE == CC_SHADOW_MAP
@@ -109,11 +109,11 @@
           LightingIntermediateData lightingData2ndSpecular;
           CCSurfacesInitializeLightingIntermediateData(lightingData2ndSpecular, surfaceData2ndSpecular);
           CCSurfacesLightingCalculateIntermediateData_PerLight(lightingData2ndSpecular, surfaceData, lightDirWithLength);
-          CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, attenuatedLightColorAndIntensity, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.directSpecular);
-          CCSurfaceLightingCalculateDirectFresnel(lightingResult.directGF2ndSpecular, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular, vec3(1.0));
-          #if CC_SURFACES_LIGHTING_SHEEN
-            vec3 extraF = CCSurfaceLightingCalculateExtraFresnel(lightingData2ndSpecular);
-            lightingResult.directGF2ndSpecular *= extraF;
+          #if !CC_SURFACES_LIGHTING_SHEEN
+            CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, attenuatedLightColorAndIntensity, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.directSpecular);
+            CCSurfaceLightingCalculateDirectFresnel(lightingResult.directGF2ndSpecular, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular, vec3(1.0));
+          #else
+            CCSurfacesLightingCalculateDirectSheen(lightingResult.direct2ndSpecular, lightingResult.directGF2ndSpecular, lightingData2ndSpecular, attenuatedLightColorAndIntensity, surfaceData2ndSpecular.intensity2ndSpecular);
           #endif
 
           lightingResult.direct2ndSpecular *= multiplier;
@@ -258,15 +258,15 @@
         vec3 diff;
         CCSurfacesLightingInitializeColorWithLighting(diff, lightingResult.specularColorWithLighting2ndSpecular, surfaceData2ndSpecular, lightingData2ndSpecular);
 
-        CCSurfacesLightingCalculateEnvironment2ndSpecular(lightingResult.environment2ndSpecular, lightingData2ndSpecular, cc_ambientSky.w, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.environmentSpecular);
-        CCSurfaceLightingCalculateEnvironmentFresnel(lightingResult.environmentGF2ndSpecular, lightingResult.environmentSubLayerF, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular);
+        #if !CC_SURFACES_LIGHTING_SHEEN
+          CCSurfacesLightingCalculateEnvironment2ndSpecular(lightingResult.environment2ndSpecular, lightingData2ndSpecular, cc_ambientSky.w, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.environmentSpecular);
+          CCSurfaceLightingCalculateEnvironmentFresnel(lightingResult.environmentGF2ndSpecular, lightingResult.environmentSubLayerF, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular);
 
-        CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, cc_mainLitColor, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.directSpecular);
-        CCSurfaceLightingCalculateDirectFresnel(lightingResult.directGF2ndSpecular, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular, lightingResult.environmentGF2ndSpecular);
-        #if CC_SURFACES_LIGHTING_SHEEN
-          vec3 extraF = CCSurfaceLightingCalculateExtraFresnel(lightingData2ndSpecular);
-          lightingResult.environmentGF2ndSpecular *= extraF;
-          lightingResult.directGF2ndSpecular *= extraF;
+          CCSurfacesLightingCalculateDirect2ndSpecular(lightingResult.direct2ndSpecular, lightingData2ndSpecular, cc_mainLitColor, surfaceData2ndSpecular.intensity2ndSpecular, lightingResult.directSpecular);
+          CCSurfaceLightingCalculateDirectFresnel(lightingResult.directGF2ndSpecular, lightingData2ndSpecular, lightingResult.specularColorWithLighting2ndSpecular, lightingResult.environmentGF2ndSpecular);
+        #else
+          CCSurfacesLightingCalculateDirectSheen(lightingResult.direct2ndSpecular, lightingResult.directGF2ndSpecular, lightingData2ndSpecular, cc_mainLitColor, surfaceData2ndSpecular.intensity2ndSpecular);
+          CCSurfacesLightingCalculateEnvironmentSheen(lightingResult.environment2ndSpecular, lightingResult.environmentGF2ndSpecular, lightingData2ndSpecular, cc_ambientSky.w, surfaceData2ndSpecular.intensity2ndSpecular);
         #endif
       #endif
 

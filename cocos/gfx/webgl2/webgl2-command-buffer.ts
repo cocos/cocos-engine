@@ -22,16 +22,11 @@
  THE SOFTWARE.
 */
 
+import { error } from '@base/debug';
 import { DescriptorSet } from '../base/descriptor-set';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
-import {
-    BufferUsageBit,
-    CommandBufferType,
-    StencilFace,
-    BufferSource, CommandBufferInfo,
-    BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates, TextureBlit, Filter,
-} from '../base/define';
+import { BufferUsageBit, CommandBufferType, StencilFace, BufferSource, CommandBufferInfo, BufferTextureCopy, Color, Rect, Viewport, DrawInfo, DynamicStates, TextureBlit, Filter } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
 import { PipelineState } from '../base/pipeline-state';
@@ -39,16 +34,7 @@ import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
-import {
-    WebGL2Cmd,
-    WebGL2CmdBeginRenderPass,
-    WebGL2CmdBindStates,
-    WebGL2CmdBlitTexture,
-    WebGL2CmdCopyBufferToTexture,
-    WebGL2CmdDraw,
-    WebGL2CmdPackage,
-    WebGL2CmdUpdateBuffer,
-} from './webgl2-commands';
+import { WebGL2Cmd, WebGL2CmdBeginRenderPass, WebGL2CmdBindStates, WebGL2CmdBlitTexture, WebGL2CmdCopyBufferToTexture, WebGL2CmdDraw, WebGL2CmdPackage, WebGL2CmdUpdateBuffer } from './webgl2-commands';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { IWebGL2GPUInputAssembler, IWebGL2GPUDescriptorSet, IWebGL2GPUPipelineState } from './webgl2-gpu-objects';
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
@@ -60,7 +46,6 @@ import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGL2DeviceManager } from './webgl2-define';
-import { error } from '../../core';
 
 export class WebGL2CommandBuffer extends CommandBuffer {
     public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();

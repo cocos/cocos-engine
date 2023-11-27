@@ -18,14 +18,14 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
+          node-version: '18.x'
 
       - name: Download external
         run: |
           EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
 
-      - run: npx npm@6 ci
+      - run: npm ci
 
       - name: Run ESLint
         shell: pwsh

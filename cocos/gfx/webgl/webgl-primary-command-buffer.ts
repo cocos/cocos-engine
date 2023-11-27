@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { error } from '@base/debug';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
 import { BufferSource, DrawInfo, BufferTextureCopy, Color, Rect, BufferUsageBit, Viewport, TextureBlit, Filter } from '../base/define';
@@ -30,15 +31,12 @@ import { InputAssembler } from '../base/input-assembler';
 import { Texture } from '../base/texture';
 import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
-import {
-    WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncBlitTexture, WebGLCmdFuncCopyBuffersToTexture,
-    WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
+import { WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncBlitTexture, WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLDeviceManager } from './webgl-define';
-import { error } from '../../core';
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     public beginRenderPass (

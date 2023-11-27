@@ -24,8 +24,8 @@
 */
 
 import { RUNTIME_BASED } from 'internal:constants';
-import { minigame } from 'pal/minigame';
-import { js } from '../../core';
+import { minigame } from '@pal/minigame';
+import { js } from '@base/utils';
 
 export const BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;

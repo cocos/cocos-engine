@@ -20,13 +20,15 @@
  This file was modified to fit the cocos2d-x project
  */
 
-#include "base/std/hash/hash.h"
-
 #include "math/Vec4.h"
 
 #include <cmath>
 #include "base/Macros.h"
 #include "math/MathUtil.h"
+
+#if CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN
+    #include "base/std/hash/hash.h"
+#endif
 
 NS_CC_MATH_BEGIN
 
@@ -329,10 +331,12 @@ const Vec4 Vec4::UNIT_Y = Vec4(0.0F, 1.0F, 0.0F, 0.0F);
 const Vec4 Vec4::UNIT_Z = Vec4(0.0F, 0.0F, 1.0F, 0.0F);
 const Vec4 Vec4::UNIT_W = Vec4(0.0F, 0.0F, 0.0F, 1.0F);
 
+#if CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN
 template <>
 ccstd::hash_t Hasher<Vec4>::operator()(const Vec4 &v) const {
     return ccstd::hash_range(reinterpret_cast<const uint64_t *>(&v.x),
                              reinterpret_cast<const uint64_t *>(&v.x + 4));
 }
+#endif
 
 NS_CC_MATH_END

@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { warnID } from '@base/debug';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { UITransform } from '../2d/framework/ui-transform';
-import { warnID } from '../core/platform/debug';
 import { UIMeshRenderer } from '../2d';
 
 /**

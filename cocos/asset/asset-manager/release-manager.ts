@@ -23,8 +23,11 @@
 */
 
 import { EDITOR, TEST } from 'internal:constants';
+import { js } from '@base/utils';
+import { isValid } from '@base/object';
+import { callInNextTick } from '../../core/utils/internal';
 import { Asset } from '../assets/asset';
-import { isValid, js, misc } from '../../core';
+import { misc } from '../../core';
 import { Node, Scene } from '../../scene-graph';
 import Cache from './cache';
 import dependUtil from './depend-util';
@@ -216,7 +219,7 @@ class ReleaseManager {
         if (TEST) return;
         if (!this._eventListener) {
             this._eventListener = true;
-            misc.callInNextTick(this._freeAssets.bind(this));
+            callInNextTick(this._freeAssets.bind(this));
         }
     }
 

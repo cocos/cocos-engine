@@ -1,4 +1,6 @@
-import { Pool } from '../../../cocos/core/memop/pool';
+import { memop } from '@base/utils';
+
+const { Pool } = memop;
 
 class Test {
     public tag: number;

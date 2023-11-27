@@ -1,5 +1,5 @@
 import { DEBUG } from 'internal:constants';
-import { approx, clamp, Quat, Vec3 } from '../../../../../core';
+import { approx, clamp, Quat, Vec3 } from '@base/math';
 import { Transform } from '../../../../core/transform';
 import { debugTwoBoneIKDraw } from './two-bone-ik-debugger';
 

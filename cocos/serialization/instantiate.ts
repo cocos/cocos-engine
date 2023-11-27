@@ -24,7 +24,12 @@
 */
 
 import { DEV, JSB } from 'internal:constants';
-import { CCObject, isCCObject, js, ValueType, jsbUtils, isCCClassOrFastDefined, getError, warn, misc, cclegacy } from '../core';
+import { getError, warn } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { isDomNode } from '@pal/utils';
+import { CCObject, isCCClassOrFastDefined, ValueType, isCCObject } from '@base/object';
+import { jsbUtils } from '../core';
 import { Prefab } from '../scene-graph/prefab';
 import { Node } from '../scene-graph/node';
 import { Component } from '../scene-graph/component';
@@ -98,12 +103,12 @@ export function instantiate (original: any, internalForce?: boolean): any {
         }
     }
 
-    let clone;
+    let clone: Node;
 
     if (isCCObject(original)) {
         if (hasImplementedInstantiate(original)) {
             cclegacy.game._isCloning = true;
-            clone = original._instantiate(null, true);
+            clone = original._instantiate(null, true) as Node;
             cclegacy.game._isCloning = false;
             if (JSB) {
                 jsbUtils.updateChildrenForDeserialize(clone);
@@ -142,7 +147,7 @@ function doInstantiate (obj, parent?): any {
         if (Array.isArray(obj)) {
             throw new TypeError(getError(6904));
         }
-        if (misc.isDomNode(obj)) {
+        if (isDomNode(obj)) {
             throw new TypeError(getError(6905));
         }
     }
@@ -182,9 +187,9 @@ function enumerateCCClass (klass, obj, clone, parent): void {
             const initValue = clone[key];
             if (initValue instanceof ValueType
                 && initValue.constructor === value.constructor) {
-                initValue.set(value);
+                initValue.set(value as ValueType);
             } else {
-                clone[key] = value._iN$t || instantiateObj(value, parent);
+                clone[key] = value._iN$t || instantiateObj(value as any[] | CCObject | TypedArray, parent);
             }
         } else {
             clone[key] = value;
@@ -195,7 +200,7 @@ function enumerateCCClass (klass, obj, clone, parent): void {
 function enumerateObject (obj, clone, parent): void {
     // 目前使用“_iN$t”这个特殊字段来存实例化后的对象，这样做主要是为了防止循环引用
     // 注意，为了避免循环引用，所有新创建的实例，必须在赋值前被设为源对象的_iN$t
-    js.value(obj, '_iN$t', clone, true);
+    js.value(obj as Record<string | number, any>, '_iN$t', clone, true);
     objsToClearTmpVar.push(obj);
     const klass = obj.constructor;
     if (isCCClassOrFastDefined(klass)) {
@@ -216,7 +221,7 @@ function enumerateObject (obj, clone, parent): void {
                 if (value === clone) {
                     continue;   // value is obj._iN$t
                 }
-                clone[key] = value._iN$t || instantiateObj(value, parent);
+                clone[key] = value._iN$t || instantiateObj(value as TypedArray | any[] | CCObject, parent);
             } else {
                 clone[key] = value;
             }
@@ -262,7 +267,7 @@ function instantiateObj (obj: TypedArray | any[] | CCObject, parent: any): any {
         for (let i = 0; i < len; ++i) {
             const value = obj[i];
             if (typeof value === 'object' && value) {
-                clone[i] = value._iN$t || instantiateObj(value, parent);
+                clone[i] = value._iN$t || instantiateObj(value as TypedArray | any[] | CCObject, parent);
             } else {
                 clone[i] = value;
             }

@@ -84,19 +84,24 @@ System::LanguageType System::getCurrentLanguage() const {
 }
 
 std::string System::getCurrentLanguageCode() const {
-    std::string str;
-    NapiHelper::napiCallFunction<std::string>("getSystemLanguage", &str);
+    auto ret = NapiHelper::napiCallFunction("getSystemLanguage");
+    if (!ret.IsString()) {
+        return {};
+    }
+    auto str = ret.As<Napi::String>().Utf8Value();
     std::string::size_type pos = str.find('-');
-    if(pos != std::string::npos) {
+    if (pos != std::string::npos) {
         str = str.substr(0, pos);
     }
     return str;
 }
 
 std::string System::getSystemVersion() const {
-    std::string str;
-    NapiHelper::napiCallFunction<std::string>("getOSFullName", &str);
-    return str;
+    auto ret = NapiHelper::napiCallFunction("getOSFullName");
+    if (!ret.IsString()) {
+        return {};
+    }
+    return ret.As<Napi::String>().Utf8Value();
 }
 
 bool System::openURL(const std::string& url) {

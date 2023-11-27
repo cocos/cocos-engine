@@ -30,12 +30,16 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
+import { memop } from '@base/utils';
 import { asmFactory } from './physx.asmjs';
 import { wasmFactory, PhysXWasmUrl } from './physx.wasmjs';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 import { instantiateWasm } from 'pal/wasm';
 import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, debug, error } from '../../core';
+import { IQuatLike, IVec3Like, Quat, Vec3 } from '@base/math';
+import { geometry, Settings, settings, sys } from '../../core';
+import { debug, error } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
@@ -516,7 +520,7 @@ export function simulateScene (scene: any, deltaTime: number): void {
 }
 
 export function raycastAll (world: PhysXWorld, worldRay: geometry.Ray, options: IRaycastOptions,
-    pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
@@ -603,7 +607,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
 }
 
 export function sweepAll (world: PhysXWorld, worldRay: geometry.Ray, geometry: any, geometryRotation: IQuatLike,
-    options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    options: IRaycastOptions, pool: memop.RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
     const maxDistance = options.maxDistance;
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);

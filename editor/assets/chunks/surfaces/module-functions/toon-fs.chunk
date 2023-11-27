@@ -127,7 +127,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
   color.xyz += lightingResult.directSpecular * lightingResult.specularColorWithLighting;
 #else
   float lightmapCoef = 0.0;
-    
+
 #if CC_SURFACES_USE_LEGACY_COMPATIBLE_LIGHTING
   color.xyz += (
     mix(lightingResult.directDiffuse, lightingResult.lightmapColor, lightmapCoef) * lightingResult.diffuseColorWithLighting
@@ -150,7 +150,7 @@ vec4 CCSurfacesShading(in SurfacesMaterialData surfaceData, in LightingResult li
 
   color.xyz += lightingResult.emissive;
 #endif
-  
+
   return color;
 }
 

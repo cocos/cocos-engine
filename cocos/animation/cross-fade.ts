@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { clamp01, js } from '../core';
+import { js } from '@base/utils';
+import { clamp01 } from '@base/math';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
 import { getGlobalAnimationManager } from './global-animation-manager';

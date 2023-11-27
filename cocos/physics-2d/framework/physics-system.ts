@@ -23,7 +23,11 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { System, Vec2, IVec2Like, Rect, Eventify, Enum, Settings, settings, cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
+import { Enum } from '@base/object';
+import { Eventify } from '@base/event';
+import { Vec2, IVec2Like, Rect } from '@base/math';
+import { System, Settings, settings } from '../../core';
 import { createPhysicsWorld, selector, IPhysicsSelector } from './physics-selector';
 
 import { DelayEvent } from './physics-internal-types';
@@ -175,6 +179,10 @@ export class PhysicsSystem2D extends Eventify(System) {
 
     static get PHYSICS_BOX2D (): boolean {
         return selector.id === 'box2d';
+    }
+
+    static get PHYSICS_BOX2D_WASM (): boolean {
+        return selector.id === 'box2d-wasm';
     }
 
     /**
@@ -374,10 +382,9 @@ export class PhysicsSystem2D extends Eventify(System) {
     testAABB (rect: Rect): readonly Collider2D[] {
         return this.physicsWorld.testAABB(rect);
     }
+    static constructAndRegister (): void {
+        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
+    }
 }
 
-function initPhysicsSystem (): void {
-    director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
-}
-
-director.once(Director.EVENT_INIT, (): void => { initPhysicsSystem(); });
+director.once(Director.EVENT_INIT, (): void => { PhysicsSystem2D.constructAndRegister(); });

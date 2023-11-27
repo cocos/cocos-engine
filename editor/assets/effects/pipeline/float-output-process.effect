@@ -4,6 +4,11 @@ CCEffect %{
   techniques:
   - passes:
     - vert: tonemap-vs
+      frag: copy-fs
+      pass: copy-pass
+      depthTest: false
+      depthWrite: false
+    - vert: tonemap-vs
       frag: tonemap-fs
       pass: tone-mapping
       depthStencilState:
@@ -17,13 +22,33 @@ CCProgram tonemap-vs %{
   #include <./post-process/chunks/vs>
 }%
 
-CCProgram tonemap-fs %{
+CCProgram copy-fs %{
   precision highp float;
   #include <builtin/uniforms/cc-global>
+  #include <common/data/packing>
+
+  #pragma rate depthRaw pass
+  uniform sampler2D depthRaw;
+
+  in vec2 v_uv;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main() {
+    float depth = texture(depthRaw, v_uv).r;
+    fragColor = packDepthToRGBA(depth);
+  }
+}%
+
+CCProgram tonemap-fs %{
+  precision highp float;
+  #define CC_SURFACES_ENABLE_DEBUG_VIEW 1
+  #include <builtin/uniforms/cc-global>
   #include <common/common-define>
-  #include <common/color/gamma>
-  #include <common/color/aces>
+  #include <common/data/packing>
   #include <common/debug/debug-view-define>
+  #include <common/color/gamma>
+  #include <common/color/tone-mapping>
   #include <common/math/coordinates>
   #include <builtin/functionalities/fog>
 
@@ -36,41 +61,33 @@ CCProgram tonemap-fs %{
 
   layout(location = 0) out vec4 fragColor;
 
-  vec3 HDR2LDR_PostProcess(vec3 color) {
-    vec3 tempColor = color.rgb;
-    #if CC_USE_HDR && CC_TONE_MAPPING_TYPE == HDR_TONE_MAPPING_ACES
-      tempColor.rgb = ACESToneMap(color.rgb);
-    #endif
-    return tempColor.rgb;
-  }
-
   vec4 CCFragOutput_PostProcess(vec4 color) {
-
     // fog related
     vec4 worldPos = vec4(0.0);
     #if CC_USE_FOG != CC_FOG_NONE
-      float depth = texture(DepthTex, v_uv).r;
+      float depth = unpackRGBAToDepth(texture(DepthTex, v_uv));
       vec3 posHS = vec3(v_uv, depth) * 2.0 - vec3(1.0);
       CC_HANDLE_GET_CLIP_FLIP(posHS.xy);
       worldPos = GetWorldPosFromNDCPosRH(posHS, cc_matProj, cc_matViewProjInv);
     #endif
 
-    // todo: apply fogColorBrightness to fogColor for supporting scatter lighting with HDR
-
-    // tone mapping
-    if (!DebugViewNeedDisplayOriginalData()) {
-      #if CC_USE_FLOAT_OUTPUT
-        color.rgb = HDR2LDR_PostProcess(color.rgb);
-        color.rgb = LinearToSRGB(color.rgb);
-      #endif
-    }
-
-    // LDR fog
+    // HDR fog
+    // todo: apply fogColorBrightness to linear fogColor for supporting scatter lighting with HDR
     #if CC_USE_FOG != CC_FOG_NONE
       float fogFactor = 1.0;
       CC_TRANSFER_FOG_BASE(worldPos, fogFactor);
       CC_APPLY_FOG_BASE(color, fogFactor);
     #endif
+
+    // tone mapping
+    if (!DebugViewNeedDisplayOriginalData()) {
+      #if CC_USE_FLOAT_OUTPUT
+        color.rgb = HDRToLDR(color.rgb);
+        color.rgb = LinearToSRGB(color.rgb);
+      #endif
+    }
+
+    // LDR fog
 
     return color;
   }

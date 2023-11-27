@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Device } from '../../gfx';
 import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
 import { Material } from '../../asset/assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { macro } from '../../core/platform/macro';
-import { legacyCC } from '../../core/global-exports';
 
 // Anti-aliasing type, other types will be gradually added in the future
 export enum AntiAliasing {
@@ -189,7 +189,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         if (!this._deferredLightingMaterial) return;
 
         // It's temporary solution for main light shadowmap
-        legacyCC.director.root.pipeline.macros.CC_RECEIVE_SHADOW = 1;
+        cclegacy.director.root.pipeline.macros.CC_RECEIVE_SHADOW = 1;
 
         const passLit = this._deferredLightingMaterial.passes[0];
         passLit.beginChangeStatesSilently();

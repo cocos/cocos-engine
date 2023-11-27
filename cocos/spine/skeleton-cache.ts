@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
+import { warn } from '@base/debug';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d/renderer/vertex-format';
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { SkeletonData } from './skeleton-data';
-import { warn } from '../core/platform/debug';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;

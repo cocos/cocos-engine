@@ -1,5 +1,6 @@
 import { TEST } from 'internal:constants';
-import { assertIsTrue, ccenum } from '../../../core';
+import { assertIsTrue } from '@base/debug/internal';
+import { ccenum } from '@base/object';
 import { ccclass } from '../../../core/data/decorators';
 import { Pose, PoseTransformSpace } from '../../core/pose';
 import { CLASS_NAME_PREFIX_ANIM } from '../../define';

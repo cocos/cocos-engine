@@ -1,19 +1,17 @@
-import { PoseGraphNode } from "../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
-import {
-    getPoseGraphNodeEditorMetadata, PoseGraphCreateNodeContext, PoseGraphNodeAppearanceOptions,
-} from "../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring";
-import { Layer, poseGraphOp } from "../../exports/new-gen-anim";
-import { instantiate } from "../../../cocos/serialization";
-import { PoseGraphOutputNode } from "../../../cocos/animation/marionette/pose-graph/graph-output-node";
-import { PoseNode } from "../../../cocos/animation/marionette/pose-graph/pose-node";
-import { PureValueNode } from "../../../cocos/animation/marionette/pose-graph/pure-value-node";
-import { assertIsTrue, editorExtrasTag } from "../../../exports/base";
+import { assertIsTrue } from '@base/debug/internal';
+import { editorExtrasTag, attr } from '@base/object';
+import { PoseGraphNode } from '../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node';
+import { getPoseGraphNodeEditorMetadata, PoseGraphCreateNodeContext, PoseGraphNodeAppearanceOptions } from '../../../cocos/animation/marionette/pose-graph/foundation/authoring/node-authoring';
+import { Layer, poseGraphOp } from '../../exports/new-gen-anim';
+import { instantiate } from '../../../cocos/serialization';
+import { PoseGraphOutputNode } from '../../../cocos/animation/marionette/pose-graph/graph-output-node';
+import { PoseNode } from '../../../cocos/animation/marionette/pose-graph/pose-node';
+import { PureValueNode } from '../../../cocos/animation/marionette/pose-graph/pure-value-node';
 import { PoseNodeUseStashedPose } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/use-stashed-pose';
-import { PoseGraphStash, StateMachine } from "../../../cocos/animation/marionette/animation-graph";
-import { PoseNodeLocation, visitPoseNodeInLayer } from "./visit/visit-pose-node";
+import { PoseGraphStash, StateMachine } from '../../../cocos/animation/marionette/animation-graph';
+import { PoseNodeLocation, visitPoseNodeInLayer } from './visit/visit-pose-node';
 import { PoseGraph } from '../../../cocos/animation/marionette/pose-graph/pose-graph';
-import { PoseNodeStateMachine } from "../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine";
-import { attr } from "../../../cocos/core/data/utils/attribute";
+import { PoseNodeStateMachine } from '../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine';
 
 type Constructor<T = unknown> = new (...args: any[]) => T;
 

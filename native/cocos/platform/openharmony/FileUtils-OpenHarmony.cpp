@@ -22,31 +22,27 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-#include "cocos/platform/openharmony/FileUtils-OpenHarmony.h"
+#include "platform/openharmony/FileUtils-OpenHarmony.h"
+
 #include <hilog/log.h>
 #include <sys/stat.h>
 #include <cstdio>
 #include <regex>
 
-#include <string>
-#include <sys/syscall.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <dirent.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
 #include <unistd.h>
+#include <string>
+
+#include "base/Log.h"
 #include "base/memory/Memory.h"
-
-#include "cocos/base/Log.h"
-
-#include "bindings/jswrapper/napi/HelperMacros.h"
-#define ASSETS_FOLDER_WRITEABLE_PATH "/data/accounts/account_0/applications/ohos.example.xcomponent1/ohos.example.xcomponent1/writeable_path"
-#include "rawfile/raw_file_manager.h"
 
 namespace cc {
 
-NativeResourceManager* FileUtilsOpenHarmony::_nativeResourceManager = nullptr;
+NativeResourceManager *FileUtilsOpenHarmony::_nativeResourceManager = nullptr;
 
 FileUtils *createFileUtils() {
     return ccnew FileUtilsOpenHarmony();
@@ -63,7 +59,7 @@ bool FileUtilsOpenHarmony::initResourceManager(napi_env env, napi_value param) {
     return true;
 }
 
-FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &filename,RawFileDescriptor& descriptor) {
+FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &filename, RawFileDescriptor &descriptor) {
     if (filename.empty()) {
         return FileUtils::Status::NOT_EXISTS;
     }
@@ -85,12 +81,12 @@ FileUtils::Status FileUtilsOpenHarmony::getRawFileDescriptor(const std::string &
 
     bool result = OH_ResourceManager_GetRawFileDescriptor(rawFile, descriptor);
     if (!result) {
-         OH_ResourceManager_CloseRawFile(rawFile);
+        OH_ResourceManager_CloseRawFile(rawFile);
         return FileUtils::Status::OPEN_FAILED;
     }
 
     OH_ResourceManager_CloseRawFile(rawFile);
-    return FileUtils::Status::OK;  
+    return FileUtils::Status::OK;
 }
 
 FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename, ResizableBuffer *buffer) {
@@ -136,7 +132,7 @@ FileUtils::Status FileUtilsOpenHarmony::getContents(const std::string &filename,
 }
 
 FileUtilsOpenHarmony::~FileUtilsOpenHarmony() {
-    if(_nativeResourceManager)
+    if (_nativeResourceManager)
         OH_ResourceManager_ReleaseNativeResourceManager(_nativeResourceManager);
 }
 
@@ -170,8 +166,8 @@ long FileUtilsOpenHarmony::getFileSize(const std::string &filepath) {
     }
 
     long filesize = 0;
-    RawFile* rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, fullPath.c_str());
-    if(rawFile) {
+    RawFile *rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, fullPath.c_str());
+    if (rawFile) {
         filesize = OH_ResourceManager_GetRawFileSize(rawFile);
         OH_ResourceManager_CloseRawFile(rawFile);
     }
@@ -196,8 +192,8 @@ bool FileUtilsOpenHarmony::isFileExistInternal(const std::string &strFilePath) c
         return false;
     }
 
-    RawFile* rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, strPath.c_str());
-    if(rawFile) {
+    RawFile *rawFile = OH_ResourceManager_OpenRawFile(_nativeResourceManager, strPath.c_str());
+    if (rawFile) {
         OH_ResourceManager_CloseRawFile(rawFile);
         return true;
     }
@@ -216,14 +212,14 @@ bool FileUtilsOpenHarmony::isDirectoryExistInternal(const std::string &dirPath) 
     if (dirPathMf.find(_defaultResRootPath) == 0) {
         dirPathMf = dirPathMf.substr(_defaultResRootPath.length(), dirPathMf.length());
     }
-    
+
     if (nullptr == _nativeResourceManager) {
         CC_LOG_ERROR("nativeResourceManager is nullptr");
         return false;
     }
 
-    RawDir* rawDir = OH_ResourceManager_OpenRawDir(_nativeResourceManager, dirPathMf.c_str());
-    if(rawDir) {
+    RawDir *rawDir = OH_ResourceManager_OpenRawDir(_nativeResourceManager, dirPathMf.c_str());
+    if (rawDir) {
         OH_ResourceManager_CloseRawDir(rawDir);
         return true;
     }
@@ -253,7 +249,7 @@ bool FileUtilsOpenHarmony::removeDirectory(const std::string &dirPath) {
         return false;
     }
     struct dirent *dir{nullptr};
-    struct stat    st;
+    struct stat st;
     while ((dir = readdir(directory)) != NULL) {
         if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
             continue;

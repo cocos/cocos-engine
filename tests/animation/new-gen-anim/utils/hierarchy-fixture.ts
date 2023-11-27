@@ -1,6 +1,7 @@
-import { Transform } from "../../../../cocos/animation/core/transform";
-import { Node, Quat, Vec3 } from "../../../../exports/base";
-import { PoseRecord } from "./pose-record";
+import { Quat, Vec3 } from '@base/math';
+import { Transform } from '../../../../cocos/animation/core/transform';
+import { Node } from '../../../../exports/base';
+import { PoseRecord } from './pose-record';
 
 /**
  * Generates the following hierarchy:

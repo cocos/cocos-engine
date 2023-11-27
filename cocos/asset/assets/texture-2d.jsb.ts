@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TEST } from 'internal:constants'
+import { EDITOR, TEST } from 'internal:constants';
 import { ImageAsset } from './image-asset';
 import { SimpleTexture } from './simple-texture';
 import { TextureBase } from './texture-base.jsb';
-import { js, cclegacy } from '../../core';
+import { js } from '@base/utils';
+import { cclegacy } from '@base/global';
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import './simple-texture';
 import { patch_cc_Texture2D } from '../../native-binding/decorators';

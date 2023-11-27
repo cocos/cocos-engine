@@ -1,5 +1,6 @@
+import * as math from '@base/math';
 import { SpriteFrame } from "../../cocos/2d/assets";
-import { math, RealInterpolationMode } from "../../cocos/core";
+import { RealInterpolationMode , BezierControlPoints, bezierByTime } from "../../cocos/core";
 import { AnimationClip, animation} from "../../cocos/animation";
 import { ColorTrack, IValueProxyFactory, RealTrack, Track, TrackPath, VectorTrack } from "../../cocos/animation/animation";
 import { LegacyClipCurve, LegacyCommonTarget, LegacyEasingMethod, timeBezierToTangents } from "../../cocos/animation/legacy-clip-data";
@@ -8,7 +9,6 @@ import { RealChannel } from "../../cocos/animation/tracks/track";
 import { UntypedTrack } from "../../cocos/animation/tracks/untyped-track";
 import { EasingMethod, ExtrapolationMode, RealCurve, TangentWeightMode } from "../../cocos/core/curves/curve";
 import { createMultipleRealKeyframesWithoutTangent, createRealKeyframeValueLike } from "../curves/curve-test-utils";
-import { BezierControlPoints, bezierByTime } from "../../cocos/core"
 
 class ValueProxyFactorFoo implements IValueProxyFactory {
     forTarget(_target: any): animation.IValueProxy {

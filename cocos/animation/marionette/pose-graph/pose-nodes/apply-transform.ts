@@ -1,12 +1,12 @@
 import { EDITOR } from 'internal:constants';
+import { error } from '@base/debug';
+import { ccenum } from '@base/object';
+import { approx, Quat, Vec3 } from '@base/math';
 import { ccclass, editable, range, serializable, type, visible } from '../../../../core/data/decorators';
 import { CLASS_NAME_PREFIX_ANIM } from '../../../define';
 import { PoseNode, PoseTransformSpaceRequirement } from '../pose-node';
-import {
-    AnimationGraphBindingContext, AnimationGraphEvaluationContext,
-} from '../../animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext } from '../../animation-graph-context';
 import { input } from '../decorator/input';
-import { approx, assertIsTrue, ccenum, error, Quat, Vec3 } from '../../../../core';
 import { TransformHandle } from '../../../core/animation-handle';
 import { poseGraphNodeAppearance, poseGraphNodeCategory } from '../decorator/node';
 import { POSE_GRAPH_NODE_MENU_PREFIX_POSE } from './menu-common';

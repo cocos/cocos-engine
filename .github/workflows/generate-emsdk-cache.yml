@@ -1,0 +1,26 @@
+name: <Native> Generate Emsdk Cache
+
+on:
+  workflow_dispatch:
+    inputs:
+      emsdk_version:
+        description: 'Emsdk version'
+        type: string
+        default: '3.1.45'
+        required: true
+
+jobs:
+  generate_emsdk_cache:
+    name: "Generate Emsdk cache"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup emsdk
+        uses: dumganhar/setup-emsdk@997d2cde2deabda085a11f98e86e842915b0e846
+        with:
+          version: ${{ github.event.inputs.emsdk_version }}
+          actions-cache-folder: 'emsdk-cache'
+
+      - name: Verify
+        run: |
+          which emcc
+          emcc -v

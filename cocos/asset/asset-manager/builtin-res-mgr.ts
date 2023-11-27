@@ -23,6 +23,7 @@
 */
 
 import { EDITOR, EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
 import { IMemoryImageSource } from '../../../pal/image/types';
 import { Asset } from '../assets/asset';
 import { ImageAsset } from '../assets/image-asset';
@@ -32,7 +33,7 @@ import { TextureCube } from '../assets/texture-cube';
 import assetManager from './asset-manager';
 import { BuiltinBundleName } from './shared';
 import Bundle from './bundle';
-import { Settings, settings, cclegacy } from '../../core';
+import { Settings, settings } from '../../core';
 import { releaseManager } from './release-manager';
 import { Material } from '../assets';
 

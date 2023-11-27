@@ -61,7 +61,7 @@ ccstd::hash_t Skeleton::getHash() {
 }
 
 bool Skeleton::destroy() {
-    //cjh TODO:    (legacyCC.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
+    //cjh TODO:    (cclegacy.director.root?.dataPoolManager as DataPoolManager)?.releaseSkeleton(this);
     return Super::destroy();
 }
 

@@ -22,10 +22,12 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from './core/global-exports';
+import { warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { settings, Settings, warnID, Pool, macro } from './core';
+import { settings, Settings, macro } from './core';
 import { ForwardPipeline } from './rendering';
 import type { Root as JsbRoot } from './root';
 
@@ -55,8 +57,8 @@ export interface IRootInfo {
 const rootProto: any = Root.prototype;
 
 rootProto._createBatcher2D = function () {
-    if (!this._batcher && legacyCC.internal.Batcher2D) {
-        this._batcher = new legacyCC.internal.Batcher2D(this);
+    if (!this._batcher && cclegacy.internal.Batcher2D) {
+        this._batcher = new cclegacy.internal.Batcher2D(this);
         if (!this._batcher!.initialize()) {
             this._batcher = null;
             this.destroy();
@@ -102,7 +104,7 @@ class DummyPipelineEvent {
 
 rootProto._ctor = function (device: Device) {
     this._device = device;
-    this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
+    this._dataPoolMgr = cclegacy.internal.DataPoolManager && new cclegacy.internal.DataPoolManager(device) as DataPoolManager;
     this._modelPools = new Map();
     this._lightPools = new Map();
     this._batcher = null;
@@ -120,7 +122,7 @@ rootProto.initialize = function (info: IRootInfo) {
 rootProto.createModel = function (ModelCtor) {
     let p = this._modelPools.get(ModelCtor);
     if (!p) {
-        this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
+        this._modelPools.set(ModelCtor, new memop.Pool(() => new ModelCtor(), 10, (obj) => obj.destroy()));
         p = this._modelPools.get(ModelCtor)!;
     }
     const model = p.alloc();
@@ -144,7 +146,7 @@ rootProto.destroyModel = function (m) {
 rootProto.createLight = function (LightCtor) {
     let l = this._lightPools.get(LightCtor);
     if (!l) {
-        this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4, (obj) => obj.destroy()));
+        this._lightPools.set(LightCtor, new memop.Pool(() => new LightCtor(), 4, (obj) => obj.destroy()));
         l = this._lightPools.get(LightCtor)!;
     }
     const light = l.alloc();
@@ -206,34 +208,45 @@ rootProto.recycleLight = function (l) {
 };
 
 rootProto._onDirectorBeforeCommit = function () {
-    legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+    cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_COMMIT);
 };
 
 rootProto._onDirectorBeforeRender = function () {
-    legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_RENDER);
+    cclegacy.director.emit(cclegacy.Director.EVENT_BEFORE_RENDER);
 };
 
 rootProto._onDirectorAfterRender = function () {
-    legacyCC.director.emit(legacyCC.Director.EVENT_AFTER_RENDER);
+    cclegacy.director.emit(cclegacy.Director.EVENT_AFTER_RENDER);
 };
 
 rootProto._onDirectorPipelineChanged = function () {
-    const scene = legacyCC.director.getScene();
+    const scene = cclegacy.director.getScene();
     if (scene) {
         scene._activate();
     }
 }
 
+const oldOnGlobalPipelineStateChanged = rootProto.onGlobalPipelineStateChanged;
+rootProto.onGlobalPipelineStateChanged = function() {
+    oldOnGlobalPipelineStateChanged.call(this);
+    const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+    if (builder) {
+        if (typeof builder.onGlobalPipelineStateChanged === 'function') {
+            builder.onGlobalPipelineStateChanged();
+        }
+    }
+}
+
 const oldFrameMove = rootProto.frameMove;
 rootProto.frameMove = function (deltaTime: number) {
-    oldFrameMove.call(this, deltaTime, legacyCC.director.getTotalFrames());
+    oldFrameMove.call(this, deltaTime, cclegacy.director.getTotalFrames());
 };
 
 const oldSetPipeline = rootProto.setRenderPipeline;
 rootProto.setRenderPipeline = function (pipeline) {
     let ppl;
-    if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
-        legacyCC.rendering.createCustomPipeline();
+    if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this.usesCustomPipeline) {
+        cclegacy.rendering.createCustomPipeline();
         ppl = oldSetPipeline.call(this, null);
     } else {
         if (!pipeline) {

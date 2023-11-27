@@ -58,7 +58,7 @@ CCProgram hbao-fs %{
 
   void main () {
     float ao = CalculateAO(v_uv);
-  	fragColor = vec4(ao, ao, ao, 1.0); 
+  	fragColor = vec4(ao, ao, ao, 1.0);
   }
 }%
 
@@ -73,7 +73,7 @@ CCProgram blurx-fs %{
 
   void main () {
     float ao = BlurCore(v_uv, vec2(1.0, 0.0));
-  	fragColor = vec4(ao, ao, ao, 1.0); 
+  	fragColor = vec4(ao, ao, ao, 1.0);
   }
 }%
 
@@ -88,7 +88,7 @@ CCProgram blury-fs %{
 
   void main () {
     float ao = BlurCore(v_uv, vec2(0.0, 1.0));
-  	fragColor = vec4(ao, ao, ao, 1.0); 
+  	fragColor = vec4(ao, ao, ao, 1.0);
   }
 }%
 
@@ -103,6 +103,6 @@ CCProgram combine-fs %{
 
   void main () {
     float ao = Combine(v_uv);
-  	fragColor = vec4(1.0, 1.0, 1.0, ao); 
+  	fragColor = vec4(1.0, 1.0, 1.0, ao);
   }
 }%

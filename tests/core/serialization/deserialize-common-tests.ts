@@ -1,8 +1,9 @@
-import { CCClass, ccenum } from '../../../cocos/core';
+import { js } from '@base/utils';
 import { property } from '../../../cocos/core/data/class-decorator';
-import { ccclass, type } from '../../../cocos/core/data/decorators';
+import { ccclass } from '../../../cocos/core/data/decorators';
 import { deserialize } from '../../../cocos/serialization/deserialize';
-import { getClassId, unregisterClass } from '../../../cocos/core/utils/js-typed';
+
+const { getClassId, unregisterClass } = js;
 
 test('Fast mode', () => {
     @ccclass('cc.MeDoNotBelieveThisExists')

@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { js, replaceProperty, removeProperty } from '@base/utils';
 import { PhysicsSystem } from './physics-system';
-import { replaceProperty, removeProperty, js, cclegacy } from '../../core';
 import { BoxCollider } from './components/colliders/box-collider';
 import { SphereCollider } from './components/colliders/sphere-collider';
 import { CapsuleCollider } from './components/colliders/capsule-collider';
@@ -33,6 +34,7 @@ import { RigidBody } from './components/rigid-body';
 import { Collider } from './components/colliders/collider';
 import { PhysicsMaterial } from './assets/physics-material';
 import { Constraint } from './components/constraints/constraint';
+import { EConstraintType } from './physics-enum';
 
 replaceProperty(PhysicsSystem, 'PhysicsSystem', [
     {
@@ -144,6 +146,12 @@ replaceProperty(RigidBody, 'RigidBody', [
 removeProperty(RigidBody.prototype, 'RigidBody.prototype', [
     {
         name: 'fixedRotation',
+    },
+]);
+
+removeProperty(EConstraintType, 'EConstraintType.prototype', [
+    {
+        name: 'CONE_TWIST',  
     },
 ]);
 

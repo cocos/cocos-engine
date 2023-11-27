@@ -25,58 +25,16 @@
 
 /// physics namespace ///
 
+import { cclegacy } from '@base/global';
 import * as physics from '../cocos/physics/framework';
-import { cclegacy } from './base';
 
 export { physics };
 cclegacy.physics = physics;
 
 /// cc namespace ///
 
-export {
-    PhysicsSystem,
-    RigidBody,
-    CharacterController,
-    ConstantForce,
-    PhysicsMaterial,
-    PhysicsRayResult,
-    PhysicsLineStripCastResult,
+export { PhysicsSystem, RigidBody, CharacterController, ConstantForce, PhysicsMaterial, PhysicsRayResult, PhysicsLineStripCastResult, Collider, BoxCollider, SphereCollider, CapsuleCollider, MeshCollider, CylinderCollider, ConeCollider, TerrainCollider, SimplexCollider, PlaneCollider, Constraint, HingeConstraint, ConfigurableConstraint, FixedConstraint, PointToPointConstraint, CapsuleCharacterController, BoxCharacterController, EAxisDirection, ERigidBodyType, EColliderType } from '../cocos/physics/framework';
 
-    Collider,
-    BoxCollider,
-    SphereCollider,
-    CapsuleCollider,
-    MeshCollider,
-    CylinderCollider,
-    ConeCollider,
-    TerrainCollider,
-    SimplexCollider,
-    PlaneCollider,
-
-    Constraint,
-    HingeConstraint,
-    ConfigurableConstraint,
-    FixedConstraint,
-    PointToPointConstraint,
-
-    CapsuleCharacterController,
-    BoxCharacterController,
-
-    EAxisDirection,
-    ERigidBodyType,
-    EColliderType,
-} from '../cocos/physics/framework';
-
-export type {
-    ITriggerEvent,
-    ICollisionEvent,
-    IContactEquation,
-    CollisionEventType,
-    CollisionCallback,
-    TriggerEventType,
-    TriggerCallback,
-    CharacterCollisionEventType,
-    CharacterControllerContact,
-} from '../cocos/physics/framework';
+export type { ITriggerEvent, ICollisionEvent, IContactEquation, CollisionEventType, CollisionCallback, TriggerEventType, TriggerCallback, CharacterCollisionEventType, CharacterControllerContact, CharacterTriggerEventType } from '../cocos/physics/framework';
 
 export * from '../cocos/physics/framework/deprecated';

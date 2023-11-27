@@ -23,8 +23,9 @@
  THE SOFTWARE.
 */
 
-import { Event } from './event';
-import { Vec2, cclegacy } from '../../../core';
+import { cclegacy } from '@base/global';
+import { Event } from '@base/event';
+import { Vec2 } from '@base/math';
 import { SystemEventTypeUnion } from '../event-enum';
 
 /**

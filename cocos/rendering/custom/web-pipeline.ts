@@ -20,15 +20,18 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 
 /* eslint-disable max-len */
-import { systemInfo } from 'pal/system-info';
+import { systemInfo, OS } from '@pal/system-info';
 import { DEBUG } from 'internal:constants';
-import { Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, UniformBlock, ResolveMode, SampleCount, Color } from '../../gfx';
-import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, assert, macro, cclegacy, IVec4Like, IMat4Like, IVec2Like, Color as CoreColor } from '../../core';
-import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency } from './types';
-import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass } from './render-graph';
+import { assert } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { Mat4, Quat, toRadian, Vec2, Vec3, Vec4, IVec4Like, IMat4Like, IVec2Like, Color as CoreColor } from '@base/math';
+import { Buffer, DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, UniformBlock, ResolveMode, SampleCount, Color } from '../../gfx';
+import { macro } from '../../core';
+import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
+import { ComputeView, RasterView, Blit, ClearView, ComputePass, CopyPass, Dispatch, ManagedBuffer, ManagedResource, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, ComputeSubpassBuilder, BasicPipeline, PipelineBuilder, RenderPassBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SphereLight, PointLight, RangedDirectionalLight } from '../../render-scene/scene';
@@ -39,7 +42,6 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { isEnableEffect, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
-import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
 import { builtinResMgr } from '../../asset/asset-manager';
@@ -198,7 +200,7 @@ export class WebSetter {
             value.fill(0);
             this._data.constants.set(num, value);
         }
-        this.setCurrConstant(block);
+        this.setCurrConstant(block, stage);
         return true;
     }
     public setMat4 (name: string, mat: Mat4, idx = 0): void {
@@ -635,6 +637,13 @@ function setShadowUBOView (setter: WebSetter, camera: Camera | null, layout = 'd
     }
 }
 
+function setComputeConstants (setter: WebSetter, layoutName: string): void {
+    const director = cclegacy.director;
+    const root = director.root;
+    const pipeline = root.pipeline as WebPipeline;
+    setter.addConstant('CCConst', layoutName);
+}
+
 function setCameraUBOValues (
     setter: WebSetter,
     camera: Readonly<Camera> | null,
@@ -831,6 +840,39 @@ function getFirstChildLayoutName (lg: LayoutGraphData, parentID: number): string
         }
     }
     return '';
+}
+
+function getTextureType (dimension: ResourceDimension, arraySize: number): TextureType {
+    switch (dimension) {
+    case ResourceDimension.TEXTURE1D:
+        return arraySize > 1 ? TextureType.TEX1D_ARRAY : TextureType.TEX1D;
+    case ResourceDimension.TEXTURE2D:
+        return arraySize > 1 ? TextureType.TEX2D_ARRAY : TextureType.TEX2D;
+    case ResourceDimension.TEXTURE3D:
+        return TextureType.TEX3D;
+    case ResourceDimension.BUFFER:
+        return TextureType.TEX2D;
+    default:
+        break;
+    }
+    return TextureType.TEX2D;
+}
+
+function getResourceDimension (type: TextureType): ResourceDimension {
+    switch (type) {
+    case TextureType.TEX1D:
+    case TextureType.TEX1D_ARRAY:
+        return ResourceDimension.TEXTURE1D;
+    case TextureType.TEX2D:
+    case TextureType.TEX2D_ARRAY:
+    case TextureType.CUBE:
+        return ResourceDimension.TEXTURE2D;
+    case TextureType.TEX3D:
+        return ResourceDimension.TEXTURE3D;
+    default:
+        break;
+    }
+    return ResourceDimension.TEXTURE2D;
 }
 
 export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuilder  {
@@ -1304,7 +1346,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         throw new Error('Method not implemented.');
     }
     addStorageBuffer (name: string, accessType: AccessType, slotName: string): void {
-        throw new Error('Method not implemented.');
+        this._addComputeResource(name, accessType, slotName);
     }
     addStorageImage (name: string, accessType: AccessType, slotName: string): void {
         throw new Error('Method not implemented.');
@@ -1323,6 +1365,24 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         const queueID = this._renderGraph.addVertex<RenderGraphValue.Queue>(RenderGraphValue.Queue, queue, '', layoutName, data, false, this._vertID);
         return new WebComputeQueueBuilder(data, this._renderGraph, this._layoutGraph, queueID, queue, this._pipeline);
     }
+
+    private _addComputeResource (name: string, accessType: AccessType, slotName: string): void {
+        const view = new ComputeView(slotName);
+        view.accessType = accessType;
+        if (DEBUG) {
+            assert(Boolean(view.name));
+            assert(Boolean(name && this._resourceGraph.contains(name)));
+            const descriptorName = view.name;
+            const descriptorID = this._layoutGraph.attributeIndex.get(descriptorName);
+            assert(descriptorID !== undefined);
+        }
+        if (this._pass.computeViews.has(name)) {
+            this._pass.computeViews.get(name)?.push(view);
+        } else {
+            this._pass.computeViews.set(name, [view]);
+        }
+    }
+
     private readonly _renderGraph: RenderGraph;
     private readonly _layoutGraph: LayoutGraphData;
     private readonly _resourceGraph: ResourceGraph;
@@ -1480,15 +1540,11 @@ export class WebPipeline implements BasicPipeline {
         desc.width = width;
         desc.height = height;
     }
-    addResource (name: string, dimension: ResourceDimension, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+
+    public addBuffer (name: string, size: number, flags: ResourceFlags, residency: ResourceResidency): number {
         const desc = new ResourceDesc();
-        desc.dimension = dimension;
-        desc.width = width;
-        desc.height = height;
-        desc.depthOrArraySize = dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
-        desc.mipLevels = mipLevels;
-        desc.format = format;
-        desc.sampleCount = sampleCount;
+        desc.dimension = ResourceDimension.BUFFER;
+        desc.width = size;
         desc.flags = flags;
         return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
             ResourceGraphValue.Managed,
@@ -1501,7 +1557,54 @@ export class WebPipeline implements BasicPipeline {
             new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
         );
     }
-    updateResource (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
+
+    public updateBuffer (name: string, size: number): void {
+        this.updateResource(name, Format.UNKNOWN, size, 0, 0, 0, 0, SampleCount.X1);
+    }
+
+    public addExternalTexture (name: string, texture: Texture, flags: ResourceFlags): number {
+        throw new Error('Method not implemented.');
+    }
+
+    public updateExternalTexture (name: string, texture: Texture): void {
+        throw new Error('Method not implemented.');
+    }
+
+    public addTexture (name: string, textureType: TextureType, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        const desc = new ResourceDesc();
+        desc.dimension = getResourceDimension(textureType);
+        desc.width = width;
+        desc.height = height;
+        desc.depthOrArraySize = desc.dimension === ResourceDimension.TEXTURE3D ? depth : arraySize;
+        desc.mipLevels = mipLevels;
+        desc.format = format;
+        desc.sampleCount = sampleCount;
+        desc.flags = flags;
+        desc.viewType = textureType;
+        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+            ResourceGraphValue.Managed,
+            new ManagedResource(),
+            name,
+
+            desc,
+            new ResourceTraits(residency),
+            new ResourceStates(),
+            new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
+        );
+    }
+
+    public updateTexture (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
+        this.updateResource(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
+    }
+
+    public addResource (name: string, dimension: ResourceDimension, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        if (dimension === ResourceDimension.BUFFER) {
+            return this.addBuffer(name, width, flags, residency);
+        } else {
+            return this.addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
+        }
+    }
+    public updateResource (name: string, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount): void {
         const resId = this.resourceGraph.vertex(name);
         const desc = this.resourceGraph.getDesc(resId);
         desc.width = width;
@@ -1520,6 +1623,30 @@ export class WebPipeline implements BasicPipeline {
         // TODO: implement resolve pass
         throw new Error('Method not implemented.');
     }
+
+    public addComputePass (passName: string): ComputePassBuilder {
+        const name = 'Compute';
+        const pass = new ComputePass();
+
+        const data = new RenderData();
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Compute>(RenderGraphValue.Compute, pass, name, passName, data, false);
+        const result = new WebComputePassBuilder(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
+        setComputeConstants(result, passName);
+        initGlobalDescBinding(data, passName);
+        return result;
+    }
+
+    public addUploadPass (uploadPairs: UploadPair[]): void {
+        const name = 'UploadPass';
+        const pass = new CopyPass();
+        for (const up of uploadPairs) {
+            pass.uploadPairs.push(up);
+        }
+
+        const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(RenderGraphValue.Copy, pass, name, '', new RenderData(), false);
+        // const result = new WebCopyPassBuilder(this._renderGraph!, vertID, pass);
+    }
+
     public addCopyPass (copyPairs: CopyPair[]): void {
         // const renderData = new RenderData();
         // const vertID = this._renderGraph!.addVertex<RenderGraphValue.Copy>(
@@ -1548,7 +1675,7 @@ export class WebPipeline implements BasicPipeline {
         let str = '';
         str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this._device.getFormatFeatures(Format.RGBA32F)
             & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE) ? 1 : 0}\n`;
-        str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${clusterEnabled ? 1 : 0}\n`;
+        // str += `#define CC_ENABLE_CLUSTERED_LIGHT_CULLING ${clusterEnabled ? 1 : 0}\n`; // defined in material
         str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this._device.capabilities.maxVertexUniformVectors}\n`;
         str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this._device.capabilities.maxFragmentUniformVectors}\n`;
         str += `#define CC_DEVICE_CAN_BENEFIT_FROM_INPUT_ATTACHMENT ${this._device.hasFeature(Feature.INPUT_ATTACHMENT_BENEFIT) ? 1 : 0}\n`;
@@ -1755,7 +1882,12 @@ export class WebPipeline implements BasicPipeline {
         this._macros[name] = value;
     }
     public onGlobalPipelineStateChanged (): void {
-        // do nothing
+        const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+        if (builder) {
+            if (typeof builder.onGlobalPipelineStateChanged === 'function') {
+                builder.onGlobalPipelineStateChanged();
+            }
+        }
     }
     beginSetup (): void {
         if (!this._renderGraph) this._renderGraph = new RenderGraph();
@@ -1773,11 +1905,22 @@ export class WebPipeline implements BasicPipeline {
         desc.format = format;
         desc.flags = ResourceFlags.STORAGE;
 
+        if (residency === ResourceResidency.PERSISTENT) {
+            return this._resourceGraph.addVertex<ResourceGraphValue.PersistentBuffer>(
+                ResourceGraphValue.PersistentBuffer,
+                new PersistentBuffer(),
+                name,
+                desc,
+                new ResourceTraits(ResourceResidency.PERSISTENT),
+                new ResourceStates(),
+                new SamplerInfo(),
+            );
+        }
+
         return this._resourceGraph.addVertex<ResourceGraphValue.ManagedBuffer>(
             ResourceGraphValue.ManagedBuffer,
             new ManagedBuffer(),
             name,
-
             desc,
             new ResourceTraits(residency),
             new ResourceStates(),

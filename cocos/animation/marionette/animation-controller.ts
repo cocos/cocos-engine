@@ -23,10 +23,13 @@
 */
 
 import { DEBUG } from 'internal:constants';
+import { warn } from '@base/debug';
+import { assertIsNonNullable, assertIsTrue } from '@base/debug/internal';
+import { EventTarget } from '@base/event';
 import { Component } from '../../scene-graph/component';
 import { AnimationGraph } from './animation-graph';
 import type { AnimationGraphRunTime } from './animation-graph';
-import { EventTarget, _decorator, assertIsNonNullable, assertIsTrue, warn } from '../../core';
+import { _decorator } from '../../core';
 import { AnimationGraphEval } from './graph-eval';
 import type { MotionStateStatus, TransitionStatus, ClipStatus } from './state-machine/state-machine-eval';
 import { PrimitiveValue, Value, VariableType } from './variable';

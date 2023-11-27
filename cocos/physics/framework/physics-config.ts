@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec3Like } from '../../core';
+import { IVec3Like } from '@base/math';
 
 export interface ICollisionMatrix {
     [x: string]: number;

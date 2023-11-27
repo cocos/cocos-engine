@@ -23,7 +23,8 @@
 */
 
 import { JSB } from 'internal:constants';
-import { js, Color } from '../../../core';
+import { js } from '@base/utils';
+import { Color } from '@base/math';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';

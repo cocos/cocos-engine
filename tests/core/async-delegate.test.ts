@@ -1,4 +1,4 @@
-import { AsyncDelegate } from '../../cocos/core/event/async-delegate';
+import { AsyncDelegate } from '@base/event';
 
 describe('Async Delegate', function () {
     test('base', () => {

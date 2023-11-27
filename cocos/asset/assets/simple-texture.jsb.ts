@@ -23,7 +23,9 @@
 */
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
 import dependUtil from '../asset-manager/depend-util';
-import { js, macro, cclegacy } from '../../core';
+import { js } from '@base/utils';
+import { macro } from '../../core';
+import { cclegacy } from '@base/global';
 import './texture-base';
 import { patch_cc_SimpleTexture } from '../../native-binding/decorators';
 import type { SimpleTexture as JsbSimpleTexture } from './simple-texture';

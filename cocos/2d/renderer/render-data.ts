@@ -23,10 +23,14 @@
 */
 
 import { DEBUG, JSB } from 'internal:constants';
+import { assert } from '@base/debug';
+import { assertIsTrue } from '@base/debug/internal';
+import { memop } from '@base/utils';
+import { Color } from '@base/math';
 import { director } from '../../game/director';
 import { Material } from '../../asset/assets/material';
 import { TextureBase } from '../../asset/assets/texture-base';
-import { Color, Pool, RecyclePool, murmurhash2_32_gc, assert, assertIsTrue } from '../../core';
+import { murmurhash2_32_gc } from '../../core';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { UIRenderer } from '../framework/ui-renderer';
 import { StaticVBAccessor, StaticVBChunk } from './static-vb-accessor';
@@ -584,7 +588,7 @@ export class MeshRenderData extends BaseRenderData {
     private _vertexBuffers: Buffer[] = [];
     private _indexBuffer: Buffer = null!;
 
-    private _iaPool: RecyclePool<InputAssembler> | null = null;
+    private _iaPool: memop.RecyclePool<InputAssembler> | null = null;
     private _iaInfo: InputAssemblerInfo = null!;
 
     constructor (vertexFormat = vfmtPosUvColor) {
@@ -737,7 +741,7 @@ export class MeshRenderData extends BaseRenderData {
                 ));
             }
             this._iaInfo = new InputAssemblerInfo(this._vertexFormat, vbs, this._indexBuffer);
-            this._iaPool = new RecyclePool(() => device.createInputAssembler(this._iaInfo), 1, (ia) => { ia.destroy(); });
+            this._iaPool = new memop.RecyclePool(() => device.createInputAssembler(this._iaInfo), 1, (ia) => { ia.destroy(); });
         }
     }
 

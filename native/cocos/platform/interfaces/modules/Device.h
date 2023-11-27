@@ -52,9 +52,6 @@ public:
     using Orientation = IScreen::Orientation;
     using MotionValue = IAccelerometer::MotionValue;
 
-    static uint32_t getInnerWidth();
-    static uint32_t getInnerHeight();
-    static uintptr_t getWindowHandle();
     /**
      *  Gets the DPI of device
      *  @return The DPI of device.

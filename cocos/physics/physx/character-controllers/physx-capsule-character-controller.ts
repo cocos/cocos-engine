@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { Vec3, absMax } from '../../../core';
+import { Vec3, absMax } from '@base/math';
 import { PhysicsSystem } from '../../framework';
 import { CapsuleCharacterController } from '../../framework/components/character-controllers/capsule-character-controller';
 import { ICapsuleCharacterController } from '../../spec/i-character-controller';
-import {  PX, _trans } from '../physx-adapter';
+import { PX, _trans } from '../physx-adapter';
 import { PhysXCharacterController } from './physx-character-controller';
 import { PhysXInstance } from '../physx-instance';
 import { PhysXWorld } from '../physx-world';
@@ -68,7 +68,11 @@ export class PhysXCapsuleCharacterController extends PhysXCharacterController im
         controllerDesc.setReportCallback(PX.PxUserControllerHitReport.implement(physxWorld.callback.controllerHitReportCB));
         this._impl = PX.createCapsuleCharacterController(physxWorld.controllerManager, controllerDesc);
 
-        if (this._impl.$$) PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (this._impl.$$) {
+            PX.IMPL_PTR[this._impl.$$.ptr] = this;
+            const shapePtr = this._impl.getShape().$$.ptr;
+            PX.IMPL_PTR[shapePtr] = this;
+        }
 
         this.updateScale();
     }

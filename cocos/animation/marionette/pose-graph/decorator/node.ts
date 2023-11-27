@@ -1,20 +1,10 @@
-import { error, js } from '../../../../core';
+import { error } from '@base/debug';
+import { js } from '@base/utils';
 import { PoseGraphNode } from '../foundation/pose-graph-node';
 
-import {
-    PoseGraphCreateNodeFactory,
-    PoseGraphNodeEditorMetadata,
-    PoseGraphNodeAppearanceOptions,
-    getOrCreateNodeEditorMetadata,
-} from '../foundation/authoring/node-authoring';
+import { PoseGraphCreateNodeFactory, PoseGraphNodeEditorMetadata, PoseGraphNodeAppearanceOptions, getOrCreateNodeEditorMetadata } from '../foundation/authoring/node-authoring';
 
-export type {
-    PoseGraphCreateNodeContext,
-    PoseGraphCreateNodeEntry,
-    PoseGraphCreateNodeFactory,
-    PoseGraphNodeEditorMetadata,
-    PoseGraphNodeAppearanceOptions,
-} from '../foundation/authoring/node-authoring';
+export type { PoseGraphCreateNodeContext, PoseGraphCreateNodeEntry, PoseGraphCreateNodeFactory, PoseGraphNodeEditorMetadata, PoseGraphNodeAppearanceOptions } from '../foundation/authoring/node-authoring';
 
 function makeNodeEditorMetadataModifier (edit: (metadata: PoseGraphNodeEditorMetadata) => void): ClassDecorator {
     return (target): void => {

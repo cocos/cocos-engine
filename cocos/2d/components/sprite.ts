@@ -25,9 +25,12 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
 import { BUILD, EDITOR } from 'internal:constants';
+import { warn } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
+import { Vec2, clamp } from '@base/math';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2, cclegacy, ccenum, clamp, warn } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';

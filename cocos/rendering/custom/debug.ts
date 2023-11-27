@@ -23,9 +23,9 @@
 */
 
 /* eslint-disable max-len */
+import { assert } from '@base/debug';
 import { Viewport } from '../../gfx';
-import { assert } from '../../core';
-import { DefaultVisitor, ReferenceGraphView, ED} from './graph';
+import { DefaultVisitor, ReferenceGraphView, ED } from './graph';
 import { Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, getRenderGraphValueName, MovePass, RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RenderQueue, SceneData } from './render-graph';
 import { getQueueHintName } from './types';
 

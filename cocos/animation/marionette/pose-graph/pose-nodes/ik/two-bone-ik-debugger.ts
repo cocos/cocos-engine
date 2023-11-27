@@ -1,15 +1,15 @@
+import { cclegacy } from '@base/global';
+import { Color, Vec3 } from '@base/math';
 import { MeshRenderer } from '../../../../../3d';
 import { createMesh } from '../../../../../3d/misc';
 import { Material } from '../../../../../asset/assets';
-import { Color, Vec3 } from '../../../../../core';
-import { legacyCC } from '../../../../../core/global-exports';
 import { PrimitiveMode } from '../../../../../gfx';
 import { Node } from '../../../../../scene-graph';
 
 export class TwoBoneIKDebugger {
     constructor () {
         const node = new Node();
-        legacyCC.director.getScene().addChild(node);
+        cclegacy.director.getScene().addChild(node);
 
         const meshRenderer = node.addComponent(MeshRenderer);
         meshRenderer.material = ((): Material => {

@@ -22,17 +22,10 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass,
-    help,
-    menu,
-    type,
-    serializable,
-    tooltip,
-} from 'cc.decorator';
+import { ccclass, help, menu, type, serializable, tooltip } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { Vec3, IVec3Like } from '@base/math';
 import { Constraint } from './constraint';
-import { Vec3, IVec3Like } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IPointToPointConstraint } from '../../../spec/i-physics-constraint';
 

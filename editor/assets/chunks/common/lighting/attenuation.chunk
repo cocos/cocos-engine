@@ -43,7 +43,7 @@ float CalculateDistanceAttenuation(float distToLightSqr, float lightRadius, floa
   // physical attenuation
   float attRadiusSqrInv = 1.0 / max(lightRange, 0.01);
   attRadiusSqrInv *= attRadiusSqrInv;
-  
+
   // artical soft edge fading
   float litRadiusSqr = lightRadius * lightRadius;
   float edgeAttenuation = (IS_POINT_LIGHT(lightType) || IS_RANGED_DIRECTIONAL_LIGHT(lightType)) ? 1.0 : litRadiusSqr / max(litRadiusSqr, distToLightSqr);

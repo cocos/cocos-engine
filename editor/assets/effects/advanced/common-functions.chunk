@@ -6,7 +6,7 @@
   vec4 SurfacesFragmentModifyBaseColorAndTransparency()
   {
     vec4 baseColor = albedo;
-    
+
     #if USE_VERTEX_COLOR
       baseColor.rgb *= SRGBToLinear(FSInput_vertexColor.rgb); // use linear
       baseColor.a *= FSInput_vertexColor.a;
@@ -39,7 +39,7 @@
       #if USE_ALBEDO_MAP
         alpha = texture(albedoMap, ALBEDO_UV).ALPHA_TEST_CHANNEL;
       #endif
-  
+
       if (alpha < albedoScaleAndCutoff.w) discard;
     #endif
   }

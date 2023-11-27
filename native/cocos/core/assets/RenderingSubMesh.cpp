@@ -28,6 +28,7 @@
 #include "3d/misc/Buffer.h"
 #include "core/DataView.h"
 #include "core/TypedArray.h"
+#include "math/Utils.h"
 #include "math/Vec3.h"
 #include "renderer/gfx-base/GFXBuffer.h"
 #include "renderer/gfx-base/GFXDevice.h"
@@ -91,59 +92,118 @@ const IGeometricInfo &RenderingSubMesh::getGeometricInfo() {
         return EMPTY_GEOMETRIC_INFO;
     }
 
+    auto iter = std::find_if(_attributes.cbegin(), _attributes.cend(), [](const gfx::Attribute &element) -> bool {
+        return element.name == gfx::ATTR_NAME_POSITION;
+    });
+    if (iter == _attributes.end()) {
+        return EMPTY_GEOMETRIC_INFO;
+    }
+
+    const auto &attri = *iter;
+    const uint32_t count = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attri.format)].count;
+
     auto index = static_cast<index_t>(_subMeshIdx.value());
-
     const auto &positionsVar = _mesh->readAttribute(index, gfx::ATTR_NAME_POSITION);
-    const auto *pPositions = ccstd::get_if<Float32Array>(&positionsVar);
-    if (pPositions != nullptr) {
-        const auto &positions = *pPositions;
-        const auto &indicesVar = _mesh->readIndices(index);
 
-        Vec3 max;
-        Vec3 min;
-
-        auto iter = std::find_if(_attributes.cbegin(), _attributes.cend(), [](const gfx::Attribute &element) -> bool {
-            return element.name == gfx::ATTR_NAME_POSITION;
-        });
-        if (iter != _attributes.cend()) {
-            const auto &attri = *iter;
-            const uint32_t count = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attri.format)].count;
-            if (count == 2) {
-                max.set(positions[0], positions[1], 0);
-                min.set(positions[0], positions[1], 0);
-            } else {
-                max.set(positions[0], positions[1], positions[2]);
-                min.set(positions[0], positions[1], positions[2]);
+    Float32Array const *pPositions = nullptr;
+    switch (attri.format) {
+        case gfx::Format::RG32F:
+        case gfx::Format::RGB32F: {
+            pPositions = ccstd::get_if<Float32Array>(&positionsVar);
+            if (pPositions == nullptr) {
+                return EMPTY_GEOMETRIC_INFO;
             }
-
-            for (int i = 0; i < positions.length(); i += static_cast<int>(count)) {
-                if (count == 2) {
-                    max.x = positions[i] > max.x ? positions[i] : max.x;
-                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
-                    min.x = positions[i] < min.x ? positions[i] : min.x;
-                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
-                } else {
-                    max.x = positions[i] > max.x ? positions[i] : max.x;
-                    max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
-                    max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
-                    min.x = positions[i] < min.x ? positions[i] : min.x;
-                    min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
-                    min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
-                }
+            break;
+        }
+        case gfx::Format::RGBA32F: {
+            const auto *data = ccstd::get_if<Float32Array>(&positionsVar);
+            if (data == nullptr) {
+                return EMPTY_GEOMETRIC_INFO;
             }
+            const auto count = data->length() / 4;
+            auto *pos = ccnew Float32Array(count * 3);
+            for (uint32_t i = 0; i < count; i++) {
+                const auto dstPtr = i * 3;
+                const auto srcPtr = i * 4;
+                (*pos)[dstPtr] = (*data)[srcPtr];
+                (*pos)[dstPtr + 1] = (*data)[srcPtr + 1];
+                (*pos)[dstPtr + 2] = (*data)[srcPtr + 2];
+            }
+            pPositions = pos;
+            break;
+        }
+        case gfx::Format::RG16F:
+        case gfx::Format::RGB16F: {
+            const auto *data = ccstd::get_if<Uint16Array>(&positionsVar);
+            if (data == nullptr) {
+                return EMPTY_GEOMETRIC_INFO;
+            }
+            auto *pos = ccnew Float32Array(data->length());
+            for (uint32_t i = 0; i < data->length(); ++i) {
+                (*pos)[i] = mathutils::halfToFloat((*data)[i]);
+            }
+            pPositions = pos;
+            break;
+        }
+        case gfx::Format::RGBA16F: {
+            const auto *data = ccstd::get_if<Uint16Array>(&positionsVar);
+            if (data == nullptr) {
+                return EMPTY_GEOMETRIC_INFO;
+            }
+            const auto count = data->length() / 4;
+            auto *pos = ccnew Float32Array(count * 3);
+            for (uint32_t i = 0; i < count; i++) {
+                const auto dstPtr = i * 3;
+                const auto srcPtr = i * 4;
+                (*pos)[dstPtr] = mathutils::halfToFloat((*data)[srcPtr]);
+                (*pos)[dstPtr + 1] = mathutils::halfToFloat((*data)[srcPtr + 1]);
+                (*pos)[dstPtr + 2] = mathutils::halfToFloat((*data)[srcPtr + 2]);
+            }
+            pPositions = pos;
+            break;
+        }
+        default:
+            return EMPTY_GEOMETRIC_INFO;
+    };
 
-            IGeometricInfo info;
-            info.positions = positions;
-            info.indices = indicesVar;
-            info.boundingBox.max = max;
-            info.boundingBox.min = min;
+    const auto &positions = *pPositions;
+    const auto &indicesVar = _mesh->readIndices(index);
 
-            _geometricInfo = info;
-            return _geometricInfo.value();
+    Vec3 max;
+    Vec3 min;
+
+    if (count == 2) {
+        max.set(positions[0], positions[1], 0);
+        min.set(positions[0], positions[1], 0);
+    } else {
+        max.set(positions[0], positions[1], positions[2]);
+        min.set(positions[0], positions[1], positions[2]);
+    }
+
+    for (int i = 0; i < positions.length(); i += static_cast<int>(count)) {
+        if (count == 2) {
+            max.x = positions[i] > max.x ? positions[i] : max.x;
+            max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+            min.x = positions[i] < min.x ? positions[i] : min.x;
+            min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+        } else {
+            max.x = positions[i] > max.x ? positions[i] : max.x;
+            max.y = positions[i + 1] > max.y ? positions[i + 1] : max.y;
+            max.z = positions[i + 2] > max.z ? positions[i + 2] : max.z;
+            min.x = positions[i] < min.x ? positions[i] : min.x;
+            min.y = positions[i + 1] < min.y ? positions[i + 1] : min.y;
+            min.z = positions[i + 2] < min.z ? positions[i + 2] : min.z;
         }
     }
 
-    return EMPTY_GEOMETRIC_INFO;
+    IGeometricInfo info;
+    info.positions = positions;
+    info.indices = indicesVar;
+    info.boundingBox.max = max;
+    info.boundingBox.min = min;
+
+    _geometricInfo = info;
+    return _geometricInfo.value();
 }
 
 void RenderingSubMesh::genFlatBuffers() {
@@ -319,6 +379,24 @@ gfx::Buffer *RenderingSubMesh::allocVertexIdBuffer(gfx::Device *device) {
     vertexIdBuffer->update(vertexIds.data(), vertexIdxByteLength);
 
     return vertexIdBuffer;
+}
+
+void RenderingSubMesh::resetBuffers(const gfx::BufferList &vertexBuffers,
+                                       gfx::Buffer* indexBuffer,
+                                       uint32_t vertexCount,
+                                       uint32_t firstVertex,
+                                       uint32_t indexCount,
+                                       uint32_t firstIndex,
+                                       int32_t vertexOffset) {
+    _vertexBuffers = vertexBuffers;
+    _indexBuffer = indexBuffer;
+    _iaInfo.vertexBuffers = vertexBuffers;
+    _iaInfo.indexBuffer = indexBuffer;
+    _iaInfo.vertexCount = vertexCount;
+    _iaInfo.firstVertex = firstVertex;
+    _iaInfo.indexCount = indexCount;
+    _iaInfo.firstIndex = firstIndex;
+    _iaInfo.vertexOffset = vertexOffset;
 }
 
 } // namespace cc

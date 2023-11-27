@@ -1,7 +1,7 @@
-import { director } from "../../cocos/game";
-import { legacyCC } from "../../cocos/core/global-exports";
-import { ParticleSystem } from "../../exports/particle";
-import { Node, Scene } from "../../cocos/scene-graph";
+import { cclegacy } from '@base/global';
+import { director } from '../../cocos/game';
+import { ParticleSystem } from '../../exports/particle';
+import { Node, Scene } from '../../cocos/scene-graph';
 
 test('particle system cpu culling test', function () {
     const scene = new Scene('test');
@@ -17,7 +17,7 @@ test('particle system cpu culling test', function () {
     particle.playOnAwake = true;
     particle.renderer.useGPU = false;
 
-    legacyCC.game.step();
+    cclegacy.game.step();
 
     // @ts-expect-error
     expect(particle.aabbHalfX > 0 && particle.aabbHalfY > 0 && particle.aabbHalfZ > 0).toBeTruthy(); // ensure bounding box size > 0
@@ -27,7 +27,7 @@ test('particle system cpu culling test', function () {
 
     particle.renderCulling = false;
 
-    legacyCC.game.step();
+    cclegacy.game.step();
 
     // @ts-expect-error
     expect(particle._isSimulating).toBeTruthy(); // close culling, particle should continue simulating

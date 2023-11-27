@@ -27,7 +27,8 @@
  * @module ui-assembler
  */
 
-import { Color, js } from '../../../core';
+import { js } from '@base/utils';
+import { Color } from '@base/math';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { IAssembler } from '../../renderer/base';
@@ -60,8 +61,6 @@ export const ttf: IAssembler = {
             Color.toArray(vData, WHITE, offset);
             offset += 9;
         }
-        renderData.vertexRow = 2;
-        renderData.vertexCol = 2;
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
@@ -149,7 +148,7 @@ export const ttf: IAssembler = {
     },
 
     updateColor (comp: Label) {
-
+        // no needs to update color
     },
 };
 

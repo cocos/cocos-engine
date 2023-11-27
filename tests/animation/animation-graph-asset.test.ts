@@ -1,16 +1,16 @@
-import { Vec2 } from "../../cocos/core";
-import { AnimationClip } from "../../cocos/animation/animation-clip";
-import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from "../../cocos/animation/marionette/motion";
-import { AnimationGraph, AnimationTransition, EmptyState, EmptyStateTransition, StateMachine, SubStateMachine, Transition } from "../../cocos/animation/marionette/animation-graph";
-import { BinaryCondition, Condition, TriggerCondition, UnaryCondition } from "../../cocos/animation/marionette/state-machine/condition";
-import { MotionState } from "../../cocos/animation/marionette/state-machine/motion-state";
-import { Bindable } from "../../cocos/animation/marionette/parametric";
-import { assertIsTrue } from "../../cocos/core/data/utils/asserts";
-import { TCBindingParams, createTCBinding } from "./new-gen-anim/utils/factory";
-import { TCBinding, TCBindingValueType } from "../../cocos/animation/marionette/asset-creation";
-import { TCVariableBinding } from "../../cocos/animation/marionette/state-machine/condition/binding/variable-binding";
-import { TCAuxiliaryCurveBinding } from "../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding";
-import { TCStateWeightBinding } from "../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding";
+import { assertIsTrue } from '@base/debug/internal';
+import { Vec2 } from '@base/math';
+import { AnimationClip } from '../../cocos/animation/animation-clip';
+import { Motion, ClipMotion, AnimationBlend1D, AnimationBlend2D } from '../../cocos/animation/marionette/motion';
+import { AnimationGraph, AnimationTransition, EmptyState, EmptyStateTransition, StateMachine, SubStateMachine, Transition } from '../../cocos/animation/marionette/animation-graph';
+import { BinaryCondition, Condition, TriggerCondition, UnaryCondition } from '../../cocos/animation/marionette/state-machine/condition';
+import { MotionState } from '../../cocos/animation/marionette/state-machine/motion-state';
+import { Bindable } from '../../cocos/animation/marionette/parametric';
+import { TCBindingParams, createTCBinding } from './new-gen-anim/utils/factory';
+import { TCBinding, TCBindingValueType } from '../../cocos/animation/marionette/asset-creation';
+import { TCVariableBinding } from '../../cocos/animation/marionette/state-machine/condition/binding/variable-binding';
+import { TCAuxiliaryCurveBinding } from '../../cocos/animation/marionette/state-machine/condition/binding/auxiliary-curve-binding';
+import { TCStateWeightBinding } from '../../cocos/animation/marionette/state-machine/condition/binding/state-weight-binding';
 
 describe('Animation graph asset', () => {
     test('Asset operation: clone or copy', () => {

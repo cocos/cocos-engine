@@ -18,12 +18,12 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { CCInteger } from '@base/object';
 import { Light } from './light-component';
-import { ccclass, help, property, menu, executeInEditMode, formerlySerializedAs, serializable,
-    tooltip, editable, type } from '../../core/data/class-decorator';
+import { ccclass, help, property, menu, executeInEditMode, formerlySerializedAs, serializable, tooltip, editable, type } from '../../core/data/class-decorator';
 import { Camera, LightType } from '../../render-scene/scene';
 import { scene } from '../../render-scene';
-import { CCInteger, cclegacy } from '../../core';
 import { range } from '../../core/data/decorators';
 
 /**

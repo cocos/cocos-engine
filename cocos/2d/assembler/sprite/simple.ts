@@ -45,8 +45,6 @@ export const simple: IAssembler = {
         const renderData = sprite.requestRenderData();
         renderData.dataLength = 4;
         renderData.resize(4, 6);
-        renderData.vertexRow = 2;
-        renderData.vertexCol = 2;
         renderData.chunk.setIndexBuffer(QUAD_INDICES);
         return renderData;
     },
@@ -99,43 +97,37 @@ export const simple: IAssembler = {
 
         const renderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+        if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             // const vb = chunk.vertexAccessor.getVertexBuffer(chunk.bufferId);
             this.updateWorldVerts(sprite, chunk);
             renderData.vertDirty = false;
+            sprite._flagChangedVersion = sprite.node.flagChangedVersion;
         }
 
         // quick version
-        const bid = chunk.bufferId;
         const vidOrigin = chunk.vertexOffset;
         const meshBuffer = chunk.meshBuffer;
         const ib = chunk.meshBuffer.iData;
         let indexOffset = meshBuffer.indexOffset;
 
-        // rect count = vertex count - 1
-        for (let curRow = 0; curRow < renderData.vertexRow - 1; curRow++) {
-            for (let curCol = 0; curCol < renderData.vertexCol - 1; curCol++) {
-                // vid is the index of the left bottom vertex in each rect.
-                const vid = vidOrigin + curRow * renderData.vertexCol + curCol;
+        const vid = vidOrigin;
 
-                // left bottom
-                ib[indexOffset++] = vid;
-                // right bottom
-                ib[indexOffset++] = vid + 1;
-                // left top
-                ib[indexOffset++] = vid + renderData.vertexCol;
+        // left bottom
+        ib[indexOffset++] = vid;
+        // right bottom
+        ib[indexOffset++] = vid + 1;
+        // left top
+        ib[indexOffset++] = vid + 2;
 
-                // right bottom
-                ib[indexOffset++] = vid + 1;
-                // right top
-                ib[indexOffset++] = vid + 1 + renderData.vertexCol;
-                // left top
-                ib[indexOffset++] = vid + renderData.vertexCol;
+        // right bottom
+        ib[indexOffset++] = vid + 1;
+        // right top
+        ib[indexOffset++] = vid + 3;
+        // left top
+        ib[indexOffset++] = vid + 2;
 
-                // IndexOffset should add 6 when vertices of a rect are visited.
-                meshBuffer.indexOffset += 6;
-            }
-        }
+        // IndexOffset should add 6 when vertices of a rect are visited.
+        meshBuffer.indexOffset += 6;
         // slow version
         // renderer.switchBufferAccessor().appendIndices(chunk);
     },

@@ -1,4 +1,6 @@
 const { template, $, update, close } = require('./base');
+const { getMessageProtocolScene } = require('../utils/prop');
+
 // 排列时，相邻元素的间隔间距
 const MARGIN = '4px';
 
@@ -110,7 +112,7 @@ exports.ready = function() {
                 $export.addEventListener('confirm', async (event) => {
                     event.stopPropagation();
 
-                    let assetInfo = await Editor.Message.request('scene', 'export-particle-plist', this.dump.value.uuid.value);
+                    let assetInfo = await Editor.Message.request(getMessageProtocolScene(this.$this), 'export-particle-plist', this.dump.value.uuid.value);
                     if (assetInfo) {
                         let values = [this.$this.dump.value];
                         if (this.$this.dump.values) {

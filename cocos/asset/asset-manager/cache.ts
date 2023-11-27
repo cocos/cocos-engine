@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { js } from '../../core';
+import { js } from '@base/utils';
 
 /**
  * @zh 缓存结构的接口定义，可以用于保存数据。

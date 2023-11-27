@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { IVec2Like, Rect, Vec2 } from '../../core';
+import { IVec2Like, Rect, Vec2 } from '@base/math';
 import { ERaycast2DType, RaycastResult2D, Collider2D } from '../framework';
 
 export interface IPhysicsWorld {

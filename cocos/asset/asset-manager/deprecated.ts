@@ -23,8 +23,11 @@
 */
 
 import { BUILD } from 'internal:constants';
+import { getError } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { removeProperty, replaceProperty } from '@base/utils';
 import { Asset } from '../assets/asset';
-import { getError, macro, path, removeProperty, replaceProperty, cclegacy } from '../../core';
+import { macro, path } from '../../core';
 import Cache from './cache';
 import assetManager, { AssetManager } from './asset-manager';
 import { resources } from './bundle';

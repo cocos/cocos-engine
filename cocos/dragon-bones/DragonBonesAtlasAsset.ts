@@ -24,10 +24,11 @@
 
 import { JSB } from 'internal:constants';
 import { TextureAtlasData } from '@cocos/dragonbones-js';
+import { cclegacy } from '@base/global';
 import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
-import { cclegacy, _decorator } from '../core';
+import { _decorator } from '../core';
 import { Asset, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 

@@ -22,21 +22,14 @@
  THE SOFTWARE.
 */
 
-import { debug, error, errorID, CachedArray, cclegacy, assertID } from '../../core';
+import { debug, error, errorID, assertID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
-import {
-    IWebGLGPUInputAssembler, IWebGLGPUUniform, IWebGLAttrib, IWebGLGPUDescriptorSet, IWebGLGPUBuffer, IWebGLGPUFramebuffer, IWebGLGPUInput,
-    IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSamplerTexture, IWebGLGPURenderPass,
-} from './webgl-gpu-objects';
-import {
-    BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
-    FormatInfos, FormatSize, LoadOp, MemoryUsageBit, ShaderStageFlagBit, UniformSamplerTexture,
-    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo,
-    IndirectBuffer, DynamicStates, Extent, getTypedArrayConstructor, formatAlignment, Offset, alignTo,
-    TextureBlit, Filter,
-} from '../base/define';
+import { IWebGLGPUInputAssembler, IWebGLGPUUniform, IWebGLAttrib, IWebGLGPUDescriptorSet, IWebGLGPUBuffer, IWebGLGPUFramebuffer, IWebGLGPUInput, IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSamplerTexture, IWebGLGPURenderPass } from './webgl-gpu-objects';
+import { BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect, FormatInfos, FormatSize, LoadOp, MemoryUsageBit, ShaderStageFlagBit, UniformSamplerTexture, TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer, DynamicStates, Extent, getTypedArrayConstructor, formatAlignment, Offset, alignTo, TextureBlit, Filter } from '../base/define';
 import { WebGLStateCache } from './webgl-state-cache';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
@@ -555,13 +548,13 @@ export class WebGLCmdBlitTexture extends WebGLCmdObject {
 }
 
 export class WebGLCmdPackage {
-    public cmds: CachedArray<WebGLCmd> = new CachedArray(1);
-    public beginRenderPassCmds: CachedArray<WebGLCmdBeginRenderPass> = new CachedArray(1);
-    public bindStatesCmds: CachedArray<WebGLCmdBindStates> = new CachedArray(1);
-    public drawCmds: CachedArray<WebGLCmdDraw> = new CachedArray(1);
-    public updateBufferCmds: CachedArray<WebGLCmdUpdateBuffer> = new CachedArray(1);
-    public copyBufferToTextureCmds: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
-    public blitTextureCmds: CachedArray<WebGLCmdBlitTexture> = new CachedArray(1);
+    public cmds: memop.CachedArray<WebGLCmd> = new memop.CachedArray(1);
+    public beginRenderPassCmds: memop.CachedArray<WebGLCmdBeginRenderPass> = new memop.CachedArray(1);
+    public bindStatesCmds: memop.CachedArray<WebGLCmdBindStates> = new memop.CachedArray(1);
+    public drawCmds: memop.CachedArray<WebGLCmdDraw> = new memop.CachedArray(1);
+    public updateBufferCmds: memop.CachedArray<WebGLCmdUpdateBuffer> = new memop.CachedArray(1);
+    public copyBufferToTextureCmds: memop.CachedArray<WebGLCmdCopyBufferToTexture> = new memop.CachedArray(1);
+    public blitTextureCmds: memop.CachedArray<WebGLCmdBlitTexture> = new memop.CachedArray(1);
 
     public clearCmds (allocator: WebGLCommandAllocator): void {
         if (this.beginRenderPassCmds.length) {

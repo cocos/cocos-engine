@@ -1,5 +1,5 @@
 
-import { debug, DebugMode, log, _resetDebugSetting } from '../../cocos/core/platform/debug';
+import { debug, DebugMode, log, _resetDebugSetting } from '@base/debug';
 
 describe('Logging', () => {
     test('Debug mode', () => {

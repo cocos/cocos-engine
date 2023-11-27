@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { js } from '../../../core';
+import { js } from '@base/utils';
 import { Label, LabelOutline } from '../../components';
 import { bmfontUtils } from './bmfontUtils';
-import { shareLabelInfo, LetterAtlas, computeHash } from './font-utils';
+import { shareLabelInfo, LetterAtlas, computeHash, LetterRenderTexture } from './font-utils';
 
 const _atlasWidth = 1024;
 const _atlasHeight = 1024;
@@ -39,7 +39,7 @@ export const letterFont = js.mixin(bmfontUtils, {
             _shareAtlas = new LetterAtlas(_atlasWidth, _atlasHeight);
         }
 
-        return _shareAtlas.getTexture();
+        return _shareAtlas.getTexture() as LetterRenderTexture | null;
     },
 
     _updateFontFamily (comp) {
@@ -47,12 +47,12 @@ export const letterFont = js.mixin(bmfontUtils, {
         shareLabelInfo.fontFamily = this._getFontFamily(comp);
 
         // outline
-        const outline = comp.getComponent(LabelOutline);
-        if (outline && outline.enabled) {
+        const isOutlined = comp.enableOutline && comp.outlineWidth > 0;
+        if (isOutlined) {
             shareLabelInfo.isOutlined = true;
-            shareLabelInfo.margin = outline.width;
-            shareLabelInfo.out = outline.color.clone();
-            shareLabelInfo.out.a = outline.color.a * comp.color.a / 255.0;
+            shareLabelInfo.margin = comp.outlineWidth;
+            shareLabelInfo.out = comp.outlineColor.clone();
+            shareLabelInfo.out.a = comp.outlineColor.color.a * comp.color.a / 255.0;
         } else {
             shareLabelInfo.isOutlined = false;
             shareLabelInfo.margin = 0;

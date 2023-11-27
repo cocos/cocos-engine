@@ -173,6 +173,7 @@ struct GLES3GPUSwapchain {
     EGLint eglSwapInterval{0};
     GLuint glFramebuffer{0};
     GLES3GPUTexture *gpuColorTexture{nullptr};
+    bool isXR{false};
 };
 
 class GLES3GPUSampler final {
@@ -357,10 +358,10 @@ struct GLES3GPUFramebufferObject {
     void processLoad(GLenum target);
     void processStore(GLenum target);
     void destroy(GLES3GPUStateCache *cache, GLES3GPUFramebufferCacheMap *framebufferCacheMap);
+    GLuint getHandle() const { return swapchain != nullptr ? swapchain->glFramebuffer : handle; }
 
     using Reference = std::pair<const GLES3GPUTextureView *, GLint>;
 
-    GLuint handle{0};
     GLES3GPUSwapchain *swapchain{nullptr};
 
     ccstd::vector<Reference> colors;
@@ -369,6 +370,9 @@ struct GLES3GPUFramebufferObject {
 
     ccstd::vector<GLenum> loadInvalidates;
     ccstd::vector<GLenum> storeInvalidates;
+
+private:
+    GLuint handle{0};
 };
 
 class GLES3GPUFramebuffer final {

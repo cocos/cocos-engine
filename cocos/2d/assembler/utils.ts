@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4, clamp } from '../../core';
+import { Color, Mat4, clamp } from '@base/math';
 import { RenderData } from '../renderer/render-data';
 import { IBatcher } from '../renderer/i-batcher';
 import { Node } from '../../scene-graph/node';

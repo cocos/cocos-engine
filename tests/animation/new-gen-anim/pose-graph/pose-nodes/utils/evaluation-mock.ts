@@ -1,26 +1,17 @@
+import { assertIsTrue } from '@base/debug/internal';
+import { Vec3 } from '@base/math';
 import { AnimationController } from '../../../../../../cocos/animation/animation';
 import { TransformHandle } from '../../../../../../cocos/animation/core/animation-handle';
 import { Pose } from '../../../../../../cocos/animation/core/pose';
 import { PoseHeapAllocator } from '../../../../../../cocos/animation/core/pose-heap-allocator';
-import {
-    AnimationGraphEvaluationContext,
-    AnimationGraphUpdateContextGenerator,
-    AnimationGraphPoseLayoutMaintainer,
-    AnimationGraphBindingContext,
-    DeferredPoseStashAllocator,
-    defaultTransformsTag,
-    AuxiliaryCurveRegistry,
-    AnimationGraphSettleContext,
-    AnimationGraphUpdateContext,
-} from '../../../../../../cocos/animation/marionette/animation-graph-context';
-import { BindContext } from '../../../../../../cocos/animation/marionette/parametric';;
+import { AnimationGraphEvaluationContext, AnimationGraphUpdateContextGenerator, AnimationGraphPoseLayoutMaintainer, AnimationGraphBindingContext, DeferredPoseStashAllocator, defaultTransformsTag, AuxiliaryCurveRegistry, AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../../../../../../cocos/animation/marionette/animation-graph-context';
+import { BindContext } from '../../../../../../cocos/animation/marionette/parametric';
 import { PoseGraph } from '../../../../../../cocos/animation/marionette/pose-graph/pose-graph';
 import { PoseNode, PoseTransformSpaceRequirement } from '../../../../../../cocos/animation/marionette/pose-graph/pose-node';
 import { RuntimeStashManager } from '../../../../../../cocos/animation/marionette/pose-graph/stash/runtime-stash';
 import { RuntimeMotionSyncManager } from '../../../../../../cocos/animation/marionette/pose-graph/motion-sync/runtime-motion-sync';
 import { VarInstance } from '../../../../../../cocos/animation/marionette/variable';
 import { Node } from '../../../../../../cocos/scene-graph';
-import { assertIsTrue, Vec3 } from '../../../../../../exports/base';
 
 export class TransformHierarchy {
     private _node = new Node();

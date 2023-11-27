@@ -40,7 +40,6 @@ using namespace spine;
 //  1. 'Ignore Section' should be placed before attribute definition and %import/%include
 //  2. namespace is needed
 //
-%ignore spine::MathUtil;
 %ignore cc::RefCounted;
 %ignore *::rtti;
 %ignore spine::SkeletonCache::SegmentData;
@@ -48,6 +47,7 @@ using namespace spine;
 %ignore spine::SkeletonCache::FrameData;
 %ignore spine::SkeletonCache::AnimationData;
 %ignore spine::Skin::AttachmentMap::getEntries;
+%ignore spine::AttachmentLoader::getRTTI;
 
 %ignore spine::Polygon::Polygon;
 %ignore spine::Polygon::_vertices;
@@ -136,6 +136,14 @@ using namespace spine;
 %ignore spine::Skeleton::getBounds;
 %ignore spine::Bone::updateWorldTransform(float, float, float, float, float, float, float);
 %ignore spine::Skin::findAttachmentsForSlot;
+%ignore spine::SkeletonBinary::readSkeletonData(const unsigned char*, int);
+%ignore spine::AttachmentLoader::newRegionAttachment(Skin&, const String&, const String&);
+%ignore spine::AttachmentLoader::newMeshAttachment(Skin&, const String&, const String&);
+%ignore spine::AttachmentLoader::newBoundingBoxAttachment(Skin&, const String&);
+%ignore spine::AttachmentLoader::newPathAttachment(Skin&, const String&);
+%ignore spine::AttachmentLoader::newPointAttachment(Skin&, const String&);
+%ignore spine::AttachmentLoader::newClippingAttachment(Skin&, const String&);
+%ignore spine::TextureLoader::load(AtlasPage&, const String&);
 
 // ----- Rename Section ------
 // Brief: Classes, methods or attributes needs to be renamed
@@ -203,6 +211,9 @@ using namespace spine;
 %rename(slotIndex) spine::Skin::AttachmentMap::Entry::_slotIndex;
 %rename(name) spine::Skin::AttachmentMap::Entry::_name;
 %rename(attachment) spine::Skin::AttachmentMap::Entry::_attachment;
+%rename(signum) spine::MathUtil::sign(float);
+%rename(TextureAtlasPage) spine::AtlasPage;
+%rename(TextureAtlasRegion) spine::AtlasRegion;
 
 // ----- Module Macro Section ------
 // Brief: Generated code should be wrapped inside a macro
@@ -405,7 +416,7 @@ using namespace spine;
 %attribute(spine::Skeleton, float, x, getX, setX);
 %attribute(spine::Skeleton, float, y, getY, setY);
 
-%attribute(spine::SkeletonBinary, float, scale, setScale);
+%attribute_writeonly(spine::SkeletonBinary, float, scale, setScale);
 
 %attribute(spine::SkeletonClipping, spine::Vector<float>&, clippedVertices, getClippedVertices);
 %attribute(spine::SkeletonClipping, spine::Vector<unsigned short>&, clippedTriangles, getClippedTriangles);
@@ -592,6 +603,10 @@ using namespace spine;
 %include "editor-support/spine/SkeletonBounds.h"
 %include "editor-support/spine/SkeletonData.h"
 %include "editor-support/spine/SlotData.h"
+%include "editor-support/spine/SkeletonBinary.h"
+%include "editor-support/spine/AttachmentLoader.h"
+%include "editor-support/spine/Atlas.h"
+%include "editor-support/spine/TextureLoader.h"
 
 %include "editor-support/spine/TransformConstraint.h"
 %include "editor-support/spine/TransformConstraintData.h"
@@ -744,5 +759,47 @@ using namespace spine;
         spine::String slot(slotName.data());
         spine::String attachment(attachmentName.data());
         return *($self->getAttachment(slot, attachment));
+    }
+}
+
+%extend spine::SkeletonBinary {
+    spine::SkeletonData *readSkeletonData(const std::vector<uint8_t>& binary) {
+        std::vector<unsigned char> input;
+        for (int i = 0; i < binary.size(); ++i) {
+            input.push_back(binary[i]);
+        }
+        return $self->readSkeletonData(input.data(), input.size());
+    }
+}
+
+%extend spine::AttachmentLoader {
+    spine::RegionAttachment* newRegionAttachment(spine::Skin* skin, const spine::String& name, const spine::String& path) {
+        return $self->newRegionAttachment(*skin, name, path);
+    }
+
+    spine::MeshAttachment* newMeshAttachment(spine::Skin* skin, const spine::String& name, const spine::String& path) {
+        return $self->newMeshAttachment(*skin, name, path);
+    }
+
+    spine::BoundingBoxAttachment* newBoundingBoxAttachment(spine::Skin* skin, const spine::String& name) {
+        return $self->newBoundingBoxAttachment(*skin, name);
+    }
+
+    spine::PathAttachment* newPathAttachment(spine::Skin* skin, const spine::String& name) {
+        return $self->newPathAttachment(*skin, name);
+    }
+
+    spine::PointAttachment* newPointAttachment(spine::Skin* skin, const spine::String& name) {
+        return $self->newPointAttachment(*skin, name);
+    }
+
+    spine::ClippingAttachment* newClippingAttachment(spine::Skin* skin, const spine::String& name) {
+        return $self->newClippingAttachment(*skin, name);
+    }
+}
+
+%extend spine::TextureLoader {
+    void load(spine::AtlasPage* page, const spine::String& path) {
+        $self->load(*page, path);
     }
 }

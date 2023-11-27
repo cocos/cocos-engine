@@ -1,8 +1,5 @@
+import { Mat3, Quat, Vec3, toDegree } from '@base/math';
 import { log } from '../../test.log';
-import { Mat3 } from '../../../cocos/core/math/mat3';
-import { Quat } from '../../../cocos/core/math/quat';
-import { Vec3 } from '../../../cocos/core/math/vec3';
-import { toDegree } from '../../../cocos/core/math/utils';
 
 describe('Test Quat', () => {
     test('rotationTo', () => {

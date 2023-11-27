@@ -22,11 +22,13 @@
  THE SOFTWARE.
 */
 
-import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { js } from '@base/utils';
+import { CCObject } from '@base/object';
+import { Vec3, Color, IVec2Like, Vec2, Rect } from '@base/math';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { Graphics } from '../../2d';
-import { CCObject, Vec3, Color, IVec2Like, Vec2, Rect, js } from '../../core';
-import { Canvas } from '../../2d/framework';
+// import { Graphics } from '../../2d';
+// import { Canvas } from '../../2d/framework';
 import { BuiltinShape2D } from './shapes/shape-2d';
 import { BuiltinBoxShape } from './shapes/box-shape-2d';
 import { BuiltinCircleShape } from './shapes/circle-shape-2d';
@@ -43,7 +45,7 @@ const testIntersectResults: Collider2D[] = [];
 export class BuiltinPhysicsWorld implements IPhysicsWorld {
     private _contacts: BuiltinContact[] = [];
     private _shapes: BuiltinShape2D[] = [];
-    private _debugGraphics: Graphics | null = null;
+    private _debugGraphics: any = null;
     private _debugDrawFlags = 0;
 
     get debugDrawFlags (): number {
@@ -141,13 +143,15 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     }
 
     drawDebug (): void {
+        if (TEST) return;
+
         if (!this._debugDrawFlags) {
             return;
         }
 
         this._checkDebugDrawValid();
 
-        const debugDrawer = this._debugGraphics!;
+        const debugDrawer = this._debugGraphics;
         if (!debugDrawer) {
             return;
         }
@@ -212,7 +216,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
                     return;
                 }
                 canvas = new Node('Canvas');
-                canvas.addComponent(Canvas);
+                canvas.addComponent('cc.Canvas');
                 canvas.parent = scene;
             }
 
@@ -222,7 +226,7 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 
-            this._debugGraphics = node.addComponent(Graphics);
+            this._debugGraphics = node.addComponent('cc.Graphics');
             this._debugGraphics.lineWidth = 2;
         }
 
@@ -260,10 +264,18 @@ export class BuiltinPhysicsWorld implements IPhysicsWorld {
     impl (): any {
         return null;
     }
-    setGravity (): void { }
-    setAllowSleep (): void { }
-    syncPhysicsToScene (): void { }
-    syncSceneToPhysics (): void { }
+    setGravity (): void {
+        //empty
+    }
+    setAllowSleep (): void {
+        //empty
+    }
+    syncPhysicsToScene (): void {
+        //empty
+    }
+    syncSceneToPhysics (): void {
+        //empty
+    }
     raycast (p1: IVec2Like, p2: IVec2Like, type: ERaycast2DType): RaycastResult2D[] {
         return [];
     }

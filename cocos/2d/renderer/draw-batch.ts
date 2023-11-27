@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Material } from '../../asset/assets/material';
 import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Model } from '../../render-scene/scene/model';
 import { Layers } from '../../scene-graph/layers';
-import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene/core/pass';
 import { IBatcher } from './i-batcher';
 
@@ -71,7 +71,6 @@ export class DrawBatch2D {
     public texture: Texture | null = null;
     public sampler: Sampler | null = null;
     public useLocalData: Node | null = null;
-    public isStatic = false; // use less,remove when remove Static batch
     public textureHash = 0;
     public samplerHash = 0;
     private _passes: Pass[] = [];
@@ -95,7 +94,6 @@ export class DrawBatch2D {
         this.textureHash = 0;
         this.samplerHash = 0;
         this.model = null;
-        this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
         // this.renderScene = null;

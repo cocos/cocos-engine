@@ -21,9 +21,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { getError, assert } from '@base/debug';
 import { BaseImageData } from '../base-image-data';
 import { ImageSource, IMemoryImageSource, RawDataType } from '../types';
-import { getError, assert } from '../../../cocos/core/platform/debug';
 import { override } from  '../../../cocos/core/data/decorators/override';
 
 declare const jsb: any;

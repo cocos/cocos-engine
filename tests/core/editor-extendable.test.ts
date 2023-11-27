@@ -1,5 +1,5 @@
-import { EditorExtendable } from "../../cocos/core/data/editor-extendable";
-import { editorExtrasTag } from "../../cocos/core/data/editor-extras-tag";
+import { editorExtrasTag } from '@base/object';
+import { EditorExtendable } from '../../cocos/core/data/editor-extendable';
 
 describe('Editor extendable', () => {
     test('Serialize', () => {

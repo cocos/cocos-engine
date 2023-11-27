@@ -25,11 +25,12 @@
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW, JSB, MINIGAME, RUNTIME_BASED } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { Size } from '@base/math';
 import { UITransform } from '../../2d/framework';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Component } from '../../scene-graph/component';
 import { EventHandler as ComponentEventHandler } from '../../scene-graph/component-event-handler';
-import { Size } from '../../core/math';
 import { EventTouch } from '../../input/types';
 import { Node } from '../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
@@ -37,7 +38,6 @@ import { Sprite } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
-import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
 
@@ -492,6 +492,9 @@ export class EditBox extends Component {
     public _editBoxEditingDidBegan (): void {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
         this.node.emit(EventType.EDITING_DID_BEGAN, this);
+        if (this._impl) {
+            this._impl._dirtyFlag = true;
+        }
     }
 
     /**
@@ -503,6 +506,9 @@ export class EditBox extends Component {
     public _editBoxEditingDidEnded (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
         this.node.emit(EventType.EDITING_DID_ENDED, this, text);
+        if (this._impl) {
+            this._impl._dirtyFlag = false;
+        }
     }
 
     /**
@@ -759,7 +765,6 @@ export class EditBox extends Component {
 
         if (placeholderLabel) {
             placeholderLabel.node._uiProps.uiTransformComp!.setContentSize(size.width - LEFT_PADDING, size.height);
-            placeholderLabel.lineHeight = size.height;
             placeholderLabel.node.setPosition(offX + LEFT_PADDING, offY + size.height, placeholderLabel.node.position.z);
             placeholderLabel.enableWrapText = this._inputMode === InputMode.ANY;
         }
@@ -816,4 +821,4 @@ if (typeof window === 'object' && typeof document === 'object' && !MINIGAME && !
  * @return {Boolean} whether it is the first time the destroy being called
  */
 
-legacyCC.internal.EditBox = EditBox;
+cclegacy.internal.EditBox = EditBox;

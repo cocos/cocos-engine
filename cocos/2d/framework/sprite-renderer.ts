@@ -23,9 +23,10 @@
 */
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, serializable, type, visible } from 'cc.decorator';
+import { cclegacy } from '@base/global';
+import { Color, Vec2 } from '@base/math';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material } from '../../asset/assets';
-import { Color, Vec2, cclegacy } from '../../core';
 import { ModelLocalBindings } from '../../rendering/define';
 import { Model } from '../../render-scene/scene';
 import { Root } from '../../root';

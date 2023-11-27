@@ -23,8 +23,12 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { error } from '@base/debug';
+import { js } from '@base/utils';
+import { callInNextTick } from '../../core/utils/internal';
 import { Asset } from '../assets/asset';
-import { cclegacy, error, js, misc } from '../../core';
+import { misc } from '../../core';
 import Config from './config';
 import { dependMap, nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
@@ -305,7 +309,7 @@ export function asyncify (cb: ((p1?: any, p2?: any) => void) | null): (p1?: any,
         } else if (p2 instanceof Asset) {
             refs.push(p2.addRef());
         }
-        misc.callInNextTick((): void => {
+        callInNextTick((): void => {
             refs.forEach((x): Asset => x.decRef(false));
             cb(p1, p2);
         });

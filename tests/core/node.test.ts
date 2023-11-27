@@ -1,9 +1,9 @@
-import { find, Node, Scene, Component } from "../../cocos/scene-graph"
-import { Mat4, Vec3 } from "../../cocos/core/math"
-import { CCObject } from "../../cocos/core";
-import { NodeEventType } from "../../cocos/scene-graph/node-event";
-import { ccclass } from "../../cocos/core/data/decorators";
-import {director, game } from '../../cocos/game';
+import { CCObject } from '@base/object';
+import { Mat4, Vec3 } from '@base/math';
+import { find, Node, Scene, Component } from '../../cocos/scene-graph';
+import { NodeEventType } from '../../cocos/scene-graph/node-event';
+import { ccclass } from '../../cocos/core/data/decorators';
+import { director, game } from '../../cocos/game';
 
 describe(`Node`, () => {
 

@@ -1,12 +1,29 @@
-import { Vec3 } from "../../cocos/core";
-import { physics } from "../../exports/physics-framework";
-import { Node } from "../../cocos/scene-graph";
-import { director } from "../../cocos/game";
+import { Vec3 } from '@base/math';
+import { physics } from '../../exports/physics-framework';
+import { Node } from '../../cocos/scene-graph';
+import { director } from '../../cocos/game';
+import { PhysicsTestEnv } from './physics.test';
+
+export default function(env: PhysicsTestEnv) {
+    describe(`Stability test`, () => {
+        test.each([1, 0.5])(`Stable %s`, (v) => {
+            doTest(env, 500, v);
+        });
+
+        if (env.backendId === 'physx') {
+            test.each([0.25, 0.15])(`Stable for small scale in PhysX %s`, (v) => {
+                doTest(env, 500, v);
+            });
+        }
+    });
+}
 
 /**
  * This function is used to test stability of the physics
  */
-export default function (parent: Node, steps = 500, scale = 0.5) {
+function doTest(env: PhysicsTestEnv, steps = 500, scale = 0.5) {
+    const { rootNode: parent } = env;
+
     const nodeStatic = new Node('StaticB');
     parent.addChild(nodeStatic);
     nodeStatic.addComponent(physics.BoxCollider);
@@ -49,8 +66,5 @@ export default function (parent: Node, steps = 500, scale = 0.5) {
     bodies.forEach((v) => {
         expect(v.isSleeping).toBe(true);
         expect(v.isAwake).toBe(false);
-    })
-    
-    parent.destroyAllChildren();
-    parent.removeAllChildren();
+    });
 }

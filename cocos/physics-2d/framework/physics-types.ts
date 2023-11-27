@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Enum, Vec2 } from '../../core';
+import { Enum } from '@base/object';
+import { Vec2 } from '@base/math';
 import { Collider2D } from './components/colliders/collider-2d';
 
 export enum ERigidBody2DType {

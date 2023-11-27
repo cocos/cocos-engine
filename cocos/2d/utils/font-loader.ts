@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
-import { warnID } from '../../core';
+import { warnID } from '@base/debug';
+import { ccwindow } from '@base/global';
 import { safeMeasureText } from './text-utils';
 import downloader from '../../asset/asset-manager/downloader';
 import factory from '../../asset/asset-manager/factory';
 import { TTFFont } from '../assets/ttf-font';
-import { ccwindow } from '../../core/global-exports';
 
 const ccdocument = ccwindow.document;
 

@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
+import { EventTarget } from '@base/event';
+import { screenAdapter } from '@pal/screen-adapter';
+import { Vec2 } from '@base/math';
 import { EventMouse } from '../../../cocos/input/types';
-import { EventTarget } from '../../../cocos/core/event';
-import { Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 
 export type MouseCallback = (res: EventMouse) => void;

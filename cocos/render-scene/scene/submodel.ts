@@ -22,17 +22,15 @@
  THE SOFTWARE.
 */
 
+import { errorID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { Mat4 } from '@base/math';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
-import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING,
-    INST_MAT_WORLD, INST_SH, UBOSH, isEnableEffect } from '../../rendering/define';
+import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING, INST_MAT_WORLD, INST_SH, UBOSH, isEnableEffect } from '../../rendering/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
-    Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager,
-    Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
-import { errorID, Mat4, cclegacy } from '../../core';
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo, Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager, Attribute, Feature, FormatInfos, getTypedArrayConstructor } from '../../gfx';
 import { getPhaseID } from '../../rendering/pass-phase';
 import { Root } from '../../root';
-import { MacroRecord } from '../core/pass-utils';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -55,7 +53,6 @@ export class SubModel {
     protected _shaders: Shader[] | null = null;
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
-    protected _globalPatches: MacroRecord | null = null;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _inputAssembler: InputAssembler | null = null;
     protected _descriptorSet: DescriptorSet | null = null;
@@ -296,7 +293,6 @@ export class SubModel {
         this.priority = RenderPriority.DEFAULT;
 
         this._patches = null;
-        this._globalPatches = null;
         this._subMesh = null;
 
         this._passes = null;
@@ -327,19 +323,6 @@ export class SubModel {
      * @zh 管线更新回调
      */
     public onPipelineStateChanged (): void {
-        const root = cclegacy.director.root as Root;
-        const pipeline = root.pipeline;
-        const pipelinePatches = Object.entries(pipeline.macros);
-        if (!this._globalPatches && pipelinePatches.length === 0) {
-            return;
-        } else if (pipelinePatches.length) {
-            if (this._globalPatches && pipelinePatches.length === this._globalPatches.length) {
-                const globalPatches = Object.entries(this._globalPatches);
-                const patchesStateUnchanged = JSON.stringify(pipelinePatches.sort()) === JSON.stringify(globalPatches.sort());
-                if (patchesStateUnchanged) return;
-            }
-        }
-        this._globalPatches = pipeline.macros;
 
         const passes = this._passes;
         if (!passes) { return; }
@@ -363,6 +346,7 @@ export class SubModel {
             return;
         } else if (patches) {
             patches = patches.sort();
+            // Sorting on shorter patches outperforms hashing, with negative optimization on longer global patches.
             if (this._patches && patches.length === this._patches.length) {
                 const patchesStateUnchanged = JSON.stringify(patches) === JSON.stringify(this._patches);
                 if (patchesStateUnchanged) return;

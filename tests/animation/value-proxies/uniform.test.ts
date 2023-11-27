@@ -1,10 +1,12 @@
-import { Track, UniformProxyFactory, VectorTrack } from "../../../cocos/animation/animation";
-import { AnimationClip } from "../../../cocos/animation/animation-clip";
-import { AnimationState } from "../../../cocos/animation/animation-state";
-import { Pass } from "../../../cocos/render-scene";
-import { Component, Node } from "../../../cocos/scene-graph";
-import { director, EffectAsset, js, Material, Vec3 } from "../../../exports/base";
-import { captureWarnIDs } from "../../utils/log-capture";
+import { js } from '@base/utils';
+import { Vec3 } from '@base/math';
+import { Track, UniformProxyFactory, VectorTrack } from '../../../cocos/animation/animation';
+import { AnimationClip } from '../../../cocos/animation/animation-clip';
+import { AnimationState } from '../../../cocos/animation/animation-state';
+import { Pass } from '../../../cocos/render-scene';
+import { Component, Node } from '../../../cocos/scene-graph';
+import { director, EffectAsset, Material } from '../../../exports/base';
+import { captureWarnIDs } from '../../utils/log-capture';
 
 describe(`Error sentences`, () => {
     beforeAll(() => js.setClassName('MaterialHost', MaterialHost));

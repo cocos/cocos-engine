@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-import { CCBoolean, CCFloat, CCInteger } from '../../../core';
-import { ccclass, disallowMultiple, editable, executeInEditMode, help, menu, range,
-    serializable, slide, tooltip, type, visible } from '../../../core/data/decorators';
+import { CCBoolean, CCFloat, CCInteger } from '@base/object';
+import { ccclass, disallowMultiple, editable, executeInEditMode, help, menu, range, serializable, slide, tooltip, type, visible } from '../../../core/data/decorators';
 import { PostProcessSetting } from './post-process-setting';
 
 @ccclass('cc.HBAO')

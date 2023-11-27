@@ -28,7 +28,8 @@ import type { IMemoryImageSource } from '../../../pal/image/types';
 import assetManager from '../asset-manager/asset-manager';
 import { BuiltinBundleName } from '../asset-manager/shared';
 import Bundle from '../asset-manager/bundle';
-import { Settings, settings, cclegacy } from '../../core';
+import { Settings, settings } from '../../core';
+import { cclegacy } from '@base/global';
 import { releaseManager } from '../asset-manager/release-manager';
 import type { BuiltinResMgr as JsbBuiltinResMgr } from './builtin-res-mgr';
 

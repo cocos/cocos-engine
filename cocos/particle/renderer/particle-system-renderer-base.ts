@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { Component } from '../../scene-graph';
 import { Attribute, deviceManager, Feature } from '../../gfx';
 import ParticleBatchModel from '../models/particle-batch-model';
@@ -29,7 +30,6 @@ import ParticleSystemRenderer from './particle-system-renderer-data';
 import { Material } from '../../asset/assets';
 import { Particle, IParticleModule } from '../particle';
 import { RenderMode } from '../enum';
-import { cclegacy } from '../../core';
 import { Pass } from '../../render-scene';
 import type { ParticleSystem } from '../particle-system';
 

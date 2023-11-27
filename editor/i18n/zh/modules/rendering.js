@@ -57,6 +57,10 @@ module.exports = {
                         displayName: '材质',
                         tooltip: '材质资源数组。每一项依次指定了子网格的材质。',
                     },
+                    'gpuDrivenEnabled': {
+                        displayName: '启用 GPU Driven',
+                        tooltip: '此物体是否启用 GPU Driven。',
+                    },
                     'shadowCastingModeForInspector': {
                         displayName: '投射阴影',
                         tooltip: '此网格是否投射阴影。',

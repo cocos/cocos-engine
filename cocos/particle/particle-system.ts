@@ -25,10 +25,14 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, formerlySerializedAs, override, radian, serializable, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warn } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { CCBoolean, CCFloat } from '@base/object';
+import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, bits } from '@base/math';
 import { Renderer } from '../misc/renderer';
 import { ModelRenderer } from '../misc/model-renderer';
 import { Material } from '../asset/assets/material';
-import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3, CCBoolean, CCFloat, bits, geometry, cclegacy, warn } from '../core';
+import { geometry } from '../core';
 import { scene } from '../render-scene';
 import ColorOverLifetimeModule from './animator/color-overtime';
 import CurveRange, { Mode } from './animator/curve-range';

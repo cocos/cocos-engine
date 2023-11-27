@@ -78,7 +78,7 @@ CCProgram ssssBlur %{
   }
 
 
-  /** 
+  /**
    * @param texcoord The usual quad texture coordinates.
    * @param dir Direction of the blur:
    *   - First pass:   float2(1.0, 0.0)

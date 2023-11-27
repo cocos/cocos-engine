@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { warnID } from '@base/debug';
 import { BulletShape } from './bullet-shape';
-import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../../../exports/physics-framework';
 import { cocos2BulletVec3, cocos2BulletTriMesh } from '../bullet-utils';

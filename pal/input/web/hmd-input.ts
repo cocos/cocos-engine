@@ -23,12 +23,12 @@
 */
 
 import { HMDCallback } from 'pal/input';
+import { cclegacy } from '@base/global';
+import { EventTarget } from '@base/event';
+import { Vec3, Quat } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventHMD } from '../../../cocos/input/types';
 import { InputSourcePosition, InputSourceOrientation } from '../input-source';
-import { Vec3, Quat } from '../../../cocos/core/math';
-import legacyCC from '../../../predefine';
 
 enum Pose {
     VIEW_LEFT = 0,
@@ -81,7 +81,7 @@ export class HMDInputDevice {
     private _ensureDirectorDefined (): Promise<void> {
         return new Promise<void>((resolve) => {
             this._intervalId = setInterval(() => {
-                if (legacyCC.director && legacyCC.Director) {
+                if ( cclegacy .director &&  cclegacy .Director) {
                     clearInterval(this._intervalId);
                     this._intervalId = -1;
                     resolve();
@@ -92,7 +92,7 @@ export class HMDInputDevice {
 
     private _registerEvent (): void {
         this._ensureDirectorDefined().then(() => {
-            legacyCC.director.on(legacyCC.Director.EVENT_BEGIN_FRAME, this._scanHmd, this);
+             cclegacy .director.on( cclegacy .Director.EVENT_BEGIN_FRAME, this._scanHmd, this);
         }).catch((e) => {});
     }
 

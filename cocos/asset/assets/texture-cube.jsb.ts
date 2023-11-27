@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 import { Filter, PixelFormat, WrapMode } from './asset-enum';
-import { js, cclegacy } from '../../core';
+import { js } from '@base/utils';
+import { cclegacy } from '@base/global';
 import './simple-texture';
 import { EDITOR, TEST } from 'internal:constants';
 import { patch_cc_TextureCube } from '../../native-binding/decorators';

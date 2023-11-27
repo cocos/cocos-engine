@@ -24,14 +24,13 @@
 
 import { EDITOR } from 'internal:constants';
 import { ccclass } from 'cc.decorator';
-import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
+import { cclegacy } from '@base/global';
+import { warnID } from '@base/debug';
+import { replaceProperty, removeProperty } from '@base/utils';
+import { CCObject } from '@base/object';
+import { Vec2, Size } from '@base/math';
 import { Layers } from './layers';
 import { Node } from './node';
-import { Vec2 } from '../core/math/vec2';
-import { Size } from '../core/math/size';
-import { legacyCC } from '../core/global-exports';
-import { CCObject } from '../core/data/object';
-import { warnID } from '../core/platform/debug';
 import { SceneGlobals } from './scene-globals';
 import { SystemEventType } from '../input/types';
 import { SystemEvent } from '../input';
@@ -364,4 +363,4 @@ replaceProperty(Node.EventType, 'Node.EventType', [
     },
 ]);
 
-legacyCC.PrivateNode = PrivateNode;
+cclegacy.PrivateNode = PrivateNode;

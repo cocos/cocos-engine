@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 
+import { error } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { Asset } from '../assets';
-import { error, cclegacy } from '../../core';
 import packManager from './pack-manager';
 import RequestItem from './request-item';
 import { assets, fetchPipeline } from './shared';

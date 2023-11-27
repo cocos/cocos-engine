@@ -23,10 +23,11 @@
 */
 
 import { ccclass, serializable, type } from 'cc.decorator';
+import { cclegacy } from '@base/global';
+import { Vec3, Vec4, EPSILON } from '@base/math';
 import { Vertex, Tetrahedron, Delaunay } from './delaunay';
 import { PolynomialSolver } from './polynomial-solver';
 import { LightProbeInfo } from '../../scene-graph/scene-globals';
-import { Vec3, Vec4, cclegacy, EPSILON } from '../../core';
 import { SH } from './sh';
 
 const _v1 = new Vec3(0.0, 0.0, 0.0);

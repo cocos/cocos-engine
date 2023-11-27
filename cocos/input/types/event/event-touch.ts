@@ -23,8 +23,8 @@
  THE SOFTWARE.
 */
 
-import { Event } from './event';
-import { Vec2 } from '../../../core';
+import { Event } from '@base/event';
+import { Vec2 } from '@base/math';
 import { Touch } from '../touch';
 import { SystemEventTypeUnion } from '../event-enum';
 

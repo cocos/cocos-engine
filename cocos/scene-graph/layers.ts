@@ -22,13 +22,15 @@
  THE SOFTWARE.
 */
 
-import { BitMask, Enum } from '../core/value-types';
-import { legacyCC } from '../core/global-exports';
-import { log2 } from '../core/math/bits';
-import { js } from '../core';
-import { assertIsTrue } from '../core/data/utils/asserts';
-import { getError, warn } from '../core/platform/debug';
+import { cclegacy } from '@base/global';
+import { assertIsTrue } from '@base/debug/internal';
+import { getError, warn } from '@base/debug';
+import { js } from '@base/utils';
+import { BitMask, Enum } from '@base/object';
+import { bits } from '@base/math';
 import { Settings, settings } from '../core/settings';
+
+const { log2 } = bits;
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -189,4 +191,4 @@ export declare namespace Layers {
     export type BitMask = EnumAlias<typeof Layers.BitMask>;
 }
 
-legacyCC.Layers = Layers;
+cclegacy.Layers = Layers;

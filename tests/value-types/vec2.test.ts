@@ -1,4 +1,4 @@
-import { Vec2 } from '../../cocos/core/math/vec2';
+import { Vec2 } from '@base/math';
 
 test('basic test', function () {
     let vec1 = new Vec2(5, 6);

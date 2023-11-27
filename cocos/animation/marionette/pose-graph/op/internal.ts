@@ -1,18 +1,13 @@
+import { assertIsTrue } from '@base/debug/internal';
+import { error } from '@base/debug';
 import { PoseNode } from '../pose-node';
 import { PoseGraphNodeInputInsertId, PoseGraphInputKey, globalPoseGraphNodeInputManager } from '../foundation/authoring/input-authoring';
 import { PureValueNode } from '../pure-value-node';
-import { assertIsTrue, error } from '../../../../core';
 import { PoseGraphType } from '../foundation/type-system';
 import { PoseGraphNode } from '../foundation/pose-graph-node';
-import { PoseGraphOutputNode } from '../graph-output-node';
 import type { PoseGraph } from '../pose-graph';
 
-export type {
-    PoseGraphInputKey as InputKey,
-    PoseGraphNodeInputDisplayName as InputDisplayName,
-    PoseGraphNodeInputMetadata as InputMetadata,
-    PoseGraphNodeInputInsertId as InputInsertId,
-} from '../foundation/authoring/input-authoring';
+export type { PoseGraphInputKey as InputKey, PoseGraphNodeInputDisplayName as InputDisplayName, PoseGraphNodeInputMetadata as InputMetadata, PoseGraphNodeInputInsertId as InputInsertId } from '../foundation/authoring/input-authoring';
 
 export type OutputKey = number;
 

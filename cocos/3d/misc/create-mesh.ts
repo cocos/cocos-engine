@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Mesh } from '../assets/mesh';
+import { Vec3 } from '@base/math';
+import { Mesh, decodeMesh, inflateMesh } from '../assets/mesh';
 import { AttributeName, Format, FormatInfos, PrimitiveMode, Attribute } from '../../gfx';
-import { Vec3 } from '../../core';
 import { IGeometry, IDynamicGeometry, ICreateMeshOptions, ICreateDynamicMeshOptions } from '../../primitive/define';
 import { writeBuffer } from './buffer';
 import { BufferBlob } from './buffer-blob';
@@ -56,7 +56,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_POSITION) {
+                if (att.name === (AttributeName.ATTR_POSITION as string)) {
                     attr = att;
                     break;
                 }
@@ -78,7 +78,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_NORMAL) {
+                if (att.name === (AttributeName.ATTR_NORMAL as string)) {
                     attr = att;
                     break;
                 }
@@ -100,7 +100,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_TEX_COORD) {
+                if (att.name === (AttributeName.ATTR_TEX_COORD as string)) {
                     attr = att;
                     break;
                 }
@@ -122,7 +122,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_TANGENT) {
+                if (att.name === (AttributeName.ATTR_TANGENT as string)) {
                     attr = att;
                     break;
                 }
@@ -144,7 +144,7 @@ export function createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMe
         attr = null;
         if (geometry.attributes) {
             for (const att of geometry.attributes) {
-                if (att.name === AttributeName.ATTR_COLOR) {
+                if (att.name === (AttributeName.ATTR_COLOR as string)) {
                     attr = att;
                     break;
                 }
@@ -433,6 +433,24 @@ export class MeshUtils {
      */
     static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions): Mesh {
         return createDynamicMesh(primitiveIndex, geometry, out, options);
+    }
+
+    /**
+     * @en decode a mesh.
+     *
+     * @engineInternal
+     */
+    static decodeMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+        return decodeMesh(mesh);
+    }
+
+    /**
+     * @en inflate a mesh.
+     *
+     * @engineInternal
+     */
+    static inflateMesh (mesh: Mesh.ICreateInfo): Mesh.ICreateInfo {
+        return inflateMesh(mesh);
     }
 }
 

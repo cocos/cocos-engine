@@ -22,14 +22,13 @@
  THE SOFTWARE.
 */
 
-/* eslint-disable brace-style */
-import { systemInfo } from 'pal/system-info';
+import { js } from '@base/utils';
+import { systemInfo, Feature } from '@pal/system-info';
+import { EventTarget } from '@base/event';
+import { Quat, Vec3 } from '@base/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { Feature } from '../../system-info/enum-type';
-import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventGamepad } from '../../../cocos/input/types';
 import { InputSourceButton, InputSourceDpad, InputSourceOrientation, InputSourcePosition, InputSourceStick } from '../input-source';
-import { Quat, Vec3, js } from '../../../cocos/core';
 
 export type GamepadCallback = (res: EventGamepad) => void;
 
@@ -322,8 +321,7 @@ export class GamepadInputDevice {
                 axisValue = this._axisToButtons(value);
                 break;
             default:
-                if (code === 7) { this._nativeButtonState[Button.BUTTON_L2] = value; }
-                else if (code === 8) { this._nativeButtonState[Button.BUTTON_R2] = value; }
+                if (code === 7) { this._nativeButtonState[Button.BUTTON_L2] = value; } else if (code === 8) { this._nativeButtonState[Button.BUTTON_R2] = value; }
                 break;
             }
             if (negativeButton && positiveButton && axisValue) {

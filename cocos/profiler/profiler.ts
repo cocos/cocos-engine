@@ -24,6 +24,9 @@
 */
 
 import { TEST, EDITOR } from 'internal:constants';
+import { warn } from '@base/debug';
+import { cclegacy, ccwindow } from '@base/global';
+import { preTransforms } from '@base/math';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -33,11 +36,10 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, Settings, settings, warn } from '../core';
+import { System, sys, Settings, settings } from '../core';
 import { Root } from '../root';
 import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
-import { ccwindow } from '../core/global-exports';
 
 const _characters = '0123456789. ';
 

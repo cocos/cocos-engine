@@ -23,6 +23,9 @@
 */
 
 import './deprecated-1.2.0';
+import { warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { js, removeProperty, markAsWarning } from '@base/utils';
 import { UICoordinateTracker } from './ui-coordinate-tracker';
 import { BlockInputEvents } from './block-input-events';
 import { Button } from './button';
@@ -38,10 +41,7 @@ import { Widget } from './widget';
 import { PageView } from './page-view';
 import { PageViewIndicator } from './page-view-indicator';
 import { SafeArea } from './safe-area';
-import { warnID } from '../core/platform/debug';
 import { ccclass } from '../core/data/class-decorator';
-import { js, removeProperty, markAsWarning } from '../core';
-import { legacyCC } from '../core/global-exports';
 import { View } from './view';
 
 /**
@@ -53,98 +53,98 @@ export class UIReorderComponent {
         warnID(1408, 'UIReorderComponent');
     }
 }
-legacyCC.UIReorderComponent = UIReorderComponent;
+cclegacy.UIReorderComponent = UIReorderComponent;
 
 /**
  * Alias of [[Button]]
  * @deprecated Since v1.2
  */
 export { Button as ButtonComponent };
-legacyCC.ButtonComponent = Button;
+cclegacy.ButtonComponent = Button;
 js.setClassAlias(Button, 'cc.ButtonComponent');
 /**
  * Alias of [[EditBox]]
  * @deprecated Since v1.2
  */
 export { EditBox as EditBoxComponent };
-legacyCC.EditBoxComponent = EditBox;
+cclegacy.EditBoxComponent = EditBox;
 js.setClassAlias(EditBox, 'cc.EditBoxComponent');
 /**
  * Alias of [[Layout]]
  * @deprecated Since v1.2
  */
 export { Layout as LayoutComponent };
-legacyCC.LayoutComponent = Layout;
+cclegacy.LayoutComponent = Layout;
 js.setClassAlias(Layout, 'cc.LayoutComponent');
 /**
  * Alias of [[ProgressBar]]
  * @deprecated Since v1.2
  */
 export { ProgressBar as ProgressBarComponent };
-legacyCC.ProgressBarComponent = ProgressBar;
+cclegacy.ProgressBarComponent = ProgressBar;
 js.setClassAlias(ProgressBar, 'cc.ProgressBarComponent');
 /**
  * Alias of [[ScrollView]]
  * @deprecated Since v1.2
  */
 export { ScrollView as ScrollViewComponent };
-legacyCC.ScrollViewComponent = ScrollView;
+cclegacy.ScrollViewComponent = ScrollView;
 js.setClassAlias(ScrollView, 'cc.ScrollViewComponent');
 /**
  * Alias of [[ScrollBar]]
  * @deprecated Since v1.2
  */
 export { ScrollBar as ScrollBarComponent };
-legacyCC.ScrollBarComponent = ScrollBar;
+cclegacy.ScrollBarComponent = ScrollBar;
 js.setClassAlias(ScrollBar, 'cc.ScrollBarComponent');
 /**
  * Alias of [[Slider]]
  * @deprecated Since v1.2
  */
 export { Slider as SliderComponent };
-legacyCC.SliderComponent = Slider;
+cclegacy.SliderComponent = Slider;
 js.setClassAlias(Slider, 'cc.SliderComponent');
 /**
  * Alias of [[Toggle]]
  * @deprecated Since v1.2
  */
 export { Toggle as ToggleComponent };
-legacyCC.ToggleComponent = Toggle;
+cclegacy.ToggleComponent = Toggle;
 js.setClassAlias(Toggle, 'cc.ToggleComponent');
 /**
  * Alias of [[ToggleContainer]]
  * @deprecated Since v1.2
  */
 export { ToggleContainer as ToggleContainerComponent };
-legacyCC.ToggleContainerComponent = ToggleContainer;
+cclegacy.ToggleContainerComponent = ToggleContainer;
 js.setClassAlias(ToggleContainer, 'cc.ToggleContainerComponent');
 /**
  * Alias of [[Widget]]
  * @deprecated Since v1.2
  */
 export { Widget as WidgetComponent };
-legacyCC.WidgetComponent = Widget;
+cclegacy.WidgetComponent = Widget;
 js.setClassAlias(Widget, 'cc.WidgetComponent');
 /**
  * Alias of [[PageView]]
  * @deprecated Since v1.2
  */
 export { PageView as PageViewComponent };
-legacyCC.PageViewComponent = PageView;
+cclegacy.PageViewComponent = PageView;
 js.setClassAlias(PageView, 'cc.PageViewComponent');
 /**
  * Alias of [[PageViewIndicator]]
  * @deprecated Since v1.2
  */
 export { PageViewIndicator as PageViewIndicatorComponent };
-legacyCC.PageViewIndicatorComponent = PageViewIndicator;
+cclegacy.PageViewIndicatorComponent = PageViewIndicator;
 js.setClassAlias(PageViewIndicator, 'cc.PageViewIndicatorComponent');
 /**
  * Alias of [[SafeArea]]
  * @deprecated Since v1.2
  */
 export { SafeArea as SafeAreaComponent };
-legacyCC.SafeAreaComponent = SafeArea;
+cclegacy.SafeAreaComponent = SafeArea;
 js.setClassAlias(SafeArea, 'cc.SafeAreaComponent');
 /**
  * Alias of [[UICoordinateTracker]]
@@ -157,7 +157,7 @@ js.setClassAlias(UICoordinateTracker, 'cc.UICoordinateTrackerComponent');
  * @deprecated Since v1.2
  */
 export { BlockInputEvents as BlockInputEventsComponent };
-legacyCC.BlockInputEventsComponent = BlockInputEvents;
+cclegacy.BlockInputEventsComponent = BlockInputEvents;
 js.setClassAlias(BlockInputEvents, 'cc.BlockInputEventsComponent');
 
 // #region deprecation on view

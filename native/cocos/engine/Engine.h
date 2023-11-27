@@ -48,6 +48,7 @@ class DebugRenderer;
 class Profiler;
 class BuiltinResMgr;
 class ProgramLib;
+class IXRInterface;
 
 #define NANOSECONDS_PER_SECOND 1000000000
 #define NANOSECONDS_60FPS      16666667L
@@ -147,6 +148,8 @@ private:
     int32_t _blockingTimeoutMS{0};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(Engine);
+
+    IXRInterface *_xr{nullptr};
 };
 
 } // namespace cc

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { markAsWarning } from '../core';
+import { markAsWarning } from '@base/utils';
 import { RenderPipeline } from './render-pipeline';
 
 // deprecate RenderPipeline API

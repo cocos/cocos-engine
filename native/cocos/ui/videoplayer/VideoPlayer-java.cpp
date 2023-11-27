@@ -44,8 +44,8 @@ static void executeVideoCallback(int index, int event);
     #define QUIT_FULLSCREEN 1000
 
 extern "C" {
-//NOLINTNEXTLINE
 JNIEXPORT
+//NOLINTNEXTLINE
 void Java_com_cocos_lib_CocosVideoHelper_nativeExecuteVideoCallback(JNIEnv *env, jobject obj, jint index, jint event) {
     executeVideoCallback(index, event);
 }
@@ -112,9 +112,21 @@ void VideoPlayer::setURL(const ccstd::string &videoUrl) {
                                     static_cast<int>(_videoSource), _videoURL);
 }
 
-void VideoPlayer::VideoPlayer::setFrame(float x, float y, float width, float height) {
+void VideoPlayer::setFrame(float x, float y, float width, float height) {
     JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "setVideoRect", _videoPlayerIndex,
                                     static_cast<int>(x), static_cast<int>(y), static_cast<int>(width), static_cast<int>(height));
+}
+
+void VideoPlayer::setPlaybackRate(float value) {
+    JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "setPlaybackRate", _videoPlayerIndex, value);
+}
+
+void VideoPlayer::setMute(bool enable) {
+    JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "setMute", _videoPlayerIndex, enable);
+}
+
+void VideoPlayer::setLoop(bool enable) {
+    JniHelper::callStaticVoidMethod(VIDEO_HELPER_CLASS_NAME, "setLoop", _videoPlayerIndex, enable);
 }
 
 void VideoPlayer::setFullScreenEnabled(bool fullscreen) {

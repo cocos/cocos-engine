@@ -22,10 +22,11 @@
  THE SOFTWARE.
 */
 
+import { warnID } from '@base/debug';
+import { markAsWarning, replaceProperty, removeProperty } from '@base/utils';
 import * as VertexFormat from './vertex-format';
 import { Batcher2D } from './batcher-2d';
 import { DrawBatch2D } from './draw-batch';
-import { markAsWarning, replaceProperty, removeProperty, warnID } from '../../core';
 import { MeshBuffer } from './mesh-buffer';
 import { MeshRenderData } from './render-data';
 

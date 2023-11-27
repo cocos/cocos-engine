@@ -22,10 +22,12 @@
  THE SOFTWARE.
 */
 
+import { assertID } from '@base/debug';
+import { assertIsNonNullable } from '@base/debug/internal';
 import { InputAssembler, Device, Attribute } from '../../gfx';
 import { MeshBuffer } from './mesh-buffer';
 import { BufferAccessor } from './buffer-accessor';
-import { assertID, macro, assertIsNonNullable } from '../../core';
+import { macro } from '../../core';
 
 export class LinearBufferAccessor extends BufferAccessor {
     public static IB_SCALE = 4; // ib size scale based on vertex count

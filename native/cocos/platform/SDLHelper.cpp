@@ -28,6 +28,8 @@
 #include "SDL2/SDL_syswm.h"
 #include "base/Log.h"
 #include "engine/EngineEvents.h"
+#include "platform/BasePlatform.h"
+#include "platform/interfaces/modules/IScreen.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
 
@@ -175,22 +177,30 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
             break;
         }
         case SDL_WINDOWEVENT_SIZE_CHANGED: {
+            auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
+            CC_ASSERT(screen != nullptr);
             ev.type = WindowEvent::Type::SIZE_CHANGED;
-            ev.width = wevent.data1;
-            ev.height = wevent.data2;
+            ev.width = wevent.data1 * screen->getDevicePixelRatio();
+            ev.height = wevent.data2 * screen->getDevicePixelRatio();
             events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_RESIZED: {
+            auto *screen = BasePlatform::getPlatform()->getInterface<IScreen>();
+            CC_ASSERT(screen != nullptr);
             ev.type = WindowEvent::Type::RESIZED;
-            ev.width = wevent.data1;
-            ev.height = wevent.data2;
+            ev.width = wevent.data1 * screen->getDevicePixelRatio();
+            ev.height = wevent.data2 * screen->getDevicePixelRatio();
             events::WindowEvent::broadcast(ev);
             break;
         }
         case SDL_WINDOWEVENT_HIDDEN: {
-            ev.type = WindowEvent::Type::HIDDEN;
-            events::WindowEvent::broadcast(ev);
+            SDL_Window *window = SDL_GetWindowFromID(windowId);
+            if (!isWindowMinimized(window)) {
+                int32_t v = SDL_GetWindowFlags(window);
+                ev.type = WindowEvent::Type::HIDDEN;
+                events::WindowEvent::broadcast(ev);
+            }
             break;
         }
         case SDL_WINDOWEVENT_MINIMIZED: {
@@ -255,7 +265,18 @@ void SDLHelper::dispatchSDLEvent(uint32_t windowId, const SDL_Event &sdlEvent) {
         case SDL_MOUSEMOTION: {
             const SDL_MouseMotionEvent &event = sdlEvent.motion;
             mouse.type = MouseEvent::Type::MOVE;
-            mouse.button = 0;
+            mouse.button = -1; // BUTTON_MISSING
+            // Needs to be consistent with event-mouse.ts definition
+            // Multiple button presses at the same time are not supported.
+            // if we are pressed at the same time, the result is indeterminate.
+            if (event.state & SDL_BUTTON_LMASK) {
+                mouse.button |= 0x00; // BUTTON_LEFT
+            } else if (event.state & SDL_BUTTON_RMASK) {
+                mouse.button |= 0x02; // BUTTON_RGIHT
+            } else if (event.state & SDL_BUTTON_MIDDLE) {
+                mouse.button |= 0x01; // BUTTON_MIDDLE
+            }
+
             mouse.x = static_cast<float>(event.x);
             mouse.y = static_cast<float>(event.y);
             mouse.xDelta = static_cast<float>(event.xrel);
@@ -371,9 +392,26 @@ uintptr_t SDLHelper::getWindowHandle(SDL_Window *window) {
     return reinterpret_cast<uintptr_t>(wmInfo.info.win.window);
 #elif (CC_PLATFORM == CC_PLATFORM_LINUX)
     return reinterpret_cast<uintptr_t>(wmInfo.info.x11.window);
+#elif (CC_PLATFORM == CC_PLATFORM_MACOS)
+    return reinterpret_cast<uintptr_t>(wmInfo.info.cocoa.window);
 #endif
     CC_ABORT();
     return 0;
+}
+
+Vec2 SDLHelper::getWindowPosition(SDL_Window *window) {
+    int x = 0;
+    int y = 0;
+    SDL_GetWindowPosition(window, &x, &y);
+    return Vec2(x, y);
+}
+
+void SDLHelper::stopTextInput() {
+    SDL_StopTextInput();
+}
+
+bool SDLHelper::isWindowMinimized(SDL_Window *window) {
+    return SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED;
 }
 
 } // namespace cc

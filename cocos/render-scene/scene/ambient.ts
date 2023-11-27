@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec4, cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
+import { Vec4 } from '@base/math';
 import { AmbientInfo } from '../../scene-graph/scene-globals';
 
 /**

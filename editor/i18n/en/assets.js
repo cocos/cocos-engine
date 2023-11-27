@@ -14,6 +14,33 @@ module.exports = {
         reset: 'Reset',
         save: 'Save',
         locate_asset: 'Locate in Assets Panel',
+        newFolder: 'Folder',
+        newJavaScript: 'JavaScript',
+        newTypeScript: 'TypeScript',
+        newCubeMap: 'CubeMap',
+        newRenderTexture: 'Render Texture',
+        newScene: 'Scene',
+        newPrefab: 'Node Prefab',
+        newMaterial: 'Material',
+        newPhysicsMaterial: 'Physics Material',
+        newEffect: 'Legacy Unlit Shader (Effect)',
+        newSurfaceEffect: 'Surface Shader (Effect)',
+        newChunk: 'Shader Header (Chunk)',
+        newAnimation: 'Animation Clip',
+        newAnimationGraph: 'Animation Graph',
+        newAnimationGraphVariant: 'Animation Graph Variant',
+        newAnimationMask: 'Animation Mask',
+        newAnimationGraphTS: 'Animation Graph Script',
+        renderPipeline: 'Render Pipeline',
+        renderPipelineAsset: 'Render Pipeline Asset',
+        forwardPipelineAsset: 'Forward Pipeline Asset',
+        renderPipelineTS: 'Render Pipeline Script',
+        RenderFlowTS: 'Render Flow Script',
+        RenderStageTS: 'Render Stage Script',
+        newPac: 'Auto Atlas',
+        newLabelAtlas: 'Label Atlas',
+        newTerrain: 'Terrain',
+        autoGenerateMaterial: 'Auto Generate Material',
         'label-atlas': {
             SpriteFrameTip: 'Sprite Frame',
             ItemWidthTip: 'Item Width',
@@ -93,7 +120,7 @@ module.exports = {
             propertyTips: {
                 // macros
                 USE_DITHERED_ALPHA_TEST: 'Make transparency using opaque dithered alpha clip with TAA.',
-                USE_TWOSIDE: 'Two sided material for single-face objects, normal get inverse on back-face. Cull mode should set to None.',
+                USE_TWOSIDE: 'Two sided lighting for single-face objects, normal get inverse on back-face automatically. Cull mode should set to None.',
                 IS_ANISOTROPY: 'Anisotropic materials, such as hair, disc, metal with micro-wires.',
                 USE_VERTEX_COLOR: 'Use vertex color, will become darker if mesh does not contain vertex color data.',
                 FIX_ANISOTROPIC_ROTATION_MAP: 'Fix the anomalous seam at the black-white joint of the anisotropic rotation map, turn it on if you encounter this problem.',
@@ -119,6 +146,7 @@ module.exports = {
             },
         },
         image: {
+            label: 'Image',
             type: 'Type',
             typeTip: 'Type',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
@@ -133,6 +161,7 @@ module.exports = {
             flipGreenChannel: 'Flip Green Channel',
         },
         spriteFrame: {
+            label: 'SpriteFrame',
             packable: 'Packable',
             packableTip: 'Whether to participate in dynamic atlas or automatic atlas in build processes.',
             rotated: 'Rotated',
@@ -327,84 +356,65 @@ module.exports = {
                 name: 'Add Vertex Color',
                 title: 'Fill vertex color with white if the model file does not contain vertex color attribute.',
             },
-            meshOptimizer: {
-                name: 'Mesh Optimizer',
-                title: 'Mesh Optimizer is used to simplify imported mesh.<br>Use it when you need to reduce model face count.<br>In some cases, face reduction could lead to various model defect. <br>Tweak properties and try again in those cases.',
-                simplification: {
-                    name: 'Simplification',
-                    title: 'Simplification',
-                    si: {
-                        name: 'Achieve The Ratio R',
-                        title: 'Achieve The Ratio R',
-                    },
-                    sa: {
-                        name: 'Aggressively Simplify',
-                        title: 'Aggressively Simplify',
-                    },
+            meshOptimize: {
+                name: 'Mesh Optimize',
+                title: 'Whether to optimize the mesh data.',
+                vertexCache: {
+                    name: 'Vertex Cache',
+                    title: 'Optimize the vertex buffer to improve vertex cache hit rate. <br>It is recommended to enable this option for models with high vertex count.',
                 },
-                scene: {
-                    name: 'Scene',
-                    title: 'Scene',
-                    kn: {
-                        name: 'Keep Nodes Transform',
-                        title: 'Keep Nodes Transform',
-                    },
-                    ke: {
-                        name: 'Keep Extras Data',
-                        title: 'Keep Extras Data',
-                    },
+                vertexFetch: {
+                    name: 'Vertex Fetch',
+                    title: 'Optimize the vertex buffer to improve vertex fetch efficiency. <br>It is recommended to enable this option for models with high vertex count.',
                 },
-                miscellaneous: {
-                    name: 'Miscellaneous',
-                    title: 'Miscellaneous',
-                    noq: {
-                        name: 'Disable Quantization',
-                        title: 'Disable Quantization',
-                    },
-                    v: {
-                        name: 'Verbose Output',
-                        title: 'Verbose Output',
-                    },
+                overdraw: {
+                    name: 'Overdraw',
+                    title: 'Optimize the vertex buffer to reduce overdraw. <br>It is recommended to enable this option for models with high vertex count.',
                 },
-                algorithm: {
-                    name: 'Algorithm',
-                    simplify: 'simplify',
-                    gltfpack: 'gltfpack (deprecated)',
+            },
+            meshSimplify: {
+                name: 'Mesh Simplify',
+                title: 'Whether to simplify the mesh data.',
+                targetRatio: {
+                    name: 'Target Ratio',
+                    title: 'The target ratio of the simplified mesh data. <br>It is recommended to set this value to 0.5.',
                 },
-                simplify:{
-                    targetRatio: {
-                        name: 'Ratio',
-                        title: 'The target face count ratio after face reduction. <br>0 means reduce to minimum, and 1 means no face reduction at all. ',
-                    },
-                    preserveSurfaceCurvature: {
-                        name: 'Surface Curvature',
-                        title: 'Preserve Surface Curvature',
-                    },
-                    preserveBorderEdges: {
-                        name: 'Border Edges',
-                        title: 'Preserve Border Edges',
-                    },
-                    preserveUVSeamEdges: {
-                        name: 'UV Seam Edges',
-                        title: 'Preserve UV Seam Edges',
-                    },
-                    preserveUVFoldoverEdges: {
-                        name: 'UV Foldover Edges',
-                        title: 'Preserve UV Foldover Edges',
-                    },
-                    agressiveness: {
-                        name: 'Agressiveness',
-                        title: 'Face reduction algorithm aggressiveness. <br>The higher it sets, the more aggressive the face reduction algorithm tries to delete faces. <br>High aggressiveness setting is more likely to cause defects in result.',
-                    },
-                    maxIterationCount: {
-                        name: 'Max Iteration Count',
-                        title: 'The max iteration counts that the algorithm tries to further reduce faces of a model. <br>High iteration count is more likely to reach face reduction target, yet it is more likely to take more time and has higher chance to cause mistakes.',
-                    },
+                autoErrorRate: {
+                    name: 'Auto Error Rate',
+                    title: 'Whether to automatically calculate the error rate of the simplified mesh data.',
                 },
-                gltfpack: {
-                    warn: 'The current asset uses the gltfpack mesh optimization algorithm, which has been deprecated. Please use the new simplify face reduction algorithm.',
+                errorRate: {
+                    name: 'Error Rate',
+                    title: 'The max error rate of the simplified mesh data. <br>This value also alters the result size. <br>It is recommended to tune until you get a good result.',
                 },
-                warn: 'Warning: After optimization, the number and names of mesh resources will change, which will cause the loss of resources referenced by the components, please update them manually in time. (In addition, for prefabs pre-generated in the model resources, the resource synchronization mechanism will update them automatically)',
+                lockBoundary: {
+                    name: 'Lock Boundary',
+                    title: 'Whether to lock the boundary of the simplified mesh data.',
+                },
+            },
+            meshCluster: {
+                name: 'Mesh Cluster',
+                title: 'Whether to cluster the mesh data.',
+                generateBounding: {
+                    name: 'Generate Bounding',
+                    title: 'Whether to generate bounding sphere and normal cone for the clustered mesh data.',
+                },
+            },
+            meshCompress:{
+                name: 'Mesh Compress',
+                title: 'Whether to compress the mesh data.',
+                encode: {
+                    name: 'Encode',
+                    title: 'Encode the mesh data to reduce data size.',
+                },
+                compress: {
+                    name: 'Compress',
+                    title: 'Compress the mesh data to reduce data size.',
+                },
+                quantize: {
+                    name: 'Quantize',
+                    title: 'Quantize the mesh data to reduce data size.',
+                },
             },
             animationBakeRate: {
                 name: 'Animation Bake Rate',
@@ -431,6 +441,15 @@ module.exports = {
                     'When exporting FBX animations, whether prefer to use the time range recorded in FBX file.<br>' +
                     'If one is not preferred, or one is invalid for use, the time range is robustly calculated.<br>' +
                     'Some FBX generators may not export this information.',
+            },
+            preserveMeshInstances: {
+                name: 'Preserve Mesh Instances',
+                title:
+                    'In the FBX model, if a mesh is referenced by multiple nodes (aka, mesh instancing), whether to create only one mesh asset. <br>' +
+                    'If not, each reference will create a mesh asset copy.<br>' +
+                    'This option is by default unchecked but is checked for those models migrated from version prior to V3.9.0,<br>' +
+                    'since in previous versions the instances are always not preserved. <br>' +
+                    'This option is read-only here. To modify this option for special purpose, see manual docs.',
             },
             smartMaterialEnabled: {
                 name: 'Smart Material Conversion',

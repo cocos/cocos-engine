@@ -23,9 +23,9 @@
 */
 
 import CANNON from '@cocos/cannon';
+import { Vec3 } from '@base/math';
 import { CannonShape } from './cannon-shape';
 import { MeshCollider } from '../../framework';
-import { Vec3 } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { commitShapeUpdates } from '../cannon-util';
@@ -48,8 +48,16 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         if (this._shape != null) {
             if (mesh && mesh.renderingSubMeshes.length > 0) {
                 const vertices = mesh.renderingSubMeshes[0].geometricInfo.positions;
-                const indices = mesh.renderingSubMeshes[0].geometricInfo.indices as Uint16Array;
-                this.updateProperties(vertices, indices);
+                const indices = mesh.renderingSubMeshes[0].geometricInfo.indices;
+                if (indices instanceof Uint8Array) {
+                    this.updateProperties(vertices, new Uint16Array(indices));
+                } else if (indices instanceof Uint16Array) {
+                    this.updateProperties(vertices, indices);
+                } else if (indices instanceof Uint32Array) {
+                    this.updateProperties(vertices, new Uint16Array(indices));
+                } else {
+                    this.updateProperties(vertices, new Uint16Array());
+                }
             } else {
                 this.updateProperties(new Float32Array(), new Uint16Array());
             }

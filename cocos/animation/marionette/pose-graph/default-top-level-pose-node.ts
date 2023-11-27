@@ -1,4 +1,4 @@
-import { assertIsTrue } from '../../../core';
+import { assertIsTrue } from '@base/debug/internal';
 import { applyDeltaPose, blendPoseInto, Pose, TransformFilter } from '../../core/pose';
 import { AnimationGraph, Layer } from '../animation-graph';
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext,

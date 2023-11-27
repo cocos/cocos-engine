@@ -1,6 +1,6 @@
 
 precision highp float;
-  
+
 #include <legacy/decode-standard>
 #include <builtin/uniforms/cc-global>
 #include <common/common-define>

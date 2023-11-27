@@ -1,0 +1,14 @@
+{
+    "$schema": "./schemas/turbo.schema.json",
+    "pipeline": {
+        "build": {
+            "inputs": ["src/**"],
+            "outputs": ["lib/**"],
+            "dependsOn": ["^build"]
+        },
+        "@base/debug#build": {
+            "outputs": ["lib/**"],
+            "cache": false
+        }
+    }
+}

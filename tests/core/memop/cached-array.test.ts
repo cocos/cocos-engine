@@ -1,4 +1,6 @@
-import { CachedArray } from "../../../cocos/core/memop";
+import { memop } from "@base/utils";
+
+const { CachedArray } = memop;
 
 const cachedArray = new CachedArray(10);
 

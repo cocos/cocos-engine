@@ -25,17 +25,17 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visible, override, serializable, editable } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warnID, logID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
+import { Vec2, Vec3 } from '@base/math';
 import { EventHandler as ComponentEventHandler, Node } from '../scene-graph';
 import { EventTouch } from '../input/types';
-import { Vec2, Vec3 } from '../core/math';
-import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
 import { ScrollView, EventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
-import { warnID, logID } from '../core/platform/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
-import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../scene-graph/node-event';
 
 const _tempVec2 = new Vec2();
@@ -824,4 +824,4 @@ export class PageView extends ScrollView {
  * @param pageView - The PageView component.
  */
 
-legacyCC.PageView = PageView;
+cclegacy.PageView = PageView;

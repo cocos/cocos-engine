@@ -29,7 +29,7 @@ float SampleShadowMapSoft (vec3 shadowNDCPos, highp sampler2D shadowMap, vec2 sh
   float resultX = mix(block0, block1, coefX);
   float resultY = mix(block2, block3, coefX);
   float coefY   = mod(shadowNDCPos.y, oneTap.y) * shadowMapResolution.y;
-  
+
   return mix(resultX, resultY, coefY);
 }
 
@@ -66,7 +66,7 @@ float NativePCFShadowFactorSoft (vec3 shadowNDCPos, highp sampler2D shadowMap, v
   float resultX = mix(block0, block1, coefX);
   float resultY = mix(block2, block3, coefX);
   float coefY   = mod(shadowNDCPos.y, oneTap.y) * shadowMapResolution.y;
-  
+
   return mix(resultX, resultY, coefY);
 }
 
@@ -126,9 +126,9 @@ float NativePCFShadowFactorSoft3X (vec3 shadowNDCPos, highp sampler2D shadowMap,
 
 float NativePCFShadowFactorSoft5X (vec3 shadowNDCPos, highp sampler2D shadowMap, vec2 shadowMapResolution)
 {
-  vec2 oneTap = 1.0 / shadowMapResolution;  
+  vec2 oneTap = 1.0 / shadowMapResolution;
   vec2 twoTap = oneTap * 2.0;
-  
+
   vec2 offset1 = shadowNDCPos.xy + vec2(-twoTap.x, -twoTap.y);
   vec2 offset2 = shadowNDCPos.xy + vec2(-oneTap.x, -twoTap.y);
   vec2 offset3 = shadowNDCPos.xy + vec2(0.0, -twoTap.y);
@@ -154,7 +154,7 @@ float NativePCFShadowFactorSoft5X (vec3 shadowNDCPos, highp sampler2D shadowMap,
   vec2 offset23 = shadowNDCPos.xy + vec2(0.0, twoTap.y);
   vec2 offset24 = shadowNDCPos.xy + vec2(oneTap.x, twoTap.y);
   vec2 offset25 = shadowNDCPos.xy + vec2(twoTap.x, twoTap.y);
-  
+
   float block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21, block22, block23, block24, block25;
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
     block1 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset1)));

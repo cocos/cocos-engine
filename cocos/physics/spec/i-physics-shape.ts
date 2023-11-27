@@ -22,9 +22,10 @@
  THE SOFTWARE.
 */
 
+import { IVec3Like } from '@base/math';
 import { ILifecycle } from './i-lifecycle';
 import { IGroupMask } from './i-group-mask';
-import { IVec3Like, geometry } from '../../core';
+import { geometry } from '../../core';
 import { Collider, RigidBody, PhysicsMaterial, SimplexCollider } from '../../../exports/physics-framework';
 import { Mesh } from '../../3d/assets';
 import { ITerrainAsset } from './i-external';

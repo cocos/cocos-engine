@@ -1,7 +1,7 @@
 struct SurfacesMaterialData
 {
   HIGHP_VALUE_STRUCT_DEFINE(vec3, worldPos);
-  
+
   vec4 baseColor;
   vec4 specular;
   vec3 worldNormal;

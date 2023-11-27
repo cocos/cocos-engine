@@ -27,8 +27,10 @@
 
 #include <memory>
 #include "base/Macros.h"
-#include "base/std/container/string.h"
-#include "base/std/hash/hash.h"
+
+#if CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN
+    #include "base/std/hash/hash.h"
+#endif
 /**
  * @addtogroup base
  * @{
@@ -71,6 +73,8 @@
 
 NS_CC_MATH_BEGIN
 
+#if CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN
+
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
 struct Hasher final {
     // NOTE: ccstd::hash_t is a typedef of uint32_t now, sizeof(ccstd::hash_t) == sizeof(size_t) on 32 bits architecture device,
@@ -85,6 +89,8 @@ struct Hasher final {
 // make this ccstd::hash compatible
 template <typename T, typename Enable = std::enable_if_t<std::is_class<T>::value>>
 ccstd::hash_t hash_value(const T &info) { return Hasher<T>()(info); } // NOLINT(readability-identifier-naming)
+
+#endif // CC_PLATFORM != CC_PLATFORM_EMSCRIPTEN
 
 NS_CC_MATH_END
 

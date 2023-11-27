@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { removeProperty, replaceProperty, js, cclegacy } from '../core';
+import { cclegacy } from '@base/global';
+import { js, removeProperty, replaceProperty } from '@base/utils';
 import Burst from './burst';
 import { ParticleSystem } from './particle-system';
 import { Billboard } from './billboard';

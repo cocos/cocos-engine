@@ -23,12 +23,14 @@
 */
 
 import { ccclass, editable, serializable, type } from 'cc.decorator';
-import { removeIf } from '../../core/utils/array';
+import { js } from '@base/utils';
 import { AnimationClip } from '../animation-clip';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { AnimationGraph } from './animation-graph';
 import { AnimationGraphLike } from './animation-graph-like';
 import type { ReadonlyClipOverrideMap } from './clip-overriding';
+
+const { removeIf } = js.array;
 
 /**
  * @en

@@ -113,7 +113,7 @@ void DescriptorSetValidator::updateReferenceStamp() {
     _referenceStamp = DeviceValidator::getInstance()->currentFrame();
 }
 
-void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index) {
+void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32_t index, AccessFlags flags) {
     CC_ASSERT(isInited());
     auto *vBuffer = static_cast<BufferValidator *>(buffer);
     CC_ASSERT(buffer && vBuffer->isInited());
@@ -139,9 +139,9 @@ void DescriptorSetValidator::bindBuffer(uint32_t binding, Buffer *buffer, uint32
 
     /////////// execute ///////////
 
-    DescriptorSet::bindBuffer(binding, buffer, index);
+    DescriptorSet::bindBuffer(binding, buffer, index, flags);
 
-    _actor->bindBuffer(binding, vBuffer->getActor(), index);
+    _actor->bindBuffer(binding, vBuffer->getActor(), index, flags);
 }
 
 void DescriptorSetValidator::bindTexture(uint32_t binding, Texture *texture, uint32_t index, AccessFlags flags) {

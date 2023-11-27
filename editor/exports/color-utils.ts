@@ -1,7 +1,7 @@
 import {
     linearToSrgb8Bit,
     srgbToLinear,
-} from '../../cocos/core/math/color';
+} from '@base/math/internal';
 
 export {
     linearToSrgb8Bit,

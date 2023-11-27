@@ -22,10 +22,12 @@
  THE SOFTWARE.
 */
 
+import { CCBoolean, CCFloat } from '@base/object';
+import { Vec3 } from '@base/math';
 import { Joint2D } from './joint-2d';
 import { ISpringJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { CCBoolean, CCFloat, Vec3, _decorator } from '../../../../core';
+import { _decorator } from '../../../../core';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const { ccclass, property, menu } = _decorator;

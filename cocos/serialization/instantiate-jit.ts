@@ -26,7 +26,10 @@
 // Some helper methods for compile instantiation code
 
 import { TEST } from 'internal:constants';
-import { CCClass, isCCClassOrFastDefined, js, CCObject, isCCObject, cclegacy, flattenCodeArray } from '../core';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { CCClass, isCCClassOrFastDefined, CCObject, isCCObject } from '@base/object';
+import { flattenCodeArray } from '../core';
 
 const Destroyed = CCObject.Flags.Destroyed;
 const PersistentMask = CCObject.Flags.PersistentMask;
@@ -198,12 +201,14 @@ class Parser {
         //    this.codeArray.push(this.instantiateArray(obj));
         // }
         // else {
-        this.codeArray.push(`${VAR + LOCAL_OBJ},${LOCAL_TEMP_OBJ};`,
+        this.codeArray.push(
+            `${VAR + LOCAL_OBJ},${LOCAL_TEMP_OBJ};`,
             'if(R){',
             `${LOCAL_OBJ}=R;`,
             '}else{',
             `${LOCAL_OBJ}=R=new ${this.getFuncModule(obj.constructor, true)}();`,
-            '}');
+            '}',
+        );
         obj._iN$t = { globalVar: 'R' };
         this.objsToClear_iN$t.push(obj);
         this.enumerateObject(this.codeArray, obj);

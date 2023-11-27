@@ -22,6 +22,8 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { js, replaceProperty, markAsWarning } from '@base/utils';
 import { Mask, MaskType } from './mask';
 import { Label } from './label';
 import { LabelOutline } from './label-outline';
@@ -29,9 +31,9 @@ import { RichText } from './rich-text';
 import { Sprite } from './sprite';
 import { UIMeshRenderer } from './ui-mesh-renderer';
 import { Graphics } from './graphics';
-import { UIStaticBatch } from './ui-static-batch';
 import { UIOpacity } from './ui-opacity';
-import { js, cclegacy, replaceProperty } from '../../core';
+import { LabelShadow } from './label-shadow';
+import './deprecated-3.9.0';
 
 /**
  * Alias of [[Mask]]
@@ -84,12 +86,6 @@ export { Graphics as GraphicsComponent };
 cclegacy.GraphicsComponent = Graphics;
 js.setClassAlias(Graphics, 'cc.GraphicsComponent');
 /**
- * Alias of [[UIStaticBatch]]
- * @deprecated Since v1.2
- */
-export { UIStaticBatch as UIStaticBatchComponent };
-js.setClassAlias(UIStaticBatch, 'cc.UIStaticBatchComponent');
-/**
  * Alias of [[UIOpacity]]
  * @deprecated Since v1.2
  */
@@ -123,5 +119,31 @@ replaceProperty(MaskType, 'MaskType', [
         newName: 'SPRITE_STENCIL',
         target: MaskType,
         targetName: 'MaskType',
+    },
+]);
+
+markAsWarning(LabelOutline.prototype, 'LabelOutline.prototype', [
+    {
+        name: 'width',
+        suggest: 'Please use Label.prototype.outlineWidth instead.',
+    },
+    {
+        name: 'color',
+        suggest: 'Please use Label.prototype.outlineColor instead.',
+    },
+]);
+
+markAsWarning(LabelShadow.prototype, 'LabelShadow.prototype', [
+    {
+        name: 'color',
+        suggest: 'Please use Label.prototype.shadowColor instead.',
+    },
+    {
+        name: 'offset',
+        suggest: 'Please use Label.prototype.shadowOffset instead.',
+    },
+    {
+        name: 'blur',
+        suggest: 'Please use Label.prototype.shadowBlur instead.',
     },
 ]);

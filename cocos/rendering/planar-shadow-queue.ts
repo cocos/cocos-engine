@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { cclegacy, geometry } from '../core';
+import { cclegacy } from '@base/global';
+import { geometry } from '../core';
 import { isEnableEffect, SetIndex } from './define';
 import { CommandBuffer, Device, RenderPass, Shader } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';

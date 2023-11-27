@@ -2,9 +2,7 @@ import { AuxiliaryCurveHandle } from "../../../../cocos/animation/core/animation
 import { Pose } from "../../../../cocos/animation/core/pose";
 import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from "../../../../cocos/animation/marionette/animation-graph-context";
 import { AnimationGraph, PoseGraph } from "../../../../cocos/animation/marionette/asset-creation";
-import { assertIsTrue, lerp, quat, v3 } from "../../../../cocos/core";
 import { Node } from "../../../../cocos/scene-graph";
-import { captureErrors, captureWarns } from '../../../utils/log-capture';
 import { input } from "../../../../cocos/animation/marionette/pose-graph/decorator/input";
 import { createAnimationGraph } from "../utils/factory";
 import { AnimationGraphEvalMock } from "../utils/eval-mock";

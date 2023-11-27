@@ -28,26 +28,26 @@ import {Constants} from '../common/Constants'
 
 export class WorkerManager {
     private static instance: WorkerManager;
-    private cocosWorker: any;
+    private cocosWorker: worker.Worker;
 
     private constructor() {
         this.cocosWorker = new worker.Worker("/entry/ets/workers/cocos_worker.ts", {type:"classic", name: "CocosWorker"});
-        this.cocosWorker.onerror = function (e) {
-            var msg = e.message;
-            var filename = e.filename;
-            var lineno = e.lineno;
-            var colno = e.colno;
+        this.cocosWorker.onerror = (e) => {
+            let msg = e.message;
+            let filename = e.filename;
+            let lineno = e.lineno;
+            let colno = e.colno;
             console.error(`on Error ${msg} ${filename} ${lineno} ${colno}`);
         }
     }
 
     public static getInstance(): WorkerManager {
-        if (AppStorage.Get(Constants.APP_KEY_WORKER_MANAGER) == null) {
+        if (AppStorage.Get(Constants.APP_KEY_WORKER_MANAGER) as WorkerManager == null) {
             AppStorage.SetOrCreate(Constants.APP_KEY_WORKER_MANAGER, new WorkerManager);
         }
-        return AppStorage.Get(Constants.APP_KEY_WORKER_MANAGER);
+        return AppStorage.Get(Constants.APP_KEY_WORKER_MANAGER) as WorkerManager;
     }
-    public getWorker(): any {
+    public getWorker(): worker.Worker {
         return this.cocosWorker;
     }
 }

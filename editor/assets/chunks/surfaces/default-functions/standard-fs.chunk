@@ -220,8 +220,8 @@ vec3 SurfacesFragmentModifyClearCoatWorldNormal()
 vec4 SurfacesFragmentModifySheenParams()
 {
     //x: sheen roughness
-    //y: sheen ior
-    //z: sheen opacity
+    //y: sheen opacity
+    //z: unused
     //w: sheen intensity
     return vec4(0.7, 1.0, 1.0, 1.0);
 }

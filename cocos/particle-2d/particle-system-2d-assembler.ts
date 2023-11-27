@@ -23,11 +23,11 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import { cclegacy } from '../core';
 
 export const ParticleAssembler: IAssembler = {
     maxParticleDeltaTime: 0,

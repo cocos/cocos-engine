@@ -24,18 +24,12 @@
 */
 
 import { EDITOR, SUPPORT_JIT } from 'internal:constants';
-import { cclegacy, errorID, warn, editorExtrasTag } from '../../core';
+import { cclegacy } from '@base/global';
+import { errorID, warn } from '@base/debug';
+import { editorExtrasTag, ValueType } from '@base/object';
 import { Node } from '../node';
 import { Component } from '../component';
-import {
-    MountedChildrenInfo,
-    PropertyOverrideInfo,
-    MountedComponentsInfo,
-    TargetInfo, TargetMap,
-    PrefabInstance,
-    TargetOverrideInfo,
-} from './prefab-info';
-import { ValueType } from '../../core/value-types';
+import { MountedChildrenInfo, PropertyOverrideInfo, MountedComponentsInfo, TargetInfo, TargetMap, PrefabInstance, TargetOverrideInfo } from './prefab-info';
 
 export * from './prefab-info';
 

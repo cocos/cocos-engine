@@ -1,5 +1,5 @@
 import { EDITOR } from 'internal:constants';
-import { clamp, Vec4 } from '../../../core';
+import { clamp, Vec4 } from '@base/math';
 import { Format } from '../../../gfx';
 import { Camera, CameraUsage } from '../../../render-scene/scene';
 import { Pipeline } from '../../custom/pipeline';

@@ -22,18 +22,13 @@
  THE SOFTWARE.
 */
 
+import { warn } from '@base/debug';
 import { BufferSource, BufferInfo, BufferViewInfo, BufferUsageBit } from '../base/define';
 import { Buffer } from '../base/buffer';
 
-import {
-    WebGLCmdFuncCreateBuffer,
-    WebGLCmdFuncDestroyBuffer,
-    WebGLCmdFuncResizeBuffer,
-    WebGLCmdFuncUpdateBuffer,
-} from './webgl-commands';
+import { WebGLCmdFuncCreateBuffer, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncResizeBuffer, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 import { IWebGLGPUBuffer, IWebGLGPUBufferView, WebGLIndirectDrawInfos } from './webgl-gpu-objects';
 import { WebGLDeviceManager } from './webgl-define';
-import { warn } from '../../core';
 
 export class WebGLBuffer extends Buffer {
     get gpuBuffer (): IWebGLGPUBuffer {

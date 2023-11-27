@@ -22,11 +22,13 @@
  THE SOFTWARE.
 */
 
+import { warnID } from '@base/debug';
+import { Mat4, Vec3 } from '@base/math';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
-import { geometry, Mat4, Vec3, warnID } from '../../core';
+import { geometry } from '../../core';
 import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo, Attribute, FormatFeatureBit, Format } from '../../gfx';
 import { UBOSkinning, UNIFORM_REALTIME_JOINT_TEXTURE_BINDING } from '../../rendering/define';
 import { Node } from '../../scene-graph/node';

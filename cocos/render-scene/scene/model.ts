@@ -24,6 +24,8 @@
 
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 import { EDITOR } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { Mat4, Vec3, Vec4, EPSILON } from '@base/math';
 import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
@@ -33,9 +35,8 @@ import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
 import { IMacroPatch } from '../core/pass';
-import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
-import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
-    BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
+import { geometry } from '../../core';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
 import { UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING, UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING } from '../../rendering/define';
 import { Root } from '../../root';
 import { TextureCube } from '../../asset/assets';
@@ -385,6 +386,18 @@ export class Model {
     }
 
     /**
+     * @en Whether to enable GPU Driven.
+     * @zh 是否开启 GPU Driven 。
+     */
+    get gpuDrivenEnabled (): boolean {
+        return this._gpuDrivenEnabled;
+    }
+
+    set gpuDrivenEnabled (val) {
+        this._gpuDrivenEnabled = val;
+    }
+
+    /**
      * @en The type of the model
      * @zh 模型类型
      */
@@ -576,6 +589,12 @@ export class Model {
      * @zh 反射探针类型。
      */
     protected _reflectionProbeType = ReflectionProbeType.NONE;
+
+    /**
+     * @en Whether to enable GPU Driven.
+     * @zh 是否开启 GPU Driven 。
+     */
+    protected _gpuDrivenEnabled = true;
 
     /**
      * @internal

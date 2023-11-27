@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { screenAdapter } from 'pal/screen-adapter';
-import { Size, Vec2 } from '../../../cocos/core/math';
-import { EventTarget } from '../../../cocos/core/event';
+import { EventTarget } from '@base/event';
+import { screenAdapter } from '@pal/screen-adapter';
+import { Size, Vec2 } from '@base/math';
 import { EventTouch, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
@@ -54,7 +54,7 @@ export class TouchInputSource {
         return (changedTouches: TouchList, windowId: number): void => {
             const handleTouches: Touch[] = [];
             const length = changedTouches.length;
-            const windowSize = this._windowManager.getWindow(windowId).getViewSize();
+            const windowSize = this._windowManager.getWindow(windowId).getViewSize() as Size;
             for (let i = 0; i < length; ++i) {
                 const changedTouch = changedTouches[i];
                 const touchID = changedTouch.identifier;
@@ -62,7 +62,7 @@ export class TouchInputSource {
                     continue;
                 }
                 const location = this._getLocation(changedTouch, windowSize);
-                const touch = touchManager.getTouch(touchID, location.x, location.y);
+                const touch = touchManager.getOrCreateTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
                 }
@@ -72,8 +72,12 @@ export class TouchInputSource {
                 handleTouches.push(touch);
             }
             if (handleTouches.length > 0) {
-                const eventTouch = new EventTouch(handleTouches, false, eventType,
-                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches);
+                const eventTouch = new EventTouch(
+                    handleTouches,
+                    false,
+                    eventType,
+                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches,
+                );
                 eventTouch.windowId = windowId;
                 this._eventTarget.emit(eventType, eventTouch);
             }

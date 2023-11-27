@@ -26,7 +26,7 @@ void main()
   SurfacesVertexModifySharedData(In);
 
   // Other Data
-  CCSurfacesVertexTransformUV(In);  
+  CCSurfacesVertexTransformUV(In);
 
   CCSurfacesVertexOutput(In);
 

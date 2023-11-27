@@ -47,6 +47,11 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "platform/java/jni/JniImp.h"
 #endif
+
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+    #include "platform/openharmony/napi/NapiHelper.h"
+#endif
+
 #include <chrono>
 #include <regex>
 #include <sstream>
@@ -1416,6 +1421,127 @@ static bool JSB_process_get_argv(se::State &s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_GET(JSB_process_get_argv)
 
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY && SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+
+static bool sevalue_to_napivalue(const se::Value &seVal, Napi::Value *napiVal, Napi::Env env);
+
+static bool seobject_to_napivalue(se::Object *seObj, Napi::Value *napiVal, Napi::Env env) {
+    auto napiObj = Napi::Object::New(env);
+    ccstd::vector<ccstd::string> allKeys;
+    bool ok = seObj->getAllKeys(&allKeys);
+    if (ok && !allKeys.empty()) {
+        for (const auto &key : allKeys) {
+            Napi::Value napiProp;
+            se::Value prop;
+            ok = seObj->getProperty(key, &prop);
+            if (ok) {
+                ok = sevalue_to_napivalue(prop, &napiProp, env);
+                if (ok) {
+                    napiObj.Set(key.c_str(), napiProp);
+                }
+            }
+        }
+    }
+    *napiVal = napiObj;
+    return true;
+}
+
+static bool sevalue_to_napivalue(const se::Value &seVal, Napi::Value *napiVal, Napi::Env env) {
+    // Only supports number or {tag: number, url: string} now
+    if (seVal.isNumber()) {
+        *napiVal = Napi::Number::New(env, seVal.toDouble());
+    } else if (seVal.isString()) {
+        *napiVal = Napi::String::New(env, seVal.toString().c_str());
+    } else if (seVal.isBoolean()) {
+        *napiVal = Napi::Boolean::New(env, seVal.toBoolean());
+    } else if (seVal.isObject()) {
+        seobject_to_napivalue(seVal.toObject(), napiVal, env);
+    } else {
+        CC_LOG_WARNING("sevalue_to_napivalue, Unsupported type: %d", static_cast<int32_t>(seVal.getType()));
+        return false;
+    }
+
+    return true;
+}
+
+static bool JSB_openharmony_postMessage(se::State &s) { // NOLINT(readability-identifier-naming)
+    const auto &args = s.args();
+    size_t argc = args.size();
+
+    if (argc == 2) {
+        bool ok = false;
+        ccstd::string msgType;
+        ok = sevalue_to_native(args[0], &msgType, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+        const auto &arg1 = args[1];
+        auto env = NapiHelper::getWorkerEnv();
+
+        Napi::Value napiArg1 = env.Undefined();
+
+        if (arg1.isNumber()) {
+            napiArg1 = Napi::Number::New(env, arg1.toDouble());
+        } else if (arg1.isObject()) {
+            seobject_to_napivalue(arg1.toObject(), &napiArg1, env);
+        } else {
+            SE_REPORT_ERROR("postMessage, Unsupported type");
+            return false;
+        }
+
+        NapiHelper::postMessageToUIThread(msgType.c_str(), napiArg1);
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(JSB_openharmony_postMessage)
+
+static bool JSB_empty_promise_then(se::State &s) {
+    return true;
+}
+SE_BIND_FUNC(JSB_empty_promise_then)
+
+static bool JSB_openharmony_postSyncMessage(se::State &s) { // NOLINT(readability-identifier-naming)
+    const auto &args = s.args();
+    size_t argc = args.size();
+
+    if (argc == 2) {
+        bool ok = false;
+        ccstd::string msgType;
+        ok = sevalue_to_native(args[0], &msgType, s.thisObject());
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+        const auto &arg1 = args[1];
+        auto env = NapiHelper::getWorkerEnv();
+
+        Napi::Value napiArg1 = env.Undefined();
+
+        if (arg1.isNumber()) {
+            napiArg1 = Napi::Number::New(env, arg1.toDouble());
+        } else if (arg1.isObject()) {
+            seobject_to_napivalue(arg1.toObject(), &napiArg1, env);
+        } else {
+            SE_REPORT_ERROR("postMessage, Unsupported type");
+            return false;
+        }
+
+        Napi::Value napiPromise = NapiHelper::postSyncMessageToUIThread(msgType.c_str(), napiArg1);
+
+        //TODO(cjh): Implement Promise for se
+        se::HandleObject retObj(se::Object::createPlainObject());
+        retObj->defineFunction("then", _SE(JSB_empty_promise_then));
+        s.rval().setObject(retObj);
+        //
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(JSB_openharmony_postSyncMessage)
+#endif
+
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
     gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
@@ -1484,6 +1610,15 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     se::HandleObject performanceObj(se::Object::createPlainObject());
     performanceObj->defineFunction("now", _SE(js_performance_now));
     global->setProperty("performance", se::Value(performanceObj));
+
+#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+    se::HandleObject ohObj(se::Object::createPlainObject());
+    global->setProperty("oh", se::Value(ohObj));
+    ohObj->defineFunction("postMessage", _SE(JSB_openharmony_postMessage));
+    ohObj->defineFunction("postSyncMessage", _SE(JSB_openharmony_postSyncMessage));
+    #endif
+#endif
 
     jsb_register_TextEncoder(global);
     jsb_register_TextDecoder(global);

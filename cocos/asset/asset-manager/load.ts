@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
+import { error } from '@base/debug';
+import { cclegacy } from '@base/global';
 import { Asset } from '../assets/asset';
-import { error, cclegacy } from '../../core';
 import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';

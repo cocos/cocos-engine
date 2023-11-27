@@ -2,10 +2,16 @@
 const fs = require('fs');
 const path = require('path');
 module.paths.push(path.join(Editor.App.path, 'node_modules'));
+const Profile = require('@base/electron-profile');
 const { throttle } = require('lodash');
 const utils = require('./utils');
 const { trackEventWithTimer } = require('../utils/metrics');
 const { injectionStyle } = require('../utils/prop');
+
+// ipc messages protocol
+const messageProtocol = {
+    scene: 'scene',
+};
 
 const lockList = [];
 let lockPerform = false;
@@ -53,16 +59,16 @@ function snapshotLock(panel, lock, uuids, cancel = false) {
 // 不传options时，会自动记录到undo队列，不需要调用endRecording
 async function beginRecording(uuids, options) {
     if (!uuids) { return; }
-    const undoID = await Editor.Message.request('scene', 'begin-recording', uuids, options);
+    const undoID = await Editor.Message.request(messageProtocol.scene, 'begin-recording', uuids, options);
     return undoID;
 }
 
 async function endRecording(undoID, cancel) {
     if (!undoID) { return; }
     if (cancel) {
-        await Editor.Message.request('scene', 'cancel-recording', undoID);
+        await Editor.Message.request(messageProtocol.scene, 'cancel-recording', undoID);
     } else {
-        await Editor.Message.request('scene', 'end-recording', undoID);
+        await Editor.Message.request(messageProtocol.scene, 'end-recording', undoID);
     }
 }
 
@@ -133,7 +139,7 @@ exports.listeners = {
                 }
 
                 if (setChildrenLayer) {
-                    await Editor.Message.request('scene', 'set-node-and-children-layer', {
+                    await Editor.Message.request(messageProtocol.scene, 'set-node-and-children-layer', {
                         uuid,
                         dump: {
                             value,
@@ -143,7 +149,7 @@ exports.listeners = {
                     continue;
                 }
 
-                await Editor.Message.request('scene', 'set-property', {
+                await Editor.Message.request(messageProtocol.scene, 'set-property', {
                     uuid,
                     path,
                     dump: {
@@ -167,7 +173,6 @@ exports.listeners = {
         clearTimeout(panel.previewTimeId);
         snapshotLock(panel, false);
         // In combination with change-dump, snapshot only generated once after ui-elements continuously changed.
-        // Editor.Message.send('scene', 'snapshot');
     },
     async 'create-dump'(event) {
         const panel = this;
@@ -179,7 +184,6 @@ exports.listeners = {
 
         clearTimeout(panel.previewTimeId);
 
-        // Editor.Message.send('scene', 'snapshot');
         const undoID = await beginRecording(panel.uuidList);
         const dump = target.dump;
         let cancel = false;
@@ -190,13 +194,12 @@ exports.listeners = {
                     dump.values[i] = dump.value;
                 }
 
-                await Editor.Message.request('scene', 'update-property-from-null', {
+                await Editor.Message.request(messageProtocol.scene, 'update-property-from-null', {
                     uuid,
                     path: dump.path,
                 });
             }
 
-            // Editor.Message.send('scene', 'snapshot');
         } catch (error) {
             cancel = true;
             console.error(error);
@@ -222,7 +225,7 @@ exports.listeners = {
                     dump.values[i] = dump.value;
                 }
 
-                await Editor.Message.request('scene', 'reset-property', {
+                await Editor.Message.request(messageProtocol.scene, 'reset-property', {
                     uuid,
                     path: dump.path,
                 });
@@ -277,7 +280,7 @@ exports.listeners = {
                         // 预览新的值
                         value.uuid = assetUuid;
 
-                        Editor.Message.send('scene', 'preview-set-property', {
+                        Editor.Message.send(messageProtocol.scene, 'preview-set-property', {
                             uuid,
                             path,
                             dump: {
@@ -297,7 +300,7 @@ exports.listeners = {
                         const uuid = panel.uuidList[i];
                         const { path } = dump;
 
-                        Editor.Message.send('scene', 'cancel-preview-set-property', {
+                        Editor.Message.send(messageProtocol.scene, 'cancel-preview-set-property', {
                             uuid,
                             path,
                         });
@@ -342,7 +345,7 @@ exports.template = /* html*/`
         <section class="component scene">
             <ui-prop class="release" type="dump"></ui-prop>
             <ui-prop class="ambient" type="dump" ui-section-config></ui-prop>
-            <ui-section class="skybox config" expand>
+            <ui-section class="skybox config" expand cache-expand="inspector-scene-skybox">
                 <div slot="header" class="component-header">
                     <span>Skybox</span>
                     <ui-link tooltip="i18n:scene.menu.help_url">
@@ -350,7 +353,7 @@ exports.template = /* html*/`
                     </ui-link>
                 </div>
                 <div class="before"></div>
-                <ui-section class="envmap" expand>
+                <ui-section class="envmap" expand cache-expand="inspector-scene-skybox-envmap">
                     <ui-label slot="header" value="Envmap"></ui-label>
                     <ui-radio-group class="useHDR" default-value="HDR" value="HDR">
                         <ui-prop class="envmap-prop">
@@ -384,7 +387,7 @@ exports.template = /* html*/`
             <ui-prop class="postSettings" type="dump" ui-section-config></ui-prop>
         </section>
 
-        <ui-section class="component node config" expand>
+        <ui-section class="component node config" expand cache-expand="inspector-node">
             <header class="component-header" slot="header">
                 <span class="name">Node</span>
                 <ui-link class="link" tooltip="i18n:ENGINE.menu.help_url">
@@ -527,6 +530,21 @@ const Elements = {
 
             Editor.Message.addBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
 
+            panel.__throttleProfileChanged__ = throttle(async (protocol, file, key) => {
+                if (protocol === 'defaultPreferences' && file === 'packages/inspector.json' && key === 'message-protocol') {
+                    await panel.__queryMessageProtocolScene__();
+
+                    for (const prop in Elements) {
+                        const element = Elements[prop];
+                        if (element.update) {
+                            await element.update.call(panel);
+                        }
+                    }
+                }
+            }, 100, { leading: false, trailing: true });
+
+            Profile.on('change', panel.__throttleProfileChanged__);
+
             // 识别拖入脚本资源
             panel.$.container.addEventListener('dragover', (event) => {
                 event.preventDefault();
@@ -587,7 +605,7 @@ const Elements = {
             try {
                 dumps = await Promise.all(
                     panel.uuidList.map((uuid) => {
-                        return Editor.Message.request('scene', 'query-node', uuid);
+                        return Editor.Message.request(messageProtocol.scene, 'query-node', uuid);
                     }),
                 );
             } catch (err) {
@@ -628,6 +646,10 @@ const Elements = {
             Editor.Message.removeBroadcastListener('scene:change-node', panel.__nodeChanged__);
             Editor.Message.removeBroadcastListener('scene:animation-time-change', panel.__animationTimeChange__);
             Editor.Message.removeBroadcastListener('project:setting-change', panel.__projectSettingChanged__);
+
+            Profile.removeListener('change', panel.__throttleProfileChanged__);
+            panel.__throttleProfileChanged__.cancel();
+            panel.__throttleProfileChanged__ = undefined;
         },
     },
     prefab: {
@@ -656,7 +678,7 @@ const Elements = {
                             break;
                         }
                         case 'unlink': {
-                            await Editor.Message.request('scene', 'unlink-prefab', prefab.rootUuid, false);
+                            await Editor.Message.request(messageProtocol.scene, 'unlink-prefab', prefab.rootUuid, false);
                             break;
                         }
                         case 'local': {
@@ -664,12 +686,12 @@ const Elements = {
                             break;
                         }
                         case 'reset': {
-                            await Editor.Message.request('scene', 'restore-prefab', prefab.rootUuid, prefab.uuid);
+                            await Editor.Message.request(messageProtocol.scene, 'restore-prefab', prefab.rootUuid, prefab.uuid);
                             break;
                         }
                         case 'save': {
                             // apply-prefab是自定义的undo,在场景中实现了undo
-                            await Editor.Message.request('scene', 'apply-prefab', prefab.rootUuid);
+                            await Editor.Message.request(messageProtocol.scene, 'apply-prefab', prefab.rootUuid);
                             break;
                         }
                     }
@@ -825,7 +847,7 @@ const Elements = {
             const panel = this;
 
             const $help = panel.$.sceneSkybox.querySelector('ui-link');
-            $help.value = panel.getHelpUrl({ help: 'i18n:cc.Skybox' });
+            panel.setHelpUrl($help, { help: 'i18n:cc.Skybox' });
             $help.addEventListener('click', (event) => {
                 event.stopPropagation();
                 event.preventDefault();
@@ -856,15 +878,18 @@ const Elements = {
 
             // 由于场景属性对象不是继承于 Component 所以没有修饰器，displayName, help 数据在这里配置
             panel.dump._globals.ambient.displayName = 'Ambient';
-            panel.dump._globals.ambient.help = panel.getHelpUrl({ help: 'i18n:cc.Ambient' });
+            panel.dump._globals.ambient.editor = { help: 'i18n:cc.Ambient' };
+            panel.dump._globals.ambient.help = panel.getHelpUrl(panel.dump._globals.ambient.editor);
             panel.$.sceneAmbient.render(panel.dump._globals.ambient);
 
             panel.dump._globals.fog.displayName = 'Fog';
-            panel.dump._globals.fog.help = panel.getHelpUrl({ help: 'i18n:cc.Fog' });
+            panel.dump._globals.fog.editor = { help: 'i18n:cc.Fog' };
+            panel.dump._globals.fog.help = panel.getHelpUrl(panel.dump._globals.fog.editor);
             panel.$.sceneFog.render(panel.dump._globals.fog);
 
             panel.dump._globals.shadows.displayName = 'Shadows';
-            panel.dump._globals.shadows.help = panel.getHelpUrl({ help: 'i18n:cc.Shadow' });
+            panel.dump._globals.shadows.editor = { help: 'i18n:cc.Shadow' };
+            panel.dump._globals.shadows.help = panel.getHelpUrl(panel.dump._globals.shadows.editor);
             panel.$.sceneShadows.render(panel.dump._globals.shadows);
 
             // skyBox 逻辑 start
@@ -930,11 +955,13 @@ const Elements = {
             // skyBox 逻辑 end
 
             panel.dump._globals.octree.displayName = 'Octree Scene Culling';
-            panel.dump._globals.octree.help = panel.getHelpUrl({ help: 'i18n:cc.OctreeCulling' });
+            panel.dump._globals.octree.editor = { help: 'i18n:cc.OctreeCulling' };
+            panel.dump._globals.octree.help = panel.getHelpUrl(panel.dump._globals.octree.editor);
             panel.$.sceneOctree.render(panel.dump._globals.octree);
 
             panel.dump._globals.skin.displayName = 'Skin';
-            panel.dump._globals.skin.help = panel.getHelpUrl({ help: 'i18n:cc.Skin' });
+            panel.dump._globals.skin.editor = { help: 'i18n:cc.Skin' };
+            panel.dump._globals.skin.help = panel.getHelpUrl(panel.dump._globals.skin.editor);
             panel.$.sceneSkin.render(panel.dump._globals.skin);
 
             panel.dump._globals.postSettings.displayName = 'PostSettings';
@@ -967,13 +994,13 @@ const Elements = {
 
             // DIFFUSEMAP_WITH_REFLECTION 的枚举值为 2
             if (envLightingType === 2) {
-                await Editor.Message.request('scene', 'execute-scene-script', {
+                await Editor.Message.request(messageProtocol.scene, 'execute-scene-script', {
                     name: 'inspector',
                     method: 'generateDiffuseMap',
                     args: [envMapUuid],
                 });
             } else {
-                await Editor.Message.request('scene', 'execute-scene-script', {
+                await Editor.Message.request(messageProtocol.scene, 'execute-scene-script', {
                     name: 'inspector',
                     method: 'generateVector',
                     args: [envMapUuid],
@@ -981,13 +1008,13 @@ const Elements = {
             }
         },
         async setEnvMapAndConvolutionMap(uuid) {
-            await Editor.Message.request('scene', 'execute-scene-script', {
+            await Editor.Message.request(messageProtocol.scene, 'execute-scene-script', {
                 name: 'inspector',
                 method: 'setSkyboxEnvMap',
                 args: [uuid],
             });
             if (uuid) {
-                await Editor.Message.request('scene', 'execute-scene-script', {
+                await Editor.Message.request(messageProtocol.scene, 'execute-scene-script', {
                     name: 'inspector',
                     method: 'setReflectionConvolutionMap',
                     args: [uuid],
@@ -1026,7 +1053,7 @@ const Elements = {
             panel.$.sceneSkyboxReflectionLoading.style.display = 'inline-flex';
             panel.$.sceneSkyboxReflectionBake.style.display = 'none';
 
-            await Editor.Message.request('scene', 'execute-scene-script', {
+            await Editor.Message.request(messageProtocol.scene, 'execute-scene-script', {
                 name: 'inspector',
                 method: 'bakeReflectionConvolution',
                 args: [envMapData.value.uuid],
@@ -1097,7 +1124,7 @@ const Elements = {
 
             panel.$skyboxProps = {};
 
-            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
+            panel.setHelpUrl(panel.$.nodeLink, { help: 'i18n:cc.Node' });
 
             panel.$.nodeMenu.addEventListener('click', (event) => {
                 event.stopPropagation();
@@ -1177,13 +1204,8 @@ const Elements = {
                         $active.removeAttribute('hidden');
                     }
 
-                    const url = panel.getHelpUrl(dump.editor);
                     const $link = $section.querySelector('ui-link');
-                    if (url) {
-                        $link.setAttribute('value', url);
-                    } else {
-                        $link.removeAttribute('value');
-                    }
+                    panel.setHelpUrl($link, dump.editor);
 
                     await Promise.all($section.__panels__.map(($panel) => {
                         return $panel.update(dump);
@@ -1261,13 +1283,10 @@ const Elements = {
                     }
 
                     const $link = $section.querySelector('.link');
-                    const url = panel.getHelpUrl(component.editor);
-                    if (url) {
-                        $link.setAttribute('value', url);
-                        $link.addEventListener('click', (event) => {
-                            event.stopPropagation();
-                        });
-                    }
+                    $link.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                    });
+                    panel.setHelpUrl($link, component.editor);
 
                     const $menu = $section.querySelector('.menu');
                     $menu.addEventListener('click', (event) => {
@@ -1326,6 +1345,7 @@ const Elements = {
                         $section.appendChild($panel);
                         $section.__panels__.push($panel);
                         $panel.dump = component;
+                        $panel.messageProtocol = messageProtocol;
                         $panel.update(component);
                     });
 
@@ -1353,6 +1373,8 @@ const Elements = {
                         panel.$.nodeSection.appendChild(array[index]);
                     }
                     array[index].setAttribute('src', file);
+                    array[index].dump = panel.dump;
+                    array[index].messageProtocol = messageProtocol;
                     array[index].update(panel.dump);
                 });
 
@@ -1374,25 +1396,8 @@ const Elements = {
         i18nChange() {
             const panel = this;
 
-            panel.$.nodeLink.value = Editor.I18n.t('ENGINE.help.cc.Node');
-
-            const sectionBody = panel.$.sectionBody;
-            for (let index = 0; index < sectionBody.__sections__.length; index++) {
-                const $section = sectionBody.__sections__[index];
-                const $link = $section.querySelector('ui-link');
-
-                if (!$link) {
-                    continue;
-                }
-
-                const dump = $section.dump;
-                const url = panel.getHelpUrl(dump.editor);
-                if (url) {
-                    $link.setAttribute('value', url);
-                } else {
-                    $link.removeAttribute('value');
-                }
-            }
+            const $links = panel.$.container.querySelectorAll('ui-link');
+            $links.forEach($link => panel.setHelpUrl($link));
         },
     },
     missingComponent: {
@@ -1420,11 +1425,11 @@ const Elements = {
                 const uuidList = panel.uuidList;
                 switch (type) {
                     case 'save-o': {
-                        Editor.Message.request('scene', 'apply-removed-component', uuidList[0], info.fileID);
+                        Editor.Message.request(messageProtocol.scene, 'apply-removed-component', uuidList[0], info.fileID);
                         break;
                     }
                     case 'reset': {
-                        Editor.Message.request('scene', 'revert-removed-component', uuidList[0], info.fileID);
+                        Editor.Message.request(messageProtocol.scene, 'revert-removed-component', uuidList[0], info.fileID);
                         break;
                     }
                 }
@@ -1510,7 +1515,7 @@ const Elements = {
                             // 批量调用request意味着编辑操作在很多帧后才会完成，所以不能自动记录undo
                             const undoID = await beginRecording(panel.uuidList);
                             for (const uuid of panel.uuidList) {
-                                await Editor.Message.request('scene', 'create-component', {
+                                await Editor.Message.request(messageProtocol.scene, 'create-component', {
                                     uuid,
                                     component: detail.info.cid,
                                 });
@@ -1655,19 +1660,36 @@ exports.methods = {
             }
         }
 
-        Editor.Message.send('scene', cmd);
+        Editor.Message.send(messageProtocol.scene, cmd);
     },
 
+    setHelpUrl($link, data) {
+        if (data) {
+            $link.helpData = data;
+        } else {
+            if (!$link.helpData) {
+                return;
+            }
+            data = $link.helpData;
+        }
+
+        const url = this.getHelpUrl(data);
+        if (url) {
+            $link.setAttribute('value', url);
+        } else {
+            $link.removeAttribute('value');
+        }
+    },
     /**
      * 获取组件帮助菜单的 url
      * @param editor
      */
-    getHelpUrl(editor) {
-        if (!editor || !editor.help) {
+    getHelpUrl(data) {
+        if (!data || !data.help) {
             return '';
         }
 
-        const help = editor.help;
+        const help = data.help;
 
         /**
          * 约定的规则
@@ -1709,7 +1731,7 @@ exports.methods = {
                         const values = dump.value.uuid.values || [dump.value.uuid.value];
                         const undoID = await beginRecording(values);
                         for (const compUuid of values) {
-                            await Editor.Message.request('scene', 'reset-component', {
+                            await Editor.Message.request(messageProtocol.scene, 'reset-component', {
                                 uuid: compUuid,
                             });
                         }
@@ -1740,7 +1762,7 @@ exports.methods = {
                         if (!uuids.length > 0) { return; }
                         const undoID = await beginRecording(uuids);
                         for (let i = 0; i < uuids.length; i++) {
-                            await Editor.Message.request('scene', 'remove-array-element', {
+                            await Editor.Message.request(messageProtocol.scene, 'remove-array-element', {
                                 uuid: uuids[i],
                                 path: '__comps__',
                                 index: indexes[i],
@@ -1754,7 +1776,7 @@ exports.methods = {
                     enabled: !isMultiple && index !== 0,
                     async click() {
                         const undoID = await beginRecording(uuid);
-                        await Editor.Message.request('scene', 'move-array-element', {
+                        await Editor.Message.request(messageProtocol.scene, 'move-array-element', {
                             uuid,
                             path: '__comps__',
                             target: index,
@@ -1768,7 +1790,7 @@ exports.methods = {
                     enabled: !isMultiple && index !== total - 1,
                     async click() {
                         const undoID = await beginRecording(uuid);
-                        await Editor.Message.request('scene', 'move-array-element', {
+                        await Editor.Message.request(messageProtocol.scene, 'move-array-element', {
                             uuid,
                             path: '__comps__',
                             target: index,
@@ -1814,7 +1836,7 @@ exports.methods = {
                             const index = indexes[i];
 
                             const nodeDump = nodeDumps.find(nodeDump => uuid === nodeDump.uuid.value);
-                            await Editor.Message.request('scene', 'set-property', {
+                            await Editor.Message.request(messageProtocol.scene, 'set-property', {
                                 uuid,
                                 path: nodeDump.__comps__[index].path,
                                 dump: clipboardComponentInfo.dump,
@@ -1834,20 +1856,20 @@ exports.methods = {
                         let index = 0;
                         for (const dump of values) {
                             const uuid = uuidList[index];
-                            await Editor.Message.request('scene', 'create-component', {
+                            await Editor.Message.request(messageProtocol.scene, 'create-component', {
                                 uuid,
                                 component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值
-                            const nodeDump = await Editor.Message.request('scene', 'query-node', uuid);
+                            const nodeDump = await Editor.Message.request(messageProtocol.scene, 'query-node', uuid);
                             const length = nodeDump.__comps__ && nodeDump.__comps__.length;
                             if (length) {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
                                 if (lastComp?.cid === clipboardComponentInfo.cid) {
-                                    await Editor.Message.request('scene', 'set-property', {
+                                    await Editor.Message.request(messageProtocol.scene, 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
                                         dump: clipboardComponentInfo.dump,
@@ -1888,7 +1910,7 @@ exports.methods = {
                     async click() {
                         const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
-                            await Editor.Message.request('scene', 'reset-node', {
+                            await Editor.Message.request(messageProtocol.scene, 'reset-node', {
                                 uuid,
                             });
                         }
@@ -1914,7 +1936,7 @@ exports.methods = {
                         const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
                             for (const attr of clipboardNodeInfo.attrs) {
-                                await Editor.Message.request('scene', 'set-property', {
+                                await Editor.Message.request(messageProtocol.scene, 'set-property', {
                                     uuid,
                                     path: attr,
                                     dump: clipboardNodeInfo.dump[attr],
@@ -1929,7 +1951,7 @@ exports.methods = {
                     label: Editor.I18n.t('ENGINE.menu.copy_node_world_transform'),
                     enabled: !isMultiple,
                     async click() {
-                        const data = await Editor.Message.request('scene', 'execute-scene-script', {
+                        const data = await Editor.Message.request(messageProtocol.scene, 'execute-scene-script', {
                             name: 'inspector',
                             method: 'queryNodeWorldTransform',
                             args: [dump.uuid.value],
@@ -1949,7 +1971,7 @@ exports.methods = {
                         if (clipboardNodeWorldTransform.data) {
                             const undoID = await beginRecording(uuidList);
                             for (const uuid of uuidList) {
-                                await Editor.Message.request('scene', 'execute-scene-script', {
+                                await Editor.Message.request(messageProtocol.scene, 'execute-scene-script', {
                                     name: 'inspector',
                                     method: 'setNodeWorldTransform',
                                     args: [uuid, clipboardNodeWorldTransform.data],
@@ -1966,20 +1988,20 @@ exports.methods = {
                     async click() {
                         const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
-                            await Editor.Message.request('scene', 'create-component', {
+                            await Editor.Message.request(messageProtocol.scene, 'create-component', {
                                 uuid,
                                 component: clipboardComponentInfo.cid,
                             });
 
                             // 检查是否创建成功，是的话，给赋值
-                            const nodeDump = await Editor.Message.request('scene', 'query-node', uuid);
+                            const nodeDump = await Editor.Message.request(messageProtocol.scene, 'query-node', uuid);
                             const length = nodeDump.__comps__ && nodeDump.__comps__.length;
                             if (length) {
                                 const lastIndex = length - 1;
                                 const lastComp = nodeDump.__comps__[lastIndex];
 
                                 if (lastComp?.cid === clipboardComponentInfo.cid) {
-                                    await Editor.Message.request('scene', 'set-property', {
+                                    await Editor.Message.request(messageProtocol.scene, 'set-property', {
                                         uuid,
                                         path: `__comps__.${lastIndex}`,
                                         dump: clipboardComponentInfo.dump,
@@ -1997,7 +2019,7 @@ exports.methods = {
                     async click() {
                         const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
-                            await Editor.Message.request('scene', 'reset-property', {
+                            await Editor.Message.request(messageProtocol.scene, 'reset-property', {
                                 uuid,
                                 path: 'position',
                             });
@@ -2011,7 +2033,7 @@ exports.methods = {
                     async click() {
                         const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
-                            await Editor.Message.request('scene', 'reset-property', {
+                            await Editor.Message.request(messageProtocol.scene, 'reset-property', {
                                 uuid,
                                 path: 'rotation',
                             });
@@ -2025,7 +2047,7 @@ exports.methods = {
                     async click() {
                         const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
-                            await Editor.Message.request('scene', 'reset-property', {
+                            await Editor.Message.request(messageProtocol.scene, 'reset-property', {
                                 uuid,
                                 path: 'scale',
                             });
@@ -2039,7 +2061,7 @@ exports.methods = {
                     async click() {
                         const undoID = await beginRecording(uuidList);
                         for (const uuid of uuidList) {
-                            await Editor.Message.request('scene', 'reset-property', {
+                            await Editor.Message.request(messageProtocol.scene, 'reset-property', {
                                 uuid,
                                 path: 'mobility',
                             });
@@ -2064,7 +2086,7 @@ exports.methods = {
                 const dumpData = materialUuids[assetUuid][dumpPath];
                 for (let i = 0; i < panel.uuidList.length; i++) {
                     const nodeUuid = panel.uuidList[i];
-                    await Editor.Message.request('scene', 'set-property', {
+                    await Editor.Message.request(messageProtocol.scene, 'set-property', {
                         uuid: nodeUuid,
                         path: dumpPath,
                         dump: {
@@ -2121,6 +2143,23 @@ exports.ready = async function ready() {
 
     // 为了避免把 ui-num-input, ui-color 的连续 change 进行 snapshot
     panel.snapshotLock = false;
+
+    // 节点的 ipc 协议，指向 scene 或 xr-scene 等进程
+    panel.__queryMessageProtocolScene__ = async function() {
+        try {
+            if (!panel.messageProtocol) {
+                panel.messageProtocol = messageProtocol;
+            }
+            const config = await await Editor.Profile.getConfig('inspector', 'message-protocol');
+            if (config) {
+                Object.assign(messageProtocol, config);
+            }
+        } catch (error) {
+            console.error(error);
+            messageProtocol.scene = 'scene';
+        }
+    };
+    await panel.__queryMessageProtocolScene__();
 
     for (const prop in Elements) {
         const element = Elements[prop];

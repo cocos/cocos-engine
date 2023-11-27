@@ -24,8 +24,8 @@
 */
 
 import { ccclass } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { BitmapFont } from './bitmap-font';
-import { cclegacy } from '../../core';
 /**
  * @en Class for LabelAtlas handling.
  * @zh 艺术数字字体资源类。

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Size } from '../../../core';
+import { Size } from '@base/math';
 
 export class TextLayout {
     // Layout common

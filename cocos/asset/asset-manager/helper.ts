@@ -21,7 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { cclegacy, error } from '../../core';
+import { cclegacy } from '@base/global';
+import { error } from '@base/debug';
 import RequestItem from './request-item';
 import { bundles, transformPipeline } from './shared';
 import Task from './task';

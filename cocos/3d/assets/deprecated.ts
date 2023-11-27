@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { removeProperty, replaceProperty } from '../../core';
+import { removeProperty, replaceProperty } from '@base/utils';
 import { Mesh } from './mesh';
 
 replaceProperty(Mesh.prototype, 'Mesh.prototype', [

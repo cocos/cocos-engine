@@ -169,6 +169,7 @@ struct ResourceDesc {
     gfx::SampleCount sampleCount{gfx::SampleCount::X1};
     gfx::TextureFlagBit textureFlags{gfx::TextureFlagBit::NONE};
     ResourceFlags flags{ResourceFlags::NONE};
+    gfx::TextureType viewType{gfx::TextureType::TEX2D};
 };
 
 struct ResourceTraits {
@@ -447,6 +448,7 @@ struct RasterPass {
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
     PmrTransparentMap<ccstd::pmr::string, uint32_t> attachmentIndexMap;
     PmrTransparentMap<ccstd::pmr::string, gfx::ShaderStageFlagBit> textures;
+    PmrTransparentMap<ccstd::pmr::string, ResourceFlags> resources;
     SubpassGraph subpassGraph;
     uint32_t width{0};
     uint32_t height{0};
@@ -460,8 +462,8 @@ struct RasterPass {
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.textures, lhs.subpassGraph, lhs.width, lhs.height, lhs.count, lhs.quality) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.textures, rhs.subpassGraph, rhs.width, rhs.height, rhs.count, rhs.quality);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.textures, lhs.resources, lhs.subpassGraph, lhs.width, lhs.height, lhs.count, lhs.quality) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.textures, rhs.resources, rhs.subpassGraph, rhs.width, rhs.height, rhs.count, rhs.quality);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
@@ -515,6 +517,7 @@ struct SubresourceView {
     uint16_t numArraySlices{0};
     uint16_t firstPlane{0};
     uint16_t numPlanes{0};
+    gfx::TextureType viewType;
 };
 
 struct ResourceGraph {
@@ -908,6 +911,7 @@ struct RenderData {
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
     PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
     PmrUnorderedMap<uint32_t, gfx::Sampler*> samplers;
+    PmrUnorderedMap<uint32_t, ccstd::pmr::string> bufferNames;
     ccstd::pmr::string custom;
 };
 
@@ -1188,6 +1192,7 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     hash_combine(seed, val.rasterViews);
     hash_combine(seed, val.computeViews);
     hash_combine(seed, val.textures);
+    hash_combine(seed, val.resources);
     hash_combine(seed, val.subpassGraph);
     hash_combine(seed, val.width);
     hash_combine(seed, val.height);

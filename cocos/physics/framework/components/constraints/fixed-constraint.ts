@@ -22,18 +22,11 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass,
-    help,
-    menu,
-    serializable,
-    formerlySerializedAs,
-    type,
-    tooltip,
-} from 'cc.decorator';
+import { ccclass, help, menu, serializable, formerlySerializedAs, type, tooltip } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { CCFloat } from '@base/object';
+import { IVec3Like, Vec3 } from '@base/math';
 import { Constraint } from './constraint';
-import { CCFloat, IVec3Like, Vec3 } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IFixedConstraint } from '../../../spec/i-physics-constraint';
 

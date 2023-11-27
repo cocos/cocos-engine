@@ -98,7 +98,7 @@ public:
     void removePointLight(PointLight *);
     void removePointLights();
 
-    void addRangedDirlLight(RangedDirectionalLight *);
+    void addRangedDirLight(RangedDirectionalLight *);
     void removeRangedDirLight(RangedDirectionalLight *);
     void removeRangedDirLights();
 
@@ -106,7 +106,6 @@ public:
     void removeModel(Model *model);
     void removeModels();
 
-    void addGPUMesh(Mesh *mesh);
     void addGPUModel(Model *model);
     void removeGPUModel(Model *model);
     void removeGPUModels();

@@ -1,5 +1,7 @@
 const { template, $, update, close } = require('./base');
 
+const { getMessageProtocolScene } = require('../utils/prop');
+
 exports.template = template;
 exports.$ = $;
 exports.update = update;
@@ -22,9 +24,9 @@ exports.ready = function() {
 
     $button.addEventListener('confirm', async () => {
         const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
-        const undoID = await Editor.Message.request('scene', 'begin-recording', uuids);
+        const undoID = await Editor.Message.request(getMessageProtocolScene(this.$this), 'begin-recording', uuids);
         for (const uuid of uuids) {
-            await Editor.Message.request('scene', 'execute-component-method', {
+            await Editor.Message.request(getMessageProtocolScene(this.$this), 'execute-component-method', {
                 uuid: uuid,
                 name: 'cook',
                 args: [],
@@ -32,12 +34,12 @@ exports.ready = function() {
         }
 
         for (const uuid of uuids) {
-            await Editor.Message.request('scene', 'execute-component-method', {
+            await Editor.Message.request(getMessageProtocolScene(this.$this), 'execute-component-method', {
                 uuid: uuid,
                 name: 'combine',
                 args: [],
             });
         }
-        await Editor.Message.request('scene', 'end-recording', undoID);
+        await Editor.Message.request(getMessageProtocolScene(this.$this), 'end-recording', undoID);
     });
 };

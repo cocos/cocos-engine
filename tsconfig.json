@@ -3,6 +3,7 @@
     "target": "es6",
     "lib": ["es2015", "es2017", "dom"],
     "module": "commonjs",
+    "moduleResolution": "Node16",
     "sourceMap": true,
     "outDir": "./bin/.ts",
     "rootDir": "./",
@@ -14,6 +15,7 @@
     "experimentalDecorators": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
+    "preserveSymlinks": false,
     "baseUrl": "./",
     "paths": {
         "cc.decorator": [
@@ -21,32 +23,8 @@
         ]
     },
     "types": [
-      "./@types/globals",
-      "./@types/consts",
-      "./@types/jsb",
-      "./@types/editor-extends",
-      "./@types/webGL.extras",
-      "./@types/webGL2.extras",
-      "./node_modules/@cocos/cannon/CANNON",
-      "./node_modules/@types/jest/index",
-
-      // external types
-      "./native/external/emscripten/external-wasm",
-      "./native/external/emscripten/bullet/bullet",
-      "./native/external/emscripten/physx/physx",
-      "./native/external/emscripten/webgpu/webgpu",
-      "./native/external/emscripten/spine/spine",
-
-      // pal
-      "./@types/pal/system-info",
-      "./@types/pal/screen-adapter",
-      "./@types/pal/minigame",
-      "./@types/pal/audio",
-      "./@types/pal/input",
-      "./@types/pal/env",
-      "./@types/pal/pacer",
-      "./@types/pal/wasm",
-      "./@types/pal/image",
+      "cc-ambient-types",
+      "./node_modules/@types/jest/index"
     ]
   },
   "include": [

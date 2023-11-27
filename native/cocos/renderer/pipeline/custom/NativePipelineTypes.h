@@ -640,6 +640,7 @@ public:
     MultisampleRenderSubpassBuilder *addMultisampleRenderSubpass(uint32_t count, uint32_t quality, const ccstd::string &subpassName) override;
     ComputeSubpassBuilder *addComputeSubpass(const ccstd::string &subpassName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
+
 };
 
 class NativeMultisampleRenderPassBuilder final : public MultisampleRenderPassBuilder, public NativeSetter {
@@ -950,23 +951,23 @@ struct RenderInstancingQueue {
     ccstd::pmr::vector<IntrusivePtr<pipeline::InstancedBuffer>> instanceBuffers;
 };
 
-struct RenderBatchingQueue {
+struct GPUDrivenQueue {
     using allocator_type = boost::container::pmr::polymorphic_allocator<char>;
     allocator_type get_allocator() const noexcept { // NOLINT
         return {batches.get_allocator().resource()};
     }
 
-    RenderBatchingQueue(const allocator_type& alloc) noexcept; // NOLINT
-    RenderBatchingQueue(RenderBatchingQueue&& rhs, const allocator_type& alloc);
-    RenderBatchingQueue(RenderBatchingQueue const& rhs, const allocator_type& alloc);
+    GPUDrivenQueue(const allocator_type& alloc) noexcept; // NOLINT
+    GPUDrivenQueue(GPUDrivenQueue&& rhs, const allocator_type& alloc);
+    GPUDrivenQueue(GPUDrivenQueue const& rhs, const allocator_type& alloc);
 
-    RenderBatchingQueue(RenderBatchingQueue&& rhs) noexcept = default;
-    RenderBatchingQueue(RenderBatchingQueue const& rhs) = delete;
-    RenderBatchingQueue& operator=(RenderBatchingQueue&& rhs) = default;
-    RenderBatchingQueue& operator=(RenderBatchingQueue const& rhs) = default;
+    GPUDrivenQueue(GPUDrivenQueue&& rhs) noexcept = default;
+    GPUDrivenQueue(GPUDrivenQueue const& rhs) = delete;
+    GPUDrivenQueue& operator=(GPUDrivenQueue&& rhs) = default;
+    GPUDrivenQueue& operator=(GPUDrivenQueue const& rhs) = default;
 
     void recordCommandBuffer(const ResourceGraph& resg, gfx::Device *device, const scene::Camera *camera,
-        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, SceneFlags sceneFlags, uint32_t cullingID) const;
+        gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer, uint32_t phaseLayoutID, SceneFlags sceneFlags, uint32_t cullingID) const;
 
     ccstd::pmr::vector<uint32_t> batches;
 };
@@ -1028,7 +1029,7 @@ struct NativeRenderQueue {
     RenderDrawQueue transparentQueue;
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
-    RenderBatchingQueue opaqueBatchingQueue;
+    GPUDrivenQueue gpuDrivenQueue;
     SceneFlags sceneFlags{SceneFlags::NONE};
     uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
 };
@@ -1201,12 +1202,13 @@ struct CullingKey {
     const scene::Camera* camera{nullptr};
     const scene::Light* light{nullptr};
     bool castShadow{false};
+    bool gpuDriven{false};
     uint32_t lightLevel{0xFFFFFFFF};
 };
 
 inline bool operator==(const CullingKey& lhs, const CullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow, lhs.lightLevel) ==
-           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow, rhs.lightLevel);
+    return std::forward_as_tuple(lhs.camera, lhs.light, lhs.castShadow, lhs.gpuDriven, lhs.lightLevel) ==
+           std::forward_as_tuple(rhs.camera, rhs.light, rhs.castShadow, rhs.gpuDriven, rhs.lightLevel);
 }
 
 inline bool operator!=(const CullingKey& lhs, const CullingKey& rhs) noexcept {
@@ -1407,12 +1409,18 @@ public:
     void beginSetup() override;
     void endSetup() override;
     bool containsResource(const ccstd::string &name) const override;
+    uint32_t addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) override;
+    void updateExternalTexture(const ccstd::string &name, gfx::Texture *texture) override;
     uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
     void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
     void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
+    uint32_t addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) override;
+    void updateTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) override;
+    uint32_t addBuffer(const ccstd::string &name, uint32_t size, ResourceFlags flags, ResourceResidency residency) override;
+    void updateBuffer(const ccstd::string &name, uint32_t size) override;
     uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) override;
     void updateResource(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) override;
     void beginFrame() override;
@@ -1434,7 +1442,7 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &passName) override;
     void addUploadPass(ccstd::vector<UploadPair> &uploadPairs) override;
     void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
-    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) override;
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light, uint32_t level, bool bMainPass) override;
     void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) override;
     uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) override;
     uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) override;
@@ -1513,6 +1521,7 @@ inline hash_t hash<cc::render::CullingKey>::operator()(const cc::render::Culling
     hash_combine(seed, val.camera);
     hash_combine(seed, val.light);
     hash_combine(seed, val.castShadow);
+    hash_combine(seed, val.gpuDriven);
     hash_combine(seed, val.lightLevel);
     return seed;
 }

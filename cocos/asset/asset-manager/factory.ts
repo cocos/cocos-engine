@@ -24,6 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { ImageData } from 'pal/image';
+import { js } from '@base/utils';
 import { ImageAsset } from '../assets/image-asset';
 import JsonAsset from '../assets/json-asset';
 import { TextAsset } from '../assets/text-asset';
@@ -32,11 +33,8 @@ import { BufferAsset } from '../assets/buffer-asset';
 import Bundle, { resources } from './bundle';
 import Cache from './cache';
 import { IConfigOption } from './config';
-import {
-    assets, BuiltinBundleName, bundles,
-} from './shared';
+import { assets, BuiltinBundleName, bundles } from './shared';
 import { cache } from './utilities';
-import { js } from '../../core';
 
 export type CreateHandler = (id: string, data: any, options: Record<string, any>, onComplete: ((err: Error | null, data?: Asset | Bundle | null) => void)) => void;
 

@@ -1,5 +1,6 @@
 import { EDITOR } from 'internal:constants';
 
+import { Vec4 } from '@base/math';
 import { QueueHint, ResourceResidency, SceneFlags } from '../../custom/types';
 import { ClearFlagBit, Color, Format, LoadOp, Rect, StoreOp, Viewport } from '../../../gfx';
 import { Pipeline, RenderPassBuilder } from '../../custom/pipeline';
@@ -7,7 +8,6 @@ import { Camera } from '../../../render-scene/scene';
 import { Material } from '../../../asset/assets';
 import { PostProcess } from '../components';
 import { getRenderArea } from '../../custom/define';
-import { Vec4 } from '../../../core';
 
 export class PassContext {
     clearFlag: ClearFlagBit = ClearFlagBit.COLOR;

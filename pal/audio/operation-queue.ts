@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EventTarget } from '../../cocos/core';
+import { EventTarget } from '@base/event';
 
 type OperationMethod = (...args: any[]) => Promise<void>;
 export interface OperationInfo {

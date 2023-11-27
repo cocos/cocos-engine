@@ -22,20 +22,10 @@
  THE SOFTWARE.
 */
 
-import { nextPow2 } from '../../core';
-import {
-    DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit,
-    ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,
-    Attribute, ColorAttachment, DepthStencilAttachment,
-    UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
-    DrawInfo, UniformInputAttachment, Uniform, BufferUsageBit, MemoryUsageBit,
-    TextureBlit, Filter, FormatInfos,
-} from '../base/define';
+import { nextPow2 } from '@base/math';
+import { DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit, ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type, Attribute, ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding, DrawInfo, UniformInputAttachment, Uniform, BufferUsageBit, MemoryUsageBit, TextureBlit, Filter, FormatInfos } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
-import { WebGLCmdFuncBindStates, WebGLCmdFuncCreateBuffer, WebGLCmdFuncCreateInputAssember,
-    WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncDestroyInputAssembler,
-    WebGLCmdFuncDestroyShader, WebGLCmdFuncDraw, WebGLCmdFuncUpdateBuffer,
-} from './webgl-commands';
+import { WebGLCmdFuncBindStates, WebGLCmdFuncCreateBuffer, WebGLCmdFuncCreateInputAssember, WebGLCmdFuncCreateShader, WebGLCmdFuncDestroyBuffer, WebGLCmdFuncDestroyInputAssembler, WebGLCmdFuncDestroyShader, WebGLCmdFuncDraw, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 import { WebGLDeviceManager } from './webgl-define';
 
 export class WebGLIndirectDrawInfos {

@@ -1,14 +1,15 @@
-import { AnimationGraph } from "../../../../../cocos/animation/marionette/asset-creation";
-import { poseGraphOp } from "../../../../../cocos/animation/marionette/pose-graph/op";
-import { PoseGraphNode } from "../../../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node";
-import { Pose } from "../../../../../cocos/animation/core/pose";
-import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from "../../../../../cocos/animation/marionette/animation-graph-context";
-import { assertIsTrue, Quat, Vec3 } from "../../../../../exports/base";
-import { PoseNode } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
-import { PureValueNode } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-node";
-import { PoseGraphType } from "../../../../../cocos/animation/marionette/pose-graph/foundation/type-system";
-import { PVNodeGetVariableBoolean, PVNodeGetVariableFloat } from "../../../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable";
-import { AnimationGraphEvalMock } from "../../utils/eval-mock";
+import { assertIsTrue } from '@base/debug/internal';
+import { Quat, Vec3 } from '@base/math';
+import { AnimationGraph } from '../../../../../cocos/animation/marionette/asset-creation';
+import { poseGraphOp } from '../../../../../cocos/animation/marionette/pose-graph/op';
+import { PoseGraphNode } from '../../../../../cocos/animation/marionette/pose-graph/foundation/pose-graph-node';
+import { Pose } from '../../../../../cocos/animation/core/pose';
+import { AnimationGraphBindingContext, AnimationGraphEvaluationContext, AnimationGraphSettleContext, AnimationGraphUpdateContext } from '../../../../../cocos/animation/marionette/animation-graph-context';
+import { PoseNode } from '../../../../../cocos/animation/marionette/pose-graph/pose-node';
+import { PureValueNode } from '../../../../../cocos/animation/marionette/pose-graph/pure-value-node';
+import { PoseGraphType } from '../../../../../cocos/animation/marionette/pose-graph/foundation/type-system';
+import { PVNodeGetVariableBoolean, PVNodeGetVariableFloat } from '../../../../../cocos/animation/marionette/pose-graph/pure-value-nodes/get-variable';
+import { AnimationGraphEvalMock } from '../../utils/eval-mock';
 
 export function normalizeNodeInputMetadata(nodeInputMetadata?: poseGraphOp.InputMetadata) {
     return nodeInputMetadata ? {

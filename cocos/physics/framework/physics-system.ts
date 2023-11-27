@@ -23,7 +23,12 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { Vec3, RecyclePool, Enum, System, cclegacy, Settings, settings, geometry, warn, IQuatLike, IVec3Like, error } from '../../core';
+import { warn, error } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
+import { Enum } from '@base/object';
+import { Vec3, IQuatLike, IVec3Like } from '@base/math';
+import { System, Settings, settings, geometry } from '../../core';
 import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director, game } from '../../game';
 import { PhysicsMaterial } from './assets/physics-material';
@@ -341,8 +346,8 @@ export class PhysicsSystem extends System implements IWorldInitData {
         maxDistance: 10000000,
     }
 
-    private readonly raycastResultPool = new RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
-    private readonly sweepResultPool = new RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
+    private readonly raycastResultPool = new memop.RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
+    private readonly sweepResultPool = new memop.RecyclePool<PhysicsRayResult>((): PhysicsRayResult => new PhysicsRayResult(), 1);
 
     private constructor () {
         super();

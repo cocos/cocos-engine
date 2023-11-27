@@ -24,15 +24,15 @@
 */
 
 import { ccclass, help, executeInEditMode, executionOrder, menu, requireComponent, tooltip, type, displayOrder, serializable, visible } from 'cc.decorator';
+import { warn } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { ccenum } from '@base/object';
+import { Size, Vec2, Vec3 } from '@base/math';
 import { Component } from '../scene-graph/component';
-import { Size, Vec2, Vec3 } from '../core/math';
-import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
 import { director, Director } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
-import { warn } from '../core';
 import { NodeEventType } from '../scene-graph/node-event';
-import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph/node';
 
 /**
@@ -736,7 +736,7 @@ export class Layout extends Component {
         this.node.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.on(NodeEventType.CHILD_ADDED, this._childAdded, this);
         this.node.on(NodeEventType.CHILD_REMOVED, this._childRemoved, this);
-        this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
+        this.node.on(NodeEventType.CHILDREN_ORDER_CHANGED, this._childrenChanged, this);
         this.node.on('childrenSiblingOrderChanged', this.updateLayout, this);
         this._addChildrenEventListeners();
     }
@@ -747,7 +747,7 @@ export class Layout extends Component {
         this.node.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         this.node.off(NodeEventType.CHILD_ADDED, this._childAdded, this);
         this.node.off(NodeEventType.CHILD_REMOVED, this._childRemoved, this);
-        this.node.off(NodeEventType.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
+        this.node.off(NodeEventType.CHILDREN_ORDER_CHANGED, this._childrenChanged, this);
         this.node.off('childrenSiblingOrderChanged', this.updateLayout, this);
         this._removeChildrenEventListeners();
     }
@@ -1179,4 +1179,4 @@ export class Layout extends Component {
     }
 }
 
-legacyCC.Layout = Layout;
+cclegacy.Layout = Layout;

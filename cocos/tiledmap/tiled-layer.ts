@@ -27,18 +27,16 @@
 import { ccclass } from 'cc.decorator';
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warn, logID } from '@base/debug';
+import { Color, IVec2Like, Mat4, Size, Vec2, Vec3 } from '@base/math';
 import { UIRenderer } from '../2d/framework/ui-renderer';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component, Node } from '../scene-graph';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, Vec2, Vec3, warn, logID } from '../core';
 import { TiledTile } from './tiled-tile';
 import { RenderData } from '../2d/renderer/render-data';
 import { IBatcher } from '../2d/renderer/i-batcher';
-import {
-    MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
-    GIDFlags, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
-} from './tiled-types';
+import { MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag, GIDFlags, TiledAnimationType, PropertiesInfo, TMXLayerInfo } from './tiled-types';
 import { fillTextureGrids } from './tiled-utils';
 import { NodeEventType } from '../scene-graph/node-event';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';

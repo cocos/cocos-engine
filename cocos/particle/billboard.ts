@@ -23,13 +23,14 @@
 */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
+import { Color, toDegree, toRadian, Vec4 } from '@base/math';
 import { builtinResMgr } from '../asset/asset-manager';
 import { createMesh } from '../3d/misc';
 import { Mesh } from '../3d/assets';
 import { Material, Texture2D } from '../asset/assets';
 import { Component } from '../scene-graph/component';
 import { Attribute, AttributeName, Format, PrimitiveMode } from '../gfx';
-import { Color, toDegree, toRadian, Vec4, cclegacy } from '../core';
 import { scene } from '../render-scene';
 
 @ccclass('cc.Billboard')

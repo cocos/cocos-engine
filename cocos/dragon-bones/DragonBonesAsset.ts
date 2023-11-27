@@ -23,9 +23,12 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { warn } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { Enum } from '@base/object';
 import { Asset } from '../asset/assets';
 import { ArmatureCache } from './ArmatureCache';
-import { Enum, cclegacy, _decorator, warn } from '../core';
+import { _decorator } from '../core';
 import { CCFactory } from './CCFactory';
 import { Node } from '../scene-graph';
 

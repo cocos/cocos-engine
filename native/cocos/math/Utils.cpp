@@ -22,7 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos/math/Utils.h"
+#include "math/Utils.h"
 
 #include <algorithm>
 #include <cmath>
@@ -48,6 +48,63 @@ float absMaxComponent(const Vec3 &v) {
 
 float maxComponent(const Vec3 &v) {
     return std::max(std::max(v.x, v.y), v.z);
+}
+
+uint16_t floatToHalf(float fval) {
+    union {
+        float f;
+        unsigned int ui;
+    } u = {fval};
+    unsigned int ui = u.ui;
+
+    int s = (ui >> 16) & 0x8000; // NOLINT
+    int em = ui & 0x7fffffff;    // NOLINT
+
+    /* bias exponent and round to nearest; 112 is relative exponent bias (127-15) */
+    int h = (em - (112 << 23) + (1 << 12)) >> 13;
+
+    /* underflow: flush to zero; 113 encodes exponent -14 */
+    h = (em < (113 << 23)) ? 0 : h;
+
+    /* overflow: infinity; 143 encodes exponent 16 */
+    h = (em >= (143 << 23)) ? 0x7c00 : h;
+
+    /* NaN; note that we convert all types of NaN to qNaN */
+    h = (em > (255 << 23)) ? 0x7e00 : h;
+
+    return static_cast<uint16_t>(s | h);
+}
+
+float halfToFloat(uint16_t hval) {
+    union {
+        float f;
+        unsigned int ui;
+    } u;
+
+    int s = (hval >> 15) & 0x00000001;
+    int em = hval & 0x00007fff;
+    int m = 0;
+
+    if (em > 0) {
+        /* normalized */
+        if (em > 30 << 10) {
+            /* overflow: infinity */
+            em = 255 << 23;
+        } else {
+            em = (em + (112 << 10)) << 13;
+        }
+    } else {
+        /* denormalized */
+        if (em > 25 << 10) {
+            /* underflow: flush to zero */
+            em = 0;
+        } else {
+            em = (em + (113 << 10)) >> 1;
+        }
+    }
+
+    u.ui = ((s << 31)) | em | m; // NOLINT
+    return u.f;
 }
 
 } // namespace mathutils

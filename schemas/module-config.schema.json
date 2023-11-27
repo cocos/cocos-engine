@@ -1,0 +1,422 @@
+{
+  "$ref": "#/definitions/ModuleConfig",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ModuleConfig": {
+      "additionalProperties": {},
+      "properties": {
+        "cc": {
+          "additionalProperties": false,
+          "description": "This is a CC-specific item difference from the node package.json standard specification.",
+          "properties": {
+            "assetDependencies": {
+              "description": "The module asset dependencies, which is an array of asset uuid.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "moduleOverrides": {
+              "description": "This is different with conditional exports. Sometimes we just want to override a script file instead of the whole module. Module override could support to do this job.\n- eg. { \"test\": \"context.mode === 'BUILD'\", \"overrides\": { \"/path/to/dev.ts\": \"/path/to/build.ts\" } }",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "overrides": {
+                    "additionalProperties": {
+                      "type": "string"
+                    },
+                    "description": "The override config, override mapping from key to value.",
+                    "type": "object"
+                  },
+                  "test": {
+                    "description": "The test string to evaluate.",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "test",
+                  "overrides"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "dependencies": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Specify the module dependencies is required if this module import another one. We need this field to generate the module dependency graph.",
+          "type": "object"
+        },
+        "devDependencies": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Specify the dev dependencies, these dependencies are always used in `scripts` folder.",
+          "type": "object"
+        },
+        "exports": {
+          "additionalProperties": false,
+          "description": "The config for conditional exports.",
+          "properties": {
+            ".": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "This is exported to the game runtime. Also we build the `cc.d.ts` with this export condition's `types` field. `node` field is required to resolve the path of package.json for build tools.",
+              "properties": {
+                "minigame": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "alipay": {
+                          "type": "string"
+                        },
+                        "baidu": {
+                          "type": "string"
+                        },
+                        "bytedance": {
+                          "type": "string"
+                        },
+                        "cocosplay": {
+                          "type": "string"
+                        },
+                        "default": {
+                          "description": "Default platform export for unspecified platforms.",
+                          "type": "string"
+                        },
+                        "huawei": {
+                          "type": "string"
+                        },
+                        "linksure": {
+                          "type": "string"
+                        },
+                        "oppo": {
+                          "type": "string"
+                        },
+                        "qtt": {
+                          "type": "string"
+                        },
+                        "taobao": {
+                          "type": "string"
+                        },
+                        "taobao_minigame": {
+                          "type": "string"
+                        },
+                        "vivo": {
+                          "type": "string"
+                        },
+                        "wechat": {
+                          "type": "string"
+                        },
+                        "wechat_mini_program": {
+                          "type": "string"
+                        },
+                        "xiaomi": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "default"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "description": "Abstract platform export, like `web`, `native` and `minigame`. Usually this is used for PAL modules. The build tools resolve the relative platform as entry according to the build platform config.\n- The value can be a `string` or a `object` which requires a default item. eg. { \"web\": \"/path/to/index.ts\" } is equals to { \"web\": { default: \"/path/to/index.ts\" } }.\n- We can also specify the exact platform like { \"web\": {default: \"/path/to/index.ts\", \"web-desktop\": \"/path/to/index.ts\" } }."
+                },
+                "native": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "android": {
+                          "type": "string"
+                        },
+                        "default": {
+                          "description": "Default platform export for unspecified platforms.",
+                          "type": "string"
+                        },
+                        "ios": {
+                          "type": "string"
+                        },
+                        "linux": {
+                          "type": "string"
+                        },
+                        "mac": {
+                          "type": "string"
+                        },
+                        "native_editor": {
+                          "type": "string"
+                        },
+                        "ohos": {
+                          "type": "string"
+                        },
+                        "open_harmony": {
+                          "type": "string"
+                        },
+                        "windows": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "default"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "description": "Abstract platform export, like `web`, `native` and `minigame`. Usually this is used for PAL modules. The build tools resolve the relative platform as entry according to the build platform config.\n- The value can be a `string` or a `object` which requires a default item. eg. { \"web\": \"/path/to/index.ts\" } is equals to { \"web\": { default: \"/path/to/index.ts\" } }.\n- We can also specify the exact platform like { \"web\": {default: \"/path/to/index.ts\", \"web-desktop\": \"/path/to/index.ts\" } }."
+                },
+                "types": {
+                  "description": "This is the main module export condition.\n- The dts bundle tools resolve this condition as entry.\n- The API doc tools resolve this condition as entry.\n- If no platform export is specified, the build tools resolve this condition as entry.",
+                  "type": "string"
+                },
+                "web": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "default": {
+                          "description": "Default platform export for unspecified platforms.",
+                          "type": "string"
+                        },
+                        "web_desktop": {
+                          "type": "string"
+                        },
+                        "web_editor": {
+                          "type": "string"
+                        },
+                        "web_mobile": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "default"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "description": "Abstract platform export, like `web`, `native` and `minigame`. Usually this is used for PAL modules. The build tools resolve the relative platform as entry according to the build platform config.\n- The value can be a `string` or a `object` which requires a default item. eg. { \"web\": \"/path/to/index.ts\" } is equals to { \"web\": { default: \"/path/to/index.ts\" } }.\n- We can also specify the exact platform like { \"web\": {default: \"/path/to/index.ts\", \"web-desktop\": \"/path/to/index.ts\" } }."
+                }
+              },
+              "required": [
+                "types"
+              ],
+              "type": "object"
+            },
+            "./editor": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "This is exported to the editor, which is useful when we need to export some editor only interfaces. Also we build `cc.editor.d.ts` from this export condition's `types` field. If this is not specified, we use the '.' export condition by default for module editor export, otherwise, the build tools merges '.' and './editor' exports together for editor runtime environment. It is different with `web_editor` or `native_editor` platform export:\n- this condition exports some editor specific interfaces which is not cross-platform.\n- the `web_editor` or `native_editor` platform export is an editor version of implementation of interfaces defined in `types` field which should be cross-platform.",
+              "properties": {
+                "types": {
+                  "description": "This is the main module export condition.\n- The dts bundle tools resolve this condition as entry.\n- The API doc tools resolve this condition as entry.\n- If no platform export is specified, the build tools resolve this condition as entry.",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "types"
+              ],
+              "type": "object"
+            },
+            "./internal": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "This is exported to the engine internal. It useful when we need to export some friend interfaces for internal engine modules.",
+              "properties": {
+                "minigame": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "alipay": {
+                          "type": "string"
+                        },
+                        "baidu": {
+                          "type": "string"
+                        },
+                        "bytedance": {
+                          "type": "string"
+                        },
+                        "cocosplay": {
+                          "type": "string"
+                        },
+                        "default": {
+                          "description": "Default platform export for unspecified platforms.",
+                          "type": "string"
+                        },
+                        "huawei": {
+                          "type": "string"
+                        },
+                        "linksure": {
+                          "type": "string"
+                        },
+                        "oppo": {
+                          "type": "string"
+                        },
+                        "qtt": {
+                          "type": "string"
+                        },
+                        "taobao": {
+                          "type": "string"
+                        },
+                        "taobao_minigame": {
+                          "type": "string"
+                        },
+                        "vivo": {
+                          "type": "string"
+                        },
+                        "wechat": {
+                          "type": "string"
+                        },
+                        "wechat_mini_program": {
+                          "type": "string"
+                        },
+                        "xiaomi": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "default"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "description": "Abstract platform export, like `web`, `native` and `minigame`. Usually this is used for PAL modules. The build tools resolve the relative platform as entry according to the build platform config.\n- The value can be a `string` or a `object` which requires a default item. eg. { \"web\": \"/path/to/index.ts\" } is equals to { \"web\": { default: \"/path/to/index.ts\" } }.\n- We can also specify the exact platform like { \"web\": {default: \"/path/to/index.ts\", \"web-desktop\": \"/path/to/index.ts\" } }."
+                },
+                "native": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "android": {
+                          "type": "string"
+                        },
+                        "default": {
+                          "description": "Default platform export for unspecified platforms.",
+                          "type": "string"
+                        },
+                        "ios": {
+                          "type": "string"
+                        },
+                        "linux": {
+                          "type": "string"
+                        },
+                        "mac": {
+                          "type": "string"
+                        },
+                        "native_editor": {
+                          "type": "string"
+                        },
+                        "ohos": {
+                          "type": "string"
+                        },
+                        "open_harmony": {
+                          "type": "string"
+                        },
+                        "windows": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "default"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "description": "Abstract platform export, like `web`, `native` and `minigame`. Usually this is used for PAL modules. The build tools resolve the relative platform as entry according to the build platform config.\n- The value can be a `string` or a `object` which requires a default item. eg. { \"web\": \"/path/to/index.ts\" } is equals to { \"web\": { default: \"/path/to/index.ts\" } }.\n- We can also specify the exact platform like { \"web\": {default: \"/path/to/index.ts\", \"web-desktop\": \"/path/to/index.ts\" } }."
+                },
+                "types": {
+                  "description": "This is the main module export condition.\n- The dts bundle tools resolve this condition as entry.\n- The API doc tools resolve this condition as entry.\n- If no platform export is specified, the build tools resolve this condition as entry.",
+                  "type": "string"
+                },
+                "web": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "default": {
+                          "description": "Default platform export for unspecified platforms.",
+                          "type": "string"
+                        },
+                        "web_desktop": {
+                          "type": "string"
+                        },
+                        "web_editor": {
+                          "type": "string"
+                        },
+                        "web_mobile": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "default"
+                      ],
+                      "type": "object"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ],
+                  "description": "Abstract platform export, like `web`, `native` and `minigame`. Usually this is used for PAL modules. The build tools resolve the relative platform as entry according to the build platform config.\n- The value can be a `string` or a `object` which requires a default item. eg. { \"web\": \"/path/to/index.ts\" } is equals to { \"web\": { default: \"/path/to/index.ts\" } }.\n- We can also specify the exact platform like { \"web\": {default: \"/path/to/index.ts\", \"web-desktop\": \"/path/to/index.ts\" } }."
+                }
+              },
+              "required": [
+                "types"
+              ],
+              "type": "object"
+            },
+            "./query": {
+              "description": "This export provide a the path of javascript module which exports some method to query the info of module.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "."
+          ],
+          "type": "object"
+        },
+        "name": {
+          "description": "The module name.",
+          "type": "string"
+        },
+        "peerDependencies": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "The dependencies between modules form a tree-structured dependency graph. The correct dependency relationship should be that the upper module depends on the lower module one-way, and the reverse is wrong. However, it is normal for modules at the same layer to depend on each other, and such dependencies should be declared as `peerDependencies`. Otherwise the Turbo pipeline will report an error due to module circular dependencies. see: https://github.com/vercel/turbo/issues/1480",
+          "type": "object"
+        },
+        "version": {
+          "description": "The version of module. It is useful when we change the module config, then we need to make some migration. This usually comes with the `cc.migrations` field.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "type": "object"
+    }
+  }
+}

@@ -24,7 +24,8 @@
 */
 
 import { ccclass, string, override, serializable } from 'cc.decorator';
-import { path, cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
+import { path } from '../../core';
 import { Font } from './font';
 
 /**

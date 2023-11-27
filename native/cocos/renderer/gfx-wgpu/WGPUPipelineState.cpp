@@ -24,6 +24,7 @@
 
 #include "WGPUPipelineState.h"
 #include <emscripten/html5_webgpu.h>
+#include <algorithm>
 #include <numeric>
 #include "WGPUDescriptorSetLayout.h"
 #include "WGPUDevice.h"
@@ -101,10 +102,10 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
             hash_combine(hash, desc.fragment->constants[i].key);
             hash_combine(hash, desc.fragment->constants[i].value);
         }
+
         hash_combine(hash, desc.fragment->targetCount);
         for (uint32_t i = 0; i < desc.fragment->targetCount; ++i) {
             hash_combine(hash, desc.fragment->targets[i].format);
-            hash_combine(hash, desc.fragment->targets[i].blend);
             if (desc.fragment->targets[i].blend) {
                 hash_combine(hash, desc.fragment->targets[i].blend->color.operation);
                 hash_combine(hash, desc.fragment->targets[i].blend->color.srcFactor);
@@ -115,8 +116,6 @@ ccstd::hash_t hash(const WGPURenderPipelineDescriptor &desc) {
             }
             hash_combine(hash, desc.fragment->targets[i].writeMask);
         }
-    } else {
-        hash_combine(hash, 0);
     }
     return hash;
 }
@@ -295,7 +294,7 @@ void CCWGPUPipelineState::prepare(const ccstd::set<uint8_t> &setInUse) {
             .nextInChain = nullptr,
             .format = toWGPUTextureFormat(dsAttachment.format),
             .depthWriteEnabled = _depthStencilState.depthWrite != 0,
-            .depthCompare = _depthStencilState.depthTest ? toWGPUCompareFunction(_depthStencilState.depthFunc) : WGPUCompareFunction_Undefined,
+            .depthCompare = _depthStencilState.depthTest ? toWGPUCompareFunction(_depthStencilState.depthFunc) : WGPUCompareFunction_Always,
             .stencilFront = stencilFront,
             .stencilBack = stencilBack,
             .stencilReadMask = _depthStencilState.stencilReadMaskFront,

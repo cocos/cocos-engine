@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../schemas/module-config.schema.json",
+  "name": "@base/object",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts"
+    },
+    "./internal": {
+      "types": "./src/internal-index.ts"
+    }
+  }
+}

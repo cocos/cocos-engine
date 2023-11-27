@@ -22,12 +22,14 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
+import { Vec3, nextPow2, Mat4, Color } from '@base/math';
 import { BatchingSchemes, Pass } from '../render-scene/core/pass';
 import { Model } from '../render-scene/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { Vec3, nextPow2, Mat4, Color, Pool, geometry, cclegacy } from '../core';
-import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer } from '../gfx';
+import { geometry } from '../core';
+import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, CommandBuffer, deviceManager } from '../gfx';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../render-scene/scene/sphere-light';
 import { SpotLight } from '../render-scene/scene/spot-light';
@@ -36,8 +38,7 @@ import { RangedDirectionalLight } from '../render-scene/scene/ranged-directional
 import { SubModel } from '../render-scene/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../render-scene/scene/light';
-import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture, isEnableEffect } from './define';
+import { SetIndex, UBOForwardLight, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, supportsR32FloatTexture, isEnableEffect } from './define';
 import { Camera } from '../render-scene/scene/camera';
 import { ShadowType } from '../render-scene/scene/shadows';
 import { GlobalDSManager } from './global-descriptor-set-manager';
@@ -53,7 +54,7 @@ interface IAdditiveLightPass {
     lights: Light[];
 }
 
-const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
+const _lightPassPool = new memop.Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
 const _v3 = new Vec3();
 const _vec4Array = new Float32Array(4);
@@ -170,7 +171,7 @@ export class RenderAdditiveLightQueue {
         const keys = descriptorSetMap.keys;
 
         for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
+            const key = keys[i] as Light;
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
                 const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
@@ -183,7 +184,7 @@ export class RenderAdditiveLightQueue {
         }
     }
 
-    private _bindForwardAddLight (validPunctualLights, passLayout = 'default'): void {
+    private _bindForwardAddLight (validPunctualLights: Light[], passLayout = 'default'): void {
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         for (let i = 0; i < renderObjects.length; i++) {
             const ro = renderObjects[i];
@@ -490,7 +491,7 @@ export class RenderAdditiveLightQueue {
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstLightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
+            this._firstLightBufferView = deviceManager.gfxDevice.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
         for (let l = 0, offset = 0; l < validPunctualLights.length; l++, offset += this._lightBufferElementCount) {

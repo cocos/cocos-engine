@@ -272,6 +272,12 @@ const Elements = {
             this.$.mipfilter.innerHTML = optionsHtml;
 
             this.$.mipfilter.value = this.meta.userData.mipfilter || 'nearest';
+
+            // 临时记录 mipfilter 配置
+            this.metaList && this.metaList.forEach((meta) => {
+                Editor.Profile.setConfig('inspector', `${meta.uuid}.texture.mipfilter`, this.meta.userData.mipfilter, 'default');
+            });
+
             this.updateInvalid(this.$.mipfilter, 'mipfilter');
             updateElementReadonly.call(this, this.$.mipfilter);
         },

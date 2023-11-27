@@ -23,6 +23,6 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from './cocos/core/global-exports';
+import { cclegacy } from '@base/global';
 
-export default legacyCC;
+export default cclegacy;

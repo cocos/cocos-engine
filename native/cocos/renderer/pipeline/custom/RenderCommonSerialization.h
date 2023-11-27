@@ -161,6 +161,7 @@ inline void save(OutputArchive& ar, const MovePair& v) {
     save(ar, v.targetMostDetailedMip);
     save(ar, v.targetFirstSlice);
     save(ar, v.targetPlaneSlice);
+    save(ar, v.possibleUsage);
 }
 
 inline void load(InputArchive& ar, MovePair& v) {
@@ -171,6 +172,7 @@ inline void load(InputArchive& ar, MovePair& v) {
     load(ar, v.targetMostDetailedMip);
     load(ar, v.targetFirstSlice);
     load(ar, v.targetPlaneSlice);
+    load(ar, v.possibleUsage);
 }
 
 inline void save(OutputArchive& ar, const PipelineStatistics& v) {

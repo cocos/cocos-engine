@@ -25,9 +25,13 @@
 
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, displayOrder, serializable } from 'cc.decorator';
 import { DEBUG, DEV, EDITOR } from 'internal:constants';
+import { assert, warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { CCObject } from '@base/object';
+import { Color, Vec2, Size } from '@base/math';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
-import { assert, warnID, Color, Vec2, CCObject, cclegacy, js, Size } from '../../core';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';

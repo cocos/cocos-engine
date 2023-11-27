@@ -22,11 +22,12 @@
  THE SOFTWARE.
 */
 
+import { js } from '@base/utils';
+import { Event } from '@base/event';
 import { Node } from '../../scene-graph/node';
 import { Input, input } from '../../input';
-import { Event, EventMouse, EventTouch } from '../../input/types';
+import { EventMouse, EventTouch } from '../../input/types';
 import { DispatcherEventType, NodeEventProcessor } from '../../scene-graph/node-event-processor';
-import { js } from '../../core';
 import { InputEventType } from '../../input/types/event-enum';
 import { EventDispatcherPriority, IEventDispatcher } from '../../input/input';
 

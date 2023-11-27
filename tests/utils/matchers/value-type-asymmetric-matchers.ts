@@ -1,5 +1,5 @@
-import { Quat, Vec3 } from "../../../exports/base";
 import matchers from 'expect/build/matchers';
+import { Quat, Vec3 } from '@base/math';
 
 export { };
 

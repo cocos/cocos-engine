@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { Event } from './event';
+import { Event } from '@base/event';
 import { Acceleration } from '../acceleration';
 import { SystemEventType } from '../event-enum';
 

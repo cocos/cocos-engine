@@ -1,4 +1,3 @@
-import '../../../../utils/factory';
 import { addPoseNodeFactory, createMotion, fillStateMachine, MotionParams, StateMachineParams } from '../../../../utils/factory';
 import { PoseNodeStateMachine } from '../../../../../../../cocos/animation/marionette/pose-graph/pose-nodes/state-machine';
 

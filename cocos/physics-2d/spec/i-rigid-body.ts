@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { IVec2Like, Vec2 } from '@base/math';
 import { ILifecycle } from '../../physics/spec/i-lifecycle';
-import { IVec2Like, Vec2 } from '../../core';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { ERigidBody2DType } from '../framework/physics-types';
 

@@ -22,7 +22,11 @@
  THE SOFTWARE.
 */
 
-import { cclegacy, js, _decorator, path, jsbUtils, CallbacksInvoker, applyMixins } from '../../core';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
+import { applyMixins } from '@base/utils/internal';
+import { CallbacksInvoker } from '@base/event/internal';
+import { _decorator, path, jsbUtils } from '../../core';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { patch_cc_Asset } from '../../native-binding/decorators';
 import type { Asset as JsbAsset } from './asset';

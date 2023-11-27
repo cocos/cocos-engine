@@ -1,0 +1,18 @@
+{
+  "$schema": "../../../schemas/module-config.schema.json",
+  "name": "@base/debug",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "node ./scripts/build-debug-infos.js"
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts"
+    },
+    "./internal": {
+      "types": "./src/internal-index.ts"
+    }
+  }
+}

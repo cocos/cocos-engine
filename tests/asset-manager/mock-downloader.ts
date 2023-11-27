@@ -1,6 +1,6 @@
-import downloader from '../../cocos/asset/asset-manager/downloader';
 import * as fs from 'fs';
 import { PNG } from 'pngjs';
+import downloader from '../../cocos/asset/asset-manager/downloader';
 import { ImageData } from '../../exports/base';
 
 function downloadArrayBuffer (url, option, cb) {

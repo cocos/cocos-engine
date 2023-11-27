@@ -80,14 +80,25 @@ struct CharacterControllerContact {
     static constexpr uint8_t COUNT = 10;
 };
 struct CCTShapeEventPair {
-    uint32_t cct; //wrapper object ID
+    uint32_t cct;   //wrapper object ID
     uint32_t shape; //wrapper object ID
     //ETouchState state;
     ccstd::vector<CharacterControllerContact> contacts;
     static constexpr uint8_t COUNT = 3;
     CCTShapeEventPair(const uint32_t cct, const uint32_t shape)
-        : cct(cct), shape(shape) {
+    : cct(cct), shape(shape) {
     }
+};
+
+struct CCTTriggerEventPair {
+    uint32_t cct;   //wrapper object ID
+    uint32_t shape; //wrapper object ID
+    ETouchState state;
+    static constexpr uint8_t COUNT = 3;
+    CCTTriggerEventPair(const uint32_t cct, const uint32_t shape)
+    : cct(cct),
+      shape(shape),
+      state(ETouchState::ENTER) {}
 };
 
 struct ConvexDesc {
@@ -136,22 +147,23 @@ public:
     virtual void destroy() = 0;
     virtual void setCollisionMatrix(uint32_t i, uint32_t m) = 0;
     virtual ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() = 0;
-    virtual ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() = 0;
-    virtual ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() = 0;
+    virtual ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() = 0;
+    virtual ccstd::vector<std::shared_ptr<CCTShapeEventPair>> &getCCTShapeEventPairs() = 0;
+    virtual ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &getCCTTriggerEventPairs() = 0;
     virtual bool raycast(RaycastOptions &opt) = 0;
     virtual bool raycastClosest(RaycastOptions &opt) = 0;
     virtual ccstd::vector<RaycastResult> &raycastResult() = 0;
     virtual RaycastResult &raycastClosestResult() = 0;
     virtual bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
+                          float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
     virtual bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
+                                 float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
     virtual bool sweepSphere(RaycastOptions &opt, float radius) = 0;
     virtual bool sweepSphereClosest(RaycastOptions &opt, float radius) = 0;
     virtual bool sweepCapsule(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
+                              float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
     virtual bool sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
+                                     float orientationW, float orientationX, float orientationY, float orientationZ) = 0;
     virtual RaycastResult &sweepClosestResult() = 0;
     virtual ccstd::vector<RaycastResult> &sweepResult() = 0;
     virtual uint32_t createConvex(ConvexDesc &desc) = 0;

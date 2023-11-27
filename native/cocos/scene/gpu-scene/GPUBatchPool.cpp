@@ -54,11 +54,18 @@ void GPUBatch::addSubModel(const SubModel* subModel, uint32_t passIdx) {
     const auto meshIdx = subMesh->getMeshPoolIndex();
     const auto objectIdx = subModel->getObjectPoolIndex();
     auto *shader = subModel->getShader(passIdx);
+    auto *descriptorSet = subModel->getDescriptorSet();
+    auto *lightingMap = descriptorSet->getTexture(pipeline::LIGHTMAPTEXTURE::BINDING);
 
     auto *meshPool = _gpuScene->getMeshPool();
     const auto &meshData = meshPool->getSubMeshData(meshIdx);
 
     for (auto &item : _items) {
+        // whether to use the same lightmap
+        if (item.lightingMap != lightingMap) {
+            continue;
+        }
+
         // whether to use the same shader
         if (item.shader != shader) {
             continue;
@@ -91,7 +98,7 @@ void GPUBatch::addSubModel(const SubModel* subModel, uint32_t passIdx) {
     const gfx::InputAssemblerInfo info = {subMesh->getAttributes(), vbs, ib};
     auto *inputAssembler = device->createInputAssembler(info);
 
-    BatchItem item{0, 0, shader, inputAssembler, meshData.indexStride, {}};
+    BatchItem item{0, 0, shader, inputAssembler, descriptorSet, lightingMap, meshData.indexStride, {}};
     item.mesh2objects.insert({meshIdx, {objectIdx}});
 
     _items.push_back(item);
@@ -165,33 +172,33 @@ void GPUBatchPool::update(uint32_t stamp) {
     uint32_t batchId = 0U;
     const auto &meshPool = _gpuScene->getMeshPool();
 
-    for (auto &lightmapBatch : _batches) {
-        for (auto &passBatch : lightmapBatch.second) {
-            auto &items = passBatch.second->getItems();
+    for (auto &batch : _batches) {
+        const auto *pass = batch.second->getPass();
+        const auto phaseId = pass->getPhaseID();
+        auto &items = batch.second->getItems();
 
-            for (auto &item : items) {
-                item.first = first;
-                item.count = static_cast<uint32_t>(item.mesh2objects.size());
-                first += item.count;
+        for (auto &item : items) {
+            item.first = first;
+            item.count = static_cast<uint32_t>(item.mesh2objects.size());
+            first += item.count;
 
-                for (const auto &iter : item.mesh2objects) {
-                    const auto meshIdx = iter.first;
-                    const auto &meshData = meshPool->getSubMeshData(meshIdx);
+            for (const auto &iter : item.mesh2objects) {
+                const auto meshIdx = iter.first;
+                const auto &meshData = meshPool->getSubMeshData(meshIdx);
 
-                    const auto indexCount = meshData.indexCount;
-                    const auto firstIndex = meshData.firstIndex;
-                    const auto firstVertex = static_cast<int32_t>(meshData.firstVertex);
-                    const auto firstInstance = static_cast<uint32_t>(_instances.size());
-                    // const auto instanceCount = static_cast<uint32_t>(iter.second.size());
+                const auto indexCount = meshData.indexCount;
+                const auto firstIndex = meshData.firstIndex;
+                const auto firstVertex = static_cast<int32_t>(meshData.firstVertex);
+                const auto firstInstance = static_cast<uint32_t>(_instances.size());
+                // const auto instanceCount = static_cast<uint32_t>(iter.second.size());
 
-                    _indirectCmds.push_back({indexCount, 0, firstIndex, firstVertex, firstInstance});
+                _indirectCmds.push_back({indexCount, 0, firstIndex, firstVertex, firstInstance});
 
-                    for (const auto &objectIdx : iter.second) {
-                        _instances.push_back({objectIdx, batchId});
-                    }
-
-                    batchId++;
+                for (const auto &objectIdx : iter.second) {
+                    _instances.push_back({objectIdx, phaseId, batchId});
                 }
+
+                batchId++;
             }
         }
     }
@@ -200,7 +207,6 @@ void GPUBatchPool::update(uint32_t stamp) {
 }
 
 void GPUBatchPool::addModel(const Model* model) {
-    const auto *lightmap = model->getLightmap();
     const auto &subModels = model->getSubModels();
 
     for (const auto &subModel : subModels) {
@@ -209,22 +215,12 @@ void GPUBatchPool::addModel(const Model* model) {
 
         for (auto passIdx = 0; passIdx < passCount; passIdx++) {
             const auto &pass = passes[passIdx];
-            // Stanley TODO: only support base pass now.
-            if (pass->getPhaseID() != 1) {
-                continue;
+            auto iter = _batches.find(pass);
+            if (iter == _batches.cend()) {
+                iter = _batches.insert({pass, ccnew GPUBatch(_gpuScene, pass)}).first;
             }
 
-            auto lightmapIter = _batches.find(lightmap);
-            if (lightmapIter == _batches.cend()) {
-                lightmapIter = _batches.insert({lightmap, PassBatchMap()}).first;
-            }
-
-            auto passIter = lightmapIter->second.find(pass);
-            if (passIter == lightmapIter->second.cend()) {
-                passIter = lightmapIter->second.insert({pass, ccnew GPUBatch(_gpuScene, pass)}).first;
-            }
-
-            passIter->second->addSubModel(subModel, passIdx);
+            iter->second->addSubModel(subModel, passIdx);
         }
     }
 
@@ -232,7 +228,6 @@ void GPUBatchPool::addModel(const Model* model) {
 }
 
 void GPUBatchPool::removeModel(const Model* model) {
-    const auto *lightmap = model->getLightmap();
     const auto &subModels = model->getSubModels();
 
     for (const auto &subModel : subModels) {
@@ -241,22 +236,12 @@ void GPUBatchPool::removeModel(const Model* model) {
 
         for (auto passIdx = 0; passIdx < passCount; passIdx++) {
             const auto &pass = passes[passIdx];
-            // Stanley TODO: only support base pass now.
-            if (pass->getPhaseID() != 1) {
+            auto iter = _batches.find(pass);
+            if (iter == _batches.cend()) {
                 continue;
             }
 
-            auto lightmapIter = _batches.find(lightmap);
-            if (lightmapIter == _batches.cend()) {
-                continue;
-            }
-
-            auto passIter = lightmapIter->second.find(pass);
-            if (passIter == lightmapIter->second.cend()) {
-                continue;
-            }
-
-            passIter->second->removeSubModel(subModel, passIdx);
+            iter->second->removeSubModel(subModel, passIdx);
         }
     }
 
@@ -264,10 +249,8 @@ void GPUBatchPool::removeModel(const Model* model) {
 }
 
 void GPUBatchPool::removeAllModels() {
-    for (auto &lightMapBatch : _batches) {
-        for (auto &passBatch : lightMapBatch.second) {
-            CC_SAFE_DESTROY_AND_DELETE(passBatch.second);
-        }
+    for (auto &batch : _batches) {
+        CC_SAFE_DESTROY_AND_DELETE(batch.second);
     }
 
     _batches.clear();
@@ -308,7 +291,7 @@ void GPUBatchPool::createBuffers() {
     const auto indirectStride = getIndirectStride();
     const auto indirectSize = indirectStride * _indirectCapacity;
 
-    _indirectBuffer = device->createBuffer({gfx::BufferUsageBit::TRANSFER_SRC,
+    _indirectBuffer = device->createBuffer({gfx::BufferUsageBit::TRANSFER_SRC | gfx::BufferUsageBit::STORAGE,
                                             gfx::MemoryUsageBit::DEVICE,
                                             indirectSize,
                                             indirectStride});

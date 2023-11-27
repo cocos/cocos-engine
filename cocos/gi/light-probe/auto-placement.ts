@@ -22,7 +22,8 @@
  THE SOFTWARE.
 */
 
-import { Vec3, Enum } from '../../core';
+import { Enum } from '@base/object';
+import { Vec3 } from '@base/math';
 
 export const PlaceMethod = Enum({
     UNIFORM: 0,

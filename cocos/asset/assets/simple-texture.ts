@@ -25,10 +25,13 @@
 import { ccclass } from 'cc.decorator';
 import { DEV } from 'internal:constants';
 import { ImageData } from 'pal/image';
+import { assertID, error } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
 import { IMemoryImageSource } from '../../../pal/image/types';
 
 import { TextureFlagBit, TextureUsageBit, API, Texture, TextureInfo, TextureViewInfo, Device, BufferTextureCopy } from '../../gfx';
-import { assertID, error, js, macro, cclegacy } from '../../core';
+import { macro } from '../../core';
 import { Filter } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { TextureBase } from './texture-base';
@@ -319,13 +322,13 @@ export class SimpleTexture extends TextureBase {
         if (this._width === 0 || this._height === 0) { return; }
         let flags = TextureFlagBit.NONE;
         if (this._mipFilter !== Filter.NONE && canGenerateMipmap(device, this._width, this._height)) {
-            this._mipmapLevel = getMipLevel(this._width, this._height);
             if (!this.isUsingOfflineMipmaps() && !this.isCompressed) {
                 flags = TextureFlagBit.GEN_MIPMAP;
+                this._mipmapLevel = getMipLevel(this._width, this._height);
             }
         }
         const textureCreateInfo = this._getGfxTextureCreateInfo({
-            usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            usage: TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST | TextureUsageBit.COLOR_ATTACHMENT,
             format: this._getGFXFormat(),
             levelCount: this._mipmapLevel,
             flags,

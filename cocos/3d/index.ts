@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
 import * as utils from './misc';
-import { legacyCC } from '../core/global-exports';
 
 export * from './misc/batch-utils';
 export * from './assets';
@@ -37,4 +37,4 @@ export * from './reflection-probe';
 export {
     utils,
 };
-legacyCC.utils = utils;
+cclegacy.utils = utils;

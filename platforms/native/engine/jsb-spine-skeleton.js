@@ -177,7 +177,7 @@ const cacheManager = require('./jsb-cache-manager');
         this._callback = callback;
 
         // eslint-disable-next-line no-undef
-        const AnimationEventType = legacyCC.internal.SpineAnimationEventType;
+        const AnimationEventType = cc.internal.SpineAnimationEventType;
 
         this.setStartListener(function (trackEntry) {
             if (this._target && this._callback) {

@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
-import { markAsWarning, removeProperty, replaceProperty } from '../utils';
+import { cclegacy } from '@base/global';
+import { markAsWarning, removeProperty, replaceProperty } from '@base/utils';
 import { sys } from './sys';
-import { legacyCC } from '../global-exports';
 import { screen } from './screen';
 
-markAsWarning(legacyCC, 'cc', [
+markAsWarning(cclegacy, 'cc', [
     {
         name: 'winSize',
         suggest: 'please use view.getVisibleSize() instead.',

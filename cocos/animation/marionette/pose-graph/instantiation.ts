@@ -1,7 +1,8 @@
 // cSpell:words Evaluatable
 
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue, warn } from '../../../core';
+import { assertIsTrue } from '@base/debug/internal';
+import { warn } from '@base/debug';
 import { instantiate } from '../../../serialization';
 import { PoseNode, PoseTransformSpaceRequirement } from './pose-node';
 import { PoseGraph } from './pose-graph';
@@ -9,10 +10,7 @@ import { PureValueNode, PureValueNodeLinkContext } from './pure-value-node';
 import { NodeInputPath } from './foundation/node-shell';
 import { PoseGraphNode } from './foundation/pose-graph-node';
 import { PoseNodePlayMotion } from './pose-nodes/play-motion';
-import {
-    AnimationGraphBindingContext, AnimationGraphSettleContext,
-    AnimationGraphUpdateContext, AnimationGraphEvaluationContext,
-} from '../animation-graph-context';
+import { AnimationGraphBindingContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphEvaluationContext } from '../animation-graph-context';
 import type { Pose } from '../../core/pose';
 
 type EvaluatableNode = PoseNode | PureValueNode;

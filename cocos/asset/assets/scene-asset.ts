@@ -24,9 +24,9 @@
 */
 
 import { ccclass, editable, serializable } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { Scene } from '../../scene-graph/scene';
 import { Asset } from './asset';
-import { cclegacy } from '../../core';
 
 /**
  * @en Class for scene loading.

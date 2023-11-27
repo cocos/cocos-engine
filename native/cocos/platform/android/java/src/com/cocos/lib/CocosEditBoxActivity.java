@@ -413,14 +413,14 @@ public class CocosEditBoxActivity extends Activity {
         GlobalObject.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Intent i = new Intent(GlobalObject.getActivity(), CocosEditBoxActivity.class);
+                Intent i = new Intent(GlobalObject.getContext(), CocosEditBoxActivity.class);
                 i.putExtra("defaultValue", defaultValue);
                 i.putExtra("maxLength", maxLength);
                 i.putExtra("isMultiline", isMultiline);
                 i.putExtra("confirmHold", confirmHold);
                 i.putExtra("confirmType", confirmType);
                 i.putExtra("inputType", inputType);
-                GlobalObject.getActivity().startActivity(i);
+                GlobalObject.getContext().startActivity(i);
             }
         });
     }

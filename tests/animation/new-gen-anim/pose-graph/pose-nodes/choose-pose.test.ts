@@ -1,7 +1,7 @@
-import { PoseNodeChoosePoseByBoolean } from "../../../../../cocos/animation/marionette/pose-graph/pose-nodes/choose-pose/choose-pose-by-boolean";
-import { PoseNodeChoosePoseByIndex } from "../../../../../cocos/animation/marionette/pose-graph/pose-nodes/choose-pose/choose-pose-by-index";
-import { lerp } from "../../../../../exports/base";
-import { AnimationObserver_SingleRealValue, DEFAULT_NUM_DIGITS, PoseNodeEvaluationMock } from "./utils/evaluation-mock";
+import { lerp } from '@base/math';
+import { PoseNodeChoosePoseByBoolean } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/choose-pose/choose-pose-by-boolean';
+import { PoseNodeChoosePoseByIndex } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/choose-pose/choose-pose-by-index';
+import { AnimationObserver_SingleRealValue, DEFAULT_NUM_DIGITS, PoseNodeEvaluationMock } from './utils/evaluation-mock';
 
 describe(`Choose pose nodes`, () => {
     describe(`Authoring`, () => {

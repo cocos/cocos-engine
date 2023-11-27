@@ -90,6 +90,8 @@ export class WebGL2Framebuffer extends Framebuffer {
         };
 
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
+        this._width = this._gpuFramebuffer.width;
+        this._height = this._gpuFramebuffer.height;
     }
 
     public destroy (): void {

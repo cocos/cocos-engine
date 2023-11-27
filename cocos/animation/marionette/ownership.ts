@@ -23,7 +23,7 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { assertIsTrue } from '../../core';
+import { assertIsTrue } from '@base/debug/internal';
 
 export const ownerSymbol = Symbol('[[Owner]]');
 

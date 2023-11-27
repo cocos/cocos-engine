@@ -23,14 +23,13 @@
 */
 
 import { MouseCallback } from 'pal/input';
-import { MouseEventData, MouseWheelEventData, minigame } from 'pal/minigame';
-import { screenAdapter } from 'pal/screen-adapter';
-import { systemInfo } from 'pal/system-info';
-import { Vec2 } from '../../../cocos/core/math';
-import { EventTarget } from '../../../cocos/core/event';
+import { MouseEventData, MouseWheelEventData, minigame } from '@pal/minigame';
+import { screenAdapter } from '@pal/screen-adapter';
+import { systemInfo, Feature } from '@pal/system-info';
+import { EventTarget } from '@base/event';
+import { Vec2 } from '@base/math';
 import { EventMouse } from '../../../cocos/input/types';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { Feature } from '../../system-info/enum-type';
 
 export class MouseInputSource {
     private _eventTarget: EventTarget = new EventTarget();

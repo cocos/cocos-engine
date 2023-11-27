@@ -8,6 +8,7 @@ const Vue = require('vue/dist/vue.min.js');
 const propUtils = require('../utils/prop');
 
 const cssMediaWidth = 340;
+let layout = 'vertical';
 
 exports.template = `
 <style>
@@ -945,6 +946,19 @@ exports.methods = {
         const lockDirection = LockFlags[direction];
         return lockValue & lockDirection;
     },
+    setLayout() {
+        const rect = this.$this.getBoundingClientRect();
+
+        this.layout ??= layout;
+
+        if (rect.width) {
+            if (rect.width > cssMediaWidth) {
+                layout = this.layout = 'horizontal';
+            } else {
+                layout = this.layout = 'vertical';
+            }
+        }
+    },
 };
 const uiElements = {
     baseProps: {
@@ -1213,12 +1227,7 @@ exports.ready = function() {
                 return;
             }
 
-            const rect = this.$this.getBoundingClientRect();
-            if (rect.width > cssMediaWidth) {
-                this.layout = 'horizontal';
-            } else {
-                this.layout = 'vertical';
-            }
+            this.setLayout();
         });
     });
 
@@ -1235,12 +1244,9 @@ exports.update = function(dump) {
     this.dump = dump;
     this.dimensionHorizontal = this.getDimensionHorizontal();
     this.dimensionVertical = this.getDimensionVertical();
-    const rect = this.$this.getBoundingClientRect();
-    if (rect.width > cssMediaWidth) {
-        this.layout = 'horizontal';
-    } else {
-        this.layout = 'vertical';
-    }
+
+    this.setLayout();
+
     if (!this.vm) {
         this.vm = new Vue({
             el: this.$.app,

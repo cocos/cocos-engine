@@ -21,10 +21,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { ccwindow } from '@base/global';
+import { assert } from '@base/debug';
 import { RawDataType, ImageSource } from './types';
 import { sys } from '../../cocos/core/platform/sys';
-import { ccwindow } from '../../cocos/core/global-exports';
-import { assert } from '../../cocos/core/platform/debug';
 
 export class BaseImageData {
     // TODO(qgh):Designed for compatibility, may be removed in the future.

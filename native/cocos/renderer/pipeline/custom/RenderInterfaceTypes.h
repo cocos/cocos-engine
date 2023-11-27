@@ -782,6 +782,12 @@ public:
     virtual void updateDepthStencil(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     virtual uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
     virtual void updateResource(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
+    virtual uint32_t addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount) = 0;
+    virtual uint32_t addBuffer(const ccstd::string &name, uint32_t size, ResourceFlags flags, ResourceResidency residency) = 0;
+    virtual void updateBuffer(const ccstd::string &name, uint32_t size) = 0;
+    virtual uint32_t addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) = 0;
+    virtual void updateExternalTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     /**
      * @engineInternal
      * @en Begin rendering one frame
@@ -1451,7 +1457,7 @@ public:
      * @param hzbName @en name of hierarchical z buffer @zh 层次深度缓存的名字
      * @param light @en light of the culling pass @zh 剔除通道的灯光
      */
-    virtual void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light, bool bMainPass) = 0;
+    virtual void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light, uint32_t level, bool bMainPass) = 0;
     /**
      * @en Add hierarchical z buffer generation pass
      * @zh 添加层次化深度缓存生成通道
@@ -1483,13 +1489,19 @@ public:
         updateStorageTexture(name, width, height, gfx::Format::UNKNOWN);
     }
     void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera) {
-        addBuiltinGpuCullingPass(cullingID, camera, "", nullptr, true);
+        addBuiltinGpuCullingPass(cullingID, camera, "", "", nullptr, 0, true);
     }
-    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName) {
-        addBuiltinGpuCullingPass(cullingID, camera, hzbName, nullptr, true);
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath) {
+        addBuiltinGpuCullingPass(cullingID, camera, layoutPath, "", nullptr, 0, true);
     }
-    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) {
-        addBuiltinGpuCullingPass(cullingID, camera, hzbName, light, true);
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName) {
+        addBuiltinGpuCullingPass(cullingID, camera, layoutPath, hzbName, nullptr, 0, true);
+    }
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light) {
+        addBuiltinGpuCullingPass(cullingID, camera, layoutPath, hzbName, light, 0, true);
+    }
+    void addBuiltinGpuCullingPass(uint32_t cullingID, const scene::Camera *camera, const std::string &layoutPath, const std::string &hzbName, const scene::Light *light, uint32_t level) {
+        addBuiltinGpuCullingPass(cullingID, camera, layoutPath, hzbName, light, level, true);
     }
 };
 

@@ -25,12 +25,11 @@
  THE SOFTWARE.
 */
 
-import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
-import { legacyCC } from '../global-exports';
-import { Size } from '../math';
+import { PalScreenEvent, screenAdapter } from '@pal/screen-adapter';
+import { cclegacy } from '@base/global';
+import { error, warn, warnID } from '@base/debug';
+import { Size } from '@base/math';
 import { Settings, settings } from '../settings';
-import { error, warn, warnID } from './debug';
-import { PalScreenEvent } from '../../../pal/screen-adapter/enum-type';
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
@@ -44,7 +43,7 @@ export class Screen {
         const orientation = settings.querySettings(Settings.Category.SCREEN, 'orientation') ?? 'auto';
         const isHeadlessMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') === 3;
         screenAdapter.init({ exactFitScreen, configOrientation: orientation, isHeadlessMode }, (): void => {
-            const director = legacyCC.director;
+            const director = cclegacy.director;
             if (!director.root?.pipeline) {
                 warnID(1220);
                 return;
@@ -225,6 +224,6 @@ export class Screen {
 
 const screen = new Screen();
 
-legacyCC.screen = screen;
+cclegacy.screen = screen;
 
 export { screen };

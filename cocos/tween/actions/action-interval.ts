@@ -25,8 +25,9 @@
  THE SOFTWARE.
 */
 
+import { logID, errorID } from '@base/debug';
 import { FiniteTimeAction, Action } from './action';
-import { macro, logID, errorID } from '../../core';
+import { macro } from '../../core';
 import { ActionInstant } from './action-instant';
 
 /**

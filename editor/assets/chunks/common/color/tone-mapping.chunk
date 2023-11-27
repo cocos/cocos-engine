@@ -8,10 +8,12 @@ vec3 HDRToLDR(vec3 color)
     #if CC_USE_DEBUG_VIEW == CC_SURFACES_DEBUG_VIEW_COMPOSITE_AND_MISC && CC_SURFACES_ENABLE_DEBUG_VIEW
       if (IS_DEBUG_VIEW_COMPOSITE_ENABLE_TONE_MAPPING)
     #endif
+    {
     // linear exposure has already applied to light intensity
     #if CC_TONE_MAPPING_TYPE == HDR_TONE_MAPPING_ACES
       color.rgb = ACESToneMap(color.rgb);
     #endif
+    }
   #endif
 	
   return color;

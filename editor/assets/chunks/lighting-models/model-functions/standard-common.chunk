@@ -205,14 +205,14 @@ vec3 CalculateEnvironmentSpecular(in LightingIntermediateData lightingData, floa
           vec3 R = normalize(CalculateReflectDirection(lightingData.N, lightingData.V, lightingData.NoV));
           vec4 fixedR = CalculateBoxProjectedDirection(R, worldPos, centerPos, boxHalfSize);
           envSpec = mix(skyBoxEnv, envSpec, fixedR.w);
-        #endif 
+        #endif
       }else{
         vec3 centerPosBlend, boxHalfSizeBlend;
         float mipCountBlend;
         GetBlendCubeReflectionProbeData(centerPosBlend, boxHalfSizeBlend, mipCountBlend, FSInput_reflectionProbeBlendId);
         vec3 probeBlend = SampleEnvironmentSpecular(cc_reflectionProbeBlendCubemap, lightingData, mipCountBlend, worldPos, centerPosBlend, boxHalfSizeBlend, isBlendReflectProbeUsingRGBE(FSInput_reflectionProbeBlendId));
         envSpec = mix(envSpec, probeBlend, blendFactor);
-      }     
+      }
     }
   #endif
 #elif CC_USE_IBL

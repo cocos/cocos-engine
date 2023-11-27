@@ -23,7 +23,7 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { absMaxComponent, clamp, Vec3 } from '../../../core';
+import { absMaxComponent, clamp, Vec3 } from '@base/math';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';

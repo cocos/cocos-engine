@@ -20,7 +20,7 @@ ninja -C build genbindings
 echo "==== npm install in build-engine ..."
 cd ..
 npm install
-cd scripts/build-engine
+cd packages/build-engine
 
 echo "==== Installing babel dependencies ..."
 npm install

@@ -23,7 +23,7 @@
 */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { Quat, Vec2, Vec3, Vec4 } from '../core';
+import { Quat, Vec2, Vec3, Vec4 } from '@base/math';
 import { ILerpable } from './types';
 
 interface ICubicSplineValue<T> extends ILerpable {

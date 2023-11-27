@@ -35,7 +35,7 @@ using HandleScope = napi_handle_scope;
 namespace se {
 class AutoHandleScope {
 public:
-    // This interface needs to be implemented in NAPI, similar to V8. 
+    // This interface needs to be implemented in NAPI, similar to V8.
     // Ref:https://nodejs.org/docs/latest-v17.x/api/n-api.html#object-lifetime-management
     AutoHandleScope();
     ~AutoHandleScope();
@@ -43,7 +43,7 @@ public:
 private:
     HandleScope _handleScope;
 };
-using RegisterCallback  = bool (*)(Object *);
+using RegisterCallback = bool (*)(Object *);
 using ExceptionCallback = std::function<void(const char *, const char *, const char *)>; // location, message, stack
 
 class ScriptEngine {
@@ -197,7 +197,7 @@ public:
     Object *getGlobalObject() const;
 
     static napi_env getEnv();
-    static void     setEnv(napi_env env);
+    static void setEnv(napi_env env);
 
     /**
          *  @brief Adds a callback for registering a native binding module.
@@ -256,6 +256,17 @@ public:
          */
     void mainLoopUpdate();
 
+    /**
+     * @brief
+     * This function asks ScriptEngine to interrupt lengthy JavaScript operations and run the provided callback, passing the supplied data to it.
+     * Once the callback completes, control returns to the JavaScript code. Multiple interrupt requests may be ongoing.
+     * This function can be called from a different thread without needing a Locker. The registered callback should not reenter the interrupted Isolate.
+     * @param callback the callback to be called when interruption happens.
+     * @param data the data to be passed to the callback
+     */
+    void requestInterrupt(void (*callback)(void *), void *data) { /* NOT SUPPORTED BY NAPI*/
+    }
+
     bool runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */);
 
     /**
@@ -263,12 +274,12 @@ public:
      */
     void throwException(const std::string &errorMessage);
 
-     /**
+    /**
      * @brief for napi_new_instance, skip constructor.
      */
     void _setNeedCallConstructor(bool need);
 
-     /**
+    /**
      * @brief for napi_new_instance, skip constructor.
      */
     bool _needCallConstructor();
@@ -283,7 +294,7 @@ public:
     void handlePromiseExceptions();
 
 private:
-    FileOperationDelegate         _fileOperationDelegate;
+    FileOperationDelegate _fileOperationDelegate;
     std::vector<RegisterCallback> _registerCallbackArray;
     std::vector<RegisterCallback> _permRegisterCallbackArray;
 
@@ -292,8 +303,8 @@ private:
     std::vector<std::function<void()>> _beforeCleanupHookArray;
     std::vector<std::function<void()>> _afterCleanupHookArray;
 
-    Object * _globalObj = nullptr;
-    napi_env _env       = nullptr;
+    Object *_globalObj = nullptr;
+    napi_env _env = nullptr;
 
     bool _isValid{false};
     bool _isGarbageCollecting{false};

@@ -23,7 +23,9 @@
 */
 import { ccclass, executeInEditMode, help, menu, playOnFocus, serializable, tooltip, type, visible } from 'cc.decorator';
 import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { CCBoolean, CCObject, Color, Enum, Vec3, warn } from '../../core';
+import { warn } from '@base/debug';
+import { CCBoolean, CCObject, Enum } from '@base/object';
+import { Color, Vec3 } from '@base/math';
 
 import { TextureCube } from '../../asset/assets';
 import { scene } from '../../render-scene';
@@ -192,6 +194,7 @@ export class ReflectionProbe extends Component {
      * @zh 相机的缓冲清除标志位，指定帧缓冲的哪部分要每帧清除。
      */
     @type(Enum(ProbeClearFlag))
+    @visible(function (this: ReflectionProbe) { return this.probeType === ProbeType.CUBE; })
     set clearFlag (value: number) {
         this._clearFlag = value;
         this.probe.clearFlag = this._clearFlag;
@@ -204,7 +207,7 @@ export class ReflectionProbe extends Component {
      * @en Clearing color of the camera.
      * @zh 相机的颜色缓冲默认值。
      */
-    @visible(function (this: ReflectionProbe) { return this._clearFlag === ProbeClearFlag.SOLID_COLOR; })
+    @visible(function (this: ReflectionProbe) { return this._clearFlag === ProbeClearFlag.SOLID_COLOR && this.probeType === ProbeType.CUBE; })
     @type(Color)
     set backgroundColor (val: Color) {
         this._backgroundColor = val;

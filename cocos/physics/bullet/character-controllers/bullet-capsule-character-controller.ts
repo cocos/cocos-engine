@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec3, absMax } from '../../../core';
+import { Vec3, absMax } from '@base/math';
 import { PhysicsSystem } from '../../framework';
 import { ICapsuleCharacterController } from '../../spec/i-character-controller';
 import { CapsuleCharacterController } from '../../framework/components/character-controllers/capsule-character-controller';

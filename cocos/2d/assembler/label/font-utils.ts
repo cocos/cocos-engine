@@ -22,14 +22,16 @@
  THE SOFTWARE.
 */
 
+import { warn, warnID } from '@base/debug';
+import { ccwindow } from '@base/global';
+import { Color } from '@base/math';
 import { FontAtlas } from '../../assets/bitmap-font';
-import { Color, macro, warn, warnID, ImageData } from '../../../core';
+import { macro, ImageData } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
-import { ccwindow } from '../../../core/global-exports';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;

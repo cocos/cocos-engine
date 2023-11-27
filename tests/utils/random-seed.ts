@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { VERSION } from '../../exports/base';
+import { VERSION } from '@base/global';
 
 export const getMagicSeed = () => {
     const text = `${VERSION}: ${expect.getState().currentTestName ?? ''}`;

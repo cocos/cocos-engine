@@ -22,10 +22,12 @@
  THE SOFTWARE.
 */
 
+import { CCFloat, CCBoolean } from '@base/object';
+import { Vec2, IVec2Like, toDegree } from '@base/math';
 import { Joint2D } from './joint-2d';
 import { ISliderJoint } from '../../../spec/i-physics-joint';
 import { EJoint2DType } from '../../physics-types';
-import { Vec2, IVec2Like, toDegree, _decorator, CCFloat, CCBoolean } from '../../../../core';
+import { _decorator } from '../../../../core';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const tempVec2 = new Vec2();

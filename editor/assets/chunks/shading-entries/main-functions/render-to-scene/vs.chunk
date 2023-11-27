@@ -29,7 +29,7 @@ void main()
   SurfacesVertexModifySharedData(In);
 
   // Other Data
-  CCSurfacesVertexTransformUV(In);  
+  CCSurfacesVertexTransformUV(In);
   CCSurfacesVertexTransferFog(In);
   CCSurfacesVertexTransferLightMapUV(In);
 

@@ -22,15 +22,16 @@
  THE SOFTWARE.
 */
 
-import {
-    ccclass, disallowMultiple,
-    tooltip, displayOrder, type, serializable } from 'cc.decorator';
+import { ccclass, disallowMultiple, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { DEBUG } from 'internal:constants';
-import { Vec3, warn, CCFloat, Eventify } from '../../../../core';
+import { warn } from '@base/debug';
+import { CCFloat } from '@base/object';
+import { Eventify } from '@base/event';
+import { Vec3 } from '@base/math';
 import { Component } from '../../../../scene-graph';
 import { IBaseCharacterController } from '../../../spec/i-character-controller';
 import { ECharacterControllerType } from '../../physics-enum';
-import { CharacterCollisionEventType } from '../../physics-interface';
+import { CharacterCollisionEventType, CharacterTriggerEventType, TriggerEventType } from '../../physics-interface';
 import { selector, createCharacterController } from '../../physics-selector';
 import { PhysicsSystem } from '../../physics-system';
 
@@ -145,7 +146,7 @@ export class CharacterController extends Eventify(Component) {
         if (this._skinWidth === value) return;
         this._skinWidth = Math.abs(value);
         if (this._cct) {
-            this._cct.setContactOffset(value);
+            this._cct.setContactOffset(Math.max(0.0001, value));
         }
     }
 
@@ -232,11 +233,11 @@ export class CharacterController extends Eventify(Component) {
     @serializable
     private _minMoveDistance = 0.001; //[ 0, infinity ]
     @serializable
-    private _stepOffset = 1.0;
+    private _stepOffset = 0.5;
     @serializable
     private _slopeLimit = 45.0; //degree[ 0, 180]
     @serializable
-    private _skinWidth = 0.01;
+    private _skinWidth = 0.01; //[ 0.0001, infinity ]
     // @serializable
     // private _detectCollisions = true;
     // @serializable
@@ -251,6 +252,7 @@ export class CharacterController extends Eventify(Component) {
     private _centerWorldPosition: Vec3 = new Vec3();
 
     protected _needCollisionEvent = false;
+    protected _needTriggerEvent = false;
 
     protected get _isInitialized (): boolean {
         if (this._cct === null || !this._initialized) {
@@ -285,6 +287,7 @@ export class CharacterController extends Eventify(Component) {
     protected onDestroy (): void {
         if (this._cct) {
             this._needCollisionEvent = false;
+            this._needTriggerEvent = false;
             this._cct.updateEventListener();
             this._cct.onDestroy!();
             this._cct = null;
@@ -307,8 +310,11 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Sets world position of center.
+     * Note: Calling this function will immediately synchronize the position of
+     * the character controller in the physics world to the node.
      * @zh
      * 设置中心的世界坐标。
+     * 注意：调用该函数会立刻将角色控制器在物理世界中的位置同步到节点上。
      */
     public set centerWorldPosition (value: Readonly<Vec3>) {
         if (this._isInitialized) this._cct!.setPosition(value);
@@ -317,8 +323,10 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Gets the velocity.
+     * Note: velocity is only updated after move() is called.
      * @zh
      * 获取速度。
+     * 注意：velocity 只会在 move() 调用后更新。
      */
     public get velocity (): Readonly<Vec3> {
         return this._velocity;
@@ -327,8 +335,10 @@ export class CharacterController extends Eventify(Component) {
     /**
      * @en
      * Gets whether the character is on the ground.
+     * Note: isGrounded is only updated after move() is called.
      * @zh
      * 获取是否在地面上。
+     * 注意：isGrounded 只会在 move() 调用后更新。
      */
     public get isGrounded (): boolean {
         return this._cct!.onGround();
@@ -351,6 +361,8 @@ export class CharacterController extends Eventify(Component) {
 
         this._currentPos.set(this.centerWorldPosition);
         this._velocity = this._currentPos.subtract(this._prevPos).multiplyScalar(1.0 / elapsedTime);
+
+        this._cct!.syncPhysicsToScene();
     }
 
     /// EVENT INTERFACE ///
@@ -363,7 +375,8 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?, once?: boolean): any {
+    public on<TFunction extends (...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
+        callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -378,7 +391,7 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: CharacterCollisionEventType, callback?: (...any) => void, target?): void {
+    public off (type: CharacterTriggerEventType | CharacterCollisionEventType, callback?: (...any) => void, target?): void {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -392,7 +405,8 @@ export class CharacterController extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once<TFunction extends (...any) => void>(type: CharacterCollisionEventType, callback: TFunction, target?): any {
+    public once<TFunction extends (...any) => void>(type: CharacterTriggerEventType | CharacterCollisionEventType,
+        callback: TFunction, target?): any {
         // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);
@@ -495,14 +509,28 @@ export class CharacterController extends Eventify(Component) {
         return this._needCollisionEvent;
     }
 
+    public get needTriggerEvent (): boolean {
+        return this._needTriggerEvent;
+    }
+
     private _updateNeedEvent (type?: string): void {
         if (this.isValid) {
             if (type !== undefined) {
                 if (type === 'onControllerColliderHit') {
                     this._needCollisionEvent = true;
                 }
-            } else if (!this.hasEventListener('onControllerColliderHit')) {
-                this._needCollisionEvent = false;
+                if (type === 'onControllerTriggerEnter' || type === 'onControllerTriggerStay' || type === 'onControllerTriggerExit') {
+                    this._needTriggerEvent = true;
+                }
+            } else {
+                if (!this.hasEventListener('onControllerColliderHit')) {
+                    this._needCollisionEvent = false;
+                }
+                if (!(this.hasEventListener('onControllerTriggerEnter')
+                    || this.hasEventListener('onControllerTriggerStay')
+                    || this.hasEventListener('onControllerTriggerExit'))) {
+                    this._needTriggerEvent = false;
+                }
             }
             if (this._cct) this._cct.updateEventListener();
         }

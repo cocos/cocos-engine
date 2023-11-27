@@ -1,5 +1,5 @@
 {
-    "$schema": "./cc.config.schema.json",
+    "$schema": "./schemas/cc.config.schema.json",
 
     "features": {
         "base": {
@@ -98,6 +98,9 @@
         "physics-2d-builtin": {
             "modules": ["physics-2d-builtin", "physics-2d-framework"]
         },
+        "physics-2d-box2d-wasm": {
+            "modules": ["physics-2d-box2d-wasm", "physics-2d-framework"]
+        },
         "intersection-2d": {
             "modules": ["intersection-2d"]
         },
@@ -184,6 +187,7 @@
             "modules": ["custom-pipeline"],
             "dependentAssets": [
                 "15049ccd-4dd7-451e-a8ae-af66735c929e",
+                "521c5f6e-1a26-42e2-8108-4400c912d9bf",
                 "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3",
                 "4361db28-3f24-44cc-8e51-32ee5fd651ac",
                 "cafd95c9-c558-46f9-9812-1224b65c09ee",
@@ -295,13 +299,8 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.HTML5",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/web/player.ts",
-                "pal/system-info": "pal/system-info/web/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/web/screen-adapter.ts",
                 "pal/input": "pal/input/web/index.ts",
-                "pal/env": "pal/env/web/env.ts",
-                "pal/pacer": "pal/pacer/pacer-web.ts",
                 "pal/wasm": "pal/wasm/wasm-web.ts",
                 "pal/image":"pal/image/web/image-data.ts"
             }
@@ -310,13 +309,8 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.NATIVE",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/native/player.ts",
-                "pal/system-info": "pal/system-info/native/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/native/screen-adapter.ts",
                 "pal/input": "pal/input/native/index.ts",
-                "pal/env": "pal/env/native/env.ts",
-                "pal/pacer": "pal/pacer/pacer-native.ts",
                 "pal/wasm": "pal/wasm/wasm-native.ts",
                 "pal/image":"pal/image/native/image-data.ts"
             }
@@ -325,13 +319,8 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.MINIGAME",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system-info": "pal/system-info/minigame/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
-                "pal/env": "pal/env/minigame/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
                 "pal/image":"pal/image/minigame/image-data.ts"
             }
@@ -340,13 +329,8 @@
             "test": "context.buildTimeConstants && context.buildTimeConstants.RUNTIME_BASED",
             "isVirtualModule": true,
             "overrides": {
-                "pal/minigame": "pal/minigame/runtime.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
-                "pal/system-info": "pal/system-info/minigame/system-info.ts",
-                "pal/screen-adapter": "pal/screen-adapter/minigame/screen-adapter.ts",
                 "pal/input": "pal/input/minigame/index.ts",
-                "pal/env": "pal/env/runtime/env.ts",
-                "pal/pacer": "pal/pacer/pacer-minigame.ts",
                 "pal/wasm": "pal/wasm/wasm-minigame.ts",
                 "pal/image":"pal/image/minigame/image-data.ts"
             }
@@ -679,6 +663,12 @@
             "comment": "An internal constant to indicate whether we use wasm assets as minigame subpackage.\nThis is useful when we need to reduce code size.",
             "type": "boolean",
             "value": false,
+            "internal": true
+        },
+        "CULL_MESHOPT": {
+            "comment": "An internal constant to indicate whether we cull the meshopt wasm module and asm.js module.",
+            "type": "boolean",
+            "value": true,
             "internal": true
         }
     },

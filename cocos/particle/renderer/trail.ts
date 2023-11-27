@@ -23,12 +23,14 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, serializable, range } from 'cc.decorator';
+import { warnID } from '@base/debug';
+import { cclegacy } from '@base/global';
+import { memop } from '@base/utils';
+import { Color, Mat4, Quat, toRadian, Vec3 } from '@base/math';
 import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { director } from '../../game/director';
-import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Device, Attribute, Buffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
-import { Color, Mat4, Quat, toRadian, Vec3, Pool, warnID, cclegacy } from '../../core';
+import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
 import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
 import GradientRange from '../animator/gradient-range';
@@ -322,7 +324,7 @@ export default class TrailModule {
     private _trailLifetime = 0;
     private vbOffset = 0;
     private ibOffset = 0;
-    private _trailSegments: Pool<TrailSegment> | null = null;
+    private _trailSegments: memop.Pool<TrailSegment> | null = null;
     private _particleTrail: Map<Particle, TrailSegment>;
     private _trailModel: scene.Model | null = null;
     private _subMeshData: RenderingSubMesh | null = null;
@@ -376,7 +378,7 @@ export default class TrailModule {
             warnID(6036);
         }
         this._trailNum = Math.ceil(psTime * Math.ceil(this.lifeTime.getMax()) * 60 * (psRate * duration + burstCount));
-        this._trailSegments = new Pool((): TrailSegment => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment): number => obj.trailElements.length = 0);
+        this._trailSegments = new memop.Pool((): TrailSegment => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment): number => obj.trailElements.length = 0);
         if (this._enable) {
             this.enable = this._enable;
         }

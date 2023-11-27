@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
-import { Color, Rect, Size, Vec2 } from '../core';
+import { ccenum } from '@base/object';
+import { Color, Rect, Size, Vec2 } from '@base/math';
 import { SpriteFrame } from '../2d/assets';
-import { ccenum } from '../core/value-types/enum';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 import { Texture2D } from '../asset/assets';
 

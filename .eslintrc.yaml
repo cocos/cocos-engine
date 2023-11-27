@@ -71,6 +71,7 @@ rules:
     import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
     import/prefer-default-export: off # prefer named exports
+    import/no-extraneous-dependencies: [error]
     indent: [error, 4, {
       SwitchCase: 0,
       ignoredNodes: [ # https://stackoverflow.com/a/72897089
@@ -82,7 +83,7 @@ rules:
 
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
-    max-len: [warn, 150] # more lenient on max length per line
+    max-len: off # no max line length limitation
     no-console: error # prefer the uniform logging methods
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
@@ -120,7 +121,7 @@ rules:
     # NOTE: We don't want to rely on TS automatic type inference
     '@typescript-eslint/no-inferrable-types': off
 
-    # TODO: sadly we still rely heavily on legacyCC
+    # TODO: sadly we still rely heavily on cclegacy
     '@typescript-eslint/no-unsafe-assignment': off
     '@typescript-eslint/no-unsafe-call': off
     '@typescript-eslint/no-unsafe-member-access': off

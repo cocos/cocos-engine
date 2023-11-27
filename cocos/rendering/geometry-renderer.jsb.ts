@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { cclegacy } from '../core';
+import { cclegacy } from '@base/global';
 import type { GeometryRenderer as JsbGeometryRenderer } from './geometry-renderer';
 
 declare const jsb: any;

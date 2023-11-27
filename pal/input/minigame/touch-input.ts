@@ -23,17 +23,15 @@
 */
 
 import { TouchCallback } from 'pal/input';
-import { minigame } from 'pal/minigame';
-import { screenAdapter } from 'pal/screen-adapter';
-import { systemInfo } from 'pal/system-info';
-import { ALIPAY, VIVO } from 'internal:constants';
-import { Size, Vec2 } from '../../../cocos/core/math';
-import { EventTarget } from '../../../cocos/core/event';
+import { minigame } from '@pal/minigame';
+import { screenAdapter } from '@pal/screen-adapter';
+import { systemInfo, Feature } from '@pal/system-info';
+import { EventTarget } from '@base/event';
+import { Size, Vec2 } from '@base/math';
 import { EventTouch, Touch } from '../../../cocos/input/types';
 import { touchManager } from '../touch-manager';
 import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
-import { Feature } from '../../system-info/enum-type';
 
 export class TouchInputSource {
     private _eventTarget: EventTarget = new EventTarget();
@@ -52,7 +50,7 @@ export class TouchInputSource {
     }
 
     private _createCallback (eventType: InputEventType) {
-        return (event: any): void => {
+        return (event: TouchEvent): void => {
             const handleTouches: Touch[] = [];
             const windowSize = screenAdapter.windowSize;
             const dpr = screenAdapter.devicePixelRatio;
@@ -64,7 +62,7 @@ export class TouchInputSource {
                     continue;
                 }
                 const location = this._getLocation(changedTouch, windowSize, dpr);
-                const touch = touchManager.getTouch(touchID, location.x, location.y);
+                const touch = touchManager.getOrCreateTouch(touchID, location.x, location.y);
                 if (!touch) {
                     continue;
                 }
@@ -74,8 +72,12 @@ export class TouchInputSource {
                 handleTouches.push(touch);
             }
             if (handleTouches.length > 0) {
-                const eventTouch = new EventTouch(handleTouches, false, eventType,
-                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches);
+                const eventTouch = new EventTouch(
+                    handleTouches,
+                    false,
+                    eventType,
+                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches,
+                );
                 this._eventTarget.emit(eventType, eventTouch);
             }
         };

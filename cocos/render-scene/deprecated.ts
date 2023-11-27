@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 
-import { replaceProperty, removeProperty } from '../core';
+import { cclegacy } from '@base/global';
+import { replaceProperty, removeProperty } from '@base/utils';
 import { RenderScene } from './core/render-scene';
 import { Layers } from '../scene-graph/layers';
-import { legacyCC } from '../core/global-exports';
 import { Pass } from './core/pass';
 import { Camera } from './scene/camera';
 import { Shadows } from './scene/shadows';
@@ -94,7 +94,7 @@ replaceProperty(CameraVisFlags, 'CameraVisFlags', [
     },
 ]);
 
-legacyCC.CameraVisFlags = CameraVisFlags;
+cclegacy.CameraVisFlags = CameraVisFlags;
 
 export { CameraVisFlags };
 
@@ -145,7 +145,7 @@ replaceProperty(VisibilityFlags, 'VisibilityFlags', [
     },
 ]);
 
-legacyCC.VisibilityFlags = VisibilityFlags;
+cclegacy.VisibilityFlags = VisibilityFlags;
 
 export { VisibilityFlags };
 

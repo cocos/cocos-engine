@@ -22,10 +22,9 @@
  THE SOFTWARE.
 */
 
-import { ccclass, disallowMultiple, executeInEditMode,
-    executionOrder, help, menu, requireComponent } from 'cc.decorator';
+import { ccclass, disallowMultiple, executeInEditMode, executionOrder, help, menu, requireComponent } from 'cc.decorator';
+import { cclegacy } from '@base/global';
 import { Component } from '../../scene-graph/component';
-import { cclegacy } from '../../core';
 import { UITransform } from './ui-transform';
 
 /**

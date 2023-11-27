@@ -29,10 +29,10 @@
 
 #include <ace/xcomponent/native_interface_xcomponent.h>
 
+#include <napi/native_api.h>
 #include <uv.h>
 #include <string>
 #include <unordered_map>
-#include <napi/native_api.h>
 
 #include "platform/openharmony/WorkerMessageQueue.h"
 
@@ -48,7 +48,7 @@ public:
     void onHideNative();
     void onDestroyNative();
 
-    void workerInit(napi_env env, uv_loop_t* loop);
+    void workerInit(uv_loop_t* loop);
 
     void setNativeXComponent(OH_NativeXComponent* component);
 
@@ -56,18 +56,19 @@ public:
     int32_t loop() override;
 
     void requestVSync();
-    
+
     void enqueue(const WorkerMessageData& data);
     bool dequeue(WorkerMessageData* data);
 
     void triggerMessageSignal();
-    ISystemWindow *createNativeWindow(uint32_t windowId, void *externalHandle) override;
+    ISystemWindow* createNativeWindow(uint32_t windowId, void* externalHandle) override;
+
 public:
     // Callback, called by ACE XComponent
     void onSurfaceCreated(OH_NativeXComponent* component, void* window);
     void onSurfaceChanged(OH_NativeXComponent* component, void* window);
     void onSurfaceDestroyed(OH_NativeXComponent* component, void* window);
-    
+
     static void onMessageCallback(const uv_async_t* req);
     static void timerCb(uv_timer_t* handle);
 

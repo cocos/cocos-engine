@@ -1,10 +1,10 @@
-import { AnimationController } from "../../../../../cocos/animation/animation";
-import { AnimationGraphVariant } from "../../../../../cocos/animation/marionette/animation-graph-variant";
-import { lerp } from "../../../../../exports/base";
-import { AnimationGraphEvalMock } from "../../utils/eval-mock";
-import { createAnimationGraph, StateMachineParams, VariableDeclarationParams } from "../../utils/factory";
-import { ConstantRealValueAnimationFixture, LinearRealValueAnimationFixture } from "../../utils/fixtures";
-import { SingleRealValueObserver } from "../../utils/single-real-value-observer";
+import { lerp } from '@base/math';
+import { AnimationController } from '../../../../../cocos/animation/animation';
+import { AnimationGraphVariant } from '../../../../../cocos/animation/marionette/animation-graph-variant';
+import { AnimationGraphEvalMock } from '../../utils/eval-mock';
+import { createAnimationGraph, StateMachineParams, VariableDeclarationParams } from '../../utils/factory';
+import { ConstantRealValueAnimationFixture, LinearRealValueAnimationFixture } from '../../utils/fixtures';
+import { SingleRealValueObserver } from '../../utils/single-real-value-observer';
 import './utils/factories/state-machine-node-factory';
 
 describe(`Reentering`, () => {

@@ -1,4 +1,5 @@
-import { assertIsTrue, Vec3 } from '../../../core';
+import { assertIsTrue } from '@base/debug/internal';
+import { Vec3 } from '@base/math';
 import { ccclass, serializable } from '../../../core/data/decorators';
 import { BasicVariableDescription, VariableType, createInstanceTag, VarInstanceBase, Value } from './basic';
 

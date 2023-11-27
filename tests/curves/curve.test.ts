@@ -1,4 +1,5 @@
-import { editorExtrasTag, toRadian } from '../../cocos/core';
+import { editorExtrasTag } from '@base/object';
+import { toRadian } from '@base/math';
 import { RealCurve, RealInterpolationMode } from '../../cocos/core/curves';
 import { EasingMethod, RealKeyframeValue } from '../../cocos/core/curves/curve';
 import { ExtrapolationMode, TangentWeightMode } from '../../cocos/core/curves/real-curve-param';

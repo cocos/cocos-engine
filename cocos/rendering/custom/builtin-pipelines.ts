@@ -106,7 +106,7 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
                 // Lighting Pass
                 const lightInfo = setupLightingPass(ppl, info, useCluster);
                 // Deferred ForwardPass, for non-surface-shader material and transparent material
-                setupDeferredForward(ppl, info, lightInfo.rtName);
+                setupDeferredForward(ppl, info, lightInfo.rtName, useCluster);
                 // Postprocess
                 setupPostprocessPass(ppl, info, lightInfo.rtName);
 
@@ -121,6 +121,7 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             setupForwardRes(ppl, cameraInfo);
             return;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (!isUICamera(cameraInfo.camera)) {
             setupGBufferRes(ppl, cameraInfo);
             setupLightingRes(ppl, cameraInfo);
@@ -134,6 +135,7 @@ export class DeferredPipelineBuilder implements PipelineBuilder {
             updateForwardRes(ppl, cameraInfo);
             return;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (!isUICamera(cameraInfo.camera)) {
             updateGBufferRes(ppl, cameraInfo);
             updateLightingRes(ppl, cameraInfo);

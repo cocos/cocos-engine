@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4, Vec3 } from '../../../core';
+import { Color, Mat4 } from '@base/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
@@ -47,11 +47,9 @@ export const sliced: IAssembler = {
         // 0-4 for local vertex
         renderData.dataLength = 16;
         renderData.resize(16, 54);
-        renderData.vertexRow = 4;
-        renderData.vertexCol = 4;
         this.QUAD_INDICES = new Uint16Array(54);
         this.createQuadIndices(4, 4);
-        renderData.chunk.setIndexBuffer(this.QUAD_INDICES);
+        renderData.chunk.setIndexBuffer(this.QUAD_INDICES as Uint16Array);
         return renderData;
     },
 
@@ -140,9 +138,9 @@ export const sliced: IAssembler = {
         tempRenderData[3].x = width - appX;
         tempRenderData[3].y = height - appY;
 
-        for (let curRow = 0; curRow < renderData.vertexRow; curRow++) {
-            for (let curCol = 0; curCol < renderData.vertexCol; curCol++) {
-                const curIndex = curRow * renderData.vertexCol + curCol;
+        for (let curRow = 0; curRow < 4; curRow++) {
+            for (let curCol = 0; curCol < 4; curCol++) {
+                const curIndex = curRow * 4 + curCol;
                 if (curIndex < renderData.dataLength
                     && curRow < tempRenderData.length
                     && curCol < tempRenderData.length) {
@@ -156,9 +154,10 @@ export const sliced: IAssembler = {
     fillBuffers (sprite: Sprite, renderer: IBatcher) {
         const renderData: RenderData = sprite.renderData!;
         const chunk = renderData.chunk;
-        if (sprite.node.hasChangedFlags || renderData.vertDirty) {
+        if (sprite._flagChangedVersion !== sprite.node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexData(sprite, chunk);
             renderData.vertDirty = false;
+            sprite._flagChangedVersion = sprite.node.flagChangedVersion;
         }
 
         const bid = chunk.bufferId;

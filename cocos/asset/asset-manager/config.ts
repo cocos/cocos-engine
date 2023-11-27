@@ -22,8 +22,9 @@
  THE SOFTWARE.
 */
 import { EDITOR_NOT_IN_PREVIEW, TEST } from 'internal:constants';
+import { cclegacy } from '@base/global';
+import { js } from '@base/utils';
 import { Asset } from '../assets';
-import { js, cclegacy } from '../../core';
 import Cache from './cache';
 import { decodeUuid, normalize } from './helper';
 
@@ -253,7 +254,7 @@ export default class Config {
         this._initUuid(options.uuids);
         this._initPath(options.paths);
         this._initScene(options.scenes);
-        this._initPackage(options.packs);
+        this._initPackage(options.packs, options.extensionMap);
         this._initVersion(options.versions);
         this._initRedirect(options.redirect);
         for (const ext in options.extensionMap) {
@@ -382,12 +383,20 @@ export default class Config {
         }
     }
 
-    private _initPackage (packageList: Record<string, string[]>): void {
+    private _initPackage (packageList: Record<string, string[]>, extensionMap: IConfigOption['extensionMap']): void {
         if (!packageList) { return; }
         const assetInfos = this.assetInfos;
         for (const packUuid in packageList) {
             const uuids = packageList[packUuid];
-            const pack = { uuid: packUuid, packedUuids: uuids, ext: '.json' };
+            let mappedExtension = '.json';
+            for (const ext in extensionMap) {
+                const mappedUUIDs = extensionMap[ext];
+                if (mappedUUIDs.includes(packUuid)) {
+                    mappedExtension = ext;
+                    break;
+                }
+            }
+            const pack = { uuid: packUuid, packedUuids: uuids, ext: mappedExtension };
             assetInfos.add(packUuid, pack);
 
             for (let i = 0, l = uuids.length; i < l; i++) {

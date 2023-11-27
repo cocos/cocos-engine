@@ -35,7 +35,7 @@ const rl = readline.createInterface({
 const gitignoreFiles = [];
 
 rl.on('line', (line) => {
-  if (line !== "" && !line.includes("node_modules") && !line.includes("native/external/") && !line.includes("!")) {
+  if (line !== "" && !line.includes("native/external/") && !line.includes("!")) {
     gitignoreFiles.push(path.join(__dirname,".." ,line));
   }
 });

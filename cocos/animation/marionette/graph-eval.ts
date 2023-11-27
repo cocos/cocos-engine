@@ -23,11 +23,11 @@
 */
 
 import { DEBUG } from 'internal:constants';
+import { assertIsTrue } from '@base/debug/internal';
 import { AnimationGraph } from './animation-graph';
 import type { Node } from '../../scene-graph/node';
 import { Value, VarInstance, TriggerResetMode, createInstanceTag, VarInstanceTrigger } from './variable';
 import { VariableType } from './parametric';
-import { assertIsTrue } from '../../core';
 import { MAX_ANIMATION_LAYER } from '../../3d/skeletal-animation/limits';
 import type { AnimationController } from './animation-controller';
 import {

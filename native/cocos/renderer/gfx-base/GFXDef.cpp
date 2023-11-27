@@ -129,12 +129,15 @@ ccstd::hash_t Hasher<FramebufferInfo>::operator()(const FramebufferInfo &info) c
                          static_cast<ccstd::hash_t>(info.depthStencilResolveTexture != nullptr);
     if (info.depthStencilTexture) {
         ccstd::hash_combine(seed, info.depthStencilTexture->getObjectID());
+        ccstd::hash_combine(seed, info.depthStencilTexture->getHash());
     }
     if (info.depthStencilResolveTexture) {
         ccstd::hash_combine(seed, info.depthStencilResolveTexture->getObjectID());
+        ccstd::hash_combine(seed, info.depthStencilResolveTexture->getHash());
     }
     for (auto *colorTexture : info.colorTextures) {
         ccstd::hash_combine(seed, colorTexture->getObjectID());
+        ccstd::hash_combine(seed, colorTexture->getHash());
     }
     ccstd::hash_combine(seed, info.renderPass->getHash());
     return seed;
@@ -225,6 +228,25 @@ ccstd::hash_t Hasher<GeneralBarrierInfo>::operator()(const GeneralBarrierInfo &i
 
 bool operator==(const GeneralBarrierInfo &lhs, const GeneralBarrierInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(GeneralBarrierInfo));
+}
+
+template <>
+ccstd::hash_t Hasher<ResourceRange>::operator()(const ResourceRange &info) const {
+    ccstd::hash_t seed = sizeof(info);
+    ccstd::hash_combine(seed, info.width);
+    ccstd::hash_combine(seed, info.height);
+    ccstd::hash_combine(seed, info.depthOrArraySize);
+    ccstd::hash_combine(seed, info.firstSlice);
+    ccstd::hash_combine(seed, info.numSlices);
+    ccstd::hash_combine(seed, info.mipLevel);
+    ccstd::hash_combine(seed, info.levelCount);
+    ccstd::hash_combine(seed, info.basePlane);
+    ccstd::hash_combine(seed, info.planeCount);
+    return seed;
+}
+
+bool operator==(const ResourceRange &lhs, const ResourceRange &rhs) {
+    return !memcmp(&lhs, &rhs, sizeof(ResourceRange));
 }
 
 template <>
@@ -645,7 +667,7 @@ uint32_t formatSurfaceSize(Format format, uint32_t width, uint32_t height, uint3
     return size;
 }
 
-ccstd::hash_t computeAttributesHash(const AttributeList& attributes) {
+ccstd::hash_t computeAttributesHash(const AttributeList &attributes) {
     ccstd::hash_t seed = static_cast<uint32_t>(attributes.size()) * 6;
     for (const auto &attribute : attributes) {
         ccstd::hash_combine(seed, attribute.name);

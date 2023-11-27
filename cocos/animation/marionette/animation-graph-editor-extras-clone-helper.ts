@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EditorExtendableObject, editorExtrasTag } from '../../core/data/editor-extras-tag';
+import { EditorExtendableObject, editorExtrasTag } from '@base/object';
 
 /**
  * Clones the editor extras from an animation-graph-specific object.

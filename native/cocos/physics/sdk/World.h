@@ -42,22 +42,23 @@ public:
     void syncSceneWithCheck() override;
     void setCollisionMatrix(uint32_t i, uint32_t m) override;
     ccstd::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override;
-    ccstd::vector<std::shared_ptr<ContactEventPair>>& getContactEventPairs() override;
-    ccstd::vector<std::shared_ptr<CCTShapeEventPair>>& getCCTShapeEventPairs() override;
+    ccstd::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override;
+    ccstd::vector<std::shared_ptr<CCTShapeEventPair>> &getCCTShapeEventPairs() override;
+    ccstd::vector<std::shared_ptr<CCTTriggerEventPair>> &getCCTTriggerEventPairs() override;
     bool raycast(RaycastOptions &opt) override;
     bool raycastClosest(RaycastOptions &opt) override;
     ccstd::vector<RaycastResult> &raycastResult() override;
     RaycastResult &raycastClosestResult() override;
     bool sweepBox(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                  float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepBoxClosest(RaycastOptions &opt, float halfExtentX, float halfExtentY, float halfExtentZ,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                         float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepSphere(RaycastOptions &opt, float radius) override;
     bool sweepSphereClosest(RaycastOptions &opt, float radius) override;
     bool sweepCapsule(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                      float orientationW, float orientationX, float orientationY, float orientationZ) override;
     bool sweepCapsuleClosest(RaycastOptions &opt, float radius, float height,
-        float orientationW, float orientationX, float orientationY, float orientationZ) override;
+                             float orientationW, float orientationX, float orientationY, float orientationZ) override;
     RaycastResult &sweepClosestResult() override;
     ccstd::vector<RaycastResult> &sweepResult() override;
 

@@ -9,7 +9,7 @@ jobs:
     # if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +26,10 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
+          local-cache: true
       - name: Generate decorators
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
           bash ./native/utils/generate_decorators.sh
           git checkout HEAD package.json package-lock.json

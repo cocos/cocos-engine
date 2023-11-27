@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../core/global-exports';
+import { cclegacy } from '@base/global';
 import { WebView } from './web-view';
 import { EventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';
@@ -115,4 +115,4 @@ export abstract class WebViewImpl {
     }
 }
 
-legacyCC.internal.WebViewImpl = WebViewImpl;
+cclegacy.internal.WebViewImpl = WebViewImpl;

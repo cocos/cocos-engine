@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { replaceProperty, removeProperty } from '../utils/x-deprecated';
+import { replaceProperty, removeProperty } from '@base/utils';
 import { Line } from './line';
 import intersect from './intersect';
 

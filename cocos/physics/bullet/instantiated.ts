@@ -24,8 +24,9 @@
 
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
+import { debug, error, getError, log } from '@base/debug';
 import { game } from '../../game';
-import { debug, error, getError, log, sys } from '../../core';
+import { sys } from '../../core';
 import { pageSize, pageCount, importFunc } from './bullet-env';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 

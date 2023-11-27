@@ -22,9 +22,9 @@
  THE SOFTWARE.
 */
 
+import { IVec3Like } from '@base/math';
 import { ILifecycle } from './i-lifecycle';
 import { Constraint, RigidBody, EConstraintMode, EDriverMode } from '../framework';
-import { IVec3Like } from '../../core';
 
 export interface IBaseConstraint extends ILifecycle {
     readonly impl: any;
@@ -97,4 +97,7 @@ export interface IConfigurableConstraint extends IBaseConstraint {
     setBreakTorque(v: number): void;
 }
 
+/**
+ * @deprecated ConeTwistConstraint is deprecated, please use ConfigurableConstraint instead
+ */
 export type IConeTwistConstraint = IBaseConstraint

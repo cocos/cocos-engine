@@ -1,19 +1,20 @@
-import { Transform } from "../../../../../cocos/animation/core/transform";
-import { PoseGraph, poseGraphOp } from "../../../../../cocos/animation/marionette/asset-creation";
-import { PoseNodeApplyTransform, TransformOperation } from "../../../../../cocos/animation/marionette/pose-graph/pose-nodes/apply-transform";
-import { TransformSpace } from "../../../../../cocos/animation/marionette/pose-graph/pose-nodes/transform-space";
-import { Node, Quat, Vec3 } from "../../../../../exports/base";
-import { AnimationGraphEvalMock } from "../../utils/eval-mock";
-import { createAnimationGraph } from "../../utils/factory";
+import { Quat, Vec3 } from '@base/math';
+import { Transform } from '../../../../../cocos/animation/core/transform';
+import { PoseGraph, poseGraphOp } from '../../../../../cocos/animation/marionette/asset-creation';
+import { PoseNodeApplyTransform, TransformOperation } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/apply-transform';
+import { TransformSpace } from '../../../../../cocos/animation/marionette/pose-graph/pose-nodes/transform-space';
+import { Node } from '../../../../../exports/base';
+import { AnimationGraphEvalMock } from '../../utils/eval-mock';
+import { createAnimationGraph } from '../../utils/factory';
 import '../../../../utils/matchers/value-type-asymmetric-matchers';
 import '../../../utils/transform-matcher';
 import { getMagicSeed, PseudoRandomGenerator } from '../../../../utils/random';
-import { PoseNode, PoseTransformSpaceRequirement } from "../../../../../cocos/animation/marionette/pose-graph/pose-node";
-import { Pose } from "../../../../../cocos/animation/core/pose";
-import { AnimationGraphBindingContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphEvaluationContext } from "../../../../../cocos/animation/marionette/animation-graph-context";
-import { input } from "../../../../../cocos/animation/marionette/pose-graph/decorator/input";
-import { PoseGraphType } from "../../../../../cocos/animation/marionette/pose-graph/foundation/type-system";
-import { composeInputKeyInternally } from "../utils/misc";
+import { PoseNode, PoseTransformSpaceRequirement } from '../../../../../cocos/animation/marionette/pose-graph/pose-node';
+import { Pose } from '../../../../../cocos/animation/core/pose';
+import { AnimationGraphBindingContext, AnimationGraphSettleContext, AnimationGraphUpdateContext, AnimationGraphEvaluationContext } from '../../../../../cocos/animation/marionette/animation-graph-context';
+import { input } from '../../../../../cocos/animation/marionette/pose-graph/decorator/input';
+import { PoseGraphType } from '../../../../../cocos/animation/marionette/pose-graph/foundation/type-system';
+import { composeInputKeyInternally } from '../utils/misc';
 
 describe(`PoseNodeApplyTransform`, () => {
     describe(`Position`, () => {

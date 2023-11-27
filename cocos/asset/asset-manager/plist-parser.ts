@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { warnID } from '../../core';
+import { warnID } from '@base/debug';
 
 /**
  * A SAX Parser

@@ -1,4 +1,4 @@
-const { pathsToModuleNameMapper } = require('ts-jest/utils');
+const { pathsToModuleNameMapper } = require('ts-jest');
 const ts = require('typescript');
 const ps = require('path');
 const tsConfig = ts.readConfigFile(ps.join(__dirname, 'tsconfig.json'), ts.sys.readFile);
@@ -9,12 +9,18 @@ const { compilerOptions } = tsConfig.config;
 module.exports = {
     testEnvironment: './tests/test-environment.ts',
     testRegex: '/tests/.*\\.(test|spec)?\\.(ts|tsx)$',
-    moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` }),
+    moduleNameMapper: {
+        ...pathsToModuleNameMapper(compilerOptions.paths, { prefix: `${__dirname}/` }),
+        'external:(.*)': '<rootDir>/native/external/$1',
+    },
     transformIgnorePatterns: [
         // ignore everything in the node_modules EXCEPT for:
         // - @cocos/dragonbones-js
         'node_modules/(?!(@cocos/dragonbones-js)/)',
-        'native/external/emscripten/',
+        // ignore everything in the native/external/emscripten EXCEPT for:
+        // - meshopt
+        // Since above packages are in ESM module format, whereas we currently use CJS for testing.
+        'native/external/emscripten/(?!(meshopt)/)',
     ],
     setupFilesAfterEnv: [
         "./tests/setup-after-env.ts",

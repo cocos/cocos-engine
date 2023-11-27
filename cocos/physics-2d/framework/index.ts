@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { cclegacy } from '../../core';
+import { cclegacy } from '@base/global';
 
 import * as PolygonSeparator from './utils/polygon-separator';
 import * as PolygonPartition from './utils/polygon-partition';
@@ -59,6 +59,8 @@ export const Physics2DUtils = {
     PolygonSeparator,
     PolygonPartition,
 };
+
+export { selector };
 
 cclegacy.internal.physics2d = {
     selector,

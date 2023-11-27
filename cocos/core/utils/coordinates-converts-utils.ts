@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
+import { cclegacy } from '@base/global';
+import { replaceProperty } from '@base/utils';
+import { Vec3 } from '@base/math';
 import { Camera } from '../../misc/camera-component';
-import { Vec3 } from '../math';
 import { Node } from '../../scene-graph';
-import { replaceProperty } from './x-deprecated';
-import { legacyCC } from '../global-exports';
 
 const _vec3 = new Vec3();
 
@@ -68,8 +68,8 @@ export function WorldNode3DToWorldNodeUI (mainCamera: Camera, wpos: Vec3, out?: 
     }
 
     mainCamera.worldToScreen(wpos, out);
-    out.x /= legacyCC.view.getScaleX();
-    out.y /= legacyCC.view.getScaleY();
+    out.x /= cclegacy.view.getScaleX();
+    out.y /= cclegacy.view.getScaleY();
     return out;
 }
 
@@ -84,9 +84,9 @@ const convertUtils = {
 };
 
 export { convertUtils };
-legacyCC.pipelineUtils = convertUtils;
+cclegacy.pipelineUtils = convertUtils;
 
-replaceProperty(legacyCC.pipelineUtils, 'cc.pipelineUtils', [
+replaceProperty(cclegacy.pipelineUtils, 'cc.pipelineUtils', [
     {
         name: 'WorldNode3DToLocalNodeUI',
         newName: 'convertToUINode',

@@ -23,7 +23,7 @@
 */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
-import { pseudoRandom, Quat, Vec3 } from '../../core';
+import { pseudoRandom, Quat, Vec3 } from '@base/math';
 import { Space, ModuleRandSeed } from '../enum';
 import { calculateTransform, isCurveTwoValues } from '../particle-general-function';
 import CurveRange from './curve-range';

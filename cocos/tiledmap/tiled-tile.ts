@@ -34,9 +34,10 @@
  */
 
 import { ccclass, executeInEditMode, help, menu, requireComponent, type } from 'cc.decorator';
+import { warn } from '@base/debug';
+import { CCInteger } from '@base/object';
 import { Component } from '../scene-graph/component';
 import { TiledLayer } from './tiled-layer';
-import { CCInteger, warn } from '../core';
 import { UITransform } from '../2d/framework';
 import { NodeEventType } from '../scene-graph/node-event';
 

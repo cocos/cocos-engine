@@ -3,7 +3,7 @@
 #if CC_USE_LIGHT_PROBE
 vec3 SHEvaluate(vec3 normal)
 {
-    vec3 result;    
+    vec3 result;
 
 #if USE_INSTANCING
     // calculate linear and const terms
