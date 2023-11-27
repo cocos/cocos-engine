@@ -115,6 +115,7 @@ rules:
     prefer-numeric-literals: off
     prefer-template: off
     eol-last: error
+    no-case-declarations: error
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
