@@ -6,14 +6,24 @@
     "sourceMap": true,
     "outDir": "./bin/.ts",
     "rootDir": "./",
-    "noEmit": true,
+
     "strict": true,
     "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    "noEmit": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
     "baseUrl": "./",
     "paths": {
         "cc.decorator": [
@@ -51,6 +61,7 @@
     ]
   },
   "include": [
+      "cocos/**/*.ts",
       "exports/**/*.ts",
       "typedoc-index.ts",
       "pal/**/*.ts"
