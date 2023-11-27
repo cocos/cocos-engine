@@ -176,9 +176,9 @@ export class SpriteRenderer extends ModelRenderer {
         const mesh = this._spriteFrame.mesh!;
         this.node.hasChangedFlags |= TransformBit.POSITION; // Same as model, Maybe a hack
         this._model.transform.hasChangedFlags |= TransformBit.POSITION;
-        const renderingMesh = mesh.renderingSubMeshes;
+        const renderingMesh = mesh ? mesh.renderingSubMeshes : null;
         if (renderingMesh) {
-            const meshCount = mesh ? mesh.renderingSubMeshes.length : 0;
+            const meshCount = renderingMesh.length;
             for (let i = 0; i < meshCount; ++i) {
                 let material = this.getRenderMaterial(i);
                 if (material && !material.isValid) {
