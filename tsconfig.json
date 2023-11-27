@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "lib": ["es2015", "es2017", "es2020", "dom"],
-    "module": "commonjs",
+    "module": "es2020",
     "sourceMap": true,
     "outDir": "./bin/.ts",
     "rootDir": "./",
