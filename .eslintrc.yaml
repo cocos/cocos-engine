@@ -85,35 +85,43 @@ rules:
     prefer-destructuring: off # auto-fix is not smart enough to merge different instances
     default-case-last: off # Place default case clause to first make it more clear that this switch statement has handled all cases
 
-    prefer-template: off
-
     func-names: off
     default-param-last: off
     one-var: [error, never]
     arrow-body-style: [error, as-needed]
-    id-denylist: [error, any, unknown, Number, number, Boolean, boolean, String, Undefined]
+    id-denylist: [error,
+        any,
+        unknown,
+        Number, number,
+        Boolean, boolean,
+        String, # string,
+        Undefined, undefined,
+    ]
     id-match: off
     no-cond-assign: off
     no-constant-condition: off
     no-prototype-builtins: off
 
-    # constructor-super: error
-    # curly: [error, all]
-    # no-debugger: error
-    # no-duplicate-case: error
-    # no-eval: error
-    # no-sparse-arrays: error
-    # no-trailing-spaces: error
-    # no-var: error
-    # prefer-const: error
-    # prefer-numeric-literals: off
+    constructor-super: error
+    curly: [error, all]
+    no-debugger: error
+    no-duplicate-case: error
+    no-eval: error
+    no-new-wrappers: error
+    no-sparse-arrays: error
+    no-trailing-spaces: error
+    no-var: error
+    prefer-const: error
+    prefer-numeric-literals: off
+    prefer-template: off
+    eol-last: error
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
     '@typescript-eslint/no-unused-expressions': [error, {
         allowShortCircuit: true,
         allowTernary: true,
-        allowTaggedTemplates: false
+        allowTaggedTemplates: false,
     }]
     '@typescript-eslint/no-empty-function': [off, {
       allow: [
@@ -125,7 +133,7 @@ rules:
     }]
 
     '@typescript-eslint/ban-ts-comment': [error, {
-        'ts-expect-error': true,
+        'ts-expect-error': false,
         'ts-ignore': true,
         'ts-nocheck': true,
         'ts-check': false,
@@ -155,11 +163,11 @@ rules:
     '@typescript-eslint/no-non-null-assertion': off # sometimes we just know better than the compiler
     '@typescript-eslint/no-namespace': [warn, { # we need to declare static properties
         allowDeclarations: true,
-        allowDefinitionFiles: true
+        allowDefinitionFiles: true,
     }]
     '@typescript-eslint/restrict-template-expressions': [warn, { # concatenations of different types are common, e.g. hash calculations
         allowNumber: true,
-        allowBoolean: true
+        allowBoolean: true,
     }]
 
 
@@ -168,7 +176,7 @@ rules:
     # For example, https://babeljs.io/docs/en/babel-plugin-transform-typescript#istsx
     # forbids angle bracket style if `isTSX` is enabled.
     '@typescript-eslint/consistent-type-assertions': [error, {
-        assertionStyle: 'as'
+        assertionStyle: 'as',
     }]
 
     # Prefer the interface style.
@@ -177,8 +185,14 @@ rules:
     '@typescript-eslint/no-this-alias': off
     '@typescript-eslint/no-duplicate-type-constituents': [error, {
         ignoreIntersections: false,
-        ignoreUnions: true
+        ignoreUnions: true,
     }]
+    '@typescript-eslint/explicit-member-accessibility': [error, {
+         accessibility: 'no-public',
+    }]
+    '@typescript-eslint/member-ordering': off
+    '@typescript-eslint/naming-convention': off
+    '@typescript-eslint/no-unnecessary-boolean-literal-compare': off
 
 
     # '@stylistic/key-spacing': [error, {
