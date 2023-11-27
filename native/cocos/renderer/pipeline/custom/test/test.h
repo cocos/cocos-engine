@@ -74,7 +74,7 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
     auto &stages = layoutGraphData.stages;
     stages.resize(layoutInfo.size());
 
-    add_vertex(layoutGraphData, RenderPhaseTag{}, "");
+    add_vertex(layoutGraphData, RenderPhaseTag{}, "default");
     auto &layout = layoutGraphData.layouts.back();
     const auto &descPair = layout.descriptorSets.emplace(UpdateFrequency::PER_PASS, DescriptorSetData{renderGraph.get_allocator()});
     auto &descData = (*descPair.first).second.descriptorSetLayoutData;
@@ -103,6 +103,9 @@ static void fillTestGraph(const ViewInfo &rasterData, const ResourceInfo &rescIn
     auto addRasterNode = [&](const vector<vector<vector<string>>> &subpasses, uint32_t count, uint32_t passID) {
         const ccstd::string name = "pass" + std::to_string(passID);
         const auto vertexID = add_vertex(renderGraph, RasterPassTag{}, name.c_str());
+        auto& layoutName = get(RenderGraph::LayoutTag{}, renderGraph, vertexID);
+        layoutName = "default";
+
         renderGraph.sortedVertices.emplace_back(vertexID);
         auto &raster = get(RasterPassTag{}, vertexID, renderGraph);
         auto &subpassGraph = raster.subpassGraph;
