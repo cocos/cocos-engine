@@ -205,6 +205,7 @@ rules:
     '@stylistic/eol-last': error
     '@stylistic/space-before-blocks': error
     '@stylistic/semi-spacing': [error, {before: false, after: true}]
+    '@stylistic/arrow-spacing': [error, {before: true, after: true}]
 
     '@stylistic/key-spacing': [error, {
         singleLine: {
