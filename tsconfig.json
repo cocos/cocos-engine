@@ -2,7 +2,7 @@
   "compilerOptions": {
     "lib": ["es2015", "es2017", "es2020", "dom"],
     "target": "es2017",
-    "module": "es2020",
+    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./bin/.ts",
