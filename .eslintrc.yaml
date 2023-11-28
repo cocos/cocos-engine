@@ -204,6 +204,7 @@ rules:
     '@stylistic/no-trailing-spaces': error
     '@stylistic/eol-last': error
     '@stylistic/space-before-blocks': error
+    '@stylistic/semi-spacing': [error, {before: false, after: true}]
 
     '@stylistic/key-spacing': [error, {
         singleLine: {
