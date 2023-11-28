@@ -72,7 +72,7 @@ rules:
     no-console: warn # prefer the uniform logging methods
     no-plusplus: off # allow increment/decrement operators
     no-continue: off # allow unlabeled continues
-    no-multi-assign: [warn, { ignoreNonDeclaration: true }] # it is handy sometimes
+    no-multi-assign: [off, { ignoreNonDeclaration: true }] # it is handy sometimes
     no-nested-ternary: off # it is handy sometimes
     no-param-reassign: off # the output object is passed as parameters all the time
     no-restricted-syntax: off # for-in is a efficient choice for plain objects
@@ -109,14 +109,13 @@ rules:
     no-eval: error
     no-new-wrappers: error
     no-sparse-arrays: error
-    no-trailing-spaces: error
     no-var: error
     prefer-const: error
     prefer-numeric-literals: off
     prefer-template: off
-    eol-last: error
     default-case-last: error
     no-case-declarations: error
+    no-irregular-whitespace: error
 
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
@@ -200,303 +199,23 @@ rules:
     '@typescript-eslint/no-unnecessary-boolean-literal-compare': off
 
 
-    # '@stylistic/key-spacing': [error, {
-    #     singleLine: {
-    #         beforeColon: false,
-    #         afterColon: true
-    #     },
-    #     multiLine: {
-    #         beforeColon: false,
-    #         afterColon: true,
-    #         align: colon
-    #     }
-    # }]
-    '@stylistic/keyword-spacing': error # we require this explicitly
-    '@stylistic/no-multi-spaces': [warn, {
-        ignoreEOLComments: true,
-        exceptions: {
-            'Property': true,
-            'VariableDeclarator': false
+    ##### eslint-stylistic rules #####
+
+    '@stylistic/no-trailing-spaces': error
+    '@stylistic/eol-last': error
+    '@stylistic/space-before-blocks': error
+
+    '@stylistic/key-spacing': [error, {
+        singleLine: {
+            beforeColon: false,
+            afterColon: true
+        },
+        multiLine: {
+            beforeColon: false,
+            afterColon: true,
+            # align: colon
         }
     }]
-    '@stylistic/space-before-function-paren': [warn, always] # we require this explicitly
-    '@stylistic/quotes': [warn, single, { allowTemplateLiterals: true }] # force single, but allow template literal
-    '@stylistic/indent': [error, 4, {
-      SwitchCase: 1,
-      ignoredNodes: [ # https://stackoverflow.com/a/72897089
-          'FunctionExpression > .params[decorators.length > 0]',
-          'FunctionExpression > .params > :matches(Decorator, :not(:first-child))',
-          'ClassBody.body > PropertyDefinition[decorators.length > 0] > .key'
-      ]
-    }]
-    '@stylistic/lines-between-class-members': off # be more lenient on member declarations
-    '@stylistic/max-len': [warn, 250] # more lenient on max length per line
-    '@stylistic/no-mixed-operators': off # this is just cumbersome
-    '@stylistic/object-curly-newline': off # we want manual control over this
-    '@stylistic/one-var-declaration-per-line': off # auto-fix has order issues with `one-var`
-    '@stylistic/linebreak-style': off # we don't enforce this on everyone's dev environment for now
-    '@stylistic/spaced-comment': off # for license declarations
-    '@stylistic/type-annotation-spacing': [error, {
-        before: false,
-        after: true,
-        overrides : {
-            'arrow': {
-                'before': true,
-                'after': true,
-            }
-        }
-     }]
-
-    '@stylistic/no-multiple-empty-lines': [warn, {max: 2, maxEOF: 1}]
-    '@stylistic/max-statements-per-line': [error, { max: 1 }]
-    '@stylistic/comma-dangle': [error, {
-        arrays: always-multiline,
-        objects: always-multiline,
-        imports: never,
-        exports: never,
-        functions: never,
-        enums: always-multiline,
-        generics: never,
-        tuples: never,
-    }]
-    '@stylistic/quote-props': [error, consistent-as-needed]
-    '@stylistic/function-paren-newline': off
-    '@stylistic/space-unary-ops': error
-    '@stylistic/arrow-parens': [error, always]
-    '@stylistic/brace-style': [error, 1tbs]
-    '@stylistic/nonblock-statement-body-position': [error, below]
-    '@stylistic/padded-blocks': [error, {
-        classes: always
-    }]
-    '@stylistic/no-extra-semi': error
-    '@stylistic/semi': [error, always]
-    '@stylistic/member-delimiter-style': [error, {
-        multiline: { 'delimiter': 'semi' },
-        singleline: { 'delimiter': 'semi' },
-    }]
-    '@stylistic/no-extra-parens': [error, all, {
-        conditionalAssign: false,
-        returnAssign: false,
-        nestedBinaryExpressions: false,
-        enforceForArrowConditionals: false,
-        enforceForFunctionPrototypeMethods: false,
-        ignoreJSX: all
-    }]
-    '@stylistic/space-infix-ops': [error]
-
-root: true
-
-parser: '@typescript-eslint/parser'
-
-parserOptions:
-    project:
-        - ./tsconfig.json
-
-extends:
-    - eslint:recommended
-    - plugin:@typescript-eslint/recommended
-    - plugin:@typescript-eslint/recommended-requiring-type-checking
-
-plugins: ['@stylistic', '@stylistic/migrate', '@typescript-eslint']
-
-settings:
-    import/resolver:
-        node:
-            extensions:
-                - .js
-                - .jsx
-                - .ts
-                - .tsx
-                - .d.ts
-
-env:
-    browser: true
-    node: true
-    es6: true
-    jest: true
-
-globals:
-    cc: false
-    wx: false
-    Editor: false
-    _Scene: false
-    _ccsg: false
-
-rules:
-
-    # https://eslint.org/docs/rules/
-    # https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin
-
-    # !!!!!!!!!!!!!!!!!!!!!!!!!
-    # BEFORE ADDING ANY RULES
-    # PLEASE EXPLAIN THE REASON IN THE COMMENT.
-
-    ##### RECOMMENDED RULE OVERRIDES #####
-
-    camelcase: off # underscores may come in handy in some cases
-    eqeqeq: [error, always, {null: ignore}] # important check missing from recommended
-    prefer-rest-params: off # we need ES5 to be fast too
-    prefer-spread: off # we need ES5 to be fast too
-    radix: off # we sometimes do not need to pass a second parameter
-    # allow underscores, we still widely use pre-dangle naming in our naming convention
-    # e.g. private properties, private functions, module scope shared variables etc.
-    no-underscore-dangle: off
-    no-else-return: off # else-return is a common pattern which clearly expresses the control flow
-    no-unused-expressions: off # taken over by '@typescript-eslint/no-unused-expressions'
-    no-empty-function: off # taken over by '@typescript-eslint/no-empty-function'
-
-    ##### AIRBNB-SPECIFIC RULE OVERRIDES #####
-
-    class-methods-use-this: off # so empty functions could work
-    guard-for-in: off # for-in is a efficient choice for plain objects
-    import/export: off # so export declare namespace could work
-    import/extensions: off # typescript doesn't support this
-    import/no-unresolved: off # TODO: fix internal modules
-    import/prefer-default-export: off # prefer named exports
-
-    max-classes-per-file: off # helper classes are common
-    no-console: warn # prefer the uniform logging methods
-    no-plusplus: off # allow increment/decrement operators
-    no-continue: off # allow unlabeled continues
-    no-multi-assign: [warn, { ignoreNonDeclaration: true }] # it is handy sometimes
-    no-nested-ternary: off # it is handy sometimes
-    no-param-reassign: off # the output object is passed as parameters all the time
-    no-restricted-syntax: off # for-in is a efficient choice for plain objects
-    no-return-assign: off # it is handy sometimes
-    no-shadow: off # TODO: this throws false-positives?
-    no-sequences: off # it is handy sometimes
-    no-bitwise: off # we use this extensively
-    no-use-before-define: off # just too much work
-    no-useless-constructor: off # gives false-positives for empty constructor with parameter properties
-    prefer-destructuring: off # auto-fix is not smart enough to merge different instances
-
-
-    func-names: off
-    default-param-last: off
-    one-var: [error, never]
-    arrow-body-style: [error, as-needed]
-    id-denylist: [error,
-        any,
-        unknown,
-        Number, number,
-        Boolean, boolean,
-        String, # string,
-        Undefined, undefined,
-    ]
-    id-match: off
-    no-cond-assign: off
-    no-constant-condition: off
-    no-prototype-builtins: off
-
-    constructor-super: error
-    curly: [error, all]
-    no-debugger: error
-    no-duplicate-case: error
-    no-eval: error
-    no-new-wrappers: error
-    no-sparse-arrays: error
-    no-trailing-spaces: error
-    no-var: error
-    prefer-const: error
-    prefer-numeric-literals: off
-    prefer-template: off
-    eol-last: error
-    default-case-last: error
-    no-case-declarations: error
-
-
-    ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
-
-    '@typescript-eslint/no-unused-expressions': [error, {
-        allowShortCircuit: true,
-        allowTernary: true,
-        allowTaggedTemplates: false,
-    }]
-    '@typescript-eslint/no-empty-function': [off, {
-      allow: [
-        private-constructors,
-        protected-constructors,
-        decoratedFunctions,
-        overrideMethods,
-      ]
-    }]
-
-    '@typescript-eslint/ban-ts-comment': [error, {
-        'ts-expect-error': false,
-        'ts-ignore': true,
-        'ts-nocheck': true,
-        'ts-check': false,
-    }]
-
-    '@typescript-eslint/explicit-function-return-type': [error, {
-      allowIIFEs: true, # IIFEs are widely used, writing their signature twice is painful
-    }]
-    '@typescript-eslint/no-unsafe-argument': warn
-    '@typescript-eslint/no-unsafe-return': error
-    '@typescript-eslint/no-var-requires': error
-    '@typescript-eslint/ban-types': error
-
-    # TODO: this is just too much work
-    '@typescript-eslint/explicit-module-boundary-types': off
-
-    # NOTE: We don't want to rely on TS automatic type inference
-    '@typescript-eslint/no-inferrable-types': off
-
-    # TODO: sadly we still rely heavily on legacyCC
-    '@typescript-eslint/no-unsafe-assignment': off
-    '@typescript-eslint/no-unsafe-call': off
-    '@typescript-eslint/no-unsafe-member-access': off
-
-    '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
-    '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
-
-    '@typescript-eslint/no-unused-vars': off # may become useful in some parent classes
-    '@typescript-eslint/no-non-null-assertion': off # sometimes we just know better than the compiler
-    '@typescript-eslint/no-namespace': [warn, { # we need to declare static properties
-        allowDeclarations: true,
-        allowDefinitionFiles: true,
-    }]
-    '@typescript-eslint/restrict-template-expressions': [warn, { # concatenations of different types are common, e.g. hash calculations
-        allowNumber: true,
-        allowBoolean: true,
-    }]
-
-
-    # We choose to use style `... as foo` since it's more common.
-    # In the other hand, angle bracket style can be ambiguous with j/tsx syntax.
-    # For example, https://babeljs.io/docs/en/babel-plugin-transform-typescript#istsx
-    # forbids angle bracket style if `isTSX` is enabled.
-    '@typescript-eslint/consistent-type-assertions': [error, {
-        assertionStyle: 'as',
-    }]
-
-    # Prefer the interface style.
-    '@typescript-eslint/consistent-type-definitions': [error, interface]
-
-    '@typescript-eslint/no-this-alias': off
-    '@typescript-eslint/no-duplicate-type-constituents': [error, {
-        ignoreIntersections: false,
-        ignoreUnions: true,
-    }]
-    '@typescript-eslint/explicit-member-accessibility': [error, {
-         accessibility: 'no-public',
-    }]
-    '@typescript-eslint/member-ordering': off
-    '@typescript-eslint/naming-convention': off
-    '@typescript-eslint/no-unnecessary-boolean-literal-compare': off
-
-
-    # '@stylistic/key-spacing': [error, {
-    #     singleLine: {
-    #         beforeColon: false,
-    #         afterColon: true
-    #     },
-    #     multiLine: {
-    #         beforeColon: false,
-    #         afterColon: true,
-    #         align: colon
-    #     }
-    # }]
     '@stylistic/keyword-spacing': error # we require this explicitly
     '@stylistic/no-multi-spaces': [warn, {
         ignoreEOLComments: true,
