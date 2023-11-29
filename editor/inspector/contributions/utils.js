@@ -60,6 +60,14 @@ function translate(dump, path, dumps, assets, ignoreCollectAssets) {
                             return dump[name].value;
                         }
                     });
+                    // When merging dumps, as long as there is a value of readonly is ture, it must be set to true
+                    const readonly = dumps.some(dump => {
+                        if (dump[name]) {
+                            return dump[name].readonly;
+                        }
+                        return false;
+                    });
+                    item.readonly = readonly;
                     // 仅当存在 value 数据时才添加 values
                     item.values = values;
                 } catch (error) {
