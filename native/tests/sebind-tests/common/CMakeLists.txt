@@ -23,6 +23,7 @@ option(USE_WEBSOCKET_SERVER     "Enable WebSocket Server"               OFF)
 option(USE_JOB_SYSTEM_TASKFLOW  "Use taskflow as job system backend"    OFF)
 option(USE_JOB_SYSTEM_TBB       "Use tbb as job system backend"         OFF)
 option(USE_PHYSICS_PHYSX        "USE PhysX Physics"                     ON)
+option(USE_WORKER               "Enable Worker"                         ON)
 
 if(NOT RES_DIR)
     message(FATAL_ERROR "RES_DIR is not set!")

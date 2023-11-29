@@ -177,6 +177,7 @@ if(CI_FORCE_MINIMAL_FEATURES)
     set(USE_DEBUG_RENDERER OFF)
     set(USE_GEOMETRY_RENDERER OFF)
     set(USE_WEBP OFF)
+    set(USE_WORKER OFF)
 endif()
 
 ################################# external source code ################################
@@ -232,6 +233,7 @@ cc_inspect_values(
     NODE_EXECUTABLE
     NET_MODE
     USE_REMOTE_LOG
+    USE_WORKER
 )
 
 if(USE_XR)
@@ -2555,6 +2557,16 @@ if(USE_WEBSOCKET_SERVER)
     )
 endif()
 
+if(USE_WORKER)
+    cocos_source_files(
+                     cocos/bindings/manual/Worker.cpp
+                     cocos/bindings/manual/Worker.h
+                     cocos/bindings/manual/jsb_worker_maunal.cpp
+                     cocos/bindings/manual/jsb_worker_maunal.h
+    )
+endif()
+
+
 if(ANDROID)
     cocos_source_files(
                     cocos/bindings/manual/jsb_platform_android.cpp
@@ -3064,6 +3076,7 @@ function(cc_apply_definations target)
         $<$<BOOL:${USE_SE_V8}>:SCRIPT_ENGINE_TYPE=2>
         $<$<BOOL:${USE_SE_NAPI}>:SCRIPT_ENGINE_TYPE=5>
         $<$<OR:$<CONFIG:Debug>,$<BOOL:${CC_DEBUG_FORCE}>>:CC_DEBUG=1>
+        $<IF:$<BOOL:${USE_WORKER}>,CC_USE_WORKER=1,CC_USE_WORKER=0>
     )
 endfunction()
 
@@ -3353,7 +3366,7 @@ set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
 set(COCOS_GENERATED_LIST)
 foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
     get_source_file_property(IS_GENERATED ${src} GENERATED)
-    if(IS_GENERATED) 
+    if(IS_GENERATED)
         list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
         list(APPEND COCOS_GENERATED_LIST ${src})
     endif()
