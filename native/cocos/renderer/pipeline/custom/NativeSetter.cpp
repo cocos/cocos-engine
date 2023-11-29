@@ -163,6 +163,7 @@ constexpr bool ENABLE_NEW_MULTI_LIGHT = false;
 } // namespace
 
 void NativeSetter::setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) {
+    setBuiltinShadowMapConstants(light);
 }
 
 void NativeSetter::setBuiltinSphereLightConstants(

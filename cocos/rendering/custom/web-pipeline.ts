@@ -389,7 +389,7 @@ export class WebSetter implements Setter {
         setShadowUBOLightView(this, null, light, 0);
     }
     public setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
-        // TODO
+        this.setBuiltinShadowMapConstants(light);
     }
     public setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
         const director = cclegacy.director;

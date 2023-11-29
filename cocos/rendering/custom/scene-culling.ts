@@ -361,6 +361,9 @@ export class SceneCulling {
         if (!(sceneData.cullingFlags & CullingFlags.LIGHT_BOUNDS)) {
             return 0xFFFFFFFF; // Return an empty ID.
         }
+        if (sceneData.shadingLight?.type === LightType.DIRECTIONAL) {
+            return 0xFFFFFFFF;
+        }
         assert(!!sceneData.shadingLight, 'shadingLight is expected but not found.');
         const scene = sceneData.scene;
         assert(!!scene, 'scene is expected but not found.');
