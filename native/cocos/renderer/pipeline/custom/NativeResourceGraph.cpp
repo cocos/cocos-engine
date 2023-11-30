@@ -27,7 +27,6 @@
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
-#include "details/GraphView.h"
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
@@ -159,14 +158,19 @@ gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, gfx::
         subresView.numPlanes,
     };
 }
-} // namespace
 
-bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
+bool isTextureEqual(const gfx::Texture *texture, const ResourceDesc& desc) {
     if (!texture) {
         return false;
     }
     const auto& info = texture->getInfo();
     return desc.width == info.width && desc.height == info.height && desc.format == info.format;
+}
+
+} // namespace
+
+bool ManagedTexture::checkResource(const ResourceDesc& desc) const {
+    return isTextureEqual(texture.get(), desc);
 }
 
 void ResourceGraph::validateSwapchains() {
@@ -184,6 +188,43 @@ void ResourceGraph::validateSwapchains() {
         renderPasses.clear();
     }
 }
+
+namespace {
+
+std::pair<SubresourceView, ResourceGraph::vertex_descriptor>
+getOriginView(const ResourceGraph& resg, ResourceGraph::vertex_descriptor vertID) {
+    // copy origin view
+    SubresourceView originView = get<SubresourceView>(vertID, resg);
+    auto parentID = parent(vertID, resg);
+    CC_EXPECTS(parentID != resg.null_vertex());
+    while (resg.isTextureView(parentID)) {
+        const auto& prtView = get(SubresourceViewTag{}, parentID, resg);
+        originView.firstPlane += prtView.firstPlane;
+        originView.firstArraySlice += prtView.firstArraySlice;
+        originView.indexOrFirstMipLevel += prtView.indexOrFirstMipLevel;
+        parentID = parent(parentID, resg);
+    }
+    CC_EXPECTS(parentID != resg.null_vertex());
+    CC_EXPECTS(resg.isTexture(parentID));
+    CC_ENSURES(!resg.isTextureView(parentID));
+    return {originView, parentID};
+}
+
+void recreateTextureView(
+    gfx::Device* device,
+    ResourceGraph& resg,
+    const SubresourceView& originView,
+    ResourceGraph::vertex_descriptor parentID,
+    SubresourceView& view) {
+    const auto& desc = get(ResourceGraph::DescTag{}, resg, parentID);
+    auto textureViewInfo = getTextureViewInfo(originView, desc.viewType);
+    const auto& parentTexture = resg.getTexture(parentID);
+    CC_EXPECTS(parentTexture);
+    textureViewInfo.texture = parentTexture;
+    view.textureView = device->createTexture(textureViewInfo);
+}
+
+} // namespace
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
@@ -207,6 +248,16 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             if (!texture.checkResource(desc)) {
                 auto info = getTextureInfo(desc);
                 texture.texture = device->createTexture(info);
+                // recreate depth stencil views, currently is not recursive
+                for (const auto& e : makeRange(children(vertID, *this))) {
+                    const auto childID = child(e, *this);
+                    auto* view = get_if<SubresourceView>(childID, this);
+                    if (view) {
+                        const auto [originView, parentID] = getOriginView(resg, childID);
+                        CC_ENSURES(parentID == vertID);
+                        recreateTextureView(device, *this, originView, parentID, *view);
+                    }
+                }
             }
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
@@ -242,26 +293,10 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             mount(device, parentID);
         },
         [&](SubresourceView& view) { // NOLINT(misc-no-recursion)
-            SubresourceView originView = view;
-            auto parentID = parent(vertID, resg);
-            CC_EXPECTS(parentID != resg.null_vertex());
-            while (resg.isTextureView(parentID)) {
-                const auto& prtView = get(SubresourceViewTag{}, parentID, resg);
-                originView.firstPlane += prtView.firstPlane;
-                originView.firstArraySlice += prtView.firstArraySlice;
-                originView.indexOrFirstMipLevel += prtView.indexOrFirstMipLevel;
-                parentID = parent(parentID, resg);
-            }
-            CC_EXPECTS(parentID != resg.null_vertex());
-            CC_EXPECTS(resg.isTexture(parentID));
-            CC_ENSURES(!resg.isTextureView(parentID));
+            const auto [originView, parentID] = getOriginView(resg, vertID);
             mount(device, parentID); // NOLINT(misc-no-recursion)
-            auto* parentTexture = resg.getTexture(parentID);
-            if (!view.textureView) {
-                const auto& desc = get(ResourceGraph::DescTag{}, resg, vertID);
-                auto textureViewInfo = getTextureViewInfo(originView, desc.viewType);
-                textureViewInfo.texture = parentTexture;
-                view.textureView = device->createTexture(textureViewInfo);
+            if (!isTextureEqual(view.textureView, desc)) {
+                recreateTextureView(device, *this, originView, parentID, view);
             }
         });
 }
