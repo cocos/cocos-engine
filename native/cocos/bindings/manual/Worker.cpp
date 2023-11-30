@@ -140,7 +140,7 @@ namespace ccex {
     }
 
     namespace error {
-        void onFatalErrorCallback(const char* location, const char* message) {
+        void _onFatalErrorCallback(const char* location, const char* message) {
             std::string errorStr = "[worker thread]: [FATAL ERROR] location: ";
             errorStr += location;
             errorStr += ", message: ";
@@ -148,11 +148,22 @@ namespace ccex {
             CC_LOG_ERROR(errorStr.c_str());
             helper::g_postEventToMainThread(nullptr,1,errorStr);
         }
-        void onOOMErrorCallback(const char* location, bool isHeapOom) {
+        void _onOOMErrorCallback(const char* location,
+#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+                const v8::OOMDetails& details
+#else
+                                bool isHeapOom
+#endif
+) {
             std::string errorStr = "[worker thread]: [OOM ERROR] location: ";
             errorStr += location;
             std::string message = "is heap out of memory: ";
+            message = "is heap out of memory: ";
+#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+            if (details.is_heap_oom) {
+#else
             if (isHeapOom) {
+#endif
                 message += "true";
             } else {
                 message += "false";
@@ -161,7 +172,7 @@ namespace ccex {
             CC_LOG_ERROR(errorStr.c_str());
             helper::g_postEventToMainThread(nullptr,1,errorStr);
         }
-        std::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
+        std::string _stackTraceToString(v8::Local<v8::StackTrace> stack) {
             std::string stackStr;
             if (stack.IsEmpty()) {
                 return stackStr;
@@ -209,7 +220,7 @@ namespace ccex {
             sprintf(_location, "%s:%d:%d", res_name.c_str(), lineoffset, coloffset);
             std::string location(_location);
             std::string errorStr = "[worker thread] :" + msg + ", location: " + location;
-            std::string stackStr = stackTraceToString(message->GetStackTrace());
+            std::string stackStr = _stackTraceToString(message->GetStackTrace());
             if (!stackStr.empty()) {
                 if (lineoffset == 0) {
                     location = "(see stack)";
@@ -249,8 +260,8 @@ namespace ccex {
         void handler_IsolateError(v8::Isolate* isolate) {
             // setup V8 error callback
             isolate->SetCaptureStackTraceForUncaughtExceptions(true, 15, v8::StackTrace::kOverview);
-            isolate->SetFatalErrorHandler(onFatalErrorCallback);
-            isolate->SetOOMErrorHandler(onOOMErrorCallback);
+            isolate->SetFatalErrorHandler(_onFatalErrorCallback);
+            isolate->SetOOMErrorHandler(_onOOMErrorCallback);
             isolate->AddMessageListener(handler_MessageCallback);
             isolate->SetPromiseRejectCallback(onPromiseRejectCallback);
         }
@@ -323,12 +334,13 @@ namespace ccex {
         that->Set(name_string, t);
     }
 
-    void SetProperty(v8::Isolate* isolate,v8::Local<v8::Context> context, v8::Local<v8::Object> obj,const std::string &key, v8::Local<v8::Value> value ){
+    bool SetProperty(v8::Isolate* isolate,v8::Local<v8::Context> context, v8::Local<v8::Object> obj,const std::string &key, v8::Local<v8::Value> value ){
         v8::MaybeLocal<v8::String> maybeKey = v8::String::NewFromUtf8(isolate, key.c_str(), v8::NewStringType::kNormal);
         if (maybeKey.IsEmpty()) {
-            return;
+            return false;
         }
-        obj->Set(context, v8::Local<v8::Name>::Cast(maybeKey.ToLocalChecked()),value);
+        v8::Maybe<bool> ret = obj->Set(context, v8::Local<v8::Name>::Cast(maybeKey.ToLocalChecked()),value);
+        return ret.IsJust() && ret.FromJust();
     }
     /***
      * postMessage To worker thread
@@ -524,8 +536,7 @@ namespace ccex {
                 SetMethod(isolate, consoleTpl, "warn", self_log);
                 SetMethod(isolate, consoleTpl, "error", self_log);
                 auto consoleObj = consoleTpl->NewInstance(context).ToLocalChecked();
-                globalThis->Set(context,v8::String::NewFromUtf8(isolate, "console", v8::NewStringType::kNormal)
-                                .ToLocalChecked(), consoleObj);
+                SetProperty(isolate,context,globalThis,"console",consoleObj);
             }
             evalCode(isolate, runtimejs, "runtime.js");
             if ( evalJSFile(isolate, _worker->path)){
