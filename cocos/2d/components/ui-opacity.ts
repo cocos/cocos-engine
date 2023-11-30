@@ -134,7 +134,8 @@ export class UIOpacity extends Component {
     protected _opacity = 255;
 
     public onEnable (): void {
-        // If it has been set by the parent node or grandfather node, it does not need to be initialized.
+        // If the ancestor node has a uiopacity component, it will be initialized when initializing 
+        // the uiopacity component of the ancestor node, and there is no need to initialize it again.
         if (this._setByParent) {
             return;
         }
@@ -143,7 +144,8 @@ export class UIOpacity extends Component {
     }
 
     public onDisable (): void {
-        // If it has been set by the parent node or grandfather node, it does not need to be reinitialized.
+        // If the ancestor node has a uiopacity component, it will be uninitialized when uninitializing 
+        // the uiopacity component of the ancestor node, and there is no need to uninitialize it again.
         if (this._setByParent) {
             return;
         }
