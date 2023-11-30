@@ -45,6 +45,13 @@ import { Node } from '../../scene-graph';
 @executeInEditMode
 @disallowMultiple
 export class UIOpacity extends Component {
+    /**
+     * @en
+     * Identification set by the parent node.
+     *
+     * @zh
+     * 被父节点设置的标识。
+     */
     private _setByParent = false;
 
     /**
@@ -127,7 +134,7 @@ export class UIOpacity extends Component {
     protected _opacity = 255;
 
     public onEnable (): void {
-        // If the parent node has a uiopacity component, it does not need to be initialized.
+        // If it has been set by the parent node or grandfather node, it does not need to be initialized.
         if (this._setByParent) {
             return;
         }
@@ -136,7 +143,7 @@ export class UIOpacity extends Component {
     }
 
     public onDisable (): void {
-        // If the parent node has a uiopacity component, it does not need to be reinitialized.
+        // If it has been set by the parent node or grandfather node, it does not need to be reinitialized.
         if (this._setByParent) {
             return;
         }
