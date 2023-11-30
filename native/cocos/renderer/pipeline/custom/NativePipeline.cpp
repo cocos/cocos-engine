@@ -32,6 +32,7 @@
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/ReflectionProbe.h"
 #include "cocos/scene/ReflectionProbeManager.h"
 #include "cocos/scene/RenderScene.h"
@@ -627,6 +628,13 @@ void NativePipeline::updateRenderTarget(
                 std::forward_as_tuple(desc.width, desc.height, desc.format) !=
                 std::forward_as_tuple(width, height, format);
             if (invalidate) {
+                for (const auto &e : makeRange(children(resID, resourceGraph))) {
+                    const auto childID = child(e, resourceGraph);
+                    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, childID);
+                    desc.width = width;
+                    desc.height = height;
+                    desc.format = format;
+                }
                 desc.width = width;
                 desc.height = height;
                 desc.format = format;
