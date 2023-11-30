@@ -171,6 +171,7 @@ export class LightProbeGroup extends Component {
         const changed = this.node.scene.globals.lightProbeInfo.addNode(this.node);
         if (changed) {
             this.node.scene.globals.lightProbeInfo.syncData(this.node, this.probes);
+            this.node.scene.globals.lightProbeInfo.update(true);
         }
     }
 
