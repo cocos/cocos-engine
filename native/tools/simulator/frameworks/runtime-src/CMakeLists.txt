@@ -21,7 +21,7 @@ option(USE_MIDDLEWARE   "Enable Middleware"                 ON)
 option(USE_DRAGONBONES  "Enable Dragonbones"                ON)
 option(USE_SPINE        "Enable Spine"                      ON)
 option(USE_PHYSICS_PHYSX        "USE PhysX Physics"         ON)
-option(USE_WORKER               "Enable Worker"             ON)
+option(USE_WORKER               "Enable Worker"             OFF)
 
 if(USE_SE_JSC AND APPLE)
     set(USE_SE_V8 OFF)

@@ -1,6 +1,6 @@
 /**
  * Created by ihowe@outlook.com on 2023/5/31.
- * Worker on Native (only v8)
+ * Worker on Native
  */
 
 #include <chrono>
@@ -10,10 +10,10 @@
 
 #include "Worker.h"
 // include cocos
-#include "cocos/base/Macros.h"
-#include "cocos/base/Log.h"
-#include "cocos/platform/FileUtils.h"
-#include "cocos/bindings/jswrapper/config.h"
+#include <cocos/base/Macros.h>
+#include <cocos/base/Log.h>
+#include <cocos/platform/FileUtils.h>
+#include <cocos/bindings/jswrapper/config.h>
 
 #define __NANOSECONDS_PER_SECOND 1000000000
 #define __NANOSECONDS_60FPS      16666667L
@@ -46,13 +46,6 @@ root.setTimeout=function(cb){return createTimeoutInfo(arguments,false);};root.cl
         v8::String::Utf8Value utf8(isolate, jsval); \
         *valptr.assign(*utf8);                      \
     } while (0)
-
-#define SET_PROPERTY(object, key, jsval)                                  \
-    object->Set(                                                          \
-        context,                                                          \
-        v8::String::NewFromUtf8(isolate, key, v8::NewStringType::kNormal) \
-            .ToLocalChecked(),                                            \
-        jsval);
 
 namespace ccex {
     namespace helper {
@@ -329,6 +322,14 @@ namespace ccex {
                 v8::String::NewFromUtf8(isolate, name, type).ToLocalChecked();
         that->Set(name_string, t);
     }
+
+    void SetProperty(v8::Isolate* isolate,v8::Local<v8::Context> context, v8::Local<v8::Object> obj,const std::string &key, v8::Local<v8::Value> value ){
+        v8::MaybeLocal<v8::String> maybeKey = v8::String::NewFromUtf8(isolate, key.c_str(), v8::NewStringType::kNormal);
+        if (maybeKey.IsEmpty()) {
+            return;
+        }
+        obj->Set(context, v8::Local<v8::Name>::Cast(maybeKey.ToLocalChecked()),value);
+    }
     /***
      * postMessage To worker thread
      * @param isolate
@@ -344,11 +345,11 @@ namespace ccex {
         v8::Local<v8::String> json = v8::String::NewFromUtf8(isolate, message.c_str()).ToLocalChecked();
         v8::Local<v8::Value> value = v8::JSON::Parse(context, json).ToLocalChecked();
         if (value->IsObject()) {
-            v8::Local<v8::Object> object = value->ToObject(context).ToLocalChecked();
+            v8::Local<v8::Object> params = value->ToObject(context).ToLocalChecked();
             v8::Local<v8::String> lastEventId = v8::String::NewFromUtf8(isolate, worker->getEventID().c_str(),
                                                                         v8::NewStringType::kNormal).ToLocalChecked();
-            SET_PROPERTY(object, "lastEventId",lastEventId);
-            std::vector<v8::Local<v8::Value>> argv = {object};
+            SetProperty(isolate,context, params, "lastEventId",lastEventId );
+            std::vector<v8::Local<v8::Value>> argv = {params};
             callFunction(isolate, context, "onmessage", argv);
         }
     }
@@ -360,10 +361,11 @@ namespace ccex {
             USE_HANDLE_SCOPE;
             auto context = isolate->GetCurrentContext();
             auto params = v8::Object::New(isolate);
-            SET_PROPERTY(params, "data", args[0]);
-            v8::Local<v8::String> lastEventId = v8::String::NewFromUtf8(isolate, worker->getEventID().c_str(),
+            auto tag_data = v8::String::NewFromUtf8(isolate, "data",v8::NewStringType::kNormal).ToLocalChecked();
+            SetProperty(isolate,context, params, "data",args[0] );
+            auto lastEventId = v8::String::NewFromUtf8(isolate, worker->getEventID().c_str(),
                                                                         v8::NewStringType::kNormal).ToLocalChecked();
-            SET_PROPERTY(params, "lastEventId",lastEventId);
+            SetProperty(isolate,context, params, "lastEventId",lastEventId );
             std::string message;
             CONVERT_TO_STRING(v8::JSON::Stringify(context, params).ToLocalChecked(),
                               &message);
@@ -596,7 +598,7 @@ namespace ccex{
     void Worker::start(){
     }
     Worker::~Worker(){
-        CC_LOG_INFO("[worker](ID#%d) Descontructor",id);
+        CC_LOG_INFO("[worker] descontructor (ID#%d)",id);
     }
     void Worker::terminate(){
     }

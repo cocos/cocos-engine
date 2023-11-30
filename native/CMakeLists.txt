@@ -177,7 +177,7 @@ if(CI_FORCE_MINIMAL_FEATURES)
     set(USE_DEBUG_RENDERER OFF)
     set(USE_GEOMETRY_RENDERER OFF)
     set(USE_WEBP OFF)
-    set(USE_WORKER OFF)
+    set(USE_WORKER ON)
 endif()
 
 ################################# external source code ################################

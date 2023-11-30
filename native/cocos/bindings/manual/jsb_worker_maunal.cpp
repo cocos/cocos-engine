@@ -50,7 +50,7 @@ namespace {
             if (!_scheduler || !workerImpObj) {
                 return;
             }
-           // CC_LOG_DEBUG("worker : postMessageToGame   workerid = %d",id);
+            // CC_LOG_DEBUG("worker : postMessageToGame   workerid = %d",id);
             auto func = [id,type,data,this]() {
                 se::AutoHandleScope hs; // fix v8
                 if (globalMessage.isUndefined() && workerImpObj) {
@@ -175,7 +175,7 @@ bool jsb_register_worker(se::Object* g){
     workerImpObj->defineFunction("js_constructor", _SE(js_worker_constructor));
     workerImpObj->defineFunction("js_postMessage", _SE(js_worker_postMessage));
     workerImpObj->defineFunction("js_terminate", _SE(js_worker_terminate));
-    se->evalString(workerjs.c_str(), workerjs.size(), nullptr,"worker.js");
+    se->evalString(workerjs.c_str(), (uint32_t)(workerjs.size()), nullptr,"worker.js");
     se->addBeforeCleanupHook([]() {
         ccex::Worker::destroyAll();
         delete _workerImp;
