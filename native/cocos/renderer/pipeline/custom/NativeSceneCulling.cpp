@@ -78,6 +78,9 @@ LightBoundsCullingID SceneCulling::getOrCreateLightBoundsCulling(
     if (!any(sceneData.cullingFlags & CullingFlags::LIGHT_BOUNDS)) {
         return {};
     }
+    if (sceneData.shadingLight->getType() == scene::LightType::DIRECTIONAL) {
+        return {};
+    }
 
     CC_EXPECTS(sceneData.shadingLight);
     const auto* const scene = sceneData.scene;
