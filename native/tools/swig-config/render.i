@@ -116,6 +116,7 @@ using namespace cc::render;
 %attribute(cc::render::BasicRenderPassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
 %attribute(cc::render::BasicPipeline, cc::render::PipelineType, type, getType);
 %attribute(cc::render::BasicPipeline, cc::render::PipelineCapabilities, capabilities, getCapabilities);
+%attribute(cc::render::BasicPipeline, bool, enableCpuLightCulling, getEnableCpuLightCulling, setEnableCpuLightCulling);
 %attribute(cc::render::RenderSubpassBuilder, bool, showStatistics, getShowStatistics, setShowStatistics);
 
 // ----- Import Section ------

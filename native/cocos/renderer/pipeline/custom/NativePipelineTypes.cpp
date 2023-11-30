@@ -208,7 +208,8 @@ SceneCulling::SceneCulling(SceneCulling&& rhs, const allocator_type& alloc)
   numFrustumCulling(rhs.numFrustumCulling),
   numLightBoundsCulling(rhs.numLightBoundsCulling),
   numRenderQueues(rhs.numRenderQueues),
-  gpuCullingPassID(rhs.gpuCullingPassID) {}
+  gpuCullingPassID(rhs.gpuCullingPassID),
+  enableLightCulling(rhs.enableLightCulling) {}
 
 LightResource::LightResource(const allocator_type& alloc) noexcept
 : cpuBuffer(alloc),

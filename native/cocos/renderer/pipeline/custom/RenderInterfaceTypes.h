@@ -721,6 +721,8 @@ public:
      * @zh 结束管线构建
      */
     virtual void endSetup() = 0;
+    virtual bool getEnableCpuLightCulling() const = 0;
+    virtual void setEnableCpuLightCulling(bool enable) = 0;
     /**
      * @en Check whether the resource has been registered in the pipeline.
      * @zh 检查资源是否在管线中已注册
