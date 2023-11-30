@@ -40,6 +40,7 @@
 #include "cocos/core/assets/Material.h"
 #include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
+#include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/gfx-base/GFXSwapchain.h"
 #include "cocos/renderer/gfx-base/GFXTexture.h"
