@@ -482,7 +482,7 @@ namespace ccex {
                 length = backingStore->ByteLength();
             }
             cc::Data data;
-            data.fastSet(ptr,length);
+            data.fastSet(ptr,(uint32_t)length);
             FILE_UTILS->writeDataToFile(data, filepath);
             return;
         }
