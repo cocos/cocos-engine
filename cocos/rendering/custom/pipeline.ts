@@ -597,6 +597,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @zh 结束管线构建
      */
     endSetup (): void;
+    enableCpuLightCulling: boolean;
     /**
      * @en Check whether the resource has been registered in the pipeline.
      * @zh 检查资源是否在管线中已注册

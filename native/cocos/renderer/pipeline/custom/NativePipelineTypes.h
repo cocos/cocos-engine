@@ -1413,6 +1413,7 @@ public:
     uint32_t numLightBoundsCulling{0};
     uint32_t numRenderQueues{0};
     uint32_t gpuCullingPassID{0xFFFFFFFF};
+    bool enableLightCulling{true};
 };
 
 struct LightResource {
@@ -1614,6 +1615,8 @@ public:
     PipelineCapabilities getCapabilities() const override;
     void beginSetup() override;
     void endSetup() override;
+    bool getEnableCpuLightCulling() const override;
+    void setEnableCpuLightCulling(bool enable) override;
     bool containsResource(const ccstd::string &name) const override;
     uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
     void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;

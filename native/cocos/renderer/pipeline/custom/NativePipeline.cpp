@@ -129,6 +129,14 @@ void NativePipeline::beginSetup() {
 void NativePipeline::endSetup() {
 }
 
+bool NativePipeline::getEnableCpuLightCulling() const {
+    return nativeContext.sceneCulling.enableLightCulling;
+}
+
+void NativePipeline::setEnableCpuLightCulling(bool enable) {
+    nativeContext.sceneCulling.enableLightCulling = enable;
+}
+
 bool NativePipeline::containsResource(const ccstd::string &name) const {
     return contains(name.c_str(), resourceGraph);
 }
