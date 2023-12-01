@@ -201,7 +201,6 @@ rules:
 
     ##### eslint-stylistic rules #####
 
-    '@stylistic/eol-last': error
     '@stylistic/no-trailing-spaces': error
     '@stylistic/space-before-blocks': error
     '@stylistic/space-before-function-paren': [warn, always] # we require this explicitl
@@ -303,3 +302,4 @@ rules:
         enforceForFunctionPrototypeMethods: false,
         ignoreJSX: all
     }]
+    '@stylistic/eol-last': error
