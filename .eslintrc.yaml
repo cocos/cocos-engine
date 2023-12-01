@@ -202,15 +202,16 @@ rules:
     ##### eslint-stylistic rules #####
 
     '@stylistic/no-trailing-spaces': error
-    '@stylistic/space-before-blocks': error
-    '@stylistic/space-before-function-paren': [warn, always] # we require this explicitl
     '@stylistic/space-unary-ops': error
     '@stylistic/space-infix-ops': error
     '@stylistic/space-in-parens': [error, never, { exceptions: [] }]
+    '@stylistic/block-spacing': error
+    '@stylistic/space-before-blocks': error
+    '@stylistic/space-before-function-paren': [warn, always] # we require this explicitl
+    '@stylistic/function-call-spacing': [error, never]
     '@stylistic/semi-spacing': [error, {before: false, after: true}]
     '@stylistic/comma-spacing': [error, {before: false, after: true}]
     '@stylistic/arrow-spacing': [error, {before: true, after: true}]
-    '@stylistic/block-spacing': error
     '@stylistic/array-bracket-spacing': error
     '@stylistic/object-curly-spacing': off
     '@stylistic/key-spacing': [error, {
