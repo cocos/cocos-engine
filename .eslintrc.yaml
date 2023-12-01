@@ -127,10 +127,10 @@ rules:
     }]
     '@typescript-eslint/no-empty-function': [off, {
       allow: [
-        private-constructors,
-        protected-constructors,
-        decoratedFunctions,
-        overrideMethods,
+        'private-constructors',
+        'protected-constructors',
+        'decoratedFunctions',
+        'overrideMethods',
       ]
     }]
 
@@ -201,13 +201,19 @@ rules:
 
     ##### eslint-stylistic rules #####
 
-    '@stylistic/no-trailing-spaces': error
     '@stylistic/eol-last': error
+    '@stylistic/no-trailing-spaces': error
     '@stylistic/space-before-blocks': error
+    '@stylistic/space-before-function-paren': [warn, always] # we require this explicitl
+    '@stylistic/space-unary-ops': error
+    '@stylistic/space-infix-ops': error
+    '@stylistic/space-in-parens': [error, never, { exceptions: [] }]
     '@stylistic/semi-spacing': [error, {before: false, after: true}]
     '@stylistic/comma-spacing': [error, {before: false, after: true}]
     '@stylistic/arrow-spacing': [error, {before: true, after: true}]
-
+    '@stylistic/block-spacing': error
+    '@stylistic/array-bracket-spacing': error
+    '@stylistic/object-curly-spacing': off
     '@stylistic/key-spacing': [error, {
         singleLine: {
             beforeColon: false,
@@ -220,14 +226,32 @@ rules:
         }
     }]
     '@stylistic/keyword-spacing': error # we require this explicitly
+    '@stylistic/type-annotation-spacing': [error, {
+        before: false,
+        after: true,
+        overrides : {
+            arrow: {
+                before: true,
+                after: true,
+            }
+        }
+     }]
+    '@stylistic/rest-spread-spacing': [error, never]
+    '@stylistic/switch-colon-spacing': error
+    '@stylistic/template-curly-spacing': [error, never]
+    '@stylistic/template-tag-spacing': [error, always]
+    '@stylistic/yield-star-spacing': [error, both]
     '@stylistic/no-multi-spaces': [warn, {
         ignoreEOLComments: true,
         exceptions: {
-            'Property': true,
-            'VariableDeclarator': false
+            Property: true,
+            VariableDeclarator: false
         }
     }]
-    '@stylistic/space-before-function-paren': [warn, always] # we require this explicitly
+    '@stylistic/spaced-comment': off # for license declarations
+    '@stylistic/no-whitespace-before-property': error
+
+
     '@stylistic/quotes': [warn, single, { allowTemplateLiterals: true }] # force single, but allow template literal
     '@stylistic/indent': [error, 4, {
       SwitchCase: 1,
@@ -243,17 +267,7 @@ rules:
     '@stylistic/object-curly-newline': off # we want manual control over this
     '@stylistic/one-var-declaration-per-line': off # auto-fix has order issues with `one-var`
     '@stylistic/linebreak-style': off # we don't enforce this on everyone's dev environment for now
-    '@stylistic/spaced-comment': off # for license declarations
-    '@stylistic/type-annotation-spacing': [error, {
-        before: false,
-        after: true,
-        overrides : {
-            'arrow': {
-                'before': true,
-                'after': true,
-            }
-        }
-     }]
+
 
     '@stylistic/no-multiple-empty-lines': [warn, {max: 2, maxEOF: 1}]
     '@stylistic/max-statements-per-line': [error, { max: 1 }]
@@ -269,7 +283,6 @@ rules:
     }]
     '@stylistic/quote-props': [error, consistent-as-needed]
     '@stylistic/function-paren-newline': off
-    '@stylistic/space-unary-ops': error
     '@stylistic/arrow-parens': [error, always]
     '@stylistic/brace-style': [error, 1tbs]
     '@stylistic/nonblock-statement-body-position': [error, below]
@@ -279,8 +292,8 @@ rules:
     '@stylistic/no-extra-semi': error
     '@stylistic/semi': [error, always]
     '@stylistic/member-delimiter-style': [error, {
-        multiline: { 'delimiter': 'semi' },
-        singleline: { 'delimiter': 'semi' },
+        multiline: { delimiter: 'semi' },
+        singleline: { delimiter: 'semi' },
     }]
     '@stylistic/no-extra-parens': [error, all, {
         conditionalAssign: false,
@@ -290,4 +303,3 @@ rules:
         enforceForFunctionPrototypeMethods: false,
         ignoreJSX: all
     }]
-    '@stylistic/space-infix-ops': [error]
