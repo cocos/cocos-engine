@@ -22,8 +22,8 @@
  THE SOFTWARE.
 */
 
-import { ensureWasmModuleReady, instantiateWasm, fetchBuffer } from 'pal/wasm';
-import { FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
+import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
+import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
 import { game } from '../../game';
 import { debug, error, getError, log, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
@@ -111,45 +111,26 @@ function initWASM (wasmFactory, wasmUrl: string): Promise<void> {
     });
 }
 
-const PAGESIZE = 65536; // 64KiB
-
-// How many pages of the wasm memory
-// TODO: let this can be canfiguable by user.
-const PAGECOUNT = 32 * 16;
-
-// How mush memory size of the wasm memory
-const MEMORYSIZE = PAGESIZE * PAGECOUNT; // 32 MiB
-
-function initASM (asmFactory, asmJsMemUrl: string): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        if (CULL_ASM_JS_MODULE) {
-            reject(getError(4601));
-            return;
-        }
-        fetchBuffer(asmJsMemUrl).then((arrayBuffer) => {
-            const wasmMemory: any = {};
-            wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
-            const module = {
-                wasmMemory,
-                memoryInitializerRequest: {
-                    response: arrayBuffer,
-                    status: 200,
-                } as Partial<XMLHttpRequest>,
-            };
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            return asmFactory(module).then((instance: any) => {
-                bt = instance;
-            });
-        }).then(resolve).catch(reject);
-    });
+function initASM (asmFactory): Promise<void> {
+    if (asmFactory != null) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return asmFactory().then((instance: any) => {
+            log('[bullet]:bullet asm lib loaded.');
+            bt = instance as Bullet.instance;
+        });
+    } else {
+        return new Promise<void>((resolve, reject) => {
+            resolve();
+        });
+    }
 }
 
 function shouldUseWasmModule (): boolean {
     if (FORCE_BANNING_BULLET_WASM) {
         return false;
-    } else if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.MAYBE_SUPPORT as number)) {
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.SUPPORT as number)) {
+    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
         return true;
     } else {
         return false;
@@ -162,17 +143,15 @@ export function waitForAmmoInstantiation (): Promise<void> {
         import('external:emscripten/bullet/bullet.release.wasm.js'),
         import('external:emscripten/bullet/bullet.release.wasm.wasm'),
         import('external:emscripten/bullet/bullet.release.asm.js'),
-        import('external:emscripten/bullet/bullet.release.asm.js.mem'),
     ]).then(([
         { default: bulletWasmFactory },
         { default: bulletWasmUrl },
         { default: bulletAsmFactory },
-        { default: bulletAsmJsMemUrl },
     ]) => {
         if (shouldUseWasmModule()) {
             return initWASM(bulletWasmFactory, bulletWasmUrl);
         } else {
-            return initASM(bulletAsmFactory, bulletAsmJsMemUrl);
+            return initASM(bulletAsmFactory);
         }
     })).catch(errorReport);
 }

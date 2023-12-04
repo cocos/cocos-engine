@@ -14,10 +14,7 @@ App({
     console.info('App onLaunched');
 
     $global.__onCanvasCreated = function () {
-      <% if(polyfillsBundleFile) { %>
-        // Polyfills bundle.
-        require('./<%= polyfillsBundleFile %>');
-      <% } %>
+      require('./<%= polyfillsBundleFile %>');
       require('./<%= systemJsBundleFile %>');
       require('./load-module.js');
       const importMap = require('./<%= importMapFile %>').default;
