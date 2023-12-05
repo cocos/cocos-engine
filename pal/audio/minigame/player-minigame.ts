@@ -60,9 +60,11 @@ export class OneShotAudioMinigame {
                 systemInfo.off('hide', this._onInterruptedBegin, this);
                 systemInfo.off('show', this._onInterruptedEnd, this);
                 this._onEndCb?.();
-                nativeAudio.destroy();
                 // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'.
                 this._innerAudioContext = null as any;
+                /**The destroy interface, in some platform implementations, internally invokes stop,
+                 * triggering the onStop callback, consequently leading to an infinite loop. **/
+                nativeAudio.destroy();
             }
         };
         nativeAudio.onEnded(endCallback);
