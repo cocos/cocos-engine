@@ -134,7 +134,7 @@ export class Color extends ValueType {
      *   16进制字符串的格式应该类似: '#12345678' '#123456', '123456', '12345678'.
      *   16进制数值的格式应该类似:  0x12345678, 0x123456 .
      */
-    public static fromHEX<Out extends cc.IColorLike> (out: Out, hex: string | number): Out {
+    public static fromHEX<Out extends IColorLike> (out: Out, hex: string | number): Out {
         let hexNumber: number;
         if (typeof hex === 'string') {
             hex = hex[0] === '#' ? hex.substring(1) : hex;
