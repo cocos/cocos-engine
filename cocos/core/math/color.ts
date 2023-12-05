@@ -144,7 +144,7 @@ export class Color extends ValueType {
             hexNumber = Number('0x' + hex);
         } else {
             if (hex < 0x1000000) {
-                hex = hex << 8 & 0xff;
+                hex = (hex << 8) + 0xff;
             }
             hexNumber = hex;
         }
