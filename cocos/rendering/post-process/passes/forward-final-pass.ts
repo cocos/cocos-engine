@@ -39,7 +39,7 @@ export class ForwardFinalPass extends BasePass {
             .addRenderPass('post-process', `${this.name}${cameraID}`)
             .setPassInput(input0, 'inputTexture')
             .addRasterView(slot0, format, isOffScreen)
-            .blitScreen(0);
+            .blitScreen(1);
 
         this.renderProfiler(camera);
     }
