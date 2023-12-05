@@ -126,16 +126,34 @@ export class Color extends ValueType {
     }
     /**
      * @en Converts the hexadecimal formal color into rgb formal and save the results to out color.
+     *   the argument `hex` could be hex-string or hex-number (8-digit or 6-digit).
+     *   the hex-string should be like : '#12345678' '#123456', '123456', '12345678'.
+     *   the hex-number should be like : 0x12345678, 0x123456 .
      * @zh 从十六进制颜色字符串中读入颜色到 out 中
+     *   参数 hex 支持 16进制字符串 或者 16进制数值 (8位数字 或者 6位数字).
+     *   16进制字符串的格式应该类似: '#12345678' '#123456', '123456', '12345678'.
+     *   16进制数值的格式应该类似:  0x12345678, 0x123456 .
      */
-    public static fromHEX<Out extends IColorLike> (out: Out, hexString: string): Out {
-        hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
-        out.r = parseInt(hexString.substr(0, 2), 16) || 0;
-        out.g = parseInt(hexString.substr(2, 2), 16) || 0;
-        out.b = parseInt(hexString.substr(4, 2), 16) || 0;
-        const a = parseInt(hexString.substr(6, 2), 16);
-        out.a = !Number.isNaN(a) ? a : 255;
-        out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
+    public static fromHEX<Out extends cc.IColorLike> (out: Out, hex: string | number): Out {
+        let hexNumber: number;
+        if (typeof hex === 'string') {
+            hex = hex[0] === '#' ? hex.substring(1) : hex;
+            if (hex.length === 6) {
+                hex += 'FF';
+            }
+            hexNumber = Number('0x' + hex);
+        } else {
+            if (hex < 0x1000000) {
+                hex = hex << 8 & 0xff;
+            }
+            hexNumber = hex;
+        }
+        out.r = hexNumber >>> 24;
+        out.g = (hexNumber & 0x00ff0000) >>> 16;
+        out.b = (hexNumber & 0x0000ff00) >>> 8;
+        out.a = hexNumber & 0x000000ff;
+        out._val = hexNumber;
+
         return out;
     }
 
