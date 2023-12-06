@@ -1035,6 +1035,8 @@ export class Vec3 extends ValueType {
      * @param scalar scalar number
      */
     public multiplyScalar (scalar: number): Vec3 {
+        // TODO: can not use cc.warn, or will cause circular dependency.
+        // eslint-disable-next-line no-console
         if (typeof scalar === 'object') { console.warn('should use Vec3.multiply for vector * vector operation'); }
         this.x *= scalar;
         this.y *= scalar;
@@ -1048,6 +1050,8 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public multiply (other: Vec3): Vec3 {
+        // TODO: can not use cc.warn, or will cause circular dependency.
+        // eslint-disable-next-line no-console
         if (typeof other !== 'object') { console.warn('should use Vec3.scale for vector * scalar operation'); }
         this.x *= other.x;
         this.y *= other.y;
@@ -1208,6 +1212,7 @@ export function v3 (other: Vec3): Vec3;
 export function v3 (x?: number, y?: number, z?: number): Vec3;
 
 export function v3 (x?: number | Vec3, y?: number, z?: number): Vec3 {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return new Vec3(x as any, y, z);
 }
 
