@@ -85,6 +85,7 @@ exports.ready = function() {
     panel.$.edit.addEventListener('confirm', async () => {
         await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
         trackEventWithTimer('bakingSystem', 'A100008');
+        Editor.Panel.focus('scene');
     });
 
     panel.changeProbeModeBind = panel.changeProbeMode.bind(panel);
@@ -93,6 +94,7 @@ exports.ready = function() {
     panel.$.box.addEventListener('confirm', async () => {
         await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
         trackEventWithTimer('bakingSystem', 'A100007');
+        Editor.Panel.focus('scene');
     });
 
     panel.changeProbeBoxModeBind = panel.changeProbeBoxMode.bind(panel);
