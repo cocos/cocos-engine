@@ -388,7 +388,7 @@ export class Vec3 extends ValueType {
      * from normalized `from` to normalized `to`,
      * then scaled by linear interpolation of lengths from `from` to `to`.
      */
-    public static slerp= ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
+    public static slerp = ((): <Out extends IVec3Like>(out: Out, from: Readonly<IVec3Like>, to: Readonly<IVec3Like>, t: number) => Out => {
         const cacheV1 = new Vec3();
         const cacheV2 = new Vec3();
         const cacheV3 = new Vec3();
@@ -668,7 +668,7 @@ export class Vec3 extends ValueType {
 
         const cos = Math.cos(a);
         const sin = Math.sin(a);
-        const rx = x * (nx * nx * (1.0 - cos) + cos) + y * (nx * ny * (1.0 - cos) - nx * sin) + z * (nx * nz * (1.0 - cos) + ny * sin);
+        const rx = x * (nx * nx * (1.0 - cos) + cos) + y * (nx * ny * (1.0 - cos) - nz * sin) + z * (nx * nz * (1.0 - cos) + ny * sin);
         const ry = x * (nx * ny * (1.0 - cos) + nz * sin) + y * (ny * ny * (1.0 - cos) + cos) + z * (ny * nz * (1.0 - cos) - nx * sin);
         const rz = x * (nx * nz * (1.0 - cos) - ny * sin) + y * (ny * nz * (1.0 - cos) + nx * sin) + z * (nz * nz * (1.0 - cos) + cos);
 
@@ -1035,6 +1035,8 @@ export class Vec3 extends ValueType {
      * @param scalar scalar number
      */
     public multiplyScalar (scalar: number): Vec3 {
+        // TODO: can not use cc.warn, or will cause circular dependency.
+        // eslint-disable-next-line no-console
         if (typeof scalar === 'object') { console.warn('should use Vec3.multiply for vector * vector operation'); }
         this.x *= scalar;
         this.y *= scalar;
@@ -1048,6 +1050,8 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public multiply (other: Vec3): Vec3 {
+        // TODO: can not use cc.warn, or will cause circular dependency.
+        // eslint-disable-next-line no-console
         if (typeof other !== 'object') { console.warn('should use Vec3.scale for vector * scalar operation'); }
         this.x *= other.x;
         this.y *= other.y;
@@ -1208,6 +1212,7 @@ export function v3 (other: Vec3): Vec3;
 export function v3 (x?: number, y?: number, z?: number): Vec3;
 
 export function v3 (x?: number | Vec3, y?: number, z?: number): Vec3 {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     return new Vec3(x as any, y, z);
 }
 
