@@ -533,7 +533,7 @@ export class RigidBody2D extends Component {
      */
     getInertia (): number {
         if (this._body) {
-            this._body.getInertia();
+            return this._body.getInertia();
         }
         return 0;
     }
