@@ -48,13 +48,16 @@ export class AttachUtil {
     init (skeletonComp: Skeleton): void {
         this._isInitialized = false;
         if (!skeletonComp || skeletonComp.socketNodes?.size === 0) return;
-        const isCached = skeletonComp.isAnimationCached();
-        this._skeletonBones = isCached && skeletonComp._curFrame ? skeletonComp._curFrame.boneInfos : skeletonComp._skeleton.bones;
+        this._skeletonBones = skeletonComp._skeleton.bones;
         if (!this._skeletonBones || this._skeletonBones.length < 1) return;
         this._socketNodes = skeletonComp.socketNodes;
         if (!this._socketNodes || this._socketNodes.size <= 0) return;
         this._isInitialized = true;
         this._syncAttachedNode();
+    }
+
+    updateSkeletonBones (bones: FrameBoneInfo[]): void {
+        this._skeletonBones = bones;
     }
 
     reset (): void {
