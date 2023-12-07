@@ -1051,6 +1051,9 @@ export class Skeleton extends UIRenderer {
             frameCache.updateToFrame(frameIdx);
         }
         this._curFrame = frames[frameIdx];
+        if (this._curFrame !== undefined) {
+            this.attachUtil.updateSkeletonBones(this._curFrame.boneInfos);
+        }
         if (frameCache.isCompleted && frameIdx >= frames.length) {
             this._playCount++;
             if (this._playTimes > 0 && this._playCount >= this._playTimes) {

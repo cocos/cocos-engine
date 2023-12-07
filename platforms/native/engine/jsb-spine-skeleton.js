@@ -844,6 +844,7 @@ const cacheManager = require('./jsb-cache-manager');
 
     assembler.updateRenderData = function (comp) {
         comp._render();
+        comp.syncAttachedNode();
     };
 
     // eslint-disable-next-line no-unused-vars
