@@ -190,6 +190,9 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
 
         for (let p = 0; p < props.length; p++) {
             const propName = props[p];
+            if ((PREVIEW || (EDITOR && _self.ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
+                continue;   // skip editor only if in preview
+            }
             let propNameToRead = propName;
             if (attrs[propName + POSTFIX_FORMERLY_SERIALIZED_AS]) {
                 propNameToRead = attrs[propName + POSTFIX_FORMERLY_SERIALIZED_AS];
