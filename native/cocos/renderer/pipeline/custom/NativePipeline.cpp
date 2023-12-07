@@ -143,6 +143,12 @@ bool NativePipeline::containsResource(const ccstd::string &name) const {
 }
 
 uint32_t NativePipeline::addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateExternalTexture(name, texture);
+        return resID;
+    }
+
     const auto &texInfo = texture->getInfo();
     ResourceDesc desc{};
     desc.dimension = getResourceDimension(texInfo.type);
@@ -185,6 +191,12 @@ void NativePipeline::updateExternalTexture(const ccstd::string &name, gfx::Textu
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateRenderWindow(name, renderWindow);
+        return resID;
+    }
+
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -234,6 +246,11 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format format, uint32_t size, ResourceResidency residency) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateStorageBuffer(name, size, format);
+        return resID;
+    }
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::BUFFER;
     desc.width = size;
@@ -258,6 +275,11 @@ uint32_t NativePipeline::addStorageBuffer(const ccstd::string &name, gfx::Format
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateRenderTarget(name, width, height, format);
+        return resID;
+    }
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -283,6 +305,11 @@ uint32_t NativePipeline::addRenderTarget(const ccstd::string &name, gfx::Format 
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateDepthStencil(name, width, height, format);
+        return resID;
+    }
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -302,7 +329,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     samplerInfo.minFilter = gfx::Filter::POINT;
     samplerInfo.mipFilter = gfx::Filter::NONE;
 
-    auto resID = addVertex(
+    resID = addVertex(
         ManagedTextureTag{},
         std::forward_as_tuple(name.c_str()),
         std::forward_as_tuple(desc),
@@ -317,6 +344,11 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
 }
 
 uint32_t NativePipeline::addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateTexture(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
+        return resID;
+    }
     const auto dimension = getResourceDimension(type);
     ResourceDesc desc{
         dimension,
@@ -347,6 +379,11 @@ void NativePipeline::updateTexture(const ccstd::string &name, gfx::Format format
 }
 
 uint32_t NativePipeline::addBuffer(const ccstd::string &name, uint32_t size, ResourceFlags flags, ResourceResidency residency) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateBuffer(name, size);
+        return resID;
+    }
     ResourceDesc desc = {};
     desc.dimension = ResourceDimension::BUFFER;
     desc.width = size;
@@ -371,7 +408,19 @@ uint32_t NativePipeline::addResource(
     gfx::Format format,
     uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels,
     gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) {
-    return dimension == ResourceDimension::BUFFER ? addBuffer(name, width, flags, residency) : addTexture(name, getTextureType(dimension, arraySize), format, width, height, depth, arraySize, mipLevels, sampleCount, flags, residency);
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateResource(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
+        return resID;
+    }
+    return dimension == ResourceDimension::BUFFER
+               ? addBuffer(name, width, flags, residency)
+               : addTexture(
+                     name,
+                     getTextureType(dimension, arraySize),
+                     format, width, height, depth,
+                     arraySize, mipLevels, sampleCount,
+                     flags, residency);
 }
 
 void NativePipeline::updateResource(
@@ -414,6 +463,11 @@ void NativePipeline::updateResource(
 
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateStorageTexture(name, width, height, format);
+        return resID;
+    }
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -443,6 +497,11 @@ uint32_t NativePipeline::addStorageTexture(const ccstd::string &name, gfx::Forma
 }
 // NOLINTNEXTLINE
 uint32_t NativePipeline::addShadingRateTexture(const ccstd::string &name, uint32_t width, uint32_t height, ResourceResidency residency) {
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateShadingRateTexture(name, width, height);
+        return resID;
+    }
     ResourceDesc desc{};
     desc.dimension = ResourceDimension::TEXTURE2D;
     desc.width = width;
@@ -477,6 +536,11 @@ uint32_t NativePipeline::addCustomBuffer(
     if (!custom.currentContext) {
         return ResourceGraph::null_vertex();
     }
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateBuffer(name, info.size);
+        return resID;
+    }
     auto &ctx = *custom.currentContext;
 
     ResourceDesc desc{};
@@ -508,6 +572,13 @@ uint32_t NativePipeline::addCustomTexture(
     const gfx::TextureInfo &info, const std::string &type) {
     if (!custom.currentContext) {
         return ResourceGraph::null_vertex();
+    }
+    auto resID = findVertex(ccstd::pmr::string(name, get_allocator()), resourceGraph);
+    if (resID != ResourceGraph::null_vertex()) {
+        updateTexture(name,
+                      info.format, info.width, info.height, info.depth,
+                      info.layerCount, info.levelCount, info.samples);
+        return resID;
     }
     auto &ctx = *custom.currentContext;
 
@@ -553,7 +624,7 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
         },
         [&](RenderSwapchain &sc) {
             auto *newSwapchain = renderWindow->getSwapchain();
-            const auto& oldTexture = resourceGraph.getTexture(resID);
+            const auto &oldTexture = resourceGraph.getTexture(resID);
             resourceGraph.invalidatePersistentRenderPassAndFramebuffer(oldTexture);
             if (newSwapchain) {
                 desc.width = newSwapchain->getWidth();
@@ -567,7 +638,7 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
                 CC_EXPECTS(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
                 CC_EXPECTS(renderWindow->getFramebuffer()->getColorTextures().front());
 
-                const auto& texture = renderWindow->getFramebuffer()->getColorTextures().front();
+                const auto &texture = renderWindow->getFramebuffer()->getColorTextures().front();
                 desc.width = texture->getWidth();
                 desc.height = texture->getHeight();
 
