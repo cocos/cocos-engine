@@ -200,7 +200,7 @@ function realTimeTraverse (comp: Skeleton): void {
     const locSkeleton = comp._skeleton;
     if (graphics && (comp.debugBones || comp.debugSlots || comp.debugMesh)) {
         graphics.clear();
-        graphics.lineWidth = 5;
+        graphics.lineWidth = 2.0 / graphics.node.getWorldScale().x;
 
         const debugShapes = comp.getDebugShapes();
         const shapeCount = debugShapes.size();

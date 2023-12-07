@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
-import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
+import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip, editorOnly } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
 import { error, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
-import { Node } from '../scene-graph';
+import { Node, NodeEventType } from '../scene-graph';
 import { CCObject, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
@@ -227,10 +227,13 @@ export class Skeleton extends UIRenderer {
     @serializable
     protected _useTint = false;
     @serializable
+    @editorOnly
     protected _debugMesh = false;
     @serializable
+    @editorOnly
     protected _debugBones = false;
     @serializable
+    @editorOnly
     protected _debugSlots = false;
     @serializable
     protected _enableBatch = false;
@@ -1569,6 +1572,7 @@ export class Skeleton extends UIRenderer {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
                 const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.layer = this.node.layer;
                 debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;
@@ -1576,6 +1580,7 @@ export class Skeleton extends UIRenderer {
 
                 this._debugRenderer = debugDraw;
                 debugDrawNode.parent = this.node;
+                this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
             }
             if (this.isAnimationCached()) {
                 warn('Debug bones or slots is invalid in cached mode');
@@ -1583,6 +1588,7 @@ export class Skeleton extends UIRenderer {
                 this._instance.setDebugMode(true);
             }
         } else if (this._debugRenderer) {
+            this.node.off(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
             this._debugRenderer.node.destroy();
             this._debugRenderer = null;
             if (!this.isAnimationCached()) {
@@ -1836,6 +1842,12 @@ export class Skeleton extends UIRenderer {
             this._slotTextures.set(textureID, tex2d);
         }
         this._instance.setSlotTexture(slotName, textureID);
+    }
+
+    protected _applyLayer (): void {
+        if (this._debugRenderer) {
+            this._debugRenderer.node.layer = this.node.layer;
+        }
     }
 }
 
