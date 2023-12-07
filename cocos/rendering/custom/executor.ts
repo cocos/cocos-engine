@@ -1004,8 +1004,7 @@ class DeviceRenderPass {
             renderPass,
             ia,
         );
-        const descData = getDescriptorSetDataFromLayoutId(pass.passID)!;
-        mergeSrcToTargetDesc(descData.descriptorSet, context.descriptorSet, true);
+
         profilerViewport.width = rect.width;
         profilerViewport.height = rect.height;
         cmdBuff.setViewport(profilerViewport);
