@@ -10,12 +10,6 @@ void SpineSkeletonSystem::updateAnimation(float deltaTime) {
     auto count = static_cast<int>(vectorSpines.size());
     for (int i = count - 1; i >= 0; --i) {
         SpineSkeletonInstance* spineInstance = vectorSpines[i];
-        if(spineInstance->isDelete) {
-            std::swap(spineInstance, vectorSpines.back());
-            vectorSpines.pop_back();
-            delete spineInstance;
-            continue;
-        }
         if(!spineInstance->enable) continue;
         if (!spineInstance->isCache) {
             spineInstance->updateAnimation(deltaTime);
@@ -39,7 +33,7 @@ void SpineSkeletonSystem::addSpineInstance(SpineSkeletonInstance* instance) {
     vectorSpines.push_back(instance);
 }
 
-void SpineSkeletonSystem::removeSpineInstance(SpineSkeletonInstance* instance) {
+void SpineSkeletonSystem::destroySpineInstance(SpineSkeletonInstance* instance) {
     auto it = std::find(vectorSpines.begin(), vectorSpines.end(), instance);
     if (it != vectorSpines.end()) {
         vectorSpines.erase(it);

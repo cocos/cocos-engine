@@ -150,10 +150,10 @@ minigame.getSafeArea = function (): SafeArea {
     return {
         top: 0,
         left: 0,
-        bottom: systemInfo.screenHeight,
-        right: systemInfo.screenWidth,
-        width: systemInfo.screenWidth,
-        height: systemInfo.screenHeight,
+        bottom: systemInfo.windowHeight,
+        right: systemInfo.windowWidth,
+        width: systemInfo.windowWidth,
+        height: systemInfo.windowHeight,
     };
 };
 // #endregion SafeArea

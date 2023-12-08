@@ -61,7 +61,6 @@ public:
     bool isCache{false};
     bool enable{true};
     float dtRate{1.0F};
-    bool isDelete{false};
 private:
     void collectMeshData();
 

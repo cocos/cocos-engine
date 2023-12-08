@@ -389,7 +389,7 @@ export class WebSetter implements Setter {
         setShadowUBOLightView(this, null, light, 0);
     }
     public setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
-        // TODO
+        this.setBuiltinShadowMapConstants(light);
     }
     public setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
         const director = cclegacy.director;
@@ -1872,6 +1872,18 @@ export class WebPipeline implements BasicPipeline {
     }
     get capabilities (): PipelineCapabilities {
         return new PipelineCapabilities();
+    }
+    get enableCpuLightCulling (): boolean {
+        if (!this._executor) {
+            return true;
+        }
+        return this._executor._context.culling.enableLightCulling;
+    }
+    set enableCpuLightCulling (enable: boolean) {
+        if (!this._executor) {
+            return;
+        }
+        this._executor._context.culling.enableLightCulling = enable;
     }
     addCustomBuffer (name: string, info: BufferInfo, type: string): number {
         throw new Error('Method not implemented.');

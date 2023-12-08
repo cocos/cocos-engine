@@ -323,6 +323,7 @@ export class SceneCulling {
     numRenderQueues = 0;
     layoutGraph;
     renderGraph;
+    enableLightCulling = true;
     resetPool (): void {
         const cullingPools = this.cullingPools;
         cullingPools.frustumCullingKeyRecycle.reset();
@@ -359,6 +360,12 @@ export class SceneCulling {
 
     private getOrCreateLightBoundsCulling (sceneData: SceneData, frustumCullingID: FrustumCullingID): LightBoundsCullingID {
         if (!(sceneData.cullingFlags & CullingFlags.LIGHT_BOUNDS)) {
+            return 0xFFFFFFFF; // Return an empty ID.
+        }
+        if (sceneData.shadingLight?.type === LightType.DIRECTIONAL) {
+            return 0xFFFFFFFF;
+        }
+        if (!this.enableLightCulling) {
             return 0xFFFFFFFF; // Return an empty ID.
         }
         assert(!!sceneData.shadingLight, 'shadingLight is expected but not found.');
@@ -710,8 +717,8 @@ export class LightResource {
     private resized: boolean = false;
     private lightBuffer?: Buffer;
     private firstLightBufferView: Buffer | null = null;
-    private lights: Array<Light | null> = [];
-    private lightIndex: Map<Light | null, number> = new Map();
+    private readonly lights: Array<Light> = [];
+    private readonly lightIndex = new Map<Light, number>();
 
     init (programLib: WebProgramLibrary, deviceIn: Device, maxNumLights: number): void {
         assert(!this.device);
@@ -745,8 +752,6 @@ export class LightResource {
         ));
 
         this.cpuBuffer = new Float32Array(bufferSize / Float32Array.BYTES_PER_ELEMENT);
-        this.lights = new Array<Light | null>(this.maxNumLights);
-        this.lightIndex = new Map<Light | null, number>();
 
         assert(!!(this.elementSize && this.maxNumLights));
         this.resized = true;
@@ -837,9 +842,9 @@ export class LightResource {
                 0,
                 this.elementSize,
             ));
+            const prevCpuBuffer = this.cpuBuffer;
             this.cpuBuffer = new Float32Array(bufferSize / Float32Array.BYTES_PER_ELEMENT);
-            this.lights = new Array<Light | null>(this.maxNumLights);
-            this.lightIndex = new Map<Light | null, number>();
+            this.cpuBuffer.set(prevCpuBuffer);
         }
 
         assert(this.lights.length < this.maxNumLights);

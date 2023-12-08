@@ -18,7 +18,6 @@ public:
     static SkeletonData* createSpineSkeletonDataWithBinary(uint32_t byteSize, const std::string& altasStr);
     static void registerSpineSkeletonDataWithUUID(SkeletonData* data, const std::string& uuid);
     static void destroySpineSkeletonDataWithUUID(const std::string& uuid);
-    static void destroySpineInstance(SpineSkeletonInstance* instance);
 
     static uint32_t getCurrentListenerID();
     static EventType getCurrentEventType();

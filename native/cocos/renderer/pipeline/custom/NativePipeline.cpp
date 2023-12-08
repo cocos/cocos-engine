@@ -32,6 +32,7 @@
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
+#include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/ReflectionProbe.h"
 #include "cocos/scene/ReflectionProbeManager.h"
 #include "cocos/scene/RenderScene.h"
@@ -127,6 +128,14 @@ void NativePipeline::beginSetup() {
 }
 
 void NativePipeline::endSetup() {
+}
+
+bool NativePipeline::getEnableCpuLightCulling() const {
+    return nativeContext.sceneCulling.enableLightCulling;
+}
+
+void NativePipeline::setEnableCpuLightCulling(bool enable) {
+    nativeContext.sceneCulling.enableLightCulling = enable;
 }
 
 bool NativePipeline::containsResource(const ccstd::string &name) const {
@@ -619,6 +628,13 @@ void NativePipeline::updateRenderTarget(
                 std::forward_as_tuple(desc.width, desc.height, desc.format) !=
                 std::forward_as_tuple(width, height, format);
             if (invalidate) {
+                for (const auto &e : makeRange(children(resID, resourceGraph))) {
+                    const auto childID = child(e, resourceGraph);
+                    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, childID);
+                    desc.width = width;
+                    desc.height = height;
+                    desc.format = format;
+                }
                 desc.width = width;
                 desc.height = height;
                 desc.format = format;

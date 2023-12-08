@@ -30,7 +30,6 @@
     #include "../MappingUtils.h"
     #include "../State.h"
     #include "Class.h"
-    #include "MissingSymbols.h"
     #include "Object.h"
     #include "Utils.h"
     #include "base/Log.h"
@@ -376,7 +375,7 @@ void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, 
     }
 
     auto &exceptions = std::get<1>(*current);
-    if (std::strcmp(event, "handlerAddedAfterPromiseRejected") == 0) {
+    if (strcmp(event, "handlerAddedAfterPromiseRejected") == 0) {
         for (int i = 0; i < exceptions.size(); i++) {
             if (exceptions[i].event == "unhandledRejectedPromise") {
                 _lastStackTrace = exceptions[i].stackTrace;

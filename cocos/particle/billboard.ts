@@ -51,8 +51,12 @@ export class Billboard extends Component {
 
     set texture (val) {
         this._texture = val;
+        this.updateTexture();
+    }
+
+    private updateTexture (): void {
         if (this._material) {
-            this._material.setProperty('mainTexture', val);
+            this._material.setProperty('mainTexture', this._texture);
         }
     }
 
@@ -69,8 +73,12 @@ export class Billboard extends Component {
 
     set height (val) {
         this._height = val;
+        this.updateHeight();
+    }
+
+    private updateHeight (): void {
         if (this._material) {
-            this._uniform.y = val;
+            this._uniform.y = this._height;
             this._material.setProperty('cc_size_rotation', this._uniform);
         }
     }
@@ -88,8 +96,12 @@ export class Billboard extends Component {
 
     public set width (val) {
         this._width = val;
+        this.updateWidth();
+    }
+
+    private updateWidth (): void {
         if (this._material) {
-            this._uniform.x = val;
+            this._uniform.x = this._width;
             this._material.setProperty('cc_size_rotation', this._uniform);
         }
     }
@@ -107,9 +119,64 @@ export class Billboard extends Component {
 
     public set rotation (val) {
         this._rotation = toRadian(val);
+        this.updateRotation();
+    }
+
+    private updateRotation (): void {
         if (this._material) {
             this._uniform.z = this._rotation;
             this._material.setProperty('cc_size_rotation', this._uniform);
+        }
+    }
+
+    @serializable
+    private _techIndex = 0;
+
+    @tooltip('i18n:billboard.technique')
+    public get technique (): number {
+        return this._techIndex;
+    }
+
+    public set technique (val: number) {
+        // clamp technique index
+        val = Math.floor(val);
+        const techs = this._material?.effectAsset?.techniques;
+        if (techs && val >= techs.length) {
+            val = techs.length - 1;
+        }
+        if (val < 0) {
+            val = 0;
+        }
+        // set technique index
+        this._techIndex = val;
+        // recreate model
+        this.updateTechnique();
+    }
+
+    private updateTechnique (): void {
+        if (this._model && this._mesh && this._material && this._material.technique !== this._techIndex) {
+            // destroy model
+            this.detachFromScene();
+            this._model.destroy();
+            this._model = null;
+            this._material.destroy();
+            this._material = null;
+            this._mesh.destroy();
+            this._mesh = null;
+            // recreate model
+            this.createModel();
+            // set properties
+            this.updateWidth();
+            this.updateHeight();
+            this.updateRotation();
+            this.updateTexture();
+            // enable/disable model
+            if (this.enabled) {
+                this.attachToScene();
+                this._model!.enabled = true;
+            } else {
+                this._model!.enabled = false;
+            }
         }
     }
 
@@ -132,10 +199,11 @@ export class Billboard extends Component {
     public onEnable (): void {
         this.attachToScene();
         this._model!.enabled = true;
-        this.width = this._width;
-        this.height = this._height;
-        this.rotation = this.rotation;
-        this.texture = this.texture;
+        this.updateWidth();
+        this.updateHeight();
+        this.updateRotation();
+        this.updateTexture();
+        this.updateTechnique();
     }
 
     public onDisable (): void {
@@ -184,7 +252,10 @@ export class Billboard extends Component {
         model.node = model.transform = this.node;
         if (this._material == null) {
             this._material = new Material();
-            this._material.copy(builtinResMgr.get<Material>('default-billboard-material'));
+            this._material.copy(
+                builtinResMgr.get<Material>('default-billboard-material'),
+                { technique: this._techIndex },
+            );
         }
         model.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material);
     }

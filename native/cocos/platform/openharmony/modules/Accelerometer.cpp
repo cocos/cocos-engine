@@ -46,16 +46,16 @@ const Accelerometer::MotionValue &Accelerometer::getDeviceMotionValue() {
     auto v = ret.As<Napi::Array>();
     if (v.Length() == 9) {
         motionValue.accelerationIncludingGravityX = static_cast<Napi::Value>(v[(uint32_t)0]).As<Napi::Number>().FloatValue();
-        motionValue.accelerationIncludingGravityY = static_cast<Napi::Value>(v[1]).As<Napi::Number>().FloatValue();
-        motionValue.accelerationIncludingGravityZ = static_cast<Napi::Value>(v[2]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationIncludingGravityY = static_cast<Napi::Value>(v[(uint32_t)1]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationIncludingGravityZ = static_cast<Napi::Value>(v[(uint32_t)2]).As<Napi::Number>().FloatValue();
 
-        motionValue.accelerationX = static_cast<Napi::Value>(v[3]).As<Napi::Number>().FloatValue();
-        motionValue.accelerationY = static_cast<Napi::Value>(v[4]).As<Napi::Number>().FloatValue();
-        motionValue.accelerationZ = static_cast<Napi::Value>(v[5]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationX = static_cast<Napi::Value>(v[(uint32_t)3]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationY = static_cast<Napi::Value>(v[(uint32_t)4]).As<Napi::Number>().FloatValue();
+        motionValue.accelerationZ = static_cast<Napi::Value>(v[(uint32_t)5]).As<Napi::Number>().FloatValue();
 
-        motionValue.rotationRateAlpha = static_cast<Napi::Value>(v[6]).As<Napi::Number>().FloatValue();
-        motionValue.rotationRateBeta = static_cast<Napi::Value>(v[7]).As<Napi::Number>().FloatValue();
-        motionValue.rotationRateGamma = static_cast<Napi::Value>(v[8]).As<Napi::Number>().FloatValue();
+        motionValue.rotationRateAlpha = static_cast<Napi::Value>(v[(uint32_t)6]).As<Napi::Number>().FloatValue();
+        motionValue.rotationRateBeta = static_cast<Napi::Value>(v[(uint32_t)7]).As<Napi::Number>().FloatValue();
+        motionValue.rotationRateGamma = static_cast<Napi::Value>(v[(uint32_t)8]).As<Napi::Number>().FloatValue();
     } else {
         memset(&motionValue, 0, sizeof(motionValue));
     }
