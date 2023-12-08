@@ -467,7 +467,7 @@ export interface Setter extends RenderNode {
      * @zh 设置内置探照光视锥与阴影常量。
      * 这些常量用于内置的阴影。
      * 具体常量见cc-shadow.chunk中的CCShadow。
-     * @param light @en The directional light. @zh 平行光源
+     * @param light @en The spot light. @zh 探照光源
      */
     setBuiltinSpotLightFrustumConstants (light: SpotLight): void;
 }
