@@ -1892,6 +1892,11 @@ export class WebPipeline implements BasicPipeline {
         throw new Error('Method not implemented.');
     }
     addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateRenderWindow(name, renderWindow);
+            return resID;
+        }
         // Objects need to be held for a long time, so there is no need to use pool management
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
@@ -1978,6 +1983,11 @@ export class WebPipeline implements BasicPipeline {
     }
 
     public addBuffer (name: string, size: number, flags: ResourceFlags, residency: ResourceResidency): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateBuffer(name, size);
+            return resID;
+        }
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.BUFFER;
         desc.width = size;
@@ -2007,6 +2017,11 @@ export class WebPipeline implements BasicPipeline {
     }
 
     public addTexture (name: string, textureType: TextureType, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateTexture(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
+            return resID;
+        }
         const desc = new ResourceDesc();
         desc.dimension = getResourceDimension(textureType);
         desc.width = width;
@@ -2034,6 +2049,11 @@ export class WebPipeline implements BasicPipeline {
     }
 
     public addResource (name: string, dimension: ResourceDimension, format: Format, width: number, height: number, depth: number, arraySize: number, mipLevels: number, sampleCount: SampleCount, flags: ResourceFlags, residency: ResourceResidency): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateResource(name, format, width, height, depth, arraySize, mipLevels, sampleCount);
+            return resID;
+        }
         if (dimension === ResourceDimension.BUFFER) {
             return this.addBuffer(name, width, flags, residency);
         } else {
@@ -2334,6 +2354,11 @@ export class WebPipeline implements BasicPipeline {
         this.compile();
     }
     addStorageBuffer (name: string, format: Format, size: number, residency = ResourceResidency.MANAGED): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateStorageBuffer(name, size, format);
+            return resID;
+        }
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.BUFFER;
         desc.width = size;
@@ -2366,6 +2391,11 @@ export class WebPipeline implements BasicPipeline {
         );
     }
     addRenderTarget (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateRenderTarget(name, width, height, format);
+            return resID;
+        }
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -2388,6 +2418,11 @@ export class WebPipeline implements BasicPipeline {
         );
     }
     addDepthStencil (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateDepthStencil(name, width, height, format);
+            return resID;
+        }
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -2409,6 +2444,11 @@ export class WebPipeline implements BasicPipeline {
         );
     }
     addStorageTexture (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.updateStorageTexture(name, width, height, format);
+            return resID;
+        }
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
@@ -2429,6 +2469,11 @@ export class WebPipeline implements BasicPipeline {
         );
     }
     addShadingRateTexture (name: string, width: number, height: number, residency = ResourceResidency.MANAGED): number {
+        const resID = this._resourceGraph.find(name);
+        if (resID !== 0xFFFFFFFF) {
+            this.addShadingRateTexture(name, width, height);
+            return resID;
+        }
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
         desc.width = width;
