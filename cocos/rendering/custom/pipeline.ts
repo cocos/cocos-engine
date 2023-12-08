@@ -390,7 +390,7 @@ export interface Setter extends RenderNode {
      * For list of constants, please check CCCamera in cc-global.chunk.
      * @zh 设置内置相机常量，例如cc_matView。
      * 具体常量见cc-global.chunk中的CCCamera.
-     * @param camera @en Current camera. @zh 当前相机
+     * @param camera @en The camera instance to be set. @zh 当前相机
      */
     setBuiltinCameraConstants (camera: Camera): void;
     /**
@@ -406,7 +406,7 @@ export interface Setter extends RenderNode {
      * @zh 设置内置方向光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-global.chunk中的CCCamera。
      * @param light @en The main light. @zh 主光
-     * @param camera @en Current camera. @zh 当前相机
+     * @param camera @en The camera instance to be set. @zh 当前相机
      */
     setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void;
     /**
@@ -415,7 +415,7 @@ export interface Setter extends RenderNode {
      * @zh 设置内置球形光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The sphere light. @zh 球形光源
-     * @param camera @en Current camera. @zh 当前相机
+     * @param camera @en The camera instance to be set. @zh 当前相机
      */
     setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void;
     /**
@@ -424,7 +424,7 @@ export interface Setter extends RenderNode {
      * @zh 设置内置探照光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The spot light. @zh 探照光源
-     * @param camera @en Current camera. @zh 当前相机
+     * @param camera @en The camera instance to be set. @zh 当前相机
      */
     setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
     /**
@@ -433,7 +433,7 @@ export interface Setter extends RenderNode {
      * @zh 设置内置点光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The spot light. @zh 点光源
-     * @param camera @en Current camera. @zh 当前相机
+     * @param camera @en The camera instance to be set. @zh 当前相机
      */
     setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
     /**
@@ -442,7 +442,7 @@ export interface Setter extends RenderNode {
      * @zh 设置内置区间平行光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The ranged directional light. @zh 区间平行光源
-     * @param camera @en Current camera. @zh 当前相机
+     * @param camera @en The camera instance to be set. @zh 当前相机
      */
     setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
     /**
@@ -453,7 +453,7 @@ export interface Setter extends RenderNode {
      * 这些常量用于内置的阴影、级联阴影与平面阴影。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-csm.chunk中的CCCSM。
      * @param light @en The directional light. @zh 平行光源
-     * @param camera @en Current camera. @zh 当前相机
+     * @param camera @en The camera instance to be set. @zh 当前相机
      * @param csmLevel @en Curent level of cascaded shadow map @zh 级联阴影等级
      */
     setBuiltinDirectionalLightFrustumConstants (
