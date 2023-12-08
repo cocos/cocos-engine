@@ -52,7 +52,7 @@ export const letterFont = js.mixin(bmfontUtils, {
             shareLabelInfo.isOutlined = true;
             shareLabelInfo.margin = comp.outlineWidth;
             shareLabelInfo.out = comp.outlineColor.clone();
-            shareLabelInfo.out.a = comp.outlineColor.color.a * comp.color.a / 255.0;
+            shareLabelInfo.out.a = comp.outlineColor.a * comp.color.a / 255.0;
         } else {
             shareLabelInfo.isOutlined = false;
             shareLabelInfo.margin = 0;
