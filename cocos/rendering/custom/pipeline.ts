@@ -129,7 +129,12 @@ export interface PipelineRuntime {
     /**
      * @en Get shading scale.
      * Shading scale affects shading texels per pixel.
+     * Currently it affects classic native forward pipeline and builtin custom pipeline.
+     * Users can change the size of the render targets according to the shading scale,
+     * when writing their own custom pipelines.
      * @zh 获得渲染倍率(ShadingScale)，每像素(pixel)绘制的纹素(texel)会根据渲染倍率进行调整。
+     * 目前仅对原有原生Forward管线以及内置自定义管线生效。
+     * 用户编写自定义管线时，可以根据渲染倍率进行渲染目标尺寸大小的调整。
      */
     shadingScale: number;
     /**
@@ -378,21 +383,107 @@ export interface Setter extends RenderNode {
      * @param name @en descriptor name in shader. @zh 填写着色器中的描述符(descriptor)名字
      */
     setSampler (name: string, sampler: Sampler): void;
+    /**
+     * @en Set builtin camera constants of CCCamera, such as cc_matView.
+     * For list of constants, please see CCCamera in cc-global.chunk.
+     * @zh 设置内置相机常量，例如cc_matView。
+     * 具体常量见cc-global.chunk中的CCCamera.
+     * @param camera @en Current camera. @zh 当前相机
+     */
     setBuiltinCameraConstants (camera: Camera): void;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     * @en Same as setBuiltinDirectionalLightConstants
+     * @zh 同setBuiltinDirectionalLightConstants
+     * @param light @en The main light. @zh 主光
+     */
     setBuiltinShadowMapConstants (light: DirectionalLight): void;
+    /**
+     * @en Set builtin directional light and shadow constants.
+     * For list of constants, please see CCShadow in cc-shadow.chunk and CCCamera in cc-global.chunk.
+     * @zh 设置内置方向光与阴影常量。
+     * 具体常量见cc-shadow.chunk中的CCShadow与cc-global.chunk中的CCCamera。
+     * @param light @en The main light. @zh 主光
+     * @param camera @en Current camera. @zh 当前相机
+     */
     setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void;
+    /**
+     * @en Set builtin sphere light and shadow constants.
+     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * @zh 设置内置球形光与阴影常量。
+     * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
+     * @param light @en The sphere light. @zh 球形光源
+     * @param camera @en Current camera. @zh 当前相机
+     */
     setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void;
+    /**
+     * @en Set builtin spot light and shadow constants.
+     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * @zh 设置内置探照光与阴影常量。
+     * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
+     * @param light @en The spot light. @zh 探照光源
+     * @param camera @en Current camera. @zh 当前相机
+     */
     setBuiltinSpotLightConstants (light: SpotLight, camera: Camera): void;
+    /**
+     * @en Set builtin point light and shadow constants.
+     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * @zh 设置内置点光与阴影常量。
+     * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
+     * @param light @en The spot light. @zh 点光源
+     * @param camera @en Current camera. @zh 当前相机
+     */
     setBuiltinPointLightConstants (light: PointLight, camera: Camera): void;
+    /**
+     * @en Set builtin ranged directional light and shadow constants.
+     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * @zh 设置内置区间平行光与阴影常量。
+     * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
+     * @param light @en The ranged directional light. @zh 区间平行光源
+     * @param camera @en Current camera. @zh 当前相机
+     */
     setBuiltinRangedDirectionalLightConstants (light: RangedDirectionalLight, camera: Camera): void;
+    /**
+     * @en Set builtin directional light frustum and shadow constants.
+     * These constants are used in builtin shadow map, cascaded shadow map and planar shadow.
+     * For list of constants, please see CCShadow in cc-shadow.chunk and CCCSM in cc-csm.chunk.
+     * @zh 设置内置平行光视锥与阴影常量。
+     * 这些常量用于内置的阴影、级联阴影与平面阴影。
+     * 具体常量见cc-shadow.chunk中的CCShadow与cc-csm.chunk中的CCCSM。
+     * @param light @en The directional light. @zh 平行光源
+     * @param camera @en Current camera. @zh 当前相机
+     * @param csmLevel @en Curent level of cascaded shadow map @zh 级联阴影等级
+     */
     setBuiltinDirectionalLightFrustumConstants (
         camera: Camera,
         light: DirectionalLight,
         csmLevel?: number): void;
+    /**
+     * @en Set builtin spot light frustum and shadow constants.
+     * These constants are used in builtin shadow map.
+     * For list of constants, please see CCShadow in cc-shadow.chunk.
+     * @zh 设置内置探照光视锥与阴影常量。
+     * 这些常量用于内置的阴影。
+     * 具体常量见cc-shadow.chunk中的CCShadow。
+     * @param light @en The directional light. @zh 平行光源
+     */
     setBuiltinSpotLightFrustumConstants (light: SpotLight): void;
 }
 
+/**
+ * @en Scene
+ * A scene is an abstraction of content for rendering.
+ * @zh 场景。需要绘制的场景内容。
+ */
 export interface SceneBuilder extends Setter {
+    /**
+     * @en Use the frustum information of light instead of camera.
+     * Often used in building shadow map.
+     * @zh 使用光源视锥进行投影，而不是用相机。常用于shadow map的生成。
+     * @param light @en The light used for projection @zh 用于投影的光源
+     * @param csmLevel @en Curent level of cascaded shadow map @zh 级联阴影等级
+     * @param optCamera @en Additional scene culling camera. @zh 额外的场景裁切相机
+     */
     useLightFrustum (
         light: Light,
         csmLevel?: number,
@@ -420,6 +511,16 @@ export interface RenderQueueBuilder extends Setter {
         camera: Camera,
         light: LightInfo,
         sceneFlags?: SceneFlags): void;
+    /**
+     * @en Add the scene to be rendered.
+     * If SceneFlags.NON_BUILTIN is specified, no builtin constants will be set.
+     * Otherwise, related builtin constants will be set automatically.
+     * @zh 添加需要绘制的场景。
+     * 如果设置了SceneFlags.NON_BUILTIN，那么不会自动设置内置常量。
+     * @param camera @en Camera used for projection @zh 用于投影的相机
+     * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
+     * @param light @en Light used for lighting computation @zh 用于光照的光源
+     */
     addScene (
         camera: Camera,
         sceneFlags: SceneFlags,
@@ -561,8 +662,27 @@ export interface BasicRenderPassBuilder extends Setter {
     showStatistics: boolean;
 }
 
+/**
+ * @en Basic multisample render pass builder
+ * Support resolve render targets and depth stencil.
+ * This render pass only contains one render subpass.
+ * If resolve targets are specified, they will be resolved at the end of the render pass.
+ * After resolving, the contents of multisample render targets and depth stencils are unspecified.
+ * @zh 基础的多重采样渲染通道。支持决算(Resolve)渲染目标与深度缓冲。
+ * 此渲染通道只包含一个渲染子通道。
+ * 如果添加了决算对象，那么在渲染通道结束时，会进行决算。
+ * 决算后多重采样渲染目标与深度缓冲的内容是未定义的。
+ */
 export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilder {
+    /**
+     * @en Set resolve render target
+     * @zh 设置决算渲染目标
+     */
     resolveRenderTarget (source: string, target: string): void;
+    /**
+     * @en Set resolve depth stencil
+     * @zh 设置决算深度模板缓冲
+     */
     resolveDepthStencil (
         source: string,
         target: string,
@@ -575,11 +695,13 @@ export interface BasicMultisampleRenderPassBuilder extends BasicRenderPassBuilde
  * Basic pipeline provides basic rendering features which are supported on all platforms.
  * User can register resources which will be used in the render graph.
  * Theses resources are generally read and write, and will be managed by the pipeline.
+ * The residency information of resource should not be changed after registration.
  * In each frame, user can create a render graph to be executed by the pipeline.
  * @zh 基础渲染管线。
  * 基础渲染管线提供基础的渲染能力，能在全平台使用。
  * 用户可以在渲染管线中注册资源，这些资源将由管线托管，用于render graph。
  * 这些资源一般是可读写的资源。
+ * 资源在注册后，不能更改驻留属性。
  * 用户可以每帧构建一个render graph，然后交由管线执行。
  */
 export interface BasicPipeline extends PipelineRuntime {
@@ -597,6 +719,10 @@ export interface BasicPipeline extends PipelineRuntime {
      * @zh 结束管线构建
      */
     endSetup (): void;
+    /**
+     * @en Enable cpu culling of objects affected by the light. Enabled by default.
+     * @zh 光照计算时，裁切受光源影响的物件。
+     */
     enableCpuLightCulling: boolean;
     /**
      * @en Check whether the resource has been registered in the pipeline.
@@ -606,8 +732,8 @@ export interface BasicPipeline extends PipelineRuntime {
      */
     containsResource (name: string): boolean;
     /**
-     * @en Add render window to the pipeline.
-     * @zh 注册渲染窗口(RenderWindow)
+     * @en Add or update render window to the pipeline.
+     * @zh 注册或更新渲染窗口(RenderWindow)
      * @param name @en Resource name @zh 资源名字
      * @param format @en Expected format of the render window @zh 期望的渲染窗口格式
      * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
@@ -622,6 +748,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         renderWindow: RenderWindow): number;
     /**
+     * @deprecated Method will be removed in 3.9.0
      * @en Update render window information.
      * When render window information is updated, such as resized, user should notify the pipeline.
      * @zh 更新渲染窗口信息。当渲染窗口发生更新时，用户应通知管线。
@@ -629,8 +756,8 @@ export interface BasicPipeline extends PipelineRuntime {
      */
     updateRenderWindow (name: string, renderWindow: RenderWindow): void;
     /**
-     * @en Add 2D render target.
-     * @zh 添加2D渲染目标
+     * @en Add or update 2D render target.
+     * @zh 添加或更新2D渲染目标
      * @param name @en Resource name @zh 资源名字
      * @param format @en Format of the resource @zh 资源的格式
      * @param width @en Width of the resource @zh 资源的宽度
@@ -645,8 +772,8 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         residency?: ResourceResidency): number;
     /**
-     * @en Add 2D depth stencil.
-     * @zh 添加2D深度模板缓冲
+     * @en Add or update 2D depth stencil.
+     * @zh 添加或更新2D深度模板缓冲
      * @param name @en Resource name @zh 资源名字
      * @param format @en Format of the resource @zh 资源的格式
      * @param width @en Width of the resource @zh 资源的宽度
@@ -661,6 +788,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         residency?: ResourceResidency): number;
     /**
+     * @deprecated Method will be removed in 3.9.0
      * @en Update render target information.
      * @zh 更新渲染目标的信息
      * @param name @en Resource name @zh 资源名字
@@ -674,6 +802,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         format?: Format): void;
     /**
+     * @deprecated Method will be removed in 3.9.0
      * @en Update depth stencil information.
      * @zh 更新深度模板缓冲的信息
      * @param name @en Resource name @zh 资源名字
@@ -686,17 +815,65 @@ export interface BasicPipeline extends PipelineRuntime {
         width: number,
         height: number,
         format?: Format): void;
+    /**
+     * @en Add or update buffer.
+     * @zh 添加或更新缓冲
+     * @param name @en Resource name @zh 资源名字
+     * @param size @en Size of the resource @zh 资源的大小
+     * @param flags @en Flags of the resource @zh 资源的标志位
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     * @returns Resource ID
+     */
     addBuffer (
         name: string,
         size: number,
         flags: ResourceFlags,
         residency: ResourceResidency): number;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     * @en Update buffer information.
+     * @zh 更新缓冲的信息
+     * @param name @en Resource name @zh 资源名字
+     * @param size @en Size of the resource @zh 资源的大小
+     */
     updateBuffer (name: string, size: number): void;
+    /**
+     * @en Add or update external texture.
+     * Must be readonly.
+     * @zh 添加或更新外部的贴图。贴图必须是只读的。
+     * @param name @en Resource name @zh 资源名字
+     * @param texture @en External unmanaged texture @zh 外部不受管理的贴图
+     * @param flags @en Flags of the resource @zh 资源的标志位
+     * @returns Resource ID
+     */
     addExternalTexture (
         name: string,
         texture: Texture,
         flags: ResourceFlags): number;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     * @en Update external texture information.
+     * @zh 更新外部的贴图信息
+     * @param name @en Resource name @zh 资源名字
+     * @param texture @en External unmanaged texture @zh 外部不受管理的贴图
+     */
     updateExternalTexture (name: string, texture: Texture): void;
+    /**
+     * @en Add or update texture.
+     * @zh 添加或更新外部的贴图。
+     * @param name @en Resource name @zh 资源名字
+     * @param type @en Type of the texture @zh 贴图的类型
+     * @param format @en Format of the texture @zh 贴图的格式
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param depth @en Depth of the resource @zh 资源的深度
+     * @param arraySize @en Size of the array @zh 资源数组的大小
+     * @param mipLevels @en Mip levels of the texture @zh 贴图的Mipmap数目
+     * @param sampleCount @en Sample count of the texture @zh 贴图的采样数目
+     * @param flags @en Flags of the resource @zh 资源的标志位
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     * @returns Resource ID
+     */
     addTexture (
         name: string,
         type: TextureType,
@@ -709,6 +886,19 @@ export interface BasicPipeline extends PipelineRuntime {
         sampleCount: SampleCount,
         flags: ResourceFlags,
         residency: ResourceResidency): number;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     * @en Update texture information.
+     * @zh 更新贴图信息
+     * @param name @en Resource name @zh 资源名字
+     * @param format @en Format of the texture @zh 贴图的格式
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param depth @en Depth of the resource @zh 资源的深度
+     * @param arraySize @en Size of the array @zh 资源数组的大小
+     * @param mipLevels @en Mip levels of the texture @zh 贴图的Mipmap数目
+     * @param sampleCount @en Sample count of the texture @zh 贴图的采样数目
+     */
     updateTexture (
         name: string,
         format: Format,
@@ -718,6 +908,22 @@ export interface BasicPipeline extends PipelineRuntime {
         arraySize: number,
         mipLevels: number,
         sampleCount: SampleCount): void;
+    /**
+     * @en Add or update resource.
+     * @zh 添加或更新资源
+     * @param name @en Resource name @zh 资源名字
+     * @param dimension @en Dimension of the resource @zh 资源的维度
+     * @param format @en Format of the texture @zh 资源的格式
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param depth @en Depth of the resource @zh 资源的深度
+     * @param arraySize @en Size of the array @zh 资源数组的大小
+     * @param mipLevels @en Mip levels of the texture @zh 资源的Mipmap数目
+     * @param sampleCount @en Sample count of the texture @zh 资源的采样数目
+     * @param flags @en Flags of the resource @zh 资源的标志位
+     * @param residency @en Residency of the resource. @zh 资源的驻留性
+     * @returns Resource ID
+     */
     addResource (
         name: string,
         dimension: ResourceDimension,
@@ -730,6 +936,19 @@ export interface BasicPipeline extends PipelineRuntime {
         sampleCount: SampleCount,
         flags: ResourceFlags,
         residency: ResourceResidency): number;
+    /**
+     * @deprecated Method will be removed in 3.9.0
+     * @en Update resource information.
+     * @zh 更新资源信息
+     * @param name @en Resource name @zh 资源名字
+     * @param format @en Format of the texture @zh 资源的格式
+     * @param width @en Width of the resource @zh 资源的宽度
+     * @param height @en Height of the resource @zh 资源的高度
+     * @param depth @en Depth of the resource @zh 资源的深度
+     * @param arraySize @en Size of the array @zh 资源数组的大小
+     * @param mipLevels @en Mip levels of the texture @zh 资源的Mipmap数目
+     * @param sampleCount @en Sample count of the texture @zh 资源的采样数目
+     */
     updateResource (
         name: string,
         format: Format,
@@ -812,6 +1031,11 @@ export interface BasicPipeline extends PipelineRuntime {
      * @param copyPairs @en Array of copy source and target @zh 拷贝来源与目标的数组
      */
     addCopyPass (copyPairs: CopyPair[]): void;
+    /**
+     * @en Builtin reflection probe pass
+     * @zh 添加内置环境光反射通道
+     * @param camera @en Capturing camera @zh 用于捕捉的相机
+     */
     addBuiltinReflectionProbePass (camera: Camera): void;
     /**
      * @engineInternal
@@ -1151,11 +1375,29 @@ export interface RenderPassBuilder extends BasicRenderPassBuilder {
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void;
 }
 
+/**
+ * @en Multisample render pass builder
+ * @zh 多重采样渲染通道。
+ */
 export interface MultisampleRenderPassBuilder extends BasicMultisampleRenderPassBuilder {
+    /**
+     * @en Add storage buffer
+     * @zh 添加存储缓冲
+     * @param name @en Name of the storage buffer @zh 存储缓冲的名字
+     * @param accessType @en Access type of the buffer in the render pass @zh 渲染通道中缓冲的读写状态
+     * @param slotName @en name of the descriptor in shader @zh 着色器中描述符的名字
+     */
     addStorageBuffer (
         name: string,
         accessType: AccessType,
         slotName: string): void;
+    /**
+     * @en Add storage image
+     * @zh 添加存储贴图
+     * @param name @en Name of the storage texture @zh 存储贴图的名字
+     * @param accessType @en Access type of the texture in the render pass @zh 渲染通道中贴图的读写状态
+     * @param slotName @en name of the descriptor in shader @zh 着色器中描述符的名字
+     */
     addStorageImage (
         name: string,
         accessType: AccessType,
@@ -1247,8 +1489,8 @@ export interface ComputePassBuilder extends Setter {
  */
 export interface Pipeline extends BasicPipeline {
     /**
-     * @en Add storage buffer.
-     * @zh 添加存储缓冲
+     * @en Add or update storage buffer.
+     * @zh 添加或更新存储缓冲
      * @param name @en Resource name @zh 资源名字
      * @param format @en Format of the resource @zh 资源的格式
      * @param size @en Size of the resource @zh 资源的大小
@@ -1260,8 +1502,8 @@ export interface Pipeline extends BasicPipeline {
         size: number,
         residency?: ResourceResidency): number;
     /**
-     * @en Add 2D storage texture
-     * @zh 添加2D存储贴图
+     * @en Add or update 2D storage texture
+     * @zh 添加或更新2D存储贴图
      * @param name @en Resource name @zh 资源名字
      * @param format @en Format of the resource @zh 资源的格式
      * @param width @en Width of the resource @zh 资源的宽度
@@ -1276,8 +1518,8 @@ export interface Pipeline extends BasicPipeline {
         residency?: ResourceResidency): number;
     /**
      * @experimental
-     * @en Add 2D shading rate texture
-     * @zh 添加2D着色率贴图
+     * @en Add or update 2D shading rate texture
+     * @zh 添加或更新2D着色率贴图
      * @param name @en Resource name @zh 资源名字
      * @param width @en Width of the resource @zh 资源的宽度
      * @param height @en Height of the resource @zh 资源的高度
@@ -1335,6 +1577,16 @@ export interface Pipeline extends BasicPipeline {
         width: number,
         height: number,
         passName: string): RenderPassBuilder;
+    /**
+     * @en Add multisample render pass
+     * @zh 添加多重采样渲染通道
+     * @param width @en Width of the render pass @zh 渲染通道的宽度
+     * @param height @en Height of the render pass @zh 渲染通道的高度
+     * @param count @en Sample count @zh 采样数目
+     * @param quality @en Sample quality (default is 0) @zh 采样质量（默认为0）
+     * @param passName @en Pass name declared in the effect. Default value is 'default' @zh effect中的pass name，缺省为'default'
+     * @returns Multisample render pass builder
+     */
     addMultisampleRenderPass (
         width: number,
         height: number,
@@ -1390,10 +1642,18 @@ export interface Pipeline extends BasicPipeline {
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     addMovePass (movePairs: MovePair[]): void;
+    /**
+     * @experimental
+     * @engineInternal
+     */
     addBuiltinGpuCullingPass (
         camera: Camera,
         hzbName?: string,
         light?: Light): void;
+    /**
+     * @experimental
+     * @engineInternal
+     */
     addBuiltinHzbGenerationPass (sourceDepthStencilName: string, targetHzbName: string): void;
     /**
      * @experimental
@@ -1427,6 +1687,10 @@ export interface PipelineBuilder {
      * @param pipeline @en Current render pipeline @zh 当前管线
      */
     setup (cameras: Camera[], pipeline: BasicPipeline): void;
+    /**
+     * @en Callback of pipeline state changed
+     * @zh 渲染管线状态更新的回调
+     */
     onGlobalPipelineStateChanged? (): void;
 }
 
