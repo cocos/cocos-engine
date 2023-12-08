@@ -199,6 +199,9 @@ export class AudioPlayerMinigame implements OperationQueueable {
             this._innerAudioContext.destroy();
             // NOTE: Type 'null' is not assignable to type 'InnerAudioContext'
             this._innerAudioContext = null as any;
+            // Restore the state of the audio, otherwise it will cause 'destroy' to be called first and 'stop' to be called later.
+            // this will cause a error.
+            this._state = AudioState.INIT;
         }
     }
     private _onInterruptedBegin (): void {
