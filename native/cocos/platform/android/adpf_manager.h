@@ -21,10 +21,15 @@
     #include <android/api-level.h>
     #include <android/log.h>
     #include <android/thermal.h>
+#if __ANDROID_API__ >= 33
+    #include <ctime>
+    #include <android/performance_hint.h>
+#endif
     #include <jni.h>
 
     #include <chrono>
     #include <memory>
+    #include <thread>
     #include "3d/models/SkinningModel.h"
     #include "engine/EngineEvents.h"
     #include "platform/java/jni/JniHelper.h"
@@ -62,6 +67,12 @@ public:
                 AThermal_releaseManager(thermal_manager_);
             }
         }
+
+        // clean all hint sessions
+        for ( const auto& kv : map_hint_sessions ) {
+            jobject global_hint_session = kv.second;
+            env->DeleteGlobalRef(global_hint_session);
+        }
     }
 
     // Delete copy constructor since the class is used as a singleton.
@@ -96,6 +107,9 @@ public:
 
     void EndPerfHintSession(jlong target_duration_ns);
 
+    void AddThreadIdToHintSession(int32_t tid);
+    void RemoveThreadIdFromHintSession(int32_t tid);
+
     // Method to retrieve thermal manager. The API is used to register/unregister
     // callbacks from C API.
     AThermalManager *GetThermalManager() { return thermal_manager_; }
@@ -122,7 +136,6 @@ private:
       update_target_work_duration_(0),
       preferred_update_rate_(0) {
         last_clock_ = std::chrono::high_resolution_clock::now();
-        perfhintsession_start_ = std::chrono::high_resolution_clock::now();
     }
 
     // Functions to initialize ADPF API's calls.
@@ -132,6 +145,8 @@ private:
 
     bool InitializePerformanceHintManager();
 
+    void registerThreadIdsToHintSession();
+
     AThermalManager *thermal_manager_ = nullptr;
     int32_t thermal_status_;
     float thermal_headroom_ = 0;
@@ -140,8 +155,12 @@ private:
     jobject obj_power_service_;
     jmethodID get_thermal_headroom_;
 
+    std::map<std::string, jobject> map_hint_sessions;
+
     jobject obj_perfhint_service_;
     jobject obj_perfhint_session_;
+    jmethodID create_hint_session_;
+    jmethodID set_threads_;
     jmethodID report_actual_work_duration_;
     jmethodID update_target_work_duration_;
     jlong preferred_update_rate_;
@@ -149,8 +168,16 @@ private:
     cc::events::BeforeTick::Listener beforeTick;
     cc::events::AfterTick::Listener afterTick;
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> perfhintsession_start_;
     int64_t frame_time_ns_{0};
+
+    std::vector<int32_t> thread_ids_;
+    std::chrono::time_point<std::chrono::steady_clock> perf_start_;
+
+#if __ANDROID_API__ >= 33
+    APerformanceHintManager *hint_manager_ = nullptr;
+    APerformanceHintSession *hint_session_ = nullptr;
+    int64_t last_target_ = 16666666;
+#endif
 };
 
     #define CC_SUPPORT_ADPF 1 // NOLINT

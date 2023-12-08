@@ -22,9 +22,15 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <unistd.h>
 #include "MessageQueue.h"
 #include "AutoReleasePool.h"
 #include "base/Utils.h"
+#include "base/Log.h"
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include "platform/android/adpf_manager.h"
+#endif
 
 namespace cc {
 
@@ -272,6 +278,9 @@ MessageQueue::~MessageQueue() {
 }
 
 void MessageQueue::consumerThreadLoop() noexcept {
+    // add tid to PerformanceHintManager
+    int32_t tid = gettid();
+    ADPFManager::getInstance().AddThreadIdToHintSession(tid);
     while (!_reader.terminateConsumerThread) {
         AutoReleasePool autoReleasePool;
         flushMessages();
