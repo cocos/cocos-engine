@@ -196,9 +196,9 @@ export class RigidBody2D extends Component {
 
     /**
      * @en
-     * The angular velocity of the body.
+     * The angular velocity of the body in radians/second.
      * @zh
-     * 刚体的角速度。
+     * 刚体的角速度，单位是 弧度/秒。
      */
     @type(CCFloat)
     @tooltip('i18n:physics2d.rigidbody.angularVelocity')
