@@ -511,7 +511,7 @@ public:
      * For list of constants, please check CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
      * @zh 设置内置点光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
-     * @param light @en The spot light. @zh 点光源
+     * @param light @en The point light. @zh 点光源
      * @param camera @en The camera instance to be set. @zh 当前相机
      */
     virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
@@ -847,7 +847,7 @@ public:
     virtual void endSetup() = 0;
     /**
      * @en Enable cpu culling of objects affected by the light. Enabled by default.
-     * @zh 光照计算时，裁切受光源影响的物件。
+     * @zh 光照计算时，裁切受光源影响的物件。默认开启。
      */
     virtual bool getEnableCpuLightCulling() const = 0;
     virtual void setEnableCpuLightCulling(bool enable) = 0;
