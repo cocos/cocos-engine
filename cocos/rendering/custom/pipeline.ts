@@ -821,7 +821,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @en Add or update buffer.
      * @zh 添加或更新缓冲
      * @param name @en Resource name @zh 资源名字
-     * @param size @en Size of the resource @zh 资源的大小
+     * @param size @en Size of the resource in bytes @zh 资源的大小
      * @param flags @en Flags of the resource @zh 资源的标志位
      * @param residency @en Residency of the resource. @zh 资源的驻留性
      * @returns Resource ID
@@ -836,7 +836,7 @@ export interface BasicPipeline extends PipelineRuntime {
      * @en Update buffer information.
      * @zh 更新缓冲的信息
      * @param name @en Resource name @zh 资源名字
-     * @param size @en Size of the resource @zh 资源的大小
+     * @param size @en Size of the resource in bytes @zh 资源的大小
      */
     updateBuffer (name: string, size: number): void;
     /**
@@ -1495,7 +1495,7 @@ export interface Pipeline extends BasicPipeline {
      * @zh 添加或更新存储缓冲
      * @param name @en Resource name @zh 资源名字
      * @param format @en Format of the resource @zh 资源的格式
-     * @param size @en Size of the resource @zh 资源的大小
+     * @param size @en Size of the resource in bytes @zh 资源的大小
      * @param residency @en Residency of the resource. @zh 资源的驻留性
      */
     addStorageBuffer (
@@ -1536,7 +1536,7 @@ export interface Pipeline extends BasicPipeline {
      * @en Update storage buffer information.
      * @zh 更新存储缓冲的信息
      * @param name @en Resource name @zh 资源名字
-     * @param size @en Size of the resource @zh 资源的大小
+     * @param size @en Size of the resource in bytes @zh 资源的大小
      * @param format @en Format of the resource @zh 资源的格式
      */
     updateStorageBuffer (
