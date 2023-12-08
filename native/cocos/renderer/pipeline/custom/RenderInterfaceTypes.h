@@ -466,7 +466,7 @@ public:
     virtual void setSampler(const ccstd::string &name, gfx::Sampler *sampler) = 0;
     /**
      * @en Set builtin camera constants of CCCamera, such as cc_matView.
-     * For list of constants, please see CCCamera in cc-global.chunk.
+     * For list of constants, please check CCCamera in cc-global.chunk.
      * @zh 设置内置相机常量，例如cc_matView。
      * 具体常量见cc-global.chunk中的CCCamera.
      * @param camera @en Current camera. @zh 当前相机
@@ -481,7 +481,7 @@ public:
     virtual void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) = 0;
     /**
      * @en Set builtin directional light and shadow constants.
-     * For list of constants, please see CCShadow in cc-shadow.chunk and CCCamera in cc-global.chunk.
+     * For list of constants, please check CCShadow in cc-shadow.chunk and CCCamera in cc-global.chunk.
      * @zh 设置内置方向光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-global.chunk中的CCCamera。
      * @param light @en The main light. @zh 主光
@@ -490,7 +490,7 @@ public:
     virtual void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) = 0;
     /**
      * @en Set builtin sphere light and shadow constants.
-     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * For list of constants, please check CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
      * @zh 设置内置球形光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The sphere light. @zh 球形光源
@@ -499,7 +499,7 @@ public:
     virtual void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) = 0;
     /**
      * @en Set builtin spot light and shadow constants.
-     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * For list of constants, please check CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
      * @zh 设置内置探照光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The spot light. @zh 探照光源
@@ -508,7 +508,7 @@ public:
     virtual void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) = 0;
     /**
      * @en Set builtin point light and shadow constants.
-     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * For list of constants, please check CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
      * @zh 设置内置点光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The spot light. @zh 点光源
@@ -517,7 +517,7 @@ public:
     virtual void setBuiltinPointLightConstants(const scene::PointLight *light, const scene::Camera *camera) = 0;
     /**
      * @en Set builtin ranged directional light and shadow constants.
-     * For list of constants, please see CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
+     * For list of constants, please check CCShadow in cc-shadow.chunk and CCForwardLight in cc-forward-light.chunk.
      * @zh 设置内置区间平行光与阴影常量。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-forward-light.chunk中的CCForwardLight。
      * @param light @en The ranged directional light. @zh 区间平行光源
@@ -527,7 +527,7 @@ public:
     /**
      * @en Set builtin directional light frustum and shadow constants.
      * These constants are used in builtin shadow map, cascaded shadow map and planar shadow.
-     * For list of constants, please see CCShadow in cc-shadow.chunk and CCCSM in cc-csm.chunk.
+     * For list of constants, please check CCShadow in cc-shadow.chunk and CCCSM in cc-csm.chunk.
      * @zh 设置内置平行光视锥与阴影常量。
      * 这些常量用于内置的阴影、级联阴影与平面阴影。
      * 具体常量见cc-shadow.chunk中的CCShadow与cc-csm.chunk中的CCCSM。
@@ -539,7 +539,7 @@ public:
     /**
      * @en Set builtin spot light frustum and shadow constants.
      * These constants are used in builtin shadow map.
-     * For list of constants, please see CCShadow in cc-shadow.chunk.
+     * For list of constants, please check CCShadow in cc-shadow.chunk.
      * @zh 设置内置探照光视锥与阴影常量。
      * 这些常量用于内置的阴影。
      * 具体常量见cc-shadow.chunk中的CCShadow。
