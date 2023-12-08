@@ -132,9 +132,11 @@ export interface PipelineRuntime {
      * Currently it affects classic native forward pipeline and builtin custom pipeline.
      * Users can change the size of the render targets according to the shading scale,
      * when writing their own custom pipelines.
+     * To change screen size, please check director.root.resize.
      * @zh 获得渲染倍率(ShadingScale)，每像素(pixel)绘制的纹素(texel)会根据渲染倍率进行调整。
      * 目前仅对原有原生Forward管线以及内置自定义管线生效。
      * 用户编写自定义管线时，可以根据渲染倍率进行渲染目标尺寸大小的调整。
+     * 如果要修改屏幕大小，详见director.root.resize。
      */
     shadingScale: number;
     /**
