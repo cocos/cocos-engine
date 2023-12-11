@@ -259,7 +259,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         this._body!.SetAngularVelocity(v);
     }
     getAngularVelocity (): number {
-        return toDegree(this._body!.GetAngularVelocity());
+        return this._body!.GetAngularVelocity();
     }
 
     getLocalVector<Out extends IVec2Like> (worldVector: IVec2Like, out: Out): Out {
