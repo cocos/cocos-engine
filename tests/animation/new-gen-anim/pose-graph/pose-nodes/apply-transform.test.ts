@@ -19,7 +19,7 @@ describe(`PoseNodeApplyTransform`, () => {
     describe(`Position`, () => {
         const g = new PseudoRandomGenerator(getMagicSeed());
 
-        const SIMPLE_INPUTS = false;
+        const SIMPLE_INPUTS = true;
 
         const fixture = SIMPLE_INPUTS
             ? (() => {
