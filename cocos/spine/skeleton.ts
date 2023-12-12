@@ -365,6 +365,16 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
+     * @en get defaultSkin.
+     * @zh 获取 defaultSkin 的值.
+     * @method getDefaultSkin
+     * @return {string}
+     */
+    getDefaultSkin (): string {
+        return this.defaultSkin;
+    }
+
+    /**
      * @engineInternal
      */
     @displayName('Default Skin')
