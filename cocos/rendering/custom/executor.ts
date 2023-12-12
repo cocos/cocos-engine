@@ -233,6 +233,9 @@ class DeviceResource {
     constructor (name: string) {
         this._name = name;
     }
+    release (): void {
+        // noop
+    }
     get name (): string { return this._name; }
 }
 class DeviceTexture extends DeviceResource {
@@ -1677,12 +1680,7 @@ class BlitInfo {
         const vb = this._genQuadVertexData(SurfaceTransform.IDENTITY, new Rect(0, 0, context.width, context.height));
         this._pipelineIAData.quadVB!.update(vb);
         this._createLightVolumes();
-        this._localUBO = context.device.createBuffer(new BufferInfo(
-            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            UBOLocal.SIZE,
-            UBOLocal.SIZE,
-        ));
+        this._localUBO = this._createUniformBuffer(MemoryUsageBit.DEVICE, UBOLocal.SIZE, UBOLocal.SIZE);
     }
 
     resize (width, height): void {
@@ -1694,19 +1692,26 @@ class BlitInfo {
             this._pipelineIAData.quadVB!.update(vb);
         }
     }
+    private _createBuffer (usage: number, memoryUsage: number, size: number, stride: number): Buffer {
+        const buffer = this._context.device.createBuffer(new BufferInfo(
+            usage | BufferUsageBit.TRANSFER_DST,
+            memoryUsage,
+            size,
+            stride,
+        ));
+        return buffer;
+    }
+
+    private _createUniformBuffer (memoryUsage: number, size: number, stride: number = 0): Buffer {
+        return this._createBuffer(BufferUsageBit.UNIFORM, memoryUsage, size, stride);
+    }
 
     private _createLightVolumes (): void {
         const device = this._context.root.device;
         let totalSize = Float32Array.BYTES_PER_ELEMENT * volLightAttrCount * 4 * UBODeferredLight.LIGHTS_PER_PASS;
         totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
 
-        this._lightVolumeBuffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            totalSize,
-            device.capabilities.uboOffsetAlignment,
-        ));
-
+        this._lightVolumeBuffer = this._createUniformBuffer(MemoryUsageBit.HOST | MemoryUsageBit.DEVICE, totalSize, device.capabilities.uboOffsetAlignment);
         this._deferredLitsBufView = device.createBuffer(new BufferViewInfo(this._lightVolumeBuffer, 0, totalSize));
         this._lightBufferData = new Float32Array(totalSize / Float32Array.BYTES_PER_ELEMENT);
     }
@@ -1764,28 +1769,14 @@ class BlitInfo {
         const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
         const vbSize = vbStride * 4;
         const device = cclegacy.director.root.device;
-        const quadVB: Buffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE | MemoryUsageBit.HOST,
-            vbSize,
-            vbStride,
-        ));
-
+        const quadVB: Buffer = this._createBuffer(BufferUsageBit.VERTEX, MemoryUsageBit.DEVICE | MemoryUsageBit.HOST, vbSize, vbStride);
         if (!quadVB) {
             return inputAssemblerData;
         }
-
         // create index buffer
         const ibStride = Uint16Array.BYTES_PER_ELEMENT;
         const ibSize = ibStride * 6;
-
-        const quadIB: Buffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.DEVICE,
-            ibSize,
-            ibStride,
-        ));
-
+        const quadIB: Buffer = this._createBuffer(BufferUsageBit.INDEX, MemoryUsageBit.DEVICE, ibSize, ibStride);
         if (!quadIB) {
             return inputAssemblerData;
         }
@@ -1797,7 +1788,6 @@ class BlitInfo {
         quadIB.update(indices.buffer);
 
         // create input assembler
-
         const attributes = new Array<Attribute>(2);
         attributes[0] = new Attribute('a_position', Format.RG32F);
         attributes[1] = new Attribute('a_texCoord', Format.RG32F);
@@ -1913,43 +1903,38 @@ export class Executor {
     private _removeDeviceResource (): void {
         const pipeline: any = context.pipeline;
         const resourceUses = pipeline.resourceUses;
-        const deletes: string[] = [];
         const deviceTexs = context.deviceTextures;
-        for (const [name, dTex] of deviceTexs) {
-            const resId = context.resourceGraph.vertex(name);
-            const trait = context.resourceGraph.getTraits(resId);
-            if (!resourceUses.includes(name)) {
-                switch (trait.residency) {
-                case ResourceResidency.MANAGED:
-                    deletes.push(name);
-                    break;
-                default:
+        const deviceBuffs = context.deviceBuffers;
+
+        const handleResources = (resources: Map<string, DeviceResource>, deletes: string[]): void => {
+            for (const [name, resource] of resources) {
+                const resId = context.resourceGraph.vertex(name);
+                const trait = context.resourceGraph.getTraits(resId);
+                if (!resourceUses.includes(name)) {
+                    switch (trait.residency) {
+                    case ResourceResidency.MANAGED:
+                        deletes.push(name);
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
-        }
-        for (const name of deletes) {
-            deviceTexs.get(name)!.release();
-            deviceTexs.delete(name);
-        }
+            for (const name of deletes) {
+                const resource = resources.get(name);
+                if (resource) {
+                    resource.release();
+                    resources.delete(name);
+                }
+            }
+        };
+
+        const deletesTex: string[] = [];
+        handleResources(deviceTexs, deletesTex);
 
         const deletesBuff: string[] = [];
-        const deviceBuffs = context.deviceBuffers;
-        for (const [name, dBuff] of deviceBuffs) {
-            const resId = context.resourceGraph.vertex(name);
-            const trait = context.resourceGraph.getTraits(resId);
-            if (!resourceUses.includes(name)) {
-                switch (trait.residency) {
-                case ResourceResidency.MANAGED:
-                    deletesBuff.push(name);
-                    break;
-                default:
-                }
-            }
-        }
-        for (const name of deletesBuff) {
-            deviceBuffs.get(name)!.release();
-            deviceBuffs.delete(name);
-        }
+        handleResources(deviceBuffs, deletesBuff);
+
         resourceUses.length = 0;
     }
 
@@ -2014,15 +1999,13 @@ class BaseRenderVisitor {
     protected _isBlit (u: number): boolean {
         return !!context.renderGraph.tryGetBlit(u);
     }
-    applyID (id: number): void {
-        if (this._isRasterPass(id)) {
+    setIDForType (id: number): void {
+        if (this.isComputePass(id) || this._isRasterPass(id)) {
             this.passID = id;
         } else if (this._isQueue(id)) {
             this.queueID = id;
         } else if (this._isScene(id) || this._isBlit(id)) {
             this.sceneID = id;
-        } else if (this.isComputePass(id)) {
-            this.passID = id;
         } else if (this.isDispatch(id)) {
             this.dispatchID = id;
         }
@@ -2233,7 +2216,7 @@ export class RenderVisitor extends DefaultVisitor {
     get colorMap (): VectorGraphColorMap { return this._colorMap; }
     discoverVertex (u: number, gv: ReferenceGraphView<RenderGraph>): void {
         const g = gv.g;
-        this._preVisitor.applyID(u);
+        this._preVisitor.setIDForType(u);
         g.visitVertex(this._preVisitor, u);
     }
     finishVertex (v: number, gv: ReferenceGraphView<RenderGraph>): void {
