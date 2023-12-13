@@ -353,6 +353,9 @@ export class Skeleton extends UIRenderer {
     set skeletonData (value: SkeletonData | null) {
         if (value) value.resetEnums();
         if (this._skeletonData !== value) {
+            if (this._skeletonCache && this._skeletonData) {
+                this._skeletonCache.removeSkeleton(this._skeletonData.uuid);
+            }
             this.destroyRenderData();
             this._skeletonData = value as any;
             this.defaultSkin = '';
@@ -711,6 +714,9 @@ export class Skeleton extends UIRenderer {
         SkeletonSystem.getInstance().remove(this);
         if (!JSB) {
             spine.SkeletonSystem.destroySpineInstance(this._instance);
+        }
+        if (this._skeletonCache && this._skeletonData) {
+            this._skeletonCache.removeSkeleton(this._skeletonData.uuid);
         }
         super.onDestroy();
     }
