@@ -726,7 +726,7 @@ export class Skeleton extends UIRenderer {
      */
     public clearAnimation (): void {
         if (!this.isAnimationCached()) {
-            this.clearTrack(0);
+            this.clearTracks();
             this.setToSetupPose();
         }
     }
