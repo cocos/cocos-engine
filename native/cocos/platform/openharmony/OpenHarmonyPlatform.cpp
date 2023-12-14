@@ -74,7 +74,10 @@ std::unordered_map<int, cc::KeyCode> ohKeyMap = {
     {KEY_DPAD_LEFT, cc::KeyCode::ARROW_LEFT},
     {KEY_DPAD_RIGHT, cc::KeyCode::ARROW_RIGHT},
     {KEY_DPAD_DOWN, cc::KeyCode::ARROW_DOWN},
-    {KEY_DPAD_UP, cc::KeyCode::ARROW_UP}
+    {KEY_DPAD_UP, cc::KeyCode::ARROW_UP},
+    {KEY_SYSRQ, cc::KeyCode::PRINT_SCREEN},
+    {KEY_INSERT, cc::KeyCode::INSERT},
+    {KEY_FORWARD_DEL, cc::KeyCode::DELETE_KEY}
 };
 
 int keyZeroInCocos = 48;
@@ -165,6 +168,10 @@ void onKeyEventCB(OH_NativeXComponent* component, void* window) {
         OH_NativeXComponent_GetKeyEventAction(keyEvent, &action);
         OH_NativeXComponent_KeyCode code;
         OH_NativeXComponent_GetKeyEventCode(keyEvent, &code);
+        if (code == -1) {
+            // FN don't callback
+            return;
+        }
         cc::KeyboardEvent* ev = new cc::KeyboardEvent;
         cc::SystemWindowManager* windowMgr = 
             cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::SystemWindowManager>();
