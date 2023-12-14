@@ -59,11 +59,11 @@ std::unordered_map<int, cc::KeyCode> ohKeyMap = {
     {KEY_BACKSLASH, cc::KeyCode::BACKSLASH},
     {KEY_CAPS_LOCK, cc::KeyCode::CAPS_LOCK},
     {KEY_SEMICOLON, cc::KeyCode::SEMICOLON},
-    {KEY_APOSTROPHE, cc::KeyCode::QUEOTE},
+    {KEY_APOSTROPHE, cc::KeyCode::QUOTE},
     {KEY_ENTER, cc::KeyCode::ENTER},
     {KEY_SHIFT_LEFT, cc::KeyCode::SHIFT_LEFT},
     {KEY_COMMA, cc::KeyCode::COMMA},
-    {KEY_PERIOD, cc::KeyCode::PERIDO},
+    {KEY_PERIOD, cc::KeyCode::PERIOD},
     {KEY_SLASH, cc::KeyCode::SLASH},
     {KEY_SHIFT_RIGHT, cc::KeyCode::SHIFT_RIGHT},
     {KEY_CTRL_LEFT, cc::KeyCode::CONTROL_LEFT},
@@ -162,11 +162,12 @@ void onKeyEventCB(OH_NativeXComponent* component, void* window) {
     OH_NativeXComponent_KeyEvent* keyEvent = nullptr;
     if (OH_NativeXComponent_GetKeyEvent(component, &keyEvent) >= 0) {
         OH_NativeXComponent_KeyAction action;
-        OH_NativeXComponent_GetKeyEventAction(KeyEvent, &action);
+        OH_NativeXComponent_GetKeyEventAction(keyEvent, &action);
         OH_NativeXComponent_KeyCode code;
         OH_NativeXComponent_GetKeyEventCode(keyEvent, &code);
         cc::KeyboardEvent* ev = new cc::KeyboardEvent;
-        cc::SystemWindowManager* windowMgr = cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::SystemWindowManager>();
+        cc::SystemWindowManager* windowMgr = 
+            cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::SystemWindowManager>();
         CC_ASSERT_NOT_NULL(windowMgr);
         cc::ISystemWindow* systemWindow = windowMgr->getWindowFromHandle(window);
         CC_ASSERT_NOT_NULL(systemWindow);
