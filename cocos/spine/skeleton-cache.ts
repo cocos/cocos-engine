@@ -347,15 +347,8 @@ class SkeletonCache {
         if (sharedInstances) {
             const index = sharedInstances.indexOf(skeletonComponent);
             if (index !== -1) {
-                console.log('bf test delete index=', index);
                 sharedInstances.splice(index, 1);
             }
-            sharedInstances.forEach((skeleton) => {
-                if (skeleton === skeletonComponent) {
-                    console.log('bf test 0000index=', skeleton);
-                }
-            });
-            console.log('bf test index=', index);
             if (sharedInstances.length > 0) {
                 return;
             }
