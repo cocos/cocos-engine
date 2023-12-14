@@ -71,7 +71,7 @@ std::unordered_map<int, cc::KeyCode> ohKeyMap = {
     {KEY_SPACE, cc::KeyCode::SPACE},
     {KEY_ALT_RIGHT, cc::KeyCode::ALT_RIGHT},
     {KEY_CTRL_RIGHT, cc::KeyCode::CONTROL_RIGHT},
-    {KEY_DPAD_LEFT, CC::KeyCode::ARROW_LEFT},
+    {KEY_DPAD_LEFT, cc::KeyCode::ARROW_LEFT},
     {KEY_DPAD_RIGHT, cc::KeyCode::ARROW_RIGHT},
     {KEY_DPAD_DOWN, cc::KeyCode::ARROW_DOWN},
     {KEY_DPAD_UP, cc::KeyCode::ARROW_UP}
