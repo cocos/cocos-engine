@@ -28,6 +28,7 @@ import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { SkeletonData } from './skeleton-data';
 import { warn } from '../core/platform/debug';
+import { Skeleton } from './skeleton';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
@@ -310,7 +311,10 @@ class SkeletonCache {
 
     protected _privateMode: boolean;
     protected _skeletonCache: { [key: string]: SkeletonCacheItemInfo };
+
+    //for shared mode only
     protected _animationPool: { [key: string]: AnimationCache };
+    private _sharedCacheMap: Map<string, Array<Skeleton>> = new Map<string, Array<Skeleton>>();
     constructor () {
         this._privateMode = false;
         this._animationPool = {};
@@ -338,7 +342,35 @@ class SkeletonCache {
         }
     }
 
-    public removeSkeleton (uuid: string): void {
+    public removeSkeleton (uuid: string, skeletonComponent: Skeleton): void {
+        const sharedInstances = this._sharedCacheMap.get(uuid);
+        if (sharedInstances) {
+            const index = sharedInstances.indexOf(skeletonComponent);
+            if (index !== -1) {
+                console.log('bf test delete index=', index);
+                sharedInstances.splice(index, 1);
+            }
+            sharedInstances.forEach((skeleton) => {
+                if (skeleton === skeletonComponent) {
+                    console.log('bf test 0000index=', skeleton);
+                }
+            });
+            console.log('bf test index=', index);
+            if (sharedInstances.length > 0) {
+                return;
+            }
+            this._sharedCacheMap.delete(uuid);
+        }
+
+        const sharedOperate = (aniKey: string, animationCache: AnimationCache): void => {
+            this._animationPool[`${uuid}#${aniKey}`] = animationCache;
+            animationCache.clear();
+        };
+        const privateOperate = (aniKey: string, animationCache: AnimationCache): void => {
+            animationCache.destroy();
+        };
+        const operate = sharedInstances ? sharedOperate : privateOperate;
+
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return;
         const animationsCache = skeletonInfo.animationsCache;
@@ -347,17 +379,29 @@ class SkeletonCache {
             // No need to create TypedArray next time.
             const animationCache = animationsCache[aniKey];
             if (!animationCache) continue;
-            this._animationPool[`${uuid}#${aniKey}`] = animationCache;
-            animationCache.clear();
+            operate(aniKey, animationCache);
         }
 
+        if (skeletonInfo.skeleton) {
+            spine.wasmUtil.destroySpineSkeleton(skeletonInfo.skeleton);
+        }
         delete this._skeletonCache[uuid];
     }
 
-    public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData): SkeletonCacheItemInfo {
+    public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData, skeletonComponent: Skeleton): SkeletonCacheItemInfo {
+        if (SkeletonCache.sharedCache === this) {
+            let sharedInstances = this._sharedCacheMap.get(uuid);
+            if (!sharedInstances) {
+                sharedInstances = new Array<Skeleton>();
+                this._sharedCacheMap.set(uuid, sharedInstances);
+            }
+            if (sharedInstances.indexOf(skeletonComponent) === -1) {
+                sharedInstances.push(skeletonComponent);
+            }
+        }
         let skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) {
-            const skeleton = null;
+            const skeleton = new spine.Skeleton(skeletonData);
             const clipper = null;
             const state = null;
             const listener = new TrackEntryListeners();
