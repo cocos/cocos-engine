@@ -266,6 +266,7 @@ struct Index {
   build() {
     Flex({ direction: FlexDirection.Column, alignItems: ItemAlign.Center, justifyContent: FlexAlign.Center }) {
       XComponent({ id: 'xcomponentId', type: 'surface', libraryname: 'cocos'})
+        .focusable(true)
         .onLoad((context) => {
           // Set the cache directory in the ts layer.
           this.workPort.postMessage("onXCLoad", "XComponent");

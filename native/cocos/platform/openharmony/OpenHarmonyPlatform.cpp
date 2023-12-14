@@ -46,6 +46,70 @@
 #include <sstream>
 
 namespace {
+
+std::unordered_map<int, cc::KeyCode> ohKeyMap = {
+    {KEY_ESCAPE, cc::KeyCode::ESCAPE},
+    {KEY_GRAVE, cc::KeyCode::BACKQUOTE},
+    {KEY_MINUS, cc::KeyCode::MINUS},
+    {KEY_EQUALS, cc::KeyCode::EQUAL},
+    {KEY_DEL, cc::KeyCode::BACKSPACE},
+    {KEY_TAB, cc::KeyCode::TAB},
+    {KEY_LEFT_BRACKET, cc::KeyCode::BRACKET_LEFT},
+    {KEY_RIGHT_BRACKET, cc::KeyCode::BRACKET_RIGHT},
+    {KEY_BACKSLASH, cc::KeyCode::BACKSLASH},
+    {KEY_CAPS_LOCK, cc::KeyCode::CAPS_LOCK},
+    {KEY_SEMICOLON, cc::KeyCode::SEMICOLON},
+    {KEY_APOSTROPHE, cc::KeyCode::QUOTE},
+    {KEY_ENTER, cc::KeyCode::ENTER},
+    {KEY_SHIFT_LEFT, cc::KeyCode::SHIFT_LEFT},
+    {KEY_COMMA, cc::KeyCode::COMMA},
+    {KEY_PERIOD, cc::KeyCode::PERIOD},
+    {KEY_SLASH, cc::KeyCode::SLASH},
+    {KEY_SHIFT_RIGHT, cc::KeyCode::SHIFT_RIGHT},
+    {KEY_CTRL_LEFT, cc::KeyCode::CONTROL_LEFT},
+    {KEY_ALT_LEFT, cc::KeyCode::ALT_LEFT},
+    {KEY_SPACE, cc::KeyCode::SPACE},
+    {KEY_ALT_RIGHT, cc::KeyCode::ALT_RIGHT},
+    {KEY_CTRL_RIGHT, cc::KeyCode::CONTROL_RIGHT},
+    {KEY_DPAD_LEFT, cc::KeyCode::ARROW_LEFT},
+    {KEY_DPAD_RIGHT, cc::KeyCode::ARROW_RIGHT},
+    {KEY_DPAD_DOWN, cc::KeyCode::ARROW_DOWN},
+    {KEY_DPAD_UP, cc::KeyCode::ARROW_UP},
+    {KEY_SYSRQ, cc::KeyCode::PRINT_SCREEN},
+    {KEY_INSERT, cc::KeyCode::INSERT},
+    {KEY_FORWARD_DEL, cc::KeyCode::DELETE_KEY}
+};
+
+const int keyZeroInCocos = 48;
+
+const int keyF1InCocos = 112;
+
+const int keyAInCocos = 65;
+
+const int keyFnInOH = -1;
+
+const int keyActionUnknown = -1;
+
+int ohKeyCodeToCocosCode(OH_NativeXComponent_KeyCode ohKeyCode) {
+    auto it = ohKeyMap.find(ohKeyCode);
+    if (it != ohKeyMap.end()) {
+        return static_cast<int>(it->second);
+    }
+    if (ohKeyCode >= KEY_0 && ohKeyCode <= KEY_9) {
+        // 0 - 9
+        return keyZeroInCocos + (ohKeyCode - KEY_0);
+    }
+    if (ohKeyCode >= KEY_F1 && ohKeyCode <= KEY_F12) {
+        // F1 - F12
+        return keyF1InCocos + (ohKeyCode - KEY_F1);
+    }
+    if (ohKeyCode >= KEY_A && ohKeyCode <= KEY_Z) {
+        // A - Z
+        return keyAInCocos + (ohKeyCode - KEY_A);
+    }
+    return ohKeyCode;
+}
+
 void sendMsgToWorker(const cc::MessageType& type, void* data, void* window) {
     cc::OpenHarmonyPlatform* platform = dynamic_cast<cc::OpenHarmonyPlatform*>(cc::BasePlatform::getPlatform());
     CC_ASSERT(platform != nullptr);
@@ -101,6 +165,36 @@ void dispatchTouchEventCB(OH_NativeXComponent* component, void* window) {
     sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_TOUCH_EVENT, reinterpret_cast<void*>(ev), window);
 }
 
+void onKeyEventCB(OH_NativeXComponent* component, void* window) {
+    OH_NativeXComponent_KeyEvent* keyEvent = nullptr;
+    if (OH_NativeXComponent_GetKeyEvent(component, &keyEvent) >= 0) {
+        OH_NativeXComponent_KeyAction action;
+        OH_NativeXComponent_GetKeyEventAction(keyEvent, &action);
+        OH_NativeXComponent_KeyCode code;
+        OH_NativeXComponent_GetKeyEventCode(keyEvent, &code);
+        if (code == keyFnInOH || action == keyActionUnknown) {
+            // Fn and KeyUnknown don't callback
+            return;
+        }
+        cc::KeyboardEvent* ev = new cc::KeyboardEvent;
+        cc::SystemWindowManager* windowMgr = 
+            cc::OpenHarmonyPlatform::getInstance()->getInterface<cc::SystemWindowManager>();
+        CC_ASSERT_NOT_NULL(windowMgr);
+        cc::ISystemWindow* systemWindow = windowMgr->getWindowFromHandle(window);
+        CC_ASSERT_NOT_NULL(systemWindow);
+        ev->windowId = systemWindow->getWindowId();
+        ev->key = ohKeyCodeToCocosCode(code);
+        if (action == 0) {
+            ev->action = cc::KeyboardEvent::Action::PRESS;
+        } else {
+            ev->action = cc::KeyboardEvent::Action::RELEASE;
+        }
+        sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_KEY_EVENT, reinterpret_cast<void*>(ev), window);
+    } else {
+        CC_LOG_ERROR("OpenHarmonyPlatform::getKeyEventError");
+    }
+}
+
 void onSurfaceChangedCB(OH_NativeXComponent* component, void* window) {
     sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_SURFACE_CHANGED, reinterpret_cast<void*>(component), window);
 }
@@ -153,6 +247,8 @@ int32_t OpenHarmonyPlatform::run(int argc, const char** argv) {
 void OpenHarmonyPlatform::setNativeXComponent(OH_NativeXComponent* component) {
     _component = component;
     OH_NativeXComponent_RegisterCallback(_component, &_callback);
+    // register KeyEvent
+    OH_NativeXComponent_RegisterKeyEventCallback(_component, onKeyEventCB);
 }
 
 void OpenHarmonyPlatform::enqueue(const WorkerMessageData& msg) {
@@ -188,6 +284,12 @@ void OpenHarmonyPlatform::onMessageCallback(const uv_async_t* /* req */) {
                 TouchEvent* ev = reinterpret_cast<TouchEvent*>(msgData.data);
                 CC_ASSERT(ev != nullptr);
                 events::Touch::broadcast(*ev);
+                delete ev;
+                ev = nullptr;
+            } else if (msgData.type == MessageType::WM_XCOMPONENT_KEY_EVENT) {
+                KeyboardEvent* ev = reinterpret_cast<KeyboardEvent*>(msgData.data);
+                CC_ASSERT(ev != nullptr);
+                events::Keyboard::broadcast(*ev);
                 delete ev;
                 ev = nullptr;
             } else if (msgData.type == MessageType::WM_XCOMPONENT_SURFACE_CREATED) {
