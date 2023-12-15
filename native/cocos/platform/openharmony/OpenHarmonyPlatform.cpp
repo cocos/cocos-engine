@@ -80,13 +80,13 @@ std::unordered_map<int, cc::KeyCode> ohKeyMap = {
     {KEY_FORWARD_DEL, cc::KeyCode::DELETE_KEY}
 };
 
-int keyZeroInCocos = 48;
+const int keyZeroInCocos = 48;
 
-int keyF1InCocos = 112;
+const int keyF1InCocos = 112;
 
-int keyAInCocos = 65;
+const int keyAInCocos = 65;
 
-int keyFnInOH = -1;
+const int keyFnInOH = -1;
 
 int ohKeyCodeToCocosCode(OH_NativeXComponent_KeyCode ohKeyCode) {
     auto it = ohKeyMap.find(ohKeyCode);
