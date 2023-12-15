@@ -86,6 +86,8 @@ int keyF1InCocos = 112;
 
 int keyAInCocos = 65;
 
+int keyFnInOH = -1;
+
 int ohKeyCodeToCocosCode(OH_NativeXComponent_KeyCode ohKeyCode) {
     auto it = ohKeyMap.find(ohKeyCode);
     if (it != ohKeyMap.end()) {
@@ -168,7 +170,7 @@ void onKeyEventCB(OH_NativeXComponent* component, void* window) {
         OH_NativeXComponent_GetKeyEventAction(keyEvent, &action);
         OH_NativeXComponent_KeyCode code;
         OH_NativeXComponent_GetKeyEventCode(keyEvent, &code);
-        if (code == -1) {
+        if (code == keyFnInOH) {
             // FN don't callback
             return;
         }
