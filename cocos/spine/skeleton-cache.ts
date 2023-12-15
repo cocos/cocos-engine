@@ -315,6 +315,7 @@ class SkeletonCache {
 
     //for shared mode only
     protected _animationPool: { [key: string]: AnimationCache };
+    //for shared mode only, key is asset uuid and value is ref count.
     private _sharedCacheMap: Map<string, number> = new Map<string, number>();
     constructor () {
         this._privateMode = false;
@@ -344,8 +345,7 @@ class SkeletonCache {
     }
 
     public destroySkeleton (assetUuid: string): void {
-        const isSharedOperate = this === SkeletonCache.sharedCache;
-        if (isSharedOperate) {
+        if (!this._privateMode) {
             let refCount = this._sharedCacheMap.get(assetUuid);
             if (refCount) {
                 refCount -= 1;
@@ -363,7 +363,7 @@ class SkeletonCache {
         const privateOperate = (aniKey: string, animationCache: AnimationCache): void => {
             animationCache.destroy();
         };
-        const operate = isSharedOperate ? sharedOperate : privateOperate;
+        const operate = this._privateMode ? privateOperate : sharedOperate;
 
         const skeletonInfo = this._skeletonCache[assetUuid];
         if (!skeletonInfo) return;
@@ -385,7 +385,7 @@ class SkeletonCache {
     public createSkeletonInfo (skeletonAsset: SkeletonData): SkeletonCacheItemInfo {
         const uuid = skeletonAsset.uuid;
         const runtimeData = skeletonAsset.getRuntimeData();
-        if (SkeletonCache.sharedCache === this) {
+        if (!this._privateMode) {
             let refCount = this._sharedCacheMap.get(uuid);
             if (!refCount) {
                 refCount = 1;
