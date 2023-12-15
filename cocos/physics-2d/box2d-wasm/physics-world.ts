@@ -318,7 +318,7 @@ export class B2PhysicsWorld implements IPhysicsWorld {
         const linearVelocity = compPrivate._linearVelocity;
         bodyDef.linearVelocity = { x: linearVelocity.x, y: linearVelocity.y };
 
-        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
+        bodyDef.angularVelocity = compPrivate._angularVelocity;
 
         const b2Body = this._world.CreateBody(bodyDef);
         addImplPtrReference(B2ObjectType.Body, body, getImplPtr(b2Body));
