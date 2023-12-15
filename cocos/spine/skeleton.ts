@@ -354,7 +354,7 @@ export class Skeleton extends UIRenderer {
         if (value) value.resetEnums();
         if (this._skeletonData !== value) {
             if (this._skeletonCache && this._skeletonData) {
-                this._skeletonCache.removeSkeleton(this._skeletonData.uuid, this);
+                this._skeletonCache.removeSkeleton(this);
             }
             this.destroyRenderData();
             this._skeletonData = value as any;
@@ -716,7 +716,7 @@ export class Skeleton extends UIRenderer {
             spine.SkeletonSystem.destroySpineInstance(this._instance);
         }
         if (this._skeletonCache && this._skeletonData) {
-            this._skeletonCache.removeSkeleton(this._skeletonData.uuid, this);
+            this._skeletonCache.removeSkeleton(this);
         }
         super.onDestroy();
     }
@@ -788,10 +788,8 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            if (this.skeletonData) {
-                const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData, this);
-                this._skeleton = skeletonInfo.skeleton!;
-            }
+            const skeletonInfo = this._skeletonCache!.getOrCreateSkeletonInfo(this);
+            this._skeleton = skeletonInfo.skeleton!;
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
             this._state = this._instance.getAnimationState();
@@ -1315,6 +1313,10 @@ export class Skeleton extends UIRenderer {
             this._preCacheMode = cacheMode;
             if (this._instance) {
                 this._instance.isCache = this.isAnimationCached();
+            }
+            if (this._skeletonCache) {
+                this._skeletonCache.removeSkeleton(this);
+                this._skeletonCache = null;
             }
             this._updateSkeletonData();
             this.markForUpdateRenderData();

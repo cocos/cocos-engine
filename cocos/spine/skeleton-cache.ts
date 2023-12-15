@@ -342,17 +342,24 @@ class SkeletonCache {
         }
     }
 
-    public removeSkeleton (uuid: string, skeletonComponent: Skeleton): void {
-        const sharedInstances = this._sharedCacheMap.get(uuid);
-        if (sharedInstances) {
-            const index = sharedInstances.indexOf(skeletonComponent);
-            if (index !== -1) {
-                sharedInstances.splice(index, 1);
+    public removeSkeleton (skeletonComponent: Skeleton): void {
+        const uuid = skeletonComponent.skeletonData?.uuid;
+        if (!uuid) {
+            return;
+        }
+        const isSharedOperate = this === SkeletonCache.sharedCache;
+        if (isSharedOperate) {
+            const sharedInstances = this._sharedCacheMap.get(uuid);
+            if (sharedInstances) {
+                const index = sharedInstances.indexOf(skeletonComponent);
+                if (index !== -1) {
+                    sharedInstances.splice(index, 1);
+                }
+                if (sharedInstances.length > 0) {
+                    return;
+                }
+                this._sharedCacheMap.delete(uuid);
             }
-            if (sharedInstances.length > 0) {
-                return;
-            }
-            this._sharedCacheMap.delete(uuid);
         }
 
         const sharedOperate = (aniKey: string, animationCache: AnimationCache): void => {
@@ -362,7 +369,7 @@ class SkeletonCache {
         const privateOperate = (aniKey: string, animationCache: AnimationCache): void => {
             animationCache.destroy();
         };
-        const operate = sharedInstances ? sharedOperate : privateOperate;
+        const operate = isSharedOperate ? sharedOperate : privateOperate;
 
         const skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) return;
@@ -381,7 +388,10 @@ class SkeletonCache {
         delete this._skeletonCache[uuid];
     }
 
-    public getSkeletonCache (uuid: string, skeletonData: spine.SkeletonData, skeletonComponent: Skeleton): SkeletonCacheItemInfo {
+    public getOrCreateSkeletonInfo (skeletonComponent: Skeleton): SkeletonCacheItemInfo {
+        const skeletonData = skeletonComponent.skeletonData;
+        const uuid = skeletonData!.uuid;
+        const runtimeData = skeletonData!.getRuntimeData();
         if (SkeletonCache.sharedCache === this) {
             let sharedInstances = this._sharedCacheMap.get(uuid);
             if (!sharedInstances) {
@@ -394,7 +404,7 @@ class SkeletonCache {
         }
         let skeletonInfo = this._skeletonCache[uuid];
         if (!skeletonInfo) {
-            const skeleton = new spine.Skeleton(skeletonData);
+            const skeleton = new spine.Skeleton(runtimeData!);
             const clipper = null;
             const state = null;
             const listener = new TrackEntryListeners();
