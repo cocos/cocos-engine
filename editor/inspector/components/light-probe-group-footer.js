@@ -52,50 +52,17 @@ exports.update = async function(dump) {
 exports.ready = function() {
     const panel = this;
 
-    panel.$.generate.addEventListener('confirm', async () => {
-        const result = await Editor.Dialog.warn(Editor.I18n.t('ENGINE.components.lightProbeGroup.generateWarnTip'), {
-            buttons: [Editor.I18n.t('ENGINE.dialog.confirm'), Editor.I18n.t('ENGINE.dialog.cancel')],
-            default: 0,
-            cancel: 1,
-        });
+    panel.onGenerateConfirmBind = panel.onGenerateConfirm.bind(panel);
+    panel.$.generate.addEventListener('confirm', panel.onGenerateConfirmBind);
 
-        if (result.response === 0) {
-            // 先关闭盒子模式
-            if (panel.sceneProbeBoxMode) {
-                await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
-            }
-
-            const uuidObject = panel.dump.value.uuid;
-            const uuids = uuidObject.values ? uuidObject.values : [uuidObject.value];
-            const undoID = await Editor.Message.request(getMessageProtocolScene(this.$this), 'begin-recording', uuids);
-            for (const uuid of uuids) {
-                Editor.Message.send(getMessageProtocolScene(this.$this), 'execute-component-method', {
-                    uuid: uuid,
-                    name: 'generateLightProbes',
-                    args: [],
-                });
-            }
-
-            trackEventWithTimer('bakingSystem', 'A100006');
-
-            await Editor.Message.request(getMessageProtocolScene(this.$this), 'end-recording', undoID);
-        }
-    });
-
-    panel.$.edit.addEventListener('confirm', async () => {
-        await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-edit-mode', !panel.sceneProbeMode);
-        trackEventWithTimer('bakingSystem', 'A100008');
-        Editor.Panel.focus('scene');
-    });
+    panel.onEditConfirmBind = panel.onEditConfirm.bind(panel);
+    panel.$.edit.addEventListener('confirm', panel.onEditConfirmBind);
 
     panel.changeProbeModeBind = panel.changeProbeMode.bind(panel);
     Editor.Message.addBroadcastListener('scene:light-probe-edit-mode-changed', panel.changeProbeModeBind);
 
-    panel.$.box.addEventListener('confirm', async () => {
-        await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !panel.sceneProbeBoxMode);
-        trackEventWithTimer('bakingSystem', 'A100007');
-        Editor.Panel.focus('scene');
-    });
+    panel.onBoxConfirmBind = panel.onBoxConfirm.bind(panel);
+    panel.$.box.addEventListener('confirm', panel.onBoxConfirmBind);
 
     panel.changeProbeBoxModeBind = panel.changeProbeBoxMode.bind(panel);
     Editor.Message.addBroadcastListener('scene:light-probe-bounding-box-edit-mode-changed', panel.changeProbeBoxModeBind);
@@ -104,6 +71,9 @@ exports.ready = function() {
 exports.close = function() {
     const panel = this;
 
+    panel.$.generate.removeEventListener('confirm', panel.onGenerateConfirmBind);
+    panel.$.edit.removeEventListener('confirm', panel.onEditConfirmBind);
+    panel.$.box.removeEventListener('confirm', panel.onBoxConfirmBind);
     Editor.Message.removeBroadcastListener('scene:light-probe-edit-mode-changed', panel.changeProbeModeBind);
     Editor.Message.removeBroadcastListener('scene:light-probe-bounding-box-edit-mode-changed', panel.changeProbeBoxModeBind);
 };
@@ -136,5 +106,44 @@ exports.methods = {
             panel.$.box.innerText = 'Edit Area Box';
             panel.$.box.classList.remove('red');
         }
+    },
+    async onGenerateConfirm() {
+        const result = await Editor.Dialog.warn(Editor.I18n.t('ENGINE.components.lightProbeGroup.generateWarnTip'), {
+            buttons: [Editor.I18n.t('ENGINE.dialog.confirm'), Editor.I18n.t('ENGINE.dialog.cancel')],
+            default: 0,
+            cancel: 1,
+        });
+
+        if (result.response === 0) {
+            // 先关闭盒子模式
+            if (this.sceneProbeBoxMode) {
+                await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !this.sceneProbeBoxMode);
+            }
+
+            const uuidObject = this.dump.value.uuid;
+            const uuids = uuidObject.values ? uuidObject.values : [uuidObject.value];
+            const undoID = await Editor.Message.request(getMessageProtocolScene(this.$this), 'begin-recording', uuids);
+            for (const uuid of uuids) {
+                Editor.Message.send(getMessageProtocolScene(this.$this), 'execute-component-method', {
+                    uuid: uuid,
+                    name: 'generateLightProbes',
+                    args: [],
+                });
+            }
+
+            trackEventWithTimer('bakingSystem', 'A100006');
+
+            await Editor.Message.request(getMessageProtocolScene(this.$this), 'end-recording', undoID);
+        }
+    },
+    async onEditConfirm() {
+        await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-edit-mode', !this.sceneProbeMode);
+        trackEventWithTimer('bakingSystem', 'A100008');
+        Editor.Panel.focus('scene');
+    },
+    async onBoxConfirm() {
+        await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !this.sceneProbeBoxMode);
+        trackEventWithTimer('bakingSystem', 'A100007');
+        Editor.Panel.focus('scene');
     },
 };
