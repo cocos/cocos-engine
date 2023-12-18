@@ -189,7 +189,7 @@ void onKeyEventCB(OH_NativeXComponent* component, void* window) {
         } else {
             ev->action = cc::KeyboardEvent::Action::RELEASE;
         }
-        sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_KEY_EVENT,reinterpret_cast<void*>(ev),window);
+        sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_KEY_EVENT, reinterpret_cast<void*>(ev), window);
     } else {
         CC_LOG_ERROR("OpenHarmonyPlatform::getKeyEventError");
     }
