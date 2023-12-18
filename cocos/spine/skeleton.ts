@@ -41,7 +41,7 @@ import { AttachUtil } from './attach-util';
 import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
-import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache';
+import SkeletonCache, { AnimationCache, AnimationFrame, SkeletonCacheItemInfo } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
 
@@ -240,6 +240,7 @@ export class Skeleton extends UIRenderer {
     protected _instance: spine.SkeletonInstance = null!;
     protected _state: spine.AnimationState = null!;
     protected _textures: Texture2D[] = [];
+    private _skeletonInfo: SkeletonCacheItemInfo | null = null;
     // Animation name
     protected _animationName = '';
     protected _skinName = '';
@@ -353,9 +354,6 @@ export class Skeleton extends UIRenderer {
     set skeletonData (value: SkeletonData | null) {
         if (value) value.resetEnums();
         if (this._skeletonData !== value) {
-            if (this._skeletonCache && this._skeletonData) {
-                this._skeletonCache.removeSkeleton(this._skeletonData.uuid);
-            }
             this.destroyRenderData();
             this._skeletonData = value as any;
             this.defaultSkin = '';
@@ -715,11 +713,11 @@ export class Skeleton extends UIRenderer {
         if (!JSB) {
             spine.SkeletonSystem.destroySpineInstance(this._instance);
         }
-        if (this._skeletonCache && this._skeletonData) {
-            this._skeletonCache.removeSkeleton(this._skeletonData.uuid);
-        }
+        this._destroySkeletonInfo(this._skeletonCache);
+        this._skeletonCache = null;
         super.onDestroy();
     }
+
     /**
      * @en Clear animation and set to setup pose.
      * @zh 清除动画并还原到初始姿势。
@@ -777,23 +775,32 @@ export class Skeleton extends UIRenderer {
      */
     public setSkeletonData (skeletonData: spine.SkeletonData): void {
         if (!EDITOR_NOT_IN_PREVIEW) {
+            const preSkeletonCache = this._skeletonCache;
             if (this._cacheMode === AnimationCacheMode.SHARED_CACHE) {
                 this._skeletonCache = SkeletonCache.sharedCache;
             } else if (this._cacheMode === AnimationCacheMode.PRIVATE_CACHE) {
                 this._skeletonCache = new SkeletonCache();
                 this._skeletonCache.enablePrivateMode();
+            } else {
+                this._skeletonCache = null;
+            }
+            //cache mode may be changed
+            if (preSkeletonCache !== this._skeletonCache) {
+                this._destroySkeletonInfo(preSkeletonCache);
             }
         }
         if (this.isAnimationCached()) {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            if (this.skeletonData) {
-                const skeletonInfo = this._skeletonCache!.getSkeletonCache(this.skeletonData.uuid, skeletonData);
-                if (!skeletonInfo.skeleton) {
-                    skeletonInfo.skeleton = this._instance.initSkeleton(skeletonData);
+            let skeletonInfo = this._skeletonCache!.getSkeletonInfo(this._skeletonData!);
+            if (this._skeletonInfo !== skeletonInfo) {
+                this._destroySkeletonInfo(this._skeletonCache);
+                if (!skeletonInfo) {
+                    skeletonInfo = this._skeletonCache!.createSkeletonInfo(this._skeletonData!);
                 }
-                this._skeleton = skeletonInfo.skeleton!;
+                this._skeletonInfo = skeletonInfo;
+                this._skeleton = this._skeletonInfo.skeleton!;
             }
         } else {
             this._skeleton = this._instance.initSkeleton(skeletonData);
@@ -1847,6 +1854,13 @@ export class Skeleton extends UIRenderer {
             this._slotTextures.set(textureID, tex2d);
         }
         this._instance.setSlotTexture(slotName, textureID);
+    }
+
+    private _destroySkeletonInfo (skeletonCache: SkeletonCache | null): void {
+        if (skeletonCache && this._skeletonInfo) {
+            skeletonCache.destroySkeleton(this._skeletonInfo.assetUUID);
+            this._skeletonInfo = null;
+        }
     }
 }
 

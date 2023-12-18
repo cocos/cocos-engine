@@ -82,6 +82,12 @@ void SpineWasmUtil::destroySpineSkeletonDataWithUUID(const std::string& uuid) {
     }
 }
 
+void SpineWasmUtil::destroySpineSkeleton(Skeleton* skeleton) {
+    if (skeleton) {
+        delete skeleton;
+    }
+}
+
 uint32_t SpineWasmUtil::queryStoreMemory(uint32_t size) {
     if (s_mem) {
         if (s_memSize < size) {

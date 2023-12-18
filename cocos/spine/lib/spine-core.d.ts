@@ -1220,6 +1220,7 @@ declare namespace spine {
         static createSpineSkeletonDataWithBinary(byteSize: number, atlasText: string): SkeletonData;
         static registerSpineSkeletonDataWithUUID(data: SkeletonData, uuid: string);
         static destroySpineSkeletonDataWithUUID(uuid: string);
+        static destroySpineSkeleton(skeleton: Skeleton): void;
         static getCurrentListenerID(): number;
         static getCurrentEventType(): EventType;
         static getCurrentTrackEntry(): TrackEntry;
