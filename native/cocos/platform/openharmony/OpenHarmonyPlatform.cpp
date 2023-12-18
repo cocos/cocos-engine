@@ -88,6 +88,8 @@ const int keyAInCocos = 65;
 
 const int keyFnInOH = -1;
 
+const int keyActionUnknown = -1;
+
 int ohKeyCodeToCocosCode(OH_NativeXComponent_KeyCode ohKeyCode) {
     auto it = ohKeyMap.find(ohKeyCode);
     if (it != ohKeyMap.end()) {
@@ -170,8 +172,8 @@ void onKeyEventCB(OH_NativeXComponent* component, void* window) {
         OH_NativeXComponent_GetKeyEventAction(keyEvent, &action);
         OH_NativeXComponent_KeyCode code;
         OH_NativeXComponent_GetKeyEventCode(keyEvent, &code);
-        if (code == keyFnInOH) {
-            // FN don't callback
+        if (code == keyFnInOH || action == keyActionUnknown) {
+            // Fn and KeyUnknown don't callback
             return;
         }
         cc::KeyboardEvent* ev = new cc::KeyboardEvent;
@@ -184,8 +186,7 @@ void onKeyEventCB(OH_NativeXComponent* component, void* window) {
         ev->key = ohKeyCodeToCocosCode(code);
         if (action == 0) {
             ev->action = cc::KeyboardEvent::Action::PRESS;
-        }
-        if (action == 1) {
+        } else {
             ev->action = cc::KeyboardEvent::Action::RELEASE;
         }
         sendMsgToWorker(cc::MessageType::WM_XCOMPONENT_KEY_EVENT,reinterpret_cast<void*>(ev),window);
