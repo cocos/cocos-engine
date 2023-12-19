@@ -270,7 +270,8 @@ export class ReflectionProbe extends Component {
         this.probe.cubemap = val;
         ReflectionProbeManager.probeManager.onUpdateProbes();
     }
-
+    @type(TextureCube)
+    @visible(false)
     get cubemap (): TextureCube | null {
         return this._cubemap;
     }
