@@ -628,7 +628,7 @@ export class Skeleton extends UIRenderer {
         if (value) {
             this.setAnimation(0, value, this.loop);
         } else {
-            this.clearAnimation();
+            this.clearAnimation(0);
         }
     }
 
@@ -720,11 +720,24 @@ export class Skeleton extends UIRenderer {
         }
         super.onDestroy();
     }
+
+    /**
+     * @en Clear animation and set to setup pose, default value of track index is 0.
+     * @zh 清除指定动画并还原到初始姿势, 默认清除 track索引 为0的动画。
+     * @param {NUmber} [trackIndex] @en track index. @zh track 的索引。
+     */
+    public clearAnimation (trackIndex?: number): void {
+        if (!this.isAnimationCached()) {
+            this.clearTrack(trackIndex || 0);
+            this.setToSetupPose();
+        }
+    }
+
     /**
      * @en Clear animation and set to setup pose.
-     * @zh 清除动画并还原到初始姿势。
+     * @zh 清除所有动画并还原到初始姿势。
      */
-    public clearAnimation (): void {
+    public clearAnimations (): void {
         if (!this.isAnimationCached()) {
             this.clearTracks();
             this.setToSetupPose();
