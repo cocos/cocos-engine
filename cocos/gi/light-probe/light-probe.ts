@@ -73,6 +73,10 @@ export class LightProbesData {
             let probe = this._probes[i];
             if (!probe) {
                 probe = new Vertex(points[i]);
+                for (let j = 0; j < SH.getBasisCount(); j++) {
+                    probe.coefficients[j] = Vec3.ZERO;
+                }
+                this._probes[i] = probe;
             } else {
                 probe.position.set(points[i]);
             }
