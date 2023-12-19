@@ -115,7 +115,7 @@ exports.methods = {
         });
 
         if (result.response === 0) {
-            // 先关闭盒子模式
+            // Turn off the box mode first
             if (this.sceneProbeBoxMode) {
                 await Editor.Message.request(getMessageProtocolScene(this.$this), 'toggle-light-probe-bounding-box-edit-mode', !this.sceneProbeBoxMode);
             }
