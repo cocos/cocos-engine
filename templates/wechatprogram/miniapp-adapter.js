@@ -1,7 +1,7 @@
 var GameGlobal = getApp().GameGlobal;
 exports.adapt = function (canvas, width, height) {
     GameGlobal.canvas = canvas;
-    GameGlobal.WXWebAssembly = WXWebAssembly;
+    GameGlobal.CCWebAssembly = GameGlobal.WXWebAssembly = WXWebAssembly;
     GameGlobal.requestAnimationFrame = GameGlobal.canvas.requestAnimationFrame || globalThis.setTimeout;
     GameGlobal.cancelAnimationFrame = GameGlobal.canvas.cancelAnimationFrame || globalThis.setTimeout;
     GameGlobal.setTimeout = globalThis.setTimeout;

@@ -653,7 +653,7 @@
         "WASM_SUPPORT_MODE": {
             "comment": "Whether support wasm, here we provide 3 options:\n0: The platform doesn't support WASM\n1: The platform supports WASM\n2: The platform may support WASM, especially on Web platform",
             "type": "number",
-            "value": "$HTML5 ? 2 : ($NATIVE ? (($OPEN_HARMONY||$IOS)?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
+            "value": "($HTML5 || $BYTEDANCE) ? 2 : ($NATIVE ? (($OPEN_HARMONY||$IOS)?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
             "internal": true
         },
         "FORCE_BANNING_BULLET_WASM": {

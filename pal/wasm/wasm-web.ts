@@ -42,7 +42,7 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
                     // IDEA: it's better we implement another PAL for nodejs platform.
                     // eslint-disable-next-line @typescript-eslint/no-var-requires
                     const fs = require('fs');
-                    const arrayBuffer = fs.readFileSync(binaryUrl);
+                    const arrayBuffer = fs.readFileSync(binaryUrl) as ArrayBuffer;
                     resolve(arrayBuffer);
                 });
                 return;
