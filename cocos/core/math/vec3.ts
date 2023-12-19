@@ -1246,8 +1246,7 @@ export function v3 (other: Vec3): Vec3;
 export function v3 (x?: number, y?: number, z?: number): Vec3;
 
 export function v3 (x?: number | Vec3, y?: number, z?: number): Vec3 {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    return new Vec3(x as any, y, z);
+    return new Vec3(x as number | undefined, y, z);
 }
 
 /**
