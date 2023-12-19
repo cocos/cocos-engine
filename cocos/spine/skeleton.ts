@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
-import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip, editorOnly } from 'cc.decorator';
+import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
 import { error, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
@@ -227,13 +227,10 @@ export class Skeleton extends UIRenderer {
     @serializable
     protected _useTint = false;
     @serializable
-    @editorOnly
     protected _debugMesh = false;
     @serializable
-    @editorOnly
     protected _debugBones = false;
     @serializable
-    @editorOnly
     protected _debugSlots = false;
     @serializable
     protected _enableBatch = false;
@@ -1575,7 +1572,7 @@ export class Skeleton extends UIRenderer {
                 debugDrawNode.layer = this.node.layer;
                 debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
-                debugDraw.lineWidth = 1;
+                debugDraw.lineWidth = 5;
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);
 
                 this._debugRenderer = debugDraw;
