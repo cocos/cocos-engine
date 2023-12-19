@@ -1626,6 +1626,7 @@ EMSCRIPTEN_BINDINGS(cocos_spine) {
     .class_function("createSpineSkeletonDataWithBinary", &SpineWasmUtil::createSpineSkeletonDataWithBinary, allow_raw_pointers())
     .class_function("registerSpineSkeletonDataWithUUID", &SpineWasmUtil::registerSpineSkeletonDataWithUUID, allow_raw_pointers())
     .class_function("destroySpineSkeletonDataWithUUID", &SpineWasmUtil::destroySpineSkeletonDataWithUUID)
+    .class_function("destroySpineSkeleton", &SpineWasmUtil::destroySpineSkeleton, allow_raw_pointers())
     .class_function("getCurrentListenerID", &SpineWasmUtil::getCurrentListenerID)
     .class_function("getCurrentEventType", &SpineWasmUtil::getCurrentEventType)
     .class_function("getCurrentTrackEntry", &SpineWasmUtil::getCurrentTrackEntry, allow_raw_pointers())

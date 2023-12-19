@@ -255,7 +255,6 @@ export class RenderInstancingQueue {
         instanceBuffers.forEach((instance) => {
             instance.clear();
         });
-        this.instanceBuffers.length = 0;
     }
 
     sort (): void {

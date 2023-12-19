@@ -1,5 +1,7 @@
 <!-- Polyfills bundle. -->
-<script src="<%= polyfillsBundleFile %>" charset="utf-8"> </script>
+<% if(polyfillsBundleFile) { %>
+<script src="<%= polyfillsBundleFile %>" charset="utf-8"> </script>    
+<% } %>
 
 <!-- SystemJS support. -->
 <script src="<%= systemJsBundleFile %>" charset="utf-8"> </script>
