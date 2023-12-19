@@ -1510,7 +1510,7 @@ CCClass %s have conflict between its ctor and __ctor__.
 ### 3650
 
 <!-- DEPRECATED -->
-No need to specifiy "%s" attribute for "%s" property in "%s" class.
+No need to specify "%s" attribute for "%s" property in "%s" class.
 
 ### 3651
 
@@ -1525,7 +1525,7 @@ Please ensure the constructor can be called during the script's initialization.
 
 ### 3653
 
-Please do not specifiy "default" attribute in decorator of "%s" property in "%s" class.
+Please do not specify "default" attribute in decorator of "%s" property in "%s" class.
 Default value must be initialized at their declaration:
 
 ```
@@ -1544,7 +1544,7 @@ myProp = null;   // <--
 
 ### 3654
 
-Please specifiy a default value for "%s.%s" property at its declaration:
+Please specify a default value for "%s.%s" property at its declaration:
 
 ```
 // Before:
@@ -1557,7 +1557,7 @@ myProp = 0;
 
 ### 3655
 
-Can not specifiy "get" or "set"  attribute in decorator for "%s" property in "%s" class.
+Can not specify "get" or "set"  attribute in decorator for "%s" property in "%s" class.
 Please use:
 
 ```
