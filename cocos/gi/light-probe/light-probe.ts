@@ -66,11 +66,16 @@ export class LightProbesData {
     }
 
     public updateProbes (points: Vec3[]): void {
-        this._probes.length = 0;
+        this._probes.length = points.length;
 
-        const pointCount = points.length;
+        const pointCount = this._probes.length;
         for (let i = 0; i < pointCount; i++) {
-            this._probes.push(new Vertex(points[i]));
+            let probe = this._probes[i];
+            if (!probe) {
+                probe = new Vertex(points[i]);
+            } else {
+                probe.position.set(points[i]);
+            }
         }
     }
 
