@@ -116,6 +116,7 @@ rules:
     default-case-last: error
     no-case-declarations: error
     no-irregular-whitespace: error
+    no-inner-declarations: off
 
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
