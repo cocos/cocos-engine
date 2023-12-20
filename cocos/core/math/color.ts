@@ -152,7 +152,7 @@ export class Color extends ValueType {
         out.g = (hexNumber & 0x00ff0000) >>> 16;
         out.b = (hexNumber & 0x0000ff00) >>> 8;
         out.a = hexNumber & 0x000000ff;
-        out._val = ((out.a << 24) >>> 0) + (hexNumber >>> 8);
+        out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
 
         return out;
     }
