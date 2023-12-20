@@ -422,6 +422,7 @@ struct RasterSubpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> computeBindings;
     ccstd::pmr::vector<ResolvePair> resolvePairs;
     gfx::Viewport viewport;
     uint32_t subpassID{0xFFFFFFFF};
@@ -448,6 +449,7 @@ struct ComputeSubpass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> computeBindings;
     uint32_t subpassID{0xFFFFFFFF};
 };
 
@@ -468,6 +470,7 @@ struct RasterPass {
 
     PmrTransparentMap<ccstd::pmr::string, RasterView> rasterViews;
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> computeBindings;
     PmrTransparentMap<ccstd::pmr::string, uint32_t> attachmentIndexMap;
     PmrTransparentMap<ccstd::pmr::string, gfx::ShaderStageFlagBit> textures;
     SubpassGraph subpassGraph;
@@ -483,8 +486,8 @@ struct RasterPass {
 };
 
 inline bool operator==(const RasterPass& lhs, const RasterPass& rhs) noexcept {
-    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.textures, lhs.subpassGraph, lhs.width, lhs.height, lhs.count, lhs.quality) ==
-           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.textures, rhs.subpassGraph, rhs.width, rhs.height, rhs.count, rhs.quality);
+    return std::forward_as_tuple(lhs.rasterViews, lhs.computeViews, lhs.computeBindings, lhs.textures, lhs.subpassGraph, lhs.width, lhs.height, lhs.count, lhs.quality) ==
+           std::forward_as_tuple(rhs.rasterViews, rhs.computeViews, rhs.computeBindings, rhs.textures, rhs.subpassGraph, rhs.width, rhs.height, rhs.count, rhs.quality);
 }
 
 inline bool operator!=(const RasterPass& lhs, const RasterPass& rhs) noexcept {
@@ -752,6 +755,7 @@ struct ComputePass {
     ComputePass& operator=(ComputePass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> computeBindings;
     PmrTransparentMap<ccstd::pmr::string, gfx::ShaderStageFlagBit> textures;
 };
 
@@ -825,6 +829,7 @@ struct RaytracePass {
     RaytracePass& operator=(RaytracePass const& rhs) = default;
 
     PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> computeViews;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> computeBindings;
 };
 
 struct QueueTag {};
@@ -1188,6 +1193,7 @@ struct RenderGraph {
     // Members
     PmrUnorderedStringMap<ccstd::pmr::string, uint32_t> index;
     ccstd::pmr::vector<vertex_descriptor> sortedVertices;
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> globalBindings;
 };
 
 } // namespace render
@@ -1248,6 +1254,7 @@ inline hash_t hash<cc::render::RasterPass>::operator()(const cc::render::RasterP
     hash_t seed = 0;
     hash_combine(seed, val.rasterViews);
     hash_combine(seed, val.computeViews);
+    hash_combine(seed, val.computeBindings);
     hash_combine(seed, val.textures);
     hash_combine(seed, val.subpassGraph);
     hash_combine(seed, val.width);

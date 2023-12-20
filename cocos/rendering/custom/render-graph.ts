@@ -587,6 +587,7 @@ export class RasterSubpass {
     reset (subpassID = 0xFFFFFFFF, count = 1, quality = 0): void {
         this.rasterViews.clear();
         this.computeViews.clear();
+        this.computeBindings.clear();
         this.resolvePairs.length = 0;
         this.viewport.reset();
         this.subpassID = subpassID;
@@ -596,6 +597,7 @@ export class RasterSubpass {
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly computeBindings: Map<string, string> = new Map<string, string>();
     readonly resolvePairs: ResolvePair[] = [];
     readonly viewport: Viewport = new Viewport();
     subpassID: number;
@@ -611,10 +613,12 @@ export class ComputeSubpass {
     reset (subpassID = 0xFFFFFFFF): void {
         this.rasterViews.clear();
         this.computeViews.clear();
+        this.computeBindings.clear();
         this.subpassID = subpassID;
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly computeBindings: Map<string, string> = new Map<string, string>();
     subpassID: number;
 }
 
@@ -622,6 +626,7 @@ export class RasterPass {
     reset (): void {
         this.rasterViews.clear();
         this.computeViews.clear();
+        this.computeBindings.clear();
         this.attachmentIndexMap.clear();
         this.textures.clear();
         this.subpassGraph.clear();
@@ -637,6 +642,7 @@ export class RasterPass {
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly computeBindings: Map<string, string> = new Map<string, string>();
     readonly attachmentIndexMap: Map<string, number> = new Map<string, number>();
     readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
     readonly subpassGraph: SubpassGraph = new SubpassGraph();
@@ -1452,9 +1458,11 @@ export class ResourceGraph implements BidirectionalGraph
 export class ComputePass {
     reset (): void {
         this.computeViews.clear();
+        this.computeBindings.clear();
         this.textures.clear();
     }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly computeBindings: Map<string, string> = new Map<string, string>();
     readonly textures: Map<string, ShaderStageFlagBit> = new Map<string, ShaderStageFlagBit>();
 }
 
@@ -1484,8 +1492,10 @@ export class MovePass {
 export class RaytracePass {
     reset (): void {
         this.computeViews.clear();
+        this.computeBindings.clear();
     }
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
+    readonly computeBindings: Map<string, string> = new Map<string, string>();
 }
 
 export class ClearView {
@@ -1902,6 +1912,7 @@ export class RenderGraph implements BidirectionalGraph
         // Members
         this.index.clear();
         this.sortedVertices.length = 0;
+        this.globalBindings.clear();
         // ComponentGraph
         this._names.length = 0;
         this._layoutNodes.length = 0;
@@ -2514,6 +2525,7 @@ export class RenderGraph implements BidirectionalGraph
     readonly _valid: boolean[] = [];
     readonly index: Map<string, number> = new Map<string, number>();
     readonly sortedVertices: number[] = [];
+    readonly globalBindings: Map<string, string> = new Map<string, string>();
 }
 
 export class RenderGraphObjectPoolSettings {

@@ -29,7 +29,7 @@
  */
 /* eslint-disable max-len */
 import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, reindexEdgeList, traversal } from './graph';
-import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, MemoryAccessBit, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
 import { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
@@ -616,19 +616,22 @@ export class UniformBlockData {
 }
 
 export class DescriptorData {
-    constructor (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1) {
+    constructor (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1, accessType: MemoryAccessBit = MemoryAccessBit.READ_ONLY) {
         this.descriptorID = descriptorID;
         this.type = type;
         this.count = count;
+        this.accessType = accessType;
     }
-    reset (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1): void {
+    reset (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1, accessType: MemoryAccessBit = MemoryAccessBit.READ_ONLY): void {
         this.descriptorID = descriptorID;
         this.type = type;
         this.count = count;
+        this.accessType = accessType;
     }
     descriptorID: number;
     type: Type;
     count: number;
+    accessType: MemoryAccessBit;
 }
 
 export class DescriptorBlockData {
@@ -1452,9 +1455,10 @@ export class LayoutGraphObjectPool {
         descriptorID = 0,
         type: Type = Type.UNKNOWN,
         count = 1,
+        accessType: MemoryAccessBit = MemoryAccessBit.READ_ONLY,
     ): DescriptorData {
         const v = this._descriptorData.add();
-        v.reset(descriptorID, type, count);
+        v.reset(descriptorID, type, count, accessType);
         return v;
     }
     createDescriptorBlockData (
@@ -1690,12 +1694,14 @@ export function saveDescriptorData (ar: OutputArchive, v: DescriptorData): void 
     ar.writeNumber(v.descriptorID);
     ar.writeNumber(v.type);
     ar.writeNumber(v.count);
+    ar.writeNumber(v.accessType);
 }
 
 export function loadDescriptorData (ar: InputArchive, v: DescriptorData): void {
     v.descriptorID = ar.readNumber();
     v.type = ar.readNumber();
     v.count = ar.readNumber();
+    v.accessType = ar.readNumber();
 }
 
 export function saveDescriptorBlockData (ar: OutputArchive, v: DescriptorBlockData): void {

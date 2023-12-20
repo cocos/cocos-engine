@@ -64,6 +64,9 @@ bool nativevalue_to_se(const cc::render::Descriptor &from, se::Value &to, se::Ob
     nativevalue_to_se(from.count, tmp, ctx);
     obj->setProperty("count", tmp);
 
+    nativevalue_to_se(from.accessType, tmp, ctx);
+    obj->setProperty("accessType", tmp);
+
     to.setObject(obj);
     return true;
 }
@@ -273,6 +276,10 @@ bool sevalue_to_native<cc::render::Descriptor>(const se::Value &from, cc::render
     obj->getProperty("count", &field, true);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->count), ctx);
+    }
+    obj->getProperty("accessType", &field, true);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->accessType), ctx);
     }
     return ok;
 }
