@@ -79,7 +79,7 @@ export function InitPhysXLibs (): Promise<void> {
     }
 }
 
-function InitPhysXLibsInternal (physxWasmFactory, physxWasmUrl, physxAsmFactory): any {
+function InitPhysXLibsInternal (physxWasmFactory, physxWasmUrl: string, physxAsmFactory): any {
     if (shouldUseWasmModule()) {
         return initWASM(physxWasmFactory, physxWasmUrl);
     } else {
@@ -104,7 +104,7 @@ function initASM (physxAsmFactory): any {
     }
 }
 
-function initWASM (physxWasmFactory, physxWasmUrl): any {
+function initWASM (physxWasmFactory, physxWasmUrl: string): any {
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : physxWasmFactory;
     if (globalThis.PhysX != null) {
         return globalThis.PhysX({
@@ -112,7 +112,7 @@ function initWASM (physxWasmFactory, physxWasmUrl): any {
                 importObject: WebAssembly.Imports,
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
             ): any {
-                return instantiateWasm(physxWasmUrl, importObject).then((result: any): void => {
+                return instantiateWasm(physxWasmUrl, importObject).then((result): void => {
                     receiveInstance(result.instance, result.module);
                 });
             },

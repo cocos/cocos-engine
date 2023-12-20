@@ -19,6 +19,7 @@ App({
     DOMParser: undefined,
     WebAssembly: undefined,
     WXWebAssembly: undefined,
+    CCWebAssembly: undefined,
     _touchStart: undefined,
     _touchMove: undefined,
     _touchEnd: undefined,

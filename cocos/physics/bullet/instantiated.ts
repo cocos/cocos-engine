@@ -100,8 +100,8 @@ function initWASM (wasmFactory, wasmUrl: string): Promise<void> {
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
             ) {
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
-                instantiateWasm(wasmUrl, importObject).then((result: any) => {
-                    receiveInstance(result.instance as WebAssembly.Instance, result.module as WebAssembly.Module);
+                instantiateWasm(wasmUrl, importObject).then((result) => {
+                    receiveInstance(result.instance, result.module);
                 }).catch((err) => reject(errorMessage(err)));
             },
         }).then((instance: any) => {

@@ -42,14 +42,16 @@ let wasmInstance: SpineWasm.instance = null!;
 const registerList: any[] = [];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function initWasm (wasmFactory, wasmUrl): Promise<void> {
+function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const errorMessage = (err: any): string => `[Spine]: Spine wasm load failed: ${err}`;
         wasmFactory({
-            instantiateWasm (importObject: WebAssembly.Imports,
-                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+            instantiateWasm (
+                importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+            ) {
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
-                instantiateWasm(wasmUrl, importObject).then((result: any) => {
+                instantiateWasm(wasmUrl, importObject).then((result) => {
                     receiveInstance(result.instance, result.module);
                 }).catch((err) => reject(errorMessage(err)));
             },
@@ -62,7 +64,7 @@ function initWasm (wasmFactory, wasmUrl): Promise<void> {
     });
 }
 
-function initAsmJS (asmFactory, asmJsMemUrl): Promise<void> {
+function initAsmJS (asmFactory, asmJsMemUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         if (CULL_ASM_JS_MODULE) {
             reject(getError(4601));
