@@ -306,24 +306,21 @@ void ADPFManager::EndPerfHintSession(jlong target_duration_ns) {
     }
 #endif
 }
-void ADPFManager::AddThreadIdToHintSession(int32_t tid)
-{
+void ADPFManager::AddThreadIdToHintSession(int32_t tid) {
     thread_ids_.push_back(tid);
     auto data = thread_ids_.data();
 
     registerThreadIdsToHintSession();
 }
 
-void ADPFManager::RemoveThreadIdFromHintSession(int32_t tid)
-{
+void ADPFManager::RemoveThreadIdFromHintSession(int32_t tid) {
     thread_ids_.erase(std::remove(thread_ids_.begin(), thread_ids_.end(), tid), thread_ids_.end());
     auto data = thread_ids_.data();
 
     registerThreadIdsToHintSession();
 }
 
-void ADPFManager::registerThreadIdsToHintSession()
-{
+void ADPFManager::registerThreadIdsToHintSession() {
 #if __ANDROID_API__ >= 34
     auto data = thread_ids_.data();
     std::size_t size = thread_ids_.size();
