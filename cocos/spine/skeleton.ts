@@ -731,7 +731,7 @@ export class Skeleton extends UIRenderer {
     }
 
     /**
-     * @en Clear animation and set to setup pose.
+     * @en Clear all animations and set to setup pose.
      * @zh 清除所有动画并还原到初始姿势。
      */
     public clearAnimations (): void {
