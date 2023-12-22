@@ -30,7 +30,7 @@ import { BitmapFont } from '../../2d/assets';
 import { director } from '../../game/director';
 import { game } from '../../game';
 import { Mat4, Vec3, visibleRect, sys } from '../../core';
-import { view } from '../view';
+import { view, View } from '../view';
 import { KeyCode } from '../../input/types';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
@@ -120,6 +120,7 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
+        View.instance.on('canvas-resize', this._resize, this);
     }
 
     public clear (): void {
@@ -134,6 +135,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         }
 
         this._delegate = null;
+    }
+
+    private _resize (): void {
+        this._delegate!.node.hasChangedFlags = 1;
     }
 
     public update (): void {
