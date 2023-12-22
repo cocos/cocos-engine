@@ -16,7 +16,7 @@
         "typescript"
     ],
     "editor.codeActionsOnSave": {
-        "source.fixAll": true,
+        "source.fixAll": "explicit",
     },
     "files.associations": {
         "iterator": "cpp"
