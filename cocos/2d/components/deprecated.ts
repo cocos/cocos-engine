@@ -130,25 +130,25 @@ replaceProperty(MaskType, 'MaskType', [
 markAsWarning(LabelOutline.prototype, 'LabelOutline', [
     {
         name: 'width',
-        suggest: 'Please use "Label" outlineWidth instead.',
+        suggest: 'Please use Label.outlineWidth instead.',
     },
     {
         name: 'color',
-        suggest: 'Please use "Label" outlineColor instead.',
+        suggest: 'Please use Label.outlineColor instead.',
     },
 ]);
 
 markAsWarning(LabelShadow.prototype, 'LabelShadow', [
     {
         name: 'color',
-        suggest: 'Please use "Label" shadowColor instead.',
+        suggest: 'Please use Label.shadowColor instead.',
     },
     {
         name: 'offset',
-        suggest: 'Please use "Label" shadowOffset instead.',
+        suggest: 'Please use Label.shadowOffset instead.',
     },
     {
         name: 'blur',
-        suggest: 'Please use "Label" shadowBlur instead.',
+        suggest: 'Please use Label.shadowBlur instead.',
     },
 ]);
