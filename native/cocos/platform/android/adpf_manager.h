@@ -145,7 +145,7 @@ private:
 
     bool InitializePerformanceHintManager();
 
-    void registerThreadIdsToHintSession();
+    void RegisterThreadIdsToHintSession();
 
     AThermalManager *thermal_manager_ = nullptr;
     int32_t thermal_status_;

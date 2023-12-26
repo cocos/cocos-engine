@@ -218,8 +218,7 @@ bool ADPFManager::InitializePerformanceHintManager() {
     const jlong DEFAULT_TARGET_NS = 16666666;
 
     // Create Hint session for the thread.
-    jobject obj_hintsession = env->CallObjectMethod(
-        obj_perfhint_service_, create_hint_session_, array, DEFAULT_TARGET_NS);
+    jobject obj_hintsession = env->CallObjectMethod(obj_perfhint_service_, create_hint_session_, array, DEFAULT_TARGET_NS);
     jboolean check = env->ExceptionCheck();
     CC_LOG_DEBUG("ADPFManager::InitializePerformanceHintManager threadId: %ld gettid: %d getpid: %ld  %d %x", std::this_thread::get_id(), gettid(), getpid(), check, obj_hintsession);
     if (obj_hintsession == nullptr) {
@@ -310,22 +309,22 @@ void ADPFManager::AddThreadIdToHintSession(int32_t tid) {
     thread_ids_.push_back(tid);
     auto data = thread_ids_.data();
 
-    registerThreadIdsToHintSession();
+    RegisterThreadIdsToHintSession();
 }
 
 void ADPFManager::RemoveThreadIdFromHintSession(int32_t tid) {
     thread_ids_.erase(std::remove(thread_ids_.begin(), thread_ids_.end(), tid), thread_ids_.end());
     auto data = thread_ids_.data();
 
-    registerThreadIdsToHintSession();
+    RegisterThreadIdsToHintSession();
 }
 
-void ADPFManager::registerThreadIdsToHintSession() {
+void ADPFManager::RegisterThreadIdsToHintSession() {
 #if __ANDROID_API__ >= 34
     auto data = thread_ids_.data();
     std::size_t size = thread_ids_.size();
     int result = APerformanceHint_setThreads(hint_session_, data, size);
-    CC_LOG_INFO("ADPFManager::registerThreadIdsToHintSession result: %d", result);
+    CC_LOG_INFO("ADPFManager::RegisterThreadIdsToHintSession result: %d", result);
 #elif __ANDROID_API__ >= 33
     auto data = thread_ids_.data();
     std::size_t size = thread_ids_.size();
@@ -334,7 +333,7 @@ void ADPFManager::registerThreadIdsToHintSession() {
         APerformanceHint_closeSession(hint_session_);
     }
     hint_session_ = APerformanceHint_createSession(hint_manager_, data, size, last_target_);
-    CC_LOG_INFO("ADPFManager::registerThreadIdsToHintSession result: %d newHint: %x", result, hint_session_);
+    CC_LOG_INFO("ADPFManager::RegisterThreadIdsToHintSession result: %d newHint: %x", result, hint_session_);
 #else
     JNIEnv *env = cc::JniHelper::getEnv();
     std::size_t size = thread_ids_.size();
