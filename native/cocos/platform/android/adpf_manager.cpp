@@ -307,14 +307,12 @@ void ADPFManager::endPerfHintSession(jlong target_duration_ns) {
 }
 void ADPFManager::addThreadIdToHintSession(int32_t tid) {
     thread_ids_.push_back(tid);
-    auto data = thread_ids_.data();
 
     registerThreadIdsToHintSession();
 }
 
 void ADPFManager::removeThreadIdFromHintSession(int32_t tid) {
     thread_ids_.erase(std::remove(thread_ids_.begin(), thread_ids_.end(), tid), thread_ids_.end());
-    auto data = thread_ids_.data();
 
     registerThreadIdsToHintSession();
 }
@@ -323,17 +321,14 @@ void ADPFManager::registerThreadIdsToHintSession() {
 #if __ANDROID_API__ >= 34
     auto data = thread_ids_.data();
     std::size_t size = thread_ids_.size();
-    int result = APerformanceHint_setThreads(hint_session_, data, size);
-    CC_LOG_INFO("ADPFManager::registerThreadIdsToHintSession result: %d", result);
+    APerformanceHint_setThreads(hint_session_, data, size);
 #elif __ANDROID_API__ >= 33
     auto data = thread_ids_.data();
     std::size_t size = thread_ids_.size();
-    int result = 0;
     if ( hint_session_ != nullptr ) {
         APerformanceHint_closeSession(hint_session_);
     }
     hint_session_ = APerformanceHint_createSession(hint_manager_, data, size, last_target_);
-    CC_LOG_INFO("ADPFManager::registerThreadIdsToHintSession result: %d newHint: %x", result, hint_session_);
 #else
     JNIEnv *env = cc::JniHelper::getEnv();
     std::size_t size = thread_ids_.size();
