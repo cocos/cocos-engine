@@ -82,39 +82,39 @@ public:
 
     // Invoke the method periodically (once a frame) to monitor
     // the device's thermal throttling status.
-    void Monitor();
+    void monitor();
 
     // Invoke the API first to set the android_app instance.
 
     // Method to set thermal status. Need to be public since the method
     // is called from C native listener.
-    void SetThermalStatus(int32_t i);
+    void setThermalStatus(int32_t i);
 
     // Get current thermal status and headroom.
-    int32_t GetThermalStatus() { return thermal_status_; }
-    float GetThermalStatusNormalized() const;
+    int32_t getThermalStatus() { return thermal_status_; }
+    float getThermalStatusNormalized() const;
 
-    float GetFrameTimeMS() const { return frame_time_ns_ / 1000000.0F; }
+    float getFrameTimeMS() const { return frame_time_ns_ / 1000000.0F; }
 
-    float GetThermalHeadroom() { return thermal_headroom_; }
+    float getThermalHeadroom() { return thermal_headroom_; }
 
-    void SetThermalListener(thermalStateChangeListener listener);
+    void setThermalListener(thermalStateChangeListener listener);
 
     // Indicates the start and end of the performance intensive task.
     // The methods call performance hint API to tell the performance
     // hint to the system.
-    void BeginPerfHintSession();
+    void beginPerfHintSession();
 
-    void EndPerfHintSession(jlong target_duration_ns);
+    void endPerfHintSession(jlong target_duration_ns);
 
-    void AddThreadIdToHintSession(int32_t tid);
-    void RemoveThreadIdFromHintSession(int32_t tid);
+    void addThreadIdToHintSession(int32_t tid);
+    void removeThreadIdFromHintSession(int32_t tid);
 
     // Method to retrieve thermal manager. The API is used to register/unregister
     // callbacks from C API.
-    AThermalManager *GetThermalManager() { return thermal_manager_; }
+    AThermalManager *getThermalManager() { return thermal_manager_; }
 
-    void Initialize();
+    void initialize();
 
 private:
     // Update thermal headroom each sec.
@@ -139,13 +139,13 @@ private:
     }
 
     // Functions to initialize ADPF API's calls.
-    bool InitializePowerManager();
+    bool initializePowerManager();
 
-    float UpdateThermalStatusHeadRoom();
+    float updateThermalStatusHeadRoom();
 
-    bool InitializePerformanceHintManager();
+    bool initializePerformanceHintManager();
 
-    void RegisterThreadIdsToHintSession();
+    void registerThreadIdsToHintSession();
 
     AThermalManager *thermal_manager_ = nullptr;
     int32_t thermal_status_;

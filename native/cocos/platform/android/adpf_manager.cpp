@@ -33,7 +33,7 @@
 
 // Invoke the method periodically (once a frame) to monitor
 // the device's thermal throttling status.
-void ADPFManager::Monitor() {
+void ADPFManager::monitor() {
     auto currentClock = std::chrono::high_resolution_clock::now();
     auto past = currentClock - last_clock_;
     auto pastMS = std::chrono::duration_cast<std::chrono::milliseconds>(past).count();
@@ -42,12 +42,12 @@ void ADPFManager::Monitor() {
     if (past > kThermalHeadroomUpdateThreshold) {
         // Update thermal headroom.
         //        CC_LOG_INFO(" Monitor past %d ms", static_cast<int>(pastMS));
-        UpdateThermalStatusHeadRoom();
+        updateThermalStatusHeadRoom();
         last_clock_ = currentClock;
     }
 }
 
-float ADPFManager::GetThermalStatusNormalized() const {
+float ADPFManager::getThermalStatusNormalized() const {
     if (thermal_manager_ == nullptr) {
         return 0;
     }
@@ -58,28 +58,28 @@ float ADPFManager::GetThermalStatusNormalized() const {
 }
 
 // Invoke the API first to set the android_app instance.
-void ADPFManager::Initialize() {
+void ADPFManager::initialize() {
     // Initialize PowerManager reference.
-    InitializePowerManager();
+    initializePowerManager();
 
     // Initialize PowerHintManager reference.
-    InitializePerformanceHintManager();
+    initializePerformanceHintManager();
 
     beforeTick.bind([&]() {
-        this->BeginPerfHintSession();
-        this->Monitor();
+        this->beginPerfHintSession();
+        this->monitor();
     });
 
     afterTick.bind([&]() {
         auto fps = cc::BasePlatform::getPlatform()->getFps();
         auto frameDurationNS = 1000000000LL / fps;
-        this->EndPerfHintSession(frameDurationNS);
+        this->endPerfHintSession(frameDurationNS);
     });
 
     if (thermal_manager_) {
         auto ret = AThermal_registerThermalStatusListener(
             thermal_manager_, +[](void *data, AThermalStatus status) {
-                ADPFManager::getInstance().SetThermalStatus(status);
+                ADPFManager::getInstance().setThermalStatus(status);
                 CC_LOG_INFO("Thermal Status :%d", static_cast<int>(status));
             },
             nullptr);
@@ -88,7 +88,7 @@ void ADPFManager::Initialize() {
 }
 
 // Initialize JNI calls for the powermanager.
-bool ADPFManager::InitializePowerManager() {
+bool ADPFManager::initializePowerManager() {
     #if __ANDROID_API__ >= 31
     if (android_get_device_api_level() >= 31) {
         // Initialize the powermanager using NDK API.
@@ -135,7 +135,7 @@ bool ADPFManager::InitializePowerManager() {
 }
 
 // Retrieve current thermal headroom using JNI call.
-float ADPFManager::UpdateThermalStatusHeadRoom() {
+float ADPFManager::updateThermalStatusHeadRoom() {
     #if __ANDROID_API__ >= 31
     if (android_get_device_api_level() >= 31) {
         // Use NDK API to retrieve thermal status headroom.
@@ -168,7 +168,7 @@ float ADPFManager::UpdateThermalStatusHeadRoom() {
 }
 
 // Initialize JNI calls for the PowerHintManager.
-bool ADPFManager::InitializePerformanceHintManager() {
+bool ADPFManager::initializePerformanceHintManager() {
 #if __ANDROID_API__ >= 33
     if ( hint_manager_ == nullptr ) {
         hint_manager_ = APerformanceHint_getManager();
@@ -220,7 +220,7 @@ bool ADPFManager::InitializePerformanceHintManager() {
     // Create Hint session for the thread.
     jobject obj_hintsession = env->CallObjectMethod(obj_perfhint_service_, create_hint_session_, array, DEFAULT_TARGET_NS);
     jboolean check = env->ExceptionCheck();
-    CC_LOG_DEBUG("ADPFManager::InitializePerformanceHintManager threadId: %ld gettid: %d getpid: %ld  %d %x", std::this_thread::get_id(), gettid(), getpid(), check, obj_hintsession);
+    CC_LOG_DEBUG("ADPFManager::initializePerformanceHintManager threadId: %ld gettid: %d getpid: %ld  %d %x", std::this_thread::get_id(), gettid(), getpid(), check, obj_hintsession);
     if (obj_hintsession == nullptr) {
         CC_LOG_DEBUG("Failed First to create a perf hint session.");
     } else {
@@ -263,7 +263,7 @@ bool ADPFManager::InitializePerformanceHintManager() {
 
 thermalStateChangeListener ADPFManager::thermalListener = NULL;
 
-void ADPFManager::SetThermalStatus(int32_t i) {
+void ADPFManager::setThermalStatus(int32_t i) {
     int32_t prev_status_ = thermal_status_;
     int32_t current_status_ = i;
     thermal_status_ = i;
@@ -272,18 +272,18 @@ void ADPFManager::SetThermalStatus(int32_t i) {
     }
 }
 
-void ADPFManager::SetThermalListener(thermalStateChangeListener listener) {
+void ADPFManager::setThermalListener(thermalStateChangeListener listener) {
     thermalListener = listener;
 }
 
 // Indicates the start and end of the performance intensive task.
 // The methods call performance hint API to tell the performance
 // hint to the system.
-void ADPFManager::BeginPerfHintSession() {
+void ADPFManager::beginPerfHintSession() {
     perf_start_ = std::chrono::steady_clock::now();
 }
 
-void ADPFManager::EndPerfHintSession(jlong target_duration_ns) {
+void ADPFManager::endPerfHintSession(jlong target_duration_ns) {
 #if __ANDROID_API__ >= 33
     auto perf_end = std::chrono::steady_clock::now();
     auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(perf_end - perf_start_).count();
@@ -305,26 +305,26 @@ void ADPFManager::EndPerfHintSession(jlong target_duration_ns) {
     }
 #endif
 }
-void ADPFManager::AddThreadIdToHintSession(int32_t tid) {
+void ADPFManager::addThreadIdToHintSession(int32_t tid) {
     thread_ids_.push_back(tid);
     auto data = thread_ids_.data();
 
-    RegisterThreadIdsToHintSession();
+    registerThreadIdsToHintSession();
 }
 
-void ADPFManager::RemoveThreadIdFromHintSession(int32_t tid) {
+void ADPFManager::removeThreadIdFromHintSession(int32_t tid) {
     thread_ids_.erase(std::remove(thread_ids_.begin(), thread_ids_.end(), tid), thread_ids_.end());
     auto data = thread_ids_.data();
 
-    RegisterThreadIdsToHintSession();
+    registerThreadIdsToHintSession();
 }
 
-void ADPFManager::RegisterThreadIdsToHintSession() {
+void ADPFManager::registerThreadIdsToHintSession() {
 #if __ANDROID_API__ >= 34
     auto data = thread_ids_.data();
     std::size_t size = thread_ids_.size();
     int result = APerformanceHint_setThreads(hint_session_, data, size);
-    CC_LOG_INFO("ADPFManager::RegisterThreadIdsToHintSession result: %d", result);
+    CC_LOG_INFO("ADPFManager::registerThreadIdsToHintSession result: %d", result);
 #elif __ANDROID_API__ >= 33
     auto data = thread_ids_.data();
     std::size_t size = thread_ids_.size();
@@ -333,7 +333,7 @@ void ADPFManager::RegisterThreadIdsToHintSession() {
         APerformanceHint_closeSession(hint_session_);
     }
     hint_session_ = APerformanceHint_createSession(hint_manager_, data, size, last_target_);
-    CC_LOG_INFO("ADPFManager::RegisterThreadIdsToHintSession result: %d newHint: %x", result, hint_session_);
+    CC_LOG_INFO("ADPFManager::registerThreadIdsToHintSession result: %d newHint: %x", result, hint_session_);
 #else
     JNIEnv *env = cc::JniHelper::getEnv();
     std::size_t size = thread_ids_.size();

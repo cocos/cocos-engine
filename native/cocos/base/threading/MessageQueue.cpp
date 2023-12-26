@@ -281,7 +281,7 @@ void MessageQueue::consumerThreadLoop() noexcept {
 #if CC_PLATFORM == CC_PLATFORM_ANDROID && CC_SUPPORT_ADPF == 1
     // add tid to PerformanceHintManager
     int32_t tid = gettid();
-    ADPFManager::getInstance().AddThreadIdToHintSession(tid);
+    ADPFManager::getInstance().addThreadIdToHintSession(tid);
 #endif
     while (!_reader.terminateConsumerThread) {
         AutoReleasePool autoReleasePool;
