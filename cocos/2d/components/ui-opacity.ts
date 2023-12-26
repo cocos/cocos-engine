@@ -28,6 +28,7 @@ import { Component } from '../../scene-graph/component';
 import { misc } from '../../core';
 import { UIRenderer } from '../framework/ui-renderer';
 import { Node } from '../../scene-graph';
+import { NodeEventType } from '../../scene-graph/node-event';
 
 /**
  * @en
@@ -133,8 +134,32 @@ export class UIOpacity extends Component {
     @serializable
     protected _opacity = 255;
 
+    protected _parentAdded (node: Node): void {
+        const parent: Node |null = node.getParent();
+        if (parent == null) {
+            return;
+        }
+        const render = parent._uiProps.uiComp as UIRenderer;
+        if (render && render.color) {
+            return;
+        }
+        const uiOp = parent.getComponent<UIOpacity>(UIOpacity);
+        if (uiOp != null) {
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(node, true, uiOp.opacity / 255, true);
+        }
+    }
+
+    protected _parentRemoved (node: Node): void {
+        const uiOp = node.getComponent<UIOpacity>(UIOpacity);
+        if (uiOp) {
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(node, true, 1, false);
+        }
+    }
+
     public onEnable (): void {
-        // If the ancestor node has a uiopacity component, it will be initialized when initializing 
+        this.node.on(NodeEventType.CHILD_ADDED, this._parentAdded, this);
+        this.node.on(NodeEventType.CHILD_REMOVED, this._parentRemoved, this);
+        // If the ancestor node has a uiopacity component, it will be initialized when initializing
         // the uiopacity component of the ancestor node, and there is no need to initialize it again.
         if (this._setByParent) {
             return;
@@ -144,7 +169,7 @@ export class UIOpacity extends Component {
     }
 
     public onDisable (): void {
-        // If the ancestor node has a uiopacity component, it will be uninitialized when uninitializing 
+        // If the ancestor node has a uiopacity component, it will be uninitialized when uninitializing
         // the uiopacity component of the ancestor node, and there is no need to uninitialize it again.
         if (this._setByParent) {
             return;
