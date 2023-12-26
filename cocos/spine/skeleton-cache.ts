@@ -350,6 +350,7 @@ class SkeletonCache {
             if (refCount) {
                 refCount -= 1;
                 if (refCount > 0) {
+                    this._sharedCacheMap.set(assetUuid, refCount);
                     return;
                 }
                 this._sharedCacheMap.delete(assetUuid);
