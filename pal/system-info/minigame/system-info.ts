@@ -64,6 +64,9 @@ if (WECHAT) {
 let isVersionGreaterOrEqualTo;
 if (BYTEDANCE) {
     isVersionGreaterOrEqualTo = function isVersionGreaterOrEqualTo (versionA: string, versionB: string): boolean {
+        if (!versionA || !versionB) {
+            return false;
+        }
         // Split the version number string into an array of integers
         function parseVersion (version: string): number[] {
             return version.split('.').map((part: string) => parseInt(part, 10));
@@ -167,9 +170,15 @@ class SystemInfo extends EventTarget {
             }
 
             if (BYTEDANCE) {
+                let minSDKVersionSupportWasm = '';
+                if (this.os === OS.ANDROID) {
+                    minSDKVersionSupportWasm = '3.9.0';
+                } else if (this.os === OS.IOS) {
+                    minSDKVersionSupportWasm = '3.8.0';
+                }
                 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-expect-error TTWebAssembly is defined if bytedance client supports wasm.
-                if (isVersionGreaterOrEqualTo(minigameSysInfo.SDKVersion, '3.7.0') && typeof TTWebAssembly === 'object') {
+                if (isVersionGreaterOrEqualTo(minigameSysInfo.SDKVersion, minSDKVersionSupportWasm) && typeof TTWebAssembly === 'object') {
                     return true;
                 }
             }
