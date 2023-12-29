@@ -57,9 +57,8 @@ if (!GameGlobal.__isAdapterInjected) {
   GameGlobal.__isAdapterInjected = true;
   inject();
 }
-//NOTE: Don't override global `WebAssembly` variable since bytedance platform has a bug that will cause TTWebAssembly.instantiate fails.
-// So we add our own `CCWebAssembly` variable here.
-global.CCWebAssembly = global.TTWebAssembly;
+
+global.WebAssembly = global.CCWebAssembly = global.TTWebAssembly;
 
 require('../../../../common/xmldom/dom-parser');
 require('../unify');
