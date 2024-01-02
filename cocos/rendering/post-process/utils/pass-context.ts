@@ -104,7 +104,7 @@ export class PassContext {
 
         const numSpotLights = Math.min(spotLights.length, this.maxSpotLights);
         const numSphereLights = Math.min(sphereLights.length, this.maxSphereLights);
-        const numPointLights = Math.min(sphereLights.length, this.maxPointLights);
+        const numPointLights = Math.min(pointLights.length, this.maxPointLights);
         const numRangedDirLights = Math.min(rangedDirLights.length, this.maxRangedDirLights);
 
         for (let i = 0; i < numSpotLights; i++) {
