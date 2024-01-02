@@ -240,7 +240,7 @@ export class ProgressBar extends Component {
     @serializable
     protected _reverse = false;
 
-    public onLoad (): void {
+    protected onLoad (): void {
         this._updateBarStatus();
     }
 
