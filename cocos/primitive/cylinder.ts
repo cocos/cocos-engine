@@ -60,7 +60,7 @@ export default function cylinder (radiusTop = 0.5, radiusBottom = 0.5, height = 
     const arc = opts.arc || 2.0 * Math.PI;
 
     let cntCap = 0;
-    if (!capped) {
+    if (capped) {
         if (radiusTop > 0) {
             cntCap++;
         }
