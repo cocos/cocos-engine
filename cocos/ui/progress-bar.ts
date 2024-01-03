@@ -240,6 +240,10 @@ export class ProgressBar extends Component {
     @serializable
     protected _reverse = false;
 
+    protected onLoad (): void {
+        this._updateBarStatus();
+    }
+
     protected _initBarSprite (): void {
         if (this._barSprite) {
             const entity = this._barSprite.node;
