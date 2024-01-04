@@ -805,13 +805,10 @@ export class Skeleton extends UIRenderer {
             if (this.debugBones || this.debugSlots) {
                 warn('Debug bones or slots is invalid in cached mode');
             }
-            let skeletonInfo = this._skeletonCache!.getSkeletonInfo(this._skeletonData!);
+            const skeletonInfo = this._skeletonCache!.getSkeletonInfo(this._skeletonData!);
             if (this._skeletonInfo !== skeletonInfo) {
                 this._destroySkeletonInfo(this._skeletonCache);
-                if (!skeletonInfo) {
-                    skeletonInfo = this._skeletonCache!.createSkeletonInfo(this._skeletonData!);
-                }
-                this._skeletonInfo = skeletonInfo;
+                this._skeletonInfo = this._skeletonCache!.createSkeletonInfo(this._skeletonData!);
                 this._skeleton = this._skeletonInfo.skeleton!;
             }
         } else {
