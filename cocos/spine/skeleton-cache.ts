@@ -395,6 +395,9 @@ class SkeletonCache {
             }
             this._sharedCacheMap.set(uuid, refCount);
         }
+        if (this._skeletonCache[uuid]) {
+            return this._skeletonCache[uuid];
+        }
 
         const skeleton = new spine.Skeleton(runtimeData!);
         const clipper = null;
