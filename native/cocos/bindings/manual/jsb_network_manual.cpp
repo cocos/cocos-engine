@@ -29,60 +29,10 @@
 #include "bindings/manual/jsb_global.h"
 #include "network/Downloader.h"
 
-// deprecated since v3.6
-static bool js_network_Downloader_createDownloadFileTask(se::State &s) { // NOLINT(readability-identifier-naming)
-    auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false,
-                     "js_network_Downloader_createDownloadFileTask : Invalid Native Object");
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 2) {
-        ccstd::string arg0;
-        ccstd::string arg1;
-        ok &= sevalue_to_native(args[0], &arg0);
-        ok &= sevalue_to_native(args[1], &arg1);
-        SE_PRECONDITION2(ok, false,
-                         "js_network_Downloader_createDownloadFileTask : Error processing arguments");
-        std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
-            arg0, arg1);
-        ok &= nativevalue_to_se(result, s.rval());
-        //ROOT downloader object
-        s.thisObject()->root();
-
-        SE_PRECONDITION2(ok, false,
-                         "js_network_Downloader_createDownloadFileTask : Error processing arguments");
-        return true;
-    }
-    if (argc == 3) {
-        ccstd::string arg0;
-        ccstd::string arg1;
-        ccstd::string arg2;
-        ok &= sevalue_to_native(args[0], &arg0);
-        ok &= sevalue_to_native(args[1], &arg1);
-        ok &= sevalue_to_native(args[2], &arg2);
-        SE_PRECONDITION2(ok, false,
-                         "js_network_Downloader_createDownloadFileTask : Error processing arguments");
-        std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
-            arg0, arg1, arg2);
-        ok &= nativevalue_to_se(result, s.rval());
-        //ROOT downloader object
-        s.thisObject()->root();
-
-        SE_PRECONDITION2(ok, false,
-                         "js_network_Downloader_createDownloadFileTask : Error processing arguments");
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
-    return false;
-}
-
-SE_BIND_FUNC(js_network_Downloader_createDownloadFileTask)
-
 static bool js_network_Downloader_createDownloadTask(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::network::Downloader *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false,
-                     "js_network_Downloader_createDownloadFileTask : Invalid Native Object");
+                     "js_network_Downloader_createDownloadTask : Invalid Native Object");
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -106,14 +56,49 @@ static bool js_network_Downloader_createDownloadTask(se::State &s) { // NOLINT(r
     if (argc == 3) {
         ccstd::string arg0;
         ccstd::string arg1;
-        ccstd::string arg2;
+        ccstd::string identifier;
+        ccstd::unordered_map<ccstd::string, ccstd::string> header;
+        
+        std::shared_ptr<const cc::network::DownloadTask> result;
+        
+        ok &= sevalue_to_native(args[0], &arg0);
+        ok &= sevalue_to_native(args[1], &arg1);
+        if (args[2].isString()) {
+            ok &= sevalue_to_native(args[2], &identifier);
+            result = cobj->createDownloadTask(arg0, arg1, identifier);
+        } else if (args[2].isObject()) {
+            ok &= sevalue_to_native(args[2], &header);
+            result = cobj->createDownloadTask(arg0, arg1, header);
+        } else {
+            result = cobj->createDownloadTask(arg0, arg1);
+        }
+
+        SE_PRECONDITION2(ok, false,
+                         "js_network_Downloader_createDownloadTask : Error processing arguments");
+
+        ok &= nativevalue_to_se(result, s.rval());
+        //ROOT downloader object
+        s.thisObject()->root();
+
+        SE_PRECONDITION2(ok, false,
+                         "js_network_Downloader_createDownloadTask : Error processing arguments");
+        return true;
+    }
+    
+    if (argc == 4) {
+        ccstd::string arg0;
+        ccstd::string arg1;
+        ccstd::unordered_map<ccstd::string, ccstd::string> arg2;
+        ccstd::string arg3;
+        
         ok &= sevalue_to_native(args[0], &arg0);
         ok &= sevalue_to_native(args[1], &arg1);
         ok &= sevalue_to_native(args[2], &arg2);
+        ok &= sevalue_to_native(args[3], &arg3);
         SE_PRECONDITION2(ok, false,
                          "js_network_Downloader_createDownloadTask : Error processing arguments");
         std::shared_ptr<const cc::network::DownloadTask> result = cobj->createDownloadTask(
-            arg0, arg1, arg2);
+            arg0, arg1, arg2, arg3);
         ok &= nativevalue_to_se(result, s.rval());
         //ROOT downloader object
         s.thisObject()->root();
@@ -325,8 +310,8 @@ bool register_all_network_manual(se::Object * /*obj*/) { // NOLINT(readability-i
     __jsb_cc_network_Downloader_proto->defineProperty("onError", nullptr, _SE(js_network_Downloader_setOnError_asSetter));
     __jsb_cc_network_Downloader_proto->defineFunction("createDownloadTask",
                                                       _SE(js_network_Downloader_createDownloadTask));
-    __jsb_cc_network_Downloader_proto->defineFunction("createDownloadFileTask",
-                                                      _SE(js_network_Downloader_createDownloadFileTask)); // deprecated since v3.6
+    __jsb_cc_network_Downloader_proto->defineFunction("createDownloadFileTask",   // deprecated since v3.6, use createDownloadTask instead.
+                                                      _SE(js_network_Downloader_createDownloadTask));
     __jsb_cc_network_Downloader_proto->defineFunction("setOnTaskError",
                                                       _SE(js_network_Downloader_setOnTaskError)); // deprecated since v3.6
     __jsb_cc_network_Downloader_proto->defineFunction("setOnFileTaskSuccess",
