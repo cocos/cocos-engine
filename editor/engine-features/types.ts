@@ -49,31 +49,7 @@ export interface ModuleRenderConfig {
     categories: { [category: string]: CategoryInfo };
 }
 
-export type Features = Record<EngineFeature, Item>;
-
-export interface FlagBaseItem {
-    /**
-     * Display text.
-     */
-    label: string;
-
-    /**
-     * Description.
-     */
-    description?: string;
-
-    native?: string;
-
-    wechatPlugin?: boolean;
-
-    /**
-     * Different with wechat plugin, taobao plugin can't read buffer from local wasm.
-     * So we need another config item for taobao minigame plugin.
-     */
-    taobaoMinigamePlugin?: boolean;
-
-    default?: string[];
-}
+export type Features = Record<EngineFeature, IFeatureItem>;
 
 export interface BaseItem {
     /**
@@ -92,6 +68,8 @@ export interface BaseItem {
 
     wechatPlugin?: boolean;
 
+    isNativeCode?: boolean;
+
     /**
      * Different with wechat plugin, taobao plugin can't read buffer from local wasm.
      * So we need another config item for taobao minigame plugin.
@@ -101,11 +79,9 @@ export interface BaseItem {
     default?: string[];
 
     category?: string;
-
-    flags?: Record<string, FlagBaseItem>;
 }
 
-export interface Item extends BaseItem {
+export interface IFeatureItem extends BaseItem {
     /**
      * Whether if the feature of options allow multiple selection.
      */

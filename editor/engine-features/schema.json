@@ -36,6 +36,9 @@
                 },
                 "taobaoMinigamePlugin": {
                     "type": "boolean"
+                },
+                "isNativeCode": {
+                    "type": "boolean"
                 }
             },
             "type": "object"
@@ -200,6 +203,9 @@
                     "type": "boolean"
                 },
                 "taobaoMinigamePlugin": {
+                    "type": "boolean"
+                },
+                "isNativeCode": {
                     "type": "boolean"
                 }
             },
