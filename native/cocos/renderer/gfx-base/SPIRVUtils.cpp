@@ -63,9 +63,6 @@ glslang::EShTargetClientVersion getClientVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetVulkan_1_1;
         case 2: return glslang::EShTargetVulkan_1_2;
 #if CC_GLSLANG_VERSION_GREATOR_OR_EQUAL_TO(11, 10, 0)
-            // This macro is defined in glslang/build_info.h. This expression means that the
-            // lib version is greater than or equal to 11.10.0 (not less than or equal to),
-            // which is very counterintuitive. But it's the only way to do it.
         case 3: return glslang::EShTargetVulkan_1_3;
 #else
         case 3: return glslang::EShTargetVulkan_1_2;
@@ -83,9 +80,6 @@ glslang::EShTargetLanguageVersion getTargetVersion(int vulkanMinorVersion) {
         case 1: return glslang::EShTargetSpv_1_3;
         case 2: return glslang::EShTargetSpv_1_5;
 #if CC_GLSLANG_VERSION_GREATOR_OR_EQUAL_TO(11, 10, 0)
-            // This macro is defined in glslang/build_info.h. This expression means that the
-            // lib version is greater than or equal to 11.10.0 (not less than or equal to),
-            // which is very counterintuitive. But it's the only way to do it.
         case 3: return glslang::EShTargetSpv_1_6;
 #else
         case 3: return glslang::EShTargetSpv_1_5;
