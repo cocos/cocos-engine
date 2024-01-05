@@ -68,7 +68,7 @@ export interface BaseItem {
 
     wechatPlugin?: boolean;
 
-    isNativeCode?: boolean;
+    isNativeModule?: boolean;
 
     /**
      * Different with wechat plugin, taobao plugin can't read buffer from local wasm.

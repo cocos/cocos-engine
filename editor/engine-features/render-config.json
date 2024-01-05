@@ -59,7 +59,7 @@
             "description": "i18n:ENGINE.features.base_3d.description",
             "wechatPlugin": true,
             "taobaoMinigamePlugin": true,
-            "isNativeCode": true,
+            "isNativeModule": true,
             "category": "3d"
         },
         "2d": {
@@ -110,7 +110,7 @@
                 "physics-ammo": {
                     "label": "i18n:ENGINE.features.physics_ammo.label",
                     "description": "i18n:ENGINE.features.physics_ammo.description",
-                    "isNativeCode": true
+                    "isNativeModule": true
                 },
                 "physics-cannon": {
                     "label": "i18n:ENGINE.features.physics_cannon.label",
@@ -120,7 +120,7 @@
                     "label": "i18n:ENGINE.features.physics_physx.label",
                     "native": "USE_PHYSICS_PHYSX",
                     "description": "i18n:ENGINE.features.physics_physx.description",
-                    "isNativeCode": true
+                    "isNativeModule": true
                 },
                 "physics-builtin": {
                     "label": "i18n:ENGINE.features.physics_builtin.label",
@@ -139,7 +139,7 @@
                 "physics-2d-box2d": {
                     "label": "i18n:ENGINE.features.physics_2d_box2d.label",
                     "description": "i18n:ENGINE.features.physics_2d_box2d.description",
-                    "isNativeCode": true
+                    "isNativeModule": true
                 },
                 "physics-2d-builtin": {
                     "label": "i18n:ENGINE.features.physics_2d_builtin.label",
@@ -309,7 +309,7 @@
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
             "native": "USE_SPINE",
-            "isNativeCode": true,
+            "isNativeModule": true,
             "wechatPlugin": true,
             "taobaoMinigamePlugin": false,
             "category": "2d"
