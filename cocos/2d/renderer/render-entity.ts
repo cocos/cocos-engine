@@ -123,10 +123,8 @@ export class RenderEntity {
     protected _colorDirty = true;
     get colorDirty (): boolean {
         if (JSB) {
-            const val = !!this._boolSharedBuffer[RenderEntityBoolSharedBufferView.colorDirty];
-            if (this._colorDirty !== val) {
-                this._colorDirty = val;
-            }
+            // Synchronize values set from native to JS
+            this._colorDirty = !!this._boolSharedBuffer[RenderEntityBoolSharedBufferView.colorDirty];
         }
         return this._colorDirty;
     }
