@@ -508,7 +508,9 @@ export class TextProcessing {
                 this._context.strokeText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
             }
             //draw text
-            this._context.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+            if (!style.hasShadow || style.isOutlined) {
+                this._context.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+            }
         }
 
         if (style.hasShadow) {
@@ -576,8 +578,11 @@ export class TextProcessing {
                     this._setupOutline(style);
                     this._context!.strokeText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
                 }
+
                 //draw text
-                this._context!.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+                if (!style.hasShadow || style.isOutlined) {
+                    this._context!.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+                }
             }
 
             // draw underline
