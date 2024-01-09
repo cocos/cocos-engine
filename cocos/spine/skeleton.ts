@@ -710,8 +710,9 @@ export class Skeleton extends UIRenderer {
         //if (this._cacheMode == AnimationCacheMode.PRIVATE_CACHE) this._animCache?.destroy();
         this._animCache = null;
         SkeletonSystem.getInstance().remove(this);
-        if (!JSB) {
-            spine.SkeletonSystem.destroySpineInstance(this._instance);
+        if (!JSB && this._instance) {
+            this._instance.destroy();
+            this._instance = null as any;
         }
         this._destroySkeletonInfo(this._skeletonCache);
         this._skeletonCache = null;
@@ -1050,6 +1051,8 @@ export class Skeleton extends UIRenderer {
                 return;
             }
             this._updateCache(dt);
+        } else {
+            this._instance.updateAnimation(dt);
         }
     }
 

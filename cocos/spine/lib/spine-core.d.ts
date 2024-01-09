@@ -1191,6 +1191,7 @@ declare namespace spine {
         isDelete: boolean;
         enable: boolean;
         setTrackEntryListener: any;
+        destroy();
         initSkeleton(data: SkeletonData);
         getAnimationState();
         setAnimation(trackIndex: number, name: string, loop: boolean): spine.TrackEntry | null;

@@ -302,7 +302,10 @@ export class AnimationCache {
     }
 
     public destroy (): void {
-        spine.SkeletonSystem.destroySpineInstance(this._instance);
+        if (this._instance) {
+            this._instance.destroy();
+            this._instance = null as any;
+        }
     }
 }
 

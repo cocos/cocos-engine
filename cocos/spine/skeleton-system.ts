@@ -78,7 +78,6 @@ export class SkeletonSystem extends System {
         if (!this._skeletons) {
             return;
         }
-        if (!EDITOR_NOT_IN_PREVIEW && !JSB) spine.SkeletonSystem.updateAnimation(dt);
         this._skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
         });
