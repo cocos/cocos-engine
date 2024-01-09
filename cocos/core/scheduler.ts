@@ -240,6 +240,7 @@ class CallbackTimer {
         this._scheduler = scheduler;
         this._target = target;
         this._callback = callback;
+        this._timesExecuted = 0;
 
         this._elapsed = -1;
         this._interval = seconds;
@@ -322,7 +323,7 @@ class CallbackTimer {
 
     public cancel (): void {
         if (this._scheduler && this._callback && this._target) {
-            this._scheduler.unschedule(this._callback, this._target);
+            this._scheduler.unscheduleForTimer(this, this._target);
         }
     }
 }
@@ -745,6 +746,33 @@ export class Scheduler extends System {
                     }
                     return;
                 }
+            }
+        }
+    }
+
+    /**
+     * @en Unschedule a timer. It is invoked by CallbackTimer when a timer is finished.
+     * @param timerToUnschedule The timer to be unscheduled.
+     * @param target The target of the timer.
+     * @engineInternal
+     */
+    public unscheduleForTimer (timerToUnschedule: CallbackTimer, target: ISchedulable): void {
+        const targetId = (target.uuid || target.id) as string;
+        const element = this._hashForTimers[targetId];
+        const timers = element.timers;
+        if (!timers) {
+            return;
+        }
+
+        for (let i = 0, li = timers.length; i < li; i++) {
+            const timer = timers[i];
+            if (timer === timerToUnschedule) {
+                timers.splice(i, 1);
+
+                if (timers.length === 0) {
+                    this._currentTargetSalvaged = true;
+                }
+                return;
             }
         }
     }
