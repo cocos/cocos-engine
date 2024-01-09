@@ -76,7 +76,7 @@ export interface AnimationFrame {
 }
 
 export class AnimationCache {
-    protected _instance: spine.SkeletonInstance = null!;
+    protected _instance: spine.SkeletonInstance | null = null;
     protected _state: spine.AnimationState = null!;
     protected _skeletonData: spine.SkeletonData = null!;
     protected _skeleton: spine.Skeleton = null!;
@@ -117,7 +117,7 @@ export class AnimationCache {
 
     public setSkin (skinName: string): void {
         if (this._skeleton) this._skeleton.setSkinByName(skinName);
-        this._instance.setSkin(skinName);
+        this._instance!.setSkin(skinName);
     }
 
     public setAnimation (animationName: string): void {
@@ -134,7 +134,7 @@ export class AnimationCache {
         }
         this._maxFrameIdex = Math.floor((animation as any).duration / FrameTime);
         if (this._maxFrameIdex <= 0) this._maxFrameIdex = 1;
-        this._instance.setAnimation(0, animationName, false);
+        this._instance!.setAnimation(0, animationName, false);
     }
 
     public updateToFrame (frameIdx: number): void {
@@ -145,8 +145,8 @@ export class AnimationCache {
             // Solid update frame rate 1/60.
             this._frameIdx++;
             this.totalTime += FrameTime;
-            this._instance.updateAnimation(FrameTime);
-            const model = this._instance.updateRenderData();
+            this._instance!.updateAnimation(FrameTime);
+            const model = this._instance!.updateRenderData();
             this.updateRenderData(this._frameIdx, model);
             if (this._frameIdx >= this._maxFrameIdex) {
                 this.isCompleted = true;
@@ -234,7 +234,7 @@ export class AnimationCache {
             }
         }
         const listener = skeletonInfo?.listener;
-        this._instance.setAnimation(0, this._animationName!, false);
+        this._instance!.setAnimation(0, this._animationName!, false);
         this.bind(listener!);
 
         // record cur animation cache
@@ -304,7 +304,7 @@ export class AnimationCache {
     public destroy (): void {
         if (this._instance) {
             this._instance.destroy();
-            this._instance = null as any;
+            this._instance = null;
         }
     }
 }
