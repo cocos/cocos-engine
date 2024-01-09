@@ -3,7 +3,6 @@
 #include <functional>
 #include <memory>
 #include <vector>
-#include "spine-skeleton-system.h"
 #include "spine-skeleton-instance.h"
 #include "spine-wasm.h"
 #include "Vector2.h"
