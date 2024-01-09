@@ -775,7 +775,7 @@ declare namespace spine {
     enum TextureFilter {
         Nearest = 9728,
         Linear = 9729,
-        MipMap = 9930,
+        MipMap = 9987,
         MipMapNearestNearest = 9984,
         MipMapLinearNearest = 9985,
         MipMapNearestLinear = 9986,
