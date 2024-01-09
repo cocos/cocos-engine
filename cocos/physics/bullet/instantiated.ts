@@ -23,9 +23,9 @@
 */
 
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
-import { CULL_ASM_JS_MODULE, FORCE_BANNING_BULLET_WASM, WASM_SUPPORT_MODE } from 'internal:constants';
+import { WASM_SUPPORT_MODE } from 'internal:constants';
 import { game } from '../../game';
-import { debug, error, getError, log, sys } from '../../core';
+import { error, log, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 //corresponds to bulletType in bullet-compile
@@ -126,10 +126,10 @@ function initASM (asmFactory): Promise<void> {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (FORCE_BANNING_BULLET_WASM) {
-        return false;
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
         return sys.hasFeature(sys.Feature.WASM);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
     } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
         return true;
     } else {
@@ -148,7 +148,7 @@ export function waitForAmmoInstantiation (): Promise<void> {
         { default: bulletWasmUrl },
         { default: bulletAsmFactory },
     ]) => {
-        if (shouldUseWasmModule()) {
+        if (shouldUseWasmModule() && bulletWasmUrl) {
             return initWASM(bulletWasmFactory, bulletWasmUrl);
         } else {
             return initASM(bulletAsmFactory);

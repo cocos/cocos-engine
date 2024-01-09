@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { instantiateWasm, fetchBuffer, ensureWasmModuleReady } from 'pal/wasm';
-import { WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE, EDITOR, TEST } from 'internal:constants';
+import { instantiateWasm, ensureWasmModuleReady } from 'pal/wasm';
+import { WASM_SUPPORT_MODE } from 'internal:constants';
 
 import { game } from '../../game';
-import { error, sys, debug, IVec2Like, getError, log } from '../../core';
+import { error, sys, IVec2Like, log } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
 
 // eslint-disable-next-line import/no-mutable-exports
@@ -156,10 +156,6 @@ function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
 
 function initAsm (asmFactory): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        if (CULL_ASM_JS_MODULE) {
-            reject(getError(4601));
-            return;
-        }
         asmFactory().then((instance: any) => {
             log('[box2d]:box2d asm lib loaded.');
             B2 = instance;
@@ -188,7 +184,7 @@ export function waitForBox2dWasmInstantiation (): Promise<void> {
         { default: wasmUrl },
         { default: asmFactory },
     ]) => {
-        if (shouldUseWasmModule()) {
+        if (shouldUseWasmModule() && wasmUrl) {
             return initWasm(wasmFactory, wasmUrl);
         } else {
             return initAsm(asmFactory);

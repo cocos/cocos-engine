@@ -82,7 +82,7 @@ export function InitDecoder (): Promise<void> {
         { default: meshopt_wasm_factory },
         { default: meshopt_wasm_url },
     ]) => {
-        if (shouldUseWasmModule()) {
+        if (shouldUseWasmModule() && meshopt_wasm_url) {
             return initDecoderWASM(meshopt_wasm_factory, meshopt_wasm_url);
         } else {
             return initDecoderASM(meshopt_asm_factory);

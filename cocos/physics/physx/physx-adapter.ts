@@ -80,7 +80,7 @@ export function InitPhysXLibs (): Promise<void> {
 }
 
 function InitPhysXLibsInternal (physxWasmFactory, physxWasmUrl: string, physxAsmFactory): any {
-    if (shouldUseWasmModule()) {
+    if (shouldUseWasmModule() && physxWasmUrl) {
         return initWASM(physxWasmFactory, physxWasmUrl);
     } else {
         return initASM(physxAsmFactory);

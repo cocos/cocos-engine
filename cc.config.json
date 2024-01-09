@@ -656,24 +656,6 @@
             "value": "($HTML5 || $BYTEDANCE) ? 2 : ($NATIVE ? (($OPEN_HARMONY||$IOS)?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
             "internal": true
         },
-        "FORCE_BANNING_BULLET_WASM": {
-            "comment": "Whether force banning using bullet wasm and use asmjs instead.\nThis is an internal constant to be compatible with the editor's physical build option.",
-            "type": "boolean",
-            "value": false,
-            "internal": true
-        },
-        "CULL_ASM_JS_MODULE": {
-            "comment": "Whether cull the asm js module.\nThe external modules ending with '.asm.js'. or '.js.mem' is culled if this constant is true.",
-            "type": "boolean",
-            "value": false,
-            "internal": true
-        },
-        "WASM_FALLBACK": {
-            "comment": "An internal constant to indicate whether need a fallback of wasm.\nIf true, we build a wasm fallback module for the compatibility of wasm files compiled by different version of emscripten.\nThis is useful when we use wasm on different version of Safari browsers.",
-            "type": "boolean",
-            "value": "$HTML5",
-            "internal": true
-        },
         "WASM_SUBPACKAGE": {
             "comment": "An internal constant to indicate whether we use wasm assets as minigame subpackage.\nThis is useful when we need to reduce code size.",
             "type": "boolean",
