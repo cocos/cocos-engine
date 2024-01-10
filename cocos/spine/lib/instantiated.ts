@@ -23,7 +23,7 @@
 */
 
 import { instantiateWasm, fetchBuffer, ensureWasmModuleReady } from 'pal/wasm';
-import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
+import { JSB, WASM_SUPPORT_MODE } from 'internal:constants';
 import { game } from '../../game';
 import { getError, error, sys } from '../../core';
 import { WebAssemblySupportMode } from '../../misc/webassembly-support';
@@ -66,10 +66,6 @@ function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
 
 function initAsmJS (asmFactory, asmJsMemUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        if (CULL_ASM_JS_MODULE) {
-            reject(getError(4601));
-            return;
-        }
         fetchBuffer(asmJsMemUrl).then((arrayBuffer) => {
             const wasmMemory: any = {};
             wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
@@ -114,7 +110,7 @@ export function waitForSpineWasmInstantiation (): Promise<void> {
         { default: wasmFactory },
         { default: spineWasmUrl },
     ]) => {
-        if (shouldUseWasmModule()) {
+        if (shouldUseWasmModule() && spineWasmUrl) {
             return initWasm(wasmFactory, spineWasmUrl);
         } else {
             return initAsmJS(asmFactory, asmJsMemUrl);
