@@ -879,6 +879,8 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
                 view.name = "CCDrawIndirectBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
+
+                rasterPass.computeBindings[view.name] = drawIndirectBuffer;
             }
             if (rasterPass.computeViews.find(drawInstanceBuffer) != rasterPass.computeViews.end()) {
                 auto res = rasterPass.computeViews.emplace(
@@ -890,6 +892,8 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
                 view.name = "CCDrawInstanceBuffer";
                 view.accessType = AccessType::READ;
                 view.shaderStageFlags = gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::FRAGMENT;
+
+                rasterPass.computeBindings[view.name] = drawInstanceBuffer;
             }
         }
     }

@@ -54,11 +54,13 @@ inline void load(InputArchive& ar, LightInfo& v) {
 inline void save(OutputArchive& ar, const Descriptor& v) {
     save(ar, v.type);
     save(ar, v.count);
+    save(ar, v.accessType);
 }
 
 inline void load(InputArchive& ar, Descriptor& v) {
     load(ar, v.type);
     load(ar, v.count);
+    load(ar, v.accessType);
 }
 
 inline void save(OutputArchive& ar, const DescriptorBlock& v) {

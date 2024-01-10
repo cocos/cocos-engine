@@ -1,9 +1,9 @@
 #pragma once
+#include "cocos/renderer/gfx-base/GFXDef-common.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphGraphs.h"
-#include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
-#include "pipeline/custom/RenderGraphTypes.h"
 
 namespace cc {
 
@@ -55,7 +55,6 @@ inline LayoutGraphData::vertex_descriptor getSubpassOrPassID(
             CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
             layoutID = subpassLayoutID;
         }
-        
     }
     CC_ENSURES(layoutID != LayoutGraphData::null_vertex());
     return layoutID;
@@ -161,6 +160,9 @@ void addPassComputeViewImpl(
         CC_ENSURES(added);
     }
     iter->second.emplace_back(view);
+
+    // compute bindings and compute views are bimap
+    pass.computeBindings[view.name] = name;
 }
 
 template <class Tag>
@@ -191,6 +193,7 @@ void addSubpassComputeViewImpl(
             CC_ENSURES(added);
         }
         iter->second.emplace_back(view);
+        // subpass graph does not have compute bindings
     }
     {
         auto iter = subpass.computeViews.find(name.c_str());
@@ -203,6 +206,8 @@ void addSubpassComputeViewImpl(
             CC_ENSURES(added);
         }
         iter->second.emplace_back(view);
+        // compute bindings and compute views are bimap
+        pass.computeBindings[view.name] = name;
     }
     CC_ENSURES(subpass.computeViews.size() == subpassData.computeViews.size());
     CC_ENSURES(subpass.computeViews.find(std::string_view{name}) != subpass.computeViews.end());
@@ -213,6 +218,21 @@ void addSubpassComputeViewImpl(
 
 inline bool defaultAttachment(std::string_view slotName) {
     return slotName.empty() || slotName == "_";
+}
+
+inline AccessType getAccessType(gfx::MemoryAccessBit access) {
+    switch (access) {
+        case gfx::MemoryAccessBit::NONE:
+            return AccessType::READ;
+        case gfx::MemoryAccessBit::READ_ONLY:
+            return AccessType::READ;
+        case gfx::MemoryAccessBit::WRITE_ONLY:
+            return AccessType::WRITE;
+        case gfx::MemoryAccessBit::READ_WRITE:
+            return AccessType::READ_WRITE;
+        default:
+            return AccessType::READ;
+    }
 }
 
 static constexpr std::string_view DEPTH_PLANE_NAME = "depth";

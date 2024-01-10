@@ -25,7 +25,7 @@
 /* eslint-disable max-len */
 import { EffectAsset } from '../../asset/assets';
 import { assert, error, log, warn } from '../../core';
-import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, Feature, Format, FormatFeatureBit, GetTypeSize, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
+import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, Feature, Format, FormatFeatureBit, GetTypeSize, MemoryAccessBit, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { UBOForwardLight, UBOSkinning } from '../define';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, DescriptorSetLayoutData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPassType, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
@@ -447,15 +447,25 @@ export class VisibilityIndex {
 }
 
 // descriptors of same visibility
+export class DescriptorStates {
+    constructor (stageFlags: ShaderStageFlagBit, accessType: MemoryAccessBit) {
+        this.stageFlags = stageFlags;
+        this.accessType = accessType;
+    }
+    stageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE;
+    accessType: MemoryAccessBit = MemoryAccessBit.NONE;
+}
+
 export class VisibilityBlock {
-    public mergeVisibility (name: string, vis: ShaderStageFlagBit): void {
+    public mergeVisibility (name: string, vis: ShaderStageFlagBit, accessType: MemoryAccessBit): void {
         // for each descriptor, merge visibility
         // rate must >= PER_PHASE
         const v0 = this.descriptors.get(name);
         if (v0 === undefined) {
-            this.descriptors.set(name, vis);
+            this.descriptors.set(name, new DescriptorStates(vis, accessType));
         } else {
-            this.descriptors.set(name, v0 | vis);
+            v0.stageFlags |= vis;
+            v0.accessType |= accessType;
         }
     }
     public getVisibility (name: string): ShaderStageFlagBit {
@@ -464,9 +474,9 @@ export class VisibilityBlock {
             error(`Can't find visibility for descriptor: ${name}`);
             return ShaderStageFlagBit.NONE;
         }
-        return v;
+        return v.stageFlags;
     }
-    descriptors = new Map<string, ShaderStageFlagBit>();
+    descriptors = new Map<string, DescriptorStates>();
 }
 
 // visibility database of phase
@@ -555,10 +565,8 @@ export class VisibilityGraph {
         rate: UpdateFrequency,
         order: DescriptorTypeOrder,
         infoArray: EffectAsset.IBlockInfo[] |
-        EffectAsset.IBufferInfo[] |
         EffectAsset.ISamplerInfo[] |
         EffectAsset.IInputAttachmentInfo[] |
-        EffectAsset.IImageInfo[] |
         EffectAsset.ISamplerTextureInfo[] |
         EffectAsset.ITextureInfo[],
         db: VisibilityDB,
@@ -570,7 +578,23 @@ export class VisibilityGraph {
         );
         const block = db.getBlock(blockIndex);
         for (const info of infoArray) {
-            block.mergeVisibility(info.name, info.stageFlags);
+            block.mergeVisibility(info.name, info.stageFlags, MemoryAccessBit.READ_ONLY);
+        }
+    }
+    private mergeReadWrite (
+        rate: UpdateFrequency,
+        order: DescriptorTypeOrder,
+        infoArray:  EffectAsset.IBufferInfo[] | EffectAsset.IImageInfo[],
+        db: VisibilityDB,
+    ): void {
+        const blockIndex = new VisibilityIndex(
+            rate,
+            ParameterType.TABLE,
+            order,
+        );
+        const block = db.getBlock(blockIndex);
+        for (const info of infoArray) {
+            block.mergeVisibility(info.name, info.stageFlags, info.memoryAccess);
         }
     }
     public mergeEffect (asset: EffectAsset): void {
@@ -595,16 +619,16 @@ export class VisibilityGraph {
                 const phaseName = getPhaseName(pass);
                 const phaseData = passData.getPhase(phaseName);
                 for (const list of shader.descriptors) {
-                    if (list.rate < UpdateFrequency.PER_PHASE) {
+                    if (list.rate < (UpdateFrequency.PER_PHASE as number)) {
                         // do not merger PER_BATCH, PER_INSTANCE descriptors
                         continue;
                     }
                     this.merge(list.rate, DescriptorTypeOrder.UNIFORM_BUFFER, list.blocks, phaseData);
-                    this.merge(list.rate, DescriptorTypeOrder.STORAGE_BUFFER, list.buffers, phaseData);
+                    this.mergeReadWrite(list.rate, DescriptorTypeOrder.STORAGE_BUFFER, list.buffers, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.TEXTURE, list.textures, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.SAMPLER_TEXTURE, list.samplerTextures, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.SAMPLER, list.samplers, phaseData);
-                    this.merge(list.rate, DescriptorTypeOrder.STORAGE_IMAGE, list.images, phaseData);
+                    this.mergeReadWrite(list.rate, DescriptorTypeOrder.STORAGE_IMAGE, list.images, phaseData);
                     this.merge(list.rate, DescriptorTypeOrder.INPUT_ATTACHMENT, list.subpassInputs, phaseData);
                 }
             }
@@ -717,10 +741,10 @@ export class LayoutGraphInfo {
         }
         return uniformBlock;
     }
-    private addDescriptor (block: DescriptorBlock, name: string, type = Type.UNKNOWN): void {
+    private addDescriptor (block: DescriptorBlock, name: string, accessType: MemoryAccessBit, type = Type.UNKNOWN): void {
         const value = block.descriptors.get(name);
         if (value === undefined) {
-            block.descriptors.set(name, new Descriptor(type));
+            block.descriptors.set(name, new Descriptor(type, 1, accessType));
             ++block.capacity;
             ++block.count;
             return;
@@ -759,7 +783,7 @@ export class LayoutGraphInfo {
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
             if (blockIndex.updateFrequency > UpdateFrequency.PER_BATCH) {
-                this.addDescriptor(block, info.name);
+                this.addDescriptor(block, info.name, MemoryAccessBit.READ_ONLY);
                 this.addUniformBlock(block, info.name, this.makeUniformBlock(info));
             } else {
                 counter.addDescriptor(key, info.name, 1);
@@ -789,7 +813,7 @@ export class LayoutGraphInfo {
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
             if (blockIndex.updateFrequency > UpdateFrequency.PER_BATCH) {
-                this.addDescriptor(block, info.name, type);
+                this.addDescriptor(block, info.name, info.memoryAccess, type);
             } else {
                 counter.addDescriptor(key, info.name, 1);
             }
@@ -819,7 +843,7 @@ export class LayoutGraphInfo {
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
             if (blockIndex.updateFrequency > UpdateFrequency.PER_BATCH) {
-                this.addDescriptor(block, info.name, type);
+                this.addDescriptor(block, info.name, MemoryAccessBit.READ_ONLY, type);
             } else {
                 counter.addDescriptor(key, info.name, info.count);
             }
@@ -829,7 +853,7 @@ export class LayoutGraphInfo {
         visDB: VisibilityDB,
         rate: UpdateFrequency,
         order: DescriptorTypeOrder,
-        infoArray: EffectAsset.IImageInfo[] | EffectAsset.ISamplerTextureInfo[] | EffectAsset.ITextureInfo[],
+        infoArray: EffectAsset.ISamplerTextureInfo[] | EffectAsset.ITextureInfo[],
         db: DescriptorDB,
         counter: DescriptorCounter,
     ): void {
@@ -848,7 +872,36 @@ export class LayoutGraphInfo {
             const key = JSON.stringify(blockIndex);
             const block = this.getDescriptorBlock(key, db);
             if (blockIndex.updateFrequency > UpdateFrequency.PER_BATCH) {
-                this.addDescriptor(block, info.name, info.type);
+                this.addDescriptor(block, info.name, MemoryAccessBit.READ_ONLY, info.type);
+            } else {
+                counter.addDescriptor(key, info.name, info.count);
+            }
+        }
+    }
+    private buildImages (
+        visDB: VisibilityDB,
+        rate: UpdateFrequency,
+        order: DescriptorTypeOrder,
+        infoArray: EffectAsset.IImageInfo[],
+        db: DescriptorDB,
+        counter: DescriptorCounter,
+    ): void {
+        const visBlock = visDB.getBlock({
+            updateFrequency: rate,
+            parameterType: ParameterType.TABLE,
+            descriptorType: order,
+        });
+        for (const info of infoArray) {
+            const blockIndex = new DescriptorBlockIndex(
+                rate,
+                ParameterType.TABLE,
+                order,
+                rate >= UpdateFrequency.PER_PHASE ? visBlock.getVisibility(info.name) : info.stageFlags,
+            );
+            const key = JSON.stringify(blockIndex);
+            const block = this.getDescriptorBlock(key, db);
+            if (blockIndex.updateFrequency > UpdateFrequency.PER_BATCH) {
+                this.addDescriptor(block, info.name, info.memoryAccess, info.type);
             } else {
                 counter.addDescriptor(key, info.name, info.count);
             }
@@ -895,7 +948,7 @@ export class LayoutGraphInfo {
                     this.buildNonTextures(visDB, list.rate, DescriptorTypeOrder.INPUT_ATTACHMENT, list.subpassInputs, Type.SAMPLER, db, counter);
                     this.buildTextures(visDB, list.rate, DescriptorTypeOrder.TEXTURE, list.textures, db, counter);
                     this.buildTextures(visDB, list.rate, DescriptorTypeOrder.SAMPLER_TEXTURE, list.samplerTextures, db, counter);
-                    this.buildTextures(visDB, list.rate, DescriptorTypeOrder.STORAGE_IMAGE, list.images, db, counter);
+                    this.buildImages(visDB, list.rate, DescriptorTypeOrder.STORAGE_IMAGE, list.images, db, counter);
                 }
 
                 // update max capacity and debug info
@@ -949,7 +1002,7 @@ export class LayoutGraphInfo {
                 const visIndex = new VisibilityIndex(index.updateFrequency, index.parameterType, index.descriptorType);
                 const passVisBlock = passVisDB.getBlock(visIndex);
                 for (const [name, d] of block.descriptors) {
-                    passVisBlock.mergeVisibility(name, index.visibility);
+                    passVisBlock.mergeVisibility(name, index.visibility, d.accessType);
                 }
             }
         }
@@ -994,7 +1047,7 @@ export class LayoutGraphInfo {
                         const key = JSON.stringify(index);
                         passBlock = this.getDescriptorBlock(key, passDB);
                     }
-                    this.addDescriptor(passBlock, name, d.type);
+                    this.addDescriptor(passBlock, name, d.accessType, d.type);
                     if (index0.descriptorType !== DescriptorTypeOrder.UNIFORM_BUFFER) {
                         continue;
                     }
@@ -1465,7 +1518,7 @@ export function makeDescriptorSetLayoutData (
             visibility: buffer.stageFlags,
         });
         const nameID = getOrCreateDescriptorID(lg, buffer.name);
-        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1));
+        block.descriptors.push(new DescriptorData(nameID, Type.UNKNOWN, 1, buffer.memoryAccess));
     }
     for (let i = 0; i < descriptors.images.length; i++) {
         const image = descriptors.images[i];
@@ -1476,7 +1529,7 @@ export function makeDescriptorSetLayoutData (
             visibility: image.stageFlags,
         });
         const nameID = getOrCreateDescriptorID(lg, image.name);
-        block.descriptors.push(new DescriptorData(nameID, image.type, image.count));
+        block.descriptors.push(new DescriptorData(nameID, image.type, image.count, image.memoryAccess));
     }
     for (let i = 0; i < descriptors.subpassInputs.length; i++) {
         const subpassInput = descriptors.subpassInputs[i];

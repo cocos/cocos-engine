@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import { MemoryAccessBit, ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { Light } from '../../render-scene/scene';
 import { OutputArchive, InputArchive } from './archive';
@@ -347,15 +347,19 @@ export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
 }
 
 export class Descriptor {
-    constructor (type: Type = Type.UNKNOWN) {
+    constructor (type: Type = Type.UNKNOWN, count = 1, accessType: MemoryAccessBit = MemoryAccessBit.READ_ONLY) {
         this.type = type;
+        this.count = count;
+        this.accessType = accessType;
     }
-    reset (type: Type = Type.UNKNOWN): void {
+    reset (type: Type = Type.UNKNOWN, count = 1, accessType: MemoryAccessBit = MemoryAccessBit.READ_ONLY): void {
         this.type = type;
-        this.count = 1;
+        this.count = count;
+        this.accessType = accessType;
     }
     type: Type;
-    count = 1;
+    count: number;
+    accessType: MemoryAccessBit;
 }
 
 export class DescriptorBlock {
@@ -677,9 +681,11 @@ export class RenderCommonObjectPool {
     }
     createDescriptor (
         type: Type = Type.UNKNOWN,
+        count = 1,
+        accessType: MemoryAccessBit = MemoryAccessBit.READ_ONLY,
     ): Descriptor {
         const v = this._descriptor.add();
-        v.reset(type);
+        v.reset(type, count, accessType);
         return v;
     }
     createDescriptorBlock (): DescriptorBlock {
@@ -791,11 +797,13 @@ export function loadLightInfo (ar: InputArchive, v: LightInfo): void {
 export function saveDescriptor (ar: OutputArchive, v: Descriptor): void {
     ar.writeNumber(v.type);
     ar.writeNumber(v.count);
+    ar.writeNumber(v.accessType);
 }
 
 export function loadDescriptor (ar: InputArchive, v: Descriptor): void {
     v.type = ar.readNumber();
     v.count = ar.readNumber();
+    v.accessType = ar.readNumber();
 }
 
 export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock): void {

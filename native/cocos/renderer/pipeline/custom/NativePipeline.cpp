@@ -127,7 +127,106 @@ void NativePipeline::beginSetup() {
     builtinCSMs.clear();
 }
 
+namespace {
+
+void addGlobalComputeViews(
+    const LayoutGraphData &lg,
+    std::string_view layoutName,
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>> &computeViews,
+    PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::string> &computeBindings,
+    RenderGraph &rg) {
+    const auto layoutID = locate(LayoutGraphData::null_vertex(), layoutName, lg);
+    CC_EXPECTS(layoutID != LayoutGraphData::null_vertex());
+    const auto &layout = get(LayoutGraphData::LayoutTag{}, lg, layoutID);
+
+    for (const auto &[update, set] : layout.descriptorSets) {
+        // only bind per phase or per pass
+        if (update < UpdateFrequency::PER_PHASE) {
+            continue;
+        }
+        // for each block
+        for (const auto &block : set.descriptorSetLayoutData.descriptorBlocks) {
+            // for each descriptor
+            for (const auto &d : block.descriptors) {
+                // get binding name
+                const auto &attrName = lg.valueNames.at(d.descriptorID.value);
+                // skip if already bound
+                if (computeBindings.find(attrName) != computeBindings.end()) {
+                    continue;
+                }
+                // skip if global binding not found
+                auto iter = rg.globalBindings.find(attrName);
+                if (iter == rg.globalBindings.end()) {
+                    continue;
+                }
+                // adding binding to the pass
+                const auto &resourceName = iter->second;
+                auto res = computeBindings.emplace(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(attrName),
+                    std::forward_as_tuple(resourceName));
+                CC_ENSURES(res.second);
+
+                // adding view to the pass
+                auto &views = computeViews[resourceName];
+                views.emplace_back(
+                    attrName,
+                    getAccessType(d.accessType),
+                    gfx::ClearFlagBit::NONE,
+                    ClearValueType::NONE,
+                    ClearValue{},
+                    gfx::ShaderStageFlagBit::NONE);
+            }
+        }
+    }
+}
+
+void bindGlobalComputeViews(NativePipeline &ppl) {
+    const auto &lg = ppl.programLibrary->layoutGraph;
+    auto &rg = ppl.renderGraph;
+    for (const auto vertID : makeRange(vertices(rg))) {
+        visitObject(
+            vertID, rg,
+            [&](RasterPass &pass) {
+                const auto &layoutName = get(RenderGraph::LayoutTag{}, rg, vertID);
+                addGlobalComputeViews(
+                    lg, layoutName, pass.computeViews, pass.computeBindings, rg);
+            },
+            [&](RasterSubpass &subpass) {
+                const auto &layoutName = get(RenderGraph::LayoutTag{}, rg, vertID);
+                addGlobalComputeViews(
+                    lg, layoutName, subpass.computeViews, subpass.computeBindings, rg);
+            },
+            [&](ComputeSubpass &subpass) {
+                const auto &layoutName = get(RenderGraph::LayoutTag{}, rg, vertID);
+                addGlobalComputeViews(
+                    lg, layoutName, subpass.computeViews, subpass.computeBindings, rg);
+            },
+            [&](ComputePass &pass) {
+                const auto &layoutName = get(RenderGraph::LayoutTag{}, rg, vertID);
+                addGlobalComputeViews(
+                    lg, layoutName, pass.computeViews, pass.computeBindings, rg);
+            },
+            [&](RaytracePass &pass) {
+                const auto &layoutName = get(RenderGraph::LayoutTag{}, rg, vertID);
+                addGlobalComputeViews(
+                    lg, layoutName, pass.computeViews, pass.computeBindings, rg);
+            },
+            [&](const ResolvePass &pass) {
+            },
+            [&](const CopyPass &pass) {
+            },
+            [&](const MovePass &pass) {
+            },
+            [&](const auto &queue) {
+            });
+    }
+}
+
+} // namespace
+
 void NativePipeline::endSetup() {
+    bindGlobalComputeViews(*this);
 }
 
 bool NativePipeline::getEnableCpuLightCulling() const {
@@ -553,7 +652,7 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
         },
         [&](RenderSwapchain &sc) {
             auto *newSwapchain = renderWindow->getSwapchain();
-            const auto& oldTexture = resourceGraph.getTexture(resID);
+            const auto &oldTexture = resourceGraph.getTexture(resID);
             resourceGraph.invalidatePersistentRenderPassAndFramebuffer(oldTexture);
             if (newSwapchain) {
                 desc.width = newSwapchain->getWidth();
@@ -567,7 +666,7 @@ void NativePipeline::updateRenderWindow(const ccstd::string &name, scene::Render
                 CC_EXPECTS(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
                 CC_EXPECTS(renderWindow->getFramebuffer()->getColorTextures().front());
 
-                const auto& texture = renderWindow->getFramebuffer()->getColorTextures().front();
+                const auto &texture = renderWindow->getFramebuffer()->getColorTextures().front();
                 desc.width = texture->getWidth();
                 desc.height = texture->getHeight();
 
@@ -910,6 +1009,56 @@ void NativePipeline::addMovePass(const ccstd::vector<MovePair> &movePairs) {
         renderGraph);
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void NativePipeline::setGlobalBuffer(const ccstd::string &slotName, const ccstd::string &resourceName) {
+    const auto &resg = resourceGraph;
+    auto &rg = renderGraph;
+    ccstd::pmr::string name(resourceName, rg.globalBindings.get_allocator());
+    auto resID = findVertex(name, resg);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    if (resg.isTexture(resID)) {
+        return;
+    }
+    auto iter = rg.globalBindings.find(std::string_view{slotName});
+    if (iter == rg.globalBindings.end()) {
+        bool added = false;
+        std::tie(iter, added) = rg.globalBindings.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(slotName),
+            std::forward_as_tuple(std::move(name)));
+        CC_ENSURES(added);
+    } else {
+        iter->second = std::move(name);
+    }
+}
+
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void NativePipeline::setGlobalTexture(const ccstd::string &slotName, const ccstd::string &resourceName) {
+    const auto &resg = resourceGraph;
+    auto &rg = renderGraph;
+    ccstd::pmr::string name(resourceName, rg.globalBindings.get_allocator());
+    auto resID = findVertex(name, resg);
+    if (resID == ResourceGraph::null_vertex()) {
+        return;
+    }
+    if (!resg.isTexture(resID)) {
+        return;
+    }
+    auto iter = rg.globalBindings.find(std::string_view{slotName});
+    if (iter == rg.globalBindings.end()) {
+        bool added = false;
+        std::tie(iter, added) = rg.globalBindings.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(slotName),
+            std::forward_as_tuple(std::move(name)));
+        CC_ENSURES(added);
+    } else {
+        iter->second = std::move(name);
+    }
+}
+
 namespace {
 
 void setupGpuDrivenResources(
@@ -1046,6 +1195,8 @@ void NativePipeline::addBuiltinGpuCullingPass(
             view.name = "CCDrawIndirectBuffer";
             view.accessType = AccessType::WRITE;
             view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+
+            computePass.computeBindings[view.name] = drawIndirectBuffer;
         }
         {
             auto res = computePass.computeViews.emplace(
@@ -1056,6 +1207,8 @@ void NativePipeline::addBuiltinGpuCullingPass(
             view.name = "CCDrawInstanceBuffer";
             view.accessType = AccessType::WRITE;
             view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+
+            computePass.computeBindings[view.name] = drawInstanceBuffer;
         }
         {
             auto res = computePass.computeViews.emplace(
@@ -1066,6 +1219,8 @@ void NativePipeline::addBuiltinGpuCullingPass(
             view.name = "CCVisibilityBuffer";
             view.accessType = AccessType::WRITE;
             view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
+
+            computePass.computeBindings[view.name] = visibilityBuffer;
         }
 
         auto computePassID = addVertex2(

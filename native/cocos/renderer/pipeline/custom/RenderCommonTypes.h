@@ -259,11 +259,19 @@ enum class DescriptorTypeOrder {
 
 struct Descriptor {
     Descriptor() = default;
+    Descriptor(gfx::Type typeIn, uint32_t countIn, gfx::MemoryAccessBit accessTypeIn) noexcept
+    : type(typeIn),
+      count(countIn),
+      accessType(accessTypeIn) {}
+    Descriptor(gfx::Type typeIn, uint32_t countIn) noexcept
+    : type(typeIn),
+      count(countIn) {}
     Descriptor(gfx::Type typeIn) noexcept // NOLINT
     : type(typeIn) {}
 
     gfx::Type type{gfx::Type::UNKNOWN};
     uint32_t count{1};
+    gfx::MemoryAccessBit accessType{gfx::MemoryAccessBit::READ_ONLY};
 };
 
 struct DescriptorBlock {
