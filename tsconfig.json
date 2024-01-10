@@ -1,19 +1,30 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["es2015", "es2017", "dom"],
+    "lib": ["es2015", "es2017", "es2020", "dom"],
+    "target": "es2017",
     "module": "commonjs",
+    "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./bin/.ts",
     "rootDir": "./",
-    "noEmit": true,
+
     "strict": true,
     "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    "noEmit": true,
     "downlevelIteration": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
     "baseUrl": "./",
     "paths": {
         "cc.decorator": [
@@ -51,6 +62,7 @@
     ]
   },
   "include": [
+      "cocos/**/*.ts",
       "exports/**/*.ts",
       "typedoc-index.ts",
       "pal/**/*.ts"
