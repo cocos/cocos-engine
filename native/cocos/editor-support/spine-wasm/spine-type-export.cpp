@@ -3,7 +3,6 @@
 #include <functional>
 #include <memory>
 #include <vector>
-#include "spine-skeleton-system.h"
 #include "spine-skeleton-instance.h"
 #include "spine-wasm.h"
 #include "Vector2.h"
@@ -1607,13 +1606,8 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setDebugMode", &SpineSkeletonInstance::setDebugMode)
         .function("getDebugShapes", &SpineSkeletonInstance::getDebugShapes)
         .function("resizeSlotRegion", &SpineSkeletonInstance::resizeSlotRegion)
+        .function("destroy", &SpineSkeletonInstance::destroy)
         .function("setSlotTexture", &SpineSkeletonInstance::setSlotTexture);
-
-    class_<SpineSkeletonSystem>("SkeletonSystem")
-        .class_function("getCount", &SpineSkeletonSystem::getCount) 
-        .class_function("updateAnimation", &SpineSkeletonSystem::updateAnimation)
-        .class_function("updateRenderData", &SpineSkeletonSystem::updateRenderData)
-        .class_function("destroySpineInstance", &SpineSkeletonSystem::destroySpineInstance, allow_raw_pointers());
 }
 
 EMSCRIPTEN_BINDINGS(cocos_spine) {
