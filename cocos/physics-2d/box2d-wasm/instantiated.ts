@@ -164,9 +164,9 @@ function initAsm (asmFactory): Promise<void> {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.BOTH as number) {
+    if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.BOTH as number)) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.WASM as number) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.WASM as number)) {
         return true;
     } else {
         return false;

@@ -88,9 +88,9 @@ function initAsmJS (asmFactory, asmJsMemUrl: string): Promise<void> {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.BOTH) {
+    if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.BOTH as number)) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.WASM) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.WASM as number)) {
         return true;
     } else {
         return false;

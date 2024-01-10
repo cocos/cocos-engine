@@ -33,7 +33,7 @@
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 import { BYTEDANCE, DEBUG, EDITOR, TEST, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color, error } from '../../core';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color, error, IVec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
@@ -130,9 +130,9 @@ function initWASM (physxWasmFactory, physxWasmUrl: string): any {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.BOTH) {
+    if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.BOTH as number)) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.WASM) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.WASM as number)) {
         return true;
     } else {
         return false;
@@ -285,22 +285,22 @@ export function copyPhysXTransform (node: Node, transform: any): void {
     const dontUpdate = physXEqualsCocosVec3(transform, wp) && physXEqualsCocosQuat(transform, wr);
     if (dontUpdate) return;
     if (USE_BYTEDANCE) {
-        node.setWorldPosition(transform.p);
-        node.setWorldRotation(transform.q);
+        node.setWorldPosition(transform.p as Vec3);
+        node.setWorldRotation(transform.q as Quat);
     } else {
-        node.setWorldPosition(transform.translation);
-        node.setWorldRotation(transform.rotation);
+        node.setWorldPosition(transform.translation as Vec3);
+        node.setWorldRotation(transform.rotation as Quat);
     }
 }
 
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
     const pos = USE_BYTEDANCE ? trans.p : trans.translation;
-    return Vec3.equals(pos, v3, PX.EPSILON);
+    return Vec3.equals(pos as IVec3Like, v3, PX.EPSILON as number);
 }
 
 export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
     const rot = USE_BYTEDANCE ? trans.q : trans.rotation;
-    return Quat.equals(rot, q, PX.EPSILON);
+    return Quat.equals(rot as IQuatLike, q, PX.EPSILON as number);
 }
 
 export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like): void {
@@ -350,13 +350,14 @@ export function getShapeFlags (isTrigger: boolean): any {
     return new PX.PxShapeFlags(flag);
 }
 
+// eslint-disable-next-line default-param-last
 export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: geometry.AABB): void {
     if (USE_BYTEDANCE) {
         const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
-        geometry.AABB.fromPoints(out, b3.minimum, b3.maximum);
+        geometry.AABB.fromPoints(out, b3.minimum as IVec3, b3.maximum as IVec3);
     } else {
         const b3 = shape.getWorldBounds(actor, i);
-        geometry.AABB.fromPoints(out, b3.minimum, b3.maximum);
+        geometry.AABB.fromPoints(out, b3.minimum as IVec3, b3.maximum as IVec3);
     }
 }
 
@@ -591,7 +592,7 @@ export function raycastAll (
                 const block = r[i];
                 const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
                 const result = pool.add();
-                result._assign(block.position, block.distance, collider, block.normal);
+                result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
                 results.push(result);
             }
             return true;
@@ -618,7 +619,7 @@ export function raycastAll (
                 const block = blocks.get(i);
                 const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
                 const result = pool.add();
-                result._assign(block.position, block.distance, collider, block.normal);
+                result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
                 results.push(result);
             }
             return true;
@@ -653,7 +654,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
         );
         if (block) {
             const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
-            result._assign(block.position, block.distance, collider, block.normal);
+            result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
             return true;
         }
     } else {
@@ -673,7 +674,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: geometry.Ray, optio
         );
         if (r) {
             const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
-            result._assign(block.position, block.distance, collider, block.normal);
+            result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
             return true;
         }
     }
@@ -721,7 +722,7 @@ export function sweepAll (
             const block = blocks.get(i);
             const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
             const result = pool.add();
-            result._assign(block.position, block.distance, collider, block.normal);
+            result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
             results.push(result);
         }
         return true;
@@ -767,7 +768,7 @@ export function sweepClosest (
     );
     if (r) {
         const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
-        result._assign(block.position, block.distance, collider, block.normal);
+        result._assign(block.position as IVec3Like, block.distance as number, collider, block.normal as IVec3Like);
         return true;
     }
 
@@ -845,7 +846,7 @@ export function initializeWorld (world: any): void {
  */
 export function getContactPosition (pxContactOrOffset: any, out: IVec3Like, buf: any): void {
     if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf, pxContactOrOffset, 3));
+        Vec3.fromArray(out, new Float32Array(buf as ArrayBufferLike, pxContactOrOffset as number, 3));
     } else {
         Vec3.copy(out, pxContactOrOffset.position);
     }
@@ -853,7 +854,7 @@ export function getContactPosition (pxContactOrOffset: any, out: IVec3Like, buf:
 
 export function getContactNormal (pxContactOrOffset: any, out: IVec3Like, buf: any): void {
     if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf, (pxContactOrOffset as number) + 12, 3));
+        Vec3.fromArray(out, new Float32Array(buf as ArrayBufferLike, (pxContactOrOffset as number) + 12, 3));
     } else {
         Vec3.copy(out, pxContactOrOffset.normal);
     }
