@@ -122,6 +122,10 @@ export class RenderEntity {
 
     protected _colorDirty = true;
     get colorDirty (): boolean {
+        if (JSB) {
+            // Synchronize values set from native to JS
+            this._colorDirty = !!this._boolSharedBuffer[RenderEntityBoolSharedBufferView.colorDirty];
+        }
         return this._colorDirty;
     }
     set colorDirty (val: boolean) {
