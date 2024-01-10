@@ -30,10 +30,10 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
-import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
-import { BYTEDANCE, DEBUG, EDITOR, TEST, WASM_SUPPORT_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color } from '../../core';
+import { BYTEDANCE, DEBUG, EDITOR, TEST, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color, error } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
@@ -67,23 +67,22 @@ export function InitPhysXLibs (): Promise<void> {
             resolve();
         });
     } else {
-        return ensureWasmModuleReady().then(() => Promise.all([
-            import('external:emscripten/physx/physx.release.wasm.js'),
-            import('external:emscripten/physx/physx.release.wasm.wasm'),
-            import('external:emscripten/physx/physx.release.asm.js'),
-        ]).then(([
-            { default: physxWasmFactory },
-            { default: physxWasmUrl },
-            { default: physxAsmFactory },
-        ]) => InitPhysXLibsInternal(physxWasmFactory, physxWasmUrl, physxAsmFactory)));
-    }
-}
-
-function InitPhysXLibsInternal (physxWasmFactory, physxWasmUrl: string, physxAsmFactory): any {
-    if (shouldUseWasmModule() && physxWasmUrl) {
-        return initWASM(physxWasmFactory, physxWasmUrl);
-    } else {
-        return initASM(physxAsmFactory);
+        const errorReport = (msg: any): void => { error(msg); };
+        return ensureWasmModuleReady().then(() => {
+            if (shouldUseWasmModule()) {
+                return Promise.all([
+                    import('external:emscripten/physx/physx.release.wasm.js'),
+                    import('external:emscripten/physx/physx.release.wasm.wasm'),
+                ]).then(([
+                    { default: physxWasmFactory },
+                    { default: physxWasmUrl },
+                ]) => initWASM(physxWasmFactory, physxWasmUrl));
+            } else {
+                return import('external:emscripten/physx/physx.release.asm.js').then(
+                    ({ default: physxAsmFactory }) => initASM(physxAsmFactory),
+                );
+            }
+        }).catch(errorReport);
     }
 }
 
@@ -131,9 +130,9 @@ function initWASM (physxWasmFactory, physxWasmUrl: string): any {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+    if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.BOTH) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.WASM) {
         return true;
     } else {
         return false;

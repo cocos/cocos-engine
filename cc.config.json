@@ -650,10 +650,10 @@
             "value": false,
             "internal": true
         },
-        "WASM_SUPPORT_MODE": {
-            "comment": "Whether support wasm, here we provide 3 options:\n0: The platform doesn't support WASM\n1: The platform supports WASM\n2: The platform may support WASM, especially on Web platform",
+        "NATIVE_CODE_BUNDLE_MODE": {
+            "comment": "Native code (wasm/asmjs) bundle mode, 0: asmjs, 1: wasm, 2: both",
             "type": "number",
-            "value": "($HTML5 || $BYTEDANCE) ? 2 : ($NATIVE ? (($OPEN_HARMONY||$IOS)?0:1): ($MINIGAME? ($WECHAT?1:0) :0))",
+            "value": 2, 
             "internal": true
         },
         "WASM_SUBPACKAGE": {

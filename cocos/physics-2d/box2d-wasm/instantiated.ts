@@ -23,11 +23,11 @@
 */
 
 import { instantiateWasm, ensureWasmModuleReady } from 'pal/wasm';
-import { WASM_SUPPORT_MODE } from 'internal:constants';
+import { NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 
 import { game } from '../../game';
 import { error, sys, IVec2Like, log } from '../../core';
-import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 
 // eslint-disable-next-line import/no-mutable-exports
 export let B2 = {} as any;
@@ -164,9 +164,9 @@ function initAsm (asmFactory): Promise<void> {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT as number) {
+    if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.BOTH as number) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT as number) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === NativeCodeBundleMode.WASM as number) {
         return true;
     } else {
         return false;
@@ -175,21 +175,21 @@ function shouldUseWasmModule (): boolean {
 
 export function waitForBox2dWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
-    return ensureWasmModuleReady().then(() => Promise.all([
-        import('external:emscripten/box2d/box2d.release.wasm.js'),
-        import('external:emscripten/box2d/box2d.release.wasm.wasm'),
-        import('external:emscripten/box2d/box2d.release.asm.js'),
-    ]).then(([
-        { default: wasmFactory },
-        { default: wasmUrl },
-        { default: asmFactory },
-    ]) => {
-        if (shouldUseWasmModule() && wasmUrl) {
-            return initWasm(wasmFactory, wasmUrl);
+    return ensureWasmModuleReady().then(() => {
+        if (shouldUseWasmModule()) {
+            return Promise.all([
+                import('external:emscripten/box2d/box2d.release.wasm.js'),
+                import('external:emscripten/box2d/box2d.release.wasm.wasm'),
+            ]).then(([
+                { default: wasmFactory },
+                { default: wasmUrl },
+            ]) => initWasm(wasmFactory, wasmUrl));
         } else {
-            return initAsm(asmFactory);
+            return import('external:emscripten/box2d/box2d.release.asm.js').then(
+                ({ default: asmFactory }) => initAsm(asmFactory),
+            );
         }
-    })).catch(errorReport);
+    }).catch(errorReport);
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForBox2dWasmInstantiation);
