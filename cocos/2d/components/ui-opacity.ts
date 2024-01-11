@@ -169,6 +169,8 @@ export class UIOpacity extends Component {
     }
 
     public onDisable (): void {
+        this.node.off(NodeEventType.CHILD_ADDED, this._parentAdded, this);
+        this.node.off(NodeEventType.CHILD_REMOVED, this._parentRemoved, this);
         // If the ancestor node has a uiopacity component, it will be uninitialized when uninitializing
         // the uiopacity component of the ancestor node, and there is no need to uninitialize it again.
         if (this._setByParent) {
