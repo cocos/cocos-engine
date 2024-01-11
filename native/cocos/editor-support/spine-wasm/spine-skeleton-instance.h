@@ -58,6 +58,7 @@ public:
     std::vector<SpineDebugShape> &getDebugShapes();
     void resizeSlotRegion(const std::string &slotName, uint32_t width, uint32_t height, bool createNew = false);
     void setSlotTexture(const std::string &slotName, uint32_t index);
+    void destroy();
     bool isCache{false};
     bool enable{true};
     float dtRate{1.0F};

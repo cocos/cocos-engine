@@ -965,10 +965,10 @@ struct RenderData {
     RenderData& operator=(RenderData&& rhs) = default;
     RenderData& operator=(RenderData const& rhs) = delete;
 
-    PmrUnorderedMap<uint32_t, ccstd::pmr::vector<char>> constants;
-    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
-    PmrUnorderedMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
-    PmrUnorderedMap<uint32_t, gfx::Sampler*> samplers;
+    PmrFlatMap<uint32_t, ccstd::pmr::vector<char>> constants;
+    PmrFlatMap<uint32_t, IntrusivePtr<gfx::Buffer>> buffers;
+    PmrFlatMap<uint32_t, IntrusivePtr<gfx::Texture>> textures;
+    PmrFlatMap<uint32_t, gfx::Sampler*> samplers;
     ccstd::pmr::string custom;
 };
 
