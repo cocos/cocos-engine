@@ -1,4 +1,4 @@
-import { WebAssemblySupportMode } from "../cocos/misc/webassembly-support";
+import { NativeCodeBundleMode } from "../cocos/misc/webassembly-support";
 
 const _globalThis = typeof global === 'undefined' ? globalThis : global;
 const _global = typeof window === 'undefined' ? _globalThis : window;
@@ -41,4 +41,4 @@ export const VIVO = tryDefineGlobal('CC_VIVO', false);
 // @ts-expect-error: 'loadRuntime' exits only in runtime environment.
 export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', (typeof loadRuntime === 'function'));
 export const SERVER_MODE = false;
-export const WASM_SUPPORT_MODE = WebAssemblySupportMode.SUPPORT;
+export const NATIVE_CODE_BUNDLE_MODE = NativeCodeBundleMode.WASM;

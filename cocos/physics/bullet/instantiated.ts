@@ -23,10 +23,10 @@
 */
 
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
-import { WASM_SUPPORT_MODE } from 'internal:constants';
+import { NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 import { game } from '../../game';
 import { error, log, sys } from '../../core';
-import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 
 //corresponds to bulletType in bullet-compile
 export enum EBulletType{
@@ -126,11 +126,9 @@ function initASM (asmFactory): Promise<void> {
 }
 
 function shouldUseWasmModule (): boolean {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+    if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.BOTH as number)) {
         return sys.hasFeature(sys.Feature.WASM);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.WASM as number)) {
         return true;
     } else {
         return false;
@@ -139,21 +137,21 @@ function shouldUseWasmModule (): boolean {
 
 export function waitForAmmoInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
-    return ensureWasmModuleReady().then(() => Promise.all([
-        import('external:emscripten/bullet/bullet.release.wasm.js'),
-        import('external:emscripten/bullet/bullet.release.wasm.wasm'),
-        import('external:emscripten/bullet/bullet.release.asm.js'),
-    ]).then(([
-        { default: bulletWasmFactory },
-        { default: bulletWasmUrl },
-        { default: bulletAsmFactory },
-    ]) => {
-        if (shouldUseWasmModule() && bulletWasmUrl) {
-            return initWASM(bulletWasmFactory, bulletWasmUrl);
+    return ensureWasmModuleReady().then(() => {
+        if (shouldUseWasmModule()) {
+            return Promise.all([
+                import('external:emscripten/bullet/bullet.release.wasm.js'),
+                import('external:emscripten/bullet/bullet.release.wasm.wasm'),
+            ]).then(([
+                { default: bulletWasmFactory },
+                { default: bulletWasmUrl },
+            ]) => initWASM(bulletWasmFactory, bulletWasmUrl));
         } else {
-            return initASM(bulletAsmFactory);
+            return import('external:emscripten/bullet/bullet.release.asm.js').then(
+                ({ default: bulletAsmFactory }) => initASM(bulletAsmFactory),
+            );
         }
-    })).catch(errorReport);
+    }).catch(errorReport);
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForAmmoInstantiation);

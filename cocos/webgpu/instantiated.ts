@@ -27,7 +27,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { WASM_SUPPORT_MODE, WEBGPU } from 'internal:constants';
+import { NATIVE_CODE_BUNDLE_MODE, WEBGPU } from 'internal:constants';
 import webgpuUrl from 'external:emscripten/webgpu/webgpu_wasm.wasm';
 import glslangUrl from 'external:emscripten/webgpu/glslang.wasm';
 import twgslUrl from 'external:emscripten/webgpu/twgsl.wasm'
@@ -36,7 +36,7 @@ import wasmDevice from 'external:emscripten/webgpu/webgpu_wasm.js';
 import glslangLoader from 'external:emscripten/webgpu/glslang.js';
 import twgslLoader from 'external:emscripten/webgpu/twgsl.js'
 import { legacyCC } from '../core/global-exports';
-import { WebAssemblySupportMode } from '../misc/webassembly-support';
+import { NativeCodeBundleMode } from '../misc/webassembly-support';
 
 export const glslangWasmModule: any = {
     glslang: null,
@@ -57,7 +57,7 @@ export const webgpuAdapter: any = {
 };
 
 export const promiseForWebGPUInstantiation = (() => {
-    if (WEBGPU && WASM_SUPPORT_MODE !== WebAssemblySupportMode.NONE) {
+    if (WEBGPU && NATIVE_CODE_BUNDLE_MODE !== NativeCodeBundleMode.ASMJS) {
         // TODO: we need to support AsmJS fallback option
         return Promise.all([
             glslangLoader(new URL(glslangUrl, import.meta.url).href).then((res) => {
@@ -92,7 +92,7 @@ export const promiseForWebGPUInstantiation = (() => {
     return Promise.resolve();
 })();
 
-if (WEBGPU && WASM_SUPPORT_MODE !== WebAssemblySupportMode.NONE) {
+if (WEBGPU && NATIVE_CODE_BUNDLE_MODE !== NativeCodeBundleMode.ASMJS) {
     const intervalId = setInterval(() => {
         if (legacyCC.game) {
             legacyCC.game.onPreInfrastructureInitDelegate.add(() => promiseForWebGPUInstantiation);
