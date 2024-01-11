@@ -121,6 +121,10 @@
     #include "cocos/bindings/auto/jsb_physics_auto.h"
 #endif
 
+#if CC_USE_WORKER // Worker
+    #include "cocos/bindings/manual/jsb_worker_maunal.h"
+#endif
+
 bool jsb_register_all_modules() {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
@@ -225,6 +229,11 @@ bool jsb_register_all_modules() {
 #if CC_USE_SOCKET && CC_USE_WEBSOCKET_SERVER
     se->addRegisterCallback(register_all_websocket_server);
 #endif
+
+#if CC_USE_WORKER // Worker
+    se->addRegisterCallback(jsb_register_worker);
+#endif
+
     se->addAfterCleanupHook([]() {
         cc::DeferredReleasePool::clear();
         JSBClassType::cleanup();
