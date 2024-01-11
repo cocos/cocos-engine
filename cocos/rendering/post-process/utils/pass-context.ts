@@ -40,6 +40,11 @@ export class PassContext {
     forwardPass: any = undefined;
     postProcess: PostProcess | undefined;
 
+    maxSpotLights = 0xFFFFFFFF;
+    maxSphereLights = 0xFFFFFFFF;
+    maxPointLights = 0xFFFFFFFF;
+    maxRangedDirLights = 0xFFFFFFFF;
+
     setClearFlag (clearFlag: ClearFlagBit): PassContext {
         this.clearFlag = clearFlag;
         return this;
@@ -85,9 +90,25 @@ export class PassContext {
     }
 
     addSceneLights (queue: RenderQueueBuilder, camera: Camera, flags: SceneFlags = SceneFlags.BLEND): void {
+        if (this.maxPointLights === 0
+            && this.maxSphereLights === 0
+            && this.maxSpotLights === 0
+            && this.maxRangedDirLights === 0) {
+            return;
+        }
         const scene = camera.scene!;
-        for (let i = 0; i < scene.spotLights.length; i++) {
-            const light = scene.spotLights[i];
+        const spotLights = scene.spotLights;
+        const sphereLights = scene.sphereLights;
+        const pointLights = scene.pointLights;
+        const rangedDirLights = scene.rangedDirLights;
+
+        const numSpotLights = Math.min(spotLights.length, this.maxSpotLights);
+        const numSphereLights = Math.min(sphereLights.length, this.maxSphereLights);
+        const numPointLights = Math.min(pointLights.length, this.maxPointLights);
+        const numRangedDirLights = Math.min(rangedDirLights.length, this.maxRangedDirLights);
+
+        for (let i = 0; i < numSpotLights; i++) {
+            const light = spotLights[i];
             if (light.baked) {
                 continue;
             }
@@ -97,8 +118,8 @@ export class PassContext {
             }
         }
         // sphere lights
-        for (let i = 0; i < scene.sphereLights.length; i++) {
-            const light = scene.sphereLights[i];
+        for (let i = 0; i < numSphereLights; i++) {
+            const light = sphereLights[i];
             if (light.baked) {
                 continue;
             }
@@ -108,8 +129,8 @@ export class PassContext {
             }
         }
         // point lights
-        for (let i = 0; i < scene.pointLights.length; i++) {
-            const light = scene.pointLights[i];
+        for (let i = 0; i < numPointLights; i++) {
+            const light = pointLights[i];
             if (light.baked) {
                 continue;
             }
@@ -119,8 +140,8 @@ export class PassContext {
             }
         }
         // ranged dir lights
-        for (let i = 0; i < scene.rangedDirLights.length; i++) {
-            const light = scene.rangedDirLights[i];
+        for (let i = 0; i < numRangedDirLights; i++) {
+            const light = rangedDirLights[i];
             geometry.AABB.transform(boundingBox, rangedDirLightBoundingBox, light.node!.getWorldMatrix());
             if (geometry.intersect.aabbFrustum(boundingBox, camera.frustum)) {
                 queue.addSceneOfCamera(camera, new LightInfo(light), flags);
