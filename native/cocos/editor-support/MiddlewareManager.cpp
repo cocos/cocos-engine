@@ -78,10 +78,14 @@ void MiddlewareManager::update(float dt) {
         if (!_removeList.empty()) {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
             if (removeIt == _removeList.end()) {
-                editor->update(dt);
+                if (editor) {
+                    editor->update(dt);
+                }
             }
         } else {
-            editor->update(dt);
+            if (editor) {
+                editor->update(dt);
+            }
         }
     }
 

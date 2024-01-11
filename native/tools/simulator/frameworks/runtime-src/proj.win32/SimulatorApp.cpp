@@ -343,6 +343,7 @@ int SimulatorApp::init() {
     }
     _project.setFrameScale(frameScale);
     CC_LOG_DEBUG("FRAME SCALE = %0.2f", frameScale);
+    return 0;
 }
 
 int SimulatorApp::run() {

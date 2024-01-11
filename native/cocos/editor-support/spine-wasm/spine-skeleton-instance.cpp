@@ -5,7 +5,6 @@
 #include "spine-mesh-data.h"
 #include "spine-wasm.h"
 #include "util-function.h"
-#include "spine-skeleton-system.h"
 
 SlotMesh globalMesh(nullptr, nullptr, 0, 0);
 
@@ -34,7 +33,6 @@ static void trackEntryCallback(AnimationState *state, EventType type, TrackEntry
 
 SpineSkeletonInstance::SpineSkeletonInstance() {
     _model = new SpineModel();
-    SpineSkeletonSystem::addSpineInstance(this);
 }
 
 SpineSkeletonInstance::~SpineSkeletonInstance() {
@@ -44,6 +42,10 @@ SpineSkeletonInstance::~SpineSkeletonInstance() {
     if (_animStateData) delete _animStateData;
     if (_skeleton) delete _skeleton;
     if (_model) delete _model;
+}
+
+void SpineSkeletonInstance::destroy() {
+    delete this;
 }
 
 Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData *data) {

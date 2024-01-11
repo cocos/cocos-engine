@@ -615,6 +615,7 @@ export class CocosParams<T> {
         this.buildDir = params.buildDir;
         this.xxteaKey = params.xxteaKey;
         this.encrypted = params.encrypted;
+        this.compressZip = params.compressZip;
         this.executableName = params.executableName;
         Object.assign(this.cMakeConfig, params.cMakeConfig);
         this.platformParams = params.platformParams;

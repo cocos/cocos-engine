@@ -752,8 +752,11 @@ export class TextProcessing {
                 letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
-                    log(`Can't find letter definition in texture atlas ${
-                        style.fntConfig!.atlasName} for letter:${character}`);
+                    if (style.fntConfig != null) {
+                        log(`Can't find letter definition in texture atlas ${style.fntConfig.atlasName} for letter:${character}`);
+                    } else {
+                        log(`Can't find letter definition in font family ${style.fontFamily} for letter:${character}`);
+                    }
                     continue;
                 }
 
