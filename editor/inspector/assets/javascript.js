@@ -21,6 +21,20 @@ exports.template = /* html */`
          ></ui-checkbox>
     </ui-prop>
     <div class="detail">
+        <ui-prop id="executionScope">
+            <ui-label slot="label" value="i18n:ENGINE.assets.javascript.globalThisAlias"></ui-label>
+            <ui-checkbox slot="content"
+                id="simulateGlobalsCheckBox"
+            ></ui-checkbox>
+        </ui-prop>
+        <ui-prop id="simulateGlobals">
+            <ui-label slot="label"></ui-label>
+            <ui-input slot="content"
+                id="simulateGlobalsInput"
+                placeholder="self;window;global;globalThis"
+                tooltip="i18n:ENGINE.assets.javascript.globalThisAliasTip"
+            ></ui-input>
+        </ui-prop>
         <ui-prop>
             <ui-label slot="label"
                 tooltip="i18n:ENGINE.assets.javascript.loadPluginInWebTip"
@@ -94,12 +108,10 @@ exports.$ = {
     loadPluginInWebCheckBox: '#load-plugin-in-web',
     loadPluginInNativeCheckBox: '#load-plugin-in-native',
     loadPluginInMiniGameCheckBox: '#load-plugin-in-mini-game',
-    dependencies: '.dependencies',
-    dependenciesInput: '#dependencies-input',
-    dependenciesContent: '#dependencies-content',
+    simulateGlobals: '#simulateGlobals',
+    simulateGlobalsInput: '#simulateGlobalsInput',
+    simulateGlobalsCheckBox: '#simulateGlobalsCheckBox',
     executionScope: '#executionScope',
-    executionScopeEnclosedProp: '#executionScopeEnclosedProp',
-    executionScopeEnclosedInput: '#executionScopeEnclosedInput',
     code: '#code',
 };
 
@@ -138,17 +150,63 @@ const Elements = {
             this.$.detail.style.display = display;
         },
     },
+    executionScope: {
+        ready() {
+            this.$.simulateGlobalsCheckBox.addEventListener('confirm', (event) => {
+                const value = event.target.value ? 'enclosed' : 'global';
+                this.changeUserData('executionScope', value);
+                Elements.executionScope.update.call(this);
+                Elements.simulateGlobals.update.call(this);
+            });
+        },
+        update() {
+            this.$.simulateGlobalsCheckBox.value = (this.meta.userData.executionScope === 'enclosed');
+            updateElementInvalid.call(this, this.$.executionScope, 'executionScope');
+            updateElementReadonly.call(this, this.$.executionScope);
+        },
+    },
+    simulateGlobals: {
+        ready() {
+            this.$.simulateGlobalsInput.addEventListener('confirm', (event) => {
+                const value = event.target.value;
+                if (typeof value === 'string') {
+                    let globalNames = [];
+                    if (value.length !== 0) {
+                        globalNames = value
+                            .split(';')
+                            .map((globalName) => globalName.trim())
+                            .filter((globalName) => globalName.length !== 0);
+                    }
+                    this.metaList.forEach((meta) => (meta.userData.simulateGlobals = globalNames.length === 0 ? true : globalNames));
+                    this.dispatch('change');
+                    this.dispatch('snapshot');
+                }
+            });
+        },
+        update() {
+            let display = 'none';
+            if (this.meta.userData.executionScope === 'enclosed') {
+                display = 'block';
+            }
+
+            this.$.simulateGlobals.style.display = display;
+
+            if (display === 'none') {
+                return;
+            }
+
+            updateElementReadonly.call(this, this.$.simulateGlobalsInput);
+
+            this.$.simulateGlobalsInput.value = Array.isArray(this.meta.userData.simulateGlobals)
+                ? this.meta.userData.simulateGlobals.join(';')
+                : '';
+        },
+    },
     loadPluginInWebCheckBox: {
         ready() {
             this.$.loadPluginInWebCheckBox.addEventListener('confirm', (event) => {
-                if (!event.target.value) {
-                    this.changeUserData('loadPluginInEditor', false);
-                    this.$.loadPluginInEditorCheckBox.disabled = true;
-                    Elements.loadPluginInEditorCheckBox.update.call(this);
-                } else {
-                    this.$.loadPluginInEditorCheckBox.disabled = false;
-                }
                 this.change('loadPluginInWeb', event);
+                Elements.loadPluginInEditorCheckBox.update.call(this);
             });
         },
         update() {
@@ -182,7 +240,9 @@ const Elements = {
             this.$.loadPluginInEditorCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInEditor'));
         },
         update() {
-            this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInEditor;
+            
+            this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInWeb ? this.meta.userData.loadPluginInEditor : false;
+            this.$.loadPluginInEditorCheckBox.disabled = this.meta.userData.loadPluginInWeb ? true : false;
             updateElementInvalid.call(this, this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
             updateElementReadonly.call(this, this.$.loadPluginInEditorCheckBox);
         },
