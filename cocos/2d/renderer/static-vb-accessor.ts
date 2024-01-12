@@ -159,6 +159,10 @@ export class StaticVBAccessor extends BufferAccessor {
 
     public allocateChunk (vertexCount: number, indexCount: number): StaticVBChunk | null {
         const byteLength = vertexCount * this.vertexFormatBytes;
+        if (vertexCount <= this._vCount) {
+            errorID(9004, byteLength);
+            return null;
+        }
         let buf: MeshBuffer = null!; let freeList: IFreeEntry[];
         let bid = 0; let eid = -1; let entry: IFreeEntry | null = null;
         // Loop buffers
