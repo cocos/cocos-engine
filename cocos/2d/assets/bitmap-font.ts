@@ -27,6 +27,7 @@ import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
 import { cclegacy, js, warn } from '../../core';
+import { getSymbolCodeAt } from '../utils';
 
 export interface IConfig {
     [key: string]: any;
@@ -80,7 +81,7 @@ export class FontAtlas {
     }
 
     public getLetterDefinitionForChar (char, labelInfo?): any {
-        const key = char.charCodeAt(0);
+        const key = getSymbolCodeAt(char as string, 0);
         const hasKey = this.letterDefinitions.hasOwnProperty(key);
         let letter;
         if (hasKey) {

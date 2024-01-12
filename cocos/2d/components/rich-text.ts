@@ -28,7 +28,7 @@ import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID, Color, Vec2, CCObject, cclegacy, js, Size } from '../../core';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
+import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast, getSymbolAt } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
@@ -1153,14 +1153,14 @@ export class RichText extends Component {
     }
 
     protected _getFirstWordLen (text: string, startIndex: number, textLen: number): number {
-        let character = text.charAt(startIndex);
+        let character = getSymbolAt(text, startIndex);
         if (isUnicodeCJK(character) || isUnicodeSpace(character)) {
             return 1;
         }
 
         let len = 1;
         for (let index = startIndex + 1; index < textLen; ++index) {
-            character = text.charAt(index);
+            character = getSymbolAt(text, index);
             if (isUnicodeSpace(character) || isUnicodeCJK(character)) {
                 break;
             }
