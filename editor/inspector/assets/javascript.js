@@ -21,46 +21,6 @@ exports.template = /* html */`
          ></ui-checkbox>
     </ui-prop>
     <div class="detail">
-        <div class="dependencies">
-            <ui-prop>
-                <ui-label slot="label"
-                    tooltip="i18n:ENGINE.assets.javascript.dependenciesTip"
-                    value="i18n:ENGINE.assets.javascript.dependencies"
-                ></ui-label>
-                <ui-num-input class="content" 
-                    step="1" 
-                    min="0" 
-                    max="10"
-                    slot="content"
-                    id="dependencies-input"
-                ></ui-num-input>
-            </ui-prop>
-            <ui-prop>
-                <ui-label slot="label"></ui-label>
-                <div class="assets content"
-                    slot="content"
-                    id="dependencies-content"
-                ></div>
-            </ui-prop>
-        </div>
-        <ui-prop >
-            <ui-label 
-                slot="label"
-                tooltip="i18n:ENGINE.assets.javascript.executionScopeTip"
-                value="i18n:ENGINE.assets.javascript.executionScope"
-            ></ui-label>
-            <ui-select slot="content"
-                id="executionScope"
-            ></ui-select>
-        </ui-prop>
-        <ui-prop id="executionScopeEnclosedProp">
-            <ui-label slot="label"></ui-label>
-            <ui-input slot="content"
-                id="executionScopeEnclosedInput"
-                placeholder="self;window;global;globalThis"
-                tooltip="i18n:ENGINE.assets.javascript.executionScopeEnclosed"
-            ></ui-input>
-        </ui-prop>
         <ui-prop>
             <ui-label slot="label"
                 tooltip="i18n:ENGINE.assets.javascript.loadPluginInWebTip"
@@ -77,6 +37,15 @@ exports.template = /* html */`
             ></ui-label>
             <ui-checkbox slot="content"
                 id="load-plugin-in-native"
+            ></ui-checkbox>
+        </ui-prop>
+        <ui-prop>
+            <ui-label slot="label"
+                tooltip="i18n:ENGINE.assets.javascript.loadPluginInMiniGameTip"
+                value="i18n:ENGINE.assets.javascript.loadPluginInMiniGame"
+            ></ui-label>
+            <ui-checkbox slot="content"
+                id="load-plugin-in-mini-game"
             ></ui-checkbox>
         </ui-prop>
         <ui-prop >
@@ -124,6 +93,7 @@ exports.$ = {
     loadPluginInEditorCheckBox: '#load-plugin-in-editor',
     loadPluginInWebCheckBox: '#load-plugin-in-web',
     loadPluginInNativeCheckBox: '#load-plugin-in-native',
+    loadPluginInMiniGameCheckBox: '#load-plugin-in-mini-game',
     dependencies: '.dependencies',
     dependenciesInput: '#dependencies-input',
     dependenciesContent: '#dependencies-content',
@@ -138,6 +108,17 @@ const Elements = {
         ready() {
             this.$.isPluginCheckBox.addEventListener('confirm', (event) => {
                 this.change('isPlugin', event);
+                if (event.target.value) {
+                    this.metaList.forEach((meta) => {
+                        const defaultConfig = {
+                            loadPluginInEditor: false,
+                            loadPluginInWeb: true,
+                            loadPluginInNative: true,
+                            loadPluginInMiniGame: true,
+                        };
+                        meta.userData = Object.assign(defaultConfig, meta.userData);
+                    })
+                }
                 Elements.detail.update.call(this);
             });
         },
@@ -157,142 +138,18 @@ const Elements = {
             this.$.detail.style.display = display;
         },
     },
-    dependencies: {
-        ready() {
-            this.$.dependenciesInput.addEventListener('confirm', (event) => {
-                let length = event.target.value;
-
-                if (length < 0) {
-                    length = 0;
-                }
-
-                if (length > 10) {
-                    length = 10;
-                }
-
-                if (!Array.isArray(this.meta.userData.dependencies)) {
-                    this.meta.userData.dependencies = [];
-                }
-
-                while (this.meta.userData.dependencies.length < length) {
-                    this.meta.userData.dependencies.push('');
-                }
-
-                while (this.meta.userData.dependencies.length > length) {
-                    this.meta.userData.dependencies.pop();
-                }
-
-                if (!this.meta.userData.dependencies.length) {
-                    this.meta.userData.dependencies = undefined;
-                }
-
-                this.dispatch('change');
-
-                Elements.dependencies.update.call(this);
-
-                this.dispatch('snapshot');
-            });
-        },
-        update() {
-            let display = 'none';
-            if (this.metaList.length === 1) {
-                display = 'block';
-            }
-            this.$.dependencies.style.display = display;
-
-            if (display === 'none') {
-                return;
-            }
-
-            updateElementReadonly.call(this, this.$.dependenciesInput);
-
-            this.$.dependenciesContent.innerText = '';
-
-            if (!Array.isArray(this.meta.userData.dependencies)) {
-                this.$.dependenciesInput.value = 0;
-                return;
-            }
-
-
-            const length = this.meta.userData.dependencies.length;
-            this.$.dependenciesInput.value = length;
-
-            for (let i = 0; i < length; i++) {
-                const child = document.createElement('ui-asset');
-                this.$.dependenciesContent.appendChild(child);
-
-                child.setAttribute('value', this.meta.userData.dependencies[i]);
-                child.setAttribute('droppable', 'cc.Script');
-                updateElementReadonly.call(this, child);
-                child.addEventListener('confirm', (event) => {
-                    this.meta.userData.dependencies[i] = event.target.value;
-                    this.dispatch('change');
-                    this.dispatch('snapshot');
-                });
-            }
-        },
-    },
-    executionScope: {
-        ready() {
-            const options = ['enclosed', 'global'];
-            for (const key of options) {
-                const option = document.createElement('option');
-                option.value = key;
-                option.innerText = this.t(key);
-                this.$.executionScope.appendChild(option);
-            }
-
-            this.$.executionScope.addEventListener('confirm', (event) => {
-                this.change('executionScope', event);
-                Elements.executionScopeEnclosed.update.call(this);
-            });
-        },
-        update() {
-            this.$.executionScope.value = this.meta.userData.executionScope !== 'global' ? 'enclosed' : 'global';
-            updateElementInvalid.call(this, this.$.executionScope, 'executionScope');
-            updateElementReadonly.call(this, this.$.executionScope);
-        },
-    },
-    executionScopeEnclosed: {
-        ready() {
-            this.$.executionScopeEnclosedInput.addEventListener('confirm', (event) => {
-                const value = event.target.value;
-                if (typeof value === 'string') {
-                    let globalNames = [];
-                    if (value.length !== 0) {
-                        globalNames = value
-                            .split(';')
-                            .map((globalName) => globalName.trim())
-                            .filter((globalName) => globalName.length !== 0);
-                    }
-                    this.metaList.forEach((meta) => (meta.userData.simulateGlobals = globalNames.length === 0 ? true : globalNames));
-                    this.dispatch('change');
-                    this.dispatch('snapshot');
-                }
-            });
-        },
-        update() {
-            let display = 'none';
-            if (this.meta.userData.executionScope !== 'global') {
-                display = 'block';
-            }
-
-            this.$.executionScopeEnclosedProp.style.display = display;
-
-            if (display === 'none') {
-                return;
-            }
-
-            updateElementReadonly.call(this, this.$.executionScopeEnclosedInput);
-
-            this.$.executionScopeEnclosedInput.value = Array.isArray(this.meta.userData.simulateGlobals)
-                ? this.meta.userData.simulateGlobals.join(';')
-                : '';
-        },
-    },
     loadPluginInWebCheckBox: {
         ready() {
-            this.$.loadPluginInWebCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInWeb'));
+            this.$.loadPluginInWebCheckBox.addEventListener('confirm', (event) => {
+                if (!event.target.value) {
+                    this.changeUserData('loadPluginInEditor', false);
+                    this.$.loadPluginInEditorCheckBox.disabled = true;
+                    Elements.loadPluginInEditorCheckBox.update.call(this);
+                } else {
+                    this.$.loadPluginInEditorCheckBox.disabled = false;
+                }
+                this.change('loadPluginInWeb', event);
+            });
         },
         update() {
             this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb;
@@ -308,6 +165,16 @@ const Elements = {
             this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative;
             updateElementInvalid.call(this, this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
             updateElementReadonly.call(this, this.$.loadPluginInNativeCheckBox);
+        },
+    },
+    loadPluginInMiniGameCheckBox: {
+        ready() {
+            this.$.loadPluginInMiniGameCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInNative'));
+        },
+        update() {
+            this.$.loadPluginInMiniGameCheckBox.value = this.meta.userData.loadPluginInMiniGame;
+            updateElementInvalid.call(this, this.$.loadPluginInMiniGameCheckBox, 'loadPluginInMiniGame');
+            updateElementReadonly.call(this, this.$.loadPluginInMiniGameCheckBox);
         },
     },
     loadPluginInEditorCheckBox: {
@@ -382,13 +249,16 @@ exports.methods = {
         return Editor.I18n.t(`ENGINE.assets.javascript.${key}`);
     },
     change(key, event) {
+        this.changeUserData(key, event.target.value);
+    },
+    changeUserData(key, value) {
         this.metaList.forEach((meta) => {
-            meta.userData[key] = event.target.value;
+            meta.userData[key] = value;
         });
 
         this.dispatch('change');
         this.dispatch('snapshot');
-    },
+    }
 };
 
 exports.ready = function() {
