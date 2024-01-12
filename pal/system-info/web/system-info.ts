@@ -198,7 +198,7 @@ class SystemInfo extends EventTarget {
         } else if (this.browserType === BrowserType.SAFARI) {
             //non-ios safari (desktop)
             const result = / version\/(\d+)/.exec(ua)?.[1];
-            if (typeof result === "string") {
+            if (typeof result === 'string') {
                 if (Number.parseInt(result) >= 14) {
                     // safari 14+ support webp, but canvas.toDataURL is not supported by default
                     supportWebp = true;
