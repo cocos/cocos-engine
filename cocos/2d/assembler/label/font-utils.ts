@@ -27,7 +27,7 @@ import { Color, macro, warnID } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
-import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
+import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset, getSymbolCodeAt } from '../../utils/text-utils';
 import { director, Director } from '../../../game/director';
 import { ccwindow } from '../../../core/global-exports';
 
@@ -133,7 +133,7 @@ class LetterTexture {
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;
-        this.hash = `${char.charCodeAt(0)}${labelInfo.hash}`;
+        this.hash = `${getSymbolCodeAt(char, 0)}${labelInfo.hash}`;
     }
 
     public updateRenderData (): void {
@@ -400,7 +400,7 @@ export class LetterAtlas {
     }
 
     public getLetterDefinitionForChar (char: string, labelInfo: ILabelInfo): any {
-        const hash = char.charCodeAt(0) + labelInfo.hash;
+        const hash = getSymbolCodeAt(char, 0) + labelInfo.hash;
         let letter = this.fontDefDictionary.letterDefinitions[hash];
         if (!letter) {
             const temp = new LetterTexture(char, labelInfo);

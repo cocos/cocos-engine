@@ -29,7 +29,7 @@ import { log, logID, warn } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
-import { BASELINE_RATIO, fragmentText, getBaselineOffset, isUnicodeCJK, isUnicodeSpace, safeMeasureText } from '../../utils/text-utils';
+import { BASELINE_RATIO, fragmentText, getBaselineOffset, getSymbolAt, getSymbolCodeAt, getSymbolLength, isUnicodeCJK, isUnicodeSpace, safeMeasureText } from '../../utils/text-utils';
 import { CanvasPool, ISharedLabelData, shareLabelInfo } from './font-utils';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
@@ -686,8 +686,8 @@ export class TextProcessing {
     private _parsedString (outputLayoutData: TextOutputLayoutData, inputString: string): void {
         let _splitStrings: string[] = [];
         let textFragment = '';
-
-        for (let i = 0, line = 0, l = inputString.length; i < l; ++i) {
+        const length = getSymbolLength(inputString);
+        for (let i = 0, line = 0, l = length; i < l; ++i) {
             const letterInfo = this._lettersInfo[i];
             if (!letterInfo.valid) { continue; }
             if (line === letterInfo.line) {
@@ -722,7 +722,7 @@ export class TextProcessing {
         const _lineSpacing = 0; // use less?
 
         for (let index = 0; index < textLen;) {
-            let character = _string.charAt(index);
+            let character = getSymbolAt(_string, index);
             if (character === '\n') {
                 layout.linesWidth.push(letterRight);
                 letterRight = 0;
@@ -744,7 +744,7 @@ export class TextProcessing {
 
             for (let tmp = 0; tmp < tokenLen; ++tmp) {
                 const letterIndex = index + tmp;
-                character = _string.charAt(letterIndex);
+                character = getSymbolAt(_string, letterIndex);
                 if (character === '\r') {
                     this._recordPlaceholderInfo(letterIndex, character);
                     continue;
@@ -852,7 +852,7 @@ export class TextProcessing {
         }
 
         this._lettersInfo[letterIndex].char = char;
-        this._lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
+        this._lettersInfo[letterIndex].hash = `${getSymbolCodeAt(char, 0)}${shareLabelInfo.hash}`;
         this._lettersInfo[letterIndex].valid = false;
     }
 
@@ -862,7 +862,7 @@ export class TextProcessing {
             this._lettersInfo.push(tmpInfo);
         }
 
-        const char = character.charCodeAt(0);
+        const char = getSymbolCodeAt(character, 0);
         const key = `${char}${shareLabelInfo.hash}`;
 
         this._lettersInfo[letterIndex].line = lineIndex;
@@ -874,7 +874,7 @@ export class TextProcessing {
     }
 
     private _getFirstWordLen (style: TextStyle, layout: TextLayout, text: string, startIndex: number, textLen: number): number {
-        let character = text.charAt(startIndex);
+        let character = getSymbolAt(text, startIndex);
         if (isUnicodeCJK(character)
             || character === '\n'
             || isUnicodeSpace(character)) {
@@ -889,7 +889,7 @@ export class TextProcessing {
         let nextLetterX = letterDef.xAdvance * style.bmfontScale + layout.spacingX;
         let letterX = 0;
         for (let index = startIndex + 1; index < textLen; ++index) {
-            character = text.charAt(index);
+            character = getSymbolAt(text, index);
 
             letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
             if (!letterDef) {
@@ -966,11 +966,17 @@ export class TextProcessing {
         }
     }
 
-    private _isHorizontalClamp (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        inputString: string, process: TextProcessing): boolean {
+    private _isHorizontalClamp (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+        process: TextProcessing,
+    ): boolean {
         let letterClamp = false;
         const _string = inputString;
-        for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
+        const _length = getSymbolLength(_string);
+        for (let ctr = 0, l = _length; ctr < l; ++ctr) {
             const letterInfo = process._lettersInfo[ctr];
             if (letterInfo.valid) {
                 const letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo);
@@ -1057,15 +1063,22 @@ export class TextProcessing {
         }
     }
 
-    private _updateQuads (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData,
-        outputRenderData: TextOutputRenderData, inputString: string, callback): boolean {
+    private _updateQuads (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        inputString: string,
+        callback,
+    ): boolean {
         const texture =  style.spriteFrame ? style.spriteFrame.texture : shareLabelInfo.fontAtlas!.getTexture();
 
         const appX = outputRenderData.uiTransAnchorX * outputLayoutData.nodeContentSize.width;
         const appY = outputRenderData.uiTransAnchorY * outputLayoutData.nodeContentSize.height;
 
         const ret = true;
-        for (let ctr = 0, l = inputString.length; ctr < l; ++ctr) {
+        const _length = getSymbolLength(inputString);
+        for (let ctr = 0, l = _length; ctr < l; ++ctr) {
             const letterInfo = this._lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
             const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
