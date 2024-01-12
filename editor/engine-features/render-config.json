@@ -4,92 +4,91 @@
         "base": {
             "label": "i18n:ENGINE.features.core.label",
             "description": "i18n:ENGINE.features.core.description",
-            "required": true,
-            "default": ["base"],
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "default": true,
+            "enginePlugin": true,
+            "readonly": true,
+            "required": true
         },
-        "graphcis": {
-            "label": "i18n:ENGINE.features.graphics.label",
-            "multi": true,
-            "description": "i18n:ENGINE.features.graphics.description",
-            "default": ["gfx-webgl", "gfx-webgl2"],
-            "options": {
-                "gfx-webgl": {
-                    "required": true,
-                    "label": "i18n:ENGINE.features.gfx_webgl.label",
-                    "description": "i18n:ENGINE.features.gfx_webgl.description",
-                    "wechatPlugin": true,
-                    "taobaoMinigamePlugin": true
-                },
-                "gfx-webgl2": {
-                    "label": "i18n:ENGINE.features.gfx_webgl2.label",
-                    "description": "i18n:ENGINE.features.gfx_webgl2.description",
-                    "wechatPlugin": true,
-                    "taobaoMinigamePlugin": true
-                }
-            }
+        "gfx-webgl": {
+            "default": true,
+            "label": "i18n:ENGINE.features.gfx_webgl.label",
+            "description": "i18n:ENGINE.features.gfx_webgl.description",
+            "category": "graphics",
+            "enginePlugin": true,
+            "readonly": true,
+            "required": true
+        },
+        "gfx-webgl2": {
+            "label": "i18n:ENGINE.features.gfx_webgl2.label",
+            "description": "i18n:ENGINE.features.gfx_webgl2.description",
+            "category": "graphics",
+            "enginePlugin": true
         },
         "animation": {
             "label": "i18n:ENGINE.features.animation.label",
             "description": "i18n:ENGINE.features.animation.description",
-            "default": ["animation"],
+            "default": true,
             "category": "animation"
         },
         "skeletal-animation": {
             "label": "i18n:ENGINE.features.skeletal_animation.label",
             "description": "i18n:ENGINE.features.skeletal_animation.description",
-            "default": ["skeletal-animation"],
+            "default": true,
             "category": "animation"
         },
         "3d": {
-            "default": ["3d"],
+            "default": true,
             "label": "i18n:ENGINE.features.base_3d.label",
             "description": "i18n:ENGINE.features.base_3d.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "enginePlugin": true,
+            "isNativeModule": true,
+            "readonly": true,
+            "dependencies": ["meshopt"],
+            "category": "3d"
+        },
+        "meshopt": {
+            "default": true,
+            "hidden": true,
             "category": "3d"
         },
         "2d": {
-            "default": ["2d"],
+            "default": true,
             "label": "i18n:ENGINE.features.base_2d.label",
             "description": "i18n:ENGINE.features.base_2d.description",
             "category": "2d",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "readonly": true,
+            "enginePlugin": true
         },
         "xr": {
-            "default": [],
+            "default": false,
             "label": "i18n:ENGINE.features.xr.label",
             "description": "i18n:ENGINE.features.xr.description",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false
+            "enginePlugin": false
         },
         "ui": {
-            "default": ["ui"],
+            "default": true,
             "label": "i18n:ENGINE.features.ui.label",
             "description": "i18n:ENGINE.features.ui.description",
             "category": "2d",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "enginePlugin": true
         },
         "particle": {
-            "default": ["particle"],
+            "default": true,
             "label": "i18n:ENGINE.features.particle.label",
             "description": "i18n:ENGINE.features.particle.description",
             "category": "3d",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "enginePlugin": true
         },
         "physics": {
             "label": "i18n:ENGINE.features.physics.label",
             "description": "i18n:ENGINE.features.physics.description",
-            "default": ["physics-ammo"],
             "category": "3d",
             "options": {
                 "physics-ammo": {
                     "label": "i18n:ENGINE.features.physics_ammo.label",
-                    "description": "i18n:ENGINE.features.physics_ammo.description"
+                    "description": "i18n:ENGINE.features.physics_ammo.description",
+                    "default": true,
+                    "isNativeModule": true
                 },
                 "physics-cannon": {
                     "label": "i18n:ENGINE.features.physics_cannon.label",
@@ -97,8 +96,9 @@
                 },
                 "physics-physx": {
                     "label": "i18n:ENGINE.features.physics_physx.label",
-                    "native": "USE_PHYSICS_PHYSX",
-                    "description": "i18n:ENGINE.features.physics_physx.description"
+                    "cmakeConfig": "USE_PHYSICS_PHYSX",
+                    "description": "i18n:ENGINE.features.physics_physx.description",
+                    "isNativeModule": true
                 },
                 "physics-builtin": {
                     "label": "i18n:ENGINE.features.physics_builtin.label",
@@ -109,12 +109,13 @@
         "physics-2d": {
             "label": "i18n:ENGINE.features.physics_2d.label",
             "description": "i18n:ENGINE.features.physics_2d.description",
-            "default": ["physics-2d-box2d"],
             "category": "2d",
             "options": {
                 "physics-2d-box2d": {
                     "label": "i18n:ENGINE.features.physics_2d_box2d.label",
-                    "description": "i18n:ENGINE.features.physics_2d_box2d.description"
+                    "description": "i18n:ENGINE.features.physics_2d_box2d.description",
+                    "default": true,
+                    "isNativeModule": true
                 },
                 "physics-2d-builtin": {
                     "label": "i18n:ENGINE.features.physics_2d_builtin.label",
@@ -123,194 +124,183 @@
             }
         },
         "intersection-2d": {
-            "default": ["intersection-2d"],
+            "default": true,
             "label": "i18n:ENGINE.features.intersection_2d.label",
             "description": "i18n:ENGINE.features.intersection_2d.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "enginePlugin": true,
             "category": "2d"
         },
         "primitive": {
-            "default": ["primitive"],
+            "default": true,
             "label": "i18n:ENGINE.features.primitives.label",
             "description": "i18n:ENGINE.features.primitives.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "enginePlugin": true,
             "category": "3d"
         },
         "profiler": {
-            "default": ["profiler"],
+            "default": true,
             "label": "i18n:ENGINE.features.profiler.label",
             "description": "i18n:ENGINE.features.profiler.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "enginePlugin": true
         },
         "occlusion-query": {
-            "default": [],
+            "default": false,
             "label": "i18n:ENGINE.features.occlusion_query.label",
             "description": "i18n:ENGINE.features.occlusion_query.description",
-            "native": "USE_OCCLUSION_QUERY",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false,
+            "cmakeConfig": "USE_OCCLUSION_QUERY",
+            "enginePlugin": false,
             "category": "3d"
         },
         "geometry-renderer": {
-            "default": [],
+            "default": false,
             "label": "i18n:ENGINE.features.geometry_renderer.label",
             "description": "i18n:ENGINE.features.geometry_renderer.description",
-            "native": "USE_GEOMETRY_RENDERER",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "cmakeConfig": "USE_GEOMETRY_RENDERER",
+            "enginePlugin": true,
             "category": "3d"
         },
         "debug-renderer": {
-            "default": [],
+            "default": false,
             "label": "i18n:ENGINE.features.debug_renderer.label",
             "description": "i18n:ENGINE.features.debug_renderer.description",
-            "native": "USE_DEBUG_RENDERER",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false,
+            "cmakeConfig": "USE_DEBUG_RENDERER",
+            "enginePlugin": false,
             "category": "3d"
         },
         "particle-2d": {
-            "default": ["particle-2d"],
+            "default": true,
             "label": "i18n:ENGINE.features.particle_2d.label",
             "description": "i18n:ENGINE.features.particle_2d.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "enginePlugin": true,
             "category": "2d"
         },
         "audio": {
-            "default": ["audio"],
+            "default": true,
             "label": "i18n:ENGINE.features.audio.label",
             "description": "i18n:ENGINE.features.audio.description",
-            "native": "USE_AUDIO",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "cmakeConfig": "USE_AUDIO",
+            "enginePlugin": true
         },
         "video": {
-            "default": ["video"],
+            "default": true,
             "label": "i18n:ENGINE.features.video.label",
             "description": "i18n:ENGINE.features.video.description",
-            "native": "USE_VIDEO",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "cmakeConfig": "USE_VIDEO",
+            "enginePlugin": true
         },
         "webview": {
-            "default": ["webview"],
+            "default": true,
             "label": "i18n:ENGINE.features.webview.label",
             "description": "i18n:ENGINE.features.webview.description",
-            "native": "USE_WEBVIEW",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "cmakeConfig": "USE_WEBVIEW",
+            "enginePlugin": true
         },
         "tween": {
-            "default": ["tween"],
+            "default": true,
             "label": "i18n:ENGINE.features.tween.label",
             "description": "i18n:ENGINE.features.tween.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true
+            "enginePlugin": true
         },
         "websocket": {
-            "default": ["websocket"],
+            "default": true,
             "label": "i18n:ENGINE.features.websocket.label",
             "description": "i18n:ENGINE.features.websocket.description",
-            "native": "USE_SOCKET",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false,
+            "cmakeConfig": "USE_SOCKET",
+            "enginePlugin": false,
             "category": "network"
         },
         "websocket-server": {
-            "default": [],
+            "default": false,
             "label": "i18n:ENGINE.features.websocket_server.label",
             "description": "i18n:ENGINE.features.websocket_server.description",
-            "native": "USE_WEBSOCKET_SERVER",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false,
+            "cmakeConfig": "USE_WEBSOCKET_SERVER",
+            "enginePlugin": false,
             "category": "network"
         },
         "terrain": {
-            "default": ["terrain"],
+            "default": true,
             "label": "i18n:ENGINE.features.terrain.label",
             "description": "i18n:ENGINE.features.terrain.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "enginePlugin": true,
             "category": "3d"
         },
         "light-probe": {
-            "default": ["light-probe"],
+            "default": true,
             "label": "i18n:ENGINE.features.light_probe.label",
             "description": "i18n:ENGINE.features.light_probe.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "enginePlugin": true,
             "category": "3d"
         },
         "tiled-map": {
-            "default": ["tiled-map"],
+            "default": true,
             "label": "i18n:ENGINE.features.tiled_map.label",
             "description": "i18n:ENGINE.features.tiled_map.description",
-            "wechatPlugin": true,
-            "taobaoMinigamePlugin": true,
+            "enginePlugin": true,
             "category": "2d"
         },
         "spine": {
-            "default": ["spine"],
+            "default": true,
             "label": "i18n:ENGINE.features.spine.label",
             "description": "i18n:ENGINE.features.spine.description",
-            "native": "USE_SPINE",
-	        "wechatPlugin": true,
-	        "taobaoMinigamePlugin": false,
+            "cmakeConfig": "USE_SPINE",
+            "isNativeModule": true,
+            "enginePlugin": true,
             "category": "2d"
         },
         "dragon-bones": {
-            "default": ["dragon-bones"],
+            "default": true,
             "label": "i18n:ENGINE.features.dragon_bones.label",
             "description": "i18n:ENGINE.features.dragon_bones.description",
-            "native": "USE_DRAGONBONES",
-	        "wechatPlugin": true,
-	        "taobaoMinigamePlugin": true,
+            "cmakeConfig": "USE_DRAGONBONES",
+            "enginePlugin": true,
             "category": "2d"
         },
         "marionette": {
-            "default": ["marionette"],
+            "default": true,
             "label": "i18n:ENGINE.features.marionette.label",
             "description": "i18n:ENGINE.features.marionette.description",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false,
+            "enginePlugin": false,
             "category": "animation"
         },
         "procedural-animation": {
-            "default": [],
+            "default": false,
             "label": "i18n:ENGINE.features.procedural_animation.label",
             "description": "i18n:ENGINE.features.procedural_animation.description",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false,
+            "enginePlugin": false,
             "category": "animation"
         },
         "custom-pipeline": {
-            "default": [],
+            "default": false,
             "label": "i18n:ENGINE.features.custom_pipeline.label",
             "description": "i18n:ENGINE.features.custom_pipeline.description",
-            "wechatPlugin": false,
-            "taobaoMinigamePlugin": false
+            "enginePlugin": false
         }
     },
     "categories": {
+        "graphics": {
+            "label": "i18n:ENGINE.features.graphics.label",
+            "description": "i18n:ENGINE.features.graphics.description",
+            "checkable": true
+        },
         "2d": {
             "label": "i18n:ENGINE.features.categories.2d.label",
-            "description": "i18n:ENGINE.features.categories.2d.description"
+            "description": "i18n:ENGINE.features.categories.2d.description",
+            "checkable": true
         },
         "3d": {
             "label": "i18n:ENGINE.features.categories.3d.label",
-            "description": "i18n:ENGINE.features.categories.3d.description"
+            "description": "i18n:ENGINE.features.categories.3d.description",
+            "checkable": true
         },
         "animation": {
             "label": "i18n:ENGINE.features.categories.animation.label",
-            "description": "i18n:ENGINE.features.categories.animation.description"
+            "description": "i18n:ENGINE.features.categories.animation.description",
+            "checkable": true
         },
         "network": {
             "label": "i18n:ENGINE.features.categories.network.label",
-            "description": "i18n:ENGINE.features.categories.network.description"
+            "description": "i18n:ENGINE.features.categories.network.description",
+            "checkable": true
         }
     }
 }

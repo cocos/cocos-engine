@@ -1,6 +1,5 @@
 {
     "$schema": "./cc.config.schema.json",
-
     "features": {
         "base": {
             "modules": ["base"],
@@ -210,6 +209,9 @@
         "websocket-server": {
             "modules": [],
             "isNativeOnly": true
+        },
+        "meshopt": {
+            "modules": []
         }
     },
     "moduleOverrides": [{
