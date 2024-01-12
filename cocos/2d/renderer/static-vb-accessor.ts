@@ -159,7 +159,7 @@ export class StaticVBAccessor extends BufferAccessor {
 
     public allocateChunk (vertexCount: number, indexCount: number): StaticVBChunk | null {
         const byteLength = vertexCount * this.vertexFormatBytes;
-        if (vertexCount <= this._vCount) {
+        if (vertexCount <= this._vCount || indexCount < this._iCount) {
             errorID(9004, byteLength);
             return null;
         }
@@ -185,7 +185,7 @@ export class StaticVBAccessor extends BufferAccessor {
         if (!entry) {
             bid = this._allocateBuffer();
             buf = this._buffers[bid];
-            if (buf && buf.checkCapacity(vertexCount, indexCount)) {
+            if (buf) {
                 eid = 0;
                 entry = this._freeLists[bid][eid];
             }
@@ -199,7 +199,6 @@ export class StaticVBAccessor extends BufferAccessor {
 
             return new StaticVBChunk(this, bid, buf, vertexOffset, vb, indexCount);
         } else {
-            errorID(9004, byteLength);
             return null;
         }
     }
