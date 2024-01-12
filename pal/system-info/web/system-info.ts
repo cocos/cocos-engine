@@ -195,7 +195,7 @@ class SystemInfo extends EventTarget {
                     supportWebp = true;
                 }
             }
-        } else if (this.browserType == BrowserType.SAFARI) {
+        } else if (this.browserType === BrowserType.SAFARI) {
             //non-ios safari (desktop)
             const result = / version\/(\d+)/.exec(ua)?.[1];
             if (typeof result === "string") {
