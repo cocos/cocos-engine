@@ -159,7 +159,7 @@ export class StaticVBAccessor extends BufferAccessor {
 
     public allocateChunk (vertexCount: number, indexCount: number): StaticVBChunk | null {
         const byteLength = vertexCount * this.vertexFormatBytes;
-        if (vertexCount <= this._vCount || indexCount < this._iCount) {
+        if (vertexCount > this._vCount || indexCount > this._iCount) {
             errorID(9004, byteLength);
             return null;
         }
