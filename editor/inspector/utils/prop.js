@@ -290,6 +290,7 @@ exports.updatePropByDump = function(panel, dump) {
             if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
                 if (info.group && dump.groups) {
                     const { id = 'default', name } = info.group;
+                    if (!panel.$groups[id]) { return; }
                     if (dump.groups[id].style === 'tab') {
                         exports.appendChildByDisplayOrder(panel.$groups[id].tabs[name], $prop);
                     } else {
@@ -564,8 +565,8 @@ ui-section { margin-top: 4px; }
 ui-prop > ui-section,
 ui-prop > ui-prop,
 ui-section > ui-prop[slot="header"],
-ui-prop [slot="content"] ui-prop { 
-    margin-top: 0; 
+ui-prop [slot="content"] ui-prop {
+    margin-top: 0;
     margin-left: 0;
 }
 ui-prop[ui-section-config] + ui-section.config,
