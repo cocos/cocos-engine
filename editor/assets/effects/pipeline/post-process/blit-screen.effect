@@ -18,6 +18,21 @@ CCEffect %{
           blendDst: one_minus_src_alpha
           blendSrcAlpha: one
           blendDstAlpha: zero
+    - vert: vs
+      frag: fs
+      pass: post-process
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: src_alpha
+          blendDst: one_minus_src_alpha
+          blendSrcAlpha: zero
+          blendDstAlpha: one
 }%
 
 
