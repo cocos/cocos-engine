@@ -121,9 +121,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._registerEventListeners();
         this._addDomToGameContainer();
         View.instance.on('canvas-resize', this._resize, this);
+        screenAdapter.on('window-resize', this._resize, this);
     }
 
     public clear (): void {
+        View.instance.off('canvas-resize', this._resize, this);
+        screenAdapter.off('window-resize', this._resize, this);
         this._removeEventListeners();
         this._removeDomFromGameContainer();
 
