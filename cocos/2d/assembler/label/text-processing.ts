@@ -491,7 +491,6 @@ export class TextProcessing {
         const tempPos = new Vec2(outputLayoutData.startPosition.x, outputLayoutData.startPosition.y);
         const drawTextPosX = tempPos.x;
         let drawTextPosY = 0;
-        const tempFillStyle = this._context.fillStyle;
         // draw shadow and underline
         this._drawTextEffect(tempPos, lineHeight, style, layout, outputLayoutData);
         // draw text and outline
@@ -607,10 +606,10 @@ export class TextProcessing {
     }
 
     private _setupOutline (style: TextStyle): void {
+        // draw outline need clear shadow
         this._context!.shadowBlur = 0;
         this._context!.shadowOffsetX = 0;
         this._context!.shadowOffsetY = 0;
-        this._context!.miterLimit = 2;
         this._context!.strokeStyle = `rgba(${style.outlineColor.r}, ${style.outlineColor.g}, ${style.outlineColor.b}, ${style.outlineColor.a / 255})`;
         this._context!.lineWidth = style.outlineWidth * 2 * this._fontScale;
     }
