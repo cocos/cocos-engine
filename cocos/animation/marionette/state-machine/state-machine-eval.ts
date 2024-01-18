@@ -641,7 +641,7 @@ class TopLevelStateMachineEvaluation {
             return transition;
         }
 
-        if (sourceState.kind === NodeKind.animation || sourceState.kind === NodeKind.procedural) {
+        if (isRealState(sourceState)) {
             const transition = this._matchAnyScoped(sourceState);
             if (transition) {
                 return transition;
@@ -656,7 +656,7 @@ class TopLevelStateMachineEvaluation {
      * - to determinate the starting state machine from where the any states are matched;
      * - so we can solve transitions' relative durations.
      */
-    private _matchAnyScoped (realNode: VMSMInternalState | ProceduralPoseStateEval): TransitionEval | null {
+    private _matchAnyScoped (realNode: RealState): TransitionEval | null {
         for (let ancestor: StateMachineInfo | null = realNode.stateMachine;
             ancestor !== null;
             ancestor = ancestor.parent) {
