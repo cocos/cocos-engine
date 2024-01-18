@@ -12631,6 +12631,7 @@ var dragonBones;
                     var rawTimeline = rawTimelines_3[_b];
                     this._parseSlotTimeline(rawTimeline);
                 }
+                this._actionFrames.sort((a, b) => { return a.frameStart - b.frameStart; });
             }
             if (dragonBones.DataParser.FFD in rawData) {
                 var rawTimelines = rawData[dragonBones.DataParser.FFD];
