@@ -141,6 +141,7 @@ class ScreenAdapter extends EventTarget {
         }
         this._orientation = value;
         this._updateFrameState();
+        this._resizeFrame();
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
