@@ -227,7 +227,7 @@ const Elements = {
     },
     loadPluginInMiniGameCheckBox: {
         ready() {
-            this.$.loadPluginInMiniGameCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInNative'));
+            this.$.loadPluginInMiniGameCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInMiniGame'));
         },
         update() {
             this.$.loadPluginInMiniGameCheckBox.value = this.meta.userData.loadPluginInMiniGame;
@@ -242,7 +242,7 @@ const Elements = {
         update() {
             
             this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInWeb ? this.meta.userData.loadPluginInEditor : false;
-            this.$.loadPluginInEditorCheckBox.disabled = this.meta.userData.loadPluginInWeb ? true : false;
+            this.$.loadPluginInEditorCheckBox.disabled = this.meta.userData.loadPluginInWeb ? false : true;
             updateElementInvalid.call(this, this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
             updateElementReadonly.call(this, this.$.loadPluginInEditorCheckBox);
         },
