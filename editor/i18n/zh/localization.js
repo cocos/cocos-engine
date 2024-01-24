@@ -162,7 +162,7 @@ module.exports = link(mixin({
             Sorting: `${url}/${version}/manual/zh/engine/rendering/sorting.html`,
         },
         assets: {
-            javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
+            javascript: `${url}/${version}/manual/zh/concepts/scripting/plugin-scripts.html`,
             texture: `${url}/${version}/manual/zh/asset/texture.html`,
             'texture-cube': `${url}/${version}/manual/zh/asset/texture-cube.html`,
             typescript: `${url}/${version}/manual/zh/scripting/setup.html`,
