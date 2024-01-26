@@ -186,6 +186,8 @@ var cacheManager = {
         caches.length = Math.floor(caches.length / 3);
         if (caches.length === 0) return;
         for (var i = 0, l = caches.length; i < l; i++) {
+            var cacheKey = cc.assetManager.utils.getUuidFromURL(caches[i].originUrl) + "@native";
+            cc.assetManager._files.remove(cacheKey);
             this.cachedFiles.remove(caches[i].originUrl);
         }
         
