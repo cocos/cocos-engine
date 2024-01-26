@@ -155,11 +155,9 @@ function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
 }
 
 function initAsm (asmFactory): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        asmFactory().then((instance: any) => {
-            log('[box2d]:box2d asm lib loaded.');
-            B2 = instance;
-        });
+    return asmFactory().then((instance: any) => {
+        log('[box2d]:box2d asm lib loaded.');
+        B2 = instance;
     });
 }
 
