@@ -40,6 +40,7 @@ import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { ccwindow } from '../../core/global-exports';
+import { NodeEventType } from '../../scene-graph';
 
 const ccdocument = ccwindow.document;
 
@@ -120,11 +121,16 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._initStyleSheet();
         this._registerEventListeners();
         this._addDomToGameContainer();
+
+        this._delegate.node.on(NodeEventType.TRANSFORM_CHANGED, this._resize, this);
         View.instance.on('canvas-resize', this._resize, this);
         screenAdapter.on('window-resize', this._resize, this);
     }
 
     public clear (): void {
+        if (this._delegate) {
+            this._delegate.node.off(NodeEventType.TRANSFORM_CHANGED, this._resize, this);
+        }
         View.instance.off('canvas-resize', this._resize, this);
         screenAdapter.off('window-resize', this._resize, this);
         this._removeEventListeners();
