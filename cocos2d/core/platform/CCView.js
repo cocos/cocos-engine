@@ -209,7 +209,7 @@ cc.js.mixin(View.prototype, {
 
     _orientationChange: function () {
         cc.view._orientationChanging = true;
-        cc.view._resizeEvent();
+        cc.view._resizeEvent(true);
         // HACK: show nav bar on iOS safari
         // safari will enter fullscreen when rotate to landscape
         // need to exit fullscreen when rotate back to portrait, scrollTo(0, 1) works.
