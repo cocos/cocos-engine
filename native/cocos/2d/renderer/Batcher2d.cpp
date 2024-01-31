@@ -148,7 +148,7 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
     }
 
     // post assembler
-    if (_stencilManager->getMaskStackSize() > 0 && entity && entity->isEnabled()) {
+    if (_stencilManager->getMaskStackSize() > 0 && entity && entity->isEnabled() && !breakWalk) {
         handlePostRender(entity);
     }
 }
