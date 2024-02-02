@@ -435,6 +435,7 @@ exports.$ = {
 
     prefab: '.container > .header > .prefab',
     prefabUnlink: '.container > .header > .prefab [role="unlink"]',
+    prefabMore: '.container > .header > .prefab [role="show-more"]',
     prefabLocal: '.container > .header > .prefab > [role="local"]',
     prefabReset: '.container > .header > .prefab > [role="reset"]',
     prefabSave: '.container > .header > .prefab > [role="save"]',
@@ -744,8 +745,10 @@ const Elements = {
             });
             if (canUnlink) {
                 panel.$.prefabUnlink.removeAttribute('disabled');
+                panel.$.prefabMore.removeAttribute('disabled');
             } else {
                 panel.$.prefabUnlink.setAttribute('disabled', '');
+                panel.$.prefabMore.setAttribute('disabled', '');
             }
 
             const assetInfo = await Editor.Message.request('asset-db', 'query-asset-info', prefab.uuid);
