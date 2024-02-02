@@ -116,8 +116,8 @@ export class Pacer {
         if (!this._isPlaying) {
             return;
         }
-        const nowTime = performance.now();
-        const elapseTime = nowTime - this._startTime;
+        const currTime = performance.now();
+        const elapseTime = currTime - this._startTime;
         const elapseFrame = Math.floor(elapseTime / this._frameTime);
         if (elapseFrame < this._frameCount) {
             const sleepMs = this._frameCount * this._frameTime - elapseTime;
@@ -139,8 +139,8 @@ export class Pacer {
         if (this._callback) {
             this._callback();
         }
-        if (nowTime - this._startTime > FRAME_RESET_TIME) {
-            this._startTime = nowTime;
+        if (currTime - this._startTime > FRAME_RESET_TIME) {
+            this._startTime = currTime;
             this._frameCount = 1;
         }
         this._timeId = setTimeout(this._handleRAF, 0);
