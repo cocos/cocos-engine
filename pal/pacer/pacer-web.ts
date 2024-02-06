@@ -30,7 +30,6 @@ const FRAME_RESET_TIME = 2000;
 
 export class Pacer {
     private _stHandle = 0;
-    private _timeId = 0;
     private _onTick: (() => void) | null = null;
     private _targetFrameRate = 60;
     private _frameTime = 0;
@@ -89,6 +88,9 @@ export class Pacer {
         const recordStartTime = EDITOR || this._rAF === undefined || globalThis.__globalXR?.isWebXR;
         const updateCallback = (): void => {
             if (recordStartTime) this._startTime = performance.now();
+            if (this._isPlaying) {
+                this._stHandle = this._stTime(updateCallback);
+            }
             if (this._onTick) {
                 this._onTick();
             }
@@ -104,46 +106,26 @@ export class Pacer {
         if (!this._isPlaying) return;
         this._ctTime(this._stHandle);
         this._stHandle = 0;
-        if (this._timeId) {
-            clearTimeout(this._timeId);
-            this._timeId = 0;
-        }
         this._isPlaying = false;
         this._frameCount = 0;
     }
 
-    _handleRAF = (): void => {
-        if (!this._isPlaying) {
-            return;
-        }
+    _handleRAF = (stamp: number): void => {
         const currTime = performance.now();
         const elapseTime = currTime - this._startTime;
         const elapseFrame = Math.floor(elapseTime / this._frameTime);
+        if (elapseFrame < 0) {
+            this._startTime = currTime;
+            this._frameCount = 0;
+        }
         if (elapseFrame < this._frameCount) {
-            const sleepMs = this._frameCount * this._frameTime - elapseTime;
-            if (sleepMs > 16) {
-                this._stHandle = this._rAF.call(window, this._handleRAF);
-                return;
-            } else if (sleepMs > 4) {
-                // Avoid timing to sleepMs because timing has accuracy issues.
-                this._timeId = setTimeout(this._handleRAF, sleepMs - 4);
-                return;
-            } else if (sleepMs > 1) {
-                this._timeId = setTimeout(this._handleRAF, 0);
-                return;
-            } else {
-                // Acceptance tolerance within 1ms.
+            this._stHandle = this._rAF.call(window, this._handleRAF);
+        } else {
+            this._frameCount = elapseFrame + 1;
+            if (this._callback) {
+                this._callback();
             }
         }
-        this._frameCount++;
-        if (this._callback) {
-            this._callback();
-        }
-        if (currTime - this._startTime > FRAME_RESET_TIME) {
-            this._startTime = currTime;
-            this._frameCount = 1;
-        }
-        this._timeId = setTimeout(this._handleRAF, 0);
     };
 
     private _stTime (callback: () => void): number {
