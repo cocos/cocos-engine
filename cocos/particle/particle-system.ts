@@ -1109,6 +1109,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._trailModule) this._trailModule.onDisable();
         if (this._boundingBox) {
             this._boundingBox = null;
+            this._oldPos = null;
         }
         if (this._culler) {
             this._culler.clear();
