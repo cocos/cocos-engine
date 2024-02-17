@@ -69,6 +69,7 @@ export class OneShotAudio {
     private _id: number = INVALID_AUDIO_ID;
     private _url: string;
     private _volume: number;
+    private _playbackRate: number;
     private _onPlayCb?: () => void;
     get onPlay (): (() => void) | undefined {
         return this._onPlayCb;
@@ -85,12 +86,13 @@ export class OneShotAudio {
         this._onEndCb = cb;
     }
 
-    private constructor (url: string, volume: number)  {
+    private constructor (url: string, volume: number, playbackRate: number)  {
         this._url = url;
         this._volume = volume;
+        this._playbackRate = playbackRate;
     }
     public play (): void {
-        this._id = jsb.AudioEngine.play2d(this._url, false, this._volume);
+        this._id = jsb.AudioEngine.play2d(this._url, false, this._volume, this._playbackRate);
         jsb.AudioEngine.setFinishCallback(this._id, () => {
             this.onEnd?.();
         });
@@ -125,6 +127,7 @@ export class AudioPlayer implements OperationQueueable {
         loop: false,
         currentTime: 0,
         volume: 1,
+        playbackRate: 1,
     }
 
     constructor (url: string) {
@@ -184,11 +187,11 @@ export class AudioPlayer implements OperationQueueable {
             }
         });
     }
-    static loadOneShotAudio (url: string, volume: number, opts?: AudioLoadOptions): Promise<OneShotAudio> {
+    static loadOneShotAudio (url: string, volume: number, playbackRate: number, opts?: AudioLoadOptions): Promise<OneShotAudio> {
         return new Promise((resolve, reject) => {
             AudioPlayer.loadNative(url, opts).then((url) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
-                resolve(new (OneShotAudio as any)(url, volume));
+                resolve(new (OneShotAudio as any)(url, volume, playbackRate));
             }).catch(reject);
         });
     }
@@ -231,6 +234,19 @@ export class AudioPlayer implements OperationQueueable {
             audioEngine.setVolume(this._id, val);
         }
         this._cachedState.volume = val;
+    }
+    get playbackRate (): number {
+        if (!this._isValid) {
+            return this._cachedState.playbackRate;
+        }
+        return audioEngine.getPlaybackRate(this._id);
+    }
+    set playbackRate (val: number) {
+        if (val < 0) val = 0;
+        if (this._isValid) {
+            audioEngine.setPlaybackRate(this._id, val);
+        }
+        this._cachedState.playbackRate = val;
     }
     get duration (): number {
         if (!this._isValid) {
@@ -289,7 +305,7 @@ export class AudioPlayer implements OperationQueueable {
                     audioEngine.resume(this._id);
                 }
             } else {
-                this._id = audioEngine.play2d(this._url, this._cachedState.loop, this._cachedState.volume);
+                this._id = audioEngine.play2d(this._url, this._cachedState.loop, this._cachedState.volume, this._cachedState.playbackRate);
                 if (this._isValid) {
                     if (this._cachedState.currentTime !== 0) {
                         audioEngine.setCurrentTime(this._id, this._cachedState.currentTime);

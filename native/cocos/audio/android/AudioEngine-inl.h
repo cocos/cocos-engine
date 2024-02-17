@@ -58,6 +58,7 @@ public:
     int play2d(const ccstd::string &filePath, bool loop, float volume);
     void setVolume(int audioID, float volume);
     void setLoop(int audioID, bool loop);
+    void setPitch(int audioID, float pitch);
     void pause(int audioID);
     void resume(int audioID);
     void stop(int audioID);

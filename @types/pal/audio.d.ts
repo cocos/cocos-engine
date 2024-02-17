@@ -10,8 +10,9 @@ declare module 'pal/audio' {
          * OneShotAudio shoulb be instantiated by `AudioPlayer.loadOneShotAudio()` method.
          * @param nativeAudio The native audio such as `HTMLAudioElement` or `AudioBuffer`.
          * @param volume Init the audio volume.
+         * @param playbackRate OH NO
          */
-        private constructor (nativeAudio: unknown, volume: number);
+        private constructor (nativeAudio: unknown, volume: number, playbackRate:number);
 
         /**
          * Play the audio.
@@ -68,7 +69,7 @@ declare module 'pal/audio' {
          * @param opts Load options.
          * @returns The OneShotAudio instance.
          */
-        static loadOneShotAudio (url: string, volume: number, opts?: import('pal/audio/type').AudioLoadOptions): Promise<OneShotAudio>;
+        static loadOneShotAudio (url: string, volume: number, playbackRate: number, opts?: import('pal/audio/type').AudioLoadOptions): Promise<OneShotAudio>;
 
         /**
          * Max audio channel count allowed on current platform.
@@ -105,6 +106,12 @@ declare module 'pal/audio' {
          */
         get volume (): number;
         set volume (val: number);
+
+        /**
+         * OH NO
+         */
+        get playbackRate (): number;
+        set playbackRate (val: number);
 
         /**
          * The duration of this audio player.

@@ -79,7 +79,9 @@ export class AudioSource extends Component {
     protected _playOnAwake = true;
     @serializable
     protected _volume = 1;
-
+    @serializable
+    protected _playbackRate = 1;
+    
     private _cachedCurrentTime = -1;
 
     // An operation queue to store the operations before loading the AudioPlayer.
@@ -242,6 +244,29 @@ export class AudioSource extends Component {
     }
     get volume (): number {
         return this._volume;
+    }
+    
+    /**
+     * @en
+     * OH NO
+     * @zh
+     * 不好了！
+     */
+    @range([0.0, 10.0])
+    @tooltip('i18n:audio.playbackRate')
+    set playbackRate (val) {
+        // eslint-disable-next-line no-console
+        if (Number.isNaN(val)) { console.warn('illegal audio playback rate!'); return; }
+        val = clamp(val, 0, 10);
+        if (this._player) {
+            this._player.playbackRate = val;
+            this._playbackRate = this._player.playbackRate;
+        } else {
+            this._playbackRate = val;
+        }
+    }
+    get playbackRate (): number {
+        return this._playbackRate;
     }
 
     public onLoad (): void {
@@ -420,19 +445,20 @@ export class AudioSource extends Component {
     /**
      * @en
      * Plays an AudioClip, and scales volume by volumeScale. The result volume is `audioSource.volume * volumeScale`. <br>
+     * OH NO
      * @zh
      * 以指定音量倍数播放一个音频一次。最终播放的音量为 `audioSource.volume * volumeScale`。 <br>
      * @param clip The audio clip to be played.
      * @param volumeScale volume scaling factor wrt. current value.
      */
-    public playOneShot (clip: AudioClip, volumeScale = 1): void {
+    public playOneShot (clip: AudioClip, volumeScale = 1, playbackRateScale = 1): void {
         if (!clip._nativeAsset) {
             // eslint-disable-next-line no-console
             console.error('Invalid audio clip');
             return;
         }
         let player: OneShotAudio;
-        AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, {
+        AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, this._playbackRate * playbackRateScale, { 
             audioLoadMode: clip.loadMode,
         }).then((oneShotAudio) => {
             player = oneShotAudio;
@@ -453,6 +479,7 @@ export class AudioSource extends Component {
         if (this._player) {
             this._player.loop = this._loop;
             this._player.volume = this._volume;
+            this._player.playbackRate = this._playbackRate;
             this._operationsBeforeLoading.forEach((opInfo): void => {
                 if (opInfo.op === AudioOperationType.SEEK) {
                     this._cachedCurrentTime = (opInfo.params && opInfo.params[0]) as number;
