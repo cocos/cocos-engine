@@ -157,10 +157,8 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED;
             VkResult result = vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo,
                                              pVkImage, pVmaAllocation, &res);
-            if (!result) {
+            if (!result)
                 gpuTexture->memoryAllocated = false;
-                return;
-            }
 
             // feature not present, fallback to device memory
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -360,8 +358,8 @@ private:
     ccstd::unordered_set<VkSubpassDependency2, DependencyHasher, DependencyComparer> _hashes;
 };
 
-std::pair<VkImageLayout, VkImageLayout> getInitialFinalLayout(CCVKDevice *device, CCVKGeneralBarrier *barrier, bool depthSetncil) {
-    const auto *gpuBarrier = barrier ? barrier->gpuBarrier() : (depthSetncil ? &device->gpuDevice()->defaultDepthStencilBarrier : &device->gpuDevice()->defaultColorBarrier);
+std::pair<VkImageLayout, VkImageLayout> getInitialFinalLayout(CCVKDevice *device, CCVKGeneralBarrier *barrier, bool depthStencil) {
+    const auto *gpuBarrier = barrier ? barrier->gpuBarrier() : (depthStencil ? &device->gpuDevice()->defaultDepthStencilBarrier : &device->gpuDevice()->defaultColorBarrier);
 
     ThsvsImageBarrier imageBarrier = {};
     imageBarrier.prevAccessCount = utils::toUint(gpuBarrier->prevAccesses.size());
@@ -593,8 +591,6 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         manuallyDeduce = dependencyCount == 0;
     }
     if (!manuallyDeduce) {
-        // offset = 0U;
-        ccstd::unordered_set<const GFXObject *> subpassExternalFilter;
         for (uint32_t i = 0U; i < dependencyCount; ++i) {
             const auto &dependency{gpuRenderPass->dependencies[i]};
             VkSubpassDependency2 vkDependency{VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2};
