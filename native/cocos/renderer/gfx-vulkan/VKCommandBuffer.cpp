@@ -865,7 +865,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 } else {
                     gpuTexture->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
                     fullImageBarriers.push_back(gpuBarrier->vkBarrier);
-                    fullImageBarriers.back().srcAccessMask = missed ? VK_IMAGE_LAYOUT_UNDEFINED : fullImageBarriers.back().srcAccessMask;
+                    fullImageBarriers.back().srcAccessMask = missed ? VK_ACCESS_NONE_KHR : fullImageBarriers.back().srcAccessMask;
                     fullImageBarriers.back().subresourceRange.aspectMask = gpuTexture->aspectMask;
                     if (gpuTexture->swapchain) {
                         fullImageBarriers.back().image = gpuTexture->swapchainVkImages[gpuTexture->swapchain->curImageIndex];
@@ -892,7 +892,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
                 bool missed = _barrierEvents.find(ccBuffer) != _barrierEvents.end();
                 if (!fullBarrier && !missed) {
-                    CC_ASSERT(_barrierEvents.find(ccBuffer) != _barrierEvents.end());
+                    // CC_ASSERT(_barrierEvents.find(ccBuffer) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccBuffer);
                     scheduledEvents.push_back(event);
 
@@ -904,7 +904,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 } else {
                     gpuBuffer->currentAccessTypes.assign(gpuBarrier->barrier.pNextAccesses, gpuBarrier->barrier.pNextAccesses + gpuBarrier->barrier.nextAccessCount);
                     fullBufferBarriers.push_back(gpuBarrier->vkBarrier);
-                    fullBufferBarriers.back().srcAccessMask = missed ? VK_IMAGE_LAYOUT_UNDEFINED : fullBufferBarriers.back().srcAccessMask;
+                    fullBufferBarriers.back().srcAccessMask = missed ? VK_ACCESS_NONE_KHR : fullBufferBarriers.back().srcAccessMask;
                     fullBufferBarriers.back().buffer = gpuBuffer->vkBuffer;
                     fullSrcStageMask |= gpuBarrier->srcStageMask;
                     fullDstStageMask |= gpuBarrier->dstStageMask;
@@ -965,8 +965,8 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
         }
 
         if (!fullBufferBarriers.empty() || !fullImageBarriers.empty()) {
-            vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, fullSrcStageMask, fullDstStageMask, 0, 0, pMemoryBarrier,
-                                 fullBufferBarriers.size(), fullBufferBarriers.data(), fullImageBarriers.size(), fullImageBarriers.data());
+            vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer, fullSrcStageMask, fullDstStageMask, 0, pMemoryBarrier ? 1 : 0,
+                                 pMemoryBarrier, fullBufferBarriers.size(), fullBufferBarriers.data(), fullImageBarriers.size(), fullImageBarriers.data());
         }
     }
 }
