@@ -157,8 +157,9 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED;
             VkResult result = vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo,
                                              pVkImage, pVmaAllocation, &res);
-            if (!result)
+            if (!result) {
                 gpuTexture->memoryAllocated = false;
+            }
 
             // feature not present, fallback to device memory
             allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
