@@ -620,6 +620,9 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
     vkPresentBarriers.resize(count, presentBarrier);
     for (uint32_t i = 0U; i < count; ++i) {
         auto *swapchain = static_cast<CCVKSwapchain *>(swapchains[i]);
+        if (!swapchain->gpuSwapchain())
+            continue;
+
         if (swapchain->gpuSwapchain()->lastPresentResult == VK_NOT_READY) {
             if (!swapchain->checkSwapchainStatus()) {
                 continue;
@@ -633,9 +636,8 @@ void CCVKDevice::acquire(Swapchain *const *swapchains, uint32_t count) {
         if (swapchain->gpuSwapchain()->vkSwapchain) {
             vkSwapchains.push_back(swapchain->gpuSwapchain()->vkSwapchain);
         }
-        if (swapchain->gpuSwapchain()) {
-            gpuSwapchains.push_back(swapchain->gpuSwapchain());
-        }
+        
+        gpuSwapchains.push_back(swapchain->gpuSwapchain());
         vkSwapchainIndices.push_back(swapchain->gpuSwapchain()->curImageIndex);
     }
 
