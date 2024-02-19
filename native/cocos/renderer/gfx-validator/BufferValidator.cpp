@@ -176,7 +176,7 @@ void BufferValidator::sanityCheck(const void *buffer, uint32_t size) {
     }
 
     if (DeviceValidator::getInstance()->isRecording()) {
-        _buffer.resize(_size);
+        _buffer.resize(size);
         memcpy(_buffer.data(), buffer, size);
     }
 
