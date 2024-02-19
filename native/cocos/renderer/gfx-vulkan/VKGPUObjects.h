@@ -697,8 +697,8 @@ public:
                 vkDestroyCommandPool(_device->vkDevice, pool.vkCommandPool, nullptr);
                 pool.vkCommandPool = VK_NULL_HANDLE;
             }
-            pool.usedCommandBuffers->clear();
-            pool.commandBuffers->clear();
+            for (auto &item: pool.usedCommandBuffers)item.clear();
+            for (auto &item: pool.commandBuffers)item.clear();
         }
         _pools.clear();
     }
