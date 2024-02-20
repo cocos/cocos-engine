@@ -29,11 +29,21 @@ import { log, logID, warn } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
-import { BASELINE_RATIO, fragmentText, getBaselineOffset, getSymbolAt, getSymbolCodeAt, getSymbolLength, isUnicodeCJK, isUnicodeSpace, safeMeasureText } from '../../utils/text-utils';
 import { CanvasPool, ISharedLabelData, shareLabelInfo } from './font-utils';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
+import {
+    BASELINE_RATIO,
+    fragmentText,
+    getBaselineOffset,
+    getSymbolAt,
+    getSymbolCodeAt,
+    getSymbolLength,
+    isUnicodeCJK,
+    isUnicodeSpace,
+    safeMeasureText,
+} from '../../utils/text-utils';
 
 const Alignment = [
     'left', // macro.TextAlignment.LEFT
