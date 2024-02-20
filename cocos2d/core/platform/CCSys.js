@@ -799,29 +799,6 @@ function initSys () {
         var win = window, nav = win.navigator, doc = document, docEle = doc.documentElement;
         var ua = nav.userAgent.toLowerCase();
 
-        if (CC_EDITOR) {
-            sys.isMobile = false;
-            sys.platform = sys.EDITOR_PAGE;
-        }
-        else {
-            /**
-             * Indicate whether system is mobile system
-             * @property {Boolean} isMobile
-             */
-            sys.isMobile = /mobile|android|iphone|ipad/.test(ua);
-
-            /**
-             * Indicate the running platform
-             * @property {Number} platform
-             */
-            if (typeof FbPlayableAd !== "undefined") {
-                sys.platform = sys.FB_PLAYABLE_ADS;
-            }
-            else {
-                sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
-            }
-        }
-
         var currLanguage = nav.language;
         currLanguage = currLanguage ? currLanguage : nav.browserLanguage;
 
@@ -860,7 +837,8 @@ function initSys () {
         // so use maxTouchPoints to check whether it's desktop safari or not. 
         // reference: https://stackoverflow.com/questions/58019463/how-to-detect-device-name-in-safari-on-ios-13-while-it-doesnt-show-the-correct
         // FIXME: should remove it when touch-enabled macs are available
-        else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || (nav.platform === 'MacIntel' && nav.maxTouchPoints && nav.maxTouchPoints > 1)) { 
+        else if (/(iPhone|iPad|iPod)/.exec(nav.platform) || /iphone|ipad|ipod/.test(ua)
+            || ((nav.platform === 'MacIntel' || /mac os/.test(ua)) && nav.maxTouchPoints && nav.maxTouchPoints > 2)) {
             iOS = true;
             osVersion = '';
             osMainVersion = 0;
@@ -889,6 +867,29 @@ function initSys () {
          * @property {Number} osMainVersion
          */
         sys.osMainVersion = osMainVersion;
+
+        if (CC_EDITOR) {
+            sys.isMobile = false;
+            sys.platform = sys.EDITOR_PAGE;
+        }
+        else {
+            /**
+             * Indicate whether system is mobile system
+             * @property {Boolean} isMobile
+             */
+            sys.isMobile = iOS || /mobile|android|iphone|ipad/.test(ua);
+
+            /**
+             * Indicate the running platform
+             * @property {Number} platform
+             */
+            if (typeof FbPlayableAd !== "undefined") {
+                sys.platform = sys.FB_PLAYABLE_ADS;
+            }
+            else {
+                sys.platform = sys.isMobile ? sys.MOBILE_BROWSER : sys.DESKTOP_BROWSER;
+            }
+        }
 
         /**
          * Indicate the running browser type
