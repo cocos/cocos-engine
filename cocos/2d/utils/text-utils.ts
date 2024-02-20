@@ -26,6 +26,7 @@
 import { RUNTIME_BASED } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { js } from '../../core';
+import { forEach } from '../../asset/asset-manager/utilities';
 
 export const BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;
@@ -230,10 +231,8 @@ export function getSymbolLength (str: string): number {
             len++;
             charCode = str.charCodeAt(i + 1);
             if (charCode >= 0xdc00 && charCode <= 0xdfff) {
-                if (i + 2 < length && str.charCodeAt(i + 2) === 0x200d) {
-                    len++;
-                } else {
-                    len++;
+                len++;
+                if (i + 2 >= length || str.charCodeAt(i + 2) !== 0x200d) {
                     start += len;
                     count++;
                     len = 0;
@@ -265,10 +264,8 @@ export function getSymbolAt (str: string, index: number): string  {
             len++;
             charCode = str.charCodeAt(i + 1);
             if (charCode >= 0xdc00 && charCode <= 0xdfff) {
-                if (i + 2 < length && str.charCodeAt(i + 2) === 0x200d) {
-                    len++;
-                } else {
-                    len++;
+                len++;
+                if (i + 2 >= length || str.charCodeAt(i + 2) !== 0x200d) {
                     if (index === count) {
                         return str.slice(start, start + len);
                     }
@@ -291,44 +288,15 @@ export function getSymbolAt (str: string, index: number): string  {
 }
 
 export function getSymbolCodeAt (str: string, index: number): string  {
-    const length = str.length;
-    let len = 0;
-    let count = 0;
-    let start = 0;
-    let charCode = 0;
-    for (let i = 0; i < length; i++) {
-        charCode = str.charCodeAt(i);
-        if (charCode === 0x200d) {
-            len++;
-            continue;
-        }
-        if (charCode >= 0xd800 && charCode <= 0xdbff) {
-            len++;
-            charCode = str.charCodeAt(i + 1);
-            if (charCode >= 0xdc00 && charCode <= 0xdfff) {
-                if (i + 2 < length && str.charCodeAt(i + 2) === 0x200d) {
-                    len++;
-                } else {
-                    len++;
-                    if (index === count) {
-                        return str.slice(start, start + len);
-                    }
-                    start += len;
-                    count++;
-                    len = 0;
-                }
-                i++;
-                continue;
-            }
-        }
-        if (index === count) {
-            return `${str.charCodeAt(i)}`;
-        }
-        start = i + 1;
-        count++;
-        len = 0;
+    const char = getSymbolAt(str, index);
+    if (char.length === 1) {
+        return `${char.charCodeAt(0)}`;
     }
-    return '';
+    let charCodes: string = '';
+    for (let j = 0; j < char.length; j++) {
+        charCodes += `${char.charCodeAt(j)}`;
+    }
+    return `${charCodes}`;
 }
 
 function getSymbolStartIndex (targetString, index): number {
@@ -340,8 +308,8 @@ function getSymbolStartIndex (targetString, index): number {
     while (startCheckIndex >= 0) {
         if (startChar === '\u200d') {
             startCheckIndex--;
+            startChar = targetString[startCheckIndex];
         }
-        startChar = targetString[startCheckIndex];
         if (startChar >= '\uDC00' && startChar <= '\uDFFF') {
             // lowSurrogateRex
             if (startCheckIndex - 1 >= 0) {
@@ -377,9 +345,9 @@ function getSymbolEndIndex (targetString, index): number {
                 // highSurrogateRex
                 endCheckIndex++;
                 newEndIndex++;
+                endChar = targetString[endCheckIndex];
             }
         }
-        endChar = targetString[endCheckIndex];
         if (endChar >= '\uD800' && endChar <= '\uDBFF') {
             // highSurrogateRex
             endCheckIndex++;
@@ -388,6 +356,7 @@ function getSymbolEndIndex (targetString, index): number {
         } else if (endChar >= '\uDC00' && endChar <= '\uDFFF') {
             // lowSurrogateRex
             endCheckIndex++;
+            endChar = targetString[endCheckIndex];
             if (endCheckIndex < targetString.length && targetString[endCheckIndex] === '\u200d') {
                 newEndIndex++;
                 endChar = targetString[endCheckIndex];
@@ -400,14 +369,15 @@ function getSymbolEndIndex (targetString, index): number {
     }
     return newEndIndex;
 }
+
 // in case truncate a character on the Supplementary Multilingual Plane
 // test case: a = '😉🚗'
-// _safeSubstring(a, 1) === '😉🚗'
+// _safeSubstring(a, 1) === '🚗'
 // _safeSubstring(a, 0, 1) === '😉'
 // _safeSubstring(a, 0, 2) === '😉'
-// _safeSubstring(a, 0, 3) === '😉'
+// _safeSubstring(a, 0, 3) === '😉🚗'
 // _safeSubstring(a, 0, 4) === '😉🚗'
-// _safeSubstring(a, 1, 2) === _safeSubstring(a, 1, 3) === '😉'
+// _safeSubstring(a, 0, 1) === _safeSubstring(a, 0, 2) === '😉'
 // _safeSubstring(a, 2, 3) === _safeSubstring(a, 2, 4) === '🚗'
 function _safeSubstring (targetString, startIndex, endIndex?): string {
     let newStartIndex = getSymbolStartIndex(targetString, startIndex);
@@ -420,7 +390,7 @@ function _safeSubstring (targetString, startIndex, endIndex?): string {
         endIndex = Math.max(0, endIndex - 1);
         newEndIndex = getSymbolEndIndex(targetString, endIndex);
         const newStartEndIndex = getSymbolStartIndex(targetString, endIndex);
-        if (newStartEndIndex < newStartIndex || (newStartEndIndex == newStartIndex && startIndex > newStartIndex)) {
+        if (newStartEndIndex < newStartIndex || (newStartEndIndex === newStartIndex && startIndex > newStartIndex)) {
             newEndIndex = newStartIndex;
         } else {
             newEndIndex += 1;
