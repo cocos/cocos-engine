@@ -847,7 +847,7 @@ void CCVKCommandBuffer::pipelineBarrier(const GeneralBarrier *barrier, const Buf
                 bool fullBarrier = ccBarrier->getInfo().type == BarrierType::FULL;
                 bool missed = _barrierEvents.find(ccTexture) == _barrierEvents.end();
                 if (!fullBarrier && !missed) {
-                    //CC_ASSERT(_barrierEvents.find(ccTexture) != _barrierEvents.end());
+                    CC_ASSERT(_barrierEvents.find(ccTexture) != _barrierEvents.end());
                     VkEvent event = _barrierEvents.at(ccTexture);
                     scheduledEvents.push_back(event);
 
