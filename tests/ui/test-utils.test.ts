@@ -25,7 +25,7 @@ test('getSymbolCodeAt', function () {
     expect(getSymbolCodeAt(txt, 0)).toStrictEqual('119');
     expect(getSymbolCodeAt(txt, 1)).toStrictEqual('22823');
     expect(getSymbolCodeAt(txt, 2)).toStrictEqual('29066');
-    //  图形 = utf-16 编码 = 10进制 = 连接字符串
+    //  emoji = utf-16 encoding = decimal = output result
     //  🐻 = 0xDB3D 0xDC38 = 55357 56379 = 5535756379;
     //  👨‍👩‍👧‍👦 = 0xDB3D 0xDC68 0x200D 0xDB3D 0xDC69 0x200D 0xDB3D 0xDC67 0x200D 0xDB3D 0xDC66 = 55357 56424 8205 55357 56425 8205 55357 56423 8205 55357 56422 = 5535756424820555357564258205553575642382055535756422;
     //  🐼 = 0xDB3D 0xDC3C = 55357 56380 = 5535756380
@@ -34,6 +34,7 @@ test('getSymbolCodeAt', function () {
     expect(getSymbolCodeAt(txt, 5)).toStrictEqual('5535756380'); // 🐼
 });
 
+// The following test cases are closed because the test interfaces are not exported.
 // test('getSymbolStartIndex', function () {
 //     let txt = 'w大熊🐻👨‍👩‍👧‍👦🐼';
 //     expect(getSymbolStartIndex(txt, 0)).toEqual(0);
