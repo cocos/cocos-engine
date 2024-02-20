@@ -159,6 +159,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
                                              pVkImage, pVmaAllocation, &res);
             if (!result) {
                 gpuTexture->memoryAllocated = false;
+                return;
             }
 
             // feature not present, fallback to device memory
