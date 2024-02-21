@@ -24,6 +24,7 @@
 
 import { ccenum } from '../core';
 import { legacyCC } from '../core/global-exports';
+import spineLib from './lib/spine-core';
 
 /**
  * @en
@@ -48,6 +49,7 @@ export * from './skeleton-data';
 export * from './assembler';
 
 export const spine = globalThis.spine;
+spine.EventType = spineLib.EventType
 export const VertexEffectDelegate = spine.VertexEffectDelegate;
 
 
