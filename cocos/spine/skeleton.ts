@@ -59,7 +59,7 @@ type TrackListener2 = (x: spine.TrackEntry, ev: spine.Event | number) => void;
  * @zh
  * 动画播放速率。
  */
-export const gTimeScale = 1.0;
+export const timeScale = 1.0;
 
 /**
  * @en Enum for animation cache mode type.
@@ -326,7 +326,7 @@ export class Skeleton extends UIRenderer {
         this._endSlotIndex = -1;
         if (!JSB) {
             this._instance = new spine.SkeletonInstance();
-            this._instance.dtRate = this._timeScale * gTimeScale;
+            this._instance.dtRate = this._timeScale * timeScale;
             this._instance.isCache = this.isAnimationCached();
         }
         this.attachUtil = new AttachUtil();
@@ -526,7 +526,7 @@ export class Skeleton extends UIRenderer {
         if (value !== this._timeScale) {
             this._timeScale = value;
             if (this._instance) {
-                this._instance.dtRate = this._timeScale * gTimeScale;
+                this._instance.dtRate = this._timeScale * timeScale;
             }
         }
     }
@@ -764,7 +764,7 @@ export class Skeleton extends UIRenderer {
             return;
         }
         if (this._instance) {
-            this._instance.dtRate = this._timeScale * gTimeScale;
+            this._instance.dtRate = this._timeScale * timeScale;
         }
         this._needUpdateSkeltonData = false;
         //const data = this.skeletonData?.getRuntimeData();
@@ -1040,7 +1040,7 @@ export class Skeleton extends UIRenderer {
         if (this.paused) return;
         if (this.isAnimationCached()) {
             // On realTime mode, dt is multiplied at native side.
-            dt *= this._timeScale * gTimeScale;
+            dt *= this._timeScale * timeScale;
             if (this._isAniComplete) {
                 if (this._animationQueue.length === 0 && !this._headAniInfo) {
                     const frameCache = this._animCache;
