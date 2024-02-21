@@ -764,6 +764,13 @@ export class Game extends EventTarget {
                 screen.init();
                 garbageCollectionManager.init();
                 deviceManager.init(this.canvas, bindingMappingInfo);
+
+                const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
+                if (renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
+                    if (!macro.CUSTOM_PIPELINE_NAME) {
+                        macro.CUSTOM_PIPELINE_NAME = 'Forward';
+                    }
+                }
                 if (macro.CUSTOM_PIPELINE_NAME === '') {
                     cclegacy.rendering = undefined;
                 }
@@ -1107,7 +1114,7 @@ export class Game extends EventTarget {
 
     private _setupRenderPipeline (): void | Promise<void> {
         const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-        if (!renderPipeline) {
+        if (!renderPipeline || renderPipeline === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
             return this._setRenderPipeline();
         }
         return new Promise<RenderPipeline>((resolve, reject): void => {

@@ -1,0 +1,76 @@
+[
+  {
+    "__type__": "ForwardPipeline",
+    "_name": "",
+    "_objFlags": 0,
+    "_native": "",
+    "_tag": 0,
+    "_flows": [
+      {
+        "__id__": 1
+      },
+      {
+        "__id__": 3
+      }
+    ],
+    "renderTextures": []
+  },
+  {
+    "__type__": "ShadowFlow",
+    "_name": "ShadowFlow",
+    "_priority": 0,
+    "_tag": 0,
+    "_stages": [
+      {
+        "__id__": 2
+      }
+    ]
+  },
+  {
+    "__type__": "ShadowStage",
+    "_name": "ShadowStage",
+    "_priority": 0,
+    "_tag": 0
+  },
+  {
+    "__type__": "ForwardFlow",
+    "_name": "ForwardFlow",
+    "_priority": 1,
+    "_tag": 0,
+    "_stages": [
+      {
+        "__id__": 4
+      }
+    ]
+  },
+  {
+    "__type__": "ForwardStage",
+    "_name": "ForwardStage",
+    "_priority": 0,
+    "_tag": 0,
+    "renderQueues": [
+      {
+        "__id__": 5
+      },
+      {
+        "__id__": 6
+      }
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": false,
+    "sortMode": 0,
+    "stages": [
+      "default"
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": true,
+    "sortMode": 1,
+    "stages": [
+      "default"
+    ]
+  }
+]
