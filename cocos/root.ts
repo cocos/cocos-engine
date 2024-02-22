@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Pool, cclegacy, warnID, settings, Settings, macro } from './core';
+import { Pool, cclegacy, warnID, settings, Settings, macro, log } from './core';
 import type { RenderPipeline } from './rendering/render-pipeline';
 import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
 import { createDefaultPipeline } from './rendering/forward/forward-pipeline';
@@ -400,6 +400,7 @@ export class Root {
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
             this._pipelineEvent = rppl;
+            log('Using custom pipeline');
         } else {
             this._classicPipeline = rppl;
             this._pipeline = this._classicPipeline;
