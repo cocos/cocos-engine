@@ -139,6 +139,7 @@ module.exports = {
             },
         },
         image: {
+            label: '图片',
             type: '类型',
             typeTip: '类型',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',

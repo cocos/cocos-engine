@@ -143,6 +143,7 @@ module.exports = {
             },
         },
         image: {
+            label: 'Image',
             type: 'Type',
             typeTip: 'Type',
             // bakeOfflineMipmaps: 'Bake Offline Mipmaps',
