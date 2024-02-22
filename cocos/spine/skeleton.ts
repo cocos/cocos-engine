@@ -1038,8 +1038,9 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (this.paused) return;
-        dt *= this._timeScale * timeScale;
         if (this.isAnimationCached()) {
+            // On realTime mode, dt is multiplied at native side.
+            dt *= this._timeScale * timeScale;
             if (this._isAniComplete) {
                 if (this._animationQueue.length === 0 && !this._headAniInfo) {
                     const frameCache = this._animCache;
