@@ -39,8 +39,10 @@ import { BlendFactor } from '../../gfx';
 import { TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
+import { CCObject } from '../../core/data/object';
 
 const tempColor = Color.WHITE.clone();
+const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 /**
  * @en Enum for horizontal text alignment.
  *
@@ -893,26 +895,39 @@ export class Label extends UIRenderer {
         this._applyFontTexture();
     }
 
+    private destroyTtfSpriteFrame (): void {
+        if (!this._ttfSpriteFrame) {
+            return;
+        }
+        this._ttfSpriteFrame._resetDynamicAtlasFrame();
+        const tex = this._ttfSpriteFrame.texture;
+        this._ttfSpriteFrame.destroy();
+        if (tex) {
+            const tex2d = tex as Texture2D;
+            if (tex2d.image) {
+                tex2d.image.destroy();
+            }
+            tex.destroy();
+        }
+        this._ttfSpriteFrame = null;
+    }
+
+    public _onPreDestroy (): void {
+        if (this._objFlags & IsOnLoadCalled) {
+            super._onPreDestroy();
+            return;
+        }
+        // If _objFlags does not contain IsOnLoadCalled, it is possible to destroy the ttfSpriteFrame.
+        this.destroyTtfSpriteFrame();
+    }
+
     public onDestroy (): void {
         if (this._assembler && this._assembler.resetAssemblerData) {
             this._assembler.resetAssemblerData(this._assemblerData!);
         }
 
         this._assemblerData = null;
-        if (this._ttfSpriteFrame) {
-            this._ttfSpriteFrame._resetDynamicAtlasFrame();
-            const tex = this._ttfSpriteFrame.texture;
-            this._ttfSpriteFrame.destroy();
-            if (tex) {
-                const tex2d = tex as Texture2D;
-                if (tex2d.image) {
-                    tex2d.image.destroy();
-                }
-                tex.destroy();
-            }
-            this._ttfSpriteFrame = null;
-        }
-
+        this.destroyTtfSpriteFrame();
         // Don't set null for properties which are init in constructor.
         // this._textStyle = null;
         // this._textLayout = null;
