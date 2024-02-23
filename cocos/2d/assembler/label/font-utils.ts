@@ -23,7 +23,7 @@
 */
 
 import { FontAtlas } from '../../assets/bitmap-font';
-import { Color, macro, warnID } from '../../../core';
+import { Color, macro, log, warnID } from '../../../core';
 import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
@@ -251,7 +251,7 @@ export class LetterRenderTexture extends Texture2D {
 
         const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
-            console.warn('Unable to get device');
+            log('Unable to get device');
             return;
         }
 

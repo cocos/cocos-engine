@@ -107,7 +107,8 @@ export class TextProcessing {
                 if (loopTime > MAX_CALCULATION_NUM) {
                     this._fontScale = 1;
                 } else {
-                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height); // Current Canvas Size max dimension
+                    // Current Canvas Size max dimension
+                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
                     const canvasScaleToMaxSizeRatio = MAX_SIZE / maxValue;
                     this._fontScale *=  canvasScaleToMaxSizeRatio;
                     this._fontScale = Math.max(1, this._fontScale);
@@ -382,7 +383,7 @@ export class TextProcessing {
         style.fontDesc = _fontDesc;
     }
 
-    private _measureText (ctx: CanvasRenderingContext2D, fontDesc): (str: string) => number {
+    private _measureText (ctx: CanvasRenderingContext2D, fontDesc: string): (str: string) => number {
         return (str: string): number => safeMeasureText(ctx, str, fontDesc);
     }
 
@@ -475,7 +476,12 @@ export class TextProcessing {
         outputLayoutData.startPosition.set(labelX + outputLayoutData.canvasPadding.x, firstLinelabelY + outputLayoutData.canvasPadding.y);
     }
 
-    private _updateTexture (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData): void {
+    private _updateTexture (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+    ): void {
         if (!this._context || !this._canvas) {
             return;
         }
@@ -563,7 +569,13 @@ export class TextProcessing {
         }
     }
 
-    private _drawTextEffect (startPosition: Vec2, lineHeight: number, style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData): void {
+    private _drawTextEffect (
+        startPosition: Vec2,
+        lineHeight: number,
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+    ): void {
         if (!style.hasShadow && !style.isOutlined && !style.isUnderline) return;
 
         const isMultiple = outputLayoutData.parsedString.length > 1 && style.hasShadow;
@@ -1118,7 +1130,13 @@ export class TextProcessing {
         }
     }
 
-    private _scaleFontSizeDown (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData, inputString: string, fontSize: number): void {
+    private _scaleFontSizeDown (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+        fontSize: number,
+    ): void {
         let shouldUpdateContent = true;
         if (!fontSize) {
             fontSize = 0.1;
