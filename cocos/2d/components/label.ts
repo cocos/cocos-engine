@@ -910,6 +910,7 @@ export class Label extends UIRenderer {
         this._ttfSpriteFrame = null;
     }
 
+    // Override
     protected _onPreDestroy (): void {
         if (this._isOnLoadCalled) {
             super._onPreDestroy();
