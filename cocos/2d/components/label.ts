@@ -39,10 +39,8 @@ import { BlendFactor } from '../../gfx';
 import { TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
-import { CCObject } from '../../core/data/object';
 
 const tempColor = Color.WHITE.clone();
-const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 /**
  * @en Enum for horizontal text alignment.
  *
@@ -913,7 +911,7 @@ export class Label extends UIRenderer {
     }
 
     public _onPreDestroy (): void {
-        if (this._objFlags & IsOnLoadCalled) {
+        if (this._isOnLoadCalled) {
             super._onPreDestroy();
             return;
         }
