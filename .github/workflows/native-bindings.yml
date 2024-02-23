@@ -42,7 +42,6 @@ jobs:
           node .github/workflows/gen_decorators.js
           echo " generate done!"
           git checkout HEAD package.json package-lock.json
-          git checkout HEAD scripts # revert all changes within build-engine/
 
       - name: Update auto-gen source files 
         run: |
