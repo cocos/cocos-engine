@@ -4,9 +4,9 @@ import ts from 'typescript';
 import * as gift from 'tfig';
 import { StatsQuery } from '../stats-query';
 
-const DEBUG = false;
+const DEBUG = true;
 const REMOVE_OLD = !DEBUG;
-const RECOMPILE = !DEBUG;
+const RECOMPILE = true;
 const REMOVE_UNBUNDLED_CACHE = !DEBUG;
 
 export async function build (options: {
