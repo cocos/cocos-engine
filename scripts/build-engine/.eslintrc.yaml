@@ -1,8 +1,0 @@
-extends:
-    - ../../.eslintrc.yaml
-
-parserOptions:
-    project: ./tsconfig.json
-
-rules:
-    no-trailing-spaces: ["error", { "skipBlankLines": true }]

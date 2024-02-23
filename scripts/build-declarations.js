@@ -1,6 +1,6 @@
 const { join } = require('path');
 const { emptyDir } = require('fs-extra');
-const { build } = require('@cocos/build-engine/dist/build-declarations');
+const { dtsBundler } = require('@cocos/ccbuild');
 const { magenta } = require('chalk');
 
 const prefix = ''.padStart(20, '=');
@@ -12,7 +12,8 @@ console.log(magenta(`${prefix} Build declarations ${prefix}`));
         out: join(__dirname, '..', 'bin', '.declarations'),
     };
     await emptyDir(PATHS.out);
-    await build({
+
+    await dtsBundler.build({
         engine: PATHS.engine,
         outDir: PATHS.out,
         withIndex: true,
