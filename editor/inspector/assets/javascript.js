@@ -210,7 +210,7 @@ const Elements = {
             });
         },
         update() {
-            this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb;
+            this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb ?? true;
             updateElementInvalid.call(this, this.$.loadPluginInWebCheckBox, 'loadPluginInWeb');
             updateElementReadonly.call(this, this.$.loadPluginInWebCheckBox);
         },
@@ -220,7 +220,7 @@ const Elements = {
             this.$.loadPluginInNativeCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInNative'));
         },
         update() {
-            this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative;
+            this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative ?? true;
             updateElementInvalid.call(this, this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
             updateElementReadonly.call(this, this.$.loadPluginInNativeCheckBox);
         },
@@ -230,7 +230,7 @@ const Elements = {
             this.$.loadPluginInMiniGameCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInMiniGame'));
         },
         update() {
-            this.$.loadPluginInMiniGameCheckBox.value = this.meta.userData.loadPluginInMiniGame;
+            this.$.loadPluginInMiniGameCheckBox.value = this.meta.userData.loadPluginInMiniGame ?? true;
             updateElementInvalid.call(this, this.$.loadPluginInMiniGameCheckBox, 'loadPluginInMiniGame');
             updateElementReadonly.call(this, this.$.loadPluginInMiniGameCheckBox);
         },
