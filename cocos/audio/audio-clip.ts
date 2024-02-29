@@ -97,7 +97,7 @@ export class AudioClip extends Asset {
         audioLoadMode: AudioType;
         ext: string;
         __isNative__: boolean;
-    } {
+        } {
         return {
             uuid: this._uuid,
             audioLoadMode: this.loadMode,

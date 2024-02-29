@@ -104,7 +104,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _onSeeked: () => void;
     private _onEnded: () => void;
     private _readyToHandleOnShow = false;
-    
+
     // note: has no effect, this only exists to make API consistent between all platforms
     private _playbackRate = 1;
 

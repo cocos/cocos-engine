@@ -77,7 +77,7 @@ export class OneShotAudioDOM {
         }
     }
 
-    private constructor (nativeAudio: HTMLAudioElement, volume: number, playbackRate:number) {
+    private constructor (nativeAudio: HTMLAudioElement, volume: number, playbackRate: number) {
         this._domAudio = nativeAudio;
         nativeAudio.volume =  volume;
         nativeAudio.playbackRate = playbackRate;

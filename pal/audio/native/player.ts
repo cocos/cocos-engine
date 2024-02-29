@@ -128,7 +128,7 @@ export class AudioPlayer implements OperationQueueable {
         currentTime: 0,
         volume: 1,
         playbackRate: 1,
-    }
+    };
 
     constructor (url: string) {
         this._url = url;

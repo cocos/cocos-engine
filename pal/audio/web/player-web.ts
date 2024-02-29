@@ -193,7 +193,7 @@ export class OneShotAudioWeb {
         this._onEndCb = cb;
     }
 
-    private constructor (audioBuffer: AudioBuffer, volume: number, playbackRate:number, url: string) {
+    private constructor (audioBuffer: AudioBuffer, volume: number, playbackRate: number, url: string) {
         this._duration = audioBuffer.duration;
         this._url = url;
         this._bufferSourceNode = audioContextAgent!.createBufferSource(audioBuffer, false);

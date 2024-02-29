@@ -81,7 +81,7 @@ export class AudioSource extends Component {
     protected _volume = 1;
     @serializable
     protected _playbackRate = 1;
-    
+
     private _cachedCurrentTime = -1;
 
     // An operation queue to store the operations before loading the AudioPlayer.
@@ -245,7 +245,7 @@ export class AudioSource extends Component {
     get volume (): number {
         return this._volume;
     }
-    
+
     /**
      * @en
      * The playback rate of this audio source (0.0 to 10.0).<br>
@@ -447,7 +447,7 @@ export class AudioSource extends Component {
     /**
      * @en
      * Plays an AudioClip, and scales volume and playback rate by volumeScale and playbackRateScale
-     * respectively. The result volume is `audioSource.volume * volumeScale`, the result playback 
+     * respectively. The result volume is `audioSource.volume * volumeScale`, the result playback
      * rate is `audioSource.playbackRate * playbackRateScale`
      * @zh
      * 以指定音量倍数播放一个音频一次。最终播放的音量为 `audioSource.volume * volumeScale`。 <br>
@@ -462,7 +462,7 @@ export class AudioSource extends Component {
             return;
         }
         let player: OneShotAudio;
-        AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, this._playbackRate * playbackRateScale, { 
+        AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, this._playbackRate * playbackRateScale, {
             audioLoadMode: clip.loadMode,
         }).then((oneShotAudio) => {
             player = oneShotAudio;
