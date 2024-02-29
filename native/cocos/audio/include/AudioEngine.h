@@ -151,10 +151,10 @@ public:
     static void setVolume(int audioID, float volume);
     
     /** 
-     * Sets volume for an audio instance.
+     * Sets playback rate for an audio instance.
      *
      * @param audioID An audioID returned by the play2d function.
-     * @param volume Volume value (range from 0.0 to 1.0).
+     * @param volume Playback rate value.
      */
     static void setPlaybackRate(int audioID, float playbackRate);
 
@@ -173,7 +173,10 @@ public:
     static float getVolume(int audioID);
     
     /**
-     * OH NO
+     * Gets the playback rate value of an audio instance.
+     *
+     * @param audioID An audioID returned by the play2d function.
+     * @return Playback rate value.
      */
     static float getPlaybackRate(int audioID);
 

@@ -249,7 +249,7 @@ export class AudioSource extends Component {
     /**
      * @en
      * The playback rate of this audio source (0.0 to 10.0).<br>
-     * Note: Playback rate may be ineffective on some platforms.
+     * Note: Playback rate is only supported on Web, Windows, and ByteDance for now.
      * @zh
      * 此音频源的播放速率（0.0 到 10.0）。<br>
      * 注意：播放速率在某些平台上可能无效。<br>
@@ -446,12 +446,14 @@ export class AudioSource extends Component {
 
     /**
      * @en
-     * Plays an AudioClip, and scales volume by volumeScale. The result volume is `audioSource.volume * volumeScale`. <br>
-     * OH NO
+     * Plays an AudioClip, and scales volume and playback rate by volumeScale and playbackRateScale
+     * respectively. The result volume is `audioSource.volume * volumeScale`, the result playback 
+     * rate is `audioSource.playbackRate * playbackRateScale`
      * @zh
      * 以指定音量倍数播放一个音频一次。最终播放的音量为 `audioSource.volume * volumeScale`。 <br>
      * @param clip The audio clip to be played.
      * @param volumeScale volume scaling factor wrt. current value.
+     * @param playbackRateScale playback rate scaling factor wrt. current value.
      */
     public playOneShot (clip: AudioClip, volumeScale = 1, playbackRateScale = 1): void {
         if (!clip._nativeAsset) {

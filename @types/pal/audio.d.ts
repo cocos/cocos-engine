@@ -10,7 +10,7 @@ declare module 'pal/audio' {
          * OneShotAudio shoulb be instantiated by `AudioPlayer.loadOneShotAudio()` method.
          * @param nativeAudio The native audio such as `HTMLAudioElement` or `AudioBuffer`.
          * @param volume Init the audio volume.
-         * @param playbackRate OH NO
+         * @param playbackRate Init the audio playback rate.
          */
         private constructor (nativeAudio: unknown, volume: number, playbackRate:number);
 
