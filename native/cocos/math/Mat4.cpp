@@ -553,7 +553,7 @@ bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const
     }
 
     // Scale too close to zero, can't decompose rotation.
-    if (scaleX < MATH_TOLERANCE || scaleY < MATH_TOLERANCE || std::abs(scaleZ) < MATH_TOLERANCE) {
+    if (std::abs(scaleX) < MATH_TOLERANCE || std::abs(scaleY) < MATH_TOLERANCE || std::abs(scaleZ) < MATH_TOLERANCE) {
         return false;
     }
 
