@@ -55,10 +55,10 @@ public:
     ~AudioEngineImpl() override;
 
     bool init();
-    int play2d(const ccstd::string &filePath, bool loop, float volume);
+    int play2d(const ccstd::string &filePath, bool loop, float volume, float playbackRate);
     void setVolume(int audioID, float volume);
+    void setPlaybackRate(int audioID, float playbackRate) {};
     void setLoop(int audioID, bool loop);
-    void setPitch(int audioID, float pitch);
     void pause(int audioID);
     void resume(int audioID);
     void stop(int audioID);
