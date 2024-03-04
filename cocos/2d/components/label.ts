@@ -911,7 +911,7 @@ export class Label extends UIRenderer {
     }
 
     // Override
-    protected _onPreDestroy (): void {
+    public _onPreDestroy (): void {
         if (this._isOnLoadCalled) {
             super._onPreDestroy();
             return;
