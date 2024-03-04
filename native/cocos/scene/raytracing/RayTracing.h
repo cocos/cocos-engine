@@ -40,7 +40,7 @@ public:
     ~RayTracing() override = default;
     // getter
     inline const ccstd::vector<Mat4>& getTransforms() const { return _transforms; }
-    inline const ccstd::vector<Mat4>& getTransformPrevs() const { return _transformPrevs; }
+    inline const ccstd::vector<Mat4>& getTransformPrev() const { return _transformPrev; }
     inline const ccstd::vector<uint32_t>& getOpaqueOrMaskInstanceIDs() const { return _opaqueOrMaskInstanceIDs; }
     inline const gfx::Buffer* getInstanceBuffer() const { return _instanceBuffer.get(); }
     inline const gfx::Buffer* getTransformBuffer() const { return _transformBuffer.get(); }
@@ -57,11 +57,11 @@ public:
 
 private:
     ccstd::vector<Mat4> _transforms;
-    ccstd::vector<Mat4> _transformPrevs;
+    ccstd::vector<Mat4> _transformPrev;
     ccstd::vector<uint32_t> _opaqueOrMaskInstanceIDs;
     ccstd::vector<InstanceInfo> _instances;
-    ccstd::vector<RaytracingInstance> _raytracingInstances;
-    ccstd::vector<RaytracingPrimitive> _raytracingPrimitives;
+    ccstd::vector<RayTracingInstance> _rayTracingInstances;
+    ccstd::vector<RayTracingPrimitive> _rayTracingPrimitives;
     ccstd::vector<Material> _materials;
     IntrusivePtr<gfx::Buffer> _instanceBuffer;
     IntrusivePtr<gfx::Buffer> _transformBuffer;
@@ -72,13 +72,13 @@ private:
     IntrusivePtr<RenderScene> _renderScene;
     IntrusivePtr<Description> _description;
     uint32_t _instanceNum{0};
-    void _beforeRender();
-    MeshPrim _buildRaytracingMeshPrimitive(const IntrusivePtr<SubModel>& submodel);
-    void _buildRaytracingInstanceData();
-    MaterialProperty _getPassUniform(const IntrusivePtr<Pass>& pass, std::string name);
-    float _getPassUniformAsFloat(const IntrusivePtr<Pass>& pass, std::string name);
-    void _addTexture(const IntrusivePtr<Pass>& pass, std::string name, uint32_t binding);
-    void _addMaterial(const IntrusivePtr<Pass>& pass);
+    void beforeRender();
+    MeshPrim buildRayTracingMeshPrimitive(const IntrusivePtr<SubModel>& subModel);
+    void buildRayTracingInstanceData();
+    MaterialProperty getPassUniform(const IntrusivePtr<Pass>& pass, const std::string& name);
+    float getPassUniformAsFloat(const IntrusivePtr<Pass>& pass,  const std::string& name);
+    void addTexture(const IntrusivePtr<Pass>& pass, const std::string& name, uint32_t binding);
+    void addMaterial(const IntrusivePtr<Pass>& pass);
 };
 } // namespace raytracing
 } // namespace scene

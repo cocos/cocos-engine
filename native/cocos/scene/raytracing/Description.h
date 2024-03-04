@@ -127,10 +127,10 @@ struct MaterialPbrMetallicRoughness {
 };
 
 enum class AlphaMode {
-    Undefined,
-    Opaque,
-    Mask,
-    Blend,
+    UNDEFINED,
+    OPAQUE,
+    MASK,
+    BLEND,
 };
 
 struct Material {
@@ -189,7 +189,7 @@ struct Animation {
 
 struct Mesh {
     int material{0};
-    IntrusivePtr<SubModel> submodel;
+    IntrusivePtr<SubModel> subModel;
 };
 
 struct Scene {
@@ -221,12 +221,12 @@ public:
     ccstd::vector<Mesh> meshes;
     ccstd::vector<Entity> nodes;
     Scene scene;
-    void Clear();
+    void clear();
 };
 
-enum class RaytracingPrimitiveType : uint32_t {
-    PerInstance,
-    PerMeshPrimitive,
+enum class RayTracingPrimitiveType : uint32_t {
+    PER_INSTANCE,
+    PER_MESH_PRIMITIVE,
 };
 struct Index {
     constexpr Index() = default;
@@ -259,16 +259,16 @@ struct Index {
 
     uint32_t mValue = 0xFFFFFFFF;
 };
-struct RaytracingInstance {
-    RaytracingInstance() = default;
-    RaytracingInstance(
-        Index raytracingPrimitiveID,
-        RaytracingPrimitiveType type,
+struct RayTracingInstance {
+    RayTracingInstance() = default;
+    RayTracingInstance(
+        Index rayTracingPrimitiveID,
+        RayTracingPrimitiveType type,
         Index instanceID) noexcept
-    : mRaytracingPrimitiveID(std::move(raytracingPrimitiveID)), mType(type), mInstanceID(std::move(instanceID)) {}
+    : rayTracingPrimitiveID(rayTracingPrimitiveID), mType(type), mInstanceID(instanceID) {}
 
-    Index mRaytracingPrimitiveID;
-    RaytracingPrimitiveType mType = RaytracingPrimitiveType::PerInstance;
+    Index rayTracingPrimitiveID;
+    RayTracingPrimitiveType mType = RayTracingPrimitiveType::PER_INSTANCE;
     Index mInstanceID;
 };
 
@@ -277,14 +277,14 @@ struct GpuVirtualAddressAndStride {
     GpuVirtualAddressAndStride(
         uint64_t startAddress = 0,
         uint64_t strideInBytes = 0) noexcept
-    : mStartAddress(startAddress), mStrideInBytes(strideInBytes) {}
+    : startAddress(startAddress), strideInBytes(strideInBytes) {}
 
-    uint64_t mStartAddress = 0;
-    uint64_t mStrideInBytes = 0;
+    uint64_t startAddress = 0;
+    uint64_t strideInBytes = 0;
 };
 
 
-struct RaytracingGeometryTrianglesDesc {
+struct RayTracingGeometryTrianglesDesc {
     uint64_t mTransform3x4 = 0;
     gfx::Format mIndexFormat = gfx::Format::R16UI;
     gfx::Format mVertexFormat = gfx::Format::UNKNOWN;
@@ -294,25 +294,25 @@ struct RaytracingGeometryTrianglesDesc {
     GpuVirtualAddressAndStride mVertexBuffer = 0;
 };
 
-enum class RaytracingGeometryFlags : uint32_t {
-    None = 0,
-    Opaque = 1 << 0,
-    NoDuplicateAnyhitInvocation = 1 << 1,
+enum class RayTracingGeometryFlags : uint32_t {
+    NONE = 0,
+    OPAQUE = 1 << 0,
+    NO_DUPLICATE_ANYHIT_INVOCATION = 1 << 1,
 };
 
-struct RaytracingPrimitive {
-    RaytracingPrimitive() = default;
-    explicit RaytracingPrimitive(IntrusivePtr<gfx::Buffer> blasBuffer) noexcept
-    : mBlasBuffer(std::move(blasBuffer)) {}
-    RaytracingPrimitive(
+struct RayTracingPrimitive {
+    RayTracingPrimitive() = default;
+    explicit RayTracingPrimitive(IntrusivePtr<gfx::Buffer> blasBuffer) noexcept
+    : blasBuffer(std::move(blasBuffer)) {}
+    RayTracingPrimitive(
         IntrusivePtr<gfx::Buffer> blasBuffer,
         IntrusivePtr<gfx::Buffer> meshBuffer) noexcept
-    : mBlasBuffer(std::move(blasBuffer)), mMeshBuffer(std::move(meshBuffer)) {}
+    : blasBuffer(std::move(blasBuffer)), meshBuffer(std::move(meshBuffer)) {}
 
-    IntrusivePtr<gfx::Buffer> mBlasBuffer;
-    IntrusivePtr<gfx::Buffer> mMeshBuffer;
-    RaytracingGeometryTrianglesDesc mGeometryDesc;
-    RaytracingGeometryFlags mFlags = RaytracingGeometryFlags::None;
+    IntrusivePtr<gfx::Buffer> blasBuffer;
+    IntrusivePtr<gfx::Buffer> meshBuffer;
+    RayTracingGeometryTrianglesDesc geometryDesc;
+    RayTracingGeometryFlags flags = RayTracingGeometryFlags::NONE;
 };
 } // namespace raytracing
 } // namespace scene

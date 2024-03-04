@@ -3,7 +3,7 @@
 namespace cc {
 namespace scene {
 namespace raytracing {
-void Description::Clear() {
+void Description::clear() {
     skins.clear();
     scene.nodes.clear();
     animations.clear();

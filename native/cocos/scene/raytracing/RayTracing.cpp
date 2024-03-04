@@ -30,12 +30,12 @@ namespace cc {
 namespace scene {
 namespace raytracing {
 void RayTracing::activate() {
-    Root::getInstance()->on<Root::BeforeRender>([this](cc::Root* rootObj) {
-        this->_beforeRender();
+    Root::getInstance()->on<Root::BeforeRender>([this](cc::Root* /*unused*/) {
+        this->beforeRender();
     });
 }
-void RayTracing::_beforeRender() {
-    _description->Clear();
+void RayTracing::beforeRender() {
+    _description->clear();
     ccstd::vector<MeshPrim> meshPrimitives{};
     _description->scene.name = _renderScene->getName();
     const auto& models = _renderScene->getModels();
@@ -58,14 +58,14 @@ void RayTracing::_beforeRender() {
             entity.translation = node->getPosition();
             entity.rotation = node->getRotation();
             entity.scale = node->getScale();
-            entity.mesh = _description->meshes.size();
+            entity.mesh = static_cast<int>(_description->meshes.size());
             _description->scene.nodes.emplace_back(_description->nodes.size());
             _description->nodes.emplace_back(std::move(entity));
 
-            meshPrimitives.emplace_back(_buildRaytracingMeshPrimitive(subModel));
+            meshPrimitives.emplace_back(buildRayTracingMeshPrimitive(subModel));
             const auto& wMat = model->getNode()->getWorldMatrix();
             _transforms.emplace_back(wMat);
-            _transformPrevs.emplace_back(wMat);
+            _transformPrev.emplace_back(wMat);
             InstanceInfo instance{};
             instance.mMeshPrimID = static_cast<uint32_t>(meshPrimitives.size() - 1);
             instance.mTransformID = _instanceNum;
@@ -75,51 +75,50 @@ void RayTracing::_beforeRender() {
             const auto& passes = *(subModel->getPasses());
             const auto passCount = passes.size();
             for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
-                auto& pass = passes[passIdx];
+                const auto& pass = passes[passIdx];
                 if (pass->getPhase() != phaseID) continue;
                 const bool isTransparent = pass->getBlendState()->targets[0].blend;
                 if (!isTransparent) {
                     _opaqueOrMaskInstanceIDs.emplace_back(_instanceNum);
                 }
-                _addMaterial(pass);
-            }
-            
+                addMaterial(pass);
+            } 
             _instanceNum++;
         }
     }
-    _buildRaytracingInstanceData();
+    buildRayTracingInstanceData();
 }
 
-MeshPrim RayTracing::_buildRaytracingMeshPrimitive(const IntrusivePtr<SubModel>& submodel) {
-    auto* subMesh = submodel->getSubMesh();
+MeshPrim RayTracing::buildRayTracingMeshPrimitive(const IntrusivePtr<SubModel>& subModel) {
+    auto* subMesh = subModel->getSubMesh();
     auto& iaInfo = subMesh->getIaInfo();
-    auto* ia = submodel->getInputAssembler();
+    auto* ia = subModel->getInputAssembler();
     auto& accessors = _description->accessors;
     auto& bufferViews = _description->bufferViews;
     auto& buffers = _description->buffers;
     auto& meshes = _description->meshes;
     Mesh mesh{};
-    mesh.submodel = submodel;
+    mesh.subModel = subModel;
     
     meshes.emplace_back(std::move(mesh));
     MeshPrim prim{};
     {
         auto* indexBuffer = iaInfo.indexBuffer;
-        uint32_t idxBuff = static_cast<uint32_t>(buffers.size());
+        auto idxBuff = static_cast<uint32_t>(buffers.size());
         buffers.emplace_back(indexBuffer);
         BufferView buffView{};
         buffView.byteOffset = 0;
-        buffView.buffer = idxBuff;
+        buffView.buffer = static_cast<int>(idxBuff);
 
-        buffView.byteLength = indexBuffer->getCount() * sizeof(uint16_t);
+        buffView.byteLength = static_cast<int>(indexBuffer->getCount() * sizeof(uint16_t));
         buffView.target = TargetType::ELEMENT_ARRAY_BUFFER;
-        uint32_t idxBuffView = static_cast<uint32_t>(bufferViews.size());
+        auto idxBuffView = static_cast<int>(bufferViews.size());
         bufferViews.emplace_back(std::move(buffView));
         Accessor accessor{};
         accessor.bufferView = idxBuffView;
         accessor.byteOffset = 0;
         accessor.componentType = ComponentType::UNSIGNED_SHORT;
-        accessor.count = indexBuffer->getCount();
+        accessor.count = static_cast<int>(indexBuffer->getCount());
         accessor.type = "SCALAR";
         accessors.emplace_back(std::move(accessor));
         prim.index_buffer = idxBuff;
@@ -135,7 +134,7 @@ MeshPrim RayTracing::_buildRaytracingMeshPrimitive(const IntrusivePtr<SubModel>&
         // vertex buffer
         prim.vertex_buffer = vertIdx;
 
-        auto& attrs = ia->getAttributes();
+        const auto& attrs = ia->getAttributes();
         for (const auto& attribute : attrs) {
             auto offset = ia->getVertexOffset();
             const auto& info = gfx::GFX_FORMAT_INFOS[static_cast<uint32_t>(attribute.format)];
@@ -151,39 +150,39 @@ MeshPrim RayTracing::_buildRaytracingMeshPrimitive(const IntrusivePtr<SubModel>&
             }
         }
     }
-    return std::move(prim);
+    return prim;
 }
 
-void RayTracing::_buildRaytracingInstanceData() {
+void RayTracing::buildRayTracingInstanceData() {
     auto& opaqueOrMaskInstanceIDs = _opaqueOrMaskInstanceIDs;
     auto& instances = _instances;
     auto& transforms = _transforms;
-    auto& transformPrevs = _transformPrevs;
+    auto& transformPrev = _transformPrev;
 
     opaqueOrMaskInstanceIDs.reserve(_instanceNum);
     instances.reserve(_instanceNum);
-    _raytracingInstances.reserve(_instanceNum);
-    _raytracingPrimitives.reserve(_instanceNum);
+    _rayTracingInstances.reserve(_instanceNum);
+    _rayTracingPrimitives.reserve(_instanceNum);
 
     _transforms.reserve(_instanceNum);
-    _transformPrevs.reserve(_instanceNum);
+    _transformPrev.reserve(_instanceNum);
 
     // for each mesh node, which contains one transform and one or more mesh primitives
-    uint32_t numOpaqueOrMaskInstances = 0;
-    uint32_t instanceID = 0;
-    uint32_t transformID = 0;
+    // uint32_t numOpaqueOrMaskInstances = 0;
+    // uint32_t instanceID = 0;
+    // uint32_t transformID = 0;
 }
 
-MaterialProperty RayTracing::_getPassUniform(const IntrusivePtr<Pass>& pass, std::string name) {
+MaterialProperty RayTracing::getPassUniform(const IntrusivePtr<Pass>& pass, const std::string& name) {
     auto handle = pass->getHandle(name);
     return ccstd::get<float>(pass->getUniform(handle));
 }
 
-float RayTracing::_getPassUniformAsFloat(const IntrusivePtr<Pass>& pass, std::string name) {
-    return ccstd::get<float>(_getPassUniform(pass, name));
+float RayTracing::getPassUniformAsFloat(const IntrusivePtr<Pass>& pass, const std::string& name) {
+    return ccstd::get<float>(getPassUniform(pass, name));
 }
 
-void RayTracing::_addTexture(const IntrusivePtr<Pass>& pass, std::string name, uint32_t binding) {
+void RayTracing::addTexture(const IntrusivePtr<Pass>& pass, const std::string& name, uint32_t binding) {
     Texture tex{};
     tex.name = name;
     tex.source = pass->getDescriptorSet()->getTexture(binding);
@@ -191,58 +190,58 @@ void RayTracing::_addTexture(const IntrusivePtr<Pass>& pass, std::string name, u
     _description->textures.emplace_back(std::move(tex));
 }
 
-void RayTracing::_addMaterial(const IntrusivePtr<Pass>& pass) {
+void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
     const bool isTransparent = pass->getBlendState()->targets[0].blend;
     Material mat{};
     MaterialPbrMetallicRoughness pbrMetallic{};
     auto pbrBinding = pass->getBinding("pbrMap");
     if (pbrBinding != -1) {
         TextureInfo metallic{};
-        metallic.index = _description->textures.size();
-        pbrMetallic.metallicRoughnessTexture = std::move(metallic);
-        pbrMetallic.metallicFactor = _getPassUniformAsFloat(pass, "metallic");
-        pbrMetallic.roughnessFactor = _getPassUniformAsFloat(pass, "roughness");
-        _addTexture(pass, "pbrMap", pbrBinding);
+        metallic.index = static_cast<int>(_description->textures.size());
+        pbrMetallic.metallicRoughnessTexture = metallic;
+        pbrMetallic.metallicFactor = getPassUniformAsFloat(pass, "metallic");
+        pbrMetallic.roughnessFactor = getPassUniformAsFloat(pass, "roughness");
+        addTexture(pass, "pbrMap", pbrBinding);
     }
     auto albedoBinding = pass->getBinding("mainTexture");
     if (albedoBinding != -1) {
         TextureInfo baseColInfo{};
-        baseColInfo.index = _description->textures.size();
-        pbrMetallic.baseColorTexture = std::move(baseColInfo);
-        pbrMetallic.baseColorFactor = _getPassUniformAsFloat(pass, "albedoScale");
-        _addTexture(pass, "mainTexture", albedoBinding);
+        baseColInfo.index = static_cast<int>(_description->textures.size());
+        pbrMetallic.baseColorTexture = baseColInfo;
+        pbrMetallic.baseColorFactor = getPassUniformAsFloat(pass, "albedoScale");
+        addTexture(pass, "mainTexture", albedoBinding);
     }
-    mat.pbrMetallicRoughness = std::move(pbrMetallic);
+    mat.pbrMetallicRoughness = pbrMetallic;
     auto normalBinding = pass->getBinding("normalMap");
     if (normalBinding != -1) {
         MaterialNormalTextureInfo normalTexInfo{};
-        normalTexInfo.index = _description->textures.size();
-        normalTexInfo.scale = _getPassUniformAsFloat(pass, "normalStrength");
-        mat.normalTexture = std::move(normalTexInfo);
-        _addTexture(pass, "normalMap", normalBinding);
+        normalTexInfo.index = static_cast<int>(_description->textures.size());
+        normalTexInfo.scale = getPassUniformAsFloat(pass, "normalStrength");
+        mat.normalTexture = normalTexInfo;
+        addTexture(pass, "normalMap", normalBinding);
     }
     auto occlusionBinding = pass->getBinding("occlusionMap");
     if (occlusionBinding != -1) {
         MaterialOcclusionTextureInfo occlusionTex{};
-        occlusionTex.index = _description->textures.size();
-        occlusionTex.strength = _getPassUniformAsFloat(pass, "occlusion");
-        mat.occlusionTexture = std::move(occlusionTex);
-        _addTexture(pass, "occlusionMap", occlusionBinding);
+        occlusionTex.index = static_cast<int>(_description->textures.size());
+        occlusionTex.strength = getPassUniformAsFloat(pass, "occlusion");
+        mat.occlusionTexture = occlusionTex;
+        addTexture(pass, "occlusionMap", occlusionBinding);
     }
     auto emissiveBinding = pass->getBinding("emissiveMap");
     if (emissiveBinding != -1) {
         TextureInfo emissiveTexture{};
-        emissiveTexture.index = _description->textures.size();
-        mat.emissiveTexture = std::move(emissiveTexture);
-        mat.emissiveFactor = ccstd::get<Vec3>(_getPassUniform(pass, "emissiveScale"));
-        _addTexture(pass, "emissiveMap", emissiveBinding);
+        emissiveTexture.index = static_cast<int>(_description->textures.size());
+        mat.emissiveTexture = emissiveTexture;
+        mat.emissiveFactor = ccstd::get<Vec3>(getPassUniform(pass, "emissiveScale"));
+        addTexture(pass, "emissiveMap", emissiveBinding);
     }
     auto alphaCutoff = pass->getHandle("alphaThreshold");
     if (alphaCutoff != 0) {
-        mat.alphaCutoff = _getPassUniformAsFloat(pass, "alphaThreshold");
+        mat.alphaCutoff = getPassUniformAsFloat(pass, "alphaThreshold");
     }
-    mat.alphaMode = isTransparent ? AlphaMode::Blend : AlphaMode::Opaque;
-    mat.doubleSided = pass->getRasterizerState()->cullMode == gfx::CullMode::NONE ? true : false;
+    mat.alphaMode = isTransparent ? AlphaMode::BLEND : AlphaMode::OPAQUE;
+    mat.doubleSided = pass->getRasterizerState()->cullMode == gfx::CullMode::NONE;
 
     _materials.emplace_back(std::move(mat));
 }
