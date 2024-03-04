@@ -12,8 +12,8 @@ void Description::Clear() {
     buffers.clear();
     materials.clear();
     textures.clear();
-    samplers.clear();
-    images.clear();
+    meshes.clear();
+    nodes.clear();
 }
 } // namespace raytracing
 } // namespace scene

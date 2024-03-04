@@ -146,7 +146,7 @@ struct Material {
 
 struct Texture {
     IntrusivePtr<gfx::Texture> source;
-    IntrusivePtr<gfx::Sampler> sampler;
+    gfx::Sampler* sampler;
     std::string name;
 };
 
@@ -157,12 +157,6 @@ struct Texture {
 //    std::string name;
 //};
 
-struct Sampler {
-    int magFilter;
-    int minFilter;
-    int wrapS;
-    int wrapT;
-};
 
 struct Skin {
     ccstd::vector<int> joints;
@@ -223,7 +217,6 @@ public:
     ccstd::vector<gfx::Buffer*> buffers;
     ccstd::vector<Material> materials;
     ccstd::vector<Texture> textures;
-    ccstd::vector<Sampler> samplers;
     // ccstd::vector<Image> images;
     ccstd::vector<Mesh> meshes;
     ccstd::vector<Entity> nodes;
