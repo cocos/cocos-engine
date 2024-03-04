@@ -27,6 +27,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cocos/scene/raytracing/Def.h>
 #include <cocos/math/Mat4.h>
 #include <cocos/math/Vec3.h>
 #include <cocos/math/Quaternion.h>
@@ -208,21 +209,7 @@ struct Entity {
     ccstd::string name;
 };
 
-class Description : public RefCounted {
-public:
-    ccstd::vector<Skin> skins;
-    ccstd::vector<Animation> animations;
-    ccstd::vector<Accessor> accessors;
-    ccstd::vector<BufferView> bufferViews;
-    ccstd::vector<gfx::Buffer*> buffers;
-    ccstd::vector<Material> materials;
-    ccstd::vector<Texture> textures;
-    // ccstd::vector<Image> images;
-    ccstd::vector<Mesh> meshes;
-    ccstd::vector<Entity> nodes;
-    Scene scene;
-    void clear();
-};
+
 
 enum class RayTracingPrimitiveType : uint32_t {
     PER_INSTANCE,
@@ -313,6 +300,33 @@ struct RayTracingPrimitive {
     IntrusivePtr<gfx::Buffer> meshBuffer;
     RayTracingGeometryTrianglesDesc geometryDesc;
     RayTracingGeometryFlags flags = RayTracingGeometryFlags::NONE;
+};
+class Description : public RefCounted {
+public:
+    ccstd::vector<Skin> skins;
+    ccstd::vector<Animation> animations;
+    ccstd::vector<Accessor> accessors;
+    ccstd::vector<BufferView> bufferViews;
+    ccstd::vector<gfx::Buffer*> buffers;
+    ccstd::vector<Material> materials;
+    ccstd::vector<Texture> textures;
+    ccstd::vector<Mat4> transforms;
+    ccstd::vector<Mat4> transformPrev;
+    ccstd::vector<uint32_t> opaqueOrMaskInstanceIDs;
+    ccstd::vector<InstanceInfo> instances;
+    ccstd::vector<RayTracingInstance> rayTracingInstances;
+    ccstd::vector<RayTracingPrimitive> rayTracingPrimitives;
+    IntrusivePtr<gfx::Buffer> instanceBuffer;
+    IntrusivePtr<gfx::Buffer> transformBuffer;
+    IntrusivePtr<gfx::Buffer> transformPrevBuffer;
+    IntrusivePtr<gfx::Buffer> meshPrimitiveBuffer;
+    IntrusivePtr<gfx::Buffer> materialBuffer;
+    IntrusivePtr<gfx::Buffer> opaqueOrMaskInstanceIDsBuffer;
+    // ccstd::vector<Image> images;
+    ccstd::vector<Mesh> meshes;
+    ccstd::vector<Entity> nodes;
+    Scene scene;
+    void clear();
 };
 } // namespace raytracing
 } // namespace scene

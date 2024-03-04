@@ -14,6 +14,13 @@ void Description::clear() {
     textures.clear();
     meshes.clear();
     nodes.clear();
+
+    transforms.clear();
+    transformPrev.clear();
+    opaqueOrMaskInstanceIDs.clear();
+    instances.clear();
+    rayTracingInstances.clear();
+    rayTracingPrimitives.clear();
 }
 } // namespace raytracing
 } // namespace scene

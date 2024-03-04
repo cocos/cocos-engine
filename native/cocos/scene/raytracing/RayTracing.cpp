@@ -29,20 +29,23 @@
 namespace cc {
 namespace scene {
 namespace raytracing {
+uint32_t RayTracing::instanceNum = 0;
+IntrusivePtr<RenderScene> RayTracing::renderScene;
+IntrusivePtr<Description> RayTracing::description;
 void RayTracing::activate() {
     Root::getInstance()->on<Root::BeforeRender>([this](cc::Root* /*unused*/) {
-        this->beforeRender();
+        beforeRender();
     });
 }
 void RayTracing::beforeRender() {
-    _description->clear();
+    description->clear();
     ccstd::vector<MeshPrim> meshPrimitives{};
-    _description->scene.name = _renderScene->getName();
-    const auto& models = _renderScene->getModels();
-    auto& buffers = _description->buffers;
-    _instanceNum = 0;
-    auto& accessors = _description->accessors;
-    auto& bufferViews = _description->bufferViews;
+    description->scene.name = renderScene->getName();
+    const auto& models = renderScene->getModels();
+    auto& buffers = description->buffers;
+    instanceNum = 0;
+    auto& accessors = description->accessors;
+    auto& bufferViews = description->bufferViews;
     auto phaseID = pipeline::getPhaseID("default");
     for (const auto& model : models) {
         auto isStatic = model->getNode()->isStatic();
@@ -58,20 +61,20 @@ void RayTracing::beforeRender() {
             entity.translation = node->getPosition();
             entity.rotation = node->getRotation();
             entity.scale = node->getScale();
-            entity.mesh = static_cast<int>(_description->meshes.size());
-            _description->scene.nodes.emplace_back(_description->nodes.size());
-            _description->nodes.emplace_back(std::move(entity));
+            entity.mesh = static_cast<int>(description->meshes.size());
+            description->scene.nodes.emplace_back(description->nodes.size());
+            description->nodes.emplace_back(std::move(entity));
 
             meshPrimitives.emplace_back(buildRayTracingMeshPrimitive(subModel));
             const auto& wMat = model->getNode()->getWorldMatrix();
-            _transforms.emplace_back(wMat);
-            _transformPrev.emplace_back(wMat);
+            description->transforms.emplace_back(wMat);
+            description->transformPrev.emplace_back(wMat);
             InstanceInfo instance{};
-            instance.mMeshPrimID = static_cast<uint32_t>(meshPrimitives.size() - 1);
-            instance.mTransformID = _instanceNum;
-            instance.mMeshID = _instanceNum;
-            instance.mMeshPrimitiveLocalID = _instanceNum;
-            _instances.emplace_back(instance);
+            instance.meshPrimID = static_cast<uint32_t>(meshPrimitives.size() - 1);
+            instance.transformID = instanceNum;
+            instance.meshID = instanceNum;
+            instance.meshPrimitiveLocalID = instanceNum;
+            description->instances.emplace_back(instance);
             const auto& passes = *(subModel->getPasses());
             const auto passCount = passes.size();
             for (uint32_t passIdx = 0; passIdx < passCount; ++passIdx) {
@@ -79,11 +82,11 @@ void RayTracing::beforeRender() {
                 if (pass->getPhase() != phaseID) continue;
                 const bool isTransparent = pass->getBlendState()->targets[0].blend;
                 if (!isTransparent) {
-                    _opaqueOrMaskInstanceIDs.emplace_back(_instanceNum);
+                    description->opaqueOrMaskInstanceIDs.emplace_back(instanceNum);
                 }
                 addMaterial(pass);
             } 
-            _instanceNum++;
+            instanceNum++;
         }
     }
     buildRayTracingInstanceData();
@@ -93,10 +96,10 @@ MeshPrim RayTracing::buildRayTracingMeshPrimitive(const IntrusivePtr<SubModel>& 
     auto* subMesh = subModel->getSubMesh();
     auto& iaInfo = subMesh->getIaInfo();
     auto* ia = subModel->getInputAssembler();
-    auto& accessors = _description->accessors;
-    auto& bufferViews = _description->bufferViews;
-    auto& buffers = _description->buffers;
-    auto& meshes = _description->meshes;
+    auto& accessors = description->accessors;
+    auto& bufferViews = description->bufferViews;
+    auto& buffers = description->buffers;
+    auto& meshes = description->meshes;
     Mesh mesh{};
     mesh.subModel = subModel;
     
@@ -154,18 +157,18 @@ MeshPrim RayTracing::buildRayTracingMeshPrimitive(const IntrusivePtr<SubModel>& 
 }
 
 void RayTracing::buildRayTracingInstanceData() {
-    auto& opaqueOrMaskInstanceIDs = _opaqueOrMaskInstanceIDs;
-    auto& instances = _instances;
-    auto& transforms = _transforms;
-    auto& transformPrev = _transformPrev;
+    auto& opaqueOrMaskInstIDs = description->opaqueOrMaskInstanceIDs;
+    auto& inst = description->instances;
+    auto& transform = description->transforms;
+    auto& transPrev = description->transformPrev;
 
-    opaqueOrMaskInstanceIDs.reserve(_instanceNum);
-    instances.reserve(_instanceNum);
-    _rayTracingInstances.reserve(_instanceNum);
-    _rayTracingPrimitives.reserve(_instanceNum);
+    opaqueOrMaskInstIDs.reserve(instanceNum);
+    inst.reserve(instanceNum);
+    description->rayTracingInstances.reserve(instanceNum);
+    description->rayTracingPrimitives.reserve(instanceNum);
 
-    _transforms.reserve(_instanceNum);
-    _transformPrev.reserve(_instanceNum);
+    transform.reserve(instanceNum);
+    transPrev.reserve(instanceNum);
 
     // for each mesh node, which contains one transform and one or more mesh primitives
     // uint32_t numOpaqueOrMaskInstances = 0;
@@ -187,7 +190,7 @@ void RayTracing::addTexture(const IntrusivePtr<Pass>& pass, const std::string& n
     tex.name = name;
     tex.source = pass->getDescriptorSet()->getTexture(binding);
     tex.sampler = pass->getDescriptorSet()->getSampler(binding);
-    _description->textures.emplace_back(std::move(tex));
+    description->textures.emplace_back(std::move(tex));
 }
 
 void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
@@ -197,7 +200,7 @@ void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
     auto pbrBinding = pass->getBinding("pbrMap");
     if (pbrBinding != -1) {
         TextureInfo metallic{};
-        metallic.index = static_cast<int>(_description->textures.size());
+        metallic.index = static_cast<int>(description->textures.size());
         pbrMetallic.metallicRoughnessTexture = metallic;
         pbrMetallic.metallicFactor = getPassUniformAsFloat(pass, "metallic");
         pbrMetallic.roughnessFactor = getPassUniformAsFloat(pass, "roughness");
@@ -206,7 +209,7 @@ void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
     auto albedoBinding = pass->getBinding("mainTexture");
     if (albedoBinding != -1) {
         TextureInfo baseColInfo{};
-        baseColInfo.index = static_cast<int>(_description->textures.size());
+        baseColInfo.index = static_cast<int>(description->textures.size());
         pbrMetallic.baseColorTexture = baseColInfo;
         pbrMetallic.baseColorFactor = getPassUniformAsFloat(pass, "albedoScale");
         addTexture(pass, "mainTexture", albedoBinding);
@@ -215,7 +218,7 @@ void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
     auto normalBinding = pass->getBinding("normalMap");
     if (normalBinding != -1) {
         MaterialNormalTextureInfo normalTexInfo{};
-        normalTexInfo.index = static_cast<int>(_description->textures.size());
+        normalTexInfo.index = static_cast<int>(description->textures.size());
         normalTexInfo.scale = getPassUniformAsFloat(pass, "normalStrength");
         mat.normalTexture = normalTexInfo;
         addTexture(pass, "normalMap", normalBinding);
@@ -223,7 +226,7 @@ void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
     auto occlusionBinding = pass->getBinding("occlusionMap");
     if (occlusionBinding != -1) {
         MaterialOcclusionTextureInfo occlusionTex{};
-        occlusionTex.index = static_cast<int>(_description->textures.size());
+        occlusionTex.index = static_cast<int>(description->textures.size());
         occlusionTex.strength = getPassUniformAsFloat(pass, "occlusion");
         mat.occlusionTexture = occlusionTex;
         addTexture(pass, "occlusionMap", occlusionBinding);
@@ -231,7 +234,7 @@ void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
     auto emissiveBinding = pass->getBinding("emissiveMap");
     if (emissiveBinding != -1) {
         TextureInfo emissiveTexture{};
-        emissiveTexture.index = static_cast<int>(_description->textures.size());
+        emissiveTexture.index = static_cast<int>(description->textures.size());
         mat.emissiveTexture = emissiveTexture;
         mat.emissiveFactor = ccstd::get<Vec3>(getPassUniform(pass, "emissiveScale"));
         addTexture(pass, "emissiveMap", emissiveBinding);
@@ -243,13 +246,15 @@ void RayTracing::addMaterial(const IntrusivePtr<Pass>& pass) {
     mat.alphaMode = isTransparent ? AlphaMode::BLEND : AlphaMode::OPAQUE;
     mat.doubleSided = pass->getRasterizerState()->cullMode == gfx::CullMode::NONE;
 
-    _materials.emplace_back(std::move(mat));
+    description->materials.emplace_back(std::move(mat));
 }
 
-RayTracing::RayTracing(RenderScene* scene) : _renderScene(scene), _description(ccnew Description()) {}
+RayTracing::RayTracing(RenderScene* scene) {
+    setRenderScene(scene);
+}
 void RayTracing::setRenderScene(RenderScene* scene) {
-    _renderScene = scene;
-    _description = ccnew Description();
+    renderScene = scene;
+    description = ccnew Description();
 }
 } // namespace raytracing
 } // namespace scene

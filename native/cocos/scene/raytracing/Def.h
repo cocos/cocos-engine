@@ -29,10 +29,10 @@ namespace cc {
 namespace scene {
 namespace raytracing {
 struct InstanceInfo {
-    uint32_t mMeshPrimID = 0;
-    uint32_t mTransformID = 0;
-    uint32_t mMeshID = 0;
-    uint32_t mMeshPrimitiveLocalID = 0;
+    uint32_t meshPrimID = 0;
+    uint32_t transformID = 0;
+    uint32_t meshID = 0;
+    uint32_t meshPrimitiveLocalID = 0;
 };
 
 struct MeshPrim {
