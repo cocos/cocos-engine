@@ -28,7 +28,6 @@ import { DEBUG, DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
 import { EventTouch } from '../../input/types';
 import { assert, warnID, Color, Vec2, CCObject, cclegacy, js, Size } from '../../core';
-import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace, getEnglishWordPartAtFirst, getEnglishWordPartAtLast } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
@@ -37,6 +36,15 @@ import { Sprite } from './sprite';
 import { UITransform } from '../framework';
 import { Component } from '../../scene-graph/component';
 import { NodeEventType } from '../../scene-graph/node-event';
+import {
+    BASELINE_RATIO,
+    fragmentText,
+    isUnicodeCJK,
+    isUnicodeSpace,
+    getEnglishWordPartAtFirst,
+    getEnglishWordPartAtLast,
+    getSymbolAt,
+} from '../utils/text-utils';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -895,8 +903,12 @@ export class RichText extends Component {
             }
         }
         if (fragmentWidth > this._maxWidth) {
-            const fragments = fragmentText(labelString, fragmentWidth, this._maxWidth,
-                this._measureText(styleIndex) as unknown as (s: string) => number);
+            const fragments = fragmentText(
+                labelString,
+                fragmentWidth,
+                this._maxWidth,
+this._measureText(styleIndex) as unknown as (s: string) => number,
+            );
             for (let k = 0; k < fragments.length; ++k) {
                 const splitString = fragments[k];
                 labelSegment = this._addLabelSegment(splitString, styleIndex);
@@ -1153,14 +1165,14 @@ export class RichText extends Component {
     }
 
     protected _getFirstWordLen (text: string, startIndex: number, textLen: number): number {
-        let character = text.charAt(startIndex);
+        let character = getSymbolAt(text, startIndex);
         if (isUnicodeCJK(character) || isUnicodeSpace(character)) {
             return 1;
         }
 
         let len = 1;
         for (let index = startIndex + 1; index < textLen; ++index) {
-            character = text.charAt(index);
+            character = getSymbolAt(text, index);
             if (isUnicodeSpace(character) || isUnicodeCJK(character)) {
                 break;
             }
@@ -1201,9 +1213,11 @@ export class RichText extends Component {
             }
 
             const pos = segment.node.position;
-            segment.node.setPosition(nextTokenX + lineOffsetX,
+            segment.node.setPosition(
+                nextTokenX + lineOffsetX,
                 this._lineHeight * (totalLineCount - lineCount) - this._labelHeight * anchorY,
-                pos.z);
+                pos.z,
+            );
 
             if (lineCount === nextLineIndex) {
                 nextTokenX += segment.node._uiProps.uiTransformComp!.width;
