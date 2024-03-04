@@ -1413,6 +1413,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphFwd.h
                  cocos/renderer/pipeline/custom/LayoutGraphGraphs.h
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
+                 cocos/renderer/pipeline/custom/LayoutGraphSerialization.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphSerialization.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
@@ -1449,6 +1450,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h
                  cocos/renderer/pipeline/custom/RenderCommonNames.h
+                 cocos/renderer/pipeline/custom/RenderCommonSerialization.cpp
                  cocos/renderer/pipeline/custom/RenderCommonSerialization.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
