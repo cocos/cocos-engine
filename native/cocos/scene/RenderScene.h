@@ -29,6 +29,7 @@
 #include "base/RefCounted.h"
 #include "base/std/container/string.h"
 #include "base/std/container/vector.h"
+#include <cocos/scene/raytracing/RayTracing.h>
 
 namespace cc {
 
@@ -130,6 +131,7 @@ private:
     uint64_t _modelId{0};
     IntrusivePtr<DirectionalLight> _mainLight;
     IntrusivePtr<LodStateCache> _lodStateCache;
+    IntrusivePtr<raytracing::RayTracing> _rayTracing;
     ccstd::vector<IntrusivePtr<Model>> _models;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     ccstd::vector<IntrusivePtr<DirectionalLight>> _directionalLights;

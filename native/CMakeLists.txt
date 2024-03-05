@@ -1522,6 +1522,12 @@ cocos_source_files(
                  cocos/scene/Pass.cpp
                  cocos/scene/RenderScene.h
                  cocos/scene/RenderScene.cpp
+                 cocos/scene/raytracing/RayTracing.h
+                 cocos/scene/raytracing/RayTracing.cpp
+                 cocos/scene/raytracing/Def.h
+                 cocos/scene/raytracing/Def.cpp
+                 cocos/scene/raytracing/Description.h
+                 cocos/scene/raytracing/Description.cpp
                  cocos/scene/RenderWindow.cpp
                  cocos/scene/RenderWindow.h
                  cocos/scene/Skybox.h
