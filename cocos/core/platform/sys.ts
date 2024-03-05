@@ -25,7 +25,7 @@
 
 import { systemInfo } from 'pal/system-info';
 import { screenAdapter } from 'pal/screen-adapter';
-import { WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
+import { BYTEDANCE, WECHAT, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { Vec2 } from '../math/vec2';
@@ -325,7 +325,7 @@ export const sys = {
                     };
                 }
 
-                if (WECHAT || WECHAT_MINI_PROGRAM) {
+                if (WECHAT || WECHAT_MINI_PROGRAM || BYTEDANCE) {
                     this.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && GameGlobal?.isIOSHighPerformanceMode
             && /(OS 1((4\.[0-9])|(5\.[0-3])))|(Version\/1((4\.[0-9])|(5\.[0-3])))/.test(window.navigator.userAgent);
                 } else {
