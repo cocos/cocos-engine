@@ -1364,21 +1364,6 @@ class DeviceRenderScene implements RecordingInterface {
         }
     }
 
-    private _clearExtBlitDesc (desc, extResId: number[]): void {
-        const toGpuDesc = desc.gpuDescriptorSet;
-        for (let i = 0; i < extResId.length; i++) {
-            const currDesc = toGpuDesc.gpuDescriptors[extResId[i]];
-            if (currDesc.gpuBuffer) currDesc.gpuBuffer = null;
-            else if (currDesc.gpuTextureView) {
-                currDesc.gpuTextureView = null;
-                currDesc.gpuSampler = null;
-            } else if (currDesc.gpuTexture) {
-                currDesc.gpuTexture = null;
-                currDesc.gpuSampler = null;
-            }
-        }
-    }
-
     private _recordBlit (): void {
         if (!this.graphScene.blit) { return; }
 
@@ -1402,16 +1387,10 @@ class DeviceRenderScene implements RecordingInterface {
         }
         if (pso) {
             context.commandBuffer.bindPipelineState(pso);
-            const layoutStage = devicePass.renderLayout;
-            const layoutDesc = layoutStage!.descriptorSet!;
-            const extResId: number[] = [];
-            // if (isEnableEffect()) this.visitor.bindDescriptorSet(SetIndex.GLOBAL, layoutDesc);
             context.commandBuffer.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
             context.commandBuffer.bindDescriptorSet(SetIndex.LOCAL, this._currentQueue.blitDesc!.stageDesc!);
             context.commandBuffer.bindInputAssembler(screenIa);
             context.commandBuffer.draw(screenIa);
-            // The desc data obtained from the outside should be cleaned up so that the data can be modified
-            this._clearExtBlitDesc(layoutDesc, extResId);
         }
     }
 
@@ -2062,7 +2041,6 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
             cmdBuff.bindPipelineState(pso);
             const layoutStage = devicePass.renderLayout;
             const layoutDesc = layoutStage!.descriptorSet!;
-            const extResId: number[] = [];
             cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, layoutDesc);
         }
 
