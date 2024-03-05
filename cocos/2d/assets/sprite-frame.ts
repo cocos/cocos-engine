@@ -1430,6 +1430,7 @@ export class SpriteFrame extends Asset {
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
         sp.uvSliced.splice(0, sp.uvSliced.length, ...this.uvSliced);
         sp._rect.set(this._rect);
+        sp._trimmedBorder.set(this._trimmedBorder);
         sp._offset.set(this._offset);
         sp._originalSize.set(this._originalSize);
         sp._rotated = this._rotated;
@@ -1441,6 +1442,23 @@ export class SpriteFrame extends Asset {
         sp._pixelsToUnit = this._pixelsToUnit;
         sp._pivot.set(this._pivot);
         sp._meshType = this._meshType;
+        sp._packable = this._packable;
+        sp._pixelsToUnit = this._pixelsToUnit;
+        sp._meshType = this._meshType;
+        sp._extrude = this._extrude;
+        sp._customOutLine.splice(0, sp._customOutLine.length, ...this._customOutLine);
+        if (this._original) {
+            sp._original = {
+                _texture: this._original._texture,
+                _x: this._original._x,
+                _y: this._original._y,
+            };
+        } else {
+            sp._original = null;
+        }
+        sp._mesh = this._mesh;
+        sp._minPos = this._minPos;
+        sp._maxPos = this._maxPos;
         return sp;
     }
 
