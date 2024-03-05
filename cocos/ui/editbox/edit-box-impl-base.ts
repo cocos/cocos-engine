@@ -45,7 +45,7 @@ export class EditBoxImplBase {
         // To be overrode
     }
 
-    public update (): void {
+    public afterUpdate (): void {
         // To be overrode
     }
 
