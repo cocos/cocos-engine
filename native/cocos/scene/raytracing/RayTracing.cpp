@@ -126,12 +126,12 @@ MeshPrim RayTracing::buildRayTracingMeshPrimitive(const IntrusivePtr<SubModel>& 
         prim.index_buffer = idxBuff;
         prim.index_offset = 0;
         prim.index_stride = indexBuffer->getStride();
-        prim.index_count = accessor.count;
+        prim.index_count = static_cast<uint32_t>(accessor.count);
         accessors.emplace_back(std::move(accessor));
     }
     {
         const auto& vertBuffs = ia->getVertexBuffers();
-        uint32_t vertIdx = buffers.size();
+        auto vertIdx = static_cast<uint32_t>(buffers.size());
         buffers.insert(buffers.end(), vertBuffs.begin(), vertBuffs.end());
 
         // vertex buffer
