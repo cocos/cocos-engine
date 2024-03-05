@@ -39,33 +39,34 @@ public:
     explicit RayTracing(RenderScene* scene);
     ~RayTracing() override = default;
     // getter
-    static inline const ccstd::vector<Mat4>& getTransforms()  { return description->transforms; }
-    static inline const ccstd::vector<Mat4>& getTransformPrev() { return description->transformPrev; }
-    static inline const ccstd::vector<uint32_t>& getOpaqueOrMaskInstanceIDs() { return description->opaqueOrMaskInstanceIDs; }
-    static inline const gfx::Buffer* getInstanceBuffer()  { return description->instanceBuffer.get(); }
-    static inline const gfx::Buffer* getTransformBuffer()  { return description->transformBuffer.get(); }
-    static inline const gfx::Buffer* getTransformPrevBuffer() { return description->transformPrevBuffer.get(); }
-    static inline const gfx::Buffer* getMeshPrimitiveBuffer() { return description->meshPrimitiveBuffer.get(); }
-    static inline const gfx::Buffer* getMaterialBuffer() { return description->materialBuffer.get(); }
-    static inline const gfx::Buffer* getOpaqueOrMaskInstanceIDsBuffer() { return description->opaqueOrMaskInstanceIDsBuffer.get(); }
-    static inline scene::RenderScene* getRenderScene() { return renderScene; }
-    static inline Description* getDescription() { return description; }
+    inline const ccstd::vector<Mat4>& getTransforms() const  { return _description->transforms; }
+    inline const ccstd::vector<Mat4>& getTransformPrev() const { return _description->transformPrev; }
+    inline const ccstd::vector<uint32_t>& getOpaqueOrMaskInstanceIDs() const { return _description->opaqueOrMaskInstanceIDs; }
+    inline const gfx::Buffer* getInstanceBuffer() const { return _description->instanceBuffer.get(); }
+    inline const gfx::Buffer* getTransformBuffer() const { return _description->transformBuffer.get(); }
+    inline const gfx::Buffer* getTransformPrevBuffer() const { return _description->transformPrevBuffer.get(); }
+    inline const gfx::Buffer* getMeshPrimitiveBuffer() const { return _description->meshPrimitiveBuffer.get(); }
+    inline const gfx::Buffer* getMaterialBuffer() const { return _description->materialBuffer.get(); }
+    inline const gfx::Buffer* getOpaqueOrMaskInstanceIDsBuffer() const { return _description->opaqueOrMaskInstanceIDsBuffer.get(); }
+    inline scene::RenderScene* getRenderScene() const { return _renderScene; }
+    inline Description* getDescription() const { return _description; }
     // setter
-    static void setRenderScene(RenderScene* scene);
+    void setRenderScene(RenderScene* scene);
 
     void activate();
 
 private:
-    static void beforeRender();
-    static MeshPrim buildRayTracingMeshPrimitive(const IntrusivePtr<SubModel>& subModel);
-    static IntrusivePtr<RenderScene> renderScene;
-    static IntrusivePtr<Description> description;
-    static uint32_t instanceNum;
-    static void buildRayTracingInstanceData();
+    void beforeRender();
+    MeshPrim buildRayTracingMeshPrimitive(const IntrusivePtr<SubModel>& subModel);
+    IntrusivePtr<RenderScene> _renderScene;
+    IntrusivePtr<Description> _description;
+    uint32_t _instanceNum;
+    void buildRayTracingInstanceData();
+    void addTexture(const IntrusivePtr<Pass>& pass, const std::string& name, uint32_t binding);
+    void addMaterial(const IntrusivePtr<Pass>& pass);
     static MaterialProperty getPassUniform(const IntrusivePtr<Pass>& pass, const std::string& name);
     static float getPassUniformAsFloat(const IntrusivePtr<Pass>& pass,  const std::string& name);
-    static void addTexture(const IntrusivePtr<Pass>& pass, const std::string& name, uint32_t binding);
-    static void addMaterial(const IntrusivePtr<Pass>& pass);
+    
 };
 } // namespace raytracing
 } // namespace scene
