@@ -353,6 +353,19 @@ const Elements = {
     preview: {
         ready() {
             const panel = this;
+
+            let _isPreviewDataDirty = false;
+            Object.defineProperty(panel, 'isPreviewDataDirty', {
+                get() {
+                    return _isPreviewDataDirty;
+                },
+                set(value) {
+                    if (value !== _isPreviewDataDirty) {
+                        _isPreviewDataDirty = value;
+                        value && panel.refreshPreview();
+                    }
+                },
+            });
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
@@ -409,7 +422,7 @@ const Elements = {
                 this.updatePanelHidden(false);
             }
 
-            panel.refreshPreview();
+            panel.isPreviewDataDirty = true;;
         },
     },
     modelInfo: {
@@ -470,8 +483,7 @@ exports.methods = {
         if (!panel.$.canvas) {
             return;
         }
-
-        if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
+        const doDraw = async ()=> {
             try {
                 const canvas = panel.$.canvas;
                 const image = panel.$.image;
@@ -496,13 +508,15 @@ exports.methods = {
                 console.warn(e);
             }
 
-            panel.isPreviewDataDirty = false;
+            // if (this.curPlayState === PLAY_STATE.PLAYING) {
+            //     requestAnimationFrame(doDraw);
+            // }
         }
 
-        cancelAnimationFrame(panel.animationId);
-        panel.animationId = requestAnimationFrame(() => {
-            panel.refreshPreview();
-        });
+        if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
+            requestAnimationFrame(doDraw);
+            panel.isPreviewDataDirty = false;
+        }
     },
     async onTabChanged(activeTab) {
         if (typeof activeTab === 'string') {
@@ -643,6 +657,7 @@ exports.methods = {
     setCurPlayState(state) {
         this.curPlayState = state;
         let buttonIconName = '';
+
         switch (state) {
             case PLAY_STATE.STOP:
                 buttonIconName = 'play';
@@ -660,6 +675,7 @@ exports.methods = {
         if (this.$.playButtonIcon) {
             this.$.playButtonIcon.value = buttonIconName;
         }
+        this.refreshPreview();
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;
@@ -793,7 +809,6 @@ exports.update = async function(assetList, metaList) {
     this.eventEditorVm.show = false;
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
-    this.refreshPreview();
 };
 
 exports.close = function() {

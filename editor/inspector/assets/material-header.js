@@ -61,9 +61,7 @@ exports.methods = {
             return;
         }
 
-        if (panel.isPreviewDataDirty) {
-            panel.isPreviewDataDirty = false;
-
+        const doDraw = async function() {
             try {
                 const canvas = panel.$.canvas;
 
@@ -85,12 +83,12 @@ exports.methods = {
             } catch (e) {
                 console.warn(e);
             }
-        }
+        };
 
-        cancelAnimationFrame(panel.animationId);
-        panel.animationId = requestAnimationFrame(() => {
-            panel.refreshPreview();
-        });
+        if (panel.isPreviewDataDirty) {
+            requestAnimationFrame(doDraw);
+            panel.isPreviewDataDirty = false;
+        }
     },
     updatePreviewDataDirty() {
         const panel = this;
@@ -101,6 +99,19 @@ exports.methods = {
 
 exports.ready = async function() {
     const panel = this;
+
+    let _isPreviewDataDirty = false;
+    Object.defineProperty(panel, 'isPreviewDataDirty', {
+        get() {
+            return _isPreviewDataDirty;
+        },
+        set(value) {
+            if (value !== _isPreviewDataDirty) {
+                _isPreviewDataDirty = value;
+                value && panel.refreshPreview();
+            }
+        },
+    });
 
     callMaterialPreviewFunction('resetCamera');
 
