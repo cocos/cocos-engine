@@ -65,15 +65,15 @@ export class AudioPlayer {
     }
 
     static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
                 AudioPlayerWeb.load(url).then((webPlayer) => {
                     resolve(new AudioPlayer(webPlayer));
-                }).catch((e) => {});
+                }).catch(reject);
             } else {
                 AudioPlayerMinigame.load(url).then((minigamePlayer) => {
                     resolve(new AudioPlayer(minigamePlayer));
-                }).catch((e) => {});
+                }).catch(reject);
             }
         });
     }
