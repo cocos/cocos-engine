@@ -1439,14 +1439,6 @@ export class SpriteFrame extends Asset {
         sp._texture = this._texture;
         sp._isFlipUVX = this._isFlipUVX;
         sp._isFlipUVY = this._isFlipUVY;
-        sp._pixelsToUnit = this._pixelsToUnit;
-        sp._pivot.set(this._pivot);
-        sp._meshType = this._meshType;
-        sp._packable = this._packable;
-        sp._pixelsToUnit = this._pixelsToUnit;
-        sp._meshType = this._meshType;
-        sp._extrude = this._extrude;
-        sp._customOutLine.splice(0, sp._customOutLine.length, ...this._customOutLine);
         if (this._original) {
             sp._original = {
                 _texture: this._original._texture,
@@ -1456,6 +1448,12 @@ export class SpriteFrame extends Asset {
         } else {
             sp._original = null;
         }
+        sp._packable = this._packable;
+        sp._pixelsToUnit = this._pixelsToUnit;
+        sp._pivot.set(this._pivot);
+        sp._meshType = this._meshType;
+        sp._extrude = this._extrude;
+        sp._customOutLine.splice(0, sp._customOutLine.length, ...this._customOutLine);
         sp._mesh = this._mesh;
         sp._minPos = this._minPos;
         sp._maxPos = this._maxPos;
