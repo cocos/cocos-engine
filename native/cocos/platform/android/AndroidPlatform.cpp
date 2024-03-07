@@ -637,16 +637,16 @@ public:
                     int orientation;
                     switch (rotation) {
                         case 0: // ROTATION_0
-                            orientation = (int)Device::Orientation::PORTRAIT;
+                            orientation = static_cast<int>(Device::Orientation::PORTRAIT);
                             break;
                         case 1: // ROTATION_90
-                            orientation = (int)cc::Device::Orientation::LANDSCAPE_RIGHT;
+                            orientation = static_cast<int>(cc::Device::Orientation::LANDSCAPE_RIGHT);
                             break;
                         case 2: // ROTATION_180
-                            orientation = (int)cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
+                            orientation = static_cast<int>(cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN);
                             break;
                         case 3: // ROTATION_270
-                            orientation = (int)cc::Device::Orientation::LANDSCAPE_LEFT;
+                            orientation = static_cast<int>(cc::Device::Orientation::LANDSCAPE_LEFT);
                             break;
                     }
                     // run callbacks in game thread?
