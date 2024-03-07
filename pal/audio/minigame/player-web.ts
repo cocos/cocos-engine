@@ -151,10 +151,10 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._readyToHandleOnShow = false;
     }
     static load (url: string): Promise<AudioPlayerWeb> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 resolve(new AudioPlayerWeb(audioBuffer, url));
-            }).catch((e) => { debug.warn('load error', url, e); });
+            }).catch(reject);
         });
     }
     static loadNative (url: string): Promise<AudioBuffer> {
@@ -176,7 +176,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                 audioContext!.decodeAudioData(arrayBuffer).then((decodedAudioBuffer) => {
                     audioBufferManager.addCache(url, decodedAudioBuffer);
                     resolve(decodedAudioBuffer);
-                }).catch((e) => { debug.warn('loadNative error', url, e); });
+                }).catch(reject);
             });
         });
     }
