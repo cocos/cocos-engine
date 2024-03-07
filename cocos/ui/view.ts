@@ -140,7 +140,7 @@ export class View extends Eventify(System) {
 
         // For now, the engine UI is adapted to resolution size, instead of window size.
         screen.on('window-resize', this._updateAdaptResult, this);
-        screen.on('orientation-change', this._updateAdaptResult, this);
+        screen.on('orientation-change', this._onOrientationChange, this);
         screen.on('fullscreen-change', this._updateAdaptResult, this);
     }
 
@@ -600,6 +600,24 @@ export class View extends Eventify(System) {
             this.setDesignResolutionSize(w, h, this._resolutionPolicy);
         }
 
+        this.emit('canvas-resize');
+        this._resizeCallback?.();
+    }
+
+    private _onOrientationChange (width?: number, height?: number): void {
+        if (width && height) {
+            const window = cclegacy.director.root.curWindow;
+            if (window && (window.width !== width || window.height !== height)) {
+                cclegacy.director.root.resize(width, height, 1);
+                // Frame size changed, do resize works
+                const w = this._designResolutionSize.width;
+                const h = this._designResolutionSize.height;
+
+                if (width > 0) {
+                    this.setDesignResolutionSize(w, h, this._resolutionPolicy);
+                }
+            }
+        }
         this.emit('canvas-resize');
         this._resizeCallback?.();
     }
