@@ -176,16 +176,16 @@ class ScreenAdapter extends EventTarget {
             this.emit('window-resize', event.width, event.height, event.windowId);
         };
         jsb.onOrientationChanged = (event): void => {
+            let width = jsb.window.innerWidth;
+            let height = jsb.window.innerHeight;
+
             let oldOrientation = jsb.window.orientation;
             jsb.window.orientation = event.orientation;
             if (Math.abs(oldOrientation - event.orientation) !== 180) {
-                let width = jsb.window.innerHeight;
-                let height = jsb.window.innerWidth;
-                window.resize(width, height);
-                this.emit('window-resize', width * this.devicePixelRatio, height * this.devicePixelRatio, 0);
-            } else {
-                this.emit('orientation-change');
-            }
+                width = jsb.window.innerHeight;
+                height = jsb.window.innerWidth;
+            } 
+            this.emit('orientation-change', width, height);
         };
     }
 }

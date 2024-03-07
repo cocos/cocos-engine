@@ -604,22 +604,12 @@ export class View extends Eventify(System) {
         this._resizeCallback?.();
     }
 
-    private _onOrientationChange (width?: number, height?: number): void {
-        if (width && height) {
-            const window = cclegacy.director.root.curWindow;
-            if (window && (window.width !== width || window.height !== height)) {
-                cclegacy.director.root.resize(width, height, 1);
-                // Frame size changed, do resize works
-                const w = this._designResolutionSize.width;
-                const h = this._designResolutionSize.height;
-
-                if (width > 0) {
-                    this.setDesignResolutionSize(w, h, this._resolutionPolicy);
-                }
-            }
+    private _onOrientationChange (width: number, height: number): void {
+        const window = cclegacy.director.root.curWindow;
+        if (window && (window.width !== width || window.height !== height)) {
+            this._updateAdaptResult(width, height);
         }
-        this.emit('canvas-resize');
-        this._resizeCallback?.();
+        this.emit('orientation-change');
     }
 }
 
