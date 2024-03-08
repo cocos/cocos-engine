@@ -308,7 +308,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._innerAudioContext.volume = val;
     }
     get playbackRate (): number {
-        return this._innerAudioContext.volume;
+        return this._playbackRate;
     }
     set playbackRate (val: number) {
         val = clamp(val, 0, 10);

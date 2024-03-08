@@ -110,8 +110,8 @@ export class AudioPlayer {
     set loop (val: boolean) { this._player.loop = val; }
     get volume (): number { return this._player.volume; }
     set volume (val: number) { this._player.volume = val; }
-    get playbackRate (): number { return this._player.playbackRate; }
-    set playbackRate (val: number) { this._player.playbackRate = val; }
+    get playbackRate (): number { return this._player.playbackRate ?? 1; }
+    set playbackRate (val: number) { if (this._player.playbackRate !== undefined) this._player.playbackRate = val; }
     get duration (): number { return this._player.duration; }
     get currentTime (): number { return this._player.currentTime; }
     get sampleRate (): number { return this._player.sampleRate; }
