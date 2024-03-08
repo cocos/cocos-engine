@@ -47,7 +47,8 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
       if (IS_SPOT_LIGHT(cc_lightPos[i].w)) {
         float cosInner = max(dot(-cc_lightDir[i].xyz, SL), 0.01);
         float cosOuter = cc_lightSizeRangeAngle[i].z;
-        float litAngleScale = 1.0 / max(0.001, cosInner - cosOuter);
+        float strength = clamp(cc_lightBoundingSizeVS[i].w, 0.0, 1.0);
+        float litAngleScale = 1.0 / max(0.001, mix(cosInner, 1.0, strength) - cosOuter);
         float litAngleOffset = -cosOuter * litAngleScale;
         att *= GetAngleAtt(SL, -cc_lightDir[i].xyz, litAngleScale, litAngleOffset);
       }
