@@ -377,11 +377,31 @@ class ScreenAdapter extends EventTarget {
         });
 
         window.addEventListener('resize', (): void => {
+            console.log("bf test resize", this.handleResizeEvent);
             if (!this.handleResizeEvent) {
                 return;
             }
             this._resizeFrame();
         });
+
+        let self = this;
+        function handleOrientationChange() {
+            let tmpOrientation = self._orientation;
+            if (screen.orientation.type === 'portrait-primary') {
+                tmpOrientation = Orientation.PORTRAIT;
+            } else if (screen.orientation.type === 'landscape-primary') {
+                tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+            } else if (screen.orientation.type === 'landscape-secondary') {
+                tmpOrientation = Orientation.LANDSCAPE_LEFT;
+            }
+
+            if (tmpOrientation === self._orientation) {
+                return;
+            }
+            self.orientation = tmpOrientation;
+            self.emit('orientation-change', self._orientation);
+        }
+
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = (): void => {
                 const dpr = window.devicePixelRatio;
@@ -395,35 +415,10 @@ class ScreenAdapter extends EventTarget {
 
             const mediaQueryPortrait = window.matchMedia("(orientation: portrait)");
             const mediaQueryLandscape = window.matchMedia("(orientation: landscape)");
-
-            let self = this;
-            function handleOrientationChange(event) {
-                let tmpOrientation = self._orientation;
-                if (mediaQueryPortrait.matches) {
-                    tmpOrientation = Orientation.PORTRAIT;
-                } else if (mediaQueryLandscape.matches) {
-                    switch (window.orientation) {
-                        case 90:
-                            // Handle landscape orientation, top side facing to the right
-                            tmpOrientation = Orientation.LANDSCAPE_RIGHT;
-                            break;
-                        case -90:
-                            // Handle landscape orientation, top side facing to the left
-                            tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                            break;
-                        default:
-                            tmpOrientation = Orientation.LANDSCAPE;
-                            break;
-                    }
-                }
-                if (tmpOrientation === self._orientation) {
-                    return;
-                }
-                self.orientation = tmpOrientation;
-                self.emit('orientation-change', self._orientation);
-            }
             mediaQueryPortrait.addEventListener('change', handleOrientationChange);
             mediaQueryLandscape.addEventListener('change', handleOrientationChange);
+        } else {
+            window.addEventListener('orientationchange', handleOrientationChange);
         }
         document.addEventListener(this._fn.fullscreenchange, () => {
             this._onFullscreenChange?.();
