@@ -187,7 +187,7 @@ export class SpotLight extends Light {
      */
     @slide
     @range([2, 180, 1])
-    @tooltip('The spot light cone angle')
+    @tooltip('i18n:lights.spotAngle')
     get spotAngle (): number {
         return this._spotAngle;
     }
