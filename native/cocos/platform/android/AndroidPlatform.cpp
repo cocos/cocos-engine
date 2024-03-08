@@ -633,6 +633,7 @@ public:
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_CONFIG_CHANGED");
                 int rotation = getDeviceRotationJNI();
                 if (_androidPlatform->_rotation != rotation) {
+                    CC_LOG_INFO("AndroidPlatform: orientation-change");
                     _androidPlatform->_rotation = rotation;
                     int orientation;
                     switch (rotation) {

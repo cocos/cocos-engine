@@ -24,6 +24,7 @@
 
 package com.cocos.lib;
 
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -175,7 +176,9 @@ public class CocosActivity extends GameActivity {
                 surfaceView.setVisibility(View.VISIBLE);
             }
         }
-        if (mRotation == INITIAL_ROTATION) {
+        if (mRotation == INITIAL_ROTATION
+            && getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE) {
+            //onConfigurationChange can be triggered at the mode of 'sensor or fullSensor'. Here only handles the sensorLandscape mode.
             mRotation = CocosHelper.getDeviceRotation();
             mSurfaceView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
                 int rotation = CocosHelper.getDeviceRotation();

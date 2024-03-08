@@ -597,19 +597,15 @@ export class View extends Eventify(System) {
         const h = this._designResolutionSize.height;
 
         if (width > 0) {
-            this.setDesignResolutionSize(w, h, this._resolutionPolicy);
+            this.setDesignResolutionSize(width, height, this._resolutionPolicy);
         }
 
         this.emit('canvas-resize');
         this._resizeCallback?.();
     }
 
-    private _onOrientationChange (width: number, height: number): void {
-        const window = cclegacy.director.root.curWindow;
-        if (window && (window.width !== width || window.height !== height)) {
-            this._updateAdaptResult(width, height);
-        }
-        this.emit('orientation-change');
+    private _onOrientationChange (orientation: Orientation): void {
+        this.emit('orientation-change', orientation);
     }
 }
 

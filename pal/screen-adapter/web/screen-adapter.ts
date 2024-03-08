@@ -392,21 +392,39 @@ class ScreenAdapter extends EventTarget {
                 }, { once: true });
             };
             updateDPRChangeListener();
-        }
-        window.addEventListener('orientationchange', (): void => {
-            if (this._orientationChangeTimeoutId !== -1) {
-                clearTimeout(this._orientationChangeTimeoutId);
-            }
-            this._orientationChangeTimeoutId = setTimeout((): void => {
-                if (!this.handleResizeEvent) {
+
+            const mediaQueryPortrait = window.matchMedia("(orientation: portrait)");
+            const mediaQueryLandscape = window.matchMedia("(orientation: landscape)");
+
+            let self = this;
+            function handleOrientationChange(event) {
+                let tmpOrientation = self._orientation;
+                if (mediaQueryPortrait.matches) {
+                    tmpOrientation = Orientation.PORTRAIT;
+                } else if (mediaQueryLandscape.matches) {
+                    switch (window.orientation) {
+                        case 90:
+                            // Handle landscape orientation, top side facing to the right
+                            tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                            break;
+                        case -90:
+                            // Handle landscape orientation, top side facing to the left
+                            tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                            break;
+                        default:
+                            tmpOrientation = Orientation.LANDSCAPE;
+                            break;
+                    }
+                }
+                if (tmpOrientation === self._orientation) {
                     return;
                 }
-                this._updateFrameState();
-                this._resizeFrame();
-                this.emit('orientation-change', this.windowSize.width, this.windowSize.height);
-                this._orientationChangeTimeoutId = -1;
-            }, EVENT_TIMEOUT);
-        });
+                self.orientation = tmpOrientation;
+                self.emit('orientation-change', self._orientation);
+            }
+            mediaQueryPortrait.addEventListener('change', handleOrientationChange);
+            mediaQueryLandscape.addEventListener('change', handleOrientationChange);
+        }
         document.addEventListener(this._fn.fullscreenchange, () => {
             this._onFullscreenChange?.();
             this.emit('fullscreen-change', this.windowSize.width, this.windowSize.height);
