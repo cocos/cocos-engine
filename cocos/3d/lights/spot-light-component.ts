@@ -204,7 +204,7 @@ export class SpotLight extends Light {
      */
     @slide
     @range([0, 1, 0.001])
-    @tooltip('The spot light angle attenuation strength')
+    @tooltip('i18n:lights.angleAttenuationStrength')
     get angleAttenuationStrength (): number {
         return this._angleAttenuationStrength;
     }
