@@ -301,6 +301,7 @@ export class SpotLight extends Light {
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
+        this.angleAttenuationStrength = this._angleAttenuationStrength;
 
         if (this._light) {
             const spotLight = this._light as scene.SpotLight;
