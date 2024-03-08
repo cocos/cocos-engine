@@ -45,7 +45,7 @@ export class SpotLight extends Light {
 
     protected _spotAngle: number = Math.cos(Math.PI / 6);
 
-    protected _spotAngleAttenuationStrength = 0;
+    protected _angleAttenuationStrength = 0;
 
     protected _pos: Vec3;
 
@@ -181,11 +181,11 @@ export class SpotLight extends Light {
      * The larger the value, the softer the edge, and the smaller the value, the harder the edge.
      * @zh 聚光灯角度衰减强度。值越大，边缘越柔和，值越小，边缘越硬。
      */
-    get spotAngleAttenuationStrength (): number {
-        return this._spotAngleAttenuationStrength;
+    get angleAttenuationStrength (): number {
+        return this._angleAttenuationStrength;
     }
-    set spotAngleAttenuationStrength (val: number) {
-        this._spotAngleAttenuationStrength = val;
+    set angleAttenuationStrength (val: number) {
+        this._angleAttenuationStrength = val;
         this._needUpdate = true;
     }
 

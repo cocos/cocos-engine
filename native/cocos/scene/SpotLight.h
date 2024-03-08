@@ -65,11 +65,11 @@ public:
         _needUpdate = true;
     }
 
-    inline float getSpotAngleAttenuationStrength() const {
-        return _spotAngleAttenuationStrength;
+    inline float getAngleAttenuationStrength() const {
+        return _angleAttenuationStrength;
     }
-    inline void setSpotAngleAttenuationStrength(float val) noexcept {
-        _spotAngleAttenuationStrength = val;
+    inline void setAngleAttenuationStrength(float val) noexcept {
+        _angleAttenuationStrength = val;
         _needUpdate = true;
     }
 
@@ -103,7 +103,7 @@ private:
     float _size{0.F};
     float _angle{0.F};
     float _spotAngle{0.F};
-    float _spotAngleAttenuationStrength{0.F};
+    float _angleAttenuationStrength{0.F};
     Vec3 _dir;
     Vec3 _pos;
     geometry::AABB *_aabb{nullptr};
