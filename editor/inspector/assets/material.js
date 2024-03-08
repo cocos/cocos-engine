@@ -5,7 +5,7 @@ module.paths.push(join(Editor.App.path, 'node_modules'));
 
 const { materialTechniquePolyfill } = require('../utils/material');
 const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly, injectionStyle } = require('../utils/prop');
-const { escape } = require('lodash');
+const { escape, isNil } = require('lodash');
 
 const effectGroupNameRE = /^db:\/\/(\w+)\//i; // match root DB name
 const effectDirRE = /^effects\//i;
@@ -21,8 +21,8 @@ function formatOptionLabel(label) {
 }
 
 /**
- * 
- * @param {{name: string; uuid: string; assetPath: string}[]} effects 
+ *
+ * @param {{name: string; uuid: string; assetPath: string}[]} effects
  * @returns html template
  */
 function renderGroupEffectOptions(effects) {
@@ -31,7 +31,7 @@ function renderGroupEffectOptions(effects) {
 
     /**
      * ungrouped options. html template string.
-     * @type {string[]} 
+     * @type {string[]}
      */
     const extras = [];
 
@@ -417,7 +417,7 @@ exports.methods = {
 
         const cacheData = this.cacheData;
         this.technique.passes.forEach((pass, i) => {
-            if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
+            if (isNil(pass.propertyIndex)) {
                 return;
             }
 
@@ -439,7 +439,7 @@ exports.methods = {
                     const { type, value, isObject } = prop[name];
                     if (type && value !== undefined) {
                         if (!cacheData[name][passIndex]) {
-                            if (name === 'USE_INSTANCING' && passIndex !== 0) {
+                            if (name === 'USE_INSTANCING') {
                                 continue;
                             }
                             cacheData[name][passIndex] = { type };
@@ -483,7 +483,7 @@ exports.methods = {
     useCache() {
         const cacheData = this.cacheData;
         this.technique.passes.forEach((pass, i) => {
-            if (pass.propertyIndex !== undefined && pass.propertyIndex.value !== i) {
+            if (isNil(pass.propertyIndex)) {
                 return;
             }
 
