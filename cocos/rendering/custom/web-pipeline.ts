@@ -450,7 +450,7 @@ export class WebSetter implements Setter {
         }
         setUniformOffset(this, 'cc_lightColor', Type.FLOAT4, _uboVec);
 
-        _uboVec.set(0, 0, 0, light.spotAngleAttenuationStrength);
+        _uboVec.set(0, 0, 0, light.angleAttenuationStrength);
         setUniformOffset(this, 'cc_lightBoundingSizeVS', Type.FLOAT4, _uboVec);
     }
     public setBuiltinPointLightConstants (light: PointLight, camera: Camera): void {

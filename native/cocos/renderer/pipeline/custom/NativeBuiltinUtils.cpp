@@ -758,7 +758,7 @@ void setLightUBO(
             lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = 0;
             lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = 0;
             lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = 0;
-            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = spotLight->getSpotAngleAttenuationStrength();
+            lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = spotLight->getAngleAttenuationStrength();
         } break;
         case scene::LightType::POINT:
             lightBufferData[offset + pipeline::UBOForwardLight::LIGHT_POS_OFFSET + 3] = static_cast<float>(scene::LightType::POINT);
