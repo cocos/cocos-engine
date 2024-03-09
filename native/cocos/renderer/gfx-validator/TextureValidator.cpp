@@ -104,7 +104,8 @@ void TextureValidator::doInit(const TextureInfo &info) {
     }
 
     if (hasFlag(info.flags, TextureFlagBit::GEN_MIPMAP)) {
-        CC_ASSERT(info.levelCount > 1);
+        auto maxLevelCount = std::floor(std::log2(std::max({ info.width, info.height, info.depth }))) + 1;
+        CC_ASSERT(info.levelCount > 1 && info.levelCount <= maxLevelCount);
 
         bool isCompressed = GFX_FORMAT_INFOS[static_cast<int>(info.format)].isCompressed;
         CC_ASSERT(!isCompressed);
