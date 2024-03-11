@@ -59,6 +59,9 @@ export class SpotLight extends Light {
     @serializable
     private _spotAngle = 60;
 
+    @serializable
+    private _angleAttenuationStrength = 0;
+
     // Shadow map properties
     @serializable
     private _shadowEnabled = false;
@@ -184,7 +187,7 @@ export class SpotLight extends Light {
      */
     @slide
     @range([2, 180, 1])
-    @tooltip('The spot light cone angle')
+    @tooltip('i18n:lights.spotAngle')
     get spotAngle (): number {
         return this._spotAngle;
     }
@@ -192,6 +195,23 @@ export class SpotLight extends Light {
     set spotAngle (val) {
         this._spotAngle = val;
         if (this._light) { (this._light as scene.SpotLight).spotAngle = toRadian(val); }
+    }
+
+    /**
+     * @en The angle attenuation strength of the spot light.
+     * The larger the value, the softer the edge, and the smaller the value, the harder the edge.
+     * @zh 聚光灯角度衰减强度。值越大，边缘越柔和，值越小，边缘越硬。
+     */
+    @slide
+    @range([0, 1, 0.001])
+    @tooltip('i18n:lights.angleAttenuationStrength')
+    get angleAttenuationStrength (): number {
+        return this._angleAttenuationStrength;
+    }
+
+    set angleAttenuationStrength (val) {
+        this._angleAttenuationStrength = val;
+        if (this._light) { (this._light as scene.SpotLight).angleAttenuationStrength = val; }
     }
 
     /**
@@ -281,6 +301,7 @@ export class SpotLight extends Light {
         this.size = this._size;
         this.range = this._range;
         this.spotAngle = this._spotAngle;
+        this.angleAttenuationStrength = this._angleAttenuationStrength;
 
         if (this._light) {
             const spotLight = this._light as scene.SpotLight;
