@@ -428,6 +428,7 @@ class ScreenAdapter extends EventTarget {
                 switch (window.orientation) {
                     case 0:
                         tmpOrientation = Orientation.PORTRAIT;
+                        break;
                     case 90:
                         // Handle landscape orientation, top side facing to the right
                         tmpOrientation = Orientation.LANDSCAPE_RIGHT;
