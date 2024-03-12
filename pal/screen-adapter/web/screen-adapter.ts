@@ -548,8 +548,8 @@ class ScreenAdapter extends EventTarget {
         const height = window.innerHeight;
         const isBrowserLandscape = width > height;
         this.isFrameRotated = systemInfo.isMobile
-            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && 
-                (orientation === Orientation.LANDSCAPE || orientation === Orientation.LANDSCAPE_LEFT  || orientation === Orientation.LANDSCAPE_RIGHT)));
+            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape
+            && (orientation === Orientation.LANDSCAPE || orientation === Orientation.LANDSCAPE_LEFT || orientation === Orientation.LANDSCAPE_RIGHT)));
     }
     private _updateContainer (): void {
         if (!this._gameContainer) {
