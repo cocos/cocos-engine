@@ -409,7 +409,11 @@ class ScreenAdapter extends EventTarget {
                 let tmpOrientation = adapter._orientation;
                 const orientationType = screen.orientation.type;
                 if (mediaQueryPortrait.matches) {
-                    tmpOrientation = Orientation.PORTRAIT;
+                    if (orientationType === 'portrait-primary') {
+                        tmpOrientation = Orientation.PORTRAIT;
+                    } else {
+                        tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                    }
                 } else {
                     if (orientationType === 'landscape-primary') {
                         tmpOrientation = Orientation.LANDSCAPE_LEFT;
