@@ -423,9 +423,9 @@ export class EditBox extends Component {
         }
     }
 
-    private _afterUpdate (): void {
+    private _beforeDraw (): void {
         if (this._impl) {
-            this._impl.afterUpdate();
+            this._impl.beforeDraw();
         }
     }
 
@@ -440,7 +440,7 @@ export class EditBox extends Component {
     }
 
     public onDestroy (): void {
-        director.off(Director.EVENT_AFTER_UPDATE, this._afterUpdate, this);
+        director.off(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
         if (this._impl) {
             this._impl.clear();
         }
@@ -569,7 +569,7 @@ export class EditBox extends Component {
         this._updateTextLabel();
         this._isLabelVisible = true;
         this.node.on(NodeEventType.SIZE_CHANGED, this._resizeChildNodes, this);
-        director.on(Director.EVENT_AFTER_UPDATE, this._afterUpdate, this);
+        director.on(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
 
         const impl = this._impl = new EditBox._EditBoxImpl();
         impl.init(this);
