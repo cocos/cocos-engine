@@ -442,7 +442,7 @@ class ScreenAdapter extends EventTarget {
                         break;
                 }
                 notifyOrientationChange(tmpOrientation);
-            }
+            };
             window.addEventListener('orientationchange', handleOrientationChange);
         }
         document.addEventListener(this._fn.fullscreenchange, () => {
