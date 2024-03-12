@@ -30,7 +30,7 @@ import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Eventify } from '../core/event';
 import { Rect, Size, Vec2 } from '../core/math';
-import { visibleRect, cclegacy, errorID, screen, macro, System } from '../core';
+import { visibleRect, cclegacy, errorID, screen, macro, System, assert } from '../core';
 import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
 import { Settings, settings } from '../core/settings';
@@ -596,8 +596,10 @@ export class View extends Eventify(System) {
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
 
-        if (w > 0) {
+        if (w > 0 && width > 0 && h > 0 && height > 0) {
             this.setDesignResolutionSize(w, h, this._resolutionPolicy);
+        } else {
+            assert(false, '_updateAdaptResult Invalid size.');
         }
 
         this.emit('canvas-resize');
