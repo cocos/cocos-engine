@@ -596,8 +596,8 @@ export class View extends Eventify(System) {
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
 
-        if (width > 0) {
-            this.setDesignResolutionSize(width, height, this._resolutionPolicy);
+        if (w > 0) {
+            this.setDesignResolutionSize(w, h, this._resolutionPolicy);
         }
 
         this.emit('canvas-resize');

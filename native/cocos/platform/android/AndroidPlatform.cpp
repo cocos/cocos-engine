@@ -650,7 +650,6 @@ public:
                             orientation = static_cast<int>(cc::Device::Orientation::LANDSCAPE_LEFT);
                             break;
                     }
-                    // run callbacks in game thread?
                     cc::events::Orientation::broadcast(orientation);
                 }
                 // Window was resized or some other configuration changed.

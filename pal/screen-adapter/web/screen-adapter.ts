@@ -377,30 +377,20 @@ class ScreenAdapter extends EventTarget {
         });
 
         window.addEventListener('resize', (): void => {
-            console.log("bf test resize", this.handleResizeEvent);
-            if (!this.handleResizeEvent) {
-                return;
-            }
+            // if (!this.handleResizeEvent) {
+            //     return;
+            // }
             this._resizeFrame();
         });
 
-        let self = this;
-        function handleOrientationChange() {
-            let tmpOrientation = self._orientation;
-            if (screen.orientation.type === 'portrait-primary') {
-                tmpOrientation = Orientation.PORTRAIT;
-            } else if (screen.orientation.type === 'landscape-primary') {
-                tmpOrientation = Orientation.LANDSCAPE_RIGHT;
-            } else if (screen.orientation.type === 'landscape-secondary') {
-                tmpOrientation = Orientation.LANDSCAPE_LEFT;
-            }
-
-            if (tmpOrientation === self._orientation) {
+        const adapter = this;
+        const notifyOrientationChange = (orientation): void => {
+            if (orientation === adapter._orientation) {
                 return;
             }
-            self.orientation = tmpOrientation;
-            self.emit('orientation-change', self._orientation);
-        }
+            adapter._orientation = orientation;
+            adapter.emit('orientation-change', orientation);
+        };
 
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = (): void => {
@@ -412,12 +402,46 @@ class ScreenAdapter extends EventTarget {
                 }, { once: true });
             };
             updateDPRChangeListener();
-
-            const mediaQueryPortrait = window.matchMedia("(orientation: portrait)");
-            const mediaQueryLandscape = window.matchMedia("(orientation: landscape)");
+            
+            const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
+            const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
+            const handleOrientationChange = (): void => {
+                let tmpOrientation = adapter._orientation;
+                const orientationType = screen.orientation.type;
+                if (mediaQueryPortrait.matches) {
+                    tmpOrientation = Orientation.PORTRAIT;
+                } else {
+                    if (orientationType === 'landscape-primary') {
+                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                    } else if (orientationType === 'landscape-secondary') {
+                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                    }
+                }
+                notifyOrientationChange(tmpOrientation);
+            };
             mediaQueryPortrait.addEventListener('change', handleOrientationChange);
             mediaQueryLandscape.addEventListener('change', handleOrientationChange);
         } else {
+            const adapter = this;
+            const handleOrientationChange = (): void => {
+                let tmpOrientation = adapter._orientation;
+                switch (window.orientation) {
+                    case 0:
+                        tmpOrientation = Orientation.PORTRAIT;
+                    case 90:
+                        // Handle landscape orientation, top side facing to the right
+                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                        break;
+                    case -90:
+                        // Handle landscape orientation, top side facing to the left
+                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                        break;
+                    default:
+                        tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                        break;
+                }
+                notifyOrientationChange(tmpOrientation);
+            }
             window.addEventListener('orientationchange', handleOrientationChange);
         }
         document.addEventListener(this._fn.fullscreenchange, () => {
@@ -453,7 +477,13 @@ class ScreenAdapter extends EventTarget {
             this._gameFrame.style.width = `${sizeInCssPixels.width}px`;
             this._gameFrame.style.height = `${sizeInCssPixels.height}px`;
         } else {
-            const winWidth = window.innerWidth; const winHeight = window.innerHeight;
+            const winWidth = window.innerWidth;
+            let winHeight = window.innerHeight;
+            //On certain devices, window.innerHeight may not account for the height of the virtual keyboard, so dynamic calculation is necessary.
+            const inputHeight = document.body.scrollHeight - winHeight;
+            if (winHeight < inputHeight) {
+                winHeight += inputHeight;
+            }
             if (this.isFrameRotated) {
                 this._gameFrame.style['-webkit-transform'] = 'rotate(90deg)';
                 this._gameFrame.style.transform = 'rotate(90deg)';
@@ -517,7 +547,8 @@ class ScreenAdapter extends EventTarget {
         const height = window.innerHeight;
         const isBrowserLandscape = width > height;
         this.isFrameRotated = systemInfo.isMobile
-            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
+            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape && 
+                (orientation === Orientation.LANDSCAPE || orientation === Orientation.LANDSCAPE_LEFT  || orientation === Orientation.LANDSCAPE_RIGHT)));
     }
     private _updateContainer (): void {
         if (!this._gameContainer) {
