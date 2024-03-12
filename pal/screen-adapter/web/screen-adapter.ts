@@ -412,9 +412,9 @@ class ScreenAdapter extends EventTarget {
                     tmpOrientation = Orientation.PORTRAIT;
                 } else {
                     if (orientationType === 'landscape-primary') {
-                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
-                    } else if (orientationType === 'landscape-secondary') {
                         tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                    } else if (orientationType === 'landscape-secondary') {
+                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
                     }
                 }
                 notifyOrientationChange(tmpOrientation);
@@ -548,8 +548,10 @@ class ScreenAdapter extends EventTarget {
         const height = window.innerHeight;
         const isBrowserLandscape = width > height;
         this.isFrameRotated = systemInfo.isMobile
-            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) || (!isBrowserLandscape
-            && (orientation === Orientation.LANDSCAPE || orientation === Orientation.LANDSCAPE_LEFT || orientation === Orientation.LANDSCAPE_RIGHT)));
+            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) ||
+                (!isBrowserLandscape && (orientation === Orientation.LANDSCAPE ||
+                    orientation === Orientation.LANDSCAPE_LEFT ||
+                    orientation === Orientation.LANDSCAPE_RIGHT)));
     }
     private _updateContainer (): void {
         if (!this._gameContainer) {
