@@ -140,7 +140,6 @@ export class View extends Eventify(System) {
 
         // For now, the engine UI is adapted to resolution size, instead of window size.
         screen.on('window-resize', this._updateAdaptResult, this);
-        screen.on('orientation-change', this._onOrientationChange, this);
         screen.on('fullscreen-change', this._updateAdaptResult, this);
     }
 
@@ -604,10 +603,6 @@ export class View extends Eventify(System) {
 
         this.emit('canvas-resize');
         this._resizeCallback?.();
-    }
-
-    private _onOrientationChange (orientation: Orientation): void {
-        this.emit('orientation-change', orientation);
     }
 }
 

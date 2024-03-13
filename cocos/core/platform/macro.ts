@@ -910,8 +910,8 @@ interface Macro {
     ORIENTATION_PORTRAIT_UPSIDE_DOWN: number;
 
     /**
-     * @en Oriented horizontally
-     * @zh 横屏朝向
+     * @en Oriented horizontally. Users cannot directly listen to this value; they need to listen for ORIENTATION_LANDSCAPE_LEFT or ORIENTATION_LANDSCAPE_RIGHT.
+     * @zh 横屏朝向, 外部不能直接监听该值，需要监听 ORIENTATION_LANDSCAPE_LEFT 或 ORIENTATION_LANDSCAPE_RIGHT
      */
     ORIENTATION_LANDSCAPE: number;
 
