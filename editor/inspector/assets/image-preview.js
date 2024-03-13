@@ -2,7 +2,7 @@
 
 exports.template = /* html */`
 <div class="image-preview">
-    <ui-asset-image class="image" size="large"></ui-asset-image>
+    <ui-asset-image class="image" size="origin"></ui-asset-image>
     <div class="label">
         <span class="size"></span>
     </div>
