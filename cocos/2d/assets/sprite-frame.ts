@@ -1459,7 +1459,7 @@ export class SpriteFrame extends Asset {
         if (this._mesh) {
             // Creates a new mesh, and 'this' creates the mesh in the same way. So we can make a copy like this.
             // It must be placed last because the mesh will depend on some of its members when it is created.
-            sp.ensureMeshData();
+            sp._createMesh();
         }
         return sp;
     }
