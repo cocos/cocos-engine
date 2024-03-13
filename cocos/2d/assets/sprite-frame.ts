@@ -1454,9 +1454,13 @@ export class SpriteFrame extends Asset {
         sp._meshType = this._meshType;
         sp._extrude = this._extrude;
         sp._customOutLine.splice(0, sp._customOutLine.length, ...this._customOutLine);
-        sp._mesh = this._mesh;
         sp._minPos = this._minPos;
         sp._maxPos = this._maxPos;
+        if (this._mesh) {
+            // Creates a new mesh, and 'this' creates the mesh in the same way. So we can make a copy like this.
+            // It must be placed last because the mesh will depend on some of its members when it is created.
+            sp.ensureMeshData();
+        }
         return sp;
     }
 
