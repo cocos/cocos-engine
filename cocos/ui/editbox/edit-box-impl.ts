@@ -144,10 +144,10 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._forceUpdate = true;
     }
 
-    // The lastupdate function should be used here.
+    // The beforeDraw function should be used here.
     // Because many attributes are modified after the update is executed,
     // this can lead to problems with incorrect coordinates.
-    public afterUpdate (): void {
+    public beforeDraw (): void {
         const node = this._delegate!.node;
         if (!node.hasChangedFlags && !this._forceUpdate) {
             return;
