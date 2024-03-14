@@ -2,7 +2,7 @@ import { SpriteFrame } from "../../cocos/2d";
 import { Texture2D } from "../../cocos/asset/assets";
 import { Rect, Size, Vec2 } from "../../exports/base";
 
-test('sprite-frame.clone', () => {
+test('spriteframe.clone', () => {
     let sp = new SpriteFrame;
 
     sp.insetTop = 100;
