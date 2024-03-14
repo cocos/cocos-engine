@@ -162,38 +162,36 @@ exports.methods = {
         }
 
         const doDraw = async () => {
-            if (panel.isPreviewDataDirty) {
-                panel.isPreviewDataDirty = false;
+            try {
+                const canvas = panel.$.canvas;
+                const image = panel.$.image;
 
-                try {
-                    const canvas = panel.$.canvas;
-                    const image = panel.$.image;
+                const width = image.clientWidth;
+                const height = image.clientHeight;
+                if (canvas.width !== width || canvas.height !== height) {
+                    canvas.width = width;
+                    canvas.height = height;
 
-                    const width = image.clientWidth;
-                    const height = image.clientHeight;
-                    if (canvas.width !== width || canvas.height !== height) {
-                        canvas.width = width;
-                        canvas.height = height;
-
-                        await panel.glPreview.initGL(canvas, { width, height });
-                        await panel.glPreview.resizeGL(width, height);
-                    }
-
-                    const info = await panel.glPreview.queryPreviewData({
-                        width: canvas.width,
-                        height: canvas.height,
-                    });
-
-                    panel.glPreview.drawGL(info);
-                } catch (e) {
-                    console.warn(e);
+                    await panel.glPreview.initGL(canvas, { width, height });
+                    await panel.glPreview.resizeGL(width, height);
                 }
+
+                const info = await panel.glPreview.queryPreviewData({
+                    width: canvas.width,
+                    height: canvas.height,
+                });
+
+                panel.glPreview.drawGL(info);
+            } catch (e) {
+                console.warn(e);
             }
         };
 
         if (panel.isPreviewDataDirty) {
-            requestAnimationFrame(doDraw);
-            panel.isPreviewDataDirty = false;
+            requestAnimationFrame(async () => {
+                await doDraw();
+                panel.isPreviewDataDirty = false;
+            });
         }
     },
 };

@@ -422,7 +422,7 @@ const Elements = {
                 this.updatePanelHidden(false);
             }
 
-            panel.isPreviewDataDirty = true;;
+            panel.isPreviewDataDirty = true;
         },
     },
     modelInfo: {
@@ -483,7 +483,7 @@ exports.methods = {
         if (!panel.$.canvas) {
             return;
         }
-        const doDraw = async ()=> {
+        const doDraw = async () => {
             try {
                 const canvas = panel.$.canvas;
                 const image = panel.$.image;
@@ -511,11 +511,13 @@ exports.methods = {
             // if (this.curPlayState === PLAY_STATE.PLAYING) {
             //     requestAnimationFrame(doDraw);
             // }
-        }
+        };
 
         if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
-            requestAnimationFrame(doDraw);
-            panel.isPreviewDataDirty = false;
+            requestAnimationFrame(async () => {
+                await doDraw();
+                panel.isPreviewDataDirty = false;
+            });
         }
     },
     async onTabChanged(activeTab) {
@@ -675,7 +677,7 @@ exports.methods = {
         if (this.$.playButtonIcon) {
             this.$.playButtonIcon.value = buttonIconName;
         }
-        this.refreshPreview();
+        this.isPreviewDataDirty = true;
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;

@@ -267,13 +267,15 @@ exports.methods = {
             } catch (e) {
                 console.warn(e);
             }
-        }
+        };
+
         if (panel.isPreviewDataDirty) {
-            requestAnimationFrame(doDraw);
-            panel.isPreviewDataDirty = false;
+            requestAnimationFrame(async () => {
+                await doDraw();
+                panel.isPreviewDataDirty = false;
+
+            });
         }
-
-
     },
 };
 

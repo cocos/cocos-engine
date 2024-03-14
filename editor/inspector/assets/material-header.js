@@ -86,8 +86,10 @@ exports.methods = {
         };
 
         if (panel.isPreviewDataDirty) {
-            requestAnimationFrame(doDraw);
-            panel.isPreviewDataDirty = false;
+            requestAnimationFrame(async () => {
+                await doDraw();
+                panel.isPreviewDataDirty = false;
+            });
         }
     },
     updatePreviewDataDirty() {
