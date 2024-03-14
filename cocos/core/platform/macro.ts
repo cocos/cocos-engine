@@ -916,14 +916,14 @@ interface Macro {
     ORIENTATION_LANDSCAPE: number;
 
     /**
-     * @en Oriented horizontally, top side facing to the left.
-     * @zh 水平方向，顶部朝向左侧
+     * @en Oriented horizontally, top side facing to the left. Supported only on mobile devices.
+     * @zh 水平方向，顶部朝向左侧;仅移动端支持
      */
     ORIENTATION_LANDSCAPE_LEFT: number;
 
     /**
-     * @en Oriented horizontally, top side facing to the right.
-     * @zh 水平方向，顶部朝向右侧
+     * @en Oriented horizontally, top side facing to the right. Supported only on mobile devices.
+     * @zh 水平方向，顶部朝向右侧;仅移动端支持
      */
     ORIENTATION_LANDSCAPE_RIGHT: number;
 
