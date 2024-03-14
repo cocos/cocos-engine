@@ -269,13 +269,11 @@ exports.methods = {
             }
         };
 
-        if (panel.isPreviewDataDirty) {
-            requestAnimationFrame(async () => {
-                await doDraw();
-                panel.isPreviewDataDirty = false;
+        requestAnimationFrame(async () => {
+            await doDraw();
+            panel.isPreviewDataDirty = false;
 
-            });
-        }
+        });
     },
 };
 

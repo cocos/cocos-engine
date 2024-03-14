@@ -513,7 +513,7 @@ exports.methods = {
             // }
         };
 
-        if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
+        if (this.curPlayState === PLAY_STATE.PLAYING) {
             requestAnimationFrame(async () => {
                 await doDraw();
                 panel.isPreviewDataDirty = false;
