@@ -24,6 +24,12 @@
             "category": "graphics",
             "enginePlugin": true
         },
+        "gfx-webgpu": {
+            "label": "i18n:ENGINE.features.gfx_webgpu.label",
+            "description": "i18n:ENGINE.features.gfx_webgpu.description",
+            "category": "graphics",
+            "enginePlugin": true
+        },
         "animation": {
             "label": "i18n:ENGINE.features.animation.label",
             "description": "i18n:ENGINE.features.animation.description",

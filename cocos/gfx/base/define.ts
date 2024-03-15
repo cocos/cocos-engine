@@ -2471,3 +2471,5 @@ export function formatAlignment (format: Format): FormatAlignment {
 export function alignTo (size: number, alignment: number): number {
     return Math.ceil(size / alignment) * alignment;
 }
+
+export type TextureHandle = GPUTexture | number;

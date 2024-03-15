@@ -63,11 +63,18 @@ export enum LegacyRenderMode {
     WEBGL = 2,
     /**
      * @en
+     * Force WebGPU rendering, but this option will be ignored in some browsers.
+     * @zh
+     * 强制使用 WebGPU 渲染，但是在部分浏览器中这个选项会被忽略。
+     */
+    WEBGPU = 3,
+    /**
+     * @en
      * Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
      * @zh
      * 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用。
      */
-    HEADLESS = 3
+    HEADLESS = 4
 }
 
 /**
@@ -77,8 +84,9 @@ export enum RenderType {
     UNKNOWN = -1,
     CANVAS = 0,
     WEBGL = 1,
-    OPENGL = 2,
-    HEADLESS = 3,
+    WEBGPU = 2,
+    OPENGL = 3,
+    HEADLESS = 4,
 }
 
 /**
@@ -109,7 +117,7 @@ export class DeviceManager {
         this._renderType = this._determineRenderType(renderMode);
 
         // WebGL context created successfully
-        if (this._renderType === RenderType.WEBGL) {
+        if (this._renderType === RenderType.WEBGL || this._renderType === RenderType.WEBGPU) {
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && (globalThis as any).gfx) {
@@ -167,6 +175,10 @@ export class DeviceManager {
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
     }
 
+    private _supportWebGPU (): boolean {
+        return 'gpu' in navigator;
+    }
+
     private _determineRenderType (renderMode: LegacyRenderMode): RenderType {
         if (typeof renderMode !== 'number' || renderMode > RenderType.HEADLESS || renderMode < LegacyRenderMode.AUTO) {
             renderMode = LegacyRenderMode.AUTO;
@@ -178,7 +190,10 @@ export class DeviceManager {
         if (renderMode === LegacyRenderMode.CANVAS) {
             renderType = RenderType.CANVAS;
             supportRender = true;
-        } else if (renderMode === LegacyRenderMode.AUTO || renderMode === LegacyRenderMode.WEBGL) {
+        } else if (renderMode === LegacyRenderMode.AUTO || renderMode === LegacyRenderMode.WEBGPU) {
+            renderType = this._supportWebGPU() ? RenderType.WEBGPU : RenderType.WEBGL;
+            supportRender = true;
+        } else if (renderMode === LegacyRenderMode.WEBGL) {
             renderType = RenderType.WEBGL;
             supportRender = true;
         } else if (renderMode === LegacyRenderMode.HEADLESS) {

@@ -33,6 +33,7 @@ import {
     TextureInfo,
     TextureViewInfo,
     ISwapchainTextureInfo,
+    TextureHandle,
 } from './define';
 
 /**
@@ -167,7 +168,7 @@ export abstract class Texture extends GFXObject {
 
     public abstract destroy (): void;
 
-    public abstract getGLTextureHandle (): number;
+    public abstract getTextureHandle (): TextureHandle;
 
     /**
      * @en Resize texture.

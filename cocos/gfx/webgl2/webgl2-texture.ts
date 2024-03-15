@@ -55,8 +55,13 @@ export class WebGL2Texture extends Texture {
         this._info.copy(texInfo);
 
         this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
-        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
-            this.depth, this._info.levelCount) * this._info.layerCount;
+        this._size = FormatSurfaceSize(
+            this._info.format,
+            this.width,
+            this.height,
+            this.depth,
+            this._info.levelCount,
+        ) * this._info.layerCount;
 
         if (!this._isTextureView) {
             this._gpuTexture = {
@@ -135,7 +140,7 @@ export class WebGL2Texture extends Texture {
         }
     }
 
-    public getGLTextureHandle () : number {
+    public getTextureHandle (): number {
         const gpuTexture = this._gpuTexture;
         if (!gpuTexture) {
             return 0;
@@ -164,8 +169,13 @@ export class WebGL2Texture extends Texture {
         const oldSize = this._size;
         this._info.width = width;
         this._info.height = height;
-        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
-            this.depth, this._info.levelCount) * this._info.layerCount;
+        this._size = FormatSurfaceSize(
+            this._info.format,
+            this.width,
+            this.height,
+            this.depth,
+            this._info.levelCount,
+        ) * this._info.layerCount;
 
         if (!this._isTextureView && this._gpuTexture) {
             this._gpuTexture.width = width;
