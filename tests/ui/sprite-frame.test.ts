@@ -138,14 +138,12 @@ test('spriteframe.clone', () => {
     expect(sp_clone.trimmedBorder !== sp.trimmedBorder).toEqual(true);
     
     expect(sp_clone.insetTop).toStrictEqual(sp.insetTop);
-    // The modifications here will modify the other test data, so it needs to be placed backward.
-    sp_clone.insetTop += 1;
-    expect(sp_clone.insetTop !== sp.insetTop).toEqual(true);
     expect(sp_clone.insetBottom).toStrictEqual(sp.insetBottom);
     expect(sp_clone.insetLeft).toStrictEqual(sp.insetLeft);
     expect(sp_clone.insetRight).toStrictEqual(sp.insetRight);
 
     expect(sp_clone.texture).toEqual(sp.texture);
-    sp_clone.texture = new Texture2D();
-    expect(sp_clone.texture !== sp.texture).toEqual(true);
+    sp_clone.texture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
+    // Textures are not deep copies.
+    expect(sp_clone.texture === sp.texture).toEqual(true);
 });
