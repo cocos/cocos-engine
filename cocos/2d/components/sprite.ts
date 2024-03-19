@@ -696,6 +696,10 @@ export class Sprite extends UIRenderer {
             }
             if (textureChanged) {
                 if (this.renderData) this.renderData.textureDirty = true;
+                // texture type changed, set this._instanceMaterialType to default value
+                if ((oldFrame ? oldFrame.texture instanceof RenderTexture : false) !== spriteFrame.texture instanceof RenderTexture) {
+                    this._instanceMaterialType = -1;
+                }
                 this.changeMaterialForDefine();
             }
             this._applySpriteSize();
