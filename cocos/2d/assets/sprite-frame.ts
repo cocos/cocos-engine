@@ -1424,7 +1424,7 @@ export class SpriteFrame extends Asset {
             uv: v.uv.slice(0),
             nuv: v.nuv.slice(0),
             minPos: v.minPos.clone(),
-            maxPos: v.minPos.clone(),
+            maxPos: v.maxPos.clone(),
         } : null as any;
         sp.uv.splice(0, sp.uv.length, ...this.uv);
         sp.unbiasUV.splice(0, sp.unbiasUV.length, ...this.unbiasUV);
