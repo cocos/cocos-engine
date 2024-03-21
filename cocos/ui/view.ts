@@ -595,7 +595,7 @@ export class View extends Eventify(System) {
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
 
-        if (w > 0 && width > 0 && h > 0 && height > 0) {
+        if (width > 0 && height > 0) {
             this.setDesignResolutionSize(w, h, this._resolutionPolicy);
         } else {
             assert(false, '_updateAdaptResult Invalid size.');
