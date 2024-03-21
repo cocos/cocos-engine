@@ -441,7 +441,7 @@ class ScreenAdapter extends EventTarget {
                         // Handle landscape orientation, top side facing to the left
                         tmpOrientation = Orientation.LANDSCAPE_LEFT;
                         break;
-                    default:
+                    case 180:
                         tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
                         break;
                 }

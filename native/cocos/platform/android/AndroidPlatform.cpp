@@ -635,7 +635,7 @@ public:
                 if (_androidPlatform->_rotation != rotation) {
                     CC_LOG_INFO("AndroidPlatform: orientation-change");
                     _androidPlatform->_rotation = rotation;
-                    int orientation;
+                    int orientation = static_cast<int>(Device::Orientation::PORTRAIT);
                     switch (rotation) {
                         case 0: // ROTATION_0
                             orientation = static_cast<int>(Device::Orientation::PORTRAIT);
