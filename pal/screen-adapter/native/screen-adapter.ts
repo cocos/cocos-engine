@@ -176,7 +176,7 @@ class ScreenAdapter extends EventTarget {
             this.emit('window-resize', event.width, event.height, event.windowId);
         };
         jsb.onOrientationChanged = (event): void => {
-            this.emit('orientation-change');
+            this.emit('orientation-change', this.orientation);
         };
     }
 }

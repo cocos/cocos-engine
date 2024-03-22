@@ -40,6 +40,7 @@ se::Object *jsKeyboardEventObj = nullptr;
 se::Object *jsControllerEventArray = nullptr;
 se::Object *jsControllerChangeEventArray = nullptr;
 se::Object *jsResizeEventObj = nullptr;
+se::Object *jsOrientationChangeObj = nullptr;
 bool inited = false;
 bool busListenerInited = false;
 
@@ -143,6 +144,12 @@ void EventDispatcher::destroy() {
         jsResizeEventObj->unroot();
         jsResizeEventObj->decRef();
         jsResizeEventObj = nullptr;
+    }
+
+    if (jsOrientationChangeObj != nullptr) {
+        jsOrientationChangeObj->unroot();
+        jsOrientationChangeObj->decRef();
+        jsOrientationChangeObj = nullptr;
     }
 
     inited = false;
@@ -412,7 +419,17 @@ void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t window
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
-    // Ts's logic is same as the 'onResize', so remove code here temporary.
+    se::AutoHandleScope scope;
+    if (!jsOrientationChangeObj) {
+        jsOrientationChangeObj = se::Object::createPlainObject();
+        jsOrientationChangeObj->root();
+    }
+
+    jsOrientationChangeObj->setProperty("orientation", se::Value(orientation));
+
+    se::ValueArray args;
+    args.emplace_back(se::Value(jsOrientationChangeObj));
+    EventDispatcher::doDispatchJsEvent("onOrientationChanged", args);
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {
