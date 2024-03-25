@@ -97,7 +97,7 @@ export class AudioClip extends Asset {
         audioLoadMode: AudioType;
         ext: string;
         __isNative__: boolean;
-    } {
+        } {
         return {
             uuid: this._uuid,
             audioLoadMode: this.loadMode,
@@ -200,9 +200,9 @@ export class AudioClip extends Asset {
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.playOneShot() instead.
      */
-    public playOneShot (volume = 1): void {
+    public playOneShot (volume = 1, playbackRate = 1): void {
         if (this._nativeAsset) {
-            AudioPlayer.loadOneShotAudio(this._nativeAsset.url, volume).then((oneShotAudio) => {
+            AudioPlayer.loadOneShotAudio(this._nativeAsset.url, volume, playbackRate).then((oneShotAudio) => {
                 oneShotAudio.play();
             }).catch((e) => {});
         }

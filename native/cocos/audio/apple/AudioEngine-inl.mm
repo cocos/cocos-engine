@@ -349,7 +349,7 @@ AudioCache *AudioEngineImpl::preload(const ccstd::string &filePath, std::functio
     return audioCache;
 }
 
-int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
+int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume, float playbackRate) {
     if (s_ALDevice == nullptr) {
         return AudioEngine::INVALID_AUDIO_ID;
     }

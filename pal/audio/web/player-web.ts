@@ -25,7 +25,7 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { AudioPCMDataView, AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event';
-import { clamp01 } from '../../../cocos/core';
+import { clamp, clamp01 } from '../../../cocos/core';
 import * as debug from '../../../cocos/core/platform/debug';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import AudioTimer from '../audio-timer';
@@ -145,6 +145,19 @@ export class AudioContextAgent {
         }
     }
 
+    public setPlaybackRateValue (sourceNode: AudioBufferSourceNode, playbackRate: number): void {
+        if (sourceNode.playbackRate.setTargetAtTime) {
+            try {
+                sourceNode.playbackRate.setTargetAtTime(playbackRate, this._context.currentTime, 0);
+            } catch (e) {
+                // Some unknown browsers may crash if timeConstant is 0
+                sourceNode.playbackRate.setTargetAtTime(playbackRate, this._context.currentTime, 0.01);
+            }
+        } else {
+            sourceNode.playbackRate.value = playbackRate;
+        }
+    }
+
     public connectContext (audioNode: GainNode): void {
         if (!this._context) {
             return;
@@ -180,10 +193,11 @@ export class OneShotAudioWeb {
         this._onEndCb = cb;
     }
 
-    private constructor (audioBuffer: AudioBuffer, volume: number, url: string) {
+    private constructor (audioBuffer: AudioBuffer, volume: number, playbackRate: number, url: string) {
         this._duration = audioBuffer.duration;
         this._url = url;
         this._bufferSourceNode = audioContextAgent!.createBufferSource(audioBuffer, false);
+        this._bufferSourceNode.playbackRate.value = playbackRate;
         const gainNode = audioContextAgent!.createGain(volume);
         this._bufferSourceNode.connect(gainNode);
         audioContextAgent!.connectContext(gainNode);
@@ -220,6 +234,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _gainNode: GainNode;
     private _currentTimer = 0;
     private _volume = 1;
+    private _playbackRate = 1;
     private _loop = false;
     private _state: AudioState = AudioState.INIT;
     private _audioTimer: AudioTimer;
@@ -294,11 +309,11 @@ export class AudioPlayerWeb implements OperationQueueable {
             xhr.send(null);
         });
     }
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioWeb> {
+    static loadOneShotAudio (url: string, volume: number, playbackRate: number): Promise<OneShotAudioWeb> {
         return new Promise((resolve, reject) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, url);
+                const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, playbackRate, url);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 resolve(oneShotAudio);
             }).catch(reject);
@@ -354,6 +369,16 @@ export class AudioPlayerWeb implements OperationQueueable {
         val = clamp01(val);
         this._volume = val;
         audioContextAgent!.setGainValue(this._gainNode, val);
+    }
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, 10);
+        this._playbackRate = val;
+        if (this._sourceNode) {
+            audioContextAgent!.setPlaybackRateValue(this._sourceNode, val);
+        }
     }
     get duration (): number {
         return this._audioBuffer.duration;
@@ -421,6 +446,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
         this._sourceNode.connect(this._gainNode);
         this._sourceNode.loop = this._loop;
+        this._sourceNode.playbackRate.value = this._playbackRate;
         this._sourceNode.start(0, this._audioTimer.currentTime);
         this._state = AudioState.PLAYING;
         this._audioTimer.start();

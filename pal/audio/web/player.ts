@@ -87,16 +87,16 @@ export class AudioPlayer {
         }
         return AudioPlayerWeb.loadNative(url);
     }
-    static loadOneShotAudio (url: string, volume: number, opts?: AudioLoadOptions): Promise<OneShotAudio> {
+    static loadOneShotAudio (url: string, volume: number, playbackRate: number, opts?: AudioLoadOptions): Promise<OneShotAudio> {
         return new Promise((resolve, reject) => {
             if (opts?.audioLoadMode === AudioType.DOM_AUDIO || !AudioContextAgent.support) {
                 if (!AudioContextAgent.support) { warnID(5201); }
-                AudioPlayerDOM.loadOneShotAudio(url, volume).then((oneShotAudioDOM) => {
+                AudioPlayerDOM.loadOneShotAudio(url, volume, playbackRate).then((oneShotAudioDOM) => {
                     // HACK: AudioPlayer should be a friend class in OneShotAudio
                     resolve(new (OneShotAudio as any)(oneShotAudioDOM));
                 }).catch(reject);
             } else {
-                AudioPlayerWeb.loadOneShotAudio(url, volume).then((oneShotAudioWeb) => {
+                AudioPlayerWeb.loadOneShotAudio(url, volume, playbackRate).then((oneShotAudioWeb) => {
                     // HACK: AudioPlayer should be a friend class in OneShotAudio
                     resolve(new (OneShotAudio as any)(oneShotAudioWeb));
                 }).catch(reject);
@@ -112,6 +112,8 @@ export class AudioPlayer {
     set loop (val: boolean) { this._player.loop = val; }
     get volume (): number { return this._player.volume; }
     set volume (val: number) { this._player.volume = val; }
+    get playbackRate (): number { return this._player.playbackRate; }
+    set playbackRate (val: number) { this._player.playbackRate = val; }
     get duration (): number { return this._player.duration; }
     get currentTime (): number { return this._player.currentTime; }
     get sampleRate (): number { return this._player.sampleRate; }
