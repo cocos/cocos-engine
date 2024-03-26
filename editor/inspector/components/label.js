@@ -51,7 +51,7 @@ ui-tab {
 `;
 
 /**
- * 
+ *
  * @param {object} options
  * @param {any[]} options.enumList
  * @param {string} options.tooltip
@@ -115,6 +115,7 @@ exports.ready = function() {
                                 dump.values.forEach((_, index) => dump.values[index] = dump.value);
                             }
                             prop.dispatch('change-dump');
+                            prop.dispatch('confirm-dump');
                         }
                     },
                 });
@@ -161,6 +162,7 @@ exports.ready = function() {
                             dump.values.forEach((_, index) => (dump.values[index] = dump.value));
                         }
                         prop.dispatch('change-dump');
+                        prop.dispatch('confirm-dump');
                     },
                 });
 
@@ -197,13 +199,14 @@ exports.ready = function() {
                     label.setAttribute('key', style);
                     label.setAttribute('tooltip', this.dump.value[style].tooltip);
                     label.classList.add('fontStyle', styleClassNames[index]);
-                    label.addEventListener('mouseup', () => {
+                    label.addEventListener('click', () => {
                         prop.dump = this.dump.value[style];
                         prop.dump.value = !prop.dump.value;
                         if (prop.dump.values) {
                             prop.dump.values.forEach((_, index) => prop.dump.values[index] = prop.dump.value);
                         }
                         prop.dispatch('change-dump');
+                        prop.dispatch('confirm-dump');
                         this.dump.value[style].value ? label.classList.add('select') : label.classList.remove('select');
                     });
                     content.appendChild(label);
