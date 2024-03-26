@@ -119,10 +119,10 @@ exports.methods = {
 
         this.changed();
     },
-    async import(info) {
+    async import(uuid) {
         this.queryData = await Editor.Message.request('scene', 'change-animation-mask', {
             method: 'import-skeleton',
-            uuid: info.redirect.uuid,
+            uuid: uuid,
         });
 
         this.changed();
@@ -275,27 +275,20 @@ exports.ready = function() {
     const panel = this;
 
     panel.$.import.addEventListener('change', (event) => {
-        const rawTimestamp = Date.now();
         Editor.Panel.__protected__.openKit('ui-kit.searcher', {
             elem: event.target,
             params: [
                 {
                     type: 'asset',
                     assetFilter: {
-                        importer: ['fbx', 'gltf'],
+                        importer: ['gltf-scene'],
                     },
                 },
             ],
             listeners: {
                 async confirm(detail) {
                     if (!detail) { return; }
-                    const info = await Editor.Message.request('asset-db', 'query-asset-info', detail.value);
-                    if (!info || !info.redirect || info.redirect.type !== 'cc.Prefab') {
-                        console.error(Editor.I18n.t('ENGINE.assets.animationMask.illegalFbx') + ` {asset(${detail.value})}`);
-                        return;
-                    }
-
-                    await panel.import(info);
+                    await panel.import(detail.value);
                 },
             },
         });

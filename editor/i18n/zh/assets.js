@@ -469,7 +469,6 @@ module.exports = {
             importSkeleton: '导入骨骼',
             clearAllNodes: '清空',
             clearAllNodesWarn: '确定清空所有遮罩数据吗？',
-            illegalFbx: '导入骨骼失败：此 FBX 文件不含有 Prefab 子资源。',
             nodeEnableTip: '是否启用该节点及其子孙节点<br>按住 Alt + 点击，只切换自身的状态。',
         },
         multipleWarning: '不支持此类型资源的多选编辑',
