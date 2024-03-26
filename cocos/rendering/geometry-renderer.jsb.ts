@@ -24,9 +24,9 @@
 import { cclegacy } from '../core';
 import type { GeometryRenderer as JsbGeometryRenderer } from './geometry-renderer';
 
-declare const jsb: any;
+declare const nr: any;
 
-export const GeometryRenderer: typeof JsbGeometryRenderer = jsb.GeometryRenderer;
+export const GeometryRenderer: typeof JsbGeometryRenderer = nr.GeometryRenderer;
 export type GeometryRenderer = JsbGeometryRenderer;
-cclegacy.GeometryRenderer = jsb.GeometryRenderer;
+cclegacy.GeometryRenderer = nr.GeometryRenderer;
 
