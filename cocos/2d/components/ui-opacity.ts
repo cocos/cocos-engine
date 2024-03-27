@@ -106,18 +106,18 @@ export class UIOpacity extends Component {
      *
      * @param node @en recursive node.
      *             @zh 递归的节点。
-     * @param node @en Is the color dirty.
-     *             @zh color是否dirty。
+     * @param dirty @en Is the color dirty.
+     *              @zh color是否dirty。
      * @param parentOpacity @en The parent node's opacity.
      *                      @zh 父节点的opacity。
-     * @param recursiveWithoutUiOp @en Recursing only nodes without uiopacity.
-     *                             @zh 仅仅递归没有uiopacity的组件。
+     * @param stopRecursiveIfHasOpacity @en Stop recursion if UiOpacity component exists.
+     *                                  @zh 如果存在UiOpacity组件则停止递归。
      */
     public static setEntityLocalOpacityDirtyRecursively (
         node: Node,
         dirty: boolean,
         parentOpacity: number,
-        recursiveWithoutUiOp: boolean,
+        stopRecursiveIfHasOpacity: boolean,
     ): void {
         if (!node.isValid) {
             // Since children might be destroyed before the parent,
@@ -128,7 +128,7 @@ export class UIOpacity extends Component {
         const render = node._uiProps.uiComp as UIRenderer;
         const uiOp = node.getComponent<UIOpacity>(UIOpacity);
 
-        if (recursiveWithoutUiOp && uiOp) {
+        if (uiOp && stopRecursiveIfHasOpacity) {
             // Because it's possible that UiOpacity components are handled by themselves (at onEnable or onDisable)
             uiOp._parentOpacity = parentOpacity;
             return;
@@ -156,7 +156,7 @@ export class UIOpacity extends Component {
                 node.children[i],
                 dirty || (parentOpacity < 1),
                 parentOpacity,
-                recursiveWithoutUiOp,
+                stopRecursiveIfHasOpacity,
             );
         }
     }
@@ -189,6 +189,7 @@ export class UIOpacity extends Component {
     }
 
     protected _setEntityLocalOpacityRecursively (opacity: number): void {
+        // Because JSB's localOpacity value is present in the renderEntity, but non-JSB's are not.
         if (!JSB) {
             return;
         }
