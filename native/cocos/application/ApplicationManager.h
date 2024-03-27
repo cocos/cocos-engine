@@ -51,7 +51,7 @@ public:
     /**
      * @brief Release all generated applications.
      */
-    void releseAllApplications();
+    void releaseAllApplications();
     /**
      * @brief Get the current application, may get empty.
      */
