@@ -108,15 +108,15 @@ export class UIOpacity extends Component {
      *             @zh 递归的节点。
      * @param node @en Is the color dirty.
      *             @zh color是否dirty。
-     * @param interruptParentOpacity @en The parent node's opacity.
-     *                               @zh 父节点的opacity。
-     * @param recursiveWithoutUiOp @en Components that just recursively do not have uiopacity and RenderColor.
-     *                             @zh 仅仅递归没有uiopacity和RenderEntity的组件。
+     * @param parentOpacity @en The parent node's opacity.
+     *                      @zh 父节点的opacity。
+     * @param recursiveWithoutUiOp @en Recursing only nodes without uiopacity.
+     *                             @zh 仅仅递归没有uiopacity的组件。
      */
     public static setEntityLocalOpacityDirtyRecursively (
         node: Node,
         dirty: boolean,
-        interruptParentOpacity: number,
+        parentOpacity: number,
         recursiveWithoutUiOp: boolean,
     ): void {
         if (!node.isValid) {
@@ -127,36 +127,35 @@ export class UIOpacity extends Component {
 
         const render = node._uiProps.uiComp as UIRenderer;
         const uiOp = node.getComponent<UIOpacity>(UIOpacity);
-        let interruptOpacity = interruptParentOpacity;// if there is no UIOpacity component, it should always equal to 1.
 
         if (recursiveWithoutUiOp && uiOp) {
             // Because it's possible that UiOpacity components are handled by themselves (at onEnable or onDisable)
-            uiOp._parentOpacity = interruptOpacity;
+            uiOp._parentOpacity = parentOpacity;
             return;
         }
         if (render && render.color) { // exclude UIMeshRenderer which has not color
             render.renderEntity.colorDirty = dirty;
             if (uiOp) {
-                uiOp._parentOpacity = interruptOpacity;
+                uiOp._parentOpacity = parentOpacity;
                 render.renderEntity.localOpacity = uiOp._parentOpacity * uiOp.opacity / 255;
             } else {
                 // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
-                render.renderEntity.localOpacity = interruptOpacity;
+                render.renderEntity.localOpacity = parentOpacity;
             }
             //No need for recursion here. Because it doesn't affect the capacity of the child nodes.
             return;
         } else if (uiOp) {
             // there is a just UIOpacity but no UIRenderer on the node.
             // we should transport the interrupt opacity downward
-            uiOp._parentOpacity = interruptOpacity;
-            interruptOpacity = uiOp._parentOpacity * uiOp.opacity / 255;
+            uiOp._parentOpacity = parentOpacity;
+            parentOpacity = uiOp._parentOpacity * uiOp.opacity / 255;
         }
 
         for (let i = 0; i < node.children.length; i++) {
             UIOpacity.setEntityLocalOpacityDirtyRecursively(
                 node.children[i],
-                dirty || (interruptOpacity < 1),
-                interruptOpacity,
+                dirty || (parentOpacity < 1),
+                parentOpacity,
                 recursiveWithoutUiOp,
             );
         }
