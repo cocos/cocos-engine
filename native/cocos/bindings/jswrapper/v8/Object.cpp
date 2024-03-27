@@ -743,17 +743,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     }
 
     v8::Local<v8::Context> context = se::ScriptEngine::getInstance()->_getContext();
-    #if CC_DEBUG
-    v8::TryCatch tryCatch(__isolate);
-    #endif
     v8::MaybeLocal<v8::Value> result = _obj.handle(__isolate)->CallAsFunction(context, thiz, static_cast<int>(argc), pArgv);
-
-    #if CC_DEBUG
-    if (tryCatch.HasCaught()) {
-        v8::String::Utf8Value stack(__isolate, tryCatch.StackTrace(__isolate->GetCurrentContext()).ToLocalChecked());
-        SE_REPORT_ERROR("Invoking function failed, %s", *stack);
-    }
-    #endif
 
     if (!result.IsEmpty()) {
         if (rval != nullptr) {
