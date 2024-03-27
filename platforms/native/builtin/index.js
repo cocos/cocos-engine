@@ -82,8 +82,9 @@ function fireTimeout (nowMilliSeconds) {
         if (info && info.cb) {
             if ((nowMilliSeconds - info.start) >= info.delay) {
                 // console.log(`fireTimeout: id ${id}, start: ${info.start}, delay: ${info.delay}, now: ${nowMilliSeconds}`);
-
-                if (!info.isRepeat) {
+                if (info.isRepeat) {
+                    info.start = nowMilliSeconds;
+                } else {
                     // The delete operation should be performed before the timeout callback.
                     // This is because if an error occurs during the timeout callback,
                     // it could be triggered indefinitely, leading to a game freeze.
@@ -94,10 +95,6 @@ function fireTimeout (nowMilliSeconds) {
                     Function(info.cb)();
                 } else if (typeof info.cb === 'function') {
                     info.cb.apply(info.target, info.args);
-                }
-
-                if (info.isRepeat) {
-                    info.start = nowMilliSeconds;
                 }
             }
         }
