@@ -567,10 +567,15 @@ var eventManager = {
         // process the target handlers 1st
         //
         if (oneByOneListeners) {
-            for (var i = 0; i < originalTouches.length; i++) {
-                event.currentTouch = originalTouches[i];
+            if (globalThis.oh && event.currentTouch) {
                 event._propagationStopped = event._propagationImmediateStopped = false;
                 this._dispatchEventToListeners(oneByOneListeners, this._onTouchEventCallback, oneByOneArgsObj);
+            } else {
+                for (var i = 0; i < originalTouches.length; i++) {
+                    event.currentTouch = originalTouches[i];
+                    event._propagationStopped = event._propagationImmediateStopped = false;
+                    this._dispatchEventToListeners(oneByOneListeners, this._onTouchEventCallback, oneByOneArgsObj);
+                }
             }
         }
 
