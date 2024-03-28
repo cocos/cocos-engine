@@ -115,7 +115,7 @@ export class Pool<T> extends ScalableContainer {
      * @zh 尝试缩容对象池，以释放内存。
      */
     public tryShrink (): void {
-        const freeObjectNumber = this._freePool.length;
+        const freeObjectNumber = this._nextAvail + 1;
         if (freeObjectNumber <= this._shrinkThreshold) {
             return;
         }
@@ -128,7 +128,7 @@ export class Pool<T> extends ScalableContainer {
         }
 
         if (this._dtor) {
-            for (let i = this._nextAvail, count = objectNumberToShrink; count > 0; --count, --i) {
+            for (let i = this._nextAvail - objectNumberToShrink + 1;  i <=  this._nextAvail; ++i) {
                 this._dtor(this._freePool[i]);
             }
         }
