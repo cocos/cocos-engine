@@ -113,13 +113,24 @@ ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
         snprintf(tmp, sizeof(tmp), "%d", i);
         stackStr += tmp;
         stackStr += "]";
+        
+        // Add function name
         stackStr += (funcName.empty() ? "anonymous" : funcName.c_str());
+        
+        // Add script file name
         stackStr += "@";
         stackStr += (scriptName.empty() ? "(no filename)" : scriptName.c_str());
+
+        // Add line number
         stackStr += ":";
         snprintf(tmp, sizeof(tmp), "%d", frame->GetLineNumber());
         stackStr += tmp;
 
+        // Add colume number
+        stackStr += ":";
+        snprintf(tmp, sizeof(tmp), "%d", frame->GetColumn());
+        stackStr += tmp;
+        
         if (i < (e - 1)) {
             stackStr += "\n";
         }
