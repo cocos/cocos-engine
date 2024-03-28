@@ -63,7 +63,7 @@ public:
     void updateDescriptorSet();
 
     void fillBuffersAndMergeBatches();
-    void walk(Node* node, float parentOpacity);
+    void walk(Node* node, float parentOpacity, bool parentOpacityDirty);
     void handlePostRender(RenderEntity* entity);
     void handleDrawInfo(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
     void handleComponentDraw(RenderEntity* entity, RenderDrawInfo* drawInfo, Node* node);
