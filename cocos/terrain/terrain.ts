@@ -2478,6 +2478,10 @@ export class Terrain extends Component {
                 this._normals[i * 3 + 1] = 1;
                 this._normals[i * 3 + 2] = 0;
             }
+            if (terrainAsset) {
+                terrainAsset.heights = this._heights;
+                terrainAsset.normals = this._normals;
+            }
         }
 
         if (this._normals === null || this._normals.length !== vertexCount * 3) {
@@ -2492,6 +2496,9 @@ export class Terrain extends Component {
             for (let i = 0; i < layerBufferSize; ++i) {
                 this._layerBuffer[i] = -1;
             }
+            if (terrainAsset) {
+                terrainAsset.layerBuffer = this._layerBuffer;
+            }
         }
 
         // build weights
@@ -2504,6 +2511,9 @@ export class Terrain extends Component {
                 this._weights[i * 4 + 1] = 0;
                 this._weights[i * 4 + 2] = 0;
                 this._weights[i * 4 + 3] = 0;
+            }
+            if (terrainAsset) {
+                terrainAsset.weights = this._weights;
             }
         }
 
