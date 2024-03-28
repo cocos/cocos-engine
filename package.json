@@ -26,6 +26,7 @@
     "fetch-ral": "node ./scripts/fetch-ral.js",
     "generate:doc-info": "node ./scripts/generate-doc-info",
     "test": "tsc --noEmit && jest",
+    "test:dts": "npx tsc ./scripts/test-declarations/test.d.ts",
     "update:engine-version": "node ./scripts/checkout-engine-version.js",
     "update:native-external": "node ./native/utils/update-external.js",
     "verify:engine-version": "node ./scripts/verify-engine-version.js"

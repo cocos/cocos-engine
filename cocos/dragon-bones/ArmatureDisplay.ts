@@ -586,8 +586,8 @@ export class ArmatureDisplay extends UIRenderer {
     protected _enumArmatures: any = Enum({});
     protected _enumAnimations: any = Enum({});
 
-    protected _socketNodes: Map<string, Node> = new Map();
-    protected _cachedSockets: Map<string, BoneIndex> = new Map();
+    protected _socketNodes = new Map<string, Node>();
+    protected _cachedSockets = new Map<string, BoneIndex>();
 
     @serializable
     protected _sockets: DragonBoneSocket[] = [];
