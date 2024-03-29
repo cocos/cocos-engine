@@ -68,5 +68,6 @@ private:
     GameInputProxy *_inputProxy{nullptr};
     android_app *_app{nullptr};
     friend class GameInputProxy;
+    int _rotation{-1};
 };
 } // namespace cc

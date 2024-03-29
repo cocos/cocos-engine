@@ -24,7 +24,7 @@
 ****************************************************************************/
 import importMap from './src/<%= importMapUrl%>'
 const commonJSModuleMap: Record<string, Function> = {
-    '/src/<%= applicationUrl%>'() { return import('./src/<%= applicationUrl%>'); },
+    '/<%= applicationUrl%>'() { return import('./<%= applicationUrl%>'); },
 <% if (chunkBundleUrl) { %>
     '/src/chunks/<%= chunkBundleUrl%>'() { return import('./src/chunks/<%= chunkBundleUrl%>') },
 <% }  %> 
@@ -90,7 +90,7 @@ export function launchEngine (): Promise<void> {
                             return loadModule(urlNoSchema);
                         },
                     });
-                    return System.import('./src/<%= applicationUrl%>').then(({ Application }) => {
+                    return System.import('./<%= applicationUrl%>').then(({ Application }) => {
                         return new Application();
                     }).then((application) => {
                         <% if(useAotOptimization) { %>

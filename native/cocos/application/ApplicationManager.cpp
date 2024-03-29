@@ -32,7 +32,7 @@ ApplicationManager *ApplicationManager::getInstance() {
     return &mgr;
 }
 
-void ApplicationManager::releseAllApplications() {
+void ApplicationManager::releaseAllApplications() {
     _apps.clear();
 }
 
@@ -53,5 +53,5 @@ ApplicationManager::ApplicationPtr ApplicationManager::getCurrentAppSafe() const
 void cocos_destory() { // NOLINT(readability-identifier-naming)
     // Called in the platform layer, because the platform layer is isolated from the application layer
     // It is the platform layer to drive applications and reclaim resources.
-    cc::ApplicationManager::getInstance()->releseAllApplications();
+    cc::ApplicationManager::getInstance()->releaseAllApplications();
 }

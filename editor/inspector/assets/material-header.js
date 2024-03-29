@@ -85,10 +85,10 @@ exports.methods = {
             }
         };
 
-        if (panel.isPreviewDataDirty) {
-            requestAnimationFrame(doDraw);
+        requestAnimationFrame(async () => {
+            await doDraw();
             panel.isPreviewDataDirty = false;
-        }
+        });
     },
     updatePreviewDataDirty() {
         const panel = this;

@@ -337,9 +337,9 @@ export class Input {
                 if (!dispatcher.dispatchEvent(event)) {
                     break;
                 }
-            } catch (e) {
-                error(`Error occurs in an event listener: ${event.type}`);
-                error(e);
+            } catch (e: any) {
+                this._clearEvents();
+                throw e;
             }
         }
     }

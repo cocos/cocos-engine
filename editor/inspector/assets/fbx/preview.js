@@ -415,14 +415,16 @@ const Elements = {
             }
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
-            if (panel.asset.redirect) {
-                const info = await callModelPreviewFunction('setModel', panel.asset.redirect.uuid);
+
+            const prefabAsset = Object.values(panel.asset.subAssets).find((asset) => asset.type === 'cc.Prefab');
+            if (prefabAsset) {
+                const info = await callModelPreviewFunction('setModel', prefabAsset.uuid);
                 panel.infoUpdate(info);
             } else {
                 this.updatePanelHidden(false);
             }
 
-            panel.isPreviewDataDirty = true;;
+            panel.isPreviewDataDirty = true;
         },
     },
     modelInfo: {
@@ -483,7 +485,7 @@ exports.methods = {
         if (!panel.$.canvas) {
             return;
         }
-        const doDraw = async ()=> {
+        const doDraw = async () => {
             try {
                 const canvas = panel.$.canvas;
                 const image = panel.$.image;
@@ -507,15 +509,13 @@ exports.methods = {
             } catch (e) {
                 console.warn(e);
             }
-
-            // if (this.curPlayState === PLAY_STATE.PLAYING) {
-            //     requestAnimationFrame(doDraw);
-            // }
-        }
+        };
 
         if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
-            requestAnimationFrame(doDraw);
-            panel.isPreviewDataDirty = false;
+            requestAnimationFrame(async () => {
+                await doDraw();
+                panel.isPreviewDataDirty = false;
+            });
         }
     },
     async onTabChanged(activeTab) {
@@ -675,7 +675,7 @@ exports.methods = {
         if (this.$.playButtonIcon) {
             this.$.playButtonIcon.value = buttonIconName;
         }
-        this.refreshPreview();
+        this.isPreviewDataDirty = true;
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;

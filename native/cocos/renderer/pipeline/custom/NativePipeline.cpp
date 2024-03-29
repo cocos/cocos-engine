@@ -318,7 +318,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.mipLevels = 1;
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
-    desc.textureFlags = gfx::TextureFlagBit::NONE;
+    desc.textureFlags = gfx::TextureFlagBit::MUTABLE_VIEW_FORMAT;
     desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
                  ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
