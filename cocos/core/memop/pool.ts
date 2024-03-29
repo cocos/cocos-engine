@@ -61,8 +61,7 @@ export class Pool<T> extends ScalableContainer {
         this._ctor = ctor;
         this._dtor = dtor || null;
         this._elementsPerBatch = Math.max(elementsPerBatch, 1);
-        this._shrinkThreshold = shrinkThreshold || this._elementsPerBatch;
-        this._shrinkThreshold = max(this._shrinkThreshold, 1);
+        this._shrinkThreshold = shrinkThreshold ? max(shrinkThreshold, 1) : this._elementsPerBatch;
         this._nextAvail = this._elementsPerBatch - 1;
 
         for (let i = 0; i < this._elementsPerBatch; ++i) {
