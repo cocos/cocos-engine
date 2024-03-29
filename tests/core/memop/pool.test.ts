@@ -37,7 +37,7 @@ test('free', () => {
 });
 
 test('freeArray', () => {
-    let tmpArr = [];
+    let tmpArr: Test[] = [];
     const TEST_SIZE = 5;
     for (let i = 0; i < TEST_SIZE; ++i) {
         tmpArr[i] = createTest();
@@ -50,41 +50,40 @@ test('freeArray', () => {
 });
 
 test('shrink', () => {
-    const test = [];
+    // free length = 10
+    pool = new Pool<Test>(createTest, 10, destroyTest, 30);
+    calledTimes = 0;
+
+    // free length = 110
+    const test: Test[] = [];
     for (let i = 0; i < 100; ++i) {
         test[i] = createTest();
     }
     pool.freeArray(test);
     // @ts-expect-error
-    expect(pool._freePool.length).toBeGreaterThan(100);
+    expect(pool._freePool.length).toEqual(100 + 10);
     // @ts-expect-error
-    expect(pool._nextAvail).toBeGreaterThan(100);
-
+    expect(pool._nextAvail).toEqual(100 + 10 - 1);
     // @ts-expect-error
-    const beforeShrink = pool._nextAvail;
-
-    pool.tryShrink();
-
-    // @ts-expect-error
-    expect(pool._freePool.length >= 50 && pool._freePool.length <= 100).toBeTruthy();
-    
-    // @ts-expect-error
-    expect(pool._nextAvail >= 50 && pool._nextAvail <= 100).toBeTruthy();
-
-    // @ts-expect-error
-    expect(calledTimes).toBe(beforeShrink - pool._nextAvail);
+    const beforeShrink = pool._freePool.length;
 
     pool.tryShrink();
 
     // @ts-expect-error
-    expect(pool._freePool.length >= 25 && pool._freePool.length <= 50).toBeTruthy();
+    expect(pool._freePool.length).toEqual(beforeShrink / 2);
+
+    // @ts-expect-error
+    expect(calledTimes).toEqual(beforeShrink - pool._freePool.length);
+
+    pool.tryShrink();
+
+    // @ts-expect-error
+    expect(pool._freePool.length).toEqual(42);
     
     // @ts-expect-error
-    expect(pool._nextAvail >= 25 && pool._nextAvail <= 50).toBeTruthy();
-    // @ts-expect-error
-    expect(calledTimes).toBe(beforeShrink - pool._nextAvail);
+    expect(calledTimes).toBe(beforeShrink - pool._freePool.length);
 
-    const items = [];
+    const items: Test[] = [];
     for (let i = 0; i < 50; i++) {
         const item = pool.alloc();
         items.push(item);
@@ -101,7 +100,30 @@ test('shrink', () => {
     pool.tryShrink();
 
     // @ts-expect-error
-    expect(pool._nextAvail).toBeGreaterThan(10);
+    expect(pool._freePool.length).toEqual(30);
+
+    // If not pass shrinkThreshold, then the value equals to elementsPerBatch(10);
+
+    pool = new Pool<Test>(createTest, 10, destroyTest);
+
+    pool.tryShrink();
+    // @ts-expect-error
+    expect(pool._freePool.length).toEqual(10);
+
+    items.length = 0;
+    for (let i = 0; i < 20; i++) {
+        const item = pool.alloc();
+        items.push(item);
+    }
+    pool.freeArray(items);
+    pool.tryShrink();
+    pool.tryShrink();
+    pool.tryShrink();
+    pool.tryShrink();
+    pool.tryShrink();
+    // @ts-expect-error
+    expect(pool._freePool.length).toEqual(10);
+    
 });
 
 test('destroy', () => {
