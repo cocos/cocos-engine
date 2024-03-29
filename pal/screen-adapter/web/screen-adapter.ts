@@ -37,7 +37,6 @@ interface ICachedStyle {
     height: string;
 }
 
-const EVENT_TIMEOUT = EDITOR ? 5 : 200;
 const orientationMap: Record<ConfigOrientation, Orientation> = {
     auto: Orientation.AUTO,
     landscape: Orientation.LANDSCAPE,
