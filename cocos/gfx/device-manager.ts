@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { JSB, WEBGPU } from 'internal:constants';
+import { EDITOR, JSB, WEBGPU } from 'internal:constants';
 import { cclegacy, error, getError, sys, screen, Settings, settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
@@ -99,7 +99,7 @@ export class DeviceManager {
     private _canvas: HTMLCanvasElement | null = null;
     private _swapchain!: Swapchain;
     private _renderType: RenderType = RenderType.UNKNOWN;
-
+    private _initDevice = false;
     public get gfxDevice (): Device {
         return this._gfxDevice;
     }
@@ -108,14 +108,21 @@ export class DeviceManager {
         return this._swapchain;
     }
 
-    public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): void {
+    private async _tryInitializeDevice (DeviceConstructor, info: DeviceInfo): Promise<void> {
+        if (!this._initDevice && DeviceConstructor) {
+            this._gfxDevice = new DeviceConstructor();
+            this._initDevice = await this._gfxDevice.initialize(info);
+        }
+    }
+
+    public async init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): Promise<void> {
         // Avoid setup to be called twice.
         if (this.initialized) { return; }
         const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
         this._canvas = canvas;
 
         this._renderType = this._determineRenderType(renderMode);
-
+        this._initDevice = false;
         // WebGL context created successfully
         if (this._renderType === RenderType.WEBGL || this._renderType === RenderType.WEBGPU) {
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
@@ -129,31 +136,24 @@ export class DeviceManager {
                 if (sys.browserType === BrowserType.UC) {
                     useWebGL2 = false;
                 }
-
-                const deviceCtors: Constructor<Device>[] = [];
-                if (WEBGPU) {
-                    deviceCtors.push(cclegacy.WebGPUDevice);
+                Device.canvas = canvas!;
+                if (WEBGPU || this._renderType === RenderType.WEBGPU) {
+                    await this._tryInitializeDevice(cclegacy.WebGPUDevice, deviceInfo);
                 }
                 if (useWebGL2 && cclegacy.WebGL2Device) {
-                    deviceCtors.push(cclegacy.WebGL2Device);
+                    await this._tryInitializeDevice(cclegacy.WebGL2Device, deviceInfo);
                 }
                 if (cclegacy.WebGLDevice) {
-                    deviceCtors.push(cclegacy.WebGLDevice);
+                    await this._tryInitializeDevice(cclegacy.WebGLDevice, deviceInfo);
                 }
                 if (cclegacy.EmptyDevice) {
-                    deviceCtors.push(cclegacy.EmptyDevice);
-                }
-
-                Device.canvas = canvas!;
-                for (let i = 0; i < deviceCtors.length; i++) {
-                    this._gfxDevice = new deviceCtors[i]();
-                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
+                    await this._tryInitializeDevice(cclegacy.EmptyDevice, deviceInfo);
                 }
                 this._initSwapchain();
             }
         } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
             this._gfxDevice = new cclegacy.EmptyDevice();
-            this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
+            this._initDevice = await this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
             this._initSwapchain();
         }
 
@@ -191,7 +191,7 @@ export class DeviceManager {
             renderType = RenderType.CANVAS;
             supportRender = true;
         } else if (renderMode === LegacyRenderMode.AUTO || renderMode === LegacyRenderMode.WEBGPU) {
-            renderType = this._supportWebGPU() ? RenderType.WEBGPU : RenderType.WEBGL;
+            renderType = this._supportWebGPU() && !EDITOR ? RenderType.WEBGPU : RenderType.WEBGL;
             supportRender = true;
         } else if (renderMode === LegacyRenderMode.WEBGL) {
             renderType = RenderType.WEBGL;

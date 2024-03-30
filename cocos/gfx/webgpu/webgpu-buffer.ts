@@ -25,7 +25,7 @@ export class WebGPUBuffer extends Buffer {
 
     private _gpuBuffer: IWebGPUBuffer | null = null;
     private _indirectBuffer: IndirectBuffer | null = null;
-    public initialize(info: BufferInfo | BufferViewInfo): boolean {
+    public initialize(info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
         if ('buffer' in info) { // buffer view
             // validate: webGPU buffer offset must be 256 bytes aligned
             // which can be guaranteed by WebGPUDevice::uboOffsetAligned
@@ -36,7 +36,7 @@ export class WebGPUBuffer extends Buffer {
 
             this._usage = buffer.usage;
             this._memUsage = buffer.memUsage;
-            this._size = this._stride = Math.ceil(info.range / 4) * 4;
+            this._size = this._stride = info.range;
             this._count = 1;
             this._flags = buffer.flags;
 
@@ -55,7 +55,7 @@ export class WebGPUBuffer extends Buffer {
         } else { // native buffer
             this._usage = info.usage;
             this._memUsage = info.memUsage;
-            this._size = Math.ceil(info.size / 4) * 4;
+            this._size = info.size;
             this._stride = Math.max(info.stride || this._size, 1);
             this._count = this._size / this._stride;
             this._flags = info.flags;
@@ -85,8 +85,6 @@ export class WebGPUBuffer extends Buffer {
 
             device.memoryStatus.bufferSize += this._size;
         }
-
-        return true;
     }
 
     public destroy() {
@@ -109,7 +107,7 @@ export class WebGPUBuffer extends Buffer {
         const oldSize = this._size;
         if (oldSize === size) { return; }
 
-        this._size = Math.ceil(size / 4) * 4;
+        this._size = size;
         this._count = this._size / this._stride;
 
         if (this._gpuBuffer) {
@@ -138,6 +136,7 @@ export class WebGPUBuffer extends Buffer {
             buffSize = (buffer as ArrayBuffer).byteLength;
         }
         const device = WebGPUDeviceManager.instance;
+
         WebGPUCmdFuncUpdateBuffer(
             device as WebGPUDevice,
             this._gpuBuffer!,

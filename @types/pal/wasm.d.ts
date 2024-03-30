@@ -19,6 +19,8 @@ declare module 'pal/wasm' {
      */
     export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer>;
 
+    export function fetchUrl(binaryUrl: string): Promise<string>;
+
     /**
      * Sometimes we need to put wasm modules in subpackage to reduce code size.
      * In this case we need to ensure that the wasm modules is ready before we import them.

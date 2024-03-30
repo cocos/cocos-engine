@@ -16,10 +16,15 @@ export class WebGPUFramebuffer extends Framebuffer {
         this._depthStencilTexture = info.depthStencilTexture || null;
 
         const gpuColorTextures: IWebGPUTexture[] = [];
+        let isOffscreen = true;
         for (let i = 0; i < info.colorTextures.length; i++) {
             const colorTexture = info.colorTextures[i];
             if (colorTexture) {
-                gpuColorTextures.push((colorTexture as WebGPUTexture).gpuTexture);
+                const gpuTex = (colorTexture as WebGPUTexture).gpuTexture;
+                gpuColorTextures.push(gpuTex);
+                if(gpuTex.isSwapchainTexture) {
+                    isOffscreen = false;
+                }
             }
         }
 
@@ -34,7 +39,7 @@ export class WebGPUFramebuffer extends Framebuffer {
             gpuColorTextures,
             gpuDepthStencilTexture,
             glFramebuffer: null,
-            isOffscreen: true,
+            isOffscreen: isOffscreen,
             get width (): number {
                 if (this.gpuColorTextures.length > 0) {
                     return this.gpuColorTextures[0].width;

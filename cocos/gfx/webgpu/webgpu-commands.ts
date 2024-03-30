@@ -25,6 +25,10 @@ import {
     DescriptorType,
     TextureInfo,
     Color, Rect, Viewport, BufferTextureCopy,
+    SamplerInfo,
+    ComparisonFunc,
+    BufferInfo,
+    BufferFlagBit,
 } from '../base/define';
 
 import { WebGLEXT } from '../webgl/webgl-define';
@@ -52,6 +56,7 @@ import {
     IWebGPUGPUUniformSampler,
     IWebGPUGPURenderPass,
 } from './webgpu-gpu-objects';
+import { WebGPUBuffer } from './webgpu-buffer';
 
 const WebGPUAdressMode: GPUAddressMode[] = [
     'repeat', // WRAP,
@@ -89,19 +94,47 @@ export function GLStageToWebGPUStage (stage: ShaderStageFlags) {
     return flag;
 }
 
-export function GLDescTypeToWebGPUDescType (descType: DescriptorType) {
+type WebGPUResourceTypeName =
+  | 'buffer'
+  | 'texture'
+  | 'sampler'
+  | 'externalTexture'
+  | 'storageTexture';
+
+export function GLSamplerToGPUSamplerDescType(info: Readonly<SamplerInfo>) : GPUSamplerBindingType {
+    if(info.magFilter !== Filter.LINEAR && info.minFilter !== Filter.LINEAR) {
+        return 'non-filtering';
+    } else {
+        return 'filtering';
+    }
+}
+
+export function GLDescTypeToGPUBufferDescType(descType: DescriptorType): GPUBufferBindingType {
     switch (descType) {
         case DescriptorType.UNIFORM_BUFFER:
         case DescriptorType.DYNAMIC_UNIFORM_BUFFER:
-            return 'uniform-buffer';
+            return 'uniform';
         case DescriptorType.STORAGE_BUFFER:
-            return 'storage-buffer';
+        case DescriptorType.DYNAMIC_STORAGE_BUFFER:
+        default:
+            return 'storage';
+    }
+}
+
+export function GLDescTypeToWebGPUDescType (descType: DescriptorType): WebGPUResourceTypeName {
+    switch (descType) {
+        case DescriptorType.UNIFORM_BUFFER:
+        case DescriptorType.DYNAMIC_UNIFORM_BUFFER:
+        case DescriptorType.STORAGE_BUFFER:
+            return 'buffer';
         case DescriptorType.SAMPLER:
             return 'sampler';
         case DescriptorType.SAMPLER_TEXTURE:
-            return 'sampled-texture';
+            return 'texture';
+        case DescriptorType.STORAGE_IMAGE:
+            return 'storageTexture';
         default:
-            console.error('binding type not support by webGPU!');
+            return "externalTexture";
     }
 }
   
@@ -282,29 +315,30 @@ export function GFXTextureUsageToNative (usage: TextureUsageBit): GPUTextureUsag
         nativeUsage |= GPUTextureUsage.COPY_SRC;
     }
 
-    if (TextureUsageBit.TRANSFER_DST) {
+    if (usage & TextureUsageBit.TRANSFER_DST) {
         nativeUsage |= GPUTextureUsage.COPY_DST;
     }
 
-    if (TextureUsageBit.SAMPLED) {
+    if (usage & TextureUsageBit.SAMPLED) {
         nativeUsage |= GPUTextureUsage.TEXTURE_BINDING;
     }
 
-    if (TextureUsageBit.STORAGE) {
+    if (usage & TextureUsageBit.STORAGE) {
         nativeUsage |= GPUTextureUsage.STORAGE_BINDING;
     }
 
-    if (TextureUsageBit.COLOR_ATTACHMENT) {
+    if (usage & TextureUsageBit.COLOR_ATTACHMENT || usage & TextureUsageBit.DEPTH_STENCIL_ATTACHMENT) {
         nativeUsage |= GPUTextureUsage.RENDER_ATTACHMENT;
     }
 
-    if (TextureUsageBit.DEPTH_STENCIL_ATTACHMENT) {
-        nativeUsage |= GPUTextureUsage.RENDER_ATTACHMENT;
+    if (!nativeUsage) {
+        // The default value is TEXTURE_BINDING | GPUTextureUsage.COPY_DST
+        nativeUsage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT;
     }
 
-    if (typeof nativeUsage === 'undefined') {
-        console.error('Unsupported texture usage, convert to webGPU type failed.');
-        nativeUsage = GPUTextureUsage.RENDER_ATTACHMENT;
+    if((nativeUsage & (GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST))
+    && !(nativeUsage & (GPUTextureUsage.RENDER_ATTACHMENT))) {
+        nativeUsage |= GPUTextureUsage.RENDER_ATTACHMENT;
     }
 
     return nativeUsage;
@@ -690,7 +724,9 @@ export function WebGPUCmdFuncCreateBuffer (device: WebGPUDevice, gpuBuffer: IWeb
     bufferDesc.size = gpuBuffer.size;
 
     let bufferUsage = 0x0;
-
+    if((gpuBuffer.usage & BufferUsageBit.INDEX || gpuBuffer.usage & BufferUsageBit.VERTEX) && !(gpuBuffer.usage & BufferUsageBit.TRANSFER_DST)) {
+        gpuBuffer.usage |= BufferUsageBit.TRANSFER_DST;
+    }
     if (gpuBuffer.usage & BufferUsageBit.VERTEX) bufferUsage |= GPUBufferUsage.VERTEX;
     if (gpuBuffer.usage & BufferUsageBit.INDEX) bufferUsage |= GPUBufferUsage.INDEX;
     if (gpuBuffer.usage & BufferUsageBit.UNIFORM) bufferUsage |= GPUBufferUsage.UNIFORM;
@@ -703,10 +739,10 @@ export function WebGPUCmdFuncCreateBuffer (device: WebGPUDevice, gpuBuffer: IWeb
         console.info('Unsupported GFXBufferType yet, create UNIFORM buffer in default.');
         bufferUsage |= GPUBufferUsage.UNIFORM;
     }
-
-    // FIXME: depend by inputs but vertexbuffer was updated without COPY_DST.
-    bufferUsage |= GPUBufferUsage.COPY_DST;
-
+    
+    if(!(bufferUsage & GPUBufferUsage.COPY_DST)) {
+        bufferUsage |= GPUBufferUsage.COPY_DST;
+    }
     bufferDesc.usage = bufferUsage;
     gpuBuffer.glTarget = bufferUsage;
     gpuBuffer.glBuffer = nativeDevice.createBuffer(bufferDesc);
@@ -746,32 +782,18 @@ export function WebGPUCmdFuncUpdateBuffer (device: WebGPUDevice, gpuBuffer: IWeb
             rawBuffer = rawBuffer.slice(0, size);
         }
         // gpuBuffer.glbuffer may not able to be mapped directly, so staging buffer here.
-        // const stagingBuffer = nativeDevice.createBuffer({
-        //    size,
-        //    usage: GPUBufferUsage.COPY_SRC,
-        //    mappedAtCreation: true,
-        // });
-        // new Uint8Array(stagingBuffer.getMappedRange(0, size)).set(new Uint8Array(buff));
-        // stagingBuffer.unmap();
-
-        const cache = device.stateCache;
-
-        if (buff.byteLength % 4 !== 0) {
-            const newBuffer = new Uint8Array(Math.ceil(rawBuffer.byteLength / 4) * 4);
-            newBuffer.set(new Uint8Array(rawBuffer), 0);
-            nativeDevice.queue.writeBuffer(gpuBuffer.glBuffer!, 0, newBuffer);
-        } else {
-            nativeDevice.queue.writeBuffer(gpuBuffer.glBuffer!, offset, buff);
-        }
-
-        const encoder = nativeDevice.createCommandEncoder();
-        nativeDevice.queue.submit([encoder.finish()]);
-
-        // const commandEncoder = nativeDevice.createCommandEncoder();
-        // commandEncoder.copyBufferToBuffer(stagingBuffer, 0, gpuBuffer.glBuffer as GPUBuffer, offset, size);
-        // const commandBuffer = commandEncoder.finish();
-        // nativeDevice.queue.submit([commandBuffer]);
-        // stagingBuffer.destroy();
+        const stagingBuffer = nativeDevice.createBuffer({
+           size,
+           usage: GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC,
+           mappedAtCreation: true,
+        });
+        new Uint8Array(stagingBuffer.getMappedRange(0, size)).set(new Uint8Array(rawBuffer));
+        stagingBuffer.unmap();
+        const commandEncoder = nativeDevice.createCommandEncoder();
+        commandEncoder.copyBufferToBuffer(stagingBuffer, 0, gpuBuffer.glBuffer as GPUBuffer, offset, size);
+        const commandBuffer = commandEncoder.finish();
+        nativeDevice.queue.submit([commandBuffer]);
+        stagingBuffer.destroy();
     }
 }
 
@@ -830,8 +852,8 @@ export function WebGPUCmdFuncCreateSampler (device: WebGPUDevice, gpuSampler: IW
     samplerDesc.minFilter = gpuSampler.glMinFilter;
     samplerDesc.magFilter = gpuSampler.glMagFilter;
     samplerDesc.mipmapFilter = gpuSampler.glMipFilter;
-    samplerDesc.lodMinClamp = 0;// gpuSampler.minLOD;
-    samplerDesc.lodMaxClamp = 1000;// gpuSampler.maxLOD;
+    // samplerDesc.lodMinClamp = 0;// gpuSampler.minLOD;
+    // samplerDesc.lodMaxClamp = 32;// gpuSampler.maxLOD;
 
     const sampler: GPUSampler = nativeDevice.createSampler(samplerDesc);
     gpuSampler.glSampler = sampler;
@@ -839,643 +861,240 @@ export function WebGPUCmdFuncCreateSampler (device: WebGPUDevice, gpuSampler: IW
 
 export function WebGPUCmdFuncDestroySampler (device: WebGPUDevice, gpuSampler: IWebGPUGPUSampler) {
     if (gpuSampler.glSampler) {
-        // device.gl.deleteSampler(gpuSampler.glSampler);
         gpuSampler.glSampler = null;
     }
 }
 
 export function WebGPUCmdFuncDestroyFramebuffer (device: WebGPUDevice, gpuFramebuffer: IWebGPUGPUFramebuffer) {
     if (gpuFramebuffer.glFramebuffer) {
-        // device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
+        gpuFramebuffer.glFramebuffer.destroy();
         gpuFramebuffer.glFramebuffer = null;
     }
 }
 
-// ----------------------- FIXME: a temp solution for seperate sampler/texture, needs to be done in editor-------------------------------------
-/*
-CCSamplerTexture(sampler2D tex, vec2 uv){
-    ...
-    texture(tex,uv);
-    ...
-}
 
-origin:
-CCSamplerTexture(texSampler, uv);
-to:
-CCSamplerTexture(sampler2D(tex, sampler), uv);
+export const SEPARATE_SAMPLER_BINDING_OFFSET = 16;
+function seperateCombinedSamplerTexture(shaderSource: string) {
+    // gather
+    let samplerReg = /.*?(\(set = \d+, binding = )(\d+)\) uniform[^;]+sampler(\w*) (\w+);/g;
+    let iter = samplerReg.exec(shaderSource);
+    // samplerName, samplerType
+    const referredMap = new Map<string, string>();
+    while (iter) {
+        const samplerName = iter[4];
+        const samplerType = iter[3];
+        referredMap.set(samplerName, samplerType);
+        iter = samplerReg.exec(shaderSource);
+    }
 
-error occurs:
-'call argument' : sampler constructor must appear at point of use
-*/
-//------------------------------------------------------------------------------------------------------------
-
-function removeCombinedSamplerTexture (shaderSource: string) {
-    // sampler and texture
-    const samplerTexturArr = shaderSource.match(/(.*?)\(set = \d+, binding = \d+\) uniform(.*?)sampler\w* \w+;/g);
-    const count = samplerTexturArr?.length ? samplerTexturArr?.length : 0;
+    // replaceAll --> es 2021 required
     let code = shaderSource;
+    // referredMap.forEach((value, key)=> {
+    //     const samplerName = key;
+    //     const samplerType = value;
+    //     const exp = new RegExp(`\\b${samplerName}\\b([^;])`);
+    //     let it = exp.exec(code);
+    //     while (it) {
+    //         code = code.replace(exp, `sampler${samplerType}(_${samplerName}, _${samplerName}_sampler)${it[1]}`);
+    //         it = exp.exec(code);
+    //     }
+    // });
+    let sampReg = /.*?(\(set = \d+, binding = )(\d+)\) uniform[^;]+sampler(\w*) (\w+);/g;
+    let it = sampReg.exec(code);
+    while (it) {
+        code = code.replace(sampReg, `layout$1 $2) uniform texture$3 $4;\nlayout$1 $2 + ${SEPARATE_SAMPLER_BINDING_OFFSET}) uniform sampler $4_sampler;\n`);
+        it = sampReg.exec(code);
+    }
 
-    const referredFuncSet = new Set<[fnName: string, samplerType: string]>();
-    const samplerTypeSet = new Set<string>();
-    samplerTexturArr?.every((str) => {
-        const textureName = str.match(/(?<=uniform(.*?)sampler\w* )(\w+)(?=;)/g)!.toString();
-        let samplerStr = str.replace(textureName, `${textureName}Sampler`);
-        let samplerFunc = samplerStr.match(/(?<=uniform(.*?))sampler(\w*)/g)!.toString();
-        samplerFunc = samplerFunc.replace('sampler', '');
-        samplerStr = samplerStr.replace(/(?<=uniform(.*?))(sampler\w*)/g, 'sampler');
-
-        // layout (set = a, binding = b) uniform sampler2D cctex;
-        // to:
-        // layout (set = a, binding = b) uniform sampler cctexSampler;
-        // layout (set = a, binding = b + maxTextureNum) uniform texture2D cctex;
-        const samplerReg = /(?<=binding = )(\d+)(?=\))/g;
-        const samplerBindingStr = str.match(samplerReg)!.toString();
-        const samplerBinding = Number(samplerBindingStr) + 16;
-        samplerStr = samplerStr.replace(samplerReg, samplerBinding.toString());
-
-        const textureStr = str.replace(/(?<=uniform(.*?))(sampler)(?=\w*)/g, 'texture');
-        code = code.replace(str, `${samplerStr}\n${textureStr}`);
-
-        if (!samplerTypeSet.has(samplerFunc)) {
-            samplerTypeSet.add(samplerFunc);
-            // gathering referred func
-            const referredFuncStr = `([\\w]+)\\(sampler${samplerFunc}[^\\)]+\\).*{`;
-            const referredFuncRe = new RegExp(referredFuncStr, 'g');
-            let reArr = referredFuncRe.exec(code);
-            while (reArr) {
-                referredFuncSet.add([reArr[1], samplerFunc]);
-                reArr = referredFuncRe.exec(code);
+    const builtinSample = ['texture', 'textureSize', 'texelFetch', 'textureLod'];
+    const replaceBultin = function (samplerName: string, samplerType: string, target: string) {
+        builtinSample.forEach((sampleFunc) => {
+            const builtinSampleReg = new RegExp(`${sampleFunc}\\s*\\(\\s*${samplerName}\\s*,`);
+            let builtinFuncIter = builtinSampleReg.exec(target);
+            while (builtinFuncIter) {
+                target = target.replace(builtinFuncIter[0], `${sampleFunc}(sampler${samplerType}(${samplerName}, ${samplerName}_sampler),`);
+                builtinFuncIter = builtinSampleReg.exec(target);
             }
-        }
+        });
+        return target;
+    }
 
-        // cctex in main() called directly
-        // .*?texture\(
-        const regStr = `texture\\(\\b(${textureName})\\b`;
-        const re = new RegExp(regStr);
-        let reArr = re.exec(code);
-        while (reArr) {
-            code = code.replace(re, `texture(sampler${samplerFunc}(${textureName},${textureName}Sampler)`);
-            reArr = re.exec(code);
+    let funcReg = /\s([\S]+)\s*\(([\w\s,]+)\)[\s|\\|n]*{/g;
+    let funcIter = funcReg.exec(code);
+    const funcSet = new Set<string>();
+    const paramTypeMap = new Map<string, string>();
+    while (funcIter) {
+        paramTypeMap.clear();
+
+        const params = funcIter[2];
+        let paramsRes = params.slice();
+        if (params.includes('sampler')) {
+            const paramIndexSet = new Set<number>();
+            const paramArr = params.split(',');
+
+            for (let i = 0; i < paramArr.length; ++i) {
+                const paramDecl = paramArr[i].split(' ');
+                // assert(paramDecl.length >= 2)
+                const typeDecl = paramDecl[paramDecl.length - 2];
+                if (typeDecl.includes('sampler') && typeDecl !== 'sampler') {
+                    const samplerType = typeDecl.replace('sampler', '');
+                    const paramName = paramDecl[paramDecl.length - 1];
+                    paramsRes = paramsRes.replace(paramArr[i], ` texture${samplerType} ${paramName}, sampler ${paramName}_sampler`);
+                    paramIndexSet.add(i);
+                    paramTypeMap.set(paramName, samplerType);
+                }
+            }
+            // let singleParamReg = new RegExp(`(\\W?)(\\w+)\\s+\\b([^,)]+)\\b`);
+
+            code = code.replace(params, paramsRes);
+
+            const funcName = funcIter[1];
+            // function may overload
+            if (!funcSet.has(funcName)) {
+                // const samplerTypePrefix = '1D|2D|3D|Cube|Buffer';
+                const funcSamplerReg = new RegExp(`${funcName}\\s*?\\((\\s*[^;\\{]+)`, 'g');
+                // const matches = code.matchAll(funcSamplerReg);
+                let matched;
+                while ((matched = funcSamplerReg.exec(code)) !== null) {
+                // for (let matched of matches) {
+                    if (!matched[1].match(/\b\w+\b\s*\b\w+\b/g)) {
+                        const stripStr = matched[1][matched[1].length - 1] === ')' ? matched[1].slice(0, -1) : matched[1];
+                        let params = stripStr.split(',');
+                        let queued = 0; // '('
+                        let paramIndex = 0;
+                        for (let i = 0; i < params.length; ++i) {
+                            if (params[i].includes('(')) {
+                                ++queued;
+                            }
+                            if (params[i].includes(')')) {
+                                --queued;
+                            }
+
+                            if (!queued || i === params.length - 1) {
+                                if (paramIndexSet.has(paramIndex)) {
+                                    params[i] += `, ${params[i]}_sampler`;
+                                }
+                                ++paramIndex;
+                            }
+                        }
+                        const newParams = params.join(',');
+                        const newInvokeStr = matched[0].replace(stripStr, newParams);
+                        code = code.replace(matched[0], newInvokeStr);
+                    }
+                    // else: function declare
+                }
+            }
+
+            let count = 1;
+            let startIndex = code.indexOf(funcIter[1], funcIter.index);
+            startIndex = code.indexOf('{', startIndex) + 1;
+            let endIndex = 0;
+            while (count) {
+                if (code.charAt(startIndex) === '{') {
+                    ++count;
+                } else if (code.charAt(startIndex) === '}') {
+                    --count;
+                }
+
+                if (count === 0) {
+                    endIndex = startIndex;
+                    break;
+                }
+
+                const nextLeft = code.indexOf('{', startIndex + 1);
+                const nextRight = code.indexOf('}', startIndex + 1);
+                startIndex = nextLeft === -1 ? nextRight : Math.min(nextLeft, nextRight);
+            }
+            const funcBody = code.slice(funcIter.index, endIndex);
+            let newFunc = funcBody;
+            paramTypeMap.forEach((type, name) => {
+                newFunc = replaceBultin(name, type, newFunc);
+            });
+
+            code = code.replace(funcBody, newFunc);
+            funcSet.add(funcIter[1]);
         }
-        return true;
+        funcIter = funcReg.exec(code);
+    }
+
+    referredMap.forEach((type, name) => {
+        code = replaceBultin(name, type, code);
     });
 
-    // function
-    referredFuncSet.forEach((pair) => {
-        // 1. fn definition
-        const fnDefReStr = `.*?${pair[0]}\\(sampler${pair[1]}[^}]+}`;
-        const fnDefRe = new RegExp(fnDefReStr);
-        let fnArr = fnDefRe.exec(code);
-        while (fnArr) {
-            const samplerType = `sampler${pair[1]}`;
-            const textureRe = (new RegExp(`.*?${samplerType}[\\s]+([\\S]+),`)).exec(fnArr[0])!;
-            const textureName = textureRe[1];
-            const paramReStr = `${samplerType}[\\s]+${textureName}`;
-            let funcDef = fnArr[0].replace(new RegExp(paramReStr), `texture${pair[1]} ${textureName}, sampler ${textureName}Sampler`);
+    ///////////////////////////////////////////////////////////
+    // isNan, isInf has been removed in dawn:tint
 
-            // 2. texture(...) inside, builtin funcs
-            const textureOpArr = ['texture', 'textureSize', 'texelFetch'];
-            for (let i = 0; i < textureOpArr.length; i++) {
-                const texFuncReStr = `(${textureOpArr[i]})\\(${textureName},`;
-                const texFuncRe = new RegExp(texFuncReStr, 'g');
-                funcDef = funcDef.replace(texFuncRe, `$1(${samplerType}(${textureName}, ${textureName}Sampler),`);
-            }
-            code = code.replace(fnDefRe, funcDef);
+    let functionDefs = '';
+    const precisionKeyWord = 'highp';
+    const isNanIndex = code.indexOf('isnan');
+    if (isNanIndex !== -1) {
+        // getPrecision(isNanIndex);
+        functionDefs += `\n
+         bool isNan(${precisionKeyWord} float val) {
+             return (val < 0.0 || 0.0 < val || val == 0.0) ? false : true;
+         }
+         \n`;
+        code = code.replace(/isnan\(/gi, 'isNan(');
+    }
 
-            fnArr = fnDefRe.exec(code);
-        }
+    const isInfIndex = code.indexOf('isinf');
+    if (isInfIndex !== -1) {
+        // getPrecision(isInfIndex);
+        functionDefs += `\n
+         bool isInf(${precisionKeyWord} float x) {
+             return x == x * 2.0 && x != 0.0;
+         }
+         \n`;
+        code = code.replace(/isinf\(/gi, 'isInf(');
+    }
 
-        // 3. fn called
-        // getVec3DisplacementFromTexture\(([\S]+),[^\)]+
-        const calledReStr = `(?<!vec.*?)${pair[0]}\\(([\\S]+),[\\s]*[^\\)]+`;
-        const calledRe = new RegExp(calledReStr, 'g');
-        let calledArr = calledRe.exec(code);
-        while (calledArr) {
-            if (!calledArr[0].includes(`${calledArr[1]}, ${calledArr[1]}Sampler`)) {
-                const calledStr = calledArr[0].replace(calledArr[1], `${calledArr[1]}, ${calledArr[1]}Sampler`);
-                code = code.replace(calledArr[0], calledStr);
-            }
-            calledArr = calledRe.exec(code);
-        }
-    });
-    // code = code.replace(/(?<!vec4 )(CCSampleTexture\(.+\))/g, 'CCSampleTexture(cc_spriteTextureSampler, cc_spriteTexture, uv0)');
+    ///////////////////////////////////////////////////////////
+
+    let firstPrecisionIdx = code.indexOf('precision');
+    firstPrecisionIdx = code.indexOf(';', firstPrecisionIdx);
+    firstPrecisionIdx += 1;
+    code = `${code.slice(0, firstPrecisionIdx)}\n${functionDefs}\n${code.slice(firstPrecisionIdx)}`;
+
     return code;
 }
 
-type ShaderStage = 'vertex' | 'fragment' | 'compute';
-export function WebGPUCmdFuncCreateShader (device: WebGPUDevice, gpuShader: IWebGPUGPUShader) {
+export function WebGPUCmdFuncCreateGPUShader(device: WebGPUDevice, gpuShader: IWebGPUGPUShader) {
+    // const wgslStages: string[] = [];
     const nativeDevice = device.nativeDevice!;
-    const glslang = device.glslang()!;
+    const glslang = device.glslang;
+    const twgsl = device.twgsl;
+    for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
+        const gpuStage = gpuShader.gpuStages[i];
+        let glslSource = seperateCombinedSamplerTexture(gpuStage.source);
+        const stageStr = gpuStage.type === ShaderStageFlagBit.VERTEX ? 'vertex'
+            : gpuStage.type === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';
+        // if (stageStr === 'compute') {
+        //     glslSource = overwriteBlock(shaderInfo, glslSource);
+        // }
+        const sourceCode = `#version 450\n#define CC_USE_WGPU 1\n${glslSource}`;
+        const spv = glslang.compileGLSL(sourceCode, stageStr, false, '1.3');
 
-    for (let k = 0; k < gpuShader.gpuStages.length; k++) {
-        const gpuStage = gpuShader.gpuStages[k];
-
-        let glShaderType: number = GPUShaderStage.VERTEX;
-        let shaderTypeStr: ShaderStage = 'vertex';
-        const lineNumber = 1;
-
-        switch (gpuStage.type) {
-            case ShaderStageFlagBit.VERTEX: {
-                shaderTypeStr = 'vertex';
-                glShaderType = GPUShaderStage.VERTEX;
-                break;
-            }
-            case ShaderStageFlagBit.FRAGMENT: {
-                shaderTypeStr = 'fragment';
-                glShaderType = GPUShaderStage.FRAGMENT;
-                break;
-            }
-            case ShaderStageFlagBit.COMPUTE: {
-                shaderTypeStr = 'compute';
-                glShaderType = GPUShaderStage.COMPUTE;
-                break;
-            }
-            default: {
-                console.error('Unsupported GFXShaderType.');
-                return;
-            }
+        const wgsl = twgsl.convertSpirV2WGSL(spv);
+        if (wgsl === '') {
+            console.error("empty wgsl");
         }
-
-        const useWGSL = false;
-        let sourceCode = `#version 450\n${gpuStage.source}`;
-        sourceCode = removeCombinedSamplerTexture(sourceCode);
-        if (gpuShader.name === 'builtin-standard|standard-vs:vert|standard-fs:frag|CC_USE_MORPH1|CC_MORPH_TARGET_COUNT1|CC_SUPPORT_FLOAT_TEXTURE1|CC_MORPH_TARGET_HAS_POSITION1|CC_USE_FOG4|USE_ALBEDO_MAP1'
-            && shaderTypeStr === 'vertex') {
-            sourceCode = `#version 450
-#define CC_USE_MORPH 1
-#define CC_MORPH_TARGET_COUNT 1
-#define CC_SUPPORT_FLOAT_TEXTURE 1
-#define CC_MORPH_PRECOMPUTED 0
-#define CC_MORPH_TARGET_HAS_POSITION 1
-#define CC_MORPH_TARGET_HAS_NORMAL 0
-#define CC_MORPH_TARGET_HAS_TANGENT 0
-#define CC_USE_SKINNING 0
-#define CC_USE_BAKED_ANIMATION 0
-#define USE_INSTANCING 0
-#define USE_BATCHING 0
-#define USE_LIGHTMAP 0
-#define CC_USE_FOG 4
-#define CC_FORWARD_ADD 0
-#define USE_VERTEX_COLOR 0
-#define USE_NORMAL_MAP 0
-#define HAS_SECOND_UV 0
-#define CC_USE_IBL 0
-#define CC_RECEIVE_SHADOW 0
-#define CC_USE_HDR 0
-#define USE_ALBEDO_MAP 1
-#define ALBEDO_UV v_uv
-#define NORMAL_UV v_uv
-#define PBR_UV v_uv
-#define USE_PBR_MAP 0
-#define USE_METALLIC_ROUGHNESS_MAP 0
-#define USE_OCCLUSION_MAP 0
-#define USE_EMISSIVE_MAP 0
-#define EMISSIVE_UV v_uv
-#define USE_ALPHA_TEST 0
-#define ALPHA_TEST_CHANNEL a
-
-#extension GL_EXT_shader_explicit_arithmetic_types_int16: require
-precision highp float;
-highp float decode32 (highp vec4 rgba) {
-  rgba = rgba * 255.0;
-  highp float Sign = 1.0 - (step(128.0, (rgba[3]) + 0.5)) * 2.0;
-  highp float Exponent = 2.0 * (mod(float(int((rgba[3]) + 0.5)), 128.0)) + (step(128.0, (rgba[2]) + 0.5)) - 127.0;
-  highp float Mantissa = (mod(float(int((rgba[2]) + 0.5)), 128.0)) * 65536.0 + rgba[1] * 256.0 + rgba[0] + 8388608.0;
-  return Sign * exp2(Exponent - 23.0) * Mantissa;
-}
-struct StandardVertInput {
-  highp vec4 position;
-  vec3 normal;
-  vec4 tangent;
-};
-layout(location = 0) in vec3 a_position;
-layout(location = 1) in vec3 a_normal;
-layout(location = 2) in vec2 a_texCoord;
-layout(location = 3) in vec4 a_tangent;
-#if CC_USE_MORPH
-    int getVertexId() {
-        return gl_VertexIndex;
-    }
-layout(set = 2, binding = 4) uniform CCMorph {
-    vec4 cc_displacementWeights[15];
-    vec4 cc_displacementTextureInfo;
-};
-vec2 getPixelLocation(vec2 textureResolution, int pixelIndex) {
-    float pixelIndexF = float(pixelIndex);
-    float x = mod(pixelIndexF, textureResolution.x);
-    float y = floor(pixelIndexF / textureResolution.x);
-    return vec2(x, y);
-}
-vec2 getPixelCoordFromLocation(vec2 location, vec2 textureResolution) {
-    return (vec2(location.x, location.y) + .5) / textureResolution;
-}
-#if CC_SUPPORT_FLOAT_TEXTURE
-        vec4 fetchVec3ArrayFromTexture(texture2D tex, sampler texSampler, int pixelIndex) {
-            ivec2 texSize = textureSize(sampler2D(tex, texSampler), 0);
-            return texelFetch(sampler2D(tex, texSampler), ivec2(pixelIndex % texSize.x, pixelIndex / texSize.x), 0);
-        }
-#else
-    vec4 fetchVec3ArrayFromTexture(texture2D tex, sampler texSampler, int elementIndex) {
-        int pixelIndex = elementIndex * 4;
-        vec2 location = getPixelLocation(cc_displacementTextureInfo.xy, pixelIndex);
-        vec2 x = getPixelCoordFromLocation(location + vec2(0.0, 0.0), cc_displacementTextureInfo.xy);
-        vec2 y = getPixelCoordFromLocation(location + vec2(1.0, 0.0), cc_displacementTextureInfo.xy);
-        vec2 z = getPixelCoordFromLocation(location + vec2(2.0, 0.0), cc_displacementTextureInfo.xy);
-        return vec4(
-            decode32(texture(sampler2D(tex, texSampler), x)),
-            decode32(texture(sampler2D(tex, texSampler), y)),
-            decode32(texture(sampler2D(tex, texSampler), z)),
-            1.0
-        );
-    }
-#endif
-float getDisplacementWeight(int index) {
-    int quot = index / 4;
-    int remainder = index - quot * 4;
-    if (remainder == 0) {
-        return cc_displacementWeights[quot].x;
-    } else if (remainder == 1) {
-        return cc_displacementWeights[quot].y;
-    } else if (remainder == 2) {
-        return cc_displacementWeights[quot].z;
-    } else {
-        return cc_displacementWeights[quot].w;
-    }
-}
-vec3 getVec3DisplacementFromTexture(texture2D tex, sampler texSampler, int vertexIndex) {
-#if CC_MORPH_PRECOMPUTED
-    return fetchVec3ArrayFromTexture(tex, texSampler, vertexIndex).rgb;
-#else
-    vec3 result = vec3(0, 0, 0);
-    int nVertices = int(cc_displacementTextureInfo.z);
-    for (int iTarget = 0; iTarget < CC_MORPH_TARGET_COUNT; ++iTarget) {
-        result += (fetchVec3ArrayFromTexture(tex, texSampler, nVertices * iTarget + vertexIndex).rgb * getDisplacementWeight(iTarget));
-    }
-    return result;
-#endif
-}
-#if CC_MORPH_TARGET_HAS_POSITION
-    layout(set = 2, binding = 6) uniform sampler cc_PositionDisplacementsSampler;
-layout(set = 2, binding = 22) uniform texture2D cc_PositionDisplacements;
-    vec3 getPositionDisplacement(int vertexId) {
-        return getVec3DisplacementFromTexture(cc_PositionDisplacements, cc_PositionDisplacementsSampler, vertexId);
-    }
-#endif
-#if CC_MORPH_TARGET_HAS_NORMAL
-    layout(set = 2, binding = 7) uniform sampler cc_NormalDisplacementsSampler;
-layout(set = 2, binding = 23) uniform texture2D cc_NormalDisplacements;
-    vec3 getNormalDisplacement(int vertexId) {
-        return getVec3DisplacementFromTexture(cc_NormalDisplacements, cc_NormalDisplacementsSampler, vertexId);
-    }
-#endif
-#if CC_MORPH_TARGET_HAS_TANGENT
-    layout(set = 2, binding = 8) uniform sampler cc_TangentDisplacementsSampler;
-layout(set = 2, binding = 24) uniform texture2D cc_TangentDisplacements;
-    vec3 getTangentDisplacement(int vertexId) {
-        return getVec3DisplacementFromTexture(cc_TangentDisplacements, cc_TangentDisplacementsSampler, vertexId);
-    }
-#endif
-void applyMorph (inout StandardVertInput attr) {
-    int vertexId = getVertexId();
-#if CC_MORPH_TARGET_HAS_POSITION
-    attr.position.xyz = attr.position.xyz + getPositionDisplacement(vertexId);
-#endif
-#if CC_MORPH_TARGET_HAS_NORMAL
-    attr.normal.xyz = attr.normal.xyz + getNormalDisplacement(vertexId);
-#endif
-#if CC_MORPH_TARGET_HAS_TANGENT
-    attr.tangent.xyz = attr.tangent.xyz + getTangentDisplacement(vertexId);
-#endif
-}
-void applyMorph (inout vec4 position) {
-#if CC_MORPH_TARGET_HAS_POSITION
-    position.xyz = position.xyz + getPositionDisplacement(getVertexId());
-#endif
-}
-#endif
-#if CC_USE_SKINNING
-  layout(location = 4) in u16vec4 a_joints;
-layout(location = 5) in vec4 a_weights;
-#if CC_USE_BAKED_ANIMATION
-  #if USE_INSTANCING
-    layout(location = 7) in highp vec4 a_jointAnimInfo;
-  #endif
-  layout(set = 2, binding = 3) uniform CCSkinningTexture {
-    highp vec4 cc_jointTextureInfo;
-  };
-  layout(set = 2, binding = 2) uniform CCSkinningAnimation {
-    highp vec4 cc_jointAnimInfo;
-  };
-  layout(set = 2, binding = 5) uniform highp sampler2D cc_jointTexture;
-  #else
-  layout(set = 2, binding = 3) uniform CCSkinning {
-    highp vec4 cc_joints[30 * 3];
-  };
-#endif
-#if CC_USE_BAKED_ANIMATION
-  #if CC_SUPPORT_FLOAT_TEXTURE
-    mat4 getJointMatrix (float i) {
-    #if USE_INSTANCING
-      highp float j = 3.0 * (a_jointAnimInfo.x * a_jointAnimInfo.y + i) + a_jointAnimInfo.z;
-    #else
-      highp float j = 3.0 * (cc_jointAnimInfo.x * cc_jointTextureInfo.y + i) + cc_jointTextureInfo.z;
-    #endif
-    highp float invSize = cc_jointTextureInfo.w;
-    highp float y = floor(j * invSize);
-    highp float x = j - y * cc_jointTextureInfo.x;
-    y = (y + 0.5) * invSize;
-      vec4 v1 = texture(cc_jointTexture, vec2((x + 0.5) * invSize, y));
-      vec4 v2 = texture(cc_jointTexture, vec2((x + 1.5) * invSize, y));
-      vec4 v3 = texture(cc_jointTexture, vec2((x + 2.5) * invSize, y));
-      return mat4(vec4(v1.xyz, 0.0), vec4(v2.xyz, 0.0), vec4(v3.xyz, 0.0), vec4(v1.w, v2.w, v3.w, 1.0));
-    }
-  #else
-    mat4 getJointMatrix (float i) {
-    #if USE_INSTANCING
-      highp float j = 12.0 * (a_jointAnimInfo.x * a_jointAnimInfo.y + i) + a_jointAnimInfo.z;
-    #else
-      highp float j = 12.0 * (cc_jointAnimInfo.x * cc_jointTextureInfo.y + i) + cc_jointTextureInfo.z;
-    #endif
-    highp float invSize = cc_jointTextureInfo.w;
-    highp float y = floor(j * invSize);
-    highp float x = j - y * cc_jointTextureInfo.x;
-    y = (y + 0.5) * invSize;
-      vec4 v1 = vec4(
-        decode32(texture(cc_jointTexture, vec2((x + 0.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 1.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 2.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 3.5) * invSize, y)))
-      );
-      vec4 v2 = vec4(
-        decode32(texture(cc_jointTexture, vec2((x + 4.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 5.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 6.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 7.5) * invSize, y)))
-      );
-      vec4 v3 = vec4(
-        decode32(texture(cc_jointTexture, vec2((x + 8.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 9.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 10.5) * invSize, y))),
-        decode32(texture(cc_jointTexture, vec2((x + 11.5) * invSize, y)))
-      );
-      return mat4(vec4(v1.xyz, 0.0), vec4(v2.xyz, 0.0), vec4(v3.xyz, 0.0), vec4(v1.w, v2.w, v3.w, 1.0));
-    }
-  #endif
-#else
-  mat4 getJointMatrix (float i) {
-    int idx = int(i);
-    vec4 v1 = cc_joints[idx * 3];
-    vec4 v2 = cc_joints[idx * 3 + 1];
-    vec4 v3 = cc_joints[idx * 3 + 2];
-    return mat4(vec4(v1.xyz, 0.0), vec4(v2.xyz, 0.0), vec4(v3.xyz, 0.0), vec4(v1.w, v2.w, v3.w, 1.0));
-  }
-#endif
-mat4 skinMatrix () {
-  vec4 joints = vec4(a_joints);
-  return getJointMatrix(joints.x) * a_weights.x
-       + getJointMatrix(joints.y) * a_weights.y
-       + getJointMatrix(joints.z) * a_weights.z
-       + getJointMatrix(joints.w) * a_weights.w;
-}
-void CCSkin (inout vec4 position) {
-  mat4 m = skinMatrix();
-  position = m * position;
-}
-void CCSkin (inout StandardVertInput attr) {
-  mat4 m = skinMatrix();
-  attr.position = m * attr.position;
-  attr.normal = (m * vec4(attr.normal, 0.0)).xyz;
-  attr.tangent.xyz = (m * vec4(attr.tangent.xyz, 0.0)).xyz;
-}
-#endif
-layout(set = 0, binding = 0) uniform CCGlobal {
-  highp   vec4 cc_time;
-  mediump vec4 cc_screenSize;
-  mediump vec4 cc_nativeSize;
-};
-layout(set = 0, binding = 1) uniform CCCamera {
-  highp   mat4 cc_matView;
-  highp   mat4 cc_matViewInv;
-  highp   mat4 cc_matProj;
-  highp   mat4 cc_matProjInv;
-  highp   mat4 cc_matViewProj;
-  highp   mat4 cc_matViewProjInv;
-  highp   vec4 cc_cameraPos;
-  mediump vec4 cc_screenScale;
-  mediump vec4 cc_exposure;
-  mediump vec4 cc_mainLitDir;
-  mediump vec4 cc_mainLitColor;
-  mediump vec4 cc_ambientSky;
-  mediump vec4 cc_ambientGround;
-  mediump vec4 cc_fogColor;
-  mediump vec4 cc_fogBase;
-  mediump vec4 cc_fogAdd;
-};
-#if USE_INSTANCING
-  layout(location = 8) in vec4 a_matWorld0;
-  layout(location = 9) in vec4 a_matWorld1;
-  layout(location = 10) in vec4 a_matWorld2;
-  #if USE_LIGHTMAP
-    layout(location = 11) in vec4 a_lightingMapUVParam;
-  #endif
-#elif USE_BATCHING
-  layout(location = 12) in float a_dyn_batch_id;
-  layout(set = 2, binding = 0) uniform CCLocalBatched {
-    highp mat4 cc_matWorlds[10];
-  };
-#else
-layout(set = 2, binding = 0) uniform CCLocal {
-  highp mat4 cc_matWorld;
-  highp mat4 cc_matWorldIT;
-  highp vec4 cc_lightingMapUVParam;
-};
-#endif
-layout(set = 1, binding = 0) uniform Constants {
-  vec4 tilingOffset;
-  vec4 albedo;
-  vec4 albedoScaleAndCutoff;
-  vec4 pbrParams;
-  vec4 emissive;
-  vec4 emissiveScaleParam;
-};
-float LinearFog(vec4 pos) {
-    vec4 wPos = pos;
-    float cam_dis = distance(cc_cameraPos, wPos);
-    float fogStart = cc_fogBase.x;
-    float fogEnd = cc_fogBase.y;
-    return clamp((fogEnd - cam_dis) / (fogEnd - fogStart), 0., 1.);
-}
-float ExpFog(vec4 pos) {
-    vec4 wPos = pos;
-    float fogAtten = cc_fogAdd.z;
-    float fogDensity = cc_fogBase.z;
-    float cam_dis = distance(cc_cameraPos, wPos) / fogAtten * 4.;
-    float f = exp(-cam_dis * fogDensity);
-    return f;
-}
-float ExpSquaredFog(vec4 pos) {
-    vec4 wPos = pos;
-    float fogAtten = cc_fogAdd.z;
-    float fogDensity = cc_fogBase.z;
-    float cam_dis = distance(cc_cameraPos, wPos) / fogAtten * 4.;
-    float f = exp(-cam_dis * cam_dis * fogDensity * fogDensity);
-    return f;
-}
-float LayeredFog(vec4 pos) {
-    vec4 wPos = pos;
-    float fogAtten = cc_fogAdd.z;
-    float _FogTop = cc_fogAdd.x;
-    float _FogRange = cc_fogAdd.y;
-    vec3 camWorldProj = cc_cameraPos.xyz;
-    camWorldProj.y = 0.;
-    vec3 worldPosProj = wPos.xyz;
-    worldPosProj.y = 0.;
-    float fDeltaD = distance(worldPosProj, camWorldProj) / fogAtten * 2.0;
-    float fDeltaY, fDensityIntegral;
-    if (cc_cameraPos.y > _FogTop) {
-        if (wPos.y < _FogTop) {
-            fDeltaY = (_FogTop - wPos.y) / _FogRange * 2.0;
-            fDensityIntegral = fDeltaY * fDeltaY * 0.5;
-        } else {
-            fDeltaY = 0.;
-            fDensityIntegral = 0.;
-        }
-    } else {
-        if (wPos.y < _FogTop) {
-            float fDeltaA = (_FogTop - cc_cameraPos.y) / _FogRange * 2.;
-            float fDeltaB = (_FogTop - wPos.y) / _FogRange * 2.;
-            fDeltaY = abs(fDeltaA - fDeltaB);
-            fDensityIntegral = abs((fDeltaA * fDeltaA * 0.5) - (fDeltaB * fDeltaB * 0.5));
-        } else {
-            fDeltaY = abs(_FogTop - cc_cameraPos.y) / _FogRange * 2.;
-            fDensityIntegral = abs(fDeltaY * fDeltaY * 0.5);
-        }
-    }
-    float fDensity;
-    if (fDeltaY != 0.) {
-        fDensity = (sqrt(1.0 + ((fDeltaD / fDeltaY) * (fDeltaD / fDeltaY)))) * fDensityIntegral;
-    } else {
-        fDensity = 0.;
-    }
-    float f = exp(-fDensity);
-    return f;
-}
-float CC_TRANSFER_FOG(vec4 pos) {
-    #if CC_USE_FOG == 0
-        return LinearFog(pos);
-\t#elif CC_USE_FOG == 1
-        return ExpFog(pos);
-    #elif CC_USE_FOG == 2
-        return ExpSquaredFog(pos);
-    #elif CC_USE_FOG == 3
-        return LayeredFog(pos);
-    #endif
-    return 1.;
-}
-layout(location = 0) out highp vec4 v_shadowPos;
-layout(set = 0, binding = 2) uniform CCShadow {
-  highp mat4 cc_matLightPlaneProj;
-  highp mat4 cc_matLightViewProj;
-  lowp  vec4 cc_shadowColor;
-  lowp  vec4 cc_shadowInfo;
-};
-#if USE_VERTEX_COLOR
-  layout(location = 13) in vec4 a_color;
-  layout(location = 1) out vec4 v_color;
-#endif
-layout(location = 2) out vec3 v_position;
-layout(location = 3) out vec3 v_normal;
-layout(location = 4) out vec2 v_uv;
-layout(location = 5) out vec2 v_uv1;
-layout(location = 6) out float v_fog_factor;
-#if USE_NORMAL_MAP
-  layout(location = 7) out vec3 v_tangent;
-  layout(location = 8) out vec3 v_bitangent;
-#endif
-#if HAS_SECOND_UV || USE_LIGHTMAP
-  layout(location = 14) in vec2 a_texCoord1;
-#endif
-#if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-  layout(location = 9) out vec2 v_luv;
-void CCLightingMapCaclUV()
-{
-#if !USE_INSTANCING
-      v_luv = cc_lightingMapUVParam.xy + a_texCoord1 * cc_lightingMapUVParam.zw;
-#else
-      v_luv = a_lightingMapUVParam.xy + a_texCoord1 * a_lightingMapUVParam.zw;
-#endif
-}
-#endif
-vec4 vert () {
-  StandardVertInput In;
-  In.position = vec4(a_position, 1.0);
-  In.normal = a_normal;
-  In.tangent = a_tangent;
-  #if CC_USE_MORPH
-    //applyMorph(In);
-  #endif
-  #if CC_USE_SKINNING
-    CCSkin(In);
-  #endif
-  mat4 matWorld, matWorldIT;
-  #if USE_INSTANCING
-    matWorld = mat4(
-      vec4(a_matWorld0.xyz, 0.0),
-      vec4(a_matWorld1.xyz, 0.0),
-      vec4(a_matWorld2.xyz, 0.0),
-      vec4(a_matWorld0.w, a_matWorld1.w, a_matWorld2.w, 1.0)
-    );
-    matWorldIT = matWorld;
-  #elif USE_BATCHING
-    matWorld = cc_matWorlds[int(a_dyn_batch_id)];
-    matWorldIT = matWorld;
-  #else
-    matWorld = cc_matWorld;
-    matWorldIT = cc_matWorldIT;
-  #endif
-  vec4 pos = matWorld * In.position;
-  v_position = pos.xyz;
-  v_normal = normalize((matWorldIT * vec4(In.normal, 0.0)).xyz);
-  #if USE_NORMAL_MAP
-    v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
-    v_bitangent = cross(v_normal, v_tangent) * In.tangent.w;
-  #endif
-  v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
-  #if HAS_SECOND_UV
-    v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
-  #endif
-  #if USE_VERTEX_COLOR
-    v_color = a_color;
-  #endif
-  v_fog_factor = CC_TRANSFER_FOG(pos);
-  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    CCLightingMapCaclUV();
-  #endif
-    v_shadowPos = cc_matLightViewProj * pos;
-  return cc_matProj * (cc_matView * matWorld) * In.position;
-}
-void main() { gl_Position = vert(); }`;
-        }
-        const code = useWGSL ? sourceCode : glslang.compileGLSL(sourceCode, shaderTypeStr, true);
-        const shader: GPUShaderModule = nativeDevice?.createShaderModule({ code });
-        // shader.compilationInfo().then((compileInfo: GPUCompilationInfo) => {
-        //     compileInfo.messages.forEach((info) => {
-        //         console.log(info.lineNum, info.linePos, info.type, info.message);
-        //     });
-        // }).catch((compileInfo: GPUCompilationInfo) => {
-        //     compileInfo.messages.forEach((info) => {
-        //         console.log(info.lineNum, info.linePos, info.type, info.message);
-        //     });
-        // });
+        gpuStage.source = wgsl;
+        // wgslStages.push(wgsl);
+        const shader: GPUShaderModule = nativeDevice?.createShaderModule({ code: wgsl });
+        shader.getCompilationInfo().then((compileInfo: GPUCompilationInfo) => {
+            compileInfo.messages.forEach((info) => {
+                console.log(info.lineNum, info.linePos, info.type, info.message);
+            });
+        }).catch((compileInfo: GPUCompilationInfo) => {
+            compileInfo.messages.forEach((info) => {
+                console.log(info.lineNum, info.linePos, info.type, info.message);
+            });
+        });
         const shaderStage: GPUProgrammableStage = {
             module: shader,
             entryPoint: 'main',
         };
         gpuStage.glShader = shaderStage;
-        // const complieInfo = shader.compilationInfo();
-        // void complieInfo.then((info) => {
-        //     console.info(info);
-        // });
     }
 }
 
@@ -1546,122 +1165,65 @@ function maxElementOfImageArray (bufInfoArr: BufferTextureCopy[]): number {
     return maxSize;
 }
 
-// export function WebGPUCmdFuncCopyTexImagesToTexture (
-//     device: WebGPUDevice,
-//     texImages: TexImageSource[],
-//     gpuTexture: IWebGPUTexture,
-//     regions: BufferTextureCopy[],
-// ) {
-//     // name all native webgpu resource nativeXXX distinguished from gpuTexture passed in.
-//     const nativeDevice = device.nativeDevice!;
+export async function WebGPUCmdFuncCopyTexImagesToTexture (
+    device: WebGPUDevice,
+    texImages: TexImageSource[],
+    gpuTexture: IWebGPUTexture,
+    regions: BufferTextureCopy[],
+): Promise<void> {
+    // name all native webgpu resource nativeXXX distinguished from gpuTexture passed in.
+    const nativeDevice = device.nativeDevice!;
+    for (let i = 0; i < regions.length; i++) {
+        const texImg = texImages[i];
+        nativeDevice.queue.copyExternalImageToTexture(
+            { source: texImg },
+            { texture: gpuTexture.glTexture! },
+            [regions[i].texExtent.width, regions[i].texExtent.height, regions[i].texExtent.depth]
+        );
+    }
+}
 
-//     // raw image buffer -> gpubuffer -> texture
-//     // all image share the same & largest buffer
+export function WebGPUCmdFuncCopyBuffersToTexture (
+    device: WebGPUDevice,
+    buffers: ArrayBufferView[],
+    gpuTexture: IWebGPUTexture,
+    regions: BufferTextureCopy[],
+) {
+    const nativeDevice = device.nativeDevice!;
+    const commandEncoder = nativeDevice.createCommandEncoder();
+    const buffInfo = new BufferInfo();
+    buffInfo.usage = BufferUsageBit.TRANSFER_SRC;
+    const wBuff = device.createBuffer(buffInfo);
+    for (let i = 0; i < regions.length; ++i) {
+        const region = regions[i];
+        const arrayBuffer = buffers[i];
+        let buffer; // buffers and regions are a one-to-one mapping
+        if ('buffer' in arrayBuffer) {
+            buffer = new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, arrayBuffer.byteLength);
+        } else {
+            buffer = new Uint8Array(arrayBuffer);
+        }
+        wBuff.update(buffer);
+        const nativeBuff = (wBuff as WebGPUBuffer).gpuBuffer.glBuffer!;
+        commandEncoder.copyBufferToTexture(
+            {
+                buffer: nativeBuff,
+                bytesPerRow: buffer.byteLength / region.texExtent.width, // Each pixel takes up 4 bytes
+                rowsPerImage: region.texExtent.height,
+            },
+            {
+                texture: gpuTexture.glTexture!,
+                origin: {
+                    x: region.texOffset.x,
+                    y: region.texOffset.y,
+                    z: region.texOffset.z
+                }
+            },
+            [region.texExtent.width, region.texExtent.height, region.texExtent.depth]
+        );
+    }
 
-//     const pixelSize = FormatInfos[gpuTexture.format].size;
-//     // const nativeBuffer = nativeDevice.createBuffer({
-//     //     size: maxElementOfImageArray(regions) * pixelSize,
-//     //     usage: GPUBufferUsage.COPY_SRC | GPUBufferUsage.COPY_DST,
-//     //     mappedAtCreation: true,
-//     // });
-
-//     for (let i = 0; i < regions.length; i++) {
-//         if ('getContext' in texImages[i]) {
-//             const canvasElem = texImages[i] as HTMLCanvasElement;
-//             const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, texImages[i].width, texImages[i].height);
-//             // new Uint8ClampedArray(nativeBuffer.getMappedRange(
-//             //     0,
-//             //     imageData!.data.byteLength,
-//             // )).set(imageData!.data);
-//             // nativeBuffer.unmap();
-
-//             const texDataLayout = {
-//                 bytesPerRow: pixelSize * texImages[i].width,
-//             };
-//             const textureView: GPUTextureCopyView = {
-//                 texture: gpuTexture.glTexture!,
-//             };
-//             nativeDevice.queue.writeTexture(textureView,
-//                 imageData?.data.buffer as ArrayBuffer, texDataLayout,
-//                 [regions[i].texExtent.width, regions[i].texExtent.height, regions[i].texExtent.depth]);
-//         } else if (texImages[i] instanceof HTMLImageElement) {
-//             const image = texImages[i] as HTMLImageElement;
-//             const canvas = document.createElement('canvas');
-//             canvas.width = image.width;
-//             canvas.height = image.height;
-//             const context = canvas.getContext('2d');
-//             context?.drawImage(image, 0, 0);
-//             const imageData = context?.getImageData(0, 0, image.width, image.height);
-
-//             const texDataLayout = {
-//                 bytesPerRow: pixelSize * texImages[i].width,
-//             };
-//             const textureView: GPUTextureCopyView = {
-//                 texture: gpuTexture.glTexture!,
-//             };
-//             nativeDevice.queue.writeTexture(textureView,
-//                 imageData?.data.buffer as ArrayBuffer, texDataLayout,
-//                 [regions[i].texExtent.width, regions[i].texExtent.height, regions[i].texExtent.depth]);
-//         } else if (texImages[i] instanceof ImageBitmap) {
-//             const imageBmp = texImages[i] as ImageBitmap;
-//             const textureView: GPUTextureCopyView = {
-//                 texture: gpuTexture.glTexture!,
-//                 mipLevel: gpuTexture.mipLevel - 1,
-//                 origin: [regions[i].texOffset.x, regions[i].texOffset.y, regions[i].texOffset.z],
-//             };
-//             nativeDevice.queue.copyImageBitmapToTexture(
-//                 {
-//                     imageBitmap: imageBmp,
-//                 },
-//                 textureView,
-//                 {
-//                     width: imageBmp.width,
-//                     height: imageBmp.height,
-//                     depthOrArrayLayers: 1,
-//                 },
-//             );
-//         } else {
-//             throw new Error('Type not implemented.');
-//         }
-
-//         // const commandEncoder = nativeDevice.createCommandEncoder();
-//         // commandEncoder.copyBufferToTexture(
-//         //     { buffer: nativeBuffer, bytesPerRow: Math.floor((pixelSize + 255) / 256) * 256 },
-//         //     { texture: gpuTexture.glTexture! },
-//         //     [regions[i].texExtent.width, regions[i].texExtent.height, regions[i].texExtent.depth],
-//         // );
-
-//         // const cmdBuffer = commandEncoder.finish();
-//         // nativeDevice.queue.submit([cmdBuffer]);
-//         // 👇async way in initial stage may cause issues
-//         // createImageBitmap(texImages[i]).then( (img:ImageBitmap) => {
-//         //    nativeDevice.queue.copyImageBitmapToTexture(
-//         //        {imageBitmap: img},
-//         //        {texture: gpuTexture.glTexture!},
-//         //        [regions[i].texExtent.width, regions[i].texExtent.height, regions[i].texExtent.depth]);
-//         // } );
-//     }
-// }
-
-// export function WebGPUCmdFuncCopyBuffersToTexture (
-//     device: WebGPUDevice,
-//     buffers: ArrayBufferView[],
-//     gpuTexture: IWebGPUTexture,
-//     regions: BufferTextureCopy[],
-// ) {
-//     const nativeDevice = device.nativeDevice!;
-
-//     for (let i = 0; i < regions.length; i++) {
-//         const texView = {} as GPUTextureCopyView;
-//         texView.texture = gpuTexture.glTexture!;
-//         const texDataLayout = {} as GPUTextureDataLayout;
-//         texDataLayout.bytesPerRow = FormatInfos[gpuTexture.format].size * regions[i].texExtent.width;
-//         nativeDevice.queue.writeTexture(texView, buffers[i],
-//             texDataLayout,
-//             {
-//                 width: regions[i].texExtent.width,
-//                 height: regions[i].texExtent.height,
-//                 depthOrArrayLayers: regions[i].texExtent.depth,
-//             });
-//     }
-// }
+    // Execute commands and release resources
+    nativeDevice.queue.submit([commandEncoder.finish()]);
+    wBuff.destroy();
+}

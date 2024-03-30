@@ -1,5 +1,5 @@
 import { Shader } from '../base/shader';
-import { WebGPUCmdFuncCreateShader, WebGPUCmdFuncDestroyShader } from './webgpu-commands';
+import { WebGPUCmdFuncCreateGPUShader, WebGPUCmdFuncCreateShader, WebGPUCmdFuncDestroyShader } from './webgpu-commands';
 import { WebGPUDevice } from './webgpu-device';
 import { IWebGPUGPUShader, IWebGPUGPUShaderStage } from './webgpu-gpu-objects';
 import { ShaderInfo } from '../base/define';
@@ -41,7 +41,7 @@ export class WebGPUShader extends Shader {
             };
         }
         const device = WebGPUDeviceManager.instance;
-        WebGPUCmdFuncCreateShader(device, this._gpuShader);
+        WebGPUCmdFuncCreateGPUShader(device, this._gpuShader);
     }
 
     public destroy() {

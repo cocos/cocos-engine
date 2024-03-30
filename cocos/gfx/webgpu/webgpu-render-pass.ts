@@ -32,9 +32,11 @@ export class WebGPURenderPass extends RenderPass {
         if (info.depthStencilAttachment) {
             const depthStencilDescriptor = {} as GPURenderPassDepthStencilAttachment;
             depthStencilDescriptor.depthClearValue = 1.0;
-            depthStencilDescriptor.depthStoreOp = info.depthStencilAttachment?.depthStoreOp === StoreOp.STORE ? 'store' : 'discard';
+            depthStencilDescriptor.depthLoadOp = info.depthStencilAttachment.depthLoadOp === LoadOp.CLEAR ? 'clear' : 'load'
+            depthStencilDescriptor.depthStoreOp = info.depthStencilAttachment.depthStoreOp === StoreOp.STORE ? 'store' : 'discard';
             depthStencilDescriptor.stencilClearValue = 0.0;
-            depthStencilDescriptor.stencilStoreOp = info.depthStencilAttachment?.stencilStoreOp === StoreOp.STORE ? 'store' : 'discard';
+            depthStencilDescriptor.stencilLoadOp = info.depthStencilAttachment.stencilLoadOp === LoadOp.CLEAR ? 'clear' : 'load'
+            depthStencilDescriptor.stencilStoreOp = info.depthStencilAttachment.stencilStoreOp === StoreOp.STORE ? 'store' : 'discard';
             depthStencilDescriptor.view = {} as GPUTextureView;
 
             renderPassDesc.depthStencilAttachment = depthStencilDescriptor;

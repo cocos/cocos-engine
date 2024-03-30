@@ -43,52 +43,69 @@ export class WebGPUTexture extends Texture {
 
     private _gpuTexture: IWebGPUTexture | null = null;
     private _texDescriptor: GPUTextureDescriptor | null = null;
-
-    public initialize(info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean): boolean {
+    private _lodLevel = 0;
+    get lodLevel (): number {
+        return this._lodLevel;
+    }
+    public initialize(info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean) {
+        let texInfo = info as Readonly<TextureInfo>;
+        const viewInfo = info as Readonly<TextureViewInfo>;
         if ('texture' in info) {
-            console.log('WebGPU does not support texture view.');
-            return false;
+            texInfo = viewInfo.texture.info;
+            this._isTextureView = true;
         }
 
-        this._info.copy(info);
+        this._info.copy(texInfo);
         this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
         this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
             this.depth, this._info.levelCount) * this._info.layerCount;
-        this._gpuTexture = {
-            type: info.type,
-            format: info.format,
-            usage: info.usage,
-            width: info.width,
-            height: info.height,
-            depth: info.depth,
-            size: this._size,
-            arrayLayer: info.layerCount,
-            mipLevel: info.levelCount,
-            samples: info.samples,
-            flags: info.flags,
-            isPowerOf2: this._isPowerOf2,
+        if(!this._isTextureView) {
+            this._gpuTexture = {
+                type: texInfo.type,
+                format: texInfo.format,
+                usage: texInfo.usage,
+                width: texInfo.width,
+                height: texInfo.height,
+                depth: texInfo.depth,
+                size: this._size,
+                arrayLayer: texInfo.layerCount,
+                mipLevel: texInfo.levelCount,
+                samples: texInfo.samples,
+                flags: texInfo.flags,
+                isPowerOf2: this._isPowerOf2,
 
-            // default value, filled in when texture is created.
-            glTarget: '2d',
-            glInternalFmt: 'rgba8unorm',
-            glFormat: 'rgba8unorm',
-            glType: 0,
-            glUsage: GPUTextureUsage.RENDER_ATTACHMENT,
-            glTexture: undefined,
-            glRenderbuffer: null,
-            glWrapS: 'clamp-to-edge',
-            glWrapT: 'clamp-to-edge',
-            glMinFilter: 'linear',
-            glMagFilter: 'linear',
+                // default value, filled in when texture is created.
+                glTarget: '2d',
+                glInternalFmt: 'rgba8unorm',
+                glFormat: 'rgba8unorm',
+                glType: 0,
+                glUsage: GPUTextureUsage.RENDER_ATTACHMENT,
+                glTexture: undefined,
+                glRenderbuffer: null,
+                glWrapS: 'clamp-to-edge',
+                glWrapT: 'clamp-to-edge',
+                glMinFilter: 'linear',
+                glMagFilter: 'linear',
 
-            isSwapchainTexture: isSwapchainTexture || false,
-        };
-        if(!isSwapchainTexture) {
-            const device = WebGPUDeviceManager.instance;
-            WebGPUCmdFuncCreateTexture(device as WebGPUDevice, this._gpuTexture!);
-            device.memoryStatus.textureSize += this._size;
+                isSwapchainTexture: isSwapchainTexture || false,
+            };
+            if(!isSwapchainTexture) {
+                const device = WebGPUDeviceManager.instance;
+                WebGPUCmdFuncCreateTexture(device as WebGPUDevice, this._gpuTexture!);
+                device.memoryStatus.textureSize += this._size;
+            }
+            this._viewInfo.texture = this;
+            this._viewInfo.type = info.type;
+            this._viewInfo.format = info.format;
+            this._viewInfo.baseLevel = 0;
+            this._viewInfo.levelCount = info.levelCount;
+            this._viewInfo.baseLayer = 0;
+            this._viewInfo.layerCount = info.layerCount;
+        } else {
+            this._viewInfo.copy(viewInfo);
+            this._lodLevel = viewInfo.baseLevel;
+            this._gpuTexture = (viewInfo.texture as WebGPUTexture)._gpuTexture;
         }
-        return true;
     }
 
     public getNativeTextureView() {

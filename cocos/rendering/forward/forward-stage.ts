@@ -39,6 +39,7 @@ import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from '../ui-phase';
 import { Camera } from '../../render-scene/scene';
 import { renderProfiler } from '../pipeline-funcs';
+import { WebGPUDevice } from '../../gfx/webgpu/webgpu-device';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -126,9 +127,10 @@ export class ForwardStage extends RenderStage {
     }
 
     public render (camera: Camera): void {
-        this._instancedQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
         const device = pipeline.device;
+        this._instancedQueue.clear();
+
         this._renderQueues.forEach(renderQueueClearFunc);
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;

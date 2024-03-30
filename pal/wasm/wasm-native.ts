@@ -51,6 +51,26 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
     });
 }
 
+export function fetchUrl (binaryUrl: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        try {
+            // NOTE: when it's in EDITOR, binaryUrl is a url with `external:` protocol.
+            if (EDITOR) {
+                Editor.Message.request('engine', 'query-engine-info').then((info) => {
+                    const externalRoot = `${info.native.path}/external/`;
+                    binaryUrl = binaryUrl.replace('external:', externalRoot);
+                    resolve(binaryUrl);
+                });
+                return;
+            }
+            binaryUrl = `src/cocos-js/${binaryUrl}`;
+            resolve(binaryUrl);
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
 export function ensureWasmModuleReady (): Promise<void> {
     return Promise.resolve();
 }

@@ -106,7 +106,7 @@ export class WebGLDevice extends Device {
 
     protected _textureExclusive = new Array<boolean>(Format.COUNT);
 
-    public initialize (info: Readonly<DeviceInfo>): boolean {
+    public initialize (info: Readonly<DeviceInfo>): Promise<boolean> {
         WebGLDeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL;
 
@@ -138,7 +138,7 @@ export class WebGLDevice extends Device {
 
         if (!gl) {
             console.error('This device does not support WebGL.');
-            return false;
+            return Promise.resolve(false);
         }
 
         // create queue
@@ -227,7 +227,7 @@ export class WebGLDevice extends Device {
         debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
         debug(`EXTENSIONS: ${extStr}`);
 
-        return true;
+        return Promise.resolve(true);
     }
 
     public destroy (): void {

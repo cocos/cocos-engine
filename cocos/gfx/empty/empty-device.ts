@@ -64,7 +64,7 @@ import { debug, cclegacy } from '../../core';
 export class EmptyDevice extends Device {
     private _swapchain: EmptySwapchain | null = null;
 
-    public initialize (info: DeviceInfo): boolean {
+    public initialize (info: DeviceInfo): Promise<boolean> {
         this._gfxAPI = API.UNKNOWN;
 
         this._bindingMappingInfo = info.bindingMappingInfo;
@@ -74,7 +74,7 @@ export class EmptyDevice extends Device {
 
         debug('Empty device initialized.');
 
-        return true;
+        return Promise.resolve(true);
     }
 
     public destroy (): void {

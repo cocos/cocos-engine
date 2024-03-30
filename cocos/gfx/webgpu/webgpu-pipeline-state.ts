@@ -88,6 +88,7 @@ export class WebGPUPipelineState extends PipelineState {
         }
 
         const gpuShader = info.shader as WebGPUShader;
+
         const attrs = gpuShader.attributes;
         const vbAttrDescs: GPUVertexAttribute[] = [];
         let offset = 0;
@@ -100,7 +101,12 @@ export class WebGPUPipelineState extends PipelineState {
             offset += FormatInfos[attrs[i].format].size;
             vbAttrDescs.push(attrDesc);
         }
-        
+        offset = 0;
+        // We need a real stride
+        const iaAttrs = this._is.attributes;
+        for(const iaAttr of iaAttrs) {
+            offset += FormatInfos[iaAttr.format].size;
+        }
         const renderPplDesc: GPURenderPipelineDescriptor = {
             layout: (this._pipelineLayout as WebGPUPipelineLayout).gpuPipelineLayout.nativePipelineLayout,
             // vertexStage,
@@ -180,8 +186,8 @@ export class WebGPUPipelineState extends PipelineState {
         const nativeDevice = (WebGPUDeviceManager.instance as WebGPUDevice).nativeDevice;
         const nativePipeline = nativeDevice?.createRenderPipeline(renderPplDesc);
 
-        const cmdEncoder = nativeDevice?.createCommandEncoder();
-        nativeDevice?.queue.submit([cmdEncoder!.finish()]);
+        // const cmdEncoder = nativeDevice?.createCommandEncoder();
+        // nativeDevice?.queue.submit([cmdEncoder!.finish()]);
 
         this._gpuPipelineState = {
             glPrimitive: WebPUPrimitives[info.primitive],

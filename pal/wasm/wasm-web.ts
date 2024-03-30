@@ -62,6 +62,34 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
     });
 }
 
+export function fetchUrl (binaryUrl: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        try {
+            // NOTE: when it's in EDITOR or PREVIEW, binaryUrl is a url with `external:` protocol.
+            if (EDITOR) {
+                Editor.Message.request('engine', 'query-engine-info').then((info) => {
+                    const externalRoot = `${info.native.path}/external/`;
+                    binaryUrl = binaryUrl.replace('external:', externalRoot);
+                    // IDEA: it's better we implement another PAL for nodejs platform.
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                    resolve(binaryUrl);
+                });
+                return;
+            } else if (PREVIEW) {
+                resolve(`/engine_external/?url=${binaryUrl}`);
+                return;
+            }
+            // here is in the BUILD mode
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore NOTE: we need to use 'import.meta' here, but the tsc won't allow this, so we need to force ignoring this error here.
+            binaryUrl = new URL(binaryUrl, import.meta.url).href;
+            resolve(binaryUrl);
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
 export function ensureWasmModuleReady (): Promise<void> {
     return Promise.resolve();
 }

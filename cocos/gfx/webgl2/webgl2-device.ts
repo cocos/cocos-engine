@@ -108,7 +108,7 @@ export class WebGL2Device extends Device {
 
     protected _textureExclusive = new Array<boolean>(Format.COUNT);
 
-    public initialize (info: Readonly<DeviceInfo>): boolean {
+    public initialize (info: Readonly<DeviceInfo>): Promise<boolean> {
         WebGL2DeviceManager.setInstance(this);
         this._gfxAPI = API.WEBGL2;
 
@@ -140,7 +140,7 @@ export class WebGL2Device extends Device {
 
         if (!gl) {
             console.error('This device does not support WebGL2.');
-            return false;
+            return Promise.resolve(false);
         }
 
         // create queue
@@ -230,7 +230,7 @@ export class WebGL2Device extends Device {
         debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
         debug(`EXTENSIONS: ${extStr}`);
 
-        return true;
+        return Promise.resolve(true);
     }
 
     public destroy (): void {

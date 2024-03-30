@@ -1,4 +1,5 @@
-import glslang from '@webgpu/glslang/dist/web-devel/glslang';
+import glslang  from './external/glslang';
+import twgsl from './external/twgsl';
 import { DescriptorSet } from '../base/descriptor-set';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
@@ -56,6 +57,8 @@ import { WebGPUSwapchain } from './webgpu-swapchain';
 import { WebGPUDeviceManager } from './define';
 import { IWebGPUBindingMapping } from './webgpu-gpu-objects';
 import { debug } from '../../core';
+import { fetchUrl } from 'pal/wasm';
+import { WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
 
 export class WebGPUDevice extends Device {
     public createSwapchain(info: Readonly<SwapchainInfo>): Swapchain {
@@ -112,10 +115,6 @@ export class WebGPUDevice extends Device {
         return this._multiDrawIndirect;
     }
 
-    get defaultDepthStencilTex () {
-        return this._defaultDepthStencilTex;
-    }
-
     get bindingMappings (): IWebGPUBindingMapping {
         return this._bindingMappings!;
     }
@@ -135,16 +134,15 @@ export class WebGPUDevice extends Device {
     private _context: GPUCanvasContext | null = null;
     private _swapchain: WebGPUSwapchain | null = null;
     private _glslang;
+    private _twgsl;
     private _bindingMappings: IWebGPUBindingMapping | null = null;
     private _multiDrawIndirect = false;
-    private _defaultDepthStencilTex: GPUTexture | null = null;
     private _gpuConfig: GPUCanvasConfiguration | null = null;
     protected _textureExclusive = new Array<boolean>(Format.COUNT);
 
-    public initialize (info: Readonly<DeviceInfo>): boolean {
+    public async initialize (info: Readonly<DeviceInfo>): Promise<boolean> {
         WebGPUDeviceManager.setInstance(this);
-        this.initDevice(info);
-        return true;
+        return this.initDevice(info);
     }
 
     set gpuConfig (config: GPUCanvasConfiguration) {
@@ -370,9 +368,9 @@ export class WebGPUDevice extends Device {
         this._adapter = await gpu?.requestAdapter();
         this._device = await this._adapter?.requestDevice();
         
-        this._glslang = await glslang();
-
-        // WebGL2DeviceManager.setInstance(this);
+        this._glslang = await glslang(await fetchUrl('external:emscripten/webgpu/glslang.wasm'));
+        this._twgsl = await twgsl(await fetchUrl('external:emscripten/webgpu/twgsl.wasm'));
+        
         this._gfxAPI = API.WEBGPU;
 
         const mapping = this._bindingMappingInfo = info.bindingMappingInfo;
@@ -408,15 +406,6 @@ export class WebGPUDevice extends Device {
         this._renderer = adapterInfo.device;
         const description = adapterInfo.description;
 
-        this._defaultDepthStencilTex = device.createTexture({
-            size: {
-                width: canvas.width,
-                height: canvas.height,
-                depthOrArrayLayers: 1,
-            },
-            format: 'depth24plus-stencil8',
-            usage: GPUTextureUsage.RENDER_ATTACHMENT,
-        });
         const limits = device.limits;
         this._caps.clipSpaceMinZ = 0.0;
         this._caps.uboOffsetAlignment = 256;
@@ -533,8 +522,12 @@ export class WebGPUDevice extends Device {
         return this._device;
     }
 
-    public glslang () {
+    public get glslang() {
         return this._glslang;
+    }
+
+    public get twgsl() {
+        return this._twgsl;
     }
 
     public present () {
@@ -553,28 +546,22 @@ export class WebGPUDevice extends Device {
         return null!;
     }
 
-    public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
+    public createBuffer (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): Buffer {
         const buffer = new WebGPUBuffer();
-        if (buffer.initialize(info)) {
-            return buffer;
-        }
-        return null!;
+        buffer.initialize(info);
+        return buffer;
     }
 
-    public createTexture (info: TextureInfo | TextureViewInfo): Texture {
+    public createTexture (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>): Texture {
         const texture = new WebGPUTexture();
-        if (texture.initialize(info)) {
-            return texture;
-        }
-        return null!;
+        texture.initialize(info);
+        return texture;
     }
 
-    public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
+    public createDescriptorSet (info: Readonly<DescriptorSetInfo>): DescriptorSet {
         const descriptorSet = new WebGPUDescriptorSet();
-        if (descriptorSet.initialize(info)) {
-            return descriptorSet;
-        }
-        return null!;
+        descriptorSet.initialize(info);
+        return descriptorSet;
     }
 
     public createShader (info: Readonly<ShaderInfo>): Shader {
@@ -601,12 +588,10 @@ export class WebGPUDevice extends Device {
         return framebuffer;
     }
 
-    public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
+    public createDescriptorSetLayout (info: Readonly<DescriptorSetLayoutInfo>): DescriptorSetLayout {
         const descriptorSetLayout = new WebGPUDescriptorSetLayout();
-        if (descriptorSetLayout.initialize(info)) {
-            return descriptorSetLayout;
-        }
-        return null!;
+        descriptorSetLayout.initialize(info);
+        return descriptorSetLayout;
     }
 
     public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
@@ -645,12 +630,12 @@ export class WebGPUDevice extends Device {
         texture: Texture,
         regions: BufferTextureCopy[],
     ) {
-        // WebGPUCmdFuncCopyTexImagesToTexture(
-        //     this,
-        //     texImages,
-        //     (texture as unknown as WebGPUTexture).gpuTexture,
-        //     regions,
-        // );
+        WebGPUCmdFuncCopyTexImagesToTexture(
+            this,
+            texImages,
+            (texture as unknown as WebGPUTexture).gpuTexture,
+            regions,
+        );
     }
 
     public copyFramebufferToBuffer (

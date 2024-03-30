@@ -1,9 +1,8 @@
 import { Sampler } from '../base/states/sampler';
 import { WebGPUCmdFuncCreateSampler, WebGPUCmdFuncDestroySampler } from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
 import { IWebGPUGPUSampler } from './webgpu-gpu-objects';
 import { SamplerInfo } from '../base/define';
-import { cclegacy } from '../../core';
+import { WebGPUDeviceManager } from './define';
 
 export class WebGPUSampler extends Sampler {
     public get gpuSampler(): IWebGPUGPUSampler {
@@ -29,13 +28,13 @@ export class WebGPUSampler extends Sampler {
             glWrapT: 'clamp-to-edge',
             glWrapR: 'clamp-to-edge',
         };
-        const device = cclegacy.director.root.device as WebGPUDevice;
+        const device = WebGPUDeviceManager.instance;
         WebGPUCmdFuncCreateSampler(device, this._gpuSampler);
     }
 
     public destroy() {
         if (this._gpuSampler) {
-            const device = cclegacy.director.root.device as WebGPUDevice;
+            const device = WebGPUDeviceManager.instance;
             WebGPUCmdFuncDestroySampler(device, this._gpuSampler);
             this._gpuSampler = null;
         }

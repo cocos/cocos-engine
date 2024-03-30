@@ -26,10 +26,7 @@ import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUCommandAllocator } from './webgpu-command-allocator';
 import {
     WebGPUCmd,
-    WebGPUCmdBeginRenderPass,
-    WebGPUCmdBindStates,
     WebGPUCmdCopyBufferToTexture,
-    WebGPUCmdDraw,
     WebGPUCmdPackage,
     WebGPUCmdUpdateBuffer,
 } from './webgpu-commands';
@@ -54,6 +51,8 @@ import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGPUDeviceManager } from './define';
 import { DeviceManager } from '../device-manager';
+import { view } from '../../ui';
+import { WebGPUSwapchain } from './webgpu-swapchain';
 
 export interface IWebGPUDepthBias {
     constantFactor: number;
@@ -172,42 +171,38 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     ) {
         const device = WebGPUDeviceManager.instance;
         const gpuDevice = device as WebGPUDevice;
-        this._nativePassDesc = (renderPass as WebGPURenderPass).gpuRenderPass.nativeRenderPass;
+        const webGPURenderPass = renderPass as WebGPURenderPass;
+        this._nativePassDesc = webGPURenderPass.gpuRenderPass.nativeRenderPass!;
         const gpuFramebuffer = (framebuffer as WebGPUFramebuffer).gpuFramebuffer;
-        const gpuRenderPass = renderPass as WebGPURenderPass;
-
+        
+        const swapchain = gpuDevice.getSwapchains()[0] as WebGPUSwapchain;
         for (let i = 0; i < clearColors.length; i++) {
             const colorTex = gpuFramebuffer.isOffscreen ? gpuFramebuffer.gpuColorTextures[i].glTexture?.createView()
-                : (gpuDevice.getSwapchains()[i].colorTexture as WebGPUTexture).gpuTexture.glTexture?.createView();
+                : swapchain.colorGPUTextureView;
             colorTex!.label = gpuFramebuffer.isOffscreen ? 'offscreen' : 'swapchain';
-            this._nativePassDesc!.colorAttachments[i] = {
-                attachment: colorTex,
-                loadValue: gpuRenderPass?.colorAttachments[i].loadOp === LoadOp.LOAD
-                    ? 'load' : [clearColors[i].x, clearColors[i].y, clearColors[i].z, clearColors[i].w], // RGBA
-                storeOp: gpuRenderPass?.colorAttachments[i].storeOp === StoreOp.STORE ? 'store' : 'clear',
-            };
+            this._nativePassDesc!.colorAttachments[i].view = colorTex;
+            this._nativePassDesc!.colorAttachments[i].clearValue = [clearColors[i].x, clearColors[i].y, clearColors[i].z, clearColors[i].w];
         }
 
-        if (gpuRenderPass?.depthStencilAttachment) {
+        if (webGPURenderPass?.depthStencilAttachment) {
             const tex = gpuFramebuffer.gpuDepthStencilTexture?.glTexture;
-            const depthTex = tex ? tex.createView() : gpuDevice.defaultDepthStencilTex?.createView();
-            this._nativePassDesc!.depthStencilAttachment = {
-                view: depthTex!,
-                depthClearValue: clearDepth,
-                depthStoreOp: gpuRenderPass.depthStencilAttachment.depthStoreOp === StoreOp.STORE ? 'store' : 'discard',
-                // depthReadOnly:
-                stencilClearValue: clearStencil,
-                stencilStoreOp: gpuRenderPass.depthStencilAttachment.stencilStoreOp === StoreOp.STORE ? 'store' : 'discard',
-                // stencilReadOnly:
-            };
+            const depthTex = tex ? tex.createView() : swapchain.gpuDepthStencilTextureView;
+            const depthStencilAttachment = this._nativePassDesc.depthStencilAttachment!;
+            depthStencilAttachment.view = depthTex;
+            depthStencilAttachment.depthClearValue = clearDepth;
+            depthStencilAttachment.stencilClearValue = clearStencil;
         }
 
-        // const cmdEncoder = gpuDevice.nativeDevice()?.createCommandEncoder();
-        // const renpassEncoder = cmdEncoder?.beginRenderPass(nativeRenPassDesc);
+        // const cmdEncoder = gpuDevice.nativeDevice!.createCommandEncoder();
+        // const renderPassEncoder = cmdEncoder?.beginRenderPass(this._nativePassDesc);
         // this._encoder = {
         //    commandEncoder: cmdEncoder as GPUCommandEncoder,
-        //    renderPassEncoder: renpassEncoder!,
+        //    renderPassEncoder: renderPassEncoder,
         // };
+        renderArea.x = Math.floor(renderArea.x);
+        renderArea.y = Math.floor(renderArea.y);
+        renderArea.width = Math.floor(renderArea.width);
+        renderArea.height = Math.floor(renderArea.height);
         const vpfunc = (passEncoder: GPURenderPassEncoder) => {
             passEncoder.setViewport(renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.0, 1.0);
         };
@@ -224,10 +219,9 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public endRenderPass() {
         const device = WebGPUDeviceManager.instance;
-        const nativeDevice = (device as WebGPUDevice).nativeDevice;
-        const cmdEncoder = nativeDevice?.createCommandEncoder();
-        // this._nativePassDesc!.colorAttachments[0].attachment = (this._device as WebGPUDevice).swapChain!.getCurrentTexture().createView();
-        const passEncoder = cmdEncoder?.beginRenderPass(this._nativePassDesc!);
+        const nativeDevice = (device as WebGPUDevice).nativeDevice!;
+        const cmdEncoder = nativeDevice.createCommandEncoder();
+        const passEncoder = cmdEncoder.beginRenderPass(this._nativePassDesc!);
         this._renderPassFuncQueue.forEach((cb) => {
             cb(passEncoder!);
         });
@@ -268,6 +262,12 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     }
 
     public setViewport(viewport: Viewport) {
+        viewport.left = Math.floor(viewport.left);
+        viewport.top = Math.floor(viewport.top);
+        viewport.width = Math.floor(viewport.width);
+        viewport.height = Math.floor(viewport.height);
+        viewport.minDepth = Math.floor(viewport.minDepth);
+        viewport.maxDepth = Math.floor(viewport.maxDepth);
         this._curViewport = new Viewport(viewport.left, viewport.top, viewport.width, viewport.height, viewport.minDepth, viewport.maxDepth);
         const vpfunc = (passEncoder: GPURenderPassEncoder) => {
             passEncoder.setViewport(viewport.left, viewport.top,
@@ -281,7 +281,10 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public setScissor(scissor: Rect) {
         // this._encoder?.renderPassEncoder.setScissorRect(scissor.x, scissor.y, scissor.width, scissor.height);
-
+        scissor.x = Math.floor(scissor.x);
+        scissor.y = Math.floor(scissor.y);
+        scissor.width = Math.floor(scissor.width);
+        scissor.height = Math.floor(scissor.height);
         const srfunc = (passEncoder: GPURenderPassEncoder) => {
             passEncoder.setScissorRect(scissor.x, scissor.y, scissor.width, scissor.height);
         };
@@ -563,12 +566,15 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             // FIXME: maybe store an array-of-native-pipelinestate to avoid mem realloc
             const wgpuBindGroups = new Array<GPUBindGroup>(this._curGPUDescriptorSets.length);
             for (let i = 0; i < this._curGPUDescriptorSets.length; i++) {
-                wgpuBindGroups[i] = this._curGPUDescriptorSets[i].bindGroup;
+                const curGpuDesc = this._curGPUDescriptorSets[i];
+                if(curGpuDesc) {
+                    wgpuBindGroups[i] = curGpuDesc.bindGroup;
+                }
             }
             const bgfunc = (passEncoder: GPURenderPassEncoder) => {
                 for (let i = 0; i < wgpuBindGroups.length; i++) {
                     // FIXME: this is a special sentence that 2 in 3 parameters I'm not certain.
-                    passEncoder.setBindGroup(i, wgpuBindGroups[i]);
+                    if(wgpuBindGroups[i]) passEncoder.setBindGroup(i, wgpuBindGroups[i]);
                 }
             };
             this._renderPassFuncQueue.push(bgfunc);
