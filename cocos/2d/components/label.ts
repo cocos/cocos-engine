@@ -912,12 +912,11 @@ export class Label extends UIRenderer {
 
     // Override
     public _onPreDestroy (): void {
-        if (this._isOnLoadCalled) {
-            super._onPreDestroy();
-            return;
+        super._onPreDestroy();
+        if (!this._isOnLoadCalled) {
+            // If _objFlags does not contain IsOnLoadCalled, it is possible to destroy the ttfSpriteFrame.
+            this.destroyTtfSpriteFrame();
         }
-        // If _objFlags does not contain IsOnLoadCalled, it is possible to destroy the ttfSpriteFrame.
-        this.destroyTtfSpriteFrame();
     }
 
     public onDestroy (): void {
