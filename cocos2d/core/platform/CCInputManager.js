@@ -218,7 +218,7 @@ let inputManager = {
                 ccTouch._lastModified = now;
                 handleTouches.push(ccTouch);
 
-                // event will be distributed multiple times on opharmony platform, requires filtering by windowId
+                // event will be distributed multiple times on openharmony platform, requires filtering by windowId
                 if(globalThis.oh && selTouch.windowId == selTouch._id) {
                     currentTouch = ccTouch;
                 }
