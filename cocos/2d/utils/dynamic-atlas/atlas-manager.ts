@@ -145,7 +145,7 @@ export class DynamicAtlasManager extends System {
 
     private newAtlas (): Atlas {
         let atlas = this._atlases[++this._atlasIndex];
-        if (!atlas) {
+        if (!atlas && this._atlasIndex < this.maxAtlasCount) {
             atlas = new Atlas(this._textureSize, this._textureSize);
             this._atlases.push(atlas);
         }
@@ -179,7 +179,7 @@ export class DynamicAtlasManager extends System {
         texture: DynamicAtlasTexture;
     } | null {
         if (EDITOR_NOT_IN_PREVIEW) return null;
-        if (!this._enabled || this._atlasIndex === this._maxAtlasCount
+        if (!this._enabled || this._atlasIndex >= this._maxAtlasCount
             || !spriteFrame || spriteFrame._original) return null;
 
         if (!spriteFrame.packable) return null;
@@ -195,10 +195,10 @@ export class DynamicAtlasManager extends System {
             atlas = this.newAtlas();
         }
 
-        const frame = atlas.insertSpriteFrame(spriteFrame);
-        if (!frame && this._atlasIndex !== this._maxAtlasCount) {
+        const frame = atlas ? atlas.insertSpriteFrame(spriteFrame) : null;
+        if (!frame && this._atlasIndex < this._maxAtlasCount) {
             atlas = this.newAtlas();
-            return atlas.insertSpriteFrame(spriteFrame);
+            return atlas ? atlas.insertSpriteFrame(spriteFrame) : null;
         }
         return frame;
     }
