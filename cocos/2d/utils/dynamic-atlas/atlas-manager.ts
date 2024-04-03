@@ -143,7 +143,7 @@ export class DynamicAtlasManager extends System {
         this._maxFrameSize = value;
     }
 
-    private newAtlas (): Atlas {
+    private newAtlas (): Atlas | null {
         let atlas = this._atlases[++this._atlasIndex];
         if (!atlas && this._atlasIndex < this.maxAtlasCount) {
             atlas = new Atlas(this._textureSize, this._textureSize);
