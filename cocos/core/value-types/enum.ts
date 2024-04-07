@@ -153,7 +153,8 @@ function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerato
             isAllInteger = false;
         }
 
-        if (isIntegerValue || (typeof v === 'string' && `${enumType[v]}` !== name)) {
+        // Reverse Mapping (value -> name) should not be added to `__enums__` property.
+        if (isIntegerValue || (typeof v === 'string' && enumType[v] !== Number.parseInt(name))) {
             enums.push({ name, value: v });
         }
     }
