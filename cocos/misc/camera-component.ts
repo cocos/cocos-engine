@@ -374,7 +374,6 @@ export class Camera extends Component {
      * @zh 相机的近裁剪距离，应在可接受范围内尽量取最大。
      */
     @displayOrder(10)
-    @rangeMin(0)
     @tooltip('i18n:camera.near')
     get near (): number {
         return this._near;
