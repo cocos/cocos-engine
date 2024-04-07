@@ -392,6 +392,26 @@ class ScreenAdapter extends EventTarget {
             adapter.emit('orientation-change', orientation);
         };
 
+        const getOrientation = (rotateAngle: number): Orientation => {
+            let tmpOrientation = Orientation.PORTRAIT;
+            switch (window.orientation) {
+                case 0:
+                    tmpOrientation = Orientation.PORTRAIT;
+                    break;
+                case 90:
+                    // Handle landscape orientation, top side facing to the right
+                    tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                    break;
+                case -90:
+                    // Handle landscape orientation, top side facing to the left
+                    tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                    break;
+                case 180:
+                    tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                    break;
+            }
+            return tmpOrientation;
+        };
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = (): void => {
                 const dpr = window.devicePixelRatio;
@@ -407,18 +427,22 @@ class ScreenAdapter extends EventTarget {
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
             const handleOrientationChange = (): void => {
                 let tmpOrientation = adapter._orientation;
-                const orientationType = screen.orientation.type;
-                if (mediaQueryPortrait.matches) {
-                    if (orientationType === 'portrait-primary') {
-                        tmpOrientation = Orientation.PORTRAIT;
-                    } else {
-                        tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
-                    }
+                if (!screen.orientation) {
+                    tmpOrientation = getOrientation(window.orientation);
                 } else {
-                    if (orientationType === 'landscape-primary') {
-                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                    } else if (orientationType === 'landscape-secondary') {
-                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                    const orientationType = screen.orientation.type;
+                    if (mediaQueryPortrait.matches) {
+                        if (orientationType === 'portrait-primary') {
+                            tmpOrientation = Orientation.PORTRAIT;
+                        } else {
+                            tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                        }
+                    } else {
+                        if (orientationType === 'landscape-primary') {
+                            tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                        } else if (orientationType === 'landscape-secondary') {
+                            tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                        }
                     }
                 }
                 notifyOrientationChange(tmpOrientation);
@@ -426,25 +450,8 @@ class ScreenAdapter extends EventTarget {
             mediaQueryPortrait.addEventListener('change', handleOrientationChange);
             mediaQueryLandscape.addEventListener('change', handleOrientationChange);
         } else {
-            const adapter = this;
             const handleOrientationChange = (): void => {
-                let tmpOrientation = adapter._orientation;
-                switch (window.orientation) {
-                    case 0:
-                        tmpOrientation = Orientation.PORTRAIT;
-                        break;
-                    case 90:
-                        // Handle landscape orientation, top side facing to the right
-                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
-                        break;
-                    case -90:
-                        // Handle landscape orientation, top side facing to the left
-                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                        break;
-                    case 180:
-                        tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
-                        break;
-                }
+                let tmpOrientation = getOrientation(window.orientation); 
                 notifyOrientationChange(tmpOrientation);
             };
             window.addEventListener('orientationchange', handleOrientationChange);
