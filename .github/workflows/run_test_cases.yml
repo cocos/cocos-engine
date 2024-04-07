@@ -101,7 +101,7 @@ jobs:
       - name: npm install
         run: |
           npm -v
-          npm install --registry https://registry.npm.taobao.org
+          npm install --registry https://registry.npmmirror.com
       - name: Checkout test-projects
         shell: bash
         run: |
@@ -250,7 +250,7 @@ jobs:
       - name: npm install
         run: |
           npm -v
-          npm install --registry https://registry.npm.taobao.org
+          npm install --registry https://registry.npmmirror.com
       - name: Checkout test-projects
         shell: bash
         run: |
