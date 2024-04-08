@@ -133,13 +133,17 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get orientation (): Orientation {
-        return this._orientation;
+        return this._orientationConfig;
     }
     public set orientation (value: Orientation) {
-        if (this._orientation === value) {
+        if (this._orientationConfig === value) {
             return;
         }
-        this._orientation = value;
+        this._orientationConfig = value;
+        this._updateFrame();
+    }
+
+    private _updateFrame(): void {
         this._updateFrameState();
         this._resizeFrame();
     }
@@ -283,7 +287,8 @@ class ScreenAdapter extends EventTarget {
         return WindowType.SubFrame;
     }
     private _resolutionScale = 1;
-    private _orientation = Orientation.AUTO;
+    private _orientationConfig = Orientation.AUTO;//for user setting
+    private _orientationDevice = Orientation.AUTO;
 
     constructor () {
         super();
@@ -384,11 +389,14 @@ class ScreenAdapter extends EventTarget {
         });
 
         const notifyOrientationChange = (orientation): void => {
-            if (orientation === this._orientation) {
+            if (orientation === this._orientationDevice) {
                 return;
             }
-            this._orientation = orientation;
-            this.emit('orientation-change', orientation);
+            this._orientationDevice = orientation;
+            this._updateFrame();
+            if (this._orientationConfig === Orientation.AUTO) {
+                this.emit('orientation-change', orientation);
+            }
         };
 
         const getOrientation = (rotateAngle: number | string): Orientation => {
@@ -412,7 +420,7 @@ class ScreenAdapter extends EventTarget {
                 tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
                 break;
             default:
-                tmpOrientation = this._orientation;
+                tmpOrientation = this._orientationDevice;
                 break;
             }
             return tmpOrientation;
@@ -431,7 +439,7 @@ class ScreenAdapter extends EventTarget {
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
             const handleOrientationChange = (): void => {
-                let tmpOrientation: Orientation = this._orientation;
+                let tmpOrientation = this._orientationDevice;
                 // eslint-disable-next-line no-restricted-globals
                 if (!screen.orientation) {
                     tmpOrientation = getOrientation(window.orientation);
