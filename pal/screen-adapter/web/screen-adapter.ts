@@ -437,7 +437,7 @@ class ScreenAdapter extends EventTarget {
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
             const handleOrientationChange = (): void => {
-                let tmpOrientation = this._orientationDevice;
+                let tmpOrientation: Orientation = this._orientationDevice;
                 // eslint-disable-next-line no-restricted-globals
                 if (!screen.orientation) {
                     tmpOrientation = getOrientation(window.orientation);
