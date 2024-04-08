@@ -133,13 +133,13 @@ class ScreenAdapter extends EventTarget {
     }
 
     public get orientation (): Orientation {
-        return this._orientationConfig;
+        return this._orientation;
     }
     public set orientation (value: Orientation) {
-        if (this._orientationConfig === value) {
+        if (this._orientation === value) {
             return;
         }
-        this._orientationConfig = value;
+        this._orientation = value;
         this._updateFrame();
     }
 
@@ -287,7 +287,7 @@ class ScreenAdapter extends EventTarget {
         return WindowType.SubFrame;
     }
     private _resolutionScale = 1;
-    private _orientationConfig = Orientation.AUTO;//for user setting
+    private _orientation = Orientation.AUTO;//for user setting
     private _orientationDevice = Orientation.AUTO;
 
     constructor () {
@@ -394,9 +394,7 @@ class ScreenAdapter extends EventTarget {
             }
             this._orientationDevice = orientation;
             this._updateFrame();
-            if (this._orientationConfig === Orientation.AUTO) {
-                this.emit('orientation-change', orientation);
-            }
+            this.emit('orientation-change', orientation);
         };
 
         const getOrientation = (rotateAngle: number | string): Orientation => {
