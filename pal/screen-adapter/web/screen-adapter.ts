@@ -140,6 +140,10 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._orientation = value;
+        this._updateFrame();
+    }
+
+    private _updateFrame (): void {
         this._updateFrameState();
         this._resizeFrame();
     }
@@ -283,7 +287,8 @@ class ScreenAdapter extends EventTarget {
         return WindowType.SubFrame;
     }
     private _resolutionScale = 1;
-    private _orientation = Orientation.AUTO;
+    private _orientation = Orientation.AUTO;//The orientation set by user.
+    private _orientationDevice = Orientation.AUTO;//Store the device's orientation.
 
     constructor () {
         super();
@@ -384,10 +389,11 @@ class ScreenAdapter extends EventTarget {
         });
 
         const notifyOrientationChange = (orientation): void => {
-            if (orientation === this._orientation) {
+            if (orientation === this._orientationDevice) {
                 return;
             }
-            this._orientation = orientation;
+            this._orientationDevice = orientation;
+            this._updateFrame();
             this.emit('orientation-change', orientation);
         };
 
@@ -412,7 +418,7 @@ class ScreenAdapter extends EventTarget {
                 tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
                 break;
             default:
-                tmpOrientation = this._orientation;
+                tmpOrientation = this._orientationDevice;
                 break;
             }
             return tmpOrientation;
@@ -431,7 +437,7 @@ class ScreenAdapter extends EventTarget {
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
             const handleOrientationChange = (): void => {
-                let tmpOrientation: Orientation = this._orientation;
+                let tmpOrientation: Orientation = this._orientationDevice;
                 // eslint-disable-next-line no-restricted-globals
                 if (!screen.orientation) {
                     tmpOrientation = getOrientation(window.orientation);
