@@ -427,11 +427,12 @@ class ScreenAdapter extends EventTarget {
                 }, { once: true });
             };
             updateDPRChangeListener();
-            
+
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
             const handleOrientationChange = (): void => {
                 let tmpOrientation: Orientation = this._orientation;
+                // eslint-disable-next-line no-restricted-globals
                 if (!screen.orientation) {
                     tmpOrientation = getOrientation(window.orientation);
                 } else {
@@ -455,7 +456,7 @@ class ScreenAdapter extends EventTarget {
             mediaQueryLandscape.addEventListener('change', handleOrientationChange);
         } else {
             const handleOrientationChange = (): void => {
-                const tmpOrientation = getOrientation(window.orientation); 
+                const tmpOrientation = getOrientation(window.orientation);
                 notifyOrientationChange(tmpOrientation);
             };
             window.addEventListener('orientationchange', handleOrientationChange);
