@@ -287,8 +287,8 @@ class ScreenAdapter extends EventTarget {
         return WindowType.SubFrame;
     }
     private _resolutionScale = 1;
-    private _orientation = Orientation.AUTO;//for user setting
-    private _orientationDevice = Orientation.AUTO;
+    private _orientation = Orientation.AUTO;//For user setting
+    private _orientationDevice = Orientation.AUTO;//For store device's orientation
 
     constructor () {
         super();
