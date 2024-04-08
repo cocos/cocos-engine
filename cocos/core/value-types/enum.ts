@@ -145,15 +145,24 @@ function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerato
     const enums: any[] = enumType.__enums__ || [];
     enums.length = 0;
 
+    let isAllInteger = true;
     for (const name in enumType) {
         const v = enumType[name];
-        if (Number.isInteger(v)) {
+        const isIntegerValue = Number.isInteger(v);
+        if (!isIntegerValue) {
+            isAllInteger = false;
+        }
+
+        // Reverse Mapping (value -> name) should not be added to `__enums__` property.
+        if (isIntegerValue || (typeof v === 'string' && enumType[v] !== Number.parseInt(name))) {
             enums.push({ name, value: v });
         }
     }
-    enums.sort((a, b): number => a.value - b.value);
+    if (isAllInteger) {
+        enums.sort((a, b): number => a.value - b.value);
+    }
     enumType.__enums__ = enums;
-    return enums;
+    return enums as Enum.Enumerator<EnumT>[];
 }
 
 /**
