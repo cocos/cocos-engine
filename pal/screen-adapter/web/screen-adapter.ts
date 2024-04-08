@@ -391,7 +391,10 @@ class ScreenAdapter extends EventTarget {
             this.emit('orientation-change', orientation);
         };
 
-        const getOrientation = (rotateAngle: number): Orientation => {
+        const getOrientation = (rotateAngle: number | string): Orientation => {
+            if (typeof rotateAngle === 'string') {
+                rotateAngle = parseInt(rotateAngle, 10);
+            }
             let tmpOrientation = Orientation.PORTRAIT;
             switch (window.orientation) {
             case 0:
@@ -432,6 +435,7 @@ class ScreenAdapter extends EventTarget {
                 if (!screen.orientation) {
                     tmpOrientation = getOrientation(window.orientation);
                 } else {
+                    // eslint-disable-next-line no-restricted-globals
                     const orientationType = screen.orientation.type;
                     if (mediaQueryPortrait.matches) {
                         if (orientationType === 'portrait-primary') {
@@ -439,12 +443,10 @@ class ScreenAdapter extends EventTarget {
                         } else {
                             tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
                         }
-                    } else {
-                        if (orientationType === 'landscape-primary') {
-                            tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                        } else if (orientationType === 'landscape-secondary') {
-                            tmpOrientation = Orientation.LANDSCAPE_RIGHT;
-                        }
+                    } else if (orientationType === 'landscape-primary') {
+                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                    } else if (orientationType === 'landscape-secondary') {
+                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
                     }
                 }
                 notifyOrientationChange(tmpOrientation);
@@ -453,7 +455,7 @@ class ScreenAdapter extends EventTarget {
             mediaQueryLandscape.addEventListener('change', handleOrientationChange);
         } else {
             const handleOrientationChange = (): void => {
-                let tmpOrientation = getOrientation(window.orientation); 
+                const tmpOrientation = getOrientation(window.orientation); 
                 notifyOrientationChange(tmpOrientation);
             };
             window.addEventListener('orientationchange', handleOrientationChange);
@@ -561,10 +563,8 @@ class ScreenAdapter extends EventTarget {
         const height = window.innerHeight;
         const isBrowserLandscape = width > height;
         this.isFrameRotated = systemInfo.isMobile
-            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) ||
-                (!isBrowserLandscape && (orientation === Orientation.LANDSCAPE ||
-                    orientation === Orientation.LANDSCAPE_LEFT ||
-                    orientation === Orientation.LANDSCAPE_RIGHT)));
+            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT)
+             || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
     }
     private _updateContainer (): void {
         if (!this._gameContainer) {
