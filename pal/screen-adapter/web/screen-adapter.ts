@@ -288,7 +288,7 @@ class ScreenAdapter extends EventTarget {
     }
     private _resolutionScale = 1;
     private _orientation = Orientation.AUTO;//The orientation set by user.
-    private _orientationDevice = Orientation.AUTO;//Store the device's orientation. 
+    private _orientationDevice = Orientation.AUTO;//Store the device's orientation.
 
     constructor () {
         super();
