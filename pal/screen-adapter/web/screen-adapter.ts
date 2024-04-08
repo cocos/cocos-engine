@@ -143,7 +143,7 @@ class ScreenAdapter extends EventTarget {
         this._updateFrame();
     }
 
-    private _updateFrame(): void {
+    private _updateFrame (): void {
         this._updateFrameState();
         this._resizeFrame();
     }
