@@ -383,32 +383,34 @@ class ScreenAdapter extends EventTarget {
             this._resizeFrame();
         });
 
-        const adapter = this;
         const notifyOrientationChange = (orientation): void => {
-            if (orientation === adapter._orientation) {
+            if (orientation === this._orientation) {
                 return;
             }
-            adapter._orientation = orientation;
-            adapter.emit('orientation-change', orientation);
+            this._orientation = orientation;
+            this.emit('orientation-change', orientation);
         };
 
         const getOrientation = (rotateAngle: number): Orientation => {
             let tmpOrientation = Orientation.PORTRAIT;
             switch (window.orientation) {
-                case 0:
-                    tmpOrientation = Orientation.PORTRAIT;
-                    break;
-                case 90:
-                    // Handle landscape orientation, top side facing to the right
-                    tmpOrientation = Orientation.LANDSCAPE_RIGHT;
-                    break;
-                case -90:
-                    // Handle landscape orientation, top side facing to the left
-                    tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                    break;
-                case 180:
-                    tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
-                    break;
+            case 0:
+                tmpOrientation = Orientation.PORTRAIT;
+                break;
+            case 90:
+                // Handle landscape orientation, top side facing to the right
+                tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                break;
+            case -90:
+                // Handle landscape orientation, top side facing to the left
+                tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                break;
+            case 180:
+                tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                break;
+            default:
+                tmpOrientation = this._orientation;
+                break;
             }
             return tmpOrientation;
         };
@@ -426,7 +428,7 @@ class ScreenAdapter extends EventTarget {
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
             const handleOrientationChange = (): void => {
-                let tmpOrientation = adapter._orientation;
+                let tmpOrientation: Orientation = this._orientation;
                 if (!screen.orientation) {
                     tmpOrientation = getOrientation(window.orientation);
                 } else {
