@@ -27,6 +27,7 @@ import { System, macro, js, cclegacy } from '../../../core';
 import { Filter } from '../../../asset/assets/asset-enum';
 import { Atlas, DynamicAtlasTexture } from './atlas';
 import { director } from '../../../game';
+import { SpriteFrame } from '../../assets';
 
 /**
  * @en The dynamic atlas manager which manages all runtime dynamic packed atlas texture for UI rendering.
@@ -190,15 +191,15 @@ export class DynamicAtlasManager extends System {
             return null;
         }
 
-        let atlas = this._atlases[this._atlasIndex];
+        let atlas: Atlas| null = this._atlases[this._atlasIndex];
         if (!atlas) {
             atlas = this.newAtlas();
         }
 
-        const frame = atlas ? atlas.insertSpriteFrame(spriteFrame) : null;
+        const frame = atlas ? atlas.insertSpriteFrame(spriteFrame as SpriteFrame) : null;
         if (!frame && this._atlasIndex < this._maxAtlasCount) {
             atlas = this.newAtlas();
-            return atlas ? atlas.insertSpriteFrame(spriteFrame) : null;
+            return atlas ? atlas.insertSpriteFrame(spriteFrame as SpriteFrame) : null;
         }
         return frame;
     }
