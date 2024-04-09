@@ -24,10 +24,10 @@
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { System, macro, js, cclegacy } from '../../../core';
-import { Filter } from '../../../asset/assets/asset-enum';
 import { Atlas, DynamicAtlasTexture } from './atlas';
 import { director } from '../../../game';
 import { SpriteFrame } from '../../assets';
+import  { Filter } from '../../../gfx/base/define';
 
 /**
  * @en The dynamic atlas manager which manages all runtime dynamic packed atlas texture for UI rendering.
@@ -174,14 +174,14 @@ export class DynamicAtlasManager extends System {
      * @method insertSpriteFrame
      * @param spriteFrame  the sprite frame that will be inserted in the atlas.
      */
-    public insertSpriteFrame (spriteFrame):  {
+    public insertSpriteFrame (spriteFrame: SpriteFrame):  {
         x: number;
         y: number;
         texture: DynamicAtlasTexture;
     } | null {
         if (EDITOR_NOT_IN_PREVIEW) return null;
         if (!this._enabled || this._atlasIndex >= this._maxAtlasCount
-            || !spriteFrame || spriteFrame._original) return null;
+            || !spriteFrame || spriteFrame.original) return null;
 
         if (!spriteFrame.packable) return null;
 
@@ -191,15 +191,15 @@ export class DynamicAtlasManager extends System {
             return null;
         }
 
-        let atlas: Atlas| null = this._atlases[this._atlasIndex];
+        let atlas: Atlas | null = this._atlases[this._atlasIndex];
         if (!atlas) {
             atlas = this.newAtlas();
         }
 
-        const frame = atlas ? atlas.insertSpriteFrame(spriteFrame as SpriteFrame) : null;
+        const frame = atlas ? atlas.insertSpriteFrame(spriteFrame) : null;
         if (!frame && this._atlasIndex < this._maxAtlasCount) {
             atlas = this.newAtlas();
-            return atlas ? atlas.insertSpriteFrame(spriteFrame as SpriteFrame) : null;
+            return atlas ? atlas.insertSpriteFrame(spriteFrame) : null;
         }
         return frame;
     }
