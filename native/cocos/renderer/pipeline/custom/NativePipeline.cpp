@@ -52,9 +52,9 @@ void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string 
 
 template <>
 void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg) {
-    const auto &desc = get(ResourceGraph::DescTag{}, resg, v);
-    const auto &traits = get(ResourceGraph::TraitsTag{}, resg, v);
-    const auto &samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+    const auto desc = get(ResourceGraph::DescTag{}, resg, v);
+    const auto traits = get(ResourceGraph::TraitsTag{}, resg, v);
+    const auto samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
 
     SubresourceView view{
         nullptr,
