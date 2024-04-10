@@ -105,6 +105,9 @@ export class MouseInputSource {
         // register wheel event
         this._canvas?.addEventListener('wheel', this._handleMouseWheel.bind(this));
         this._registerPointerLockEvent();
+
+        this._canvas?.addEventListener('mouseleave', this._handleMouseLeave.bind(this));
+        this._canvas?.addEventListener('mouseenter', this._handleMouseEnter.bind(this));
     }
 
     // To be removed in the future.
@@ -191,6 +194,18 @@ export class MouseInputSource {
         if (mouseEvent.target === this._canvas) {
             mouseEvent.preventDefault();
         }
+        this._eventTarget.emit(eventType, eventMouse);
+    }
+
+    private _handleMouseLeave (mouseEvent: MouseEvent): void {
+        const eventType = InputEventType.MOUSE_LEAVE;
+        const eventMouse = new EventMouse(eventType, false);
+        this._eventTarget.emit(eventType, eventMouse);
+    }
+
+    private _handleMouseEnter (mouseEvent: MouseEvent): void {
+        const eventType = InputEventType.MOUSE_ENTER;
+        const eventMouse = new EventMouse(eventType, false);
         this._eventTarget.emit(eventType, eventMouse);
     }
 }
