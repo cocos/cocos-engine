@@ -188,10 +188,11 @@ function realTimeTraverse (comp: Skeleton): void {
             index = i * floatStride;
             tempVecPos.x = vbuf[index];
             tempVecPos.y = vbuf[index + 1];
+            tempVecPos.z = 0;
             tempVecPos.transformMat4(worldMat);
             vbuf[index] = tempVecPos.x;
             vbuf[index + 1] = tempVecPos.y;
-            vbuf[index + 2] = 0;
+            vbuf[index + 2] = tempVecPos.z;
         }
     }
 
