@@ -382,6 +382,12 @@ export class Input {
             this._mouseInput.on(InputEventType.MOUSE_WHEEL, (event): void => {
                 this._dispatchOrPushEvent(event, eventMouseList);
             });
+            this._mouseInput.on(InputEventType.MOUSE_LEAVE, (event): void => {
+                this._dispatchOrPushEvent(event, eventMouseList);
+            });
+            this._mouseInput.on(InputEventType.MOUSE_ENTER, (event): void => {
+                this._dispatchOrPushEvent(event, eventMouseList);
+            });
         }
 
         if (sys.hasFeature(sys.Feature.EVENT_KEYBOARD)) {

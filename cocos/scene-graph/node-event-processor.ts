@@ -133,6 +133,10 @@ export class NodeEventProcessor {
     private _dispatchingTouch: Touch | null = null;
     private _isEnabled = false;
     private _node: Node;
+    // Indicate whether the mouse leaves window(only support one window). If it is
+    // true, then will not continue dispatching mouse events, such as mouse move events.
+    // Tested on macOS, mouse move events will be triggered once even mouse leaves the window.
+    private _isMouseLeaveWindow = false;
 
     constructor (node: Node) {
         this._node = node;
@@ -478,6 +482,10 @@ export class NodeEventProcessor {
             return this._handleMouseUp(eventMouse);
         case InputEventType.MOUSE_WHEEL:
             return this._handleMouseWheel(eventMouse);
+        case InputEventType.MOUSE_LEAVE:
+            return this._handleMouseLeave(eventMouse);
+        case InputEventType.MOUSE_ENTER:
+            return this._handleMouseEnter(eventMouse);
         default:
             return false;
         }
@@ -503,7 +511,7 @@ export class NodeEventProcessor {
 
     private _handleMouseMove (event: EventMouse): boolean {
         const node = this._node;
-        if (!node || !node._uiProps.uiTransformComp) {
+        if (!node || !node._uiProps.uiTransformComp || this._isMouseLeaveWindow) {
             return false;
         }
 
@@ -573,6 +581,23 @@ export class NodeEventProcessor {
         }
         return false;
     }
+
+    private _handleMouseLeave (event: EventMouse): boolean {
+        this._isMouseLeaveWindow = true;
+        if (this.previousMouseIn) {
+            event.type = NodeEventType.MOUSE_LEAVE;
+            this._node.dispatchEvent(event);
+            this.previousMouseIn = false;
+            _currentHovered = null;
+        }
+        return true;
+    }
+
+    private _handleMouseEnter (event: EventMouse): boolean {
+        this._isMouseLeaveWindow = false;
+        return true;
+    }
+
     // #endregion handle mouse event
 
     // #region handle touch event

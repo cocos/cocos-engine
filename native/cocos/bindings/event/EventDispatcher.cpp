@@ -58,6 +58,8 @@ namespace cc {
 
 events::EnterForeground::Listener EventDispatcher::listenerEnterForeground;
 events::EnterBackground::Listener EventDispatcher::listenerEnterBackground;
+events::WindowLeave::Listener EventDispatcher::listenerWindowLeave;
+events::WindowEnter::Listener EventDispatcher::listenerWindowEnter;
 events::WindowChanged::Listener EventDispatcher::listenerWindowChanged;
 events::LowMemory::Listener EventDispatcher::listenerLowMemory;
 events::Touch::Listener EventDispatcher::listenerTouch;
@@ -94,6 +96,8 @@ void EventDispatcher::init() {
         listenerResize.bind(&dispatchResizeEvent);
         listenerOrientation.bind(&dispatchOrientationChangeEvent);
         listenerEnterBackground.bind(&dispatchEnterBackgroundEvent);
+        listenerWindowLeave.bind(&dispatchWindowLeaveEvent);
+        listenerWindowEnter.bind(&dispatchWindowEnterEvent);
         listenerEnterForeground.bind(&dispatchEnterForegroundEvent);
         listenerLowMemory.bind(&dispatchMemoryWarningEvent);
         listenerClose.bind(&dispatchCloseEvent);
@@ -430,6 +434,14 @@ void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
     se::ValueArray args;
     args.emplace_back(se::Value(jsOrientationChangeObj));
     EventDispatcher::doDispatchJsEvent("onOrientationChanged", args);
+}
+
+void EventDispatcher::dispatchWindowLeaveEvent() {
+    EventDispatcher::doDispatchJsEvent("onWindowLeave", se::EmptyValueArray);
+}
+
+void EventDispatcher::dispatchWindowEnterEvent() {
+    EventDispatcher::doDispatchJsEvent("onWindowEnter", se::EmptyValueArray);
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {

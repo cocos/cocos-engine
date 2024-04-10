@@ -35,6 +35,8 @@ const mouseEvents = [
     Input.EventType.MOUSE_MOVE,
     Input.EventType.MOUSE_UP,
     Input.EventType.MOUSE_WHEEL,
+    Input.EventType.MOUSE_LEAVE,
+    Input.EventType.MOUSE_ENTER,
 ];
 const touchEvents = [
     Input.EventType.TOUCH_START,
