@@ -35,7 +35,7 @@
  */
 cc.Touch = function (x, y, id) {
     this._lastModified = 0;
-    this.windowId = undefined;
+    this._currentTouchId = undefined;
     this.setTouchInfo(id, x, y);
 };
 cc.Touch.prototype = {

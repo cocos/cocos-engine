@@ -218,8 +218,8 @@ let inputManager = {
                 ccTouch._lastModified = now;
                 handleTouches.push(ccTouch);
 
-                // event will be distributed multiple times on openharmony platform, requires filtering by windowId
-                if(globalThis.oh && selTouch.windowId == selTouch._id) {
+                // event will be distributed multiple times on openharmony platform, requires filtering by _currentTouchId
+                if(globalThis.oh && selTouch._currentTouchId == selTouch._id) {
                     currentTouch = ccTouch;
                 }
             }
@@ -453,7 +453,7 @@ let inputManager = {
                 locPreTouch.x = location.x;
                 locPreTouch.y = location.y;
                 if(globalThis.oh){
-                    touch.windowId = event.windowId;
+                    touch._currentTouchId = event.windowId;
                 }
                 touchArr.push(touch);
             }
