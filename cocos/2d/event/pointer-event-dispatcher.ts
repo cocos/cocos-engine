@@ -172,10 +172,10 @@ class PointerEventDispatcher implements IEventDispatcher {
         return dispatchToNextEventDispatcher;
     }
 
-    private _removeClaimedTouch (index: number, touchID: number): void {
+    private _removeClaimedTouch (eventProcessorIndex: number, touchID: number): void {
         const pointerEventProcessorList = this._pointerEventProcessorList;
         const length = pointerEventProcessorList.length;
-        for (let i = index; i < length; ++i) {
+        for (let i = eventProcessorIndex; i < length; ++i) {
             const pointerEventProcessor = pointerEventProcessorList[i];
             const touchIndex = pointerEventProcessor.claimedTouchIdList.indexOf(touchID);
             if (touchIndex !== -1) {
