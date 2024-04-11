@@ -1,7 +1,7 @@
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { IWebGPUGPUDescriptorSetLayout } from './webgpu-gpu-objects';
 import { WebGPUDevice } from './webgpu-device';
-import { GLStageToWebGPUStage, GLDescTypeToWebGPUDescType, GLDescTypeToGPUBufferDescType, GLSamplerToGPUSamplerDescType, GFXFormatToWGPUFormat, SEPARATE_SAMPLER_BINDING_OFFSET } from './webgpu-commands';
+import { GLStageToWebGPUStage, GLDescTypeToWebGPUDescType, GLDescTypeToGPUBufferDescType, GLSamplerToGPUSamplerDescType, GFXFormatToWGPUFormat, SEPARATE_SAMPLER_BINDING_OFFSET, TextureSampleTypeTrait } from './webgpu-commands';
 import {
     DescriptorSetLayoutInfo,
     DESCRIPTOR_DYNAMIC_TYPE,
@@ -14,9 +14,13 @@ import { Buffer } from '../base/buffer';
 import { Sampler } from '../base/states/sampler';
 import { Texture } from '../base/texture';
 import { WebGPUDeviceManager } from './define';
+import { WebGPUTexture } from './webgpu-texture';
 
 function FormatToWGPUFormatType(format: Format): GPUTextureSampleType {
-    return 'float';
+    if(format === Format.DEPTH_STENCIL) {
+        return 'unfilterable-float';
+    }
+    return TextureSampleTypeTrait(format);
 }
 export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
     get gpuDescriptorSetLayout () { return this._gpuDescriptorSetLayout!; }
@@ -80,10 +84,15 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
             });
         }
         if (texture) {
+            const targetTex = texture as WebGPUTexture;
             this._bindGrpLayoutEntries.set(bindIdx, {
                 binding: bindIdx,
                 visibility: GLStageToWebGPUStage(binding.stageFlags),
-                texture: { sampleType: FormatToWGPUFormatType(texture.format) },
+                texture: {
+                    sampleType: FormatToWGPUFormatType(texture.format),
+                    viewDimension: targetTex.gpuTexture.glTarget,
+                    multisampled: targetTex.gpuTexture.samples > 1 ? true : false
+                },
             });
         }
         if (sampler) {

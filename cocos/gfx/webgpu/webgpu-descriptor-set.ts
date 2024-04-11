@@ -90,13 +90,13 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                     if(isEmpty) break;
                 } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                         // texture
-                        const currTex = isEmpty ? device.defaultDescriptorResource.texture : this._textures[i] as WebGPUTexture;
+                        const currTex = (isEmpty ? device.defaultDescriptorResource.texture : this._textures[i]) as WebGPUTexture;
                         if(currTex) {
                             descriptors[i].gpuTexture = currTex.gpuTexture;
 
                             const bindTextureGrpEntry: GPUBindGroupEntry = {
                                 binding: bindIdx,
-                                resource: descriptors[i].gpuTexture?.glTexture?.createView() as GPUTextureView,
+                                resource: currTex.getNativeTextureView()!,
                             };
                             layout.updateBindGroupLayout(binding, null, currTex, null);
                             this._bindGroupEntries.set(bindIdx, bindTextureGrpEntry);
@@ -125,9 +125,6 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                 layout: layout.gpuDescriptorSetLayout.bindGroupLayout!,
                 entries: groups,
             });
-            const encoder = nativeDevice?.createCommandEncoder();
-            nativeDevice?.queue.submit([encoder!.finish()]);
-
             this._gpuDescriptorSet.bindGroup = bindGroup!;
         }
     }

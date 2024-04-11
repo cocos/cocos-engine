@@ -12,8 +12,6 @@ import { IWebGPUBlitManager } from './webgpu-gpu-objects';
  * @zh 基于 WebGPU 的 GFX 交换链实现。
  */
 export class WebGPUSwapchain extends Swapchain {
-
-    public stateCache: WebGPUStateCache = new WebGPUStateCache();
     public nullTex2D: WebGPUTexture = null!;
     public nullTexCube: WebGPUTexture = null!;
     private _canvas: HTMLCanvasElement | null = null;
@@ -33,7 +31,7 @@ export class WebGPUSwapchain extends Swapchain {
         const nativeDevice = device.nativeDevice as GPUDevice;
         nativeDevice.lost.then(this._webGPUDeviceLostHandler);
         const capabilities = device.capabilities;
-        this.stateCache.initialize(
+        device.stateCache.initialize(
             capabilities.maxTextureUnits,
             capabilities.maxUniformBufferBindings,
             capabilities.maxVertexAttributes
@@ -78,12 +76,17 @@ export class WebGPUSwapchain extends Swapchain {
     }
 
     public override resize(width: number, height: number, surfaceTransform: SurfaceTransform): void {
+        const device = WebGPUDeviceManager.instance.nativeDevice!;
+        // Make sure it's valid for WebGPU
+        width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
+        height = Math.max(1, Math.min(height, device.limits.maxTextureDimension2D));
+
         if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
-            this._createTexture(width, height);
-            this._depthStencilTexture = this._createDepthStencilTexture(width, height);
+            this._colorTexture.resize(width, height);
+            this._depthStencilTexture.resize(width, height);
         }
     }
 
@@ -144,6 +147,7 @@ export class WebGPUSwapchain extends Swapchain {
             const gpuConfig: GPUCanvasConfiguration = {
                 device: nativeDevice,
                 format: swapchainFormat,
+                alphaMode: 'opaque'
             };
             device.gpuConfig = gpuConfig;
             device.context.configure(gpuConfig);

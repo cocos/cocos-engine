@@ -110,7 +110,13 @@ export class WebGPUTexture extends Texture {
 
     public getNativeTextureView() {
         if (this._gpuTexture?.glTexture) {
-            return this._gpuTexture.glTexture.createView();
+            return this._gpuTexture.glTexture.createView({
+                dimension: this._gpuTexture.glTarget,
+                mipLevelCount: this._gpuTexture.mipLevel,
+                arrayLayerCount: this.viewInfo.layerCount,
+                baseMipLevel: this.viewInfo.baseLevel,
+                baseArrayLayer: this.viewInfo.baseLayer
+              });
         }
     }
 

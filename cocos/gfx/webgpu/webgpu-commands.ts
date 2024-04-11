@@ -1,37 +1,25 @@
 import { CachedArray } from '../../core/memop/cached-array';
-import { error, errorID } from '../../core/platform';
 import { BufferSource, DrawInfo, IndirectBuffer } from '..';
 import {
     BufferUsageBit,
     ColorMask,
-    CullMode,
-    DynamicStateFlagBit,
     Filter,
     Format,
     FormatInfos,
-    FormatSize,
-    LoadOp,
-    MemoryUsageBit,
-    SampleCount,
     ShaderStageFlagBit,
-    StencilFace,
-    TextureFlagBit,
     TextureType,
-    Type,
-    FormatInfo,
     TextureUsageBit,
-    StoreOp,
     ShaderStageFlags,
     DescriptorType,
-    TextureInfo,
     Color, Rect, Viewport, BufferTextureCopy,
     SamplerInfo,
-    ComparisonFunc,
     BufferInfo,
-    BufferFlagBit,
+    FormatSize,
+    formatAlignment,
+    alignTo,
+    TextureFlagBit
 } from '../base/define';
 
-import { WebGLEXT } from '../webgl/webgl-define';
 import { WebGPUCommandAllocator } from './webgpu-command-allocator';
 import {
     IWebGPUDepthBias,
@@ -42,21 +30,18 @@ import {
 import { WebGPUDevice } from './webgpu-device';
 import {
     IWebGPUGPUInputAssembler,
-    IWebGPUGPUUniform,
     IWebGPUAttrib,
     IWebGPUGPUDescriptorSet,
     IWebGPUGPUBuffer,
     IWebGPUGPUFramebuffer,
-    IWebGPUGPUInput,
     IWebGPUGPUPipelineState,
     IWebGPUGPUSampler,
     IWebGPUGPUShader,
     IWebGPUTexture,
-    IWebGPUGPUUniformBlock,
-    IWebGPUGPUUniformSampler,
     IWebGPUGPURenderPass,
 } from './webgpu-gpu-objects';
 import { WebGPUBuffer } from './webgpu-buffer';
+import { bool } from '../../rendering/custom/define';
 
 const WebGPUAdressMode: GPUAddressMode[] = [
     'repeat', // WRAP,
@@ -336,6 +321,10 @@ export function GFXTextureUsageToNative (usage: TextureUsageBit): GPUTextureUsag
         nativeUsage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT;
     }
 
+    if(!(nativeUsage & GPUTextureUsage.COPY_DST)) {
+        nativeUsage |= GPUTextureUsage.COPY_DST
+    }
+
     if((nativeUsage & (GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST))
     && !(nativeUsage & (GPUTextureUsage.RENDER_ATTACHMENT))) {
         nativeUsage |= GPUTextureUsage.RENDER_ATTACHMENT;
@@ -343,162 +332,6 @@ export function GFXTextureUsageToNative (usage: TextureUsageBit): GPUTextureUsag
 
     return nativeUsage;
 }
-
-function GFXTypeToWGPUType (type: Type, gl: WebGL2RenderingContext): GLenum {
-    switch (type) {
-        case Type.BOOL: return gl.BOOL;
-        case Type.BOOL2: return gl.BOOL_VEC2;
-        case Type.BOOL3: return gl.BOOL_VEC3;
-        case Type.BOOL4: return gl.BOOL_VEC4;
-        case Type.INT: return gl.INT;
-        case Type.INT2: return gl.INT_VEC2;
-        case Type.INT3: return gl.INT_VEC3;
-        case Type.INT4: return gl.INT_VEC4;
-        case Type.UINT: return gl.UNSIGNED_INT;
-        case Type.FLOAT: return gl.FLOAT;
-        case Type.FLOAT2: return gl.FLOAT_VEC2;
-        case Type.FLOAT3: return gl.FLOAT_VEC3;
-        case Type.FLOAT4: return gl.FLOAT_VEC4;
-        case Type.MAT2: return gl.FLOAT_MAT2;
-        case Type.MAT2X3: return gl.FLOAT_MAT2x3;
-        case Type.MAT2X4: return gl.FLOAT_MAT2x4;
-        case Type.MAT3X2: return gl.FLOAT_MAT3x2;
-        case Type.MAT3: return gl.FLOAT_MAT3;
-        case Type.MAT3X4: return gl.FLOAT_MAT3x4;
-        case Type.MAT4X2: return gl.FLOAT_MAT4x2;
-        case Type.MAT4X3: return gl.FLOAT_MAT4x3;
-        case Type.MAT4: return gl.FLOAT_MAT4;
-        case Type.SAMPLER2D: return gl.SAMPLER_2D;
-        case Type.SAMPLER2D_ARRAY: return gl.SAMPLER_2D_ARRAY;
-        case Type.SAMPLER3D: return gl.SAMPLER_3D;
-        case Type.SAMPLER_CUBE: return gl.SAMPLER_CUBE;
-        default: {
-            console.error('Unsupported GLType, convert to GL type failed.');
-            return Type.UNKNOWN;
-        }
-    }
-}
-
-function WebGLTypeToGFXType (glType: GLenum, gl: WebGL2RenderingContext): Type {
-    switch (glType) {
-        case gl.BOOL: return Type.BOOL;
-        case gl.BOOL_VEC2: return Type.BOOL2;
-        case gl.BOOL_VEC3: return Type.BOOL3;
-        case gl.BOOL_VEC4: return Type.BOOL4;
-        case gl.INT: return Type.INT;
-        case gl.INT_VEC2: return Type.INT2;
-        case gl.INT_VEC3: return Type.INT3;
-        case gl.INT_VEC4: return Type.INT4;
-        case gl.UNSIGNED_INT: return Type.UINT;
-        case gl.UNSIGNED_INT_VEC2: return Type.UINT2;
-        case gl.UNSIGNED_INT_VEC3: return Type.UINT3;
-        case gl.UNSIGNED_INT_VEC4: return Type.UINT4;
-        case gl.FLOAT: return Type.FLOAT;
-        case gl.FLOAT_VEC2: return Type.FLOAT2;
-        case gl.FLOAT_VEC3: return Type.FLOAT3;
-        case gl.FLOAT_VEC4: return Type.FLOAT4;
-        case gl.FLOAT_MAT2: return Type.MAT2;
-        case gl.FLOAT_MAT2x3: return Type.MAT2X3;
-        case gl.FLOAT_MAT2x4: return Type.MAT2X4;
-        case gl.FLOAT_MAT3x2: return Type.MAT3X2;
-        case gl.FLOAT_MAT3: return Type.MAT3;
-        case gl.FLOAT_MAT3x4: return Type.MAT3X4;
-        case gl.FLOAT_MAT4x2: return Type.MAT4X2;
-        case gl.FLOAT_MAT4x3: return Type.MAT4X3;
-        case gl.FLOAT_MAT4: return Type.MAT4;
-        case gl.SAMPLER_2D: return Type.SAMPLER2D;
-        case gl.SAMPLER_2D_ARRAY: return Type.SAMPLER2D_ARRAY;
-        case gl.SAMPLER_3D: return Type.SAMPLER3D;
-        case gl.SAMPLER_CUBE: return Type.SAMPLER_CUBE;
-        default: {
-            console.error('Unsupported GLType, convert to Type failed.');
-            return Type.UNKNOWN;
-        }
-    }
-}
-
-function WebGLGetTypeSize (glType: GLenum, gl: WebGL2RenderingContext): number {
-    switch (glType) {
-        case gl.BOOL: return 4;
-        case gl.BOOL_VEC2: return 8;
-        case gl.BOOL_VEC3: return 12;
-        case gl.BOOL_VEC4: return 16;
-        case gl.INT: return 4;
-        case gl.INT_VEC2: return 8;
-        case gl.INT_VEC3: return 12;
-        case gl.INT_VEC4: return 16;
-        case gl.UNSIGNED_INT: return 4;
-        case gl.UNSIGNED_INT_VEC2: return 8;
-        case gl.UNSIGNED_INT_VEC3: return 12;
-        case gl.UNSIGNED_INT_VEC4: return 16;
-        case gl.FLOAT: return 4;
-        case gl.FLOAT_VEC2: return 8;
-        case gl.FLOAT_VEC3: return 12;
-        case gl.FLOAT_VEC4: return 16;
-        case gl.FLOAT_MAT2: return 16;
-        case gl.FLOAT_MAT2x3: return 24;
-        case gl.FLOAT_MAT2x4: return 32;
-        case gl.FLOAT_MAT3x2: return 24;
-        case gl.FLOAT_MAT3: return 36;
-        case gl.FLOAT_MAT3x4: return 48;
-        case gl.FLOAT_MAT4x2: return 32;
-        case gl.FLOAT_MAT4x3: return 48;
-        case gl.FLOAT_MAT4: return 64;
-        case gl.SAMPLER_2D: return 4;
-        case gl.SAMPLER_2D_ARRAY: return 4;
-        case gl.SAMPLER_2D_ARRAY_SHADOW: return 4;
-        case gl.SAMPLER_3D: return 4;
-        case gl.SAMPLER_CUBE: return 4;
-        case gl.INT_SAMPLER_2D: return 4;
-        case gl.INT_SAMPLER_2D_ARRAY: return 4;
-        case gl.INT_SAMPLER_3D: return 4;
-        case gl.INT_SAMPLER_CUBE: return 4;
-        case gl.UNSIGNED_INT_SAMPLER_2D: return 4;
-        case gl.UNSIGNED_INT_SAMPLER_2D_ARRAY: return 4;
-        case gl.UNSIGNED_INT_SAMPLER_3D: return 4;
-        case gl.UNSIGNED_INT_SAMPLER_CUBE: return 4;
-        default: {
-            console.error('Unsupported GLType, get type failed.');
-            return 0;
-        }
-    }
-}
-
-function WebGLGetComponentCount (glType: GLenum, gl: WebGL2RenderingContext): Type {
-    switch (glType) {
-        case gl.FLOAT_MAT2: return 2;
-        case gl.FLOAT_MAT2x3: return 2;
-        case gl.FLOAT_MAT2x4: return 2;
-        case gl.FLOAT_MAT3x2: return 3;
-        case gl.FLOAT_MAT3: return 3;
-        case gl.FLOAT_MAT3x4: return 3;
-        case gl.FLOAT_MAT4x2: return 4;
-        case gl.FLOAT_MAT4x3: return 4;
-        case gl.FLOAT_MAT4: return 4;
-        default: {
-            return 1;
-        }
-    }
-}
-
-const WebGLStencilOps: GLenum[] = [
-    0x0000, // WebGLRenderingContext.ZERO,
-    0x1E00, // WebGLRenderingContext.KEEP,
-    0x1E01, // WebGLRenderingContext.REPLACE,
-    0x1E02, // WebGLRenderingContext.INCR,
-    0x1E03, // WebGLRenderingContext.DECR,
-    0x150A, // WebGLRenderingContext.INVERT,
-    0x8507, // WebGLRenderingContext.INCR_WRAP,
-    0x8508, // WebGLRenderingContext.DECR_WRAP,
-];
-
-const WebGLBlendOps: GLenum[] = [
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x800A, // WebGLRenderingContext.FUNC_SUBTRACT,
-    0x800B, // WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-];
 
 export const WebGPUStencilOp: GPUStencilOperation[] = [
     'zero',
@@ -766,7 +599,7 @@ export function WebGPUCmdFuncUpdateBuffer (device: WebGPUDevice, gpuBuffer: IWeb
     } else {
         const nativeDevice: GPUDevice = device.nativeDevice!;
         let buff = buffer as ArrayBuffer;
-        let rawBuffer;
+        let rawBuffer: ArrayBuffer;
 
         // arraybuffer size not equal to buff.bytelength, so new another array
         buff = buff.slice(0, size);
@@ -783,11 +616,13 @@ export function WebGPUCmdFuncUpdateBuffer (device: WebGPUDevice, gpuBuffer: IWeb
         }
         // gpuBuffer.glbuffer may not able to be mapped directly, so staging buffer here.
         const stagingBuffer = nativeDevice.createBuffer({
-           size,
-           usage: GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC,
-           mappedAtCreation: true,
+            label:"staging buffer "+ size,
+            size,
+            usage: GPUBufferUsage.MAP_WRITE | GPUBufferUsage.COPY_SRC,
+            mappedAtCreation: true,
         });
-        new Uint8Array(stagingBuffer.getMappedRange(0, size)).set(new Uint8Array(rawBuffer));
+        const mappedRange = stagingBuffer.getMappedRange();
+        new Uint8Array(mappedRange).set(new Uint8Array(rawBuffer));
         stagingBuffer.unmap();
         const commandEncoder = nativeDevice.createCommandEncoder();
         commandEncoder.copyBufferToBuffer(stagingBuffer, 0, gpuBuffer.glBuffer as GPUBuffer, offset, size);
@@ -801,7 +636,7 @@ export function WebGPUCmdFuncCreateTexture (device: WebGPUDevice, gpuTexture: IW
     // dimension optional
     // let dim: GPUTextureViewDimension = GFXTextureToWebGPUTexture(gpuTexture.type);
 
-    gpuTexture.glTarget = GFXTextureToWebGPUTexture(gpuTexture.type) as GPUTextureDimension;
+    gpuTexture.glTarget = GFXTextureToWebGPUTexture(gpuTexture.type) as GPUTextureViewDimension;
     gpuTexture.glInternalFmt = GFXFormatToWGPUTextureFormat(gpuTexture.format);
     gpuTexture.glFormat = GFXFormatToWGPUFormat(gpuTexture.format);
     gpuTexture.glUsage = GFXTextureUsageToNative(gpuTexture.usage);
@@ -812,7 +647,7 @@ export function WebGPUCmdFuncCreateTexture (device: WebGPUDevice, gpuTexture: IW
     // TBD: 2021 feb 2nd only 1 and 4 supported.
     gpuTexture.samples = gpuTexture.samples > 1 ? 4 : 1;
     const texDescriptor: GPUTextureDescriptor = {
-        size: [gpuTexture.width, gpuTexture.height, gpuTexture.depth],
+        size: [gpuTexture.width, gpuTexture.height, gpuTexture.arrayLayer],
         mipLevelCount: gpuTexture.mipLevel,
         sampleCount: gpuTexture.samples,
         format: gpuTexture.glFormat,
@@ -848,7 +683,7 @@ export function WebGPUCmdFuncCreateSampler (device: WebGPUDevice, gpuSampler: IW
     const samplerDesc = {} as GPUSamplerDescriptor;
     samplerDesc.addressModeU = gpuSampler.glWrapS;
     samplerDesc.addressModeV = gpuSampler.glWrapT;
-    samplerDesc.addressModeW = gpuSampler.glWrapT;
+    samplerDesc.addressModeW = gpuSampler.glWrapR;
     samplerDesc.minFilter = gpuSampler.glMinFilter;
     samplerDesc.magFilter = gpuSampler.glMagFilter;
     samplerDesc.mipmapFilter = gpuSampler.glMipFilter;
@@ -1139,13 +974,7 @@ export function WebGPUCmdFuncCreateInputAssember (device: WebGPUDevice, gpuInput
 }
 
 export function WebGPUCmdFuncDestroyInputAssembler (device: WebGPUDevice, gpuInputAssembler: IWebGPUGPUInputAssembler) {
-    const it = gpuInputAssembler.glVAOs.values();
-    let res = it.next();
-    while (!res.done) {
-        // device.gl.deleteVertexArray(res.value);
-        res = it.next();
-    }
-    gpuInputAssembler.glVAOs.clear();
+    
 }
 
 interface IWebGPUStateCache {
@@ -1174,14 +1003,71 @@ export async function WebGPUCmdFuncCopyTexImagesToTexture (
     // name all native webgpu resource nativeXXX distinguished from gpuTexture passed in.
     const nativeDevice = device.nativeDevice!;
     for (let i = 0; i < regions.length; i++) {
+        const region = regions[i];
         const texImg = texImages[i];
         nativeDevice.queue.copyExternalImageToTexture(
             { source: texImg },
-            { texture: gpuTexture.glTexture! },
+            {
+                texture: gpuTexture.glTexture!,
+                mipLevel: region.texSubres.mipLevel,
+                origin: {
+                    x: region.texOffset.x,
+                    y: region.texOffset.y,
+                    z: region.texSubres.baseArrayLayer
+                }
+            },
             [regions[i].texExtent.width, regions[i].texExtent.height, regions[i].texExtent.depth]
         );
     }
 }
+
+export function TextureSampleTypeTrait(format: Format): GPUTextureSampleType {
+    switch (format) {
+      case Format.R8:
+      case Format.R8SN:
+      case Format.RG8:
+      case Format.RGBA8:
+      case Format.BGRA8:
+      case Format.RG8SN:
+      case Format.SRGB8_A8:
+      case Format.RGB10A2:
+      case Format.RGBA16F:
+        return 'float';
+      case Format.R8UI:
+      case Format.R16UI:
+      case Format.RG8UI:
+      case Format.R32UI:
+      case Format.RG16UI:
+      case Format.RGBA8UI:
+      case Format.RG32UI:
+      case Format.RGBA32UI:
+      case Format.RGBA16UI:
+      case Format.DEPTH_STENCIL:
+        return 'uint';
+      case Format.R8I:
+      case Format.R16I:
+      case Format.RG8I:
+      case Format.RG16I:
+      case Format.RGBA8I:
+      case Format.RG32I:
+      case Format.RGBA16I:
+      case Format.RGBA32I:
+      case Format.R32I:
+        return 'sint';
+      case Format.R16F:
+      case Format.R32F:
+      case Format.RG16F:
+      case Format.R11G11B10F:
+      case Format.RG32F:
+      case Format.RGBA32F:
+        return 'unfilterable-float';
+      case Format.DEPTH:
+        return 'depth';
+      default:
+        console.warn("Unsupported texture sample type yet. Please refer to the documentation for supported formats.");
+        return 'float';
+    }
+  }
 
 export function WebGPUCmdFuncCopyBuffersToTexture (
     device: WebGPUDevice,
@@ -1190,40 +1076,70 @@ export function WebGPUCmdFuncCopyBuffersToTexture (
     regions: BufferTextureCopy[],
 ) {
     const nativeDevice = device.nativeDevice!;
-    const commandEncoder = nativeDevice.createCommandEncoder();
-    const buffInfo = new BufferInfo();
-    buffInfo.usage = BufferUsageBit.TRANSFER_SRC;
-    const wBuff = device.createBuffer(buffInfo);
+    const dstFormat = gpuTexture.format;
+    const blockSize = formatAlignment(dstFormat);
     for (let i = 0; i < regions.length; ++i) {
         const region = regions[i];
-        const arrayBuffer = buffers[i];
-        let buffer; // buffers and regions are a one-to-one mapping
-        if ('buffer' in arrayBuffer) {
-            buffer = new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, arrayBuffer.byteLength);
-        } else {
-            buffer = new Uint8Array(arrayBuffer);
+        const bufferPixelWidth = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        const bufferPixelHeight = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+        const bytesPerRow = FormatSize(dstFormat, region.texExtent.width, 1, 1);
+        const bufferBytesPerRow = FormatSize(dstFormat, bufferPixelWidth, 1, 1);
+        const bufferBytesPerImageSlice = FormatSize(dstFormat, bufferPixelWidth, bufferPixelHeight, 1);
+        const bufferBytesPerImageLayer = FormatSize(dstFormat, bufferPixelWidth, bufferPixelHeight, region.texExtent.depth);
+        const targetWidth = region.texExtent.width == 0 ? 0 : alignTo(region.texExtent.width, blockSize.width);
+        const targetHeight = region.texExtent.height == 0 ? 0 : alignTo(region.texExtent.height, blockSize.height);
+        const imgDataLayout: GPUImageDataLayout = {
+            offset: 0,
+            bytesPerRow: bufferBytesPerRow,
+            rowsPerImage: bufferPixelHeight
         }
-        wBuff.update(buffer);
-        const nativeBuff = (wBuff as WebGPUBuffer).gpuBuffer.glBuffer!;
-        commandEncoder.copyBufferToTexture(
-            {
-                buffer: nativeBuff,
-                bytesPerRow: buffer.byteLength / region.texExtent.width, // Each pixel takes up 4 bytes
-                rowsPerImage: region.texExtent.height,
-            },
-            {
-                texture: gpuTexture.glTexture!,
-                origin: {
-                    x: region.texOffset.x,
-                    y: region.texOffset.y,
-                    z: region.texOffset.z
+        const compactInWidth = bufferPixelWidth == region.texExtent.width;
+        for(let l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; l++) {
+            for(let d = region.texOffset.z; d < region.texExtent.depth + region.texOffset.z; d++) {
+            if(compactInWidth) {
+                const arrayBuffer = buffers[i];
+                let buffer; // buffers and regions are a one-to-one mapping
+                if ('buffer' in arrayBuffer) {
+                    buffer = new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, arrayBuffer.byteLength);
+                } else {
+                    buffer = new Uint8Array(arrayBuffer);
                 }
-            },
-            [region.texExtent.width, region.texExtent.height, region.texExtent.depth]
-        );
+                const srcData = new Uint8Array(buffer, buffer.byteOffset +
+                    region.buffOffset +
+                    (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer +
+                    (d - region.texOffset.z) * bufferBytesPerImageSlice);
+                const copyTarget = {
+                    texture: gpuTexture.glTexture!,
+                    mipLevel: region.texSubres.mipLevel,
+                    origin: {
+                        x: region.texOffset.x,
+                        y: region.texOffset.y,
+                        z: l
+                    }
+                };
+                nativeDevice.queue.writeTexture(copyTarget, srcData, imgDataLayout, [targetWidth, targetHeight, region.texExtent.depth]);
+            } else {
+                for(let h = region.texOffset.y; h < region.texExtent.height + region.texOffset.y; h += blockSize.height) {
+                    const srcData = new Uint8Array(buffers[i].buffer, buffers[i].byteOffset +
+                        region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer +
+                        ( (d - region.texOffset.z) * bufferBytesPerImageSlice +
+                        (h - region.texOffset.y) / blockSize.height * bufferBytesPerRow));
+                    const copyTarget = {
+                        texture: gpuTexture.glTexture!,
+                        mipLevel: region.texSubres.mipLevel,
+                        origin: {
+                            x: region.texOffset.x,
+                            y: h,
+                            z: l
+                        }
+                    };
+                    nativeDevice.queue.writeTexture(copyTarget, srcData, imgDataLayout, [targetWidth, blockSize.height, region.texExtent.depth]);
+                }
+            }
+        }
+        if(gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
+            // TODO: genMipMap
+        }
     }
-
-    // Execute commands and release resources
-    nativeDevice.queue.submit([commandEncoder.finish()]);
-    wBuff.destroy();
+}
 }

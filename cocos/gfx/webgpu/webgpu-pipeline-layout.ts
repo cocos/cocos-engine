@@ -10,6 +10,7 @@ export class WebGPUPipelineLayout extends PipelineLayout {
 
     private _gpuPipelineLayout: IWebGPUGPUPipelineLayout | null = null;
     private _nativePipelineLayout!: GPUPipelineLayout;
+    private _bindGrpLayouts: GPUBindGroupLayout[] = [];
     private _isChange() {
         for (let i = 0; i < this._setLayouts.length; i++) {
             const setLayout = this._setLayouts[i] as WebGPUDescriptorSetLayout;
@@ -27,14 +28,13 @@ export class WebGPUPipelineLayout extends PipelineLayout {
 
         const gpuSetLayouts: IWebGPUGPUDescriptorSetLayout[] = [];
         const nativeDevice = (WebGPUDeviceManager.instance as WebGPUDevice).nativeDevice;
-        const bindGrpLayouts: GPUBindGroupLayout[] = [];
         let dynamicOffsetCount = 0;
         const fetchPipelineLayout = (resetAll: boolean = true): GPUPipelineLayout => {
             if(resetAll) {
                 gpuSetLayouts.length = 0;
                 dynamicOffsetIndices.length = 0;
             }
-            bindGrpLayouts.length = 0;
+            this._bindGrpLayouts.length = 0;
             for (let i = 0; i < this._setLayouts.length; i++) {
                 const setLayout = this._setLayouts[i] as WebGPUDescriptorSetLayout;
                 if (setLayout.gpuDescriptorSetLayout.bindGroupLayout) {
@@ -50,11 +50,11 @@ export class WebGPUPipelineLayout extends PipelineLayout {
                         dynamicOffsetIndices.push(indices);
                         dynamicOffsetCount += dynamicBindings.length;
                     }
-                    bindGrpLayouts.push(setLayout.gpuDescriptorSetLayout.bindGroupLayout);
+                    this._bindGrpLayouts.push(setLayout.gpuDescriptorSetLayout.bindGroupLayout);
                 }
                 setLayout.resetChange();
             }
-            this._nativePipelineLayout = nativeDevice?.createPipelineLayout({ bindGroupLayouts: bindGrpLayouts }) as GPUPipelineLayout;
+            this._nativePipelineLayout = nativeDevice?.createPipelineLayout({ bindGroupLayouts: this._bindGrpLayouts }) as GPUPipelineLayout;
             return this._nativePipelineLayout;
         }
 

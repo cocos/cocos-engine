@@ -36,7 +36,7 @@ export class WebGPUBuffer extends Buffer {
 
             this._usage = buffer.usage;
             this._memUsage = buffer.memUsage;
-            this._size = this._stride = info.range;
+            this._size = this._stride = Math.ceil(info.range / 4.0) * 4;
             this._count = 1;
             this._flags = buffer.flags;
 
@@ -55,7 +55,7 @@ export class WebGPUBuffer extends Buffer {
         } else { // native buffer
             this._usage = info.usage;
             this._memUsage = info.memUsage;
-            this._size = info.size;
+            this._size = Math.ceil(info.size / 4.0) * 4;
             this._stride = Math.max(info.stride || this._size, 1);
             this._count = this._size / this._stride;
             this._flags = info.flags;
@@ -135,13 +135,19 @@ export class WebGPUBuffer extends Buffer {
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
         }
+        // Make sure buffSize is a multiple of 4
+        buffSize = Math.ceil(buffSize / 4.0) * 4;
+        offset = offset || 0;
+        if(this.size < (offset + buffSize)) {
+            this.resize(offset + buffSize);
+        }
         const device = WebGPUDeviceManager.instance;
 
         WebGPUCmdFuncUpdateBuffer(
             device as WebGPUDevice,
             this._gpuBuffer!,
             buffer,
-            offset || 0,
+            offset,
             buffSize,
         );
     }

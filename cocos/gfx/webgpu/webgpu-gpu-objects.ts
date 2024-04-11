@@ -21,9 +21,6 @@ import {
     DescriptorSetLayoutBinding,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
-import { DescriptorSetLayout, } from '../base/descriptor-set-layout';
-import { WebGPUTexture } from './webgpu-texture';
-import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUDeviceManager } from './define';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
 
@@ -65,7 +62,7 @@ export interface IWebGPUTexture {
     flags: TextureFlags;
     isPowerOf2: boolean;
 
-    glTarget: GPUTextureDimension;  // 1d, 2d, 3d
+    glTarget: GPUTextureViewDimension;  // 1d, 2d, 3d
     glInternalFmt: GPUTextureFormat;// rgba8unorm
     glFormat: GPUTextureFormat;
     glType: GLenum;                 // data type, gl.UNSIGNED_BYTE
@@ -204,6 +201,7 @@ export interface IWebGPUGPUPipelineState {
     bs: BlendState;
     dynamicStates: DynamicStateFlagBit[];
     gpuRenderPass: IWebGPUGPURenderPass | null;
+    pipelineState: GPURenderPipelineDescriptor | undefined;
     nativePipeline: GPUPipelineBase | undefined;
 }
 
@@ -241,7 +239,6 @@ export interface IWebGPUGPUInputAssembler {
 
     glAttribs: IWebGPUAttrib[];
     glIndexType: GPUIndexFormat;
-    glVAOs: Map<WebGLProgram, WebGLVertexArrayObject>;
 }
 
 export interface IWebGPUBindingMapping {

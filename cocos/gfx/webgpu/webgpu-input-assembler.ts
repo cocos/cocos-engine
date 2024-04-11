@@ -76,7 +76,6 @@ export class WebGPUInputAssembler extends InputAssembler {
 
             glAttribs: [],
             glIndexType,
-            glVAOs: new Map<WebGLProgram, WebGLVertexArrayObject>(),
         };
 
         WebGPUCmdFuncCreateInputAssember(WebGPUDeviceManager.instance as WebGPUDevice, this._gpuInputAssembler);

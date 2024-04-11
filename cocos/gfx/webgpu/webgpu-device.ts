@@ -58,7 +58,7 @@ import { WebGPUDeviceManager } from './define';
 import { IWebGPUBindingMapping } from './webgpu-gpu-objects';
 import { debug } from '../../core';
 import { fetchUrl } from 'pal/wasm';
-import { WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
+import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
 
 export class WebGPUDevice extends Device {
     public createSwapchain(info: Readonly<SwapchainInfo>): Swapchain {
@@ -323,13 +323,6 @@ export class WebGPUDevice extends Device {
             this._formatFeatures[Format.BC3_SRGB] = compressedFeature;
         }
 
-        // if (exts.WEBGL_compressed_texture_pvrtc) {
-        //     this._formatFeatures[Format.PVRTC_RGB2] = compressedFeature;
-        //     this._formatFeatures[Format.PVRTC_RGBA2] = compressedFeature;
-        //     this._formatFeatures[Format.PVRTC_RGB4] = compressedFeature;
-        //     this._formatFeatures[Format.PVRTC_RGBA4] = compressedFeature;
-        // }
-
         if (exts.has('texture-compression-astc')) {
             this._formatFeatures[Format.ASTC_RGBA_4X4] = compressedFeature;
             this._formatFeatures[Format.ASTC_RGBA_5X4] = compressedFeature;
@@ -366,7 +359,13 @@ export class WebGPUDevice extends Device {
     private async initDevice (info: Readonly<DeviceInfo>): Promise<boolean> {
         const gpu = navigator.gpu;
         this._adapter = await gpu?.requestAdapter();
-        this._device = await this._adapter?.requestDevice();
+        const maxVertAttrs = this._adapter!.limits.maxVertexAttributes;
+        this._device = await this._adapter?.requestDevice({
+            requiredLimits: {
+                // Must be changed, default support for 16 is not enough
+                maxVertexAttributes: maxVertAttrs
+            }
+        });
         
         this._glslang = await glslang(await fetchUrl('external:emscripten/webgpu/glslang.wasm'));
         this._twgsl = await twgsl(await fetchUrl('external:emscripten/webgpu/twgsl.wasm'));
@@ -406,7 +405,7 @@ export class WebGPUDevice extends Device {
         this._renderer = adapterInfo.device;
         const description = adapterInfo.description;
 
-        const limits = device.limits;
+        const limits =  this._adapter!.limits;
         this._caps.clipSpaceMinZ = 0.0;
         this._caps.uboOffsetAlignment = 256;
         this._caps.maxUniformBufferBindings = 12;
@@ -617,12 +616,12 @@ export class WebGPUDevice extends Device {
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
-        // WebGPUCmdFuncCopyBuffersToTexture(
-        //     this,
-        //     buffers,
-        //     (texture as unknown as WebGPUTexture).gpuTexture,
-        //     regions,
-        // );
+        WebGPUCmdFuncCopyBuffersToTexture(
+            this,
+            buffers,
+            (texture as unknown as WebGPUTexture).gpuTexture,
+            regions,
+        );
     }
 
     public copyTexImagesToTexture (
