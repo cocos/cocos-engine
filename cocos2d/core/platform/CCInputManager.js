@@ -219,7 +219,7 @@ let inputManager = {
                 handleTouches.push(ccTouch);
 
                 // event will be distributed multiple times on openharmony platform, requires filtering by _currentTouchId
-                if(globalThis.oh && selTouch._currentTouchId == selTouch._id) {
+                if(globalThis.oh && selTouch.getCurrentTouchId() == selTouch._id) {
                     currentTouch = ccTouch;
                 }
             }
@@ -453,7 +453,7 @@ let inputManager = {
                 locPreTouch.x = location.x;
                 locPreTouch.y = location.y;
                 if(globalThis.oh){
-                    touch._currentTouchId = event.windowId;
+                    touch.setCurrentTouchId(event.windowId);
                 }
                 touchArr.push(touch);
             }
