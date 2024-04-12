@@ -35,6 +35,7 @@
  */
 cc.Touch = function (x, y, id) {
     this._lastModified = 0;
+    this._currentTouchId = undefined;
     this.setTouchInfo(id, x, y);
 };
 cc.Touch.prototype = {
@@ -140,6 +141,16 @@ cc.Touch.prototype = {
     },
 
     /**
+     * !#en Returns the touch flag of cc.Touch for openharmony.
+     * !#zh 鸿蒙当前触点标识，可以用来在多点触摸中跟踪触点。
+     * @method getCurrentTouchId
+     * @return {Number}
+     */
+    getCurrentTouchId:function () {
+        return this._currentTouchId;
+    },
+
+    /**
      * !#en Sets information to touch.
      * !#zh 设置触摸相关的信息。用于监控触摸事件。
      * @method setTouchInfo
@@ -156,6 +167,16 @@ cc.Touch.prototype = {
             cc.view._convertPointWithScale(this._startPoint);
             this._startPointCaptured = true;
         }
+    },
+
+    /**
+     * !#en Sets currentTouchId for openharmony.
+     * !#zh 设置鸿蒙当前触摸点标识。
+     * @method setCurrentTouchId
+     * @param {Number} id
+     */
+    setCurrentTouchId:function (id) {
+        this._currentTouchId = id;
     },
 
     _setPoint: function(x, y){

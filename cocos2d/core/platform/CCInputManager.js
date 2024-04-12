@@ -196,7 +196,7 @@ let inputManager = {
     handleTouchesMove (touches) {
         let now = sys.now();
 
-        let selTouch, index, touchID, handleTouches = [];
+        let selTouch, index, touchID, handleTouches = [], currentTouch;
 
         let locTouches = this._touches;
         let locTouchesIntDict = this._touchesIntegerDict;
@@ -217,6 +217,11 @@ let inputManager = {
                 ccTouch._setPrevPoint(selTouch._prevPoint);
                 ccTouch._lastModified = now;
                 handleTouches.push(ccTouch);
+
+                // event will be distributed multiple times on openharmony platform, requires filtering by _currentTouchId
+                if(globalThis.oh && selTouch.getCurrentTouchId() == selTouch._id) {
+                    currentTouch = ccTouch;
+                }
             }
         }
 
@@ -224,6 +229,7 @@ let inputManager = {
             this._glView._convertTouchesWithScale(handleTouches);
             let touchEvent = new cc.Event.EventTouch(handleTouches);
             touchEvent._eventCode = cc.Event.EventTouch.MOVED;
+            touchEvent.currentTouch = currentTouch;
             eventManager.dispatchEvent(touchEvent);
         }
     },
@@ -446,6 +452,9 @@ let inputManager = {
                 }
                 locPreTouch.x = location.x;
                 locPreTouch.y = location.y;
+                if(globalThis.oh){
+                    touch.setCurrentTouchId(event.windowId);
+                }
                 touchArr.push(touch);
             }
         }
