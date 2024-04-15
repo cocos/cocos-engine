@@ -27,7 +27,7 @@
 import { EDITOR_NOT_IN_PREVIEW, NATIVE } from 'internal:constants';
 import { AccelerometerInputSource, GamepadInputDevice, HMDInputDevice, HandheldInputDevice, HandleInputDevice, KeyboardInputSource, MouseInputSource, TouchInputSource } from 'pal/input';
 import { touchManager } from '../../pal/input/touch-manager';
-import { EventTarget, error, sys } from '../core';
+import { EventTarget, sys } from '../core';
 import { Event, EventAcceleration, EventGamepad, EventHandle, EventHandheld, EventHMD, EventKeyboard, EventMouse, EventTouch, Touch } from './types';
 import { InputEventType } from './types/event-enum';
 
@@ -155,44 +155,6 @@ export class Input {
         this._inputEventDispatcher = new InputEventDispatcher(this._eventTarget);
         this._registerEventDispatcher(this._inputEventDispatcher);
         GamepadInputDevice._init();
-    }
-
-    /**
-     * This should be a private method, but it's exposed for Editor Only.
-     */
-    private _dispatchMouseDownEvent (nativeMouseEvent: any): void {
-        this._mouseInput.dispatchMouseDownEvent?.(nativeMouseEvent);
-    }
-    /**
-     * This should be a private method, but it's exposed for Editor Only.
-     */
-    private _dispatchMouseMoveEvent (nativeMouseEvent: any): void {
-        this._mouseInput.dispatchMouseMoveEvent?.(nativeMouseEvent);
-    }
-    /**
-     * This should be a private method, but it's exposed for Editor Only.
-     */
-    private _dispatchMouseUpEvent (nativeMouseEvent: any): void {
-        this._mouseInput.dispatchMouseUpEvent?.(nativeMouseEvent);
-    }
-    /**
-     * This should be a private method, but it's exposed for Editor Only.
-     */
-    private _dispatchMouseScrollEvent (nativeMouseEvent: any): void {
-        this._mouseInput.dispatchScrollEvent?.(nativeMouseEvent);
-    }
-
-    /**
-     * This should be a private method, but it's exposed for Editor Only.
-     */
-    private _dispatchKeyboardDownEvent (nativeKeyboardEvent: any): void {
-        this._keyboardInput.dispatchKeyboardDownEvent?.(nativeKeyboardEvent);
-    }
-    /**
-     * This should be a private method, but it's exposed for Editor Only.
-     */
-    private _dispatchKeyboardUpEvent (nativeKeyboardEvent: any): void {
-        this._keyboardInput.dispatchKeyboardUpEvent?.(nativeKeyboardEvent);
     }
 
     /**
