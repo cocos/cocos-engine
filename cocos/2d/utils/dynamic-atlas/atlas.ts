@@ -26,7 +26,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { BufferTextureCopy } from '../../../gfx';
-import { cclegacy } from '../../../core';
+import { cclegacy, warn } from '../../../core';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
 const space = 2;
@@ -37,12 +37,12 @@ export class Atlas {
     private _height: any;
     private _x: number;
     private _y: number;
-    private _nexty: number;
+    private _nextY: number;
     private _innerTextureInfos = {};
     private _innerSpriteFrames: SpriteFrame[];
     private _count: number;
 
-    constructor (width, height) {
+    constructor (width: number, height: number) {
         const texture = new DynamicAtlasTexture();
         texture.initWithSize(width, height);
         this._texture = texture;
@@ -52,7 +52,7 @@ export class Atlas {
 
         this._x = space;
         this._y = space;
-        this._nexty = space;
+        this._nextY = space;
 
         this._innerTextureInfos = {};
         this._innerSpriteFrames = [];
@@ -92,14 +92,14 @@ export class Atlas {
 
             if ((this._x + width + space) > this._width) {
                 this._x = space;
-                this._y = this._nexty;
+                this._y = this._nextY;
             }
 
-            if ((this._y + height + space) > this._nexty) {
-                this._nexty = this._y + height + space;
+            if ((this._y + height + space) > this._nextY) {
+                this._nextY = this._y + height + space;
             }
 
-            if (this._nexty > this._height) {
+            if (this._nextY > this._height) {
                 return null;
             }
 
@@ -187,7 +187,7 @@ export class Atlas {
     public reset (): void {
         this._x = space;
         this._y = space;
-        this._nexty = space;
+        this._nextY = space;
 
         const frames = this._innerSpriteFrames;
         for (let i = 0, l = frames.length; i < l; i++) {
@@ -254,7 +254,7 @@ export class DynamicAtlasTexture extends Texture2D {
 
         const gfxDevice = this._getGFXDevice();
         if (!gfxDevice) {
-            console.warn('Unable to get device');
+            warn('Unable to get device');
             return;
         }
 
