@@ -1,6 +1,5 @@
 import { Shader } from '../base/shader';
-import { WebGPUCmdFuncCreateGPUShader, WebGPUCmdFuncCreateShader, WebGPUCmdFuncDestroyShader } from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
+import { WebGPUCmdFuncCreateGPUShader, WebGPUCmdFuncDestroyShader } from './webgpu-commands';
 import { IWebGPUGPUShader, IWebGPUGPUShaderStage } from './webgpu-gpu-objects';
 import { ShaderInfo } from '../base/define';
 import { WebGPUDeviceManager } from './define';

@@ -15,6 +15,9 @@ import { Sampler } from '../base/states/sampler';
 import { Texture } from '../base/texture';
 import { WebGPUDeviceManager } from './define';
 import { WebGPUTexture } from './webgpu-texture';
+import { DescriptorSet } from '../base/descriptor-set';
+import { WebGPUBuffer } from './webgpu-buffer';
+import { WebGPUSampler } from './webgpu-sampler';
 
 function FormatToWGPUFormatType(format: Format): GPUTextureSampleType {
     if(format === Format.DEPTH_STENCIL) {
@@ -29,11 +32,24 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
     private _bindGrpLayoutEntries: Map<number, GPUBindGroupLayoutEntry> = new Map<number, GPUBindGroupLayoutEntry>();
 
     private _hasChange = false;
+
+    public buffers: WebGPUBuffer[] = [];
+    public textures: WebGPUTexture[] = [];
+    public samplers: WebGPUSampler[] = [];
+
+    public references : DescriptorSet[] = [];
+    public get bindGrpLayoutEntries() {
+        return this._bindGrpLayoutEntries;
+    }
+
     public get hasChanged(): boolean {
         return this._hasChange;
     }
     public resetChange() {
         this._hasChange = false;
+        for(let ref of this.references) {
+            (ref as any).update(true);
+        }
     }
     public initialize (info: Readonly<DescriptorSetLayoutInfo>) {
         Array.prototype.push.apply(this._bindings, info.bindings);
@@ -74,9 +90,10 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
 
     // In order to avoid binding exceeding the number specified by webgpu,
     // gpulayout changes dynamically instead of binding everything at once.
-    public updateBindGroupLayout (binding: DescriptorSetLayoutBinding, buffer: Buffer | null, texture: Texture | null, sampler: Sampler | null) {
+    public updateBindGroupLayout (binding: DescriptorSetLayoutBinding, buffer: WebGPUBuffer | null, texture: WebGPUTexture | null, sampler: WebGPUSampler | null) {
         let bindIdx = binding.binding;
         if (buffer) {
+            this.buffers[bindIdx] = buffer;
             this._bindGrpLayoutEntries.set(bindIdx, {
                 binding: bindIdx,
                 visibility: GLStageToWebGPUStage(binding.stageFlags),
@@ -85,6 +102,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         }
         if (texture) {
             const targetTex = texture as WebGPUTexture;
+            this.textures[bindIdx] = targetTex;
             this._bindGrpLayoutEntries.set(bindIdx, {
                 binding: bindIdx,
                 visibility: GLStageToWebGPUStage(binding.stageFlags),
@@ -97,6 +115,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         }
         if (sampler) {
             const samplerBinding = bindIdx + SEPARATE_SAMPLER_BINDING_OFFSET;
+            this.samplers[samplerBinding] = sampler;
             this._bindGrpLayoutEntries.set(samplerBinding, {
                 binding: samplerBinding,
                 visibility: GLStageToWebGPUStage(binding.stageFlags),
@@ -105,8 +124,11 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         }
     }
 
-    public prepare () {
+    public prepare (ref: DescriptorSet) {
         this._hasChange = true;
+        if(!this.references.includes(ref)) {
+            this.references.push(ref);
+        }
         const nativeDevice = WebGPUDeviceManager.instance.nativeDevice;
         const layouts = Array.from(this._bindGrpLayoutEntries.values());
         const bindGrpLayout = nativeDevice?.createBindGroupLayout({ entries: layouts });
@@ -114,6 +136,9 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
     }
 
     public clear () {
+        this.buffers.length = 0;
+        this.textures.length = 0;
+        this.samplers.length = 0;
         this._bindGrpLayoutEntries.clear();
     }
 

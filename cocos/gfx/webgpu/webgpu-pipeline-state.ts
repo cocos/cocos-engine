@@ -223,45 +223,68 @@ export class WebGPUPipelineState extends PipelineState {
         if(this._gpuPipelineState!.nativePipeline) {
             return;
         }
+        const gpuShader = this.shader;
+        const shaderAttrs = gpuShader.attributes;
         const pipelineState = this._gpuPipelineState!.pipelineState!;
         const vertexAttrs: GPUVertexBufferLayout[] = [];
-        for(let i = 0; i < ia.gpuVertexBuffers.length; i++) {
+        
+
+        const streamCount = ia.gpuVertexBuffers.length;
+        for(let i = 0; i < streamCount; i++) {
             const currBufferLayout: GPUVertexBufferLayout = {
-                    arrayStride: 0,
-                    attributes: [],
-                };     
+                arrayStride: 0,
+                attributes: [],
+            };
             const currAttrs: GPUVertexAttribute[] = [];
-            for(let j = 0; j < ia.glAttribs.length; j++) {
-                const glAttr = ia.glAttribs[j];
-                const attr = ia.attributes[j];
-                let loc = this._getShaderLocation(attr.name)!;
-                // webgpu only supports locations smaller than 16
-                // if(loc !== undefined && loc > 16) {
-                //     const regex = new RegExp(`@location\(.*?\)\\s+${attr.name}`, 'g');
-                //     const wgpuShader = (this._shader as WebGPUShader);
-                //     const matches = regex.exec(wgpuShader.gpuShader.gpuStages[0].source);
-                //     if(matches) {
-                //         loc = Number(matches[1].replace(/\(|\)/g, ''));
-                //     } else {
-                //         continue;
-                //     }
-                // }
-                if(attr.stream === i && loc !== undefined) {
-                    currBufferLayout.arrayStride = glAttr.stride;
-                    currBufferLayout.stepMode = attr.isInstanced ? 'instance' : 'vertex';
+            for(let j = 0; j < shaderAttrs.length; j++) {
+                const shaderAttr = shaderAttrs[j];
+                let hasAttr = false;
+                for(let k = 0; k < ia.glAttribs.length; k++) {
+                    const glAttr = ia.glAttribs[k];
+                    const attr = ia.attributes[k];
+                    if(attr.name === shaderAttr.name) {
+                        hasAttr = true;
+                        let loc = shaderAttr.location;
+                        // webgpu only supports locations smaller than 16
+                        // if(loc !== undefined && loc > 16) {
+                        //     const regex = new RegExp(`@location\(.*?\)\\s+${attr.name}`, 'g');
+                        //     const wgpuShader = (this._shader as WebGPUShader);
+                        //     const matches = regex.exec(wgpuShader.gpuShader.gpuStages[0].source);
+                        //     if(matches) {
+                        //         loc = Number(matches[1].replace(/\(|\)/g, ''));
+                        //     } else {
+                        //         continue;
+                        //     }
+                        // }
+                        if(attr.stream === i) {
+                            currBufferLayout.arrayStride = glAttr.stride;
+                            currBufferLayout.stepMode = attr.isInstanced ? 'instance' : 'vertex';
+                            const attrLayout: GPUVertexAttribute = {
+                                format: GFXFormatToWGPUVertexFormat(attr.format),
+                                offset: glAttr.offset,
+                                shaderLocation: loc,
+                            }
+                            currAttrs.push(attrLayout);
+                        }
+                    }
+                }
+                if(!hasAttr && i === (streamCount - 1)) {
+                    const format = shaderAttr.format;
                     const attrLayout: GPUVertexAttribute = {
-                        format: GFXFormatToWGPUVertexFormat(attr.format),
-                        offset: glAttr.offset,
-                        shaderLocation: loc,
+                        format: GFXFormatToWGPUVertexFormat(format),
+                        offset: 0,
+                        shaderLocation: shaderAttr.location,
                     }
                     currAttrs.push(attrLayout);
                 }
             }
+            
             if(currAttrs.length) {
                 currBufferLayout.attributes = currAttrs;
                 vertexAttrs.push(currBufferLayout);
             }
         }
+        
         pipelineState.vertex.buffers = vertexAttrs;
         const webgpuDevice = (WebGPUDeviceManager.instance as WebGPUDevice);
         const nativeDevice = webgpuDevice.nativeDevice;
