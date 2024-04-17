@@ -77,9 +77,10 @@ export class OneShotAudioDOM {
         }
     }
 
-    private constructor (nativeAudio: HTMLAudioElement, volume: number) {
+    private constructor (nativeAudio: HTMLAudioElement, volume: number, playbackRate: number) {
         this._domAudio = nativeAudio;
         nativeAudio.volume =  volume;
+        nativeAudio.playbackRate = playbackRate;
     }
     public play (): void {
         ensurePlaying(this._domAudio).then(() => {
@@ -171,11 +172,11 @@ export class AudioPlayerDOM implements OperationQueueable {
             domAudio.src = url;
         });
     }
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioDOM> {
+    static loadOneShotAudio (url: string, volume: number, playbackRate: number): Promise<OneShotAudioDOM> {
         return new Promise((resolve, reject) => {
             AudioPlayerDOM.loadNative(url).then((domAudio) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new (OneShotAudioDOM as any)(domAudio, volume);
+                const oneShotAudio = new (OneShotAudioDOM as any)(domAudio, volume, playbackRate);
                 resolve(oneShotAudio);
             }).catch(reject);
         });
@@ -218,6 +219,13 @@ export class AudioPlayerDOM implements OperationQueueable {
     set volume (val: number) {
         val = clamp01(val);
         this._domAudio.volume = val;
+    }
+    get playbackRate (): number {
+        return this._domAudio.playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, 10);
+        this._domAudio.playbackRate = val;
     }
     get duration (): number {
         return this._domAudio.duration;

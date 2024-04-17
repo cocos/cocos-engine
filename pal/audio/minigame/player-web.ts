@@ -24,7 +24,7 @@
 
 import { minigame } from 'pal/minigame';
 import { systemInfo } from 'pal/system-info';
-import { clamp01 } from '../../../cocos/core';
+import { clamp, clamp01 } from '../../../cocos/core';
 import * as debug from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event';
 import { audioBufferManager } from '../audio-buffer-manager';
@@ -56,7 +56,7 @@ export class OneShotAudioWeb {
         this._onEndCb = cb;
     }
 
-    private constructor (audioBuffer: AudioBuffer, volume: number, url: string) {
+    private constructor (audioBuffer: AudioBuffer, volume: number, playbackRate: number, url: string) {
         this._bufferSourceNode = audioContext!.createBufferSource();
         this._bufferSourceNode.buffer = audioBuffer;
         this._bufferSourceNode.loop = false;
@@ -66,6 +66,7 @@ export class OneShotAudioWeb {
         gainNode.gain.value = volume;
 
         this._bufferSourceNode.connect(gainNode);
+        this._bufferSourceNode.playbackRate.value = playbackRate;
         gainNode.connect(audioContext!.destination);
     }
 
@@ -93,6 +94,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _sourceNode?: AudioBufferSourceNode;
     private _gainNode: GainNode;
     private _volume = 1;
+    private _playbackRate = 1;
     private _loop = false;
     private _state: AudioState = AudioState.INIT;
     private _audioTimer: AudioTimer;
@@ -181,11 +183,11 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioWeb> {
+    static loadOneShotAudio (url: string, volume: number, playbackRate:number): Promise<OneShotAudioWeb> {
         return new Promise((resolve, reject) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
                 // HACK: AudioPlayer should be a friend class in OneShotAudio
-                const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, url);
+                const oneShotAudio = new (OneShotAudioWeb as any)(audioBuffer, volume, playbackRate, url);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 resolve(oneShotAudio);
             }).catch(reject);
@@ -217,6 +219,16 @@ export class AudioPlayerWeb implements OperationQueueable {
         val = clamp01(val);
         this._volume = val;
         this._gainNode.gain.value = val;
+    }
+    get playbackRate (): number {
+        return this._playbackRate;
+    }
+    set playbackRate (val: number) {
+        val = clamp(val, 0, 10);
+        this._playbackRate = val;
+        if (this._sourceNode) {
+            this._sourceNode.playbackRate.value = val;
+        }
     }
     get duration (): number {
         return this._audioBuffer.duration;

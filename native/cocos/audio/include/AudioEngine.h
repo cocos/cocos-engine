@@ -124,7 +124,7 @@ public:
      *
      * @see `AudioProfile`
      */
-    static int play2d(const ccstd::string &filePath, bool loop = false, float volume = 1.0F, const AudioProfile *profile = nullptr);
+    static int play2d(const ccstd::string &filePath, bool loop = false, float volume = 1.0F, float playbackRate=1.0F, const AudioProfile *profile = nullptr);
 
     /** 
      * Sets whether an audio instance loop or not.
@@ -149,6 +149,14 @@ public:
      * @param volume Volume value (range from 0.0 to 1.0).
      */
     static void setVolume(int audioID, float volume);
+    
+    /** 
+     * Sets playback rate for an audio instance.
+     *
+     * @param audioID An audioID returned by the play2d function.
+     * @param volume Playback rate value.
+     */
+    static void setPlaybackRate(int audioID, float playbackRate);
 
     /**
      * sets volume factor for all audio instance
@@ -163,6 +171,14 @@ public:
      * @return Volume value (range from 0.0 to 1.0).
      */
     static float getVolume(int audioID);
+    
+    /**
+     * Gets the playback rate value of an audio instance.
+     *
+     * @param audioID An audioID returned by the play2d function.
+     * @return Playback rate value.
+     */
+    static float getPlaybackRate(int audioID);
 
     /** 
      * Pause an audio instance.
@@ -356,6 +372,7 @@ protected:
         float volume;
         bool loop;
         float duration;
+        float playbackRate;
         AudioState state;
 
         AudioInfo();
