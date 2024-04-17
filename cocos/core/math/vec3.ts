@@ -1247,7 +1247,7 @@ export class Vec3 extends ValueType {
      */
     public toVec2 (): Vec2 {
         // eslint-disable-next-line
-        return new legacyCC.v2(this.x, this.y);
+        return new legacyCC.Vec2(this.x, this.y);
     }
 }
 
