@@ -330,4 +330,17 @@ describe('Test Vec3', () => {
             return result;
         }
     });
+
+    test(`toVec2`, () => {
+        const vec3 = new Vec3(1, 2, 3);
+        const vec2 = vec3.toVec2();
+        expect(vec2.x).toBe(1);
+        expect(vec2.y).toBe(2);
+
+        // vec3 will not affect vec2.
+        vec3.x = 2;
+        vec3.y = 3;
+        expect(vec2.x).toBe(1);
+        expect(vec2.y).toBe(2);
+    });
 });
