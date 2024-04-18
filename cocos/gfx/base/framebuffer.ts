@@ -73,6 +73,10 @@ export abstract class Framebuffer extends GFXObject {
         return this._height;
     }
 
+    public get needsRebuild(): boolean {
+        return false;
+    }
+
     protected _renderPass: RenderPass | null = null;
     protected _colorTextures: (Texture | null)[] = [];
     protected _depthStencilTexture: Texture | null = null;

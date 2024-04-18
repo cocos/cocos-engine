@@ -29,7 +29,7 @@ import { WebGLDeviceManager } from './webgl-define';
 import { IWebGLGPUFramebuffer, IWebGLGPUTexture } from './webgl-gpu-objects';
 import { WebGLRenderPass } from './webgl-render-pass';
 
-import { WebGLTexture } from './webgl-texture';
+import { WebGLTexture as ccWebGLTexture } from './webgl-texture';
 
 export class WebGLFramebuffer extends Framebuffer {
     get gpuFramebuffer (): IWebGLGPUFramebuffer {
@@ -37,6 +37,15 @@ export class WebGLFramebuffer extends Framebuffer {
     }
 
     private _gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
+    private _gpuColorTexture: WebGLTexture | null = null;
+
+    get needsRebuild(): boolean {
+        if (this._gpuFramebuffer && this._gpuColorTexture && this._gpuFramebuffer.gpuColorTextures.length > 0) {
+            return this._gpuFramebuffer.gpuColorTextures[0].glTexture != this._gpuColorTexture;
+        }
+
+        return false;
+    }
 
     public initialize (info: Readonly<FramebufferInfo>): void {
         this._renderPass = info.renderPass;
@@ -49,15 +58,15 @@ export class WebGLFramebuffer extends Framebuffer {
         for (let i = 0; i < info.colorTextures.length; ++i) {
             const colorTexture = info.colorTextures[i];
             if (colorTexture) {
-                gpuColorTextures.push((colorTexture as WebGLTexture).gpuTexture);
-                lodLevel = (colorTexture as WebGLTexture).lodLevel;
+                gpuColorTextures.push((colorTexture as ccWebGLTexture).gpuTexture);
+                lodLevel = (colorTexture as ccWebGLTexture).lodLevel;
             }
         }
 
         let gpuDepthStencilTexture: IWebGLGPUTexture | null = null;
         if (info.depthStencilTexture) {
-            gpuDepthStencilTexture = (info.depthStencilTexture as WebGLTexture).gpuTexture;
-            lodLevel = (info.depthStencilTexture as WebGLTexture).lodLevel;
+            gpuDepthStencilTexture = (info.depthStencilTexture as ccWebGLTexture).gpuTexture;
+            lodLevel = (info.depthStencilTexture as ccWebGLTexture).lodLevel;
         }
 
         let width = Number.MAX_SAFE_INTEGER;
@@ -93,7 +102,10 @@ export class WebGLFramebuffer extends Framebuffer {
             lodLevel,
         };
 
-        WebGLCmdFuncCreateFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
+        WebGLCmdFuncCreateFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);        
+        this._gpuColorTexture = this._gpuFramebuffer.gpuColorTextures.length
+            ? this._gpuFramebuffer.gpuColorTextures[0]?.glTexture
+            : null;
         this._width = this._gpuFramebuffer.width;
         this._height = this._gpuFramebuffer.height;
     }
@@ -102,6 +114,7 @@ export class WebGLFramebuffer extends Framebuffer {
         if (this._gpuFramebuffer) {
             WebGLCmdFuncDestroyFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer);
             this._gpuFramebuffer = null;
+            this._gpuColorTexture = null;
         }
     }
 }

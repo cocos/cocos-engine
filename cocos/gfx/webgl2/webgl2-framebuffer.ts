@@ -36,7 +36,16 @@ export class WebGL2Framebuffer extends Framebuffer {
     }
 
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
+    private _gpuColorTexture: WebGLTexture | null = null;
 
+    get needsRebuild(): boolean {
+        if (this._gpuFramebuffer && this._gpuColorTexture && this._gpuFramebuffer.gpuColorViews.length > 0) {
+            return this._gpuFramebuffer.gpuColorViews[0].gpuTexture.glTexture != this._gpuColorTexture;
+        }
+
+        return false;
+    }
+    
     public initialize (info: Readonly<FramebufferInfo>): void {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
@@ -88,6 +97,9 @@ export class WebGL2Framebuffer extends Framebuffer {
         };
 
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
+        this._gpuColorTexture = this._gpuFramebuffer.gpuColorViews.length
+            ? this._gpuFramebuffer.gpuColorViews[0]?.gpuTexture?.glTexture
+            : null;
         this._width = this._gpuFramebuffer.width;
         this._height = this._gpuFramebuffer.height;
     }
@@ -96,6 +108,7 @@ export class WebGL2Framebuffer extends Framebuffer {
         if (this._gpuFramebuffer) {
             WebGL2CmdFuncDestroyFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
             this._gpuFramebuffer = null;
+            this._gpuColorTexture = null;
         }
     }
 }
