@@ -1325,8 +1325,10 @@ function overrideProperty_Skin (): void {
         value (slotIndex: number, attachments: Array<spine.SkinEntry>) {
             const vectors = originGetAttachmentsForSlot.call(this, slotIndex);
             const count = vectors.size();
-            attachments = resizeArray(attachments, count);
-            for (let i = 0; i < count; i++) attachments[i] = vectors.get(i);
+            attachments.length = count;
+            for (let i = 0; i < count; i++) {
+                attachments[i] = vectors.get(i);
+            }
             vectors.delete();
         },
     });
@@ -1335,8 +1337,10 @@ function overrideProperty_Skin (): void {
         value (slotIndex: number, names: Array<string>) {
             const vectors = originFindNamesForSlot.call(this, slotIndex);
             const count = vectors.size();
-            names = resizeArray(names, count);
-            for (let i = 0; i < count; i++) names[i] = vectors.get(i);
+            names.length = count;
+            for (let i = 0; i < count; i++) {
+                names[i] = vectors.get(i);
+            }
             vectors.delete();
         },
     });
