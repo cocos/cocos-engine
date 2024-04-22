@@ -852,7 +852,7 @@ export class Model {
         if (!this._modelBounds) { this._modelBounds = geometry.AABB.create(); }
         if (!this._worldBounds) { this._worldBounds = geometry.AABB.create(); }
         geometry.AABB.fromPoints(this._modelBounds, minPos, maxPos);
-        geometry.AABB.copy(this._worldBounds, this._modelBounds);
+        this._worldBounds.copy(this._modelBounds);
     }
 
     private _createSubModel (): SubModel {
