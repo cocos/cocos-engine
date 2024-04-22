@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { DEBUG } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import { IVec3, IVec3Like } from '../math/type-define';
@@ -102,7 +103,11 @@ export class AABB {
       * @deprecated since v3.8.4. Please use the corresponding instance method instead.
       */
     public static copy (out: AABB, a: AABB | Readonly<AABB>): AABB {
-        warn('The static method AABB.copy has been deprecated. Please use the corresponding instance method instead.');
+        // Put it in debug mode to reduce package size.
+        if (DEBUG) {
+            warn('The static method AABB.copy has been deprecated. Please use the corresponding instance method instead.');
+        }
+
         Vec3.copy(out.center, a.center);
         Vec3.copy(out.halfExtents, a.halfExtents);
 
