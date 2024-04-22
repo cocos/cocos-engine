@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+/* eslint-disable no-console */
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
 import { legacyCC, ccwindow } from '../global-exports';
@@ -138,7 +139,8 @@ export function _resetDebugSetting (mode: DebugMode): void {
                 const logDiv = ccdocument.createElement('Div');
                 logDiv.setAttribute('id', 'logInfoDiv');
                 logDiv.setAttribute('width', '200');
-                logDiv.setAttribute('height', legacyCC.game.canvas.height);
+                const height: number = legacyCC.game.canvas.height;
+                logDiv.setAttribute('height', `${height}`);
                 const logDivStyle = logDiv.style;
                 logDivStyle.zIndex = '99999';
                 logDivStyle.position = 'absolute';
@@ -186,26 +188,20 @@ export function _resetDebugSetting (mode: DebugMode): void {
         // Log to console.
 
         // For JSB
-        // eslint-disable-next-line no-console
         if (!console.error) {
-            // eslint-disable-next-line no-console
             console.error = console.log;
         }
-        // eslint-disable-next-line no-console
+
         if (!console.warn) {
-            // eslint-disable-next-line no-console
             console.warn = console.log;
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        // eslint-disable-next-line no-console
         if (EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
-            // eslint-disable-next-line no-console
             ccError = console.error.bind(console);
         } else {
-            // eslint-disable-next-line no-console
             ccError = JSB ? console.error : (...data: unknown[]): void => console.error.apply(console, data);
         }
         ccAssert = (condition: boolean, message?: unknown, ...optionalParams: unknown[]): void => {

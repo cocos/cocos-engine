@@ -29,6 +29,8 @@ import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { assertIsTrue } from '../data/utils/asserts';
 
+const hasOwnPropertyProto = Object.prototype.hasOwnProperty;
+
 export type EnumType = Record<string, string | number>;
 
 /**
@@ -115,17 +117,17 @@ interface EnumExtras<EnumT> {
  * Determines if the object is an enum type.
  * @param enumType @en The object to judge. @zh 需要判断的对象。
  */
-Enum.isEnum = <EnumT extends {}>(enumType: EnumT): boolean => enumType && enumType.hasOwnProperty('__enums__');
+Enum.isEnum = <EnumT extends object>(enumType: EnumT): boolean => enumType && hasOwnPropertyProto.call(enumType, '__enums__');
 
-function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
-    assertIsTrue(enumType.hasOwnProperty('__enums__'));
+function assertIsEnum <EnumT extends object> (enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
+    assertIsTrue(hasOwnPropertyProto.call(enumType, '__enums__'));
 }
 
 /**
  * Get the enumerators from the enum type.
  * @param enumType @en An enum type. @zh 枚举类型。
  */
-Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] => {
+Enum.getList = <EnumT extends object>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] => {
     assertIsEnum(enumType);
 
     if (enumType.__enums__) {
@@ -140,7 +142,7 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
  * @param enumType @en The enum type defined from [[Enum]] @zh 从[[Enum]]定义的枚举类型。
  * @return {Object[]}
  */
-function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
+function updateList<EnumT extends object> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
     assertIsEnum(enumType);
     const enums: any[] = enumType.__enums__ || [];
     enums.length = 0;
@@ -170,7 +172,7 @@ function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerato
  * @param enumType @en The enum type defined from [[Enum]] @zh 从[[Enum]]定义的枚举类型。
  * @param compareFn @en Function used to determine the order of the elements. @zh 用于确定元素顺序的函数。
  */
-Enum.sortList = <EnumT extends {}> (enumType: EnumT, compareFn: (a, b) => number): void => {
+Enum.sortList = <EnumT extends object> (enumType: EnumT, compareFn: (a, b) => number): void => {
     assertIsEnum(enumType);
     if (!Array.isArray(enumType.__enums__)) {
         return;
@@ -200,7 +202,7 @@ if (DEV) {
  * @en enumType An enum type, eg, a kind of type with similar semantic defined by TypeScript.
  * @zh 枚举类型，例如 TypeScript 中定义的类型。
  */
-export function ccenum<EnumT extends {}> (enumType: EnumT): void {
+export function ccenum<EnumT extends object> (enumType: EnumT): void {
     if (!('__enums__' in enumType)) {
         value(enumType, '__enums__', null, true);
     }
