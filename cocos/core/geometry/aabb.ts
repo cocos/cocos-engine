@@ -73,7 +73,8 @@ export class AABB {
 
     /**
       * @en
-      * Clones an AABB, which will create a new AABB instance with the same value as the input parameter `a`. Note that each time `clone` is invoked, a new AABB object will be created, so use `copy` method whenever it could to reduce GC pressure.
+      * Clones an AABB, which will create a new AABB instance with the same value as the input parameter `a`. Note that each time `clone` is invoked,
+      * a new AABB object will be created, so use `copy` method whenever it could to reduce GC pressure.
       * @zh
       * 克隆一个 AABB，其会创建出一个值跟输入参数`a`一样的 AABB 实例。注意，每次调用 `clone` 都会创建出新实例，尽可能使用 `copy` 方法以减小 GC 压力。
       * @param a @zh 克隆的目标。 @en The target object to be cloned.
@@ -81,7 +82,11 @@ export class AABB {
       * @deprecated since v3.8.4. Please use the corresponding instance method instead.
       */
     public static clone (a: AABB | Readonly<AABB>): AABB {
-        warn('The static method AABB.clone has been deprecated. Please use the corresponding instance method instead.');
+        // Put it in debug mode to reduce package size.
+        if (DEBUG) {
+            warn('The static method AABB.clone has been deprecated. Please use the corresponding instance method instead.');
+        }
+
         return new AABB(
             a.center.x,
             a.center.y,
@@ -157,9 +162,11 @@ export class AABB {
       * Merges two AABB instances into one.
       * @zh
       * 合并两个 AABB 到一个目标 AABB 中。
-      * @param out @zh 接受操作的目标 AABB。 @en The output AABB to storge the merge result.
-      * @param a @zh 第一个输入的 AABB，当其与 out 参数不同的时候，此函数内部不会修改其值。 @en The first AABB to be merged, its value will not be modified if `a` is not equal to the `out` paramater.
-      * @param b @zh 第二个输入的 AABB，当其与 out 参数不同的时候，此函数内部不会修改其值。 @en The second AABB to be merged, its value will not be modified if `b` is not equal to the `out` paramater.
+      * @param out @zh 接受操作的目标 AABB。 @en The output AABB to storage the merge result.
+      * @param a @zh 第一个输入的 AABB，当其与 out 参数不同的时候，此函数内部不会修改其值。
+      * @en The first AABB to be merged, its value will not be modified if `a` is not equal to the `out` parameter.
+      * @param b @zh 第二个输入的 AABB，当其与 out 参数不同的时候，此函数内部不会修改其值。
+      * @en The second AABB to be merged, its value will not be modified if `b` is not equal to the `out` parameter.
       * @returns @zh 接受操作的 AABB `out` 的引用。 @en The reference to the first parameter `out`.
       */
     public static merge (out: AABB, a: AABB | Readonly<AABB>, b: AABB | Readonly<AABB>): AABB {
@@ -193,7 +200,8 @@ export class AABB {
       * @zh
       * 使用一个 4 乘 4 矩阵变换一个 AABB 并将结果存储于 out 参数中。
       * @param out @zh 接受操作的 AABB。 @en The output AABB to store the result.
-      * @param a @zh 输入的源 AABB，如果其与 out 参数不是同一个对象，那么 a 将不会被此函数修改。 @en The input AABB, if it's different with the `out` parameter, then `a` will not be changed by this function.
+      * @param a @zh 输入的源 AABB，如果其与 out 参数不是同一个对象，那么 a 将不会被此函数修改。
+      * @en The input AABB, if it's different with the `out` parameter, then `a` will not be changed by this function.
       * @param matrix @zh 矩阵。 @en The transformation matrix.
       * @returns @zh 接受操作的 AABB `out` 的引用。 @en The reference of the first parameter `out`.
       */
@@ -268,7 +276,8 @@ export class AABB {
 
     /**
       * @en
-      * Clones this AABB, which will create a new AABB instance with the same value as this AABB. Note that each time `clone` is invoked, a new AABB object will be created, so use `copy` method whenever it could to reduce GC pressure.
+      * Clones this AABB, which will create a new AABB instance with the same value as this AABB. Note that each time `clone` is invoked,
+      * a new AABB object will be created, so use `copy` method whenever it could to reduce GC pressure.
       * @zh
       * 克隆一个 AABB，其会创建出一个值跟当前 AABB 一样的实例。注意，每次调用 `clone` 都会创建出新实例，尽可能使用 `copy` 方法以减小 GC 压力。
       * @returns @zh 克隆出的 AABB 实例 @en The cloned AABB instance.
