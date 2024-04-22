@@ -164,9 +164,9 @@ export class AABB {
       * 合并两个 AABB 到一个目标 AABB 中。
       * @param out @zh 接受操作的目标 AABB。 @en The output AABB to storage the merge result.
       * @param a @zh 第一个输入的 AABB，当其与 out 参数不同的时候，此函数内部不会修改其值。
-      * @en The first AABB to be merged, its value will not be modified if `a` is not equal to the `out` parameter.
+      *          @en The first AABB to be merged, its value will not be modified if `a` is not equal to the `out` parameter.
       * @param b @zh 第二个输入的 AABB，当其与 out 参数不同的时候，此函数内部不会修改其值。
-      * @en The second AABB to be merged, its value will not be modified if `b` is not equal to the `out` parameter.
+      *          @en The second AABB to be merged, its value will not be modified if `b` is not equal to the `out` parameter.
       * @returns @zh 接受操作的 AABB `out` 的引用。 @en The reference to the first parameter `out`.
       */
     public static merge (out: AABB, a: AABB | Readonly<AABB>, b: AABB | Readonly<AABB>): AABB {
@@ -201,7 +201,7 @@ export class AABB {
       * 使用一个 4 乘 4 矩阵变换一个 AABB 并将结果存储于 out 参数中。
       * @param out @zh 接受操作的 AABB。 @en The output AABB to store the result.
       * @param a @zh 输入的源 AABB，如果其与 out 参数不是同一个对象，那么 a 将不会被此函数修改。
-      * @en The input AABB, if it's different with the `out` parameter, then `a` will not be changed by this function.
+      *          @en The input AABB, if it's different with the `out` parameter, then `a` will not be changed by this function.
       * @param matrix @zh 矩阵。 @en The transformation matrix.
       * @returns @zh 接受操作的 AABB `out` 的引用。 @en The reference of the first parameter `out`.
       */
