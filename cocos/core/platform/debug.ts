@@ -120,8 +120,8 @@ export function debug (...data: unknown[]): void {
  */
 export function _resetDebugSetting (mode: DebugMode): void {
     // reset
-    ccLog = ccWarn = ccError = ccAssert = ccDebug = (): void => {
-    };
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    ccLog = ccWarn = ccError = ccAssert = ccDebug = (): void => {};
 
     if (mode === DebugMode.NONE) {
         return;
@@ -186,17 +186,26 @@ export function _resetDebugSetting (mode: DebugMode): void {
         // Log to console.
 
         // For JSB
+        // eslint-disable-next-line no-console
         if (!console.error) {
+            // eslint-disable-next-line no-console
             console.error = console.log;
         }
+        // eslint-disable-next-line no-console
         if (!console.warn) {
+            // eslint-disable-next-line no-console
             console.warn = console.log;
         }
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        // eslint-disable-next-line no-console
         if (EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
+            // eslint-disable-next-line no-console
             ccError = console.error.bind(console);
         } else {
+            // eslint-disable-next-line no-console
             ccError = JSB ? console.error : (...data: unknown[]): void => console.error.apply(console, data);
         }
         ccAssert = (condition: boolean, message?: unknown, ...optionalParams: unknown[]): void => {
