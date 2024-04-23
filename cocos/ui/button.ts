@@ -25,7 +25,7 @@
 
 import { ccclass, help, executionOrder, menu, requireComponent, tooltip, displayOrder, type, rangeMin,
     rangeMax, serializable, executeInEditMode } from 'cc.decorator';
-import { EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { DEBUG, EDITOR, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { UITransform, UIRenderer } from '../2d/framework';
@@ -39,6 +39,7 @@ import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../scene-graph/node-enum';
 import { NodeEventType } from '../scene-graph/node-event';
 import { XrUIPressEventType } from '../xr/event/xr-event-handle';
+import { warn } from '../core';
 
 const _tempColor = new Color();
 
@@ -1011,6 +1012,9 @@ export class Button extends Component {
             return this._pressedSprite;
         default:
             // Should not arrive here.
+            if (DEBUG) {
+                warn('Button._getColorByState(): wrong state.');
+            }
             return null;
         }
     }
@@ -1027,6 +1031,9 @@ export class Button extends Component {
             return this._pressedColor;
         default:
             // Should not arrive here.
+            if (DEBUG) {
+                warn('Button._getColorByState(): wrong state.');
+            }
             return new Color();
         }
     }
