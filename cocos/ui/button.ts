@@ -79,10 +79,10 @@ enum Transition {
 ccenum(Transition);
 
 enum State {
-    NORMAL = 'normal',
-    HOVER = 'hover',
-    PRESSED = 'pressed',
-    DISABLED = 'disabled',
+    NORMAL,
+    HOVER,
+    PRESSED,
+    DISABLED,
 }
 
 /**
@@ -857,7 +857,7 @@ export class Button extends Component {
                 this.target.setScale(this._originalScale);
             }
         } else {
-            let state: string;
+            let state: State;
             if (hit) {
                 state = State.PRESSED;
             } else {
@@ -918,7 +918,7 @@ export class Button extends Component {
         this._applyTransition(state);
     }
 
-    protected _getButtonState (): string {
+    protected _getButtonState (): State {
         let state = State.NORMAL;
         if (!this._interactable) {
             state = State.DISABLED;
@@ -927,18 +927,18 @@ export class Button extends Component {
         } else if (this._hovered) {
             state = State.HOVER;
         }
-        return state.toString();
+        return state;
     }
 
-    protected _updateColorTransition (state: string): void {
-        const color = this[`${state}Color`];
+    protected _updateColorTransition (state: State): void {
+        const color = this._getColorByState(state);
 
         const renderComp = this.target?.getComponent(UIRenderer);
         if (!renderComp) {
             return;
         }
 
-        if (EDITOR || state === State.DISABLED.toString()) {
+        if (EDITOR || state === State.DISABLED) {
             renderComp.color = color;
         } else {
             this._fromColor = renderComp.color.clone();
@@ -948,19 +948,19 @@ export class Button extends Component {
         }
     }
 
-    protected _updateSpriteTransition (state: string): void {
-        const sprite = this[`${state}Sprite`];
+    protected _updateSpriteTransition (state: State): void {
+        const sprite = this._getSpriteFrameByState(state);
         if (this._sprite && sprite) {
             this._sprite.spriteFrame = sprite;
         }
     }
 
-    protected _updateScaleTransition (state: string): void {
+    protected _updateScaleTransition (state: State): void {
         if (!this._interactable) {
             return;
         }
 
-        if (state === State.PRESSED.toString()) {
+        if (state === State.PRESSED) {
             this._zoomUp();
         } else {
             this._zoomBack();
@@ -988,7 +988,7 @@ export class Button extends Component {
         this._transitionFinished = false;
     }
 
-    protected _applyTransition (state: string): void {
+    protected _applyTransition (state: State): void {
         const transition = this._transition;
         if (transition === Transition.COLOR) {
             this._updateColorTransition(state);
@@ -996,6 +996,38 @@ export class Button extends Component {
             this._updateSpriteTransition(state);
         } else if (transition === Transition.SCALE) {
             this._updateScaleTransition(state);
+        }
+    }
+
+    private _getSpriteFrameByState (state: State): SpriteFrame | null {
+        switch (state) {
+        case State.NORMAL:
+            return this._normalSprite;
+        case State.DISABLED:
+            return this._disabledSprite;
+        case State.HOVER:
+            return this.hoverSprite;
+        case State.PRESSED:
+            return this._pressedSprite;
+        default:
+            // Should not arrive here.
+            return null;
+        }
+    }
+
+    private _getColorByState (state: State): Color {
+        switch (state) {
+        case State.NORMAL:
+            return this._normalColor;
+        case State.DISABLED:
+            return this._disabledColor;
+        case State.HOVER:
+            return this._hoverColor;
+        case State.PRESSED:
+            return this._pressedColor;
+        default:
+            // Should not arrive here.
+            return new Color();
         }
     }
 
