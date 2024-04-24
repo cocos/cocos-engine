@@ -1110,6 +1110,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._boundingBox) {
             this._boundingBox = null;
         }
+        this._oldPos = null;
         if (this._culler) {
             this._culler.clear();
             this._culler.destroy();
