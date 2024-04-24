@@ -39,7 +39,6 @@ import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { UIPhase } from '../ui-phase';
 import { Camera } from '../../render-scene/scene';
 import { renderProfiler } from '../pipeline-funcs';
-import { WebGPUDevice } from '../../gfx/webgpu/webgpu-device';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 

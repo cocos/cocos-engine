@@ -49,6 +49,8 @@ import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGPUDeviceManager } from './define';
 import { WebGPUSwapchain } from './webgpu-swapchain';
+import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
+import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
 
 export interface IWebGPUDepthBias {
     constantFactor: number;
@@ -73,6 +75,8 @@ export interface IWebGPUStencilCompareMask {
 }
 
 type CommandEncoder = { commandEncoder: GPUCommandEncoder, renderPassEncoder: GPURenderPassEncoder };
+let currPipelineState: WebGPUPipelineState | null = null;
+const descriptorSets: WebGPUDescriptorSet[] = [];
 export class WebGPUCommandBuffer extends CommandBuffer {
     public pipelineBarrier(barrier: Readonly<GeneralBarrier> | null, bufferBarriers?: readonly BufferBarrier[] | undefined, buffers?: readonly Buffer[] | undefined, textureBarriers?: readonly TextureBarrier[] | undefined, textures?: readonly Texture[] | undefined): void {
         throw new Error('Method not implemented.');
@@ -217,7 +221,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         nativeDevice?.queue.submit([cmdEncoder!.finish()]);
         this._isInRenderPass = false;
         this._isStateInvalied = false;
-        this._renderPassFuncQueue = [];
+        this._renderPassFuncQueue.length = 0;
     }
 
     public bindPipelineState(pipelineState: PipelineState) {
@@ -226,6 +230,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         if (gpuPipelineState !== this._curGPUPipelineState) {
             this._curWebGPUPipelineState = webgpuPipelineState;
             this._curGPUPipelineState = gpuPipelineState;
+            currPipelineState = webgpuPipelineState;
             this._isStateInvalied = true;
         }
     }
@@ -234,6 +239,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         const gpuDescriptorSets = (descriptorSet as unknown as WebGPUDescriptorSet).gpuDescriptorSet;
         if (gpuDescriptorSets !== this._curGPUDescriptorSets[set]) {
             this._curGPUDescriptorSets[set] = gpuDescriptorSets;
+            descriptorSets[set] = descriptorSet as WebGPUDescriptorSet;
             this._isStateInvalied = true;
         }
         if (dynamicOffsets) {
@@ -542,9 +548,28 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     protected bindStates() {
         if (this._curGPUPipelineState) {
+            const gpuPipelineLayout = this._curGPUPipelineState.gpuPipelineLayout as IWebGPUGPUPipelineLayout;
+            const psoLayouts = gpuPipelineLayout.gpuBindGroupLayouts;
+            let needFetchPipLayout = false;
+            for(let i = 0; i < psoLayouts.length; i++) {
+                const layout = descriptorSets[i].layout as WebGPUDescriptorSetLayout;
+                if(psoLayouts[i] !== this._curGPUDescriptorSets[i].bindGroupLayout
+                    || layout.hasChanged
+                ) {
+                    needFetchPipLayout = true;
+                    break;
+                }
+            }
+            const wgpuPipLayout = (currPipelineState?.pipelineLayout as WebGPUPipelineLayout);
+            if(needFetchPipLayout || !wgpuPipLayout.gpuPipelineLayout.nativePipelineLayout ||
+                this._curGPUPipelineState.pipelineState!.layout !== gpuPipelineLayout.nativePipelineLayout) {
+                wgpuPipLayout.fetchPipelineLayout(false);
+                this._curWebGPUPipelineState?.updatePipelineLayout();
+                needFetchPipLayout = true;
+            }
             // const webgpuPipelineState = this._curGPUPipelineState as WebGPUPipelineState;
-            this._curWebGPUPipelineState!.prepare(this._curGPUInputAssembler!);
-            const { dynamicOffsetIndices } = this._curGPUPipelineState?.gpuPipelineLayout as IWebGPUGPUPipelineLayout;
+            this._curWebGPUPipelineState!.prepare(this._curGPUInputAssembler!, needFetchPipLayout);
+            const { dynamicOffsetIndices } = gpuPipelineLayout;
             // ----------------------------wgpu pipline state-----------------------------
             const wgpuPipeline = this._curGPUPipelineState?.nativePipeline as GPURenderPipeline;
             const pplFunc = (passEncoder: GPURenderPassEncoder) => {
@@ -552,19 +577,16 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             };
             this._renderPassFuncQueue.push(pplFunc);
 
-            // ---------------------------- wgpu bind group  -----------------------------
             // FIXME: maybe store an array-of-native-pipelinestate to avoid mem realloc
             const wgpuBindGroups = new Array<GPUBindGroup>(this._curGPUDescriptorSets.length);
             for (let i = 0; i < this._curGPUDescriptorSets.length; i++) {
                 const curGpuDesc = this._curGPUDescriptorSets[i];
-                if(curGpuDesc) {
-                    wgpuBindGroups[i] = curGpuDesc.bindGroup;
-                }
+                wgpuBindGroups[i] = curGpuDesc.bindGroup;
             }
             const bgfunc = (passEncoder: GPURenderPassEncoder) => {
                 for (let i = 0; i < wgpuBindGroups.length; i++) {
                     // FIXME: this is a special sentence that 2 in 3 parameters I'm not certain.
-                    if(wgpuBindGroups[i]) passEncoder.setBindGroup(i, wgpuBindGroups[i]);
+                    passEncoder.setBindGroup(i, wgpuBindGroups[i]);
                 }
             };
             this._renderPassFuncQueue.push(bgfunc);
@@ -581,19 +603,19 @@ export class WebGPUCommandBuffer extends CommandBuffer {
                 }
             };
             this._renderPassFuncQueue.push(vbFunc);
-
-            const wgpuIndexBuffer: { indexType: GPUIndexFormat, buffer: GPUBuffer, offset: number, size: number } = {
-                indexType: ia.glIndexType,
-                buffer: ia.gpuIndexBuffer?.glBuffer as GPUBuffer,
-                offset: ia.gpuIndexBuffer!.glOffset,
-                size: ia.gpuIndexBuffer!.size
-            };
-            const ibFunc = (passEncoder: GPURenderPassEncoder) => {
-                passEncoder.setIndexBuffer(wgpuIndexBuffer.buffer,
-                    wgpuIndexBuffer.indexType, wgpuIndexBuffer.offset, wgpuIndexBuffer.size);
-            };
-            this._renderPassFuncQueue.push(ibFunc);
-
+            if(ia.gpuIndexBuffer) {
+                const wgpuIndexBuffer: { indexType: GPUIndexFormat, buffer: GPUBuffer, offset: number, size: number } = {
+                    indexType: ia.glIndexType,
+                    buffer: ia.gpuIndexBuffer.glBuffer as GPUBuffer,
+                    offset: ia.gpuIndexBuffer.glOffset,
+                    size: ia.gpuIndexBuffer.size
+                };
+                const ibFunc = (passEncoder: GPURenderPassEncoder) => {
+                    passEncoder.setIndexBuffer(wgpuIndexBuffer.buffer,
+                        wgpuIndexBuffer.indexType, wgpuIndexBuffer.offset, wgpuIndexBuffer.size);
+                };
+                this._renderPassFuncQueue.push(ibFunc);
+            }
             const bcFunc = (passEncoder: GPURenderPassEncoder) => {
                 passEncoder.setBlendConstant([this._curBlendConstants[0],
                 this._curBlendConstants[1],

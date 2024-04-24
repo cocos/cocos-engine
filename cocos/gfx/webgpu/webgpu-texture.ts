@@ -114,14 +114,14 @@ export class WebGPUTexture extends Texture {
                 dimension: this._gpuTexture.glTarget,
                 mipLevelCount: this._gpuTexture.mipLevel,
                 arrayLayerCount: this.viewInfo.layerCount,
-                baseMipLevel: this.viewInfo.baseLevel,
-                baseArrayLayer: this.viewInfo.baseLayer
+                baseMipLevel: 0,
+                baseArrayLayer: 0
               });
         }
     }
 
     public destroy() {
-        if (this._gpuTexture) {
+        if (!this._isTextureView && this._gpuTexture) {
             WebGPUCmdFuncDestroyTexture(this._gpuTexture);
             const device = WebGPUDeviceManager.instance;
             device.memoryStatus.textureSize -= this._size;
@@ -144,7 +144,7 @@ export class WebGPUTexture extends Texture {
         this._size = FormatSurfaceSize(this.info.format, this.width, this.height,
             this.depth, this.info.levelCount) * this.info.layerCount;
 
-        if (this._gpuTexture) {
+        if (!this._isTextureView && this._gpuTexture) {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;

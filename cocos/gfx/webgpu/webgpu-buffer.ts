@@ -50,6 +50,7 @@ export class WebGPUBuffer extends Buffer {
                 glTarget: buffer.gpuBuffer.glTarget,
                 glBuffer: buffer.gpuBuffer.glBuffer,
                 glOffset: info.offset,
+                flags: this._flags,
                 drawIndirectByIndex: false,
             };
         } else { // native buffer
@@ -72,6 +73,7 @@ export class WebGPUBuffer extends Buffer {
                 buffer: null,
                 indirects: [],
                 glTarget: 0,
+                flags: this._flags,
                 glBuffer: null,
                 glOffset: 0,
                 drawIndirectByIndex: false,
@@ -121,7 +123,7 @@ export class WebGPUBuffer extends Buffer {
         }
     }
 
-    public update(buffer: BufferSource, offset?: number, size?: number) {
+    public update(buffer: BufferSource, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
@@ -137,9 +139,8 @@ export class WebGPUBuffer extends Buffer {
         }
         // Make sure buffSize is a multiple of 4
         buffSize = Math.ceil(buffSize / 4.0) * 4;
-        offset = offset || 0;
-        if(this.size < (offset + buffSize)) {
-            this.resize(offset + buffSize);
+        if(this.size < buffSize) {
+            this.resize(buffSize);
         }
         const device = WebGPUDeviceManager.instance;
 
@@ -147,7 +148,7 @@ export class WebGPUBuffer extends Buffer {
             device as WebGPUDevice,
             this._gpuBuffer!,
             buffer,
-            offset,
+            0,
             buffSize,
         );
     }

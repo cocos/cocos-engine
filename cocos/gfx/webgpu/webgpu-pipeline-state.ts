@@ -219,16 +219,21 @@ export class WebGPUPipelineState extends PipelineState {
         return this._locations.get(name);
     }
 
-    public prepare(ia: IWebGPUGPUInputAssembler) {
-        if(this._gpuPipelineState!.nativePipeline) {
+    public updatePipelineLayout() {
+        if(this._gpuPipelineState && this._gpuPipelineState.pipelineState) {
+            this._gpuPipelineState.pipelineState.layout = (this._pipelineLayout as WebGPUPipelineLayout).gpuPipelineLayout.nativePipelineLayout;
+        }
+    }
+
+    public prepare(ia: IWebGPUGPUInputAssembler, forceUpdate: boolean = false) {
+        if(this._gpuPipelineState!.nativePipeline && !forceUpdate) {
             return;
         }
         const gpuShader = this.shader;
         const shaderAttrs = gpuShader.attributes;
         const pipelineState = this._gpuPipelineState!.pipelineState!;
         const vertexAttrs: GPUVertexBufferLayout[] = [];
-        
-
+        const emptyPushAttr: string[] = [];
         const streamCount = ia.gpuVertexBuffers.length;
         for(let i = 0; i < streamCount; i++) {
             const currBufferLayout: GPUVertexBufferLayout = {
@@ -266,10 +271,13 @@ export class WebGPUPipelineState extends PipelineState {
                             }
                             currAttrs.push(attrLayout);
                         }
+                        break;
                     }
                 }
-                if(!hasAttr && i === (streamCount - 1)) {
-                    const format = shaderAttr.format;
+                const format = shaderAttr.format;
+                if(!hasAttr && !emptyPushAttr.includes(shaderAttr.name) 
+                    && (FormatInfos[format].size <= ia.gpuVertexBuffers[i].stride)) {
+                    emptyPushAttr.push(shaderAttr.name);
                     const attrLayout: GPUVertexAttribute = {
                         format: GFXFormatToWGPUVertexFormat(format),
                         offset: 0,

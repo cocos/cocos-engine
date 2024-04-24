@@ -40,8 +40,6 @@ import {
     IWebGPUTexture,
     IWebGPUGPURenderPass,
 } from './webgpu-gpu-objects';
-import { WebGPUBuffer } from './webgpu-buffer';
-import { bool } from '../../rendering/custom/define';
 
 const WebGPUAdressMode: GPUAddressMode[] = [
     'repeat', // WRAP,
@@ -893,11 +891,32 @@ function seperateCombinedSamplerTexture(shaderSource: string) {
     return code;
 }
 
+function reflect(wgsl: string[]) {
+    const bindingList: number[][] = [];
+    for (let wgslStr of wgsl) {
+        // @group(1) @binding(0) var<uniform> x_78 : Constants;
+        // @group(1) @binding(1) var albedoMap : texture_2d<f32>;
+        const reg = new RegExp(/@group\((\d)\)\s+@binding\((\d+)\)/g);
+        let iter = reg.exec(wgslStr);
+        while (iter) {
+            const set = +iter[1];
+            const binding = +iter[2];
+            while (bindingList.length <= set) {
+                bindingList.push([]);
+            }
+            bindingList[set][bindingList[set].length] = binding;
+            iter = reg.exec(wgslStr);
+        }
+    }
+    return bindingList;
+}
+
 export function WebGPUCmdFuncCreateGPUShader(device: WebGPUDevice, gpuShader: IWebGPUGPUShader) {
     // const wgslStages: string[] = [];
     const nativeDevice = device.nativeDevice!;
     const glslang = device.glslang;
     const twgsl = device.twgsl;
+    const wgslCodes: string[] = [];
     for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
         const gpuStage = gpuShader.gpuStages[i];
         let glslSource = seperateCombinedSamplerTexture(gpuStage.source);
@@ -930,6 +949,9 @@ export function WebGPUCmdFuncCreateGPUShader(device: WebGPUDevice, gpuShader: IW
             entryPoint: 'main',
         };
         gpuStage.glShader = shaderStage;
+        wgslCodes.push(wgsl);
+        const bindingList = reflect(wgslCodes);
+        gpuStage.bindings = bindingList;
     }
 }
 
@@ -1096,46 +1118,46 @@ export function WebGPUCmdFuncCopyBuffersToTexture (
         const compactInWidth = bufferPixelWidth == region.texExtent.width;
         for(let l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; l++) {
             for(let d = region.texOffset.z; d < region.texExtent.depth + region.texOffset.z; d++) {
-            if(compactInWidth) {
-                const arrayBuffer = buffers[i];
-                let buffer; // buffers and regions are a one-to-one mapping
-                if ('buffer' in arrayBuffer) {
-                    buffer = new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, arrayBuffer.byteLength);
-                } else {
-                    buffer = new Uint8Array(arrayBuffer);
-                }
-                const srcData = new Uint8Array(buffer, buffer.byteOffset +
-                    region.buffOffset +
-                    (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer +
-                    (d - region.texOffset.z) * bufferBytesPerImageSlice);
-                const copyTarget = {
-                    texture: gpuTexture.glTexture!,
-                    mipLevel: region.texSubres.mipLevel,
-                    origin: {
-                        x: region.texOffset.x,
-                        y: region.texOffset.y,
-                        z: l
+                if(compactInWidth) {
+                    const arrayBuffer = buffers[i];
+                    let buffer; // buffers and regions are a one-to-one mapping
+                    if ('buffer' in arrayBuffer) {
+                        buffer = new Uint8Array(arrayBuffer.buffer, arrayBuffer.byteOffset, arrayBuffer.byteLength);
+                    } else {
+                        buffer = new Uint8Array(arrayBuffer);
                     }
-                };
-                nativeDevice.queue.writeTexture(copyTarget, srcData, imgDataLayout, [targetWidth, targetHeight, region.texExtent.depth]);
-            } else {
-                for(let h = region.texOffset.y; h < region.texExtent.height + region.texOffset.y; h += blockSize.height) {
-                    const srcData = new Uint8Array(buffers[i].buffer, buffers[i].byteOffset +
-                        region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer +
-                        ( (d - region.texOffset.z) * bufferBytesPerImageSlice +
-                        (h - region.texOffset.y) / blockSize.height * bufferBytesPerRow));
+                    const srcData = new Uint8Array(buffer, buffer.byteOffset +
+                        region.buffOffset +
+                        (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer +
+                        (d - region.texOffset.z) * bufferBytesPerImageSlice);
                     const copyTarget = {
                         texture: gpuTexture.glTexture!,
                         mipLevel: region.texSubres.mipLevel,
                         origin: {
                             x: region.texOffset.x,
-                            y: h,
+                            y: region.texOffset.y,
                             z: l
                         }
                     };
-                    nativeDevice.queue.writeTexture(copyTarget, srcData, imgDataLayout, [targetWidth, blockSize.height, region.texExtent.depth]);
+                    nativeDevice.queue.writeTexture(copyTarget, srcData, imgDataLayout, [targetWidth, targetHeight, region.texExtent.depth]);
+                } else {
+                    for(let h = region.texOffset.y; h < region.texExtent.height + region.texOffset.y; h += blockSize.height) {
+                        const srcData = new Uint8Array(buffers[i].buffer, buffers[i].byteOffset +
+                            region.buffOffset + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer +
+                            ( (d - region.texOffset.z) * bufferBytesPerImageSlice +
+                            (h - region.texOffset.y) / blockSize.height * bufferBytesPerRow));
+                        const copyTarget = {
+                            texture: gpuTexture.glTexture!,
+                            mipLevel: region.texSubres.mipLevel,
+                            origin: {
+                                x: region.texOffset.x,
+                                y: h,
+                                z: l
+                            }
+                        };
+                        nativeDevice.queue.writeTexture(copyTarget, srcData, imgDataLayout, [targetWidth, blockSize.height, region.texExtent.depth]);
+                    }
                 }
-            }
         }
         if(gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
             // TODO: genMipMap

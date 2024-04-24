@@ -19,6 +19,7 @@ import {
     UniformBlock,
     UniformSampler,
     DescriptorSetLayoutBinding,
+    BufferFlags,
 } from '../base/define';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
 import { WebGPUDeviceManager } from './define';
@@ -42,7 +43,7 @@ export interface IWebGPUGPUBuffer {
     glTarget: GLenum;
     glBuffer: GPUBuffer | null;
     glOffset: number;
-
+    flags: BufferFlags | null;
     buffer: ArrayBufferView | null;
     indirects: DrawInfo[];
     drawIndirectByIndex: boolean;
@@ -162,6 +163,7 @@ export interface IWebGPUGPUShaderStage {
     type: ShaderStageFlagBit;
     source: string;
     glShader: GPUProgrammableStage | null;
+    bindings: number[][];
 }
 
 export interface IWebGPUGPUShader {
@@ -187,6 +189,7 @@ export interface IWebGPUGPUDescriptorSetLayout {
 
 export interface IWebGPUGPUPipelineLayout {
     gpuSetLayouts: IWebGPUGPUDescriptorSetLayout[];
+    gpuBindGroupLayouts: GPUBindGroupLayout[];
     dynamicOffsetCount: number;
     dynamicOffsetIndices: number[][];
     nativePipelineLayout: GPUPipelineLayout;
@@ -216,6 +219,7 @@ export interface IWebGPUGPUDescriptorSet {
     gpuDescriptors: IWebGPUGPUDescriptor[];
     descriptorIndices: number[];
     bindGroup: GPUBindGroup;
+    bindGroupLayout: GPUBindGroupLayout;
 }
 
 export interface IWebGPUAttrib {

@@ -30,7 +30,8 @@ export class WebGPUDescriptorSet extends DescriptorSet {
 
         const gpuDescriptors: IWebGPUGPUDescriptor[] = [];
         const bindGroup = {} as GPUBindGroup;
-        this._gpuDescriptorSet = { gpuDescriptors, descriptorIndices, bindGroup };
+        const bindGroupLayout = {} as GPUBindGroupLayout;
+        this._gpuDescriptorSet = { gpuDescriptors, descriptorIndices, bindGroup, bindGroupLayout };
 
         for (let i = 0; i < bindings.length; ++i) {
             const binding = bindings[i];
@@ -47,13 +48,25 @@ export class WebGPUDescriptorSet extends DescriptorSet {
     }
 
     public destroy () {
+        const layout = (this._layout as WebGPUDescriptorSetLayout);// .removeRef(this);
+        layout.removeRef(this);
         this._layout = null;
         this._gpuDescriptorSet = null;
+        this._buffers.length = 0;
+        this._textures.length = 0;
+        this._samplers.length = 0;
         this._bindGroupEntries.clear();
     }
 
     private _isEmpty(): boolean {
-        return !this._buffers.length && !this._samplers.length && !this._textures.length;
+        if (this._buffers.some(buffer => buffer) ||
+            this._textures.some(texture => texture) ||
+            this._samplers.some(sampler => sampler)) {
+            return false;
+        }
+
+        // If all buffers, textures, and samplers are null, check the layout entries
+        return !((this._layout as WebGPUDescriptorSetLayout).bindGrpLayoutEntries.size);
     }
 
     private _isNeedBindFromLayout(binding: number) {
@@ -78,7 +91,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                 const bindIdx = binding.binding;
                 const isNeedBind = this._isNeedBindFromLayout(bindIdx);
                 if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
-                    const buffer = isEmpty || (isNeedBind && !this._buffers[i]) ? isNeedBind ? layout.buffers[i] : device.defaultDescriptorResource.buffer : this._buffers[i] as WebGPUBuffer;
+                    const buffer = (isEmpty || (isNeedBind && !this._buffers[i])) ? isNeedBind ? layout.buffers.get(bindIdx) : device.defaultDescriptorResource.buffer : this._buffers[i] as WebGPUBuffer;
                     if(buffer) {
                         descriptors[i].gpuBuffer = buffer.gpuBuffer;
                         const nativeBuffer = descriptors[i].gpuBuffer?.glBuffer;
@@ -97,7 +110,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                     if(isEmpty) break;
                 } else if (descriptors[i].type & DESCRIPTOR_SAMPLER_TYPE) {
                         // texture
-                        const currTex = (isEmpty || (isNeedBind && !this._textures[i]) ? isNeedBind ? layout.textures[i] : device.defaultDescriptorResource.texture : this._textures[i]) as WebGPUTexture;
+                        const currTex = (isEmpty || (isNeedBind && !this._textures[i])) ? isNeedBind ? layout.textures.get(bindIdx) : device.defaultDescriptorResource.texture : this._textures[i] as WebGPUTexture;
                         if(currTex) {
                             descriptors[i].gpuTexture = currTex.gpuTexture;
 
@@ -110,8 +123,9 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                         }
 
                         // sampler
-                        const currSampler = isEmpty  || (isNeedBind && !this._samplers[i]) ? isNeedBind ? layout.samplers[i] : device.defaultDescriptorResource.sampler : this._samplers[i] as WebGPUSampler;
                         const samplerIdx = bindIdx + SEPARATE_SAMPLER_BINDING_OFFSET;
+                        const currSampler = (isEmpty  || (isNeedBind && !this._samplers[i])) ? isNeedBind ? layout.samplers.get(samplerIdx) : device.defaultDescriptorResource.sampler : this._samplers[i] as WebGPUSampler;
+                        
                         if(currSampler) {
                             descriptors[i].gpuSampler = currSampler.gpuSampler;
                             const bindSamplerGrpEntry: GPUBindGroupEntry = {
@@ -139,6 +153,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
             layout: layout.gpuDescriptorSetLayout.bindGroupLayout!,
             entries: groups,
         });
+        this._gpuDescriptorSet!.bindGroupLayout = layout.gpuDescriptorSetLayout.bindGroupLayout!;
         this._gpuDescriptorSet!.bindGroup = bindGroup!;
     }
 
@@ -149,7 +164,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
             for(const [binding, entry] of layout.bindGrpLayoutEntries) {
                 if(!this._bindGroupEntries.has(binding)) {
                     if(entry.buffer) {
-                        const buffer = layout.buffers[binding];
+                        const buffer = layout.buffers.get(binding)!;
                         this._buffers[binding] = buffer;
                         this._bindGroupEntries.set(binding, {
                             binding: binding,
@@ -161,7 +176,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                         });
                     }
                     if(entry.texture) {
-                        const texture = layout.textures[binding];
+                        const texture = layout.textures.get(binding)!;
                         this._textures[binding] = texture;
                         this._bindGroupEntries.set(binding, {
                             binding: binding,
@@ -169,7 +184,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
                         });
                     }
                     if(entry.sampler) {
-                        const sampler = layout.samplers[binding];
+                        const sampler = layout.samplers.get(binding)!;
                         this._samplers[binding] = sampler;
                         this._bindGroupEntries.set(binding, {
                             binding: binding,

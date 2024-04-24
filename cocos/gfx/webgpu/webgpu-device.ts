@@ -28,6 +28,7 @@ import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUShader } from './webgpu-shader';
 import { WebGPUStateCache } from './webgpu-state-cache';
 import { WebGPUTexture } from './webgpu-texture';
+import { DefaultResources, hashCombineNum, hashCombineStr } from './define';
 // import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
 import {
     Filter, Format,
@@ -55,7 +56,7 @@ import { BufferBarrier } from '../base/states/buffer-barrier';
 import { Swapchain } from '../base/swapchain';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 import { WebGPUDeviceManager } from './define';
-import { IWebGPUBindingMapping } from './webgpu-gpu-objects';
+import { IWebGPUBindingMapping, IWebGPUGPUBuffer as IWebGPUBuffer, IWebGPUGPUSampler as IWebGPUSampler, IWebGPUTexture } from './webgpu-gpu-objects';
 import { debug } from '../../core';
 import { fetchUrl } from 'pal/wasm';
 import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
@@ -127,7 +128,7 @@ export class WebGPUDevice extends Device {
     public cmdAllocator: WebGPUCommandAllocator = new WebGPUCommandAllocator();
     public nullTex2D: WebGPUTexture | null = null;
     public nullTexCube: WebGPUTexture | null = null;
-    public defaultDescriptorResource;
+    public defaultDescriptorResource: DefaultResources = new DefaultResources();
 
     private _adapter: GPUAdapter | null | undefined = null;
     private _device: GPUDevice | null | undefined = null;
@@ -356,14 +357,76 @@ export class WebGPUDevice extends Device {
         }
     }
 
+    public getDefaultDescResources(entry: GPUBindGroupLayoutEntry, resourceInfo: IWebGPUBuffer | IWebGPUTexture | IWebGPUSampler) {
+        let currHash = hashCombineNum(entry.visibility, 0);
+        const defaultRes = this.defaultDescriptorResource;
+        if(entry.buffer) {
+            currHash = hashCombineStr(entry.buffer.type!, currHash);
+            if(entry.buffer.hasDynamicOffset) currHash = hashCombineNum(entry.buffer.hasDynamicOffset ? 1 : 0, currHash);
+            if(entry.buffer.minBindingSize !== undefined) currHash = hashCombineNum(entry.buffer.minBindingSize, currHash);
+            if(defaultRes.buffersDescLayout.has(currHash)) {
+                return defaultRes.buffersDescLayout.get(currHash);
+            }
+            resourceInfo = resourceInfo as IWebGPUBuffer;
+            const bufferInfo = new BufferInfo();
+            bufferInfo.usage = resourceInfo.usage;
+            bufferInfo.size = bufferInfo.stride = 16;
+            bufferInfo.memUsage = resourceInfo.memUsage;
+            bufferInfo.flags = resourceInfo.flags!;
+            defaultRes.buffersDescLayout.set(currHash, this.createBuffer(bufferInfo) as WebGPUBuffer);
+            return defaultRes.buffersDescLayout.get(currHash);
+        } else if(entry.texture){
+            resourceInfo = resourceInfo as IWebGPUTexture;
+            currHash = hashCombineStr(entry.texture.sampleType!, currHash);
+            currHash = hashCombineStr(entry.texture.viewDimension!, currHash);
+            currHash = hashCombineNum(entry.texture.multisampled ? 1 : 0, currHash);
+            currHash = hashCombineNum(resourceInfo.mipLevel, currHash);
+            currHash = hashCombineNum(resourceInfo.arrayLayer, currHash);
+            if(defaultRes.texturesDescLayout.has(currHash)) {
+                return defaultRes.texturesDescLayout.get(currHash);
+            }
+            const texInfo = new TextureInfo(
+                resourceInfo.type,
+                resourceInfo.usage,
+                resourceInfo.format,
+                Math.pow(2, resourceInfo.mipLevel - 1),
+                Math.pow(2, resourceInfo.mipLevel - 1),
+                resourceInfo.flags,
+                resourceInfo.arrayLayer,
+                resourceInfo.mipLevel,
+                resourceInfo.samples,
+                1,
+            );
+            defaultRes.texturesDescLayout.set(currHash, this.createTexture(texInfo) as WebGPUTexture);
+            return defaultRes.texturesDescLayout.get(currHash);
+        } else if(entry.sampler) {
+            resourceInfo = resourceInfo as IWebGPUSampler;
+            currHash = hashCombineStr(entry.sampler.type!, currHash);
+            if(defaultRes.samplersDescLayout.has(currHash)) {
+                return defaultRes.samplersDescLayout.get(currHash);
+            }
+            const samplerInfo = new SamplerInfo();
+            samplerInfo.minFilter = resourceInfo.minFilter;
+            samplerInfo.magFilter = resourceInfo.magFilter;
+            samplerInfo.mipFilter = resourceInfo.mipFilter;
+            samplerInfo.addressU = resourceInfo.addressU;
+            samplerInfo.addressV = resourceInfo.addressV;
+            samplerInfo.addressW = resourceInfo.addressW;
+
+            defaultRes.samplersDescLayout.set(currHash, this.getSampler(samplerInfo) as WebGPUSampler);
+            return defaultRes.samplersDescLayout.get(currHash);
+        }
+    }
     private async initDevice (info: Readonly<DeviceInfo>): Promise<boolean> {
         const gpu = navigator.gpu;
         this._adapter = await gpu?.requestAdapter();
         const maxVertAttrs = this._adapter!.limits.maxVertexAttributes;
+        const maxSampledTexPerShaderStage = this._adapter!.limits.maxSampledTexturesPerShaderStage;
         this._device = await this._adapter?.requestDevice({
             requiredLimits: {
                 // Must be changed, default support for 16 is not enough
-                maxVertexAttributes: maxVertAttrs
+                maxVertexAttributes: maxVertAttrs,
+                maxSampledTexturesPerShaderStage: maxSampledTexPerShaderStage,
             }
         });
         
@@ -456,11 +519,9 @@ export class WebGPUDevice extends Device {
         const samplerInfo = new SamplerInfo();
         const defaultDescSmplResc = this.getSampler(samplerInfo);
 
-        this.defaultDescriptorResource = {
-            buffer: defaultDescBuffResc,
-            texture: defaultDescTexResc,
-            sampler: defaultDescSmplResc,
-        };
+        this.defaultDescriptorResource.buffer = defaultDescBuffResc as WebGPUBuffer;
+        this.defaultDescriptorResource.texture = defaultDescTexResc as WebGPUTexture;
+        this.defaultDescriptorResource.sampler = defaultDescSmplResc as WebGPUSampler;
         let compressedFormat = '';
 
         if (this.getFormatFeatures(Format.ETC_RGB8)) {
