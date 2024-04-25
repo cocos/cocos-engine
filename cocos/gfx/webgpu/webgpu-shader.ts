@@ -29,6 +29,7 @@ export class WebGPUShader extends Shader {
             glUniforms: [],
             glBlocks: [],
             glSamplers: [],
+            bindings: new Map<number, number[]>(),
         };
 
         for (let i = 0; i < info.stages.length; ++i) {

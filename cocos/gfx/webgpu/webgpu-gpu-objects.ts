@@ -177,6 +177,7 @@ export interface IWebGPUGPUShader {
     glUniforms: IWebGPUGPUUniform[];
     glBlocks: IWebGPUGPUUniformBlock[];
     glSamplers: IWebGPUGPUUniformSampler[];
+    bindings: Map<number, number[]>;
 }
 
 export interface IWebGPUGPUDescriptorSetLayout {

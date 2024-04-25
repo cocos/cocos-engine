@@ -918,6 +918,7 @@ export function WebGPUCmdFuncCreateGPUShader(device: WebGPUDevice, gpuShader: IW
     const twgsl = device.twgsl;
     const wgslCodes: string[] = [];
     for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
+        wgslCodes.length = 0;
         const gpuStage = gpuShader.gpuStages[i];
         let glslSource = seperateCombinedSamplerTexture(gpuStage.source);
         const stageStr = gpuStage.type === ShaderStageFlagBit.VERTEX ? 'vertex'
@@ -952,6 +953,19 @@ export function WebGPUCmdFuncCreateGPUShader(device: WebGPUDevice, gpuShader: IW
         wgslCodes.push(wgsl);
         const bindingList = reflect(wgslCodes);
         gpuStage.bindings = bindingList;
+        for(let s = 0; s < bindingList.length; s++) {
+            if(bindingList[s].length) {
+                if(!gpuShader.bindings.has(s)) {
+                    gpuShader.bindings.set(s, []);
+                }
+                const bindings = gpuShader.bindings.get(s)!;
+                for(let b = 0; b < bindingList[s].length; b++) {
+                    if(!bindings.includes(bindingList[s][b])) {
+                        bindings.push(bindingList[s][b]);
+                    }
+                }
+            }
+        }
     }
 }
 
