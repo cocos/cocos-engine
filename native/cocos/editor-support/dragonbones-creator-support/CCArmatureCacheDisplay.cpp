@@ -397,10 +397,7 @@ void CCArmatureCacheDisplay::setAttachEnabled(bool enabled) {
 
 void CCArmatureCacheDisplay::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
-        for (auto &item : _materialCaches) {
-            CC_SAFE_DELETE(item.second);
-        }
-        _materialCaches.clear();
+        _needClerMaterialCaches = true;
         _enableBatch = enabled;
     }
 }
@@ -418,10 +415,7 @@ void CCArmatureCacheDisplay::setRenderEntity(cc::RenderEntity *entity) {
 
 void CCArmatureCacheDisplay::setMaterial(cc::Material *material) {
     _material = material;
-    for (auto &item : _materialCaches) {
-        CC_SAFE_DELETE(item.second);
-    }
-    _materialCaches.clear();
+    _needClerMaterialCaches = true;
 }
 
 cc::RenderDrawInfo *CCArmatureCacheDisplay::requestDrawInfo(int idx) {
@@ -434,6 +428,13 @@ cc::RenderDrawInfo *CCArmatureCacheDisplay::requestDrawInfo(int idx) {
 }
 
 cc::Material *CCArmatureCacheDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+    if (_needClerMaterialCaches) {
+        _needClerMaterialCaches = false;
+        for (auto &item : _materialCaches) {
+            CC_SAFE_DELETE(item.second);
+        }
+        _materialCaches.clear();
+    }
     uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info{
