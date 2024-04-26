@@ -423,6 +423,17 @@ class ScreenAdapter extends EventTarget {
             }
             return tmpOrientation;
         };
+        /*After receive orientation-change event, window.innerWidth & innerHeight may not change immediately,
+        so we delay EVENT_TIMEOUT to handle orientation-change.*/
+        let handleOrientationChange;
+        const orientationChangeCallback = (): void => {
+            if (this._orientationChangeTimeoutId !== -1) {
+                clearTimeout(this._orientationChangeTimeoutId);
+            }
+            this._orientationChangeTimeoutId = setTimeout((): void => {
+                handleOrientationChange();
+            }, EVENT_TIMEOUT);
+        };
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = (): void => {
                 const dpr = window.devicePixelRatio;
@@ -436,7 +447,7 @@ class ScreenAdapter extends EventTarget {
 
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
-            const handleOrientationChange = (): void => {
+            handleOrientationChange = (): void => {
                 let tmpOrientation: Orientation = this._orientationDevice;
                 // eslint-disable-next-line no-restricted-globals
                 if (!screen.orientation) {
@@ -458,14 +469,14 @@ class ScreenAdapter extends EventTarget {
                 }
                 notifyOrientationChange(tmpOrientation);
             };
-            mediaQueryPortrait.addEventListener('change', handleOrientationChange);
-            mediaQueryLandscape.addEventListener('change', handleOrientationChange);
+            mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
+            mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
         } else {
-            const handleOrientationChange = (): void => {
+            handleOrientationChange = (): void => {
                 const tmpOrientation = getOrientation(window.orientation);
                 notifyOrientationChange(tmpOrientation);
             };
-            window.addEventListener('orientationchange', handleOrientationChange);
+            window.addEventListener('orientationchange', orientationChangeCallback);
         }
         document.addEventListener(this._fn.fullscreenchange, () => {
             this._onFullscreenChange?.();
