@@ -424,7 +424,7 @@ class ScreenAdapter extends EventTarget {
             return tmpOrientation;
         };
         /*After receive orientation-change event, window.innerWidth & innerHeight may not change immediately,
-        so we delay EVENT_TIMEOUT to handle orientation-change. */
+        so we delay EVENT_TIMEOUT to handle orientation-change.*/
         let handleOrientationChange;
         const orientationChangeCallback = (): void => {
             if (this._orientationChangeTimeoutId !== -1) {
