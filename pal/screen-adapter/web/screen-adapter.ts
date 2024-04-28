@@ -31,7 +31,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
-import { sys } from '../../../cocos/core';
+import { sys } from '../../../cocos/core/platform';
 
 interface ICachedStyle {
     width: string;
