@@ -31,6 +31,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
+import { OS } from '../../../pal/system-info/enum-type';
 
 interface ICachedStyle {
     width: string;
@@ -397,10 +398,7 @@ class ScreenAdapter extends EventTarget {
             this.emit('orientation-change', orientation);
         };
 
-        const getOrientation = (rotateAngle: number | string): Orientation => {
-            if (typeof rotateAngle === 'string') {
-                rotateAngle = parseInt(rotateAngle, 10);
-            }
+        const getOrientation = (): Orientation => {
             let tmpOrientation = Orientation.PORTRAIT;
             switch (window.orientation) {
             case 0:
@@ -447,24 +445,31 @@ class ScreenAdapter extends EventTarget {
 
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
+            // eslint-disable-next-line no-restricted-globals
+            const hasScreeOrientation = screen.orientation;
             handleOrientationChange = (): void => {
                 let tmpOrientation: Orientation = this._orientationDevice;
-                // eslint-disable-next-line no-restricted-globals
-                if (!screen.orientation) {
-                    tmpOrientation = getOrientation(window.orientation);
-                } else {
-                    // eslint-disable-next-line no-restricted-globals
-                    const orientationType = screen.orientation.type;
-                    if (mediaQueryPortrait.matches) {
+                if (mediaQueryPortrait.matches) {
+                    tmpOrientation = Orientation.PORTRAIT;
+                    if (hasScreeOrientation) {
+                        // eslint-disable-next-line no-restricted-globals
+                        const orientationType = screen.orientation.type;
                         if (orientationType === 'portrait-primary') {
                             tmpOrientation = Orientation.PORTRAIT;
                         } else {
                             tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
                         }
-                    } else if (orientationType === 'landscape-primary') {
-                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                    } else if (orientationType === 'landscape-secondary') {
-                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                    }
+                } else if (mediaQueryLandscape.matches) {
+                    tmpOrientation = Orientation.LANDSCAPE;
+                    if (hasScreeOrientation) {
+                        // eslint-disable-next-line no-restricted-globals
+                        const orientationType = screen.orientation.type;
+                        if (orientationType === 'landscape-primary') {
+                            tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                        } else {
+                            tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                        }
                     }
                 }
                 notifyOrientationChange(tmpOrientation);
@@ -473,7 +478,7 @@ class ScreenAdapter extends EventTarget {
             mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
         } else {
             handleOrientationChange = (): void => {
-                const tmpOrientation = getOrientation(window.orientation);
+                const tmpOrientation = getOrientation();
                 notifyOrientationChange(tmpOrientation);
             };
             window.addEventListener('orientationchange', orientationChangeCallback);
@@ -513,9 +518,9 @@ class ScreenAdapter extends EventTarget {
         } else {
             const winWidth = window.innerWidth;
             let winHeight = window.innerHeight;
-            //On certain devices, window.innerHeight may not account for the height of the virtual keyboard, so dynamic calculation is necessary.
+            //On certain android devices, window.innerHeight may not account for the height of the virtual keyboard, so dynamic calculation is necessary.
             const inputHeight = document.body.scrollHeight - winHeight;
-            if (winHeight < inputHeight) {
+            if (systemInfo.os === OS.ANDROID && winHeight < inputHeight) {
                 winHeight += inputHeight;
             }
             if (this.isFrameRotated) {
