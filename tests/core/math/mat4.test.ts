@@ -38,7 +38,7 @@ describe('Test Mat4', () => {
         const t = new Vec3();
         const s = new Vec3();
         Mat4.toSRT(m, q, t, s);
-        expect(Quat.equals(q, new Quat(0, 0, 0, 0.7071067811865476))).toBe(true);
+        expect(Quat.equals(q, new Quat(0, 0, 0, 1))).toBe(true);
         expect(Vec3.equals(t, new Vec3(0.000002836869271050091, -64.9000015258789, 0))).toBe(true);
         expect(Vec3.equals(s, new Vec3(0, 0, 1))).toBe(true);
     });

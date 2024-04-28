@@ -897,44 +897,48 @@ export class Mat4 extends ValueType {
      * @param s The corresponding scaling vector
      */
     public static toSRT<InType extends IMat4Like, VecLike extends IVec3Like> (m: InType, q: Quat | null, v: VecLike | null, s: VecLike | null): void {
+        // Translation
+        if (v) {
+            Vec3.set(v, m.m12, m.m13, m.m14);
+        }
+
+        // Scale
         const sx = Vec3.set(v3_1, m.m00, m.m01, m.m02).length();
         const sy = Vec3.set(v3_1, m.m04, m.m05, m.m06).length();
         const sz = Vec3.set(v3_1, m.m08, m.m09, m.m10).length();
-
-        if (sx !== 0) {
-            m3_1.m00 = m.m00 / sx;
-            m3_1.m01 = m.m01 / sx;
-            m3_1.m02 = m.m02 / sx;
-        } else {
-            m3_1.m00 = m3_1.m01 = m3_1.m02 = 0;
-        }
-        if (sy !== 0) {
-            m3_1.m03 = m.m04 / sy;
-            m3_1.m04 = m.m05 / sy;
-            m3_1.m05 = m.m06 / sy;
-        } else {
-            m3_1.m03 = m3_1.m04 = m3_1.m05 = 0;
-        }
-        if (sz !== 0) {
-            m3_1.m06 = m.m08 / sz;
-            m3_1.m07 = m.m09 / sz;
-            m3_1.m08 = m.m10 / sz;
-        } else {
-            m3_1.m06 = m3_1.m07 = m3_1.m08 = 0;
-        }
-
-        const det = Mat3.determinant(m3_1);
         if (s) {
             s.x = sx;
             s.y = sy;
             s.z = sz;
+        }
+
+        // Scale too close to zero, can't decompose rotation.
+        if (sx === 0 || sy === 0 || sz === 0) {
+            if (q) {
+                Quat.identity(q);
+            }
+            return;
+        }
+
+        m3_1.m00 = m.m00 / sx;
+        m3_1.m01 = m.m01 / sx;
+        m3_1.m02 = m.m02 / sx;
+
+        m3_1.m03 = m.m04 / sy;
+        m3_1.m04 = m.m05 / sy;
+        m3_1.m05 = m.m06 / sy;
+
+        m3_1.m06 = m.m08 / sz;
+        m3_1.m07 = m.m09 / sz;
+        m3_1.m08 = m.m10 / sz;
+
+        const det = Mat3.determinant(m3_1);
+        if (s) {
             if (det < 0) {
                 s.x *= -1;
             }
         }
-        if (v) {
-            Vec3.set(v, m.m12, m.m13, m.m14);
-        }
+
         if (q) {
             if (det < 0) {
                 m3_1.m00 *= -1;
