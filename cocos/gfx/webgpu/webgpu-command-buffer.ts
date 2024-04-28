@@ -47,7 +47,7 @@ import { INT_MAX } from '../../core/math/bits';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { WebGPUDeviceManager } from './define';
+import { DescUpdateFrequency, WebGPUDeviceManager } from './define';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
@@ -548,16 +548,20 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     protected bindStates() {
         if (this._curGPUPipelineState) {
+            const bindingMaps = this._curGPUPipelineState.gpuShader!.bindings;
             const gpuPipelineLayout = this._curGPUPipelineState.gpuPipelineLayout as IWebGPUGPUPipelineLayout;
-            const psoLayouts = gpuPipelineLayout.gpuBindGroupLayouts;
+            const defaultResource = WebGPUDeviceManager.instance.defaultResource;
+            // const psoLayouts = gpuPipelineLayout.gpuBindGroupLayouts;
             let needFetchPipLayout = false;
-            for(let i = 0; i < psoLayouts.length; i++) {
+            for(let i = 0; i < descriptorSets.length; i++) {
+                descriptorSets[i].prepare(i ? DescUpdateFrequency.NORMAL : DescUpdateFrequency.LOW, bindingMaps.get(i)!);;
                 const layout = descriptorSets[i].layout as WebGPUDescriptorSetLayout;
-                if(psoLayouts[i] !== this._curGPUDescriptorSets[i].bindGroupLayout
-                    || layout.hasChanged
-                ) {
+                const currGrpLayout = layout.gpuDescriptorSetLayout.bindGroupLayout;
+                if(layout.hasChanged ||
+                    (gpuPipelineLayout.gpuBindGroupLayouts[i]
+                    !== currGrpLayout)) {
+                    layout.resetChanged();
                     needFetchPipLayout = true;
-                    break;
                 }
             }
             const wgpuPipLayout = (currPipelineState?.pipelineLayout as WebGPUPipelineLayout);
@@ -583,6 +587,13 @@ export class WebGPUCommandBuffer extends CommandBuffer {
                 const curGpuDesc = this._curGPUDescriptorSets[i];
                 wgpuBindGroups[i] = curGpuDesc.bindGroup;
             }
+            // // Webgpu does not allow setlayout to have a value after it but not before it has a value.
+            // for(let i = 0; i < wgpuBindGroups.length; i++) {
+            //     if(!wgpuBindGroups[i]) {
+            //         const descSet = WebGPUDeviceManager.instance.defaultResource.descSet as WebGPUDescriptorSet;
+            //         wgpuBindGroups[i] = descSet.gpuDescriptorSet.bindGroup;
+            //     }
+            // }
             const bgfunc = (passEncoder: GPURenderPassEncoder) => {
                 for (let i = 0; i < wgpuBindGroups.length; i++) {
                     // FIXME: this is a special sentence that 2 in 3 parameters I'm not certain.

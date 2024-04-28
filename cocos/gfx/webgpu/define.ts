@@ -1,3 +1,5 @@
+import { DescriptorSet } from '../base/descriptor-set';
+import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUDevice } from './webgpu-device';
 import { WebGPUSampler } from './webgpu-sampler';
@@ -39,4 +41,16 @@ export class DefaultResources {
     buffer!: WebGPUBuffer;
     texture!: WebGPUTexture;
     sampler!: WebGPUSampler;
+    setLayout!: DescriptorSetLayout;
+    descSet!: DescriptorSet;
+}
+
+export function isBind(binds: number[], compares: number[]): boolean {
+    return binds.length === compares.length && binds.every(bind => compares.includes(bind));
+}
+
+
+export enum DescUpdateFrequency {
+    LOW,
+    NORMAL,
 }

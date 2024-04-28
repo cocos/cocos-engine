@@ -124,7 +124,7 @@ export class WebGPUPipelineState extends PipelineState {
         //   });
         const stripTopology = (info.primitive == PrimitiveMode.LINE_STRIP || info.primitive == PrimitiveMode.TRIANGLE_STRIP);
         const renderPplDesc: GPURenderPipelineDescriptor = {
-            layout: (this._pipelineLayout as WebGPUPipelineLayout).gpuPipelineLayout.nativePipelineLayout,
+            layout: 'auto',// later
             // vertexStage,
             // primitive: WebPUPrimitives[info.primitive],
             vertex: {

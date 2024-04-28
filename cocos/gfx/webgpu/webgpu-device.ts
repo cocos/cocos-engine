@@ -28,7 +28,7 @@ import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUShader } from './webgpu-shader';
 import { WebGPUStateCache } from './webgpu-state-cache';
 import { WebGPUTexture } from './webgpu-texture';
-import { DefaultResources, hashCombineNum, hashCombineStr } from './define';
+import { DefaultResources, DescUpdateFrequency, hashCombineNum, hashCombineStr } from './define';
 // import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
 import {
     Filter, Format,
@@ -48,6 +48,9 @@ import {
     BufferUsageBit,
     MemoryUsageBit,
     BufferFlagBit,
+    DescriptorSetLayoutBinding,
+    DescriptorType,
+    ShaderStageFlagBit,
 } from '../base/define';
 import { WebGPUCommandAllocator } from './webgpu-command-allocator';
 import { GeneralBarrier } from '../base/states/general-barrier';
@@ -128,7 +131,7 @@ export class WebGPUDevice extends Device {
     public cmdAllocator: WebGPUCommandAllocator = new WebGPUCommandAllocator();
     public nullTex2D: WebGPUTexture | null = null;
     public nullTexCube: WebGPUTexture | null = null;
-    public defaultDescriptorResource: DefaultResources = new DefaultResources();
+    public defaultResource: DefaultResources = new DefaultResources();
 
     private _adapter: GPUAdapter | null | undefined = null;
     private _device: GPUDevice | null | undefined = null;
@@ -359,7 +362,7 @@ export class WebGPUDevice extends Device {
 
     public getDefaultDescResources(entry: GPUBindGroupLayoutEntry, resourceInfo: IWebGPUBuffer | IWebGPUTexture | IWebGPUSampler) {
         let currHash = hashCombineNum(entry.visibility, 0);
-        const defaultRes = this.defaultDescriptorResource;
+        const defaultRes = this.defaultResource;
         if(entry.buffer) {
             currHash = hashCombineStr(entry.buffer.type!, currHash);
             if(entry.buffer.hasDynamicOffset) currHash = hashCombineNum(entry.buffer.hasDynamicOffset ? 1 : 0, currHash);
@@ -417,6 +420,27 @@ export class WebGPUDevice extends Device {
             return defaultRes.samplersDescLayout.get(currHash);
         }
     }
+
+    private _createDefaultDescSet() {
+        const defaultResource = this.defaultResource;
+        // default set layout
+        const layoutInfo = new DescriptorSetLayoutInfo();
+        const layoutBinding = new DescriptorSetLayoutBinding();
+        layoutBinding.binding = 0;
+        layoutBinding.count = 1;
+        layoutBinding.descriptorType = DescriptorType.UNIFORM_BUFFER;
+        layoutBinding.stageFlags = ShaderStageFlagBit.VERTEX;
+        layoutInfo.bindings.push(layoutBinding);
+        defaultResource.setLayout = this.createDescriptorSetLayout(layoutInfo);
+        // default set
+        const descInfo = new DescriptorSetInfo();
+        descInfo.layout = defaultResource.setLayout;
+        defaultResource.descSet = this.createDescriptorSet(descInfo)
+        defaultResource.descSet.bindBuffer(0, defaultResource.buffer);
+        defaultResource.descSet.update();
+        (defaultResource.descSet as WebGPUDescriptorSet).prepare(DescUpdateFrequency.NORMAL, [0]);
+    }
+
     private async initDevice (info: Readonly<DeviceInfo>): Promise<boolean> {
         const gpu = navigator.gpu;
         this._adapter = await gpu?.requestAdapter();
@@ -518,10 +542,12 @@ export class WebGPUDevice extends Device {
 
         const samplerInfo = new SamplerInfo();
         const defaultDescSmplResc = this.getSampler(samplerInfo);
+        const defaultResource = this.defaultResource;
+        defaultResource.buffer = defaultDescBuffResc as WebGPUBuffer;
+        defaultResource.texture = defaultDescTexResc as WebGPUTexture;
+        defaultResource.sampler = defaultDescSmplResc as WebGPUSampler;
+        this._createDefaultDescSet();
 
-        this.defaultDescriptorResource.buffer = defaultDescBuffResc as WebGPUBuffer;
-        this.defaultDescriptorResource.texture = defaultDescTexResc as WebGPUTexture;
-        this.defaultDescriptorResource.sampler = defaultDescSmplResc as WebGPUSampler;
         let compressedFormat = '';
 
         if (this.getFormatFeatures(Format.ETC_RGB8)) {
