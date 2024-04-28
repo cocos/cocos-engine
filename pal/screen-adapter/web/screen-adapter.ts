@@ -31,7 +31,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
-import { sys } from '../../../cocos/core/platform';
+import { OS } from '../../../pal/system-info/enum-type';
 
 interface ICachedStyle {
     width: string;
@@ -518,9 +518,9 @@ class ScreenAdapter extends EventTarget {
         } else {
             const winWidth = window.innerWidth;
             let winHeight = window.innerHeight;
-            //On certain devices, window.innerHeight may not account for the height of the virtual keyboard, so dynamic calculation is necessary.
+            //On certain android devices, window.innerHeight may not account for the height of the virtual keyboard, so dynamic calculation is necessary.
             const inputHeight = document.body.scrollHeight - winHeight;
-            if (sys.os === sys.OS.ANDROID && winHeight < inputHeight) {
+            if (systemInfo.os === OS.ANDROID && winHeight < inputHeight) {
                 winHeight += inputHeight;
             }
             if (this.isFrameRotated) {
