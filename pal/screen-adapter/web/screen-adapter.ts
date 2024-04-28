@@ -31,7 +31,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
-import { sys } from "../../../cocos/core";
+import { sys } from '../../../cocos/core';
 
 interface ICachedStyle {
     width: string;
@@ -453,7 +453,7 @@ class ScreenAdapter extends EventTarget {
                     tmpOrientation = Orientation.PORTRAIT;
                     if (hasScreeOrientation) {
                         // eslint-disable-next-line no-restricted-globals
-                        let orientationType = screen.orientation.type;
+                        const orientationType = screen.orientation.type;
                         if (orientationType === 'portrait-primary') {
                             tmpOrientation = Orientation.PORTRAIT;
                         } else {
@@ -464,7 +464,7 @@ class ScreenAdapter extends EventTarget {
                     tmpOrientation = Orientation.LANDSCAPE;
                     if (hasScreeOrientation) {
                         // eslint-disable-next-line no-restricted-globals
-                        let orientationType = screen.orientation.type;
+                        const orientationType = screen.orientation.type;
                         if (orientationType === 'landscape-primary') {
                             tmpOrientation = Orientation.LANDSCAPE_LEFT;
                         } else {
