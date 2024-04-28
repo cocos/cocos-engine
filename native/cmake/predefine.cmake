@@ -126,6 +126,8 @@ if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
     set(WERROR_FLAGS "-Werror -Werror=return-type") # -Wshorten-64-to-32 -Werror=return-type
     
     if(APPLE)
+        set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations")
+    elseif(MACOSX)
         set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-deprecated-declarations -Wno-deprecated-builtins")
     elseif(LINUX)
         set(WERROR_FLAGS " ${WERROR_FLAGS} -Wno-nullability-completeness -Wno-deprecated-declarations")
