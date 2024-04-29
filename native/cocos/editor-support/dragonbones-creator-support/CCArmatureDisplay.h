@@ -204,6 +204,7 @@ private:
     cc::Material *_material = nullptr;
     ccstd::vector<cc::RenderDrawInfo *> _drawInfoArray;
     ccstd::unordered_map<uint32_t, cc::Material *> _materialCaches;
+    bool _needClerMaterialCaches = false;
 };
 
 DRAGONBONES_NAMESPACE_END

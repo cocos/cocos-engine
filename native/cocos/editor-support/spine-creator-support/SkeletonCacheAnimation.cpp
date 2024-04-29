@@ -440,10 +440,7 @@ void SkeletonCacheAnimation::setColor(float r, float g, float b, float a) {
 
 void SkeletonCacheAnimation::setBatchEnabled(bool enabled) {
     if (_enableBatch != enabled) {
-        for (auto &item : _materialCaches) {
-            CC_SAFE_DELETE(item.second);
-        }
-        _materialCaches.clear();
+        _needClerMaterialCaches = true;
         _enableBatch = enabled;
     }
 }
@@ -558,10 +555,7 @@ void SkeletonCacheAnimation::setRenderEntity(cc::RenderEntity *entity) {
 
 void SkeletonCacheAnimation::setMaterial(cc::Material *material) {
     _material = material;
-    for (auto &item : _materialCaches) {
-        CC_SAFE_DELETE(item.second);
-    }
-    _materialCaches.clear();
+    _needClerMaterialCaches = true;
 }
 
 cc::RenderDrawInfo *SkeletonCacheAnimation::requestDrawInfo(int idx) {
@@ -574,6 +568,13 @@ cc::RenderDrawInfo *SkeletonCacheAnimation::requestDrawInfo(int idx) {
 }
 
 cc::Material *SkeletonCacheAnimation::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
+    if (_needClerMaterialCaches) {
+        for (auto &item : _materialCaches) {
+            CC_SAFE_DELETE(item.second);
+        }
+        _materialCaches.clear();
+        _needClerMaterialCaches = false;
+    }
     uint32_t key = static_cast<uint32_t>(blendSrc) << 16 | static_cast<uint32_t>(blendDst);
     if (_materialCaches.find(key) == _materialCaches.end()) {
         const IMaterialInstanceInfo info{
