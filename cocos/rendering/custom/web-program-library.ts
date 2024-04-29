@@ -900,7 +900,7 @@ export class WebProgramLibrary implements ProgramLibrary {
 
         // update ubo
         // tips: for compatibility with old version, when maxVertexUniformVectors is 128, maxJoints = 30
-        let maxJoints: number = (this.device.capabilities.maxVertexUniformVectors - 38) / 3;
+        let maxJoints: number = Math.floor((this.device.capabilities.maxVertexUniformVectors - 38) / 3);
         maxJoints = maxJoints < 256 ? maxJoints : 256;
         UBOSkinning.initLayout(maxJoints);
 
