@@ -406,7 +406,7 @@ se_object_ptr CCArmatureDisplay::getSharedBufferOffset() const {
 
 void CCArmatureDisplay::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
-        _needClerMaterialCaches = true;
+        _needClearMaterialCaches = true;
         _enableBatch = enabled;
     }
 }
@@ -417,7 +417,7 @@ void CCArmatureDisplay::setRenderEntity(cc::RenderEntity *entity) {
 
 void CCArmatureDisplay::setMaterial(cc::Material *material) {
     _material = material;
-    _needClerMaterialCaches = true;
+    _needClearMaterialCaches = true;
 }
 
 cc::RenderDrawInfo *CCArmatureDisplay::requestDrawInfo(int idx) {
@@ -430,8 +430,8 @@ cc::RenderDrawInfo *CCArmatureDisplay::requestDrawInfo(int idx) {
 }
 
 cc::Material *CCArmatureDisplay::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
-    if (_needClerMaterialCaches) {
-        _needClerMaterialCaches = false;
+    if (_needClearMaterialCaches) {
+        _needClearMaterialCaches = false;
         for (auto &item : _materialCaches) {
             CC_SAFE_DELETE(item.second);
         }
