@@ -120,7 +120,7 @@ export class Pool<T> extends ScalableContainer {
         }
 
         let objectNumberToShrink = 0;
-        if (freeObjectNumber >> 1 > this._shrinkThreshold) {
+        if (freeObjectNumber >> 1 >= this._shrinkThreshold) {
             objectNumberToShrink = freeObjectNumber >> 1;
         } else {
             objectNumberToShrink = Math.floor((freeObjectNumber - this._shrinkThreshold + 1) / 2);
@@ -131,8 +131,8 @@ export class Pool<T> extends ScalableContainer {
                 this._dtor(this._freePool[i]);
             }
         }
-        this._freePool.length -= objectNumberToShrink;
-        this._nextAvail = this._freePool.length - 1;
+        this._nextAvail -= objectNumberToShrink;
+        this._freePool.length = this._nextAvail + 1;
     }
 
     /**
