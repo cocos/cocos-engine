@@ -227,7 +227,7 @@ export class FiniteTimeAction extends Action {
  * or less (speed < 1) time. <br/>
  * Useful to simulate 'slow motion' or 'fast forward' effect.
  */
-export class Speed<T> extends Action {
+export class Speed extends Action {
     protected _speed = 0;
     protected _innerAction: Action | null = null;
 
@@ -277,8 +277,8 @@ export class Speed<T> extends Action {
         return true;
     }
 
-    clone (): Speed<T> {
-        const action = new Speed<T>();
+    clone (): Speed {
+        const action = new Speed();
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone()!, this._speed);
         }
@@ -303,7 +303,7 @@ export class Speed<T> extends Action {
         return this._innerAction ? this._innerAction.isDone() : false;
     }
 
-    reverse (): Speed<T> {
+    reverse (): Speed {
         if (this._innerAction) {
             return new Speed(this._innerAction.reverse(), this._speed);
         }
