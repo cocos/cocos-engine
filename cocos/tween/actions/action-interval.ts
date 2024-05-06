@@ -727,7 +727,7 @@ export class RepeatForever extends ActionInterval {
      * Get inner action.
      * @return {ActionInterval}
      */
-    getInnerAction (): ActionInstant | null {
+    getInnerAction (): ActionInterval | null {
         return this._innerAction;
     }
 }

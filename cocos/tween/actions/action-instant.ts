@@ -242,8 +242,8 @@ export function removeSelf (isNeedCleanUp: boolean): ActionInstant {
  * var finish = new CallFunc(this.removeFromParentAndCleanup, this,  true);
  */
 export class CallFunc extends ActionInstant {
-    private _selectorTarget: unknown;
-    private _function: Function | undefined;
+    private _selectorTarget: unknown = null;
+    private _function: Function | null | undefined = null;
     private _data = null;
 
     /*
@@ -253,7 +253,7 @@ export class CallFunc extends ActionInstant {
      * @param {object} [selectorTarget=null]
      * @param {*} [data=null] data for function, it accepts all data types.
      */
-    constructor (selector?: Function, selectorTarget?: unknown, data?: any) {
+    constructor (selector?: Function | null, selectorTarget?: unknown, data?: any) {
         super();
         this.initWithFunction(selector, selectorTarget, data);
     }
@@ -265,7 +265,7 @@ export class CallFunc extends ActionInstant {
      * @param {*|Null} [data] data for function, it accepts all data types.
      * @return {Boolean}
      */
-    initWithFunction<T> (selector?: Function, selectorTarget?: T, data?: any): boolean {
+    initWithFunction<T> (selector?: Function | null, selectorTarget?: T, data?: any): boolean {
         if (selector) {
             this._function = selector;
         }
@@ -295,7 +295,7 @@ export class CallFunc extends ActionInstant {
      * Get selectorTarget.
      * @return {object}
      */
-    getTargetCallback<T> (): T | undefined {
+    getTargetCallback<T> (): T | null {
         return this._selectorTarget as T;
     }
 
@@ -305,7 +305,7 @@ export class CallFunc extends ActionInstant {
      */
     setTargetCallback<T> (sel: T): void {
         if (sel !== this._selectorTarget) {
-            if (this._selectorTarget) { this._selectorTarget = undefined; }
+            if (this._selectorTarget) { this._selectorTarget = null; }
             this._selectorTarget = sel;
         }
     }
