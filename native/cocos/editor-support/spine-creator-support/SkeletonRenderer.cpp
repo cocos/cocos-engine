@@ -952,7 +952,7 @@ void SkeletonRenderer::setColor(float r, float g, float b, float a) {
 
 void SkeletonRenderer::setBatchEnabled(bool enabled) {
     if (enabled != _enableBatch) {
-        _needClerMaterialCaches = true;
+        _needClearMaterialCaches = true;
         _enableBatch = enabled;
     }
 }
@@ -997,7 +997,7 @@ void SkeletonRenderer::setRenderEntity(cc::RenderEntity *entity) {
 
 void SkeletonRenderer::setMaterial(cc::Material *material) {
     _material = material;
-    _needClerMaterialCaches = true;
+    _needClearMaterialCaches = true;
 }
 
 cc::RenderDrawInfo *SkeletonRenderer::requestDrawInfo(int idx) {
@@ -1010,8 +1010,8 @@ cc::RenderDrawInfo *SkeletonRenderer::requestDrawInfo(int idx) {
 }
 
 cc::Material *SkeletonRenderer::requestMaterial(uint16_t blendSrc, uint16_t blendDst) {
-    if (_needClerMaterialCaches) {
-        _needClerMaterialCaches = false;
+    if (_needClearMaterialCaches) {
+        _needClearMaterialCaches = false;
         for (auto &item : _materialCaches) {
             CC_SAFE_DELETE(item.second);
         }
