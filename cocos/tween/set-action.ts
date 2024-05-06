@@ -24,7 +24,7 @@
 
 import { ActionInstant } from './actions/action-instant';
 
-export class SetAction extends ActionInstant {
+export class SetAction<T> extends ActionInstant<T> {
     private _props: any;
 
     constructor (props?: any) {
@@ -49,8 +49,8 @@ export class SetAction extends ActionInstant {
         }
     }
 
-    clone (): SetAction {
-        const action = new SetAction();
+    clone (): SetAction<T> {
+        const action = new SetAction<T>();
         action.init(this._props);
         return action;
     }

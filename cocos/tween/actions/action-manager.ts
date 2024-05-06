@@ -27,7 +27,6 @@
 
 import { errorID, logID } from '../../core/platform/debug';
 import { Action } from './action';
-import { Node } from '../../scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
 import type { ActionInterval } from './action-interval';
@@ -40,10 +39,10 @@ let ID_COUNTER = 0;
  * @private
  */
 class HashElement {
-    actions: Action[] = [];
-    target: Record<string, unknown> | null = null; // ccobject
+    actions: Action<unknown>[] = [];
+    target: unknown = null;
     actionIndex = 0;
-    currentAction: Action | null = null; // CCAction
+    currentAction: Action<unknown> | null = null;
     paused = false;
     lock = false;
 }
@@ -68,19 +67,19 @@ class HashElement {
  * @example {@link cocos2d/core/CCActionManager/ActionManager.js}
  */
 export class ActionManager {
-    private _hashTargets = new Map();
+    private _hashTargets = new Map<unknown, HashElement>();
     private _arrayTargets: HashElement[] = [];
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
 
-    private _searchElementByTarget (arr: HashElement[], target: Record<string, unknown>): HashElement | null {
+    private _searchElementByTarget<T> (arr: HashElement[], target: T): HashElement | null {
         for (let k = 0; k < arr.length; k++) {
             if (target === arr[k].target) return arr[k];
         }
         return null;
     }
 
-    private _getElement (target: Record<string, unknown>, paused: boolean): HashElement {
+    private _getElement<T> (target: T, paused: boolean): HashElement {
         let element = this._elementPool.pop();
         if (!element) {
             element = new HashElement();
@@ -90,7 +89,7 @@ export class ActionManager {
         return element;
     }
 
-    private _putElement (element: HashElement): void {
+    private _putElement<T> (element: HashElement): void {
         element.actions.length = 0;
         element.actionIndex = 0;
         element.currentAction = null;
@@ -118,12 +117,14 @@ export class ActionManager {
      * @param {object} target
      * @param {Boolean} paused
      */
-    addAction (action: Action, target: Node, paused: boolean): void {
+    addAction<T> (action: Action<T> | null, target: T, paused: boolean): void {
         if (!action || !target) {
             errorID(1000);
             return;
         }
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
         if (target.uuid == null) {
             (target as any).uuid = `_TWEEN_UUID_${ID_COUNTER++}`;
         }
@@ -132,7 +133,7 @@ export class ActionManager {
         let element = this._hashTargets.get(target);
         // if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
-            element = this._getElement(target as any, paused);
+            element = this._getElement(target, paused);
             this._hashTargets.set(target, element);
             this._arrayTargets.push(element);
         } else if (!element.actions) {
@@ -156,7 +157,7 @@ export class ActionManager {
             if (element) this._putElement(element);
         }
         this._arrayTargets.length = 0;
-        this._hashTargets = new Map();
+        this._hashTargets = new Map<unknown, HashElement>();
     }
     /**
      * @en
@@ -166,9 +167,9 @@ export class ActionManager {
      * 移除指定对象上的所有动作。<br/>
      * 属于该目标的所有的动作将被删除。
      * @method removeAllActionsFromTarget
-     * @param {Node} target
+     * @param {T} target
      */
-    removeAllActionsFromTarget (target: Node): void {
+    removeAllActionsFromTarget<T> (target: T): void {
         // explicit null handling
         if (target == null) return;
         const element = this._hashTargets.get(target);
@@ -183,7 +184,7 @@ export class ActionManager {
      * @method removeAction
      * @param {Action} action
      */
-    removeAction (action: Action): void {
+    removeAction<T> (action: Action<T> | null): void {
         // explicit null handling
         if (action == null) return;
         const target = action.getOriginalTarget()!;
@@ -204,7 +205,7 @@ export class ActionManager {
     /**
      * @internal
      */
-    _removeActionByTag (tag: number, element: any, target?: Node): void {
+    _removeActionByTag<T> (tag: number, element: HashElement, target?: T): void {
         for (let i = 0, l = element.actions.length; i < l; ++i) {
             const action = element.actions[i];
             if (action && action.getTag() === tag) {
@@ -220,7 +221,7 @@ export class ActionManager {
     /**
      * @internal
      */
-    _removeAllActionsByTag (tag: number, element: any, target?: Node): void {
+    _removeAllActionsByTag<T> (tag: number, element: HashElement, target?: T): void {
         for (let i = element.actions.length - 1; i >= 0; --i) {
             const action = element.actions[i];
             if (action && action.getTag() === tag) {
@@ -237,9 +238,9 @@ export class ActionManager {
      * @zh 删除指定对象下特定标签的一个动作，将删除首个匹配到的动作。
      * @method removeActionByTag
      * @param {Number} tag
-     * @param {Node} target
+     * @param {T} target
      */
-    removeActionByTag (tag: number, target?: Node): void {
+    removeActionByTag<T> (tag: number, target?: T): void {
         if (tag === Action.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
@@ -260,9 +261,9 @@ export class ActionManager {
      * @zh 删除指定对象下特定标签的所有动作。
      * @method removeAllActionsByTag
      * @param {Number} tag
-     * @param {Node} target
+     * @param {T} target
      */
-    removeAllActionsByTag (tag: number, target?: Node): void {
+    removeAllActionsByTag<T> (tag: number, target?: T): void {
         if (tag === Action.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
@@ -283,10 +284,10 @@ export class ActionManager {
      * @zh 通过目标对象和标签获取一个动作。
      * @method getActionByTag
      * @param {Number} tag
-     * @param {Node} target
+     * @param {T} target
      * @return {Action|null}  return the Action with the given tag on success
      */
-    getActionByTag (tag: number, target: Node): Action | null {
+    getActionByTag<T> (tag: number, target: T): Action<T> | null {
         if (tag === Action.TAG_INVALID) logID(1004);
 
         const element = this._hashTargets.get(target);
@@ -295,7 +296,7 @@ export class ActionManager {
                 for (let i = 0; i < element.actions.length; ++i) {
                     const action = element.actions[i];
                     if (action && action.getTag() === tag) {
-                        return action as Action;
+                        return action as Action<T>;
                     }
                 }
             }
@@ -319,13 +320,13 @@ export class ActionManager {
      *  - 如果你正在运行 2 个序列动作（Sequence）和 5 个普通动作，这个函数将返回 7。<br/>
      *
      * @method getNumberOfRunningActionsInTarget
-     * @param {Node} target
+     * @param {T} target
      * @return {Number}
      */
-    getNumberOfRunningActionsInTarget (target: Node): number {
+    getNumberOfRunningActionsInTarget<T> (target: T): number {
         const element = this._hashTargets.get(target);
         if (element) {
-            return (element.actions) ? element.actions.length as number : 0;
+            return (element.actions) ? element.actions.length  : 0;
         }
 
         return 0;
@@ -334,9 +335,9 @@ export class ActionManager {
      * @en Pauses the target: all running actions and newly added actions will be paused.
      * @zh 暂停指定对象：所有正在运行的动作和新添加的动作都将会暂停。
      * @method pauseTarget
-     * @param {Node} target
+     * @param {T} target
      */
-    pauseTarget (target: Node): void {
+    pauseTarget<T> (target: T): void {
         const element = this._hashTargets.get(target);
         if (element) element.paused = true;
     }
@@ -344,9 +345,9 @@ export class ActionManager {
      * @en Resumes the target. All queued actions will be resumed.
      * @zh 让指定目标恢复运行。在执行序列中所有被暂停的动作将重新恢复运行。
      * @method resumeTarget
-     * @param {Node} target
+     * @param {T} target
      */
-    resumeTarget (target: Node): void {
+    resumeTarget<T> (target: T): void {
         const element = this._hashTargets.get(target);
         if (element) element.paused = false;
     }
@@ -357,14 +358,16 @@ export class ActionManager {
      * @method pauseAllRunningActions
      * @return {Array}  a list of targets whose actions were paused.
      */
-    pauseAllRunningActions (): Array<any> {
-        const idsWithActions: Record<string, unknown>[] = [];
+    pauseAllRunningActions (): unknown[] {
+        const idsWithActions: unknown[] = [];
         const locTargets = this._arrayTargets;
         for (let i = 0; i < locTargets.length; i++) {
             const element = locTargets[i];
             if (element && !element.paused) {
                 element.paused = true;
-                idsWithActions.push(element.target!);
+                if (element.target) {
+                    idsWithActions.push(element.target);
+                }
             }
         }
         return idsWithActions;
@@ -376,7 +379,7 @@ export class ActionManager {
      * @method resumeTargets
      * @param {Array} targetsToResume
      */
-    resumeTargets (targetsToResume: Array<any>): void {
+    resumeTargets<T> (targetsToResume: Array<T>): void {
         if (!targetsToResume) return;
 
         for (let i = 0; i < targetsToResume.length; i++) {
@@ -390,7 +393,7 @@ export class ActionManager {
      * @method pauseTargets
      * @param {Array} targetsToPause
      */
-    pauseTargets (targetsToPause: Array<any>): void {
+    pauseTargets<T> (targetsToPause: Array<T>): void {
         if (!targetsToPause) return;
 
         for (let i = 0; i < targetsToPause.length; i++) {
@@ -412,7 +415,7 @@ export class ActionManager {
     }
 
     // protected
-    private _removeActionAtIndex (index, element): void {
+    private _removeActionAtIndex<T> (index: number, element: HashElement): void {
         const action = element.actions[index];
 
         element.actions.splice(index, 1);
@@ -425,7 +428,7 @@ export class ActionManager {
         }
     }
 
-    private _deleteHashElement (element): boolean {
+    private _deleteHashElement (element: HashElement): boolean {
         let ret = false;
         if (element && !element.lock) {
             if (this._hashTargets.get(element.target)) {
@@ -459,7 +462,7 @@ export class ActionManager {
 
             const target = locCurrTarget.target;
             if (isCCObject(target) && !target.isValid) {
-                this.removeAllActionsFromTarget(target as unknown as Node);
+                this.removeAllActionsFromTarget(target);
                 elt--;
                 continue;
             }
@@ -472,7 +475,9 @@ export class ActionManager {
                     if (!locCurrTarget.currentAction) continue;
 
                     // use for speed
-                    locCurrTarget.currentAction.step(dt * (this._isActionInternal(locCurrTarget.currentAction) ? locCurrTarget.currentAction.getSpeed() : 1));
+                    locCurrTarget.currentAction.step(
+                        dt * (this._isActionInterval(locCurrTarget.currentAction) ? locCurrTarget.currentAction.getSpeed() : 1),
+                    );
 
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
@@ -495,7 +500,7 @@ export class ActionManager {
         }
     }
 
-    private _isActionInternal (action: any): action is ActionInterval {
+    private _isActionInterval<T> (action: any): action is ActionInterval<T> {
         return typeof action._speedMethod !== 'undefined';
     }
 }

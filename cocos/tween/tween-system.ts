@@ -78,6 +78,6 @@ export class TweenSystem extends System {
 
 director.on(Director.EVENT_INIT, () => {
     const sys = new TweenSystem();
-    (TweenSystem.instance as any) = sys;
+    (TweenSystem as any).instance = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
 });

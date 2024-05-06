@@ -42,13 +42,13 @@ type Guard = typeof guard;
  *
  * @note This function should be easily tree-shaken.
  */
-export function checkPalIntegrity<T> (impl: T & Guard) {
+export function checkPalIntegrity<T> (impl: T & Guard): void {
 }
 
 /**
  * Utility function, see example of `checkPalIntegrity()`.
  *
  */
-export function withImpl<T> () {
+export function withImpl<T> (): T & Guard {
     return 0 as unknown as T & Guard;
 }

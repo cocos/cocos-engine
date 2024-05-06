@@ -24,7 +24,7 @@
 
 import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
-import { ITweenOption } from './export-api';
+import { ITweenOption, TweenEasing } from './export-api';
 import { VERSION } from '../core/global-exports';
 
 /** adapter */
@@ -69,7 +69,7 @@ function TweenEasingAdapter (easingName: string): string {
 }
 
 /** checker */
-function TweenOptionChecker (opts: ITweenOption): void {
+function TweenOptionChecker<T> (opts: ITweenOption<T>): void {
     const header = ' [Tween:] ';
     const message = ` option is not support in v + ${VERSION}`;
     const _opts = opts as unknown as any;
@@ -90,12 +90,12 @@ function TweenOptionChecker (opts: ITweenOption): void {
     }
 }
 
-export class TweenAction extends ActionInterval {
-    private _opts: any;
+export class TweenAction<T> extends ActionInterval<T> {
+    private _opts: ITweenOption<T> | undefined;
     private _props: any;
     private _originProps: any;
 
-    constructor (duration: number, props: any, opts?: ITweenOption) {
+    constructor (duration: number, props: any, opts?: ITweenOption<T>) {
         super();
         if (opts == null) {
             opts = Object.create(null);
@@ -105,7 +105,7 @@ export class TweenAction extends ActionInterval {
 
             /** adapter */
             if (opts.easing && typeof opts.easing === 'string') {
-                opts.easing = TweenEasingAdapter(opts.easing) as any;
+                opts.easing = TweenEasingAdapter(opts.easing) as TweenEasing;
             }
 
             // global easing or progress used for this action
@@ -135,11 +135,12 @@ export class TweenAction extends ActionInterval {
             }
             if (value == null || typeof value === 'string') continue;
             // property may have custom easing or progress function
-            let customEasing: any; let progress: any;
+            let customEasing: any;
+            let progress: any;
             if (value.value !== undefined && (value.easing || value.progress)) {
                 if (typeof value.easing === 'string') {
                     customEasing = easing[value.easing];
-                    if (!customEasing) warnID(1031, value.easing);
+                    if (!customEasing) warnID(1031, value.easing as string);
                 } else {
                     customEasing = value.easing;
                 }
@@ -158,16 +159,17 @@ export class TweenAction extends ActionInterval {
         this.initWithDuration(duration);
     }
 
-    clone (): TweenAction {
+    clone (): TweenAction<T> {
         const action = new TweenAction(this._duration, this._originProps, this._opts);
         this._cloneDecoration(action);
         return action;
     }
 
-    startWithTarget (target: Record<string, unknown>): void {
-        ActionInterval.prototype.startWithTarget.call(this, target);
+    startWithTarget (target: T | undefined): void {
+        super.startWithTarget(target);
+        if (!target) return;
 
-        const relative = !!this._opts.relative;
+        const relative = !!this._opts!.relative;
         const props = this._props;
         for (const property in props) {
             const _t: any = target[property];
@@ -178,7 +180,6 @@ export class TweenAction extends ActionInterval {
             if (typeof _t === 'number') {
                 prop.start = _t;
                 prop.current = _t;
-                // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                 prop.end = relative ? _t + value : value;
             } else if (typeof _t === 'object') {
                 if (prop.start == null) {
@@ -186,28 +187,27 @@ export class TweenAction extends ActionInterval {
                 }
 
                 for (const k in value) {
-                    // filtering if it not a number
-                    // eslint-disable-next-line no-restricted-globals
-                    if (isNaN(_t[k])) continue;
+                    if (Number.isNaN(_t[k] as number)) continue;
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
-                    // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
                     prop.end[k] = relative ? _t[k] + value[k] : value[k];
                 }
             }
         }
-        if (this._opts.onStart) { this._opts.onStart(this.target); }
+        if (this._opts!.onStart) { this._opts!.onStart(this.target); }
     }
 
     update (t: number): void {
         const target = this.target;
         if (!target) return;
 
+        if (!this._opts) return;
+
         const props = this._props;
         const opts = this._opts;
 
         let easingTime = t;
-        if (opts.easing) easingTime = opts.easing(t);
+        if (typeof opts.easing === 'function') easingTime = opts.easing(t);
 
         const progress = opts.progress;
         for (const name in props) {
