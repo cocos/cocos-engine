@@ -22,10 +22,13 @@
  THE SOFTWARE.
 */
 
-import { warnID, warn, easing } from '../core';
+import { warnID, warn, easing, equals } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption, TweenEasing } from './export-api';
 import { VERSION } from '../core/global-exports';
+
+// type TypeEquality<T, U> = Extract<keyof T, keyof U> extends never ? false : true;
+type TypeEquality<T, U> = { [K in keyof T]: K extends keyof U ? T[K] : never } extends T ? true : false;
 
 /** adapter */
 function TweenEasingAdapter (easingName: string): string {
@@ -90,7 +93,7 @@ function TweenOptionChecker<T> (opts: ITweenOption<T>): void {
     }
 }
 
-export class TweenAction<T> extends ActionInterval<T> {
+export class TweenAction<T> extends ActionInterval {
     private _opts: ITweenOption<T> | undefined;
     private _props: any;
     private _originProps: any;
@@ -165,9 +168,10 @@ export class TweenAction<T> extends ActionInterval<T> {
         return action;
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<U> (target: U | undefined): void {
+        const isEqual: TypeEquality<T, U> = true;
         super.startWithTarget(target);
-        if (!target) return;
+        if (!target || !isEqual) return;
 
         const relative = !!this._opts!.relative;
         const props = this._props;
@@ -194,7 +198,7 @@ export class TweenAction<T> extends ActionInterval<T> {
                 }
             }
         }
-        if (this._opts!.onStart) { this._opts!.onStart(this.target); }
+        if (this._opts!.onStart) { this._opts!.onStart(this.target as T); }
     }
 
     update (t: number): void {
@@ -234,8 +238,8 @@ export class TweenAction<T> extends ActionInterval<T> {
 
             target[name] = prop.current;
         }
-        if (opts.onUpdate) { opts.onUpdate(this.target, t); }
-        if (t === 1 && opts.onComplete) { opts.onComplete(this.target); }
+        if (opts.onUpdate) { opts.onUpdate(this.target as T, t); }
+        if (t === 1 && opts.onComplete) { opts.onComplete(this.target as T); }
     }
 
     progress (start: number, end: number, current: number, t: number): number {

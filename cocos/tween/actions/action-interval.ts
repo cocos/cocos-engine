@@ -47,7 +47,7 @@ import { ActionInstant } from './action-instant';
  * @extends FiniteTimeAction
  * @param {Number} d duration in seconds
  */
-export class ActionInterval<T> extends FiniteTimeAction<T> {
+export class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
     protected _firstTick = false;
@@ -92,7 +92,7 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
         return (this._elapsed >= this._duration);
     }
 
-    _cloneDecoration (action: ActionInterval<T>): void {
+    _cloneDecoration (action: ActionInterval): void {
         action._repeatForever = this._repeatForever;
         action._speed = this._speed;
         action._timesForRepeat = this._timesForRepeat;
@@ -101,7 +101,7 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
         action._repeatMethod = this._repeatMethod;
     }
 
-    _reverseEaseList (action: ActionInterval<T>): void {
+    _reverseEaseList (action: ActionInterval): void {
         if (this._easeList) {
             action._easeList = [];
             for (let i = 0; i < this._easeList.length; i++) {
@@ -110,8 +110,8 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
         }
     }
 
-    clone (): ActionInterval<T> {
-        const action = new ActionInterval<T>(this._duration);
+    clone (): ActionInterval {
+        const action = new ActionInterval(this._duration);
         this._cloneDecoration(action);
         return action;
     }
@@ -126,7 +126,7 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
      * import { easeIn } from 'cc';
      * action.easing(easeIn(3.0));
      */
-    easing (easeObj: any): ActionInterval<T> {
+    easing (easeObj: any): ActionInterval {
         if (this._easeList) this._easeList.length = 0;
         else this._easeList = [];
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -169,13 +169,13 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
         }
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
         this._elapsed = 0;
         this._firstTick = true;
     }
 
-    reverse (): ActionInterval<T> {
+    reverse (): ActionInterval {
         logID(1010);
         return this;
     }
@@ -212,7 +212,7 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
      * @param {Number} speed
      * @returns {Action}
      */
-    speed (speed: number): Action<T> {
+    speed (speed: number): Action {
         if (speed <= 0) {
             logID(1013);
             return this;
@@ -242,7 +242,7 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
      * @param {Number} speed
      * @returns {ActionInterval}
      */
-    setSpeed (speed: number): ActionInterval<T> {
+    setSpeed (speed: number): ActionInterval {
         this._speed = speed;
         return this;
     }
@@ -256,7 +256,7 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
      * @param {Number} times
      * @returns {ActionInterval}
      */
-    repeat (times: number): ActionInterval<T> {
+    repeat (times: number): ActionInterval {
         times = Math.round(times);
         if (Number.isNaN(times) || times < 1) {
             logID(1014);
@@ -275,7 +275,7 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
      * @method repeatForever
      * @returns {ActionInterval}
      */
-    repeatForever (): ActionInterval<T> {
+    repeatForever (): ActionInterval {
         this._repeatMethod = true; // Compatible with repeat class, Discard after can be deleted
         this._timesForRepeat = this.MAX_VALUE;
         this._repeatForever = true;
@@ -286,14 +286,14 @@ export class ActionInterval<T> extends FiniteTimeAction<T> {
 /*
  * Runs actions sequentially, one after another.
  */
-export class Sequence<T> extends ActionInterval<T> {
-    static _actionOneTwo (actionOne: FiniteTimeAction<unknown>, actionTwo: FiniteTimeAction<unknown>): Sequence<unknown> {
+export class Sequence extends ActionInterval {
+    static _actionOneTwo (actionOne: FiniteTimeAction, actionTwo: FiniteTimeAction): Sequence {
         const sequence = new Sequence();
         sequence.initWithTwoActions(actionOne, actionTwo);
         return sequence;
     }
 
-    private _actions: FiniteTimeAction<T>[] = [];
+    private _actions: FiniteTimeAction[] = [];
     private _split = 0;
     private _last = 0;
     private _reversed = false;
@@ -308,12 +308,12 @@ export class Sequence<T> extends ActionInterval<T> {
      * // create sequence with array
      * const seq = new Sequence(actArray);
      */
-    constructor (...actions: FiniteTimeAction<T>[]);
-    constructor (actions: FiniteTimeAction<T>[]);
+    constructor (...actions: FiniteTimeAction[]);
+    constructor (actions: FiniteTimeAction[]);
     constructor (tempArray: any) {
         super();
 
-        const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction<T>[];
+        const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction[];
         if (paramArray.length === 1) {
             errorID(1019);
             return;
@@ -323,11 +323,11 @@ export class Sequence<T> extends ActionInterval<T> {
 
         if (last >= 0) {
             let prev = paramArray[0];
-            let action1: FiniteTimeAction<T>;
+            let action1: FiniteTimeAction;
             for (let i = 1; i < last; i++) {
                 if (paramArray[i]) {
                     action1 = prev;
-                    prev = Sequence._actionOneTwo(action1 as ActionInterval<T>, paramArray[i] as ActionInterval<T>) as FiniteTimeAction<T>;
+                    prev = Sequence._actionOneTwo(action1, paramArray[i]) as FiniteTimeAction;
                 }
             }
             this.initWithTwoActions(prev, paramArray[last]);
@@ -340,7 +340,7 @@ export class Sequence<T> extends ActionInterval<T> {
      * @param {FiniteTimeAction} actionTwo
      * @return {Boolean}
      */
-    initWithTwoActions (actionOne?: FiniteTimeAction<T>, actionTwo?: FiniteTimeAction<T>): boolean {
+    initWithTwoActions (actionOne?: FiniteTimeAction, actionTwo?: FiniteTimeAction): boolean {
         if (!actionOne || !actionTwo) {
             errorID(1025);
             return false;
@@ -357,14 +357,14 @@ export class Sequence<T> extends ActionInterval<T> {
         return true;
     }
 
-    clone (): Sequence<T> {
-        const action = new Sequence<T>();
+    clone (): Sequence {
+        const action = new Sequence();
         this._cloneDecoration(action);
         action.initWithTwoActions(this._actions[0].clone(), this._actions[1].clone());
         return action;
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
         this._split = this._actions[0]._duration / this._duration;
         this._split *= (this._actions[0] as any)._repeatMethod ? this._actions[0]._timesForRepeat : 1;
@@ -427,8 +427,8 @@ export class Sequence<T> extends ActionInterval<T> {
         this._last = found;
     }
 
-    reverse (): Sequence<T> {
-        const action: Sequence<T> = Sequence._actionOneTwo(this._actions[1].reverse(), this._actions[0].reverse()) as Sequence<T>;
+    reverse (): Sequence {
+        const action: Sequence = Sequence._actionOneTwo(this._actions[1].reverse(), this._actions[0].reverse());
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         action._reversed = true;
@@ -455,28 +455,28 @@ export class Sequence<T> extends ActionInterval<T> {
  * const seq = sequence(actArray);
  */
 // todo: It should be use new
-export function sequence<T> (...actions: FiniteTimeAction<T>[]): ActionInterval<T> | null;
-export function sequence<T> (actions: FiniteTimeAction<T>[]): ActionInterval<T> | null;
-export function sequence<T> (tempArray: any): ActionInterval<T> | null {
-    const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction<T>[];
+export function sequence (...actions: FiniteTimeAction[]): ActionInterval | null;
+export function sequence (actions: FiniteTimeAction[]): ActionInterval | null;
+export function sequence (tempArray: any): ActionInterval | null {
+    const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction[];
 
     if (paramArray.length === 1) {
-        return paramArray[0] as ActionInterval<T>;
+        return paramArray[0] as ActionInterval; //FIXME: Remove 'as'
     }
     const last = paramArray.length - 1;
     if ((last >= 0) && (paramArray[last] == null)) logID(1015);
 
-    let result: ActionInterval<T> | null = null;
+    let result: FiniteTimeAction | null = null;
     if (last >= 0) {
-        result = paramArray[0] as ActionInterval<T>; //FIXME: remove 'as'
+        result = paramArray[0];
         for (let i = 1; i <= last; i++) {
             if (paramArray[i]) {
-                result = Sequence._actionOneTwo(result, paramArray[i] as ActionInterval<T>) as Sequence<T>;
+                result = Sequence._actionOneTwo(result, paramArray[i]);
             }
         }
     }
 
-    return result;
+    return result as ActionInterval; //FIXME: remove 'as'
 }
 
 /*
@@ -490,14 +490,14 @@ export function sequence<T> (tempArray: any): ActionInterval<T> | null {
  * import { Repeat, sequence } from 'cc';
  * const rep = new Repeat(sequence(jump2, jump1), 5);
  */
-export class Repeat<T> extends ActionInterval<T> {
+export class Repeat extends ActionInterval {
     private _times = 0;
     private _total = 0;
     private _nextDt = 0;
     private _actionInstant = false;
-    private _innerAction: FiniteTimeAction<T> | null = null;
+    private _innerAction: FiniteTimeAction | null = null;
 
-    constructor (action?: FiniteTimeAction<T>, times?: number) {
+    constructor (action?: FiniteTimeAction, times?: number) {
         super();
         this.initWithAction(action, times);
     }
@@ -507,7 +507,7 @@ export class Repeat<T> extends ActionInterval<T> {
      * @param {Number} times
      * @return {Boolean}
      */
-    initWithAction (action?: FiniteTimeAction<T>, times?: number): boolean {
+    initWithAction (action?: FiniteTimeAction, times?: number): boolean {
         if (!action || times === undefined) {
             return false;
         }
@@ -526,8 +526,8 @@ export class Repeat<T> extends ActionInterval<T> {
         return false;
     }
 
-    clone (): Repeat<T> {
-        const action = new Repeat<T>();
+    clone (): Repeat {
+        const action = new Repeat();
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone(), this._times);
@@ -535,7 +535,7 @@ export class Repeat<T> extends ActionInterval<T> {
         return action;
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         this._total = 0;
         this._nextDt = (this._innerAction ? this._innerAction._duration : 0) / this._duration;
         super.startWithTarget(target);
@@ -592,7 +592,7 @@ export class Repeat<T> extends ActionInterval<T> {
         return this._total === this._times;
     }
 
-    reverse (): Repeat<T> {
+    reverse (): Repeat {
         const actionArg = this._innerAction ? this._innerAction.reverse() : undefined;
         const action = new Repeat(actionArg, this._times);
         this._cloneDecoration(action);
@@ -604,7 +604,7 @@ export class Repeat<T> extends ActionInterval<T> {
      * Set inner Action.
      * @param {FiniteTimeAction} action
      */
-    setInnerAction (action: FiniteTimeAction<T>): void {
+    setInnerAction (action: FiniteTimeAction): void {
         if (this._innerAction !== action) {
             this._innerAction = action;
         }
@@ -614,7 +614,7 @@ export class Repeat<T> extends ActionInterval<T> {
      * Get inner Action.
      * @return {FiniteTimeAction}
      */
-    getInnerAction (): FiniteTimeAction<T> | null {
+    getInnerAction (): FiniteTimeAction | null {
         return this._innerAction;
     }
 }
@@ -630,8 +630,8 @@ export class Repeat<T> extends ActionInterval<T> {
  * import { repeat, sequence } from 'cc';
  * const rep = repeat(sequence(jump2, jump1), 5);
  */
-export function repeat<T> (action: FiniteTimeAction<T>, times: number): Action<T> {
-    return new Repeat<T>(action, times);
+export function repeat (action: FiniteTimeAction, times: number): Action {
+    return new Repeat(action, times);
 }
 
 /*
@@ -645,10 +645,10 @@ export function repeat<T> (action: FiniteTimeAction<T>, times: number): Action<T
  * import { sequence, RepeatForever } from 'cc';
  * const rep = new RepeatForever(sequence(jump2, jump1), 5);
  */
-export class RepeatForever<T> extends ActionInterval<T> {
-    private _innerAction: ActionInterval<T> | null = null;
+export class RepeatForever extends ActionInterval {
+    private _innerAction: ActionInterval | null = null;
 
-    constructor (action?: ActionInterval<T>) {
+    constructor (action?: ActionInterval) {
         super();
         if (action) this.initWithAction(action);
     }
@@ -657,7 +657,7 @@ export class RepeatForever<T> extends ActionInterval<T> {
      * @param {ActionInterval} action
      * @return {Boolean}
      */
-    initWithAction (action: ActionInterval<T>): boolean {
+    initWithAction (action: ActionInterval): boolean {
         if (!action) {
             errorID(1026);
             return false;
@@ -667,8 +667,8 @@ export class RepeatForever<T> extends ActionInterval<T> {
         return true;
     }
 
-    clone (): RepeatForever<T> {
-        const action = new RepeatForever<T>();
+    clone (): RepeatForever {
+        const action = new RepeatForever();
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone());
@@ -676,7 +676,7 @@ export class RepeatForever<T> extends ActionInterval<T> {
         return action;
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
         if (this._innerAction) {
             this._innerAction.startWithTarget(target);
@@ -703,7 +703,7 @@ export class RepeatForever<T> extends ActionInterval<T> {
         return false;
     }
 
-    reverse (): RepeatForever<T> {
+    reverse (): RepeatForever {
         if (this._innerAction) {
             const action = new RepeatForever(this._innerAction.reverse());
             this._cloneDecoration(action);
@@ -717,7 +717,7 @@ export class RepeatForever<T> extends ActionInterval<T> {
      * Set inner action.
      * @param {ActionInterval} action
      */
-    setInnerAction (action: ActionInterval<T> | null): void {
+    setInnerAction (action: ActionInterval | null): void {
         if (this._innerAction !== action) {
             this._innerAction = action;
         }
@@ -727,7 +727,7 @@ export class RepeatForever<T> extends ActionInterval<T> {
      * Get inner action.
      * @return {ActionInterval}
      */
-    getInnerAction (): ActionInstant<T> | null {
+    getInnerAction (): ActionInstant | null {
         return this._innerAction;
     }
 }
@@ -742,7 +742,7 @@ export class RepeatForever<T> extends ActionInterval<T> {
  * import { repeatForever, rotateBy } from 'cc';
  * var repeat = repeatForever(rotateBy(1.0, 360));
  */
-export function repeatForever<T> (action?: ActionInterval<T>): ActionInterval<T> {
+export function repeatForever (action?: ActionInterval): ActionInterval {
     return new RepeatForever(action);
 }
 
@@ -751,22 +751,22 @@ export function repeatForever<T> (action?: ActionInterval<T>): ActionInterval<T>
  * @class Spawn
  * @extends ActionInterval
  */
-export class Spawn<T> extends ActionInterval<T> {
-    static _actionOneTwo (action1?: FiniteTimeAction<unknown>, action2?: FiniteTimeAction<unknown>): Spawn<unknown> {
+export class Spawn extends ActionInterval {
+    static _actionOneTwo (action1?: FiniteTimeAction, action2?: FiniteTimeAction): Spawn {
         const pSpawn = new Spawn();
         pSpawn.initWithTwoActions(action1, action2);
         return pSpawn;
     }
 
-    private _one: FiniteTimeAction<T> | null = null;
-    private _two: FiniteTimeAction<T> | null = null;
+    private _one: FiniteTimeAction | null = null;
+    private _two: FiniteTimeAction | null = null;
 
-    constructor (...actions: FiniteTimeAction<T>[]);
-    constructor (actions: FiniteTimeAction<T>[]);
+    constructor (...actions: FiniteTimeAction[]);
+    constructor (actions: FiniteTimeAction[]);
     constructor (tempArray: any) {
         super();
 
-        const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction<T>[];
+        const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction[];
 
         if (paramArray.length === 1) {
             errorID(1020);
@@ -776,12 +776,12 @@ export class Spawn<T> extends ActionInterval<T> {
         if ((last >= 0) && (paramArray[last] == null)) logID(1015);
 
         if (last >= 0) {
-            let prev: FiniteTimeAction<T> = paramArray[0];
-            let action1: FiniteTimeAction<T>;
+            let prev: FiniteTimeAction = paramArray[0];
+            let action1: FiniteTimeAction;
             for (let i = 1; i < last; i++) {
                 if (paramArray[i]) {
                     action1 = prev;
-                    prev = Spawn._actionOneTwo(action1, paramArray[i]) as Spawn<T>;
+                    prev = Spawn._actionOneTwo(action1, paramArray[i]);
                 }
             }
             this.initWithTwoActions(prev, paramArray[last]);
@@ -793,7 +793,7 @@ export class Spawn<T> extends ActionInterval<T> {
      * @param {FiniteTimeAction} action2
      * @return {Boolean}
      */
-    initWithTwoActions (action1?: FiniteTimeAction<T>, action2?: FiniteTimeAction<T>): boolean {
+    initWithTwoActions (action1?: FiniteTimeAction, action2?: FiniteTimeAction): boolean {
         if (!action1 || !action2) {
             errorID(1027);
             return false;
@@ -809,9 +809,9 @@ export class Spawn<T> extends ActionInterval<T> {
             this._two = action2;
 
             if (d1 > d2) {
-                this._two = Sequence._actionOneTwo(action2 as ActionInterval<T>, delayTime<T>(d1 - d2)) as Sequence<T>;
+                this._two = Sequence._actionOneTwo(action2 as ActionInterval, delayTime(d1 - d2));
             } else if (d1 < d2) {
-                this._one = Sequence._actionOneTwo(action1 as ActionInterval<T>, delayTime<T>(d2 - d1)) as Sequence<T>;
+                this._one = Sequence._actionOneTwo(action1 as ActionInterval, delayTime(d2 - d1));
             }
 
             ret = true;
@@ -819,8 +819,8 @@ export class Spawn<T> extends ActionInterval<T> {
         return ret;
     }
 
-    clone (): Spawn<T> {
-        const action = new Spawn<T>();
+    clone (): Spawn {
+        const action = new Spawn();
         this._cloneDecoration(action);
         if (this._one && this._two) {
             action.initWithTwoActions(this._one.clone(), this._two.clone());
@@ -828,7 +828,7 @@ export class Spawn<T> extends ActionInterval<T> {
         return action;
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
         this._one?.startWithTarget(target);
         this._two?.startWithTarget(target);
@@ -846,9 +846,9 @@ export class Spawn<T> extends ActionInterval<T> {
         if (this._two) this._two.update(dt);
     }
 
-    reverse (): Spawn<T> {
+    reverse (): Spawn {
         if (this._one && this._two) {
-            const action = Spawn._actionOneTwo(this._one.reverse(), this._two.reverse()) as Spawn<T>;
+            const action = Spawn._actionOneTwo(this._one.reverse(), this._two.reverse());
             this._cloneDecoration(action);
             this._reverseEaseList(action);
             return action;
@@ -869,10 +869,10 @@ export class Spawn<T> extends ActionInterval<T> {
  * const action = spawn(jumpBy(2, new Vec2(300, 0), 50, 4), rotateBy(2, 720));
  * todo: It should be the direct use new
  */
-export function spawn<T> (...actions: FiniteTimeAction<T>[]): FiniteTimeAction<T>;
-export function spawn<T> (actions: FiniteTimeAction<T>[]): FiniteTimeAction<T>;
-export function spawn<T> (tempArray: any): FiniteTimeAction<T> {
-    const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction<T>[];
+export function spawn (...actions: FiniteTimeAction[]): FiniteTimeAction;
+export function spawn (actions: FiniteTimeAction[]): FiniteTimeAction;
+export function spawn (tempArray: any): FiniteTimeAction {
+    const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction[];
     if (paramArray.length === 1) {
         errorID(1020);
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -881,10 +881,10 @@ export function spawn<T> (tempArray: any): FiniteTimeAction<T> {
     if ((paramArray.length > 0) && (paramArray[paramArray.length - 1] == null)) logID(1015);
 
     let prev = paramArray[0];
-    let current: FiniteTimeAction<T> | null;
+    let current: FiniteTimeAction | null;
     for (let i = 1; i < paramArray.length; i++) {
         current = paramArray[i];
-        if (current != null) prev = Spawn._actionOneTwo(prev, current) as Spawn<T>;
+        if (current != null) prev = Spawn._actionOneTwo(prev, current);
     }
     return prev;
 }
@@ -893,19 +893,19 @@ export function spawn<T> (tempArray: any): FiniteTimeAction<T> {
  * @class DelayTime
  * @extends ActionInterval
  */
-class DelayTime<T> extends ActionInterval<T> {
+class DelayTime extends ActionInterval {
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     update (dt: number): void { }
 
-    reverse (): DelayTime<T> {
-        const action = new DelayTime<T>(this._duration);
+    reverse (): DelayTime {
+        const action = new DelayTime(this._duration);
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action;
     }
 
-    clone (): DelayTime<T> {
-        const action = new DelayTime<T>();
+    clone (): DelayTime {
+        const action = new DelayTime();
         this._cloneDecoration(action);
         action.initWithDuration(this._duration);
         return action;
@@ -922,8 +922,8 @@ class DelayTime<T> extends ActionInterval<T> {
  * import { delayTime } from 'cc';
  * const delay = delayTime(1);
  */
-export function delayTime<T> (d: number): ActionInterval<T> {
-    return new DelayTime<T>(d);
+export function delayTime (d: number): ActionInterval {
+    return new DelayTime(d);
 }
 
 /**
@@ -940,10 +940,10 @@ export function delayTime<T> (d: number): ActionInterval<T> {
  * import ReverseTime from 'cc';
  * var reverse = new ReverseTime(this);
  */
-export class ReverseTime<T> extends ActionInterval<T> {
-    private _other: ActionInterval<T> | null = null;
+export class ReverseTime extends ActionInterval {
+    private _other: ActionInterval | null = null;
 
-    constructor (action?: ActionInterval<T>) {
+    constructor (action?: ActionInterval) {
         super();
         if (action) this.initWithAction(action);
     }
@@ -952,7 +952,7 @@ export class ReverseTime<T> extends ActionInterval<T> {
      * @param {FiniteTimeAction} action
      * @return {Boolean}
      */
-    initWithAction (action: ActionInterval<T>): boolean {
+    initWithAction (action: ActionInterval): boolean {
         if (!action) {
             errorID(1028);
             return false;
@@ -970,8 +970,8 @@ export class ReverseTime<T> extends ActionInterval<T> {
         return false;
     }
 
-    clone (): ReverseTime<T> {
-        const action = new ReverseTime<T>();
+    clone (): ReverseTime {
+        const action = new ReverseTime();
         this._cloneDecoration(action);
         if (this._other) {
             action.initWithAction(this._other.clone());
@@ -979,7 +979,7 @@ export class ReverseTime<T> extends ActionInterval<T> {
         return action;
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
         this._other?.startWithTarget(target);
     }
@@ -989,7 +989,7 @@ export class ReverseTime<T> extends ActionInterval<T> {
         if (this._other) this._other.update(1 - dt);
     }
 
-    reverse (): ActionInterval<T> {
+    reverse (): ActionInterval {
         if (this._other) {
             return this._other.clone();
         }
@@ -1012,6 +1012,6 @@ export class ReverseTime<T> extends ActionInterval<T> {
  * import { reverseTime } from 'cc';
  * const reverse = reverseTime(this);
  */
-export function reverseTime<T> (action: ActionInterval<T>): ActionInterval<T> {
+export function reverseTime (action: ActionInterval): ActionInterval {
     return new ReverseTime(action);
 }

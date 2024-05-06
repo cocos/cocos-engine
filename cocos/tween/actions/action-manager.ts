@@ -39,10 +39,10 @@ let ID_COUNTER = 0;
  * @private
  */
 class HashElement {
-    actions: Action<unknown>[] = [];
+    actions: Action[] = [];
     target: unknown = null;
     actionIndex = 0;
-    currentAction: Action<unknown> | null = null;
+    currentAction: Action | null = null;
     paused = false;
     lock = false;
 }
@@ -117,7 +117,7 @@ export class ActionManager {
      * @param {object} target
      * @param {Boolean} paused
      */
-    addAction<T> (action: Action<T> | null, target: T, paused: boolean): void {
+    addAction<T> (action: Action | null, target: T, paused: boolean): void {
         if (!action || !target) {
             errorID(1000);
             return;
@@ -184,7 +184,7 @@ export class ActionManager {
      * @method removeAction
      * @param {Action} action
      */
-    removeAction<T> (action: Action<T> | null): void {
+    removeAction<T> (action: Action | null): void {
         // explicit null handling
         if (action == null) return;
         const target = action.getOriginalTarget()!;
@@ -287,7 +287,7 @@ export class ActionManager {
      * @param {T} target
      * @return {Action|null}  return the Action with the given tag on success
      */
-    getActionByTag<T> (tag: number, target: T): Action<T> | null {
+    getActionByTag<T> (tag: number, target: T): Action | null {
         if (tag === Action.TAG_INVALID) logID(1004);
 
         const element = this._hashTargets.get(target);
@@ -296,7 +296,7 @@ export class ActionManager {
                 for (let i = 0; i < element.actions.length; ++i) {
                     const action = element.actions[i];
                     if (action && action.getTag() === tag) {
-                        return action as Action<T>;
+                        return action;
                     }
                 }
             }
@@ -500,7 +500,7 @@ export class ActionManager {
         }
     }
 
-    private _isActionInterval<T> (action: any): action is ActionInterval<T> {
+    private _isActionInterval<T> (action: any): action is ActionInterval {
         return typeof action._speedMethod !== 'undefined';
     }
 }

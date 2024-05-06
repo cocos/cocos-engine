@@ -32,7 +32,7 @@ import { logID, errorID } from '../../core';
  * @zh Action 类是所有动作类型的基类。
  * @class Action
  */
-export class Action<T> {
+export class Action {
     /**
      * @en Default Action tag.
      * @zh 默认动作标签。
@@ -42,8 +42,8 @@ export class Action<T> {
      */
     static TAG_INVALID = -1;
 
-    protected originalTarget: T | undefined = undefined;
-    protected target: T | undefined = undefined;
+    protected originalTarget: unknown = null;
+    protected target: unknown = null;
     protected tag = Action.TAG_INVALID;
 
     /**
@@ -54,10 +54,10 @@ export class Action<T> {
      * @method clone
      * @return {Action}
      */
-    clone (): Action<T> {
-        const action = new Action<T>();
-        action.originalTarget = undefined;
-        action.target = undefined;
+    clone (): Action {
+        const action = new Action();
+        action.originalTarget = null;
+        action.target = null;
         action.tag = this.tag;
         return action;
     }
@@ -74,7 +74,7 @@ export class Action<T> {
     }
 
     // called before the action start. It will also set the target.
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         this.originalTarget = target;
         this.target = target;
     }
@@ -100,8 +100,8 @@ export class Action<T> {
      * @method getTarget
      * @return {object}
      */
-    getTarget (): T | undefined {
-        return this.target;
+    getTarget<T> (): T | undefined {
+        return this.target as T;
     }
 
     /**
@@ -110,7 +110,7 @@ export class Action<T> {
      * @method setTarget
      * @param {object} target
      */
-    setTarget (target: T): void {
+    setTarget<T> (target: T): void {
         this.target = target;
     }
 
@@ -120,14 +120,14 @@ export class Action<T> {
      * @method getOriginalTarget
      * @return {object}
      */
-    getOriginalTarget (): T | undefined {
-        return this.originalTarget;
+    getOriginalTarget<T> (): T | undefined {
+        return this.originalTarget as T;
     }
 
     // Set the original target, since target can be nil.
     // Is the target that were used to run the action.
     // Unless you are doing something complex, like `ActionManager`, you should NOT call this method.
-    setOriginalTarget (originalTarget: T): void {
+    setOriginalTarget<T> (originalTarget: T): void {
         this.originalTarget = originalTarget;
     }
 
@@ -162,7 +162,7 @@ export class Action<T> {
      * @method reverse
      * @return {Action | undefined}
      */
-    reverse (): Action<T> | undefined {
+    reverse (): Action | undefined {
         logID(1008);
         return undefined;
     }
@@ -180,7 +180,7 @@ export class Action<T> {
  * @class FiniteTimeAction
  * @extends Action
  */
-export class FiniteTimeAction<T> extends Action<T> {
+export class FiniteTimeAction extends Action {
     _duration = 0;
     _timesForRepeat = 1;
 
@@ -212,11 +212,11 @@ export class FiniteTimeAction<T> extends Action<T> {
      * @method clone
      * @return {FiniteTimeAction}
      */
-    clone (): FiniteTimeAction<T> {
+    clone (): FiniteTimeAction {
         return new FiniteTimeAction();
     }
 
-    reverse (): FiniteTimeAction<T> {
+    reverse (): FiniteTimeAction {
         logID(1008);
         return this;
     }
@@ -227,14 +227,14 @@ export class FiniteTimeAction<T> extends Action<T> {
  * or less (speed < 1) time. <br/>
  * Useful to simulate 'slow motion' or 'fast forward' effect.
  */
-export class Speed<T> extends Action<T> {
+export class Speed<T> extends Action {
     protected _speed = 0;
-    protected _innerAction: Action<T> | null = null;
+    protected _innerAction: Action | null = null;
 
     /**
      * @warning This action can't be `Sequence-able` because it is not an `IntervalAction`
      */
-    constructor (action?: Action<T>, speed = 1) {
+    constructor (action?: Action, speed = 1) {
         super();
         if (action) this.initWithAction(action, speed);
     }
@@ -266,7 +266,7 @@ export class Speed<T> extends Action<T> {
      * @param {Number} speed
      * @return {Boolean}
      */
-    initWithAction (action: Action<T>, speed: number): boolean {
+    initWithAction (action: Action, speed: number): boolean {
         if (!action) {
             errorID(1021);
             return false;
@@ -285,13 +285,13 @@ export class Speed<T> extends Action<T> {
         return action;
     }
 
-    startWithTarget (target: T | undefined): void {
+    startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
-        this._innerAction?.startWithTarget(target);
+        if (this._innerAction) this._innerAction.startWithTarget(target);
     }
 
     stop (): void {
-        this._innerAction?.stop();
+        if (this._innerAction) this._innerAction.stop();
         super.stop();
     }
 
@@ -315,7 +315,7 @@ export class Speed<T> extends Action<T> {
      * @method setInnerAction
      * @param {ActionInterval} action
      */
-    setInnerAction (action: Action<T>): void {
+    setInnerAction (action: Action): void {
         if (this._innerAction !== action) {
             this._innerAction = action;
         }
@@ -326,7 +326,7 @@ export class Speed<T> extends Action<T> {
      * @method getInnerAction
      * @return {ActionInterval}
      */
-    getInnerAction (): Action<T> | null {
+    getInnerAction (): Action | null {
         return this._innerAction;
     }
 }

@@ -55,8 +55,8 @@ type ConstructorType<T> = OmitType<T, Function>;
  *   .start()
  */
 export class Tween<T> {
-    private _actions: Action<T>[] = [];
-    private _finalAction: Action<T> | null = null;
+    private _actions: Action[] = [];
+    private _finalAction: Action | null = null;
     private _target: T | null = null;
     private _tag = Action.TAG_INVALID;
 
@@ -83,7 +83,7 @@ export class Tween<T> {
      * @method then
      * @param other @en The rear tween of this tween @zh 当前缓动的后置缓动
      */
-    then (other: Tween<T> | Action<T>): Tween<T> {
+    then (other: Tween<T> | Action): Tween<T> {
         if (other instanceof Action) {
             this._actions.push(other.clone());
         } else {
@@ -219,7 +219,7 @@ export class Tween<T> {
      * @return {Tween}
      */
     set (props: ConstructorType<T>): Tween<T> {
-        const action = new SetAction<T>(props);
+        const action = new SetAction(props);
         this._actions.push(action);
         return this;
     }
@@ -234,7 +234,7 @@ export class Tween<T> {
      * @return {Tween}
      */
     delay (duration: number): Tween<T> {
-        const action = delayTime<T>(duration);
+        const action = delayTime(duration);
         this._actions.push(action);
         return this;
     }
@@ -250,7 +250,7 @@ export class Tween<T> {
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
     call (callback: Function): Tween<T> {
-        const action = callFunc<T>(callback);
+        const action = callFunc(callback);
         this._actions.push(action);
         return this;
     }
@@ -265,7 +265,7 @@ export class Tween<T> {
      */
     sequence (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedSequence(...args);
-        if (action) this._actions.push(action as Action<T>);
+        if (action) this._actions.push(action);
         return this;
     }
 
@@ -279,7 +279,7 @@ export class Tween<T> {
      */
     parallel (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedParallel(...args);
-        this._actions.push(action as Action<T>);
+        this._actions.push(action);
         return this;
     }
 
@@ -299,7 +299,7 @@ export class Tween<T> {
         }
 
         const actions = this._actions;
-        let action: Action<T> | undefined | null;
+        let action: Action | undefined | null;
 
         if (embedTween instanceof Tween) {
             action = embedTween._union();
@@ -307,7 +307,7 @@ export class Tween<T> {
             action = actions.pop();
         }
 
-        if (action) actions.push(repeat(action as FiniteTimeAction<T>, repeatTimes)); //FIXME: remove 'as'
+        if (action) actions.push(repeat(action as FiniteTimeAction, repeatTimes)); //FIXME: remove 'as'
         return this;
     }
 
@@ -322,7 +322,7 @@ export class Tween<T> {
      */
     repeatForever (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;
-        let action: Action<T> | undefined | null;
+        let action: Action | undefined | null;
 
         if (embedTween instanceof Tween) {
             action = embedTween._union();
@@ -330,7 +330,7 @@ export class Tween<T> {
             action = actions.pop();
         }
 
-        if (action) actions.push(repeatForever(action as ActionInterval<T>));
+        if (action) actions.push(repeatForever(action as ActionInterval)); //FIXME: remove 'as'
         return this;
     }
 
@@ -345,7 +345,7 @@ export class Tween<T> {
      */
     reverseTime (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;
-        let action: Action<T> | undefined | null;
+        let action: Action | undefined | null;
 
         if (embedTween instanceof Tween) {
             action = embedTween._union();
@@ -353,7 +353,7 @@ export class Tween<T> {
             action = actions.pop();
         }
 
-        if (action) actions.push(reverseTime(action as ActionInterval<T>));
+        if (action) actions.push(reverseTime(action as ActionInterval)); //FIXME: remove 'as'
         return this;
     }
 
@@ -364,7 +364,7 @@ export class Tween<T> {
      * 添加一个隐藏 action，只适用于 target 是节点类型的。
      */
     hide (): Tween<T> {
-        const action = hide<T>();
+        const action = hide();
         this._actions.push(action);
         return this;
     }
@@ -376,7 +376,7 @@ export class Tween<T> {
      * 添加一个显示 action，只适用于 target 是节点类型的。
      */
     show (): Tween<T> {
-        const action = show<T>();
+        const action = show();
         this._actions.push(action);
         return this;
     }
@@ -388,7 +388,7 @@ export class Tween<T> {
      * 添加一个移除自己 action，只适用于 target 是节点类型的。
      */
     removeSelf (): Tween<T> {
-        const action = removeSelf<T>(false);
+        const action = removeSelf(false);
         this._actions.push(action);
         return this;
     }
@@ -400,7 +400,7 @@ export class Tween<T> {
      * 添加一个移除并销毁自己 action，只适用于 target 是节点类型的。
      */
     destroySelf (): Tween<T> {
-        const action = removeSelf<T>(true);
+        const action = removeSelf(true);
         this._actions.push(action);
         return this;
     }
@@ -435,13 +435,13 @@ export class Tween<T> {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target as any);
     }
 
-    private _union (): Action<T> | null {
+    private _union (): Action | null {
         const actions = this._actions;
-        let action: Action<T> | null;
+        let action: Action | null;
         if (actions.length === 1) {
             action = actions[0];
         } else {
-            action = sequence<T>(actions as FiniteTimeAction<T>[]); //FIXME: remove 'as'
+            action = sequence(actions as FiniteTimeAction[]); //FIXME: remove 'as'
         }
 
         return action;
@@ -451,32 +451,32 @@ export class Tween<T> {
         this.stop();
     }
 
-    private static readonly _tmp_args: Tween<unknown>[] | Action<unknown>[] = [];
+    private static readonly _tmp_args: Tween<unknown>[] | Action[] = [];
 
-    private static _wrappedSequence (...args: Action<unknown>[] | Tween<unknown>[]): ActionInterval<unknown> | null {
+    private static _wrappedSequence (...args: Action[] | Tween<unknown>[]): ActionInterval | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
-                tmp_args[i] = arg._union() as Action<unknown>; //FIXME: Remove 'as'
+                tmp_args[i] = arg._union() as Action; //FIXME: Remove 'as'
             }
         }
 
-        return sequence(tmp_args as FiniteTimeAction<unknown>[]);
+        return sequence(tmp_args as FiniteTimeAction[]);
     }
 
-    private static _wrappedParallel (...args: Action<unknown>[] | Tween<unknown>[]): FiniteTimeAction<unknown> {
+    private static _wrappedParallel (...args: Action[] | Tween<unknown>[]): FiniteTimeAction {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
-                tmp_args[i] = arg._union() as Action<unknown>;
+                tmp_args[i] = arg._union() as Action;
             }
         }
 
-        return spawn(tmp_args as FiniteTimeAction<unknown>[]);
+        return spawn(tmp_args as FiniteTimeAction[]);
     }
 }
 legacyCC.Tween = Tween;

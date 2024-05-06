@@ -24,7 +24,7 @@
 
 import { ActionInstant } from './actions/action-instant';
 
-export class SetAction<T> extends ActionInstant<T> {
+export class SetAction extends ActionInstant {
     private _props: any;
 
     constructor (props?: any) {
@@ -34,7 +34,7 @@ export class SetAction<T> extends ActionInstant<T> {
         props !== undefined && this.init(props);
     }
 
-    init (props): boolean {
+    init (props: any): boolean {
         for (const name in props) {
             this._props[name] = props[name];
         }
@@ -45,12 +45,12 @@ export class SetAction<T> extends ActionInstant<T> {
         const props = this._props;
         const target = this.target;
         for (const name in props) {
-            target![name] = props[name];
+            (target as any)[name] = props[name];
         }
     }
 
-    clone (): SetAction<T> {
-        const action = new SetAction<T>();
+    clone (): SetAction {
+        const action = new SetAction();
         action.init(this._props);
         return action;
     }
