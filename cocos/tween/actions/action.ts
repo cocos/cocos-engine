@@ -100,7 +100,7 @@ export class Action {
      * @method getTarget
      * @return {object}
      */
-    getTarget<T> (): T | undefined {
+    getTarget<T> (): T | null {
         return this.target as T;
     }
 
@@ -120,7 +120,7 @@ export class Action {
      * @method getOriginalTarget
      * @return {object}
      */
-    getOriginalTarget<T> (): T | undefined {
+    getOriginalTarget<T> (): T | null {
         return this.originalTarget as T;
     }
 
@@ -160,11 +160,11 @@ export class Action {
      * - Will be rewritten
      * @zh 返回一个新的动作，执行与原动作完全相反的动作。
      * @method reverse
-     * @return {Action | undefined}
+     * @return {Action | null}
      */
-    reverse (): Action | undefined {
+    reverse (): Action | null {
         logID(1008);
-        return undefined;
+        return null;
     }
 }
 
@@ -234,7 +234,7 @@ export class Speed<T> extends Action {
     /**
      * @warning This action can't be `Sequence-able` because it is not an `IntervalAction`
      */
-    constructor (action?: Action, speed = 1) {
+    constructor (action?: Action | null, speed = 1) {
         super();
         if (action) this.initWithAction(action, speed);
     }
