@@ -928,7 +928,7 @@ export class ReverseTime extends ActionInterval {
 
     startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
-        this._other?.startWithTarget(target);
+        if (this._other) this._other.startWithTarget(target);
     }
 
     update (dt: number): void {
@@ -943,7 +943,7 @@ export class ReverseTime extends ActionInterval {
     }
 
     stop (): void {
-        this._other?.stop();
+        if (this._other) this._other.stop();
         super.stop();
     }
 }
