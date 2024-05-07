@@ -452,7 +452,7 @@ export class Repeat extends ActionInterval {
     private _actionInstant = false;
     private _innerAction: FiniteTimeAction | null = null;
 
-    constructor (action: FiniteTimeAction | null = null, times: number = 0) {
+    constructor (action?: FiniteTimeAction, times?: number) {
         super();
         this.initWithAction(action, times);
     }
@@ -462,7 +462,7 @@ export class Repeat extends ActionInterval {
      * @param {Number} times
      * @return {Boolean}
      */
-    initWithAction (action: FiniteTimeAction | null, times: number): boolean {
+    initWithAction (action?: FiniteTimeAction, times?: number): boolean {
         if (!action || times === undefined) {
             return false;
         }
