@@ -25,7 +25,7 @@
 import { TweenSystem } from './tween-system';
 import { warn } from '../core';
 import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
-import { removeSelf, show, hide, callFunc } from './actions/action-instant';
+import { removeSelf, show, hide, callFunc, TCallFuncCallback } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { TweenAction } from './tween-action';
@@ -246,11 +246,12 @@ export class Tween<T> {
      * 添加一个回调 action。
      * @method call
      * @param callback @en Callback function at the end of this tween @zh 当前缓动结束时的回调函数
+     * @param callbackThis @en The this object in callback function @zh 回调函数中的 this 对象
+     * @param data @en The Custom data that will be passed to callback @zh 要传递给回调函数的自定义数据
      * @return {Tween}
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    call (callback: Function): Tween<T> {
-        const action = callFunc(callback);
+    call<TCallbackThis, TData> (callback: TCallFuncCallback<T, TData>, callbackThis?: TCallbackThis, data?: TData): Tween<T> {
+        const action = callFunc(callback, callbackThis, data);
         this._actions.push(action);
         return this;
     }
