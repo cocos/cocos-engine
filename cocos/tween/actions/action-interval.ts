@@ -51,8 +51,6 @@ export class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
     protected _firstTick = false;
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    protected _easeList: Function[] = [];
     protected _speed = 1;
     protected _repeatForever = false;
     _repeatMethod = false; // Compatible with repeat class, Discard after can be deleted
@@ -96,51 +94,14 @@ export class ActionInterval extends FiniteTimeAction {
         action._repeatForever = this._repeatForever;
         action._speed = this._speed;
         action._timesForRepeat = this._timesForRepeat;
-        action._easeList = this._easeList;
         action._speedMethod = this._speedMethod;
         action._repeatMethod = this._repeatMethod;
-    }
-
-    _reverseEaseList (action: ActionInterval): void {
-        if (this._easeList) {
-            action._easeList = [];
-            for (let i = 0; i < this._easeList.length; i++) {
-                action._easeList.push(this._easeList[i]);
-            }
-        }
     }
 
     clone (): ActionInterval {
         const action = new ActionInterval(this._duration);
         this._cloneDecoration(action);
         return action;
-    }
-
-    /**
-     * @en Implementation of ease motion.
-     * @zh 缓动运动。
-     * @method easing
-     * @param {Object} easeObj
-     * @returns {ActionInterval}
-     * @example
-     * import { easeIn } from 'cc';
-     * action.easing(easeIn(3.0));
-     */
-    easing (easeObj: any): ActionInterval {
-        if (this._easeList) this._easeList.length = 0;
-        else this._easeList = [];
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-        for (let i = 0; i < arguments.length; i++) this._easeList.push(arguments[i]);
-        return this;
-    }
-
-    _computeEaseTime (dt: number): number {
-        // var locList = this._easeList;
-        // if ((!locList) || (locList.length === 0))
-        //     return dt;
-        // for (var i = 0, n = locList.length; i < n; i++)
-        //     dt = locList[i].easing(dt);
-        return dt;
     }
 
     step (dt: number): void {
@@ -384,7 +345,6 @@ export class Sequence extends ActionInterval {
         const locActions = this._actions;
         const locLast = this._last;
 
-        dt = this._computeEaseTime(dt);
         if (dt < locSplit) {
             // action[0]
             new_t = (locSplit !== 0) ? dt / locSplit : 1;
@@ -430,7 +390,6 @@ export class Sequence extends ActionInterval {
     reverse (): Sequence {
         const action: Sequence = Sequence._actionOneTwo(this._actions[1].reverse(), this._actions[0].reverse());
         this._cloneDecoration(action);
-        this._reverseEaseList(action);
         action._reversed = true;
         return action;
     }
@@ -548,7 +507,6 @@ export class Repeat extends ActionInterval {
     }
 
     update (dt: number): void {
-        dt = this._computeEaseTime(dt);
         const locInnerAction = this._innerAction;
         const locDuration = this._duration;
         const locTimes = this._times;
@@ -596,7 +554,6 @@ export class Repeat extends ActionInterval {
         const actionArg = this._innerAction ? this._innerAction.reverse() : undefined;
         const action = new Repeat(actionArg, this._times);
         this._cloneDecoration(action);
-        this._reverseEaseList(action);
         return action;
     }
 
@@ -707,7 +664,6 @@ export class RepeatForever extends ActionInterval {
         if (this._innerAction) {
             const action = new RepeatForever(this._innerAction.reverse());
             this._cloneDecoration(action);
-            this._reverseEaseList(action);
             return action;
         }
         return this;
@@ -841,7 +797,6 @@ export class Spawn extends ActionInterval {
     }
 
     update (dt: number): void {
-        dt = this._computeEaseTime(dt);
         if (this._one) this._one.update(dt);
         if (this._two) this._two.update(dt);
     }
@@ -850,7 +805,6 @@ export class Spawn extends ActionInterval {
         if (this._one && this._two) {
             const action = Spawn._actionOneTwo(this._one.reverse(), this._two.reverse());
             this._cloneDecoration(action);
-            this._reverseEaseList(action);
             return action;
         }
         return this;
@@ -900,7 +854,6 @@ class DelayTime extends ActionInterval {
     reverse (): DelayTime {
         const action = new DelayTime(this._duration);
         this._cloneDecoration(action);
-        this._reverseEaseList(action);
         return action;
     }
 
@@ -985,7 +938,6 @@ export class ReverseTime extends ActionInterval {
     }
 
     update (dt: number): void {
-        dt = this._computeEaseTime(dt);
         if (this._other) this._other.update(1 - dt);
     }
 
