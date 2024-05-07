@@ -50,34 +50,22 @@ class HashElement {
 /**
  * @en
  * `ActionManager` is a class that can manage actions.<br/>
- * Normally you won't need to use this class directly. 99% of the cases you will use the CCNode interface,
+ * Normally you won't need to use this class directly. 99% of the cases you will use the `Tween` interface,
  * which uses this class's singleton object.
- * But there are some cases where you might need to use this class. <br/>
- * Examples:<br/>
- * - When you want to run an action where the target is different from a CCNode.<br/>
  * - When you want to pause / resume the actions<br/>
  * @zh
  * `ActionManager` 是可以管理动作的单例类。<br/>
- * 通常你并不需要直接使用这个类，99%的情况您将使用 CCNode 的接口。<br/>
+ * 通常你并不需要直接使用这个类，99%的情况您将使用 `Tween` 的接口。<br/>
  * 但也有一些情况下，您可能需要使用这个类。 <br/>
  * 例如：
- *  - 当你想要运行一个动作，但目标不是 CCNode 类型时。 <br/>
  *  - 当你想要暂停/恢复动作时。 <br/>
  * @class ActionManager
- * @example {@link cocos2d/core/CCActionManager/ActionManager.js}
  */
 export class ActionManager {
     private _hashTargets = new Map<unknown, HashElement>();
     private _arrayTargets: HashElement[] = [];
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
-
-    private _searchElementByTarget<T> (arr: HashElement[], target: T): HashElement | null {
-        for (let k = 0; k < arr.length; k++) {
-            if (target === arr[k].target) return arr[k];
-        }
-        return null;
-    }
 
     private _getElement<T> (target: T, paused: boolean): HashElement {
         let element = this._elementPool.pop();
