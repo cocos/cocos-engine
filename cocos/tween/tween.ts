@@ -83,13 +83,14 @@ export class Tween<T> {
      * @method then
      * @param other @en The rear tween of this tween @zh 当前缓动的后置缓动
      */
-    then (other: Tween<T> | Action): Tween<T> {
-        if (other instanceof Action) {
-            this._actions.push(other.clone());
-        } else {
-            const u = other._union();
-            if (u) this._actions.push(u);
-        }
+    then (other: Tween<T>): Tween<T> {
+        const u = other._union();
+        if (u) this._actions.push(u);
+        return this;
+    }
+
+    private insertAction (other: Action): Tween<T> {
+        this._actions.push(other.clone());
         return this;
     }
 
@@ -152,7 +153,7 @@ export class Tween<T> {
     clone (target: T): Tween<T> {
         const action = this._union();
         const r = tween(target);
-        return action ? r.then(action.clone()) : r;
+        return action ? r.insertAction(action.clone()) : r;
     }
 
     /**
