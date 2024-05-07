@@ -30,8 +30,7 @@ export class SetAction extends ActionInstant {
     constructor (props?: any) {
         super();
         this._props = {};
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        props !== undefined && this.init(props);
+        if (props) this.init(props);
     }
 
     init (props: any): boolean {

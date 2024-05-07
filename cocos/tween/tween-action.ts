@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warnID, warn, easing, equals } from '../core';
+import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption, TweenEasing } from './export-api';
 import { VERSION } from '../core/global-exports';

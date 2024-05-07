@@ -819,14 +819,13 @@ export class Spawn extends ActionInterval {
  * const action = spawn(jumpBy(2, new Vec2(300, 0), 50, 4), rotateBy(2, 720));
  * todo: It should be the direct use new
  */
-export function spawn (...actions: FiniteTimeAction[]): FiniteTimeAction;
-export function spawn (actions: FiniteTimeAction[]): FiniteTimeAction;
-export function spawn (tempArray: any): FiniteTimeAction {
+export function spawn (...actions: FiniteTimeAction[]): FiniteTimeAction | null;
+export function spawn (actions: FiniteTimeAction[]): FiniteTimeAction | null;
+export function spawn (tempArray: any): FiniteTimeAction | null {
     const paramArray = ((tempArray instanceof Array) ? tempArray : arguments) as FiniteTimeAction[];
     if (paramArray.length === 1) {
         errorID(1020);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return null as any;
+        return null;
     }
     if ((paramArray.length > 0) && (paramArray[paramArray.length - 1] == null)) logID(1015);
 
@@ -844,8 +843,7 @@ export function spawn (tempArray: any): FiniteTimeAction {
  * @extends ActionInterval
  */
 class DelayTime extends ActionInterval {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    update (dt: number): void { }
+    update (_dt: number): void { /* empty */ }
 
     reverse (): DelayTime {
         const action = new DelayTime(this._duration);

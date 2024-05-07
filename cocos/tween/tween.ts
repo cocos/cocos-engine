@@ -280,7 +280,7 @@ export class Tween<T> {
      */
     parallel (...args: Tween<T>[]): Tween<T> {
         const action = Tween._wrappedParallel(...args);
-        this._actions.push(action);
+        if (action) this._actions.push(action);
         return this;
     }
 
@@ -421,9 +421,8 @@ export class Tween<T> {
      * @zh
      * 停止所有指定标签的缓动
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
     static stopAllByTag (tag: number, target?: object): void {
-        TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target as any);
+        TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target);
     }
     /**
      * @en
@@ -431,9 +430,8 @@ export class Tween<T> {
      * @zh
      * 停止所有指定对象的缓动
      */
-    // eslint-disable-next-line @typescript-eslint/ban-types
     static stopAllByTarget (target?: object): void {
-        TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target as any);
+        TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
     }
 
     private _union (): Action | null {
@@ -454,7 +452,7 @@ export class Tween<T> {
 
     private static readonly _tmp_args: Tween<unknown>[] | Action[] = [];
 
-    private static _wrappedSequence (...args: Action[] | Tween<unknown>[]): ActionInterval | null {
+    private static _wrappedSequence (...args: Action[] | Tween<unknown>[]): FiniteTimeAction | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
@@ -467,7 +465,7 @@ export class Tween<T> {
         return sequence(tmp_args as FiniteTimeAction[]);
     }
 
-    private static _wrappedParallel (...args: Action[] | Tween<unknown>[]): FiniteTimeAction {
+    private static _wrappedParallel (...args: Action[] | Tween<unknown>[]): FiniteTimeAction | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {

@@ -282,7 +282,7 @@ export class Speed extends Action {
     }
 
     step (dt: number): void {
-        this._innerAction?.step(dt * this._speed);
+        if (this._innerAction) this._innerAction.step(dt * this._speed);
     }
 
     isDone (): boolean {
