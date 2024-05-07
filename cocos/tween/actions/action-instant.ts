@@ -35,16 +35,16 @@ import { Renderer } from '../../misc/renderer';
  * @class ActionInstant
  * @extends FiniteTimeAction
  */
-export class ActionInstant extends FiniteTimeAction {
+export abstract class ActionInstant extends FiniteTimeAction {
     isDone (): boolean {
         return true;
     }
 
-    step (dt: number): void {
+    step (_dt: number): void {
         this.update(1);
     }
 
-    update (dt: number): void {
+    update (_dt: number): void {
         // nothing
     }
 
@@ -59,9 +59,7 @@ export class ActionInstant extends FiniteTimeAction {
         return this.clone();
     }
 
-    clone (): ActionInstant {
-        return new ActionInstant();
-    }
+    abstract clone (): ActionInstant;
 }
 
 /*

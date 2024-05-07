@@ -32,7 +32,7 @@ import { logID, errorID } from '../../core';
  * @zh Action 类是所有动作类型的基类。
  * @class Action
  */
-export class Action {
+export abstract class Action {
     /**
      * @en Default Action tag.
      * @zh 默认动作标签。
@@ -54,13 +54,7 @@ export class Action {
      * @method clone
      * @return {Action}
      */
-    clone (): Action {
-        const action = new Action();
-        action.originalTarget = null;
-        action.target = null;
-        action.tag = this.tag;
-        return action;
-    }
+    abstract clone (): Action;
 
     /**
      * @en
@@ -162,10 +156,7 @@ export class Action {
      * @method reverse
      * @return {Action | null}
      */
-    reverse (): Action | null {
-        logID(1008);
-        return null;
-    }
+    abstract reverse (): Action | null;
 }
 
 /**
@@ -180,7 +171,7 @@ export class Action {
  * @class FiniteTimeAction
  * @extends Action
  */
-export class FiniteTimeAction extends Action {
+export abstract class FiniteTimeAction extends Action {
     _duration = 0;
     _timesForRepeat = 1;
 
@@ -212,14 +203,9 @@ export class FiniteTimeAction extends Action {
      * @method clone
      * @return {FiniteTimeAction}
      */
-    clone (): FiniteTimeAction {
-        return new FiniteTimeAction();
-    }
+    abstract clone (): FiniteTimeAction;
 
-    reverse (): FiniteTimeAction {
-        logID(1008);
-        return this;
-    }
+    abstract reverse (): FiniteTimeAction;
 }
 
 /*

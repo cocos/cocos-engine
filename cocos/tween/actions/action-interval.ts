@@ -47,7 +47,7 @@ import { ActionInstant } from './action-instant';
  * @extends FiniteTimeAction
  * @param {Number} d duration in seconds
  */
-export class ActionInterval extends FiniteTimeAction {
+export abstract class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
     protected _firstTick = false;
@@ -98,11 +98,7 @@ export class ActionInterval extends FiniteTimeAction {
         action._repeatMethod = this._repeatMethod;
     }
 
-    clone (): ActionInterval {
-        const action = new ActionInterval(this._duration);
-        this._cloneDecoration(action);
-        return action;
-    }
+    abstract clone (): ActionInterval;
 
     step (dt: number): void {
         if (this._firstTick) {
