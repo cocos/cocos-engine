@@ -43,6 +43,7 @@ type Guard = typeof guard;
  * @note This function should be easily tree-shaken.
  */
 export function checkPalIntegrity<T> (impl: T & Guard): void {
+    /* empty */
 }
 
 /**

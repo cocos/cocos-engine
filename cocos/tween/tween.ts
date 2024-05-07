@@ -203,7 +203,7 @@ export class Tween<T> {
      */
     by (duration: number, props: ConstructorType<T>, opts?: ITweenOption<T>): Tween<T> {
         opts = opts || (Object.create(null)) as ITweenOption<T>;
-        (opts).relative = true;
+        opts.relative = true;
         const action = new TweenAction(duration, props, opts);
         this._actions.push(action);
         return this;

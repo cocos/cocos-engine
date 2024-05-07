@@ -185,7 +185,7 @@ export class ActionInterval extends FiniteTimeAction {
      * @warning It should be overridden in subclass.
      * @param {Number} amp
      */
-    setAmplitudeRate (amp: any): void {
+    setAmplitudeRate (amp: number): void {
         // Abstract class needs implementation
         logID(1011);
     }
@@ -497,7 +497,7 @@ export class Repeat extends ActionInterval {
     private _actionInstant = false;
     private _innerAction: FiniteTimeAction | null = null;
 
-    constructor (action?: FiniteTimeAction, times?: number) {
+    constructor (action: FiniteTimeAction | null = null, times: number = 0) {
         super();
         this.initWithAction(action, times);
     }
@@ -507,7 +507,7 @@ export class Repeat extends ActionInterval {
      * @param {Number} times
      * @return {Boolean}
      */
-    initWithAction (action?: FiniteTimeAction, times?: number): boolean {
+    initWithAction (action: FiniteTimeAction | null, times: number): boolean {
         if (!action || times === undefined) {
             return false;
         }
@@ -539,11 +539,11 @@ export class Repeat extends ActionInterval {
         this._total = 0;
         this._nextDt = (this._innerAction ? this._innerAction._duration : 0) / this._duration;
         super.startWithTarget(target);
-        this._innerAction?.startWithTarget(target);
+        if (this._innerAction) this._innerAction.startWithTarget(target);
     }
 
     stop (): void {
-        this._innerAction?.stop();
+        if (this._innerAction) this._innerAction.stop();
         super.stop();
     }
 
@@ -753,9 +753,9 @@ export function repeatForever (action?: ActionInterval): ActionInterval {
  */
 export class Spawn extends ActionInterval {
     static _actionOneTwo (action1?: FiniteTimeAction, action2?: FiniteTimeAction): Spawn {
-        const pSpawn = new Spawn();
-        pSpawn.initWithTwoActions(action1, action2);
-        return pSpawn;
+        const spawn = new Spawn();
+        spawn.initWithTwoActions(action1, action2);
+        return spawn;
     }
 
     private _one: FiniteTimeAction | null = null;
@@ -788,10 +788,10 @@ export class Spawn extends ActionInterval {
         }
     }
 
-    /* initializes the Spawn action with the 2 actions to spawn
-     * @param {FiniteTimeAction} action1
-     * @param {FiniteTimeAction} action2
-     * @return {Boolean}
+    /* Initializes the Spawn action with the 2 actions to spawn
+     * @param {FiniteTimeAction} action1 The first action
+     * @param {FiniteTimeAction} action2 The second action
+     * @return {Boolean} Return true if the initialization succeeds, otherwise return false.
      */
     initWithTwoActions (action1?: FiniteTimeAction, action2?: FiniteTimeAction): boolean {
         if (!action1 || !action2) {
@@ -809,9 +809,9 @@ export class Spawn extends ActionInterval {
             this._two = action2;
 
             if (d1 > d2) {
-                this._two = Sequence._actionOneTwo(action2 as ActionInterval, delayTime(d1 - d2));
+                this._two = Sequence._actionOneTwo(action2, delayTime(d1 - d2));
             } else if (d1 < d2) {
-                this._one = Sequence._actionOneTwo(action1 as ActionInterval, delayTime(d2 - d1));
+                this._one = Sequence._actionOneTwo(action1, delayTime(d2 - d1));
             }
 
             ret = true;
@@ -830,13 +830,13 @@ export class Spawn extends ActionInterval {
 
     startWithTarget<T> (target: T | null): void {
         super.startWithTarget(target);
-        this._one?.startWithTarget(target);
-        this._two?.startWithTarget(target);
+        if (this._one) this._one.startWithTarget(target);
+        if (this._two) this._two.startWithTarget(target);
     }
 
     stop (): void {
-        this._one?.stop();
-        this._two?.stop();
+        if (this._one) this._one.stop();
+        if (this._two) this._two.stop();
         super.stop();
     }
 

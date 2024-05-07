@@ -60,9 +60,9 @@ export interface ITweenOption<T> {
 
     /**
      * @en
-     * Relative
+     * Whether to use relative value calculation method during easing process
      * @zh
-     * 相对
+     * 缓动过程中是否采用相对值计算的方法
      */
     relative?: boolean;
 

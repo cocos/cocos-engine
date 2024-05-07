@@ -243,7 +243,7 @@ export function removeSelf (isNeedCleanUp: boolean): ActionInstant {
  */
 export class CallFunc extends ActionInstant {
     private _selectorTarget: unknown = null;
-    private _function: Function | null | undefined = null;
+    private _function: Function | null = null;
     private _data = null;
 
     /*
@@ -253,7 +253,7 @@ export class CallFunc extends ActionInstant {
      * @param {object} [selectorTarget=null]
      * @param {*} [data=null] data for function, it accepts all data types.
      */
-    constructor (selector?: Function | null, selectorTarget?: unknown, data?: any) {
+    constructor (selector?: Function, selectorTarget?: unknown, data?: any) {
         super();
         this.initWithFunction(selector, selectorTarget, data);
     }
