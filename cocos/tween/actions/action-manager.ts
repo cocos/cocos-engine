@@ -172,7 +172,7 @@ export class ActionManager {
      * @method removeAction
      * @param {Action} action
      */
-    removeAction<T> (action: Action | null): void {
+    removeAction (action: Action | null): void {
         // explicit null handling
         if (action == null) return;
         const target = action.getOriginalTarget()!;
