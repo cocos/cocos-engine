@@ -89,12 +89,12 @@ export class Show extends ActionInstant {
  * @en Show the Node.
  * @zh 立即显示。
  * @method show
- * @return {ActionInstant}
+ * @return {Show}
  * @example
  * // example
  * var showAction = show();
  */
-export function show (): ActionInstant {
+export function show (): Show {
     return new Show();
 }
 
@@ -125,12 +125,12 @@ export class Hide extends ActionInstant {
  * @en Hide the node.
  * @zh 立即隐藏。
  * @method hide
- * @return {ActionInstant}
+ * @return {Hide}
  * @example
  * // example
  * var hideAction = hide();
  */
-export function hide (): ActionInstant {
+export function hide (): Hide {
     return new Hide();
 }
 
@@ -161,12 +161,12 @@ export class ToggleVisibility extends ActionInstant {
  * @en Toggles the visibility of a node.
  * @zh 显隐状态切换。
  * @method toggleVisibility
- * @return {ActionInstant}
+ * @return {ToggleVisibility}
  * @example
  * // example
  * var toggleVisibilityAction = toggleVisibility();
  */
-export function toggleVisibility (): ActionInstant {
+export function toggleVisibility (): ToggleVisibility {
     return new ToggleVisibility();
 }
 
@@ -214,13 +214,13 @@ export class RemoveSelf extends ActionInstant {
  * @zh 从父节点移除自身。
  * @method removeSelf
  * @param {Boolean} [isNeedCleanUp = true]
- * @return {ActionInstant}
+ * @return {RemoveSelf}
  *
  * @example
  * // example
  * var removeSelfAction = removeSelf();
  */
-export function removeSelf (isNeedCleanUp: boolean): ActionInstant {
+export function removeSelf (isNeedCleanUp: boolean): RemoveSelf {
     return new RemoveSelf(isNeedCleanUp);
 }
 
