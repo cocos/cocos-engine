@@ -79,7 +79,7 @@ export class Tween<T> {
 
     /**
      * @en
-     * Insert an action or tween to this sequence.
+     * Insert a tween to this sequence.
      * @zh
      * 插入一个 tween 到队列中。
      * @method then
@@ -91,6 +91,10 @@ export class Tween<T> {
         return this;
     }
 
+    /**
+     * Insert an action to this sequence.
+     * @param other @en The rear action of this tween @zh 当前缓动的后置缓动
+     */
     private insertAction (other: Action): Tween<T> {
         this._actions.push(other.clone());
         return this;
