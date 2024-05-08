@@ -26,6 +26,7 @@
 */
 import { FiniteTimeAction } from './action';
 import { Renderer } from '../../misc/renderer';
+import type { Node } from '../../scene-graph';
 
 /**
  * @en Instant actions are immediate actions. They don't have a duration like the ActionInterval actions.
@@ -65,20 +66,21 @@ export abstract class ActionInstant extends FiniteTimeAction {
  * @class Show
  * @extends ActionInstant
  */
-export class Show extends ActionInstant {
+export class Show<T extends Node> extends ActionInstant {
     update (_dt: number): void {
-        const _renderComps = (this.target as any).getComponentsInChildren(Renderer);
+        const target = this.target as T;
+        const _renderComps = target.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = true;
         }
     }
 
-    reverse (): Hide {
+    reverse (): Hide<T> {
         return new Hide();
     }
 
-    clone (): Show {
+    clone (): Show<T> {
         return new Show();
     }
 }
@@ -92,8 +94,8 @@ export class Show extends ActionInstant {
  * // example
  * var showAction = show();
  */
-export function show (): Show {
-    return new Show();
+export function show<T extends Node> (): Show<T> {
+    return new Show<T>();
 }
 
 /*
@@ -101,21 +103,22 @@ export function show (): Show {
  * @class Hide
  * @extends ActionInstant
  */
-export class Hide extends ActionInstant {
+export class Hide<T extends Node> extends ActionInstant {
     update (_dt: number): void {
-        const _renderComps = (this.target as any).getComponentsInChildren(Renderer);
+        const target = this.target as T;
+        const _renderComps = target.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = false;
         }
     }
 
-    reverse (): Show {
-        return new Show();
+    reverse (): Show<T> {
+        return new Show<T>();
     }
 
-    clone (): Hide {
-        return new Hide();
+    clone (): Hide<T> {
+        return new Hide<T>();
     }
 }
 
@@ -128,8 +131,8 @@ export class Hide extends ActionInstant {
  * // example
  * var hideAction = hide();
  */
-export function hide (): Hide {
-    return new Hide();
+export function hide<T extends Node> (): Hide<T> {
+    return new Hide<T>();
 }
 
 /*
@@ -137,21 +140,22 @@ export function hide (): Hide {
  * @class ToggleVisibility
  * @extends ActionInstant
  */
-export class ToggleVisibility extends ActionInstant {
+export class ToggleVisibility<T extends Node> extends ActionInstant {
     update (_dt: number): void {
-        const _renderComps = (this.target as any).getComponentsInChildren(Renderer);
+        const target = this.target as T;
+        const _renderComps = target.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = !render.enabled;
         }
     }
 
-    reverse (): ToggleVisibility {
-        return new ToggleVisibility();
+    reverse (): ToggleVisibility<T> {
+        return new ToggleVisibility<T>();
     }
 
-    clone (): ToggleVisibility {
-        return new ToggleVisibility();
+    clone (): ToggleVisibility<T> {
+        return new ToggleVisibility<T>();
     }
 }
 
@@ -164,8 +168,8 @@ export class ToggleVisibility extends ActionInstant {
  * // example
  * var toggleVisibilityAction = toggleVisibility();
  */
-export function toggleVisibility (): ToggleVisibility {
-    return new ToggleVisibility();
+export function toggleVisibility<T extends Node> (): ToggleVisibility<T> {
+    return new ToggleVisibility<T>();
 }
 
 /*
@@ -178,7 +182,7 @@ export function toggleVisibility (): ToggleVisibility {
  * // example
  * var removeSelfAction = new RemoveSelf(false);
  */
-export class RemoveSelf extends ActionInstant {
+export class RemoveSelf<T extends Node> extends ActionInstant {
     protected _isNeedCleanUp = true;
 
     constructor (isNeedCleanUp?: boolean) {
@@ -187,9 +191,10 @@ export class RemoveSelf extends ActionInstant {
     }
 
     update (_dt: number): void {
-        (this.target as any).removeFromParent();
+        const target = this.target as T;
+        target.removeFromParent();
         if (this._isNeedCleanUp) {
-            (this.target as any).destroy();
+            target.destroy();
         }
     }
 
@@ -198,12 +203,12 @@ export class RemoveSelf extends ActionInstant {
         return true;
     }
 
-    reverse (): RemoveSelf {
-        return new RemoveSelf(this._isNeedCleanUp);
+    reverse (): RemoveSelf<T> {
+        return new RemoveSelf<T>(this._isNeedCleanUp);
     }
 
-    clone (): RemoveSelf {
-        return new RemoveSelf(this._isNeedCleanUp);
+    clone (): RemoveSelf<T> {
+        return new RemoveSelf<T>(this._isNeedCleanUp);
     }
 }
 
@@ -218,8 +223,8 @@ export class RemoveSelf extends ActionInstant {
  * // example
  * var removeSelfAction = removeSelf();
  */
-export function removeSelf (isNeedCleanUp: boolean): RemoveSelf {
-    return new RemoveSelf(isNeedCleanUp);
+export function removeSelf<T extends Node> (isNeedCleanUp: boolean): RemoveSelf<T> {
+    return new RemoveSelf<T>(isNeedCleanUp);
 }
 
 export type TCallFuncCallback<TTarget, TData> = (target?: TTarget, data?: TData) => void;

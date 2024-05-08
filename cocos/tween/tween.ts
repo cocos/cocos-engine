@@ -31,6 +31,7 @@ import { ITweenOption } from './export-api';
 import { TweenAction } from './tween-action';
 import { SetAction } from './set-action';
 import { legacyCC } from '../core/global-exports';
+import { Node } from '../scene-graph';
 
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
@@ -39,6 +40,7 @@ type KeyPartial<T, K extends keyof T> = { [P in K]?: T[P] };
 type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ConstructorType<T> = OmitType<T, Function>;
+type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 /**
  * @en
@@ -365,10 +367,13 @@ export class Tween<T> {
      * @zh
      * 添加一个隐藏 action，只适用于 target 是节点类型的。
      */
-    hide (): Tween<T> {
-        const action = hide();
-        this._actions.push(action);
-        return this;
+    hide (): TweenWithNodeTargetOrUnknown<T> {
+        const isNode = this._target instanceof Node;
+        if (isNode) {
+            const action = hide();
+            this._actions.push(action);
+        }
+        return this as unknown as TweenWithNodeTargetOrUnknown<T>;
     }
 
     /**
@@ -377,10 +382,13 @@ export class Tween<T> {
      * @zh
      * 添加一个显示 action，只适用于 target 是节点类型的。
      */
-    show (): Tween<T> {
-        const action = show();
-        this._actions.push(action);
-        return this;
+    show (): TweenWithNodeTargetOrUnknown<T> {
+        const isNode = this._target instanceof Node;
+        if (isNode) {
+            const action = show();
+            this._actions.push(action);
+        }
+        return this as unknown as TweenWithNodeTargetOrUnknown<T>;
     }
 
     /**
@@ -389,10 +397,13 @@ export class Tween<T> {
      * @zh
      * 添加一个移除自己 action，只适用于 target 是节点类型的。
      */
-    removeSelf (): Tween<T> {
-        const action = removeSelf(false);
-        this._actions.push(action);
-        return this;
+    removeSelf (): TweenWithNodeTargetOrUnknown<T> {
+        const isNode = this._target instanceof Node;
+        if (isNode) {
+            const action = removeSelf(false);
+            this._actions.push(action);
+        }
+        return this as unknown as TweenWithNodeTargetOrUnknown<T>;
     }
 
     /**
@@ -401,10 +412,13 @@ export class Tween<T> {
      * @zh
      * 添加一个移除并销毁自己 action，只适用于 target 是节点类型的。
      */
-    destroySelf (): Tween<T> {
-        const action = removeSelf(true);
-        this._actions.push(action);
-        return this;
+    destroySelf (): TweenWithNodeTargetOrUnknown<T> {
+        const isNode = this._target instanceof Node;
+        if (isNode) {
+            const action = removeSelf(true);
+            this._actions.push(action);
+        }
+        return this as unknown as TweenWithNodeTargetOrUnknown<T>;
     }
 
     /**
@@ -453,11 +467,11 @@ export class Tween<T> {
 
     private static readonly _tmp_args: Tween<unknown>[] | Action[] = [];
 
-    private static _wrappedSequence (...args: Action[] | Tween<unknown>[]): FiniteTimeAction | null {
+    private static _wrappedSequence<U> (...args: Tween<U>[]): FiniteTimeAction | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            const arg = tmp_args[i] = args[i];
+            const arg = tmp_args[i] = args[i] as Tween<unknown>;
             if (arg instanceof Tween) {
                 tmp_args[i] = arg._union() as Action; //FIXME: Remove 'as'
             }
@@ -466,13 +480,13 @@ export class Tween<T> {
         return sequence(tmp_args as FiniteTimeAction[]);
     }
 
-    private static _wrappedParallel (...args: Action[] | Tween<unknown>[]): FiniteTimeAction | null {
+    private static _wrappedParallel<U> (...args: Tween<U>[]): FiniteTimeAction | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            const arg = tmp_args[i] = args[i];
+            const arg = tmp_args[i] = args[i] as Tween<unknown>;
             if (arg instanceof Tween) {
-                tmp_args[i] = arg._union() as Action;
+                tmp_args[i] = arg._union() as Action; //FIXME: Remove 'as'
             }
         }
 

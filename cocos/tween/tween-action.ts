@@ -27,7 +27,6 @@ import { ActionInterval } from './actions/action-interval';
 import { ITweenOption, TweenEasing } from './export-api';
 import { VERSION } from '../core/global-exports';
 
-// type TypeEquality<T, U> = Extract<keyof T, keyof U> extends never ? false : true;
 type TypeEquality<T, U> = { [K in keyof T]: K extends keyof U ? T[K] : never } extends T ? true : false;
 
 /** adapter */
