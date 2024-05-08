@@ -4,7 +4,6 @@ import { CCObject } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/scene-graph/node-event";
 import { ccclass } from "../../cocos/core/data/decorators";
 import {director, game } from '../../cocos/game';
-import { boolean } from "yargs";
 
 describe(`Node`, () => {
 
