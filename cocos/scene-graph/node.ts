@@ -2231,17 +2231,32 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setScale(x: number, y: number, z?: number): void;
 
     public setScale (val: Readonly<Vec3> | number, y?: number, z?: number): void {
+        let newX: number;
+        let newY: number;
+        let newZ: number;
+        const localScale = this._lscale;
+
         if (y === undefined && z === undefined) {
-            Vec3.copy(this._lscale, val as Vec3);
+            newX = (val as Vec3).x;
+            newY = (val as Vec3).y;
+            newZ = (val as Vec3).z;
         } else if (z === undefined) {
-            Vec3.set(this._lscale, val as number, y!, this._lscale.z);
+            newX = val as number;
+            newY = y!;
+            newZ = localScale.z;
         } else {
-            Vec3.set(this._lscale, val as number, y!, z);
+            newX = val as number;
+            newY = y!;
+            newZ = z;
         }
 
-        this.invalidateChildren(TransformBit.SCALE);
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+        if (newX !== localScale.x || newY !== localScale.y || newZ !== localScale.z) {
+            this._lscale.set(newX, newY, newZ);
+            this.invalidateChildren(TransformBit.SCALE);
+
+            if (this._eventMask & TRANSFORM_ON) {
+                this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            }
         }
     }
 
