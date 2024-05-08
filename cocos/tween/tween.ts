@@ -188,8 +188,8 @@ export class Tween<T> {
      * @param opts.easing @en Tween function or a lambda @zh 缓动的曲线函数或lambda表达式
      */
     to (duration: number, props: ConstructorType<T>, opts?: ITweenOption<T>): Tween<T> {
-        opts = opts || Object.create(null);
-        opts!.relative = false;
+        opts = opts || (Object.create(null) as ITweenOption<T>);
+        opts.relative = false;
         const action = new TweenAction(duration, props, opts);
         this._actions.push(action);
         return this;
@@ -209,7 +209,7 @@ export class Tween<T> {
      * @return {Tween}
      */
     by (duration: number, props: ConstructorType<T>, opts?: ITweenOption<T>): Tween<T> {
-        opts = opts || (Object.create(null)) as ITweenOption<T>;
+        opts = opts || (Object.create(null) as ITweenOption<T>);
         opts.relative = true;
         const action = new TweenAction(duration, props, opts);
         this._actions.push(action);
