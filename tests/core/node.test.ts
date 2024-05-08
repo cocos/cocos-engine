@@ -4,6 +4,7 @@ import { CCObject } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/scene-graph/node-event";
 import { ccclass } from "../../cocos/core/data/decorators";
 import {director, game } from '../../cocos/game';
+import { boolean } from "yargs";
 
 describe(`Node`, () => {
 
@@ -283,5 +284,51 @@ describe(`Node`, () => {
         expect(val4).not.toBe(val1);
         node.eulerAngles = new Vec3(1, 2, 3);
         expect(node.flagChangedVersion).toBe(val4);
+    });
+
+    test('setScale', () => {
+        const node = new Node();
+
+        let scale = new Vec3(2, 3, 4);
+        node.setScale(scale);
+        let scale1 = node.getScale();
+        expect(scale1.equals(scale)).toBeTruthy();
+
+        let scaleChanged = false;
+        node.on(NodeEventType.TRANSFORM_CHANGED, () => {
+            scaleChanged = true;
+        });
+
+        node.setScale(scale);
+        expect(scaleChanged).toBe(false);
+
+        scale.x += 1;
+        node.setScale(scale);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale.y += 1;
+        node.setScale(scale);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale.z += 1;
+        node.setScale(scale);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale1 = node.getScale();
+        node.setScale(scale1.x + 1, scale1.y);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale1 = node.getScale();
+        node.setScale(scale1.x, scale1.y + 1);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale1 = node.getScale();
+        node.setScale(scale1.x, scale1.y, scale1.z + 1);
+        expect(scaleChanged).toBe(true);
     });
 });
