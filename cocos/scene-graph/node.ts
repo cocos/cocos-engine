@@ -2106,17 +2106,32 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setPosition(x: number, y: number, z?: number): void;
 
     public setPosition (val: Readonly<Vec3> | number, y?: number, z?: number): void {
+        let newX: number;
+        let newY: number;
+        let newZ: number;
+        const localPosition = this._lpos;
+
         if (y === undefined && z === undefined) {
-            Vec3.copy(this._lpos, val as Vec3);
+            newX = (val as Vec3).x;
+            newY = (val as Vec3).y;
+            newZ = (val as Vec3).z;
         } else if (z === undefined) {
-            Vec3.set(this._lpos, val as number, y!, this._lpos.z);
+            newX = val as number;
+            newY = y!;
+            newZ = localPosition.z;
         } else {
-            Vec3.set(this._lpos, val as number, y!, z);
+            newX = val as number;
+            newY = y!;
+            newZ = z;
         }
 
-        this.invalidateChildren(TransformBit.POSITION);
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+        if (newX !== localPosition.x || newY !== localPosition.y || newZ !== localPosition.z) {
+            this._lpos.set(newX, newY, newZ);
+            this.invalidateChildren(TransformBit.POSITION);
+
+            if (this._eventMask & TRANSFORM_ON) {
+                this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            }
         }
     }
 
