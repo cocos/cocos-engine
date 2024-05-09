@@ -21,16 +21,16 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
 @CustomDialog
 export struct EditBoxDialog {
   private showMessage: string = ''
   private inputMessage: string = ''
-  onTextChange: (msg: string) => void
-  accept: (msg: string) => void
-  controller: CustomDialogController
-  cancel: () => void
-  confirm: () => void
+  onTextChange?: (msg: string) => void;
+  accept?: (msg: string) => void;
+  controller?: CustomDialogController;
+  cancel?: () => void;
+  confirm?: () => void;
 
   build() {
     Column() {
@@ -48,14 +48,14 @@ export struct EditBoxDialog {
             if (this.accept) {
               this.accept(this.inputMessage);
             }
-            this.controller.close();
+            this.controller?.close();
           })
         Blank(8).width(16)
         Button('完成').onClick(() => {
           if (this.accept) {
             this.accept(this.inputMessage);
           }
-          this.controller.close();
+          this.controller?.close();
         })
       }.padding({ left: 8, right: 8, top: 8, bottom: 8 })
       .backgroundColor(Color.Gray)

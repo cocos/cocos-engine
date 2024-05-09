@@ -6,5 +6,7 @@
   "description": "example description",
   "main": "",
   "version": "1.0.0",
-  "dependencies": {}
+  "dependencies": {
+    "libcocos.so": "file:./src/main/cpp/types/libcocos"
+  }
 }

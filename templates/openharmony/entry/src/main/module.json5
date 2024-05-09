@@ -15,9 +15,9 @@
     "abilities": [
       {
         "name": "MainAbility",
-        "srcEntrance": "./ets/MainAbility/MainAbility.ts",
+        "srcEntry": "./ets/entryability/EntryAbility.ts",
         "description": "$string:MainAbility_desc",
-        "orientation": "portrait",
+        "orientation": "auto_rotation_landscape",
         "icon": "$media:icon",
         "label": "$string:MainAbility_label",
         "startWindowIcon": "$media:icon",
@@ -37,7 +37,7 @@
     ],
     "requestPermissions": [
       {
-        "name": 'ohos.permission.INTERNET'
+        "name": "ohos.permission.INTERNET"
       },
       {
         "name": "ohos.permission.ACCELEROMETER",

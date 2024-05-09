@@ -28,7 +28,7 @@ export class OpenHarmonyPackTool extends NativePackTool {
     params!: CocosParams<OHOSParam>;
 
     initEnv() {
-        this.setEnv('OHOS_SDK_HOME', this.params.platformParams.sdkPath);
+        //this.setEnv('OHOS_SDK_HOME', this.params.platformParams.sdkPath);
     }
 
     async create() {
@@ -39,10 +39,10 @@ export class OpenHarmonyPackTool extends NativePackTool {
         const ohosProjDir = this.paths.platformTemplateDirInPrj;
         const platformParams = this.params.platformParams;
         const assetsDir = this.paths.buildAssetsDir;
-        // local.properties
-        await cchelper.replaceInFile([
-            { reg: '^sdk\\.dir.*', text: `sdk.dir=${platformParams.sdkPath}` },
-        ], ps.join(ohosProjDir, 'local.properties'));
+        // // local.properties
+        // await cchelper.replaceInFile([
+        //     { reg: '^sdk\\.dir.*', text: `sdk.dir=${platformParams.sdkPath}` },
+        // ], ps.join(ohosProjDir, 'local.properties'));
 
         // entry/build-profile.json5
         const buildCfgFile = ps.join(ohosProjDir, 'entry/build-profile.json5');
@@ -129,41 +129,41 @@ export class OpenHarmonyPackTool extends NativePackTool {
     }
     // --------------- run ------------------//
     async run(): Promise<boolean> {
-        this.initEnv();
-        const sdkPath = process.env['OHOS_SDK_HOME'];
-        if (!sdkPath) {
-            return false;
-        }
-        const hdc = this.findHDCTool(sdkPath);
-        const hdcCwd = ps.dirname(hdc);
-        const hdcExe = "hdc_std";
-        const projectDir = this.paths.platformTemplateDirInPrj;
-        const packageName = this.params.platformParams.packageName;
-        let configJson = this.readJSON5Sync(ps.join(projectDir, 'entry/src/main/module.json5'));
-        //const moduleId = configJson.module.package + configJson.module.abilities[0].name;
-        const ability = configJson.module.abilities[0].name;
-        const moduleName = configJson.module.name;
-        const hapFile = this.selectHapFile(projectDir);
-        console.debug(`Start run hap ${hapFile} ...`);
-        console.debug(`${hdc} uninstall ${packageName}`);
-        await cchelper.runCmd(
-            hdcExe, ['uninstall', packageName], false, hdcCwd);
-        console.debug(`${hdc} install -r ${hapFile}`);
-        await cchelper.runCmd(
-            hdcExe, ['install', '-r', hapFile], false, hdcCwd);
-        console.debug(`${hdc} shell aa start -a ${ability} -b ${packageName}`);
-        await cchelper.runCmd(
-            hdcExe, ['shell', 'aa', 'start', '-a', ability, '-b', packageName, '-m', moduleName], false, hdcCwd);
+        // this.initEnv();
+        // const sdkPath = process.env['OHOS_SDK_HOME'];
+        // if (!sdkPath) {
+        //     return false;
+        // }
+        // const hdc = this.findHDCTool(sdkPath);
+        // const hdcCwd = ps.dirname(hdc);
+        // const hdcExe = "hdc_std";
+        // const projectDir = this.paths.platformTemplateDirInPrj;
+        // const packageName = this.params.platformParams.packageName;
+        // let configJson = this.readJSON5Sync(ps.join(projectDir, 'entry/src/main/module.json5'));
+        // //const moduleId = configJson.module.package + configJson.module.abilities[0].name;
+        // const ability = configJson.module.abilities[0].name;
+        // const moduleName = configJson.module.name;
+        // const hapFile = this.selectHapFile(projectDir);
+        // console.debug(`Start run hap ${hapFile} ...`);
+        // console.debug(`${hdc} uninstall ${packageName}`);
+        // await cchelper.runCmd(
+        //     hdcExe, ['uninstall', packageName], false, hdcCwd);
+        // console.debug(`${hdc} install -r ${hapFile}`);
+        // await cchelper.runCmd(
+        //     hdcExe, ['install', '-r', hapFile], false, hdcCwd);
+        // console.debug(`${hdc} shell aa start -a ${ability} -b ${packageName}`);
+        // await cchelper.runCmd(
+        //     hdcExe, ['shell', 'aa', 'start', '-a', ability, '-b', packageName, '-m', moduleName], false, hdcCwd);
         return true;
     }
 
-    findHDCTool(sdkPath: string): string {
-        const versionList = fs.readdirSync(ps.join(sdkPath, 'toolchains'));
-        if (!versionList.length) {
-            throw new Error('Please install hdc_std tool fist, doc: https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/subsystems/subsys-toolchain-hdc-guide.md')
-        }
-        return ps.join(sdkPath, 'toolchains', versionList[0], 'hdc_std');
-    }
+    // findHDCTool(sdkPath: string): string {
+    //     const versionList = fs.readdirSync(ps.join(sdkPath, 'toolchains'));
+    //     if (!versionList.length) {
+    //         throw new Error('Please install hdc_std tool fist, doc: https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/subsystems/subsys-toolchain-hdc-guide.md')
+    //     }
+    //     return ps.join(sdkPath, 'toolchains', versionList[0], 'hdc_std');
+    // }
 
     private readJSON5Sync(json5FilePath: string): any {
         let json5FileContent = fs.readFileSync(json5FilePath);
@@ -190,12 +190,12 @@ export class OpenHarmonyPackTool extends NativePackTool {
         return ps.join(outputDir, hapName);
     }
 
-    get hdcPath(): string | null {
-        if (this.params.platformParams.sdkPath) {
-            return ps.join(this.params.platformParams.sdkPath, 'toolchains/hdc');
-        }
-        return null;
-    }
+    // get hdcPath(): string | null {
+    //     if (this.params.platformParams.sdkPath) {
+    //         return ps.join(this.params.platformParams.sdkPath, 'toolchains/hdc');
+    //     }
+    //     return null;
+    // }
 
     randString(n: number): string {
         if (n <= 0) {

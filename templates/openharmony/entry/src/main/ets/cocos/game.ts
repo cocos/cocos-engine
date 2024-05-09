@@ -76,7 +76,7 @@ export function launchEngine (): Promise<void> {
     window.global = window;
     // @ts-ignore
     window.oh = window.oh || {};
-    return import('./jsb-adapter/sys-ability-polyfill.js').then(({ systemReady }) => {
+    return import('./oh-adapter/sys-ability-polyfill.js').then(({ systemReady }) => {
         return systemReady().then(() => {
             // @ts-ignore
             window.oh.loadModule = loadModule;
