@@ -1,5 +1,5 @@
 import { find, Node, Scene, Component, TransformBit } from "../../cocos/scene-graph"
-import { Mat4, Vec3 } from "../../cocos/core/math"
+import { Mat4, Quat, Vec3 } from "../../cocos/core/math"
 import { CCObject } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/scene-graph/node-event";
 import { ccclass } from "../../cocos/core/data/decorators";
@@ -379,5 +379,62 @@ describe(`Node`, () => {
         pos1 = node.getPosition();
         node.setPosition(pos1.x, pos1.y, pos.z + 1);
         expect(positionChanged).toBe(true);
+    });
+
+    test('setRotation', () => {
+        const node = new Node();
+
+        let quat = new Quat(2, 3, 4);
+        node.setRotation(quat);
+        let quat1 = node.getRotation();
+        expect(quat1.equals(quat)).toBeTruthy();
+
+        let rotationChanged = false;
+        node.on(NodeEventType.TRANSFORM_CHANGED, (arg: TransformBit) => {
+            if (arg === TransformBit.ROTATION) {
+                rotationChanged = true;
+            }
+        });
+
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(false);
+
+        quat.x += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat.y += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat.z += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.x += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.y += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.z += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.w += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
     });
 });

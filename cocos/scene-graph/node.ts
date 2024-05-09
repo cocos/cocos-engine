@@ -2168,16 +2168,32 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setRotation(x: number, y: number, z: number, w: number): void;
 
     public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
-        if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._lrot, val as Readonly<Quat>);
-        } else {
-            Quat.set(this._lrot, val as number, y, z, w);
-        }
-        this._eulerDirty = true;
+        let newX: number;
+        let newY: number;
+        let newZ: number;
+        let newW: number;
+        const localRotation = this._lrot;
 
-        this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+        if (y === undefined || z === undefined || w === undefined) {
+            newX = (val as Quat).x;
+            newY = (val as Quat).y;
+            newZ = (val as Quat).z;
+            newW = (val as Quat).w;
+        } else {
+            newX = val as number;
+            newY = y;
+            newZ = z;
+            newW = w;
+        }
+
+        if (newX !== localRotation.x || newY !== localRotation.y || newZ !== localRotation.z || newW !== localRotation.w) {
+            Quat.set(this._lrot, newX, newY, newZ, newW);
+            this._eulerDirty = true;
+            this.invalidateChildren(TransformBit.ROTATION);
+
+            if (this._eventMask & TRANSFORM_ON) {
+                this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            }
         }
     }
 
