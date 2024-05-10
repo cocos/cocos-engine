@@ -29,7 +29,7 @@
 
 import { DEBUG, EDITOR, BUILD, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { SceneAsset } from '../asset/assets/scene-asset';
-import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, CCObject, cclegacy, isValid } from '../core';
+import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, CCObject, cclegacy, isValid, screen } from '../core';
 import { input } from '../input';
 import { Root } from '../root';
 import { Node, Scene } from '../scene-graph';
@@ -489,8 +489,12 @@ export class Director extends EventTarget {
         const bundle = assetManager.bundles.find((bundle): boolean => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             // NOTE: the similar function signatures but defined as deferent function types.
-            bundle.preloadScene(sceneName, null, onProgress as (finished: number, total: number, item: any) => void,
-                onLoaded as ((err?: Error | null) => void) | null);
+            bundle.preloadScene(
+                sceneName,
+                null,
+                onProgress as (finished: number, total: number, item: any) => void,
+                onLoaded as ((err?: Error | null) => void) | null,
+            );
         } else {
             const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
             if (onLoaded) {
@@ -706,18 +710,51 @@ export class Director extends EventTarget {
         }
     }
 
+    /**
+     * @en Build custom render pipeline
+     * @zh 构建自定义渲染管线
+     */
     private buildRenderPipeline (): void {
+        // Here we should build the render pipeline.
         if (this._root) {
-            this._root.customPipeline.beginSetup();
+            const ppl = this._root.customPipeline;
+            ppl.beginSetup();
             const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
-            builder.setup(this._root.cameraList, this._root.customPipeline);
-            this._root.customPipeline.endSetup();
+            builder.setup(this._root.cameraList, ppl);
+            ppl.endSetup();
+        }
+    }
+
+    private resizeRenderPipeline (width: number, height: number): void {
+        if (this._root) {
+            const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+            if (builder.windowResize) {
+                // Currently we don't have DPI change event.
+                // We only handle window resize event here.
+                builder.windowResize(width, height);
+            }
+        }
+    }
+
+    private orientRenderPipeline (orientation: number): void {
+        if (this._root) {
+            const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+            if (builder.windowOrientationChange) {
+                builder.windowOrientationChange(orientation);
+            }
         }
     }
 
     private setupRenderPipelineBuilder (): void {
+        // Custom pipeline will only be used, when
+        // 1. CUSTOM_PIPELINE_NAME is not empty
+        //    (in CocosCreator/Project/Project Settings/Engine Manager/Macro Configuration/CUSTOM_PIPELINE_NAME)
+        // 2. cclegacy.rendering is available
+        // 3. The root node is created and uses custom pipeline
         if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
             this.on(Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+            screen.on('window-resize', this.resizeRenderPipeline, this);
+            screen.on('orientation-change', this.orientRenderPipeline, this);
         }
     }
 
@@ -734,11 +771,14 @@ export class Director extends EventTarget {
         const rootInfo = {};
         this._root.initialize(rootInfo);
 
-        this.setupRenderPipelineBuilder();
-
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }
+
+        // We add window-resize callback after all systems are initialized.
+        // So the render pipeline will resize after all swapchains are resized.
+        this.setupRenderPipelineBuilder();
+
         this.emit(Director.EVENT_INIT);
     }
 

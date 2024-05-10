@@ -1682,6 +1682,8 @@ export interface Pipeline extends BasicPipeline {
  * 调用setCustomPipeline注册管线
  */
 export interface PipelineBuilder {
+    windowResize? (width: number, height: number): void;
+    windowOrientationChange? (orientation: number): void;
     /**
      * @en Setup render graph
      * @zh 构建渲染管线
