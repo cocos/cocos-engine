@@ -2120,7 +2120,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 z = localPosition.z;
             }
 
-            if (val as number === localPosition.x  && y === localPosition.y && z === localPosition.z) {
+            if (val as number === localPosition.x && y === localPosition.y && z === localPosition.z) {
                 return;
             }
 
