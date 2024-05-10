@@ -56,7 +56,7 @@ type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
  *   .by(1, {scale: new Vec3(-1, -1, -1), position: new Vec3(-5, -5, -5)}, {easing: 'sineOutIn'})
  *   .start()
  */
-export class Tween<T> {
+export class Tween<T extends object = any> {
     private _actions: Action[] = [];
     private _finalAction: Action | null = null;
     private _target: T | null = null;
@@ -108,9 +108,9 @@ export class Tween<T> {
      * @method target
      * @param target @en The target of this tween @zh 当前缓动的目标对象
      */
-    target (target: T): Tween<T> {
-        this._target = target;
-        return this;
+    target<U extends object = any> (target: U): Tween<U> {
+        (this as unknown as Tween<U>)._target = target;
+        return this as unknown as Tween<U>;
     }
 
     /**
@@ -156,7 +156,7 @@ export class Tween<T> {
      * @method clone
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      */
-    clone (target: T): Tween<T> {
+    clone<U extends object = any> (target: U): Tween<U> {
         const action = this._union();
         const r = tween(target);
         return action ? r.insertAction(action.clone()) : r;
@@ -469,13 +469,13 @@ export class Tween<T> {
         this.stop();
     }
 
-    private static readonly _tmp_args: Tween<unknown>[] | Action[] = [];
+    private static readonly _tmp_args: Tween<any>[] | Action[] = [];
 
-    private static _wrappedSequence<U> (...args: Tween<U>[]): FiniteTimeAction | null {
+    private static _wrappedSequence<U extends object = any> (...args: Tween<U>[]): FiniteTimeAction | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            const arg = tmp_args[i] = args[i] as Tween<unknown>;
+            const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
                 tmp_args[i] = arg._union() as Action; //FIXME: Remove 'as'
             }
@@ -484,11 +484,11 @@ export class Tween<T> {
         return sequence(tmp_args as FiniteTimeAction[]);
     }
 
-    private static _wrappedParallel<U> (...args: Tween<U>[]): FiniteTimeAction | null {
+    private static _wrappedParallel<U extends object = any> (...args: Tween<U>[]): FiniteTimeAction | null {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            const arg = tmp_args[i] = args[i] as Tween<unknown>;
+            const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
                 tmp_args[i] = arg._union() as Action; //FIXME: Remove 'as'
             }
@@ -513,7 +513,7 @@ legacyCC.Tween = Tween;
  *   .by(1, {scale: new Vec3(-1, -1, -1)}, {easing: 'sineOutIn'})
  *   .start()
  */
-export function tween<T> (target?: T): Tween<T> {
+export function tween<T extends object = any> (target?: T): Tween<T> {
     return new Tween<T>(target);
 }
 legacyCC.tween = tween;
@@ -525,7 +525,7 @@ legacyCC.tween = tween;
  * tweenUtil 是一个工具函数，帮助实例化 Tween 实例。
  * @deprecated please use `tween` instead.
  */
-export function tweenUtil<T> (target?: T): Tween<T> {
+export function tweenUtil<T extends object = any> (target?: T): Tween<T> {
     warn('tweenUtil\' is deprecated, please use \'tween\' instead ');
     return new Tween<T>(target);
 }
