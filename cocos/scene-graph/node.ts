@@ -1087,6 +1087,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public removeComponent(classNameOrInstance: string | Component): void;
 
     public removeComponent (component: any): void {
+        if (!component) {
+            errorID(3813);
+            return;
+        }
+
         let componentInstance: Component | null = null;
         if (component instanceof Component) {
             componentInstance = component;
