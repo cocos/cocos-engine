@@ -26,8 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
-import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
+import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
@@ -67,12 +66,7 @@ export function setCustomPipeline (name: string, builder: PipelineBuilder): void
 export function getCustomPipeline (name: string): PipelineBuilder {
     let builder = customPipelineBuilderMap.get(name);
     if (!builder) {
-        if (name === 'Test') {
-            builder = new TestPipelineBuilder(_pipeline!.pipelineSceneData);
-            customPipelineBuilderMap.set('Test', builder);
-        } else {
-            builder = customPipelineBuilderMap.get('Forward')!;
-        }
+        builder = customPipelineBuilderMap.get('Forward')!;
     }
     return builder;
 }
@@ -80,11 +74,9 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
     map.set('Forward', new PostProcessBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
-    map.set('Deprecated', new CustomPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
-
 export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
     if (arrayBuffer) {
         const readBinaryData = new BinaryInputArchive(arrayBuffer);

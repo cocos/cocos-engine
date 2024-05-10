@@ -26,7 +26,6 @@ declare const render: any;
 
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { DeferredPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
 import { Device } from '../../gfx';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
 
@@ -55,12 +54,7 @@ export function setCustomPipeline (name: string, builder: PipelineBuilder) {
 export function getCustomPipeline (name: string): PipelineBuilder {
     let builder = customPipelineBuilderMap.get(name);
     if (!builder) {
-        if (name === 'Test') {
-            builder = new TestPipelineBuilder(_pipeline!.pipelineSceneData);
-            customPipelineBuilderMap.set('Test', builder);
-        } else {
-            builder = customPipelineBuilderMap.get('Forward')!;
-        }
+        builder = customPipelineBuilderMap.get('Forward')!;
     }
     return builder;
 }
@@ -68,7 +62,6 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new PostProcessBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
-    map.set('Deprecated', new CustomPipelineBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
