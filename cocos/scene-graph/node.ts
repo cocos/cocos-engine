@@ -1252,7 +1252,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 移除目标上的所有注册事件。
      * @param target - The target to be searched for all related callbacks
      */
-    public targetOff (target: string): void {
+    public targetOff (target: unknown): void {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
         if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
@@ -1319,7 +1319,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
     }
 
-    protected _instantiate (cloned: Node | null, isSyncedNode: boolean): any {
+    protected _instantiate (cloned?: Node | null, isSyncedNode: boolean = false): Node {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this) as Node;
         }
@@ -1340,7 +1340,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         cloned._parent = null;
         cloned._onBatchCreated(isSyncedNode);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return cloned;
     }
 
