@@ -41,7 +41,6 @@ import { PrefabInfo, PrefabInstance } from './prefab/prefab-info';
 import { NodeEventType } from './node-event';
 import { Event } from '../input/types';
 import type { NodeEventProcessor } from './node-event-processor';
-import { loadColor } from '../rendering/custom/serialization';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
