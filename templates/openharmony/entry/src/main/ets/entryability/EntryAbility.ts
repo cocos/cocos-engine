@@ -30,7 +30,7 @@ export default class EntryAbility extends UIAbility {
       windowClass = data;
       console.info('Succeeded in obtaining the main window. Data: ' + JSON.stringify(data));
 
-      // 设置窗口为全屏布局，配合设置导航栏、状态栏是否显示，与主窗口显示保持协调一致。
+      // Set the window to a full-screen layout, along with setting whether the navigation bar and status bar are displayed or not, to keep coordinated with the main window display.
       let isLayoutFullScreen = true;
       windowClass.setWindowLayoutFullScreen(isLayoutFullScreen, (err) => {
         if (err.code) {
@@ -40,7 +40,7 @@ export default class EntryAbility extends UIAbility {
         console.info('Succeeded in setting the window layout to full-screen mode.');
       });
 
-      // 设置状态栏和导航栏是否显示。例如，需全部显示，该参数设置为['status', 'navigation']；不设置，则默认不显示。
+      // If or not the status bar and navigation bar will be shown. For example, to display them all, this parameter is set to ['status', 'navigation']; if it is not set, they are not displayed by default.
       let visibleBar = [];
       windowClass.setWindowSystemBarEnable(visibleBar, (err) => {
         if (err.code) {
