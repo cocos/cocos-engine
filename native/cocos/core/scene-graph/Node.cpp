@@ -395,6 +395,10 @@ Node *Node::getChildByPath(const ccstd::string &path) const {
 
 //
 void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
+    if (_localPosition.x == x && _localPosition.y == y && _localPosition.z == z) {
+        return;
+    }
+
     _localPosition.set(x, y, z);
     invalidateChildren(TransformBit::POSITION);
 
