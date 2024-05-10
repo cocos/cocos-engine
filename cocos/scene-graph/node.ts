@@ -2106,17 +2106,27 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setPosition(x: number, y: number, z?: number): void;
 
     public setPosition (val: Readonly<Vec3> | number, y?: number, z?: number): void {
+        let x: number;
+        const localPosition = this._lpos;
+
         if (y === undefined && z === undefined) {
-            Vec3.copy(this._lpos, val as Vec3);
+            x = (val as Vec3).x;
+            y = (val as Vec3).y;
+            z = (val as Vec3).z;
         } else if (z === undefined) {
-            Vec3.set(this._lpos, val as number, y!, this._lpos.z);
+            x = val as number;
+            z = localPosition.z;
         } else {
-            Vec3.set(this._lpos, val as number, y!, z);
+            x = val as number;
         }
 
-        this.invalidateChildren(TransformBit.POSITION);
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+        if (x !== localPosition.x || y !== localPosition.y || z !== localPosition.z) {
+            this._lpos.set(x, y, z);
+            this.invalidateChildren(TransformBit.POSITION);
+
+            if (this._eventMask & TRANSFORM_ON) {
+                this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            }
         }
     }
 
@@ -2153,16 +2163,26 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setRotation(x: number, y: number, z: number, w: number): void;
 
     public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
-        if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._lrot, val as Readonly<Quat>);
-        } else {
-            Quat.set(this._lrot, val as number, y, z, w);
-        }
-        this._eulerDirty = true;
+        let x: number;
+        const localRotation = this._lrot;
 
-        this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+        if (y === undefined || z === undefined || w === undefined) {
+            x = (val as Quat).x;
+            y = (val as Quat).y;
+            z = (val as Quat).z;
+            w = (val as Quat).w;
+        } else {
+            x = val as number;
+        }
+
+        if (x !== localRotation.x || y !== localRotation.y || z !== localRotation.z || w !== localRotation.w) {
+            Quat.set(this._lrot, x, y, z, w);
+            this._eulerDirty = true;
+            this.invalidateChildren(TransformBit.ROTATION);
+
+            if (this._eventMask & TRANSFORM_ON) {
+                this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            }
         }
     }
 
@@ -2231,27 +2251,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setScale(x: number, y: number, z?: number): void;
 
     public setScale (val: Readonly<Vec3> | number, y?: number, z?: number): void {
-        let newX: number;
-        let newY: number;
-        let newZ: number;
+        let x: number;
         const localScale = this._lscale;
 
         if (y === undefined && z === undefined) {
-            newX = (val as Vec3).x;
-            newY = (val as Vec3).y;
-            newZ = (val as Vec3).z;
+            x = (val as Vec3).x;
+            y = (val as Vec3).y;
+            z = (val as Vec3).z;
         } else if (z === undefined) {
-            newX = val as number;
-            newY = y!;
-            newZ = localScale.z;
+            x = val as number;
+            z = localScale.z;
         } else {
-            newX = val as number;
-            newY = y!;
-            newZ = z;
+            x = val as number;
         }
 
-        if (newX !== localScale.x || newY !== localScale.y || newZ !== localScale.z) {
-            this._lscale.set(newX, newY, newZ);
+        if (x !== localScale.x || y !== localScale.y || z !== localScale.z) {
+            this._lscale.set(x, y, z);
             this.invalidateChildren(TransformBit.SCALE);
 
             if (this._eventMask & TRANSFORM_ON) {
