@@ -1,5 +1,5 @@
-import { find, Node, Scene, Component } from "../../cocos/scene-graph"
-import { Mat4, Vec3 } from "../../cocos/core/math"
+import { find, Node, Scene, Component, TransformBit } from "../../cocos/scene-graph"
+import { Mat4, Quat, Vec3 } from "../../cocos/core/math"
 import { CCObject } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/scene-graph/node-event";
 import { ccclass } from "../../cocos/core/data/decorators";
@@ -294,8 +294,10 @@ describe(`Node`, () => {
         expect(scale1.equals(scale)).toBeTruthy();
 
         let scaleChanged = false;
-        node.on(NodeEventType.TRANSFORM_CHANGED, () => {
-            scaleChanged = true;
+        node.on(NodeEventType.TRANSFORM_CHANGED, (arg: TransformBit) => {
+            if (arg === TransformBit.SCALE) {
+                scaleChanged = true;
+            }
         });
 
         node.setScale(scale);
@@ -329,5 +331,110 @@ describe(`Node`, () => {
         scale1 = node.getScale();
         node.setScale(scale1.x, scale1.y, scale1.z + 1);
         expect(scaleChanged).toBe(true);
+    });
+
+    test('setPosition', () => {
+        const node = new Node();
+
+        let pos = new Vec3(2, 3, 4);
+        node.setPosition(pos);
+        let pos1 = node.getPosition();
+        expect(pos1.equals(pos)).toBeTruthy();
+
+        let positionChanged = false;
+        node.on(NodeEventType.TRANSFORM_CHANGED, (arg: TransformBit) => {
+            if (arg === TransformBit.POSITION) {
+                positionChanged = true;
+            }
+        });
+
+        node.setPosition(pos);
+        expect(positionChanged).toBe(false);
+
+        pos.x += 1;
+        node.setPosition(pos);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos.y += 1;
+        node.setPosition(pos);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos.z += 1;
+        node.setPosition(pos);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos1 = node.getPosition();
+        node.setPosition(pos1.x + 1, pos1.y);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos1 = node.getPosition();
+        node.setPosition(pos1.x, pos1.y + 1);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos1 = node.getPosition();
+        node.setPosition(pos1.x, pos1.y, pos.z + 1);
+        expect(positionChanged).toBe(true);
+    });
+
+    test('setRotation', () => {
+        const node = new Node();
+
+        let quat = new Quat(2, 3, 4);
+        node.setRotation(quat);
+        let quat1 = node.getRotation();
+        expect(quat1.equals(quat)).toBeTruthy();
+
+        let rotationChanged = false;
+        node.on(NodeEventType.TRANSFORM_CHANGED, (arg: TransformBit) => {
+            if (arg === TransformBit.ROTATION) {
+                rotationChanged = true;
+            }
+        });
+
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(false);
+
+        quat.x += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat.y += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat.z += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.x += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.y += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.z += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.w += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
     });
 });
