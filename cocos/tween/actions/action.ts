@@ -75,7 +75,7 @@ export abstract class Action {
 
     // called after the action has finished. It will set the 'target' to nil.
     stop (): void {
-        this.target = undefined;
+        this.target = null;
     }
 
     // called every frame with it's delta time. <br />
