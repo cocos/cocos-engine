@@ -1072,7 +1072,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh
      * 删除节点上的指定组件，传入参数可以是一个组件构造函数或组件名，也可以是已经获得的组件引用。
      * 如果你已经获得组件引用，你也可以直接调用 component.destroy()
-     * @param component The class name of the component to remove or the component instance to be removed
+     * @param classNameOrInstance The class name of the component to remove or the component instance to be removed
      * @deprecated please destroy the component to remove it.
      * @example
      * ```
