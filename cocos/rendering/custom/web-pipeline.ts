@@ -47,7 +47,6 @@ import { Texture2D } from '../../asset/assets/texture-2d';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material, TextureCube } from '../../asset/assets';
 import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder } from './custom-pipeline';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { getUBOTypeCount } from './utils';
@@ -2075,7 +2074,6 @@ export class WebPipeline implements BasicPipeline {
         }
         this._forward = new ForwardPipelineBuilder();
         this._deferred = new DeferredPipelineBuilder();
-        this.builder = new CustomPipelineBuilder();
         return true;
     }
     public destroy (): boolean {
@@ -2535,7 +2533,6 @@ export class WebPipeline implements BasicPipeline {
     private _forward!: ForwardPipelineBuilder;
     private _deferred!: DeferredPipelineBuilder;
     private _globalDescSetData!: DescriptorSetData;
-    public builder: PipelineBuilder | null = null;
     private _combineSignY = 0;
     // csm uniform used vectors count
     public static CSM_UNIFORM_VECTORS = 61;
