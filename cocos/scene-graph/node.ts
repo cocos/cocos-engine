@@ -1626,6 +1626,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     }
 
     set angle (val: number) {
+        if (this._euler.equals(v3_a.set(0, 0, val))) {
+            return;
+        }
+
         Vec3.set(this._euler, 0, 0, val);
         Quat.fromAngleZ(this._lrot, val);
         this._eulerDirty = false;
@@ -1733,7 +1737,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     @editable
     @type(MobilityMode)
-    set mobility (m) {
+    set mobility (m: number) {
+        if (this._mobility === m) {
+            return;
+        }
+
         this._mobility = m;
         this.emit(NodeEventType.MOBILITY_CHANGED);
     }
@@ -1747,7 +1755,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
      */
     @editable
-    set layer (l) {
+    set layer (l: number) {
+        if (this._layer === l) {
+            return;
+        }
+
         this._layer = l;
 
         if (this._uiProps && this._uiProps.uiComp) {
@@ -2126,11 +2138,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 z = localPosition.z;
             }
 
-            if (val as number === localPosition.x && y === localPosition.y && z === localPosition.z) {
+            if (localPosition.equals(v3_a.set(val as number, y, z))) {
                 return;
             }
 
-            Vec3.set(this._lpos, val as number, y, z);
+            Vec3.copy(this._lpos, v3_a);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
@@ -2172,26 +2184,26 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setRotation(x: number, y: number, z: number, w: number): void;
 
     public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number): void {
-        let x: number;
         const localRotation = this._lrot;
 
-        if (y === undefined || z === undefined || w === undefined) {
-            x = (val as Quat).x;
-            y = (val as Quat).y;
-            z = (val as Quat).z;
-            w = (val as Quat).w;
+        if (y === undefined) {
+            if (localRotation.equals(val as Quat)) {
+                return;
+            }
+
+            Quat.copy(this._lrot, val as Quat);
         } else {
-            x = val as number;
+            if (localRotation.equals(q_a.set(val as number, y, z, w))) {
+                return;
+            }
+
+            Quat.copy(this._lrot, q_a);
         }
 
-        if (x !== localRotation.x || y !== localRotation.y || z !== localRotation.z || w !== localRotation.w) {
-            Quat.set(this._lrot, x, y, z, w);
-            this._eulerDirty = true;
-            this.invalidateChildren(TransformBit.ROTATION);
-
-            if (this._eventMask & TRANSFORM_ON) {
-                this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
-            }
+        this._eulerDirty = true;
+        this.invalidateChildren(TransformBit.ROTATION);
+        if (this._eventMask & TRANSFORM_ON) {
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -2260,27 +2272,30 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setScale(x: number, y: number, z?: number): void;
 
     public setScale (val: Readonly<Vec3> | number, y?: number, z?: number): void {
-        let x: number;
         const localScale = this._lscale;
 
-        if (y === undefined && z === undefined) {
-            x = (val as Vec3).x;
-            y = (val as Vec3).y;
-            z = (val as Vec3).z;
-        } else if (z === undefined) {
-            x = val as number;
-            z = localScale.z;
+        if (y === undefined) {
+            if (localScale.equals(val as Vec3)) {
+                return;
+            }
+
+            Vec3.copy(this._lscale, val as Vec3);
         } else {
-            x = val as number;
+            if (z === undefined) {
+                z = localScale.z;
+            }
+
+            if (localScale.equals(v3_a.set(val as number, y, z))) {
+                return;
+            }
+
+            Vec3.copy(this._lscale, v3_a);
         }
 
-        if (x !== localScale.x || y !== localScale.y || z !== localScale.z) {
-            this._lscale.set(x, y, z);
-            this.invalidateChildren(TransformBit.SCALE);
+        this.invalidateChildren(TransformBit.SCALE);
 
-            if (this._eventMask & TRANSFORM_ON) {
-                this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
-            }
+        if (this._eventMask & TRANSFORM_ON) {
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
