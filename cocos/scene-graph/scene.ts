@@ -129,13 +129,15 @@ export class Scene extends Node {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onHierarchyChanged (): void { }
+    public _onHierarchyChanged (): void {
+        // do nothing
+    }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onPostActivated (active: boolean): void {
-
+        // do nothing
     }
 
     /**
@@ -155,11 +157,16 @@ export class Scene extends Node {
      * @zh
      * 参考 [[Node.updateWorldTransform]]
      */
-    public updateWorldTransform (): void {}
+    public updateWorldTransform (): void {
+        // do nothing
+    }
 
     // life-cycle call backs
 
-    protected _instantiate (): void { }
+    protected _instantiate (cloned?: Node | null, isSyncedNode: boolean = false): Node {
+        // Can not initialize scene.
+        return null as unknown as Node;
+    }
 
     /**
      * @engineInternal

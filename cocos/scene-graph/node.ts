@@ -221,7 +221,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     get parent (): Node | null {
         return this._parent;
     }
-    set parent (value) {
+    set parent (value: Node | null) {
         this.setParent(value);
     }
 
