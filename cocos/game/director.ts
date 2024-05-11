@@ -221,15 +221,6 @@ export class Director extends EventTarget {
     }
 
     /**
-     * @en Calculates delta time since last time it was called, the result is saved to an internal property.
-     * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
-     * @deprecated since v3.3.0 no need to use it anymore
-     */
-    public calculateDeltaTime (now: any): void {
-        // do nothing
-    }
-
-    /**
      * @en End the life of director in the next frame
      * @zh 执行完当前帧后停止 director 的执行
      */
@@ -248,9 +239,6 @@ export class Director extends EventTarget {
      * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 `game.pause` 。
      */
     public pause (): void {
-        if (this._paused) {
-            return;
-        }
         this._paused = true;
     }
 
@@ -527,9 +515,6 @@ export class Director extends EventTarget {
      * @zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
      */
     public resume (): void {
-        if (!this._paused) {
-            return;
-        }
         this._paused = false;
     }
 
