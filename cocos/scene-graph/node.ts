@@ -221,7 +221,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     get parent (): Node | null {
         return this._parent;
     }
-    set parent (value) {
+    set parent (value: Node | null) {
         this.setParent(value);
     }
 
@@ -330,7 +330,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         return null;
     }
 
-    protected static _findChildComponents (children: Node[], constructor, components): void {
+    protected static _findChildComponents<T extends Component> (
+        children: Node[],
+        constructor: Constructor<T> | AbstractedConstructor<T>,
+        components: Component[],
+    ): void {
         for (let i = 0; i < children.length; ++i) {
             const node = children[i];
             Node._findComponents(node, constructor, components);
@@ -1001,9 +1005,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
         const reqComps = (constructor as typeof constructor & { _requireComponent?: typeof Component })._requireComponent;
         if (reqComps) {
+            // FIXME: why it can be array here?
             if (Array.isArray(reqComps)) {
                 for (let i = 0; i < reqComps.length; i++) {
-                    const reqComp = reqComps[i];
+                    const reqComp = reqComps[i] as Constructor<Component>;
                     if (!this.getComponent(reqComp)) {
                         this.addComponent(reqComp);
                     }
@@ -1086,11 +1091,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             errorID(3813);
             return;
         }
+
         let componentInstance: Component | null = null;
         if (component instanceof Component) {
             componentInstance = component;
         } else {
-            componentInstance = this.getComponent(component);
+            // "component as string": Just make eslint happy.
+            componentInstance = this.getComponent(component as string);
         }
         if (componentInstance) {
             componentInstance.destroy();
@@ -1136,7 +1143,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.on(NodeEventType.TOUCH_END, callback, this);
      * ```
      */
-    public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: any = false): void {
+    public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: boolean = false): void {
         switch (type) {
         case NodeEventType.TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
@@ -1163,7 +1170,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * node.off(NodeEventType.TOUCH_START, callback, this.node);
      * ```
      */
-    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false): void {
+    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: boolean = false): void {
         this._eventProcessor.off(type as NodeEventType, callback, target, useCapture);
 
         const hasListeners = this._eventProcessor.hasEventListener(type);
@@ -1191,7 +1198,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      *                              The callback is ignored if it is a duplicate (the callbacks are unique).
      * @param target - The target (this object) to invoke the callback, can be null
      */
-    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: any): void {
+    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean): void {
         this._eventProcessor.once(type as NodeEventType, callback, target, useCapture);
     }
 
@@ -1245,7 +1252,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 移除目标上的所有注册事件。
      * @param target - The target to be searched for all related callbacks
      */
-    public targetOff (target: string | unknown): void {
+    public targetOff (target: unknown): void {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
         if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
@@ -1312,9 +1319,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         this.emit(NodeEventType.CHILDREN_ORDER_CHANGED);
     }
 
-    protected _instantiate (cloned, isSyncedNode): any {
+    protected _instantiate (cloned?: Node | null, isSyncedNode: boolean = false): Node {
         if (!cloned) {
-            cloned = legacyCC.instantiate._clone(this, this);
+            cloned = legacyCC.instantiate._clone(this, this) as Node;
         }
 
         const newPrefabInfo = cloned._prefab;
@@ -1333,7 +1340,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         cloned._parent = null;
         cloned._onBatchCreated(isSyncedNode);
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return cloned;
     }
 

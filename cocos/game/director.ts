@@ -191,7 +191,7 @@ export class Director extends EventTarget {
     private _totalFrames: number;
     private _scheduler: Scheduler;
     private _systems: System[];
-    private _persistRootNodes = {};
+    private _persistRootNodes: Record<string, Node> = {};
 
     constructor () {
         super();
@@ -225,7 +225,9 @@ export class Director extends EventTarget {
      * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
      * @deprecated since v3.3.0 no need to use it anymore
      */
-    public calculateDeltaTime (now): void {}
+    public calculateDeltaTime (now: any): void {
+        // do nothing
+    }
 
     /**
      * @en End the life of director in the next frame
@@ -306,22 +308,29 @@ export class Director extends EventTarget {
      * @param onBeforeLoadScene - The function invoked at the scene before loading.
      * @param onLaunched - The function invoked at the scene after launch.
      */
-    public runSceneImmediate (scene: Scene | SceneAsset, onBeforeLoadScene?: Director.OnBeforeLoadScene, onLaunched?: Director.OnSceneLaunched): void {
+    public runSceneImmediate (
+        scene: Scene | SceneAsset,
+        onBeforeLoadScene?: Director.OnBeforeLoadScene,
+        onLaunched?: Director.OnSceneLaunched,
+    ): void {
         if (scene instanceof SceneAsset) scene = scene.scene!;
         assertID(scene instanceof Scene, 1216);
 
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('InitScene');
         }
         scene._load();  // ensure scene initialized
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.timeEnd('InitScene');
         }
         // Re-attach or replace persist nodes
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(this._persistRootNodes).map((x): Node => this._persistRootNodes[x] as Node);
+        const persistNodeList = Object.keys(this._persistRootNodes).map((x): Node => this._persistRootNodes[x]);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -340,12 +349,14 @@ export class Director extends EventTarget {
             }
         }
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.timeEnd('AttachPersist');
         }
         const oldScene = this._scene;
 
         // unload scene
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('Destroy');
         }
         if (isValid(oldScene)) {
@@ -354,10 +365,12 @@ export class Director extends EventTarget {
         if (!EDITOR) {
             // auto release assets
             if (BUILD && DEBUG) {
+                // eslint-disable-next-line no-console
                 console.time('AutoRelease');
             }
             releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
             if (BUILD && DEBUG) {
+                // eslint-disable-next-line no-console
                 console.timeEnd('AutoRelease');
             }
         }
@@ -366,6 +379,7 @@ export class Director extends EventTarget {
 
         // purge destroyed nodes belongs to old scene
         CCObject._deferredDestroy();
+        // eslint-disable-next-line no-console
         if (BUILD && DEBUG) { console.timeEnd('Destroy'); }
 
         if (onBeforeLoadScene) {
@@ -377,10 +391,12 @@ export class Director extends EventTarget {
         this._scene = scene;
 
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.time('Activate');
         }
         scene._activate();
         if (BUILD && DEBUG) {
+            // eslint-disable-next-line no-console
             console.timeEnd('Activate');
         }
         // start scene
@@ -432,8 +448,10 @@ export class Director extends EventTarget {
         if (bundle) {
             this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
+            // eslint-disable-next-line no-console
             console.time(`LoadScene ${sceneName}`);
             bundle.loadScene(sceneName, (err, scene): void => {
+                // eslint-disable-next-line no-console
                 console.timeEnd(`LoadScene ${sceneName}`);
                 this._loadingScene = '';
                 if (err) {
@@ -489,8 +507,12 @@ export class Director extends EventTarget {
         const bundle = assetManager.bundles.find((bundle): boolean => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             // NOTE: the similar function signatures but defined as deferent function types.
-            bundle.preloadScene(sceneName, null, onProgress as (finished: number, total: number, item: any) => void,
-                onLoaded as ((err?: Error | null) => void) | null);
+            bundle.preloadScene(
+                sceneName,
+                null,
+                onProgress as (finished: number, total: number, item: any) => void,
+                onLoaded as ((err?: Error | null) => void) | null,
+            );
         } else {
             const err = `Can not preload the scene "${sceneName}" because it is not in the build settings.`;
             if (onLoaded) {
@@ -622,7 +644,7 @@ export class Director extends EventTarget {
      * @deprecated since 3.0.0
      */
     public getAnimationManager (): any {
-        return this.getSystem(cclegacy.AnimationManager.ID);
+        return this.getSystem(cclegacy.AnimationManager.ID as string);
     }
 
     // Loop management
@@ -648,7 +670,7 @@ export class Director extends EventTarget {
      * @deprecated Since v3.6, please use [tick] instead
      */
     public mainLoop (now: number): void {
-        let dt;
+        let dt: number;
         if (EDITOR_NOT_IN_PREVIEW || TEST) {
             dt = now;
         } else {
