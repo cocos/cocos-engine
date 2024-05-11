@@ -694,8 +694,8 @@ const cacheManager = require('./jsb-cache-manager');
             this.attachUtil.init(this);
             this._preCacheMode = this._cacheMode;
 
-            this._defaultSkin && this._nativeSkeleton.setSkin(this._defaultSkin);
-            this.animation = this._defaultAnimation;
+            this.defaultSkin && this._nativeSkeleton.setSkin(this.defaultSkin);
+            this.animation = this.defaultAnimation;
         } else if (this._nativeSkeleton) {
             this._nativeSkeleton.stopSchedule();
             this._nativeSkeleton._comp = null;
