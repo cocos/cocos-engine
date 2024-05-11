@@ -225,7 +225,7 @@ export class Director extends EventTarget {
      * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
      * @deprecated since v3.3.0 no need to use it anymore
      */
-    public calculateDeltaTime (): void {
+    public calculateDeltaTime (now: any): void {
         // do nothing
     }
 
