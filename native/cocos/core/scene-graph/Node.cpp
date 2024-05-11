@@ -412,6 +412,10 @@ void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
 }
 
 void Node::setRotationInternal(float x, float y, float z, float w, bool calledFromJS) {
+    if (_localRotation.approxEquals({x, y, z, w})) {
+        return;
+    }
+
     _localRotation.set(x, y, z, w);
     _eulerDirty = true;
 
@@ -439,6 +443,10 @@ void Node::setRotationFromEuler(float x, float y, float z) {
 }
 
 void Node::setScaleInternal(float x, float y, float z, bool calledFromJS) {
+    if (_localScale.approxEquals({x, y, z})) {
+        return;
+    }
+
     _localScale.set(x, y, z);
 
     invalidateChildren(TransformBit::SCALE);
@@ -633,6 +641,10 @@ void Node::setForward(const Vec3 &dir) {
 }
 
 void Node::setAngle(float val) {
+    if (_euler.approxEquals({0, 0, val})) {
+        return;
+    }
+
     _euler.set(0, 0, val);
     Quaternion::createFromAngleZ(val, &_localRotation);
     _eulerDirty = false;
