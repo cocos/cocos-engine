@@ -103,6 +103,70 @@ test('different targets', function () {
     expect(isPositionTweenComplete).toBeTruthy();;
     expect(isContentSizeTweenComplete).toBeTruthy();;
 
+    // reset
+    isPositionTweenComplete = false;
+    isContentSizeTweenComplete = false;
+    node.setPosition(new Vec3(0, 0, 0));
+    spUitrs.setContentSize(new Size(0, 0));
+    tween(node)
+        .sequence(
+            tween(node).to(1, { position: new Vec3(100, 100, 0) }, {
+                onComplete: () => {
+                    isPositionTweenComplete = true;
+                }
+            }),
+            tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
+                onComplete: () => {
+                    isContentSizeTweenComplete = true;
+                }
+            }),
+        )
+        .start();
+
+    // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
+    for (let i = 0; i < 21; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
+    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+
+    // 2/3 time
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
+    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+
+    // complete position tween
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
+    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isPositionTweenComplete).toBeTruthy();
+    expect(isContentSizeTweenComplete).toBeFalsy();
+
+    // Do content size tween
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
+    // so bellow we need to step once more to make the tween complete.
+    expect(spUitrs.contentSize.equals(new Size(100, 100)));
+    
+    game.step();
+    expect(isContentSizeTweenComplete).toBeTruthy();
+
     director.unregisterSystem(sys);
 });
 
