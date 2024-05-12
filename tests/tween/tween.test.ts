@@ -114,13 +114,19 @@ test('different targets', function () {
                 onComplete: () => {
                     isPositionTweenComplete = true;
                 }
+            }).call((target) => {
+                expect(target).toEqual(node);
             }),
             tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
                 onComplete: () => {
                     isContentSizeTweenComplete = true;
                 }
+            }).call((target) => {
+                expect(target).toEqual(spUitrs);
             }),
-        )
+        ).call((target) => {
+            expect(target).toEqual(node);
+        })
         .start();
 
     // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
