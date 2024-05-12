@@ -31,8 +31,10 @@ import { legacyCC } from '../global-exports';
 import { assertIsTrue } from '../data/utils/asserts';
 import { Vec4 } from './vec4';
 import { Vec3 } from './vec3';
+import { extractPropsSymbol } from '../utils/misc';
 
 const toFloat = 1 / 255;
+const extractColorProperties: string[] = ['r', 'g', 'b', 'a'];
 
 /**
  * @en Representation of RGBA colors.<br/>
@@ -772,6 +774,10 @@ export class Color extends ValueType {
     public _set_a_unsafe (alpha: number): Color {
         this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
         return this;
+    }
+
+    public [extractPropsSymbol] (): string[] {
+        return extractColorProperties;
     }
 }
 

@@ -26,6 +26,7 @@ import { warnID, warn, easing } from '../core';
 import { ActionInterval } from './actions/action-interval';
 import { ITweenOption } from './export-api';
 import { VERSION } from '../core/global-exports';
+import { extractPropsSymbol } from '../core/utils/misc';
 
 /** adapter */
 function TweenEasingAdapter (easingName: string): string {
@@ -185,7 +186,11 @@ export class TweenAction extends ActionInterval {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
 
-                for (const k in value) {
+                const extractPropsFunc = value[extractPropsSymbol];
+                // Object.keys only returns the properies the object owns, which ignores to search on its prototype.
+                const keys: string[] = extractPropsFunc ? extractPropsFunc() : Object.keys(value as object);
+                for (let i = 0, len = keys.length; i < len; ++i) {
+                    const k = keys[i];
                     // filtering if it not a number
                     // eslint-disable-next-line no-restricted-globals
                     if (isNaN(_t[k])) continue;
@@ -221,7 +226,11 @@ export class TweenAction extends ActionInterval {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
                 // const value = prop.value;
-                for (const k in start) {
+                const extractPropsFunc = start[extractPropsSymbol];
+                // Object.keys only returns the properies the object owns, which ignores to search on its prototype.
+                const keys: string[] = extractPropsFunc ? extractPropsFunc() : Object.keys(start as object);
+                for (let i = 0, len = keys.length; i < len; ++i) {
+                    const k = keys[i];
                     // if (value[k].easing) {
                     //     time = value[k].easing(t);
                     // }

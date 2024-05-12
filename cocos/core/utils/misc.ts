@@ -34,6 +34,7 @@ import { setTimeoutRAF } from '../../../pal/utils';
 import type { Component } from '../../scene-graph';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
+export const extractPropsSymbol = Symbol('ExtractProps');
 
 const BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const values: number[] = new Array(123); // max char code in base64Keys
