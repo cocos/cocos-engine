@@ -287,7 +287,8 @@ export class CallFunc extends ActionInstant {
      */
     execute (): void {
         if (this._function) {
-            this._function.call(this._selectorTarget, this.target, this._data);
+            const target = this.workerTarget ?? this.target;
+            this._function.call(this._selectorTarget, target, this._data);
         }
     }
 
