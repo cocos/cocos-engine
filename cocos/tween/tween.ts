@@ -89,16 +89,19 @@ export class Tween<T> {
             action = other.clone();
             action.workerTarget = other._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
         } else {
-            const otherActions = other._actions;
-            for (let i = 0, l = otherActions.length; i < l; ++i) {
-                (otherActions[i] as any).workerTarget = other._target; //FIXME(cjh): Remove any
-            }
-
+            Tween.assignWorkerTarget(other);
             action = other._union();
         }
         this._actions.push(action);
 
         return this;
+    }
+
+    private static assignWorkerTarget<U, S> (other: Tween<U>, target?: S): void {
+        const otherActions = other._actions;
+        for (let i = 0, l = otherActions.length; i < l; ++i) {
+            (otherActions[i] as any).workerTarget = target ?? other._target; //FIXME(cjh): Remove any
+        }
     }
 
     /**
@@ -156,8 +159,9 @@ export class Tween<T> {
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      */
     clone (target: T): Tween<T> {
-        const action = this._union();
-        return tween(target).then(action.clone() as any);
+        const action = this._union().clone();
+
+        return tween(target).then(action as any);
     }
 
     /**
@@ -465,10 +469,7 @@ export class Tween<T> {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
                 // set worker target for actions in sequence.
-                const actions = arg._actions;
-                for (let j = 0, len = actions.length; j < len; ++j) {
-                    actions[j].workerTarget = arg._target;
-                }
+                Tween.assignWorkerTarget(arg);
                 tmp_args[i] = arg._union();
             }
         }
@@ -483,10 +484,7 @@ export class Tween<T> {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
                 // set worker target for actions in parallel.
-                const actions = arg._actions;
-                for (let j = 0, len = actions.length; j < len; ++j) {
-                    actions[j].workerTarget = arg._target;
-                }
+                Tween.assignWorkerTarget(arg);
                 tmp_args[i] = arg._union();
             }
         }

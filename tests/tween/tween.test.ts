@@ -298,6 +298,132 @@ test('Test different target in then', function() {
     director.unregisterSystem(sys);
 });
 
+// test('Test different target in clone', function() {
+//     // @ts-expect-error
+//     director.root!._batcher = new Batcher2D(director.root!);
+
+//     const sys = new TweenSystem();
+//     (TweenSystem.instance as any) = sys;
+//     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+//     const scene = new Scene('test');
+//     director.runSceneImmediate(scene);
+
+//     let canvasNode = new Node("Canvas");
+//     scene.addChild(canvasNode);
+//     let canvas = canvasNode.addComponent(Canvas) as Canvas;
+//     let uitrs = canvasNode.addComponent(UITransform) as UITransform;
+//     uitrs.contentSize = new Size(100, 100);
+
+//     const node = new Node();
+//     let spUitrs = node.addComponent(UITransform) as UITransform;
+//     spUitrs.contentSize = new Size(0, 0);
+//     scene.addChild(node);
+
+//     let isPositionTweenComplete = false;
+//     let isContentSizeTweenComplete1 = false;
+//     let isContentSizeTweenComplete2 = false;
+
+//     const uiTransformTween1 = tween(spUitrs).to(1, { contentSize: size(100, 100) }, {
+//         onComplete: () => {
+//             isContentSizeTweenComplete1 = true;
+//         }
+//     }).call((target) => {
+//         expect(target === spUitrs).toBeTruthy();
+//     })
+
+//     const uiTransformTween2 = tween(spUitrs).to(1, { contentSize: size(0, 0) }, {
+//         onComplete: () => {
+//             isContentSizeTweenComplete2 = true;
+//         }
+//     }).call((target) => {
+//         expect(target === spUitrs).toBeTruthy();
+//     })
+
+//     // test begin
+//     tween(node)
+//         .to(1, { position: new Vec3(100, 100, 0) }, {
+//             onComplete: () => {
+//                 isPositionTweenComplete = true;
+//             }
+//         })
+//         .call((target) => {
+//             expect(target === node).toBeTruthy();
+//         })
+//         .then(uiTransformTween1.clone(spUitrs))
+//         .then(uiTransformTween2.clone(spUitrs))
+//         .start();
+
+//     // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
+//     for (let i = 0; i < 21; ++i) {
+//         game.step();
+//     }
+//     expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
+//     expect(spUitrs.contentSize.equals(new Size(0, 0)));
+
+//     // 2/3 time
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     expect(node.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
+//     expect(spUitrs.contentSize.equals(new Size(0, 0)));
+
+//     // complete position tween
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
+//     expect(spUitrs.contentSize.equals(new Size(0, 0)));
+//     expect(isPositionTweenComplete).toBeTruthy();
+//     expect(isContentSizeTweenComplete1).toBeFalsy();
+//     expect(isContentSizeTweenComplete2).toBeFalsy();
+
+//     // Do content size to tween
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
+//     // so bellow we need to step once more to make the tween complete.
+//     expect(spUitrs.contentSize.equals(new Size(100, 100)));
+    
+//     game.step();
+//     expect(isContentSizeTweenComplete1).toBeTruthy();
+
+//     // Do content size (0, 0) tween 
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+
+//     for (let i = 0; i < 20; ++i) {
+//         game.step();
+//     }
+//     // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
+//     // so bellow we need to step once more to make the tween complete.
+//     expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    
+//     game.step();
+//     expect(isContentSizeTweenComplete2).toBeTruthy();
+
+//     // test end
+//     director.unregisterSystem(sys);
+// });
+
 test('sequence', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
