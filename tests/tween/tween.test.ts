@@ -91,13 +91,13 @@ test('tween color', function () {
     }
     expect(sprite.color.equals(color(174, 174, 174, 174))).toBeTruthy();
     
-    // Pass 2/3 time, 255 get 85 remain: 255 * (1 - 2/3 + 1/60) = 89.24 ≈ 89
+    // Pass 2/3 time, 255 get 89 remain: 255 * (1 - 2/3 + 1/60) = 89.24 ≈ 89
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     expect(sprite.color.equals(color(89, 89, 89, 89))).toBeTruthy();
 
-    // Pass the whole time, 255 get 85 remain: 255 * (1 - 1 + 1/60) = 4.25 ≈ 4
+    // Pass the whole time, 255 get 4 remain: 255 * (1 - 1 + 1/60) = 4.25 ≈ 4
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
