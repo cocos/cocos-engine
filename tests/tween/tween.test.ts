@@ -43,7 +43,7 @@ test('destroySelf', function () {
     director.unregisterSystem(sys);
 });
 
-test('different targets', function () {
+test('different targets in parallel', function () {
     // @ts-expect-error
     director.root!._batcher = new Batcher2D(director.root!);
 
@@ -67,17 +67,23 @@ test('different targets', function () {
 
     let isPositionTweenComplete = false;
     let isContentSizeTweenComplete = false;
+
+    // test begin
     tween(node)
         .parallel(
             tween(node).to(1, { position: new Vec3(100, 100, 0) }, {
                 onComplete: () => {
                     isPositionTweenComplete = true;
                 }
+            }).call((target) => {
+                expect(target === node).toBeTruthy();
             }),
             tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
                 onComplete: () => {
                     isContentSizeTweenComplete = true;
                 }
+            }).call((target) => {
+                expect(target === spUitrs).toBeTruthy();
             }),
         )
         .start();
@@ -103,31 +109,56 @@ test('different targets', function () {
     expect(isPositionTweenComplete).toBeTruthy();;
     expect(isContentSizeTweenComplete).toBeTruthy();;
 
-    // reset
-    isPositionTweenComplete = false;
-    isContentSizeTweenComplete = false;
-    node.setPosition(new Vec3(0, 0, 0));
-    spUitrs.setContentSize(new Size(0, 0));
+    // test end
+    director.unregisterSystem(sys);
+});
+
+test('Test different target in sequence', function() {
+    // @ts-expect-error
+    director.root!._batcher = new Batcher2D(director.root!);
+
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    let canvasNode = new Node("Canvas");
+    scene.addChild(canvasNode);
+    let canvas = canvasNode.addComponent(Canvas) as Canvas;
+    let uitrs = canvasNode.addComponent(UITransform) as UITransform;
+    uitrs.contentSize = new Size(100, 100);
+
+    const node = new Node();
+    let spUitrs = node.addComponent(UITransform) as UITransform;
+    spUitrs.contentSize = new Size(0, 0);
+    scene.addChild(node);
+
+    let isPositionTweenComplete = false;
+    let isContentSizeTweenComplete = false;
+
+    // test begin
     tween(node)
-        .sequence(
-            tween(node).to(1, { position: new Vec3(100, 100, 0) }, {
-                onComplete: () => {
-                    isPositionTweenComplete = true;
-                }
-            }).call((target) => {
-                expect(target).toEqual(node);
-            }),
-            tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
-                onComplete: () => {
-                    isContentSizeTweenComplete = true;
-                }
-            }).call((target) => {
-                expect(target).toEqual(spUitrs);
-            }),
-        ).call((target) => {
-            expect(target).toEqual(node);
-        })
-        .start();
+    .sequence(
+        tween(node).to(1, { position: new Vec3(100, 100, 0) }, {
+            onComplete: () => {
+                isPositionTweenComplete = true;
+            }
+        }).call((target) => {
+            expect(target === node).toBeTruthy();
+        }),
+        tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
+            onComplete: () => {
+                isContentSizeTweenComplete = true;
+            }
+        }).call((target) => {
+            expect(target === spUitrs).toBeTruthy();
+        }),
+    ).call((target) => {
+        expect(target).toEqual(node);
+    })
+    .start();
 
     // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
     for (let i = 0; i < 21; ++i) {
@@ -173,6 +204,97 @@ test('different targets', function () {
     game.step();
     expect(isContentSizeTweenComplete).toBeTruthy();
 
+    // test end
+    director.unregisterSystem(sys);
+});
+
+test('Test different target in then', function() {
+    // @ts-expect-error
+    director.root!._batcher = new Batcher2D(director.root!);
+
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene = new Scene('test');
+    director.runSceneImmediate(scene);
+
+    let canvasNode = new Node("Canvas");
+    scene.addChild(canvasNode);
+    let canvas = canvasNode.addComponent(Canvas) as Canvas;
+    let uitrs = canvasNode.addComponent(UITransform) as UITransform;
+    uitrs.contentSize = new Size(100, 100);
+
+    const node = new Node();
+    let spUitrs = node.addComponent(UITransform) as UITransform;
+    spUitrs.contentSize = new Size(0, 0);
+    scene.addChild(node);
+
+    let isPositionTweenComplete = false;
+    let isContentSizeTweenComplete = false;
+
+    // test begin
+    tween(node).to(1, { position: new Vec3(100, 100, 0) }, {
+        onComplete: () => {
+            isPositionTweenComplete = true;
+        }
+    }).call((target) => {
+        expect(target === node).toBeTruthy();
+    }).then(
+        tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
+            onComplete: () => {
+                isContentSizeTweenComplete = true;
+            }
+        }).call((target) => {
+            expect(target === spUitrs).toBeTruthy();
+        })
+    ).start();
+
+    // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
+    for (let i = 0; i < 21; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
+    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+
+    // 2/3 time
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
+    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+
+    // complete position tween
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
+    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isPositionTweenComplete).toBeTruthy();
+    expect(isContentSizeTweenComplete).toBeFalsy();
+
+    // Do content size tween
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
+    // so bellow we need to step once more to make the tween complete.
+    expect(spUitrs.contentSize.equals(new Size(100, 100)));
+    
+    game.step();
+    expect(isContentSizeTweenComplete).toBeTruthy();
+
+    // test end
     director.unregisterSystem(sys);
 });
 

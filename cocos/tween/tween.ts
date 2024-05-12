@@ -83,12 +83,21 @@ export class Tween<T> {
      * @method then
      * @param other @en The rear tween of this tween @zh 当前缓动的后置缓动
      */
-    then (other: Tween<T>): Tween<T> {
+    then<U> (other: Tween<U>): Tween<T> {
+        let action: Action;
         if (other instanceof Action) {
-            this._actions.push(other.clone());
+            action = other.clone();
+            action.workerTarget = other._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
         } else {
-            this._actions.push(other._union());
+            const otherActions = other._actions;
+            for (let i = 0, l = otherActions.length; i < l; ++i) {
+                (otherActions[i] as any).workerTarget = other._target; //FIXME(cjh): Remove any
+            }
+
+            action = other._union();
         }
+        this._actions.push(action);
+
         return this;
     }
 
