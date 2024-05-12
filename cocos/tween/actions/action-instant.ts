@@ -71,7 +71,8 @@ export class ActionInstant extends FiniteTimeAction {
  */
 export class Show extends ActionInstant {
     update (dt: any): void {
-        const _renderComps = this.target!.getComponentsInChildren(Renderer);
+        const target = this.workerTarget ?? this.target;
+        const _renderComps = target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = true;
@@ -107,7 +108,8 @@ export function show (): ActionInstant {
  */
 export class Hide extends ActionInstant {
     update (dt: any): void {
-        const _renderComps = this.target!.getComponentsInChildren(Renderer);
+        const target = this.workerTarget ?? this.target;
+        const _renderComps = target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = false;
@@ -143,7 +145,8 @@ export function hide (): ActionInstant {
  */
 export class ToggleVisibility extends ActionInstant {
     update (dt: any): void {
-        const _renderComps = this.target!.getComponentsInChildren(Renderer);
+        const target = this.workerTarget ?? this.target;
+        const _renderComps = target!.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = !render.enabled;
@@ -191,9 +194,10 @@ export class RemoveSelf extends ActionInstant {
     }
 
     update (dt: any): void {
-        this.target!.removeFromParent();
+        const target = this.workerTarget ?? this.target;
+        target!.removeFromParent();
         if (this._isNeedCleanUp) {
-            this.target!.destroy();
+            target!.destroy();
         }
     }
 

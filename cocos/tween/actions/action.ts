@@ -45,6 +45,7 @@ export class Action {
 
     protected originalTarget: Node | null = null;
     protected target: Node | null = null;
+    public workerTarget: Node | null = null;
     protected tag = Action.TAG_INVALID;
 
     /**

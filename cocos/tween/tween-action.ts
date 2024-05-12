@@ -167,10 +167,13 @@ export class TweenAction extends ActionInterval {
     startWithTarget (target: Record<string, unknown>): void {
         ActionInterval.prototype.startWithTarget.call(this, target);
 
+        const workerTarget = this.workerTarget ?? this.target;
+        if (!workerTarget) return;
+
         const relative = !!this._opts.relative;
         const props = this._props;
         for (const property in props) {
-            const _t: any = target[property];
+            const _t: any = workerTarget[property];
             if (_t === undefined) { continue; }
 
             const prop: any = props[property];
@@ -196,12 +199,12 @@ export class TweenAction extends ActionInterval {
                 }
             }
         }
-        if (this._opts.onStart) { this._opts.onStart(this.target); }
+        if (this._opts.onStart) { this._opts.onStart(workerTarget); }
     }
 
     update (t: number): void {
-        const target = this.target;
-        if (!target) return;
+        const workerTarget = this.workerTarget ?? this.target;
+        if (!workerTarget) return;
 
         const props = this._props;
         const opts = this._opts;
@@ -232,10 +235,10 @@ export class TweenAction extends ActionInterval {
                 }
             }
 
-            target[name] = prop.current;
+            workerTarget[name] = prop.current;
         }
-        if (opts.onUpdate) { opts.onUpdate(this.target, t); }
-        if (t === 1 && opts.onComplete) { opts.onComplete(this.target); }
+        if (opts.onUpdate) { opts.onUpdate(workerTarget, t); }
+        if (t === 1 && opts.onComplete) { opts.onComplete(workerTarget); }
     }
 
     progress (start: number, end: number, current: number, t: number): number {

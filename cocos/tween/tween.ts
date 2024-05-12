@@ -259,7 +259,7 @@ export class Tween<T> {
      * @method sequence
      * @param args @en All tween that make up the sequence @zh 组成队列的所有缓动
      */
-    sequence (...args: Tween<T>[]): Tween<T> {
+    sequence (...args: Tween<any>[]): Tween<T> {
         const action = Tween._wrappedSequence(...args);
         this._actions.push(action);
         return this;
@@ -273,7 +273,7 @@ export class Tween<T> {
      * @method parallel
      * @param args @en The tween parallel to this tween @zh 与当前缓动并行的缓动
      */
-    parallel (...args: Tween<T>[]): Tween<T> {
+    parallel (...args: Tween<any>[]): Tween<T> {
         const action = Tween._wrappedParallel(...args);
         this._actions.push(action);
         return this;
@@ -455,6 +455,11 @@ export class Tween<T> {
         for (let l = args.length, i = 0; i < l; i++) {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
+                // set worker target for actions in sequence.
+                const actions = arg._actions;
+                for (let j = 0, len = actions.length; j < len; ++j) {
+                    actions[j].workerTarget = arg._target;
+                }
                 tmp_args[i] = arg._union();
             }
         }
@@ -468,6 +473,11 @@ export class Tween<T> {
         for (let l = args.length, i = 0; i < l; i++) {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
+                // set worker target for actions in parallel.
+                const actions = arg._actions;
+                for (let j = 0, len = actions.length; j < len; ++j) {
+                    actions[j].workerTarget = arg._target;
+                }
                 tmp_args[i] = arg._union();
             }
         }
