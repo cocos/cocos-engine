@@ -129,6 +129,7 @@ jobs:
           scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -i "0,1,3" -d  E:\cctest\devices.json -r https://cctest.cocos.org 
           $JOBID = Get-Content C:\Users\Administrator\AppData\Roaming\npm\node_modules\@cctest\scheduler\logs\PR-TEST\nowJobId.log
           cd ..
+          pwd
           python3 -u ./python/main.py  --target=job_editor --jobid=$JOBID
       - name: Write comment body and issue number to file
         uses: actions/github-script@v5
