@@ -25,11 +25,28 @@
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { Camera, CameraUsage } from '../../render-scene/scene/camera';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { Format } from '../../gfx';
+import { API, Device, Format, FormatFeatureBit } from '../../gfx';
 
-function defaultWindowResize (ppl: BasicPipeline, renderWindow: RenderWindow, width: number, height: number): void {
+export function defaultWindowResize (ppl: BasicPipeline, renderWindow: RenderWindow, width: number, height: number): void {
     ppl.addRenderWindow(renderWindow.colorName, Format.UNKNOWN, width, height, renderWindow);
     ppl.addDepthStencil(renderWindow.depthStencilName, Format.DEPTH_STENCIL, width, height);
+}
+
+export function supportsR32FloatTexture (device: Device): boolean {
+    return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
+        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+}
+
+export function forwardWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
+    ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);
+    ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
+    // CSM
+    const id = window.renderWindowId;
+    const shadowFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
+    const shadowSize = ppl.pipelineSceneData.shadows.size;
+    ppl.addRenderTarget(`ShadowMap${id}`, shadowFormat, shadowSize.x, shadowSize.y);
+    ppl.addDepthStencil(`ShadowDepth${id}`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
 }
 
 export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilder, ppl: BasicPipeline): void {
@@ -38,8 +55,8 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             continue;
         }
 
-        const width = camera.window.width;
-        const height = camera.window.height;
+        const width = Math.max(Math.floor(camera.window.width), 1);
+        const height = Math.max(Math.floor(camera.window.height), 1);
 
         switch (camera.cameraUsage) {
         case CameraUsage.EDITOR:
@@ -53,7 +70,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.editorGameViewResize) {
                 builder.editorGameViewResize(ppl, camera.window, width, height);
             } else {
-                defaultWindowResize(ppl, camera.window, width, height);
+                forwardWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -61,7 +78,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.editorSceneViewResize) {
                 builder.editorSceneViewResize(ppl, camera.window, width, height);
             } else {
-                defaultWindowResize(ppl, camera.window, width, height);
+                forwardWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -69,7 +86,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.editorPreviewResize) {
                 builder.editorPreviewResize(ppl, camera.window, width, height);
             } else {
-                defaultWindowResize(ppl, camera.window, width, height);
+                forwardWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -77,7 +94,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.gameWindowResize) {
                 builder.gameWindowResize(ppl, camera.window, width, height);
             } else {
-                defaultWindowResize(ppl, camera.window, width, height);
+                forwardWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -86,7 +103,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
                 if (builder.gameWindowResize) {
                     builder.gameWindowResize(ppl, camera.window, width, height);
                 } else {
-                    defaultWindowResize(ppl, camera.window, width, height);
+                    forwardWindowResize(ppl, camera.window, width, height);
                 }
             } else if (builder.editorWindowResize) {
                 builder.editorWindowResize(ppl, camera.window, width, height);

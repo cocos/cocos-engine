@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 
+import { DEBUG } from 'internal:constants';
 import { cclegacy } from '../../core';
 import { AABB } from '../../core/geometry/aabb';
 import { Frustum } from '../../core/geometry/frustum';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
-import { API, ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, Viewport } from '../../gfx/base/define';
-import { Device } from '../../gfx/base/device';
+import { ClearFlagBit, Color, LoadOp, StoreOp, Viewport } from '../../gfx/base/define';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Camera, CameraUsage } from '../../render-scene/scene/camera';
@@ -36,6 +36,7 @@ import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { CSMLevel } from '../../render-scene/scene/shadows';
 import { SpotLight } from '../../render-scene/scene/spot-light';
+import { forwardWindowResize } from './framework';
 import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
 
@@ -223,48 +224,22 @@ function buildCascadedShadowMapPass (
 }
 
 export class BuiltinForwardPipeline implements PipelineBuilder {
-    private _supportsR32FloatTexture (device: Device): boolean {
-        return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
-            === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
-            && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
-    }
-
-    private _forwardWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
-        ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);
-        ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
-        // CSM
-        const id = window.renderWindowId;
-        const shadowFormat = this._supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
-        const shadowSize = ppl.pipelineSceneData.shadows.size;
-        ppl.addRenderTarget(`ShadowMap${id}`, shadowFormat, shadowSize.x, shadowSize.y);
-        ppl.addDepthStencil(`ShadowDepth${id}`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
-    }
-
-    editorSceneViewResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
-        this._forwardWindowResize(ppl, window, width, height);
-    }
-    editorGameViewResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
-        this._forwardWindowResize(ppl, window, width, height);
-    }
     gameWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
-        this._forwardWindowResize(ppl, window, width, height);
+        forwardWindowResize(ppl, window, width, height);
     }
-
     setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (const camera of cameras) {
             // skip invalid camera
             if (camera.scene === null || camera.window === null) {
                 continue;
             }
-            if (camera.cameraUsage >= CameraUsage.GAME
-                || camera.cameraUsage === CameraUsage.SCENE_VIEW) {
-                this._buildForward(ppl, camera);
-            } else {
+            if (camera.cameraUsage === CameraUsage.EDITOR) {
                 this._buildEditor(ppl, camera);
+            } else {
+                this._buildForward(ppl, camera);
             }
         }
     }
-
     private _resetPipelineStates (camera: Camera, width: number, height: number): void {
         // Prepare camera clear color
         this._clearColor.x = camera.clearColor.x;
@@ -290,8 +265,8 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         // Init
         // ---------------------------------------------------------------
-        const width = camera.window.width;
-        const height = camera.window.height;
+        const width = Math.max(Math.floor(camera.window.width), 1);
+        const height = Math.max(Math.floor(camera.window.height), 1);
         const id = camera.window.renderWindowId;
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
@@ -375,10 +350,15 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting (Blend)
         //----------------------------------------------------------------
         // Add transparent queue
+        let flags =  SceneFlags.BLEND | SceneFlags.UI;
+        if (DEBUG && camera.cameraUsage === CameraUsage.GAME && camera.window.swapchain) {
+            lastPass.showStatistics = true;
+            flags |= SceneFlags.PROFILER;
+        }
         lastPass.addQueue(QueueHint.BLEND)
             .addScene(
                 camera,
-                SceneFlags.BLEND | SceneFlags.UI,
+                flags,
                 mainLight || undefined,
             );
     }
@@ -393,9 +373,8 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         // Init
         // ---------------------------------------------------------------
-        const width = camera.window.width;
-        const height = camera.window.height;
-        const id = camera.window.renderWindowId;
+        const width = Math.max(Math.floor(camera.window.width), 1);
+        const height = Math.max(Math.floor(camera.window.height), 1);
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
         const scene = camera.scene;
