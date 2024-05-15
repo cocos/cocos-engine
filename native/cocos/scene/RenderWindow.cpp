@@ -45,7 +45,7 @@ const ccstd::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTAT
     {IScreen::Orientation::LANDSCAPE_LEFT, gfx::SurfaceTransform::ROTATE_270},
 };
 
-std::atomic_uint32_t sRenderWindowId{0};
+std::atomic<uint32_t> sRenderWindowId{0};
 
 } // namespace
 
