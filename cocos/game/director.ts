@@ -718,34 +718,16 @@ export class Director extends EventTarget {
      * @zh 构建自定义渲染管线
      */
     private buildRenderPipeline (): void {
+        if (!this._root) {
+            return;
+        }
         // Here we should build the render pipeline.
-        if (this._root) {
-            const ppl = this._root.customPipeline;
-            ppl.beginSetup();
-            const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
-            builder.setup(this._root.cameraList, ppl);
-            ppl.endSetup();
-        }
-    }
-
-    private resizeRenderPipeline (width: number, height: number): void {
-        if (this._root) {
-            const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
-            if (builder.windowResize) {
-                // Currently we don't have DPI change event.
-                // We only handle window resize event here.
-                builder.windowResize(width, height);
-            }
-        }
-    }
-
-    private orientRenderPipeline (orientation: number): void {
-        if (this._root) {
-            const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
-            if (builder.windowOrientationChange) {
-                builder.windowOrientationChange(orientation);
-            }
-        }
+        const ppl = this._root.customPipeline;
+        ppl.beginSetup();
+        const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+        cclegacy.rendering.dispatchResizeEvents(this._root.cameraList, builder, ppl);
+        builder.setup(this._root.cameraList, ppl);
+        ppl.endSetup();
     }
 
     private setupRenderPipelineBuilder (): void {
@@ -756,8 +738,6 @@ export class Director extends EventTarget {
         // 3. The root node is created and uses custom pipeline
         if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
             this.on(Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
-            screen.on('window-resize', this.resizeRenderPipeline, this);
-            screen.on('orientation-change', this.orientRenderPipeline, this);
         }
     }
 
@@ -774,13 +754,11 @@ export class Director extends EventTarget {
         const rootInfo = {};
         this._root.initialize(rootInfo);
 
+        this.setupRenderPipelineBuilder();
+
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }
-
-        // We add window-resize callback after all systems are initialized.
-        // So the render pipeline will resize after all swapchains are resized.
-        this.setupRenderPipelineBuilder();
 
         this.emit(Director.EVENT_INIT);
     }
