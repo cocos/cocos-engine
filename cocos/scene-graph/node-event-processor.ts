@@ -273,6 +273,7 @@ export class NodeEventProcessor {
                 target.eventProcessor.capturingTarget.emit(event.type, event, cachedArray);
                 // check if propagation stopped
                 if (event.propagationStopped) {
+                    _arrayPool.free(cachedArray);
                     return;
                 }
             }
@@ -303,6 +304,7 @@ export class NodeEventProcessor {
                     target.eventProcessor.bubblingTarget.emit(event.type, event);
                     // check if propagation stopped
                     if (event.propagationStopped) {
+                        _arrayPool.free(cachedArray);
                         return;
                     }
                 }
