@@ -347,12 +347,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         // add opaque and mask queue
-        pass.addQueue(QueueHint.NONE)
+        pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
             .addScene(
                 camera,
                 SceneFlags.OPAQUE | SceneFlags.MASK,
                 mainLight || undefined,
             );
+
+        // TODO(zhouzhenglong): Separate OPAQUE and MASK queue
 
         //----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
@@ -425,12 +427,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             pass.addDepthStencil(depthStencilName, LoadOp.LOAD);
         }
         // Add opaque and mask queue
-        pass.addQueue(QueueHint.NONE)
+        pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
             .addScene(
                 camera,
                 SceneFlags.OPAQUE | SceneFlags.MASK,
                 mainLight || undefined,
             );
+
+        // TODO(zhouzhenglong): Separate OPAQUE and MASK queue
 
         //----------------------------------------------------------------
         // Forward Lighting (Blend)
