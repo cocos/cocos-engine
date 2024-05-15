@@ -33,6 +33,8 @@
 #include "renderer/gfx-base/GFXTexture.h"
 #include "scene/Camera.h"
 
+#include <atomic>
+
 namespace cc {
 namespace scene {
 
