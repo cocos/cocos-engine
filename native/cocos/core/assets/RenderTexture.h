@@ -33,6 +33,7 @@ struct IRenderTextureCreateInfo {
     ccstd::optional<ccstd::string> name;
     uint32_t width;
     uint32_t height;
+    ccstd::optional<gfx::SampleCount> samples;
     ccstd::optional<gfx::RenderPassInfo> passInfo;
     ccstd::optional<uint32_t> externalResLow;        // for vulkan vkImage/opengl es texture created from external
     ccstd::optional<uint32_t> externalResHigh;       // for vulkan vkImage created from external
@@ -116,6 +117,7 @@ public:
 
 private:
     scene::RenderWindow *_window{nullptr};
+    gfx::SampleCount _samples{gfx::SampleCount::X1};
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderTexture);
 };

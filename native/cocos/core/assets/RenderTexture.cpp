@@ -56,6 +56,7 @@ void RenderTexture::initialize(const IRenderTextureCreateInfo &info) {
     _name = info.name.has_value() ? info.name.value() : "";
     _width = info.width;
     _height = info.height;
+    _samples = info.samples.has_value() ? info.samples.value() : gfx::SampleCount::X1;
     initWindow(info);
 }
 
@@ -96,6 +97,7 @@ void RenderTexture::initWindow() {
     windowInfo.width = _width;
     windowInfo.height = _height;
     windowInfo.renderPassInfo = getDefaultRenderPassInfo(device);
+    windowInfo.sampleCount = _samples;
 
     if (_window != nullptr) {
         _window->destroy();
@@ -112,6 +114,7 @@ void RenderTexture::initWindow(const IRenderTextureCreateInfo &info) {
     windowInfo.title = _name;
     windowInfo.width = _width;
     windowInfo.height = _height;
+    windowInfo.sampleCount = _samples;
     if (info.passInfo.has_value()) {
         windowInfo.renderPassInfo = info.passInfo.value();
     } else {

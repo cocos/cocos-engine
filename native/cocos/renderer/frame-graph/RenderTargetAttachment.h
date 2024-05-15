@@ -50,6 +50,7 @@ struct RenderTargetAttachment final {
         float clearDepth{1.F};
         uint8_t clearStencil{0U};
 
+        gfx::SampleCount samples{gfx::SampleCount::X1};
         gfx::AccessFlags beginAccesses{gfx::AccessFlagBit::NONE};
         gfx::AccessFlags endAccesses{gfx::AccessFlagBit::NONE};
     };

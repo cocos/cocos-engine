@@ -43,6 +43,7 @@ struct IRenderWindowInfo {
     ccstd::optional<uint32_t> externalResLow{0};                              // for vulkan vkImage/opengl es texture created from external
     ccstd::optional<uint32_t> externalResHigh{0};                             // for vulkan vkImage created from external
     ccstd::optional<gfx::TextureFlags> externalFlag{gfx::TextureFlags::NONE}; // external texture type normal or oes
+    gfx::SampleCount sampleCount{gfx::SampleCount::X1};
 };
 
 /**
@@ -122,6 +123,7 @@ public:
 
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
+    gfx::SampleCount getSamplerCount() const { return _sampleCount; }
 private:
     void generateFrameBuffer();
 
@@ -134,6 +136,7 @@ private:
     IntrusivePtr<gfx::Framebuffer> _frameBuffer;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     RefVector<gfx::Texture *> _colorTextures;
+    gfx::SampleCount _sampleCount = gfx::SampleCount::X1;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderWindow);
 };

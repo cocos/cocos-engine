@@ -886,6 +886,10 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
             gpuTexture->memoryAllocated = false;
             return;
         }
+        if(gpuTexture->usage == TextureUsageBit::COLOR_ATTACHMENT){
+            gpuTexture->memoryAllocated = false;
+            return;
+        }
     }
 
     if (gpuTexture->glTexture || gpuTexture->size == 0) {
@@ -1585,7 +1589,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
     for (uint32_t i = 0; i < colors.size(); ++i) {
         const auto &attachmentIndex = colors[i];
         const auto &colorIndex = indices[attachmentIndex];
-        const auto &resolveIndex = resolves.empty() ? INVALID_BINDING : resolves[attachmentIndex];
+        const auto &resolveIndex = resolves.empty() ? INVALID_BINDING : resolves[i];
 
         const auto &desc = renderPass->colorAttachments[attachmentIndex];
         const auto *view = gpuFBO->gpuColorViews[attachmentIndex];
@@ -1596,9 +1600,9 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             const auto &resolveDesc = renderPass->colorAttachments[resolveIndex];
             const auto *resolveView = gpuFBO->gpuColorViews[resolveIndex];
             CC_ASSERT(resolveView != nullptr);
-            bool lazilyAllocated = hasFlag(view->gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED);
+//            bool lazilyAllocated = hasFlag(view->gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED);
 
-            if (lazilyAllocated &&                               // MS attachment should be memoryless
+            if (!view->gpuTexture->memoryAllocated &&            // MS attachment should be memoryless
                 resolveView->gpuTexture->swapchain == nullptr && // not back buffer
                 i < supportCount) {                              // extension limit
                 auto validateDesc = resolveDesc;
@@ -1626,9 +1630,9 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
         if (view->gpuTexture->glSamples > 1 && depthStencilResolve != INVALID_BINDING) {
             const auto &resolveDesc = renderPass->depthStencilResolveAttachment;
             const auto *resolveView = gpuFBO->gpuDepthStencilResolveView;
-            bool lazilyAllocated = hasFlag(view->gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED);
+//            bool lazilyAllocated = hasFlag(view->gpuTexture->flags, TextureFlagBit::LAZILY_ALLOCATED);
 
-            if (lazilyAllocated &&                               // MS attachment should be memoryless
+            if (!view->gpuTexture->memoryAllocated &&            // MS attachment should be memoryless
                 resolveView->gpuTexture->swapchain == nullptr && // not back buffer
                 supportCount > 1 &&                              // extension limit
                 useDsResolve) {                                  // enable ds resolve
