@@ -120,10 +120,12 @@ export const bmfontUtils = {
             outputRenderData.quadCount = 0;
             processing.generateRenderInfo(true, style, layout, outputLayoutData, outputRenderData,
                 comp.string, this.generateVertexData);
+            let isResized = false;
             if (renderData.dataLength !== outputRenderData.quadCount) {
                 this.resetRenderData(comp);
                 renderData.dataLength = outputRenderData.quadCount;
                 renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
+                isResized = true;
             }
             const datalist = renderData.data;
             for (let i = 0, l = outputRenderData.quadCount; i < l; i++) {
@@ -141,7 +143,7 @@ export const bmfontUtils = {
             // But this function is not called when just modifying the opacity.
             // So the value of '_comp.node._uiProps.colorDirty' does not change.
             // And _uiProps.colorDirty is synchronized with renderEntity.colorDirty.
-            if (_comp.renderEntity.colorDirty) {
+            if (_comp.renderEntity.colorDirty || isResized) {
                 this.updateColor(comp); // dirty need
                 _comp.node._uiProps.colorDirty = false;
             }
