@@ -122,6 +122,39 @@ public:
 
     inline const ccstd::vector<IntrusivePtr<Camera>> &getCameras() const { return _cameras; }
 
+    /**
+     * @en Get render window Id.
+     * Render windowd Id is used to identify the render window in the render pipeline.
+     * @zh 获得渲染窗口Id。渲染窗口Id用于在渲染管线中标识渲染窗口。
+     */
+    inline uint32_t getRenderWindowId() const noexcept { return _renderWindowId; }
+
+    /**
+     * @en Get the name of the color attachment.
+     * The name is used to identify the color attachment in the render pipeline.
+     * @zh 获取颜色附件的名称。用于自定义渲染管线中的资源注册。
+     */
+    const ccstd::string &getColorName() const noexcept { return _colorName; }
+
+    /**
+     * @en Get the name of the depth stencil attachment.
+     * The name is used to identify the depth stencil attachment in the render pipeline.
+     * @zh 获取深度模板附件的名称。用于自定义渲染管线中的资源注册。
+     */
+    const ccstd::string &getDepthStencilName() const noexcept { return _depthStencilName; }
+
+    /**
+     * @en The render pipeline should handle the resize event properly
+     * @zh 渲染管线应该正确处理窗口大小变化事件
+     */
+    bool isRenderWindowResized() const noexcept { return _isResized; }
+
+    /**
+     * @en The render pipeline should set this value to false after handling the resize event
+     * @zh 渲染管线应该在处理完窗口大小变化事件后将此值设置为 false
+     */
+    void setRenderWindowResizeHandled() noexcept { _isResized = false; }
+
 private:
     void generateFrameBuffer();
 
@@ -134,6 +167,10 @@ private:
     IntrusivePtr<gfx::Framebuffer> _frameBuffer;
     ccstd::vector<IntrusivePtr<Camera>> _cameras;
     RefVector<gfx::Texture *> _colorTextures;
+    uint32_t _renderWindowId{0};
+    bool _isResized{true};
+    ccstd::string _colorName;
+    ccstd::string _depthStencilName;
 
     CC_DISALLOW_COPY_MOVE_ASSIGN(RenderWindow);
 };

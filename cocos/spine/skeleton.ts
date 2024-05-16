@@ -22,8 +22,7 @@
  THE SOFTWARE.
 */
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
-// eslint-disable-next-line max-len
-import { ccclass, executeInEditMode, help, menu, serializable, formerlySerializedAs, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
+import { ccclass, executeInEditMode, help, menu, serializable, type, displayName, override, displayOrder, editable, tooltip } from 'cc.decorator';
 import { Material, Texture2D } from '../asset/assets';
 import { error, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
@@ -205,11 +204,9 @@ export class Skeleton extends UIRenderer {
     @serializable
     protected _skeletonData: SkeletonData | null = null;
     @serializable
-    @formerlySerializedAs('defaultSkin')
-    protected _defaultSkin = '';
+    protected defaultSkin = '';
     @serializable
-    @formerlySerializedAs('defaultAnimation')
-    protected _defaultAnimation = '';
+    protected defaultAnimation = '';
     /**
      * @en Indicates whether to enable premultiplied alpha.
      * You should disable this option when image's transparent area appears to have opaque pixels,
@@ -337,14 +334,6 @@ export class Skeleton extends UIRenderer {
      */
     get drawList (): RecyclePool<SkeletonDrawData> { return this._drawList; }
 
-    get defaultSkin (): string {
-        return this._defaultSkin;
-    }
-
-    get defaultAnimation (): string {
-        return this._defaultAnimation;
-    }
-
     /**
      * @en
      * The skeleton data contains the skeleton information (bind pose bones, slots, draw order,
@@ -367,8 +356,8 @@ export class Skeleton extends UIRenderer {
         if (this._skeletonData !== value) {
             this.destroyRenderData();
             this._skeletonData = value as any;
-            this._defaultSkin = '';
-            this._defaultAnimation = '';
+            this.defaultSkin = '';
+            this.defaultAnimation = '';
             this._animationName = '';
             this._skinName = '';
             this._updateSkeletonData();
@@ -386,14 +375,14 @@ export class Skeleton extends UIRenderer {
         if (this.skeletonData) {
             const skinsEnum = this.skeletonData.getSkinsEnum();
             if (skinsEnum) {
-                if (this._defaultSkin === '') {
+                if (this.defaultSkin === '') {
                     // eslint-disable-next-line no-prototype-builtins
                     if (skinsEnum.hasOwnProperty(0)) {
                         this._defaultSkinIndex = 0;
                         return 0;
                     }
                 } else {
-                    const skinIndex = skinsEnum[this._defaultSkin];
+                    const skinIndex = skinsEnum[this.defaultSkin];
                     if (skinIndex !== undefined) {
                         return skinIndex;
                     }
@@ -417,8 +406,8 @@ export class Skeleton extends UIRenderer {
 
         const skinName = skinsEnum[value];
         if (skinName !== undefined) {
-            this._defaultSkin = String(skinName);
-            this.setSkin(this._defaultSkin);
+            this.defaultSkin = String(skinName);
+            this.setSkin(this.defaultSkin);
             this._refreshInspector();
             this.markForUpdateRenderData();
         } else {
@@ -434,7 +423,7 @@ export class Skeleton extends UIRenderer {
     @type(DefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
     get _animationIndex (): number {
-        const animationName = EDITOR_NOT_IN_PREVIEW ? this._defaultAnimation : this.animation;
+        const animationName = EDITOR_NOT_IN_PREVIEW ? this.defaultAnimation : this.animation;
         if (this.skeletonData) {
             if (animationName) {
                 const animsEnum = this.skeletonData.getAnimsEnum();
@@ -466,7 +455,7 @@ export class Skeleton extends UIRenderer {
         if (animName !== undefined) {
             this.animation = animName;
             if (EDITOR_NOT_IN_PREVIEW) {
-                this._defaultAnimation = animName;
+                this.defaultAnimation = animName;
                 this._refreshInspector();
             } else {
                 this.animation = animName;
@@ -776,8 +765,8 @@ export class Skeleton extends UIRenderer {
         this._textures = skeletonData.textures;
 
         this._refreshInspector();
-        if (this._defaultAnimation) this.animation = this._defaultAnimation.toString();
-        if (this._defaultSkin && this._defaultSkin !== '') this.setSkin(this._defaultSkin);
+        if (this.defaultAnimation) this.animation = this.defaultAnimation.toString();
+        if (this.defaultSkin && this.defaultSkin !== '') this.setSkin(this.defaultSkin);
         this._updateUseTint();
         this._indexBoneSockets();
         this._updateSocketBindings();

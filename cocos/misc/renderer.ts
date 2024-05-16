@@ -244,14 +244,17 @@ export class Renderer extends Component {
     }
 
     protected _onMaterialModified (index: number, material: Material | null): void {
+        /* empty */
     }
 
     /**
      * @engineInternal
      */
     public _onRebuildPSO (index: number, material: Material | null): void {
+        /* empty */
     }
 
     protected _clearMaterials (): void {
+        /* empty */
     }
 }

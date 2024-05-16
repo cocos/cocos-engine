@@ -33,6 +33,8 @@
 #include "renderer/gfx-base/GFXTexture.h"
 #include "scene/Camera.h"
 
+#include <atomic>
+
 namespace cc {
 namespace scene {
 
@@ -45,9 +47,15 @@ const ccstd::unordered_map<IScreen::Orientation, gfx::SurfaceTransform> ORIENTAT
     {IScreen::Orientation::LANDSCAPE_LEFT, gfx::SurfaceTransform::ROTATE_270},
 };
 
-}
+std::atomic<uint32_t> sRenderWindowId{0};
 
-RenderWindow::RenderWindow() = default;
+} // namespace
+
+RenderWindow::RenderWindow()
+: _renderWindowId(sRenderWindowId++),
+  _colorName("Color" + std::to_string(_renderWindowId)),
+  _depthStencilName("DepthStencil" + std::to_string(_renderWindowId)) {}
+
 RenderWindow::~RenderWindow() = default;
 
 bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
@@ -135,6 +143,8 @@ void RenderWindow::resize(uint32_t width, uint32_t height) {
     for (Camera *camera : _cameras) {
         camera->resize(width, height);
     }
+
+    _isResized = true;
 }
 
 void RenderWindow::extractRenderCameras(ccstd::vector<Camera *> &cameras) {

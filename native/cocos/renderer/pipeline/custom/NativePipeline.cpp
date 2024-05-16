@@ -52,9 +52,9 @@ void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string 
 
 template <>
 void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg) {
-    const auto &desc = get(ResourceGraph::DescTag{}, resg, v);
-    const auto &traits = get(ResourceGraph::TraitsTag{}, resg, v);
-    const auto &samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+    const auto desc = get(ResourceGraph::DescTag{}, resg, v);
+    const auto traits = get(ResourceGraph::TraitsTag{}, resg, v);
+    const auto samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
 
     SubresourceView view{
         nullptr,
@@ -214,9 +214,12 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     if (!renderWindow->getSwapchain()) {
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+        desc.format = renderWindow->getFramebuffer()->getColorTextures()[0]->getFormat();
         desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
         RenderSwapchain sc{};
         sc.renderWindow = renderWindow;
+
+        CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
         return addVertex(
             SwapchainTag{},
             std::forward_as_tuple(name.c_str()),
@@ -232,6 +235,7 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
 
     desc.format = renderWindow->getFramebuffer()->getColorTextures()[0]->getFormat();
+    CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
 
     return addVertex(
         SwapchainTag{},

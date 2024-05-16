@@ -31,6 +31,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
+import { OS } from '../../../pal/system-info/enum-type';
 
 interface ICachedStyle {
     width: string;
@@ -140,6 +141,10 @@ class ScreenAdapter extends EventTarget {
             return;
         }
         this._orientation = value;
+        this._updateFrame();
+    }
+
+    private _updateFrame (): void {
         this._updateFrameState();
         this._resizeFrame();
     }
@@ -283,7 +288,8 @@ class ScreenAdapter extends EventTarget {
         return WindowType.SubFrame;
     }
     private _resolutionScale = 1;
-    private _orientation = Orientation.AUTO;
+    private _orientation = Orientation.AUTO;//The orientation set by user.
+    private _orientationDevice = Orientation.AUTO;//Store the device's orientation.
 
     constructor () {
         super();
@@ -383,15 +389,49 @@ class ScreenAdapter extends EventTarget {
             this._resizeFrame();
         });
 
-        const adapter = this;
         const notifyOrientationChange = (orientation): void => {
-            if (orientation === adapter._orientation) {
+            if (orientation === this._orientationDevice) {
                 return;
             }
-            adapter._orientation = orientation;
-            adapter.emit('orientation-change', orientation);
+            this._orientationDevice = orientation;
+            this._updateFrame();
+            this.emit('orientation-change', orientation);
         };
 
+        const getOrientation = (): Orientation => {
+            let tmpOrientation = Orientation.PORTRAIT;
+            switch (window.orientation) {
+            case 0:
+                tmpOrientation = Orientation.PORTRAIT;
+                break;
+            case 90:
+                // Handle landscape orientation, top side facing to the right
+                tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                break;
+            case -90:
+                // Handle landscape orientation, top side facing to the left
+                tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                break;
+            case 180:
+                tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                break;
+            default:
+                tmpOrientation = this._orientationDevice;
+                break;
+            }
+            return tmpOrientation;
+        };
+        /*After receive orientation-change event, window.innerWidth & innerHeight may not change immediately,
+        so we delay EVENT_TIMEOUT to handle orientation-change.*/
+        let handleOrientationChange;
+        const orientationChangeCallback = (): void => {
+            if (this._orientationChangeTimeoutId !== -1) {
+                clearTimeout(this._orientationChangeTimeoutId);
+            }
+            this._orientationChangeTimeoutId = setTimeout((): void => {
+                handleOrientationChange();
+            }, EVENT_TIMEOUT);
+        };
         if (typeof window.matchMedia === 'function') {
             const updateDPRChangeListener = (): void => {
                 const dpr = window.devicePixelRatio;
@@ -402,52 +442,46 @@ class ScreenAdapter extends EventTarget {
                 }, { once: true });
             };
             updateDPRChangeListener();
-            
+
             const mediaQueryPortrait = window.matchMedia('(orientation: portrait)');
             const mediaQueryLandscape = window.matchMedia('(orientation: landscape)');
-            const handleOrientationChange = (): void => {
-                let tmpOrientation = adapter._orientation;
-                const orientationType = screen.orientation.type;
+            // eslint-disable-next-line no-restricted-globals
+            const hasScreeOrientation = screen.orientation;
+            handleOrientationChange = (): void => {
+                let tmpOrientation: Orientation = this._orientationDevice;
                 if (mediaQueryPortrait.matches) {
-                    if (orientationType === 'portrait-primary') {
-                        tmpOrientation = Orientation.PORTRAIT;
-                    } else {
-                        tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                    tmpOrientation = Orientation.PORTRAIT;
+                    if (hasScreeOrientation) {
+                        // eslint-disable-next-line no-restricted-globals
+                        const orientationType = screen.orientation.type;
+                        if (orientationType === 'portrait-primary') {
+                            tmpOrientation = Orientation.PORTRAIT;
+                        } else {
+                            tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
+                        }
                     }
-                } else {
-                    if (orientationType === 'landscape-primary') {
-                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                    } else if (orientationType === 'landscape-secondary') {
-                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                } else if (mediaQueryLandscape.matches) {
+                    tmpOrientation = Orientation.LANDSCAPE;
+                    if (hasScreeOrientation) {
+                        // eslint-disable-next-line no-restricted-globals
+                        const orientationType = screen.orientation.type;
+                        if (orientationType === 'landscape-primary') {
+                            tmpOrientation = Orientation.LANDSCAPE_LEFT;
+                        } else {
+                            tmpOrientation = Orientation.LANDSCAPE_RIGHT;
+                        }
                     }
                 }
                 notifyOrientationChange(tmpOrientation);
             };
-            mediaQueryPortrait.addEventListener('change', handleOrientationChange);
-            mediaQueryLandscape.addEventListener('change', handleOrientationChange);
+            mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
+            mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
         } else {
-            const adapter = this;
-            const handleOrientationChange = (): void => {
-                let tmpOrientation = adapter._orientation;
-                switch (window.orientation) {
-                    case 0:
-                        tmpOrientation = Orientation.PORTRAIT;
-                        break;
-                    case 90:
-                        // Handle landscape orientation, top side facing to the right
-                        tmpOrientation = Orientation.LANDSCAPE_RIGHT;
-                        break;
-                    case -90:
-                        // Handle landscape orientation, top side facing to the left
-                        tmpOrientation = Orientation.LANDSCAPE_LEFT;
-                        break;
-                    case 180:
-                        tmpOrientation = Orientation.PORTRAIT_UPSIDE_DOWN;
-                        break;
-                }
+            handleOrientationChange = (): void => {
+                const tmpOrientation = getOrientation();
                 notifyOrientationChange(tmpOrientation);
             };
-            window.addEventListener('orientationchange', handleOrientationChange);
+            window.addEventListener('orientationchange', orientationChangeCallback);
         }
         document.addEventListener(this._fn.fullscreenchange, () => {
             this._onFullscreenChange?.();
@@ -484,9 +518,9 @@ class ScreenAdapter extends EventTarget {
         } else {
             const winWidth = window.innerWidth;
             let winHeight = window.innerHeight;
-            //On certain devices, window.innerHeight may not account for the height of the virtual keyboard, so dynamic calculation is necessary.
+            //On certain android devices, window.innerHeight may not account for the height of the virtual keyboard, so dynamic calculation is necessary.
             const inputHeight = document.body.scrollHeight - winHeight;
-            if (winHeight < inputHeight) {
+            if (systemInfo.os === OS.ANDROID && winHeight < inputHeight) {
                 winHeight += inputHeight;
             }
             if (this.isFrameRotated) {
@@ -552,10 +586,8 @@ class ScreenAdapter extends EventTarget {
         const height = window.innerHeight;
         const isBrowserLandscape = width > height;
         this.isFrameRotated = systemInfo.isMobile
-            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT) ||
-                (!isBrowserLandscape && (orientation === Orientation.LANDSCAPE ||
-                    orientation === Orientation.LANDSCAPE_LEFT ||
-                    orientation === Orientation.LANDSCAPE_RIGHT)));
+            && ((isBrowserLandscape && orientation === Orientation.PORTRAIT)
+             || (!isBrowserLandscape && orientation === Orientation.LANDSCAPE));
     }
     private _updateContainer (): void {
         if (!this._gameContainer) {
