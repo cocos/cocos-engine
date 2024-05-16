@@ -107,7 +107,7 @@ export class Tween<T extends object = any> {
         if (action instanceof Sequence || action instanceof Spawn) {
             action.updateWorkerTarget(this._target);
         } else {
-            action.workerTarget = this._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
+            action.workerTarget = this._target;
         }
     }
 

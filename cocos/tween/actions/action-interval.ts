@@ -394,7 +394,7 @@ export class Sequence extends ActionInterval {
         if (this._actions.length < 2) {
             return;
         }
-        this._actions[1].workerTarget = workerTarget as any; //FIXME(cjh): Remove any, depends on https://github.com/cocos/cocos-engine/pull/16948
+        this._actions[1].workerTarget = workerTarget;
         const actionOne = this._actions[0];
         if (actionOne instanceof Sequence) {
             actionOne.updateWorkerTarget(workerTarget);
@@ -823,7 +823,7 @@ export class Spawn extends ActionInterval {
         if (!this._one || !this._two) {
             return;
         }
-        this._two.workerTarget = workerTarget as any; //FIXME(cjh): Remove any, depends on https://github.com/cocos/cocos-engine/pull/16948
+        this._two.workerTarget = workerTarget;
         const one = this._one;
         if (one instanceof Spawn) {
             one.updateWorkerTarget(workerTarget);
