@@ -133,8 +133,11 @@ export class View extends Eventify(System) {
             this.resizeWithBrowserSize(true);
             const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
             if (designResolution) {
-                this.setDesignResolutionSize(Number(designResolution.width), Number(designResolution.height),
-                    designResolution.policy || ResolutionPolicy.FIXED_HEIGHT);
+                this.setDesignResolutionSize(
+                    Number(designResolution.width),
+                    Number(designResolution.height),
+                    designResolution.policy as ResolutionPolicy || ResolutionPolicy.FIXED_HEIGHT,
+                );
             }
         }
 
@@ -255,7 +258,9 @@ export class View extends Eventify(System) {
         }
         this._autoFullScreen = enabled;
         if (enabled) {
-            screen.requestFullScreen().catch((e) => {});
+            screen.requestFullScreen().catch((e) => {
+                // do nothing
+            });
         }
     }
 
@@ -358,8 +363,10 @@ export class View extends Eventify(System) {
      * @zh 返回视图窗口可见区域像素尺寸。
      */
     public getVisibleSizeInPixel (): Size {
-        return new Size(this._visibleRect.width * this._scaleX,
-            this._visibleRect.height * this._scaleY);
+        return new Size(
+            this._visibleRect.width * this._scaleX,
+            this._visibleRect.height * this._scaleY,
+        );
     }
 
     /**
@@ -375,8 +382,10 @@ export class View extends Eventify(System) {
      * @zh 返回视图窗口可见区域像素原点。
      */
     public getVisibleOriginInPixel (): Vec2 {
-        return new Vec2(this._visibleRect.x * this._scaleX,
-            this._visibleRect.y * this._scaleY);
+        return new Vec2(
+            this._visibleRect.x * this._scaleX,
+            this._visibleRect.y * this._scaleY,
+        );
     }
 
     /**
@@ -581,13 +590,6 @@ export class View extends Eventify(System) {
         return out;
     }
 
-    // Convert location in Cocos screen coordinate to location in UI space
-    private _convertToUISpace (point): void {
-        const viewport = this._viewportRect;
-        point.x = (point.x - viewport.x) / this._scaleX;
-        point.y = (point.y - viewport.y) / this._scaleY;
-    }
-
     private _updateAdaptResult (width: number, height: number, windowId?: number): void {
         // The default invalid windowId is 0
         cclegacy.director.root.resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
@@ -624,17 +626,18 @@ interface AdaptResult {
  * it controls the behavior of how to scale the cc.game.container and cc.game.canvas object
  */
 class ContainerStrategy {
-    public static EQUAL_TO_FRAME: any;
-    public static PROPORTION_TO_FRAME: any;
+    public static EQUAL_TO_FRAME: EqualToFrame;
+    public static PROPORTION_TO_FRAME: ProportionalToFrame;
 
     public name = 'ContainerStrategy';
 
     /**
-     * @en Manipulation before appling the strategy
+     * @en Manipulation before applying the strategy
      * @zh 在应用策略之前的操作
      * @param view - The target view
      */
     public preApply (_view: View): void {
+        // do nothing
     }
 
     /**
@@ -644,6 +647,7 @@ class ContainerStrategy {
      * @param designedResolution
      */
     public apply (_view: View, designedResolution: Size): void {
+        // do nothing
     }
 
     /**
@@ -653,7 +657,7 @@ class ContainerStrategy {
      * @param view  The target view
      */
     public postApply (_view: View): void {
-
+        // do nothing
     }
 
     protected _setupCanvas (): void {
@@ -686,14 +690,21 @@ class ContainerStrategy {
  * @class ContentStrategy
  */
 class ContentStrategy {
-    public static EXACT_FIT: any;
-    public static SHOW_ALL: any;
-    public static NO_BORDER: any;
-    public static FIXED_HEIGHT: any;
-    public static FIXED_WIDTH: any;
+    public static EXACT_FIT: ExactFit;
+    public static SHOW_ALL: ShowAll;
+    public static NO_BORDER: NoBorder;
+    public static FIXED_HEIGHT: FixedHeight;
+    public static FIXED_WIDTH: FixedWidth;
 
     public name = 'ContentStrategy';
+
     private _result: AdaptResult;
+    protected _strategy = ResolutionPolicy.UNKNOWN;
+
+    get strategy (): number {
+        return this._strategy;
+    }
+
     constructor () {
         this._result = {
             scale: [1, 1],
@@ -707,6 +718,7 @@ class ContentStrategy {
      * @param view - The target view
      */
     public preApply (_view: View): void {
+        // do nothing
     }
 
     /**
@@ -726,12 +738,13 @@ class ContentStrategy {
      * @param view - The target view
      */
     public postApply (_view: View): void {
+        // do nothing
     }
 
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _buildResult (containerW, containerH, contentW, contentH, scaleX, scaleY): AdaptResult {
+    public _buildResult (containerW: number, containerH: number, contentW: number, contentH: number, scaleX: number, scaleY: number): AdaptResult {
         // Makes content fit better the canvas
         if (Math.abs(containerW - contentW) < 2) {
             contentW = containerW;
@@ -740,9 +753,12 @@ class ContentStrategy {
             contentH = containerH;
         }
 
-        const viewport = new Rect(Math.round((containerW - contentW) / 2),
+        const viewport = new Rect(
+            Math.round((containerW - contentW) / 2),
             Math.round((containerH - contentH) / 2),
-            contentW, contentH);
+            contentW,
+            contentH,
+        );
 
         this._result.scale = [scaleX, scaleY];
         this._result.viewport = viewport;
@@ -750,148 +766,177 @@ class ContentStrategy {
     }
 }
 
-((): void => {
-// Container scale strategys
-    /**
-     * @class EqualToFrame
-     * @extends ContainerStrategy
-     */
-    class EqualToFrame extends ContainerStrategy {
-        public name = 'EqualToFrame';
-        public apply (_view, designedResolution): void {
-            screenAdapter.isProportionalToFrame = false;
-            this._setupCanvas();
-        }
-    }
+// Container scale strategies
 
-    /**
+/**
+ * @class EqualToFrame
+ * @extends ContainerStrategy
+ */
+class EqualToFrame extends ContainerStrategy {
+    public name = 'EqualToFrame';
+    public apply (_view, designedResolution): void {
+        screenAdapter.isProportionalToFrame = false;
+        this._setupCanvas();
+    }
+}
+
+/**
      * @class ProportionalToFrame
      * @extends ContainerStrategy
      */
-    class ProportionalToFrame extends ContainerStrategy {
-        public name = 'ProportionalToFrame';
-        public apply (_view, designedResolution): void {
-            screenAdapter.isProportionalToFrame = true;
-            this._setupCanvas();
-        }
+class ProportionalToFrame extends ContainerStrategy {
+    public name = 'ProportionalToFrame';
+    public apply (_view, designedResolution): void {
+        screenAdapter.isProportionalToFrame = true;
+        this._setupCanvas();
+    }
+}
+
+// Alias: Strategy that makes the container's size equals to the frame's size
+ContainerStrategy.EQUAL_TO_FRAME = new EqualToFrame();
+// Alias: Strategy that scale proportionally the container's size to frame's size
+ContainerStrategy.PROPORTION_TO_FRAME = new ProportionalToFrame();
+
+// Content scale strategies
+class ExactFit extends ContentStrategy {
+    public name = 'ExactFit';
+
+    constructor () {
+        super();
+        this._strategy = ResolutionPolicy.EXACT_FIT;
     }
 
-    // Alias: Strategy that makes the container's size equals to the frame's size
-    ContainerStrategy.EQUAL_TO_FRAME = new EqualToFrame();
-    // Alias: Strategy that scale proportionally the container's size to frame's size
-    ContainerStrategy.PROPORTION_TO_FRAME = new ProportionalToFrame();
+    public apply (_view: View, designedResolution: Size): AdaptResult {
+        const windowSize = screen.windowSize;
+        const containerW = windowSize.width;
+        const containerH = windowSize.height;
+        const scaleX = containerW / designedResolution.width;
+        const scaleY = containerH / designedResolution.height;
 
-    // Content scale strategys
-    class ExactFit extends ContentStrategy {
-        public name = 'ExactFit';
-        public apply (_view: View, designedResolution: Size): AdaptResult {
-            const windowSize = screen.windowSize;
-            const containerW = windowSize.width;
-            const containerH = windowSize.height;
-            const scaleX = containerW / designedResolution.width;
-            const scaleY = containerH / designedResolution.height;
+        return this._buildResult(containerW, containerH, containerW, containerH, scaleX, scaleY);
+    }
+}
 
-            return this._buildResult(containerW, containerH, containerW, containerH, scaleX, scaleY);
-        }
+class ShowAll extends ContentStrategy {
+    public name = 'ShowAll';
+
+    constructor () {
+        super();
+        this._strategy = ResolutionPolicy.SHOW_ALL;
     }
 
-    class ShowAll extends ContentStrategy {
-        public name = 'ShowAll';
-        public apply (_view, designedResolution): AdaptResult {
-            const windowSize = screen.windowSize;
-            const containerW = windowSize.width;
-            const containerH = windowSize.height;
-            const designW = designedResolution.width;
-            const designH = designedResolution.height;
-            const scaleX = containerW / designW;
-            const scaleY = containerH / designH;
-            let scale = 0;
-            let contentW;
-            let contentH;
+    public apply (_view, designedResolution): AdaptResult {
+        const windowSize = screen.windowSize;
+        const containerW = windowSize.width;
+        const containerH = windowSize.height;
+        const designW = designedResolution.width;
+        const designH = designedResolution.height;
+        const scaleX = containerW / designW;
+        const scaleY = containerH / designH;
+        let scale = 0;
+        let contentW: number;
+        let contentH: number;
 
-            if (scaleX < scaleY) {
-                scale = scaleX;
-                contentW = containerW;
-                contentH = designH * scale;
-            } else {
-                scale = scaleY;
-                contentW = designW * scale;
-                contentH = containerH;
-            }
-
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+        if (scaleX < scaleY) {
+            scale = scaleX;
+            contentW = containerW;
+            contentH = designH * scale;
+        } else {
+            scale = scaleY;
+            contentW = designW * scale;
+            contentH = containerH;
         }
+
+        return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+    }
+}
+
+class NoBorder extends ContentStrategy {
+    public name = 'NoBorder';
+
+    constructor () {
+        super();
+        this._strategy = ResolutionPolicy.NO_BORDER;
     }
 
-    class NoBorder extends ContentStrategy {
-        public name = 'NoBorder';
-        public apply (_view, designedResolution): AdaptResult {
-            const windowSize = screen.windowSize;
-            const containerW = windowSize.width;
-            const containerH = windowSize.height;
-            const designW = designedResolution.width;
-            const designH = designedResolution.height;
-            const scaleX = containerW / designW;
-            const scaleY = containerH / designH;
-            let scale;
-            let contentW;
-            let contentH;
+    public apply (_view, designedResolution): AdaptResult {
+        const windowSize = screen.windowSize;
+        const containerW = windowSize.width;
+        const containerH = windowSize.height;
+        const designW = designedResolution.width;
+        const designH = designedResolution.height;
+        const scaleX = containerW / designW;
+        const scaleY = containerH / designH;
+        let scale: number;
+        let contentW: number;
+        let contentH: number;
 
-            if (scaleX < scaleY) {
-                scale = scaleY;
-                contentW = designW * scale;
-                contentH = containerH;
-            } else {
-                scale = scaleX;
-                contentW = containerW;
-                contentH = designH * scale;
-            }
-
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+        if (scaleX < scaleY) {
+            scale = scaleY;
+            contentW = designW * scale;
+            contentH = containerH;
+        } else {
+            scale = scaleX;
+            contentW = containerW;
+            contentH = designH * scale;
         }
+
+        return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+    }
+}
+
+class FixedHeight extends ContentStrategy {
+    public name = 'FixedHeight';
+
+    constructor () {
+        super();
+        this._strategy = ResolutionPolicy.FIXED_HEIGHT;
     }
 
-    class FixedHeight extends ContentStrategy {
-        public name = 'FixedHeight';
-        public apply (_view, designedResolution): AdaptResult {
-            const windowSize = screen.windowSize;
-            const containerW = windowSize.width;
-            const containerH = windowSize.height;
-            const designH = designedResolution.height;
-            const scale = containerH / designH;
-            const contentW = containerW;
-            const contentH = containerH;
+    public apply (_view, designedResolution): AdaptResult {
+        const windowSize = screen.windowSize;
+        const containerW = windowSize.width;
+        const containerH = windowSize.height;
+        const designH = designedResolution.height;
+        const scale = containerH / designH;
+        const contentW = containerW;
+        const contentH = containerH;
 
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
-        }
+        return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
+    }
+}
+
+class FixedWidth extends ContentStrategy {
+    public name = 'FixedWidth';
+
+    constructor () {
+        super();
+        this._strategy = ResolutionPolicy.FIXED_WIDTH;
     }
 
-    class FixedWidth extends ContentStrategy {
-        public name = 'FixedWidth';
-        public apply (_view, designedResolution): AdaptResult {
-            const windowSize = screen.windowSize;
-            const containerW = windowSize.width;
-            const containerH = windowSize.height;
-            const designW = designedResolution.width;
-            const scale = containerW / designW;
-            const contentW = containerW;
-            const contentH = containerH;
+    public apply (_view, designedResolution): AdaptResult {
+        const windowSize = screen.windowSize;
+        const containerW = windowSize.width;
+        const containerH = windowSize.height;
+        const designW = designedResolution.width;
+        const scale = containerW / designW;
+        const contentW = containerW;
+        const contentH = containerH;
 
-            return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
-        }
+        return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
     }
+}
 
-    // Alias: Strategy to scale the content's size to container's size, non proportional
-    ContentStrategy.EXACT_FIT = new ExactFit();
-    // Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
-    ContentStrategy.SHOW_ALL = new ShowAll();
-    // Alias: Strategy to scale the content's size proportionally to fill the whole container area
-    ContentStrategy.NO_BORDER = new NoBorder();
-    // Alias: Strategy to scale the content's height to container's height and proportionally scale its width
-    ContentStrategy.FIXED_HEIGHT = new FixedHeight();
-    // Alias: Strategy to scale the content's width to container's width and proportionally scale its height
-    ContentStrategy.FIXED_WIDTH = new FixedWidth();
-})();
+// Alias: Strategy to scale the content's size to container's size, non proportional
+ContentStrategy.EXACT_FIT = new ExactFit();
+// Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
+ContentStrategy.SHOW_ALL = new ShowAll();
+// Alias: Strategy to scale the content's size proportionally to fill the whole container area
+ContentStrategy.NO_BORDER = new NoBorder();
+// Alias: Strategy to scale the content's height to container's height and proportionally scale its width
+ContentStrategy.FIXED_HEIGHT = new FixedHeight();
+// Alias: Strategy to scale the content's width to container's width and proportionally scale its height
+ContentStrategy.FIXED_WIDTH = new FixedWidth();
 
 /**
  * @en ResolutionPolicy class is the root strategy class of scale strategy,
@@ -955,8 +1000,8 @@ export class ResolutionPolicy {
 
     public name = 'ResolutionPolicy';
 
-    private _containerStrategy: null | ContainerStrategy;
-    private _contentStrategy: null | ContentStrategy;
+    private _containerStrategy: ContainerStrategy;
+    private _contentStrategy: ContentStrategy;
 
     /**
      * Constructor of ResolutionPolicy
@@ -964,10 +1009,8 @@ export class ResolutionPolicy {
      * @param contentStg
      */
     constructor (containerStg: ContainerStrategy, contentStg: ContentStrategy) {
-        this._containerStrategy = null;
-        this._contentStrategy = null;
-        this.setContainerStrategy(containerStg);
-        this.setContentStrategy(contentStg);
+        this._containerStrategy = containerStg;
+        this._contentStrategy = contentStg;
     }
 
     get canvasSize (): Size {
@@ -980,7 +1023,7 @@ export class ResolutionPolicy {
      * @param _view The target view
      */
     public preApply (_view: View): void {
-        this._contentStrategy!.preApply(_view);
+        this._contentStrategy.preApply(_view);
     }
 
     /**
@@ -993,17 +1036,17 @@ export class ResolutionPolicy {
      * @return An object contains the scale X/Y values and the viewport rect
      */
     public apply (_view: View, designedResolution: Size): AdaptResult {
-        this._containerStrategy!.apply(_view, designedResolution);
-        return this._contentStrategy!.apply(_view, designedResolution);
+        this._containerStrategy.apply(_view, designedResolution);
+        return this._contentStrategy.apply(_view, designedResolution);
     }
 
     /**
-     * @en Manipulation after appyling the strategy
+     * @en Manipulation after applying the strategy
      * @zh 策略应用之后的操作
      * @param _view - The target view
      */
     public postApply (_view: View): void {
-        this._contentStrategy!.postApply(_view);
+        this._contentStrategy.postApply(_view);
     }
 
     /**
@@ -1012,9 +1055,7 @@ export class ResolutionPolicy {
      * @param containerStg The container strategy
      */
     public setContainerStrategy (containerStg: ContainerStrategy): void {
-        if (containerStg instanceof ContainerStrategy) {
-            this._containerStrategy = containerStg;
-        }
+        this._containerStrategy = containerStg;
     }
 
     /**
@@ -1023,9 +1064,16 @@ export class ResolutionPolicy {
      * @param contentStg The content strategy
      */
     public setContentStrategy (contentStg: ContentStrategy): void {
-        if (contentStg instanceof ContentStrategy) {
-            this._contentStrategy = contentStg;
-        }
+        this._contentStrategy = contentStg;
+    }
+
+    /**
+     * @en Get the content's scale strategy.
+     * @zh 获取内容的适配策略
+     * @returns ContentStrategy instance.
+     */
+    public getContentStrategy (): ContentStrategy {
+        return this._contentStrategy;
     }
 }
 cclegacy.ResolutionPolicy = ResolutionPolicy;
