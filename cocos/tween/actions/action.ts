@@ -60,6 +60,7 @@ export class Action {
         const action = new Action();
         action.originalTarget = null;
         action.target = null;
+        action.workerTarget = this.workerTarget;
         action.tag = this.tag;
         return action;
     }

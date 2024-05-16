@@ -433,6 +433,19 @@ export class Sequence extends ActionInterval {
         action._reversed = true;
         return action as any;
     }
+
+    updateWorkerTarget<T> (workerTarget: T): void {
+        if (this._actions.length < 2) {
+            return;
+        }
+        this._actions[1].workerTarget = workerTarget as any; //FIXME(cjh): Remove any, depends on https://github.com/cocos/cocos-engine/pull/16948
+        const actionOne = this._actions[0];
+        if (actionOne instanceof Sequence) {
+            actionOne.updateWorkerTarget(workerTarget);
+        } else {
+            actionOne.workerTarget = workerTarget as any;
+        }
+    }
 }
 
 /**
@@ -822,6 +835,19 @@ export class Spawn extends ActionInterval {
         this._cloneDecoration(action);
         this._reverseEaseList(action);
         return action as any;
+    }
+
+    updateWorkerTarget<T> (workerTarget: T): void {
+        if (!this._one || !this._two) {
+            return;
+        }
+        this._two.workerTarget = workerTarget as any; //FIXME(cjh): Remove any, depends on https://github.com/cocos/cocos-engine/pull/16948
+        const one = this._one;
+        if (one instanceof Spawn) {
+            one.updateWorkerTarget(workerTarget);
+        } else {
+            one.workerTarget = workerTarget as any;
+        }
     }
 }
 

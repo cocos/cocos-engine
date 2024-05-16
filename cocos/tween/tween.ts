@@ -24,7 +24,7 @@
 
 import { TweenSystem } from './tween-system';
 import { warn } from '../core';
-import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn } from './actions/action-interval';
+import { ActionInterval, sequence, repeat, repeatForever, reverseTime, delayTime, spawn, Sequence, Spawn } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
@@ -87,21 +87,17 @@ export class Tween<T> {
         let action: Action;
         if (other instanceof Action) {
             action = other.clone();
-            action.workerTarget = other._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action.updateWorkerTarget(this._target);
+            } else {
+                action.workerTarget = this._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
+            }
         } else {
-            Tween.assignWorkerTarget(other);
             action = other._union();
         }
         this._actions.push(action);
 
         return this;
-    }
-
-    private static assignWorkerTarget<U, S> (other: Tween<U>, target?: S): void {
-        const otherActions = other._actions;
-        for (let i = 0, l = otherActions.length; i < l; ++i) {
-            (otherActions[i] as any).workerTarget = target ?? other._target; //FIXME(cjh): Remove any
-        }
     }
 
     /**
@@ -114,6 +110,16 @@ export class Tween<T> {
      */
     target (target: T): Tween<T | undefined> {
         this._target = target;
+
+        for (let i = 0, len = this._actions.length; i < len; ++i) {
+            const action = this._actions[i];
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action.updateWorkerTarget(this._target);
+            } else {
+                action.workerTarget = this._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
+            }
+        }
+
         return this;
     }
 
@@ -449,8 +455,10 @@ export class Tween<T> {
         let action: Action;
         if (actions.length === 1) {
             action = actions[0];
+            if (this._target) action.workerTarget = this._target as any;
         } else {
             action = sequence(actions);
+            (action as Sequence).updateWorkerTarget(this._target);
         }
 
         return action;
@@ -468,8 +476,6 @@ export class Tween<T> {
         for (let l = args.length, i = 0; i < l; i++) {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
-                // set worker target for actions in sequence.
-                Tween.assignWorkerTarget(arg);
                 tmp_args[i] = arg._union();
             }
         }
@@ -483,8 +489,6 @@ export class Tween<T> {
         for (let l = args.length, i = 0; i < l; i++) {
             const arg = tmp_args[i] = args[i];
             if (arg instanceof Tween) {
-                // set worker target for actions in parallel.
-                Tween.assignWorkerTarget(arg);
                 tmp_args[i] = arg._union();
             }
         }
