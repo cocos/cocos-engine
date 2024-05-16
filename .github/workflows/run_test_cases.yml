@@ -66,6 +66,8 @@ jobs:
 
       - name: Checkout rebase
         run: |
+          git config user.email
+          git config user.name
           git fetch origin
           git reset --hard   
           git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}

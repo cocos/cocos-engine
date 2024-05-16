@@ -26,14 +26,13 @@
 */
 
 import { logID, errorID } from '../../core';
-import { Node } from '../../scene-graph';
 
 /**
  * @en Base classAction for action classes.
  * @zh Action 类是所有动作类型的基类。
  * @class Action
  */
-export class Action {
+export abstract class Action {
     /**
      * @en Default Action tag.
      * @zh 默认动作标签。
@@ -43,8 +42,8 @@ export class Action {
      */
     static TAG_INVALID = -1;
 
-    protected originalTarget: Node | null = null;
-    protected target: Node | null = null;
+    protected originalTarget: unknown = null;
+    protected target: unknown = null;
     protected tag = Action.TAG_INVALID;
 
     /**
@@ -55,13 +54,7 @@ export class Action {
      * @method clone
      * @return {Action}
      */
-    clone (): Action {
-        const action = new Action();
-        action.originalTarget = null;
-        action.target = null;
-        action.tag = this.tag;
-        return action;
-    }
+    abstract clone (): Action;
 
     /**
      * @en
@@ -75,7 +68,7 @@ export class Action {
     }
 
     // called before the action start. It will also set the target.
-    startWithTarget (target: any): void {
+    startWithTarget<T> (target: T | null): void {
         this.originalTarget = target;
         this.target = target;
     }
@@ -101,8 +94,8 @@ export class Action {
      * @method getTarget
      * @return {object}
      */
-    getTarget (): Node | null {
-        return this.target;
+    getTarget<T> (): T | null {
+        return this.target as T;
     }
 
     /**
@@ -111,7 +104,7 @@ export class Action {
      * @method setTarget
      * @param {object} target
      */
-    setTarget (target: Node): void {
+    setTarget<T> (target: T): void {
         this.target = target;
     }
 
@@ -121,14 +114,14 @@ export class Action {
      * @method getOriginalTarget
      * @return {object}
      */
-    getOriginalTarget (): Node | null {
-        return this.originalTarget;
+    getOriginalTarget<T> (): T | null {
+        return this.originalTarget as T;
     }
 
     // Set the original target, since target can be nil.
     // Is the target that were used to run the action.
     // Unless you are doing something complex, like `ActionManager`, you should NOT call this method.
-    setOriginalTarget (originalTarget: any): void {
+    setOriginalTarget<T> (originalTarget: T): void {
         this.originalTarget = originalTarget;
     }
 
@@ -163,20 +156,7 @@ export class Action {
      * @method reverse
      * @return {Action | null}
      */
-    reverse (): Action | null {
-        logID(1008);
-        return null;
-    }
-
-    // Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
-    // and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
-    // This is a hack, and should be removed once JSB fixes the retain/release bug.
-    retain (): void { }
-
-    // Currently JavaScript Bindigns (JSB), in some cases, needs to use retain and release. This is a bug in JSB,
-    // and the ugly workaround is to use retain/release. So, these 2 methods were added to be compatible with JSB.
-    // This is a hack, and should be removed once JSB fixes the retain/release bug.
-    release (): void { }
+    abstract reverse (): Action | null;
 }
 
 /**
@@ -191,7 +171,7 @@ export class Action {
  * @class FiniteTimeAction
  * @extends Action
  */
-export class FiniteTimeAction extends Action {
+export abstract class FiniteTimeAction extends Action {
     _duration = 0;
     _timesForRepeat = 1;
 
@@ -217,15 +197,15 @@ export class FiniteTimeAction extends Action {
 
     /**
      * @en
-     * to copy object with deep copy.
-     * returns a clone of action.
-     * @zh 返回一个克隆的动作。
+     * To copy object with deep copy.
+     * returns a clone of FiniteTimeAction.
+     * @zh 返回一个克隆的有限时间动作。
      * @method clone
      * @return {FiniteTimeAction}
      */
-    clone (): FiniteTimeAction {
-        return new FiniteTimeAction();
-    }
+    abstract clone (): FiniteTimeAction;
+
+    abstract reverse (): FiniteTimeAction;
 }
 
 /*
@@ -240,9 +220,9 @@ export class Speed extends Action {
     /**
      * @warning This action can't be `Sequence-able` because it is not an `IntervalAction`
      */
-    constructor (action?: Action, speed = 1) {
+    constructor (action?: Action | null, speed = 1) {
         super();
-        action && this.initWithAction(action, speed);
+        if (action) this.initWithAction(action, speed);
     }
 
     /*
@@ -285,30 +265,35 @@ export class Speed extends Action {
 
     clone (): Speed {
         const action = new Speed();
-        action.initWithAction(this._innerAction!.clone(), this._speed);
+        if (this._innerAction) {
+            action.initWithAction(this._innerAction.clone()!, this._speed);
+        }
         return action;
     }
 
-    startWithTarget (target: any): void {
-        Action.prototype.startWithTarget.call(this, target);
-        this._innerAction!.startWithTarget(target);
+    startWithTarget<T> (target: T | null): void {
+        super.startWithTarget(target);
+        if (this._innerAction) this._innerAction.startWithTarget(target);
     }
 
     stop (): void {
-        this._innerAction!.stop();
-        Action.prototype.stop.call(this);
+        if (this._innerAction) this._innerAction.stop();
+        super.stop();
     }
 
     step (dt: number): void {
-        this._innerAction!.step(dt * this._speed);
+        if (this._innerAction) this._innerAction.step(dt * this._speed);
     }
 
     isDone (): boolean {
-        return this._innerAction!.isDone();
+        return this._innerAction ? this._innerAction.isDone() : false;
     }
 
     reverse (): Speed {
-        return new Speed(this._innerAction!.reverse()!, this._speed);
+        if (this._innerAction) {
+            return new Speed(this._innerAction.reverse(), this._speed);
+        }
+        return this;
     }
 
     /*
@@ -316,7 +301,7 @@ export class Speed extends Action {
      * @method setInnerAction
      * @param {ActionInterval} action
      */
-    setInnerAction (action: any): void {
+    setInnerAction (action: Action): void {
         if (this._innerAction !== action) {
             this._innerAction = action;
         }
