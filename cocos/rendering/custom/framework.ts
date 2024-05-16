@@ -27,18 +27,13 @@ import { Camera, CameraUsage } from '../../render-scene/scene/camera';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { API, Device, Format, FormatFeatureBit } from '../../gfx';
 
-export function defaultWindowResize (ppl: BasicPipeline, renderWindow: RenderWindow, width: number, height: number): void {
-    ppl.addRenderWindow(renderWindow.colorName, Format.UNKNOWN, width, height, renderWindow);
-    ppl.addDepthStencil(renderWindow.depthStencilName, Format.DEPTH_STENCIL, width, height);
-}
-
 export function supportsR32FloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
         && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
 }
 
-export function forwardWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
+export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
     ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);
     ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
     // CSM
@@ -50,6 +45,11 @@ export function forwardWindowResize (ppl: BasicPipeline, window: RenderWindow, w
 }
 
 export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilder, ppl: BasicPipeline): void {
+    if (!builder.gameWindowResize) {
+        // No game window resize handler defined.
+        // Following old prodecure, do nothing
+        return;
+    }
     for (const camera of cameras) {
         if (!camera.window.isRenderWindowResized()) {
             continue;
@@ -70,7 +70,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.editorGameViewResize) {
                 builder.editorGameViewResize(ppl, camera.window, width, height);
             } else {
-                forwardWindowResize(ppl, camera.window, width, height);
+                defaultWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -78,7 +78,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.editorSceneViewResize) {
                 builder.editorSceneViewResize(ppl, camera.window, width, height);
             } else {
-                forwardWindowResize(ppl, camera.window, width, height);
+                defaultWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -86,7 +86,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.editorPreviewResize) {
                 builder.editorPreviewResize(ppl, camera.window, width, height);
             } else {
-                forwardWindowResize(ppl, camera.window, width, height);
+                defaultWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -94,7 +94,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
             if (builder.gameWindowResize) {
                 builder.gameWindowResize(ppl, camera.window, width, height);
             } else {
-                forwardWindowResize(ppl, camera.window, width, height);
+                defaultWindowResize(ppl, camera.window, width, height);
             }
             break;
         }
@@ -103,7 +103,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
                 if (builder.gameWindowResize) {
                     builder.gameWindowResize(ppl, camera.window, width, height);
                 } else {
-                    forwardWindowResize(ppl, camera.window, width, height);
+                    defaultWindowResize(ppl, camera.window, width, height);
                 }
             } else if (builder.editorWindowResize) {
                 builder.editorWindowResize(ppl, camera.window, width, height);

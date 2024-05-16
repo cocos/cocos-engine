@@ -36,7 +36,7 @@ import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { CSMLevel } from '../../render-scene/scene/shadows';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { forwardWindowResize } from './framework';
+import { defaultWindowResize } from './framework';
 import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
 
@@ -225,7 +225,7 @@ function buildCascadedShadowMapPass (
 
 export class BuiltinForwardPipeline implements PipelineBuilder {
     gameWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
-        forwardWindowResize(ppl, window, width, height);
+        defaultWindowResize(ppl, window, width, height);
     }
     setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (const camera of cameras) {
