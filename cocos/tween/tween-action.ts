@@ -167,11 +167,12 @@ export class TweenAction<T> extends ActionInterval {
         return action;
     }
 
-    startWithTarget<U> (target: U | undefined): void {
+    startWithTarget<U> (target: U | null): void {
         const isEqual: TypeEquality<T, U> = true;
-	if (!isEqual) return;
+        if (!isEqual) return;
         super.startWithTarget(target);
-        const workerTarget = this.workerTarget ?? this.target;
+
+        const workerTarget = (this.workerTarget ?? this.target) as T;
         if (!workerTarget) return;
         const relative = !!this._opts!.relative;
         const props = this._props;
@@ -198,7 +199,7 @@ export class TweenAction<T> extends ActionInterval {
                 }
             }
         }
-        if (this._opts.onStart) { this._opts.onStart(this.target); }
+        if (this._opts!.onStart) { this._opts!.onStart(workerTarget); }
     }
 
     update (t: number): void {

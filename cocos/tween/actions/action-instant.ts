@@ -68,8 +68,9 @@ export abstract class ActionInstant extends FiniteTimeAction {
  */
 export class Show<T extends Node> extends ActionInstant {
     update (_dt: number): void {
-	const target = (this.workerTarget ?? this.target) as T;
-        const _renderComps = target!.getComponentsInChildren(Renderer);
+        const target = (this.workerTarget ?? this.target) as T;
+        if (!target) return;
+        const _renderComps = target.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = true;
@@ -77,11 +78,11 @@ export class Show<T extends Node> extends ActionInstant {
     }
 
     reverse (): Hide<T> {
-        return new Hide();
+        return new Hide<T>();
     }
 
     clone (): Show<T> {
-        return new Show();
+        return new Show<T>();
     }
 }
 
@@ -105,8 +106,9 @@ export function show<T extends Node> (): Show<T> {
  */
 export class Hide<T extends Node> extends ActionInstant {
     update (_dt: number): void {
-	const target = (this.workerTarget ?? this.target) as T;
-        const _renderComps = target!.getComponentsInChildren(Renderer);
+        const target = (this.workerTarget ?? this.target) as T;
+        if (!target) return;
+        const _renderComps = target.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = false;
@@ -142,8 +144,9 @@ export function hide<T extends Node> (): Hide<T> {
  */
 export class ToggleVisibility<T extends Node> extends ActionInstant {
     update (_dt: number): void {
-	const target = (this.workerTarget ?? this.target) as T;
-        const _renderComps = target!.getComponentsInChildren(Renderer);
+        const target = (this.workerTarget ?? this.target) as T;
+        if (!target) return;
+        const _renderComps = target.getComponentsInChildren(Renderer);
         for (let i = 0; i < _renderComps.length; ++i) {
             const render = _renderComps[i];
             render.enabled = !render.enabled;
@@ -191,10 +194,11 @@ export class RemoveSelf<T extends Node> extends ActionInstant {
     }
 
     update (_dt: number): void {
-	const target = (this.workerTarget ?? this.target) as T;
-        target!.removeFromParent();
+        const target = (this.workerTarget ?? this.target) as T;
+        if (!target) return;
+        target.removeFromParent();
         if (this._isNeedCleanUp) {
-            target!.destroy();
+            target.destroy();
         }
     }
 

@@ -79,7 +79,7 @@ test('different targets in parallel', function () {
             }).call((target) => {
                 expect(target === node).toBeTruthy();
             }),
-            tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
+            tween(node.getComponent(UITransform) as UITransform).to(1, { contentSize: size(100, 100) }, {
                 onComplete: () => {
                     isContentSizeTweenComplete = true;
                 }
@@ -149,7 +149,7 @@ test('Test different target in sequence', function() {
         }).call((target) => {
             expect(target === node).toBeTruthy();
         }),
-        tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
+        tween(node.getComponent(UITransform) as UITransform).to(1, { contentSize: size(100, 100) }, {
             onComplete: () => {
                 isContentSizeTweenComplete = true;
             }
@@ -242,7 +242,7 @@ test('Test different target in then', function() {
     }).call((target) => {
         expect(target === node).toBeTruthy();
     }).then(
-        tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
+        tween(node.getComponent(UITransform) as UITransform).to(1, { contentSize: size(100, 100) }, {
             onComplete: () => {
                 isContentSizeTweenComplete = true;
             }
@@ -638,8 +638,8 @@ test('Test different target in nest sequence 2', function() {
                                 }).call((target) => {
                                     expect(target === node).toBeTruthy();
                                 }),
-                                tween(node.getComponent(UITransform)).to(1, { contentSize: size(100, 100) }, {
-                                    onComplete: () => {
+                                tween(spUitrs).to(1, { contentSize: size(100, 100) }, {
+                                    onComplete: (target?: UITransform): void => {
                                         isContentSizeTweenComplete = true;
                                     }
                                 }).call((target) => {

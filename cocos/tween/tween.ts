@@ -96,7 +96,7 @@ export class Tween<T extends object = any> {
      * @param other @en The rear action of this tween @zh 当前缓动的后置缓动
      */
     private insertAction (other: Action): Tween<T> {
-        action = other.clone();
+        const action = other.clone();
         if (action instanceof Sequence || action instanceof Spawn) {
             action.updateWorkerTarget(this._target);
         } else {
