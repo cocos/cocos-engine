@@ -97,13 +97,18 @@ export class Tween<T extends object = any> {
      */
     private insertAction (other: Action): Tween<T> {
         const action = other.clone();
+        this.updateWorkerTargetForAction(action);
+        this._actions.push(action);
+        return this;
+    }
+
+    private updateWorkerTargetForAction (action: Action | null): void {
+        if (!action) return;
         if (action instanceof Sequence || action instanceof Spawn) {
             action.updateWorkerTarget(this._target);
         } else {
             action.workerTarget = this._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
         }
-        this._actions.push(action);
-        return this;
     }
 
     /**
@@ -119,11 +124,7 @@ export class Tween<T extends object = any> {
 
         for (let i = 0, len = this._actions.length; i < len; ++i) {
             const action = this._actions[i];
-            if (action instanceof Sequence || action instanceof Spawn) {
-                action.updateWorkerTarget(this._target);
-            } else {
-                action.workerTarget = this._target as typeof action.workerTarget; //FIXME(cjh): Will fix 'as' in another PR
-            }
+            this.updateWorkerTargetForAction(action);
         }
 
         return this as unknown as Tween<U>;
@@ -175,7 +176,7 @@ export class Tween<T extends object = any> {
     clone<U extends object = any> (target: U): Tween<U> {
         const action = this._union();
         const r = tween(target);
-        return action ? r.insertAction(action.clone()) : r;
+        return action ? r.insertAction(action) : r;
     }
 
     /**
@@ -474,12 +475,10 @@ export class Tween<T extends object = any> {
         let action: Action | null;
         if (actions.length === 1) {
             action = actions[0];
-            if (this._target) action.workerTarget = this._target as any;
         } else {
             action = sequence(actions as FiniteTimeAction[]); //FIXME: remove 'as'
-            (action as Sequence).updateWorkerTarget(this._target);
         }
-
+        this.updateWorkerTargetForAction(action);
         return action;
     }
 

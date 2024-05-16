@@ -425,6 +425,72 @@ test('Test different target in clone/then', function() {
     director.unregisterSystem(sys);
 });
 
+test('Test different target in clone2', function() {
+    // @ts-expect-error
+    director.root!._batcher = new Batcher2D(director.root!);
+
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node1 = new Node();
+    node1.setScale(0, 0, 0);
+    const node2 = new Node();
+    node2.setScale(0, 0, 0);
+    const moveTween = tween(node1)
+        .to(1, { position: new Vec3(100, 100, 0) })
+        .tag(100)
+        .start();
+
+    // test begin
+    moveTween
+        .clone(node2)
+        .to(1, { scale: new Vec3(10, 10, 10) })
+        .tag(200)
+        .start();
+
+    // 1s
+    // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
+    for (let i = 0; i < 21; ++i) {
+        game.step();
+    }
+    expect(node1.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
+    expect(node1.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    
+    expect(node2.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    // 2/3 time
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node1.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
+    expect(node1.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    
+    expect(node2.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    // complete position tween
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node1.position.equals(new Vec3(3.0/3.0*100, 3.0/3.0*100, 0))).toBeTruthy();
+    expect(node1.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    
+    expect(node2.position.equals(new Vec3(3.0/3.0*100, 3.0/3.0*100, 0))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    // 2s
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node1.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(10, 10, 10))).toBeTruthy();
+
+    // test end
+    director.unregisterSystem(sys);
+});
+
 test('Test different target in re-target', function() {
     // @ts-expect-error
     director.root!._batcher = new Batcher2D(director.root!);
