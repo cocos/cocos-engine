@@ -713,16 +713,29 @@ export class Director extends EventTarget {
         }
     }
 
+    /**
+     * @en Build custom render pipeline
+     * @zh 构建自定义渲染管线
+     */
     private buildRenderPipeline (): void {
-        if (this._root) {
-            this._root.customPipeline.beginSetup();
-            const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
-            builder.setup(this._root.cameraList, this._root.customPipeline);
-            this._root.customPipeline.endSetup();
+        if (!this._root) {
+            return;
         }
+        // Here we should build the render pipeline.
+        const ppl = this._root.customPipeline;
+        ppl.beginSetup();
+        const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
+        cclegacy.rendering.dispatchResizeEvents(this._root.cameraList, builder, ppl);
+        builder.setup(this._root.cameraList, ppl);
+        ppl.endSetup();
     }
 
     private setupRenderPipelineBuilder (): void {
+        // Custom pipeline will only be used, when
+        // 1. CUSTOM_PIPELINE_NAME is not empty
+        //    (in CocosCreator/Project/Project Settings/Engine Manager/Macro Configuration/CUSTOM_PIPELINE_NAME)
+        // 2. cclegacy.rendering is available
+        // 3. The root node is created and uses custom pipeline
         if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
             this.on(Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
         }
@@ -746,6 +759,7 @@ export class Director extends EventTarget {
         for (let i = 0; i < this._systems.length; i++) {
             this._systems[i].init();
         }
+
         this.emit(Director.EVENT_INIT);
     }
 

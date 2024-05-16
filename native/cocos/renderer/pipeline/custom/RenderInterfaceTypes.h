@@ -1760,6 +1760,11 @@ public:
     PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
     virtual ~PipelineBuilder() noexcept = default;
 
+    virtual void editorWindowResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void editorSceneViewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void editorGameViewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void editorPreviewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void gameWindowResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
     /**
      * @en Setup render graph
      * @zh 构建渲染管线

@@ -286,6 +286,9 @@ using namespace cc;
 %attribute(cc::scene::RenderWindow, cc::gfx::Framebuffer*, framebuffer, getFramebuffer);
 %attribute(cc::scene::RenderWindow, %arg(ccstd::vector<IntrusivePtr<Camera>> &), cameras, getCameras);
 %attribute(cc::scene::RenderWindow, cc::gfx::Swapchain*, swapchain, getSwapchain);
+%attribute(cc::scene::RenderWindow, uint32_t, renderWindowId, getRenderWindowId);
+%attribute(cc::scene::RenderWindow, ccstd::string &, colorName, getColorName);
+%attribute(cc::scene::RenderWindow, ccstd::string &, depthStencilName, getDepthStencilName);
 
 %attribute(cc::scene::Pass, cc::Root*, root, getRoot);
 %attribute(cc::scene::Pass, cc::gfx::Device*, device, getDevice);

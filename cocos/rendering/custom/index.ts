@@ -34,6 +34,7 @@ import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
+import { BuiltinForwardPipeline } from './builtin-forward-pipeline';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -43,6 +44,7 @@ const defaultLayoutGraph = new LayoutGraphData();
 export * from './types';
 export * from './pipeline';
 export * from './archive';
+export * from './framework';
 
 export const enableEffectImport = true;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
@@ -72,11 +74,13 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 }
 
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
-    map.set('Forward', new PostProcessBuilder());
+    map.set('Forward', new BuiltinForwardPipeline());
     map.set('Deferred', new DeferredPipelineBuilder());
+    map.set('Custom', new PostProcessBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);
+
 export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
     if (arrayBuffer) {
         const readBinaryData = new BinaryInputArchive(arrayBuffer);
