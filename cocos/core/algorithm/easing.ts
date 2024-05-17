@@ -197,7 +197,7 @@ export function sineInOut (k: number): number {
  * @zh 启动慢，加速快。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
  */
 export function expoIn (k: number): number {
-    return k === 0 ? 0 : Math.pow(1024, k - 1);
+    return k === 0 ? 0 : 1024 ** (k - 1);
 }
 
 /**
@@ -206,7 +206,7 @@ export function expoIn (k: number): number {
  * @zh 起动迅速，减速慢。具体效果可以参考[该文档](https://docs.cocos.com/creator/manual/zh/tween/tween-function.html)。
  */
 export function expoOut (k: number): number {
-    return k === 1 ? 1 : 1 - Math.pow(2, -10 * k);
+    return k === 1 ? 1 : 1 - (2 ** (-10 * k));
 }
 
 /**
@@ -223,9 +223,9 @@ export function expoInOut (k: number): number {
     }
     k *= 2;
     if (k < 1) {
-        return 0.5 * Math.pow(1024, k - 1);
+        return 0.5 * 1024 ** (k - 1);
     }
-    return 0.5 * (-Math.pow(2, -10 * (k - 1)) + 2);
+    return 0.5 * (-(2 ** (-10 * (k - 1))) + 2);
 }
 
 /**
@@ -278,7 +278,7 @@ export function elasticIn (k: number): number {
     } else {
         s = p * Math.asin(1 / a) / (2 * Math.PI);
     }
-    return -(a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
+    return -(a * 2 ** (10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
 }
 
 /**
@@ -301,7 +301,7 @@ export function elasticOut (k: number): number {
     } else {
         s = p * Math.asin(1 / a) / (2 * Math.PI);
     }
-    return (a * Math.pow(2, -10 * k) * Math.sin((k - s) * (2 * Math.PI) / p) + 1);
+    return (a * 2 ** (-10 * k) * Math.sin((k - s) * (2 * Math.PI) / p) + 1);
 }
 
 /**
@@ -327,9 +327,9 @@ export function elasticInOut (k: number): number {
     k *= 2;
     if (k < 1) {
         return -0.5
-            * (a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
+            * (a * 2 ** (10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
     }
-    return a * Math.pow(2, -10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p) * 0.5 + 1;
+    return a * 2 ** (-10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p) * 0.5 + 1;
 }
 
 /**

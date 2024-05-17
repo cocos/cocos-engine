@@ -30,11 +30,10 @@ export class SetAction extends ActionInstant {
     constructor (props?: any) {
         super();
         this._props = {};
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        props !== undefined && this.init(props);
+        if (props) this.init(props);
     }
 
-    init (props): boolean {
+    init (props: any): boolean {
         for (const name in props) {
             this._props[name] = props[name];
         }
@@ -45,7 +44,7 @@ export class SetAction extends ActionInstant {
         const props = this._props;
         const target = this.target;
         for (const name in props) {
-            target![name] = props[name];
+            (target as any)[name] = props[name];
         }
     }
 
