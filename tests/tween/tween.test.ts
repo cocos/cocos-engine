@@ -8,6 +8,10 @@ import { Canvas } from "../../cocos/2d/framework/canvas";
 import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
 import { UIOpacity } from "../../cocos/2d";
 
+function isSizeEqualTo(a: Size, b: Size) {
+    return approx(a.width, b.width) && approx(a.height, b.height);
+}
+
 test('remove actions by tag', function () {
     const scene = new Scene('test-tags');
     const node = new Node();
@@ -36,7 +40,7 @@ test('destroySelf', function () {
 
     const node = new Node();
     var comp = node.addComponent(Component);
-    const onDestroy = comp.onDestroy = jest.fn(() => {});
+    const onDestroy = (comp as any).onDestroy = jest.fn(() => {});
     scene.addChild(node);
     tween(node).destroySelf().start();
     game.step();
@@ -141,46 +145,46 @@ test('Test different target in sequence', function() {
 
     // test begin
     tween(node)
-    .sequence(
-        tween(node).to(1, { position: new Vec3(100, 100, 0) }, {
-            onComplete: () => {
-                isPositionTweenComplete = true;
-            }
-        }).call((target) => {
-            expect(target === node).toBeTruthy();
-        }),
-        tween(node.getComponent(UITransform) as UITransform).to(1, { contentSize: size(100, 100) }, {
-            onComplete: () => {
-                isContentSizeTweenComplete = true;
-            }
-        }).call((target) => {
-            expect(target === spUitrs).toBeTruthy();
-        }),
-    ).call((target) => {
-        expect(target).toEqual(node);
-    })
-    .start();
+        .sequence(
+            tween(node).to(1, { position: new Vec3(100, 100, 0) }, {
+                onComplete: () => {
+                    isPositionTweenComplete = true;
+                }
+            }).call((target) => {
+                expect(target === node).toBeTruthy();
+            }),
+            tween(node.getComponent(UITransform) as UITransform).to(1, { contentSize: size(100, 100) }, {
+                onComplete: () => {
+                    isContentSizeTweenComplete = true;
+                }
+            }).call((target) => {
+                expect(target === spUitrs).toBeTruthy();
+            }),
+        ).call((target) => {
+            expect(target).toEqual(node);
+        })
+        .start();
 
     // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
     for (let i = 0; i < 21; ++i) {
         game.step();
     }
     expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
 
     // 2/3 time
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     expect(node.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
 
     // complete position tween
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
     expect(isPositionTweenComplete).toBeTruthy();
     expect(isContentSizeTweenComplete).toBeFalsy();
 
@@ -188,19 +192,20 @@ test('Test different target in sequence', function() {
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+    
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(2.0/3.0*100, 2.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
     // so bellow we need to step once more to make the tween complete.
-    expect(spUitrs.contentSize.equals(new Size(100, 100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(100, 100))).toBeTruthy();
     
     game.step();
     expect(isContentSizeTweenComplete).toBeTruthy();
@@ -256,21 +261,21 @@ test('Test different target in then', function() {
         game.step();
     }
     expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
 
     // 2/3 time
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     expect(node.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
 
     // complete position tween
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
     expect(isPositionTweenComplete).toBeTruthy();
     expect(isContentSizeTweenComplete).toBeFalsy();
 
@@ -278,19 +283,19 @@ test('Test different target in then', function() {
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(2.0/3.0*100, 2.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
     // so bellow we need to step once more to make the tween complete.
-    expect(spUitrs.contentSize.equals(new Size(100, 100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(100, 100))).toBeTruthy();
     
     game.step();
     expect(isContentSizeTweenComplete).toBeTruthy();
@@ -360,21 +365,21 @@ test('Test different target in clone/then', function() {
         game.step();
     }
     expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
 
     // 2/3 time
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     expect(node.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
 
     // complete position tween
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
     expect(isPositionTweenComplete).toBeTruthy();
     expect(isContentSizeTweenComplete1).toBeFalsy();
     expect(isContentSizeTweenComplete2).toBeFalsy();
@@ -383,40 +388,40 @@ test('Test different target in clone/then', function() {
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(2.0/3.0*100, 2.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
     // so bellow we need to step once more to make the tween complete.
-    expect(spUitrs.contentSize.equals(new Size(100, 100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(100, 100))).toBeTruthy();
     
     game.step();
     expect(isContentSizeTweenComplete1).toBeTruthy();
 
     // Do content size (0, 0) tween 
-    for (let i = 0; i < 20; ++i) {
+    for (let i = 0; i < 19; ++i) { // We do an extra step above, so 19 here.
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(2.0/3.0*100, 2.0/3.0*100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(2.0/3.0*100, 2.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(1.0/3.0*100, 1.0/3.0*100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
 
     for (let i = 0; i < 20; ++i) {
         game.step();
     }
     // Float value is 99.99999999999977, it's approximately equal to 100 but doesn't reach,
     // so bellow we need to step once more to make the tween complete.
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
     
     game.step();
     expect(isContentSizeTweenComplete2).toBeTruthy();
@@ -592,7 +597,16 @@ test('Test different target in nest sequence 1', function() {
                             isScaleTweenComplete = true;
                         },
                     }), // 2s
-                    tween(spUitrs).to(1, { contentSize: new Size(100, 100) }), // 3s
+                    tween(spUitrs).to(1, { contentSize: new Size(100, 100) }, {
+                        onStart(target) {
+                            expect(target === spUitrs).toBeTruthy();
+                                                    },
+                        onComplete(target) {
+                            expect(target === spUitrs).toBeTruthy();
+                        },
+                    }).call((target?: UITransform)=>{
+                        expect(target == spUitrs).toBeTruthy();
+                    }), // 3s
                     tween(node).to(1, { scale: new Vec3(0, 0, 0) })  // 4s
                 ),
                 tween(spUitrs).to(1, { contentSize: new Size(0, 0) }) // 2s
@@ -633,7 +647,8 @@ test('Test different target in nest sequence 1', function() {
         game.step();
     }
     expect(node.scale.equals(new Vec3(10, 10, 10))).toBeTruthy(); // 9.999999999999979, need to do a more step to make the action complete
-    expect(spUitrs.contentSize.equals(new Size(0, 0)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(0, 0))).toBeTruthy();
+
     game.step();
     expect(isScaleTweenComplete).toBeTruthy();
     expect(node.scale.equals(new Vec3(10, 10, 10))).toBeTruthy(); // 9.999999999999979, need to do a more step to make the action complete
@@ -641,7 +656,7 @@ test('Test different target in nest sequence 1', function() {
     for (let i = 0; i < 59; ++i) { // We did an extra step above, so only 59 needed.
         game.step();
     }
-    expect(spUitrs.contentSize.equals(new Size(100, 100)));
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(100, 100))).toBeTruthy();
     expect(node.scale.equals(new Vec3(10, 10, 10))).toBeTruthy();
 
     // 4s
@@ -729,7 +744,7 @@ test('Test different target in nest sequence 2', function() {
         game.step();
     }
     expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 0))).toBeTruthy();
-    expect(approx(spUitrs.contentSize.width, 1.0/3.0*100)).toBeTruthy();
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
 
     // 2/3 time
     for (let i = 0; i < 20; ++i) {
@@ -743,12 +758,96 @@ test('Test different target in nest sequence 2', function() {
         game.step();
     }
     expect(node.position.equals(new Vec3(100, 100, 0))).toBeTruthy();
-    expect(approx(spUitrs.contentSize.width, 3.0/3.0*100)).toBeTruthy();
+    expect(isSizeEqualTo(spUitrs.contentSize, new Size(100, 100))).toBeTruthy();
 
     expect(isPositionTweenComplete).toBeTruthy();;
     expect(isContentSizeTweenComplete).toBeTruthy();;
 
     // test end
+    director.unregisterSystem(sys);
+});
+
+test('Test one action in sequence and parallel', function() {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    let completed = false;
+    const target = { color: [255, 255, 255, 255] };
+
+    const subTween1 = tween(target).to(1, { color: [0, 0, 0, 0] }, {
+        onStart(t?: typeof target) {
+            expect(t === target).toBeTruthy();
+        },
+        onComplete(t?: typeof target): void {
+            if (!t) return;
+            expect(t.color[0]).toBe(0);
+            expect(t.color[1]).toBe(0);
+            expect(t.color[2]).toBe(0);
+            expect(t.color[3]).toBe(0);
+            completed = true;
+        },
+    });
+    const subTweenArray1 = [subTween1];
+
+    tween({})
+        .sequence(...subTweenArray1)
+        .start();
+
+    for (let i = 0; i < 61; ++i) {
+        game.step();
+    }
+    expect(completed).toBeTruthy();
+    expect(subTweenArray1.length === 1);
+
+    const subTween2 = tween(target).to(1, { color: [255, 255, 255, 255] }, {
+        onStart(t?: typeof target) {
+            expect(t === target).toBeTruthy();
+        },
+        onComplete(t?: typeof target): void {
+            if (!t) return;
+            expect(t.color[0]).toBe(255);
+            expect(t.color[1]).toBe(255);
+            expect(t.color[2]).toBe(255);
+            expect(t.color[3]).toBe(255);
+            completed = true;
+        },
+    });
+    const subTweenArray2 = [subTween2];
+
+    completed = false;
+    tween({})
+        .parallel(...subTweenArray2)
+        .start();
+
+    for (let i = 0; i < 61; ++i) {
+        game.step();
+    }
+    expect(completed).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('Test empty action in sequence and parallel', function() {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    tween({})
+        .sequence()
+        .start();
+
+    for (let i = 0; i < 61; ++i) {
+        game.step();
+    }
+    tween({})
+        .parallel()
+        .start();
+
+    for (let i = 0; i < 61; ++i) {
+        game.step();
+    }
+
     director.unregisterSystem(sys);
 });
 
@@ -773,6 +872,45 @@ test('sequence', function () {
         const prop = props[property];
         expect(Vec3.equals(prop.current, target)).toBeTruthy();
     }
+
+    director.unregisterSystem(sys);
+});
+
+test('reverseTime', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    let completed = false;
+    const node = new Node();
+    tween(node)
+        .to(1, { position: new Vec3(100, 100, 100) }, {
+            onStart(target?: Node) {
+                if (!target) return;
+                expect(target.position.equals(new Vec3(100, 100, 100)));
+            },
+            onComplete() {
+                completed = true;    
+            },
+        })
+        .reverseTime()
+        .start()
+
+    for (let i = 0; i < 21; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(2.0/3.0*100, 2.0/3.0*100, 2.0/3.0*100))).toBeTruthy();
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(1.0/3.0*100, 1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    expect(completed).toBeTruthy();
 
     director.unregisterSystem(sys);
 });
