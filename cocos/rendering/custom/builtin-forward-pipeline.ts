@@ -90,6 +90,9 @@ class ForwardLighting {
             }
         }
     }
+    // Notice: ForwardLighting cannot handle a lot of lights.
+    // If there are too many lights, the performance will be very poor.
+    // If many lights are needed, please implement a forward+ or deferred rendering pipeline.
     public addLightPasses (
         colorName: string,
         depthStencilName: string,
@@ -233,11 +236,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             if (camera.scene === null || camera.window === null) {
                 continue;
             }
-            if (camera.cameraUsage === CameraUsage.EDITOR) {
-                this._buildEditor(ppl, camera);
-            } else {
-                this._buildForward(ppl, camera);
-            }
+            this._buildForward(ppl, camera);
         }
     }
     private _resetPipelineStates (camera: Camera, width: number, height: number): void {
@@ -255,10 +254,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     }
 
     // build forward lighting ppl
-    private _buildForward (
-        ppl: BasicPipeline,
-        camera: Camera,
-    ): void {
+    private _buildForward (ppl: BasicPipeline, camera: Camera): void {
         if (!camera.scene) {
             return;
         }
@@ -290,7 +286,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         //----------------------------------------------------------------
-        // Forward Lighting (Directional Light)
+        // Forward Lighting (Main Directional Light)
         //----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
         // set viewport
@@ -359,69 +355,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             .addScene(
                 camera,
                 flags,
-                mainLight || undefined,
-            );
-    }
-
-    private _buildEditor (
-        ppl: BasicPipeline,
-        camera: Camera,
-    ): void {
-        if (!camera.scene) {
-            return;
-        }
-        //----------------------------------------------------------------
-        // Init
-        // ---------------------------------------------------------------
-        const width = Math.max(Math.floor(camera.window.width), 1);
-        const height = Math.max(Math.floor(camera.window.height), 1);
-        const colorName = camera.window.colorName;
-        const depthStencilName = camera.window.depthStencilName;
-        const scene = camera.scene;
-        const mainLight = scene.mainLight;
-        this._resetPipelineStates(camera, width, height);
-        //----------------------------------------------------------------
-        // Forward Lighting (Directional Light)
-        //----------------------------------------------------------------
-        const pass = ppl.addRenderPass(width, height, 'default');
-        // Set viewport
-        pass.setViewport(this._viewport);
-        // Bind output render target
-        if (forwardNeedClearColor(camera)) {
-            pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColor);
-        } else {
-            pass.addRenderTarget(colorName, LoadOp.LOAD);
-        }
-        // Bind depth stencil buffer
-        if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
-            pass.addDepthStencil(
-                depthStencilName,
-                LoadOp.CLEAR,
-                StoreOp.STORE,
-                camera.clearDepth,
-                camera.clearStencil,
-                camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
-            );
-        } else {
-            pass.addDepthStencil(depthStencilName, LoadOp.LOAD);
-        }
-        // Add opaque and mask queue
-        pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
-            .addScene(
-                camera,
-                SceneFlags.OPAQUE | SceneFlags.MASK,
-                mainLight || undefined,
-            );
-
-        // TODO(zhouzhenglong): Separate OPAQUE and MASK queue
-
-        //----------------------------------------------------------------
-        // Forward Lighting (Blend)
-        //----------------------------------------------------------------
-        pass.addQueue(QueueHint.BLEND)
-            .addScene(
-                camera,
-                SceneFlags.BLEND,
                 mainLight || undefined,
             );
     }
