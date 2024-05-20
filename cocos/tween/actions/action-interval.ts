@@ -30,12 +30,12 @@ import { macro, logID, errorID } from '../../core';
 import { ActionInstant } from './action-instant';
 
 // Extra action for making a Sequence or Spawn when only adding one action to it.
-class ExtraAction extends FiniteTimeAction {
-    clone (): ExtraAction {
-        return new ExtraAction();
+class DummyAction extends FiniteTimeAction {
+    clone (): DummyAction {
+        return new DummyAction();
     }
 
-    reverse (): ExtraAction {
+    reverse (): DummyAction {
         return this.clone();
     }
 
@@ -269,7 +269,7 @@ export class Sequence extends ActionInterval {
             return;
         }
         if (actions.length === 1) {
-            actions.push(new ExtraAction());
+            actions.push(new DummyAction());
         }
         const last = actions.length - 1;
         if ((last >= 0) && (actions[last] == null)) logID(1015);
@@ -717,7 +717,7 @@ export class Spawn extends ActionInterval {
             return;
         }
         if (actions.length === 1) {
-            actions.push(new ExtraAction());
+            actions.push(new DummyAction());
         }
 
         const last = actions.length - 1;
