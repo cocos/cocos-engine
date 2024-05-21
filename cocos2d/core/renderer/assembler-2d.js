@@ -126,6 +126,7 @@ export default class Assembler2D extends Assembler {
             indiceOffset = offsetInfo.indiceOffset,
             vertexId = offsetInfo.vertexOffset;
         for (let i = 0, l = iData.length; i < l; i++) {
+            if (indiceOffset + 1 >= ibuf.length) break;
             ibuf[indiceOffset++] = vertexId + iData[i];
         }
     }
