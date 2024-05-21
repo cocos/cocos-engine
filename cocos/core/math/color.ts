@@ -688,38 +688,6 @@ export class Color extends ValueType {
         this.a = Math.min(this.a * other.a, 255);
         return this;
     }
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _set_r_unsafe (red: number): Color {
-        this.r = red;
-        return this;
-    }
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _set_g_unsafe (green: number): Color {
-        this.g = green;
-        return this;
-    }
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _set_b_unsafe (blue: number): Color {
-        this.b = blue;
-        return this;
-    }
-
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _set_a_unsafe (alpha: number): Color {
-        this.a = alpha;
-        return this;
-    }
 }
 
 CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
