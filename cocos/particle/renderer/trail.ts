@@ -738,7 +738,7 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.velocity.z;
         _temp_color.set(trailSeg.color);
         _temp_color.multiply(colorModifer);
-        this._vbUint32![this.vbOffset++] = _temp_color.toRGBAValue();
+        this._vbUint32![this.vbOffset++] = Color.toUint32(_temp_color);
         this._vbF32![this.vbOffset++] = trailSeg.position.x;
         this._vbF32![this.vbOffset++] = trailSeg.position.y;
         this._vbF32![this.vbOffset++] = trailSeg.position.z;
@@ -753,7 +753,7 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.velocity.x;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.z;
-        this._vbUint32![this.vbOffset++] = _temp_color.toRGBAValue();
+        this._vbUint32![this.vbOffset++] = Color.toUint32(_temp_color);
         if (indexSet & PRE_TRIANGLE_INDEX) {
             this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx;
             this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx - 1;

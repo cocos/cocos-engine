@@ -537,23 +537,6 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Convert to rgba value.
-     * @zh 将当前颜色转换为 RGBA 整数值。
-     * @returns
-     * @en RGBA integer value. Starting from the lowest valid bit, each 8 bits is the value of the Red, Green,
-     *          Blue and Alpha channels respectively.
-     * @zh 返回 RGBA 整型值。从低位到高位的顺序是 RGBA。
-     * @example
-     * ```
-     * const color = Color.YELLOW;
-     * color.toRGBAValue();
-     * ```
-     */
-    public toRGBAValue (): number {
-        return (this.a << 24 | this.b << 16 | this.g << 8 | this.r);
-    }
-
-    /**
      * @en Read HSV model color and convert to RGB color.
      * @zh 从 HSV 颜色中读入当前颜色。
      * @param h H value。

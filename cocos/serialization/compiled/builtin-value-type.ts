@@ -84,7 +84,7 @@ export function serializeBuiltinValueType (obj: ValueType): ValueTypeData | null
     case Quat:
         return [typeId, (obj as Vec4).x, (obj as Vec4).y, (obj as Vec4).z, (obj as Vec4).w];
     case Color:
-        return [typeId, (obj as Color).toRGBAValue()];
+        return [typeId, Color.toUint32((obj as Color))];
     case Size:
         return [typeId, (obj as Size).width, (obj as Size).height];
     case Rect:
