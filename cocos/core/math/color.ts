@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2024 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -58,11 +58,10 @@ export class Color extends ValueType {
      */
     public static clone<Out extends IColorLike> (a: Out): Color {
         const out = new Color();
-        if (a._val) {
-            out._val = a._val;
-        } else {
-            out._val = ((a.a << 24) >>> 0) + (a.b << 16) + (a.g << 8) + a.r;
-        }
+        out.r = a.r;
+        out.g = a.g;
+        out.b = a.b;
+        out.a = a.a;
         return out;
     }
 
@@ -141,11 +140,11 @@ export class Color extends ValueType {
             if (hex.length === 6) {
                 hex += 'FF';
             } else if (hex.length === 3) {
-                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + 'FF';
+                hex = `${hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]}FF`;
             } else if (hex.length === 4) {
                 hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
             }
-            hexNumber = Number('0x' + hex);
+            hexNumber = Number(`0x${hex}`);
         } else {
             if (hex < 0x1000000) {
                 hex = (hex << 8) + 0xff;
@@ -156,7 +155,6 @@ export class Color extends ValueType {
         out.g = (hexNumber & 0x00ff0000) >>> 16;
         out.b = (hexNumber & 0x0000ff00) >>> 8;
         out.a = hexNumber & 0x000000ff;
-        out._val = ((out.a << 24) >>> 0) + (out.b << 16) + (out.g << 8) + out.r;
 
         return out;
     }
@@ -166,10 +164,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色加法
      */
     public static add<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = a.r + b.r;
-        out.g = a.g + b.g;
-        out.b = a.b + b.b;
-        out.a = a.a + b.a;
+        out.r = Math.min(a.r + b.r, 255);
+        out.g = Math.min(a.g + b.g, 255);
+        out.b = Math.min(a.b + b.b, 255);
+        out.a = Math.min(a.a + b.a, 255);
         return out;
     }
 
@@ -178,10 +176,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色减法
      */
     public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = a.r - b.r;
-        out.g = a.g - b.g;
-        out.b = a.b - b.b;
-        out.a = a.a - b.a;
+        out.r = Math.max(a.r - b.r, 0);
+        out.g = Math.max(a.g - b.g, 0);
+        out.b = Math.max(a.b - b.b, 0);
+        out.a = Math.max(a.a - b.a, 0);
         return out;
     }
 
@@ -190,10 +188,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色乘法
      */
     public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = a.r * b.r;
-        out.g = a.g * b.g;
-        out.b = a.b * b.b;
-        out.a = a.a * b.a;
+        out.r = Math.min(a.r * b.r, 255);
+        out.g = Math.min(a.g * b.g, 255);
+        out.b = Math.min(a.b * b.b, 255);
+        out.a = Math.min(a.a * b.a, 255);
         return out;
     }
 
@@ -202,10 +200,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色除法
      */
     public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = a.r / b.r;
-        out.g = a.g / b.g;
-        out.b = a.b / b.b;
-        out.a = a.a / b.a;
+        out.r = Math.floor(a.r / b.r);
+        out.g = Math.floor(a.g / b.g);
+        out.b = Math.floor(a.b / b.b);
+        out.a = Math.floor(a.a / b.a);
         return out;
     }
 
@@ -214,10 +212,14 @@ export class Color extends ValueType {
      * @zh 全通道统一缩放颜色
      */
     public static scale<Out extends IColorLike> (out: Out, a: Out, b: number): Out {
-        out.r = a.r * b;
-        out.g = a.g * b;
-        out.b = a.b * b;
-        out.a = a.a * b;
+        if (b < 0) {
+            return out;
+        }
+
+        out.r = Math.min(a.r * b, 255);
+        out.g = Math.min(a.g * b, 255);
+        out.b = Math.min(a.b * b, 255);
+        out.a = Math.min(a.a * b, 255);
         return out;
     }
 
@@ -226,15 +228,15 @@ export class Color extends ValueType {
      * @zh 逐通道颜色线性插值：A + t * (B - A)
      */
     public static lerp<Out extends IColorLike> (out: Out, from: Out, to: Out, ratio: number): Out {
-        let r = from.r;
-        let g = from.g;
-        let b = from.b;
-        let a = from.a;
-        r += (to.r - r) * ratio;
-        g += (to.g - g) * ratio;
-        b += (to.b - b) * ratio;
-        a += (to.a - a) * ratio;
-        out._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
+        const fromR = from.r;
+        const fromG = from.g;
+        const fromB = from.b;
+        const fromA = from.a;
+        out.r = fromR + Math.floor(((to.r - fromR) * ratio));
+        out.g = fromG + Math.floor(((to.g - fromG) * ratio));
+        out.b = fromB + Math.floor(((to.b - fromB) * ratio));
+        out.a = fromA + Math.floor(((to.a - fromA) * ratio));
+
         return out;
     }
 
@@ -258,10 +260,10 @@ export class Color extends ValueType {
      * @param ofs Array Start Offset
      */
     public static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0): Out {
-        out.r = arr[ofs + 0] * 255;
-        out.g = arr[ofs + 1] * 255;
-        out.b = arr[ofs + 2] * 255;
-        out.a = arr[ofs + 3] * 255;
+        out.r = Math.min(Math.floor(arr[ofs + 0] * 255), 255);
+        out.g = Math.min(Math.floor(arr[ofs + 1] * 255), 255);
+        out.b = Math.min(Math.floor(arr[ofs + 2] * 255), 255);
+        out.a = Math.min(Math.floor(arr[ofs + 3] * 255), 255);
         return out;
     }
 
@@ -275,7 +277,10 @@ export class Color extends ValueType {
      * @returns @en The `out` object @zh `out` 对象
      */
     public static fromUint32<Out extends IColorLike> (out: Out, uint32: number): Out {
-        out._val = uint32;
+        out.r = uint32 & 0xff;
+        out.g = (uint32 >> 8)  & 0xff;
+        out.b = (uint32 >> 16) & 0xff;
+        out.a = (uint32 >> 24) & 0xff;
         return out;
     }
 
@@ -288,7 +293,7 @@ export class Color extends ValueType {
      * @returns @en The converted unsigned 32 bit integer. @zh 32 位无符号整数。
      */
     public static toUint32 (color: IColorLike): number {
-        return color._val;
+        return (color.a << 24 | color.b << 16 | color.g << 8 | color.r);
     }
 
     /**
@@ -319,57 +324,6 @@ export class Color extends ValueType {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
     }
 
-    /**
-     * @en Get or set red channel value.
-     * @zh 获取或设置当前颜色的 Red 通道。
-     */
-    get r (): number {
-        return this._val & 0x000000ff;
-    }
-
-    set r (red) {
-        red = ~~clamp(red, 0, 255);
-        this._val = ((this._val & 0xffffff00) | red) >>> 0;
-    }
-
-    /**
-     * @en Get or set green channel value.
-     * @zh 获取或设置当前颜色的 Green 通道。
-     */
-    get g (): number {
-        return (this._val & 0x0000ff00) >> 8;
-    }
-
-    set g (green) {
-        green = ~~clamp(green, 0, 255);
-        this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
-    }
-
-    /**
-     * @en Get or set blue channel value.
-     * @zh 获取或设置当前颜色的 Blue 通道。
-     */
-    get b (): number {
-        return (this._val & 0x00ff0000) >> 16;
-    }
-
-    set b (blue) {
-        blue = ~~clamp(blue, 0, 255);
-        this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
-    }
-
-    /** @en Get or set alpha channel value.
-     * @zh 获取或设置当前颜色的透明度通道。
-     */
-    get a (): number {
-        return (this._val & 0xff000000) >>> 24;
-    }
-
-    set a (alpha) {
-        alpha = ~~clamp(alpha, 0, 255);
-        this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
-    }
-
     // compatibility with vector interfaces
     get x (): number { return this.r * toFloat; }
     set x (value) { this.r = value * 255; }
@@ -380,10 +334,10 @@ export class Color extends ValueType {
     get w (): number { return this.a * toFloat; }
     set w (value) { this.a = value * 255; }
 
-    /**
-     * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
-     */
-    public _val = 0;
+    public r = 0;
+    public g = 0;
+    public b = 0;
+    public a = 0;
 
     /**
      * @en Construct a same color from the given color
@@ -427,7 +381,10 @@ export class Color extends ValueType {
      */
     public clone (): Color {
         const ret = new Color();
-        ret._val = this._val;
+        ret.r = this.r;
+        ret.g = this.g;
+        ret.b = this.b;
+        ret.a = this.a;
         return ret;
     }
 
@@ -435,10 +392,13 @@ export class Color extends ValueType {
      * @en Check whether the current color is identical with the given color
      * @zh 判断当前颜色是否与指定颜色相等。
      * @param other Specified color
-     * @returns Returns `true` when all channels of both colours are equal; otherwise returns `false`.
+     * @returns Returns `true` when all channels of both colors are equal; otherwise returns `false`.
      */
     public equals (other: Color): boolean {
-        return other && this._val === other._val;
+        return other && this.a === other.a
+                     && this.g === other.g
+                     && this.b === other.b
+                     && this.a === other.a;
     }
 
     /**
@@ -448,20 +408,15 @@ export class Color extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Color, ratio: number): Color {
-        let r = this.r;
-        let g = this.g;
-        let b = this.b;
-        let a = this.a;
-        r += (to.r - r) * ratio;
-        g += (to.g - g) * ratio;
-        b += (to.b - b) * ratio;
-        a += (to.a - a) * ratio;
-        this._val = Math.floor(((a << 24) >>> 0) + (b << 16) + (g << 8) + r);
+        this.r += Math.floor((to.r - this.r) * ratio);
+        this.g += Math.floor((to.g - this.g) * ratio);
+        this.b += Math.floor((to.b - this.b) * ratio);
+        this.a += Math.floor((to.a - this.a) * ratio);
         return this;
     }
 
     /**
-     * @en Convert to string with color informations
+     * @en Convert to string with color information.
      * @zh 返回当前颜色的字符串表示。
      * @returns A string representation of the current color.
      */
@@ -513,22 +468,21 @@ export class Color extends ValueType {
             if (hex.length === 6) {
                 hex += 'FF';
             } else if (hex.length === 3) {
-                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + 'FF';
+                hex = `${hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]}FF`;
             } else if (hex.length === 4) {
                 hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
             }
-            hexNumber = Number('0x' + hex);
+            hexNumber = Number(`0x${hex}`);
         } else {
             if (hex < 0x1000000) {
                 hex = (hex << 8) + 0xff;
             }
             hexNumber = hex;
         }
-        const r = hexNumber >>> 24;
-        const g = (hexNumber & 0x00ff0000) >>> 16;
-        const b = (hexNumber & 0x0000ff00) >>> 8;
-        const a = hexNumber & 0x000000ff;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+        this.r = hexNumber >>> 24;
+        this.g = (hexNumber & 0x00ff0000) >>> 16;
+        this.b = (hexNumber & 0x0000ff00) >>> 8;
+        this.a = hexNumber & 0x000000ff;
 
         return this;
     }
@@ -537,7 +491,8 @@ export class Color extends ValueType {
      * @en convert Color to HEX color string.
      * @zh 转换当前颜色为十六进制颜色字符串。
      * @param fmt "#rrggbb" or "#rrggbbaa".
-     * - `'#rrggbbaa'` obtains the hexadecimal value of the Red, Green, Blue, Alpha channels (**two**, high complement 0) and connects them sequentially.
+     * - `'#rrggbbaa'` obtains the hexadecimal value of the Red, Green, Blue,
+     *   Alpha channels (**two**, high complement 0) and connects them sequentially.
      * - `'#rrggbb'` is similar to `'#rrggbbaa'` but does not include the Alpha channel.
      * @returns the Hex color string
      * @example
@@ -578,7 +533,24 @@ export class Color extends ValueType {
      * ```
      */
     public toRGBValue (): number {
-        return this._val & 0x00ffffff;
+        return (this.b << 16 | this.g << 8 | this.r);
+    }
+
+    /**
+     * @en Convert to rgba value.
+     * @zh 将当前颜色转换为 RGBA 整数值。
+     * @returns
+     * @en RGBA integer value. Starting from the lowest valid bit, each 8 bits is the value of the Red, Green,
+     *          Blue and Alpha channels respectively.
+     * @zh 返回 RGBA 整型值。从低位到高位的顺序是 RGBA。
+     * @example
+     * ```
+     * const color = Color.YELLOW;
+     * color.toRGBAValue();
+     * ```
+     */
+    public toRGBAValue (): number {
+        return (this.a << 24 | this.b << 16 | this.g << 8 | this.r);
     }
 
     /**
@@ -651,10 +623,9 @@ export class Color extends ValueType {
                 break;
             }
         }
-        r *= 255;
-        g *= 255;
-        b *= 255;
-        this._val = ((this.a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
+        this.r = r * 255;
+        this.g = g * 255;
+        this.b = b * 255;
         return this;
     }
 
@@ -709,21 +680,15 @@ export class Color extends ValueType {
     public set(r?: number, g?: number, b?: number, a?: number): Color;
     public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
-            if (r._val != null) {
-                this._val = r._val;
-            } else {
-                g = r.g || 0;
-                b = r.b || 0;
-                a = typeof r.a === 'number' ? r.a : 255;
-                r = r.r || 0;
-                this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
-            }
+            this.r = r.r;
+            this.g = r.g;
+            this.b = r.b;
+            this.a = r.a;
         } else {
-            r = r || 0;
-            g = g || 0;
-            b = b || 0;
-            a = typeof a === 'number' ? a : 255;
-            this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
+            this.r = r ?? 0;
+            this.g = g ?? 0;
+            this.b = b ?? 0;
+            this.a = a ?? 255;
         }
         return this;
     }
@@ -734,11 +699,10 @@ export class Color extends ValueType {
      * @param other The specified color.
      */
     public multiply (other: Color): Color {
-        const r = ((this._val & 0x000000ff) * other.r) >> 8;
-        const g = ((this._val & 0x0000ff00) * other.g) >> 8;
-        const b = ((this._val & 0x00ff0000) * other.b) >> 8;
-        const a = ((this._val & 0xff000000) >>> 8) * other.a;
-        this._val = (a & 0xff000000) | (b & 0x00ff0000) | (g & 0x0000ff00) | (r & 0x000000ff);
+        this.r = Math.min(this.r * other.r, 255);
+        this.g = Math.min(this.g * other.g, 255);
+        this.b = Math.min(this.b * other.b, 255);
+        this.a = Math.min(this.a * other.a, 255);
         return this;
     }
 
@@ -746,7 +710,7 @@ export class Color extends ValueType {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_r_unsafe (red: number): Color {
-        this._val = ((this._val & 0xffffff00) | red) >>> 0;
+        this.r = red;
         return this;
     }
 
@@ -754,7 +718,7 @@ export class Color extends ValueType {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_g_unsafe (green: number): Color {
-        this._val = ((this._val & 0xffff00ff) | (green << 8)) >>> 0;
+        this.g = green;
         return this;
     }
 
@@ -762,7 +726,7 @@ export class Color extends ValueType {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_b_unsafe (blue: number): Color {
-        this._val = ((this._val & 0xff00ffff) | (blue << 16)) >>> 0;
+        this.b = blue;
         return this;
     }
 
@@ -770,7 +734,7 @@ export class Color extends ValueType {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _set_a_unsafe (alpha: number): Color {
-        this._val = ((this._val & 0x00ffffff) | (alpha << 24)) >>> 0;
+        this.a = alpha;
         return this;
     }
 }
@@ -782,7 +746,7 @@ export function color (other: Color | string): Color;
 export function color (r?: number, g?: number, b?: number, a?: number): Color;
 
 export function color (r?: number | Color | string, g?: number, b?: number, a?: number): Color {
-    return new Color(r as any, g, b, a);
+    return new Color(r as number, g, b, a);
 }
 
 legacyCC.color = color;
@@ -860,7 +824,7 @@ export function packRGBE (rgb: Vec3): Vec4 {
         e = clamp(e + 128.0, 0.0, 255.0);
     }
     // eslint-disable-next-line no-restricted-properties
-    const sc = 1.0 / Math.pow(1.1, e - 128.0);
+    const sc = 1.0 / 1.1 ** (e - 128.0);
     const encode = clampVec3(rgb.multiplyScalar(sc), new Vec3(0.0, 0.0, 0.0), new Vec3(1.0, 1.0, 1.0));
     encode.multiplyScalar(255.0);
     const encode_rounded = floorVec3(encode).add(stepVec3(encode.subtract(floorVec3(encode)), new Vec3(0.5, 0.5, 0.5)));

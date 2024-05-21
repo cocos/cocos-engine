@@ -1,25 +1,32 @@
 import { Vec4 } from '../../../cocos/core';
 import { Color, linearToSrgb8Bit, srgb8BitToLinear, srgbToLinear } from '../../../cocos/core/math/color';
 
+function colorEqualTest(color1: Color, color2: Color): void {
+    expect(color1.r).toBe(color2.r);
+    expect(color1.g).toBe(color2.g);
+    expect(color1.b).toBe(color2.b);
+    expect(color1.a).toBe(color2.a);
+}
+
 // test Color
 describe('Test Color', () => {
 
     test('clone', () => {
         const color = new Color(128, 234, 0, 255);
         const color2 = color.clone();
-        expect(color2._val).toBe(color._val);
+        colorEqualTest(color, color2);
     });
     test('copy', () => {
         const color = new Color(128, 234, 0, 255);
         const color2 = new Color();
         Color.copy(color2, color);
-        expect(color2._val).toBe(color._val);
+        colorEqualTest(color, color2);
     });
     test('set', () => {
         const color = new Color(128, 234, 0, 255);
         const color2 = new Color();
         Color.set(color2, color.r, color.g, color.b, color.a);
-        expect(color2._val).toBe(color._val);
+        colorEqualTest(color, color2);
     });
     test('fromHex', () => {
         const hexColor = ['#ff000000', '#00ff0000', '#0000ff00', '#ffffff00', '#00000000', '#ff00ff00', '#00ffff00', '#ffff0000'];
@@ -159,11 +166,11 @@ describe('Test Color', () => {
             const testHexRGBA = testColor.toHEX('#rrggbbaa');
             const color1 = new Color();
             color1.fromHEX(testHexRGBA);
-            expect(color1._val).toBe(testColor._val);
+            colorEqualTest(testColor, color1);
 
             const color2 = new Color();
             Color.fromHEX(color2, testHexRGBA);
-            expect(color2._val).toBe(testColor._val);
+            colorEqualTest(testColor, color2);
 
             const testHexRGB = testColor.toHEX('#rrggbb');
             const color3 = new Color();
@@ -172,7 +179,7 @@ describe('Test Color', () => {
 
             const color4 = new Color();
             Color.fromHEX(color4, testHexRGB);
-            expect(color4._val).toBe(color3._val);
+            colorEqualTest(color3, color4);
         });
     });
 
@@ -198,7 +205,6 @@ describe('Test Color', () => {
             expect(color.g).toBe(val >> 8 & 0xFF);
             expect(color.b).toBe(val >> 16 & 0xFF);
             expect(color.a).toBe(val >> 24 & 0xFF);
-            expect(color._val).toBe(val);
         }
     });
 

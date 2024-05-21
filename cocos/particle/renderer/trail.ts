@@ -562,8 +562,14 @@ export default class TrailModule {
             for (let i = trailSeg.start + 1; i < end; i++) {
                 const segEle = trailSeg.trailElements[i % trailSeg.trailElements.length];
                 const j = i - trailSeg.start;
-                this._fillVertexBuffer(segEle, this.colorOverTrail.evaluate(1 - j / trailNum, 1),
-                    indexOffset, 1 - j * textCoordSeg, j, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+                this._fillVertexBuffer(
+                    segEle,
+                    this.colorOverTrail.evaluate(1 - j / trailNum, 1),
+                    indexOffset,
+                    1 - j * textCoordSeg,
+                    j,
+                    PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX,
+                );
             }
             if (this._needTransform) {
                 Vec3.transformMat4(_temp_trailEle.position, p.position, this._psTransform);
@@ -602,8 +608,14 @@ export default class TrailModule {
                 this.vbOffset -= this._vertSize / 4 * 2;
                 this.ibOffset -= 6;
                 // _bcIdx = (_bcIdx - 6 + 9) % 9;  // <wireframe debug>
-                this._fillVertexBuffer(lastSecondTrail, this.colorOverTrail.evaluate(textCoordSeg, 1), indexOffset,
-                    textCoordSeg, trailNum - 1, PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX);
+                this._fillVertexBuffer(
+                    lastSecondTrail,
+                    this.colorOverTrail.evaluate(textCoordSeg, 1),
+                    indexOffset,
+                    textCoordSeg,
+                    trailNum - 1,
+                    PRE_TRIANGLE_INDEX | NEXT_TRIANGLE_INDEX,
+                );
                 Vec3.subtract(_temp_trailEle.velocity, _temp_trailEle.position, lastSecondTrail.position);
                 Vec3.normalize(_temp_trailEle.velocity, _temp_trailEle.velocity);
                 this._checkDirectionReverse(_temp_trailEle, lastSecondTrail);
@@ -702,8 +714,14 @@ export default class TrailModule {
         return trailEle.lifetime > module._trailLifetime;
     }
 
-    private _fillVertexBuffer (trailSeg: ITrailElement, colorModifer: Color, indexOffset: number,
-        xTexCoord: number, trailEleIdx: number, indexSet: number): void {
+    private _fillVertexBuffer (
+        trailSeg: ITrailElement,
+        colorModifer: Color,
+        indexOffset: number,
+        xTexCoord: number,
+        trailEleIdx: number,
+        indexSet: number,
+    ): void {
         this._vbF32![this.vbOffset++] = trailSeg.position.x;
         this._vbF32![this.vbOffset++] = trailSeg.position.y;
         this._vbF32![this.vbOffset++] = trailSeg.position.z;
@@ -720,7 +738,7 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.velocity.z;
         _temp_color.set(trailSeg.color);
         _temp_color.multiply(colorModifer);
-        this._vbUint32![this.vbOffset++] = _temp_color._val;
+        this._vbUint32![this.vbOffset++] = _temp_color.toRGBAValue();
         this._vbF32![this.vbOffset++] = trailSeg.position.x;
         this._vbF32![this.vbOffset++] = trailSeg.position.y;
         this._vbF32![this.vbOffset++] = trailSeg.position.z;
@@ -735,7 +753,7 @@ export default class TrailModule {
         this._vbF32![this.vbOffset++] = trailSeg.velocity.x;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.y;
         this._vbF32![this.vbOffset++] = trailSeg.velocity.z;
-        this._vbUint32![this.vbOffset++] = _temp_color._val;
+        this._vbUint32![this.vbOffset++] = _temp_color.toRGBAValue();
         if (indexSet & PRE_TRIANGLE_INDEX) {
             this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx;
             this._iBuffer![this.ibOffset++] = indexOffset + 2 * trailEleIdx - 1;

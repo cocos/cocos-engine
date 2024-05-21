@@ -540,7 +540,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
         Vec3.copy(this._particleVertexData.size, p.size);
         Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.color = p.color.toRGBAValue();
         this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
@@ -554,7 +554,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
                 Vec3.copy(this._particleVertexData.size, p.size);
                 Vec3.copy(this._particleVertexData.rotation, p.rotation);
-                this._particleVertexData.color = p.color._val;
+                this._particleVertexData.color = p.color.toRGBAValue();
                 this._particleVertexData.velocity = p.ultimateVelocity;
                 this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
@@ -570,7 +570,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
         Vec3.copy(this._particleVertexData.size, p.size);
         Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.color = p.color.toRGBAValue();
         this._particleVertexData.velocity = p.ultimateVelocity;
         this._model!.addParticleVertexData(i, this._particleVertexData);
     }
@@ -585,7 +585,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
                 Vec3.copy(this._particleVertexData.size, p.size);
                 Vec3.copy(this._particleVertexData.rotation, p.rotation);
-                this._particleVertexData.color = p.color._val;
+                this._particleVertexData.color = p.color.toRGBAValue();
                 this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
         } else {
@@ -600,7 +600,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
         Vec3.copy(this._particleVertexData.size, p.size);
         Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.color = p.color.toRGBAValue();
         this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 

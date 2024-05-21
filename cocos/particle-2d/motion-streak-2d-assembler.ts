@@ -36,7 +36,7 @@ const _normal = new Vec2();
 const _vec2 = new Vec2();
 let QUAD_INDICES;
 
-function normal (out:Vec2, dir:Vec2): Vec2 {
+function normal (out: Vec2, dir: Vec2): Vec2 {
     // get perpendicular
     out.x = -dir.y;
     out.y = dir.x;
@@ -152,7 +152,6 @@ export const MotionStreakAssembler: IAssembler = {
             normal(_normal, dir);
 
             const da = progress * ca;
-            const c = ((da << 24) >>> 0) + (cb << 16) + (cg << 8) + cr;
 
             let offset = vertexCount;
 
@@ -160,7 +159,7 @@ export const MotionStreakAssembler: IAssembler = {
             data[offset].y = point.y + _normal.y * stroke;
             data[offset].u = 1;
             data[offset].v = progress;
-            data[offset].color._val = c;
+            data[offset].color.set(cr, cg, cb, da);
 
             offset += 1;
 
@@ -168,7 +167,7 @@ export const MotionStreakAssembler: IAssembler = {
             data[offset].y = point.y - _normal.y * stroke;
             data[offset].u = 0;
             data[offset].v = progress;
-            data[offset].color._val = c;
+            data[offset].color.set(cr, cg, cb, da);
 
             vertexCount += 2;
         }
@@ -205,7 +204,7 @@ export const MotionStreakAssembler: IAssembler = {
         }
     },
 
-    createQuadIndices (comp, indexCount): void {
+    createQuadIndices (comp: MotionStreak, indexCount: number): void {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;
         const vid = 0;
@@ -251,6 +250,7 @@ export const MotionStreakAssembler: IAssembler = {
     },
 
     updateColor (comp: MotionStreak): void {
+        // do nothing
     },
 
     fillBuffers (comp: MotionStreak, renderer: IBatcher): void {
