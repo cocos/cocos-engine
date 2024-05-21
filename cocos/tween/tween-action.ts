@@ -167,15 +167,17 @@ export class TweenAction<T> extends ActionInterval {
         return action;
     }
 
-    startWithTarget<U> (target: U | undefined): void {
+    startWithTarget<U> (target: U | null): void {
         const isEqual: TypeEquality<T, U> = true;
+        if (!isEqual) return;
         super.startWithTarget(target);
-        if (!target || !isEqual) return;
 
+        const workerTarget = (this.workerTarget ?? this.target) as T;
+        if (!workerTarget) return;
         const relative = !!this._opts!.relative;
         const props = this._props;
         for (const property in props) {
-            const _t: any = target[property];
+            const _t: any = workerTarget[property];
             if (_t === undefined) { continue; }
 
             const prop: any = props[property];
@@ -197,12 +199,12 @@ export class TweenAction<T> extends ActionInterval {
                 }
             }
         }
-        if (this._opts!.onStart) { this._opts!.onStart(this.target as T); }
+        if (this._opts!.onStart) { this._opts!.onStart(workerTarget); }
     }
 
     update (t: number): void {
-        const target = this.target;
-        if (!target) return;
+        const workerTarget = this.workerTarget ?? this.target;
+        if (!workerTarget) return;
 
         if (!this._opts) return;
 
@@ -235,10 +237,10 @@ export class TweenAction<T> extends ActionInterval {
                 }
             }
 
-            target[name] = prop.current;
+            workerTarget[name] = prop.current;
         }
-        if (opts.onUpdate) { opts.onUpdate(this.target as T, t); }
-        if (t === 1 && opts.onComplete) { opts.onComplete(this.target as T); }
+        if (opts.onUpdate) { opts.onUpdate(workerTarget as T, t); }
+        if (t === 1 && opts.onComplete) { opts.onComplete(workerTarget as T); }
     }
 
     progress (start: number, end: number, current: number, t: number): number {

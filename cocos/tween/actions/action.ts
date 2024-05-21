@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { logID, errorID } from '../../core';
+import { logID } from '../../core';
 
 /**
  * @en Base classAction for action classes.
@@ -42,8 +42,57 @@ export abstract class Action {
      */
     static TAG_INVALID = -1;
 
+    /**
+     * The `originalTarget` and `target` are both assigned in `startWithTarget` method,
+     * and they get the same value normally. The difference between `originalTarget` and
+     * `target` is that `target` will be set to null after `stop` method is invoked
+     * but `originalTarget` will not. Therefore, ActionManager could remove a stopped action
+     * from hash map by searching action's `originalTarget`. You could refer to
+     * ActionManager.removeAction for the details.
+     */
     protected originalTarget: unknown = null;
     protected target: unknown = null;
+
+    /**
+     * The `workerTarget` was added from Cocos Creator 3.8.5 and it's used for nest `Tween` functionality.
+     * It stores the target of sub-tween and its value may be different from `target`.
+     *
+     * Example 1:
+     * ```ts
+     *   tween(node).to(1, { scale: new Vec3(2, 2, 2) }).start();
+     *   // target and original target are both `node`, workerTarget is `null`.
+     * ```
+     *
+     * Example 2:
+     * ```ts
+     *   tween(node).parallel(                                        // ----- Root tween
+     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
+     *       tween(node).to(1, { position: new Vec3(10, 10, 10) })    // ----- Sub Tween 2
+     *   ).start();
+     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
+     *   // The `target` and `originalTarget` of all internal actions are `node`.
+     *   // Actions in root tween: workerTarget = null
+     *   // Actions in sub tween 1: workerTarget = node
+     *   // Actions in sub tween 2: workerTarget = node
+     * ```
+     *
+     * Example 3:
+     * ```ts
+     *   tween(node).parallel(                                        // ----- Root tween
+     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
+     *       tween(node.getComponent(UITransform)).to(1, {            // ----- Sub Tween 2
+     *           contentSize: new Size(10, 10)
+     *       })
+     *   ).start();
+     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
+     *   // The `target` and `originalTarget` of all internal actions are `node`.
+     *   // Actions in root tween: workerTarget = null
+     *   // Actions in sub tween 1: workerTarget = node
+     *   // Actions in sub tween 2: workerTarget = node's UITransform component
+     * ```
+     */
+    public workerTarget: unknown = null;
+
     protected tag = Action.TAG_INVALID;
 
     /**
@@ -206,113 +255,4 @@ export abstract class FiniteTimeAction extends Action {
     abstract clone (): FiniteTimeAction;
 
     abstract reverse (): FiniteTimeAction;
-}
-
-/*
- * Changes the speed of an action, making it take longer (speed > 1)
- * or less (speed < 1) time. <br/>
- * Useful to simulate 'slow motion' or 'fast forward' effect.
- */
-export class Speed extends Action {
-    protected _speed = 0;
-    protected _innerAction: Action | null = null;
-
-    /**
-     * @warning This action can't be `Sequence-able` because it is not an `IntervalAction`
-     */
-    constructor (action?: Action | null, speed = 1) {
-        super();
-        if (action) this.initWithAction(action, speed);
-    }
-
-    /*
-     * Gets the current running speed. <br />
-     * Will get a percentage number, compared to the original speed.
-     *
-     * @method getSpeed
-     * @return {Number}
-     */
-    getSpeed (): number {
-        return this._speed;
-    }
-
-    /*
-     * alter the speed of the inner function in runtime.
-     * @method setSpeed
-     * @param {Number} speed
-     */
-    setSpeed (speed: number): void {
-        this._speed = speed;
-    }
-
-    /*
-     * initializes the action.
-     * @method initWithAction
-     * @param {ActionInterval} action
-     * @param {Number} speed
-     * @return {Boolean}
-     */
-    initWithAction (action: Action, speed: number): boolean {
-        if (!action) {
-            errorID(1021);
-            return false;
-        }
-
-        this._innerAction = action;
-        this._speed = speed;
-        return true;
-    }
-
-    clone (): Speed {
-        const action = new Speed();
-        if (this._innerAction) {
-            action.initWithAction(this._innerAction.clone()!, this._speed);
-        }
-        return action;
-    }
-
-    startWithTarget<T> (target: T | null): void {
-        super.startWithTarget(target);
-        if (this._innerAction) this._innerAction.startWithTarget(target);
-    }
-
-    stop (): void {
-        if (this._innerAction) this._innerAction.stop();
-        super.stop();
-    }
-
-    step (dt: number): void {
-        if (this._innerAction) this._innerAction.step(dt * this._speed);
-    }
-
-    isDone (): boolean {
-        return this._innerAction ? this._innerAction.isDone() : false;
-    }
-
-    reverse (): Speed {
-        if (this._innerAction) {
-            return new Speed(this._innerAction.reverse(), this._speed);
-        }
-        return this;
-    }
-
-    /*
-     * Set inner Action.
-     * @method setInnerAction
-     * @param {ActionInterval} action
-     */
-    setInnerAction (action: Action): void {
-        if (this._innerAction !== action) {
-            this._innerAction = action;
-        }
-    }
-
-    /*
-     * Get inner Action.
-     * @method getInnerAction
-     * @return {ActionInterval}
-     */
-    getInnerAction (): Action | null {
-        return this._innerAction;
-    }
 }
