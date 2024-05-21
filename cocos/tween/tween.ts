@@ -42,6 +42,8 @@ type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
+const notIntervalPrompt = 'the last action is not ActionInterval';
+
 /**
  * @en
  * Tween provide a simple and flexible way to action, It's transplanted from cocos creator。
