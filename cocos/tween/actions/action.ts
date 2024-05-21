@@ -55,7 +55,7 @@ export abstract class Action {
 
     /**
      * The `workerTarget` was added from Cocos Creator 3.8.5 and it's used for nest `Tween` functionality.
-     * It stores the target of sub-tween and its value may be different with `target`.
+     * It stores the target of sub-tween and its value may be different from `target`.
      *
      * Example 1:
      * ```ts
