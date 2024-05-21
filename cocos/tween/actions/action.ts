@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { logID, errorID } from '../../core';
+import { logID } from '../../core';
 
 /**
  * @en Base classAction for action classes.
@@ -42,9 +42,57 @@ export abstract class Action {
      */
     static TAG_INVALID = -1;
 
+    /**
+     * The `originalTarget` and `target` are both assigned in `startWithTarget` method,
+     * and they get the same value normally. The difference between `originalTarget` and
+     * `target` is that `target` will be set to null after `stop` method is invoked
+     * but `originalTarget` will not. Therefore, ActionManager could remove a stopped action
+     * from hash map by searching action's `originalTarget`. You could refer to
+     * ActionManager.removeAction for the details.
+     */
     protected originalTarget: unknown = null;
     protected target: unknown = null;
+
+    /**
+     * The `workerTarget` was added from Cocos Creator 3.8.5 and it's used for nest `Tween` functionality.
+     * It stores the target of sub-tween and its value may be different with `target`.
+     *
+     * Example 1:
+     * ```ts
+     *   tween(node).to(1, { scale: new Vec3(2, 2, 2) }).start();
+     *   // target and original target are both `node`, workerTarget is `null`.
+     * ```
+     *
+     * Example 2:
+     * ```ts
+     *   tween(node).parallel(                                        // ----- Root tween
+     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
+     *       tween(node).to(1, { position: new Vec3(10, 10, 10) })    // ----- Sub Tween 2
+     *   ).start();
+     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
+     *   // The `target` and `originalTarget` of all internal actions are `node`.
+     *   // Actions in root tween: workerTarget = null
+     *   // Actions in sub tween 1: workerTarget = node
+     *   // Actions in sub tween 2: workerTarget = node
+     * ```
+     *
+     * Example 3:
+     * ```ts
+     *   tween(node).parallel(                                        // ----- Root tween
+     *       tween(node).to(1, { scale: new Vec3(2, 2, 2) }),         // ----- Sub tween 1
+     *       tween(node.getComponent(UITransform)).to(1, {            // ----- Sub Tween 2
+     *           contentSize: new Size(10, 10)
+     *       })
+     *   ).start();
+     *   // Note that only root tween is started here. We call tweens in `parallel`/`sequence` sub tweens.
+     *   // The `target` and `originalTarget` of all internal actions are `node`.
+     *   // Actions in root tween: workerTarget = null
+     *   // Actions in sub tween 1: workerTarget = node
+     *   // Actions in sub tween 2: workerTarget = node's UITransform component
+     * ```
+     */
     public workerTarget: unknown = null;
+
     protected tag = Action.TAG_INVALID;
 
     /**
