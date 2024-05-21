@@ -676,6 +676,116 @@ test('Test different target in nest sequence 1', function() {
     director.unregisterSystem(sys);
 });
 
+test('Test different target and union', function() {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    // test begin
+    const rootTarget = { position: new Vec3() };
+    const uiTransformTarget = { contentSize: new Size() };
+
+    tween(rootTarget)
+        .parallel(
+            tween(rootTarget).by(1, { position: new Vec3(100, 100, 100) }, {
+                onStart(target) {
+                    expect(target === rootTarget).toBeTruthy();
+                },
+            }),
+            tween(uiTransformTarget).by(1, { contentSize: new Size(100, 100) }, {
+                onStart(target) {
+                    expect(target === uiTransformTarget).toBeTruthy();
+                },
+            }),
+        )
+        .union()
+        .start();
+
+    // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
+    for (let i = 0; i < 21; ++i) {
+        game.step();
+    }
+    expect(new Vec3(1.0/3.0*100, 1.0/3.0*100, 1.0/3.0*100).equals(rootTarget.position)).toBeTruthy();
+    expect(isSizeEqualTo(uiTransformTarget.contentSize, new Size(1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
+
+    // 2/3 time
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+
+    expect(new Vec3(2.0/3.0*100, 2.0/3.0*100, 2.0/3.0*100).equals(rootTarget.position)).toBeTruthy();
+    expect(isSizeEqualTo(uiTransformTarget.contentSize, new Size(2.0/3.0*100, 2.0/3.0*100))).toBeTruthy();
+
+    // complete position tween
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+
+    expect(new Vec3(100, 100, 100).equals(rootTarget.position)).toBeTruthy();
+    expect(isSizeEqualTo(uiTransformTarget.contentSize, new Size(100, 100))).toBeTruthy();
+    
+    // test end
+    director.unregisterSystem(sys);
+});
+
+test('Test different target, union, repeat with embed tween', function() {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    // test begin
+    const rootTarget = { position: new Vec3() };
+    const uiTransformTarget = { contentSize: new Size() };
+
+    const t = tween(rootTarget).parallel(
+        tween(rootTarget).by(1, { position: new Vec3(100, 100, 100) }, {
+            onStart(target) {
+                expect(target === rootTarget).toBeTruthy();
+            },
+        }),
+        tween(uiTransformTarget).by(1, { contentSize: new Size(100, 100) }, {
+            onStart(target) {
+                expect(target === uiTransformTarget).toBeTruthy();
+            },
+        }),
+    ).union();
+
+    tween(rootTarget).repeat(2, t).start();
+
+    // The first step is from 0, so we need to add one more frame to make the action run to 1/3 time.
+    for (let i = 0; i < 21; ++i) {
+        game.step();
+    }
+    expect(new Vec3(1.0/3.0*100, 1.0/3.0*100, 1.0/3.0*100).equals(rootTarget.position)).toBeTruthy();
+    expect(isSizeEqualTo(uiTransformTarget.contentSize, new Size(1.0/3.0*100, 1.0/3.0*100))).toBeTruthy();
+
+    // 2/3 time
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+
+    expect(new Vec3(2.0/3.0*100, 2.0/3.0*100, 2.0/3.0*100).equals(rootTarget.position)).toBeTruthy();
+    expect(isSizeEqualTo(uiTransformTarget.contentSize, new Size(2.0/3.0*100, 2.0/3.0*100))).toBeTruthy();
+
+    // complete position tween
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+
+    expect(new Vec3(100, 100, 100).equals(rootTarget.position)).toBeTruthy();
+    expect(isSizeEqualTo(uiTransformTarget.contentSize, new Size(100, 100))).toBeTruthy();
+
+    // 2s
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(new Vec3(200, 200, 200).equals(rootTarget.position)).toBeTruthy();
+    expect(isSizeEqualTo(uiTransformTarget.contentSize, new Size(200, 200))).toBeTruthy();
+    
+    // test end
+    director.unregisterSystem(sys);
+});
+
 test('Test different target in nest sequence 2', function() {
     // @ts-expect-error
     director.root!._batcher = new Batcher2D(director.root!);

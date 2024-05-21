@@ -42,8 +42,6 @@ type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
-const notIntervalPrompt = 'the last action is not ActionInterval';
-
 /**
  * @en
  * Tween provide a simple and flexible way to action, It's transplanted from cocos creator。
@@ -88,7 +86,7 @@ export class Tween<T extends object = any> {
      * @param other @en The rear tween of this tween @zh 当前缓动的后置缓动
      */
     then<U extends object = any> (other: Tween<U>): Tween<T> {
-        const u = other._union();
+        const u = other._union(true);
         if (u) this._actions.push(u);
         return this;
     }
@@ -177,7 +175,7 @@ export class Tween<T extends object = any> {
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      */
     clone<U extends object = any> (target: U): Tween<U> {
-        const action = this._union();
+        const action = this._union(false);
         const r = tween(target);
         return action ? r.insertAction(action) : r;
     }
@@ -189,7 +187,7 @@ export class Tween<T extends object = any> {
      * 将之前所有的 action 整合为一个 action。
      */
     union (): Tween<T> {
-        const action = this._union();
+        const action = this._union(false);
         this._actions.length = 0;
         if (action) this._actions.push(action);
         return this;
@@ -330,7 +328,7 @@ export class Tween<T extends object = any> {
         let action: FiniteTimeAction | undefined | null;
 
         if (embedTween instanceof Tween) {
-            action = embedTween._union();
+            action = embedTween._union(false);
         } else {
             action = actions.pop();
         }
@@ -353,7 +351,7 @@ export class Tween<T extends object = any> {
         let action: FiniteTimeAction | undefined | null;
 
         if (embedTween instanceof Tween) {
-            action = embedTween._union();
+            action = embedTween._union(false);
         } else {
             action = actions.pop();
         }
@@ -380,7 +378,7 @@ export class Tween<T extends object = any> {
         let action: Action | undefined | null;
 
         if (embedTween instanceof Tween) {
-            action = embedTween._union();
+            action = embedTween._union(false);
         } else {
             action = actions.pop();
         }
@@ -481,7 +479,7 @@ export class Tween<T extends object = any> {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
     }
 
-    private _union (updateWorkerTarget: boolean = true): FiniteTimeAction | null {
+    private _union (updateWorkerTarget: boolean): FiniteTimeAction | null {
         const actions = this._actions;
         if (!actions) return null;
         let action: FiniteTimeAction;
@@ -504,7 +502,7 @@ export class Tween<T extends object = any> {
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
             const arg = args[i];
-            const action = arg._union();
+            const action = arg._union(true);
             if (action) tmp_args.push(action);
         }
     }
