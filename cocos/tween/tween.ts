@@ -163,6 +163,7 @@ export class Tween<T extends object = any> {
     stop (): Tween<T> {
         if (this._finalAction) {
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
+            this._finalAction = null;
         }
         return this;
     }
