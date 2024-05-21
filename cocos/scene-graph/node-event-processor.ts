@@ -30,8 +30,9 @@ import { legacyCC } from '../core/global-exports';
 import { Component } from './component';
 import { NodeEventType } from './node-event';
 import { InputEventType, SystemEventTypeUnion } from '../input/types/event-enum';
+import { Pool } from '../core';
 
-const _cachedArray = new Array<Node>(16);
+const _arrayPool = new Pool((): Array<Node> => new Array<Node>(16), 3);
 let _currentHovered: Node | null = null;
 const pos = new Vec2();
 
@@ -259,24 +260,24 @@ export class NodeEventProcessor {
         event.target = owner;
 
         // Event.CAPTURING_PHASE
-        _cachedArray.length = 0;
-        this.getCapturingTargets(event.type, _cachedArray);
+        const cachedArray = _arrayPool.alloc();
+        cachedArray.length = 0;
+        this.getCapturingTargets(event.type, cachedArray);
         // capturing
         event.eventPhase = 1;
-        for (i = _cachedArray.length - 1; i >= 0; --i) {
-            target = _cachedArray[i];
+        for (i = cachedArray.length - 1; i >= 0; --i) {
+            target = cachedArray[i];
             if (target.eventProcessor.capturingTarget) {
                 event.currentTarget = target;
                 // fire event
-                target.eventProcessor.capturingTarget.emit(event.type, event, _cachedArray);
+                target.eventProcessor.capturingTarget.emit(event.type, event, cachedArray);
                 // check if propagation stopped
                 if (event.propagationStopped) {
-                    _cachedArray.length = 0;
+                    _arrayPool.free(cachedArray);
                     return;
                 }
             }
         }
-        _cachedArray.length = 0;
 
         // Event.AT_TARGET
         // checks if destroyed in capturing callbacks
@@ -291,24 +292,26 @@ export class NodeEventProcessor {
 
         if (!event.propagationStopped && event.bubbles) {
             // Event.BUBBLING_PHASE
-            this.getBubblingTargets(event.type, _cachedArray);
+            cachedArray.length = 0;
+            this.getBubblingTargets(event.type, cachedArray);
             // propagate
             event.eventPhase = 3;
-            for (i = 0; i < _cachedArray.length; ++i) {
-                target = _cachedArray[i];
+            for (i = 0; i < cachedArray.length; ++i) {
+                target = cachedArray[i];
                 if (target.eventProcessor.bubblingTarget) {
                     event.currentTarget = target;
                     // fire event
                     target.eventProcessor.bubblingTarget.emit(event.type, event);
                     // check if propagation stopped
                     if (event.propagationStopped) {
-                        _cachedArray.length = 0;
+                        _arrayPool.free(cachedArray);
                         return;
                     }
                 }
             }
         }
-        _cachedArray.length = 0;
+
+        _arrayPool.free(cachedArray);
     }
 
     public hasEventListener (type: SystemEventTypeUnion, callback?: AnyFunction, target?: unknown): boolean {

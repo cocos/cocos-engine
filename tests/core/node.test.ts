@@ -4,6 +4,7 @@ import { CCObject } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/scene-graph/node-event";
 import { ccclass } from "../../cocos/core/data/decorators";
 import {director, game } from '../../cocos/game';
+import { Event } from "../../exports/base";
 
 describe(`Node`, () => {
 
@@ -436,5 +437,30 @@ describe(`Node`, () => {
         quat.w += 1;
         node.setRotation(quat);
         expect(rotationChanged).toBe(true);
+    });
+
+    // refer to https://github.com/cocos/cocos-engine/issues/16914 for detail information
+    test ('dispatch event with nested', () => {
+        let son = new Node('son');
+
+        let father = new Node('father');
+        father.on('event2', () => {
+            
+        }, null, true);
+
+        father.on('event1', () => {
+        }, null, true);
+
+        father.addChild(son);
+
+        let grandFather = new Node('grandfather');
+        grandFather.on('event2', () => {
+            let event = new Event('event1');
+            event.propagationStopped = true;
+            son.dispatchEvent(event);
+        }, null, true);
+        grandFather.addChild(father);
+
+        son.dispatchEvent(new Event('event2', true));
     });
 });
