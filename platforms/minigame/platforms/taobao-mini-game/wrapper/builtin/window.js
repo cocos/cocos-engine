@@ -1,13 +1,5 @@
 export navigator from './navigator'
 export XMLHttpRequest from './XMLHttpRequest'
-import MultiWebSocket from './MultiWebSocket'
-import WebSocket from './WebSocket'
-const systemInfo = my.getSystemInfoSync();
-if (systemInfo.version >= '10.35.30') {
-    $global.WebSocket = MultiWebSocket;
-} else {
-    $global.WebSocket = WebSocket;
-}
 export Image from './Image'
 export ImageBitmap from './ImageBitmap'
 export HTMLElement from './HTMLElement'
@@ -20,3 +12,25 @@ export requestAnimationFrame from './requestAnimationFrame'
 export cancelAnimationFrame from './cancelAnimationFrame'
 export * from './WindowProperties'
 
+
+const compareVersions = (curVersion, supportedVersion) => {
+    const curVersionNum = curVersion.split('.').map(Number);
+    const supportedVersionNum = supportedVersion.split('.').map(Number);
+
+    for (let i = 0; i < Math.max(curVersionNum.length, supportedVersionNum.length); i++) {
+        const curVersionPart = curVersionNum[i] || 0;
+        const supportedVersionPart = supportedVersionNum[i] || 0;
+        if (curVersionPart > supportedVersionPart) return 1;
+        if (curVersionPart < supportedVersionPart) return -1;
+    }
+    return 0;
+}
+
+import MultiWebSocket from './MultiWebSocket'
+import WebSocket from './WebSocket'
+const systemInfo = my.getSystemInfoSync();
+if (compareVersions(systemInfo.version, '10.35.30') >= 0) {
+    $global.WebSocket = MultiWebSocket;
+} else {
+    $global.WebSocket = WebSocket;
+}
