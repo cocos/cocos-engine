@@ -42,6 +42,9 @@ export default class MultiWebSocket {
 
     socketTask.onMessage((res) => {
       if (typeof this.onmessage === 'function') {
+        if (res && res.data && res.isBuffer) {
+          res.data = _utils.base64ToArrayBuffer(res.data)
+        }
         this.onmessage(res)
       }
     })
@@ -74,10 +77,10 @@ export default class MultiWebSocket {
       throw new TypeError(`Failed to send message: The data ${data} is invalid`)
     }
     var isBuffer = false;
-      if (data instanceof ArrayBuffer) {
-          data = _utils.arrayBufferToBase64(data)
-          isBuffer = true
-      }
+    if (data instanceof ArrayBuffer) {
+      data = _utils.arrayBufferToBase64(data)
+      isBuffer = true
+    }
 
     this._socketTask.send({
       data,
