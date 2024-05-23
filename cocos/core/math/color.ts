@@ -117,10 +117,10 @@ export class Color extends ValueType {
      */
     public static fromVec4 (value: Vec4, out?: Color): Color {
         out = out === undefined ? new Color() : out;
-        out.r = Math.floor(value.x / toFloat);
-        out.g = Math.floor(value.y / toFloat);
-        out.b = Math.floor(value.z / toFloat);
-        out.a = Math.floor(value.w / toFloat);
+        out.r = value.x / toFloat;
+        out.g = value.y / toFloat;
+        out.b = value.z / toFloat;
+        out.a = value.w / toFloat;
         return out;
     }
     /**
@@ -164,10 +164,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色加法
      */
     public static add<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = Math.min(a.r + b.r, 255);
-        out.g = Math.min(a.g + b.g, 255);
-        out.b = Math.min(a.b + b.b, 255);
-        out.a = Math.min(a.a + b.a, 255);
+        out.r = a.r + b.r;
+        out.g = a.g + b.g;
+        out.b = a.b + b.b;
+        out.a = a.a + b.a;
         return out;
     }
 
@@ -176,10 +176,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色减法
      */
     public static subtract<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = Math.max(a.r - b.r, 0);
-        out.g = Math.max(a.g - b.g, 0);
-        out.b = Math.max(a.b - b.b, 0);
-        out.a = Math.max(a.a - b.a, 0);
+        out.r = a.r - b.r;
+        out.g = a.g - b.g;
+        out.b = a.b - b.b;
+        out.a = a.a - b.a;
         return out;
     }
 
@@ -188,10 +188,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色乘法
      */
     public static multiply<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = Math.min(a.r * b.r, 255);
-        out.g = Math.min(a.g * b.g, 255);
-        out.b = Math.min(a.b * b.b, 255);
-        out.a = Math.min(a.a * b.a, 255);
+        out.r = a.r * b.r;
+        out.g = a.g * b.g;
+        out.b = a.b * b.b;
+        out.a = a.a * b.a;
         return out;
     }
 
@@ -200,10 +200,10 @@ export class Color extends ValueType {
      * @zh 逐通道颜色除法
      */
     public static divide<Out extends IColorLike> (out: Out, a: Out, b: Out): Out {
-        out.r = Math.floor(a.r / b.r);
-        out.g = Math.floor(a.g / b.g);
-        out.b = Math.floor(a.b / b.b);
-        out.a = Math.floor(a.a / b.a);
+        out.r = a.r / b.r;
+        out.g = a.g / b.g;
+        out.b = a.b / b.b;
+        out.a = a.a / b.a;
         return out;
     }
 
@@ -216,10 +216,10 @@ export class Color extends ValueType {
             return out;
         }
 
-        out.r = Math.min(a.r * b, 255);
-        out.g = Math.min(a.g * b, 255);
-        out.b = Math.min(a.b * b, 255);
-        out.a = Math.min(a.a * b, 255);
+        out.r = a.r * b;
+        out.g = a.g * b;
+        out.b = a.b * b;
+        out.a = a.a * b;
         return out;
     }
 
@@ -232,10 +232,10 @@ export class Color extends ValueType {
         const fromG = from.g;
         const fromB = from.b;
         const fromA = from.a;
-        out.r = fromR + Math.floor(((to.r - fromR) * ratio));
-        out.g = fromG + Math.floor(((to.g - fromG) * ratio));
-        out.b = fromB + Math.floor(((to.b - fromB) * ratio));
-        out.a = fromA + Math.floor(((to.a - fromA) * ratio));
+        out.r = fromR + ((to.r - fromR) * ratio);
+        out.g = fromG + ((to.g - fromG) * ratio);
+        out.b = fromB + ((to.b - fromB) * ratio);
+        out.a = fromA + ((to.a - fromA) * ratio);
 
         return out;
     }
@@ -260,10 +260,10 @@ export class Color extends ValueType {
      * @param ofs Array Start Offset
      */
     public static fromArray<Out extends IColorLike> (arr: IWritableArrayLike<number>, out: Out, ofs = 0): Out {
-        out.r = Math.min(Math.floor(arr[ofs + 0] * 255), 255);
-        out.g = Math.min(Math.floor(arr[ofs + 1] * 255), 255);
-        out.b = Math.min(Math.floor(arr[ofs + 2] * 255), 255);
-        out.a = Math.min(Math.floor(arr[ofs + 3] * 255), 255);
+        out.r = arr[ofs + 0] * 255;
+        out.g = arr[ofs + 1] * 255;
+        out.b = arr[ofs + 2] * 255;
+        out.a = arr[ofs + 3] * 255;
         return out;
     }
 
@@ -324,6 +324,58 @@ export class Color extends ValueType {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
     }
 
+    private _r = 0;
+    private _g = 0;
+    private _b = 0;
+    private _a = 0;
+
+    /**
+     * @en Get or set red channel value.
+     * @zh 获取或设置当前颜色的 Red 通道。
+     */
+    get r (): number {
+        return this._r;
+    }
+
+    set r (red: number) {
+        this._r = ~~clamp(red, 0, 255);
+    }
+
+    /**
+     * @en Get or set green channel value.
+     * @zh 获取或设置当前颜色的 Green 通道。
+     */
+    get g (): number {
+        return this._g;
+    }
+
+    set g (green: number) {
+        this._g = ~~clamp(green, 0, 255);
+    }
+
+    /**
+     * @en Get or set blue channel value.
+     * @zh 获取或设置当前颜色的 Blue 通道。
+     */
+    get b (): number {
+        return this._b;
+    }
+
+    set b (blue: number) {
+        this._b = ~~clamp(blue, 0, 255);
+    }
+
+    /** @en Get or set alpha channel value.
+     * @zh 获取或设置当前颜色的透明度通道。
+     */
+    get a (): number {
+        return this._a;
+    }
+
+    set a (alpha: number) {
+        this._a = ~~clamp(alpha, 0, 255);
+    }
+
     // compatibility with vector interfaces
     get x (): number { return this.r * toFloat; }
     set x (value) { this.r = value * 255; }
@@ -333,11 +385,6 @@ export class Color extends ValueType {
     set z (value) { this.b = value * 255; }
     get w (): number { return this.a * toFloat; }
     set w (value) { this.a = value * 255; }
-
-    public r = 0;
-    public g = 0;
-    public b = 0;
-    public a = 0;
 
     /**
      * @en Construct a same color from the given color
@@ -408,10 +455,10 @@ export class Color extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Color, ratio: number): Color {
-        this.r += Math.floor((to.r - this.r) * ratio);
-        this.g += Math.floor((to.g - this.g) * ratio);
-        this.b += Math.floor((to.b - this.b) * ratio);
-        this.a += Math.floor((to.a - this.a) * ratio);
+        this.r += (to.r - this.r) * ratio;
+        this.g += (to.g - this.g) * ratio;
+        this.b += (to.b - this.b) * ratio;
+        this.a += (to.a - this.a) * ratio;
         return this;
     }
 
@@ -682,10 +729,10 @@ export class Color extends ValueType {
      * @param other The specified color.
      */
     public multiply (other: Color): Color {
-        this.r = Math.min(this.r * other.r, 255);
-        this.g = Math.min(this.g * other.g, 255);
-        this.b = Math.min(this.b * other.b, 255);
-        this.a = Math.min(this.a * other.a, 255);
+        this.r *= other.r;
+        this.g *= other.g;
+        this.b *= other.b;
+        this.a = other.a;
         return this;
     }
 }
