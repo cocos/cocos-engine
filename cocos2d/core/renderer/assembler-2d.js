@@ -126,6 +126,7 @@ export default class Assembler2D extends Assembler {
             indiceOffset = offsetInfo.indiceOffset,
             vertexId = offsetInfo.vertexOffset;
         for (let i = 0, l = iData.length; i < l; i++) {
+            //Because taobao-minigame does not allow out-of-bounds access to Uint16Array, otherwise it will report an error and cause the game to be unresponsive
             if (indiceOffset + 1 >= ibuf.length) break;
             ibuf[indiceOffset++] = vertexId + iData[i];
         }
