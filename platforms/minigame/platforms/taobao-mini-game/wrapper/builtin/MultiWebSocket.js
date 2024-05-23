@@ -49,10 +49,10 @@ export default class MultiWebSocket {
       }
     })
 
-    socketTask.onOpen(() => {
+    socketTask.onOpen((res) => {
       this.readyState = WebSocket.OPEN
       if (typeof this.onopen === 'function') {
-        this.onopen()
+        this.onopen(res)
       }
     })
 
