@@ -391,7 +391,7 @@ export class Color extends ValueType {
      * @zh 构造与指定颜色相等的颜色。
      * @param other Specified color
      */
-    constructor (other: Color);
+    constructor (other: Readonly<Color>);
 
     /**
      * @en Construct a color form the hex color string
@@ -411,7 +411,7 @@ export class Color extends ValueType {
      */
     constructor (r?: number, g?: number, b?: number, a?: number);
 
-    constructor (r?: number | Color | string, g?: number, b?: number, a?: number) {
+    constructor (r?: number | Readonly<Color> | string, g?: number, b?: number, a?: number) {
         super();
         if (typeof r === 'string') {
             this.fromHEX(r);
@@ -441,7 +441,7 @@ export class Color extends ValueType {
      * @param other Specified color
      * @returns Returns `true` when all channels of both colors are equal; otherwise returns `false`.
      */
-    public equals (other: Color): boolean {
+    public equals (other: Readonly<Color>): boolean {
         return other && this.a === other.a
                      && this.g === other.g
                      && this.b === other.b
@@ -454,7 +454,7 @@ export class Color extends ValueType {
      * @param to Target color
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Color, ratio: number): Color {
+    public lerp (to: Readonly<Color>, ratio: number): Color {
         this.r += (to.r - this.r) * ratio;
         this.g += (to.g - this.g) * ratio;
         this.b += (to.b - this.b) * ratio;
@@ -728,7 +728,7 @@ export class Color extends ValueType {
      * @zh 将当前颜色乘以与指定颜色
      * @param other The specified color.
      */
-    public multiply (other: Color): Color {
+    public multiply (other: Readonly<Color>): Color {
         this.r *= other.r;
         this.g *= other.g;
         this.b *= other.b;

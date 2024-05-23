@@ -114,7 +114,7 @@ export class Fog {
      * @zh 全局雾颜色
      * @en Global fog color
      */
-    set fogColor (val: Color) {
+    set fogColor (val: Readonly<Color>) {
         this._fogColor.set(val);
 
         _v4.set(val.x, val.y, val.z, val.w);

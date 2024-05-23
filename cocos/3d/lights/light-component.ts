@@ -139,7 +139,7 @@ export class Light extends Component {
     get color (): Readonly<Color> {
         return this._color;
     }
-    set color (val) {
+    set color (val: Color) {
         this._color = val;
         if (this._light) {
             _color_tmp.x = val.r / 255.0;
