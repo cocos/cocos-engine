@@ -418,7 +418,7 @@ export class Color extends ValueType {
         } else if (g !== undefined) {
             this.set(r as number, g, b, a);
         } else {
-            this.set(r as Color);
+            this.set(r as Readonly<Color>);
         }
     }
 
@@ -428,10 +428,10 @@ export class Color extends ValueType {
      */
     public clone (): Color {
         const ret = new Color();
-        ret.r = this._r;
-        ret.g = this._g;
-        ret.b = this._b;
-        ret.a = this._a;
+        ret._r = this._r;
+        ret._g = this._g;
+        ret._b = this._b;
+        ret._a = this._a;
         return ret;
     }
 
@@ -441,11 +441,12 @@ export class Color extends ValueType {
      * @param other Specified color
      * @returns Returns `true` when all channels of both colors are equal; otherwise returns `false`.
      */
-    public equals (other: Color): boolean {
-        return other && this._r === other._r
-                     && this._g === other._g
-                     && this._b === other._b
-                     && this._a === other._a;
+    public equals (other: Readonly<Color>): boolean {
+        const otherColor = other as Color;
+        return other && this._r === otherColor._r
+                     && this._g === otherColor._g
+                     && this._b === otherColor._b
+                     && this._a === otherColor._a;
     }
 
     /**
@@ -454,11 +455,12 @@ export class Color extends ValueType {
      * @param to Target color
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Color, ratio: number): Color {
-        this.r += (to._r - this._r) * ratio;
-        this.g += (to._g - this._g) * ratio;
-        this.b += (to._b - this._b) * ratio;
-        this.a += (to._a - this._a) * ratio;
+    public lerp (to: Readonly<Color>, ratio: number): Color {
+        const toColor = to as Color;
+        this.r += (toColor._r - this._r) * ratio;
+        this.g += (toColor._g - this._g) * ratio;
+        this.b += (toColor._b - this._b) * ratio;
+        this.a += (toColor._a - this._a) * ratio;
         return this;
     }
 
@@ -706,14 +708,15 @@ export class Color extends ValueType {
      * @param [a=255] alpha component of the color
      * @returns Current color.
      */
-    public set(other: Color): Color;
+    public set(other: Readonly<Color>): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
-    public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
+    public set (r?: number | Readonly<Color>, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
-            this.r = r._r;
-            this.g = r._g;
-            this.b = r._b;
-            this.a = r._a;
+            const other = r as Color;
+            this.r = other._r;
+            this.g = other._g;
+            this.b = other._b;
+            this.a = other._a;
         } else {
             this.r = r ?? 0;
             this.g = g ?? 0;
