@@ -212,10 +212,6 @@ export class Color extends ValueType {
      * @zh 全通道统一缩放颜色
      */
     public static scale<Out extends IColorLike> (out: Out, a: Out, b: number): Out {
-        if (b < 0) {
-            return out;
-        }
-
         out.r = a.r * b;
         out.g = a.g * b;
         out.b = a.b * b;
@@ -459,11 +455,7 @@ export class Color extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Readonly<Color>, ratio: number): Color {
-        const toColor = to as Color;
-        this.r += (toColor._r - this._r) * ratio;
-        this.g += (toColor._g - this._g) * ratio;
-        this.b += (toColor._b - this._b) * ratio;
-        this.a += (toColor._a - this._a) * ratio;
+        Color.lerp(this, this, to, ratio);
         return this;
     }
 
@@ -735,10 +727,7 @@ export class Color extends ValueType {
      * @param other The specified color.
      */
     public multiply (other: Color): Color {
-        this.r *= other._r;
-        this.g *= other._g;
-        this.b *= other._b;
-        this.a = other._a;
+        Color.multiply(this, this, other);
         return this;
     }
 }

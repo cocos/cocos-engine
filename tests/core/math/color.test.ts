@@ -72,6 +72,7 @@ describe('Test Color', () => {
         expect(color3.a).toBe(0);
     });
     test('multiply', () => {
+        // test static function
         const color = new Color(128, 234, 10, 255);
         const color2 = new Color(128, 234, 20, 255);
         const color3 = new Color();
@@ -80,6 +81,13 @@ describe('Test Color', () => {
         expect(color3.g).toBe(255);
         expect(color3.b).toBe(200);
         expect(color3.a).toBe(255);
+
+        // test object function
+        color.multiply(color2);
+        expect(color.r).toBe(255);
+        expect(color.g).toBe(255);
+        expect(color.b).toBe(200);
+        expect(color.a).toBe(255);
     });
     test('divide', () => {
         const color = new Color(128, 234, 10, 255);
@@ -101,6 +109,7 @@ describe('Test Color', () => {
         expect(color2.a).toBe(255);
     });
     test('lerp', () => {
+        // static function version
         const color = new Color(1, 235, 15, 255);
         const color2 = new Color(255, 255, 255, 255);
         const color3 = new Color();
@@ -109,6 +118,13 @@ describe('Test Color', () => {
         expect(color3.g).toBe(245);
         expect(color3.b).toBe(135);
         expect(color3.a).toBe(255);
+
+        // object method version
+        color.lerp(color2, 0.5);
+        expect(color.r).toBe(128);
+        expect(color.g).toBe(245);
+        expect(color.b).toBe(135);
+        expect(color.a).toBe(255);
     });
     test('toArray', () => {
         const color = new Color(1, 235, 15, 255);
