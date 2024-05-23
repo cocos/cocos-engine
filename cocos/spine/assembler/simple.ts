@@ -117,7 +117,7 @@ export const simple: IAssembler = {
 
     updateRenderData (comp: Skeleton, batcher: Batcher2D) {
         const skeleton = comp._skeleton;
-        if (skeleton) {
+        if (skeleton && comp.node.active && comp.skeletonData?.isValid) {
             updateComponentRenderData(comp, batcher);
         }
     },
