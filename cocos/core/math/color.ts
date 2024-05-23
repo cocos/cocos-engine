@@ -100,10 +100,10 @@ export class Color extends ValueType {
      */
     public static toVec4 (color: Color, out?: Vec4): Vec4 {
         out = out !== undefined ?  out : new Vec4();
-        out.x = color.r * toFloat;
-        out.y = color.g * toFloat;
-        out.z = color.b * toFloat;
-        out.w = color.a * toFloat;
+        out.x = color._r * toFloat;
+        out.y = color._g * toFloat;
+        out.z = color._b * toFloat;
+        out.w = color._a * toFloat;
         return out;
     }
     /**
@@ -377,14 +377,14 @@ export class Color extends ValueType {
     }
 
     // compatibility with vector interfaces
-    get x (): number { return this.r * toFloat; }
-    set x (value) { this.r = value * 255; }
-    get y (): number { return this.g * toFloat; }
-    set y (value) { this.g = value * 255; }
-    get z (): number { return this.b * toFloat; }
-    set z (value) { this.b = value * 255; }
-    get w (): number { return this.a * toFloat; }
-    set w (value) { this.a = value * 255; }
+    get x (): number { return this._r * toFloat; }
+    set x (value: number) { this.r = value * 255; }
+    get y (): number { return this._g * toFloat; }
+    set y (value: number) { this.g = value * 255; }
+    get z (): number { return this._b * toFloat; }
+    set z (value: number) { this.b = value * 255; }
+    get w (): number { return this._a * toFloat; }
+    set w (value: number) { this.a = value * 255; }
 
     /**
      * @en Construct a same color from the given color
@@ -428,10 +428,10 @@ export class Color extends ValueType {
      */
     public clone (): Color {
         const ret = new Color();
-        ret.r = this.r;
-        ret.g = this.g;
-        ret.b = this.b;
-        ret.a = this.a;
+        ret.r = this._r;
+        ret.g = this._g;
+        ret.b = this._b;
+        ret.a = this._a;
         return ret;
     }
 
@@ -441,11 +441,11 @@ export class Color extends ValueType {
      * @param other Specified color
      * @returns Returns `true` when all channels of both colors are equal; otherwise returns `false`.
      */
-    public equals (other: Readonly<Color>): boolean {
-        return other && this.a === other.a
-                     && this.g === other.g
-                     && this.b === other.b
-                     && this.a === other.a;
+    public equals (other: Color): boolean {
+        return other && this._r === other._r
+                     && this._g === other._g
+                     && this._b === other._b
+                     && this._a === other._a;
     }
 
     /**
@@ -454,11 +454,11 @@ export class Color extends ValueType {
      * @param to Target color
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Readonly<Color>, ratio: number): Color {
-        this.r += (to.r - this.r) * ratio;
-        this.g += (to.g - this.g) * ratio;
-        this.b += (to.b - this.b) * ratio;
-        this.a += (to.a - this.a) * ratio;
+    public lerp (to: Color, ratio: number): Color {
+        this.r += (to._r - this._r) * ratio;
+        this.g += (to._g - this._g) * ratio;
+        this.b += (to._b - this._b) * ratio;
+        this.a += (to._a - this._a) * ratio;
         return this;
     }
 
@@ -554,9 +554,9 @@ export class Color extends ValueType {
         const prefix = '0';
         // #rrggbb
         const hex = [
-            (this.r < 16 ? prefix : '') + (this.r).toString(16),
-            (this.g < 16 ? prefix : '') + (this.g).toString(16),
-            (this.b < 16 ? prefix : '') + (this.b).toString(16),
+            (this._r < 16 ? prefix : '') + (this._r).toString(16),
+            (this._g < 16 ? prefix : '') + (this._g).toString(16),
+            (this._b < 16 ? prefix : '') + (this._b).toString(16),
         ];
         const i = -1;
         if (fmt === '#rgb') {
@@ -564,7 +564,7 @@ export class Color extends ValueType {
             hex[1] = hex[1][0];
             hex[2] = hex[2][0];
         } else if (fmt === '#rrggbbaa') {
-            hex.push((this.a < 16 ? prefix : '') + (this.a).toString(16));
+            hex.push((this._a < 16 ? prefix : '') + (this._a).toString(16));
         }
         return hex.join('');
     }
@@ -580,7 +580,7 @@ export class Color extends ValueType {
      * ```
      */
     public toRGBValue (): number {
-        return (this.b << 16 | this.g << 8 | this.r);
+        return (this._b << 16 | this._g << 8 | this._r);
     }
 
     /**
@@ -671,9 +671,9 @@ export class Color extends ValueType {
      * ```
      */
     public toHSV (): { h: number; s: number; v: number; } {
-        const r = this.r * toFloat;
-        const g = this.g * toFloat;
-        const b = this.b * toFloat;
+        const r = this._r * toFloat;
+        const g = this._g * toFloat;
+        const b = this._b * toFloat;
         const hsv = { h: 0, s: 0, v: 0 };
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
@@ -706,14 +706,14 @@ export class Color extends ValueType {
      * @param [a=255] alpha component of the color
      * @returns Current color.
      */
-    public set(other: Readonly<Color>): Color;
+    public set(other: Color): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
-    public set (r?: number | Readonly<Color>, g?: number, b?: number, a?: number): Color {
+    public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
-            this.r = r.r;
-            this.g = r.g;
-            this.b = r.b;
-            this.a = r.a;
+            this.r = r._r;
+            this.g = r._g;
+            this.b = r._b;
+            this.a = r._a;
         } else {
             this.r = r ?? 0;
             this.g = g ?? 0;
@@ -728,11 +728,11 @@ export class Color extends ValueType {
      * @zh 将当前颜色乘以与指定颜色
      * @param other The specified color.
      */
-    public multiply (other: Readonly<Color>): Color {
-        this.r *= other.r;
-        this.g *= other.g;
-        this.b *= other.b;
-        this.a = other.a;
+    public multiply (other: Color): Color {
+        this.r *= other._r;
+        this.g *= other._g;
+        this.b *= other._b;
+        this.a = other._a;
         return this;
     }
 }

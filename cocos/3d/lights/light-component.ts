@@ -139,8 +139,8 @@ export class Light extends Component {
     get color (): Readonly<Color> {
         return this._color;
     }
-    set color (val: Color) {
-        this._color = val;
+    set color (val: Readonly<Color>) {
+        this._color = val.clone();
         if (this._light) {
             _color_tmp.x = val.r / 255.0;
             _color_tmp.y = val.g / 255.0;
@@ -330,5 +330,7 @@ export class Light extends Component {
         }
     }
 
-    protected _onUpdateReceiveDirLight (): void {}
+    protected _onUpdateReceiveDirLight (): void {
+        // do nothing
+    }
 }
