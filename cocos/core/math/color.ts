@@ -706,9 +706,9 @@ export class Color extends ValueType {
      * @param [a=255] alpha component of the color
      * @returns Current color.
      */
-    public set(other: Color): Color;
+    public set(other: Readonly<Color>): Color;
     public set(r?: number, g?: number, b?: number, a?: number): Color;
-    public set (r?: number | Color, g?: number, b?: number, a?: number): Color {
+    public set (r?: number | Readonly<Color>, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
             this.r = r.r;
             this.g = r.g;
