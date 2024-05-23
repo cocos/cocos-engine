@@ -211,7 +211,7 @@ describe('Test Color', () => {
     test('toUint32', () => {
         const color = new Color();
         for (let i = 0; i != 100; i++) {
-            const val = (Math.random() * 0xFFFFFFFF) | 0;
+            const val = (Math.random() * 0xFFFFFFFF) >>> 0;
             Color.fromUint32(color, val);
             expect(Color.toUint32(color)).toBe(val);
         }

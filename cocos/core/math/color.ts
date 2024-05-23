@@ -277,6 +277,9 @@ export class Color extends ValueType {
      * @returns @en The `out` object @zh `out` 对象
      */
     public static fromUint32<Out extends IColorLike> (out: Out, uint32: number): Out {
+        // Make sure it is an unsigned value.
+        uint32 >>>= 0;
+
         out.r = uint32 & 0xff;
         out.g = (uint32 >> 8)  & 0xff;
         out.b = (uint32 >> 16) & 0xff;
@@ -293,7 +296,7 @@ export class Color extends ValueType {
      * @returns @en The converted unsigned 32 bit integer. @zh 32 位无符号整数。
      */
     public static toUint32 (color: IColorLike): number {
-        return (color.a << 24 | color.b << 16 | color.g << 8 | color.r);
+        return (color.a << 24 | color.b << 16 | color.g << 8 | color.r) >>> 0;
     }
 
     /**
