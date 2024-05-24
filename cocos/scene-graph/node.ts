@@ -2132,7 +2132,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 return;
             }
 
-            Vec3.copy(this._lpos, val as Vec3);
+            Vec3.copy(localPosition, val as Vec3);
         } else {
             if (z === undefined) {
                 z = localPosition.z;
@@ -2142,7 +2142,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 return;
             }
 
-            Vec3.copy(this._lpos, v3_a);
+            Vec3.copy(localPosition, v3_a);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
@@ -2191,13 +2191,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 return;
             }
 
-            Quat.copy(this._lrot, val as Quat);
+            Quat.copy(localRotation, val as Quat);
         } else {
             if (localRotation.equals(q_a.set(val as number, y, z, w))) {
                 return;
             }
 
-            Quat.copy(this._lrot, q_a);
+            Quat.copy(localRotation, q_a);
         }
 
         this._eulerDirty = true;
@@ -2225,12 +2225,22 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     public setRotationFromEuler (val: Vec3 | number, y?: number, zOpt?: number): void {
         const z = zOpt === undefined ? this._euler.z : zOpt;
+        const euler = this._euler;
 
         if (y === undefined) {
-            Vec3.copy(this._euler, val as Vec3);
+            if (euler.equals(val as Vec3)) {
+                return;
+            }
+
+            Vec3.copy(euler, val as Vec3);
             Quat.fromEuler(this._lrot, (val as Vec3).x, (val as Vec3).y, (val as Vec3).z);
         } else {
-            Vec3.set(this._euler, val as number, y, z);
+            Vec3.set(v3_a, val as number, y, z);
+            if (euler.equals(v3_a)) {
+                return;
+            }
+
+            Vec3.copy(euler, v3_a);
             Quat.fromEuler(this._lrot, val as number, y, z);
         }
 
@@ -2279,17 +2289,18 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 return;
             }
 
-            Vec3.copy(this._lscale, val as Vec3);
+            Vec3.copy(localScale, val as Vec3);
         } else {
             if (z === undefined) {
                 z = localScale.z;
             }
 
-            if (localScale.equals(v3_a.set(val as number, y, z))) {
+            Vec3.set(v3_a, val as number, y, z);
+            if (localScale.equals(v3_a)) {
                 return;
             }
 
-            Vec3.copy(this._lscale, v3_a);
+            Vec3.copy(localScale, v3_a);
         }
 
         this.invalidateChildren(TransformBit.SCALE);
@@ -2352,10 +2363,21 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldPosition(x: number, y: number, z: number): void;
 
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number): void {
-        if (y === undefined || z === undefined) {
-            Vec3.copy(this._pos, val as Vec3);
+        const worldPosition = this._pos;
+
+        if (y === undefined) {
+            if (worldPosition.equals(val as Vec3)) {
+                return;
+            }
+
+            Vec3.copy(worldPosition, val as Vec3);
         } else {
-            Vec3.set(this._pos, val as number, y, z);
+            Vec3.set(v3_a, val as number, y, z!);
+            if (worldPosition.equals(v3_a)) {
+                return;
+            }
+
+            Vec3.copy(worldPosition, v3_a);
         }
         const parent = this._parent;
         const local = this._lpos;
@@ -2363,12 +2385,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             // TODO: benchmark these approaches
             /* */
             parent.updateWorldTransform();
-            Vec3.transformMat4(local, this._pos, Mat4.invert(m4_1, parent._mat));
+            Vec3.transformMat4(local, worldPosition, Mat4.invert(m4_1, parent._mat));
             /* *
             parent.inverseTransformPoint(local, this._pos);
             /* */
         } else {
-            Vec3.copy(local, this._pos);
+            Vec3.copy(local, worldPosition);
         }
 
         this.invalidateChildren(TransformBit.POSITION);
@@ -2409,16 +2431,26 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldRotation(x: number, y: number, z: number, w: number): void;
 
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number): void {
-        if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._rot, val as Quat);
+        const worldRotation = this._rot;
+        if (y === undefined) {
+            if (worldRotation.equals(val as Quat)) {
+                return;
+            }
+
+            Quat.copy(worldRotation, val as Quat);
         } else {
-            Quat.set(this._rot, val as number, y, z, w);
+            Quat.set(q_a, val as number, y, z!, w!);
+            if (worldRotation.equals(q_a)) {
+                return;
+            }
+
+            Quat.copy(worldRotation, q_a);
         }
         if (this._parent) {
             this._parent.updateWorldTransform();
-            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
+            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), worldRotation);
         } else {
-            Quat.copy(this._lrot, this._rot);
+            Quat.copy(this._lrot, worldRotation);
         }
         this._eulerDirty = true;
 
@@ -2436,12 +2468,19 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param z Z axis rotation
      */
     public setWorldRotationFromEuler (x: number, y: number, z: number): void {
-        Quat.fromEuler(this._rot, x, y, z);
+        const worldRotation = this._rot;
+
+        Quat.fromEuler(q_a, x, y, z);
+        if (worldRotation.equals(q_a)) {
+            return;
+        }
+
+        Quat.copy(worldRotation, q_a);
         if (this._parent) {
             this._parent.updateWorldTransform();
-            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
+            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), worldRotation);
         } else {
-            Quat.copy(this._lrot, this._rot);
+            Quat.copy(this._lrot, worldRotation);
         }
         this._eulerDirty = true;
 
@@ -2482,19 +2521,30 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldScale(x: number, y: number, z: number): void;
 
     public setWorldScale (val: Vec3 | number, y?: number, z?: number): void {
+        const worldScale = this._scale;
+
         const parent = this._parent;
         if (parent) {
             this.updateWorldTransform();
         }
-        if (y === undefined || z === undefined) {
-            Vec3.copy(this._scale, val as Vec3);
+        if (y === undefined) {
+            if (worldScale.equals(val as Vec3)) {
+                return;
+            }
+
+            Vec3.copy(worldScale, val as Vec3);
         } else {
-            Vec3.set(this._scale, val as number, y, z);
+            Vec3.set(v3_a, val as number, y, z!);
+            if (worldScale.equals(v3_a)) {
+                return;
+            }
+
+            Vec3.copy(worldScale, v3_a);
         }
         if (parent) {
-            v3_a.x = this._scale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
-            v3_a.y = this._scale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
-            v3_a.z = this._scale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
+            v3_a.x = worldScale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
+            v3_a.y = worldScale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
+            v3_a.z = worldScale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
             Mat4.scale(m4_1, this._mat, v3_a);
             Mat4.multiply(m4_2, Mat4.invert(m4_2, parent._mat), m4_1);
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._lrot));
@@ -2503,7 +2553,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             this._lscale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
             this._lscale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
         } else {
-            Vec3.copy(this._lscale, this._scale);
+            Vec3.copy(this._lscale, worldScale);
         }
 
         this.invalidateChildren(TransformBit.SCALE);

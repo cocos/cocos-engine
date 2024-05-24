@@ -542,6 +542,10 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
 }
 
 void Node::setWorldPosition(float x, float y, float z) {
+    if (_worldPosition.approxEquals({x, y, z})) {
+        return;
+    }
+
     _worldPosition.set(x, y, z);
     if (_parent) {
         _parent->updateWorldTransform();
@@ -566,6 +570,10 @@ const Vec3 &Node::getWorldPosition() const {
 }
 
 void Node::setWorldRotation(float x, float y, float z, float w) {
+    if (_worldRotation.approxEquals({x, y, z, w})) {
+        return;
+    }
+
     _worldRotation.set(x, y, z, w);
     if (_parent) {
         _parent->updateWorldTransform();
@@ -592,6 +600,10 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
+    if (_worldScale.approxEquals({x, y, z})) {
+        return;
+    }
+
     if (_parent != nullptr) {
         updateWorldTransform(); // ensure reentryability
         Vec3 oldWorldScale = _worldScale;
@@ -746,7 +758,14 @@ void Node::setMatrix(const Mat4 &val) {
 }
 
 void Node::setWorldRotationFromEuler(float x, float y, float z) {
-    Quaternion::fromEuler(x, y, z, &_worldRotation);
+    Quaternion tmpRotation;
+    Quaternion::fromEuler(x, y, z, &tmpRotation);
+    if (tmpRotation.approxEquals(_worldRotation)) {
+        return;
+    }
+
+    _worldRotation = tmpRotation;
+
     if (_parent) {
         _parent->updateWorldTransform();
         _localRotation = _parent->_worldRotation.getConjugated() * _worldRotation;
