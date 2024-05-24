@@ -29,7 +29,6 @@
 #include "application/ApplicationManager.h"
 #include "platform/openharmony/napi/NapiHelper.h"
 #include "bindings/jswrapper/SeApi.h"
-#include "base/Log.h"
 namespace cc {
 
 /*************************************************************************
