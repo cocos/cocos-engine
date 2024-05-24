@@ -488,7 +488,10 @@ export class Mask extends Component {
     get color (): Color | null {
         warnID(9007);
         if (this.subComp) {
-            return this.subComp.color;
+            // FIXME: the type of subComp is Sprite | graphics, and Sprite.color returns Readonly<Color>.
+            // so have to use as Color here. And i don't want to change the return type to Readonly<Color>
+            // as it will break compatibility.
+            return this.subComp.color as Color;
         }
         return null;
     }

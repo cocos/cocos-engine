@@ -151,7 +151,7 @@ export class Gradient {
      */
     public evaluateFast (out: Color, time: number): Color {
         this.getRGB(out, time);
-        out._set_a_unsafe(this.getAlpha(time)!);
+        out.a = this.getAlpha(time)!;
         return out;
     }
 
@@ -175,7 +175,7 @@ export class Gradient {
         const c = this.colorKeys[Math.trunc(random() * this.colorKeys.length)];
         const a = this.alphaKeys[Math.trunc(random() * this.alphaKeys.length)];
         out.set(c.color);
-        out._set_a_unsafe(a.alpha);
+        out.a = a.alpha;
         return out;
     }
 

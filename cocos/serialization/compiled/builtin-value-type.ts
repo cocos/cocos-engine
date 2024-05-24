@@ -55,7 +55,7 @@ const setterMap: SetterMap = [
     vec4LikeSetter,   // Vec4
     vec4LikeSetter,   // Quat
     (obj: Color, data: SetterInput): void => {
-        obj._val = data[1];
+        Color.fromUint32(obj, data[1]);
     },
     (obj: Size, data: SetterInput): void => {
         obj.width = data[1];
@@ -84,7 +84,7 @@ export function serializeBuiltinValueType (obj: ValueType): ValueTypeData | null
     case Quat:
         return [typeId, (obj as Vec4).x, (obj as Vec4).y, (obj as Vec4).z, (obj as Vec4).w];
     case Color:
-        return [typeId, (obj as Color)._val];
+        return [typeId, Color.toUint32((obj as Color))];
     case Size:
         return [typeId, (obj as Size).width, (obj as Size).height];
     case Rect:

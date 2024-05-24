@@ -4,11 +4,11 @@ const white = Number.parseInt('ffffffff', 16);
 
 test('creation test', function () {
     let c0 = new Color(255, 255, 255, 255);
-    expect(c0._val).toBe(white);
+    expect(Color.toUint32(c0)).toBe(white);
     c0.r = 0;
     c0.b = 127.5;
     let c1 = new Color(c0);
-    expect(c1._val).toBe(Number.parseInt('ff7fff00', 16));
+    expect(Color.toUint32(c1)).toBe(Number.parseInt('ff7fff00', 16));
     let c2 = new Color('#ffff087f');
     expect(c2.r).toBe(255);
     expect(c2.g).toBe(255);
@@ -26,11 +26,11 @@ test('value test', function () {
     expect(c0.r).toBe(255);
     c0.g = 300;
     expect(c0.g).toBe(255);
-    expect(c0._val).toBe(Number.parseInt('ff00ffff', 16));
+    expect(Color.toUint32(c0)).toBe(Number.parseInt('ff00ffff', 16));
     c0.r = 16;
     c0.a = -1;
     expect(c0.a).toBe(0);
-    expect(c0._val).toBe(Number.parseInt('0000ff10', 16));
+    expect(Color.toUint32(c0)).toBe(Number.parseInt('0000ff10', 16));
     let c1 = new Color(16, 255, 0, 0);
     expect(c0).toEqual(c1);
 });

@@ -894,7 +894,7 @@ export class ShadowsInfo {
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.Planar; })
     set shadowColor (val: Readonly<Color>) {
         this._shadowColor.set(val);
-        if (this._resource) { this._resource.shadowColor = val; }
+        if (this._resource) { this._resource.shadowColor = val as Color; }
     }
     get shadowColor (): Readonly<Color> {
         return this._shadowColor;

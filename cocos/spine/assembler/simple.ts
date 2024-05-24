@@ -279,7 +279,7 @@ function cacheTraverse (comp: Skeleton): void {
     vUint8Buf.set(model.vData as TypedArray);
 
     const nodeColor = comp.color;
-    if (nodeColor._val !== 0xffffffff ||  _premultipliedAlpha) {
+    if (Color.toUint32(nodeColor) !== 0xffffffff ||  _premultipliedAlpha) {
         _nodeR = nodeColor.r / 255;
         _nodeG = nodeColor.g / 255;
         _nodeB = nodeColor.b / 255;

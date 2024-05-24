@@ -1,6 +1,6 @@
-import { Color, js, lerp, Quat, Rect, Size, Vec2, Vec3, Vec4 } from '../../cocos/core';
+import { Color, js, lerp, Size, Vec2, Vec3, Vec4 } from '../../cocos/core';
 import { AnimationClip, AnimationState, AnimationManager } from '../../cocos/animation';
-import { AnimationController, ColorTrack, ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, SizeTrack, Track, VectorTrack } from '../../cocos/animation/animation';
+import { ColorTrack, ComponentPath, HierarchyPath, IValueProxyFactory, RealTrack, SizeTrack, Track, VectorTrack } from '../../cocos/animation/animation';
 import { ccclass } from 'cc.decorator';
 import { captureErrorIDs, captureWarnIDs } from '../utils/log-capture';
 import { Node,Component } from '../../cocos/scene-graph';

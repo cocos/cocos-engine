@@ -271,7 +271,7 @@ export class BlendStateEditor {
 
     @serializable
     @editable
-    public blendColor: Color = Color.WHITE;
+    public blendColor: Color = Color.WHITE.clone();
 
     @type([BlendTargetEditor])
     @serializable

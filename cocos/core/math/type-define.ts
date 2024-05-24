@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2024 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -27,8 +27,6 @@ export interface IColorLike {
     g: number;
     b: number;
     a: number;
-    _val: number;
-
 }
 
 export interface IMat3Like {

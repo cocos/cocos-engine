@@ -240,7 +240,7 @@ export class ReflectionProbe extends Component {
         if (camera) {
             this.visibility = camera.visibility;
             this.clearFlag = camera.clearFlags;
-            this.backgroundColor = camera.clearColor;
+            this.backgroundColor = camera.clearColor as Color;
             if (this.probeType === ProbeType.PLANAR) {
                 this.probe.switchProbeType(this.probeType, camera.camera);
             }

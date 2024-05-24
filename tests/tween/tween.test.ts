@@ -1,4 +1,4 @@
-import { Vec3, System, size, Size, approx } from "../../cocos/core";
+import { Vec3, System, size, Size, approx, color, Color } from "../../cocos/core";
 import { tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
@@ -7,6 +7,7 @@ import { UITransform } from "../../cocos/2d/framework/ui-transform";
 import { Canvas } from "../../cocos/2d/framework/canvas";
 import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
 import { UIOpacity } from "../../cocos/2d";
+import { Sprite } from "../../cocos/2d";
 
 function isSizeEqualTo(a: Size, b: Size) {
     return approx(a.width, b.width) && approx(a.height, b.height);
@@ -976,7 +977,6 @@ test('sequence', function () {
     }
     // @ts-expect-error access private property 
     const action = tweenact._actions[0] as TweenAction;
-    // @ts-expect-error access private property 
     const props = action._props;
     for (const property in props) {
         const prop = props[property];
@@ -1021,6 +1021,51 @@ test('reverseTime', function () {
     }
     expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
     expect(completed).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('tween color', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    const sprite: Sprite = node.addComponent(Sprite);
+    sprite.color.set(255, 255, 255, 255);
+
+    let isComplete = false;
+    const t = tween(node.getComponent(Sprite) as Sprite)
+        .to(1, { color: color(0, 0, 0, 0) }, {
+            onComplete (target?: object) {
+                isComplete = true;
+            },
+
+        })
+        .start();
+
+    // Pass 1/3 time, 255 get 174 remain: 255 * (1 - 1/3 + 1/60) = 174.24 ≈ 174
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(sprite.color.equals(color(174, 174, 174, 174))).toBeTruthy();
+
+    // Pass 2/3 time, 255 get 89 remain: 255 * (1 - 2/3 + 1/60) = 89.24 ≈ 89
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(sprite.color.equals(color(89, 89, 89, 89))).toBeTruthy();
+
+    // Pass the whole time, 255 get 4 remain: 255 * (1 - 1 + 1/60) = 4.25 ≈ 4
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(sprite.color.equals(color(4, 4, 4, 4))).toBeTruthy();
+
+    // Do the last step
+    game.step();
+    expect(sprite.color.equals(color(0, 0, 0, 0))).toBeTruthy();
+    expect(isComplete).toBeTruthy();;
 
     director.unregisterSystem(sys);
 });

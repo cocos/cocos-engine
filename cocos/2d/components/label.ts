@@ -619,7 +619,7 @@ export class Label extends UIRenderer {
     get outlineColor (): Color {
         return this._outlineColor;
     }
-    set outlineColor (value) {
+    set outlineColor (value: Readonly<Color>) {
         if (this._outlineColor === value) return;
         this._outlineColor.set(value);
         this.markForUpdateRenderData();
@@ -673,7 +673,7 @@ export class Label extends UIRenderer {
     get shadowColor (): Color {
         return this._shadowColor;
     }
-    set shadowColor (value) {
+    set shadowColor (value: Readonly<Color>) {
         if (this._shadowColor === value) return;
         this._shadowColor.set(value);
         this.markForUpdateRenderData();

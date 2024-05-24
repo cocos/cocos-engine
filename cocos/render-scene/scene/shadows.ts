@@ -370,7 +370,7 @@ export class Shadows {
         this.normal = shadowsInfo.planeDirection;
         this.distance = shadowsInfo.planeHeight;
         this.planeBias = shadowsInfo.planeBias;
-        this.shadowColor = shadowsInfo.shadowColor;
+        this.shadowColor = shadowsInfo.shadowColor as Color;
         this.maxReceived = shadowsInfo.maxReceived;
         if (shadowsInfo.shadowMapSize !== this._size.x) {
             this.size.set(shadowsInfo.shadowMapSize, shadowsInfo.shadowMapSize);

@@ -184,7 +184,7 @@ export default class ParticleBatchModel extends scene.Model {
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset as number)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
-                    vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
+                    vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = Color.toUint32(Color.WHITE);
                 }
             }
             const vbFloatArray = new Float32Array(vBuffer);
@@ -280,7 +280,7 @@ export default class ParticleBatchModel extends scene.Model {
             if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset as number)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
-                    vb[iVertex * this._vertStaticAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
+                    vb[iVertex * this._vertStaticAttrsFloatCount + vOffset / 4] = Color.toUint32(Color.WHITE);
                 }
             }
         } else {
