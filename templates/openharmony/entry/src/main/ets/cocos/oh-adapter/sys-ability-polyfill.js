@@ -30,11 +30,8 @@ import sensor from '@ohos.sensor';
 
 export function systemReady () {
     return new Promise(resolve => {
-        if (typeof XMLHttpRequest === 'undefined') {
-            window.XMLHttpRequest = function () {}
-        }
         display.getDefaultDisplay((err, data) => {
-            window.oh.display = data;
+            globalThis.oh.display = data;
             // TODO: impl device in js.
             //https://developer.harmonyos.com/cn/docs/documentation/doc-references/js-apis-display-0000001281001106
         });
@@ -43,29 +40,29 @@ export function systemReady () {
 
 }
 
-window.getSystemLanguage = function () {
+globalThis.getSystemLanguage = function () {
     return i18n.getSystemLanguage();
 }
 
-window.getOSFullName = function () {
+globalThis.getOSFullName = function () {
     return deviceInfo.osFullName;
 }
 
-window.getBatteryLevel = function () {
+globalThis.getBatteryLevel = function () {
     return batteryInfo.batterySOC;
 }
 
-window.getDPI = function () {
+globalThis.getDPI = function () {
     var displayClass = display.getDefaultDisplaySync();
     return displayClass.densityDPI;
 }
 
-window.getPixelRation = function () {
+globalThis.getPixelRation = function () {
     var displayClass = display.getDefaultDisplaySync();
     return displayClass.densityPixels;
 }
 
-window.getDeviceOrientation = function () {
+globalThis.getDeviceOrientation = function () {
     var displayClass = display.getDefaultDisplaySync();
     return displayClass.rotation;
 }
@@ -161,6 +158,6 @@ try {
 //    sDeviceMotionValues[9] = 0;
 //}
 
-window.getDeviceMotionValue = function () {
+globalThis.getDeviceMotionValue = function () {
     return sDeviceMotionValues;
 }

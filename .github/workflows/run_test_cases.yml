@@ -72,6 +72,7 @@ jobs:
           git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
           git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
           git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
+          git branch -D pull-${{ steps.get_pr.outputs.pr_number }} || true
           git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
           git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
       - name: Download external libraries
