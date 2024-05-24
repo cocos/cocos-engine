@@ -590,6 +590,13 @@ export class View extends Eventify(System) {
         return out;
     }
 
+    // Convert location in Cocos screen coordinate to location in UI space
+    private _convertToUISpace (point): void {
+        const viewport = this._viewportRect;
+        point.x = (point.x - viewport.x) / this._scaleX;
+        point.y = (point.y - viewport.y) / this._scaleY;
+    }
+
     private _updateAdaptResult (width: number, height: number, windowId?: number): void {
         // The default invalid windowId is 0
         cclegacy.director.root.resize(width, height, (windowId === undefined || windowId === 0) ? 1 : windowId);
