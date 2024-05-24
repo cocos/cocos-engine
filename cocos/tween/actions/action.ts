@@ -95,6 +95,8 @@ export abstract class Action {
 
     protected tag = Action.TAG_INVALID;
 
+    protected _id = -1;
+
     /**
      * @en
      * to copy object with deep copy.
@@ -192,6 +194,14 @@ export abstract class Action {
      */
     setTag (tag: number): void {
         this.tag = tag;
+    }
+
+    setId (id: number): void {
+        this._id = id;
+    }
+
+    getId (): number {
+        return this._id;
     }
 
     /**

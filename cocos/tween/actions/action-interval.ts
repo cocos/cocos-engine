@@ -407,6 +407,23 @@ export class Sequence extends ActionInterval {
             actionOne.workerTarget = workerTarget;
         }
     }
+
+    findAction (id: number): FiniteTimeAction | null {
+        for (let i = 0, len = this._actions.length; i < len; ++i) {
+            let action: FiniteTimeAction | null = this._actions[i];
+            if (action.getId() === id) {
+                return action;
+            }
+
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action = action.findAction(id);
+                if (action && action.getId() === id) {
+                    return action;
+                }
+            }
+        }
+        return null;
+    }
 }
 
 /**
@@ -813,6 +830,30 @@ export class Spawn extends ActionInterval {
         } else {
             one.workerTarget = workerTarget;
         }
+    }
+
+    findAction (id: number): FiniteTimeAction | null {
+        const one = this._one;
+        const two = this._two;
+        let foundAction: FiniteTimeAction | null = null;
+        const find = (action: FiniteTimeAction): FiniteTimeAction | null => {
+            if (action.getId() === id) return action;
+            if (action instanceof Sequence || action instanceof Spawn) {
+                const found = action.findAction(id);
+                if (found) return found;
+            }
+            return null;
+        };
+        if (one) {
+            foundAction = find(one);
+            if (foundAction) return foundAction;
+        }
+
+        if (two) {
+            foundAction = find(two);
+            if (foundAction) return foundAction;
+        }
+        return null;
     }
 }
 
