@@ -927,17 +927,6 @@ class FixedWidth extends ContentStrategy {
     }
 }
 
-// Alias: Strategy to scale the content's size to container's size, non proportional
-ContentStrategy.EXACT_FIT = new ExactFit();
-// Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
-ContentStrategy.SHOW_ALL = new ShowAll();
-// Alias: Strategy to scale the content's size proportionally to fill the whole container area
-ContentStrategy.NO_BORDER = new NoBorder();
-// Alias: Strategy to scale the content's height to container's height and proportionally scale its width
-ContentStrategy.FIXED_HEIGHT = new FixedHeight();
-// Alias: Strategy to scale the content's width to container's width and proportionally scale its height
-ContentStrategy.FIXED_WIDTH = new FixedWidth();
-
 /**
  * @en ResolutionPolicy class is the root strategy class of scale strategy,
  * its main task is to maintain the compatibility with Cocos2d-x.
@@ -1077,6 +1066,21 @@ export class ResolutionPolicy {
     }
 }
 cclegacy.ResolutionPolicy = ResolutionPolicy;
+
+// Construct these object here to fix the dependence issue:
+// - ResolutionPolity depends on ContentStrategy
+// - ContentStrategy depends on ResolutionPolicy.
+
+// Alias: Strategy to scale the content's size to container's size, non proportional
+ContentStrategy.EXACT_FIT = new ExactFit();
+// Alias: Strategy to scale the content's size proportionally to maximum size and keeps the whole content area to be visible
+ContentStrategy.SHOW_ALL = new ShowAll();
+// Alias: Strategy to scale the content's size proportionally to fill the whole container area
+ContentStrategy.NO_BORDER = new NoBorder();
+// Alias: Strategy to scale the content's height to container's height and proportionally scale its width
+ContentStrategy.FIXED_HEIGHT = new FixedHeight();
+// Alias: Strategy to scale the content's width to container's width and proportionally scale its height
+ContentStrategy.FIXED_WIDTH = new FixedWidth();
 
 /**
  * @en view is the singleton view object.
