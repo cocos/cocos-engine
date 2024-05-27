@@ -158,8 +158,8 @@ function realTimeTraverse (comp: Skeleton): void {
     }
 
     const vbuf = rd.chunk.vb;
-    const vPtr = model.vPtr;
-    const iPtr = model.iPtr;
+    const vPtr: number = model.vPtr;
+    const iPtr: number = model.iPtr;
     const ibuf = rd.indices!;
     const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
 
