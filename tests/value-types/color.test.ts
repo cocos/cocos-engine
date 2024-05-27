@@ -8,7 +8,7 @@ test('creation test', function () {
     c0.r = 0;
     c0.b = 127.5;
     let c1 = new Color(c0);
-    expect(Color.toUint32(c1)).toBe(Number.parseInt('ff7fff00', 16));
+    expect(Color.toUint32(c1)).toBe(Number.parseInt('ff80ff00', 16));
     let c2 = new Color('#ffff087f');
     expect(c2.r).toBe(255);
     expect(c2.g).toBe(255);
@@ -40,10 +40,10 @@ test('method test', function () {
     let c1 = new Color(192, 128, 0, 0);
     let c2 = new Color();
     Color.lerp(c2, c0, c1, 0.2);
-    expect(c2.r).toBe(Math.floor(c0.r + (c1.r - c0.r) * 0.2));
-    expect(c2.g).toBe(Math.floor(c0.g + (c1.g - c0.g) * 0.2));
-    expect(c2.b).toBe(Math.floor(c0.b + (c1.b - c0.b) * 0.2));
-    expect(c2.a).toBe(Math.floor(c0.a + (c1.a - c0.a) * 0.2));
+    expect(c2.r).toBe(Math.round(c0.r + (c1.r - c0.r) * 0.2));
+    expect(c2.g).toBe(Math.round(c0.g + (c1.g - c0.g) * 0.2));
+    expect(c2.b).toBe(Math.round(c0.b + (c1.b - c0.b) * 0.2));
+    expect(c2.a).toBe(Math.round(c0.a + (c1.a - c0.a) * 0.2));
     Color.lerp(c2, c0, c1, 1);
     expect(c2).toEqual(c1);
 
@@ -53,25 +53,25 @@ test('method test', function () {
 
     c2.set(c1);
     c2.lerp(c0, 0.95);
-    expect(c2.r).toBe(Math.floor(c1.r + (c0.r - c1.r) * 0.95));
-    expect(c2.g).toBe(Math.floor(c1.g + (c0.g - c1.g) * 0.95));
-    expect(c2.b).toBe(Math.floor(c1.b + (c0.b - c1.b) * 0.95));
-    expect(c2.a).toBe(Math.floor(c1.a + (c0.a - c1.a) * 0.95));
+    expect(c2.r).toBe(Math.round(c1.r + (c0.r - c1.r) * 0.95));
+    expect(c2.g).toBe(Math.round(c1.g + (c0.g - c1.g) * 0.95));
+    expect(c2.b).toBe(Math.round(c1.b + (c0.b - c1.b) * 0.95));
+    expect(c2.a).toBe(Math.round(c1.a + (c0.a - c1.a) * 0.95));
 });
 
 test('conversion test', function() {
     let testColor = new Color( 255, 255, 0, 127.5 );
-    expect(testColor.toHEX('#rrggbbaa')).toBe("ffff007f");
+    expect(testColor.toHEX('#rrggbbaa')).toBe("ffff0080");
     expect(testColor.toHEX('#rrggbb')).toBe("ffff00");
-    expect(testColor.toCSS('#rrggbbaa')).toBe("#ffff007f");
+    expect(testColor.toCSS('#rrggbbaa')).toBe("#ffff0080");
     expect(testColor.toCSS('#rrggbb')).toBe("#ffff00");
     expect(testColor.toCSS('rgb')).toBe("rgb(255,255,0)");
     expect(testColor.toCSS('rgba')).toBe("rgba(255,255,0,0.50)");
 
     testColor = new Color( 0.3 * 255, 255, 0, 127.5 );
-    expect(testColor.toHEX('#rrggbbaa')).toBe("4cff007f");
+    expect(testColor.toHEX('#rrggbbaa')).toBe("4cff0080");
     expect(testColor.toHEX('#rrggbb')).toBe("4cff00");
-    expect(testColor.toCSS('#rrggbbaa')).toBe("#4cff007f");
+    expect(testColor.toCSS('#rrggbbaa')).toBe("#4cff0080");
     expect(testColor.toCSS('#rrggbb')).toBe("#4cff00");
     expect(testColor.toCSS('rgb')).toBe("rgb(76,255,0)");
 
