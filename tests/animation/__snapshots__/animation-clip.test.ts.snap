@@ -56,14 +56,14 @@ Array [
   },
   Object {
     "defaultProperties": Object {
-      "a": 25,
+      "a": 26,
       "b": 51,
-      "g": 76,
+      "g": 77,
       "r": 102,
     },
     "expectedAnimatedProperties": Object {
       "a": 191,
-      "r": 127,
+      "r": 128,
     },
     "specName": "Color",
   },
