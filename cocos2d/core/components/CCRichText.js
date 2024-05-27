@@ -459,8 +459,7 @@ let RichText = cc.Class({
     },
 
     _containsTouchLocation (label, point) {
-        let myRect = label.getBoundingBoxToWorld();
-        return myRect.contains(point);
+        return label._hitTest(point);
     },
 
     _resetState () {
