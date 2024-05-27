@@ -26,7 +26,7 @@ import nativerender from 'libcocos.so';
 
 import { WorkerManager } from '../cocos/WorkerManager';
 import { ContextType } from '../common/Constants';
-import { EditBoxDialog } from '../components/EditBoxDialog';
+import { EditBoxDialog, EditboxShowInfo } from '../components/EditBoxDialog';
 import { CocosWebView, WebViewInfo } from '../components/CocosWebView';
 import { CocosVideoPlayer, VideoInfo } from '../components/CocosVideoPlayer';
 import { MessageEvent } from '@ohos.worker';
@@ -64,10 +64,34 @@ interface param {
   fullScreen?: boolean
 }
 
+interface editboxShowInfo {
+  defaultValue?: string;
+  confirmType?: string;
+  inputType?: string;
+  maxLength?: number;
+  x?:number;
+  y?:number;
+  width?:number;
+  height?:number;
+  confirmHold?: boolean;
+  isMultiline?: boolean;
+  fontSize?: number;
+  fontColor?: number;
+  backColor?: number;
+  backgroundColor?: number;
+  isBold?: boolean;
+  isItalic?: boolean;
+  isUnderline?: boolean;
+  underlineColor?: number;
+  textAlignment?: number;
+}
+
+
+
 @Entry
 @Component
 struct Index {
-  @State showMessage: string = ''
+  @State showInfo: EditboxShowInfo = new EditboxShowInfo;
   @State webViewArray: WebViewInfo[] = [];
   @State videoArray: VideoInfo[] = [];
   private webViewIndexMap: Map<number, number> = new Map<number, number>();
@@ -75,18 +99,22 @@ struct Index {
   private workPort: PortProxy = new PortProxy(WorkerManager.getInstance().getWorker());
   dialogController: CustomDialogController = new CustomDialogController({
     builder: EditBoxDialog({
-      showMessage: this.showMessage,
+      showInfo: this.showInfo,
       onTextChange: (msg: string): void => {
-        this.showMessage = msg;
+        this.showInfo.defaultMessage = msg;
         this.workPort.postMessage('onTextInput', msg);
       },
       accept: (msg: string): void => {
-        this.showMessage = msg;
+        this.showInfo.defaultMessage = msg;
         this.workPort.postMessage('onComplete', msg);
-      }
+      },
+      confirm: (msg: string): void => {
+        this.showInfo.defaultMessage = msg;
+        this.workPort.postMessage('onConfirm', msg);
+      },
     }),
     cancel: (): void => {
-      this.workPort.postMessage('onComplete', this.showMessage);
+      this.workPort.postMessage('onComplete', this.showInfo.defaultMessage);
     },
     autoCancel: true,
     alignment: DialogAlignment.Bottom,
@@ -102,12 +130,54 @@ struct Index {
       switch (msg.name) {
         // EditBox
         case "showEditBox": {
-          this.showMessage = msg.param as string;
+          let param = msg.param as editboxShowInfo;
+          this.showInfo.defaultMessage = param?.defaultValue as string;
+          this.showInfo.backgroundColor = param?.backColor as number;
+          if(param?.confirmType == 'done') {
+            this.showInfo.enterKeyType = EnterKeyType.Done;
+          } else if(param?.confirmType == 'send') {
+            this.showInfo.enterKeyType = EnterKeyType.Send;
+          } else if(param?.confirmType == 'search') {
+            this.showInfo.enterKeyType = EnterKeyType.Search;
+          } else if(param?.confirmType == 'go') {
+            this.showInfo.enterKeyType = EnterKeyType.Go;
+          } else if(param?.confirmType == 'next') {
+            this.showInfo.enterKeyType = EnterKeyType.Next;
+          }
+          if(param?.inputType == 'password') {
+            this.showInfo.type = InputType.Password;
+          } else if(param?.inputType === 'email') {
+            this.showInfo.type = InputType.Email;
+          } else if(param?.inputType === 'number') {
+            this.showInfo.type = InputType.Number;
+          } else if(param?.inputType === 'digit') {
+            this.showInfo.type = InputType.NUMBER_DECIMAL;
+          } else if(param?.inputType === 'tel') {
+            this.showInfo.type = InputType.PhoneNumber;
+          } else if(param?.inputType === 'url') {
+            // No url support
+          }
+          if(param?.maxLength != undefined && param?.maxLength > 0) {
+            this.showInfo.maxLength = param.maxLength;
+          }
+
+          if(param?.isUnderline != undefined) {
+            this.showInfo.showUnderline = param?.isUnderline;
+            this.showInfo.underLineColor = param?.underlineColor as number;
+          }
+
+          if(param?.textAlignment == 0) {
+            this.showInfo.textAlign = TextAlign.Start;
+          } else if(param?.textAlignment == 1) {
+            this.showInfo.textAlign = TextAlign.Center;
+          } else if(param?.textAlignment == 2) {
+            this.showInfo.textAlign = TextAlign.End;
+          }
           this.dialogController.open();
           break;
         }
         case "hideEditBox": {
-          this.showMessage = '';
+          this.showInfo.defaultMessage = '';
           this.dialogController.close();
           break;
         }

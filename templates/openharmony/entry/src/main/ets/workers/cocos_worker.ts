@@ -98,6 +98,9 @@ uiPort._messageHandle = function (e) {
     case "onComplete":
       nativeEditBox.onComplete(msg.param);
       break;
+    case "onConfirm":
+      nativeEditBox.onConfirm(msg.param);
+      break;
     case "onPageBegin":
       nativeWebView.shouldStartLoading(msg.param.viewTag, msg.param.url);
       break;
