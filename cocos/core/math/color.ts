@@ -31,8 +31,13 @@ import { legacyCC } from '../global-exports';
 import { assertIsTrue } from '../data/utils/asserts';
 import { Vec4 } from './vec4';
 import { Vec3 } from './vec3';
+import { Modifiable } from '../utils/misc';
 
 const toFloat = 1 / 255;
+const R_INDEX = 0;
+const G_INDEX = 1;
+const B_INDEX = 2;
+const A_INDEX = 3;
 
 /**
  * @en Representation of RGBA colors.<br/>
@@ -40,7 +45,7 @@ const toFloat = 1 / 255;
  * @zh 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。<br/>
  * 每个通道都为取值范围 [0, 255] 的整数。<br/>
  */
-export class Color extends ValueType {
+export class Color extends ValueType implements Modifiable {
     public static WHITE = Object.freeze(new Color(255, 255, 255, 255));
     public static GRAY = Object.freeze(new Color(127, 127, 127, 255));
     public static BLACK = Object.freeze(new Color(0, 0, 0, 255));
@@ -100,10 +105,10 @@ export class Color extends ValueType {
      */
     public static toVec4 (color: Color, out?: Vec4): Vec4 {
         out = out !== undefined ?  out : new Vec4();
-        out.x = color._r * toFloat;
-        out.y = color._g * toFloat;
-        out.z = color._b * toFloat;
-        out.w = color._a * toFloat;
+        out.x = color._data[R_INDEX] * toFloat;
+        out.y = color._data[G_INDEX] * toFloat;
+        out.z = color._data[B_INDEX] * toFloat;
+        out.w = color._data[A_INDEX] * toFloat;
         return out;
     }
     /**
@@ -117,10 +122,10 @@ export class Color extends ValueType {
      */
     public static fromVec4 (value: Vec4, out?: Color): Color {
         out = out === undefined ? new Color() : out;
-        out.r = value.x / toFloat;
-        out.g = value.y / toFloat;
-        out.b = value.z / toFloat;
-        out.a = value.w / toFloat;
+        out._data[R_INDEX] = value.x / toFloat;
+        out._data[G_INDEX] = value.y / toFloat;
+        out._data[B_INDEX] = value.z / toFloat;
+        out._data[A_INDEX] = value.w / toFloat;
         return out;
     }
     /**
@@ -323,21 +328,18 @@ export class Color extends ValueType {
         return ((a.r * 255) << 24 | (a.g * 255) << 16 | (a.b * 255) << 8 | a.a * 255) >>> 0;
     }
 
-    private _r = 0;
-    private _g = 0;
-    private _b = 0;
-    private _a = 0;
+    private _data = new Uint8ClampedArray(4);
 
     /**
      * @en Get or set red channel value.
      * @zh 获取或设置当前颜色的 Red 通道。
      */
     get r (): number {
-        return this._r;
+        return this._data[R_INDEX];
     }
 
     set r (red: number) {
-        this._r = ~~clamp(red, 0, 255);
+        this._data[R_INDEX] = red;
     }
 
     /**
@@ -345,11 +347,11 @@ export class Color extends ValueType {
      * @zh 获取或设置当前颜色的 Green 通道。
      */
     get g (): number {
-        return this._g;
+        return this._data[G_INDEX];
     }
 
     set g (green: number) {
-        this._g = ~~clamp(green, 0, 255);
+        this._data[G_INDEX] = green;
     }
 
     /**
@@ -357,33 +359,33 @@ export class Color extends ValueType {
      * @zh 获取或设置当前颜色的 Blue 通道。
      */
     get b (): number {
-        return this._b;
+        return this._data[B_INDEX];
     }
 
     set b (blue: number) {
-        this._b = ~~clamp(blue, 0, 255);
+        this._data[B_INDEX] = blue;
     }
 
     /** @en Get or set alpha channel value.
      * @zh 获取或设置当前颜色的透明度通道。
      */
     get a (): number {
-        return this._a;
+        return this._data[A_INDEX];
     }
 
     set a (alpha: number) {
-        this._a = ~~clamp(alpha, 0, 255);
+        this._data[A_INDEX] = alpha;
     }
 
     // compatibility with vector interfaces
-    get x (): number { return this._r * toFloat; }
-    set x (value: number) { this.r = value * 255; }
-    get y (): number { return this._g * toFloat; }
-    set y (value: number) { this.g = value * 255; }
-    get z (): number { return this._b * toFloat; }
-    set z (value: number) { this.b = value * 255; }
-    get w (): number { return this._a * toFloat; }
-    set w (value: number) { this.a = value * 255; }
+    get x (): number { return this._data[R_INDEX] * toFloat; }
+    set x (value: number) { this._data[R_INDEX] = value * 255; }
+    get y (): number { return this._data[G_INDEX] * toFloat; }
+    set y (value: number) { this._data[G_INDEX] = value * 255; }
+    get z (): number { return this._data[B_INDEX] * toFloat; }
+    set z (value: number) { this._data[B_INDEX] = value * 255; }
+    get w (): number { return this._data[A_INDEX] * toFloat; }
+    set w (value: number) { this._data[A_INDEX] = value * 255; }
 
     /**
      * @en Construct a same color from the given color
@@ -427,10 +429,8 @@ export class Color extends ValueType {
      */
     public clone (): Color {
         const ret = new Color();
-        ret._r = this._r;
-        ret._g = this._g;
-        ret._b = this._b;
-        ret._a = this._a;
+        ret._data.set(this._data);
+
         return ret;
     }
 
@@ -442,10 +442,10 @@ export class Color extends ValueType {
      */
     public equals (other: Readonly<Color>): boolean {
         const otherColor = other as Color;
-        return other && this._r === otherColor._r
-                     && this._g === otherColor._g
-                     && this._b === otherColor._b
-                     && this._a === otherColor._a;
+        return other && this._data[R_INDEX] === otherColor._data[R_INDEX]
+                     && this._data[G_INDEX] === otherColor._data[G_INDEX]
+                     && this._data[B_INDEX] === otherColor._data[B_INDEX]
+                     && this._data[A_INDEX] === otherColor._data[A_INDEX];
     }
 
     /**
@@ -551,9 +551,9 @@ export class Color extends ValueType {
         const prefix = '0';
         // #rrggbb
         const hex = [
-            (this._r < 16 ? prefix : '') + (this._r).toString(16),
-            (this._g < 16 ? prefix : '') + (this._g).toString(16),
-            (this._b < 16 ? prefix : '') + (this._b).toString(16),
+            (this._data[R_INDEX] < 16 ? prefix : '') + (this._data[R_INDEX]).toString(16),
+            (this._data[G_INDEX] < 16 ? prefix : '') + (this._data[G_INDEX]).toString(16),
+            (this._data[B_INDEX] < 16 ? prefix : '') + (this._data[B_INDEX]).toString(16),
         ];
         const i = -1;
         if (fmt === '#rgb') {
@@ -561,7 +561,7 @@ export class Color extends ValueType {
             hex[1] = hex[1][0];
             hex[2] = hex[2][0];
         } else if (fmt === '#rrggbbaa') {
-            hex.push((this._a < 16 ? prefix : '') + (this._a).toString(16));
+            hex.push((this._data[A_INDEX] < 16 ? prefix : '') + (this._data[A_INDEX]).toString(16));
         }
         return hex.join('');
     }
@@ -577,7 +577,7 @@ export class Color extends ValueType {
      * ```
      */
     public toRGBValue (): number {
-        return (this._b << 16 | this._g << 8 | this._r);
+        return (this._data[B_INDEX] << 16 | this._data[G_INDEX] << 8 | this._data[R_INDEX]);
     }
 
     /**
@@ -650,9 +650,9 @@ export class Color extends ValueType {
                 break;
             }
         }
-        this.r = r * 255;
-        this.g = g * 255;
-        this.b = b * 255;
+        this._data[R_INDEX] = r * 255;
+        this._data[G_INDEX] = g * 255;
+        this._data[B_INDEX] = b * 255;
         return this;
     }
 
@@ -668,9 +668,9 @@ export class Color extends ValueType {
      * ```
      */
     public toHSV (): { h: number; s: number; v: number; } {
-        const r = this._r * toFloat;
-        const g = this._g * toFloat;
-        const b = this._b * toFloat;
+        const r = this._data[R_INDEX] * toFloat;
+        const g = this._data[G_INDEX] * toFloat;
+        const b = this._data[B_INDEX] * toFloat;
         const hsv = { h: 0, s: 0, v: 0 };
         const max = Math.max(r, g, b);
         const min = Math.min(r, g, b);
@@ -708,15 +708,21 @@ export class Color extends ValueType {
     public set (r?: number | Readonly<Color>, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
             const other = r as Color;
-            this.r = other._r;
-            this.g = other._g;
-            this.b = other._b;
-            this.a = other._a;
+            if (other._data) {
+                // Tween action uses reflection to set color, so other may be just a IColorLike object.
+                // So should check _data property.
+                this._data.set(other._data);
+            } else {
+                this._data[R_INDEX] = other.r ?? 0;
+                this._data[G_INDEX] = other.g ?? 0;
+                this._data[B_INDEX] = other.b ?? 0;
+                this._data[A_INDEX] = other.a ?? 255;
+            }
         } else {
-            this.r = r ?? 0;
-            this.g = g ?? 0;
-            this.b = b ?? 0;
-            this.a = a ?? 255;
+            this._data[R_INDEX] = r ?? 0;
+            this._data[G_INDEX] = g ?? 0;
+            this._data[B_INDEX] = b ?? 0;
+            this._data[A_INDEX] = a ?? 255;
         }
         return this;
     }
@@ -729,6 +735,15 @@ export class Color extends ValueType {
     public multiply (other: Color): Color {
         Color.multiply(this, this, other);
         return this;
+    }
+
+    /**
+     * @en It is used in tween action. As can not modify this._data directly.
+     * @zn 被 tween action 使用。因为不能直接修改 this._data，所以返回用于修改的属性。
+     * @returns @en ['r', 'g', 'b', 'a'] @zh ['r', 'g', 'b', 'a']
+     */
+    public getModifiableProperties (): string[] {
+        return ['r', 'g', 'b', 'a'];
     }
 }
 
