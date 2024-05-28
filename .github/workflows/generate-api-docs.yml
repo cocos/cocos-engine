@@ -40,7 +40,7 @@ jobs:
     - name: Checkout the tool
       uses: actions/checkout@v4
       with:
-        repository: dumganhar/creator-api-doc
+        repository: cocos/creator-api-doc
         path: creator-api-doc
         ref: main
 
