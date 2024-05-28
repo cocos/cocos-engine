@@ -2,6 +2,12 @@ name: Generate API docs JSON
 
 on:
   workflow_dispatch:
+    inputs:
+      target_tag:
+        description: 'The ref (branch, tag or commit-id) to build API docs'
+        type: string
+        default: 'v3.8.4'
+        required: true
 
 jobs:
   build-api-doc:
@@ -15,14 +21,19 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        ref: ${{ github.ref }}
+        ref: ${{ github.event.inputs.target_tag }}
+
+    - name: Show ref
+      run: |
+        echo "ref: ${{ github.event.inputs.target_tag }}"
 
     - name: Download external libraries
       run: |
-        EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+        EXT_VERSION=`grep checkout native/external-config.json | awk -F'"' '{print $4}'`
+        echo "EXT_VERSION: ${EXT_VERSION}"
         git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
 
-    - name: Install
+    - name: Install Cocos Engine
       run: |
         npm i
 
@@ -41,8 +52,9 @@ jobs:
         echo "ENGINE_ROOT: ${ENGINE_ROOT}"
         cd creator-api-doc
         npm i
+        # apply the url patch for typedoc@0.22.13
+        npm run apply-patch
         npm run build
-        npm run test
         node ./lib/cli.js -p $ENGINE_ROOT -o $ENGINE_ROOT/Cocos-Creator-API.json
         ls -l ..
 
