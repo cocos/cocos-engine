@@ -1,0 +1,54 @@
+name: Generate API docs JSON
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-api-doc:
+    runs-on: ubuntu-latest
+    name: "Generate API docs JSON"
+    steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.ref }}
+
+    - name: Download external libraries
+      run: |
+        EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+        git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
+    - name: Install
+      run: |
+        npm i
+
+    - name: Checkout the tool
+      uses: actions/checkout@v4
+      with:
+        repository: dumganhar/creator-api-doc
+        path: creator-api-doc
+        ref: main
+
+    - name: Generate
+      run: |
+        pwd
+        ls -l
+        ENGINE_ROOT=$(pwd)
+        echo "ENGINE_ROOT: ${ENGINE_ROOT}"
+        cd creator-api-doc
+        npm i
+        npm run build
+        npm run test
+        node ./lib/cli.js -p $ENGINE_ROOT -o $ENGINE_ROOT/Cocos-Creator-API.json
+        ls -l ..
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with: 
+        name: Cocos-Creator-API
+        path: Cocos-Creator-API.json
+
