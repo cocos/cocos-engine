@@ -1780,9 +1780,12 @@ export class FXAA {
     enabled = false;
 }
 
+export class ForwardPipeline {
+    mobileMaxSpotLightShadowMaps = 4;
+}
+
 export class PipelineSettings {
-    enablePostProcess = false;
-    shadingScale = 1;
+    readonly forwardPipeline: ForwardPipeline = new ForwardPipeline();
     depthOfField?: DepthOfField;
     bloom?: Bloom;
     toneMapping?: ToneMapping;

@@ -1850,9 +1850,12 @@ struct FXAA {
     bool enabled{false};
 };
 
+struct ForwardPipeline {
+    uint32_t mobileMaxSpotLightShadowMaps{4};
+};
+
 struct PipelineSettings {
-    bool enablePostProcess{false};
-    float shadingScale{1};
+    ForwardPipeline forwardPipeline;
     DepthOfField depthOfField;
     Bloom bloom;
     ToneMapping toneMapping;

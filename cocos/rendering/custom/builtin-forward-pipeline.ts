@@ -23,12 +23,12 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { cclegacy } from '../../core';
+import { cclegacy, sys, Vec3 } from '../../core';
 import { AABB } from '../../core/geometry/aabb';
 import { Frustum } from '../../core/geometry/frustum';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
-import { ClearFlagBit, Color, LoadOp, StoreOp, Viewport } from '../../gfx/base/define';
+import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../gfx/base/define';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Camera, CameraUsage } from '../../render-scene/scene/camera';
@@ -36,8 +36,8 @@ import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { CSMLevel } from '../../render-scene/scene/shadows';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { defaultWindowResize } from './framework';
-import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder } from './pipeline';
+import { defaultWindowResize, supportsR32FloatTexture } from './framework';
+import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder, PipelineSettings } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
 
 function forwardNeedClearColor (camera: Camera): boolean {
@@ -87,7 +87,7 @@ class ForwardLighting {
     //----------------------------------------------------------------
     // Interface
     //----------------------------------------------------------------
-    public cullLights (scene: RenderScene, frustum: Frustum): void {
+    public cullLights (scene: RenderScene, frustum: Frustum, cameraPos?: Vec3): void {
         // TODO(zhouzhenglong): Make light culling native
         this.lights.length = 0;
         this.shadowEnabledSpotLights.length = 0;
@@ -132,21 +132,14 @@ class ForwardLighting {
                 this.lights.push(light);
             }
         }
-    }
 
-    // Notice: ForwardLighting cannot handle a lot of lights.
-    // If there are too many lights, the performance will be very poor.
-    // If many lights are needed, please implement a forward+ or deferred rendering pipeline.
-    public addLightPasses (
-        colorName: string,
-        depthStencilName: string,
-        id: number, // window id
-        width: number,
-        height: number,
-        camera: Camera,
-        ppl: BasicPipeline,
-        pass: BasicRenderPassBuilder,
-    ): BasicRenderPassBuilder {
+        if (cameraPos) {
+            this.shadowEnabledSpotLights.sort(
+                (lhs, rhs) => Vec3.squaredDistance(cameraPos, lhs.position) - Vec3.squaredDistance(cameraPos, rhs.position),
+            );
+        }
+    }
+    private _addLightQueues (camera: Camera, pass: BasicRenderPassBuilder): void {
         for (const light of this.lights) {
             const queue = pass.addQueue(QueueHint.BLEND, 'forward-add');
             switch (light.type) {
@@ -171,19 +164,65 @@ class ForwardLighting {
                 light,
             );
         }
+    }
+    public addMobileShadowPasses (ppl: BasicPipeline, camera: Camera, maxNumShadowMaps: number): void {
+        let i = 0;
         for (const light of this.shadowEnabledSpotLights) {
             const shadowMapSize = ppl.pipelineSceneData.shadows.size;
             const shadowPass = ppl.addRenderPass(shadowMapSize.x, shadowMapSize.y, 'default');
+            shadowPass.name = `SpotLightShadowPass${i}`;
+            shadowPass.addRenderTarget(`SpotShadowMap${i}`, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, 1));
+            shadowPass.addDepthStencil(`SpotShadowDepth${i}`, LoadOp.CLEAR, StoreOp.DISCARD);
+            shadowPass.addQueue(QueueHint.NONE, 'shadow-caster')
+                .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER)
+                .useLightFrustum(light);
+            ++i;
+            if (i >= maxNumShadowMaps) {
+                break;
+            }
+        }
+    }
+    public addMobileLightQueues (pass: BasicRenderPassBuilder, camera: Camera, maxNumShadowMaps: number): void {
+        this._addLightQueues(camera, pass);
+        let i = 0;
+        for (const light of this.shadowEnabledSpotLights) {
+            // Add spot-light pass
+            // Save last RenderPass to the `pass` variable
+            // TODO(zhouzhenglong): Fix per queue addTexture
+            pass.addTexture(`SpotShadowMap${i}`, 'cc_spotShadowMap');
+            const queue = pass.addQueue(QueueHint.BLEND, 'forward-add');
+            queue.addScene(camera, SceneFlags.BLEND, light);
+            ++i;
+            if (i >= maxNumShadowMaps) {
+                break;
+            }
+        }
+    }
+
+    // Notice: ForwardLighting cannot handle a lot of lights.
+    // If there are too many lights, the performance will be very poor.
+    // If many lights are needed, please implement a forward+ or deferred rendering pipeline.
+    public addLightPasses (
+        colorName: string,
+        depthStencilName: string,
+        id: number, // window id
+        width: number,
+        height: number,
+        camera: Camera,
+        ppl: BasicPipeline,
+        pass: BasicRenderPassBuilder,
+    ): BasicRenderPassBuilder {
+        this._addLightQueues(camera, pass);
+
+        const shadowMapSize = ppl.pipelineSceneData.shadows.size;
+        for (const light of this.shadowEnabledSpotLights) {
+            const shadowPass = ppl.addRenderPass(shadowMapSize.x, shadowMapSize.y, 'default');
             shadowPass.name = 'SpotlightShadowPass';
+            // Reuse csm shadow map
             shadowPass.addRenderTarget(`ShadowMap${id}`, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, 1));
             shadowPass.addDepthStencil(`ShadowDepth${id}`, LoadOp.CLEAR, StoreOp.DISCARD);
             shadowPass.addQueue(QueueHint.NONE, 'shadow-caster')
-                .addScene(
-                    camera,
-                    SceneFlags.OPAQUE
-                    | SceneFlags.MASK
-                    | SceneFlags.SHADOW_CASTER,
-                )
+                .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER)
                 .useLightFrustum(light);
 
             // Add spot-light pass
@@ -210,6 +249,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     readonly _viewport = new Viewport();
 
     // Forward lighting
+    private readonly settings: PipelineSettings = {
+        forwardPipeline: {
+            mobileMaxSpotLightShadowMaps: 4,
+        },
+    };
     private readonly forwardLighting = new ForwardLighting();
 
     //----------------------------------------------------------------
@@ -217,15 +261,27 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     //----------------------------------------------------------------
     gameWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
         defaultWindowResize(ppl, window, width, height);
+        if (sys.isMobile) {
+            const shadowMapSize = ppl.pipelineSceneData.shadows.size;
+            const shadowFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
+            const count = this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps;
+            for (let i = 0; i !== count; ++i) {
+                ppl.addRenderTarget(`SpotShadowMap${i}`, shadowFormat, shadowMapSize.x, shadowMapSize.y);
+                ppl.addDepthStencil(`SpotShadowDepth${i}`, Format.DEPTH_STENCIL, shadowMapSize.x, shadowMapSize.y);
+            }
+        }
     }
-
     setup (cameras: Camera[], ppl: BasicPipeline): void {
         for (const camera of cameras) {
             // skip invalid camera
             if (camera.scene === null || camera.window === null) {
                 continue;
             }
-            this._buildForwardPipeline(ppl, camera, camera.scene);
+            if (sys.isMobile) {
+                this._buildMobileForwardPipeline(ppl, camera, camera.scene);
+            } else {
+                this._buildForwardPipeline(ppl, camera, camera.scene);
+            }
         }
     }
 
@@ -234,7 +290,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     //----------------------------------------------------------------
     // build forward lighting pipeline
     private _buildForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
-        //----------------------------------------------------------------
         // Init
         const width = Math.max(Math.floor(camera.window.width), 1);
         const height = Math.max(Math.floor(camera.window.height), 1);
@@ -242,37 +297,45 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
         const mainLight = scene.mainLight;
+        const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY as number;
 
-        //----------------------------------------------------------------
         // Forward Lighting (Light Culling)
-        //----------------------------------------------------------------
         this.forwardLighting.cullLights(scene, camera.frustum);
 
-        //----------------------------------------------------------------
         // Main Directional light CSM Shadow Map
-        //----------------------------------------------------------------
         const enableCSM = mainLight !== null && mainLight.shadowEnabled;
         if (enableCSM) {
-            this._addCascadedShadowMapPass(
-                ppl,
-                id,
-                mainLight!,
-                camera,
-                cclegacy.director.root.device.capabilities.screenSpaceSignY as number,
-            );
+            this._addCascadedShadowMapPass(ppl, id, mainLight, camera, screenSpaceSignY);
         }
 
-        this._addForwardPasses(
-            ppl,
-            id,
-            camera,
-            width,
-            height,
-            colorName,
-            depthStencilName,
-            enableCSM,
-            mainLight,
-        );
+        // Forward Lighting
+        this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
+    }
+
+    private _buildMobileForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
+        // Init
+        const width = Math.max(Math.floor(camera.window.width), 1);
+        const height = Math.max(Math.floor(camera.window.height), 1);
+        const id = camera.window.renderWindowId;
+        const colorName = camera.window.colorName;
+        const depthStencilName = camera.window.depthStencilName;
+        const mainLight = scene.mainLight;
+        const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY as number;
+
+        // Forward Lighting (Light Culling)
+        this.forwardLighting.cullLights(scene, camera.frustum, camera.position);
+
+        // Main Directional light CSM shadow map
+        const enableCSM = mainLight !== null && mainLight.shadowEnabled;
+        if (enableCSM) {
+            this._addCascadedShadowMapPass(ppl, id, mainLight, camera, screenSpaceSignY);
+        }
+
+        // Spot light shadow maps
+        this.forwardLighting.addMobileShadowPasses(ppl, camera, this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps);
+
+        // Forward Lighting
+        this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
     }
 
     private _addCascadedShadowMapPass (
@@ -307,12 +370,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             const queue = pass.addQueue(QueueHint.NONE, 'shadow-caster');
             queue.setViewport(this._viewport);
             queue
-                .addScene(
-                    camera,
-                    SceneFlags.OPAQUE
-                    | SceneFlags.MASK
-                    | SceneFlags.SHADOW_CASTER,
-                )
+                .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER)
                 .useLightFrustum(light, level);
         }
     }
@@ -359,11 +417,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // add opaque and mask queue
         pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
-            .addScene(
-                camera,
-                SceneFlags.OPAQUE | SceneFlags.MASK,
-                mainLight || undefined,
-            );
+            .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
     }
 
     private _addForwardPasses (
@@ -397,30 +451,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
         pass.name = 'ForwardPass';
-        this._buildForwardMainLightPass(
-            pass,
-            id,
-            camera,
-            colorName,
-            depthStencilName,
-            enableCSM,
-            mainLight,
-        );
+        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, enableCSM, mainLight);
 
         //----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
         //----------------------------------------------------------------
         // Additive lights
-        const lastPass = this.forwardLighting.addLightPasses(
-            colorName,
-            depthStencilName,
-            id,
-            width,
-            height,
-            camera,
-            ppl,
-            pass,
-        );
+        const lastPass = this.forwardLighting
+            .addLightPasses(colorName, depthStencilName, id, width, height, camera, ppl, pass);
 
         //----------------------------------------------------------------
         // Forward Lighting (Blend)
@@ -431,11 +469,61 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             lastPass.showStatistics = true;
             flags |= SceneFlags.PROFILER;
         }
-        lastPass.addQueue(QueueHint.BLEND)
-            .addScene(
-                camera,
-                flags,
-                mainLight || undefined,
-            );
+        lastPass
+            .addQueue(QueueHint.BLEND)
+            .addScene(camera, flags, mainLight || undefined);
+    }
+
+    private _addMobileForwardPass (
+        ppl: BasicPipeline,
+        id: number,
+        camera: Camera,
+        width: number,
+        height: number,
+        colorName: string,
+        depthStencilName: string,
+        enableCSM: boolean,
+        mainLight: DirectionalLight | null,
+    ): void {
+        //----------------------------------------------------------------
+        // Dynamic states
+        //----------------------------------------------------------------
+        // Prepare camera clear color
+        this._clearColor.x = camera.clearColor.x;
+        this._clearColor.y = camera.clearColor.y;
+        this._clearColor.z = camera.clearColor.z;
+        this._clearColor.w = camera.clearColor.w;
+
+        // Prepare camera viewport
+        this._viewport.left = Math.floor(camera.viewport.x * width);
+        this._viewport.top = Math.floor(camera.viewport.y * height);
+        this._viewport.width = Math.floor(camera.viewport.z * width);
+        this._viewport.height = Math.floor(camera.viewport.w * height);
+
+        //----------------------------------------------------------------
+        // Forward Lighting (Main Directional Light)
+        //----------------------------------------------------------------
+        const pass = ppl.addRenderPass(width, height, 'default');
+        pass.name = 'ForwardPass';
+        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, enableCSM, mainLight);
+
+        //----------------------------------------------------------------
+        // Forward Lighting (Additive Lights)
+        //----------------------------------------------------------------
+        // Additive lights
+        this.forwardLighting.addMobileLightQueues(pass, camera, this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps);
+
+        //----------------------------------------------------------------
+        // Forward Lighting (Blend)
+        //----------------------------------------------------------------
+        // Add transparent queue
+        let flags =  SceneFlags.BLEND | SceneFlags.UI;
+        if (DEBUG && camera.cameraUsage === CameraUsage.GAME && camera.window.swapchain) {
+            pass.showStatistics = true;
+            flags |= SceneFlags.PROFILER;
+        }
+        pass
+            .addQueue(QueueHint.BLEND)
+            .addScene(camera, flags, mainLight || undefined);
     }
 }

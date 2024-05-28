@@ -67,6 +67,7 @@ struct ToneMapping;
 struct ColorGrading;
 struct FSR;
 struct FXAA;
+struct ForwardPipeline;
 struct PipelineSettings;
 
 } // namespace render
