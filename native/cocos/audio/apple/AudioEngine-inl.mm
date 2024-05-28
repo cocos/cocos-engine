@@ -96,7 +96,7 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         }
 
         BOOL success = [[AVAudioSession sharedInstance]
-            setCategory:AVAudioSessionCategoryPlayback
+            setCategory:AVAudioSessionCategoryAmbient
                   error:nil];
         if (!success)
             ALOGE("Fail to set audio session.");
@@ -146,7 +146,7 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             resumeOnBecomingActive = false;
             ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
             NSError *error = nil;
-            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
+            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
             if (!success) {
                 ALOGE("Fail to set audio session.");
                 return;
