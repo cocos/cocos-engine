@@ -442,10 +442,11 @@ export class Color extends ValueType implements Modifiable {
      */
     public equals (other: Readonly<Color>): boolean {
         const otherColor = other as Color;
-        return other && this._data[R_INDEX] === otherColor._data[R_INDEX]
-                     && this._data[G_INDEX] === otherColor._data[G_INDEX]
-                     && this._data[B_INDEX] === otherColor._data[B_INDEX]
-                     && this._data[A_INDEX] === otherColor._data[A_INDEX];
+        // otherColor may not be Color instance if invoked by tween action, so use getter to get property values.
+        return other && this._data[R_INDEX] === otherColor.r
+                     && this._data[G_INDEX] === otherColor.g
+                     && this._data[B_INDEX] === otherColor.b
+                     && this._data[A_INDEX] === otherColor.a;
     }
 
     /**
