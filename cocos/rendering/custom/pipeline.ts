@@ -1707,6 +1707,11 @@ export interface PipelineBuilder {
         window: RenderWindow,
         width: number,
         height: number): void;
+    customWindowResize? (
+        pipeline: BasicPipeline,
+        window: RenderWindow,
+        width: number,
+        height: number): void;
     /**
      * @en Setup render graph
      * @zh 构建渲染管线
@@ -1776,6 +1781,8 @@ export class FXAA {
 }
 
 export class PipelineSettings {
+    enablePostProcess = false;
+    shadingScale = 1;
     depthOfField?: DepthOfField;
     bloom?: Bloom;
     toneMapping?: ToneMapping;

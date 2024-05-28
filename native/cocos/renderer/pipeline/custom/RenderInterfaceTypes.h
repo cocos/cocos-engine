@@ -1766,6 +1766,7 @@ public:
     virtual void editorGameViewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
     virtual void editorPreviewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
     virtual void gameWindowResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void customWindowResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
     /**
      * @en Setup render graph
      * @zh 构建渲染管线
@@ -1850,6 +1851,8 @@ struct FXAA {
 };
 
 struct PipelineSettings {
+    bool enablePostProcess{false};
+    float shadingScale{1};
     DepthOfField depthOfField;
     Bloom bloom;
     ToneMapping toneMapping;

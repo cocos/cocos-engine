@@ -100,8 +100,8 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         }
         default:
             if (camera.cameraUsage > CameraUsage.GAME) {
-                if (builder.gameWindowResize) {
-                    builder.gameWindowResize(ppl, camera.window, width, height);
+                if (builder.customWindowResize) {
+                    builder.customWindowResize(ppl, camera.window, width, height);
                 } else {
                     defaultWindowResize(ppl, camera.window, width, height);
                 }
