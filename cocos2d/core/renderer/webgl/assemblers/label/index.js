@@ -51,6 +51,8 @@ Label._canvasPool = {
                 canvas: canvas,
                 context: context
             }
+            // canvas没有被put过,所有的canvas都没有被这个pool管理
+            this.pool.push(data)
 
             // default text info
             context.textBaseline = 'alphabetic';
