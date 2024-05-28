@@ -1729,3 +1729,7 @@ export interface RenderingModule {
     getSubpassID (passID: number, name: string): number;
     getPhaseID (subpassOrPassID: number, name: string): number;
 }
+
+export class PipelineSettings {
+    toneMapping?: string;
+}

@@ -60,6 +60,7 @@ class Pipeline;
 class PipelineBuilder;
 class RenderingModule;
 class Factory;
+struct PipelineSettings;
 
 } // namespace render
 

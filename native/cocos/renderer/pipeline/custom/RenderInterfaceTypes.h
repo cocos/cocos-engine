@@ -1803,6 +1803,10 @@ public:
     static Pipeline *createPipeline();
 };
 
+struct PipelineSettings {
+    ccstd::string toneMapping;
+};
+
 } // namespace render
 
 } // namespace cc
