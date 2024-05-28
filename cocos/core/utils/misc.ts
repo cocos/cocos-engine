@@ -35,6 +35,10 @@ import type { Component } from '../../scene-graph';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
+export interface Modifiable {
+    getModifiableProperties(): string[];
+}
+
 const BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const values: number[] = new Array(123); // max char code in base64Keys
 for (let i = 0; i < 123; ++i) { values[i] = 64; } // fill with placeholder('=') index

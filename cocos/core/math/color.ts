@@ -31,6 +31,7 @@ import { legacyCC } from '../global-exports';
 import { assertIsTrue } from '../data/utils/asserts';
 import { Vec4 } from './vec4';
 import { Vec3 } from './vec3';
+import { Modifiable } from '../utils/misc';
 
 const toFloat = 1 / 255;
 const R_INDEX = 0;
@@ -44,7 +45,7 @@ const A_INDEX = 3;
  * @zh 通过 Red、Green、Blue 颜色通道表示颜色，并通过 Alpha 通道表示不透明度。<br/>
  * 每个通道都为取值范围 [0, 255] 的整数。<br/>
  */
-export class Color extends ValueType {
+export class Color extends ValueType implements Modifiable {
     public static WHITE = Object.freeze(new Color(255, 255, 255, 255));
     public static GRAY = Object.freeze(new Color(127, 127, 127, 255));
     public static BLACK = Object.freeze(new Color(0, 0, 0, 255));
@@ -707,7 +708,16 @@ export class Color extends ValueType {
     public set (r?: number | Readonly<Color>, g?: number, b?: number, a?: number): Color {
         if (typeof r === 'object') {
             const other = r as Color;
-            this._data.set(other._data);
+            if (other._data) {
+                // Tween action uses reflection to set color, so other may be just a IColorLike object.
+                // So should check _data property.
+                this._data.set(other._data);
+            } else {
+                this._data[R_INDEX] = other.r ?? 0;
+                this._data[G_INDEX] = other.g ?? 0;
+                this._data[B_INDEX] = other.b ?? 0;
+                this._data[A_INDEX] = other.a ?? 255;
+            }
         } else {
             this._data[R_INDEX] = r ?? 0;
             this._data[G_INDEX] = g ?? 0;
@@ -725,6 +735,15 @@ export class Color extends ValueType {
     public multiply (other: Color): Color {
         Color.multiply(this, this, other);
         return this;
+    }
+
+    /**
+     * @en It is used in tween action. As can not modify this._data directly.
+     * @zn 被 tween action 使用。因为不能直接修改 this._data，所以返回用于修改的属性。
+     * @returns @en ['r', 'g', 'b', 'a'] @zh ['r', 'g', 'b', 'a']
+     */
+    public getModifiableProperties (): string[] {
+        return ['r', 'g', 'b', 'a'];
     }
 }
 

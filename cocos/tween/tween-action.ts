@@ -191,8 +191,18 @@ export class TweenAction<T> extends ActionInterval {
                     prop.start = {}; prop.current = {}; prop.end = {};
                 }
 
-                for (const k in value) {
-                    if (Number.isNaN(_t[k] as number)) continue;
+                let propertyKeys: string[];
+                if (value.getModifiableProperties) {
+                    propertyKeys = value.getModifiableProperties();
+                } else {
+                    propertyKeys = Object.keys(value as object);
+                }
+
+                for (let i = 0, len = propertyKeys.length; i < len; ++i) {
+                    const k = propertyKeys[i];
+                    // eslint-disable-next-line no-restricted-globals
+                    if (isNaN(_t[k] as number)) continue;
+
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
                     prop.end[k] = relative ? _t[k] + value[k] : value[k];
