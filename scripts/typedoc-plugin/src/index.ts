@@ -1,2 +1,0 @@
-
-export { load } from './plugin';
