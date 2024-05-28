@@ -29,6 +29,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/Ptr.h"
 #include "cocos/core/ArrayBuffer.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
@@ -1803,8 +1804,58 @@ public:
     static Pipeline *createPipeline();
 };
 
+struct HBAO {
+    bool enabled{false};
+    float radiusScale{1};
+    float angleBiasDegree{10};
+    float blurSharpness{3};
+    float aoSaturation{1};
+    bool needBlur{false};
+};
+
+struct DepthOfField {
+    bool enabled{false};
+    float focusDistance{0};
+    float focusRange{0};
+    float bokehRadius{1};
+};
+
+struct Bloom {
+    bool enabled{false};
+    bool enableAlphaMask{false};
+    bool useHdrIlluminance{false};
+    uint32_t iterations{3};
+    float threshold{0.8};
+    float intensity{2.3};
+};
+
+struct ToneMapping {
+    bool enabled{false};
+    ccstd::string algorithm;
+};
+
+struct ColorGrading {
+    bool enabled{false};
+    float contribute{0};
+    IntrusivePtr<gfx::Texture> colorGradingMap;
+};
+
+struct FSR {
+    bool enabled{false};
+    float sharpness{0.8};
+};
+
+struct FXAA {
+    bool enabled{false};
+};
+
 struct PipelineSettings {
-    ccstd::string toneMapping;
+    DepthOfField depthOfField;
+    Bloom bloom;
+    ToneMapping toneMapping;
+    ColorGrading colorGrading;
+    FSR fsr;
+    FXAA fxaa;
 };
 
 } // namespace render

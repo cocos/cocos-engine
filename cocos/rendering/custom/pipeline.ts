@@ -1730,6 +1730,56 @@ export interface RenderingModule {
     getPhaseID (subpassOrPassID: number, name: string): number;
 }
 
+export class HBAO {
+    enabled = false;
+    radiusScale?: number; /*1*/
+    angleBiasDegree?: number; /*10*/
+    blurSharpness?: number; /*3*/
+    aoSaturation?: number; /*1*/
+    needBlur?: boolean; /*false*/
+}
+
+export class DepthOfField {
+    enabled = false;
+    focusDistance?: number; /*0*/
+    focusRange?: number; /*0*/
+    bokehRadius?: number; /*1*/
+}
+
+export class Bloom {
+    enabled = false;
+    enableAlphaMask?: boolean; /*false*/
+    useHdrIlluminance?: boolean; /*false*/
+    iterations?: number; /*3*/
+    threshold?: number; /*0.8*/
+    intensity?: number; /*2.3*/
+}
+
+export class ToneMapping {
+    enabled = false;
+    algorithm?: string; /*''*/
+}
+
+export class ColorGrading {
+    enabled = false;
+    contribute?: number; /*0*/
+    /*refcount*/ colorGradingMap?: Texture;
+}
+
+export class FSR {
+    enabled = false;
+    sharpness?: number; /*0.8*/
+}
+
+export class FXAA {
+    enabled = false;
+}
+
 export class PipelineSettings {
-    toneMapping?: string;
+    depthOfField?: DepthOfField;
+    bloom?: Bloom;
+    toneMapping?: ToneMapping;
+    colorGrading?: ColorGrading;
+    fsr?: FSR;
+    fxaa?: FXAA;
 }
