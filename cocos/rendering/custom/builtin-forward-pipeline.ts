@@ -307,7 +307,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Main Directional light CSM Shadow Map
         const enableCSM = mainLight !== null && mainLight.shadowEnabled;
         if (enableCSM) {
-            this._addCascadedShadowMapPass(ppl, id, mainLight, camera, screenSpaceSignY);
+            this._addCascadedShadowMapPass(ppl, id, mainLight!, camera, screenSpaceSignY);
         }
 
         // Forward Lighting
@@ -330,7 +330,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Main Directional light CSM shadow map
         const enableCSM = mainLight !== null && mainLight.shadowEnabled;
         if (enableCSM) {
-            this._addCascadedShadowMapPass(ppl, id, mainLight, camera, screenSpaceSignY);
+            this._addCascadedShadowMapPass(ppl, id, mainLight!, camera, screenSpaceSignY);
         }
 
         // Spot light shadow maps
