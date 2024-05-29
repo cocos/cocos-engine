@@ -279,7 +279,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             buildCascadedShadowMapPass(
                 ppl,
                 id,
-                mainLight,
+                mainLight!,
                 camera,
                 cclegacy.director.root.device.capabilities.screenSpaceSignY as number,
             );

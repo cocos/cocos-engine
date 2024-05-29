@@ -213,7 +213,7 @@ export class TweenAction<T> extends ActionInterval {
     }
 
     update (t: number): void {
-        const workerTarget = this.workerTarget ?? this.target;
+        const workerTarget = (this.workerTarget ?? this.target) as T;
         if (!workerTarget) return;
 
         if (!this._opts) return;
@@ -249,8 +249,8 @@ export class TweenAction<T> extends ActionInterval {
 
             workerTarget[name] = prop.current;
         }
-        if (opts.onUpdate) { opts.onUpdate(workerTarget as T, t); }
-        if (t === 1 && opts.onComplete) { opts.onComplete(workerTarget as T); }
+        if (opts.onUpdate) { opts.onUpdate(workerTarget, t); }
+        if (t === 1 && opts.onComplete) { opts.onComplete(workerTarget); }
     }
 
     progress (start: number, end: number, current: number, t: number): number {
