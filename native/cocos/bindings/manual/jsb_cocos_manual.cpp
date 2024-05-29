@@ -701,9 +701,9 @@ static bool js_engine_Color_get_data(se::State &s) // NOLINT(readability-identif
         static_cast<uint8_t>(cobj->g),
         static_cast<uint8_t>(cobj->b),
         static_cast<uint8_t>(cobj->a)};
-    se::Object *dataObj = se::Object::createTypedArray(se::Object::TypedArrayType::UINT8_CLAMPED,
-                                                       data, sizeof(uint8_t) * 4);
-    SE_PRECONDITION2(dataObj, false, "Can not create Uint8ClampedTypedArray");
+    se::HandleObject dataObj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8_CLAMPED,
+                                                          data, sizeof(uint8_t) * 4));
+    SE_PRECONDITION2(dataObj != nullptr, false, "Can not create Uint8ClampedTypedArray");
 
     s.rval() = se::Value(dataObj);
     return true;
@@ -723,16 +723,15 @@ static bool js_engine_Color_set_data(se::State &s) // NOLINT(readability-identif
     ok &= val.isObject() && val.toObject()->isTypedArray();
     SE_PRECONDITION2(ok, false, "It is not a TypeArray");
 
-    uint8_t data[4];
-    uint8_t *ptr = data;
-    size_t length;
+    uint8_t *ptr = nullptr;
+    size_t length = 0;
     val.toObject()->getTypedArrayData(&ptr, &length);
-    SE_PRECONDITION2(length == sizeof(data), false, "Invalid TypedArray size");
+    SE_PRECONDITION2(length == sizeof(uint8_t) * 4, false, "Invalid TypedArray size");
 
-    cobj->r = data[0];
-    cobj->g = data[1];
-    cobj->b = data[2];
-    cobj->a = data[3];
+    cobj->r = ptr[0];
+    cobj->g = ptr[1];
+    cobj->b = ptr[2];
+    cobj->a = ptr[3];
 
     return true;
 }
