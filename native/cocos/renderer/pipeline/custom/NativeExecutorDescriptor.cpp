@@ -30,6 +30,7 @@
 #include "NativePipelineTypes.h"
 #include "NativeUtils.h"
 #include "RenderGraphGraphs.h"
+#include "details/GraphView.h"
 #include "details/GslUtils.h"
 #include "details/Range.h"
 
@@ -107,152 +108,6 @@ void uploadUniformBuffer(
 
     CC_EXPECTS(passSet);
     passSet->bindBuffer(bindID, buffer);
-}
-
-gfx::DescriptorSet* updatePerPassDescriptorSet(
-    gfx::CommandBuffer* cmdBuff,
-    const LayoutGraphData& lg,
-    const DescriptorSetData& set,
-    const RenderData& user,
-    LayoutGraphNodeResource& node) {
-    // update per pass resources
-    const auto& data = set.descriptorSetLayoutData;
-
-    auto& prevSet = node.descriptorSetPool.getCurrentDescriptorSet();
-    gfx::DescriptorSet* newSet = node.descriptorSetPool.allocateDescriptorSet();
-    for (const auto& block : data.descriptorBlocks) {
-        CC_EXPECTS(block.descriptors.size() == block.capacity);
-        auto bindID = block.offset;
-        switch (block.type) {
-            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
-            case DescriptorTypeOrder::UNIFORM_BUFFER: {
-                for (const auto& d : block.descriptors) {
-                    // get uniform block
-                    const auto& uniformBlock = data.uniformBlocks.at(d.descriptorID);
-
-                    auto& resource = node.uniformBuffers.at(d.descriptorID);
-                    updateCpuUniformBuffer(lg, user, uniformBlock, false, resource.cpuBuffer);
-
-                    // upload gfx buffer
-                    uploadUniformBuffer(newSet, bindID, resource, cmdBuff);
-
-                    // increase slot
-                    // TODO(zhouzhenglong): here binding will be refactored in the future
-                    // current implementation is incorrect, and we assume d.count == 1
-                    CC_EXPECTS(d.count == 1);
-                    bindID += d.count;
-                }
-                break;
-            }
-            case DescriptorTypeOrder::SAMPLER_TEXTURE: {
-                CC_EXPECTS(newSet);
-                for (const auto& d : block.descriptors) {
-                    CC_EXPECTS(d.count == 1);
-                    CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
-                               d.type <= gfx::Type::SAMPLER_CUBE);
-                    // textures
-                    if (auto iter = user.textures.find(d.descriptorID.value);
-                        iter != user.textures.end()) {
-                        newSet->bindTexture(bindID, iter->second.get());
-                    } else {
-                        auto* prevTexture = prevSet.getTexture(bindID);
-                        CC_ENSURES(prevTexture);
-                        newSet->bindTexture(bindID, prevTexture);
-                    }
-
-                    // samplers
-                    if (auto iter = user.samplers.find(d.descriptorID.value);
-                        iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second);
-                    }
-
-                    // increase descriptor binding offset
-                    bindID += d.count;
-                }
-                break;
-            }
-            case DescriptorTypeOrder::SAMPLER:
-                for (const auto& d : block.descriptors) {
-                    CC_EXPECTS(d.count == 1);
-                    auto iter = user.samplers.find(d.descriptorID.value);
-                    if (iter != user.samplers.end()) {
-                        newSet->bindSampler(bindID, iter->second);
-                    } else {
-                        auto* prevSampler = prevSet.getSampler(bindID);
-                        CC_ENSURES(prevSampler);
-                        newSet->bindSampler(bindID, prevSampler);
-                    }
-                    bindID += d.count;
-                }
-                break;
-            case DescriptorTypeOrder::TEXTURE:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
-            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
-            case DescriptorTypeOrder::STORAGE_BUFFER:
-                CC_EXPECTS(newSet);
-                for (const auto& d : block.descriptors) {
-                    bool found = false;
-                    CC_EXPECTS(d.count == 1);
-                    if (auto iter = user.buffers.find(d.descriptorID.value);
-                        iter != user.buffers.end()) {
-                        newSet->bindBuffer(bindID, iter->second.get());
-                        found = true;
-                    } else {
-                        auto* prevBuffer = prevSet.getBuffer(bindID);
-                        CC_ENSURES(prevBuffer);
-                        newSet->bindBuffer(bindID, prevBuffer);
-                    }
-                    auto name = lg.valueNames[d.descriptorID.value];
-                    bindID += d.count;
-                }
-                break;
-            case DescriptorTypeOrder::STORAGE_IMAGE:
-                // not supported yet
-                CC_EXPECTS(false);
-                break;
-            case DescriptorTypeOrder::INPUT_ATTACHMENT:
-                CC_EXPECTS(newSet);
-                for (const auto& d : block.descriptors) {
-                    CC_EXPECTS(d.count == 1);
-                    auto iter = user.textures.find(d.descriptorID.value);
-                    if (iter != user.textures.end()) {
-                        newSet->bindTexture(bindID, iter->second.get());
-                    } else {
-                        auto* prevTexture = prevSet.getTexture(bindID);
-                        if (prevTexture) {
-                            newSet->bindTexture(bindID, prevTexture);
-                        }
-                    }
-                    bindID += d.count;
-                }
-                break;
-            default:
-                CC_EXPECTS(false);
-                break;
-        }
-    }
-    newSet->update();
-
-    return newSet;
-}
-
-gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
-    RenderGraphVisitorContext& ctx, RenderGraph::vertex_descriptor sceneID) {
-    gfx::DescriptorSet* perPassSet = nullptr;
-    // update states
-    CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
-    const auto& passLayoutID = ctx.currentPassLayoutID;
-    auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
-    auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
-    if (iter != layout.descriptorSets.end()) {
-        auto& set = iter->second;
-        auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
-        const auto& user = get(RenderGraph::DataTag{}, ctx.g, sceneID); // notice: sceneID
-        perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
-    }
-    return perPassSet;
 }
 
 gfx::DescriptorSet* initDescriptorSet(
@@ -468,6 +323,152 @@ gfx::DescriptorSet* initDescriptorSet(
     return newSet;
 }
 
+gfx::DescriptorSet* updatePerPassDescriptorSet(
+    gfx::CommandBuffer* cmdBuff,
+    const LayoutGraphData& lg,
+    const DescriptorSetData& set,
+    const RenderData& user,
+    LayoutGraphNodeResource& node) {
+    // update per pass resources
+    const auto& data = set.descriptorSetLayoutData;
+
+    auto& prevSet = node.descriptorSetPool.getCurrentDescriptorSet();
+    gfx::DescriptorSet* newSet = node.descriptorSetPool.allocateDescriptorSet();
+    for (const auto& block : data.descriptorBlocks) {
+        CC_EXPECTS(block.descriptors.size() == block.capacity);
+        auto bindID = block.offset;
+        switch (block.type) {
+            case DescriptorTypeOrder::DYNAMIC_UNIFORM_BUFFER:
+            case DescriptorTypeOrder::UNIFORM_BUFFER: {
+                for (const auto& d : block.descriptors) {
+                    // get uniform block
+                    const auto& uniformBlock = data.uniformBlocks.at(d.descriptorID);
+
+                    auto& resource = node.uniformBuffers.at(d.descriptorID);
+                    updateCpuUniformBuffer(lg, user, uniformBlock, false, resource.cpuBuffer);
+
+                    // upload gfx buffer
+                    uploadUniformBuffer(newSet, bindID, resource, cmdBuff);
+
+                    // increase slot
+                    // TODO(zhouzhenglong): here binding will be refactored in the future
+                    // current implementation is incorrect, and we assume d.count == 1
+                    CC_EXPECTS(d.count == 1);
+                    bindID += d.count;
+                }
+                break;
+            }
+            case DescriptorTypeOrder::SAMPLER_TEXTURE: {
+                CC_EXPECTS(newSet);
+                for (const auto& d : block.descriptors) {
+                    CC_EXPECTS(d.count == 1);
+                    CC_EXPECTS(d.type >= gfx::Type::SAMPLER1D &&
+                               d.type <= gfx::Type::SAMPLER_CUBE);
+                    // textures
+                    if (auto iter = user.textures.find(d.descriptorID.value);
+                        iter != user.textures.end()) {
+                        newSet->bindTexture(bindID, iter->second.get());
+                    } else {
+                        auto* prevTexture = prevSet.getTexture(bindID);
+                        CC_ENSURES(prevTexture);
+                        newSet->bindTexture(bindID, prevTexture);
+                    }
+
+                    // samplers
+                    if (auto iter = user.samplers.find(d.descriptorID.value);
+                        iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
+                    }
+
+                    // increase descriptor binding offset
+                    bindID += d.count;
+                }
+                break;
+            }
+            case DescriptorTypeOrder::SAMPLER:
+                for (const auto& d : block.descriptors) {
+                    CC_EXPECTS(d.count == 1);
+                    auto iter = user.samplers.find(d.descriptorID.value);
+                    if (iter != user.samplers.end()) {
+                        newSet->bindSampler(bindID, iter->second);
+                    } else {
+                        auto* prevSampler = prevSet.getSampler(bindID);
+                        CC_ENSURES(prevSampler);
+                        newSet->bindSampler(bindID, prevSampler);
+                    }
+                    bindID += d.count;
+                }
+                break;
+            case DescriptorTypeOrder::TEXTURE:
+                // not supported yet
+                CC_EXPECTS(false);
+                break;
+            case DescriptorTypeOrder::DYNAMIC_STORAGE_BUFFER:
+            case DescriptorTypeOrder::STORAGE_BUFFER:
+                CC_EXPECTS(newSet);
+                for (const auto& d : block.descriptors) {
+                    bool found = false;
+                    CC_EXPECTS(d.count == 1);
+                    if (auto iter = user.buffers.find(d.descriptorID.value);
+                        iter != user.buffers.end()) {
+                        newSet->bindBuffer(bindID, iter->second.get());
+                        found = true;
+                    } else {
+                        auto* prevBuffer = prevSet.getBuffer(bindID);
+                        CC_ENSURES(prevBuffer);
+                        newSet->bindBuffer(bindID, prevBuffer);
+                    }
+                    auto name = lg.valueNames[d.descriptorID.value];
+                    bindID += d.count;
+                }
+                break;
+            case DescriptorTypeOrder::STORAGE_IMAGE:
+                // not supported yet
+                CC_EXPECTS(false);
+                break;
+            case DescriptorTypeOrder::INPUT_ATTACHMENT:
+                CC_EXPECTS(newSet);
+                for (const auto& d : block.descriptors) {
+                    CC_EXPECTS(d.count == 1);
+                    auto iter = user.textures.find(d.descriptorID.value);
+                    if (iter != user.textures.end()) {
+                        newSet->bindTexture(bindID, iter->second.get());
+                    } else {
+                        auto* prevTexture = prevSet.getTexture(bindID);
+                        if (prevTexture) {
+                            newSet->bindTexture(bindID, prevTexture);
+                        }
+                    }
+                    bindID += d.count;
+                }
+                break;
+            default:
+                CC_EXPECTS(false);
+                break;
+        }
+    }
+    newSet->update();
+
+    return newSet;
+}
+
+gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
+    RenderGraphVisitorContext& ctx, RenderGraph::vertex_descriptor sceneID) {
+    gfx::DescriptorSet* perPassSet = nullptr;
+    // update states
+    CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
+    const auto& passLayoutID = ctx.currentPassLayoutID;
+    auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
+    auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
+    if (iter != layout.descriptorSets.end()) {
+        auto& set = iter->second;
+        auto& node = ctx.context.layoutGraphResources.at(passLayoutID);
+        const auto& user = get(RenderGraph::DataTag{}, ctx.g, sceneID); // notice: sceneID
+        perPassSet = updatePerPassDescriptorSet(ctx.cmdBuff, ctx.lg, set, user, node);
+    }
+    return perPassSet;
+}
+
 const PmrTransparentMap<ccstd::pmr::string, ccstd::pmr::vector<ComputeView>>&
 getComputeViews(RenderGraph::vertex_descriptor passID, const RenderGraph& rg) {
     if (holds<RasterPassTag>(passID, rg)) {
@@ -586,8 +587,8 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
     }
 
     void discover_vertex(
-        RenderGraph::vertex_descriptor vertID, const RenderGraph& rg) const {
-        std::ignore = rg;
+        RenderGraph::vertex_descriptor vertID, const AddressableView<RenderGraph>& gv) const {
+        std::ignore = gv;
         CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
 
         if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g)) {
@@ -765,7 +766,8 @@ void NativePipeline::prepareDescriptors(
 #endif
     auto colors = ctx.g.colors(ctx.scratch);
     RenderGraphUploadVisitor visitor{{}, ctx};
-    boost::depth_first_visit(ctx.g, passID, visitor, get(colors, ctx.g));
+    AddressableView<RenderGraph> graphView(ctx.g);
+    boost::depth_first_visit(graphView, passID, visitor, get(colors, ctx.g));
 
     if (holds<RasterPassTag>(passID, ctx.g)) {
         const auto& pass = get(RasterPassTag{}, passID, ctx.g);
