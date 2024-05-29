@@ -228,7 +228,9 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
         case TypedArrayType::UINT8_CLAMPED:
             napiType = napi_uint8_clamped_array;
             sizeOfEle = 1;
-            break case TypedArrayType::INT16 : napiType = napi_int16_array;
+            break;
+        case TypedArrayType::INT16:
+            napiType = napi_int16_array;
             sizeOfEle = 2;
             break;
         case TypedArrayType::UINT16:
