@@ -1735,8 +1735,8 @@ export interface RenderingModule {
     getPhaseID (subpassOrPassID: number, name: string): number;
 }
 
-export class HBAO {
-    enabled = false;
+export interface HBAO {
+    enabled: boolean; /*false*/
     radiusScale?: number; /*1*/
     angleBiasDegree?: number; /*10*/
     blurSharpness?: number; /*3*/
@@ -1744,15 +1744,15 @@ export class HBAO {
     needBlur?: boolean; /*false*/
 }
 
-export class DepthOfField {
-    enabled = false;
+export interface DepthOfField {
+    enabled: boolean; /*false*/
     focusDistance?: number; /*0*/
     focusRange?: number; /*0*/
     bokehRadius?: number; /*1*/
 }
 
-export class Bloom {
-    enabled = false;
+export interface Bloom {
+    enabled: boolean; /*false*/
     enableAlphaMask?: boolean; /*false*/
     useHdrIlluminance?: boolean; /*false*/
     iterations?: number; /*3*/
@@ -1760,32 +1760,32 @@ export class Bloom {
     intensity?: number; /*2.3*/
 }
 
-export class ToneMapping {
-    enabled = false;
+export interface ToneMapping {
+    enabled: boolean; /*false*/
     algorithm?: string; /*''*/
 }
 
-export class ColorGrading {
-    enabled = false;
+export interface ColorGrading {
+    enabled: boolean; /*false*/
     contribute?: number; /*0*/
     /*refcount*/ colorGradingMap?: Texture;
 }
 
-export class FSR {
-    enabled = false;
+export interface FSR {
+    enabled: boolean; /*false*/
     sharpness?: number; /*0.8*/
 }
 
-export class FXAA {
-    enabled = false;
+export interface FXAA {
+    enabled: boolean; /*false*/
 }
 
-export class ForwardPipeline {
-    mobileMaxSpotLightShadowMaps = 4;
+export interface ForwardPipeline {
+    mobileMaxSpotLightShadowMaps: number; /*4*/
 }
 
-export class PipelineSettings {
-    readonly forwardPipeline: ForwardPipeline = new ForwardPipeline();
+export interface PipelineSettings {
+    readonly forwardPipeline: ForwardPipeline;
     depthOfField?: DepthOfField;
     bloom?: Bloom;
     toneMapping?: ToneMapping;
