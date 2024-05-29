@@ -251,7 +251,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     // Forward lighting
     private readonly settings: PipelineSettings = {
         forwardPipeline: {
-            mobileMaxSpotLightShadowMaps: 4,
+            // TODO(zhouzhenglong): Relex this limitation.
+            // Currently, only support 1 shadow map for spot light on mobile platform.
+            mobileMaxSpotLightShadowMaps: 1,
         },
     };
     private readonly forwardLighting = new ForwardLighting();
