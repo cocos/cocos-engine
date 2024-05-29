@@ -689,44 +689,56 @@ static bool register_se_setExceptionCallback(se::Object *obj) { // NOLINT(readab
     return true;
 }
 
-static bool js_engine_Color_get_val(se::State &s) // NOLINT(readability-identifier-naming)
+static bool js_engine_Color_get_data(se::State &s) // NOLINT(readability-identifier-naming)
 {
     auto *cobj = SE_THIS_OBJECT<cc::Color>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    auto r = static_cast<uint32_t>(cobj->r);
-    auto g = static_cast<uint32_t>(cobj->g);
-    auto b = static_cast<uint32_t>(cobj->b);
-    auto a = static_cast<uint32_t>(cobj->a);
-    uint32_t val = (a << 24) + (b << 16) + (g << 8) + r;
-    ok &= nativevalue_to_se(val, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
+    uint8_t data[4] = {
+        static_cast<uint8_t>(cobj->r),
+        static_cast<uint8_t>(cobj->g),
+        static_cast<uint8_t>(cobj->b),
+        static_cast<uint8_t>(cobj->a)};
+    se::HandleObject dataObj(se::Object::createTypedArray(se::Object::TypedArrayType::UINT8_CLAMPED,
+                                                          data, sizeof(uint8_t) * 4));
+    SE_PRECONDITION2(dataObj != nullptr, false, "Can not create Uint8ClampedTypedArray");
+
+    s.rval() = se::Value(dataObj);
     return true;
 }
-SE_BIND_PROP_GET(js_engine_Color_get_val)
+SE_BIND_PROP_GET(js_engine_Color_get_data)
 
-static bool js_engine_Color_set_val(se::State &s) // NOLINT(readability-identifier-naming)
+static bool js_engine_Color_set_data(se::State &s) // NOLINT(readability-identifier-naming)
 {
     const auto &args = s.args();
     auto *cobj = SE_THIS_OBJECT<cc::Color>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    uint32_t val{0};
+
+    se::Value val;
     ok &= sevalue_to_native(args[0], &val, s.thisObject());
-    cobj->r = val & 0x000000FF;
-    cobj->g = (val & 0x0000FF00) >> 8;
-    cobj->b = (val & 0x00FF0000) >> 16;
-    cobj->a = (val & 0xFF000000) >> 24;
-    SE_PRECONDITION2(ok, false, "Error processing new value");
+    ok &= val.isObject() && val.toObject()->isTypedArray();
+    SE_PRECONDITION2(ok, false, "It is not a TypeArray");
+
+    uint8_t *ptr = nullptr;
+    size_t length = 0;
+    val.toObject()->getTypedArrayData(&ptr, &length);
+    SE_PRECONDITION2(length == sizeof(uint8_t) * 4, false, "Invalid TypedArray size");
+
+    cobj->r = ptr[0];
+    cobj->g = ptr[1];
+    cobj->b = ptr[2];
+    cobj->a = ptr[3];
+
     return true;
 }
-SE_BIND_PROP_SET(js_engine_Color_set_val)
+SE_BIND_PROP_SET(js_engine_Color_set_data)
 
 static bool register_engine_Color_manual(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
-    __jsb_cc_Color_proto->defineProperty("_val", _SE(js_engine_Color_get_val), _SE(js_engine_Color_set_val));
+    __jsb_cc_Color_proto->defineProperty("_data", _SE(js_engine_Color_get_data), _SE(js_engine_Color_set_data));
 
     se::ScriptEngine::getInstance()->clearException();
 
