@@ -83,14 +83,11 @@ export class Tween<T extends object = any> {
     /**
      * @en Set the id for previous action
      * @zh 设置前一个动作的 id
-     * @method id
-     * @param id @en The internal action id to set, its value must >= 0 @zh 内部动作的 id 标识，其值必须大于或等于 0
+     * @param id @en The internal action id to set @zh 内部动作的 id 标识，
+     * @note @en Don't pass in a value -1 if you want to mark the previous action since -1 is the default value
+     *       @zh 如果你想标识前一个动作，请勿传递 -1，因为 -1 是所有动作的默认标识
      */
     id (id: number): Tween<T> {
-        if (id < 0) {
-            warn(`id, ${wrongIdPrompt}${id}`);
-            return this;
-        }
         if (this._actions.length > 0) {
             this._actions[this._actions.length - 1].setId(id);
         }
@@ -125,6 +122,8 @@ export class Tween<T extends object = any> {
      * @zh 翻转当前缓动中特定标识的动作
      * @param id @en The ID of the internal action in the current tween to reverse @zh 要翻转的当前缓动中的动作标识
      * @return @en The current tween instance @zh 当前缓动实例
+     * @note @en Don't use -1 for id since -1 is the default value for internal actions
+     *       @zh 请不要使用 -1 作为标识，因为 -1 是内部动作标识的默认值
      */
     reverse (id: number): Tween<T>;
 
@@ -135,8 +134,8 @@ export class Tween<T extends object = any> {
      *                   @zh 根据标识在关联的缓动中查找动作
      * @param id @en The ID of the action to reverse @zh 要翻转的动画标识
      * @return @en The current tween instance @zh 当前缓动实例
-     * @note @en If `id` is not assigned, it will reverse all actions in the `otherTween`
-     *       @zh 如果 `id` 没有被指定，那么将翻转 `otherTween` 中所有的动作
+     * @note @en If `id` is not assigned or its value is -1, it will reverse all actions in the `otherTween`
+     *       @zh 如果 `id` 没有被指定或者值为 -1，那么将翻转 `otherTween` 中所有的动作
      */
     reverse<U extends object = any> (otherTween: Tween<U>, id?: number): Tween<T>;
 
@@ -297,6 +296,8 @@ export class Tween<T extends object = any> {
      * 将之前所有的动作或者从指定标识的动作开始的所有动作整合为一个顺序动作。
      * @method union
      * @param fromId @en The action with the specific ID to start integrating @zh 指定开始整合的动作标识
+     * @note @en Don't use -1 for id since -1 is the default value for internal actions
+     *       @zh 请不要使用 -1 作为标识，因为 -1 是内部动作标识的默认值
      */
     union (fromId?: number): Tween<T> {
         const unionAll = (): void => {
