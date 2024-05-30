@@ -80,6 +80,23 @@ export class Tween<T extends object = any> {
     }
 
     /**
+     * @en Set the id for previous action
+     * @zh 设置前一个动作的 id
+     * @method id
+     * @param id @en The internal action id to set, its value must >= 0 @zh 内部动作的 id 标识，其值必须大于或等于 0
+     */
+    id (id: number): Tween<T> {
+        if (id < 0) {
+            warn(`id, ${wrongIdPrompt}${id}`);
+            return this;
+        }
+        if (this._actions.length > 0) {
+            this._actions[this._actions.length - 1].setId(id);
+        }
+        return this;
+    }
+
+    /**
      * @en
      * Insert a tween to this sequence.
      * @zh
