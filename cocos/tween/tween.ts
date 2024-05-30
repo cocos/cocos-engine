@@ -201,14 +201,40 @@ export class Tween<T extends object = any> {
 
     /**
      * @en
-     * Integrate all previous actions to an action.
+     * Integrate to an action by all previous actions or a range from the specific id to the last one.
      * @zh
-     * 将之前所有的 action 整合为一个 action。
+     * 将之前所有的动作或者从指定标识的动作开始的所有动作整合为一个顺序动作。
+     * @method union
+     * @param fromId @en The action with the specific ID to start integrating @zh 指定开始整合的动作标识
      */
-    union (): Tween<T> {
-        const action = this._union(false);
-        this._actions.length = 0;
-        if (action) this._actions.push(action);
+    union (fromId?: number): Tween<T> {
+        const unionAll = (): void => {
+            const action = this._union(false);
+            this._actions.length = 0;
+            if (action) this._actions.push(action);
+        };
+
+        if (fromId === undefined) {
+            unionAll();
+            return this;
+        }
+
+        const actions = this._actions;
+        const index = actions.findIndex((action) => action.getId() === fromId);
+        if (index === -1) {
+            unionAll();
+        } else {
+            const len = actions.length;
+            if (len > 1) {
+                const actionsToUnion = actions.splice(index);
+                if (actionsToUnion.length === 1) {
+                    actions.push(actionsToUnion[0]);
+                } else {
+                    actions.push(sequence(actionsToUnion));
+                }
+            }
+        }
+
         return this;
     }
 
