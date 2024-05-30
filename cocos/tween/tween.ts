@@ -43,7 +43,6 @@ type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
-const wrongIdPrompt = 'wrong id, it must >= 0, but got: ';
 
 /**
  * @en
