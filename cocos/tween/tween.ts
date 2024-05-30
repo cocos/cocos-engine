@@ -43,6 +43,7 @@ type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
+const wrongIdPrompt = 'wrong id, it must >= 0, but got: ';
 
 /**
  * @en
@@ -108,6 +109,96 @@ export class Tween<T extends object = any> {
         const u = other._union(true);
         if (u) this._actions.push(u);
         return this;
+    }
+
+    /**
+     * @en Return a new Tween instance which reverses all actions in current tween
+     * @zh 返回新的缓动实例，其会翻转当前缓动中的所有动作
+     * @return @en The new tween instance which reverses all actions in current tween @zh 新的缓动实例，其会翻转当前缓动中的所有动作
+     * @note @en The returned tween instance is a new instance which is not the current tween instance.
+     *       @zh 返回的缓动实例是新的生成的实例，并不是当前缓动实例
+     */
+    reverse (): Tween<T>;
+
+    /**
+     * @en Reverse an action by ID in the current tween
+     * @zh 翻转当前缓动中特定标识的动作
+     * @param id @en The ID of the internal action in the current tween to reverse @zh 要翻转的当前缓动中的动作标识
+     * @return @en The current tween instance @zh 当前缓动实例
+     */
+    reverse (id: number): Tween<T>;
+
+    /**
+     * @en Reverse an action by ID in a specific tween
+     * @zh 翻转特定缓动中特定标识的动作
+     * @param otherTween @en The tween in which to find the action by ID
+     *                   @zh 根据标识在关联的缓动中查找动作
+     * @param id @en The ID of the action to reverse @zh 要翻转的动画标识
+     * @return @en The current tween instance @zh 当前缓动实例
+     * @note @en If `id` is not assigned, it will reverse all actions in the `otherTween`
+     *       @zh 如果 `id` 没有被指定，那么将翻转 `otherTween` 中所有的动作
+     */
+    reverse<U extends object = any> (otherTween: Tween<U>, id?: number): Tween<T>;
+
+    reverse<U extends object = any> (otherTweenOrId?: Tween<U> | number, id?: number): Tween<T> {
+        if (otherTweenOrId == null && id == null) {
+            if (this._actions.length === 0) {
+                warn('reverse: current tween could not be reversed, empty actions');
+                return this.clone(this._target as T);
+            } else {
+                const action = this._union(false); // workerTarget will be updated in the following insertAction
+                const r = tween(this._target as T);
+
+                if (action) r.insertAction(action.reverse());
+                return r;
+            }
+        }
+
+        let otherTween: Tween<U> | undefined;
+        let actionId = -1;
+        if (otherTweenOrId instanceof Tween) {
+            otherTween = otherTweenOrId;
+            if (id !== undefined) {
+                actionId = id;
+            }
+        } else if (typeof otherTweenOrId === 'number') {
+            actionId = otherTweenOrId;
+        }
+
+        const actions = otherTween ? otherTween._actions : this._actions;
+        let action: FiniteTimeAction | null = null;
+        if (actions.length === 0) {
+            return this;
+        }
+
+        if (actionId === -1) {
+            action = otherTween ? otherTween._union(false) : this._union(false);
+        } else {
+            action = this.findAction(actionId, actions);
+        }
+
+        if (action) {
+            const reversedAction = action.reverse();
+            reversedAction.workerTarget = otherTween ? otherTween._target : this._target;
+            this._actions.push(reversedAction);
+        } else {
+            warn(`reverse: could not find action id ${actionId}`);
+        }
+
+        return this;
+    }
+
+    private findAction (id: number, actions: FiniteTimeAction[]): FiniteTimeAction | null {
+        let action: FiniteTimeAction | null = null;
+        for (let i = 0, len = actions.length; i < len; ++i) {
+            action = actions[i];
+            if (action.getId() === id) return action;
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action = action.findAction(id);
+                if (action) return action;
+            }
+        }
+        return null;
     }
 
     /**
@@ -526,7 +617,7 @@ export class Tween<T extends object = any> {
 
     private _union (updateWorkerTarget: boolean): FiniteTimeAction | null {
         const actions = this._actions;
-        if (!actions) return null;
+        if (actions.length === 0) return null;
         let action: FiniteTimeAction;
         if (actions.length === 1) {
             action = actions[0];

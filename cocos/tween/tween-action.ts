@@ -96,6 +96,7 @@ export class TweenAction<T> extends ActionInterval {
     private _opts: ITweenOption<T> | undefined;
     private _props: any;
     private _originProps: any;
+    private _reversed = false;
 
     constructor (duration: number, props: any, opts?: ITweenOption<T>) {
         super();
@@ -161,9 +162,29 @@ export class TweenAction<T> extends ActionInterval {
         this.initWithDuration(duration);
     }
 
+    get relative (): boolean {
+        return !!this._opts!.relative;
+    }
+
     clone (): TweenAction<T> {
         const action = new TweenAction(this._duration, this._originProps, this._opts);
+        action._reversed = this._reversed;
+        action.workerTarget = this.workerTarget;
+        action._id = this._id;
         this._cloneDecoration(action);
+        return action;
+    }
+
+    reverse (): TweenAction<T> {
+        if (!this._opts!.relative) {
+            warn('reverse: could not reverse a non-relative action');
+            return this.clone();
+        }
+
+        const action = new TweenAction(this._duration, this._originProps, this._opts);
+        this._cloneDecoration(action);
+        action._reversed = !this._reversed;
+        action.workerTarget = this.workerTarget;
         return action;
     }
 
@@ -176,6 +197,7 @@ export class TweenAction<T> extends ActionInterval {
         if (!workerTarget) return;
         const relative = !!this._opts!.relative;
         const props = this._props;
+        const reversed = this._reversed;
         for (const property in props) {
             const _t: any = workerTarget[property];
             if (_t === undefined) { continue; }
@@ -185,7 +207,7 @@ export class TweenAction<T> extends ActionInterval {
             if (typeof _t === 'number') {
                 prop.start = _t;
                 prop.current = _t;
-                prop.end = relative ? _t + value : value;
+                prop.end = relative ? (reversed ? _t - value : _t + value) : value;
             } else if (typeof _t === 'object') {
                 if (prop.start == null) {
                     prop.start = {}; prop.current = {}; prop.end = {};
@@ -205,10 +227,11 @@ export class TweenAction<T> extends ActionInterval {
 
                     prop.start[k] = _t[k];
                     prop.current[k] = _t[k];
-                    prop.end[k] = relative ? _t[k] + value[k] : value[k];
+                    prop.end[k] = relative ? (reversed ? _t[k] - value[k] : _t[k] + value[k]) : value[k];
                 }
             }
         }
+
         if (this._opts!.onStart) { this._opts!.onStart(workerTarget); }
     }
 
