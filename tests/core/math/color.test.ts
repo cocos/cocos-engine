@@ -84,9 +84,9 @@ describe('Test Color', () => {
 
         // test object function
         color.multiply(color2);
-        expect(color.r).toBe(255);
-        expect(color.g).toBe(255);
-        expect(color.b).toBe(200);
+        expect(color.r).toBe(64);
+        expect(color.g).toBe(215);
+        expect(color.b).toBe(1);
         expect(color.a).toBe(255);
     });
     test('divide', () => {
