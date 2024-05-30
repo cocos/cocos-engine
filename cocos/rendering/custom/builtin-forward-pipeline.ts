@@ -322,6 +322,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     }
     setup (cameras: Camera[], ppl: BasicPipeline): void {
         if (this._initMaterials(ppl)) {
+            // TODO(zhouzhenglong): Make default effect asset loading earlier and remove _initMaterials
             return;
         }
         for (const camera of cameras) {
