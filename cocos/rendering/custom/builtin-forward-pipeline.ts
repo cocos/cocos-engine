@@ -101,6 +101,7 @@ function setupPipelineConfigs (
 
 class CameraConfigs {
     enablePostProcess = false;
+    enableProfiler = false;
 }
 
 function setupCameraConfigs (
@@ -109,6 +110,7 @@ function setupCameraConfigs (
     cameraConfigs: CameraConfigs,
 ): void {
     cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess;
+    cameraConfigs.enableProfiler = DEBUG && camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
 }
 
 class ForwardLighting {
@@ -337,9 +339,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     }
 
     //----------------------------------------------------------------
-    // Implementation
+    // Pipelines
     //----------------------------------------------------------------
-    // build forward lighting pipeline
+    // Desktop
     private _buildForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
         // Init
         const width = Math.max(Math.floor(camera.window.width), 1);
@@ -362,22 +364,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Forward Lighting
         if (this._configs.useFloatOutput) {
-            if (this._cameraConfigs.enablePostProcess) {
-                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
-            } else {
-                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
-            }
-            const pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
-            pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
-            pass.addTexture(radianceName, 'inputTexture');
-            pass.setVec4('g_platform', this._configs.g_platform);
-            pass.addQueue(QueueHint.OPAQUE)
-                .addCameraQuad(camera, this._postFinalTonemap, 1);
+            this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+            this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
         } else {
             this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
         }
     }
-    // build mobile forward lighting pipeline
+
+    // Mobile
     private _buildMobileForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
         // Init
         const width = Math.max(Math.floor(camera.window.width), 1);
@@ -385,6 +379,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         const id = camera.window.renderWindowId;
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
+        const radianceName = `Radiance${id}`;
         const mainLight = scene.mainLight;
         const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY as number;
 
@@ -401,9 +396,17 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         this.forwardLighting.addMobileShadowPasses(ppl, camera, this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps);
 
         // Forward Lighting
-        this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
+        if (this._configs.useFloatOutput) {
+            this._addMobileForwardPass(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+            this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
+        } else {
+            this._addMobileForwardPass(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
+        }
     }
 
+    //----------------------------------------------------------------
+    // Passes
+    //----------------------------------------------------------------
     private _addCascadedShadowMapPass (
         ppl: BasicPipeline,
         id: number,
@@ -438,6 +441,28 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             queue
                 .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER)
                 .useLightFrustum(light, level);
+        }
+    }
+
+    private _addFinalToneMappingPass (
+        ppl: BasicPipeline,
+        camera: Camera,
+        width: number,
+        height: number,
+        radianceName: string,
+        colorName: string,
+    ): void {
+        const pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
+        pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        pass.addTexture(radianceName, 'inputTexture');
+        pass.setVec4('g_platform', this._configs.g_platform);
+        pass.addQueue(QueueHint.OPAQUE)
+            .addCameraQuad(camera, this._postFinalTonemap, 1);
+        if (this._cameraConfigs.enableProfiler) {
+            pass.showStatistics = true;
+            pass
+                .addQueue(QueueHint.BLEND)
+                .addScene(camera, SceneFlags.PROFILER);
         }
     }
 
@@ -486,6 +511,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
     }
 
+    //----------------------------------------------------------------
+    // Desktop
+    //----------------------------------------------------------------
     private _addForwardPasses (
         ppl: BasicPipeline,
         id: number,
@@ -531,7 +559,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         // Add transparent queue
         let flags = SceneFlags.BLEND | SceneFlags.UI;
-        if (DEBUG && camera.cameraUsage === CameraUsage.GAME && camera.window.swapchain) {
+        if (!this._configs.useFloatOutput && this._cameraConfigs.enableProfiler) {
             lastPass.showStatistics = true;
             flags |= SceneFlags.PROFILER;
         }
@@ -540,6 +568,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             .addScene(camera, flags, mainLight || undefined);
     }
 
+    //----------------------------------------------------------------
+    // Mobile
+    //----------------------------------------------------------------
     private _addMobileForwardPass (
         ppl: BasicPipeline,
         id: number,
@@ -584,7 +615,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         // Add transparent queue
         let flags = SceneFlags.BLEND | SceneFlags.UI;
-        if (DEBUG && camera.cameraUsage === CameraUsage.GAME && camera.window.swapchain) {
+        if (!this._configs.useFloatOutput && this._cameraConfigs.enableProfiler) {
             pass.showStatistics = true;
             flags |= SceneFlags.PROFILER;
         }
