@@ -60,6 +60,14 @@ class Pipeline;
 class PipelineBuilder;
 class RenderingModule;
 class Factory;
+struct HBAO;
+struct DepthOfField;
+struct Bloom;
+struct ColorGrading;
+struct FSR;
+struct FXAA;
+struct ForwardPipeline;
+struct PipelineSettings;
 
 } // namespace render
 

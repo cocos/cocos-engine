@@ -22,6 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
@@ -30,6 +31,7 @@
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/details/Range.h"
@@ -37,7 +39,6 @@
 #include "cocos/scene/ReflectionProbeManager.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
-#include "pipeline/custom/RenderInterfaceTypes.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -1280,8 +1281,9 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     }
 
     setValue("CC_USE_HDR", getPipelineSceneData()->isHDR());
+
 #if ENABLE_FLOAT_OUTPUT
-    setValue("CC_USE_FLOAT_OUTPUT", true);
+    setValue("CC_USE_FLOAT_OUTPUT", pipeline::supportsRGBA16HalfFloatTexture(device));
 #else
     setValue("CC_USE_FLOAT_OUTPUT", false);
 #endif

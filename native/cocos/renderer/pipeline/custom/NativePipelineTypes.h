@@ -35,7 +35,6 @@
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/core/geometry/AABB.h"
 #include "cocos/core/geometry/Frustum.h"
-#include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
 #include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
@@ -53,6 +52,14 @@
 namespace cc {
 
 namespace render {
+
+struct RenderGraphFilter {
+    bool operator()(RenderGraph::vertex_descriptor u) const {
+        return validPasses->operator[](u);
+    }
+
+    const ccstd::pmr::vector<bool>* validPasses{nullptr};
+};
 
 class NativeRenderNode {
 public:
@@ -1667,6 +1674,8 @@ public:
     void addCustomRenderCommand(std::string_view name, std::shared_ptr<CustomRenderCommand> ptr);
 
     void setCustomContext(std::string_view name);
+
+    static void prepareDescriptors(RenderGraphVisitorContext& ctx, RenderGraph::vertex_descriptor passID);
 
 private:
     ccstd::vector<gfx::CommandBuffer*> _commandBuffers;
