@@ -1830,11 +1830,6 @@ struct Bloom {
     float intensity{2.3};
 };
 
-struct ToneMapping {
-    bool enabled{false};
-    ccstd::string algorithm;
-};
-
 struct ColorGrading {
     bool enabled{false};
     float contribute{0};
@@ -1858,7 +1853,6 @@ struct PipelineSettings {
     ForwardPipeline forwardPipeline;
     DepthOfField depthOfField;
     Bloom bloom;
-    ToneMapping toneMapping;
     ColorGrading colorGrading;
     FSR fsr;
     FXAA fxaa;

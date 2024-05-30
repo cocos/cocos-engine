@@ -1760,11 +1760,6 @@ export interface Bloom {
     intensity?: number; /*2.3*/
 }
 
-export interface ToneMapping {
-    enabled: boolean; /*false*/
-    algorithm?: string; /*''*/
-}
-
 export interface ColorGrading {
     enabled: boolean; /*false*/
     contribute?: number; /*0*/
@@ -1788,7 +1783,6 @@ export interface PipelineSettings {
     readonly forwardPipeline: ForwardPipeline;
     depthOfField?: DepthOfField;
     bloom?: Bloom;
-    toneMapping?: ToneMapping;
     colorGrading?: ColorGrading;
     fsr?: FSR;
     fxaa?: FXAA;

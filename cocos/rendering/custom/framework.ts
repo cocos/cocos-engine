@@ -25,13 +25,8 @@
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { Camera, CameraUsage } from '../../render-scene/scene/camera';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { API, Device, Format, FormatFeatureBit } from '../../gfx';
-
-export function supportsR32FloatTexture (device: Device): boolean {
-    return (device.getFormatFeatures(Format.R32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
-        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
-        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
-}
+import { supportsR32FloatTexture } from '../define';
+import { Format } from '../../gfx/base/define';
 
 export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
     ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);

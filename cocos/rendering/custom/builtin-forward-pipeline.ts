@@ -36,9 +36,10 @@ import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { CSMLevel } from '../../render-scene/scene/shadows';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { defaultWindowResize, supportsR32FloatTexture } from './framework';
+import { defaultWindowResize } from './framework';
 import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder, PipelineSettings } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
+import { supportsR32FloatTexture } from '../define';
 
 function forwardNeedClearColor (camera: Camera): boolean {
     return !!(camera.clearFlag & (ClearFlagBit.COLOR | (ClearFlagBit.STENCIL << 1)));
@@ -71,6 +72,37 @@ function getCsmMainLightViewport (
     vp.top = Math.max(0, vp.top);
     vp.width = Math.max(1, vp.width);
     vp.height = Math.max(1, vp.height);
+}
+
+class PipelineConfigs {
+    isMobile = false;
+    isHDR = false;
+    useFloatOutput = false;
+    shadingScale = 1.0;
+    toneMappingType = 0; // ACES
+}
+
+function setupPipelineConfigs (
+    ppl: BasicPipeline,
+    configs: PipelineConfigs,
+): void {
+    configs.isMobile = sys.isMobile;
+    configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
+    configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
+    configs.shadingScale = ppl.pipelineSceneData.shadingScale;
+    configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
+}
+
+class CameraConfigs {
+    enablePostProcess = false;
+}
+
+function setupCameraConfigs (
+    camera: Camera,
+    pipelineConfigs: PipelineConfigs,
+    cameraConfigs: CameraConfigs,
+): void {
+    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess;
 }
 
 class ForwardLighting {
@@ -245,8 +277,10 @@ class ForwardLighting {
 
 export class BuiltinForwardPipeline implements PipelineBuilder {
     // Internal cached resources
-    readonly _clearColor = new Color(0, 0, 0, 1);
-    readonly _viewport = new Viewport();
+    private readonly _clearColor = new Color(0, 0, 0, 1);
+    private readonly _viewport = new Viewport();
+    private readonly _configs = new PipelineConfigs();
+    private readonly _cameraConfigs = new CameraConfigs();
 
     // Forward lighting
     private readonly settings: PipelineSettings = {
@@ -262,8 +296,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     // Interface
     //----------------------------------------------------------------
     gameWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
+        setupPipelineConfigs(ppl, this._configs);
         defaultWindowResize(ppl, window, width, height);
-        if (sys.isMobile) {
+        if (this._configs.isMobile) {
             const shadowMapSize = ppl.pipelineSceneData.shadows.size;
             const shadowFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
             const count = this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps;
@@ -274,12 +309,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
     }
     setup (cameras: Camera[], ppl: BasicPipeline): void {
+        setupPipelineConfigs(ppl, this._configs);
         for (const camera of cameras) {
             // skip invalid camera
             if (camera.scene === null || camera.window === null) {
                 continue;
             }
-            if (sys.isMobile) {
+            setupCameraConfigs(camera, this._configs, this._cameraConfigs);
+            if (this._configs.isMobile) {
                 this._buildMobileForwardPipeline(ppl, camera, camera.scene);
             } else {
                 this._buildForwardPipeline(ppl, camera, camera.scene);
@@ -313,7 +350,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting
         this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
     }
-
+    // build mobile forward lighting pipeline
     private _buildMobileForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
         // Init
         const width = Math.max(Math.floor(camera.window.width), 1);

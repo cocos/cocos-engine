@@ -63,7 +63,6 @@ class Factory;
 struct HBAO;
 struct DepthOfField;
 struct Bloom;
-struct ToneMapping;
 struct ColorGrading;
 struct FSR;
 struct FXAA;
