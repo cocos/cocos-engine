@@ -1069,3 +1069,258 @@ test('tween color', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('reverse 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    const t = tween(node).by(1, { position: new Vec3(100, 0, 0) });
+
+    tween(node)
+        .to(1, { position: new Vec3(200, 0, 0) })
+        .reverse(t)
+        .start();
+    
+    for (let i = 0; i < 31; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(200, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(150, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('reverse 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    const t = tween(node)
+        .by(0.5, { position: new Vec3(50, 0, 0) })
+        .by(0.5, { position: new Vec3(50, 0, 0) });
+
+    tween(node)
+        .to(1, { position: new Vec3(200, 0, 0) })
+        .reverse(t)
+        .start();
+    
+    for (let i = 0; i < 31; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(200, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(150, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('reverse action in tween with id', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    const t = tween(node)
+        .by(1, { position: new Vec3(100, 0, 0) }).id(123)
+        .to(1, { position: new Vec3(1000, 0, 0) });
+
+    tween(node)
+        .to(1, { position: new Vec3(200, 0, 0) })
+        .reverse(t, 123)
+        .start();
+    
+    for (let i = 0; i < 31; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(200, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(150, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('reverse cloned action in tween with id', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    const t = tween(node)
+        .by(1, { position: new Vec3(100, 0, 0) }).id(123)
+        .to(1, { position: new Vec3(1000, 0, 0) })
+        .clone();
+
+    tween(node)
+        .to(1, { position: new Vec3(200, 0, 0) })
+        .reverse(t, 123)
+        .start();
+    
+    for (let i = 0; i < 31; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(200, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(150, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('reverse action in current tween with id', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    tween(node)
+        .to(1, { scale: new Vec3(10, 10, 10) })
+        .by(1, { position: new Vec3(200, 0, 0) }).id(123)
+        .delay(1)
+        .reverse(123)
+        .start();
+
+    for (let i = 0; i < 61; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(10, 10, 10))).toBeTruthy();
+    
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(200, 0, 0))).toBeTruthy();
+
+    // delay 1s
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+
+    //
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('union from id', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    tween(node)
+        .to(1, { scale: new Vec3(10, 10, 10) })
+        .by(1, { position: new Vec3(200, 0, 0) }).id(123)
+        .delay(1)
+        .reverse(123)
+        .union(123)
+        .repeat(3)
+        .start();
+
+    for (let i = 0; i < 61; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(10, 10, 10))).toBeTruthy();
+    
+    for (let j = 0; j < 3; ++j) {
+        for (let i = 0; i < 30; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
+
+        for (let i = 0; i < 30; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(200, 0, 0))).toBeTruthy();
+
+        // delay 1s
+        for (let i = 0; i < 60; ++i) {
+            game.step();
+        }
+
+        //
+        for (let i = 0; i < 30; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(10, 0, 0))).toBeTruthy();
+
+        for (let i = 0; i < 30; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    }
+
+    director.unregisterSystem(sys);
+});
