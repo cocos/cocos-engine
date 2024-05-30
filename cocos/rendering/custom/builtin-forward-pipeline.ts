@@ -23,7 +23,7 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { cclegacy, sys, Vec3 } from '../../core';
+import { cclegacy, sys, Vec3, Vec4 } from '../../core';
 import { AABB } from '../../core/geometry/aabb';
 import { Frustum } from '../../core/geometry/frustum';
 import intersect from '../../core/geometry/intersect';
@@ -40,6 +40,7 @@ import { defaultWindowResize } from './framework';
 import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder, PipelineSettings } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
 import { supportsR32FloatTexture } from '../define';
+import { Material } from '../../asset/assets';
 
 function forwardNeedClearColor (camera: Camera): boolean {
     return !!(camera.clearFlag & (ClearFlagBit.COLOR | (ClearFlagBit.STENCIL << 1)));
@@ -80,6 +81,7 @@ class PipelineConfigs {
     useFloatOutput = false;
     shadingScale = 1.0;
     toneMappingType = 0; // ACES
+    g_platform = new Vec4(0, 0, 0, 0);
 }
 
 function setupPipelineConfigs (
@@ -91,6 +93,10 @@ function setupPipelineConfigs (
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     configs.shadingScale = ppl.pipelineSceneData.shadingScale;
     configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
+
+    const device = ppl.device;
+    configs.g_platform.x = configs.isMobile ? 1.0 : 0.0;
+    configs.g_platform.w = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
 }
 
 class CameraConfigs {
@@ -278,9 +284,12 @@ class ForwardLighting {
 export class BuiltinForwardPipeline implements PipelineBuilder {
     // Internal cached resources
     private readonly _clearColor = new Color(0, 0, 0, 1);
+    private readonly _clearColorOpaqueBlack = new Color(0, 0, 0, 0);
     private readonly _viewport = new Viewport();
     private readonly _configs = new PipelineConfigs();
     private readonly _cameraConfigs = new CameraConfigs();
+    private readonly _postFinalTonemap = new Material();
+    private _initialized = false; // TODO(zhouzhenglong): Make default effect asset loading earlier and remove this flag
 
     // Forward lighting
     private readonly settings: PipelineSettings = {
@@ -298,6 +307,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     gameWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
         setupPipelineConfigs(ppl, this._configs);
         defaultWindowResize(ppl, window, width, height);
+        // Spot light shadow map
         if (this._configs.isMobile) {
             const shadowMapSize = ppl.pipelineSceneData.shadows.size;
             const shadowFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
@@ -309,7 +319,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
     }
     setup (cameras: Camera[], ppl: BasicPipeline): void {
-        setupPipelineConfigs(ppl, this._configs);
+        if (this._initMaterials(ppl)) {
+            return;
+        }
         for (const camera of cameras) {
             // skip invalid camera
             if (camera.scene === null || camera.window === null) {
@@ -335,6 +347,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         const id = camera.window.renderWindowId;
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
+        const radianceName = `Radiance${id}`;
         const mainLight = scene.mainLight;
         const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY as number;
 
@@ -348,7 +361,21 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         // Forward Lighting
-        this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
+        if (this._configs.useFloatOutput) {
+            if (this._cameraConfigs.enablePostProcess) {
+                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+            } else {
+                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+            }
+            const pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
+            pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+            pass.addTexture(radianceName, 'inputTexture');
+            pass.setVec4('g_platform', this._configs.g_platform);
+            pass.addQueue(QueueHint.OPAQUE)
+                .addCameraQuad(camera, this._postFinalTonemap, 1);
+        } else {
+            this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
+        }
     }
     // build mobile forward lighting pipeline
     private _buildMobileForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
@@ -503,7 +530,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting (Blend)
         //----------------------------------------------------------------
         // Add transparent queue
-        let flags =  SceneFlags.BLEND | SceneFlags.UI;
+        let flags = SceneFlags.BLEND | SceneFlags.UI;
         if (DEBUG && camera.cameraUsage === CameraUsage.GAME && camera.window.swapchain) {
             lastPass.showStatistics = true;
             flags |= SceneFlags.PROFILER;
@@ -556,7 +583,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting (Blend)
         //----------------------------------------------------------------
         // Add transparent queue
-        let flags =  SceneFlags.BLEND | SceneFlags.UI;
+        let flags = SceneFlags.BLEND | SceneFlags.UI;
         if (DEBUG && camera.cameraUsage === CameraUsage.GAME && camera.window.swapchain) {
             pass.showStatistics = true;
             flags |= SceneFlags.PROFILER;
@@ -564,5 +591,23 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         pass
             .addQueue(QueueHint.BLEND)
             .addScene(camera, flags, mainLight || undefined);
+    }
+
+    private _initMaterials (ppl: BasicPipeline): number {
+        if (this._initialized) {
+            return 0;
+        }
+
+        setupPipelineConfigs(ppl, this._configs);
+
+        if (this._postFinalTonemap.effectAsset === null) {
+            this._postFinalTonemap._uuid = `custom-forward-post-final-tonemap-material`;
+            this._postFinalTonemap.initialize({ effectName: 'pipeline/post-process/post-final' });
+        }
+        if (this._postFinalTonemap.effectAsset !== null) {
+            this._initialized = true;
+        }
+
+        return this._initialized ? 0 : 1;
     }
 }

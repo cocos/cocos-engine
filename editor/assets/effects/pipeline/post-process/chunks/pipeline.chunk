@@ -1,0 +1,6 @@
+// Copyright (c) 2017-2024 Xiamen Yaji Software Co., Ltd.
+
+#pragma rate Pipeline pass
+uniform Pipeline {
+    vec4 g_platform; // x: isMobile, y: unused, z: unused, w: graphicsAPI (0: vulkan, 1: metal, 2: unused, 3: opengl)
+};

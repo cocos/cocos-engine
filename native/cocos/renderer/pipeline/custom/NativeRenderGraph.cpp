@@ -934,6 +934,7 @@ void NativeRenderQueueBuilder::addCameraQuad(
         camera->getScene()->getMainLight(), data);
 
     if (any(sceneFlags & SceneFlags::SHADOW_CASTER)) {
+        // noop
     } else {
         const auto *pDirLight = camera->getScene()->getMainLight();
         if (pDirLight) {

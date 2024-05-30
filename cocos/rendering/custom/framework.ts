@@ -37,6 +37,9 @@ export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, w
     const shadowSize = ppl.pipelineSceneData.shadows.size;
     ppl.addRenderTarget(`ShadowMap${id}`, shadowFormat, shadowSize.x, shadowSize.y);
     ppl.addDepthStencil(`ShadowDepth${id}`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
+    if (ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
+        ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
+    }
 }
 
 export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilder, ppl: BasicPipeline): void {

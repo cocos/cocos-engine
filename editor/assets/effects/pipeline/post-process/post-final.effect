@@ -11,6 +11,14 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
+    - vert: vs-tonemap
+      frag: fs-tonemap
+      pass: post-final-tonemap
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
 }%
 
 
@@ -38,3 +46,54 @@ CCProgram fs %{
 
 }%
 
+CCProgram vs-tonemap %{
+  precision highp float;
+
+  #include <legacy/decode-standard>
+  #include <./chunks/pipeline>
+
+  out vec2 v_uv;
+
+  void main () {
+    StandardVertInput In;
+    CCDecode(In);
+
+    // Vulkan 1.0, Flip NDC Y
+    if (g_platform.w == 0.0) {
+      In.position.y = -In.position.y;
+    }
+
+    gl_Position = In.position;
+
+    v_uv = a_texCoord;
+
+    // Metal, Sample from RT
+    if (g_platform.w == 1.0) {
+      v_uv.y = 1.0 - v_uv.y;
+    }
+  }
+}%
+
+CCProgram fs-tonemap %{
+  precision highp float;
+  #include <common/color/gamma>
+  #include <common/color/tone-mapping>
+
+  in vec2 v_uv;
+
+  uniform UBO {
+    vec4 inputViewPort;
+  };
+  #pragma rate inputTexture pass
+  uniform sampler2D inputTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    fragColor = texture(inputTexture, v_uv);
+    #if CC_USE_FLOAT_OUTPUT
+      fragColor.rgb = HDRToLDR(fragColor.rgb);
+      fragColor.rgb = LinearToSRGB(fragColor.rgb);
+    #endif
+  }
+}%
