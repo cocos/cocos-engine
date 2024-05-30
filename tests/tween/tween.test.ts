@@ -1314,7 +1314,7 @@ test('union from id', function () {
         for (let i = 0; i < 30; ++i) {
             game.step();
         }
-        expect(node.position.equals(new Vec3(10, 0, 0))).toBeTruthy();
+        expect(node.position.equals(new Vec3(100, 0, 0))).toBeTruthy();
 
         for (let i = 0; i < 30; ++i) {
             game.step();
