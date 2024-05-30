@@ -284,7 +284,7 @@ export class Tween<T extends object = any> {
      * @method clone
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      */
-    clone<U extends object = any> (target: U): Tween<U> {
+    clone<U extends object = any> (target?: U): Tween<U> {
         const action = this._union(false);
         const r = tween(target);
         return action ? r.insertAction(action) : r;
