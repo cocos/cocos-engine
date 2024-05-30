@@ -312,6 +312,7 @@ export class Sequence extends ActionInterval {
 
     clone (): Sequence {
         const action = new Sequence();
+        action._id = this._id;
         this._cloneDecoration(action);
         action.initWithTwoActions(this._actions[0].clone(), this._actions[1].clone());
         return action;
@@ -498,6 +499,7 @@ export class Repeat extends ActionInterval {
 
     clone (): Repeat {
         const action = new Repeat();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone(), this._times);
@@ -637,6 +639,7 @@ export class RepeatForever extends ActionInterval {
 
     clone (): RepeatForever {
         const action = new RepeatForever();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone());
@@ -786,6 +789,7 @@ export class Spawn extends ActionInterval {
 
     clone (): Spawn {
         const action = new Spawn();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._one && this._two) {
             action.initWithTwoActions(this._one.clone(), this._two.clone());
@@ -888,6 +892,7 @@ class DelayTime extends ActionInterval {
 
     clone (): DelayTime {
         const action = new DelayTime();
+        action._id = this._id;
         this._cloneDecoration(action);
         action.initWithDuration(this._duration);
         return action;
@@ -954,6 +959,7 @@ export class ReverseTime extends ActionInterval {
 
     clone (): ReverseTime {
         const action = new ReverseTime();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._other) {
             action.initWithAction(this._other.clone());

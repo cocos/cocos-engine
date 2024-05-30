@@ -82,7 +82,9 @@ export class Show<T extends Node> extends ActionInstant {
     }
 
     clone (): Show<T> {
-        return new Show<T>();
+        const action = new Show<T>();
+        action._id = this._id;
+        return action;
     }
 }
 
@@ -120,7 +122,9 @@ export class Hide<T extends Node> extends ActionInstant {
     }
 
     clone (): Hide<T> {
-        return new Hide<T>();
+        const action = new Hide<T>();
+        action._id = this._id;
+        return action;
     }
 }
 
@@ -158,7 +162,9 @@ export class ToggleVisibility<T extends Node> extends ActionInstant {
     }
 
     clone (): ToggleVisibility<T> {
-        return new ToggleVisibility<T>();
+        const action = new ToggleVisibility<T>();
+        action._id = this._id;
+        return action;
     }
 }
 
@@ -212,7 +218,9 @@ export class RemoveSelf<T extends Node> extends ActionInstant {
     }
 
     clone (): RemoveSelf<T> {
-        return new RemoveSelf<T>(this._isNeedCleanUp);
+        const action = new RemoveSelf<T>(this._isNeedCleanUp);
+        action._id = this._id;
+        return action;
     }
 }
 
@@ -319,6 +327,7 @@ export class CallFunc<TCallbackThis, TTarget, TData> extends ActionInstant {
 
     clone (): CallFunc<TCallbackThis, TTarget, TData> {
         const action = new CallFunc<TCallbackThis, TTarget, TData>();
+        action._id = this._id;
         if (this._callback) action.initWithFunction(this._callback, this._callbackThis, this._data);
         return action;
     }
