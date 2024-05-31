@@ -23,7 +23,7 @@
 */
 
 import { BasicPipeline, PipelineBuilder } from './pipeline';
-import { Camera, CameraUsage } from '../../render-scene/scene/camera';
+import { Camera } from '../../render-scene/scene/camera';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { supportsR32FloatTexture } from '../define';
 import { Format } from '../../gfx/base/define';

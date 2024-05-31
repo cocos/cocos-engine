@@ -23,7 +23,7 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { cclegacy, sys, Vec3, Vec4 } from '../../core';
+import { cclegacy, sys, Vec2, Vec3, Vec4 } from '../../core';
 import { AABB } from '../../core/geometry/aabb';
 import { Frustum } from '../../core/geometry/frustum';
 import intersect from '../../core/geometry/intersect';
@@ -36,7 +36,6 @@ import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { CSMLevel } from '../../render-scene/scene/shadows';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { defaultWindowResize } from './framework';
 import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder, PipelineSettings } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
 import { supportsR32FloatTexture } from '../define';
@@ -251,6 +250,8 @@ class PipelineConfigs {
     useFloatOutput = false;
     shadingScale = 1.0;
     toneMappingType = 0; // ACES
+    shadowMapFormat = Format.R32F;
+    shadowMapSize = new Vec2(1, 1);
     g_platform = new Vec4(0, 0, 0, 0);
 }
 
@@ -263,6 +264,8 @@ function setupPipelineConfigs (
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     configs.shadingScale = ppl.pipelineSceneData.shadingScale;
     configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
+    configs.shadowMapFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
+    configs.shadowMapSize.set(ppl.pipelineSceneData.shadows.size);
 
     const device = ppl.device;
     configs.g_platform.x = configs.isMobile ? 1.0 : 0.0;
@@ -316,22 +319,46 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         setupPipelineConfigs(ppl, this._configs);
         setupCameraConfigs(camera, this._configs, this._cameraConfigs);
 
-        defaultWindowResize(ppl, window, width, height);
+        const id = window.renderWindowId;
 
-        const id = camera.window.renderWindowId;
+        // Render Window
+        ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);
+        ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
 
-        // Spot light shadow map
+        // Mainlight ShadowMap
+        ppl.addRenderTarget(
+            `ShadowMap${id}`,
+            this._configs.shadowMapFormat,
+            this._configs.shadowMapSize.x,
+            this._configs.shadowMapSize.y,
+        );
+        ppl.addDepthStencil(
+            `ShadowDepth${id}`,
+            Format.DEPTH_STENCIL,
+            this._configs.shadowMapSize.x,
+            this._configs.shadowMapSize.y,
+        );
+
+        // Mobile spot-light shadow map
         if (this._configs.isMobile) {
-            const shadowMapSize = ppl.pipelineSceneData.shadows.size;
-            const shadowFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
             const count = this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps;
             for (let i = 0; i !== count; ++i) {
-                ppl.addRenderTarget(`SpotShadowMap${i}`, shadowFormat, shadowMapSize.x, shadowMapSize.y);
-                ppl.addDepthStencil(`SpotShadowDepth${i}`, Format.DEPTH_STENCIL, shadowMapSize.x, shadowMapSize.y);
+                ppl.addRenderTarget(
+                    `SpotShadowMap${i}`,
+                    this._configs.shadowMapFormat,
+                    this._configs.shadowMapSize.x,
+                    this._configs.shadowMapSize.y,
+                );
+                ppl.addDepthStencil(
+                    `SpotShadowDepth${i}`,
+                    Format.DEPTH_STENCIL,
+                    this._configs.shadowMapSize.x,
+                    this._configs.shadowMapSize.y,
+                );
             }
         }
 
-        // Radiance
+        // Float Radiance
         if (this._configs.useFloatOutput) {
             ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
         }
