@@ -57,20 +57,10 @@ CCProgram vs-tonemap %{
   void main () {
     StandardVertInput In;
     CCDecode(In);
-
-    // Vulkan 1.0, Flip NDC Y
-    if (g_platform.w == 0.0) {
-      In.position.y = -In.position.y;
-    }
-
+    FLIP_VULKAN_NDC(In.position);
     gl_Position = In.position;
-
     v_uv = a_texCoord;
-
-    // Metal, Sample from RT
-    if (g_platform.w == 1.0) {
-      v_uv.y = 1.0 - v_uv.y;
-    }
+    FLIP_SAMPLE_FROM_RT(v_uv);
   }
 }%
 

@@ -362,18 +362,42 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         if (this._configs.useFloatOutput) {
             ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
         }
+
+        // Post Process
+        if (this._cameraConfigs.enablePostProcess) {
+            // Bloom
+            if (!!this.settings.bloom && this.settings.bloom.enabled) {
+                let bloomWidth = Math.max(Math.floor(width / 2), 1);
+                let bloomHeight = Math.max(Math.floor(height / 2), 1);
+
+                // Half size
+                ppl.addRenderTarget(`BloomPrefilter${id}`, Format.RGBA8, bloomWidth, bloomHeight);
+
+                const iterations = this.settings.bloom.iterations ? this.settings.bloom.iterations : 3;
+                for (let i = 0; i !== iterations; ++i) {
+                    ppl.addRenderTarget(`BloomUpsample${id}_${i}`, Format.RGBA8, bloomWidth, bloomHeight);
+                    bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
+                    bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
+                    ppl.addRenderTarget(`BloomDownsample${id}_${i}`, Format.RGBA8, bloomWidth, bloomHeight);
+                }
+            }
+        }
     }
     setup (cameras: Camera[], ppl: BasicPipeline): void {
+        // TODO(zhouzhenglong): Make default effect asset loading earlier and remove _initMaterials
         if (this._initMaterials(ppl)) {
-            // TODO(zhouzhenglong): Make default effect asset loading earlier and remove _initMaterials
             return;
         }
+        // Render cameras
         for (const camera of cameras) {
-            // skip invalid camera
+            // Skip invalid camera
             if (camera.scene === null || camera.window === null) {
                 continue;
             }
+            // Setup camera configs
             setupCameraConfigs(camera, this._configs, this._cameraConfigs);
+
+            // Build pipeline
             if (this._configs.isMobile) {
                 this._buildMobileForwardPipeline(ppl, camera, camera.scene);
             } else {
@@ -455,7 +479,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     }
 
     //----------------------------------------------------------------
-    // Passes
+    // Common Passes
     //----------------------------------------------------------------
     private _addCascadedShadowMapPass (
         ppl: BasicPipeline,
@@ -559,6 +583,16 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
             .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
     }
+
+    // private _addBloomPasses (
+    //     ppl: BasicPipeline,
+    //     camera: Camera,
+    //     width: number,
+    //     height: number,
+    //     radianceName: string,
+    // ) {
+
+    // }
 
     //----------------------------------------------------------------
     // Desktop
