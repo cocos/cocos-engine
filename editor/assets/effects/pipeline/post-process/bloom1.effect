@@ -6,24 +6,32 @@ CCEffect %{
     - vert: bloom-vs
       frag: prefilter-fs
       pass: bloom1-prefilter
+      rasterizerState:
+        cullMode: none
       depthStencilState:
         depthTest: false
         depthWrite: false
     - vert: bloom-vs
       frag: downsample-fs
       pass: bloom1-downsample
+      rasterizerState:
+        cullMode: none
       depthStencilState:
         depthTest: false
         depthWrite: false
     - vert: bloom-vs
       frag: upsample-fs
       pass: bloom1-upsample
+      rasterizerState:
+        cullMode: none
       depthStencilState:
         depthTest: false
         depthWrite: false
     - vert: bloom-vs
       frag: combine-fs
       pass: bloom1-combine
+      rasterizerState:
+        cullMode: none
       depthStencilState:
         depthTest: false
         depthWrite: false
@@ -56,10 +64,9 @@ CCProgram prefilter-fs %{
   uniform BloomUBO {
     mediump vec4 bloomParams;// x: useHDRIlluminance z: threshold, w: enableAlphaMask
   };
-  #pragma rate outputResultMap pass
-  uniform sampler2D outputResultMap; // ldr input
-  #pragma rate hdrInputMap pass
-  uniform sampler2D hdrInputMap;     // hdr input
+
+  #pragma rate inputTexture pass
+  uniform sampler2D inputTexture;     // hdr input
 
   layout(location = 0) out vec4 fragColor;
 
@@ -68,18 +75,7 @@ CCProgram prefilter-fs %{
   }
 
   void main() {
-    vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-    #if CC_USE_FLOAT_OUTPUT
-     if (bloomParams.x > 0.0) {
-      color = texture(hdrInputMap, v_uv);
-     } else {
-      color = texture(outputResultMap, v_uv);
-      // no srgb to linear
-     }
-    #else
-      color = texture(outputResultMap, v_uv);
-      // no srgb to linear
-    #endif
+    vec4 color = texture(inputTexture, v_uv);
 
     float contribute = step(bloomParams.z, luminance(color.rgb));
     contribute *= mix(1.0, step(253.0 / 255.0, color.a), bloomParams.w);
