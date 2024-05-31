@@ -1841,7 +1841,7 @@ struct FXAA {
 };
 
 struct ForwardPipeline {
-    uint32_t mobileMaxSpotLightShadowMaps{4};
+    uint32_t mobileMaxSpotLightShadowMaps{1};
 };
 
 struct PipelineSettings {

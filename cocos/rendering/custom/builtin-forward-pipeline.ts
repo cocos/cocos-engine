@@ -36,7 +36,7 @@ import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { CSMLevel } from '../../render-scene/scene/shadows';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder, PipelineSettings } from './pipeline';
+import { BasicPipeline, BasicRenderPassBuilder, makePipelineSettings, PipelineBuilder, PipelineSettings } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
 import { supportsR32FloatTexture } from '../define';
 import { Material } from '../../asset/assets';
@@ -303,13 +303,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private _initialized = false; // TODO(zhouzhenglong): Make default effect asset loading earlier and remove this flag
 
     // Forward lighting
-    private readonly settings: PipelineSettings = {
-        forwardPipeline: {
-            // TODO(zhouzhenglong): Relex this limitation.
-            // Currently, only support 1 shadow map for spot light on mobile platform.
-            mobileMaxSpotLightShadowMaps: 1,
-        },
-    };
+    private readonly settings: PipelineSettings = makePipelineSettings();
     private readonly forwardLighting = new ForwardLighting();
 
     //----------------------------------------------------------------
@@ -373,8 +367,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                 // Half size
                 ppl.addRenderTarget(`BloomPrefilter${id}`, Format.RGBA8, bloomWidth, bloomHeight);
 
-                const iterations = this.settings.bloom.iterations ? this.settings.bloom.iterations : 3;
-                for (let i = 0; i !== iterations; ++i) {
+                for (let i = 0; i !== this.settings.bloom.iterations; ++i) {
                     ppl.addRenderTarget(`BloomUpsample${id}_${i}`, Format.RGBA8, bloomWidth, bloomHeight);
                     bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
                     bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
@@ -467,6 +460,8 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         // Spot light shadow maps
+        // Currently, only support 1 spot light with shadow map on mobile platform.
+        // TODO(zhouzhenglong): Relex this limitation.
         this.forwardLighting.addMobileShadowPasses(ppl, camera, this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps);
 
         // Forward Lighting
