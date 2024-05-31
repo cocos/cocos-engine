@@ -75,46 +75,6 @@ function getCsmMainLightViewport (
     vp.height = Math.max(1, vp.height);
 }
 
-class PipelineConfigs {
-    isMobile = false;
-    isHDR = false;
-    useFloatOutput = false;
-    shadingScale = 1.0;
-    toneMappingType = 0; // ACES
-    g_platform = new Vec4(0, 0, 0, 0);
-}
-
-function setupPipelineConfigs (
-    ppl: BasicPipeline,
-    configs: PipelineConfigs,
-): void {
-    configs.isMobile = sys.isMobile;
-    configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
-    configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
-    configs.shadingScale = ppl.pipelineSceneData.shadingScale;
-    configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
-
-    const device = ppl.device;
-    configs.g_platform.x = configs.isMobile ? 1.0 : 0.0;
-    configs.g_platform.w = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
-}
-
-class CameraConfigs {
-    enablePostProcess = false;
-    enableProfiler = false;
-}
-
-function setupCameraConfigs (
-    camera: Camera,
-    pipelineConfigs: PipelineConfigs,
-    cameraConfigs: CameraConfigs,
-): void {
-    const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
-    const isEditorView: boolean = camera.cameraUsage === CameraUsage.SCENE_VIEW || camera.cameraUsage === CameraUsage.PREVIEW;
-    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess && (isMainGameWindow || isEditorView);
-    cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
-}
-
 class ForwardLighting {
     // Active lights
     private readonly lights: Light[] = [];
@@ -285,6 +245,50 @@ class ForwardLighting {
     }
 }
 
+class PipelineConfigs {
+    isMobile = false;
+    isHDR = false;
+    useFloatOutput = false;
+    shadingScale = 1.0;
+    toneMappingType = 0; // ACES
+    g_platform = new Vec4(0, 0, 0, 0);
+}
+
+function setupPipelineConfigs (
+    ppl: BasicPipeline,
+    configs: PipelineConfigs,
+): void {
+    configs.isMobile = sys.isMobile;
+    configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
+    configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
+    configs.shadingScale = ppl.pipelineSceneData.shadingScale;
+    configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
+
+    const device = ppl.device;
+    configs.g_platform.x = configs.isMobile ? 1.0 : 0.0;
+    configs.g_platform.w = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
+}
+
+class CameraConfigs {
+    enableShadowMap = false;
+    enablePostProcess = false;
+    enableProfiler = false;
+}
+
+function setupCameraConfigs (
+    camera: Camera,
+    pipelineConfigs: PipelineConfigs,
+    cameraConfigs: CameraConfigs,
+): void {
+    cameraConfigs.enableShadowMap = camera.scene
+        ? camera.scene.mainLight !== null && camera.scene.mainLight.shadowEnabled
+        : false;
+    const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
+    const isEditorView: boolean = camera.cameraUsage === CameraUsage.SCENE_VIEW || camera.cameraUsage === CameraUsage.PREVIEW;
+    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess && (isMainGameWindow || isEditorView);
+    cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
+}
+
 export class BuiltinForwardPipeline implements PipelineBuilder {
     // Internal cached resources
     private readonly _clearColor = new Color(0, 0, 0, 1);
@@ -370,21 +374,24 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         this.forwardLighting.cullLights(scene, camera.frustum);
 
         // Main Directional light CSM Shadow Map
-        const enableCSM = mainLight !== null && mainLight.shadowEnabled;
-        if (enableCSM) {
+        if (this._cameraConfigs.enableShadowMap) {
             this._addCascadedShadowMapPass(ppl, id, mainLight!, camera, screenSpaceSignY);
         }
 
         // Forward Lighting
         if (this._configs.useFloatOutput) {
             if (this._cameraConfigs.enablePostProcess) {
-                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
+
+                // prefilter pass
+
+                this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
             } else {
-                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
                 this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
             }
         } else {
-            this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
+            this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
         }
     }
 
@@ -404,8 +411,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         this.forwardLighting.cullLights(scene, camera.frustum, camera.position);
 
         // Main Directional light CSM shadow map
-        const enableCSM = mainLight !== null && mainLight.shadowEnabled;
-        if (enableCSM) {
+        if (this._cameraConfigs.enableShadowMap) {
             this._addCascadedShadowMapPass(ppl, id, mainLight!, camera, screenSpaceSignY);
         }
 
@@ -414,10 +420,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Forward Lighting
         if (this._configs.useFloatOutput) {
-            this._addMobileForwardPass(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+            this._addMobileForwardPass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
             this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
         } else {
-            this._addMobileForwardPass(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
+            this._addMobileForwardPass(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
         }
     }
 
@@ -489,7 +495,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         camera: Camera,
         colorName: string,
         depthStencilName: string,
-        enableCSM: boolean,
         mainLight: DirectionalLight | null,
     ): void {
         // set viewport
@@ -517,7 +522,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         // Set shadow map if enabled
-        if (enableCSM) {
+        if (this._cameraConfigs.enableShadowMap) {
             pass.addTexture(`ShadowMap${id}`, 'cc_shadowMap');
         }
 
@@ -539,7 +544,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         height: number,
         colorName: string,
         depthStencilName: string,
-        enableCSM: boolean,
         mainLight: DirectionalLight | null,
     ): void {
         //----------------------------------------------------------------
@@ -562,7 +566,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
         pass.name = 'ForwardPass';
-        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, enableCSM, mainLight);
+        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
 
         //----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
@@ -576,7 +580,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         // Add transparent queue
         let flags = SceneFlags.BLEND | SceneFlags.UI;
-        if (!this._configs.useFloatOutput && this._cameraConfigs.enableProfiler) {
+        if (this._cameraConfigs.enableProfiler && !this._configs.useFloatOutput) {
             lastPass.showStatistics = true;
             flags |= SceneFlags.PROFILER;
         }
@@ -596,7 +600,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         height: number,
         colorName: string,
         depthStencilName: string,
-        enableCSM: boolean,
         mainLight: DirectionalLight | null,
     ): void {
         //----------------------------------------------------------------
@@ -619,7 +622,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
         pass.name = 'ForwardPass';
-        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, enableCSM, mainLight);
+        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
 
         //----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
@@ -632,7 +635,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         //----------------------------------------------------------------
         // Add transparent queue
         let flags = SceneFlags.BLEND | SceneFlags.UI;
-        if (!this._configs.useFloatOutput && this._cameraConfigs.enableProfiler) {
+        if (this._cameraConfigs.enableProfiler && !this._configs.useFloatOutput) {
             pass.showStatistics = true;
             flags |= SceneFlags.PROFILER;
         }
