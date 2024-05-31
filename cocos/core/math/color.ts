@@ -735,10 +735,10 @@ export class Color extends ValueType implements Modifiable {
      */
     public multiply (other: Color): Color {
         // FIXME: not sure if other is really Color, so use getter.
-        this._data[R_INDEX] = this._data[R_INDEX] * other.r / 255;
-        this._data[G_INDEX] = this._data[G_INDEX] * other.g / 255;
-        this._data[B_INDEX] = this._data[B_INDEX] * other.b / 255;
-        this._data[A_INDEX] = this._data[A_INDEX] * other.a / 255;
+        this._data[R_INDEX] *= other.r / 255;
+        this._data[G_INDEX] *= other.g / 255;
+        this._data[B_INDEX] *= other.b / 255;
+        this._data[A_INDEX] *= other.a / 255;
         return this;
     }
 
