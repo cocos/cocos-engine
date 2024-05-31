@@ -281,7 +281,6 @@ export class Tween<T extends object = any> {
         this._finalAction = this._union(false);
         if (this._finalAction) {
             this._finalAction.setTag(this._tag);
-            this._finalAction.setSpeed(this._timeScale);
             TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
         } else {
             warn(`start: no actions in Tween`);
