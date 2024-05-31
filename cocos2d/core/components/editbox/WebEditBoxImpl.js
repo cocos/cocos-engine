@@ -429,11 +429,12 @@ Object.assign(WebEditBoxImpl.prototype, {
         let type = elem.type;
         if (inputMode === InputMode.EMAIL_ADDR) {
             type = 'email';
-        } else if(inputMode === InputMode.NUMERIC || inputMode === InputMode.DECIMAL) {
+        } else if(inputMode === InputMode.NUMERIC) {
             type = 'number';
+        } else if (inputMode === InputMode.DECIMAL) {
+            type = 'digit';
         } else if(inputMode === InputMode.PHONE_NUMBER) {
-            type = 'number';
-            elem.pattern = '[0-9]*';
+            type = 'tel';
             elem.onmousewheel = function () { return false; };
         } else if(inputMode === InputMode.URL) {
             type = 'url';
