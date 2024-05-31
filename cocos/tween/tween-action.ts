@@ -178,7 +178,7 @@ export class TweenAction<T> extends ActionInterval {
     reverse (): TweenAction<T> {
         if (!this._opts!.relative) {
             warn('reverse: could not reverse a non-relative action');
-            return this.clone();
+            return new TweenAction<T>(0, {});
         }
 
         const action = new TweenAction(this._duration, this._originProps, this._opts);

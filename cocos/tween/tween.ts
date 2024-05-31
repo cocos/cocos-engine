@@ -43,6 +43,7 @@ type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
+const invalidActionId = 'invalid action id: -1';
 
 /**
  * @en
@@ -60,7 +61,7 @@ const notIntervalPrompt = 'the last action is not ActionInterval';
  */
 export class Tween<T extends object = any> {
     private _actions: FiniteTimeAction[] = [];
-    private _finalAction: FiniteTimeAction | null = null;
+    private _finalAction: Sequence | null = null;
     private _target: T | null = null;
     private _tag = Action.TAG_INVALID;
 
@@ -139,51 +140,76 @@ export class Tween<T extends object = any> {
     reverse<U extends object = any> (otherTween: Tween<U>, id?: number): Tween<T>;
 
     reverse<U extends object = any> (otherTweenOrId?: Tween<U> | number, id?: number): Tween<T> {
+        // Overload 1: reverse()
         if (otherTweenOrId == null && id == null) {
-            if (this._actions.length === 0) {
-                warn('reverse: current tween could not be reversed, empty actions');
-                return this.clone(this._target as T);
-            } else {
-                const action = this._union(false); // workerTarget will be updated in the following insertAction
-                const r = tween(this._target as T);
-
-                if (action) r.insertAction(action.reverse());
-                return r;
-            }
+            return this.reverseTween();
         }
 
-        let otherTween: Tween<U> | undefined;
-        let actionId = -1;
+        let tweenForFindAction: Tween | undefined;
+        let actionId: number | undefined;
+
         if (otherTweenOrId instanceof Tween) {
-            otherTween = otherTweenOrId;
+            // Overload 3: reverse(otherTween: Tween<U>, id? number)
+            tweenForFindAction = otherTweenOrId;
+            if (id === -1) {
+                warn(`reverse: ${invalidActionId}`);
+                return this;
+            }
+
             if (id !== undefined) {
                 actionId = id;
             }
         } else if (typeof otherTweenOrId === 'number') {
+            // Overload 2: reverse(id: number)
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            tweenForFindAction = this;
+            if (otherTweenOrId === -1) {
+                warn(`reverse: ${invalidActionId}`);
+                return this;
+            }
             actionId = otherTweenOrId;
         }
 
-        const actions = otherTween ? otherTween._actions : this._actions;
-        let action: FiniteTimeAction | null = null;
-        if (actions.length === 0) {
-            return this;
+        if (tweenForFindAction) {
+            const reversedAction = Tween.reverseAction(tweenForFindAction, actionId);
+            if (reversedAction) {
+                this._actions.push(reversedAction);
+            }
         }
+        return this;
+    }
 
-        if (actionId === -1) {
-            action = otherTween ? otherTween._union(false) : this._union(false);
-        } else {
-            action = this.findAction(actionId, actions);
+    private reverseTween (): Tween<T> {
+        if (this._actions.length === 0) {
+            warn('reverse: current tween could not be reversed, empty actions');
+            return this.clone(this._target as T);
+        }
+        const action = this._union(false); // workerTarget will be updated in the following insertAction
+        const r = tween(this._target as T);
+
+        if (action) r.insertAction(action.reverse());
+        return r;
+    }
+
+    private static reverseAction (t: Tween, actionId?: number): FiniteTimeAction | null {
+        const actions = t._actions;
+        if (actions.length === 0) return null;
+
+        let action: FiniteTimeAction | null = null;
+        let reversedAction: FiniteTimeAction | null = null;
+        if (typeof actionId === 'number') {
+            action = t.findAction(actionId, actions);
+        } else if (t) {
+            action = t._union(false);
         }
 
         if (action) {
-            const reversedAction = action.reverse();
-            reversedAction.workerTarget = otherTween ? otherTween._target : this._target;
-            this._actions.push(reversedAction);
+            reversedAction = action.reverse();
+            reversedAction.workerTarget = t._target;
         } else {
             warn(`reverse: could not find action id ${actionId}`);
         }
-
-        return this;
+        return reversedAction;
     }
 
     private findAction (id: number, actions: FiniteTimeAction[]): FiniteTimeAction | null {
@@ -255,8 +281,11 @@ export class Tween<T extends object = any> {
         this._finalAction = this._union(false);
         if (this._finalAction) {
             this._finalAction.setTag(this._tag);
+            this._finalAction.setSpeed(this._timeScale);
+            TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
+        } else {
+            warn(`start: no actions in Tween`);
         }
-        TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
         return this;
     }
 
@@ -308,12 +337,16 @@ export class Tween<T extends object = any> {
         if (fromId === undefined) {
             unionAll();
             return this;
+        } else if (fromId === -1) {
+            warn(`union: fromId: ${invalidActionId}`);
+            return this;
         }
 
         const actions = this._actions;
         const index = actions.findIndex((action) => action.getId() === fromId);
         if (index === -1) {
-            unionAll();
+            warn(`union: found: ${invalidActionId}`);
+            return this;
         } else {
             const len = actions.length;
             if (len > 1) {
@@ -615,16 +648,10 @@ export class Tween<T extends object = any> {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
     }
 
-    private _union (updateWorkerTarget: boolean): FiniteTimeAction | null {
+    private _union (updateWorkerTarget: boolean): Sequence | null {
         const actions = this._actions;
         if (actions.length === 0) return null;
-        let action: FiniteTimeAction;
-        if (actions.length === 1) {
-            action = actions[0];
-        } else {
-            action = sequence(actions);
-        }
-
+        const action = sequence(actions);
         if (updateWorkerTarget) {
             this.updateWorkerTargetForAction(action);
         }
