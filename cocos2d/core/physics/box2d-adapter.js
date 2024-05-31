@@ -1,6 +1,6 @@
 let box2d = require('../../../external/box2d/box2d');
 
-window.b2 = b2 ? b2: {};
+window.b2 = b2 ? b2 : {};
 
 for (var key in box2d) {
     if (key.indexOf('b2_') !== -1) {
