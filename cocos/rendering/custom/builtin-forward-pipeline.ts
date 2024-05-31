@@ -109,8 +109,10 @@ function setupCameraConfigs (
     pipelineConfigs: PipelineConfigs,
     cameraConfigs: CameraConfigs,
 ): void {
-    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess;
-    cameraConfigs.enableProfiler = DEBUG && camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
+    const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
+    const isEditorView: boolean = camera.cameraUsage === CameraUsage.SCENE_VIEW || camera.cameraUsage === CameraUsage.PREVIEW;
+    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess && (isMainGameWindow || isEditorView);
+    cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
 }
 
 class ForwardLighting {
@@ -306,9 +308,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     //----------------------------------------------------------------
     // Interface
     //----------------------------------------------------------------
-    gameWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
+    windowResize (ppl: BasicPipeline, window: RenderWindow, camera: Camera, width: number, height: number): void {
         setupPipelineConfigs(ppl, this._configs);
+        setupCameraConfigs(camera, this._configs, this._cameraConfigs);
+
         defaultWindowResize(ppl, window, width, height);
+
+        const id = camera.window.renderWindowId;
+
         // Spot light shadow map
         if (this._configs.isMobile) {
             const shadowMapSize = ppl.pipelineSceneData.shadows.size;
@@ -318,6 +325,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                 ppl.addRenderTarget(`SpotShadowMap${i}`, shadowFormat, shadowMapSize.x, shadowMapSize.y);
                 ppl.addDepthStencil(`SpotShadowDepth${i}`, Format.DEPTH_STENCIL, shadowMapSize.x, shadowMapSize.y);
             }
+        }
+
+        // Radiance
+        if (this._configs.useFloatOutput) {
+            ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
         }
     }
     setup (cameras: Camera[], ppl: BasicPipeline): void {
@@ -365,8 +377,12 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Forward Lighting
         if (this._configs.useFloatOutput) {
-            this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
-            this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
+            if (this._cameraConfigs.enablePostProcess) {
+                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+            } else {
+                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, enableCSM, mainLight);
+                this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
+            }
         } else {
             this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, enableCSM, mainLight);
         }

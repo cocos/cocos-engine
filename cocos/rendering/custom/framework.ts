@@ -37,13 +37,10 @@ export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, w
     const shadowSize = ppl.pipelineSceneData.shadows.size;
     ppl.addRenderTarget(`ShadowMap${id}`, shadowFormat, shadowSize.x, shadowSize.y);
     ppl.addDepthStencil(`ShadowDepth${id}`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
-    if (ppl.getMacroBool('CC_USE_FLOAT_OUTPUT')) {
-        ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
-    }
 }
 
 export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilder, ppl: BasicPipeline): void {
-    if (!builder.gameWindowResize) {
+    if (!builder.windowResize) {
         // No game window resize handler defined.
         // Following old prodecure, do nothing
         return;
@@ -56,59 +53,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         const width = Math.max(Math.floor(camera.window.width), 1);
         const height = Math.max(Math.floor(camera.window.height), 1);
 
-        switch (camera.cameraUsage) {
-        case CameraUsage.EDITOR:
-            if (builder.editorWindowResize) {
-                builder.editorWindowResize(ppl, camera.window, width, height);
-            } else {
-                defaultWindowResize(ppl, camera.window, width, height);
-            }
-            break;
-        case CameraUsage.GAME_VIEW: {
-            if (builder.editorGameViewResize) {
-                builder.editorGameViewResize(ppl, camera.window, width, height);
-            } else {
-                defaultWindowResize(ppl, camera.window, width, height);
-            }
-            break;
-        }
-        case CameraUsage.SCENE_VIEW: {
-            if (builder.editorSceneViewResize) {
-                builder.editorSceneViewResize(ppl, camera.window, width, height);
-            } else {
-                defaultWindowResize(ppl, camera.window, width, height);
-            }
-            break;
-        }
-        case CameraUsage.PREVIEW: {
-            if (builder.editorPreviewResize) {
-                builder.editorPreviewResize(ppl, camera.window, width, height);
-            } else {
-                defaultWindowResize(ppl, camera.window, width, height);
-            }
-            break;
-        }
-        case CameraUsage.GAME: {
-            if (builder.gameWindowResize) {
-                builder.gameWindowResize(ppl, camera.window, width, height);
-            } else {
-                defaultWindowResize(ppl, camera.window, width, height);
-            }
-            break;
-        }
-        default:
-            if (camera.cameraUsage > CameraUsage.GAME) {
-                if (builder.customWindowResize) {
-                    builder.customWindowResize(ppl, camera.window, width, height);
-                } else {
-                    defaultWindowResize(ppl, camera.window, width, height);
-                }
-            } else if (builder.editorWindowResize) {
-                builder.editorWindowResize(ppl, camera.window, width, height);
-            } else {
-                defaultWindowResize(ppl, camera.window, width, height);
-            }
-        }
+        builder.windowResize(ppl, camera.window, camera, width, height);
         camera.window.setRenderWindowResizeHandled();
     }
 }

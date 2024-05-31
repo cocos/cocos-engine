@@ -1682,34 +1682,10 @@ export interface Pipeline extends BasicPipeline {
  * 调用setCustomPipeline注册管线
  */
 export interface PipelineBuilder {
-    editorWindowResize? (
+    windowResize? (
         pipeline: BasicPipeline,
         window: RenderWindow,
-        width: number,
-        height: number): void;
-    editorSceneViewResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    editorGameViewResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    editorPreviewResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    gameWindowResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    customWindowResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
+        camera: Camera,
         width: number,
         height: number): void;
     /**
