@@ -463,4 +463,63 @@ describe(`Node`, () => {
 
         son.dispatchEvent(new Event('event2', true));
     });
+
+    test ('setWorldPosition', ()=> {
+        let parent = new Node();
+        parent.setPosition(100, 100);
+
+        let son = new Node();
+        expect(son.getPosition()).toEqual(new Vec3(0, 0, 0));
+
+        son.parent = parent;
+        son.setWorldPosition(Vec3.ZERO);
+        expect(son.getPosition()).toEqual(new Vec3(-100, -100, 0));
+    });
+    
+    test ('setWorldRotation', ()=> {
+        let parent = new Node();
+
+        // rotate pi/60 around x axis
+        const angle = Math.PI / 6;
+        parent.setRotation(Math.sin(angle / 2), 0, 0, Math.cos(angle / 2));
+
+        let son = new Node();
+        expect(son.getRotation()).toEqual(Quat.IDENTITY);
+
+        son.parent = parent;
+        son.setWorldRotation(Quat.IDENTITY);
+        expect(son.getRotation()).toEqual(new Quat(Math.sin(-angle / 2), 0, 0, Math.cos(-angle / 2)));
+    });
+
+    test ('setWorldRotationFromEuler', ()=> {
+        let parent = new Node();
+
+        // rotate 30 degrees around x axis
+        parent.setWorldRotationFromEuler(30, 0, 0);
+
+        let son = new Node();
+        expect(son.getRotation()).toEqual(Quat.IDENTITY);
+
+        son.parent = parent;
+        son.setWorldRotationFromEuler(0, 0, 0);
+
+        let quat = new Quat();
+        Quat.fromEuler(quat, -30, 0, 0);
+        expect(son.getRotation()).toEqual(quat);
+    });
+
+    test ('setWorldScale', ()=> {
+        let parent = new Node();
+
+        // rotate 30 degrees around x axis
+        parent.setScale(2, 3, 4);
+
+        let son = new Node();
+        expect(son.getScale()).toEqual(new Vec3(1, 1, 1));
+
+        son.parent = parent;
+        son.setWorldScale(1, 1, 1);
+
+        expect(son.getScale()).toEqual(new Vec3(1/2, 1/3, 1/4));
+    });
 });

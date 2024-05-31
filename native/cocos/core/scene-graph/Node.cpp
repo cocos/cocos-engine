@@ -542,7 +542,9 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
 }
 
 void Node::setWorldPosition(float x, float y, float z) {
-    if (_worldPosition.approxEquals({x, y, z})) {
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::POSITION)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && _worldPosition.approxEquals({x, y, z})) {
         return;
     }
 
@@ -570,7 +572,9 @@ const Vec3 &Node::getWorldPosition() const {
 }
 
 void Node::setWorldRotation(float x, float y, float z, float w) {
-    if (_worldRotation.approxEquals({x, y, z, w})) {
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::ROTATION)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && _worldRotation.approxEquals({x, y, z, w})) {
         return;
     }
 
@@ -600,7 +604,9 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
-    if (_worldScale.approxEquals({x, y, z})) {
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::SCALE)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && _worldScale.approxEquals({x, y, z})) {
         return;
     }
 
@@ -760,7 +766,10 @@ void Node::setMatrix(const Mat4 &val) {
 void Node::setWorldRotationFromEuler(float x, float y, float z) {
     Quaternion tmpRotation;
     Quaternion::fromEuler(x, y, z, &tmpRotation);
-    if (tmpRotation.approxEquals(_worldRotation)) {
+
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::SCALE)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && tmpRotation.approxEquals(_worldRotation)) {
         return;
     }
 
