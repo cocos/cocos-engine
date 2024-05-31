@@ -2366,7 +2366,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const worldPosition = this._pos;
 
         // Force update may happen in the situation:
-        // - node is create, and added to a scene
+        // - node is created, and added to a scene
         // - set node's world position to default value(Vec3.ZERO), which equals to node._pos
         // Then need to update local position, or local position will be wrong.
         const forceUpdateLocalPosition = this._parent
@@ -2443,7 +2443,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const worldRotation = this._rot;
 
         // Force update may happen in the situation:
-        // - node is create, and added to a scene
+        // - node is created, and added to a scene
         // - set node's world rotation to default value(Vec3.ZERO), which equals to node._rot
         // Then need to update local rotation.
         const forceUpdateLocalRotation = this._parent
@@ -2489,7 +2489,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const worldRotation = this._rot;
 
         // Force update may happen in the situation:
-        // - node is create, and added to a scene
+        // - node is created, and added to a scene
         // - set node's world rotation to default value(Vec3.ZERO), which equals to node._rot
         // Then need to update local rotation.
         const forceUpdateLocalRotation = this._parent
@@ -2549,7 +2549,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         const worldScale = this._scale;
 
         // Force update may happen in the situation:
-        // - node is create, and added to a scene
+        // - node is created, and added to a scene
         // - set node's world scale to default value(Vec3(1,1,1)), which equals to node._scale
         // Then need to update local scale.
         const forceUpdateLocalScale = this._parent
