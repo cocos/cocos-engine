@@ -95,6 +95,11 @@ export abstract class Action {
 
     protected tag = Action.TAG_INVALID;
 
+    /**
+     * @en The identifier that to mark an internal action.
+     *     The default value is -1, so don't pass a value of -1 to Tween.id(-1), Tween.reverse(-1) or Tween.union(-1)
+     *     while using relevant Tween API.
+     */
     protected _id = -1;
 
     /**
@@ -196,10 +201,20 @@ export abstract class Action {
         this.tag = tag;
     }
 
+    /**
+     * @en Set the identifier of the current action.
+     *     The default value is -1, so don't pass a value of -1 to Tween.id(-1), Tween.reverse(-1) or Tween.union(-1)
+     *     while using relevant Tween API.
+     * @param id @en The identifier to set
+     */
     setId (id: number): void {
         this._id = id;
     }
 
+    /**
+     * @en Get the identifier of the current action.
+     * @return @en The identifier of the current action
+     */
     getId (): number {
         return this._id;
     }

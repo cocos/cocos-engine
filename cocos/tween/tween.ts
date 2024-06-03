@@ -213,6 +213,10 @@ export class Tween<T extends object = any> {
     }
 
     private findAction (id: number, actions: FiniteTimeAction[]): FiniteTimeAction | null {
+        if (id === -1) {
+            warn(`findAction: ${invalidActionId}`);
+            return null;
+        }
         let action: FiniteTimeAction | null = null;
         for (let i = 0, len = actions.length; i < len; ++i) {
             action = actions[i];
