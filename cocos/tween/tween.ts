@@ -24,7 +24,7 @@
 
 import { TweenSystem } from './tween-system';
 import { warn } from '../core';
-import { ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence, Spawn, repeat, repeatForever } from './actions/action-interval';
+import { ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence, Spawn, repeat, repeatForever, RepeatForever } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, TCallFuncCallback } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
@@ -60,7 +60,7 @@ const notIntervalPrompt = 'the last action is not ActionInterval';
  */
 export class Tween<T extends object = any> {
     private _actions: FiniteTimeAction[] = [];
-    private _finalAction: Sequence | null = null;
+    private _finalAction: ActionInterval | null = null;
     private _target: T | null = null;
     private _tag = Action.TAG_INVALID;
     private _timeScale = 1;
@@ -266,7 +266,7 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
         }
-        const final = this._union(false);
+        const final = this._unionForStart();
         this._finalAction = final;
         if (final) {
             final.setTag(this._tag);
@@ -671,6 +671,19 @@ export class Tween<T extends object = any> {
         if (updateWorkerTarget) {
             this.updateWorkerTargetForAction(action);
         }
+        return action;
+    }
+
+    private _unionForStart (): ActionInterval | null {
+        const actions = this._actions;
+        if (actions.length === 0) return null;
+        let action: ActionInterval;
+        if (actions.length === 1 && actions[0] instanceof RepeatForever) {
+            action = actions[0];
+        } else {
+            action = sequence(actions);
+        }
+
         return action;
     }
 

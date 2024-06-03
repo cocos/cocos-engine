@@ -329,6 +329,7 @@ export class ActionManager {
         const element = this._hashTargets.get(target);
         if (element) element.paused = true;
     }
+
     /**
      * @en Resumes the target. All queued actions will be resumed.
      * @zh 让指定目标恢复运行。在执行序列中所有被暂停的动作将重新恢复运行。

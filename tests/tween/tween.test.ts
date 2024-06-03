@@ -13,6 +13,12 @@ function isSizeEqualTo(a: Size, b: Size) {
     return approx(a.width, b.width) && approx(a.height, b.height);
 }
 
+function runFrames(frames: number) {
+    for (let i = 0; i < frames; ++i) {
+        game.step();
+    }
+}
+
 test('remove actions by tag', function () {
     const scene = new Scene('test-tags');
     const node = new Node();
@@ -2280,6 +2286,31 @@ test('repeatForever with > 1 actions in tween', function () {
         }
         expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
     }
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('repeatForever', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    
+    const node = new Node();
+    
+    tween(node)
+        .by(1, { position: new Vec3(90, 0, 0) }).id(123)
+        .reverse(123)
+        .union()
+        .repeatForever()
+        .start();
+
+    // start
+    runFrames(1);
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 0, 0))).toBeTruthy();
 
     //
     director.unregisterSystem(sys);
