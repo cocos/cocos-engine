@@ -612,11 +612,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         // Bloom texture names
-        if (this._bloomTexNames.length < sizeCount) {
-            this._bloomTexNames.length = sizeCount;
-            for (let i = 0; i !== sizeCount; ++i) {
-                this._bloomTexNames[i] = `BloomTex${id}_${i}`;
-            }
+        this._bloomTexNames.length = sizeCount;
+        for (let i = 0; i !== sizeCount; ++i) {
+            this._bloomTexNames[i] = `BloomTex${id}_${i}`;
         }
 
         // Setup bloom parameters
