@@ -1183,7 +1183,7 @@ test('reverse(t) 2', function () {
     director.unregisterSystem(sys);
 });
 
-test('reverse(t, -1)', function () {
+test('reverse(t, -1) not found id', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -1591,7 +1591,7 @@ test('union from id', function () {
     director.unregisterSystem(sys);
 });
 
-test('union from invalid id (-1)', function () {
+test('union from id (-1) not found', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);

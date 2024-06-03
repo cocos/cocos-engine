@@ -43,7 +43,7 @@ type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
-const invalidActionId = 'invalid action id: -1';
+const invalidActionId = 'invalid action id: undefined';
 
 /**
  * @en
@@ -122,8 +122,6 @@ export class Tween<T extends object = any> {
      * @zh 翻转当前缓动中特定标识的动作
      * @param id @en The ID of the internal action in the current tween to reverse @zh 要翻转的当前缓动中的动作标识
      * @return @en The current tween instance @zh 当前缓动实例
-     * @note @en Don't use -1 for id since -1 is the default value for internal actions
-     *       @zh 请不要使用 -1 作为标识，因为 -1 是内部动作标识的默认值
      */
     reverse (id: number): Tween<T>;
 
@@ -134,8 +132,6 @@ export class Tween<T extends object = any> {
      *                   @zh 根据标识在关联的缓动中查找动作
      * @param id @en The ID of the action to reverse @zh 要翻转的动画标识
      * @return @en The current tween instance @zh 当前缓动实例
-     * @note @en If `id` is not assigned or its value is -1, it will reverse all actions in the `otherTween`
-     *       @zh 如果 `id` 没有被指定或者值为 -1，那么将翻转 `otherTween` 中所有的动作
      */
     reverse<U extends object = any> (otherTween: Tween<U>, id?: number): Tween<T>;
 
@@ -151,11 +147,6 @@ export class Tween<T extends object = any> {
         if (otherTweenOrId instanceof Tween) {
             // Overload 3: reverse(otherTween: Tween<U>, id? number)
             tweenForFindAction = otherTweenOrId;
-            if (id === -1) {
-                warn(`reverse: ${invalidActionId}`);
-                return this;
-            }
-
             if (id !== undefined) {
                 actionId = id;
             }
@@ -163,10 +154,6 @@ export class Tween<T extends object = any> {
             // Overload 2: reverse(id: number)
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             tweenForFindAction = this;
-            if (otherTweenOrId === -1) {
-                warn(`reverse: ${invalidActionId}`);
-                return this;
-            }
             actionId = otherTweenOrId;
         }
 
@@ -213,10 +200,6 @@ export class Tween<T extends object = any> {
     }
 
     private findAction (id: number, actions: FiniteTimeAction[]): FiniteTimeAction | null {
-        if (id === -1) {
-            warn(`findAction: ${invalidActionId}`);
-            return null;
-        }
         let action: FiniteTimeAction | null = null;
         for (let i = 0, len = actions.length; i < len; ++i) {
             action = actions[i];
@@ -339,9 +322,6 @@ export class Tween<T extends object = any> {
 
         if (fromId === undefined) {
             unionAll();
-            return this;
-        } else if (fromId === -1) {
-            warn(`union: fromId: ${invalidActionId}`);
             return this;
         }
 

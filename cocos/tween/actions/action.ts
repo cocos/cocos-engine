@@ -97,10 +97,8 @@ export abstract class Action {
 
     /**
      * @en The identifier that to mark an internal action.
-     *     The default value is -1, so don't pass a value of -1 to Tween.id(-1), Tween.reverse(-1) or Tween.union(-1)
-     *     while using relevant Tween API.
      */
-    protected _id = -1;
+    protected _id: number | undefined = undefined;
 
     /**
      * @en
@@ -203,8 +201,6 @@ export abstract class Action {
 
     /**
      * @en Set the identifier of the current action.
-     *     The default value is -1, so don't pass a value of -1 to Tween.id(-1), Tween.reverse(-1) or Tween.union(-1)
-     *     while using relevant Tween API.
      * @param id @en The identifier to set
      */
     setId (id: number): void {
@@ -213,9 +209,9 @@ export abstract class Action {
 
     /**
      * @en Get the identifier of the current action.
-     * @return @en The identifier of the current action
+     * @return @en The identifier of the current action, it may be undefined if setId is never called.
      */
-    getId (): number {
+    getId (): number | undefined {
         return this._id;
     }
 
