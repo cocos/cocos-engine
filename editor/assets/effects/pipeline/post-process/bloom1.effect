@@ -111,6 +111,9 @@ CCProgram downsample-fs %{
 #pragma define SAM(uv) texture(bloomTexture, uv).xyz
 
   vec3 downsample(vec2 uv, vec2 halfpixel) {
+    // halfpixel is:
+    // 1. half of the pixel size of the output texture
+    // 2. pixel size of the input texture
     vec3 sum = SAM(uv) * 4.0;
     sum += SAM(uv - halfpixel.xy);
     sum += SAM(uv + halfpixel.xy);
@@ -154,6 +157,9 @@ CCProgram upsample-fs %{
 #pragma define SAM(uv) texture(bloomTexture, uv).xyz
 
   vec3 upsample(vec2 uv, vec2 halfpixel) {
+    // halfpixel is:
+    // 1. half of the pixel size of the input texture
+    // 2. pixel size of the output texture
     vec3 sum = SAM(uv + vec2(-halfpixel.x * 2.0, 0.0));
         sum += SAM(uv + vec2(-halfpixel.x, halfpixel.y)) * 2.0;
         sum += SAM(uv + vec2(0.0, halfpixel.y * 2.0));
@@ -174,7 +180,7 @@ CCProgram upsample-fs %{
   }
 
   void main() {
-    vec3 result = upsample4taps(v_uv, 0.5 / bloomTexSize.xy).rgb;
+    vec3 result = upsample(v_uv, 0.5 / bloomTexSize.xy).rgb;
 
     fragColor = vec4(result, 1.0);
   }

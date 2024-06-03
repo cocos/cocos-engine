@@ -304,8 +304,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private readonly _bloomTexSize = new Vec4(0, 0, 0, 0);
     private readonly _bloomWidths: Array<number> = [];
     private readonly _bloomHeights: Array<number> = [];
-    private readonly _bloomDownsampleNames: Array<string> = [];
-    private readonly _bloomUpsampleNames: Array<string> = [];
+    private readonly _bloomTexNames: Array<string> = [];
     // Materials
     private readonly _copyAndTonemapMaterial = new Material();
     private readonly _bloomMaterial = new Material();
@@ -314,6 +313,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     // Forward lighting
     private readonly settings: PipelineSettings = makePipelineSettings();
     private readonly forwardLighting = new ForwardLighting();
+
+    // constructor () {
+    //     this.settings.bloom.enabled = true;
+    // }
 
     //----------------------------------------------------------------
     // Interface
@@ -368,19 +371,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Post Process
         if (this._cameraConfigs.enablePostProcess) {
-            // Bloom
-            if (!!this.settings.bloom && this.settings.bloom.enabled) {
-                let bloomWidth = Math.max(Math.floor(width / 2), 1);
-                let bloomHeight = Math.max(Math.floor(height / 2), 1);
-
-                // Half size
-                ppl.addRenderTarget(`BloomPrefilter${id}`, Format.RGBA8, bloomWidth, bloomHeight);
-
-                for (let i = 0; i !== this.settings.bloom.iterations; ++i) {
-                    ppl.addRenderTarget(`BloomUpsample${id}_${i}`, Format.RGBA8, bloomWidth, bloomHeight);
+            // Bloom (Kawase Dual Filter)
+            if (this.settings.bloom.enabled) {
+                let bloomWidth = width;
+                let bloomHeight = height;
+                for (let i = 0; i !== this.settings.bloom.iterations + 1; ++i) {
                     bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
                     bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
-                    ppl.addRenderTarget(`BloomDownsample${id}_${i}`, Format.RGBA8, bloomWidth, bloomHeight);
+                    ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
                 }
             }
         }
@@ -436,7 +434,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             if (this._cameraConfigs.enablePostProcess) {
                 this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
 
-                // prefilter pass
+                if (this.settings.bloom.enabled) {
+                    this._addKawaseDualFilterBloomPasses(ppl, id, width, height, radianceName);
+                }
 
                 this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
             } else {
@@ -588,7 +588,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
     }
 
-    private _addBloomPasses (
+    private _addKawaseDualFilterBloomPasses (
         ppl: BasicPipeline,
         id: number,
         // camera: Camera,
@@ -596,59 +596,88 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         height: number,
         radianceName: string,
     ): void {
+        // Based on Kawase Dual Filter Blur. Saves bandwidth on mobile devices.
+        // eslint-disable-next-line max-len
+        // https://community.arm.com/cfs-file/__key/communityserver-blogs-components-weblogfiles/00-00-00-20-66/siggraph2015_2D00_mmg_2D00_marius_2D00_slides.pdf
+
         // Size: [prefilter(1/2), downsample(1/4), downsample(1/8), downsample(1/16), ...]
-        this._bloomWidths.length = this.settings.bloom.iterations + 1;
-        this._bloomHeights.length = this.settings.bloom.iterations + 1;
+        const iterations = this.settings.bloom.iterations;
+        const sizeCount = iterations + 1;
+        this._bloomWidths.length = sizeCount;
+        this._bloomHeights.length = sizeCount;
         this._bloomWidths[0] = Math.max(Math.floor(width / 2), 1);
-        this._bloomWidths[0] = Math.max(Math.floor(height / 2), 1);
-        for (let i = 1; i !== this.settings.bloom.iterations + 1; ++i) {
+        this._bloomHeights[0] = Math.max(Math.floor(height / 2), 1);
+        for (let i = 1; i !== sizeCount; ++i) {
             this._bloomWidths[i] = Math.max(Math.floor(this._bloomWidths[i - 1] / 2), 1);
             this._bloomHeights[i] = Math.max(Math.floor(this._bloomHeights[i - 1] / 2), 1);
         }
 
-        const prefilterName = `BloomPrefilter${id}`;
-        this._bloomDownsampleNames.length = this.settings.bloom.iterations;
-        this._bloomUpsampleNames.length = this.settings.bloom.iterations;
-        for (let i = 0; i !== this.settings.bloom.iterations; ++i) {
-            this._bloomDownsampleNames[i] = `BloomDownsample${id}_${i}`;
-            this._bloomUpsampleNames[i] = `BloomUpsample${id}_${i}`;
+        // Bloom texture names
+        if (this._bloomTexNames.length < sizeCount) {
+            this._bloomTexNames.length = sizeCount;
+            for (let i = 0; i !== sizeCount; ++i) {
+                this._bloomTexNames[i] = `BloomTex${id}_${i}`;
+            }
         }
 
-        // Half size
-        const prefilterPass = ppl.addRenderPass(this._bloomWidths[0], this._bloomHeights[0], 'bloom1-prefilter');
+        // Setup bloom parameters
         this._bloomParams.x = this._configs.useFloatOutput ? 1 : 0;
+        this._bloomParams.x = 0; // unused
         this._bloomParams.z = this.settings.bloom.threshold;
         this._bloomParams.w = this.settings.bloom.enableAlphaMask ? 1 : 0;
 
         // Prefilter pass
-        prefilterPass.addRenderTarget(`BloomPrefilter${id}`, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        const prefilterPass = ppl.addRenderPass(this._bloomWidths[0], this._bloomHeights[0], 'bloom1-prefilter');
+        prefilterPass.addRenderTarget(
+            this._bloomTexNames[0],
+            LoadOp.CLEAR,
+            StoreOp.STORE,
+            this._clearColorOpaqueBlack,
+        );
         prefilterPass.addTexture(radianceName, 'inputTexture');
+        prefilterPass.setVec4('g_platform', this._configs.g_platform);
         prefilterPass.setVec4('bloomParams', this._bloomParams);
         prefilterPass
             .addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._bloomMaterial, 0);
 
         // Downsample passes
-        for (let i = 0; i !== this.settings.bloom.iterations; ++i) {
-            const downPass = ppl.addRenderPass(this._bloomWidths[i + 1], this._bloomHeights[i + 1], 'bloom1-downsample');
-            downPass.addRenderTarget(this._bloomDownsampleNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
-            if (i === 0) {
-                downPass.addTexture(prefilterName, 'bloomTexture');
-            } else {
-                downPass.addTexture(this._bloomDownsampleNames[i - 1], 'bloomTexture');
-            }
-            this._bloomTexSize.x = this._bloomWidths[i];
-            this._bloomTexSize.y = this._bloomHeights[i];
+        for (let i = 1; i !== sizeCount; ++i) {
+            const downPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-downsample');
+            downPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+            downPass.addTexture(this._bloomTexNames[i - 1], 'bloomTexture');
+            this._bloomTexSize.x = this._bloomWidths[i - 1];
+            this._bloomTexSize.y = this._bloomHeights[i - 1];
+            downPass.setVec4('g_platform', this._configs.g_platform);
             downPass.setVec4('bloomTexSize', this._bloomTexSize);
             downPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(this._bloomMaterial, 1);
         }
 
-        // // Upsample passes
-        // for (let i = this.settings.bloom.iterations; i-- > 0;) {
-        //     const upPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-upsample');
-        // }
+        // Upsample passes
+        for (let i = iterations; i-- > 0;) {
+            const upPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-upsample');
+            upPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+            upPass.addTexture(this._bloomTexNames[i + 1], 'bloomTexture');
+            this._bloomTexSize.x = this._bloomWidths[i + 1];
+            this._bloomTexSize.y = this._bloomHeights[i + 1];
+            upPass.setVec4('g_platform', this._configs.g_platform);
+            upPass.setVec4('bloomTexSize', this._bloomTexSize);
+            upPass
+                .addQueue(QueueHint.OPAQUE)
+                .addFullscreenQuad(this._bloomMaterial, 2);
+        }
+
+        // Combine pass
+        const combinePass = ppl.addRenderPass(width, height, 'bloom1-combine');
+        combinePass.addRenderTarget(radianceName, LoadOp.LOAD, StoreOp.STORE);
+        combinePass.addTexture(this._bloomTexNames[0], 'bloomTexture');
+        combinePass.setVec4('g_platform', this._configs.g_platform);
+        combinePass.setVec4('bloomParams', this._bloomParams);
+        combinePass
+            .addQueue(QueueHint.BLEND)
+            .addFullscreenQuad(this._bloomMaterial, 3);
     }
 
     //----------------------------------------------------------------
@@ -769,11 +798,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         setupPipelineConfigs(ppl, this._configs);
 
-        this._copyAndTonemapMaterial._uuid = `custom-forward-post-final-tonemap-material`;
-        this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
-
         this._bloomMaterial._uuid = `custom-forward-post-bloom-material`;
         this._bloomMaterial.initialize({ effectName: 'pipeline/post-process/bloom1' });
+
+        this._copyAndTonemapMaterial._uuid = `custom-forward-post-final-tonemap-material`;
+        this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
 
         if (this._copyAndTonemapMaterial.effectAsset !== null
             && this._bloomMaterial.effectAsset !== null
