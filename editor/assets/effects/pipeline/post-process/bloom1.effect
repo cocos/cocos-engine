@@ -1,5 +1,8 @@
 // Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
+// Based on Kawase Dual Filter Blur
+// https://community.arm.com/cfs-file/__key/communityserver-blogs-components-weblogfiles/00-00-00-20-66/siggraph2015_2D00_mmg_2D00_marius_2D00_slides.pdf
+
 CCEffect %{
   techniques:
   - passes:
@@ -35,6 +38,13 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: one
+          blendSrcAlpha: zero
+          blendDstAlpha: one
 }%
 
 CCProgram bloom-vs %{
@@ -179,18 +189,13 @@ CCProgram combine-fs %{
   uniform BloomUBO {
     mediump vec4 bloomParams;// x: useHDRIlluminance z: threshold, w: enableAlphaMask
   };
-  #pragma rate outputResultMap pass
-  uniform sampler2D outputResultMap;
   #pragma rate bloomTexture pass
   uniform sampler2D bloomTexture;
 
   layout(location = 0) out vec4 fragColor;
 
   void main() {
-    vec4 hdrColor = texture(outputResultMap, v_uv);
     vec3 bloomColor = texture(bloomTexture, v_uv).rgb;
-    vec3 result = hdrColor.rgb + bloomColor * bloomParams.w;
-
-    fragColor = vec4(result, hdrColor.a);
+    fragColor = vec4(bloomColor, 0);
   }
 }%
