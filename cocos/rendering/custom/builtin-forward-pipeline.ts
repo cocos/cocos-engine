@@ -23,7 +23,7 @@
 */
 
 import { DEBUG } from 'internal:constants';
-import { cclegacy, sys, Vec2, Vec3, Vec4 } from '../../core';
+import { sys, Vec2, Vec3, Vec4 } from '../../core';
 import { AABB } from '../../core/geometry/aabb';
 import { Frustum } from '../../core/geometry/frustum';
 import intersect from '../../core/geometry/intersect';
@@ -252,6 +252,7 @@ class PipelineConfigs {
     toneMappingType = 0; // ACES
     shadowMapFormat = Format.R32F;
     shadowMapSize = new Vec2(1, 1);
+    screenSpaceSignY = 1;
     g_platform = new Vec4(0, 0, 0, 0);
 }
 
@@ -266,6 +267,7 @@ function setupPipelineConfigs (
     configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
     configs.shadowMapFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
     configs.shadowMapSize.set(ppl.pipelineSceneData.shadows.size);
+    configs.screenSpaceSignY = ppl.device.capabilities.screenSpaceSignY;
 
     const device = ppl.device;
     configs.g_platform.x = configs.isMobile ? 1.0 : 0.0;
@@ -419,14 +421,13 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         const depthStencilName = camera.window.depthStencilName;
         const radianceName = `Radiance${id}`;
         const mainLight = scene.mainLight;
-        const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY as number;
 
         // Forward Lighting (Light Culling)
         this.forwardLighting.cullLights(scene, camera.frustum);
 
         // Main Directional light CSM Shadow Map
         if (this._cameraConfigs.enableShadowMap) {
-            this._addCascadedShadowMapPass(ppl, id, mainLight!, camera, screenSpaceSignY);
+            this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
         }
 
         // Forward Lighting
@@ -458,14 +459,13 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         const depthStencilName = camera.window.depthStencilName;
         const radianceName = `Radiance${id}`;
         const mainLight = scene.mainLight;
-        const screenSpaceSignY = cclegacy.director.root.device.capabilities.screenSpaceSignY as number;
 
         // Forward Lighting (Light Culling)
         this.forwardLighting.cullLights(scene, camera.frustum, camera.position);
 
         // Main Directional light CSM shadow map
         if (this._cameraConfigs.enableShadowMap) {
-            this._addCascadedShadowMapPass(ppl, id, mainLight!, camera, screenSpaceSignY);
+            this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
         }
 
         // Spot light shadow maps
@@ -490,7 +490,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         id: number,
         light: DirectionalLight,
         camera: Camera,
-        screenSpaceSignY: number,
     ): void {
         //----------------------------------------------------------------
         // Dynamic states
@@ -513,7 +512,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Add shadow map viewports
         for (let level = 0; level !== csmLevel; ++level) {
-            getCsmMainLightViewport(light, width, height, level, this._viewport, screenSpaceSignY);
+            getCsmMainLightViewport(light, width, height, level, this._viewport, this._configs.screenSpaceSignY);
             const queue = pass.addQueue(QueueHint.NONE, 'shadow-caster');
             queue.setViewport(this._viewport);
             queue
@@ -775,7 +774,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting (Additive Lights)
         //----------------------------------------------------------------
         // Additive lights
-        this.forwardLighting.addMobileLightQueues(pass, camera, this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps);
+        this.forwardLighting.addMobileLightQueues(
+            pass,
+            camera,
+            this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps,
+        );
 
         //----------------------------------------------------------------
         // Forward Lighting (Blend)
