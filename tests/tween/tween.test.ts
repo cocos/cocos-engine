@@ -2146,3 +2146,141 @@ test('duration', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('repeat', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+    const zoomIn = tween(node).by(1, { scale: new Vec3(10, 10, 10) });
+    const zoomOut = tween(node).by(1, { scale: new Vec3(-10, -10, -10) });
+    let complete = false;
+    tween(node)
+        .delay(1)
+        .then(zoomIn).id(123) // 1s
+        .then(zoomOut) // 2s
+        .call(()=>{
+                console.log(`Finish one!`);
+        })
+        .union(123)
+        .repeat(3) // 6s
+        .call(()=>{
+            complete = true;
+        })
+        .start();
+
+    // delay 1s
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    // start
+    game.step();
+
+    for (let i = 0; i < 3; ++i) {
+        // 1
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.scale.equals(new Vec3(1.0/3.0*10, 1.0/3.0*10, 1.0/3.0*10))).toBeTruthy();
+
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.scale.equals(new Vec3(2.0/3.0*10, 2.0/3.0*10, 2.0/3.0*10))).toBeTruthy();
+
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.scale.equals(new Vec3(3.0/3.0*10, 3.0/3.0*10, 3.0/3.0*10))).toBeTruthy();
+
+        // 2
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.scale.equals(new Vec3(2.0/3.0*10, 2.0/3.0*10, 2.0/3.0*10))).toBeTruthy();
+
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.scale.equals(new Vec3(1.0/3.0*10, 1.0/3.0*10, 1.0/3.0*10))).toBeTruthy();
+
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+        if (i === 2) {
+            game.step();
+            expect(complete).toBeTruthy();
+        } else {
+            expect(complete).toBeFalsy();
+        }
+    }
+
+    director.unregisterSystem(sys);
+});
+
+test('repeatForever with > 1 actions in tween', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    tween(node)
+        .delay(2)
+        .call(()=>{})
+        .delay(2)
+        .call(()=>{})
+        .by(1, { position: new Vec3(100, 0, 0) }).id(123)
+        .reverse(123)
+        .union(123)
+        .repeatForever()
+        .start();
+    
+    for (let i = 0; i < 60 * 4; ++i) {
+        game.step();
+    }
+
+    // start
+    game.step();
+    for (let i = 0; i < 10; ++i) {
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(1.0/3.0*100, 0, 0))).toBeTruthy();
+
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(2.0/3.0*100, 0, 0))).toBeTruthy();
+
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(3.0/3.0*100, 0, 0))).toBeTruthy();
+
+        //
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(2.0/3.0*100, 0, 0))).toBeTruthy();
+
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(1.0/3.0*100, 0, 0))).toBeTruthy();
+        
+        for (let i = 0; i < 20; ++i) {
+            game.step();
+        }
+        expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    }
+
+    //
+    director.unregisterSystem(sys);
+});
