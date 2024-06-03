@@ -117,7 +117,7 @@ export const simple: IAssembler = {
 
     updateRenderData (comp: Skeleton, batcher: Batcher2D) {
         const skeleton = comp._skeleton;
-        if (skeleton) {
+        if (skeleton && comp.node.active && comp.skeletonData?.isValid) {
             updateComponentRenderData(comp, batcher);
         }
     },
@@ -158,10 +158,10 @@ function realTimeTraverse (comp: Skeleton): void {
     }
 
     const vbuf = rd.chunk.vb;
-    const vPtr = model.vPtr;
-    const iPtr = model.iPtr;
+    const vPtr: number = model.vPtr;
+    const iPtr: number = model.iPtr;
     const ibuf = rd.indices!;
-    const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
+    const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
 
     comp._vBuffer?.set(HEAPU8.subarray(vPtr, vPtr + comp._vLength), 0);
     comp._iBuffer?.set(HEAPU8.subarray(iPtr, iPtr + comp._iLength), 0);
@@ -174,7 +174,7 @@ function realTimeTraverse (comp: Skeleton): void {
     let indexCount = 0;
     for (let i = 0; i < count; i += 6) {
         indexCount = data.get(i + 3);
-        const material = _getSlotMaterial(data.get(i + 4), comp);
+        const material = _getSlotMaterial(data.get(i + 4) as number, comp);
         const textureID: number = data.get(i + 5);
         comp.requestDrawData(material, textureID, indexOffset, indexCount);
         indexOffset += indexCount;
