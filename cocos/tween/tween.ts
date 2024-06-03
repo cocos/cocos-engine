@@ -482,8 +482,9 @@ export class Tween<T extends object = any> {
     }
 
     /**
-     * @en Return the duration of the current tween.
-     * @zh 返回当前缓动的总时长。
+     * @en Return the duration of the current tween, its value is constant which means it's determinted at tween's design time
+     *     and is not affected by the timeScale of the current tween.
+     * @zh 返回当前缓动的总时长，此总时长为缓动的设计总时长，不受当前缓动的 timeScale 值影响。
      */
     get duration (): number {
         if (this._finalAction) {
