@@ -43,7 +43,6 @@ type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
-const invalidActionId = 'invalid action id: undefined';
 
 /**
  * @en
@@ -84,8 +83,6 @@ export class Tween<T extends object = any> {
      * @en Set the id for previous action
      * @zh 设置前一个动作的 id
      * @param id @en The internal action id to set @zh 内部动作的 id 标识，
-     * @note @en Don't pass in a value -1 if you want to mark the previous action since -1 is the default value
-     *       @zh 如果你想标识前一个动作，请勿传递 -1，因为 -1 是所有动作的默认标识
      */
     id (id: number): Tween<T> {
         if (this._actions.length > 0) {
@@ -310,8 +307,6 @@ export class Tween<T extends object = any> {
      * 将之前所有的动作或者从指定标识的动作开始的所有动作整合为一个顺序动作。
      * @method union
      * @param fromId @en The action with the specific ID to start integrating @zh 指定开始整合的动作标识
-     * @note @en Don't use -1 for id since -1 is the default value for internal actions
-     *       @zh 请不要使用 -1 作为标识，因为 -1 是内部动作标识的默认值
      */
     union (fromId?: number): Tween<T> {
         const unionAll = (): void => {
@@ -327,18 +322,14 @@ export class Tween<T extends object = any> {
 
         const actions = this._actions;
         const index = actions.findIndex((action) => action.getId() === fromId);
-        if (index === -1) {
-            warn(`union: found: ${invalidActionId}`);
-            return this;
-        } else {
-            const len = actions.length;
-            if (len > 1) {
-                const actionsToUnion = actions.splice(index);
-                if (actionsToUnion.length === 1) {
-                    actions.push(actionsToUnion[0]);
-                } else {
-                    actions.push(sequence(actionsToUnion));
-                }
+
+        const len = actions.length;
+        if (len > 1) {
+            const actionsToUnion = actions.splice(index);
+            if (actionsToUnion.length === 1) {
+                actions.push(actionsToUnion[0]);
+            } else {
+                actions.push(sequence(actionsToUnion));
             }
         }
 
