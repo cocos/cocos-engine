@@ -344,21 +344,32 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
             cocos/audio/android/OpenSLHelper.h
             cocos/audio/android/PcmAudioPlayer.cpp
             cocos/audio/android/PcmAudioPlayer.h
-            cocos/audio/android/PcmAudioService.cpp
-            cocos/audio/android/PcmAudioService.h
             cocos/audio/android/PcmBufferProvider.cpp
             cocos/audio/android/PcmBufferProvider.h
             cocos/audio/android/PcmData.cpp
             cocos/audio/android/PcmData.h
             cocos/audio/android/Track.cpp
             cocos/audio/android/Track.h
-            cocos/audio/android/UrlAudioPlayer.cpp
-            cocos/audio/android/UrlAudioPlayer.h
             cocos/audio/android/utils/Compat.h
             cocos/audio/android/utils/Errors.h
             cocos/audio/android/utils/Utils.cpp
             cocos/audio/android/utils/Utils.h
         )
+        if(ANDROID)
+            cocos_source_files(
+                cocos/audio/android/PcmAudioService.cpp
+                cocos/audio/android/PcmAudioService.h
+                cocos/audio/android/UrlAudioPlayer.cpp
+                cocos/audio/android/UrlAudioPlayer.h
+            )
+        elseif(OPENHARMONY) 
+            cocos_source_files(
+                cocos/audio/openharmony/PcmAudioService.cpp
+                cocos/audio/openharmony/PcmAudioService.h
+                cocos/audio/openharmony/UrlAudioPlayer.cpp
+                cocos/audio/openharmony/UrlAudioPlayer.h
+            )
+        endif()
      elseif(OHOS)
         cocos_source_files(
             cocos/audio/common/utils/tinysndfile.cpp
@@ -701,8 +712,10 @@ elseif(OPENHARMONY)
         cocos/platform/openharmony/modules/Accelerometer.h
         cocos/platform/openharmony/modules/Battery.cpp
         cocos/platform/openharmony/modules/Battery.h
-        cocos/platform/openharmony/modules/System.cpp
-        cocos/platform/openharmony/modules/SystemWindow.cpp
+        cocos/platform/openharmony/modules/Network.cpp
+        cocos/platform/openharmony/modules/Network.h
+        cocos/platform/openharmony/modules/Vibrator.cpp
+        cocos/platform/openharmony/modules/Vibrator.h
         cocos/platform/openharmony/modules/SystemWindowManager.h
         cocos/platform/openharmony/modules/SystemWindowManager.cpp
         cocos/platform/empty/modules/Network.cpp
@@ -3269,7 +3282,8 @@ if(OPENHARMONY)
                 libace_ndk.z )
 
     target_link_libraries(${ENGINE_NAME} PUBLIC
-        ${EGL-lib} ${GLESv3-lib} ${hilog-lib} libace_napi.z.so libace_ndk.z.so libz.so libuv.so libnative_drawing.so librawfile.z.so libOpenSLES.so
+        ${EGL-lib} ${GLESv3-lib} ${hilog-lib} libace_napi.z.so libace_ndk.z.so libz.so 
+        libuv.so libnative_drawing.so librawfile.z.so libOpenSLES.so libohaudio.so libavplayer.so
         ${CC_EXTERNAL_LIBS}
     )
 endif()

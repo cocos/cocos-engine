@@ -71,7 +71,38 @@ void Screen::setKeepScreenOn(bool value) {
 }
 
 Vec4 Screen::getSafeAreaEdge() const {
-    return cc::Vec4();
+    // screen with enabled cutout area
+    auto value = NapiHelper::napiCallFunction("getDeviceOrientation");
+    auto height = NapiHelper::napiCallFunction("getCutoutHeight");
+    auto width = NapiHelper::napiCallFunction("getCutoutWidth");
+    int32_t orientation = 0;
+    int32_t cutout_height = 0;
+    int32_t cutout_width = 0;
+
+    if (value.IsNumber()) {
+        orientation = value.As<Napi::Number>().Int32Value();
+    }
+    if (height.IsNumber()) {
+        cutout_height = height.As<Napi::Number>().Int32Value();
+    }
+    if (width.IsNumber()) {
+        cutout_width = width.As<Napi::Number>().Int32Value();
+    }
+    float safearea_top = 0.0f;
+    float safearea_left = 0.0f;
+    float safearea_bottom = 0.0f;
+    float safearea_right = 0.0f;
+    if(0 == orientation) {
+        safearea_top += cutout_height;
+    } else if(1 == orientation) {
+        safearea_right += cutout_width;
+    } else if(2 == orientation) {
+        safearea_bottom += cutout_height;
+    } else if(3 == orientation) {
+        safearea_left += cutout_width;
+    }
+
+    return Vec4(safearea_top, safearea_left, safearea_bottom, safearea_right);
 }
 
 bool Screen::isDisplayStats() {

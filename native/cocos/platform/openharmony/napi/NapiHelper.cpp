@@ -30,6 +30,7 @@
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/FileUtils-OpenHarmony.h"
 #include "bindings/jswrapper/SeApi.h"
+#include "platform/interfaces/modules/Device.h"
 
 #if CC_USE_EDITBOX
     #include "ui/edit-box/EditBox-openharmony.h"
@@ -51,6 +52,7 @@ enum ContextType {
     ENGINE_UTILS,
     EDITBOX_UTILS,
     WEBVIEW_UTILS,
+    DISPLAY_UTILS,
     UV_ASYNC_SEND,
     VIDEO_UTILS,
 };
@@ -107,6 +109,17 @@ Napi::Value NapiHelper::napiCallFunction(const char* functionName) {
         return {};
     }
     return funcVal.As<Napi::Function>().Call(env.Global(), {});
+}
+
+/* static */
+Napi::Value NapiHelper::napiCallFunction(const char *functionName, float duration) {
+    auto env = getWorkerEnv();
+    auto funcVal = env.Global().Get(functionName);
+    if (!funcVal.IsFunction()) {
+        return {};
+    }
+    const std::initializer_list<napi_value> args = { Napi::Number::New(env, duration) };
+    return funcVal.As<Napi::Function>().Call(env.Global(), args);
 }
 
 // NAPI Interface
@@ -208,6 +221,28 @@ static void napiWritablePathInit(const Napi::CallbackInfo &info) {
     }
 
     FileUtilsOpenHarmony::_ohWritablePath = info[0].As<Napi::String>().Utf8Value();
+}
+
+static void napiOnDisplayChange(const Napi::CallbackInfo &info) {
+    if (info.Length() != 1) {
+        Napi::Error::New(info.Env(), "1 argument expected").ThrowAsJavaScriptException();
+        return;
+    }
+
+    int32_t value = info[0].As<Napi::Number>().Int32Value();
+    int orientation = static_cast<int>(Device::Orientation::PORTRAIT);
+    if(value == 0) {
+        orientation = static_cast<int>(Device::Orientation::PORTRAIT);
+    } else if(value == 1) {
+        // TODO(qgh): The openharmony platform is rotated clockwise.
+        orientation = static_cast<int>(Device::Orientation::LANDSCAPE_LEFT);
+    } else if(value == 2) {
+        orientation = static_cast<int>(Device::Orientation::PORTRAIT_UPSIDE_DOWN);
+    } else if(value == 3) {
+        // TODO(qgh): The openharmony platform is rotated clockwise.
+        orientation = static_cast<int>(Device::Orientation::LANDSCAPE_RIGHT);
+    }
+    cc::events::Orientation::broadcast(orientation);
 }
 
 static void napiASend(const Napi::CallbackInfo &info) {
@@ -326,10 +361,13 @@ static Napi::Value getContext(const Napi::CallbackInfo &info) {
             exports["jsCallback"] = Napi::Function::New(env, OpenHarmonyWebView::napiJsCallback);
         #endif
         } break;
+        case DISPLAY_UTILS:{
+            exports["onDisplayChange"] = Napi::Function::New(env, napiOnDisplayChange);
+        } break;
         case UV_ASYNC_SEND: {
             exports["send"] = Napi::Function::New(env, napiASend);
         } break;
-    case VIDEO_UTILS: {
+        case VIDEO_UTILS: {
             exports["onVideoEvent"] = Napi::Function::New(env, napiOnVideoEvent);
         } break;
         default:

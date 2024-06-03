@@ -49,7 +49,7 @@ if (cc.internal.VideoPlayer) {
     cc.internal.VideoPlayerImplManager.getImpl = function (componenet) {
         return new VideoPlayerImplOpenHarmony(componenet);
     };
-    window.oh.onVideoEvent = (tag, ev, args) => {
+    jsb.onVideoEvent = (tag, ev, args) => {
         videoPlayers.forEach((player) => {
             if (player.index == tag) {
                 player.dispatchEvent(ev, args);

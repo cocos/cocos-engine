@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2023-2024 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,21 +22,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-export enum ContextType {
-    APP_LIFECYCLE = 0,
-    JSPAGE_LIFECYCLE,
-    XCOMPONENT_CONTEXT,
-    XCOMPONENT_REGISTER_LIFECYCLE_CALLBACK,
-    NATIVE_RENDER_API,
-    WORKER_INIT,
-    ENGINE_UTILS,
-    EDITBOX_UTILS,
-    WEBVIEW_UTILS,
-    DISPLAY_UTILS,
-    UV_ASYNC_SEND,
-    VIDEO_UTILS,
-}
 
-export class Constants {
-    static readonly APP_KEY_WORKER_MANAGER = "app_key_worker_manager";
+#include "cocos/platform/CCApplication.h"
+#include "platform/openharmony/napi/NapiHelper.h"
+#include "cocos/scripting/js-bindings/jswrapper/SeApi.h"
+
+namespace cc {
+
+class OpenHarmonyVideoPlayer {
+public:
+    static void napiVideoMessageHandle(const Napi::CallbackInfo &info);
+
+};
+
 }

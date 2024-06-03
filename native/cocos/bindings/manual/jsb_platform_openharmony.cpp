@@ -41,8 +41,44 @@ const std::unordered_map<std::string, std::string> &getFontFamilyNameMap() {
 }
 
 static bool JSB_loadFont(se::State &s) {
-    // TODO(qgh):Currently it does not support loading OpenHarmony fonts, it may be supported in the future
-    return true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc >= 1) {
+        s.rval().setNull();
+
+        std::string fontFamily;
+        ok &= seval_to_std_string(args[0], &fontFamily);
+        SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: fontFamily");
+
+        std::string source;
+        ok &= seval_to_std_string(args[1], &source);
+        SE_PRECONDITION2(ok, false, "JSB_loadFont : Error processing argument: source");
+
+        std::string fontFilePath;
+        std::regex re("url\\(\\s*'\\s*(.*?)\\s*'\\s*\\)");
+        std::match_results<std::string::const_iterator> results;
+        if (std::regex_search(source.cbegin(), source.cend(), results, re))
+        {
+            fontFilePath = results[1].str();
+        }
+
+        fontFilePath = FileUtils::getInstance()->fullPathForFilename(fontFilePath);
+        if (fontFilePath.empty())
+        {
+            SE_LOGE("Font (%s) doesn't exist!", fontFilePath.c_str());
+            return true;
+        }
+
+        _fontFamilyNameMap.emplace(fontFamily, fontFilePath);
+
+        s.rval().setString(fontFamily);
+
+        return true;
+    }
+
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
 }
 SE_BIND_FUNC(JSB_loadFont)
 

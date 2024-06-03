@@ -57,6 +57,7 @@ export class VideoInfo {
   public isFullScreen: boolean = false;
   public currentProgressRate?: number | string | PlaybackSpeed;
   public resourceType: number = 0;
+  public isPreparedStart: boolean = false;
   /**
    * https://gitee.com/openharmony/docs/blob/master/zh-cn/application-dev/reference/arkui-ts/ts-media-components-video.md#videocontroller
    *
@@ -107,6 +108,8 @@ export struct CocosVideoPlayer {
         } as param);
       })
       .onPrepared((event): void => {
+        this.videoInfo.isPreparedStart && this.videoInfo.controller.start();
+        
         this.videoInfo.duration = event?.duration as number;
         this.workPort?.postMessage("onVideoEvent", {
           videoTag: this.videoInfo.viewTag,
