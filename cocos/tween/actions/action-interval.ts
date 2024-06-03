@@ -70,6 +70,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
     protected _firstTick = false;
+    protected _speed = 1;
 
     constructor (d?: number) {
         super();
@@ -134,6 +135,33 @@ export abstract class ActionInterval extends FiniteTimeAction {
     reverse (): ActionInterval {
         logID(1010);
         return this;
+    }
+
+    /**
+     * @en
+     * Get this action speed.
+     * @zh
+     * 返回此动作速度
+     * @return {Number}
+     */
+    getSpeed (): number {
+        return this._speed;
+    }
+
+    /**
+     * @en
+     * Set this action speed.
+     * @zh
+     * 设置此动作速度
+     * @param {Number} speed
+     * @returns {ActionInterval}
+     */
+    setSpeed (speed: number): void {
+        this._speed = speed;
+    }
+
+    getDurationScaled (): number {
+        return this._duration / this._speed;
     }
 }
 

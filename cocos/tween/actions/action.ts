@@ -243,33 +243,9 @@ export abstract class Action {
  */
 export abstract class FiniteTimeAction extends Action {
     protected _duration = 0;
-    protected _speed = 1;
-
-    /**
-     * @en
-     * Get this action speed.
-     * @zh
-     * 返回此动作速度
-     * @return {Number}
-     */
-    getSpeed (): number {
-        return this._speed;
-    }
-
-    /**
-     * @en
-     * Set this action speed.
-     * @zh
-     * 设置此动作速度
-     * @param {Number} speed
-     * @returns {ActionInterval}
-     */
-    setSpeed (speed: number): void {
-        this._speed = speed;
-    }
 
     getDurationScaled (): number {
-        return this._duration / this._speed;
+        return this._duration;
     }
 
     /**
