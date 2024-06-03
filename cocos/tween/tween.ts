@@ -63,6 +63,7 @@ export class Tween<T extends object = any> {
     private _finalAction: Sequence | null = null;
     private _target: T | null = null;
     private _tag = Action.TAG_INVALID;
+    private _timeScale = 1;
 
     constructor (target?: T | null) {
         this._target = target === undefined ? null : target;
@@ -101,7 +102,10 @@ export class Tween<T extends object = any> {
      */
     then<U extends object = any> (other: Tween<U>): Tween<T> {
         const u = other._union(true);
-        if (u) this._actions.push(u);
+        if (u) {
+            u.setSpeed(other._timeScale);
+            this._actions.push(u);
+        }
         return this;
     }
 
@@ -170,7 +174,7 @@ export class Tween<T extends object = any> {
         }
         const action = this._union(false); // workerTarget will be updated in the following insertAction
         const r = tween(this._target as T);
-
+        r._timeScale = this._timeScale;
         if (action) r.insertAction(action.reverse());
         return r;
     }
@@ -262,10 +266,12 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
         }
-        this._finalAction = this._union(false);
-        if (this._finalAction) {
-            this._finalAction.setTag(this._tag);
-            TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
+        const final = this._union(false);
+        this._finalAction = final;
+        if (final) {
+            final.setTag(this._tag);
+            final.setSpeed(this._timeScale);
+            TweenSystem.instance.ActionManager.addAction(final, this._target, false);
         } else {
             warn(`start: no actions in Tween`);
         }
@@ -297,6 +303,7 @@ export class Tween<T extends object = any> {
     clone<U extends object = any> (target?: U): Tween<U> {
         const action = this._union(false);
         const r = tween(target);
+        r._timeScale = this._timeScale;
         return action ? r.insertAction(action) : r;
     }
 
@@ -453,6 +460,28 @@ export class Tween<T extends object = any> {
     }
 
     /**
+     * @en Set the factor that's used to scale time in the animation where 1 = normal speed (the default), 0.5 = half speed, 2 = double speed, etc.
+     * @zh 设置动画中使用的缩放时间因子，其中 1 表示正常速度（默认值），0.5 表示减速一半，2 表示加速一倍，等等。
+     * @param scale @en The scale factor to set. @zh 要设置的缩放因子。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    timeScale (scale: number): Tween<T> {
+        this._timeScale = scale;
+        if (this._finalAction) {
+            this._finalAction.setSpeed(scale);
+        }
+        return this;
+    }
+
+    /**
+     * @en Return the scale time factor of the current tween.
+     * @zh 返回当前缓动的时间缩放因子。
+     */
+    getTimeScale (): number {
+        return this._timeScale;
+    }
+
+    /**
      * @en
      * Add a repeat action.
      * This action will integrate before actions to a sequence action as their parameters.
@@ -499,7 +528,9 @@ export class Tween<T extends object = any> {
             action = actions.pop();
         }
 
-        if (action instanceof ActionInterval) {
+        if (action && actions.length !== 0) {
+            actions.push(repeat(action, Number.MAX_SAFE_INTEGER));
+        } else if (action instanceof ActionInterval) {
             actions.push(repeatForever(action));
         } else {
             warn(`repeatForever: ${notIntervalPrompt}`);
@@ -638,18 +669,21 @@ export class Tween<T extends object = any> {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            const arg = args[i];
-            const action = arg._union(true);
-            if (action) tmp_args.push(action);
+            const t = args[i];
+            const action = t._union(true);
+            if (action) {
+                action.setSpeed(t._timeScale);
+                tmp_args.push(action);
+            }
         }
     }
 
-    private static _wrappedSequence<U extends object = any> (args: Tween<U>[]): FiniteTimeAction | null {
+    private static _wrappedSequence<U extends object = any> (args: Tween<U>[]): Sequence | null {
         Tween._tweenToActions(args);
         return sequence(Tween._tmp_args);
     }
 
-    private static _wrappedParallel<U extends object = any> (args: Tween<U>[]): FiniteTimeAction | null {
+    private static _wrappedParallel<U extends object = any> (args: Tween<U>[]): Spawn | null {
         Tween._tweenToActions(args);
         return spawn(Tween._tmp_args);
     }

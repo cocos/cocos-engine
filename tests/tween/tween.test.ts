@@ -1768,3 +1768,381 @@ test('union from id (-1) found', function () {
 
     director.unregisterSystem(sys);
 });
+
+
+test('timeScale test 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    tween(node)
+        .to(1, { position: new Vec3(100, 100, 100) })
+        .timeScale(0.5)
+        .start();
+
+    // Start
+    game.step();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(25, 25, 25))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(50, 50, 50))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(75, 75, 75))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 100, 100))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('timeScale test 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const tPosition = tween(node).by(1, { position: new Vec3(100, 100, 100) });
+    const tScale = tween(node).by(1, { scale: new Vec3(10, 10, 10) });
+
+    tween(node)
+        .then(tPosition)
+        .then(tScale)
+        .timeScale(0.5)
+        .parallel(
+            tPosition.reverse(),
+            tScale.reverse(),
+        )
+        .sequence(
+            tPosition.clone(),
+            tScale.clone(),
+        )
+        .start();
+
+    // Start
+    game.step();
+
+    // position
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(25, 25, 25))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(50, 50, 50))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(75, 75, 75))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 100, 100))).toBeTruthy();
+
+    // scale
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(2.5, 2.5, 2.5))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(5.0, 5.0, 5.0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(7.5, 7.5, 7.5))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(10, 10, 10))).toBeTruthy();
+
+    // parallel
+    for (let i = 0; i < 120; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    // .sequence
+    // position
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(25, 25, 25))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(50, 50, 50))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(75, 75, 75))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 100, 100))).toBeTruthy();
+
+    // scale
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(2.5, 2.5, 2.5))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(5.0, 5.0, 5.0))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(7.5, 7.5, 7.5))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.scale.equals(new Vec3(10, 10, 10))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('timeScale * timeScale', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    let done = false;
+
+    const t1 = tween(node)
+        .parallel(
+            tween(node)
+                .by(1, { position: new Vec3(100, 100, 100) })
+                .by(1, { position: new Vec3(100, 100, 100) }),
+            tween(node)
+                .by(1, { scale: new Vec3(2, 2, 2) })
+                .delay(1)
+        )
+        .timeScale(0.5)
+        .reverse();
+
+    tween(node)
+        .to(1, { position: new Vec3(100, 100, 100) })
+        .then(t1)
+        .timeScale(0.5)
+        .call(()=>{
+            done = true;
+        })
+        .start();
+
+    // Start
+    game.step();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(25, 25, 25))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(50, 50, 50))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(75, 75, 75))).toBeTruthy();
+
+    for (let i = 0; i < 30; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(100, 100, 100))).toBeTruthy();
+
+    // 4s = 1s / (0.5 * 0.5), scale action will run after 4s
+    expect(node.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(75, 75, 75))).toBeTruthy();
+
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(50, 50, 50))).toBeTruthy();
+
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(25, 25, 25))).toBeTruthy();
+
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(-25, -25, -25))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(-0.5, -0.5, -0.5))).toBeTruthy();
+
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(-50, -50, -50))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(-1.0, -1.0, -1.0))).toBeTruthy();
+
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(-75, -75, -75))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(-1.5, -1.5, -1.5))).toBeTruthy();
+
+    for (let i = 0; i < 60; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(-100, -100, -100))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(-2, -2, -2))).toBeTruthy();
+    
+    game.step(); // once more
+    expect(done).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('timeScale * timeScale * timeScale', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t1 = tween(node).by(0.0166666666666666 * 80, { position: new Vec3(800, 0, 0) }).timeScale(2)
+    const t2 = tween(node).then(t1).timeScale(2);
+
+    let done = false;
+    tween(node).then(t2).timeScale(2).call(()=> { done = true } ).start();
+    
+    game.step();
+
+    for (let i = 0; i < 5; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(400, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 5; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(800, 0, 0))).toBeTruthy();
+    expect(done).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('timeScale negative value', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    let done = false;
+    const t = tween(node).by(1, { position: new Vec3(90, 0, 0) }).call(()=>done = true);
+
+    t.start();
+    
+    game.step();
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(30, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(60, 0, 0))).toBeTruthy();
+
+    t.timeScale(-1);
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(30, 0, 0))).toBeTruthy();
+
+    t.timeScale(0.5);
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(45, 0, 0))).toBeTruthy();
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(60, 0, 0))).toBeTruthy();
+
+    t.timeScale(1);
+
+    for (let i = 0; i < 20; ++i) {
+        game.step();
+    }
+    expect(node.position.equals(new Vec3(90, 0, 0))).toBeTruthy();
+
+    expect(done).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('duration', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t = tween(node)
+        .to(1, { position: new Vec3(100, 0, 0) })
+        .parallel(
+            tween(node).to(1, { scale: new Vec3(10, 0, 0) }),
+            tween(node).to(1, { eulerAngles: new Vec3(0, 0, 10) }),
+        )
+        .then(tween(node).by(2, { position: new Vec3(-10, 0, 0) })).id(123)
+        .reverse(123)
+        .start();
+
+    expect(t.duration).toBe(6);
+
+    director.unregisterSystem(sys);
+});
