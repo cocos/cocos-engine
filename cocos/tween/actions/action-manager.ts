@@ -329,6 +329,7 @@ export class ActionManager {
         const element = this._hashTargets.get(target);
         if (element) element.paused = true;
     }
+
     /**
      * @en Resumes the target. All queued actions will be resumed.
      * @zh 让指定目标恢复运行。在执行序列中所有被暂停的动作将重新恢复运行。
@@ -462,10 +463,7 @@ export class ActionManager {
                     locCurrTarget.currentAction = locCurrTarget.actions[locCurrTarget.actionIndex];
                     if (!locCurrTarget.currentAction) continue;
 
-                    // use for speed
-                    locCurrTarget.currentAction.step(
-                        dt * (this._isActionInterval(locCurrTarget.currentAction) ? locCurrTarget.currentAction.getSpeed() : 1),
-                    );
+                    locCurrTarget.currentAction.step(dt);
 
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
@@ -486,9 +484,5 @@ export class ActionManager {
                 }
             }
         }
-    }
-
-    private _isActionInterval<T> (action: any): action is ActionInterval {
-        return typeof action._speedMethod !== 'undefined';
     }
 }

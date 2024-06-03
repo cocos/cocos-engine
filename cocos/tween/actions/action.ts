@@ -242,8 +242,11 @@ export abstract class Action {
  * @extends Action
  */
 export abstract class FiniteTimeAction extends Action {
-    _duration = 0;
-    _timesForRepeat = 1;
+    protected _duration = 0;
+
+    getDurationScaled (): number {
+        return this._duration;
+    }
 
     /**
      * @en get duration of the action. (seconds).
@@ -252,7 +255,7 @@ export abstract class FiniteTimeAction extends Action {
      * @return {Number}
      */
     getDuration (): number {
-        return this._duration * (this._timesForRepeat || 1);
+        return this._duration;
     }
 
     /**
