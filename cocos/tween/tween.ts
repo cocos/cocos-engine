@@ -482,6 +482,17 @@ export class Tween<T extends object = any> {
     }
 
     /**
+     * @en Return the duration of the current tween.
+     * @zh 返回当前缓动的总时长。
+     */
+    get duration (): number {
+        if (this._finalAction) {
+            return this._finalAction.getDuration();
+        }
+        return 0;
+    }
+
+    /**
      * @en
      * Add a repeat action.
      * This action will integrate before actions to a sequence action as their parameters.
