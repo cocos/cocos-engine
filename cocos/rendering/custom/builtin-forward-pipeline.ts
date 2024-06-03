@@ -438,10 +438,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                     this._addKawaseDualFilterBloomPasses(ppl, id, width, height, radianceName);
                 }
 
-                this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
+                this._addCopyAndTonemapPass(ppl, camera, width, height, radianceName, colorName);
             } else {
                 this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-                this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
+                this._addCopyAndTonemapPass(ppl, camera, width, height, radianceName, colorName);
             }
         } else {
             this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
@@ -476,7 +476,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting
         if (this._configs.useFloatOutput) {
             this._addMobileForwardPass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-            this._addFinalToneMappingPass(ppl, camera, width, height, radianceName, colorName);
+            this._addCopyAndTonemapPass(ppl, camera, width, height, radianceName, colorName);
         } else {
             this._addMobileForwardPass(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
         }
@@ -522,7 +522,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
     }
 
-    private _addFinalToneMappingPass (
+    private _addCopyAndTonemapPass (
         ppl: BasicPipeline,
         camera: Camera,
         width: number,
