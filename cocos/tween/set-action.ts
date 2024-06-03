@@ -50,6 +50,7 @@ export class SetAction extends ActionInstant {
 
     clone (): SetAction {
         const action = new SetAction();
+        action._id = this._id;
         action.init(this._props);
         return action;
     }

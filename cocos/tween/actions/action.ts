@@ -96,6 +96,11 @@ export abstract class Action {
     protected tag = Action.TAG_INVALID;
 
     /**
+     * @en The identifier that to mark an internal action.
+     */
+    protected _id: number | undefined = undefined;
+
+    /**
      * @en
      * to copy object with deep copy.
      * returns a clone of action.
@@ -192,6 +197,22 @@ export abstract class Action {
      */
     setTag (tag: number): void {
         this.tag = tag;
+    }
+
+    /**
+     * @en Set the identifier of the current action.
+     * @param id @en The identifier to set
+     */
+    setId (id: number): void {
+        this._id = id;
+    }
+
+    /**
+     * @en Get the identifier of the current action.
+     * @return @en The identifier of the current action, it may be undefined if setId is never called.
+     */
+    getId (): number | undefined {
+        return this._id;
     }
 
     /**

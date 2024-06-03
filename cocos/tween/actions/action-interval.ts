@@ -312,6 +312,7 @@ export class Sequence extends ActionInterval {
 
     clone (): Sequence {
         const action = new Sequence();
+        action._id = this._id;
         this._cloneDecoration(action);
         action.initWithTwoActions(this._actions[0].clone(), this._actions[1].clone());
         return action;
@@ -407,6 +408,23 @@ export class Sequence extends ActionInterval {
             actionOne.workerTarget = workerTarget;
         }
     }
+
+    findAction (id: number): FiniteTimeAction | null {
+        for (let i = 0, len = this._actions.length; i < len; ++i) {
+            let action: FiniteTimeAction | null = this._actions[i];
+            if (action.getId() === id) {
+                return action;
+            }
+
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action = action.findAction(id);
+                if (action && action.getId() === id) {
+                    return action;
+                }
+            }
+        }
+        return null;
+    }
 }
 
 /**
@@ -481,6 +499,7 @@ export class Repeat extends ActionInterval {
 
     clone (): Repeat {
         const action = new Repeat();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone(), this._times);
@@ -620,6 +639,7 @@ export class RepeatForever extends ActionInterval {
 
     clone (): RepeatForever {
         const action = new RepeatForever();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone());
@@ -769,6 +789,7 @@ export class Spawn extends ActionInterval {
 
     clone (): Spawn {
         const action = new Spawn();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._one && this._two) {
             action.initWithTwoActions(this._one.clone(), this._two.clone());
@@ -814,6 +835,30 @@ export class Spawn extends ActionInterval {
             one.workerTarget = workerTarget;
         }
     }
+
+    findAction (id: number): FiniteTimeAction | null {
+        const one = this._one;
+        const two = this._two;
+        let foundAction: FiniteTimeAction | null = null;
+        const find = (action: FiniteTimeAction): FiniteTimeAction | null => {
+            if (action.getId() === id) return action;
+            if (action instanceof Sequence || action instanceof Spawn) {
+                const found = action.findAction(id);
+                if (found) return found;
+            }
+            return null;
+        };
+        if (one) {
+            foundAction = find(one);
+            if (foundAction) return foundAction;
+        }
+
+        if (two) {
+            foundAction = find(two);
+            if (foundAction) return foundAction;
+        }
+        return null;
+    }
 }
 
 /**
@@ -847,6 +892,7 @@ class DelayTime extends ActionInterval {
 
     clone (): DelayTime {
         const action = new DelayTime();
+        action._id = this._id;
         this._cloneDecoration(action);
         action.initWithDuration(this._duration);
         return action;
@@ -913,6 +959,7 @@ export class ReverseTime extends ActionInterval {
 
     clone (): ReverseTime {
         const action = new ReverseTime();
+        action._id = this._id;
         this._cloneDecoration(action);
         if (this._other) {
             action.initWithAction(this._other.clone());

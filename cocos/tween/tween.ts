@@ -60,7 +60,7 @@ const notIntervalPrompt = 'the last action is not ActionInterval';
  */
 export class Tween<T extends object = any> {
     private _actions: FiniteTimeAction[] = [];
-    private _finalAction: FiniteTimeAction | null = null;
+    private _finalAction: Sequence | null = null;
     private _target: T | null = null;
     private _tag = Action.TAG_INVALID;
 
@@ -80,6 +80,18 @@ export class Tween<T extends object = any> {
     }
 
     /**
+     * @en Set the id for previous action
+     * @zh 设置前一个动作的 id
+     * @param id @en The internal action id to set @zh 内部动作的 id 标识，
+     */
+    id (id: number): Tween<T> {
+        if (this._actions.length > 0) {
+            this._actions[this._actions.length - 1].setId(id);
+        }
+        return this;
+    }
+
+    /**
      * @en
      * Insert a tween to this sequence.
      * @zh
@@ -91,6 +103,110 @@ export class Tween<T extends object = any> {
         const u = other._union(true);
         if (u) this._actions.push(u);
         return this;
+    }
+
+    /**
+     * @en Return a new Tween instance which reverses all actions in current tween
+     * @zh 返回新的缓动实例，其会翻转当前缓动中的所有动作
+     * @return @en The new tween instance which reverses all actions in current tween @zh 新的缓动实例，其会翻转当前缓动中的所有动作
+     * @note @en The returned tween instance is a new instance which is not the current tween instance.
+     *       @zh 返回的缓动实例是新的生成的实例，并不是当前缓动实例
+     */
+    reverse (): Tween<T>;
+
+    /**
+     * @en Reverse an action by ID in the current tween
+     * @zh 翻转当前缓动中特定标识的动作
+     * @param id @en The ID of the internal action in the current tween to reverse @zh 要翻转的当前缓动中的动作标识
+     * @return @en The current tween instance @zh 当前缓动实例
+     */
+    reverse (id: number): Tween<T>;
+
+    /**
+     * @en Reverse an action by ID in a specific tween
+     * @zh 翻转特定缓动中特定标识的动作
+     * @param otherTween @en The tween in which to find the action by ID
+     *                   @zh 根据标识在关联的缓动中查找动作
+     * @param id @en The ID of the action to reverse @zh 要翻转的动画标识
+     * @return @en The current tween instance @zh 当前缓动实例
+     */
+    reverse<U extends object = any> (otherTween: Tween<U>, id?: number): Tween<T>;
+
+    reverse<U extends object = any> (otherTweenOrId?: Tween<U> | number, id?: number): Tween<T> {
+        // Overload 1: reverse()
+        if (otherTweenOrId == null && id == null) {
+            return this.reverseTween();
+        }
+
+        let tweenForFindAction: Tween | undefined;
+        let actionId: number | undefined;
+
+        if (otherTweenOrId instanceof Tween) {
+            // Overload 3: reverse(otherTween: Tween<U>, id? number)
+            tweenForFindAction = otherTweenOrId;
+            if (id !== undefined) {
+                actionId = id;
+            }
+        } else if (typeof otherTweenOrId === 'number') {
+            // Overload 2: reverse(id: number)
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            tweenForFindAction = this;
+            actionId = otherTweenOrId;
+        }
+
+        if (tweenForFindAction) {
+            const reversedAction = Tween.reverseAction(tweenForFindAction, actionId);
+            if (reversedAction) {
+                this._actions.push(reversedAction);
+            }
+        }
+        return this;
+    }
+
+    private reverseTween (): Tween<T> {
+        if (this._actions.length === 0) {
+            warn('reverse: current tween could not be reversed, empty actions');
+            return this.clone(this._target as T);
+        }
+        const action = this._union(false); // workerTarget will be updated in the following insertAction
+        const r = tween(this._target as T);
+
+        if (action) r.insertAction(action.reverse());
+        return r;
+    }
+
+    private static reverseAction (t: Tween, actionId?: number): FiniteTimeAction | null {
+        const actions = t._actions;
+        if (actions.length === 0) return null;
+
+        let action: FiniteTimeAction | null = null;
+        let reversedAction: FiniteTimeAction | null = null;
+        if (typeof actionId === 'number') {
+            action = t.findAction(actionId, actions);
+        } else if (t) {
+            action = t._union(false);
+        }
+
+        if (action) {
+            reversedAction = action.reverse();
+            reversedAction.workerTarget = t._target;
+        } else {
+            warn(`reverse: could not find action id ${actionId}`);
+        }
+        return reversedAction;
+    }
+
+    private findAction (id: number, actions: FiniteTimeAction[]): FiniteTimeAction | null {
+        let action: FiniteTimeAction | null = null;
+        for (let i = 0, len = actions.length; i < len; ++i) {
+            action = actions[i];
+            if (action.getId() === id) return action;
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action = action.findAction(id);
+                if (action) return action;
+            }
+        }
+        return null;
     }
 
     /**
@@ -149,8 +265,10 @@ export class Tween<T extends object = any> {
         this._finalAction = this._union(false);
         if (this._finalAction) {
             this._finalAction.setTag(this._tag);
+            TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
+        } else {
+            warn(`start: no actions in Tween`);
         }
-        TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
         return this;
     }
 
@@ -176,7 +294,7 @@ export class Tween<T extends object = any> {
      * @method clone
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      */
-    clone<U extends object = any> (target: U): Tween<U> {
+    clone<U extends object = any> (target?: U): Tween<U> {
         const action = this._union(false);
         const r = tween(target);
         return action ? r.insertAction(action) : r;
@@ -184,14 +302,37 @@ export class Tween<T extends object = any> {
 
     /**
      * @en
-     * Integrate all previous actions to an action.
+     * Integrate to an action by all previous actions or a range from the specific id to the last one.
      * @zh
-     * 将之前所有的 action 整合为一个 action。
+     * 将之前所有的动作或者从指定标识的动作开始的所有动作整合为一个顺序动作。
+     * @method union
+     * @param fromId @en The action with the specific ID to start integrating @zh 指定开始整合的动作标识
      */
-    union (): Tween<T> {
-        const action = this._union(false);
-        this._actions.length = 0;
-        if (action) this._actions.push(action);
+    union (fromId?: number): Tween<T> {
+        const unionAll = (): void => {
+            const action = this._union(false);
+            this._actions.length = 0;
+            if (action) this._actions.push(action);
+        };
+
+        if (fromId === undefined) {
+            unionAll();
+            return this;
+        }
+
+        const actions = this._actions;
+        const index = actions.findIndex((action) => action.getId() === fromId);
+
+        const len = actions.length;
+        if (len > 1) {
+            const actionsToUnion = actions.splice(index);
+            if (actionsToUnion.length === 1) {
+                actions.push(actionsToUnion[0]);
+            } else {
+                actions.push(sequence(actionsToUnion));
+            }
+        }
+
         return this;
     }
 
@@ -481,16 +622,10 @@ export class Tween<T extends object = any> {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
     }
 
-    private _union (updateWorkerTarget: boolean): FiniteTimeAction | null {
+    private _union (updateWorkerTarget: boolean): Sequence | null {
         const actions = this._actions;
-        if (!actions) return null;
-        let action: FiniteTimeAction;
-        if (actions.length === 1) {
-            action = actions[0];
-        } else {
-            action = sequence(actions);
-        }
-
+        if (actions.length === 0) return null;
+        const action = sequence(actions);
         if (updateWorkerTarget) {
             this.updateWorkerTargetForAction(action);
         }
