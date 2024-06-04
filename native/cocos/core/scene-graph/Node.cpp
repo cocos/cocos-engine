@@ -766,29 +766,7 @@ void Node::setMatrix(const Mat4 &val) {
 void Node::setWorldRotationFromEuler(float x, float y, float z) {
     Quaternion tmpRotation;
     Quaternion::fromEuler(x, y, z, &tmpRotation);
-
-    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::SCALE)) != static_cast<uint32_t>(TransformBit::NONE);
-
-    if (!forceUpdate && tmpRotation.approxEquals(_worldRotation)) {
-        return;
-    }
-
-    _worldRotation = tmpRotation;
-
-    if (_parent) {
-        _parent->updateWorldTransform();
-        _localRotation = _parent->_worldRotation.getConjugated() * _worldRotation;
-    } else {
-        _localRotation = _worldRotation;
-    }
-    _eulerDirty = true;
-
-    invalidateChildren(TransformBit::ROTATION);
-    if (_eventMask & TRANSFORM_ON) {
-        emit<TransformChanged>(TransformBit::ROTATION);
-    }
-
-    notifyLocalRotationUpdated();
+    setWorldRotation(tmpRotation);
 }
 
 void Node::setRTSInternal(Quaternion *rot, Vec3 *pos, Vec3 *scale, bool calledFromJS) {
