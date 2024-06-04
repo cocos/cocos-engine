@@ -421,7 +421,7 @@ export class Tween<T extends object = any> {
      * @return @en The current tween instance, for chain operations. @zh 当前缓动示例，用于级联操作。
      */
     update<Args extends any[]> (duration: number, cb: TTweenUpdateCallback<T, Args>, ...args: Args): Tween<T> {
-        const action = new ActionCustomUpdate(duration, cb, args);
+        const action = new ActionCustomUpdate<T, Args>(duration, cb, args);
         this._actions.push(action);
         return this;
     }
