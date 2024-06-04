@@ -100,6 +100,8 @@ export abstract class Action {
      */
     protected _id: number | undefined = undefined;
 
+    protected _paused = false;
+
     /**
      * @en
      * to copy object with deep copy.
@@ -209,6 +211,10 @@ export abstract class Action {
      */
     getId (): number | undefined {
         return this._id;
+    }
+
+    setPaused (paused: boolean): void {
+        this._paused = paused;
     }
 
     /**

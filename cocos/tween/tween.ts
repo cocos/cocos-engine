@@ -292,6 +292,24 @@ export class Tween<T extends object = any> {
         return this;
     }
 
+    pause (): Tween<T> {
+        if (this._finalAction) {
+            this._finalAction.setPaused(true);
+        } else {
+            warn(`pause: tween wasn't started, can't pause`);
+        }
+        return this;
+    }
+
+    resume (): Tween<T> {
+        if (this._finalAction) {
+            this._finalAction.setPaused(false);
+        } else {
+            warn(`resume: tween wasn't started, can't resume`);
+        }
+        return this;
+    }
+
     /**
      * @en
      * Clone a tween.
@@ -654,7 +672,7 @@ export class Tween<T extends object = any> {
      * @zh
      * 停止所有指定标签的缓动
      */
-    static stopAllByTag (tag: number, target?: object): void {
+    static stopAllByTag<U extends object = any> (tag: number, target?: U): void {
         TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target);
     }
     /**
@@ -663,8 +681,16 @@ export class Tween<T extends object = any> {
      * @zh
      * 停止所有指定对象的缓动
      */
-    static stopAllByTarget (target?: object): void {
+    static stopAllByTarget<U extends object = any> (target?: U): void {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
+    }
+
+    static pauseAllByTarget<U extends object = any> (target: U): void {
+        TweenSystem.instance.ActionManager.pauseTarget(target);
+    }
+
+    static resumeAllByTarget<U extends object = any> (target: U): void {
+        TweenSystem.instance.ActionManager.resumeTarget(target);
     }
 
     private _union (updateWorkerTarget: boolean): Sequence | null {

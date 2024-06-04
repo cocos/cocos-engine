@@ -2315,3 +2315,50 @@ test('repeatForever', function () {
     //
     director.unregisterSystem(sys);
 });
+
+test('pause/resume', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    
+    const node = new Node();
+    
+    const t = tween(node)
+        .by(1, { position: new Vec3(90, 0, 0) }).id(123)
+        .reverse(123)
+        .union()
+        .repeatForever()
+        .start();
+
+    for (let i = 0; i < 10; ++i) {
+        runFrames(1);
+        runFrames(20);
+        expect(node.position.equals(new Vec3(30, 0, 0))).toBeTruthy();
+
+        t.pause();
+
+        runFrames(1000);
+        expect(node.position.equals(new Vec3(30, 0, 0))).toBeTruthy();
+
+        t.resume();
+
+        runFrames(20);
+        expect(node.position.equals(new Vec3(60, 0, 0))).toBeTruthy();
+
+        t.pause();
+
+        runFrames(1000);
+        expect(node.position.equals(new Vec3(60, 0, 0))).toBeTruthy();
+
+        t.resume();
+        runFrames(20);
+        expect(node.position.equals(new Vec3(90, 0, 0))).toBeTruthy();
+
+        runFrames(60);
+        expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    }
+
+    //
+    director.unregisterSystem(sys);
+});
