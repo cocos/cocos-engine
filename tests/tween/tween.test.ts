@@ -1,4 +1,4 @@
-import { Vec3, System, size, Size, approx, color, Color } from "../../cocos/core";
+import { Vec3, System, size, Size, approx, color, Color, v3 } from "../../cocos/core";
 import { tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
@@ -2316,7 +2316,7 @@ test('repeatForever', function () {
     director.unregisterSystem(sys);
 });
 
-test('pause/resume', function () {
+test('pause/resume 1', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -2358,6 +2358,106 @@ test('pause/resume', function () {
         runFrames(60);
         expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
     }
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('pause/resume 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t1 = tween(node)
+        .by(1, { position: v3(90, 90, 90) })
+        .start();
+
+    const t2 = tween(node)
+        .by(1, { scale: v3(9, 9, 9) })
+        .start();
+
+    // Start
+    runFrames(1);
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(3, 3, 3))).toBeTruthy();
+
+    t1.pause();
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(6, 6, 6))).toBeTruthy();
+
+    t1.resume();
+    t2.pause();
+    runFrames(20);
+    expect(node.position.equals(new Vec3(60, 60, 60))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(6, 6, 6))).toBeTruthy();
+
+    t2.resume();
+    runFrames(20);
+    expect(node.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(9, 9, 9))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('pauseAllByTarget/resumeAllByTarget', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const node2 = new Node();
+    node2.setScale(0, 0, 0);
+
+    const t1 = tween(node)
+        .by(1, { position: v3(90, 90, 90) })
+        .start();
+
+    const t2 = tween(node)
+        .by(1, { scale: v3(9, 9, 9) })
+        .start();
+
+    t1.clone(node2).start();
+    t2.clone(node2).start();
+
+    // Start
+    runFrames(1);
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(3, 3, 3))).toBeTruthy();
+    expect(node2.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(3, 3, 3))).toBeTruthy();
+
+    Tween.pauseAllByTarget(node);
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(3, 3, 3))).toBeTruthy();
+    expect(node2.position.equals(new Vec3(60, 60, 60))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(6, 6, 6))).toBeTruthy();
+
+    Tween.resumeAllByTarget(node);
+    Tween.pauseAllByTarget(node2);
+    runFrames(20);
+    expect(node.position.equals(new Vec3(60, 60, 60))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(6, 6, 6))).toBeTruthy();
+    expect(node2.position.equals(new Vec3(60, 60, 60))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(6, 6, 6))).toBeTruthy();
+
+    Tween.resumeAllByTarget(node2);
+    runFrames(20);
+    expect(node.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+    expect(node.scale.equals(new Vec3(9, 9, 9))).toBeTruthy();
+    expect(node2.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+    expect(node2.scale.equals(new Vec3(9, 9, 9))).toBeTruthy();
 
     //
     director.unregisterSystem(sys);
