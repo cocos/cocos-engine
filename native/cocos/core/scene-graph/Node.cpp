@@ -395,6 +395,10 @@ Node *Node::getChildByPath(const ccstd::string &path) const {
 
 //
 void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
+    if (_localPosition.approxEquals({x, y, z})) {
+        return;
+    }
+
     _localPosition.set(x, y, z);
     invalidateChildren(TransformBit::POSITION);
 
@@ -408,6 +412,10 @@ void Node::setPositionInternal(float x, float y, float z, bool calledFromJS) {
 }
 
 void Node::setRotationInternal(float x, float y, float z, float w, bool calledFromJS) {
+    if (_localRotation.approxEquals({x, y, z, w})) {
+        return;
+    }
+
     _localRotation.set(x, y, z, w);
     _eulerDirty = true;
 
@@ -435,6 +443,10 @@ void Node::setRotationFromEuler(float x, float y, float z) {
 }
 
 void Node::setScaleInternal(float x, float y, float z, bool calledFromJS) {
+    if (_localScale.approxEquals({x, y, z})) {
+        return;
+    }
+
     _localScale.set(x, y, z);
 
     invalidateChildren(TransformBit::SCALE);
@@ -530,6 +542,12 @@ void Node::invalidateChildren(TransformBit dirtyBit) { // NOLINT(misc-no-recursi
 }
 
 void Node::setWorldPosition(float x, float y, float z) {
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::POSITION)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && _worldPosition.approxEquals({x, y, z})) {
+        return;
+    }
+
     _worldPosition.set(x, y, z);
     if (_parent) {
         _parent->updateWorldTransform();
@@ -554,6 +572,12 @@ const Vec3 &Node::getWorldPosition() const {
 }
 
 void Node::setWorldRotation(float x, float y, float z, float w) {
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::ROTATION)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && _worldRotation.approxEquals({x, y, z, w})) {
+        return;
+    }
+
     _worldRotation.set(x, y, z, w);
     if (_parent) {
         _parent->updateWorldTransform();
@@ -580,6 +604,12 @@ const Quaternion &Node::getWorldRotation() const { // NOLINT(misc-no-recursion)
 }
 
 void Node::setWorldScale(float x, float y, float z) {
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::SCALE)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && _worldScale.approxEquals({x, y, z})) {
+        return;
+    }
+
     if (_parent != nullptr) {
         updateWorldTransform(); // ensure reentryability
         Vec3 oldWorldScale = _worldScale;
@@ -629,6 +659,10 @@ void Node::setForward(const Vec3 &dir) {
 }
 
 void Node::setAngle(float val) {
+    if (_euler.approxEquals({0, 0, val})) {
+        return;
+    }
+
     _euler.set(0, 0, val);
     Quaternion::createFromAngleZ(val, &_localRotation);
     _eulerDirty = false;
@@ -730,7 +764,17 @@ void Node::setMatrix(const Mat4 &val) {
 }
 
 void Node::setWorldRotationFromEuler(float x, float y, float z) {
-    Quaternion::fromEuler(x, y, z, &_worldRotation);
+    Quaternion tmpRotation;
+    Quaternion::fromEuler(x, y, z, &tmpRotation);
+
+    bool forceUpdate = _parent != nullptr && (_transformFlags & static_cast<uint32_t>(TransformBit::SCALE)) != static_cast<uint32_t>(TransformBit::NONE);
+
+    if (!forceUpdate && tmpRotation.approxEquals(_worldRotation)) {
+        return;
+    }
+
+    _worldRotation = tmpRotation;
+
     if (_parent) {
         _parent->updateWorldTransform();
         _localRotation = _parent->_worldRotation.getConjugated() * _worldRotation;

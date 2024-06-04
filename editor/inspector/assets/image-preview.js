@@ -2,7 +2,7 @@
 
 exports.template = /* html */`
 <div class="image-preview">
-    <ui-image class="image" show-alpha></ui-image>
+    <ui-asset-image class="image" size="origin"></ui-asset-image>
     <div class="label">
         <span class="size"></span>
     </div>
@@ -52,8 +52,12 @@ exports.$ = {
 const Elements = {
     image: {
         ready() {
-            this.$.image.$img.addEventListener('load', () => {
-                this.$.size.innerHTML = `${this.$.image.$img.naturalWidth} x ${this.$.image.$img.naturalHeight}`;
+            const $uiImg = this.$.image.$uiImage;
+            $uiImg.setAttribute('show-alpha', true);
+
+            const $img = $uiImg.$img;
+            $img.addEventListener('load', () => {
+                this.$.size.innerHTML = `${$img.naturalWidth} x ${$img.naturalHeight}`;
             });
         },
         update() {

@@ -162,7 +162,7 @@ int SDLHelper::init() {
     // (2) On mac platform, SDL has an internal implementation of textinput ,
     // which internally sends the SDL_TEXTINPUT event. Causing two events to be sent.
     // So we need to stop the implementation of TextInput.
-	// (3) Other platforms do not use textinput in sdl.
+    // (3) Other platforms do not use textinput in sdl.
     stopTextInput();
     return 0;
 }
@@ -172,6 +172,16 @@ void SDLHelper::dispatchWindowEvent(uint32_t windowId, const SDL_WindowEvent &we
     ev.windowId = windowId;
 
     switch (wevent.event) {
+        case SDL_WINDOWEVENT_ENTER: {
+            ev.type = WindowEvent::Type::ENTER;
+            events::WindowEvent::broadcast(ev);
+            break;
+        }
+        case SDL_WINDOWEVENT_LEAVE: {
+            ev.type = WindowEvent::Type::LEAVE;
+            events::WindowEvent::broadcast(ev);
+            break;
+        }
         case SDL_WINDOWEVENT_SHOWN: {
             ev.type = WindowEvent::Type::SHOW;
             events::WindowEvent::broadcast(ev);

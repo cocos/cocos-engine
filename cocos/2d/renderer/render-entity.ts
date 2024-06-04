@@ -95,7 +95,7 @@ export class RenderEntity {
     //     this._renderEntityType = val;
     // }
 
-    protected _color: Color = Color.WHITE;
+    protected _color: Color = Color.WHITE.clone();
     get color (): Color {
         return this._color;
     }

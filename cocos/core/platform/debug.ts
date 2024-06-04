@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+/* eslint-disable no-console */
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
 import { legacyCC, ccwindow } from '../global-exports';
@@ -120,8 +121,8 @@ export function debug (...data: unknown[]): void {
  */
 export function _resetDebugSetting (mode: DebugMode): void {
     // reset
-    ccLog = ccWarn = ccError = ccAssert = ccDebug = (): void => {
-    };
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    ccLog = ccWarn = ccError = ccAssert = ccDebug = (): void => {};
 
     if (mode === DebugMode.NONE) {
         return;
@@ -138,7 +139,8 @@ export function _resetDebugSetting (mode: DebugMode): void {
                 const logDiv = ccdocument.createElement('Div');
                 logDiv.setAttribute('id', 'logInfoDiv');
                 logDiv.setAttribute('width', '200');
-                logDiv.setAttribute('height', legacyCC.game.canvas.height);
+                const height: number = legacyCC.game.canvas.height;
+                logDiv.setAttribute('height', `${height}`);
                 const logDivStyle = logDiv.style;
                 logDivStyle.zIndex = '99999';
                 logDivStyle.position = 'absolute';
@@ -189,10 +191,13 @@ export function _resetDebugSetting (mode: DebugMode): void {
         if (!console.error) {
             console.error = console.log;
         }
+
         if (!console.warn) {
             console.warn = console.log;
         }
 
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         if (EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
             ccError = console.error.bind(console);

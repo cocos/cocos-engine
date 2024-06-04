@@ -455,6 +455,10 @@ public:
     }
 
     inline void setMobility(MobilityMode m) {
+        if (_mobility == m) {
+            return;
+        }
+
         _mobility = m;
         emit<MobilityChanged>();
     }
@@ -480,6 +484,10 @@ public:
 
     inline bool isTransformDirty() const { return _transformFlags != static_cast<uint32_t>(TransformBit::NONE); }
     inline void setLayer(uint32_t layer) {
+        if (_layer == layer) {
+            return;
+        }
+
         _layer = layer;
         emit<LayerChanged>(layer);
     }

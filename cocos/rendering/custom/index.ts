@@ -26,8 +26,7 @@ import { EDITOR } from 'internal:constants';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
-import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
-import { CustomPipelineBuilder, TestPipelineBuilder } from './custom-pipeline';
+import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
@@ -35,6 +34,7 @@ import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
+import { BuiltinForwardPipeline } from './builtin-forward-pipeline';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -44,6 +44,7 @@ const defaultLayoutGraph = new LayoutGraphData();
 export * from './types';
 export * from './pipeline';
 export * from './archive';
+export * from './framework';
 
 export const enableEffectImport = true;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);
@@ -67,20 +68,15 @@ export function setCustomPipeline (name: string, builder: PipelineBuilder): void
 export function getCustomPipeline (name: string): PipelineBuilder {
     let builder = customPipelineBuilderMap.get(name);
     if (!builder) {
-        if (name === 'Test') {
-            builder = new TestPipelineBuilder(_pipeline!.pipelineSceneData);
-            customPipelineBuilderMap.set('Test', builder);
-        } else {
-            builder = customPipelineBuilderMap.get('Forward')!;
-        }
+        builder = customPipelineBuilderMap.get('Forward')!;
     }
     return builder;
 }
 
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
-    map.set('Forward', new PostProcessBuilder());
+    map.set('Forward', new BuiltinForwardPipeline());
     map.set('Deferred', new DeferredPipelineBuilder());
-    map.set('Deprecated', new CustomPipelineBuilder());
+    map.set('Custom', new PostProcessBuilder());
 }
 
 addCustomBuiltinPipelines(customPipelineBuilderMap);

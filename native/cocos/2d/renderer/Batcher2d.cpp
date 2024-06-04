@@ -97,7 +97,7 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     size_t index = 0;
     for (auto* rootNode : _rootNodeArr) {
         // _batches will add by generateBatch
-        walk(rootNode, 1);
+        walk(rootNode, 1, false);
         generateBatch(_currEntity, _currDrawInfo);
 
         auto* scene = rootNode->getScene()->getRenderScene();
@@ -109,19 +109,21 @@ void Batcher2d::fillBuffersAndMergeBatches() {
     }
 }
 
-void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recursion)
+void Batcher2d::walk(Node* node, float parentOpacity, bool parentOpacityDirty) { // NOLINT(misc-no-recursion)
     if (!node->isActiveInHierarchy()) {
         return;
     }
     bool breakWalk = false;
     auto* entity = static_cast<RenderEntity*>(node->getUserData());
+    bool opacityDirty = false;
     if (entity) {
-        if (entity->getColorDirty()) {
+        if (entity->getColorDirty() || parentOpacityDirty) {
             float localOpacity = entity->getLocalOpacity();
             float localColorAlpha = entity->getColorAlpha();
             entity->setOpacity(parentOpacity * localOpacity * localColorAlpha);
             entity->setColorDirty(false);
             entity->setVBColorDirty(true);
+            opacityDirty = true;
         }
         if (math::isEqualF(entity->getOpacity(), 0)) {
             breakWalk = true;
@@ -143,7 +145,7 @@ void Batcher2d::walk(Node* node, float parentOpacity) { // NOLINT(misc-no-recurs
         float thisOpacity = entity ? entity->getOpacity() : parentOpacity;
         for (const auto& child : children) {
             // we should find parent opacity recursively upwards if it doesn't have an entity.
-            walk(child, thisOpacity);
+            walk(child, thisOpacity, opacityDirty || parentOpacityDirty);
         }
     }
 
@@ -293,7 +295,7 @@ CC_FORCE_INLINE void Batcher2d::handleMiddlewareDraw(RenderEntity* entity, Rende
 
 CC_FORCE_INLINE void Batcher2d::handleSubNode(RenderEntity* entity, RenderDrawInfo* drawInfo) { // NOLINT
     if (drawInfo->getSubNode()) {
-        walk(drawInfo->getSubNode(), entity->getOpacity());
+        walk(drawInfo->getSubNode(), entity->getOpacity(), false);
     }
 }
 

@@ -834,6 +834,16 @@ export class Vec2 extends ValueType {
         this.y = matrix.m01 * x + matrix.m05 * y + matrix.m13;
         return this;
     }
+
+    /**
+     * @en Converts the current Vec2 object to a Vec3 object by adding a z-component of 0.
+     * @zh 将当前的Vec2对象转换为一个z分量为0的Vec3对象。
+     * @returns Vec3 @en A new Vec3 object created from the current Vec2 object with z-component set to 0.
+     * @zh 从当前的Vec2对象创建一个新的Vec3对象，其中z分量设置为0。
+     */
+    public toVec3 (): Vec3 {
+        return new Vec3(this.x, this.y, 0);
+    }
 }
 
 CCClass.fastDefine('cc.Vec2', Vec2, { x: 0, y: 0 });

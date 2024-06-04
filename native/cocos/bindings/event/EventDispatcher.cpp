@@ -40,6 +40,7 @@ se::Object *jsKeyboardEventObj = nullptr;
 se::Object *jsControllerEventArray = nullptr;
 se::Object *jsControllerChangeEventArray = nullptr;
 se::Object *jsResizeEventObj = nullptr;
+se::Object *jsOrientationChangeObj = nullptr;
 bool inited = false;
 bool busListenerInited = false;
 
@@ -57,6 +58,8 @@ namespace cc {
 
 events::EnterForeground::Listener EventDispatcher::listenerEnterForeground;
 events::EnterBackground::Listener EventDispatcher::listenerEnterBackground;
+events::WindowLeave::Listener EventDispatcher::listenerWindowLeave;
+events::WindowEnter::Listener EventDispatcher::listenerWindowEnter;
 events::WindowChanged::Listener EventDispatcher::listenerWindowChanged;
 events::LowMemory::Listener EventDispatcher::listenerLowMemory;
 events::Touch::Listener EventDispatcher::listenerTouch;
@@ -93,6 +96,8 @@ void EventDispatcher::init() {
         listenerResize.bind(&dispatchResizeEvent);
         listenerOrientation.bind(&dispatchOrientationChangeEvent);
         listenerEnterBackground.bind(&dispatchEnterBackgroundEvent);
+        listenerWindowLeave.bind(&dispatchWindowLeaveEvent);
+        listenerWindowEnter.bind(&dispatchWindowEnterEvent);
         listenerEnterForeground.bind(&dispatchEnterForegroundEvent);
         listenerLowMemory.bind(&dispatchMemoryWarningEvent);
         listenerClose.bind(&dispatchCloseEvent);
@@ -143,6 +148,12 @@ void EventDispatcher::destroy() {
         jsResizeEventObj->unroot();
         jsResizeEventObj->decRef();
         jsResizeEventObj = nullptr;
+    }
+
+    if (jsOrientationChangeObj != nullptr) {
+        jsOrientationChangeObj->unroot();
+        jsOrientationChangeObj->decRef();
+        jsOrientationChangeObj = nullptr;
     }
 
     inited = false;
@@ -412,7 +423,25 @@ void EventDispatcher::dispatchResizeEvent(int width, int height, uint32_t window
 }
 
 void EventDispatcher::dispatchOrientationChangeEvent(int orientation) {
-    // Ts's logic is same as the 'onResize', so remove code here temporary.
+    se::AutoHandleScope scope;
+    if (!jsOrientationChangeObj) {
+        jsOrientationChangeObj = se::Object::createPlainObject();
+        jsOrientationChangeObj->root();
+    }
+
+    jsOrientationChangeObj->setProperty("orientation", se::Value(orientation));
+
+    se::ValueArray args;
+    args.emplace_back(se::Value(jsOrientationChangeObj));
+    EventDispatcher::doDispatchJsEvent("onOrientationChanged", args);
+}
+
+void EventDispatcher::dispatchWindowLeaveEvent() {
+    EventDispatcher::doDispatchJsEvent("onWindowLeave", se::EmptyValueArray);
+}
+
+void EventDispatcher::dispatchWindowEnterEvent() {
+    EventDispatcher::doDispatchJsEvent("onWindowEnter", se::EmptyValueArray);
 }
 
 void EventDispatcher::dispatchEnterBackgroundEvent() {

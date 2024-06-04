@@ -36,6 +36,23 @@ export class WebGL2Framebuffer extends Framebuffer {
     }
 
     private _gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
+    private _gpuColorViews: (WebGLTexture | null)[] = [];
+    private _gpuDepthStencilView: WebGLTexture | null | undefined;
+
+    get needRebuild (): boolean {
+        if (this.gpuFramebuffer) {
+            for (let i = 0; i < this.gpuFramebuffer.gpuColorViews.length; i++) {
+                if (this.gpuFramebuffer.gpuColorViews[i].gpuTexture.glTexture !== this._gpuColorViews[i]) {
+                    return true;
+                }
+            }
+            if (this.gpuFramebuffer.gpuDepthStencilView?.gpuTexture.glTexture !== this._gpuDepthStencilView) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public initialize (info: Readonly<FramebufferInfo>): void {
         this._renderPass = info.renderPass;
@@ -44,9 +61,9 @@ export class WebGL2Framebuffer extends Framebuffer {
 
         const gpuColorViews: IWebGL2GPUTextureView[] = [];
         for (let i = 0; i < info.colorTextures.length; i++) {
-            const colorTexture = info.colorTextures[i];
+            const colorTexture = info.colorTextures[i] as WebGL2Texture;
             if (colorTexture) {
-                gpuColorViews.push((colorTexture as WebGL2Texture).gpuTextureView);
+                gpuColorViews.push(colorTexture.gpuTextureView);
             }
         }
 
@@ -88,6 +105,8 @@ export class WebGL2Framebuffer extends Framebuffer {
         };
 
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
+        this.gpuFramebuffer.gpuColorViews.forEach((tex) => this._gpuColorViews.push(tex.gpuTexture.glTexture));
+        this._gpuDepthStencilView = this.gpuFramebuffer.gpuDepthStencilView?.gpuTexture.glTexture;
         this._width = this._gpuFramebuffer.width;
         this._height = this._gpuFramebuffer.height;
     }
@@ -96,6 +115,8 @@ export class WebGL2Framebuffer extends Framebuffer {
         if (this._gpuFramebuffer) {
             WebGL2CmdFuncDestroyFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
             this._gpuFramebuffer = null;
+            this._gpuColorViews.length = 0;
+            this._gpuDepthStencilView = null;
         }
     }
 }

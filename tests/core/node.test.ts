@@ -1,9 +1,10 @@
-import { find, Node, Scene, Component } from "../../cocos/scene-graph"
-import { Mat4, Vec3 } from "../../cocos/core/math"
+import { find, Node, Scene, Component, TransformBit } from "../../cocos/scene-graph"
+import { Mat4, Quat, Vec3 } from "../../cocos/core/math"
 import { CCObject } from "../../cocos/core";
 import { NodeEventType } from "../../cocos/scene-graph/node-event";
 import { ccclass } from "../../cocos/core/data/decorators";
 import {director, game } from '../../cocos/game';
+import { Event } from "../../exports/base";
 
 describe(`Node`, () => {
 
@@ -283,5 +284,242 @@ describe(`Node`, () => {
         expect(val4).not.toBe(val1);
         node.eulerAngles = new Vec3(1, 2, 3);
         expect(node.flagChangedVersion).toBe(val4);
+    });
+
+    test('setScale', () => {
+        const node = new Node();
+
+        let scale = new Vec3(2, 3, 4);
+        node.setScale(scale);
+        let scale1 = node.getScale();
+        expect(scale1.equals(scale)).toBeTruthy();
+
+        let scaleChanged = false;
+        node.on(NodeEventType.TRANSFORM_CHANGED, (arg: TransformBit) => {
+            if (arg === TransformBit.SCALE) {
+                scaleChanged = true;
+            }
+        });
+
+        node.setScale(scale);
+        expect(scaleChanged).toBe(false);
+
+        scale.x += 1;
+        node.setScale(scale);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale.y += 1;
+        node.setScale(scale);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale.z += 1;
+        node.setScale(scale);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale1 = node.getScale();
+        node.setScale(scale1.x + 1, scale1.y);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale1 = node.getScale();
+        node.setScale(scale1.x, scale1.y + 1);
+        expect(scaleChanged).toBe(true);
+
+        scaleChanged = false;
+        scale1 = node.getScale();
+        node.setScale(scale1.x, scale1.y, scale1.z + 1);
+        expect(scaleChanged).toBe(true);
+    });
+
+    test('setPosition', () => {
+        const node = new Node();
+
+        let pos = new Vec3(2, 3, 4);
+        node.setPosition(pos);
+        let pos1 = node.getPosition();
+        expect(pos1.equals(pos)).toBeTruthy();
+
+        let positionChanged = false;
+        node.on(NodeEventType.TRANSFORM_CHANGED, (arg: TransformBit) => {
+            if (arg === TransformBit.POSITION) {
+                positionChanged = true;
+            }
+        });
+
+        node.setPosition(pos);
+        expect(positionChanged).toBe(false);
+
+        pos.x += 1;
+        node.setPosition(pos);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos.y += 1;
+        node.setPosition(pos);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos.z += 1;
+        node.setPosition(pos);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos1 = node.getPosition();
+        node.setPosition(pos1.x + 1, pos1.y);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos1 = node.getPosition();
+        node.setPosition(pos1.x, pos1.y + 1);
+        expect(positionChanged).toBe(true);
+
+        positionChanged = false;
+        pos1 = node.getPosition();
+        node.setPosition(pos1.x, pos1.y, pos.z + 1);
+        expect(positionChanged).toBe(true);
+    });
+
+    test('setRotation', () => {
+        const node = new Node();
+
+        let quat = new Quat(2, 3, 4);
+        node.setRotation(quat);
+        let quat1 = node.getRotation();
+        expect(quat1.equals(quat)).toBeTruthy();
+
+        let rotationChanged = false;
+        node.on(NodeEventType.TRANSFORM_CHANGED, (arg: TransformBit) => {
+            if (arg === TransformBit.ROTATION) {
+                rotationChanged = true;
+            }
+        });
+
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(false);
+
+        quat.x += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat.y += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat.z += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.x += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.y += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.z += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+
+        rotationChanged = false;
+        quat = node.getRotation();
+        quat.w += 1;
+        node.setRotation(quat);
+        expect(rotationChanged).toBe(true);
+    });
+
+    // refer to https://github.com/cocos/cocos-engine/issues/16914 for detail information
+    test ('dispatch event with nested', () => {
+        let son = new Node('son');
+
+        let father = new Node('father');
+        father.on('event2', () => {
+            
+        }, null, true);
+
+        father.on('event1', () => {
+        }, null, true);
+
+        father.addChild(son);
+
+        let grandFather = new Node('grandfather');
+        grandFather.on('event2', () => {
+            let event = new Event('event1');
+            event.propagationStopped = true;
+            son.dispatchEvent(event);
+        }, null, true);
+        grandFather.addChild(father);
+
+        son.dispatchEvent(new Event('event2', true));
+    });
+
+    test ('setWorldPosition', ()=> {
+        let parent = new Node();
+        parent.setPosition(100, 100);
+
+        let son = new Node();
+        expect(son.getPosition()).toEqual(new Vec3(0, 0, 0));
+
+        son.parent = parent;
+        son.setWorldPosition(Vec3.ZERO);
+        expect(son.getPosition()).toEqual(new Vec3(-100, -100, 0));
+    });
+    
+    test ('setWorldRotation', ()=> {
+        let parent = new Node();
+
+        // rotate pi/60 around x axis
+        const angle = Math.PI / 6;
+        parent.setRotation(Math.sin(angle / 2), 0, 0, Math.cos(angle / 2));
+
+        let son = new Node();
+        expect(son.getRotation()).toEqual(Quat.IDENTITY);
+
+        son.parent = parent;
+        son.setWorldRotation(Quat.IDENTITY);
+        expect(son.getRotation()).toEqual(new Quat(Math.sin(-angle / 2), 0, 0, Math.cos(-angle / 2)));
+    });
+
+    test ('setWorldRotationFromEuler', ()=> {
+        let parent = new Node();
+
+        // rotate 30 degrees around x axis
+        parent.setWorldRotationFromEuler(30, 0, 0);
+
+        let son = new Node();
+        expect(son.getRotation()).toEqual(Quat.IDENTITY);
+
+        son.parent = parent;
+        son.setWorldRotationFromEuler(0, 0, 0);
+
+        let quat = new Quat();
+        Quat.fromEuler(quat, -30, 0, 0);
+        expect(son.getRotation()).toEqual(quat);
+    });
+
+    test ('setWorldScale', ()=> {
+        let parent = new Node();
+
+        // rotate 30 degrees around x axis
+        parent.setScale(2, 3, 4);
+
+        let son = new Node();
+        expect(son.getScale()).toEqual(new Vec3(1, 1, 1));
+
+        son.parent = parent;
+        son.setWorldScale(1, 1, 1);
+
+        expect(son.getScale()).toEqual(new Vec3(1/2, 1/3, 1/4));
     });
 });

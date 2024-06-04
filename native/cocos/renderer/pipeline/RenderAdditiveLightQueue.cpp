@@ -82,7 +82,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
             const auto *pass = lightPass.pass;
             const auto &dynamicOffsets = lightPass.dynamicOffsets;
             auto *shader = lightPass.shader;
-            const auto lights = lightPass.lights;
+            const auto &lights = lightPass.lights;
             auto *ia = subModel->getInputAssembler();
             auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
             auto *descriptorSet = subModel->getDescriptorSet();
@@ -91,6 +91,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, scene::C
             cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             cmdBuffer->bindInputAssembler(ia);
 
+            CC_ASSERT(dynamicOffsets.size() == lights.size());
             for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
                 const auto *light = lights[i];
                 auto *globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
@@ -201,7 +202,7 @@ void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const s
         lightPass.subModel = subModel;
         lightPass.pass = pass;
         lightPass.shader = subModel->getShader(lightPassIdx);
-        lightPass.dynamicOffsets.resize(lightCount);
+        lightPass.dynamicOffsets.reserve(lightCount);
     }
 
     for (uint32_t i = 0; i < lightCount; ++i) {
@@ -221,13 +222,13 @@ void RenderAdditiveLightQueue::addRenderQueue(scene::SubModel *subModel, const s
                 } break;
                 case scene::BatchingSchemes::NONE: {
                     lightPass.lights.emplace_back(light);
-                    lightPass.dynamicOffsets[i] = _lightBufferStride * lightIdx;
+                    lightPass.dynamicOffsets.emplace_back(_lightBufferStride * lightIdx);
                 } break;
             }
-        } else {
-            lightPass.dynamicOffsets.clear();
         }
     }
+
+    CC_ASSERT(lightPass.lights.size() == lightPass.dynamicOffsets.size());
 
     if (batchingScheme == scene::BatchingSchemes::NONE) {
         _lightPasses.emplace_back(std::move(lightPass));

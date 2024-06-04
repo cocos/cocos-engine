@@ -45,6 +45,8 @@ namespace render {
 template <class T>
 using Array4 = std::array<T, 4>;
 
+struct RenderGraphVisitorContext;
+
 } // namespace render
 
 } // namespace cc
@@ -55,6 +57,7 @@ namespace cc {
 
 namespace render {
 
+struct RenderGraphFilter;
 class NativeRenderNode;
 class NativeSetter;
 class NativeSceneBuilder;

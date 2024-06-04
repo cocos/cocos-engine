@@ -57,6 +57,8 @@ public:
         HIDDEN,
         MINIMIZED,
         CLOSE,
+        ENTER,
+        LEAVE,
         UNKNOWN,
     };
     Type type = Type::UNKNOWN;
@@ -328,6 +330,8 @@ DECLARE_EVENT_BUS(Engine)
 
 DECLARE_BUS_EVENT_ARG0(EnterForeground, Engine)
 DECLARE_BUS_EVENT_ARG0(EnterBackground, Engine)
+DECLARE_BUS_EVENT_ARG0(WindowEnter, Engine)
+DECLARE_BUS_EVENT_ARG0(WindowLeave, Engine)
 DECLARE_BUS_EVENT_ARG1(WindowRecreated, Engine, uint32_t /* windowId*/)
 DECLARE_BUS_EVENT_ARG1(WindowDestroy, Engine, uint32_t /*windowId*/)
 DECLARE_BUS_EVENT_ARG1(WindowEvent, Engine, const cc::WindowEvent &)

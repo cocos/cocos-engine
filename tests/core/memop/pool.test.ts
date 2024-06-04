@@ -37,7 +37,7 @@ test('free', () => {
 });
 
 test('freeArray', () => {
-    let tmpArr = [];
+    let tmpArr: Test[] = [];
     const TEST_SIZE = 5;
     for (let i = 0; i < TEST_SIZE; ++i) {
         tmpArr[i] = createTest();
@@ -50,58 +50,48 @@ test('freeArray', () => {
 });
 
 test('shrink', () => {
-    const test = [];
-    for (let i = 0; i < 100; ++i) {
+    const shrinkThreshold = 30;
+    pool = new Pool<Test>(createTest, 10, destroyTest, shrinkThreshold);
+    calledTimes = 0;
+
+    // Pool available size is 10, less than 30, so will not free any object.
+    pool.tryShrink();
+    // @ts-expect-error
+    expect(pool._nextAvail).toEqual(9);
+    calledTimes = 0;
+
+
+    // Pool available size is 60 = 2 * shrinkThreshold, will shrink 30 elements. 
+    const test: Test[] = [];
+    for (let i = 0; i < 50; ++i) {
         test[i] = createTest();
     }
     pool.freeArray(test);
-    // @ts-expect-error
-    expect(pool._freePool.length).toBeGreaterThan(100);
-    // @ts-expect-error
-    expect(pool._nextAvail).toBeGreaterThan(100);
-
-    // @ts-expect-error
-    const beforeShrink = pool._nextAvail;
-
     pool.tryShrink();
+    // @ts-expect-error
+    expect(pool._nextAvail).toEqual(29);
+    calledTimes = 30;
 
-    // @ts-expect-error
-    expect(pool._freePool.length >= 50 && pool._freePool.length <= 100).toBeTruthy();
-    
-    // @ts-expect-error
-    expect(pool._nextAvail >= 50 && pool._nextAvail <= 100).toBeTruthy();
-
-    // @ts-expect-error
-    expect(calledTimes).toBe(beforeShrink - pool._nextAvail);
-
-    pool.tryShrink();
-
-    // @ts-expect-error
-    expect(pool._freePool.length >= 25 && pool._freePool.length <= 50).toBeTruthy();
-    
-    // @ts-expect-error
-    expect(pool._nextAvail >= 25 && pool._nextAvail <= 50).toBeTruthy();
-    // @ts-expect-error
-    expect(calledTimes).toBe(beforeShrink - pool._nextAvail);
-
-    const items = [];
-    for (let i = 0; i < 50; i++) {
-        const item = pool.alloc();
-        items.push(item);
-        expect(item.destroyed).toBeFalsy();
+    // Pool available size is 50, but its length is 60, so it will shrink 10 elements.
+    calledTimes = 0;
+    for (let i = 0; i < 30; ++i) {
+        pool.free(createTest());
     }
-
-    pool.freeArray(items);
-
-    // can not shrink anymore
+    for (let i = 0; i < 10; ++i) {
+        pool.alloc();
+    }
     pool.tryShrink();
-    pool.tryShrink();
-    pool.tryShrink();
-    pool.tryShrink();
-    pool.tryShrink();
-
+    calledTimes = 10;
     // @ts-expect-error
-    expect(pool._nextAvail).toBeGreaterThan(10);
+    expect(pool._nextAvail).toEqual(39);
+
+    // No matter shrink how many times, pool size will not less then shrinkThreshold.
+    pool.tryShrink();
+    pool.tryShrink();
+    pool.tryShrink();
+    pool.tryShrink();
+    // @ts-expect-error
+    expect(pool._nextAvail).toEqual(29);
 });
 
 test('destroy', () => {

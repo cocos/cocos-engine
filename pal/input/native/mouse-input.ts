@@ -75,6 +75,10 @@ export class MouseInputSource {
         jsb.onPointerlockChange = (value: boolean): void => {
             this._pointLocked = value;
         };
+
+        // Treat window leave/enter events as mouse events as web.
+        jsb.onWindowLeave = this._handleWindowLeave.bind(this);
+        jsb.onWindowEnter = this._handleWindowEnter.bind(this);
     }
 
     private _createCallback (eventType: InputEventType) {
@@ -129,5 +133,18 @@ export class MouseInputSource {
 
     public on (eventType: InputEventType, callback: MouseCallback, target?: any): void {
         this._eventTarget.on(eventType, callback, target);
+    }
+
+    // Should include window id if supporting multiple windows.
+    private _handleWindowLeave (): void {
+        const eventType = InputEventType.MOUSE_LEAVE;
+        const eventMouse = new EventMouse(eventType, false);
+        this._eventTarget.emit(eventType, eventMouse);
+    }
+
+    private _handleWindowEnter (): void {
+        const eventType = InputEventType.MOUSE_ENTER;
+        const eventMouse = new EventMouse(eventType, false);
+        this._eventTarget.emit(eventType, eventMouse);
     }
 }

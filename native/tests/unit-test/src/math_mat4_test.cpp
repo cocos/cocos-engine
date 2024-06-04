@@ -283,4 +283,20 @@ TEST(mathMat4Test, test5) {
     cc::Mat4 a{1.111223F, 0.123454F, 0.384183F, 1.111222F, 3.123455F, 4.384183F, 5.111223F, 6.123455F, 2.384183F, 3.111224F, 4.123455F, 5.384183F, 6.111224F, 7.123456F, 8.384183F, 9.111224F};
     cc::Mat4 b{1.111224F, 0.123455F, 0.384182F, 1.111223F, 3.123456F, 4.384184F, 5.111224F, 6.123456F, 2.384182F, 3.111223F, 4.123456F, 5.384184F, 6.111223F, 7.123455F, 8.384184F, 9.111223F};
     ExpectEq(a.approxEquals(b), true);
+    
+    // toRTS: zero axis length
+    const cc::Mat4 m(
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 1, 0,
+        0.000002836869271050091, -64.9000015258789, 0, 1
+    );
+    
+    cc::Quaternion q;
+    cc::Vec3 t;
+    cc::Vec3 s;
+    cc::Mat4::toRTS(m, &q, &t, &s);
+    ExpectEq(q.approxEquals(cc::Quaternion(0, 0, 0, 1)), true);
+    ExpectEq(t.approxEquals(cc::Vec3(0.000002836869271050091, -64.9000015258789, 0)), true);
+    ExpectEq(s.approxEquals(cc::Vec3(0, 0, 1)), true);
 }

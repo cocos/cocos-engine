@@ -51,6 +51,8 @@ private:
     static void dispatchTickEvent(float dt);
     static void dispatchResizeEvent(int width, int height, uint32_t windowId = UINT32_MAX);
     static void dispatchOrientationChangeEvent(int orientation);
+    static void dispatchWindowLeaveEvent();
+    static void dispatchWindowEnterEvent();
     static void dispatchEnterBackgroundEvent();
     static void dispatchEnterForegroundEvent();
     static void dispatchMemoryWarningEvent();
@@ -61,6 +63,8 @@ private:
 
     static events::EnterForeground::Listener listenerEnterForeground;
     static events::EnterBackground::Listener listenerEnterBackground;
+    static events::WindowLeave::Listener listenerWindowLeave;
+    static events::WindowEnter::Listener listenerWindowEnter;
     static events::WindowChanged::Listener listenerWindowChanged;
     static events::LowMemory::Listener listenerLowMemory;
     static events::Touch::Listener listenerTouch;

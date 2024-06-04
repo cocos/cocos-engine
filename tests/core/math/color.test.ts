@@ -1,25 +1,32 @@
 import { Vec4 } from '../../../cocos/core';
 import { Color, linearToSrgb8Bit, srgb8BitToLinear, srgbToLinear } from '../../../cocos/core/math/color';
 
+function colorEqualTest(color1: Color, color2: Color): void {
+    expect(color1.r).toBe(color2.r);
+    expect(color1.g).toBe(color2.g);
+    expect(color1.b).toBe(color2.b);
+    expect(color1.a).toBe(color2.a);
+}
+
 // test Color
 describe('Test Color', () => {
 
     test('clone', () => {
         const color = new Color(128, 234, 0, 255);
         const color2 = color.clone();
-        expect(color2._val).toBe(color._val);
+        colorEqualTest(color, color2);
     });
     test('copy', () => {
         const color = new Color(128, 234, 0, 255);
         const color2 = new Color();
         Color.copy(color2, color);
-        expect(color2._val).toBe(color._val);
+        colorEqualTest(color, color2);
     });
     test('set', () => {
         const color = new Color(128, 234, 0, 255);
         const color2 = new Color();
         Color.set(color2, color.r, color.g, color.b, color.a);
-        expect(color2._val).toBe(color._val);
+        colorEqualTest(color, color2);
     });
     test('fromHex', () => {
         const hexColor = ['#ff000000', '#00ff0000', '#0000ff00', '#ffffff00', '#00000000', '#ff00ff00', '#00ffff00', '#ffff0000'];
@@ -65,6 +72,7 @@ describe('Test Color', () => {
         expect(color3.a).toBe(0);
     });
     test('multiply', () => {
+        // test static function
         const color = new Color(128, 234, 10, 255);
         const color2 = new Color(128, 234, 20, 255);
         const color3 = new Color();
@@ -73,6 +81,13 @@ describe('Test Color', () => {
         expect(color3.g).toBe(255);
         expect(color3.b).toBe(200);
         expect(color3.a).toBe(255);
+
+        // test object function
+        color.multiply(color2);
+        expect(color.r).toBe(64);
+        expect(color.g).toBe(215);
+        expect(color.b).toBe(1);
+        expect(color.a).toBe(255);
     });
     test('divide', () => {
         const color = new Color(128, 234, 10, 255);
@@ -94,6 +109,7 @@ describe('Test Color', () => {
         expect(color2.a).toBe(255);
     });
     test('lerp', () => {
+        // static function version
         const color = new Color(1, 235, 15, 255);
         const color2 = new Color(255, 255, 255, 255);
         const color3 = new Color();
@@ -102,6 +118,13 @@ describe('Test Color', () => {
         expect(color3.g).toBe(245);
         expect(color3.b).toBe(135);
         expect(color3.a).toBe(255);
+
+        // object method version
+        color.lerp(color2, 0.5);
+        expect(color.r).toBe(128);
+        expect(color.g).toBe(245);
+        expect(color.b).toBe(135);
+        expect(color.a).toBe(255);
     });
     test('toArray', () => {
         const color = new Color(1, 235, 15, 255);
@@ -159,11 +182,11 @@ describe('Test Color', () => {
             const testHexRGBA = testColor.toHEX('#rrggbbaa');
             const color1 = new Color();
             color1.fromHEX(testHexRGBA);
-            expect(color1._val).toBe(testColor._val);
+            colorEqualTest(testColor, color1);
 
             const color2 = new Color();
             Color.fromHEX(color2, testHexRGBA);
-            expect(color2._val).toBe(testColor._val);
+            colorEqualTest(testColor, color2);
 
             const testHexRGB = testColor.toHEX('#rrggbb');
             const color3 = new Color();
@@ -172,7 +195,7 @@ describe('Test Color', () => {
 
             const color4 = new Color();
             Color.fromHEX(color4, testHexRGB);
-            expect(color4._val).toBe(color3._val);
+            colorEqualTest(color3, color4);
         });
     });
 
@@ -186,7 +209,7 @@ describe('Test Color', () => {
             expect(srgb8BitToLinear(i)).toBe(srgbToLinear(i / 255.0));
         }
         expect(Color.toVec4(new Color(255, 188, 0, 255))).toEqual(new Vec4(1, 0.7372549019607844, 0, 1));
-        expect(Color.fromVec4(new Vec4 (1, 0.5, 0, 1))).toEqual(new Color(255, 127, 0, 255));
+        expect(Color.fromVec4(new Vec4 (1, 0.5, 0, 1))).toEqual(new Color(255, 128, 0, 255));
     });
 
     test('fromUint32', () => {
@@ -198,14 +221,13 @@ describe('Test Color', () => {
             expect(color.g).toBe(val >> 8 & 0xFF);
             expect(color.b).toBe(val >> 16 & 0xFF);
             expect(color.a).toBe(val >> 24 & 0xFF);
-            expect(color._val).toBe(val);
         }
     });
 
     test('toUint32', () => {
         const color = new Color();
         for (let i = 0; i != 100; i++) {
-            const val = (Math.random() * 0xFFFFFFFF) | 0;
+            const val = (Math.random() * 0xFFFFFFFF) >>> 0;
             Color.fromUint32(color, val);
             expect(Color.toUint32(color)).toBe(val);
         }

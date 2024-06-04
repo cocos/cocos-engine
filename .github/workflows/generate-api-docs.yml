@@ -1,0 +1,142 @@
+name: Generate API docs JSON
+
+on:
+  push:
+    tags:
+      - '**'
+    branches-ignore:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      target_tag:
+        description: 'The ref (branch or tag) to build API docs'
+        type: string
+        default: 'v3.8.4'
+        required: true
+
+jobs:
+  build-api-doc:
+    runs-on: ubuntu-latest
+    name: "Generate API docs JSON"
+    steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+
+    - name: Get ref
+      id: step-id-get-ref
+      run: |
+        if [ "${{ github.event_name }}" = 'workflow_dispatch' ]; then
+          echo "Get ref from workflow_dispatch"
+          echo "ENGINE_REF=${{ github.event.inputs.target_tag }}" >> $GITHUB_OUTPUT
+        else
+          echo "Get ref from push"
+          echo "ENGINE_REF=${{ github.ref }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Show ref
+      run: |
+        echo "ref: ${{ steps.step-id-get-ref.outputs.ENGINE_REF }}"
+
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ steps.step-id-get-ref.outputs.ENGINE_REF }}
+
+    - name: Checkout the tool
+      uses: actions/checkout@v4
+      with:
+        repository: cocos/creator-api-doc
+        path: creator-api-doc
+        ref: main
+
+    - name: Install the tool
+      run: |
+        cd creator-api-doc
+        npm i
+        # apply the url patch for typedoc@0.22.13
+        npm run apply-patch
+        npm run build
+
+    - name: Try to switch to Node v14
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        cd creator-api-doc/scripts
+        eval $(./is-smaller-version.sh ${{ steps.step-id-get-ref.outputs.ENGINE_REF }} "3.8.0")
+
+        if [[ "$IS_LESS" == "1" ]]; then
+          echo "Version less than 3.8.0"
+
+          export NVM_DIR="$HOME/mynvm"
+          git clone https://github.com/nvm-sh/nvm.git "$NVM_DIR"
+          pushd "$NVM_DIR"
+          git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
+          popd
+          chmod +x "$NVM_DIR/nvm.sh"
+          . "$NVM_DIR/nvm.sh" --no-use
+          
+          nvm install 14
+          nvm use 14
+          nvm alias default 14
+
+          echo "SETUP_NODE_NVM_NVM: $NVM_DIR/nvm.sh"
+          echo "SETUP_NODE_NVM_NODE: $(which node)"
+          echo "SETUP_NODE_NVM_NPM: $(which npm)"
+        else
+          echo "No need to switch to Node v14"
+        fi    
+
+    - name: Patch taobao npm mirror
+      if: github.event_name == 'workflow_dispatch'
+      run: |
+        ENGINE_ROOT=$(pwd)
+        cd creator-api-doc/scripts
+        eval $(./is-smaller-version.sh ${{ steps.step-id-get-ref.outputs.ENGINE_REF }} "3.8.4")
+
+        if [[ "$IS_LESS" == "1" ]]; then
+          echo "Version less than 3.8.4"
+          node ./replace-taobao.js $ENGINE_ROOT
+          sed -i 's/nlark/npmmirror/g' $ENGINE_ROOT/package-lock.json
+        else
+          echo "No need to patch taobao npm mirror"
+        fi    
+
+    - name: Download external libraries
+      run: |
+        EXT_VERSION=`grep checkout native/external-config.json | awk -F'"' '{print $4}'`
+        echo "EXT_VERSION: ${EXT_VERSION}"
+        git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos/cocos-engine-external native/external
+
+    - name: Install Cocos Engine
+      run: |
+        export NVM_DIR="$HOME/mynvm"
+        if [ -d "$NVM_DIR" ]; then
+          echo "Found NVM_DIR"
+          . "$NVM_DIR/nvm.sh" --no-use
+          nvm use 14
+          nvm alias default 14
+        fi
+
+        echo "NODE: $(which node)"
+        echo "NPM: $(which npm)"
+        npm i
+
+    - name: Generate
+      run: |
+        which node
+        node --version
+        pwd
+        ls -l
+        ENGINE_ROOT=$(pwd)
+        echo "ENGINE_ROOT: ${ENGINE_ROOT}"
+        cd creator-api-doc
+        node ./lib/cli.js -p $ENGINE_ROOT -o $ENGINE_ROOT/Cocos-Creator-API.json
+        ls -l ..
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with: 
+        name: Cocos-Creator-API
+        path: Cocos-Creator-API.json
+

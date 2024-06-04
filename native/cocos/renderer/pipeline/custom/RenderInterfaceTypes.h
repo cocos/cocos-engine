@@ -29,6 +29,7 @@
  */
 // clang-format off
 #pragma once
+#include "cocos/base/Ptr.h"
 #include "cocos/core/ArrayBuffer.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
@@ -1760,6 +1761,12 @@ public:
     PipelineBuilder& operator=(PipelineBuilder const& rhs) = delete;
     virtual ~PipelineBuilder() noexcept = default;
 
+    virtual void editorWindowResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void editorSceneViewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void editorGameViewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void editorPreviewResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void gameWindowResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
+    virtual void customWindowResize(BasicPipeline *pipeline, scene::RenderWindow *window, uint32_t width, uint32_t height) = 0;
     /**
      * @en Setup render graph
      * @zh 构建渲染管线
@@ -1796,6 +1803,59 @@ public:
     static RenderingModule* init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
     static void destroy(RenderingModule* renderingModule) noexcept;
     static Pipeline *createPipeline();
+};
+
+struct HBAO {
+    bool enabled{false};
+    float radiusScale{1};
+    float angleBiasDegree{10};
+    float blurSharpness{3};
+    float aoSaturation{1};
+    bool needBlur{false};
+};
+
+struct DepthOfField {
+    bool enabled{false};
+    float focusDistance{0};
+    float focusRange{0};
+    float bokehRadius{1};
+};
+
+struct Bloom {
+    bool enabled{false};
+    bool enableAlphaMask{false};
+    bool useHdrIlluminance{false};
+    uint32_t iterations{3};
+    float threshold{0.8};
+    float intensity{2.3};
+};
+
+struct ColorGrading {
+    bool enabled{false};
+    float contribute{0};
+    IntrusivePtr<gfx::Texture> colorGradingMap;
+};
+
+struct FSR {
+    bool enabled{false};
+    float sharpness{0.8};
+};
+
+struct FXAA {
+    bool enabled{false};
+};
+
+struct ForwardPipeline {
+    uint32_t mobileMaxSpotLightShadowMaps{4};
+};
+
+struct PipelineSettings {
+    ForwardPipeline forwardPipeline;
+    DepthOfField depthOfField;
+    Bloom bloom;
+    ColorGrading colorGrading;
+    FSR fsr;
+    FXAA fxaa;
 };
 
 } // namespace render

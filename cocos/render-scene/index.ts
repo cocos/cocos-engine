@@ -41,6 +41,7 @@ export * from './core/material-instance';
 export * from './core/pass-instance';
 export * from './core/memory-pools';
 export * from './core/render-scene';
+export { RenderWindow } from './core/render-window';
 export * from './deprecated';
 
 export { scene };

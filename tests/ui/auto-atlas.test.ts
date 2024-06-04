@@ -53,3 +53,36 @@ test('Delete Atlas SpriteFrame', function () {
     expect(spriteFrame_0.original !== null);
 
 });
+
+test('DynamicAtlasManager-insertSpriteFrame' ,function(){
+    dynamicAtlasManager.reset();
+    dynamicAtlasManager.enabled = true;
+    dynamicAtlasManager.maxAtlasCount = 2;
+    dynamicAtlasManager.textureSize = 500;
+
+    for(let i = 0; i < 2 * 4; ++i) {
+        let spriteFrame = new SpriteFrame();
+        let texture = new Texture2D();
+        texture.create(200, 200);
+        spriteFrame.texture = texture;
+        spriteFrame.packable = true;
+        dynamicAtlasManager.insertSpriteFrame(spriteFrame);
+    }
+    {
+        let spriteFrame = new SpriteFrame();
+        let texture = new Texture2D();
+        texture.create(200, 200);
+        spriteFrame.texture = texture;
+        spriteFrame.packable = true;
+        expect(dynamicAtlasManager.insertSpriteFrame(spriteFrame)).toEqual(null);
+    }
+    {
+        let spriteFrame = new SpriteFrame();
+        let texture = new Texture2D();
+        texture.create(200, 200);
+        spriteFrame.texture = texture;
+        spriteFrame.packable = true;
+        expect(dynamicAtlasManager.insertSpriteFrame(spriteFrame)).toEqual(null);
+    }
+
+});

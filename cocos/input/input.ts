@@ -337,9 +337,9 @@ export class Input {
                 if (!dispatcher.dispatchEvent(event)) {
                     break;
                 }
-            } catch (e) {
-                error(`Error occurs in an event listener: ${event.type}`);
-                error(e);
+            } catch (e: any) {
+                this._clearEvents();
+                throw e;
             }
         }
     }
@@ -380,6 +380,12 @@ export class Input {
                 this._dispatchOrPushEvent(event, eventMouseList);
             });
             this._mouseInput.on(InputEventType.MOUSE_WHEEL, (event): void => {
+                this._dispatchOrPushEvent(event, eventMouseList);
+            });
+            this._mouseInput.on(InputEventType.MOUSE_LEAVE, (event): void => {
+                this._dispatchOrPushEvent(event, eventMouseList);
+            });
+            this._mouseInput.on(InputEventType.MOUSE_ENTER, (event): void => {
                 this._dispatchOrPushEvent(event, eventMouseList);
             });
         }

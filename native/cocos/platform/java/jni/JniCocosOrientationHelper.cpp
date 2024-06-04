@@ -36,12 +36,16 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosOrientationHelper_nativeOnOrienta
     switch (rotation) {
         case 0: // ROTATION_0
             orientation = (int)cc::Device::Orientation::PORTRAIT;
+            break;
         case 1: // ROTATION_90
             orientation = (int)cc::Device::Orientation::LANDSCAPE_RIGHT;
+            break;
         case 2: // ROTATION_180
             orientation = (int)cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN;
+            break;
         case 3: // ROTATION_270
             orientation = (int)cc::Device::Orientation::LANDSCAPE_LEFT;
+            break;
     }
     // run callbacks in game thread?
     cc::events::Orientation::broadcast(orientation);

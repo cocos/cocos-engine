@@ -49,11 +49,13 @@
             "enginePlugin": true,
             "isNativeModule": true,
             "readonly": true,
-            "dependencies": ["meshopt"],
+            "dependencies": [
+                "meshopt"
+            ],
             "category": "3d"
         },
         "meshopt": {
-            "default": true,
+            "default": false,
             "hidden": true,
             "category": "3d"
         },

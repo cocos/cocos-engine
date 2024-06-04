@@ -44,13 +44,13 @@ Object::~Object() {
 
 Object* Object::createObjectWithClass(Class* cls) {
     napi_value jsobj = Class::_createJSObjectWithClass(cls);
-    Object*    obj   = Object::_createJSObject(ScriptEngine::getEnv(), jsobj, cls);
+    Object* obj = Object::_createJSObject(ScriptEngine::getEnv(), jsobj, cls);
     return obj;
 }
 
 bool Object::setProperty(const char* name, const Value& data) {
     napi_status status;
-    napi_value  jsVal;
+    napi_value jsVal;
     internal::seToJsValue(data, &jsVal);
     NODE_API_CALL(status, _env, napi_set_named_property(_env, _objRef.getValue(_env), name, jsVal));
     return status == napi_ok;
@@ -58,8 +58,8 @@ bool Object::setProperty(const char* name, const Value& data) {
 
 bool Object::getProperty(const char* name, Value* d) {
     napi_status status;
-    napi_value  jsVal;
-    Value       data;
+    napi_value jsVal;
+    Value data;
     NODE_API_CALL(status, _env, napi_get_named_property(_env, _objRef.getValue(_env), name, &jsVal));
     if (status == napi_ok) {
         internal::jsToSeValue(jsVal, &data);
@@ -74,14 +74,14 @@ bool Object::getProperty(const char* name, Value* d) {
 
 bool Object::isArray() const {
     napi_status status;
-    bool        ret = false;
+    bool ret = false;
     NODE_API_CALL(status, _env, napi_is_array(_env, _objRef.getValue(_env), &ret));
     return ret;
 }
 
 bool Object::getArrayLength(uint32_t* length) const {
     napi_status status;
-    uint32_t    len = 0;
+    uint32_t len = 0;
     NODE_API_CALL(status, _env, napi_get_array_length(_env, _objRef.getValue(_env), &len));
     if (length) {
         *length = len;
@@ -91,7 +91,7 @@ bool Object::getArrayLength(uint32_t* length) const {
 
 bool Object::getArrayElement(uint32_t index, Value* data) const {
     napi_status status;
-    napi_value  val;
+    napi_value val;
     NODE_API_CALL(status, _env, napi_get_element(_env, _objRef.getValue(_env), index, &val));
     internal::jsToSeValue(val, data);
     return true;
@@ -99,7 +99,7 @@ bool Object::getArrayElement(uint32_t index, Value* data) const {
 
 bool Object::setArrayElement(uint32_t index, const Value& data) {
     napi_status status;
-    napi_value  val;
+    napi_value val;
     internal::seToJsValue(data, &val);
     NODE_API_CALL(status, _env, napi_set_element(_env, _objRef.getValue(_env), index, val));
     return true;
@@ -107,7 +107,7 @@ bool Object::setArrayElement(uint32_t index, const Value& data) {
 
 bool Object::isTypedArray() const {
     napi_status status;
-    bool        ret = false;
+    bool ret = false;
     NODE_API_CALL(status, _env, napi_is_typedarray(_env, _objRef.getValue(_env), &ret));
     return ret;
 }
@@ -118,7 +118,7 @@ bool Object::isProxy() const {
     return false;
 }
 
-Object *Object::createProxyTarget(se::Object *proxy) {
+Object* Object::createProxyTarget(se::Object* proxy) {
     // SE_ASSERT(proxy->isProxy(), "parameter is not a Proxy object");
     // v8::Local<v8::Object> jsobj = proxy->getProxyTarget().As<v8::Object>();
     // Object *obj = Object::_createJSObject(nullptr, jsobj);
@@ -127,11 +127,11 @@ Object *Object::createProxyTarget(se::Object *proxy) {
 }
 
 Object::TypedArrayType Object::getTypedArrayType() const {
-    napi_status          status;
+    napi_status status;
     napi_typedarray_type type;
-    napi_value           inputBuffer;
-    size_t               byteOffset;
-    size_t               length;
+    napi_value inputBuffer;
+    size_t byteOffset;
+    size_t length;
     NODE_API_CALL(status, _env, napi_get_typedarray_info(_env, _objRef.getValue(_env), &type, &length, NULL, &inputBuffer, &byteOffset));
 
     TypedArrayType ret = TypedArrayType::NONE;
@@ -170,12 +170,12 @@ Object::TypedArrayType Object::getTypedArrayType() const {
 }
 
 bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const {
-    napi_status          status;
+    napi_status status;
     napi_typedarray_type type;
-    napi_value           inputBuffer;
-    size_t               byteOffset;
-    size_t               byteLength;
-    void*                data = nullptr;
+    napi_value inputBuffer;
+    size_t byteOffset;
+    size_t byteLength;
+    void* data = nullptr;
     NODE_API_CALL(status, _env, napi_get_typedarray_info(_env, _objRef.getValue(_env), &type, &byteLength, &data, &inputBuffer, &byteOffset));
     *ptr = (uint8_t*)(data);
     if (length) {
@@ -185,7 +185,7 @@ bool Object::getTypedArrayData(uint8_t** ptr, size_t* length) const {
 }
 
 bool Object::isArrayBuffer() const {
-    bool        ret = false;
+    bool ret = false;
     napi_status status;
     NODE_API_CALL(status, _env, napi_is_arraybuffer(_env, _objRef.getValue(_env), &ret));
     return ret;
@@ -193,7 +193,7 @@ bool Object::isArrayBuffer() const {
 
 bool Object::getArrayBufferData(uint8_t** ptr, size_t* length) const {
     napi_status status;
-    size_t      len = 0;
+    size_t len = 0;
     NODE_API_CALL(status, _env, napi_get_arraybuffer_info(_env, _objRef.getValue(_env), reinterpret_cast<void**>(ptr), &len));
     if (length) {
         *length = len;
@@ -208,13 +208,9 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
         return nullptr;
     }
 
-    if (type == TypedArrayType::UINT8_CLAMPED) {
-        SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
-        return nullptr;
-    }
     napi_typedarray_type napiType;
-    napi_value           outputBuffer;
-    void*                outputPtr = nullptr;
+    napi_value outputBuffer;
+    void* outputPtr = nullptr;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_arraybuffer(ScriptEngine::getEnv(), byteLength, &outputPtr, &outputBuffer));
     if (outputPtr && data && byteLength > 0) {
         memcpy(outputPtr, data, byteLength);
@@ -222,42 +218,46 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
     size_t sizeOfEle = 0;
     switch (type) {
         case TypedArrayType::INT8:
-            napiType  = napi_int8_array;
+            napiType = napi_int8_array;
             sizeOfEle = 1;
             break;
         case TypedArrayType::UINT8:
-            napiType  = napi_uint8_array;
+            napiType = napi_uint8_array;
+            sizeOfEle = 1;
+            break;
+        case TypedArrayType::UINT8_CLAMPED:
+            napiType = napi_uint8_clamped_array;
             sizeOfEle = 1;
             break;
         case TypedArrayType::INT16:
-            napiType  = napi_int16_array;
+            napiType = napi_int16_array;
             sizeOfEle = 2;
             break;
         case TypedArrayType::UINT16:
-            napiType  = napi_uint16_array;
+            napiType = napi_uint16_array;
             sizeOfEle = 2;
             break;
         case TypedArrayType::INT32:
-            napiType  = napi_int32_array;
+            napiType = napi_int32_array;
             sizeOfEle = 4;
             break;
         case TypedArrayType::UINT32:
-            napiType  = napi_uint32_array;
+            napiType = napi_uint32_array;
             sizeOfEle = 4;
             break;
         case TypedArrayType::FLOAT32:
-            napiType  = napi_float32_array;
+            napiType = napi_float32_array;
             sizeOfEle = 4;
             break;
         case TypedArrayType::FLOAT64:
-            napiType  = napi_float64_array;
+            napiType = napi_float64_array;
             sizeOfEle = 8;
             break;
         default:
             assert(false); // Should never go here.
             break;
     }
-    size_t     eleCounts = byteLength / sizeOfEle;
+    size_t eleCounts = byteLength / sizeOfEle;
     napi_value outputArray;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_typedarray(ScriptEngine::getEnv(), napiType, eleCounts, outputBuffer, 0, &outputArray));
 
@@ -265,13 +265,13 @@ Object* Object::createTypedArray(Object::TypedArrayType type, const void* data, 
     return obj;
 }
 
-Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj) {
+Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object* obj) {
     return Object::createTypedArrayWithBuffer(type, obj, 0);
 }
 
-Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset) {
+Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object* obj, size_t offset) {
     size_t byteLength{0};
-    uint8_t *skip{nullptr};
+    uint8_t* skip{nullptr};
 
     if (obj->getArrayBufferData(&skip, &byteLength)) {
         return Object::createTypedArrayWithBuffer(type, obj, offset, byteLength - offset);
@@ -281,14 +281,9 @@ Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
     return nullptr;
 }
 
-Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *obj, size_t offset, size_t byteLength) {
+Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object* obj, size_t offset, size_t byteLength) {
     if (type == TypedArrayType::NONE) {
         SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
-        return nullptr;
-    }
-
-    if (type == TypedArrayType::UINT8_CLAMPED) {
-        SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
         return nullptr;
     }
 
@@ -300,49 +295,53 @@ Object* Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
     size_t sizeOfEle = 0;
     switch (type) {
         case TypedArrayType::INT8:
-            napiType  = napi_int8_array;
+            napiType = napi_int8_array;
             sizeOfEle = 1;
             break;
         case TypedArrayType::UINT8:
-            napiType  = napi_uint8_array;
+            napiType = napi_uint8_array;
+            sizeOfEle = 1;
+            break;
+        case TypedArrayType::UINT8_CLAMPED:
+            napiType = napi_uint8_clamped_array;
             sizeOfEle = 1;
             break;
         case TypedArrayType::INT16:
-            napiType  = napi_int16_array;
+            napiType = napi_int16_array;
             sizeOfEle = 2;
             break;
         case TypedArrayType::UINT16:
-            napiType  = napi_uint16_array;
+            napiType = napi_uint16_array;
             sizeOfEle = 2;
             break;
         case TypedArrayType::INT32:
-            napiType  = napi_int32_array;
+            napiType = napi_int32_array;
             sizeOfEle = 4;
             break;
         case TypedArrayType::UINT32:
-            napiType  = napi_uint32_array;
+            napiType = napi_uint32_array;
             sizeOfEle = 4;
             break;
         case TypedArrayType::FLOAT32:
-            napiType  = napi_float32_array;
+            napiType = napi_float32_array;
             sizeOfEle = 4;
             break;
         case TypedArrayType::FLOAT64:
-            napiType  = napi_float64_array;
+            napiType = napi_float64_array;
             sizeOfEle = 8;
             break;
         default:
             assert(false); // Should never go here.
             break;
     }
-    size_t     eleCounts = byteLength / sizeOfEle;
+    size_t eleCounts = byteLength / sizeOfEle;
     napi_value outputArray;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_typedarray(ScriptEngine::getEnv(), napiType, eleCounts, outputBuffer, offset, &outputArray));
 
     return Object::_createJSObject(ScriptEngine::getEnv(), outputArray, nullptr);
 }
 
-Object* Object::createExternalArrayBufferObject(void *contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void *freeUserData) {
+Object* Object::createExternalArrayBufferObject(void* contents, size_t byteLength, BufferContentsFreeFunc freeFunc, void* freeUserData) {
     napi_status status;
     napi_value result;
     if (freeFunc) {
@@ -354,16 +353,14 @@ Object* Object::createExternalArrayBufferObject(void *contents, size_t byteLengt
         NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_external_arraybuffer(
                                                           ScriptEngine::getEnv(), contents, byteLength, [](napi_env env, void* finalize_data, void* finalize_hint) {
                                                               if (finalize_hint) {
-                                                                  struct ExternalArrayBufferCallbackParams* param = reinterpret_cast<struct ExternalArrayBufferCallbackParams *>(finalize_hint);
+                                                                  struct ExternalArrayBufferCallbackParams* param = reinterpret_cast<struct ExternalArrayBufferCallbackParams*>(finalize_hint);
                                                                   param->func(param->contents, param->byteLength, param->userData);
                                                                   delete param;
                                                               }
                                                           },
                                                           reinterpret_cast<void*>(param), &result));
     } else {
-        NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_external_arraybuffer(
-                                                          ScriptEngine::getEnv(), contents, byteLength, nullptr,
-                                                          freeUserData, &result));
+        NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_external_arraybuffer(ScriptEngine::getEnv(), contents, byteLength, nullptr, freeUserData, &result));
     }
 
     Object* obj = Object::_createJSObject(ScriptEngine::getEnv(), result, nullptr);
@@ -372,13 +369,13 @@ Object* Object::createExternalArrayBufferObject(void *contents, size_t byteLengt
 
 bool Object::isFunction() const {
     napi_valuetype valuetype0;
-    napi_status    status;
+    napi_status status;
     NODE_API_CALL(status, _env, napi_typeof(_env, _objRef.getValue(_env), &valuetype0));
     return (valuetype0 == napi_function);
 }
 
 bool Object::defineFunction(const char* funcName, napi_callback func) {
-    napi_value  fn;
+    napi_value fn;
     napi_status status;
     NODE_API_CALL(status, _env, napi_create_function(_env, funcName, NAPI_AUTO_LENGTH, func, NULL, &fn));
     NODE_API_CALL(status, _env, napi_set_named_property(_env, _objRef.getValue(_env), funcName, fn));
@@ -386,7 +383,7 @@ bool Object::defineFunction(const char* funcName, napi_callback func) {
 }
 
 bool Object::defineProperty(const char* name, napi_callback getter, napi_callback setter) {
-    napi_status              status;
+    napi_status status;
     napi_property_descriptor properties[] = {{name, nullptr, nullptr, getter, setter, 0, napi_default, 0}};
     status = napi_define_properties(_env, _objRef.getValue(_env), sizeof(properties) / sizeof(napi_property_descriptor), properties);
     if (status == napi_ok) {
@@ -405,7 +402,7 @@ Object* Object::_createJSObject(napi_env env, napi_value js_object, Class* cls) 
 }
 
 Object* Object::createPlainObject() {
-    napi_value  result;
+    napi_value result;
     napi_status status;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_object(ScriptEngine::getEnv(), &result));
     Object* obj = _createJSObject(ScriptEngine::getEnv(), result, nullptr);
@@ -413,7 +410,7 @@ Object* Object::createPlainObject() {
 }
 
 Object* Object::createArrayObject(size_t length) {
-    napi_value  result;
+    napi_value result;
     napi_status status;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_array_with_length(ScriptEngine::getEnv(), length, &result));
     Object* obj = _createJSObject(ScriptEngine::getEnv(), result, nullptr);
@@ -421,10 +418,10 @@ Object* Object::createArrayObject(size_t length) {
 }
 
 Object* Object::createArrayBufferObject(const void* data, size_t byteLength) {
-    napi_value  result;
+    napi_value result;
     napi_status status;
-    void*       retData;
-    Object*     obj = nullptr;
+    void* retData;
+    Object* obj = nullptr;
     NODE_API_CALL(status, ScriptEngine::getEnv(), napi_create_arraybuffer(ScriptEngine::getEnv(), byteLength, &retData, &result));
     if (status == napi_ok) {
         if (data) {
@@ -437,7 +434,7 @@ Object* Object::createArrayBufferObject(const void* data, size_t byteLength) {
 
 bool Object::getAllKeys(std::vector<std::string>* allKeys) const {
     napi_status status;
-    napi_value  names;
+    napi_value names;
 
     NODE_API_CALL(status, _env, napi_get_property_names(_env, _objRef.getValue(_env), &names));
     if (status != napi_ok) {
@@ -449,7 +446,7 @@ bool Object::getAllKeys(std::vector<std::string>* allKeys) const {
         napi_value val;
         NODE_API_CALL(status, _env, napi_get_element(_env, names, i, &val));
         if (status == napi_ok) {
-            char   buffer[MAX_STRING_LEN];
+            char buffer[MAX_STRING_LEN];
             size_t result = 0;
             NODE_API_CALL(status, _env, napi_get_value_string_utf8(_env, val, buffer, MAX_STRING_LEN, &result));
             if (result > 0) {
@@ -477,12 +474,12 @@ bool Object::init(napi_env env, napi_value js_object, Class* cls) {
 }
 
 bool Object::call(const ValueArray& args, Object* thisObject, Value* rval) {
-    size_t                  argc = 0;
+    size_t argc = 0;
     std::vector<napi_value> argv;
     argv.reserve(10);
     argc = args.size();
     internal::seToJsArgs(_env, args, &argv);
-    napi_value  return_val;
+    napi_value return_val;
     napi_status status;
     assert(isFunction());
     napi_value thisObj = thisObject ? thisObject->_getJSObject() : nullptr;
@@ -505,19 +502,19 @@ PrivateObjectBase* Object::getPrivateObject() const {
 
 void Object::setPrivateObject(PrivateObjectBase* data) {
     assert(_privateData == nullptr);
-    #if CC_DEBUG
+#if CC_DEBUG
     if (data != nullptr) {
         NativePtrToObjectMap::filter(data->getRaw(), _getClass())
-            .forEach([&](se::Object *seObj) {
-                auto *pri = seObj->getPrivateObject();
+            .forEach([&](se::Object* seObj) {
+                auto* pri = seObj->getPrivateObject();
                 SE_LOGE("Already exists object %s/[%s], trying to add %s/[%s]\n", pri->getName(), typeid(*pri).name(), data->getName(), typeid(*data).name());
-        #if JSB_TRACK_OBJECT_CREATION
+    #if JSB_TRACK_OBJECT_CREATION
                 SE_LOGE(" previous object created at %s\n", it->second->_objectCreationStackFrame.c_str());
-        #endif
+    #endif
                 CC_ABORT();
             });
     }
-    #endif
+#endif
     napi_status status;
     if (data) {
         _privateData = data->getRaw();
@@ -542,7 +539,7 @@ bool Object::attachObject(Object* obj) {
     assert(obj);
 
     Object* global = ScriptEngine::getInstance()->getGlobalObject();
-    Value   jsbVal;
+    Value jsbVal;
     if (!global->getProperty("jsb", &jsbVal)) {
         return false;
     }
@@ -565,7 +562,7 @@ bool Object::detachObject(Object* obj) {
     assert(obj);
 
     Object* global = ScriptEngine::getInstance()->getGlobalObject();
-    Value   jsbVal;
+    Value jsbVal;
     if (!global->getProperty("jsb", &jsbVal)) {
         return false;
     }
@@ -590,7 +587,7 @@ std::string Object::toString() const {
     if (isFunction() || isArray() || isTypedArray()) {
         napi_value result;
         NODE_API_CALL(status, _env, napi_coerce_to_string(_env, _objRef.getValue(_env), &result));
-        char   buffer[MAX_STRING_LEN];
+        char buffer[MAX_STRING_LEN];
         size_t result_t = 0;
         NODE_API_CALL(status, _env, napi_get_value_string_utf8(_env, result, buffer, MAX_STRING_LEN, &result_t));
         ret = buffer;
@@ -631,8 +628,8 @@ Class* Object::_getClass() const {
 }
 
 Object* Object::getObjectWithPtr(void* ptr) {
-    Object* obj  = nullptr;
-    auto    iter = NativePtrToObjectMap::find(ptr);
+    Object* obj = nullptr;
+    auto iter = NativePtrToObjectMap::find(ptr);
     if (iter != NativePtrToObjectMap::end()) {
         obj = iter->second;
         obj->incRef();
@@ -649,7 +646,7 @@ void Object::weakCallback(napi_env env, void* nativeObject, void* finalizeHint /
         if (nativeObject == nullptr) {
             return;
         }
-        void *rawPtr = reinterpret_cast<Object*>(nativeObject)->_privateData;
+        void* rawPtr = reinterpret_cast<Object*>(nativeObject)->_privateData;
         Object* seObj = reinterpret_cast<Object*>(nativeObject);
         if (seObj->_onCleaingPrivateData) { //called by cleanPrivateData, not release seObj;
             return;
@@ -684,14 +681,14 @@ void Object::setup() {
 }
 
 void Object::cleanup() {
-    void*   nativeObj = nullptr;
-    Object* obj       = nullptr;
-    Class*  cls       = nullptr;
+    void* nativeObj = nullptr;
+    Object* obj = nullptr;
+    Class* cls = nullptr;
 
     const auto& nativePtrToObjectMap = NativePtrToObjectMap::instance();
     for (const auto& e : nativePtrToObjectMap) {
         nativeObj = e.first;
-        obj       = e.second;
+        obj = e.second;
 
         if (obj->_finalizeCb != nullptr) {
             obj->_finalizeCb(ScriptEngine::getEnv(), nativeObj, nullptr);
@@ -712,7 +709,6 @@ void Object::cleanup() {
             obj = e.first;
             cls = obj->_getClass();
             obj->_rootCount = 0;
-
         }
     }
 

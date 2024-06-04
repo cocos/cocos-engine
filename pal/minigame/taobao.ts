@@ -96,8 +96,6 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
     // NOTE: `onCanPlay` is not standard minigame interface,
     // so here we mark audio as type of any
     const audio: any = polyfilledCreateInnerAudio();
-    audio.onCanplay = audio.onCanPlay.bind(audio);
-    delete audio.onCanPlay;
     return audio as InnerAudioContext;
 };
 // #region Audio

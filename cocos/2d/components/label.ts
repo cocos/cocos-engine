@@ -619,7 +619,7 @@ export class Label extends UIRenderer {
     get outlineColor (): Color {
         return this._outlineColor;
     }
-    set outlineColor (value) {
+    set outlineColor (value: Readonly<Color>) {
         if (this._outlineColor === value) return;
         this._outlineColor.set(value);
         this.markForUpdateRenderData();
@@ -673,7 +673,7 @@ export class Label extends UIRenderer {
     get shadowColor (): Color {
         return this._shadowColor;
     }
-    set shadowColor (value) {
+    set shadowColor (value: Readonly<Color>) {
         if (this._shadowColor === value) return;
         this._shadowColor.set(value);
         this.markForUpdateRenderData();
@@ -912,12 +912,11 @@ export class Label extends UIRenderer {
 
     // Override
     public _onPreDestroy (): void {
-        if (this._isOnLoadCalled) {
-            super._onPreDestroy();
-            return;
+        super._onPreDestroy();
+        if (!this._isOnLoadCalled) {
+            // If _objFlags does not contain IsOnLoadCalled, it is possible to destroy the ttfSpriteFrame.
+            this.destroyTtfSpriteFrame();
         }
-        // If _objFlags does not contain IsOnLoadCalled, it is possible to destroy the ttfSpriteFrame.
-        this.destroyTtfSpriteFrame();
     }
 
     public onDestroy (): void {

@@ -35,6 +35,10 @@ import type { Component } from '../../scene-graph';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
+export interface Modifiable {
+    getModifiableProperties(): string[];
+}
+
 const BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
 const values: number[] = new Array(123); // max char code in base64Keys
 for (let i = 0; i < 123; ++i) { values[i] = 64; } // fill with placeholder('=') index
@@ -52,28 +56,29 @@ export const BASE64_VALUES = values;
  * have different names. So a property getter and setter occupy two positions in `diffNameGetSets`.
  * @engineInternal
  */
-export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets): void {
-    function define (np, propName, getter, setter): void {
+export function propertyDefine (ctor: any, sameNameGetSets: string[], diffNameGetSets: Record<string, string[]>): void {
+    function define (np: Record<string | number, any>, propName: string, getter: string, setter: string): void {
         const pd = Object.getOwnPropertyDescriptor(np, propName);
         if (pd) {
-            if (pd.get) { np[getter] = pd.get; }
+            if (pd.get && getter) { np[getter] = pd.get; }
             if (pd.set && setter) { np[setter] = pd.set; }
         } else {
-            const getterFunc = np[getter];
+            const getterFunc = np[getter] as Getter;
             if (DEV && !getterFunc) {
-                const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor))
+                const clsName: string = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor))
                     || ctor.name
                     || '(anonymous class)';
                 warnID(5700, propName, getter, clsName);
             } else {
-                getset(np, propName, getterFunc, np[setter]);
+                getset(np, propName, getterFunc, np[setter] as Setter);
             }
         }
     }
-    let propName; const np = ctor.prototype;
-    for (let i = 0; i < sameNameGetSets.length; i++) {
+    let propName: string;
+    const np = ctor.prototype as  Record<string | number, any>;
+    for (let i = 0, len = sameNameGetSets.length; i < len; ++i) {
         propName = sameNameGetSets[i];
-        const suffix = (propName[0].toUpperCase() as string) + (propName.slice(1) as string);
+        const suffix: string = (propName[0].toUpperCase()) + (propName.slice(1));
         define(np, propName, `get${suffix}`, `set${suffix}`);
     }
     for (propName in diffNameGetSets) {
@@ -182,13 +187,15 @@ export function callInNextTick (callback, p1?: any, p2?: any): void {
  */
 export function tryCatchFunctor_EDITOR (funcName: string): (comp: Component) => void {
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    return Function('target',
+    return Function(
+        'target',
         `${'try {\n'
         + '  target.'}${funcName}();\n`
         + `}\n`
         + `catch (e) {\n`
         + `  cc._throw(e);\n`
-        + `}`) as (comp: Component) => void;
+        + `}`,
+    ) as (comp: Component) => void;
 }
 
 /**

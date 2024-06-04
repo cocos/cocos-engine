@@ -103,6 +103,21 @@ describe('Test Vec2', () => {
             t(v1, v2(v1Angle + 280.0001), 280.0001 - 360);
         }
     });
+
+    test(`toVec3`, () => {
+        const vec2 = new Vec2(1, 2);
+        const vec3 = vec2.toVec3();
+        expect(vec3.x).toBe(1);
+        expect(vec3.y).toBe(2);
+        expect(vec3.z).toBe(0);
+
+        // vec2 will not affect vec3.
+        vec2.x = 2;
+        vec2.y = 3;
+        expect(vec3.x).toBe(1);
+        expect(vec3.y).toBe(2);
+        expect(vec3.z).toBe(0);
+    });
 });
 
 function polar(angle: number, length: number) {

@@ -329,43 +329,62 @@ Engine::SchedulerPtr Engine::getScheduler() const {
 
 bool Engine::redirectWindowEvent(const WindowEvent &ev) {
     bool isHandled = false;
-    if (ev.type == WindowEvent::Type::SHOW ||
-        ev.type == WindowEvent::Type::RESTORED) {
-        emit<EngineStatusChange>(ON_RESUME);
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        events::WindowRecreated::broadcast(ev.windowId);
-#endif
-        events::EnterForeground::broadcast();
-        isHandled = true;
-    } else if (ev.type == WindowEvent::Type::SIZE_CHANGED ||
-               ev.type == WindowEvent::Type::RESIZED) {
-        auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
-        CC_ASSERT(w);
-        w->setViewSize(ev.width, ev.height);
-        // Because the ts layer calls the getviewsize interface in response to resize.
-        // So we need to set the view size when sending the message.
-        events::Resize::broadcast(ev.width, ev.height, ev.windowId);
-        isHandled = true;
-    } else if (ev.type == WindowEvent::Type::HIDDEN ||
-               ev.type == WindowEvent::Type::MINIMIZED) {
-        emit<EngineStatusChange>(ON_PAUSE);
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        events::WindowDestroy::broadcast(ev.windowId);
-#endif
-        events::EnterBackground::broadcast();
 
-        isHandled = true;
-    } else if (ev.type == WindowEvent::Type::CLOSE) {
-        emit<EngineStatusChange>(ON_CLOSE);
-        events::Close::broadcast();
-        // Increase the frame rate and get the program to exit as quickly as possible
-        setPreferredFramesPerSecond(1000);
-        isHandled = true;
-    } else if (ev.type == WindowEvent::Type::QUIT) {
-        // There is no need to process the quit message,
-        // the quit message is a custom message for the application
-        isHandled = true;
+    switch (ev.type) {
+        case WindowEvent::Type::SHOW:
+        case WindowEvent::Type::RESTORED:
+            emit<EngineStatusChange>(ON_RESUME);
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+            events::WindowRecreated::broadcast(ev.windowId);
+#endif
+            events::EnterForeground::broadcast();
+            isHandled = true;
+            break;
+        case WindowEvent::Type::SIZE_CHANGED:
+        case WindowEvent::Type::RESIZED: {
+            auto *w = CC_GET_SYSTEM_WINDOW(ev.windowId);
+            CC_ASSERT(w);
+            w->setViewSize(ev.width, ev.height);
+            // Because the ts layer calls the getviewsize interface in response to resize.
+            // So we need to set the view size when sending the message.
+            events::Resize::broadcast(ev.width, ev.height, ev.windowId);
+            isHandled = true;
+            break;
+        }
+        case WindowEvent::Type::HIDDEN:
+        case WindowEvent::Type::MINIMIZED:
+            emit<EngineStatusChange>(ON_PAUSE);
+#if CC_PLATFORM == CC_PLATFORM_WINDOWS
+            events::WindowDestroy::broadcast(ev.windowId);
+#endif
+            events::EnterBackground::broadcast();
+
+            isHandled = true;
+            break;
+        case WindowEvent::Type::CLOSE:
+            emit<EngineStatusChange>(ON_CLOSE);
+            events::Close::broadcast();
+            // Increase the frame rate and get the program to exit as quickly as possible
+            setPreferredFramesPerSecond(1000);
+            isHandled = true;
+            break;
+        case WindowEvent::Type::QUIT:
+            isHandled = true;
+            break;
+        case WindowEvent::Type::ENTER: {
+            events::WindowEnter::broadcast();
+            isHandled = true;
+            break;
+        }
+        case WindowEvent::Type::LEAVE: {
+            events::WindowLeave::broadcast();
+            isHandled = true;
+            break;
+        }
+        default:
+            break;
     }
+
     return isHandled;
 }
 

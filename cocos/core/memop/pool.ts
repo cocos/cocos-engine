@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { max } from '../math/bits';
 import { warnID } from '../platform/debug';
 import { ScalableContainer } from './scalable-container';
 
@@ -34,6 +35,7 @@ import { ScalableContainer } from './scalable-container';
 export class Pool<T> extends ScalableContainer {
     private _ctor: () => T;
     private _elementsPerBatch: number;
+    private _shrinkThreshold: number;
     private _nextAvail: number;
     private _freePool: T[] = [];
     private _dtor: ((obj: T) => void) | null;
@@ -49,12 +51,17 @@ export class Pool<T> extends ScalableContainer {
      * @param dtor @en The finalizer of element, it's invoked when this Pool is destroyed or shrunk if
      * it is valid.
      * @zh 元素的析构器。如果存在的话，当对象池销毁或者缩容时，会使用该析构器。
+     * @param shrinkThreshold @en The container is shrink only if the size of the container exceeds the shrinkThreshold,
+     * and the size of the container after reduction is greater than or equal to the shrinkThreshold. The value equals elementsPerBatch
+     * if not value is passed.
+     * @zh 只有容器的数量大于 shrinkThreshold 时才缩容，缩减后的容器大小小于等于 shrinkThreshold。如果没有传入值，那么它的值和 elementsPerBatch 相同。
      */
-    constructor (ctor: () => T, elementsPerBatch: number, dtor?: (obj: T) => void) {
+    constructor (ctor: () => T, elementsPerBatch: number, dtor?: (obj: T) => void, shrinkThreshold?: number) {
         super();
         this._ctor = ctor;
         this._dtor = dtor || null;
         this._elementsPerBatch = Math.max(elementsPerBatch, 1);
+        this._shrinkThreshold = shrinkThreshold ? max(shrinkThreshold, 1) : this._elementsPerBatch;
         this._nextAvail = this._elementsPerBatch - 1;
 
         for (let i = 0; i < this._elementsPerBatch; ++i) {
@@ -107,15 +114,25 @@ export class Pool<T> extends ScalableContainer {
      * @zh 尝试缩容对象池，以释放内存。
      */
     public tryShrink (): void {
-        if (this._nextAvail >> 1 > this._elementsPerBatch) {
-            if (this._dtor) {
-                for (let i = this._nextAvail >> 1; i <= this._nextAvail; i++) {
-                    this._dtor(this._freePool[i]);
-                }
-            }
-            this._freePool.length = this._nextAvail >> 1;
-            this._nextAvail = this._freePool.length - 1;
+        const freeObjectNumber = this._nextAvail + 1;
+        if (freeObjectNumber <= this._shrinkThreshold) {
+            return;
         }
+
+        let objectNumberToShrink = 0;
+        if (freeObjectNumber >> 1 >= this._shrinkThreshold) {
+            objectNumberToShrink = freeObjectNumber >> 1;
+        } else {
+            objectNumberToShrink = Math.floor((freeObjectNumber - this._shrinkThreshold + 1) / 2);
+        }
+
+        if (this._dtor) {
+            for (let i = this._nextAvail - objectNumberToShrink + 1;  i <=  this._nextAvail; ++i) {
+                this._dtor(this._freePool[i]);
+            }
+        }
+        this._nextAvail -= objectNumberToShrink;
+        this._freePool.length = this._nextAvail + 1;
     }
 
     /**

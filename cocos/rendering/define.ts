@@ -852,9 +852,10 @@ export function supportsR32FloatTexture (device: Device): boolean {
  * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
  */
 export function supportsRGBA16HalfFloatTexture (device: Device): boolean {
+    // WebGL: https://developer.mozilla.org/en-US/docs/Web/API/OES_texture_half_float#browser_compatibility
+    // GLES2: https://registry.khronos.org/OpenGL/extensions/OES/OES_texture_float.txt
     return (device.getFormatFeatures(Format.RGBA16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
-        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
-        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 /**
@@ -862,9 +863,10 @@ export function supportsRGBA16HalfFloatTexture (device: Device): boolean {
  * @zh 当前设备是否支持4通道浮点贴图？（颜色输出和采样）
  */
 export function supportsRGBA32FloatTexture (device: Device): boolean {
+    // WebGL: https://developer.mozilla.org/en-US/docs/Web/API/OES_texture_float#browser_compatibility
+    // GLES2: https://registry.khronos.org/OpenGL/extensions/OES/OES_texture_float.txt
     return (device.getFormatFeatures(Format.RGBA32F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
-        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE)
-        && !(device.gfxAPI === API.WEBGL); // wegl 1  Single-channel float type is not supported under webgl1, so it is excluded
+        === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
 }
 
 export function isEnableEffect (): boolean {

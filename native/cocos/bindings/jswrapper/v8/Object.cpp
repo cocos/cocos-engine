@@ -271,10 +271,6 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
         return nullptr;
     }
 
-    if (type == TypedArrayType::UINT8_CLAMPED) {
-        SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
-        return nullptr;
-    }
     #if CC_EDITOR && CC_PLATFORM == CC_PLATFORM_WINDOWS
     auto nodeBuffer = node::Buffer::New(__isolate, byteLength);
     auto *srcData = node::Buffer::Data(nodeBuffer.ToLocalChecked());
@@ -304,6 +300,9 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
             break;
         case TypedArrayType::UINT8:
             arr = v8::Uint8Array::New(jsobj, 0, byteLength);
+            break;
+        case TypedArrayType::UINT8_CLAMPED:
+            arr = v8::Uint8ClampedArray::New(jsobj, 0, byteLength);
             break;
         case TypedArrayType::UINT16:
             arr = v8::Uint16Array::New(jsobj, 0, byteLength / 2);
@@ -343,11 +342,6 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
         return nullptr;
     }
 
-    if (type == TypedArrayType::UINT8_CLAMPED) {
-        SE_LOGE("Doesn't support to create Uint8ClampedArray with Object::createTypedArray API!");
-        return nullptr;
-    }
-
     v8::Local<v8::Object> typedArray;
     CC_ASSERT(obj->isArrayBuffer());
     v8::Local<v8::ArrayBuffer> jsobj = obj->_getJSObject().As<v8::ArrayBuffer>();
@@ -363,6 +357,9 @@ Object *Object::createTypedArrayWithBuffer(TypedArrayType type, const Object *ob
             break;
         case TypedArrayType::UINT8:
             typedArray = v8::Uint8Array::New(jsobj, offset, byteLength);
+            break;
+        case TypedArrayType::UINT8_CLAMPED:
+            typedArray = v8::Uint8ClampedArray::New(jsobj, offset, byteLength);
             break;
         case TypedArrayType::UINT16:
             typedArray = v8::Uint16Array::New(jsobj, offset, byteLength / 2);
@@ -593,6 +590,8 @@ Object::TypedArrayType Object::getTypedArrayType() const {
         ret = TypedArrayType::UINT16;
     } else if (value->IsUint8Array()) {
         ret = TypedArrayType::UINT8;
+    } else if (value->IsUint8ClampedArray()) {
+        ret = TypedArrayType::UINT8_CLAMPED;
     } else if (value->IsInt32Array()) {
         ret = TypedArrayType::INT32;
     } else if (value->IsInt16Array()) {
@@ -743,17 +742,7 @@ bool Object::call(const ValueArray &args, Object *thisObject, Value *rval /* = n
     }
 
     v8::Local<v8::Context> context = se::ScriptEngine::getInstance()->_getContext();
-    #if CC_DEBUG
-    v8::TryCatch tryCatch(__isolate);
-    #endif
     v8::MaybeLocal<v8::Value> result = _obj.handle(__isolate)->CallAsFunction(context, thiz, static_cast<int>(argc), pArgv);
-
-    #if CC_DEBUG
-    if (tryCatch.HasCaught()) {
-        v8::String::Utf8Value stack(__isolate, tryCatch.StackTrace(__isolate->GetCurrentContext()).ToLocalChecked());
-        SE_REPORT_ERROR("Invoking function failed, %s", *stack);
-    }
-    #endif
 
     if (!result.IsEmpty()) {
         if (rval != nullptr) {

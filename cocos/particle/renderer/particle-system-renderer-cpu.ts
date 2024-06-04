@@ -26,13 +26,12 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { Material, Texture2D } from '../../asset/assets';
 import { AttributeName, Format, Attribute, FormatInfos } from '../../gfx';
-import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, warn } from '../../core';
+import { Mat4, Vec2, Vec3, Vec4, pseudoRandom, Quat, EPSILON, approx, RecyclePool, warn, Color } from '../../core';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../render-scene/core/material-instance';
 import { MacroRecord } from '../../render-scene/core/pass-utils';
 import { AlignmentSpace, RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER, PARTICLE_MODULE_NAME } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { Component } from '../../scene-graph';
 import { Camera } from '../../render-scene/scene/camera';
 import { Pass } from '../../render-scene';
 import { ParticleNoise } from '../noise';
@@ -540,7 +539,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
         Vec3.copy(this._particleVertexData.size, p.size);
         Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.color = Color.toUint32(p.color);
         this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 
@@ -554,7 +553,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
                 Vec3.copy(this._particleVertexData.size, p.size);
                 Vec3.copy(this._particleVertexData.rotation, p.rotation);
-                this._particleVertexData.color = p.color._val;
+                this._particleVertexData.color = Color.toUint32(p.color);
                 this._particleVertexData.velocity = p.ultimateVelocity;
                 this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
@@ -570,7 +569,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
         Vec3.copy(this._particleVertexData.size, p.size);
         Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.color = Color.toUint32(p.color);
         this._particleVertexData.velocity = p.ultimateVelocity;
         this._model!.addParticleVertexData(i, this._particleVertexData);
     }
@@ -585,7 +584,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
                 Vec3.copy(this._particleVertexData.size, p.size);
                 Vec3.copy(this._particleVertexData.rotation, p.rotation);
-                this._particleVertexData.color = p.color._val;
+                this._particleVertexData.color = Color.toUint32(p.color);
                 this._model!.addParticleVertexData(idx++, this._particleVertexData);
             }
         } else {
@@ -600,7 +599,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         Vec3.copy(this._particleVertexData.texcoord, _tempAttribUV);
         Vec3.copy(this._particleVertexData.size, p.size);
         Vec3.copy(this._particleVertexData.rotation, p.rotation);
-        this._particleVertexData.color = p.color._val;
+        this._particleVertexData.color = Color.toUint32(p.color);
         this._model!.addParticleVertexData(i, this._particleVertexData);
     }
 

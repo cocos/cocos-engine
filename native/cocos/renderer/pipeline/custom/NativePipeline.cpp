@@ -22,6 +22,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "cocos/renderer/pipeline/Define.h"
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/PipelineStateManager.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
@@ -30,6 +31,7 @@
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
+#include "cocos/renderer/pipeline/custom/RenderInterfaceTypes.h"
 #include "cocos/renderer/pipeline/custom/RenderingModule.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/details/Range.h"
@@ -37,7 +39,6 @@
 #include "cocos/scene/ReflectionProbeManager.h"
 #include "cocos/scene/RenderScene.h"
 #include "cocos/scene/RenderWindow.h"
-#include "pipeline/custom/RenderInterfaceTypes.h"
 
 #if CC_USE_DEBUG_RENDERER
     #include "profiler/DebugRenderer.h"
@@ -52,9 +53,9 @@ void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string 
 
 template <>
 void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg) {
-    const auto &desc = get(ResourceGraph::DescTag{}, resg, v);
-    const auto &traits = get(ResourceGraph::TraitsTag{}, resg, v);
-    const auto &samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
+    const auto desc = get(ResourceGraph::DescTag{}, resg, v);
+    const auto traits = get(ResourceGraph::TraitsTag{}, resg, v);
+    const auto samplerInfo = get(ResourceGraph::SamplerTag{}, resg, v);
 
     SubresourceView view{
         nullptr,
@@ -214,9 +215,12 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     if (!renderWindow->getSwapchain()) {
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().size() == 1);
         CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
+        desc.format = renderWindow->getFramebuffer()->getColorTextures()[0]->getFormat();
         desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
         RenderSwapchain sc{};
         sc.renderWindow = renderWindow;
+
+        CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
         return addVertex(
             SwapchainTag{},
             std::forward_as_tuple(name.c_str()),
@@ -232,6 +236,7 @@ uint32_t NativePipeline::addRenderWindow(const ccstd::string &name, gfx::Format 
     CC_ASSERT(renderWindow->getFramebuffer()->getColorTextures().at(0));
 
     desc.format = renderWindow->getFramebuffer()->getColorTextures()[0]->getFormat();
+    CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
 
     return addVertex(
         SwapchainTag{},
@@ -318,7 +323,7 @@ uint32_t NativePipeline::addDepthStencil(const ccstd::string &name, gfx::Format 
     desc.mipLevels = 1;
     desc.format = format;
     desc.sampleCount = gfx::SampleCount::X1;
-    desc.textureFlags = gfx::TextureFlagBit::NONE;
+    desc.textureFlags = gfx::TextureFlagBit::MUTABLE_VIEW_FORMAT;
     desc.flags = ResourceFlags::DEPTH_STENCIL_ATTACHMENT | ResourceFlags::INPUT_ATTACHMENT | ResourceFlags::SAMPLED |
                  ResourceFlags::TRANSFER_SRC | ResourceFlags::TRANSFER_DST;
 
@@ -1276,8 +1281,9 @@ bool NativePipeline::activate(gfx::Swapchain *swapchainIn) {
     }
 
     setValue("CC_USE_HDR", getPipelineSceneData()->isHDR());
+
 #if ENABLE_FLOAT_OUTPUT
-    setValue("CC_USE_FLOAT_OUTPUT", true);
+    setValue("CC_USE_FLOAT_OUTPUT", pipeline::supportsRGBA16HalfFloatTexture(device));
 #else
     setValue("CC_USE_FLOAT_OUTPUT", false);
 #endif

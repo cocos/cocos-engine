@@ -28,6 +28,7 @@
 import { EDITOR, MINIGAME, NATIVE, PREVIEW, RUNTIME_BASED } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Settings, settings } from '../settings';
+import { Orientation } from '../../../pal/screen-adapter/enum-type';
 
 const SUPPORT_TEXTURE_FORMATS = ['.astc', '.pkm', '.pvr', '.webp', '.jpg', '.jpeg', '.bmp', '.png'];
 
@@ -903,10 +904,28 @@ interface Macro {
     ORIENTATION_PORTRAIT: number;
 
     /**
-     * @en Oriented horizontally
-     * @zh 横屏朝向
+     * @en Inverted portrait orientation, with the device bottom facing upward.
+     * @zh 倒置竖屏，设备底部朝上
+     */
+    ORIENTATION_PORTRAIT_UPSIDE_DOWN: number;
+
+    /**
+     * @en Oriented horizontally. Users cannot directly listen to this value; they need to listen for ORIENTATION_LANDSCAPE_LEFT or ORIENTATION_LANDSCAPE_RIGHT.
+     * @zh 横屏朝向, 外部不能直接监听该值，需要监听 ORIENTATION_LANDSCAPE_LEFT 或 ORIENTATION_LANDSCAPE_RIGHT
      */
     ORIENTATION_LANDSCAPE: number;
+
+    /**
+     * @en Oriented horizontally, top side facing to the left. Supported only on mobile devices.
+     * @zh 水平方向，顶部朝向左侧;仅移动端支持
+     */
+    ORIENTATION_LANDSCAPE_LEFT: number;
+
+    /**
+     * @en Oriented horizontally, top side facing to the right. Supported only on mobile devices.
+     * @zh 水平方向，顶部朝向右侧;仅移动端支持
+     */
+    ORIENTATION_LANDSCAPE_RIGHT: number;
 
     /**
      * @en Oriented automatically
@@ -1091,9 +1110,12 @@ const macro: Macro = {
     DEG: 180 / Math.PI,
     REPEAT_FOREVER: (Number.MAX_VALUE - 1),
     FLT_EPSILON: 0.0000001192092896,
-    ORIENTATION_PORTRAIT: 1,
-    ORIENTATION_LANDSCAPE: 2,
-    ORIENTATION_AUTO: 3,
+    ORIENTATION_PORTRAIT: Orientation.PORTRAIT,
+    ORIENTATION_PORTRAIT_UPSIDE_DOWN: Orientation.PORTRAIT_UPSIDE_DOWN,
+    ORIENTATION_LANDSCAPE: Orientation.LANDSCAPE,
+    ORIENTATION_LANDSCAPE_LEFT: Orientation.LANDSCAPE_LEFT,
+    ORIENTATION_LANDSCAPE_RIGHT: Orientation.LANDSCAPE_RIGHT,
+    ORIENTATION_AUTO: Orientation.AUTO,
     ENABLE_TILEDMAP_CULLING: true,
     TOUCH_TIMEOUT: 5000,
     ENABLE_TRANSPARENT_CANVAS: false,

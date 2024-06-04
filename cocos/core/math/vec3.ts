@@ -23,6 +23,7 @@
  THE SOFTWARE.
 */
 
+import type { Vec2 }  from './vec2';
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
@@ -1236,6 +1237,17 @@ export class Vec3 extends ValueType {
         this.y = (matrix.m01 * x + matrix.m05 * y + matrix.m09 * z + matrix.m13) * rhw;
         this.z = (matrix.m02 * x + matrix.m06 * y + matrix.m10 * z + matrix.m14) * rhw;
         return this;
+    }
+
+    /**
+     * @en Converts the current Vec3 object to a Vec2 object by adding a z-component of 0.
+     * @zh 将当前的Vec3对象转换为一个z分量为0的Vec3对象。
+     * @returns Vec2 @en A new Vec2 object created from the current Vec3 object with z-component ignored.
+     * @zh 从当前的Vec3对象创建一个新的Vec2对象，丢弃z分量。
+     */
+    public toVec2 (): Vec2 {
+        // eslint-disable-next-line
+        return new legacyCC.Vec2(this.x, this.y);
     }
 }
 
