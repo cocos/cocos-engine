@@ -28,10 +28,9 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING } from '../define';
+import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
+    UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, getDefaultShadowTexture } from '../define';
 import { Swapchain, RenderPass } from '../../gfx';
-import { builtinResMgr } from '../../asset/asset-manager/builtin-res-mgr';
-import { Texture2D } from '../../asset/assets/texture-2d';
 import { Camera } from '../../render-scene/scene';
 import { errorID } from '../../core/platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -136,9 +135,9 @@ export class ForwardPipeline extends RenderPipeline {
 
         const shadowMapSampler = this.globalDSManager.pointSampler;
         this._descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, shadowMapSampler);
-        this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this._descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, getDefaultShadowTexture(this.device));
         this._descriptorSet.bindSampler(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, shadowMapSampler);
-        this._descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        this._descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, getDefaultShadowTexture(this.device));
         this._descriptorSet.update();
 
         return true;

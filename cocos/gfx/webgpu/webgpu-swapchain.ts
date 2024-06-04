@@ -141,7 +141,7 @@ export class WebGPUSwapchain extends Swapchain {
 
     private _createTexture(width: number, height: number): WebGPUTexture {
         const device = WebGPUDeviceManager.instance;
-        const swapchainFormat = navigator.gpu.getPreferredCanvasFormat();
+        const swapchainFormat = device.swapchainFormat;// navigator.gpu.getPreferredCanvasFormat();
         if(!this._colorTexture) {
             const nativeDevice = device.nativeDevice as GPUDevice;
             const gpuConfig: GPUCanvasConfiguration = {

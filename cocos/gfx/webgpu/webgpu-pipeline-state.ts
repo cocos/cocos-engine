@@ -2,7 +2,7 @@ import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
 import { IWebGPUAttrib, IWebGPUGPUInputAssembler, IWebGPUGPUPipelineState } from './webgpu-gpu-objects';
 import { WebGPURenderPass } from './webgpu-render-pass';
 import { WebGPUShader } from './webgpu-shader';
-import { Attribute, CullMode, DynamicStateFlagBit, FormatInfos, PrimitiveMode, ShaderStageFlagBit, ShaderStageFlags } from '../base/define';
+import { Attribute, BlendOp, CullMode, DynamicStateFlagBit, FormatInfos, PrimitiveMode, ShaderStageFlagBit, ShaderStageFlags } from '../base/define';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 import { WebGPUDevice } from './webgpu-device';
 import {
@@ -70,12 +70,12 @@ export class WebGPUPipelineState extends PipelineState {
                 colDesc.blend = {
                     color: {
                         dstFactor: WebGPUBlendFactors[this._bs.targets[i].blendDst],
-                        operation: WebGPUBlendOps[this._bs.targets[i].blendEq],
+                        operation: WebGPUBlendOps[this._bs.targets[i].blendEq === BlendOp.MAX ? BlendOp.ADD : this._bs.targets[i].blendEq],
                         srcFactor: WebGPUBlendFactors[this._bs.targets[i].blendSrc],
                     },
                     alpha: {
                         dstFactor: WebGPUBlendFactors[this._bs.targets[i].blendDstAlpha],
-                        operation: WebGPUBlendOps[this._bs.targets[i].blendAlphaEq],
+                        operation: WebGPUBlendOps[this._bs.targets[i].blendAlphaEq === BlendOp.MAX ? BlendOp.ADD : this._bs.targets[i].blendAlphaEq],
                         srcFactor: WebGPUBlendFactors[this._bs.targets[i].blendSrcAlpha],
                     }
                 }
@@ -153,13 +153,14 @@ export class WebGPUPipelineState extends PipelineState {
         // }
 
         // depthstencil states
+        let stencilRef = 0;
         if (this._renderPass.depthStencilAttachment) {
             const dssDesc = {} as GPUDepthStencilState;
             dssDesc.format = GFXFormatToWGPUFormat(this._renderPass.depthStencilAttachment.format);// GFXFormatToWGPUFormat(this._renderPass.depthStencilAttachment.format);
             dssDesc.depthWriteEnabled = this._dss.depthWrite;
             dssDesc.depthCompare = this._dss.depthTest ? WebGPUCompereFunc[this._dss.depthFunc] : 'always';
-            let stencilReadMask = this._dss.stencilReadMaskFront;
-            let stencilWriteMask = this._dss.stencilWriteMaskFront;
+            let stencilReadMask = 0;
+            let stencilWriteMask = 0;
 
             if (this._dss.stencilTestFront) {
                 dssDesc.stencilFront = {
@@ -168,8 +169,9 @@ export class WebGPUPipelineState extends PipelineState {
                     passOp: WebGPUStencilOp[this._dss.stencilPassOpFront],
                     failOp: WebGPUStencilOp[this._dss.stencilFailOpFront],
                 };
-                // stencilReadMask |= this._dss.stencilReadMaskFront;
-                // stencilWriteMask |= this._dss.stencilWriteMaskFront;
+                stencilReadMask |= this._dss.stencilReadMaskFront;
+                stencilWriteMask |= this._dss.stencilWriteMaskFront;
+                stencilRef |= this._dss.stencilRefFront;
             }
             if (this._dss.stencilTestBack) {
                 dssDesc.stencilBack = {
@@ -178,11 +180,15 @@ export class WebGPUPipelineState extends PipelineState {
                     passOp: WebGPUStencilOp[this._dss.stencilPassOpBack],
                     failOp: WebGPUStencilOp[this._dss.stencilFailOpBack],
                 };
-                // stencilReadMask |= this._dss.stencilReadMaskBack;
-                // stencilWriteMask |= this._dss.stencilWriteMaskBack;
+                stencilReadMask |= this._dss.stencilReadMaskBack;
+                stencilWriteMask |= this._dss.stencilWriteMaskBack;
+                stencilRef |= this._dss.stencilRefBack;
             }
             dssDesc.stencilReadMask = stencilReadMask;
             dssDesc.stencilWriteMask = stencilWriteMask;
+            dssDesc.depthBias = this._rs.depthBias;
+            dssDesc.depthBiasSlopeScale = this._rs.depthBiasSlop;
+            dssDesc.depthBiasClamp = this._rs.depthBiasClamp;
             renderPplDesc.depthStencil = dssDesc;
         }
 
@@ -207,6 +213,7 @@ export class WebGPUPipelineState extends PipelineState {
             gpuPipelineLayout: (info.pipelineLayout as WebGPUPipelineLayout).gpuPipelineLayout,
             rs: info.rasterizerState,
             dss: info.depthStencilState,
+            stencilRef,
             bs: info.blendState,
             gpuRenderPass: (info.renderPass as WebGPURenderPass).gpuRenderPass,
             dynamicStates,

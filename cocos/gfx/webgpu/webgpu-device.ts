@@ -62,7 +62,7 @@ import { WebGPUDeviceManager } from './define';
 import { IWebGPUBindingMapping, IWebGPUGPUBuffer as IWebGPUBuffer, IWebGPUGPUSampler as IWebGPUSampler, IWebGPUTexture } from './webgpu-gpu-objects';
 import { debug } from '../../core';
 import { fetchUrl } from 'pal/wasm';
-import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
+import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture, WebGPUCmdFuncCopyTextureToBuffer } from './webgpu-commands';
 
 export class WebGPUDevice extends Device {
     public createSwapchain(info: Readonly<SwapchainInfo>): Swapchain {
@@ -102,8 +102,8 @@ export class WebGPUDevice extends Device {
         }
         return this._bufferBarriers.get(hash)!;
     }
-    public copyTextureToBuffers(texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: readonly BufferTextureCopy[]): void {
-        throw new Error('Method not implemented.');
+    public async copyTextureToBuffers(texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: readonly BufferTextureCopy[]): Promise<void> {
+        await WebGPUCmdFuncCopyTextureToBuffer(this, (texture as WebGPUTexture).gpuTexture, buffers, regions);
     }
     public flushCommands (cmdBuffs: CommandBuffer[]): void {}
 
@@ -157,6 +157,10 @@ export class WebGPUDevice extends Device {
         return this._gpuConfig!;
     }
 
+    get swapchainFormat (): GPUTextureFormat {
+        return 'rgba8unorm';
+    }
+
     protected initFormatFeatures (exts: GPUSupportedFeatures): void {
         this._formatFeatures.fill(FormatFeatureBit.NONE);
 
@@ -202,7 +206,7 @@ export class WebGPUDevice extends Device {
         this._formatFeatures[Format.RGB16F] = tempFeature;
         this._formatFeatures[Format.RGBA16F] = tempFeature;
 
-        tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
+        tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R32F] = tempFeature;
         this._formatFeatures[Format.RG32F] = tempFeature;
@@ -446,12 +450,19 @@ export class WebGPUDevice extends Device {
         this._adapter = await gpu?.requestAdapter();
         const maxVertAttrs = this._adapter!.limits.maxVertexAttributes;
         const maxSampledTexPerShaderStage = this._adapter!.limits.maxSampledTexturesPerShaderStage;
+        const submitFeatures: GPUFeatureName[] = [];
+        if (this._adapter!.features.has("float32-filterable")) {
+            submitFeatures.push("float32-filterable");
+        } else {
+            console.warn("Filterable 32-bit float textures support is not available");
+        }
         this._device = await this._adapter?.requestDevice({
             requiredLimits: {
                 // Must be changed, default support for 16 is not enough
                 maxVertexAttributes: maxVertAttrs,
                 maxSampledTexturesPerShaderStage: maxSampledTexPerShaderStage,
-            }
+            },
+            requiredFeatures: submitFeatures,
         });
         
         this._glslang = await glslang(await fetchUrl('external:emscripten/webgpu/glslang.wasm'));
@@ -494,6 +505,7 @@ export class WebGPUDevice extends Device {
 
         const limits =  this._adapter!.limits;
         this._caps.clipSpaceMinZ = 0.0;
+        this._caps.screenSpaceSignY = -1.0;
         this._caps.uboOffsetAlignment = 256;
         this._caps.maxUniformBufferBindings = 12;
         this._caps.maxVertexAttributes = limits.maxVertexAttributes;

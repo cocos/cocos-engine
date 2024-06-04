@@ -38,7 +38,7 @@ import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
+import { getDefaultShadowTexture, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
 import { PipelineUBO } from '../pipeline-ubo';
@@ -963,13 +963,13 @@ function setTextureUBOView (setter: WebSetter, camera: Camera | null, cfg: Reado
         setter.setSampler('cc_shadowMap', pipeline.defaultSampler);
     }
     if (!setter.hasTexture('cc_shadowMap')) {
-        setter.setTexture('cc_shadowMap', pipeline.defaultTexture);
+        setter.setTexture('cc_shadowMap', pipeline.defaultShadowTexture);
     }
     if (!setter.hasSampler('cc_spotShadowMap')) {
         setter.setSampler('cc_spotShadowMap', pipeline.defaultSampler);
     }
     if (!setter.hasTexture('cc_spotShadowMap')) {
-        setter.setTexture('cc_spotShadowMap', pipeline.defaultTexture);
+        setter.setTexture('cc_spotShadowMap', pipeline.defaultShadowTexture);
     }
 }
 
@@ -2013,8 +2013,8 @@ export class WebPipeline implements BasicPipeline {
         return this._defaultSampler;
     }
 
-    get defaultTexture (): Texture {
-        return builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!;
+    get defaultShadowTexture (): Texture {
+        return getDefaultShadowTexture(this.device);
     }
 
     private _compileMaterial (): void {

@@ -67,6 +67,7 @@ export class WebGPUPipelineLayout extends PipelineLayout {
         
         const that = this;
         this._gpuPipelineLayout = {
+            setLayouts: this._setLayouts,
             gpuSetLayouts,
             dynamicOffsetIndices,
             dynamicOffsetCount,
@@ -78,10 +79,16 @@ export class WebGPUPipelineLayout extends PipelineLayout {
                     return that._nativePipelineLayout;
                 // }
                 // return that.fetchPipelineLayout(false);
-            }
+            },
+
         };
         this.fetchPipelineLayout(); 
         return true;
+    }
+
+    public changeSetLayout(idx: number, setLayout: WebGPUDescriptorSetLayout)
+    {
+        this._setLayouts[idx] = setLayout;
     }
 
     public destroy () {

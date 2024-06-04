@@ -1,5 +1,5 @@
 import { CachedArray } from '../../core/memop/cached-array';
-import { BufferSource, DrawInfo, IndirectBuffer } from '..';
+import { BufferSource, DrawInfo, IndirectBuffer, Texture } from '..';
 import {
     BufferUsageBit,
     ColorMask,
@@ -39,13 +39,27 @@ import {
     IWebGPUGPUShader,
     IWebGPUTexture,
     IWebGPUGPURenderPass,
+    IWebGPUGPUShaderStage,
 } from './webgpu-gpu-objects';
+import { copy } from '../../core/utils/array';
+import { clear } from '../../asset/asset-manager/utilities';
 
 const WebGPUAdressMode: GPUAddressMode[] = [
     'repeat', // WRAP,
     'mirror-repeat', // MIRROR,
     'clamp-to-edge', // CLAMP,
     'clamp-to-edge', // BORDER,
+];
+
+const WebGPUCompareFunc: GPUCompareFunction[] = [
+    'never',
+    'less',
+    'equal',
+    'less-equal',
+    'greater',
+    'not-equal',
+    'greater-equal',
+    'always'
 ];
 
 const SAMPLES: number[] = [
@@ -685,9 +699,10 @@ export function WebGPUCmdFuncCreateSampler (device: WebGPUDevice, gpuSampler: IW
     samplerDesc.minFilter = gpuSampler.glMinFilter;
     samplerDesc.magFilter = gpuSampler.glMagFilter;
     samplerDesc.mipmapFilter = gpuSampler.glMipFilter;
-    // samplerDesc.lodMinClamp = 0;// gpuSampler.minLOD;
-    // samplerDesc.lodMaxClamp = 32;// gpuSampler.maxLOD;
-
+    samplerDesc.lodMinClamp = 0;// gpuSampler.minLOD;
+    samplerDesc.lodMaxClamp = gpuSampler.mipLevel;// gpuSampler.maxLOD;
+    // samplerDesc.compare = WebGPUCompareFunc[gpuSampler.compare];
+    samplerDesc.maxAnisotropy = gpuSampler.maxAnisotropy || 1;
     const sampler: GPUSampler = nativeDevice.createSampler(samplerDesc);
     gpuSampler.glSampler = sampler;
 }
@@ -705,6 +720,53 @@ export function WebGPUCmdFuncDestroyFramebuffer (device: WebGPUDevice, gpuFrameb
     }
 }
 
+const copyTexToBufferDesc: GPUBufferDescriptor = {} as GPUBufferDescriptor;
+const destArrayBuffer: ArrayBuffer[] = [];
+export async function WebGPUCmdFuncCopyTextureToBuffer(device: WebGPUDevice, texture: IWebGPUTexture, buffers: ArrayBufferView[], regions: readonly BufferTextureCopy[]): Promise<void> {
+    let x = 0;
+    let y = 0;
+    let w = 1;
+    let h = 1;
+    const nativeDevice: GPUDevice = device.nativeDevice!;
+    const commandEncoder = nativeDevice.createCommandEncoder({});
+    
+    for (let k = 0; k < regions.length; k++) {
+        if(destArrayBuffer[k]) {
+            (buffers[k] as Uint8Array).set(new Uint8Array(destArrayBuffer[k]), 0);
+        }
+        copyTexToBufferDesc.size = buffers[k].byteLength;
+        copyTexToBufferDesc.usage = GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST;
+        
+        const copyDestBuffer = nativeDevice.createBuffer(copyTexToBufferDesc);
+        const region = regions[k];
+        x = region.texOffset.x;
+        y = region.texOffset.y;
+        w = region.texExtent.width;
+        h = region.texExtent.height;
+        
+        commandEncoder.copyTextureToBuffer({
+            texture: texture.glTexture!,
+            mipLevel: 0,
+            origin: {
+                x,
+                y,
+            }
+        }, {
+            buffer: copyDestBuffer,
+            offset: 0,
+            bytesPerRow: w * 4,
+            rowsPerImage: h
+        }, {
+            width: w,
+            height: h
+        });
+
+        nativeDevice.queue.submit([commandEncoder!.finish()]);
+        await copyDestBuffer.mapAsync(GPUMapMode.READ);
+        destArrayBuffer[k] = copyDestBuffer.getMappedRange();
+        (buffers[k] as Uint8Array).set(new Uint8Array(destArrayBuffer[k]), 0);
+    }
+}
 
 export const SEPARATE_SAMPLER_BINDING_OFFSET = 16;
 function seperateCombinedSamplerTexture(shaderSource: string) {
@@ -911,6 +973,224 @@ function reflect(wgsl: string[]) {
     return bindingList;
 }
 
+interface ClearPassData {
+    vertShader: GPUShaderModule | null;
+    fragShader: GPUShaderModule | null;
+    bindGroupLayout: GPUBindGroupLayout | null;
+    pipelineLayout: GPUPipelineLayout | null;
+    pipeline: GPURenderPipeline | null;
+}
+const clearPassData: ClearPassData = {
+    vertShader: null,
+    fragShader: null,
+    bindGroupLayout: null,
+    pipelineLayout: null,
+    pipeline: null,
+};
+export function clearRect(device: WebGPUDevice, texture: IWebGPUTexture, renderArea: Rect, color: Color) {
+    const format = texture.glTexture!.format;
+    const dimension = texture.glTarget;
+    const nativeDevice = device.nativeDevice!;
+    if(!clearPassData.vertShader) {
+        const clearQuadVert = `
+        struct VertexOutput {
+            @builtin(position) Position: vec4<f32>,
+        }
+
+        @vertex
+        fn main(@builtin(vertex_index) VertexIndex: u32) -> VertexOutput {
+            var pos = array<vec2<f32>, 6>(
+            vec2<f32>(1.0, 1.0),
+            vec2<f32>(1.0, -1.0),
+            vec2<f32>(-1.0, -1.0),
+            vec2<f32>(1.0, 1.0),
+            vec2<f32>(-1.0, -1.0),
+            vec2<f32>(-1.0, 1.0)
+            );
+
+            var output: VertexOutput;
+            output.Position = vec4<f32>(pos[VertexIndex], 0.0, 1.0);
+            return output;
+        }
+        `;
+
+        const clearQuadFrag = `
+        struct ClearColor {
+            color: vec4<f32>,
+        }
+
+        @group(0) @binding(0) var<uniform> uClearColor: ClearColor;
+
+        @fragment
+        fn main() -> @location(0) vec4<f32> {
+            return uClearColor.color;
+        }
+        `;
+        const vertShaderModule = nativeDevice.createShaderModule({code: clearQuadVert});
+        const fragShaderModule = nativeDevice.createShaderModule({code:clearQuadFrag});
+        clearPassData.vertShader = vertShaderModule;
+        clearPassData.fragShader = fragShaderModule;
+
+        const bufferEntry: GPUBindGroupLayoutEntry = {
+            binding: 0,
+            visibility: GPUShaderStage.FRAGMENT,
+            buffer: {
+              type: 'uniform',
+              hasDynamicOffset: false,
+              minBindingSize: 16,
+            },
+        }
+        const bgLayoutDesc: GPUBindGroupLayoutDescriptor = {
+            label: "clearPassBGLayout",
+            entries: [bufferEntry],
+          };
+          
+        const bindGroupLayout = nativeDevice.createBindGroupLayout(bgLayoutDesc);
+        clearPassData.bindGroupLayout = bindGroupLayout;
+
+        const pipelineLayoutDesc: GPUPipelineLayoutDescriptor = {
+            label: "clearPassPipelineLayout",
+            bindGroupLayouts: [clearPassData.bindGroupLayout]
+        };
+        
+        const pipelineLayout = nativeDevice.createPipelineLayout(pipelineLayoutDesc);
+        clearPassData.pipelineLayout = pipelineLayout;
+
+        const vertexState: GPUVertexState = {
+            module: clearPassData.vertShader,
+            entryPoint: "main",
+        };
+        
+        const primitiveState: GPUPrimitiveState = {
+            topology: 'triangle-list',
+            frontFace: 'ccw', 
+            cullMode: 'none',
+        };
+        const colorState: GPUColorTargetState = {
+            format: format,
+            writeMask: 0xF,
+        };
+        
+        const fragState: GPUFragmentState = {
+            module: clearPassData.fragShader,
+            entryPoint: "main",
+            targets: [colorState],
+        };
+        const multisample: GPUMultisampleState = {
+            count: 1,
+            alphaToCoverageEnabled: false,
+            mask: 0xFFFFFFFF
+        };
+        
+        const pipelineDesc: GPURenderPipelineDescriptor = {
+            label: "clearPassPipeline",
+            layout: clearPassData.pipelineLayout,
+            vertex: vertexState,
+            primitive: primitiveState,
+            fragment: fragState,
+            multisample: multisample
+        };
+        const pipeline = nativeDevice.createRenderPipeline(pipelineDesc);
+        clearPassData.pipeline = pipeline;
+    }
+    let commandEncoder: GPUCommandEncoder = nativeDevice.createCommandEncoder();
+    let desc: GPUTextureViewDescriptor = {
+        format: format,
+        dimension: '2d',
+        baseMipLevel: 0,
+        mipLevelCount: 1,
+        baseArrayLayer: 0,
+        arrayLayerCount: 1,
+        aspect: 'all'
+    };
+    const dstView = texture.glTexture?.createView(desc);
+    const bufferDesc: GPUBufferDescriptor = {
+        usage: GPUBufferUsage.UNIFORM,
+        size: 16,
+        mappedAtCreation: true
+    };
+    
+    const uniformBuffer = nativeDevice.createBuffer(bufferDesc);
+    const colorArr: number[] = [color.x, color.y, color.z, color.w];
+
+    const mappedBuffer = uniformBuffer.getMappedRange(0, 16);
+    const f32 = new Float32Array(mappedBuffer);
+    f32.set(colorArr);
+    uniformBuffer.unmap();
+
+    const entry: GPUBindGroupEntry = {
+        binding: 0,
+        resource: {
+            buffer: uniformBuffer,
+            offset: 0,
+            size: 16,
+        }
+    };
+
+    const bindgroupDesc: GPUBindGroupDescriptor = {
+        layout: clearPassData.bindGroupLayout!,
+        entries: [entry],
+    };
+    const bindGroup = nativeDevice.createBindGroup(bindgroupDesc);
+    const colorAttachment: GPURenderPassColorAttachment = {
+        view: dstView!,
+        loadOp: 'load',
+        storeOp: 'store',
+        clearValue: [0.88, 0.88, 0.88, 1.0],
+    };
+    
+    const rpDesc: GPURenderPassDescriptor = {
+        colorAttachments: [colorAttachment]
+    };
+    
+    const renderPassEncoder = commandEncoder.beginRenderPass(rpDesc);
+    renderPassEncoder.setPipeline(clearPassData.pipeline!);
+
+    renderPassEncoder.setBindGroup(0, bindGroup);
+    renderPassEncoder.setViewport(renderArea.x, renderArea.y, renderArea.width, renderArea.height, 0.0, 1.0);
+    renderPassEncoder.setScissorRect(renderArea.x, renderArea.y, renderArea.width, renderArea.height);
+    renderPassEncoder.draw(6, 1, 0, 0);
+
+    renderPassEncoder.end();
+    const commandBuffer = commandEncoder.finish();
+    nativeDevice.queue.submit([commandBuffer]);
+    uniformBuffer.destroy();
+}
+
+function findEmployAttr(stage: IWebGPUGPUShaderStage) {
+    if(stage.type === ShaderStageFlagBit.VERTEX) {
+        const locationRegex = /@location\(\d+\)[ ]+\w+/g;
+        const matches = stage.source.match(locationRegex);
+        if(matches) {
+            let idx = 0;
+            matches.forEach((match) => {
+                const locRegex = /@location\((\d+)\)/g;
+                const matchLoc = match.match(locRegex)!;
+                const location = matchLoc[0].slice(matchLoc[0].indexOf('(') + 1, matchLoc[0].indexOf(')')).trim();
+                const locNameRegex = /@location\(\d+\)/;
+                const locName = match.replace(locNameRegex, '').trim();
+                let rmvLocRegex = new RegExp(`\,*[ ]*\@location\\(\\d+\\)[ ]+${locName}+\\b\\s*:\\s*\\w+\\<\\w+\\>\\s*`);
+                const equalAttr = new RegExp(`\\b(\\w+)\\s*=[ ]*${locName}\\b\\s*\;`, 'g');
+                const targetVar = stage.source.match(equalAttr)!;
+                const targetVarName = targetVar[0];
+                const searchTarVarName = targetVarName.slice(0, targetVarName.indexOf('=')).trim();
+                const matchCountRegex = new RegExp(`\\.*\\b${searchTarVarName}\\b\\.*`, 'g');
+                const matchesCount = stage.source.match(matchCountRegex);
+                const usageCount = matchesCount ? matchesCount.length : 0;
+                if(usageCount <= 2) {
+                    stage.source = stage.source.replace(rmvLocRegex, '');
+                    stage.source = stage.source.replace(equalAttr, '');
+                    const varNameReg = new RegExp(`var\\<\\w+\\>\\s+${searchTarVarName}+\\s*:\\s*\\w+\\<\\w+\\>\\s*;`);
+                    stage.source = stage.source.replace(varNameReg, '');
+                } else {
+                    stage.attrs.set(parseInt(location), locName);
+                }
+                idx++;
+            });
+         }
+        }
+}
+
 export function WebGPUCmdFuncCreateGPUShader(device: WebGPUDevice, gpuShader: IWebGPUGPUShader) {
     // const wgslStages: string[] = [];
     const nativeDevice = device.nativeDevice!;
@@ -929,20 +1209,22 @@ export function WebGPUCmdFuncCreateGPUShader(device: WebGPUDevice, gpuShader: IW
         const sourceCode = `#version 450\n#define CC_USE_WGPU 1\n${glslSource}`;
         const spv = glslang.compileGLSL(sourceCode, stageStr, false, '1.3');
 
-        const wgsl = twgsl.convertSpirV2WGSL(spv);
+        let wgsl = twgsl.convertSpirV2WGSL(spv);
         if (wgsl === '') {
             console.error("empty wgsl");
         }
         gpuStage.source = wgsl;
+        findEmployAttr(gpuStage);
+        wgsl = gpuStage.source;
         // wgslStages.push(wgsl);
         const shader: GPUShaderModule = nativeDevice?.createShaderModule({ code: wgsl });
         shader.getCompilationInfo().then((compileInfo: GPUCompilationInfo) => {
             compileInfo.messages.forEach((info) => {
-                console.log(info.lineNum, info.linePos, info.type, info.message);
+                console.log(sourceCode, wgsl, info.lineNum, info.linePos, info.type, info.message);
             });
         }).catch((compileInfo: GPUCompilationInfo) => {
             compileInfo.messages.forEach((info) => {
-                console.log(info.lineNum, info.linePos, info.type, info.message);
+                console.log(sourceCode, wgsl, info.lineNum, info.linePos, info.type, info.message);
             });
         });
         const shaderStage: GPUProgrammableStage = {
@@ -1055,6 +1337,9 @@ export async function WebGPUCmdFuncCopyTexImagesToTexture (
             [regions[i].texExtent.width, regions[i].texExtent.height, regions[i].texExtent.depth]
         );
     }
+    if(gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
+        genMipMap(device, gpuTexture, 1, gpuTexture.mipLevel - 1, 0);
+    }
 }
 
 export function TextureSampleTypeTrait(format: Format): GPUTextureSampleType {
@@ -1104,6 +1389,223 @@ export function TextureSampleTypeTrait(format: Format): GPUTextureSampleType {
         return 'float';
     }
   }
+
+interface MipmapPassData {
+    vertShader: GPUShaderModule;
+    fragShader: GPUShaderModule;
+    sampler: GPUSampler;
+    bindGroupLayout: GPUBindGroupLayout;
+    pipelineLayout: GPUPipelineLayout;
+    pipeline: GPURenderPipeline;
+}
+
+let mipmapData: MipmapPassData;
+
+function genMipMap(device: WebGPUDevice, texture: IWebGPUTexture, fromLevel: number, levelCount: number, baseLayer: number) {
+    const format = texture.glFormat;
+    const dimension = texture.glTarget;
+    const nativeDevice = device.nativeDevice!;
+    if(!mipmapData) {
+        mipmapData = {} as any;
+        const texQuadVert = `
+        struct VertexOutput {
+            @builtin(position) Position : vec4<f32>,
+            @location(0) fragUV : vec2<f32>,
+          }
+          
+          @vertex
+          fn vert_main(@builtin(vertex_index) VertexIndex : u32) -> VertexOutput {
+            var pos = array<vec2<f32>, 6>(
+              vec2<f32>( 1.0,  1.0),
+              vec2<f32>( 1.0, -1.0),
+              vec2<f32>(-1.0, -1.0),
+              vec2<f32>( 1.0,  1.0),
+              vec2<f32>(-1.0, -1.0),
+              vec2<f32>(-1.0,  1.0)
+            );
+          
+            var uv = array<vec2<f32>, 6>(
+              vec2<f32>(1.0, 0.0),
+              vec2<f32>(1.0, 1.0),
+              vec2<f32>(0.0, 1.0),
+              vec2<f32>(1.0, 0.0),
+              vec2<f32>(0.0, 1.0),
+              vec2<f32>(0.0, 0.0)
+            );
+          
+            var output : VertexOutput;
+            output.Position = vec4<f32>(pos[VertexIndex], 0.0, 1.0);
+            output.fragUV = uv[VertexIndex];
+            return output;
+          }
+        `;
+        const texQuadFrag = `
+        @group(0) @binding(0) var mySampler : sampler;
+        @group(0) @binding(1) var myTexture : texture_2d<f32>;
+
+        @fragment
+        fn frag_main(@location(0) fragUV : vec2<f32>) -> @location(0) vec4<f32> {
+        return textureSample(myTexture, mySampler, fragUV);
+        }
+        `;
+
+        const samplerDesc: GPUSamplerDescriptor = {};
+        samplerDesc.label = "filterSampler";
+        samplerDesc.addressModeU = "mirror-repeat";
+        samplerDesc.addressModeV = "mirror-repeat";
+        samplerDesc.addressModeW = "mirror-repeat";
+        samplerDesc.magFilter = "linear";
+        samplerDesc.minFilter = "linear";
+        samplerDesc.mipmapFilter = "linear";
+        samplerDesc.lodMinClamp = 0.0;
+        samplerDesc.lodMaxClamp = 32.0;
+        samplerDesc.maxAnisotropy = 1;
+        mipmapData.sampler = nativeDevice.createSampler(samplerDesc);
+
+        const shaderDescVert: GPUShaderModule = nativeDevice.createShaderModule({
+            code: texQuadVert
+        });
+        mipmapData.vertShader = shaderDescVert;
+        const shaderDescFrag: GPUShaderModule = nativeDevice.createShaderModule({
+            code: texQuadFrag
+        });
+        mipmapData.fragShader = shaderDescFrag;
+
+        let samplerEntry: GPUBindGroupLayoutEntry = {
+            binding: 0,
+            visibility: GPUShaderStage.FRAGMENT,
+            sampler: {
+              type: 'filtering'
+            },
+          };
+          
+          let textureEntry: GPUBindGroupLayoutEntry = {
+            binding: 1,
+            visibility: GPUShaderStage.FRAGMENT,
+            texture: {
+              sampleType: TextureSampleTypeTrait(texture.format),
+              viewDimension: '2d',
+              multisampled: false
+            }
+          };
+          
+          let bgLayoutDesc: GPUBindGroupLayoutDescriptor = {
+            label: "fullscreenTexturedQuadBGLayout",
+            entries: [samplerEntry, textureEntry]
+          };
+          
+
+          let bindGroupLayout = nativeDevice.createBindGroupLayout(bgLayoutDesc);
+          mipmapData.bindGroupLayout = bindGroupLayout;
+
+          let pipelineLayoutDesc: GPUPipelineLayoutDescriptor = {
+            label: "fullscreenTexturedQuadPipelineLayout",
+            bindGroupLayouts: [bindGroupLayout]
+          };
+          
+          let pipelineLayout = nativeDevice.createPipelineLayout(pipelineLayoutDesc);
+          mipmapData.pipelineLayout = pipelineLayout;
+
+          let vertexState: GPUVertexState = {
+            module: mipmapData.vertShader,
+            entryPoint: "vert_main",
+            buffers: []
+          };
+          
+          let primitiveState: GPUPrimitiveState = {
+            topology: 'triangle-list',
+            frontFace: 'ccw',
+            cullMode: 'none'
+          };
+          
+          let colorState: GPUColorTargetState = {
+            format,
+            writeMask: 0xF
+          };
+          
+          let fragState: GPUFragmentState = {
+            module: mipmapData.fragShader,
+            entryPoint: "frag_main",
+            targets: [colorState]
+          };
+          
+          let multisample: GPUMultisampleState = {
+            count: 1,
+            alphaToCoverageEnabled: false,
+            mask: 0xFFFFFFFF
+          };
+          
+          let pipelineDesc: GPURenderPipelineDescriptor = {
+            label: "fullscreenTexturedQuadPipeline",
+            layout: pipelineLayout,
+            vertex: vertexState,
+            primitive: primitiveState,
+            fragment: fragState,
+            multisample: multisample
+          };
+          let pipeline = nativeDevice.createRenderPipeline(pipelineDesc);
+          mipmapData.pipeline = pipeline;
+    }
+
+    let desc: GPUTextureViewDescriptor = {
+        format: format,
+        dimension: '2d',
+        baseMipLevel: fromLevel,
+        mipLevelCount: 1,
+        baseArrayLayer: baseLayer,
+        arrayLayerCount: 1,
+        aspect: 'all'
+    };
+    
+    let commandEncoder: GPUCommandEncoder = nativeDevice.createCommandEncoder();
+    
+    for (let i = fromLevel; i < fromLevel + levelCount; ++i) {
+        desc.baseMipLevel = i - 1;
+        let srcView: GPUTextureView = texture.glTexture!.createView(desc);
+        desc.baseMipLevel = i;
+        desc.baseArrayLayer = baseLayer;
+        desc.arrayLayerCount = 1;
+        let dstView: GPUTextureView = texture.glTexture!.createView(desc);
+    
+        let entries: GPUBindGroupEntry[] = [
+        {
+            binding: 0,
+            resource: mipmapData.sampler
+        },
+        {
+            binding: 1,
+            resource: srcView
+        }
+        ];
+    
+        let bindgroupDesc: GPUBindGroupDescriptor = {
+        layout: mipmapData.bindGroupLayout,
+        entries: entries
+        };
+
+        let bindGroup: GPUBindGroup = nativeDevice.createBindGroup(bindgroupDesc);
+    
+        let colorAttachment: GPURenderPassColorAttachment = {
+        view: dstView,
+        loadOp: 'clear',
+        storeOp: 'store',
+        clearValue: [0.88, 0.88, 0.88, 1.0]
+        };
+    
+        let rpDesc: GPURenderPassDescriptor = {
+        colorAttachments: [colorAttachment]
+        };
+    
+        let renderPassEncoder: GPURenderPassEncoder = commandEncoder.beginRenderPass(rpDesc);
+        renderPassEncoder.setPipeline(mipmapData.pipeline);
+        renderPassEncoder.setBindGroup(0, bindGroup);
+        renderPassEncoder.draw(6, 1, 0, 0);
+        renderPassEncoder.end();
+    }
+    
+    let commandBuffer = commandEncoder.finish();
+    nativeDevice.queue.submit([commandBuffer]);
+}
 
 export function WebGPUCmdFuncCopyBuffersToTexture (
     device: WebGPUDevice,
@@ -1174,7 +1676,7 @@ export function WebGPUCmdFuncCopyBuffersToTexture (
                 }
         }
         if(gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
-            // TODO: genMipMap
+            genMipMap(device, gpuTexture, 1, gpuTexture.mipLevel - 1, 0);
         }
     }
 }

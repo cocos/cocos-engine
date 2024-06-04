@@ -25,6 +25,13 @@ export class WebGPUBuffer extends Buffer {
 
     private _gpuBuffer: IWebGPUBuffer | null = null;
     private _indirectBuffer: IndirectBuffer | null = null;
+    private _hasChange: boolean = false;
+    get hasChange(): boolean {
+        return this._hasChange;
+    }
+    public resetChange() {
+        this._hasChange = false;
+    }
     public initialize(info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
         if ('buffer' in info) { // buffer view
             // validate: webGPU buffer offset must be 256 bytes aligned
@@ -96,6 +103,7 @@ export class WebGPUBuffer extends Buffer {
                 WebGPUCmdFuncDestroyBuffer(device as WebGPUDevice, this._gpuBuffer);
                 device.memoryStatus.bufferSize -= this._size;
             }
+            this._hasChange = true;
             this._gpuBuffer = null;
         }
     }
@@ -111,7 +119,7 @@ export class WebGPUBuffer extends Buffer {
 
         this._size = size;
         this._count = this._size / this._stride;
-
+        this._hasChange = true;
         if (this._gpuBuffer) {
             this._gpuBuffer.size = this._size;
             if (this._size > 0) {
@@ -142,6 +150,7 @@ export class WebGPUBuffer extends Buffer {
         if(this.size < buffSize) {
             this.resize(buffSize);
         }
+        this._hasChange = true;
         const device = WebGPUDeviceManager.instance;
 
         WebGPUCmdFuncUpdateBuffer(

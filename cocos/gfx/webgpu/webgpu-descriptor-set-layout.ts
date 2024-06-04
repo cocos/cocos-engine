@@ -6,6 +6,7 @@ import {
     DESCRIPTOR_DYNAMIC_TYPE,
     DescriptorSetLayoutBinding,
     Format,
+    DescriptorType,
 } from '../base/define';
 import { DescUpdateFrequency, WebGPUDeviceManager, isBind } from './define';
 import { WebGPUTexture } from './webgpu-texture';
@@ -13,7 +14,7 @@ import { DescriptorSet } from '../base/descriptor-set';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUSampler } from './webgpu-sampler';
 
-function FormatToWGPUFormatType(format: Format): GPUTextureSampleType {
+export function FormatToWGPUFormatType(format: Format): GPUTextureSampleType {
     if(format === Format.DEPTH_STENCIL) {
         return 'unfilterable-float';
     }
@@ -112,6 +113,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         // this._dirty = true;
         if (buffer) {
             currEntry.buffer = { type: GLDescTypeToGPUBufferDescType(binding.descriptorType)! };
+            currEntry.buffer.hasDynamicOffset = !!(binding.descriptorType & (DescriptorType.DYNAMIC_STORAGE_BUFFER | DescriptorType.DYNAMIC_UNIFORM_BUFFER));
             // const defaultBuffer = wgpuDeviceInst.getDefaultDescResources(currEntry, buffer.gpuBuffer) as WebGPUBuffer;
             // this.buffers.set(bindIdx, defaultBuffer);
             entries.set(bindIdx, currEntry);
@@ -159,16 +161,26 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         }
     }
 
-    public prepare (frequency: DescUpdateFrequency, binds: number[]) {
+    public prepare (frequency: DescUpdateFrequency, binds: number[], vertBinds: number[] = [], fragBinds: number[] = []) {
         if(isBind(binds, this._currBinds) && frequency !== DescUpdateFrequency.LOW
             && binds.length === this._prepareEntries.length) return;
         this._currBinds = binds;
         if(frequency !== DescUpdateFrequency.LOW) {
             this._prepareEntries.length = 0;
             binds.forEach((bind: number) => {
-                let currGrpEntryLayout = this._bindGrpLayoutEntries.get(bind < 0 ? 0 : bind);
+                let currGrpEntryLayout = this._bindGrpLayoutEntries.get(bind < 0 ? 0 : bind)!;
                 if(!currGrpEntryLayout && bind < 0) {
                     currGrpEntryLayout = Array.from(this._bindGrpLayoutEntries.values())[0];
+                }
+                if(vertBinds.includes(currGrpEntryLayout.binding) && !(currGrpEntryLayout.visibility & GPUShaderStage.VERTEX)) {
+                    currGrpEntryLayout.visibility |= GPUShaderStage.VERTEX;
+                } else if(!vertBinds.includes(currGrpEntryLayout.binding) && (currGrpEntryLayout.visibility & GPUShaderStage.VERTEX)) {
+                    currGrpEntryLayout.visibility ^= GPUShaderStage.VERTEX;
+                }
+                if(fragBinds.includes(currGrpEntryLayout.binding) && !(currGrpEntryLayout.visibility & GPUShaderStage.FRAGMENT)) {
+                    currGrpEntryLayout.visibility |= GPUShaderStage.FRAGMENT;
+                } else if(!fragBinds.includes(currGrpEntryLayout.binding) && (currGrpEntryLayout.visibility & GPUShaderStage.FRAGMENT)) {
+                    currGrpEntryLayout.visibility ^= GPUShaderStage.FRAGMENT;
                 }
                 this._prepareEntries.push(currGrpEntryLayout!);
             });

@@ -20,7 +20,9 @@ import {
     UniformSampler,
     DescriptorSetLayoutBinding,
     BufferFlags,
+    ComparisonFunc,
 } from '../base/define';
+import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
 import { WebGPUDeviceManager } from './define';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
@@ -76,12 +78,14 @@ export interface IWebGPUTexture {
     glMagFilter: GPUFilterMode;
 
     isSwapchainTexture: boolean;
+    getTextureView: Function;
 }
 
 export interface IWebGPUGPURenderPass {
     colorAttachments: ColorAttachment[];
     depthStencilAttachment: DepthStencilAttachment | null;
     nativeRenderPass: GPURenderPassDescriptor | null;
+    originalRP: GPURenderPassDescriptor | null;
 }
 
 export interface IWebGPUGPUFramebuffer {
@@ -96,12 +100,15 @@ export interface IWebGPUGPUFramebuffer {
 
 export interface IWebGPUGPUSampler {
     glSampler: GPUSampler | null;
+    compare: ComparisonFunc;
     minFilter: Filter;
     magFilter: Filter;
     mipFilter: Filter;
     addressU: Address;
     addressV: Address;
     addressW: Address;
+    mipLevel: number;
+    maxAnisotropy: number;
 
     glMinFilter: GPUFilterMode;
     glMagFilter: GPUFilterMode;
@@ -164,6 +171,7 @@ export interface IWebGPUGPUShaderStage {
     source: string;
     glShader: GPUProgrammableStage | null;
     bindings: number[][];
+    attrs: Map<number, string>;
 }
 
 export interface IWebGPUGPUShader {
@@ -189,6 +197,7 @@ export interface IWebGPUGPUDescriptorSetLayout {
 }
 
 export interface IWebGPUGPUPipelineLayout {
+    setLayouts: DescriptorSetLayout[];
     gpuSetLayouts: IWebGPUGPUDescriptorSetLayout[];
     gpuBindGroupLayouts: GPUBindGroupLayout[];
     dynamicOffsetCount: number;
@@ -202,6 +211,7 @@ export interface IWebGPUGPUPipelineState {
     gpuPipelineLayout: IWebGPUGPUPipelineLayout | null;
     rs: RasterizerState;
     dss: DepthStencilState;
+    stencilRef: number;
     bs: BlendState;
     dynamicStates: DynamicStateFlagBit[];
     gpuRenderPass: IWebGPUGPURenderPass | null;

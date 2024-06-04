@@ -23,7 +23,8 @@
 */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
-    supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM, isEnableEffect } from './define';
+    supportsR32FloatTexture, UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, UBOCSM, isEnableEffect,
+    getDefaultShadowTexture } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../gfx';
 import { Camera } from '../render-scene/scene/camera';
 import { Mat4, Vec3, Vec4, Color, toRadian, cclegacy } from '../core';
@@ -32,8 +33,6 @@ import { CSMLevel, PCFType, Shadows, ShadowType } from '../render-scene/scene/sh
 import { Light, LightType } from '../render-scene/scene/light';
 import { DirectionalLight, SpotLight } from '../render-scene/scene';
 import { RenderWindow } from '../render-scene/core/render-window';
-import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
-import { Texture2D } from '../asset/assets';
 import { DebugViewCompositeType } from './debug-view';
 import { getDescBindingFromName } from './custom/define';
 import { Root } from '../root';
@@ -537,15 +536,16 @@ export class PipelineUBO {
         const shadowInfo = sceneData.shadows;
         if (!shadowInfo.enabled) return;
 
+        const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
         if (mainLight && shadowFrameBufferMap.has(mainLight)) {
-            ds.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
+            globalDSManager.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
         }
         PipelineUBO.updateShadowUBOView(this._pipeline, this._shadowUBO, this._csmUBO, camera);
-        ds.update();
+        globalDSManager.update();
         const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
         cmdBuffer[0].updateBuffer(ds.getBuffer(binding), this._shadowUBO);
         const csmBinding = isEnableEffect() ? getDescBindingFromName('CCCSM') : UBOCSM.BINDING;
@@ -554,8 +554,8 @@ export class PipelineUBO {
 
     public updateShadowUBOLight (globalDS: DescriptorSet, light: Light, level = 0): void {
         PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, level);
-        globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-        globalDS.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+        globalDS.bindTexture(UNIFORM_SHADOWMAP_BINDING, getDefaultShadowTexture(this._pipeline.device));
+        globalDS.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, getDefaultShadowTexture(this._pipeline.device));
         globalDS.update();
         const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
         this._pipeline.commandBuffers[0].updateBuffer(globalDS.getBuffer(binding), this._shadowUBO);

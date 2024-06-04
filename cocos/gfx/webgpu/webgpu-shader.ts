@@ -39,6 +39,7 @@ export class WebGPUShader extends Shader {
                 source: stage.source,
                 glShader: null,
                 bindings: [],
+                attrs: new Map()
             };
         }
         const device = WebGPUDeviceManager.instance;
