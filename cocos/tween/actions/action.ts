@@ -100,6 +100,8 @@ export abstract class Action {
      */
     protected _id: number | undefined = undefined;
 
+    protected _paused = false;
+
     /**
      * @en
      * to copy object with deep copy.
@@ -133,14 +135,10 @@ export abstract class Action {
     }
 
     // called every frame with it's delta time. <br />
-    step (dt: number): void {
-        logID(1006);
-    }
+    abstract step (dt: number): void;
 
     // Called once per frame. Time is the number of seconds of a frame interval.
-    update (dt: number): void {
-        logID(1007);
-    }
+    abstract update (dt: number): void;
 
     /**
      * @en get the target.
@@ -213,6 +211,10 @@ export abstract class Action {
      */
     getId (): number | undefined {
         return this._id;
+    }
+
+    setPaused (paused: boolean): void {
+        this._paused = paused;
     }
 
     /**
