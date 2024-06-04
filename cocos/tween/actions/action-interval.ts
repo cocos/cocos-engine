@@ -134,10 +134,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
         this._firstTick = true;
     }
 
-    reverse (): ActionInterval {
-        logID(1010);
-        return this;
-    }
+    abstract reverse (): ActionInterval;
 
     /**
      * @en
@@ -957,5 +954,9 @@ export class ActionCustomUpdate<T extends object, Args extends any[]> extends Ac
 
     update (ratio: number): void {
         this._cb(this.target as T, ratio, ...this._args);
+    }
+
+    reverse (): ActionCustomUpdate<T, Args> {
+        return this.clone();
     }
 }
