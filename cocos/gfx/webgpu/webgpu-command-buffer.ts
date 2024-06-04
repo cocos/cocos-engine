@@ -223,7 +223,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         for (let i = 0; i < clearColors.length; i++) {
             const colorTex = gpuFramebuffer.isOffscreen ? gpuFramebuffer.gpuColorTextures[i].getTextureView()
                 : swapchain.colorGPUTextureView;
-            colorTex.label = gpuFramebuffer.isOffscreen ? 'offscreen' : 'swapchain';
+            colorTex!.label = gpuFramebuffer.isOffscreen ? 'offscreen' : 'swapchain';
             if (!renderingFullScreen) {
                 needPartialClear = originalRP.colorAttachments[i].loadOp === 'clear';
                 if (renderAreas.length > 1) {

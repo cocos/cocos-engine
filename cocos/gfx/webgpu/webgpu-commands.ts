@@ -278,7 +278,7 @@ function wGPUTextureFormatToGFXFormat (format: GPUTextureFormat): Format {
     case 'rgba8sint': return Format.RGBA8I;
     case 'r16sint': return Format.R16I;
     case 'r16uint': return Format.R16UI;
-    case 'r16float': return Format.R16F; // Handle potential mismatch between GFXFormat and WGPU
+    case 'r16float': return Format.R16F;
     case 'rg16sint': return Format.RG16I;
     case 'rg16uint': return Format.RG16UI;
     case 'rg16float': return Format.RG16F;
@@ -355,6 +355,8 @@ export function GFXTextureUsageToNative (usage: TextureUsageBit): GPUTextureUsag
 
     if (!nativeUsage) {
         // The default value is TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+        // An error will be thrown saying "Destination texture needs to have CopyDst and RenderAttachment usage."
+        // if you use GPUTextureUsage.COPY_DST without GPUTextureUsage.RENDER_ATTACHMENT.
         nativeUsage = GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT;
     }
 
@@ -877,7 +879,6 @@ function seperateCombinedSamplerTexture (shaderSource: string): string {
                 let matched;
                 // eslint-disable-next-line no-cond-assign
                 while ((matched = funcSamplerReg.exec(code)) !== null) {
-                // for (let matched of matches) {
                     if (!matched[1].match(/\b\w+\b\s*\b\w+\b/g)) {
                         const stripStr = matched[1][matched[1].length - 1] === ')' ? matched[1].slice(0, -1) : matched[1];
                         const params = stripStr.split(',');
