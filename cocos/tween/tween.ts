@@ -24,7 +24,10 @@
 
 import { TweenSystem } from './tween-system';
 import { warn } from '../core';
-import { ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence, Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate } from './actions/action-interval';
+import {
+    ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence,
+    Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
+} from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, TCallFuncCallback } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
@@ -44,7 +47,7 @@ type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
 
-export type TTweenUpdateCallback<T, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
+export type TTweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
 
 /**
  * @en
