@@ -1682,34 +1682,10 @@ export interface Pipeline extends BasicPipeline {
  * 调用setCustomPipeline注册管线
  */
 export interface PipelineBuilder {
-    editorWindowResize? (
+    windowResize? (
         pipeline: BasicPipeline,
         window: RenderWindow,
-        width: number,
-        height: number): void;
-    editorSceneViewResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    editorGameViewResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    editorPreviewResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    gameWindowResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
-        width: number,
-        height: number): void;
-    customWindowResize? (
-        pipeline: BasicPipeline,
-        window: RenderWindow,
+        camera: Camera,
         width: number,
         height: number): void;
     /**
@@ -1737,53 +1713,129 @@ export interface RenderingModule {
 
 export interface HBAO {
     enabled: boolean; /*false*/
-    radiusScale?: number; /*1*/
-    angleBiasDegree?: number; /*10*/
-    blurSharpness?: number; /*3*/
-    aoSaturation?: number; /*1*/
-    needBlur?: boolean; /*false*/
+    radiusScale: number; /*1*/
+    angleBiasDegree: number; /*10*/
+    blurSharpness: number; /*3*/
+    aoSaturation: number; /*1*/
+    needBlur: boolean; /*false*/
+    [name: string]: unknown;
+}
+
+export function makeHBAO (): HBAO {
+    return {
+        enabled: false,
+        radiusScale: 1,
+        angleBiasDegree: 10,
+        blurSharpness: 3,
+        aoSaturation: 1,
+        needBlur: false,
+    };
 }
 
 export interface DepthOfField {
     enabled: boolean; /*false*/
-    focusDistance?: number; /*0*/
-    focusRange?: number; /*0*/
-    bokehRadius?: number; /*1*/
+    focusDistance: number; /*0*/
+    focusRange: number; /*0*/
+    bokehRadius: number; /*1*/
+    [name: string]: unknown;
+}
+
+export function makeDepthOfField (): DepthOfField {
+    return {
+        enabled: false,
+        focusDistance: 0,
+        focusRange: 0,
+        bokehRadius: 1,
+    };
 }
 
 export interface Bloom {
     enabled: boolean; /*false*/
-    enableAlphaMask?: boolean; /*false*/
-    useHdrIlluminance?: boolean; /*false*/
-    iterations?: number; /*3*/
-    threshold?: number; /*0.8*/
-    intensity?: number; /*2.3*/
+    enableAlphaMask: boolean; /*false*/
+    useHdrIlluminance: boolean; /*false*/
+    iterations: number; /*3*/
+    threshold: number; /*0.8*/
+    intensity: number; /*2.3*/
+    [name: string]: unknown;
+}
+
+export function makeBloom (): Bloom {
+    return {
+        enabled: false,
+        enableAlphaMask: false,
+        useHdrIlluminance: false,
+        iterations: 3,
+        threshold: 0.8,
+        intensity: 2.3,
+    };
 }
 
 export interface ColorGrading {
     enabled: boolean; /*false*/
-    contribute?: number; /*0*/
+    contribute: number; /*0*/
     /*refcount*/ colorGradingMap?: Texture;
+    [name: string]: unknown;
+}
+
+export function makeColorGrading (): ColorGrading {
+    return {
+        enabled: false,
+        contribute: 0,
+    };
 }
 
 export interface FSR {
     enabled: boolean; /*false*/
-    sharpness?: number; /*0.8*/
+    sharpness: number; /*0.8*/
+    [name: string]: unknown;
+}
+
+export function makeFSR (): FSR {
+    return {
+        enabled: false,
+        sharpness: 0.8,
+    };
 }
 
 export interface FXAA {
     enabled: boolean; /*false*/
+    [name: string]: unknown;
+}
+
+export function makeFXAA (): FXAA {
+    return {
+        enabled: false,
+    };
 }
 
 export interface ForwardPipeline {
-    mobileMaxSpotLightShadowMaps: number; /*4*/
+    mobileMaxSpotLightShadowMaps: number; /*1*/
+    [name: string]: unknown;
+}
+
+export function makeForwardPipeline (): ForwardPipeline {
+    return {
+        mobileMaxSpotLightShadowMaps: 1,
+    };
 }
 
 export interface PipelineSettings {
     readonly forwardPipeline: ForwardPipeline;
-    depthOfField?: DepthOfField;
-    bloom?: Bloom;
-    colorGrading?: ColorGrading;
-    fsr?: FSR;
-    fxaa?: FXAA;
+    readonly depthOfField: DepthOfField;
+    readonly bloom: Bloom;
+    readonly colorGrading: ColorGrading;
+    readonly fsr: FSR;
+    readonly fxaa: FXAA;
+    [name: string]: unknown;
+}
+
+export function makePipelineSettings (): PipelineSettings {
+    return {
+        forwardPipeline: makeForwardPipeline(),
+        depthOfField: makeDepthOfField(),
+        bloom: makeBloom(),
+        colorGrading: makeColorGrading(),
+        fsr: makeFSR(),
+        fxaa: makeFXAA(),
+    };
 }
