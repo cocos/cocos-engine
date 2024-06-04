@@ -24,7 +24,7 @@
 
 import { TweenSystem } from './tween-system';
 import { warn } from '../core';
-import { ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence, Spawn, repeat, repeatForever, RepeatForever } from './actions/action-interval';
+import { ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence, Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, TCallFuncCallback } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
@@ -43,6 +43,8 @@ type ConstructorType<T> = OmitType<T, Function>;
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
+
+export type TTweenUpdateCallback<T, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
 
 /**
  * @en
@@ -406,6 +408,20 @@ export class Tween<T extends object = any> {
         opts = opts || (Object.create(null) as ITweenOption<T>);
         opts.relative = true;
         const action = new TweenAction(duration, props, opts);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en Add an custom action.
+     * @zh 添加一个自定义动作。
+     * @param duration @en The tween time in seconds. @zh 缓动时间，单位为秒。
+     * @param cb @en The callback of the current action. @zh 动作回调函数。
+     * @param args @en The arguments passed to the callback function. @zh 传递给动作回调函数的参数。
+     * @return @en The current tween instance, for chain operations. @zh 当前缓动示例，用于级联操作。
+     */
+    update<Args extends any[]> (duration: number, cb: TTweenUpdateCallback<T, Args>, ...args: Args): Tween<T> {
+        const action = new ActionCustomUpdate(duration, cb, args);
         this._actions.push(action);
         return this;
     }

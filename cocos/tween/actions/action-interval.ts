@@ -28,6 +28,7 @@
 import { FiniteTimeAction, Action } from './action';
 import { macro, logID, errorID } from '../../core';
 import { ActionInstant } from './action-instant';
+import type { TTweenUpdateCallback } from '../tween';
 
 // Extra action for making a Sequence or Spawn when only adding one action to it.
 class DummyAction extends FiniteTimeAction {
@@ -938,4 +939,23 @@ export class ReverseTime extends ActionInterval {
  */
 export function reverseTime (action: ActionInterval): ReverseTime {
     return new ReverseTime(action);
+}
+
+export class ActionCustomUpdate<T, Args extends any[]> extends ActionInterval {
+    private _cb: TTweenUpdateCallback<T, Args>;
+    private _args: Args;
+
+    constructor (duration: number, cb: TTweenUpdateCallback<T, Args>, args: Args) {
+        super(duration);
+        this._cb = cb;
+        this._args = args;
+    }
+
+    clone (): ActionCustomUpdate<T, R> {
+        return new ActionCustomUpdate(this._duration, this._cb, this._args);
+    }
+
+    update (ratio: number): void {
+        this._cb(this.target as T, ratio, ...this._args);
+    }
 }

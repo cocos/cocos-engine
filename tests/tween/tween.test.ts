@@ -2502,3 +2502,161 @@ test('pauseAllByTarget/resumeAllByTarget', function () {
     //
     director.unregisterSystem(sys);
 });
+
+test('update 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    let done = false;
+    let currentRatio = 0;
+
+    tween(node)
+        .delay(1)
+        .by(1, { position: v3(90, 90, 90) })
+        .update(1, (target: Node, ratio: number, a: number, b: boolean, c: string, d: { 'world': () => number }): void =>{
+            expect(target === node).toBeTruthy();
+            expect(a).toBe(123);
+            expect(b).toBe(true);
+            expect(c).toBe('hello');
+            expect(d['world']()).toBe(456);
+            currentRatio = ratio;
+        }, 123, true, 'hello', { 'world': (): number => 456 })
+        .repeat(2)
+        .call(()=>{ done = true; })
+        .start();
+
+    // Start
+    runFrames(1);
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    
+    runFrames(60);
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    runFrames(60);
+    expect(node.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(1/3);
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(2/3);
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(3/3);
+
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(1/3);
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(2/3);
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(3/3);
+
+    runFrames(1); // Do one more step to make the tween done!
+    expect(done).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('update 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    let done = false;
+    let currentRatio = 0;
+
+    const args = [123, true, 'hello', { 'world': (): number => 456 }];
+
+    tween(node)
+        .delay(1)
+        .by(1, { position: v3(90, 90, 90) })
+        .update(1, (target: Node, ratio: number, ...args: any[]): void =>{
+            expect(target === node).toBeTruthy();
+            const [a, b, c, d] = args;
+            expect(a).toBe(123);
+            expect(b).toBe(true);
+            expect(c).toBe('hello');
+            expect(d['world']()).toBe(456);
+            currentRatio = ratio;
+        }, ...args)
+        .call(()=>{ done = true; })
+        .start();
+
+    // Start
+    runFrames(1);
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    
+    runFrames(60);
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+
+    runFrames(60);
+    expect(node.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(1/3);
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(2/3);
+    runFrames(20);
+    expect(currentRatio).toBeCloseTo(3/3);
+
+    runFrames(1); // Do one more step to make the tween done!
+    expect(done).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('update 3', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const head = new Node();
+    head.setPosition(0, 90, 0);
+    const hand = new Node();
+    hand.setPosition(0, 60, 0);
+    const foot = new Node();
+    foot.setPosition(0, 30, 0);
+
+    tween(node)
+        .update(1.0, (target: Node, ratio: number, head: Node, hand: Node, foot: Node) => {
+            const [v1, v2, v3] = [100, 10, 1];
+            head.setPosition(v1 * ratio, head.position.y, head.position.z);
+            hand.setPosition(v2 * ratio, hand.position.y, hand.position.z);
+            foot.setPosition(v3 * ratio, foot.position.y, foot.position.z);
+        }, head, hand, foot)
+        .start();
+
+    // Start
+    runFrames(1);
+    expect(head.position.equals(new Vec3(0, 90, 0))).toBeTruthy();
+    expect(hand.position.equals(new Vec3(0, 60, 0))).toBeTruthy();
+    expect(foot.position.equals(new Vec3(0, 30, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(head.position.equals(new Vec3(100 * 1/3, 90, 0))).toBeTruthy();
+    expect(hand.position.equals(new Vec3(10 * 1/3, 60, 0))).toBeTruthy();
+    expect(foot.position.equals(new Vec3(1 * 1/3, 30, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(head.position.equals(new Vec3(100 * 2/3, 90, 0))).toBeTruthy();
+    expect(hand.position.equals(new Vec3(10 * 2/3, 60, 0))).toBeTruthy();
+    expect(foot.position.equals(new Vec3(1 * 2/3, 30, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(head.position.equals(new Vec3(100 * 3/3, 90, 0))).toBeTruthy();
+    expect(hand.position.equals(new Vec3(10 * 3/3, 60, 0))).toBeTruthy();
+    expect(foot.position.equals(new Vec3(1 * 3/3, 30, 0))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
