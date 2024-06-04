@@ -292,6 +292,10 @@ export class Tween<T extends object = any> {
         return this;
     }
 
+    /**
+     * @en Pause the tween instance.
+     * @zh 暂停此缓动实例。
+     */
     pause (): Tween<T> {
         if (this._finalAction) {
             this._finalAction.setPaused(true);
@@ -301,6 +305,10 @@ export class Tween<T extends object = any> {
         return this;
     }
 
+    /**
+     * @en Resume the tween instance.
+     * @zh 恢复此缓动实例。
+     */
     resume (): Tween<T> {
         if (this._finalAction) {
             this._finalAction.setPaused(false);
@@ -685,10 +693,20 @@ export class Tween<T extends object = any> {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
     }
 
+    /**
+     * @en Pause all tween instances associated with the target object.
+     * @zh 暂停目标对象关联的所有缓动实例。
+     * @param target @en The target object whose tweens should be paused. @zh 要暂停缓动的目标对象。
+     */
     static pauseAllByTarget<U extends object = any> (target: U): void {
         TweenSystem.instance.ActionManager.pauseTarget(target);
     }
 
+    /**
+     * @en Resume all tween instances associated with the target object.
+     * @zh 恢复目标对象关联的所有缓动实例。
+     * @param target @en The target object whose tweens should be resumed. @zh 要恢复缓动的目标对象。
+     */
     static resumeAllByTarget<U extends object = any> (target: U): void {
         TweenSystem.instance.ActionManager.resumeTarget(target);
     }
