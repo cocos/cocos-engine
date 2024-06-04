@@ -62,6 +62,10 @@ class PointerEventDispatcher implements IEventDispatcher {
         NodeEventProcessor.callbacksInvoker.on(DispatcherEventType.MARK_LIST_DIRTY, this._markListDirty, this);
     }
 
+    onThrowException (): void {
+        this._inDispatchCount = 0;
+    }
+
     public dispatchEvent (event: Event): boolean {
         const eventType = event.type as Input.EventType;
         if (touchEvents.includes(eventType)) {

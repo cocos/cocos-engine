@@ -46,6 +46,8 @@ export interface IEventDispatcher {
      * @returns Whether dispatch to next event dispatcher
      */
     dispatchEvent(event: Event): boolean;
+
+    onThrowException(): void;
 }
 
 class InputEventDispatcher implements IEventDispatcher {
@@ -54,6 +56,10 @@ class InputEventDispatcher implements IEventDispatcher {
 
     constructor (inputEventTarget: EventTarget) {
         this._inputEventTarget = inputEventTarget;
+    }
+
+    onThrowException (): void {
+        // empty
     }
 
     public dispatchEvent (event: Event): boolean {
@@ -339,6 +345,7 @@ export class Input {
                 }
             } catch (e: any) {
                 this._clearEvents();
+                dispatcher.onThrowException();
                 throw e;
             }
         }
