@@ -22,15 +22,15 @@
  THE SOFTWARE.
 */
 
+import { warn } from '../../core';
 import { Buffer } from '../base/buffer';
 
 import {
-    BufferFlagBit,
     BufferUsageBit,
     IndirectBuffer,
     BufferSource,
     BufferInfo,
-    BufferViewInfo
+    BufferViewInfo,
 } from '../base/define';
 import { WebGPUDeviceManager } from './define';
 import {
@@ -39,28 +39,26 @@ import {
     WebGPUCmdFuncResizeBuffer,
     WebGPUCmdFuncUpdateBuffer,
 } from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
 import { IWebGPUGPUBuffer as IWebGPUBuffer } from './webgpu-gpu-objects';
 
 export class WebGPUBuffer extends Buffer {
-    get gpuBuffer(): IWebGPUBuffer {
+    get gpuBuffer (): IWebGPUBuffer {
         return this._gpuBuffer!;
     }
 
     private _gpuBuffer: IWebGPUBuffer | null = null;
     private _indirectBuffer: IndirectBuffer | null = null;
     private _hasChange: boolean = false;
-    get hasChange(): boolean {
+    get hasChange (): boolean {
         return this._hasChange;
     }
-    public resetChange() {
+    public resetChange (): void {
         this._hasChange = false;
     }
-    public initialize(info: Readonly<BufferInfo> | Readonly<BufferViewInfo>) {
+    public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): void {
         if ('buffer' in info) { // buffer view
             // validate: webGPU buffer offset must be 256 bytes aligned
             // which can be guaranteed by WebGPUDevice::uboOffsetAligned
-
             this._isBufferView = true;
 
             const buffer = info.buffer as WebGPUBuffer;
@@ -114,17 +112,17 @@ export class WebGPUBuffer extends Buffer {
                 this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
             }
             const device = WebGPUDeviceManager.instance;
-            WebGPUCmdFuncCreateBuffer(device as WebGPUDevice, this._gpuBuffer);
+            WebGPUCmdFuncCreateBuffer(device, this._gpuBuffer);
 
             device.memoryStatus.bufferSize += this._size;
         }
     }
 
-    public destroy() {
+    public destroy (): void {
         if (this._gpuBuffer) {
             if (!this._isBufferView) {
                 const device = WebGPUDeviceManager.instance;
-                WebGPUCmdFuncDestroyBuffer(device as WebGPUDevice, this._gpuBuffer);
+                WebGPUCmdFuncDestroyBuffer(device, this._gpuBuffer);
                 device.memoryStatus.bufferSize -= this._size;
             }
             this._hasChange = true;
@@ -132,9 +130,9 @@ export class WebGPUBuffer extends Buffer {
         }
     }
 
-    public resize(size: number) {
+    public resize (size: number): void {
         if (this._isBufferView) {
-            console.warn('cannot resize buffer views!');
+            warn('cannot resize buffer views!');
             return;
         }
 
@@ -148,16 +146,16 @@ export class WebGPUBuffer extends Buffer {
             this._gpuBuffer.size = this._size;
             if (this._size > 0) {
                 const device = WebGPUDeviceManager.instance;
-                WebGPUCmdFuncResizeBuffer(device as WebGPUDevice, this._gpuBuffer);
+                WebGPUCmdFuncResizeBuffer(device, this._gpuBuffer);
                 device.memoryStatus.bufferSize -= oldSize;
                 device.memoryStatus.bufferSize += this._size;
             }
         }
     }
 
-    public update(buffer: BufferSource, size?: number) {
+    public update (buffer: BufferSource, size?: number): void {
         if (this._isBufferView) {
-            console.warn('cannot update through buffer views!');
+            warn('cannot update through buffer views!');
             return;
         }
 
@@ -171,14 +169,14 @@ export class WebGPUBuffer extends Buffer {
         }
         // Make sure buffSize is a multiple of 4
         buffSize = Math.ceil(buffSize / 4.0) * 4;
-        if(this.size < buffSize) {
+        if (this.size < buffSize) {
             this.resize(buffSize);
         }
         this._hasChange = true;
         const device = WebGPUDeviceManager.instance;
 
         WebGPUCmdFuncUpdateBuffer(
-            device as WebGPUDevice,
+            device,
             this._gpuBuffer!,
             buffer,
             0,

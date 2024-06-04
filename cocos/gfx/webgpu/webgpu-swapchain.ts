@@ -22,11 +22,11 @@
  THE SOFTWARE.
 */
 
-import { BufferTextureCopy, Format, SurfaceTransform, SwapchainInfo, TextureFlagBit, TextureInfo, TextureType, TextureUsageBit } from '../base/define';
+import { BufferTextureCopy, Format, SurfaceTransform, SwapchainInfo,
+    TextureFlagBit, TextureInfo, TextureType, TextureUsageBit } from '../base/define';
 import { Texture } from '../base/texture';
 import { Swapchain } from '../base/swapchain';
 import { WebGPUTexture } from './webgpu-texture';
-import { WebGPUStateCache } from './webgpu-state-cache';
 import { debug, warn, warnID } from '../../core';
 import { WebGPUDeviceManager } from './define';
 import { WGPUFormatToGFXFormat } from './webgpu-commands';
@@ -43,22 +43,24 @@ export class WebGPUSwapchain extends Swapchain {
     get blitManager (): IWebGPUBlitManager | null {
         return this._blitManager;
     }
-    private _webGPUDeviceLostHandler: ((info: GPUDeviceLostInfo) => void) | null = null; 
-    public initialize(info: Readonly<SwapchainInfo>) {
+    private _webGPUDeviceLostHandler: ((info: GPUDeviceLostInfo) => void) | null = null;
+    public initialize (info: Readonly<SwapchainInfo>): void {
         this._canvas = info.windowHandle;
         const { width, height } = info;
         this._canvas.width = width;
         this._canvas.height = height;
-        
+
         this._webGPUDeviceLostHandler = this._onWebGPUDeviceLost.bind(this);
         const device = WebGPUDeviceManager.instance;
         const nativeDevice = device.nativeDevice as GPUDevice;
-        nativeDevice.lost.then(this._webGPUDeviceLostHandler);
+        nativeDevice.lost.then(this._webGPUDeviceLostHandler).catch((reasons) => {
+            // noop
+        });
         const capabilities = device.capabilities;
         device.stateCache.initialize(
             capabilities.maxTextureUnits,
             capabilities.maxUniformBufferBindings,
-            capabilities.maxVertexAttributes
+            capabilities.maxVertexAttributes,
         );
 
         this._createTexture(width, height);
@@ -69,7 +71,7 @@ export class WebGPUSwapchain extends Swapchain {
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.NONE
+            TextureFlagBit.NONE,
         ))  as WebGPUTexture;
         this.nullTexCube = device.createTexture(new TextureInfo(
             TextureType.CUBE,
@@ -80,7 +82,7 @@ export class WebGPUSwapchain extends Swapchain {
             TextureFlagBit.NONE,
             6,
         ))  as WebGPUTexture;
-        
+
         const nullTexRegion = new BufferTextureCopy();
         nullTexRegion.texExtent.width = 2;
         nullTexRegion.texExtent.height = 2;
@@ -99,7 +101,7 @@ export class WebGPUSwapchain extends Swapchain {
         this._blitManager = new IWebGPUBlitManager();
     }
 
-    public override resize(width: number, height: number, surfaceTransform: SurfaceTransform): void {
+    public override resize (width: number, height: number, surfaceTransform: SurfaceTransform): void {
         const device = WebGPUDeviceManager.instance.nativeDevice!;
         // Make sure it's valid for WebGPU
         width = Math.max(1, Math.min(width, device.limits.maxTextureDimension2D));
@@ -114,7 +116,7 @@ export class WebGPUSwapchain extends Swapchain {
         }
     }
 
-    public override destroy(): void {
+    public override destroy (): void {
         if (this._canvas && this._webGPUDeviceLostHandler) {
             this._webGPUDeviceLostHandler = null;
         }
@@ -136,42 +138,42 @@ export class WebGPUSwapchain extends Swapchain {
         this._canvas = null;
     }
 
-    public get colorTexture(): Texture {
+    public get colorTexture (): Texture {
         (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
         return this._colorTexture;
     }
 
-    public get colorGPUTexture(): GPUTexture {
+    public get colorGPUTexture (): GPUTexture {
         (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
         return (this._colorTexture as WebGPUTexture).gpuTexture.glTexture!;
     }
 
-    public get colorGPUTextureView(): GPUTextureView {
+    public get colorGPUTextureView (): GPUTextureView {
         (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
         return (this._colorTexture as WebGPUTexture).gpuTexture.glTexture!.createView();
     }
 
-    public get depthStencilTexture(): Texture {
-        return this._depthStencilTexture!;
+    public get depthStencilTexture (): Texture {
+        return this._depthStencilTexture;
     }
 
-    public get gpuDepthStencilTexture(): GPUTexture {
-        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.glTexture!; 
+    public get gpuDepthStencilTexture (): GPUTexture {
+        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.glTexture!;
     }
 
-    public get gpuDepthStencilTextureView(): GPUTextureView {
-        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.glTexture!.createView(); 
+    public get gpuDepthStencilTextureView (): GPUTextureView {
+        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.glTexture!.createView();
     }
 
-    private _createTexture(width: number, height: number): WebGPUTexture {
+    private _createTexture (width: number, height: number): WebGPUTexture {
         const device = WebGPUDeviceManager.instance;
         const swapchainFormat = device.swapchainFormat;// navigator.gpu.getPreferredCanvasFormat();
-        if(!this._colorTexture) {
+        if (!this._colorTexture) {
             const nativeDevice = device.nativeDevice as GPUDevice;
             const gpuConfig: GPUCanvasConfiguration = {
                 device: nativeDevice,
                 format: swapchainFormat,
-                alphaMode: 'opaque'
+                alphaMode: 'opaque',
             };
             device.gpuConfig = gpuConfig;
             device.context.configure(gpuConfig);
@@ -180,26 +182,28 @@ export class WebGPUSwapchain extends Swapchain {
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
             format: WGPUFormatToGFXFormat(swapchainFormat),
-            width: width,
-            height: height
+            width,
+            height,
         });
         (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = device.context.getCurrentTexture();
         return (this._colorTexture as WebGPUTexture);
     }
 
-    private _createDepthStencilTexture(width: number, height: number): WebGPUTexture {
+    private _createDepthStencilTexture (width: number, height: number): WebGPUTexture {
         const device = WebGPUDeviceManager.instance;
         const depthInfo = new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
             Format.DEPTH_STENCIL,
-            width, height)
+            width,
+            height,
+        );
         const depthTexture = device.createTexture(depthInfo);
         return depthTexture as WebGPUTexture;
     }
 
     private _onWebGPUDeviceLost (info: GPUDeviceLostInfo): void {
         warnID(11000);
-        warn(event);
+        warn('webgpu device lost');
     }
 }

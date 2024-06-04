@@ -25,21 +25,21 @@
 import { InputAssembler } from '../base/input-assembler';
 import { WebGPUBuffer } from './webgpu-buffer';
 import { WebGPUCmdFuncCreateInputAssember, WebGPUCmdFuncDestroyInputAssembler } from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
 import { IWebGPUGPUInputAssembler, IWebGPUGPUBuffer } from './webgpu-gpu-objects';
 import { InputAssemblerInfo } from '../base/define';
 import { WebGPUDeviceManager } from './define';
+import { error } from '../../core';
 
 export class WebGPUInputAssembler extends InputAssembler {
-    public get gpuInputAssembler(): IWebGPUGPUInputAssembler {
+    public get gpuInputAssembler (): IWebGPUGPUInputAssembler {
         return this._gpuInputAssembler!;
     }
 
     private _gpuInputAssembler: IWebGPUGPUInputAssembler | null = null;
 
-    public initialize(info: Readonly<InputAssemblerInfo>): void {
+    public initialize (info: Readonly<InputAssemblerInfo>): void {
         if (info.vertexBuffers.length === 0) {
-            console.error('InputAssemblerInfo.vertexBuffers is null.');
+            error('InputAssemblerInfo.vertexBuffers is null.');
             return;
         }
 
@@ -77,12 +77,12 @@ export class WebGPUInputAssembler extends InputAssembler {
             gpuIndexBuffer = (info.indexBuffer as WebGPUBuffer).gpuBuffer;
             if (gpuIndexBuffer) {
                 switch (gpuIndexBuffer.stride) {
-                    // case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
-                    case 2: glIndexType = 'uint16'; break; // WebGLRenderingContext.UNSIGNED_SHORT
-                    case 4: glIndexType = 'uint32'; break; // WebGLRenderingContext.UNSIGNED_INT
-                    default: {
-                        console.error('Illegal index buffer stride.');
-                    }
+                // case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
+                case 2: glIndexType = 'uint16'; break; // WebGLRenderingContext.UNSIGNED_SHORT
+                case 4: glIndexType = 'uint32'; break; // WebGLRenderingContext.UNSIGNED_INT
+                default: {
+                    error('Illegal index buffer stride.');
+                }
                 }
             }
         }
@@ -102,11 +102,11 @@ export class WebGPUInputAssembler extends InputAssembler {
             glIndexType,
         };
 
-        WebGPUCmdFuncCreateInputAssember(WebGPUDeviceManager.instance as WebGPUDevice, this._gpuInputAssembler);
+        WebGPUCmdFuncCreateInputAssember(WebGPUDeviceManager.instance, this._gpuInputAssembler);
     }
 
-    public destroy() {
-        const WebGPUDev = WebGPUDeviceManager.instance as WebGPUDevice;
+    public destroy (): void {
+        const WebGPUDev = WebGPUDeviceManager.instance;
         if (this._gpuInputAssembler) {
             WebGPUCmdFuncDestroyInputAssembler(WebGPUDev, this._gpuInputAssembler);
         }

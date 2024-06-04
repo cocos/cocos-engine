@@ -29,16 +29,16 @@ import { SamplerInfo } from '../base/define';
 import { WebGPUDeviceManager } from './define';
 
 export class WebGPUSampler extends Sampler {
-    public get gpuSampler(): IWebGPUGPUSampler {
+    public get gpuSampler (): IWebGPUGPUSampler {
         return this._gpuSampler!;
     }
 
     private _gpuSampler: IWebGPUGPUSampler | null = null;
     private _hasChange: boolean = false;
-    get hasChange() {
+    get hasChange (): boolean {
         return this._hasChange;
     }
-    public resetChange() {
+    public resetChange (): void {
         this._hasChange = false;
     }
     constructor (info: Readonly<SamplerInfo>, hash: number) {
@@ -54,7 +54,7 @@ export class WebGPUSampler extends Sampler {
             addressW: info.addressW,
             maxAnisotropy: info.maxAnisotropy,
             mipLevel: 1,
-            
+
             glMinFilter: 'linear',
             glMagFilter: 'linear',
             glMipFilter: 'linear',
@@ -64,8 +64,8 @@ export class WebGPUSampler extends Sampler {
         };
     }
 
-    public createGPUSampler(mipLevel: number = 1) {
-        if(this._gpuSampler && !this.gpuSampler.glSampler) {
+    public createGPUSampler (mipLevel: number = 1): void {
+        if (this._gpuSampler && !this.gpuSampler.glSampler) {
             this._gpuSampler.mipLevel = mipLevel;
             const device = WebGPUDeviceManager.instance;
             this._hasChange = true;
@@ -73,12 +73,13 @@ export class WebGPUSampler extends Sampler {
         }
     }
 
-    public destroy() {
-        if (this._gpuSampler) {
-            this._hasChange = true;
-            const device = WebGPUDeviceManager.instance;
-            WebGPUCmdFuncDestroySampler(device, this._gpuSampler);
-            this._gpuSampler = null;
+    public destroy (): void {
+        if (!this._gpuSampler) {
+            return;
         }
+        this._hasChange = true;
+        const device = WebGPUDeviceManager.instance;
+        WebGPUCmdFuncDestroySampler(device, this._gpuSampler);
+        this._gpuSampler = null;
     }
 }

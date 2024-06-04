@@ -29,12 +29,12 @@ import { WebGPUTexture } from './webgpu-texture';
 import { FramebufferInfo } from '../base/define';
 
 export class WebGPUFramebuffer extends Framebuffer {
-    get gpuFramebuffer(): IWebGPUGPUFramebuffer {
+    get gpuFramebuffer (): IWebGPUGPUFramebuffer {
         return this._gpuFramebuffer!;
     }
 
     private _gpuFramebuffer: IWebGPUGPUFramebuffer | null = null;
-    public initialize(info: Readonly<FramebufferInfo>): void {
+    public initialize (info: Readonly<FramebufferInfo>): void {
         this._renderPass = info.renderPass;
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
@@ -46,7 +46,7 @@ export class WebGPUFramebuffer extends Framebuffer {
             if (colorTexture) {
                 const gpuTex = colorTexture.gpuTexture;
                 gpuColorTextures.push(gpuTex);
-                if(gpuTex.isSwapchainTexture) {
+                if (gpuTex.isSwapchainTexture) {
                     isOffscreen = false;
                 }
             }
@@ -63,7 +63,7 @@ export class WebGPUFramebuffer extends Framebuffer {
             gpuColorTextures,
             gpuDepthStencilTexture,
             glFramebuffer: null,
-            isOffscreen: isOffscreen,
+            isOffscreen,
             get width (): number {
                 if (this.gpuColorTextures.length > 0) {
                     return this.gpuColorTextures[0].width;
@@ -91,7 +91,7 @@ export class WebGPUFramebuffer extends Framebuffer {
         this._height = this._gpuFramebuffer.height;
     }
 
-    public destroy() {
+    public destroy (): void {
         if (this._gpuFramebuffer) {
             this._gpuFramebuffer = null;
         }

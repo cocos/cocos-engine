@@ -55,7 +55,7 @@ export class WebGPUStateCache {
     public gpuCurrentAttribLocs: boolean[] = [];
     public texUnitCacheMap: Record<string, number> = {};
 
-    initialize(texUnit: number, bufferBindings: number, vertexAttributes: number) {
+    initialize (texUnit: number, bufferBindings: number, vertexAttributes: number): void {
         for (let i = 0; i < texUnit; ++i) this.gpuTexUnits.push({ glTexture: null });
 
         this.gpuSamplerUnits.length = texUnit;

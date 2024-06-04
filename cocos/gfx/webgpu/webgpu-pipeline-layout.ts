@@ -29,25 +29,15 @@ import { PipelineLayoutInfo } from '../base/define';
 import { WebGPUDeviceManager } from './define';
 
 export class WebGPUPipelineLayout extends PipelineLayout {
-    get gpuPipelineLayout () { return this._gpuPipelineLayout!; }
+    get gpuPipelineLayout (): IWebGPUGPUPipelineLayout | null { return this._gpuPipelineLayout!; }
 
     private _gpuPipelineLayout: IWebGPUGPUPipelineLayout | null = null;
     private _nativePipelineLayout!: GPUPipelineLayout;
     private _bindGrpLayouts: GPUBindGroupLayout[] = [];
-    
-    // public isChange() {
-    //     for (let i = 0; i < this._setLayouts.length; i++) {
-    //         const setLayout = this._setLayouts[i] as WebGPUDescriptorSetLayout;
-    //         if(setLayout.hasChanged) {
-    //             return true;
-    //         }
-    //     }
-    //     return false;
-    // }
 
-    public fetchPipelineLayout(resetAll: boolean = true): GPUPipelineLayout {
+    public fetchPipelineLayout (resetAll: boolean = true): GPUPipelineLayout {
         const gpuPipelineLayout = this._gpuPipelineLayout!;
-        if(resetAll) {
+        if (resetAll) {
             gpuPipelineLayout.gpuSetLayouts.length = 0;
             gpuPipelineLayout.dynamicOffsetIndices.length = 0;
         }
@@ -56,17 +46,17 @@ export class WebGPUPipelineLayout extends PipelineLayout {
         this._bindGrpLayouts.length = 0;
         for (let i = 0; i < this._setLayouts.length; i++) {
             const setLayout = this._setLayouts[i] as WebGPUDescriptorSetLayout;
-            const bindGroupLayout = setLayout.gpuDescriptorSetLayout.bindGroupLayout;
+            const bindGroupLayout = setLayout.gpuDescriptorSetLayout!.bindGroupLayout;
             if (bindGroupLayout) {
-                if(resetAll) {
-                    const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings;
-                    const indices = Array(setLayout.bindingIndices.length).fill(-1);
+                if (resetAll) {
+                    const dynamicBindings = setLayout.gpuDescriptorSetLayout!.dynamicBindings;
+                    const indices: number[] = Array(setLayout.bindingIndices.length).fill(-1);
                     for (let j = 0; j < dynamicBindings.length; j++) {
                         const binding = dynamicBindings[j];
                         if (indices[binding] < 0) indices[binding] = gpuPipelineLayout.dynamicOffsetCount + j;
                     }
 
-                    gpuPipelineLayout.gpuSetLayouts.push(setLayout.gpuDescriptorSetLayout);
+                    gpuPipelineLayout.gpuSetLayouts.push(setLayout.gpuDescriptorSetLayout!);
                     gpuPipelineLayout.dynamicOffsetIndices.push(indices);
                     gpuPipelineLayout.dynamicOffsetCount += dynamicBindings.length;
                 }
@@ -74,21 +64,21 @@ export class WebGPUPipelineLayout extends PipelineLayout {
             }
             // setLayout.resetChange();
         }
-        
+
         this._nativePipelineLayout = nativeDevice?.createPipelineLayout({ bindGroupLayouts: this._bindGrpLayouts }) as GPUPipelineLayout;
         return this._nativePipelineLayout;
     }
 
-    public initialize (info: PipelineLayoutInfo) {
+    public initialize (info: PipelineLayoutInfo): boolean {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);
 
         const dynamicOffsetIndices: number[][] = [];
 
         const gpuSetLayouts: IWebGPUGPUDescriptorSetLayout[] = [];
-        
-        let dynamicOffsetCount = 0;
 
-        
+        const dynamicOffsetCount = 0;
+
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const that = this;
         this._gpuPipelineLayout = {
             setLayouts: this._setLayouts,
@@ -98,24 +88,20 @@ export class WebGPUPipelineLayout extends PipelineLayout {
             gpuBindGroupLayouts: this._bindGrpLayouts,
             // In order to avoid binding exceeding the number specified by webgpu,
             // gpulayout changes dynamically instead of binding everything at once.
-            get nativePipelineLayout() {
-                // if(!that.isChange()) {
-                    return that._nativePipelineLayout;
-                // }
-                // return that.fetchPipelineLayout(false);
+            get nativePipelineLayout (): GPUPipelineLayout {
+                return that._nativePipelineLayout;
             },
 
         };
-        this.fetchPipelineLayout(); 
+        this.fetchPipelineLayout();
         return true;
     }
 
-    public changeSetLayout(idx: number, setLayout: WebGPUDescriptorSetLayout)
-    {
+    public changeSetLayout (idx: number, setLayout: WebGPUDescriptorSetLayout): void {
         this._setLayouts[idx] = setLayout;
     }
 
-    public destroy () {
+    public destroy (): void {
         this._setLayouts.length = 0;
     }
 }

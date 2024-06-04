@@ -102,7 +102,7 @@ export interface IWebGPUTexture {
     glMagFilter: GPUFilterMode;
 
     isSwapchainTexture: boolean;
-    getTextureView: Function;
+    getTextureView: () => GPUTextureView | null;
 }
 
 export interface IWebGPUGPURenderPass {

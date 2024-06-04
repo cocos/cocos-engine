@@ -34,27 +34,20 @@ import {
 } from './webgpu-commands';
 
 export class WebGPUCommandPool<T extends WebGPUCmdObject> {
-
-    private _frees: (T|null)[];
+    private _frees: (T | null)[];
     private _freeIdx: number = 0;
     private _freeCmds: CachedArray<T>;
 
-    constructor (clazz: new() => T, count: number) {
+    constructor (Clazz: new() => T, count: number) {
         this._frees = new Array(count);
         this._freeCmds = new CachedArray(count);
         for (let i = 0; i < count; ++i) {
-            this._frees[i] = new clazz();
+            this._frees[i] = new Clazz();
         }
         this._freeIdx = count - 1;
     }
 
-    /*
-    public alloc (clazz: new() => T): T {
-        return new clazz();
-    }
-    */
-
-    public alloc (clazz: new() => T): T {
+    public alloc (Clazz: new() => T): T {
         if (this._freeIdx < 0) {
             const size = this._frees.length * 2;
             const temp = this._frees;
@@ -62,7 +55,7 @@ export class WebGPUCommandPool<T extends WebGPUCmdObject> {
 
             const increase = size - temp.length;
             for (let i = 0; i < increase; ++i) {
-                this._frees[i] = new clazz();
+                this._frees[i] = new Clazz();
             }
 
             for (let i = increase, j = 0; i < size; ++i, ++j) {
@@ -78,14 +71,13 @@ export class WebGPUCommandPool<T extends WebGPUCmdObject> {
         return cmd;
     }
 
-    public free (cmd: T) {
+    public free (cmd: T): void {
         if (--cmd.refCount === 0) {
             this._freeCmds.push(cmd);
         }
     }
 
-    public freeCmds (cmds: CachedArray<T>) {
-        // return ;
+    public freeCmds (cmds: CachedArray<T>): void {
         for (let i = 0; i < cmds.length; ++i) {
             if (--cmds.array[i].refCount === 0) {
                 this._freeCmds.push(cmds.array[i]);
@@ -93,7 +85,7 @@ export class WebGPUCommandPool<T extends WebGPUCmdObject> {
         }
     }
 
-    public release () {
+    public release (): void {
         for (let i = 0; i < this._freeCmds.length; ++i) {
             const cmd = this._freeCmds.array[i];
             cmd.clear();
@@ -104,7 +96,6 @@ export class WebGPUCommandPool<T extends WebGPUCmdObject> {
 }
 
 export class WebGPUCommandAllocator {
-
     public beginRenderPassCmdPool: WebGPUCommandPool<WebGPUCmdBeginRenderPass>;
     public bindStatesCmdPool: WebGPUCommandPool<WebGPUCmdBindStates>;
     public drawCmdPool: WebGPUCommandPool<WebGPUCmdDraw>;
@@ -119,8 +110,7 @@ export class WebGPUCommandAllocator {
         this.copyBufferToTextureCmdPool = new WebGPUCommandPool(WebGPUCmdCopyBufferToTexture, 1);
     }
 
-    public clearCmds (cmdPackage: WebGPUCmdPackage) {
-
+    public clearCmds (cmdPackage: WebGPUCmdPackage): void {
         if (cmdPackage.beginRenderPassCmds.length) {
             this.beginRenderPassCmdPool.freeCmds(cmdPackage.beginRenderPassCmds);
             cmdPackage.beginRenderPassCmds.clear();
@@ -149,7 +139,7 @@ export class WebGPUCommandAllocator {
         cmdPackage.cmds.clear();
     }
 
-    public releaseCmds () {
+    public releaseCmds (): void {
         this.beginRenderPassCmdPool.release();
         this.bindStatesCmdPool.release();
         this.drawCmdPool.release();

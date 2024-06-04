@@ -69,11 +69,11 @@ export class DefaultResources {
     descSet!: DescriptorSet;
 }
 
-export function isBound(binds: number[], compares: number[]): boolean {
-    return binds.length === compares.length && binds.every(bind => compares.includes(bind));
+export function isBound (binds: number[], compares: number[]): boolean {
+    return binds.length === compares.length && binds.every((bind) => compares.includes(bind));
 }
 
-export function copyNumbersToTarget(source: number[], target: number[], start: number, count: number): void {
+export function copyNumbersToTarget (source: number[], target: number[], start: number, count: number): void {
     // Check that the source array is out of range
     if (start + count > source.length) {
         throw new Error('Source array is out of bounds');

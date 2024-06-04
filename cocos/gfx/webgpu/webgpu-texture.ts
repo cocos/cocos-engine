@@ -30,10 +30,9 @@ import {
     ISwapchainTextureInfo,
     TextureHandle,
     FormatInfos,
-    TextureUsageBit
+    TextureUsageBit,
 } from '../base/define';
 import { Texture } from '../base/texture';
-import { GFXFormatToWebGLFormat } from '../webgl/webgl-commands';
 import { WebGPUDeviceManager } from './define';
 import {
     GFXFormatToWGPUFormat,
@@ -42,11 +41,10 @@ import {
     WebGPUCmdFuncResizeTexture,
     WGPUFormatToGFXFormat,
 } from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
 import { IWebGPUTexture } from './webgpu-gpu-objects';
 
 export class WebGPUTexture extends Texture {
-    public getTextureHandle(): TextureHandle {
+    public getTextureHandle (): TextureHandle {
         const gpuTexture = this._gpuTexture;
         if (!gpuTexture) {
             return 0;
@@ -56,7 +54,7 @@ export class WebGPUTexture extends Texture {
         }
         return 0;
     }
-    public initAsSwapchainTexture(info: Readonly<ISwapchainTextureInfo>): void {
+    public initAsSwapchainTexture (info: Readonly<ISwapchainTextureInfo>): void {
         const texInfo = new TextureInfo();
         texInfo.format = info.format;
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;
@@ -64,7 +62,7 @@ export class WebGPUTexture extends Texture {
         texInfo.height = info.height;
         this.initialize(texInfo, true);
     }
-    get gpuTexture(): IWebGPUTexture {
+    get gpuTexture (): IWebGPUTexture {
         return this._gpuTexture!;
     }
 
@@ -78,10 +76,10 @@ export class WebGPUTexture extends Texture {
     get hasChange (): boolean {
         return this._hasChange;
     }
-    public resetChange() {
+    public resetChange (): void {
         this._hasChange = false;
     }
-    public initialize(info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean) {
+    public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean): void {
         let texInfo = info as Readonly<TextureInfo>;
         const viewInfo = info as Readonly<TextureViewInfo>;
         if ('texture' in info) {
@@ -91,9 +89,14 @@ export class WebGPUTexture extends Texture {
 
         this._info.copy(texInfo);
         this._isPowerOf2 = IsPowerOf2(this._info.width) && IsPowerOf2(this._info.height);
-        this._size = FormatSurfaceSize(this._info.format, this.width, this.height,
-            this.depth, this._info.levelCount) * this._info.layerCount;
-        if(!this._isTextureView) {
+        this._size = FormatSurfaceSize(
+            this._info.format,
+            this.width,
+            this.height,
+            this.depth,
+            this._info.levelCount,
+        ) * this._info.layerCount;
+        if (!this._isTextureView) {
             this._gpuTexture = {
                 type: texInfo.type,
                 format: texInfo.format,
@@ -124,9 +127,9 @@ export class WebGPUTexture extends Texture {
 
                 isSwapchainTexture: isSwapchainTexture || false,
             };
-            if(!isSwapchainTexture) {
+            if (!isSwapchainTexture) {
                 const device = WebGPUDeviceManager.instance;
-                WebGPUCmdFuncCreateTexture(device as WebGPUDevice, this._gpuTexture!);
+                WebGPUCmdFuncCreateTexture(device, this._gpuTexture);
                 device.memoryStatus.textureSize += this._size;
             } else {
                 this._gpuTexture.glInternalFmt = GFXFormatToWGPUFormat(this._gpuTexture.format);
@@ -146,40 +149,42 @@ export class WebGPUTexture extends Texture {
         }
     }
 
-    set gpuFormat(val: GPUTextureFormat) {
+    set gpuFormat (val: GPUTextureFormat) {
         if (!this._isTextureView && this._gpuTexture && !this._gpuTexture.isSwapchainTexture) {
             WebGPUCmdFuncDestroyTexture(this._gpuTexture);
             const device = WebGPUDeviceManager.instance;
             this._gpuTexture.format =  WGPUFormatToGFXFormat(val);
-            WebGPUCmdFuncCreateTexture(device as WebGPUDevice, this._gpuTexture!);
+            WebGPUCmdFuncCreateTexture(device, this._gpuTexture);
             this._hasChange = true;
         }
     }
 
-    public getNativeTextureView() {
-        if (this._gpuTexture?.glTexture) {
-            return this._gpuTexture.glTexture.createView({
-                format: this.gpuTexture.glFormat,
-                dimension: this._gpuTexture.glTarget,
-                mipLevelCount: this._gpuTexture.mipLevel,
-                arrayLayerCount: this.viewInfo.layerCount,
-                baseMipLevel: 0,
-                baseArrayLayer: 0
-              });
+    public getNativeTextureView (): GPUTextureView | null {
+        if (!this._gpuTexture || !this._gpuTexture.glTexture) {
+            return null;
         }
+        return this._gpuTexture.glTexture.createView({
+            format: this.gpuTexture.glFormat,
+            dimension: this._gpuTexture.glTarget,
+            mipLevelCount: this._gpuTexture.mipLevel,
+            arrayLayerCount: this.viewInfo.layerCount,
+            baseMipLevel: 0,
+            baseArrayLayer: 0,
+        });
     }
 
-    public destroy() {
-        if (!this._isTextureView && this._gpuTexture) {
-            WebGPUCmdFuncDestroyTexture(this._gpuTexture);
-            const device = WebGPUDeviceManager.instance;
-            device.memoryStatus.textureSize -= this._size;
-            this._gpuTexture = null;
-            this._hasChange = true;
+    public destroy (): void {
+        if (this._isTextureView || (!this._isTextureView && !this._gpuTexture)) {
+            return;
         }
+        WebGPUCmdFuncDestroyTexture(this._gpuTexture!);
+        const device = WebGPUDeviceManager.instance;
+        device.memoryStatus.textureSize -= this._size;
+        this._gpuTexture = null;
+        this._hasChange = true;
     }
 
-    public resize(width: number, height: number) {
+    public resize (width: number, height: number): void {
         if (this._info.width === width && this._info.height === height) {
             return;
         }
@@ -192,16 +197,21 @@ export class WebGPUTexture extends Texture {
         const oldSize = this._size;
         this._info.width = width;
         this._info.height = height;
-        this._size = FormatSurfaceSize(this.info.format, this.width, this.height,
-            this.depth, this.info.levelCount) * this.info.layerCount;
+        this._size = FormatSurfaceSize(
+            this.info.format,
+            this.width,
+            this.height,
+            this.depth,
+            this.info.levelCount,
+        ) * this.info.layerCount;
 
         if (!this._isTextureView && this._gpuTexture) {
             this._gpuTexture.width = width;
             this._gpuTexture.height = height;
             this._gpuTexture.size = this._size;
-            if(!this._gpuTexture.isSwapchainTexture) {
+            if (!this._gpuTexture.isSwapchainTexture) {
                 const device = WebGPUDeviceManager.instance;
-                WebGPUCmdFuncResizeTexture(device as WebGPUDevice, this._gpuTexture);
+                WebGPUCmdFuncResizeTexture(device, this._gpuTexture);
                 device.memoryStatus.textureSize -= oldSize;
                 device.memoryStatus.textureSize += this._size;
             }

@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { fetchUrl } from 'pal/wasm';
 import glslang  from './external/glslang';
 import twgsl from './external/twgsl';
 import { DescriptorSet } from '../base/descriptor-set';
@@ -52,8 +53,7 @@ import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUShader } from './webgpu-shader';
 import { WebGPUStateCache } from './webgpu-state-cache';
 import { WebGPUTexture } from './webgpu-texture';
-import { DefaultResources, DescUpdateFrequency, hashCombineNum, hashCombineStr } from './define';
-// import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture } from './webgpu-commands';
+import { DefaultResources, DescUpdateFrequency, hashCombineNum, hashCombineStr, WebGPUDeviceManager } from './define';
 import {
     Filter, Format,
     QueueType, Feature, BufferTextureCopy, Rect, DescriptorSetInfo,
@@ -82,64 +82,64 @@ import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { Swapchain } from '../base/swapchain';
 import { WebGPUSwapchain } from './webgpu-swapchain';
-import { WebGPUDeviceManager } from './define';
+
 import { IWebGPUBindingMapping, IWebGPUGPUBuffer as IWebGPUBuffer, IWebGPUGPUSampler as IWebGPUSampler, IWebGPUTexture } from './webgpu-gpu-objects';
-import { debug } from '../../core';
-import { fetchUrl } from 'pal/wasm';
+import { debug, warn } from '../../core';
 import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture, WebGPUCmdFuncCopyTextureToBuffer } from './webgpu-commands';
 
 export class WebGPUDevice extends Device {
-    public createSwapchain(info: Readonly<SwapchainInfo>): Swapchain {
+    public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
         const swapchain = new WebGPUSwapchain();
         this._swapchain = swapchain;
         swapchain.initialize(info);
         return swapchain;
     }
-    public getSampler(info: Readonly<SamplerInfo>): Sampler {
+    public getSampler (info: Readonly<SamplerInfo>): Sampler {
         const hash = Sampler.computeHash(info);
         if (!this._samplers.has(hash)) {
             this._samplers.set(hash, new WebGPUSampler(info, hash));
         }
         return this._samplers.get(hash)!;
     }
-    public getSwapchains(): readonly Swapchain[] {
+    public getSwapchains (): readonly Swapchain[] {
         return [this._swapchain as Swapchain];
     }
-    public getGeneralBarrier(info: Readonly<GeneralBarrierInfo>): GeneralBarrier {
+    public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier {
         const hash = GeneralBarrier.computeHash(info);
         if (!this._generalBarrierss.has(hash)) {
             this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
         }
         return this._generalBarrierss.get(hash)!;
     }
-    public getTextureBarrier(info: Readonly<TextureBarrierInfo>): TextureBarrier {
+    public getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier {
         const hash = TextureBarrier.computeHash(info);
         if (!this._textureBarriers.has(hash)) {
             this._textureBarriers.set(hash, new TextureBarrier(info, hash));
         }
         return this._textureBarriers.get(hash)!;
     }
-    public getBufferBarrier(info: Readonly<BufferBarrierInfo>): BufferBarrier {
+    public getBufferBarrier (info: Readonly<BufferBarrierInfo>): BufferBarrier {
         const hash = BufferBarrier.computeHash(info);
         if (!this._bufferBarriers.has(hash)) {
             this._bufferBarriers.set(hash, new BufferBarrier(info, hash));
         }
         return this._bufferBarriers.get(hash)!;
     }
-    public async copyTextureToBuffers(texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: readonly BufferTextureCopy[]): Promise<void> {
+    public async copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: readonly BufferTextureCopy[]): Promise<void> {
         await WebGPUCmdFuncCopyTextureToBuffer(this, (texture as WebGPUTexture).gpuTexture, buffers, regions);
     }
-    public flushCommands (cmdBuffs: CommandBuffer[]): void {}
-
+    public flushCommands (cmdBuffs: CommandBuffer[]): void {
+        // noop
+    }
 
     get isPremultipliedAlpha (): boolean {
-        if(!this._gpuConfig) {
+        if (!this._gpuConfig) {
             return false;
         }
         return this._gpuConfig.alphaMode === 'premultiplied';
     }
 
-    get multiDrawIndirectSupport () {
+    get multiDrawIndirectSupport (): boolean {
         return this._multiDrawIndirect;
     }
 
@@ -230,7 +230,8 @@ export class WebGPUDevice extends Device {
         this._formatFeatures[Format.RGB16F] = tempFeature;
         this._formatFeatures[Format.RGBA16F] = tempFeature;
 
-        tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
+        tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.RENDER_TARGET
+        | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
         this._formatFeatures[Format.R32F] = tempFeature;
         this._formatFeatures[Format.RG32F] = tempFeature;
@@ -315,7 +316,7 @@ export class WebGPUDevice extends Device {
             this._textureExclusive[Format.R32F] = false;
             this._textureExclusive[Format.RG32F] = false;
             this._textureExclusive[Format.RGBA32F] = false;
-            
+
             this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures[Format.R32F] |= FormatFeatureBit.LINEAR_FILTER;
@@ -326,7 +327,7 @@ export class WebGPUDevice extends Device {
             this._textureExclusive[Format.R16F] = false;
             this._textureExclusive[Format.RG16F] = false;
             this._textureExclusive[Format.RGBA16F] = false;
-            
+
             this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures[Format.R16F] |= FormatFeatureBit.LINEAR_FILTER;
@@ -388,14 +389,17 @@ export class WebGPUDevice extends Device {
         }
     }
 
-    public getDefaultDescResources(entry: GPUBindGroupLayoutEntry, resourceInfo: IWebGPUBuffer | IWebGPUTexture | IWebGPUSampler) {
+    public getDefaultDescResources (
+        entry: GPUBindGroupLayoutEntry,
+        resourceInfo: IWebGPUBuffer | IWebGPUTexture | IWebGPUSampler,
+    ): WebGPUBuffer | WebGPUTexture | WebGPUSampler | undefined {
         let currHash = hashCombineNum(entry.visibility, 0);
         const defaultRes = this.defaultResource;
-        if(entry.buffer) {
+        if (entry.buffer) {
             currHash = hashCombineStr(entry.buffer.type!, currHash);
-            if(entry.buffer.hasDynamicOffset) currHash = hashCombineNum(entry.buffer.hasDynamicOffset ? 1 : 0, currHash);
-            if(entry.buffer.minBindingSize !== undefined) currHash = hashCombineNum(entry.buffer.minBindingSize, currHash);
-            if(defaultRes.buffersDescLayout.has(currHash)) {
+            if (entry.buffer.hasDynamicOffset) currHash = hashCombineNum(entry.buffer.hasDynamicOffset ? 1 : 0, currHash);
+            if (entry.buffer.minBindingSize !== undefined) currHash = hashCombineNum(entry.buffer.minBindingSize, currHash);
+            if (defaultRes.buffersDescLayout.has(currHash)) {
                 return defaultRes.buffersDescLayout.get(currHash);
             }
             resourceInfo = resourceInfo as IWebGPUBuffer;
@@ -406,22 +410,22 @@ export class WebGPUDevice extends Device {
             bufferInfo.flags = resourceInfo.flags!;
             defaultRes.buffersDescLayout.set(currHash, this.createBuffer(bufferInfo) as WebGPUBuffer);
             return defaultRes.buffersDescLayout.get(currHash);
-        } else if(entry.texture){
+        } else if (entry.texture) {
             resourceInfo = resourceInfo as IWebGPUTexture;
             currHash = hashCombineStr(entry.texture.sampleType!, currHash);
             currHash = hashCombineStr(entry.texture.viewDimension!, currHash);
             currHash = hashCombineNum(entry.texture.multisampled ? 1 : 0, currHash);
             currHash = hashCombineNum(resourceInfo.mipLevel, currHash);
             currHash = hashCombineNum(resourceInfo.arrayLayer, currHash);
-            if(defaultRes.texturesDescLayout.has(currHash)) {
+            if (defaultRes.texturesDescLayout.has(currHash)) {
                 return defaultRes.texturesDescLayout.get(currHash);
             }
             const texInfo = new TextureInfo(
                 resourceInfo.type,
                 resourceInfo.usage,
                 resourceInfo.format,
-                Math.pow(2, resourceInfo.mipLevel - 1),
-                Math.pow(2, resourceInfo.mipLevel - 1),
+                2 ** (resourceInfo.mipLevel - 1),
+                2 ** (resourceInfo.mipLevel - 1),
                 resourceInfo.flags,
                 resourceInfo.arrayLayer,
                 resourceInfo.mipLevel,
@@ -430,10 +434,10 @@ export class WebGPUDevice extends Device {
             );
             defaultRes.texturesDescLayout.set(currHash, this.createTexture(texInfo) as WebGPUTexture);
             return defaultRes.texturesDescLayout.get(currHash);
-        } else if(entry.sampler) {
+        } else if (entry.sampler) {
             resourceInfo = resourceInfo as IWebGPUSampler;
             currHash = hashCombineStr(entry.sampler.type!, currHash);
-            if(defaultRes.samplersDescLayout.has(currHash)) {
+            if (defaultRes.samplersDescLayout.has(currHash)) {
                 return defaultRes.samplersDescLayout.get(currHash);
             }
             const samplerInfo = new SamplerInfo();
@@ -447,9 +451,10 @@ export class WebGPUDevice extends Device {
             defaultRes.samplersDescLayout.set(currHash, this.getSampler(samplerInfo) as WebGPUSampler);
             return defaultRes.samplersDescLayout.get(currHash);
         }
+        return undefined;
     }
 
-    private _createDefaultDescSet() {
+    private _createDefaultDescSet (): void {
         const defaultResource = this.defaultResource;
         // default set layout
         const layoutInfo = new DescriptorSetLayoutInfo();
@@ -463,7 +468,7 @@ export class WebGPUDevice extends Device {
         // default set
         const descInfo = new DescriptorSetInfo();
         descInfo.layout = defaultResource.setLayout;
-        defaultResource.descSet = this.createDescriptorSet(descInfo)
+        defaultResource.descSet = this.createDescriptorSet(descInfo);
         defaultResource.descSet.bindBuffer(0, defaultResource.buffer);
         defaultResource.descSet.update();
         (defaultResource.descSet as WebGPUDescriptorSet).prepare(DescUpdateFrequency.NORMAL, [0]);
@@ -475,10 +480,10 @@ export class WebGPUDevice extends Device {
         const maxVertAttrs = this._adapter!.limits.maxVertexAttributes;
         const maxSampledTexPerShaderStage = this._adapter!.limits.maxSampledTexturesPerShaderStage;
         const submitFeatures: GPUFeatureName[] = [];
-        if (this._adapter!.features.has("float32-filterable")) {
-            submitFeatures.push("float32-filterable");
+        if (this._adapter!.features.has('float32-filterable')) {
+            submitFeatures.push('float32-filterable');
         } else {
-            console.warn("Filterable 32-bit float textures support is not available");
+            warn('Filterable 32-bit float textures support is not available');
         }
         this._device = await this._adapter?.requestDevice({
             requiredLimits: {
@@ -488,10 +493,10 @@ export class WebGPUDevice extends Device {
             },
             requiredFeatures: submitFeatures,
         });
-        
+
         this._glslang = await glslang(await fetchUrl('external:emscripten/webgpu/glslang.wasm'));
         this._twgsl = await twgsl(await fetchUrl('external:emscripten/webgpu/twgsl.wasm'));
-        
+
         this._gfxAPI = API.WEBGPU;
 
         const mapping = this._bindingMappingInfo = info.bindingMappingInfo;
@@ -518,11 +523,11 @@ export class WebGPUDevice extends Device {
             flexibleSet: mapping.setIndices[mapping.setIndices.length - 1],
         };
 
-        const canvas = Device.canvas as HTMLCanvasElement;
+        const canvas = Device.canvas;
         this._context = canvas.getContext('webgpu')!;
         const device: GPUDevice = this._device as GPUDevice;
 
-        const adapterInfo = await this._adapter!.requestAdapterInfo();;
+        const adapterInfo = await this._adapter!.requestAdapterInfo();
         this._vendor = adapterInfo.vendor;
         this._renderer = adapterInfo.device;
         const description = adapterInfo.description;
@@ -634,25 +639,31 @@ export class WebGPUDevice extends Device {
         this._swapchain = null;
     }
 
-    public resize (width: number, height: number) {
-
+    public resize (width: number, height: number): void {
+        // noop
     }
 
-    public acquire () {}
+    public acquire (): void {
+        // noop
+    }
 
-    get nativeDevice () {
+    get nativeDevice (): GPUDevice | null | undefined {
         return this._device;
     }
 
-    public get glslang() {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    public get glslang () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._glslang;
     }
 
-    public get twgsl() {
+    // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+    public get twgsl () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._twgsl;
     }
 
-    public present () {
+    public present (): void {
         const queue = (this._queue as unknown as WebGPUQueue);
         this._numDrawCalls = queue.numDrawCalls;
         this._numInstances = queue.numInstances;
@@ -726,7 +737,7 @@ export class WebGPUDevice extends Device {
 
     public createPipelineState (info: Readonly<PipelineStateInfo>): PipelineState {
         const pipelineState = new WebGPUPipelineState();
-        pipelineState.initialize(info)
+        pipelineState.initialize(info);
         return pipelineState;
     }
 
@@ -738,7 +749,7 @@ export class WebGPUDevice extends Device {
         return null!;
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
         WebGPUCmdFuncCopyBuffersToTexture(
             this,
             buffers,
@@ -751,7 +762,7 @@ export class WebGPUDevice extends Device {
         texImages: TexImageSource[],
         texture: Texture,
         regions: BufferTextureCopy[],
-    ) {
+    ): void {
         WebGPUCmdFuncCopyTexImagesToTexture(
             this,
             texImages,
@@ -764,7 +775,11 @@ export class WebGPUDevice extends Device {
         srcFramebuffer: Framebuffer,
         dstBuffer: ArrayBuffer,
         regions: BufferTextureCopy[],
-    ) { }
+    ): void {
+        // noop
+    }
 
-    public blitFramebuffer (src: Framebuffer, dst: Framebuffer, srcRect: Rect, dstRect: Rect, filter: Filter) { }
+    public blitFramebuffer (src: Framebuffer, dst: Framebuffer, srcRect: Rect, dstRect: Rect, filter: Filter): void {
+        // noop
+    }
 }

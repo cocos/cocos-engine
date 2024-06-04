@@ -34,21 +34,21 @@ export class WebGPUQueue extends Queue {
 
     private _nativeQueue: GPUQueue | null = null;
     private _isAsync = false;
-    public initialize(info: QueueInfo): boolean {
+    public initialize (info: QueueInfo): boolean {
         this._type = info.type;
 
         return true;
     }
 
-    public destroy() {
+    public destroy (): void {
+        // noop
     }
 
-    public submit(cmdBuffs: CommandBuffer[]) {
+    public submit (cmdBuffs: CommandBuffer[]): void {
         // TODO: Async
         if (!this._isAsync) {
             for (let i = 0; i < cmdBuffs.length; i++) {
                 const cmdBuff = cmdBuffs[i] as WebGPUCommandBuffer;
-                // WebGPUCmdFuncExecuteCmds(this._device as WebGPUDevice, cmdBuff.cmdPackage); // opted out
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numInstances += cmdBuff.numInstances;
                 this.numTris += cmdBuff.numTris;
@@ -56,7 +56,7 @@ export class WebGPUQueue extends Queue {
         }
     }
 
-    public clear() {
+    public clear (): void {
         this.numDrawCalls = 0;
         this.numInstances = 0;
         this.numTris = 0;

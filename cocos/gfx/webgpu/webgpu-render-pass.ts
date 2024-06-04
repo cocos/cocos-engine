@@ -22,39 +22,35 @@
  THE SOFTWARE.
 */
 
-import { RenderPass, } from '../base/render-pass';
+import { RenderPass } from '../base/render-pass';
 import { IWebGPUGPURenderPass } from './webgpu-gpu-objects';
 import { LoadOp, StoreOp, RenderPassInfo, DepthStencilAttachment, ColorAttachment } from '../base/define';
-import { WGPUFormatToGFXFormat } from './webgpu-commands';
 
 export class WebGPURenderPass extends RenderPass {
-    public get gpuRenderPass(): IWebGPUGPURenderPass {
+    public get gpuRenderPass (): IWebGPUGPURenderPass {
         return this._gpuRenderPass!;
     }
 
     private _gpuRenderPass: IWebGPUGPURenderPass | null = null;
-    private _generateColorAttachment(colorAttachment: ColorAttachment): GPURenderPassColorAttachment {
+    private _generateColorAttachment (colorAttachment: ColorAttachment): GPURenderPassColorAttachment {
         return {
             view: {} as GPUTextureView, // later
             loadOp: colorAttachment.loadOp === LoadOp.LOAD ? 'load' : 'clear', // what ever as long as not 'load'
             storeOp: colorAttachment.storeOp === StoreOp.STORE ? 'store' : 'discard',
         };
     }
-    private _generateDSAttachment(dsAttachment: DepthStencilAttachment): GPURenderPassDepthStencilAttachment {
+    private _generateDSAttachment (dsAttachment: DepthStencilAttachment): GPURenderPassDepthStencilAttachment {
         const depthStencilDescriptor = {} as GPURenderPassDepthStencilAttachment;
         depthStencilDescriptor.depthClearValue = 1.0;
-        depthStencilDescriptor.depthLoadOp = dsAttachment.depthLoadOp === LoadOp.CLEAR ? 'clear' : 'load'
+        depthStencilDescriptor.depthLoadOp = dsAttachment.depthLoadOp === LoadOp.CLEAR ? 'clear' : 'load';
         depthStencilDescriptor.depthStoreOp = dsAttachment.depthStoreOp === StoreOp.STORE ? 'store' : 'discard';
         depthStencilDescriptor.stencilClearValue = 0.0;
-        depthStencilDescriptor.stencilLoadOp = dsAttachment.stencilLoadOp === LoadOp.CLEAR ? 'clear' : 'load'
+        depthStencilDescriptor.stencilLoadOp = dsAttachment.stencilLoadOp === LoadOp.CLEAR ? 'clear' : 'load';
         depthStencilDescriptor.stencilStoreOp = dsAttachment.stencilStoreOp === StoreOp.STORE ? 'store' : 'discard';
         depthStencilDescriptor.view = {} as GPUTextureView;
         return depthStencilDescriptor;
     }
-    public initialize(info: Readonly<RenderPassInfo>): void {
-        // info.colorAttachments.forEach((colorAttachment) => {
-        //     colorAttachment.format = WGPUFormatToGFXFormat(navigator.gpu.getPreferredCanvasFormat());
-        // })
+    public initialize (info: Readonly<RenderPassInfo>): void {
         this._colorInfos = info.colorAttachments;
         this._depthStencilInfo = info.depthStencilAttachment;
         this._subpasses = info.subpasses;
@@ -88,7 +84,7 @@ export class WebGPURenderPass extends RenderPass {
         };
     }
 
-    public destroy() {
+    public destroy (): void {
         this._gpuRenderPass = null;
     }
 }

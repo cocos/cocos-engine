@@ -29,13 +29,13 @@ import { ShaderInfo } from '../base/define';
 import { WebGPUDeviceManager } from './define';
 
 export class WebGPUShader extends Shader {
-    get gpuShader(): IWebGPUGPUShader {
+    get gpuShader (): IWebGPUGPUShader {
         return this._gpuShader!;
     }
 
     private _gpuShader: IWebGPUGPUShader | null = null;
 
-    public initialize(info: Readonly<ShaderInfo>) {
+    public initialize (info: Readonly<ShaderInfo>): void {
         this._name = info.name;
         this._stages = info.stages;
         this._attributes = info.attributes;
@@ -63,18 +63,19 @@ export class WebGPUShader extends Shader {
                 source: stage.source,
                 glShader: null,
                 bindings: [],
-                attrs: new Map()
+                attrs: new Map(),
             };
         }
         const device = WebGPUDeviceManager.instance;
         WebGPUCmdFuncCreateGPUShader(device, this._gpuShader);
     }
 
-    public destroy() {
-        if (this._gpuShader) {
-            const device = WebGPUDeviceManager.instance;
-            WebGPUCmdFuncDestroyShader(device, this._gpuShader);
-            this._gpuShader = null;
+    public destroy (): void {
+        if (!this._gpuShader) {
+            return;
         }
+        const device = WebGPUDeviceManager.instance;
+        WebGPUCmdFuncDestroyShader(device, this._gpuShader);
+        this._gpuShader = null;
     }
 }
