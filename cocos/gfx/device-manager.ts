@@ -63,18 +63,18 @@ export enum LegacyRenderMode {
     WEBGL = 2,
     /**
      * @en
-     * Force WebGPU rendering, but this option will be ignored in some browsers.
-     * @zh
-     * 强制使用 WebGPU 渲染，但是在部分浏览器中这个选项会被忽略。
-     */
-    WEBGPU = 3,
-    /**
-     * @en
      * Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
      * @zh
      * 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用。
      */
-    HEADLESS = 4
+    HEADLESS = 3,
+    /**
+     * @en
+     * Force WebGPU rendering, but this option will be ignored in some browsers.
+     * @zh
+     * 强制使用 WebGPU 渲染，但是在部分浏览器中这个选项会被忽略。
+     */
+    WEBGPU = 4,
 }
 
 /**
@@ -99,7 +99,7 @@ export class DeviceManager {
     private _canvas: HTMLCanvasElement | null = null;
     private _swapchain!: Swapchain;
     private _renderType: RenderType = RenderType.UNKNOWN;
-    private _initDevice = false;
+    private _deviceInitialized = false;
     public get gfxDevice (): Device {
         return this._gfxDevice;
     }
@@ -109,21 +109,21 @@ export class DeviceManager {
     }
 
     private async _tryInitializeDevice (DeviceConstructor, info: DeviceInfo): Promise<void> {
-        if (!this._initDevice && DeviceConstructor) {
+        if (!this._deviceInitialized && DeviceConstructor) {
             this._gfxDevice = new DeviceConstructor();
-            this._initDevice = await this._gfxDevice.initialize(info);
+            this._deviceInitialized = await this._gfxDevice.initialize(info);
         }
     }
 
     public async init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): Promise<void> {
         // Avoid setup to be called twice.
         if (this.initialized) { return; }
-        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') as LegacyRenderMode;
         this._canvas = canvas;
 
         this._renderType = this._determineRenderType(renderMode);
-        this._initDevice = false;
-        // WebGL context created successfully
+        this._deviceInitialized = false;
+        // WebGL or WebGPU context created successfully
         if (this._renderType === RenderType.WEBGL || this._renderType === RenderType.WEBGPU) {
             const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
@@ -153,7 +153,7 @@ export class DeviceManager {
             }
         } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
             this._gfxDevice = new cclegacy.EmptyDevice();
-            this._initDevice = await this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
+            this._deviceInitialized = await this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
             this._initSwapchain();
         }
 
@@ -180,7 +180,7 @@ export class DeviceManager {
     }
 
     private _determineRenderType (renderMode: LegacyRenderMode): RenderType {
-        if (typeof renderMode !== 'number' || renderMode > RenderType.HEADLESS || renderMode < LegacyRenderMode.AUTO) {
+        if (typeof renderMode !== 'number' || renderMode > LegacyRenderMode.WEBGPU || renderMode < LegacyRenderMode.AUTO) {
             renderMode = LegacyRenderMode.AUTO;
         }
         // Determine RenderType
@@ -191,7 +191,7 @@ export class DeviceManager {
             renderType = RenderType.CANVAS;
             supportRender = true;
         } else if (renderMode === LegacyRenderMode.AUTO || renderMode === LegacyRenderMode.WEBGPU) {
-            renderType = this._supportWebGPU() && !EDITOR ? RenderType.WEBGPU : RenderType.WEBGL;
+            renderType = (this._supportWebGPU() && !EDITOR) ? RenderType.WEBGPU : RenderType.WEBGL;
             supportRender = true;
         } else if (renderMode === LegacyRenderMode.WEBGL) {
             renderType = RenderType.WEBGL;

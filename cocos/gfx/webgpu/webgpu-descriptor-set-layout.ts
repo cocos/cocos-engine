@@ -1,3 +1,27 @@
+/*
+ Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+*/
+
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { IWebGPUGPUDescriptorSetLayout } from './webgpu-gpu-objects';
 import { GLStageToWebGPUStage, GLDescTypeToGPUBufferDescType, GLSamplerToGPUSamplerDescType, SEPARATE_SAMPLER_BINDING_OFFSET, TextureSampleTypeTrait } from './webgpu-commands';
@@ -8,7 +32,7 @@ import {
     Format,
     DescriptorType,
 } from '../base/define';
-import { DescUpdateFrequency, WebGPUDeviceManager, isBind } from './define';
+import { DescUpdateFrequency, WebGPUDeviceManager, isBound } from './define';
 import { WebGPUTexture } from './webgpu-texture';
 import { DescriptorSet } from '../base/descriptor-set';
 import { WebGPUBuffer } from './webgpu-buffer';
@@ -162,7 +186,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
     }
 
     public prepare (frequency: DescUpdateFrequency, binds: number[], vertBinds: number[] = [], fragBinds: number[] = []) {
-        if(isBind(binds, this._currBinds) && frequency !== DescUpdateFrequency.LOW
+        if(isBound(binds, this._currBinds) && frequency !== DescUpdateFrequency.LOW
             && binds.length === this._prepareEntries.length) return;
         this._currBinds = binds;
         if(frequency !== DescUpdateFrequency.LOW) {

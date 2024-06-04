@@ -82,18 +82,15 @@ export class SplashScreen {
     private isMobile = false;
 
     private bgMat!: Material;
-    private localBGDesc!: DescriptorSet;
     private bgImage!: HTMLImageElement;
     private bgTexture!: Texture;
 
     private logoMat!: Material;
-    private localLGDesc!: DescriptorSet;
     private logoImage!: HTMLImageElement;
     private logoTexture!: Texture;
 
     private watermarkMat!: Material;
     private watermarkTexture!: Texture;
-    private localWMDesc!: DescriptorSet;
 
     // layout
     private bgWidth = 1920;
@@ -382,9 +379,6 @@ export class SplashScreen {
         const descriptorSet = pass.descriptorSet;
         descriptorSet.bindSampler(binding, this.sampler);
         descriptorSet.update();
-        _dsInfo.layout = pass.localSetLayout;
-        this.localBGDesc = device.createDescriptorSet(_dsInfo);
-        this.localBGDesc.update();
         const region = new BufferTextureCopy();
         region.texExtent.width = this.bgImage.width;
         region.texExtent.height = this.bgImage.height;
@@ -419,9 +413,6 @@ export class SplashScreen {
         const descriptorSet = pass.descriptorSet;
         descriptorSet.bindSampler(binding, this.sampler);
         descriptorSet.update();
-        _dsInfo.layout = pass.localSetLayout;
-        this.localLGDesc = device.createDescriptorSet(_dsInfo);
-        this.localLGDesc.update();
         const region = new BufferTextureCopy();
         region.texExtent.width = this.logoImage.width;
         region.texExtent.height = this.logoImage.height;
@@ -471,10 +462,6 @@ export class SplashScreen {
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding, this.watermarkTexture);
         pass.descriptorSet.update();
-
-        _dsInfo.layout = pass.localSetLayout;
-        this.localWMDesc = this.device.createDescriptorSet(_dsInfo);
-        this.localWMDesc.update();
     }
 
     private frame (): void {
@@ -552,7 +539,6 @@ export class SplashScreen {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, bgPass.descriptorSet);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this.localBGDesc);
                     cmdBuff.bindInputAssembler(this.quadAssmebler);
                     cmdBuff.draw(this.quadAssmebler);
                 }
@@ -571,7 +557,6 @@ export class SplashScreen {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, logoPass.descriptorSet);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this.localLGDesc);
                     cmdBuff.bindInputAssembler(this.quadAssmebler);
                     cmdBuff.draw(this.quadAssmebler);
                 }
@@ -590,7 +575,6 @@ export class SplashScreen {
                     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, wartermarkPass.descriptorSet);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this.localWMDesc);
                     cmdBuff.bindInputAssembler(this.quadAssmebler);
                     cmdBuff.draw(this.quadAssmebler);
                 }
