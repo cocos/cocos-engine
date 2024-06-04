@@ -133,14 +133,10 @@ export abstract class Action {
     }
 
     // called every frame with it's delta time. <br />
-    step (dt: number): void {
-        logID(1006);
-    }
+    abstract step (dt: number): void;
 
     // Called once per frame. Time is the number of seconds of a frame interval.
-    update (dt: number): void {
-        logID(1007);
-    }
+    abstract update (dt: number): void;
 
     /**
      * @en get the target.

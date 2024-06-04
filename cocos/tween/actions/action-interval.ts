@@ -598,6 +598,10 @@ export class RepeatForever extends ActionInterval {
         }
     }
 
+    update (_t: number): void {
+        logID(1007); // should never come here.
+    }
+
     isDone (): boolean {
         return false;
     }
