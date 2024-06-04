@@ -125,7 +125,10 @@ export default class Assembler2D extends Assembler {
         let ibuf = buffer._iData,
             indiceOffset = offsetInfo.indiceOffset,
             vertexId = offsetInfo.vertexOffset;
-        for (let i = 0, l = this.indicesCount; i < l; i++) {
+        /** Since the update of indicesCout may occur before the update of iData.length, indicesCout does not always equal iData.length. 
+          * It may be greater than or less than iData.length.
+          */
+        for (let i = 0, l = Math.min(this.indicesCount, iData.length); i < l; i++) {
             ibuf[indiceOffset++] = vertexId + iData[i];
         }
     }
