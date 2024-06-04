@@ -2406,6 +2406,46 @@ test('pause/resume 2', function () {
     director.unregisterSystem(sys);
 });
 
+test('pause/resume 3', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t1 = tween(node)
+        .by(1, { position: v3(90, 90, 90) })
+        .start();
+
+    t1.pause();
+
+    runFrames(100);
+    expect(node.position.equals(new Vec3(0, 0, 0))).toBeTruthy();
+    
+    t1.resume();
+
+    // Start
+    runFrames(1);
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+
+    t1.pause();
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+
+    t1.resume();
+    runFrames(20);
+    expect(node.position.equals(new Vec3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
 test('pauseAllByTarget/resumeAllByTarget', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
