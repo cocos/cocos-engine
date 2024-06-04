@@ -941,7 +941,7 @@ export function reverseTime (action: ActionInterval): ReverseTime {
     return new ReverseTime(action);
 }
 
-export class ActionCustomUpdate<T, Args extends any[]> extends ActionInterval {
+export class ActionCustomUpdate<T extends object, Args extends any[]> extends ActionInterval {
     private _cb: TTweenUpdateCallback<T, Args>;
     private _args: Args;
 
@@ -951,7 +951,7 @@ export class ActionCustomUpdate<T, Args extends any[]> extends ActionInterval {
         this._args = args;
     }
 
-    clone (): ActionCustomUpdate<T, R> {
+    clone (): ActionCustomUpdate<T, Args> {
         return new ActionCustomUpdate(this._duration, this._cb, this._args);
     }
 
