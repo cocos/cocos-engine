@@ -799,6 +799,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         setupPipelineConfigs(ppl, this._configs);
 
+        // When add new effect asset, please add its uuid to the dependentAssets in cc.config.json.
         this._bloomMaterial._uuid = `custom-forward-post-bloom-material`;
         this._bloomMaterial.initialize({ effectName: 'pipeline/post-process/bloom1' });
 
