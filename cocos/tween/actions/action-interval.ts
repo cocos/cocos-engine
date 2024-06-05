@@ -71,7 +71,6 @@ export abstract class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
     protected _startTime = 0;
-    protected _isStartTimeSet = false;
     protected _firstTick = false;
     protected _speed = 1;
 
@@ -83,7 +82,6 @@ export abstract class ActionInterval extends FiniteTimeAction {
     }
 
     setStartTime (time: number): void {
-        this._isStartTimeSet = true;
         time = time < 0 ? 0 : (time > this._duration ? this._duration : time);
         this._startTime = time;
     }
@@ -127,9 +125,10 @@ export abstract class ActionInterval extends FiniteTimeAction {
         if (this._firstTick) {
             this._firstTick = false;
             let elapsed = 0;
-            if (this._isStartTimeSet) {
-                this._isStartTimeSet = false;
+            if (this._startTime > 0) {
+                // _startTime only take effect in the first tick after tween starts. So reset it to 0 after the first tick.
                 elapsed = this._startTime;
+                this._startTime = 0;
             }
             this._elapsed = elapsed;
         } else this._elapsed += dt;
