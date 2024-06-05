@@ -116,10 +116,14 @@ bool PcmAudioService::init(AudioMixerController *controller, int numChannels, in
         channelMask,
         SL_BYTEORDER_LITTLEENDIAN};
 
-
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    SLDataLocator_AndroidSimpleBufferQueue locBufQueue = {
+        SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE,
+        AUDIO_PLAYER_BUFFER_COUNT};
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
     SLDataLocator_BufferQueue locBufQueue = {SL_DATALOCATOR_BUFFERQUEUE, AUDIO_PLAYER_BUFFER_COUNT};
+#endif
     SLDataSource source = {&locBufQueue, &formatPcm};
-
     SLDataLocator_OutputMix locOutmix = {
         SL_DATALOCATOR_OUTPUTMIX,
         _outputMixObj};
