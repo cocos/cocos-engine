@@ -40,7 +40,7 @@ class SLPcmAudioPlayerCallbackProxy {
 public:
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
         static void samplePlayerCallback(CCSLBufferQueueItf bq, void *context) {
-            PcmAudioService *thiz = reinterpret_cast<PcmAudioService *>(context);
+            auto *thiz = reinterpret_cast<PcmAudioService *>(context);
             thiz->bqFetchBufferCallback(bq);
         }
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY

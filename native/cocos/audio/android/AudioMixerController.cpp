@@ -39,7 +39,7 @@ AudioMixerController::AudioMixerController(int bufferSizeInFrames, int sampleRat
 : _bufferSizeInFrames(bufferSizeInFrames), _sampleRate(sampleRate), _channelCount(channelCount), _mixer(nullptr), _isPaused(false), _isMixingFrame(false) {
     ALOGV("In the constructor of AudioMixerController!");
 
-    _mixingBuffer.size = (size_t)bufferSizeInFrames * 2 * channelCount;
+    _mixingBuffer.size = static_cast<size_t>(bufferSizeInFrames * 2 * channelCount);
     // Don't use posix_memalign since it was added from API 16, it will crash on Android 2.3
     // Therefore, for a workaround, we uses memalign here.
     _mixingBuffer.buf = memalign(32, _mixingBuffer.size);
@@ -115,8 +115,9 @@ static void removeItemFromVector(ccstd::vector<T> &v, T item) {
 }
 
 void AudioMixerController::initTrack(Track *track, ccstd::vector<Track *> &tracksToRemove) {
-    if (track->isInitialized())
+    if (track->isInitialized()) {
         return;
+    }
 
     uint32_t channelMask = audio_channel_out_mask_from_count(2);
     int32_t name = _mixer->getTrackName(channelMask, AUDIO_FORMAT_PCM_16_BIT,
@@ -133,22 +134,22 @@ void AudioMixerController::initTrack(Track *track, ccstd::vector<Track *> &track
             name,
             AudioMixer::TRACK,
             AudioMixer::MIXER_FORMAT,
-            (void *)(uintptr_t)AUDIO_FORMAT_PCM_16_BIT);
+            reinterpret_cast<void*>(static_cast<uintptr_t>(AUDIO_FORMAT_PCM_16_BIT)));
         _mixer->setParameter(
             name,
             AudioMixer::TRACK,
             AudioMixer::FORMAT,
-            (void *)(uintptr_t)AUDIO_FORMAT_PCM_16_BIT);
+            reinterpret_cast<void*>(static_cast<uintptr_t>(AUDIO_FORMAT_PCM_16_BIT)));
         _mixer->setParameter(
             name,
             AudioMixer::TRACK,
             AudioMixer::MIXER_CHANNEL_MASK,
-            (void *)(uintptr_t)channelMask);
+            reinterpret_cast<void*>(static_cast<uintptr_t>(channelMask)));
         _mixer->setParameter(
             name,
             AudioMixer::TRACK,
             AudioMixer::CHANNEL_MASK,
-            (void *)(uintptr_t)channelMask);
+            reinterpret_cast<void*>(static_cast<uintptr_t>(channelMask)));
 
         track->setName(name);
         _mixer->enable(name);
@@ -288,7 +289,7 @@ void AudioMixerController::mixOneFrame() {
 
     auto mixEnd = clockNow();
     float mixInterval = intervalInMS(mixStart, mixEnd);
-    ALOGV_IF(mixInterval > 1.0f, "Mix a frame waste: %fms", mixInterval);
+    ALOGV_IF(mixInterval > 1.0F, "Mix a frame waste: %fms", mixInterval);
 
     _isMixingFrame = false;
 }
@@ -310,8 +311,9 @@ void AudioMixerController::resume() {
 
 bool AudioMixerController::hasPlayingTacks() {
     std::lock_guard<std::mutex> lk(_activeTracksMutex);
-    if (_activeTracks.empty())
+    if (_activeTracks.empty()) {
         return false;
+    }
 
     for (auto &&track : _activeTracks) {
         Track::State state = track->getState();
