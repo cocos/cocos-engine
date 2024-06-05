@@ -2472,4 +2472,6 @@ export function alignTo (size: number, alignment: number): number {
     return Math.ceil(size / alignment) * alignment;
 }
 
+declare interface GPUTexture {}
+
 export type TextureHandle = GPUTexture | number;
