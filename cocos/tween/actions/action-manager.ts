@@ -29,9 +29,6 @@ import { errorID, logID } from '../../core/platform/debug';
 import { Action } from './action';
 import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
-import type { ActionInterval } from './action-interval';
-
-let ID_COUNTER = 0;
 
 /*
  * @class HashElement
@@ -109,12 +106,6 @@ export class ActionManager {
         if (!action || !target) {
             errorID(1000);
             return;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        if (target.uuid == null) {
-            (target as any).uuid = `_TWEEN_UUID_${ID_COUNTER++}`;
         }
 
         // check if the action target already exists
