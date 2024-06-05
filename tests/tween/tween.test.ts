@@ -2751,3 +2751,52 @@ test('Tween.startAt(time)', function () {
     //
     director.unregisterSystem(sys);
 });
+
+test('Tween.startAt(time) negative time', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const node = new Node();
+
+    tween(node)
+        .to(1, { position: v3(90, 90, 90) })
+        .startAt(-100);
+
+    // Start
+    runFrames(1);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('Tween.startAt(time) time larger than duration', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const node = new Node();
+
+    tween(node)
+        .to(1, { position: v3(90, 90, 90) })
+        .startAt(1000);
+
+    // Start
+    runFrames(1);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});

@@ -84,6 +84,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
 
     setStartTime (time: number): void {
         this._isStartTimeSet = true;
+        time = time < 0 ? 0 : (time > this._duration ? this._duration : time);
         this._startTime = time;
     }
 
