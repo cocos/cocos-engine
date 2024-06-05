@@ -2153,6 +2153,47 @@ test('duration', function () {
     director.unregisterSystem(sys);
 });
 
+test('duration for repeatForever action 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t = tween(node)
+        .by(1, { position: new Vec3(100, 0, 0) }).id(123)
+        .reverse(123)
+        .union()
+        .repeatForever()
+        .start();
+
+    // expect(t.duration).toBe(Infinity);
+
+    director.unregisterSystem(sys);
+});
+
+test('duration for repeatForever action 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t = tween(node)
+        .delay(1)
+        .by(1, { position: new Vec3(100, 0, 0) }).id(123)
+        .reverse(123)
+        .union(123)
+        .repeatForever()
+        .start();
+
+    // expect(t.duration).toBe(Infinity);
+
+    director.unregisterSystem(sys);
+});
+
 test('repeat', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
@@ -2657,6 +2698,97 @@ test('update 3', function () {
     expect(hand.position.equals(new Vec3(10 * 3/3, 60, 0))).toBeTruthy();
     expect(foot.position.equals(new Vec3(1 * 3/3, 30, 0))).toBeTruthy();
 
+    //
+    director.unregisterSystem(sys);
+});
+
+test('Tween.startAt(time)', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const node = new Node();
+
+    let firstCalled = false;
+    let sencondCalled = false;
+
+    tween(node)
+        .delay(1)
+        .call(()=>{
+            firstCalled = true;
+        })
+        .to(1, { position: v3(100, 100, 100) })
+        .delay(1)
+        .call(()=>{
+            sencondCalled = true;
+        })
+        .delay(1)
+        .call(()=>{
+            firstCalled = false;
+            sencondCalled = false;
+        })
+        .set({ position: v3(0, 0, 0) })
+        .union()
+        .repeat(2)
+        .startAt(1.5);
+    
+    runFrames(1);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(50, 50, 50))).toBeTruthy();
+
+    runFrames(15);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(75, 75, 75))).toBeTruthy();
+
+    runFrames(15);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(1);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeTruthy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(59);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeTruthy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    // Sencond
+    runFrames(1)
+    expect(firstCalled).toBeFalsy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(60);
+    const secondPosStart = 1.666666666666; // Second round will not start from v3(0, 0, 0)
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(secondPosStart, secondPosStart, secondPosStart))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeTruthy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeFalsy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
     //
     director.unregisterSystem(sys);
 });

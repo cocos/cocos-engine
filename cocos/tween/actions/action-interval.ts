@@ -70,6 +70,8 @@ class DummyAction extends FiniteTimeAction {
 export abstract class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
+    protected _startTime = 0;
+    protected _isStartTimeSet = false;
     protected _firstTick = false;
     protected _speed = 1;
 
@@ -78,6 +80,11 @@ export abstract class ActionInterval extends FiniteTimeAction {
         if (d !== undefined && !Number.isNaN(d)) {
             this.initWithDuration(d);
         }
+    }
+
+    setStartTime (time: number): void {
+        this._isStartTimeSet = true;
+        this._startTime = time;
     }
 
     /*
@@ -118,7 +125,12 @@ export abstract class ActionInterval extends FiniteTimeAction {
         dt *= this._speed;
         if (this._firstTick) {
             this._firstTick = false;
-            this._elapsed = 0;
+            let elapsed = 0;
+            if (this._isStartTimeSet) {
+                this._isStartTimeSet = false;
+                elapsed = this._startTime;
+            }
+            this._elapsed = elapsed;
         } else this._elapsed += dt;
 
         // this.update((1 > (this._elapsed / this._duration)) ? this._elapsed / this._duration : 1);
