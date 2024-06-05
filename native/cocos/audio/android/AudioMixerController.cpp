@@ -39,7 +39,7 @@ AudioMixerController::AudioMixerController(int bufferSizeInFrames, int sampleRat
 : _bufferSizeInFrames(bufferSizeInFrames), _sampleRate(sampleRate), _channelCount(channelCount), _mixer(nullptr), _isPaused(false), _isMixingFrame(false) {
     ALOGV("In the constructor of AudioMixerController!");
 
-    _mixingBuffer.size = static_cast<size_t>(bufferSizeInFrames * 2 * channelCount);
+    _mixingBuffer.size = static_cast<size_t>(bufferSizeInFrames * 2 * channelCount); // NOLINT
     // Don't use posix_memalign since it was added from API 16, it will crash on Android 2.3
     // Therefore, for a workaround, we uses memalign here.
     _mixingBuffer.buf = memalign(32, _mixingBuffer.size);
@@ -315,14 +315,11 @@ bool AudioMixerController::hasPlayingTacks() {
         return false;
     }
 
-    for (auto &&track : _activeTracks) {
+    bool ret = std::any_of(_activeTracks.begin(), _activeTracks.end(), [](Track *){
         Track::State state = track->getState();
-        if (state == Track::State::IDLE || state == Track::State::PLAYING || state == Track::State::RESUMED) {
-            return true;
-        }
-    }
-
-    return false;
+        return (state == Track::State::IDLE || state == Track::State::PLAYING || state == Track::State::RESUMED);
+    });
+    return ret;
 }
 
 } // namespace cc
