@@ -126,7 +126,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
             this._firstTick = false;
             let elapsed = 0;
             if (this._startTime > 0) {
-                // _startTime only take effect in the first tick after tween starts. So reset it to 0 after the first tick.
+                // _startTime only takes effect in the first tick after tween starts. So reset it to 0 after the first tick.
                 elapsed = this._startTime;
                 this._startTime = 0;
             }
