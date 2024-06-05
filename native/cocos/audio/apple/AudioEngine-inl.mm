@@ -125,12 +125,17 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
             isAudioSessionInterrupted = false;
 
             NSError *error = nil;
-            [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            if([AVAudioSession sharedInstance] respondsToSelector:@selector(setActive)){
+                [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            }
             alcMakeContextCurrent(s_ALContext);
 
             if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
                 ALOGD("AVAudioSessionInterruptionTypeEnded, application != UIApplicationStateActive, resumeOnBecomingActive = true");
                 resumeOnBecomingActive = true;
+            }
+            else{
+                pauseOnResignActive = false;
             }
         }
     } else if ([notification.name isEqualToString:UIApplicationWillResignActiveNotification]) {
@@ -138,7 +143,7 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         if (pauseOnResignActive) {
             pauseOnResignActive = false;
             ALOGD("UIApplicationWillResignActiveNotification, alcMakeContextCurrent(nullptr)");
-            alcMakeContextCurrent(nullptr);
+            alcMakeContextCurrent(s_ALContext);
         }
     } else if ([notification.name isEqualToString:UIApplicationDidBecomeActiveNotification]) {
         ALOGD("UIApplicationDidBecomeActiveNotification");
@@ -162,7 +167,9 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
                 ALOGE("Fail to set audio session.");
                 return;
             }
-            [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            if([AVAudioSession sharedInstance] respondsToSelector:@selector(setActive)){
+                [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            }
             alcMakeContextCurrent(s_ALContext);
 
             // ALOGD("Audio session is still interrupted, pause director!");
