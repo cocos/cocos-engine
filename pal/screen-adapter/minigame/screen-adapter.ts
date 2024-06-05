@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -80,10 +80,18 @@ class ScreenAdapter extends EventTarget {
             screenWidth = sysInfo.screenWidth;
             screenHeight = sysInfo.screenHeight;
         }
-        if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
+        if (ALIPAY && rotateLandscape && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;
             screenHeight = temp;
+        }
+        //Fix: wrong screen size on TAOBAO_MINIGAME iPad device
+        if (TAOBAO_MINIGAME) {
+            let windowInfo = minigame.getWindowInfoSync();
+            if (windowInfo) {
+                screenWidth = windowInfo.screenWidth;
+                screenHeight = windowInfo.screenHeight;
+            }
         }
         return new Size(screenWidth * dpr, screenHeight * dpr);
     }
