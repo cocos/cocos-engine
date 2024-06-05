@@ -6,8 +6,8 @@ export default class MultiWebSocket {
   static CLOSING = 2 // The connection is in the process of closing.
   static CLOSED = 3 // The connection is closed or couldn't be opened.
 
-  binaryType = '' // TODO 更新 binaryType
-  bufferedAmount = 0 // TODO 更新 bufferedAmount
+  binaryType = '' // TODO: update binaryType
+  bufferedAmount = 0 // TODO: update bufferedAmount
   extensions = ''
 
   onclose = null
@@ -15,7 +15,7 @@ export default class MultiWebSocket {
   onmessage = null
   onopen = null
 
-  protocol = '' // TODO 小程序内目前获取不到，实际上需要根据服务器选择的 sub-protocol 返回
+  protocol = '' // TODO: It is not currently available within the applet, but actually needs to be returned according to the sub-protocol selected by the server
   readyState = 3
 
   constructor(url, protocols = []) {
