@@ -2153,47 +2153,6 @@ test('duration', function () {
     director.unregisterSystem(sys);
 });
 
-test('duration for repeatForever action 1', function () {
-    const sys = new TweenSystem();
-    (TweenSystem.instance as any) = sys;
-    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
-
-    const node = new Node();
-    node.setScale(0, 0, 0);
-
-    const t = tween(node)
-        .by(1, { position: new Vec3(100, 0, 0) }).id(123)
-        .reverse(123)
-        .union()
-        .repeatForever()
-        .start();
-
-    // expect(t.duration).toBe(Infinity);
-
-    director.unregisterSystem(sys);
-});
-
-test('duration for repeatForever action 2', function () {
-    const sys = new TweenSystem();
-    (TweenSystem.instance as any) = sys;
-    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
-
-    const node = new Node();
-    node.setScale(0, 0, 0);
-
-    const t = tween(node)
-        .delay(1)
-        .by(1, { position: new Vec3(100, 0, 0) }).id(123)
-        .reverse(123)
-        .union(123)
-        .repeatForever()
-        .start();
-
-    // expect(t.duration).toBe(Infinity);
-
-    director.unregisterSystem(sys);
-});
-
 test('repeat', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
