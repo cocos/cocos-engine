@@ -2660,3 +2660,143 @@ test('update 3', function () {
     //
     director.unregisterSystem(sys);
 });
+
+test('Tween.startAt(time)', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const node = new Node();
+
+    let firstCalled = false;
+    let sencondCalled = false;
+
+    tween(node)
+        .delay(1)
+        .call(()=>{
+            firstCalled = true;
+        })
+        .to(1, { position: v3(100, 100, 100) })
+        .delay(1)
+        .call(()=>{
+            sencondCalled = true;
+        })
+        .delay(1)
+        .call(()=>{
+            firstCalled = false;
+            sencondCalled = false;
+        })
+        .set({ position: v3(0, 0, 0) })
+        .union()
+        .repeat(2)
+        .startAt(1.5);
+    
+    runFrames(1);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(50, 50, 50))).toBeTruthy();
+
+    runFrames(15);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(75, 75, 75))).toBeTruthy();
+
+    runFrames(15);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(1);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeTruthy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(59);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeTruthy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    // Sencond
+    runFrames(1)
+    expect(firstCalled).toBeFalsy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(60);
+    const secondPosStart = 1.666666666666; // Second round will not start from v3(0, 0, 0)
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(secondPosStart, secondPosStart, secondPosStart))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeTruthy();
+    expect(sencondCalled).toBeTruthy();
+    expect(node.position.equals(v3(100, 100, 100))).toBeTruthy();
+
+    runFrames(60);
+    expect(firstCalled).toBeFalsy();
+    expect(sencondCalled).toBeFalsy();
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+    //
+    director.unregisterSystem(sys);
+});
+
+test('Tween.startAt(time) negative time', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const node = new Node();
+
+    tween(node)
+        .to(1, { position: v3(90, 90, 90) })
+        .startAt(-100);
+
+    // Start
+    runFrames(1);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('Tween.startAt(time) time larger than duration', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const node = new Node();
+
+    tween(node)
+        .to(1, { position: v3(90, 90, 90) })
+        .startAt(1000);
+
+    // Start
+    runFrames(1);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
