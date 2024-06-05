@@ -89,8 +89,8 @@ class ScreenAdapter extends EventTarget {
         if (TAOBAO_MINIGAME) {
             let windowInfo = minigame.getWindowInfoSync();
             if (windowInfo) {
-                screenWidth = windowInfo.screenWidth;
-                screenHeight = windowInfo.screenHeight;
+                screenWidth = windowInfo.windowWidth;
+                screenHeight = windowInfo.windowHeight;
             }
         }
         return new Size(screenWidth * dpr, screenHeight * dpr);
