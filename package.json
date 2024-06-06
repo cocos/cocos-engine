@@ -81,7 +81,6 @@
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.8",
     "@cocos/ccbuild": "2.2.10",
-    "@cocos/dragonbones-js": "^1.0.1",
-    "@webgpu/glslang": "^0.0.15"
+    "@cocos/dragonbones-js": "^1.0.1"
   }
 }
