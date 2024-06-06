@@ -478,10 +478,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         if (this._configs.useFloatOutput) {
             if (this._cameraConfigs.enablePostProcess && settings != null) {
                 if (this._configs.supportDepthSample && settings.depthOfField.enabled) {
-                    this._addForwardRadiancePasses(ppl, id, camera, width, height, dofRadianceName, depthStencilName, mainLight);
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, dofRadianceName, depthStencilName);
                     this._addDepthOfFieldPasses(ppl, settings, id, camera, width, height, dofRadianceName, depthStencilName, radianceName);
                 } else {
-                    this._addForwardRadiancePasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
                 }
                 if (settings.bloom.enabled) {
                     this._addKawaseDualFilterBloomPasses(ppl, settings, id, width, height, radianceName);
@@ -493,11 +493,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                     lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
                 }
             } else {
-                this._addForwardRadiancePasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
+                this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
             }
         } else {
-            lastPass = this._addForwardRadiancePasses(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
+            lastPass = this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, colorName, depthStencilName);
         }
         this._addUIQueue(camera, lastPass);
     }
@@ -847,9 +847,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         camera: Camera,
         width: number,
         height: number,
+        mainLight: DirectionalLight | null,
         colorName: string,
         depthStencilName: string,
-        mainLight: DirectionalLight | null,
     ): BasicRenderPassBuilder {
         //----------------------------------------------------------------
         // Dynamic states
