@@ -78,7 +78,8 @@ export class WebGPUCommandPool<T extends WebGPUCmdObject> {
     }
 
     public freeCmds (cmds: CachedArray<T>): void {
-        for (let i = 0; i < cmds.length; ++i) {
+        const cmdLength = cmds.length;
+        for (let i = 0; i < cmdLength; ++i) {
             if (--cmds.array[i].refCount === 0) {
                 this._freeCmds.push(cmds.array[i]);
             }
@@ -86,7 +87,8 @@ export class WebGPUCommandPool<T extends WebGPUCmdObject> {
     }
 
     public release (): void {
-        for (let i = 0; i < this._freeCmds.length; ++i) {
+        const freeCmdLength = this._freeCmds.length;
+        for (let i = 0; i < freeCmdLength; ++i) {
             const cmd = this._freeCmds.array[i];
             cmd.clear();
             this._frees[++this._freeIdx] = cmd;

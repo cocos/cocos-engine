@@ -51,7 +51,8 @@ export function hashCombineNum (val: number, currHash: number): number {
 export function hashCombineStr (str: string, currHash: number): number {
     // DJB2 HASH
     let hash = 5381;
-    for (let i = 0; i < str.length; i++) {
+    const strLength = str.length;
+    for (let i = 0; i < strLength; i++) {
         hash = (hash * 33) ^ str.charCodeAt(i);
     }
     return hashCombine(hash, currHash);

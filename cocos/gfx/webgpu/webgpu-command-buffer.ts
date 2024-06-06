@@ -176,7 +176,8 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
         this._curGPUDescriptorSets.length = 0;
-        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
+        const dynamicOffsetSize = this._curDynamicOffsets.length;
+        for (let i = 0; i < dynamicOffsetSize; i++) {
             this._curDynamicOffsets[i].length = 0;
         }
         this._curViewport = null;
@@ -220,7 +221,8 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             return true;
         });
         const swapchain = gpuDevice.getSwapchains()[0] as WebGPUSwapchain;
-        for (let i = 0; i < clearColors.length; i++) {
+        const clearColorSize = clearColors.length;
+        for (let i = 0; i < clearColorSize; i++) {
             const colorTex = gpuFramebuffer.isOffscreen ? gpuFramebuffer.gpuColorTextures[i].getTextureView()
                 : swapchain.colorGPUTextureView;
             colorTex!.label = gpuFramebuffer.isOffscreen ? 'offscreen' : 'swapchain';
@@ -309,8 +311,9 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         }
         if (dynamicOffsets) {
             const offsets = this._curDynamicOffsets[set];
-            for (let i = 0; i < dynamicOffsets.length; i++) offsets[i] = dynamicOffsets[i];
-            offsets.length = dynamicOffsets.length;
+            const dynamicOffsetSize = dynamicOffsets.length;
+            for (let i = 0; i < dynamicOffsetSize; i++) offsets[i] = dynamicOffsets[i];
+            offsets.length = dynamicOffsetSize;
             this._isStateValid = true;
         }
     }
@@ -462,16 +465,18 @@ export class WebGPUCommandBuffer extends CommandBuffer {
                 const drawInfoCount = iaData.gpuIndirectBuffer?.indirects.length as number;
                 if (indirectBuffer.drawIndirectByIndex) {
                     const drawFunc = (passEncoder: GPURenderPassEncoder): void => {
+                        const drawInfoSize = Object.keys(DrawInfo).length;
                         for (let i = 0; i < drawInfoCount; i++) {
-                            passEncoder?.drawIndexedIndirect(indirectBuffer.gpuBuffer!, indirectBuffer.gpuOffset + i * Object.keys(DrawInfo).length);
+                            passEncoder?.drawIndexedIndirect(indirectBuffer.gpuBuffer!, indirectBuffer.gpuOffset + i * drawInfoSize);
                         }
                     };
                     this._renderPassFuncQueue.push(drawFunc);
                 } else {
                     // FIXME: draw IndexedIndirect and Indirect by different buffer
                     const drawFunc = (passEncoder: GPURenderPassEncoder): void => {
+                        const drawInfoSize = Object.keys(DrawInfo).length;
                         for (let i = 0; i < drawInfoCount; i++) {
-                            passEncoder?.drawIndirect(indirectBuffer.gpuBuffer!, indirectBuffer.gpuOffset + i * Object.keys(DrawInfo).length);
+                            passEncoder?.drawIndirect(indirectBuffer.gpuBuffer!, indirectBuffer.gpuOffset + i * drawInfoSize);
                         }
                     };
                     this._renderPassFuncQueue.push(drawFunc);
@@ -626,7 +631,8 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         const gpuPipelineLayout = this._curGPUPipelineState.gpuPipelineLayout as IWebGPUGPUPipelineLayout;
         const wgpuPipLayout = (currPipelineState?.pipelineLayout as WebGPUPipelineLayout);
         let needFetchPipLayout = false;
-        for (let i = 0; i < descriptorSets.length; i++) {
+        const descSize = descriptorSets.length;
+        for (let i = 0; i < descSize; i++) {
             descriptorSets[i].prepare(
                 i ? DescUpdateFrequency.NORMAL : DescUpdateFrequency.LOW,
                 bindingMaps.get(i)!,
@@ -666,10 +672,10 @@ export class WebGPUCommandBuffer extends CommandBuffer {
             };
             this._renderPassFuncQueue.push(stencilRefFunc);
         }
-
-        const wgpuBindGroups = new Array<GPUBindGroup>(this._curGPUDescriptorSets.length);
-        const wgpuDynOffsets = new Array<number[]>(this._curGPUDescriptorSets.length);
-        for (let i = 0; i < this._curGPUDescriptorSets.length; i++) {
+        const currGPUDescSize = this._curGPUDescriptorSets.length;
+        const wgpuBindGroups = new Array<GPUBindGroup>(currGPUDescSize);
+        const wgpuDynOffsets = new Array<number[]>(currGPUDescSize);
+        for (let i = 0; i < currGPUDescSize; i++) {
             const curGpuDesc = this._curGPUDescriptorSets[i];
             wgpuBindGroups[i] = curGpuDesc.bindGroup;
             wgpuDynOffsets[i] = [...this._curDynamicOffsets[i]];
@@ -686,7 +692,8 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         }
 
         const bgfunc = (passEncoder: GPURenderPassEncoder): void => {
-            for (let i = 0; i < wgpuBindGroups.length; i++) {
+            const gpuBindGroupSize = wgpuBindGroups.length;
+            for (let i = 0; i < gpuBindGroupSize; i++) {
                 // FIXME: this is a special sentence that 2 in 3 parameters I'm not certain.
                 passEncoder.setBindGroup(i, wgpuBindGroups[i], wgpuDynOffsets[i]);
             }
@@ -696,11 +703,13 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         // ---------------------------- wgpu input assembly  -----------------------------
         const ia = this._curGPUInputAssembler!;
         const wgpuVertexBuffers = new Array<{ slot: number, buffer: GPUBuffer, offset: number }>(ia.gpuVertexBuffers.length);
-        for (let i = 0; i < ia.gpuVertexBuffers.length; i++) {
+        const gpuVertBuffSize = ia.gpuVertexBuffers.length;
+        for (let i = 0; i < gpuVertBuffSize; i++) {
             wgpuVertexBuffers[i] = { slot: i, buffer: ia.gpuVertexBuffers[i].gpuBuffer!, offset: ia.gpuVertexBuffers[i].gpuOffset };
         }
         const vbFunc = (passEncoder: GPURenderPassEncoder): void => {
-            for (let i = 0; i < wgpuVertexBuffers.length; i++) {
+            const vertBuffSize = wgpuVertexBuffers.length;
+            for (let i = 0; i < vertBuffSize; i++) {
                 passEncoder.setVertexBuffer(wgpuVertexBuffers[i].slot, wgpuVertexBuffers[i].buffer, wgpuVertexBuffers[i].offset);
             }
         };

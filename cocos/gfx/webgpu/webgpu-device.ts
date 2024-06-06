@@ -507,14 +507,15 @@ export class WebGPUDevice extends Device {
         const firstSet = mapping.setIndices[0];
         blockOffsets[firstSet] = 0;
         samplerTextureOffsets[firstSet] = 0;
-        for (let i = 1; i < mapping.setIndices.length; ++i) {
+        const mappingIdxSize =  mapping.setIndices.length;
+        for (let i = 1; i < mappingIdxSize; ++i) {
             const curSet = mapping.setIndices[i];
             const prevSet = mapping.setIndices[i - 1];
             // accumulate the per set offset according to the specified capacity
             blockOffsets[curSet] = mapping.maxBlockCounts[prevSet] + blockOffsets[prevSet];
             samplerTextureOffsets[curSet] = mapping.maxSamplerTextureCounts[prevSet] + samplerTextureOffsets[prevSet];
         }
-        for (let i = 0; i < mapping.setIndices.length; ++i) {
+        for (let i = 0; i < mappingIdxSize; ++i) {
             const curSet = mapping.setIndices[i];
             // textures always come after UBOs
             samplerTextureOffsets[curSet] -= mapping.maxBlockCounts[curSet];
@@ -522,7 +523,7 @@ export class WebGPUDevice extends Device {
         this._bindingMappings = {
             blockOffsets,
             samplerTextureOffsets,
-            flexibleSet: mapping.setIndices[mapping.setIndices.length - 1],
+            flexibleSet: mapping.setIndices[mappingIdxSize - 1],
         };
 
         const canvas = Device.canvas;

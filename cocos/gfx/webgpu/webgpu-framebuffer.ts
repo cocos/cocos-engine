@@ -41,7 +41,8 @@ export class WebGPUFramebuffer extends Framebuffer {
 
         const gpuColorTextures: IWebGPUTexture[] = [];
         let isOffscreen = true;
-        for (let i = 0; i < info.colorTextures.length; i++) {
+        const colorTexSize = info.colorTextures.length;
+        for (let i = 0; i < colorTexSize; i++) {
             const colorTexture = info.colorTextures[i] as WebGPUTexture;
             if (colorTexture) {
                 const gpuTex = colorTexture.gpuTexture;

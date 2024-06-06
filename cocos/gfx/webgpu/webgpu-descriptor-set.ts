@@ -70,10 +70,11 @@ export class WebGPUDescriptorSet extends DescriptorSet {
         const bindGroup = null!;
         const bindGroupLayout = null!;
         this._gpuDescriptorSet = { gpuDescriptors, descriptorIndices, bindGroup, bindGroupLayout };
-
-        for (let i = 0; i < bindings.length; ++i) {
+        const bindingSize = bindings.length;
+        for (let i = 0; i < bindingSize; ++i) {
             const binding = bindings[i];
-            for (let j = 0; j < binding.count; j++) {
+            const bindCount = binding.count;
+            for (let j = 0; j < bindCount; j++) {
                 gpuDescriptors.push({
                     type: binding.descriptorType,
                     gpuBuffer: null,
@@ -160,7 +161,8 @@ export class WebGPUDescriptorSet extends DescriptorSet {
             this._bindGroupEntries.clear();
             this._dynamicOffsets.length = 0;
             const descriptors = this._gpuDescriptorSet.gpuDescriptors;
-            for (let i = 0; i < descriptors.length; ++i) {
+            const descCount = descriptors.length;
+            for (let i = 0; i < descCount; ++i) {
                 const binding = layout.gpuDescriptorSetLayout!.bindings[i];
                 const bindIdx = binding.binding;
                 // const isNeedBind = this._isNeedBindFromLayout(bindIdx);

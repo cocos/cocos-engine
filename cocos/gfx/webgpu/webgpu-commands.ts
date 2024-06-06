@@ -768,8 +768,8 @@ export async function WebGPUCmdFuncCopyTextureToBuffer (
     let h = 1;
     const nativeDevice: GPUDevice = device.nativeDevice!;
     const commandEncoder = nativeDevice.createCommandEncoder({});
-
-    for (let k = 0; k < regions.length; k++) {
+    const regionSize = regions.length;
+    for (let k = 0; k < regionSize; k++) {
         if (destArrayBuffer[k]) {
             (buffers[k] as Uint8Array).set(new Uint8Array(destArrayBuffer[k]), 0);
         }
@@ -856,10 +856,9 @@ function seperateCombinedSamplerTexture (shaderSource: string): string {
         if (params.includes('sampler')) {
             const paramIndexSet = new Set<number>();
             const paramArr = params.split(',');
-
-            for (let i = 0; i < paramArr.length; ++i) {
+            const paramSize = paramArr.length;
+            for (let i = 0; i < paramSize; ++i) {
                 const paramDecl = paramArr[i].split(' ');
-                // assert(paramDecl.length >= 2)
                 const typeDecl = paramDecl[paramDecl.length - 2];
                 if (typeDecl.includes('sampler') && typeDecl !== 'sampler') {
                     const samplerType = typeDecl.replace('sampler', '');
@@ -884,7 +883,8 @@ function seperateCombinedSamplerTexture (shaderSource: string): string {
                         const params = stripStr.split(',');
                         let queued = 0; // '('
                         let paramIndex = 0;
-                        for (let i = 0; i < params.length; ++i) {
+                        const paramSize = params.length;
+                        for (let i = 0; i < paramSize; ++i) {
                             if (params[i].includes('(')) {
                                 ++queued;
                             }
@@ -892,7 +892,7 @@ function seperateCombinedSamplerTexture (shaderSource: string): string {
                                 --queued;
                             }
 
-                            if (!queued || i === params.length - 1) {
+                            if (!queued || i === paramSize - 1) {
                                 if (paramIndexSet.has(paramIndex)) {
                                     params[i] += `, ${params[i]}_sampler`;
                                 }
@@ -1224,7 +1224,8 @@ export function WebGPUCmdFuncCreateGPUShader (device: WebGPUDevice, gpuShader: I
     const glslang = device.glslang;
     const twgsl = device.twgsl;
     const wgslCodes: string[] = [];
-    for (let i = 0; i < gpuShader.gpuStages.length; ++i) {
+    const stageSize = gpuShader.gpuStages.length;
+    for (let i = 0; i < stageSize; ++i) {
         wgslCodes.length = 0;
         const gpuStage = gpuShader.gpuStages[i];
         const glslSource = seperateCombinedSamplerTexture(gpuStage.source);
@@ -1260,13 +1261,15 @@ export function WebGPUCmdFuncCreateGPUShader (device: WebGPUDevice, gpuShader: I
         wgslCodes.push(wgsl);
         const bindingList = reflect(wgslCodes);
         gpuStage.bindings = bindingList;
-        for (let s = 0; s < bindingList.length; s++) {
-            if (bindingList[s].length) {
+        const bindingListSize = bindingList.length;
+        for (let s = 0; s < bindingListSize; s++) {
+            const currBindingSize = bindingList[s].length;
+            if (currBindingSize) {
                 if (!gpuShader.bindings.has(s)) {
                     gpuShader.bindings.set(s, []);
                 }
                 const bindings = gpuShader.bindings.get(s)!;
-                for (let b = 0; b < bindingList[s].length; b++) {
+                for (let b = 0; b < currBindingSize; b++) {
                     if (!bindings.includes(bindingList[s][b])) {
                         bindings.push(bindingList[s][b]);
                     }
@@ -1283,11 +1286,12 @@ export function WebGPUCmdFuncDestroyShader (device: WebGPUDevice, gpuShader: IWe
 }
 
 export function WebGPUCmdFuncCreateInputAssember (device: WebGPUDevice, gpuInputAssembler: IWebGPUGPUInputAssembler): void {
-    gpuInputAssembler.gpuAttribs = new Array<IWebGPUAttrib>(gpuInputAssembler.attributes.length);
+    const attrSize = gpuInputAssembler.attributes.length;
+    gpuInputAssembler.gpuAttribs = new Array<IWebGPUAttrib>(attrSize);
 
     const offsets = [0, 0, 0, 0, 0, 0, 0, 0];
 
-    for (let i = 0; i < gpuInputAssembler.attributes.length; ++i) {
+    for (let i = 0; i < attrSize; ++i) {
         const attrib = gpuInputAssembler.attributes[i];
 
         const stream = attrib.stream !== undefined ? attrib.stream : 0;
@@ -1328,7 +1332,8 @@ interface IWebGPUStateCache {
 
 function maxElementOfImageArray (bufInfoArr: BufferTextureCopy[]): number {
     let maxSize = 0;
-    for (let i = 0; i < bufInfoArr.length; i++) {
+    const bufInfoSize = bufInfoArr.length;
+    for (let i = 0; i < bufInfoSize; i++) {
         const curSize = bufInfoArr[i].texExtent.width * bufInfoArr[i].texExtent.height * bufInfoArr[i].texExtent.depth;
         maxSize = maxSize < curSize ? curSize : maxSize;
     }
@@ -1343,7 +1348,8 @@ export function WebGPUCmdFuncCopyTexImagesToTexture (
 ): void {
     // name all native webgpu resource nativeXXX distinguished from gpuTexture passed in.
     const nativeDevice = device.nativeDevice!;
-    for (let i = 0; i < regions.length; i++) {
+    const regionSize = regions.length;
+    for (let i = 0; i < regionSize; i++) {
         const region = regions[i];
         const texImg = texImages[i];
         nativeDevice.queue.copyExternalImageToTexture(
@@ -1638,7 +1644,8 @@ export function WebGPUCmdFuncCopyBuffersToTexture (
     const nativeDevice = device.nativeDevice!;
     const dstFormat = gpuTexture.format;
     const blockSize = formatAlignment(dstFormat);
-    for (let i = 0; i < regions.length; ++i) {
+    const regionSize = regions.length;
+    for (let i = 0; i < regionSize; ++i) {
         const region = regions[i];
         const bufferPixelWidth = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
         const bufferPixelHeight = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
@@ -1646,14 +1653,14 @@ export function WebGPUCmdFuncCopyBuffersToTexture (
         const bufferBytesPerRow = FormatSize(dstFormat, bufferPixelWidth, 1, 1);
         const bufferBytesPerImageSlice = FormatSize(dstFormat, bufferPixelWidth, bufferPixelHeight, 1);
         const bufferBytesPerImageLayer = FormatSize(dstFormat, bufferPixelWidth, bufferPixelHeight, region.texExtent.depth);
-        const targetWidth = region.texExtent.width == 0 ? 0 : alignTo(region.texExtent.width, blockSize.width);
-        const targetHeight = region.texExtent.height == 0 ? 0 : alignTo(region.texExtent.height, blockSize.height);
+        const targetWidth = region.texExtent.width === 0 ? 0 : alignTo(region.texExtent.width, blockSize.width);
+        const targetHeight = region.texExtent.height === 0 ? 0 : alignTo(region.texExtent.height, blockSize.height);
         const imgDataLayout: GPUImageDataLayout = {
             offset: 0,
             bytesPerRow: bufferBytesPerRow,
             rowsPerImage: bufferPixelHeight,
         };
-        const compactInWidth = bufferPixelWidth == region.texExtent.width;
+        const compactInWidth = bufferPixelWidth === region.texExtent.width;
         for (let l = region.texSubres.baseArrayLayer; l < region.texSubres.layerCount + region.texSubres.baseArrayLayer; l++) {
             for (let d = region.texOffset.z; d < region.texExtent.depth + region.texOffset.z; d++) {
                 if (compactInWidth) {

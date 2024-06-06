@@ -47,7 +47,8 @@ export class WebGPUQueue extends Queue {
     public submit (cmdBuffs: CommandBuffer[]): void {
         // TODO: Async
         if (!this._isAsync) {
-            for (let i = 0; i < cmdBuffs.length; i++) {
+            const cmdBuffSize = cmdBuffs.length;
+            for (let i = 0; i < cmdBuffSize; i++) {
                 const cmdBuff = cmdBuffs[i] as WebGPUCommandBuffer;
                 this.numDrawCalls += cmdBuff.numDrawCalls;
                 this.numInstances += cmdBuff.numInstances;

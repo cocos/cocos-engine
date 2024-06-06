@@ -84,7 +84,8 @@ export class WebGPUPipelineState extends PipelineState {
         // colorstates
         const colorAttachments = this._renderPass.colorAttachments;
         const colorDescs: GPUColorTargetState[] = [];
-        for (let i = 0; i < colorAttachments.length; i++) {
+        const colAttachmentSize = colorAttachments.length;
+        for (let i = 0; i < colAttachmentSize; i++) {
             const colDesc: GPUColorTargetState = {
                 format: GFXFormatToWGPUFormat(colorAttachments[i].format),
                 writeMask: WebGPUBlendMask(this._bs.targets[i].blendColorMask),
@@ -109,7 +110,8 @@ export class WebGPUPipelineState extends PipelineState {
         let vertexStage: GPUProgrammableStage;
         let fragmentStage: GPUProgrammableStage;
         const shaderStages = (this._shader as WebGPUShader).gpuShader.gpuStages;
-        for (let i = 0; i < shaderStages.length; i++) {
+        const stageSize = shaderStages.length;
+        for (let i = 0; i < stageSize; i++) {
             if (shaderStages[i].type === ShaderStageFlagBit.VERTEX) { vertexStage = shaderStages[i].gpuShader!; }
             if (shaderStages[i].type === ShaderStageFlagBit.FRAGMENT) { fragmentStage = shaderStages[i].gpuShader!; }
         }
@@ -117,10 +119,11 @@ export class WebGPUPipelineState extends PipelineState {
         const gpuShader = info.shader as WebGPUShader;
 
         const shaderAttrs = gpuShader.attributes;
-        for (let i = 0; i < shaderAttrs.length; i++) {
+        const attrsSize = shaderAttrs.length;
+        for (let i = 0; i < attrsSize; i++) {
             this._locations.set(shaderAttrs[i].name, shaderAttrs[i].location);
         }
-        const stripTopology = (info.primitive == PrimitiveMode.LINE_STRIP || info.primitive == PrimitiveMode.TRIANGLE_STRIP);
+        const stripTopology = (info.primitive === PrimitiveMode.LINE_STRIP || info.primitive === PrimitiveMode.TRIANGLE_STRIP);
         const renderPplDesc: GPURenderPipelineDescriptor = {
             layout: 'auto', // later
             vertex: {
@@ -223,10 +226,12 @@ export class WebGPUPipelineState extends PipelineState {
                 attributes: [],
             };
             const currAttrs: GPUVertexAttribute[] = [];
-            for (let j = 0; j < shaderAttrs.length; j++) {
+            const shaderAttrSize = shaderAttrs.length;
+            for (let j = 0; j < shaderAttrSize; j++) {
                 const shaderAttr = shaderAttrs[j];
                 let hasAttr = false;
-                for (let k = 0; k < ia.gpuAttribs.length; k++) {
+                const gpuAttrSize = ia.gpuAttribs.length;
+                for (let k = 0; k < gpuAttrSize; k++) {
                     const gpuAttr = ia.gpuAttribs[k];
                     const attr = ia.attributes[k];
                     if (attr.name === shaderAttr.name) {

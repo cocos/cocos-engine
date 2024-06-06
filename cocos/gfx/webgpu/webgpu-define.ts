@@ -128,7 +128,8 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const oldCmdCopyBuffersToTexture = CommandBuffer.prototype.copyBuffersToTexture;
     CommandBuffer.prototype.copyBuffersToTexture = function (buffers: Readonly<ArrayBufferView[]>, texture: typeof Texture, regions: Readonly<BufferTextureCopy[]>) {
         const ucharBuffers: Uint8Array[] = [];
-        for (let i = 0; i < buffers.length; ++i) {
+        const buffSize = buffers.length
+        for (let i = 0; i < buffSize; ++i) {
             const buffer = buffers[i];
             if ('buffer' in buffer) {
                 ucharBuffers.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
@@ -142,7 +143,8 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const oldDeviceCopyBuffersToTexture = Device.prototype.copyBuffersToTexture;
     Device.prototype.copyBuffersToTexture = function (buffers: Readonly<ArrayBufferView[]>, texture: typeof Texture, regions: Readonly<BufferTextureCopy[]>) {
         const ucharBuffers: Uint8Array[] = [];
-        for (let i = 0; i < buffers.length; ++i) {
+        const buffSize = buffers.length;
+        for (let i = 0; i < buffSize; ++i) {
             const buffer = buffers[i];
             if ('buffer' in buffer) {
                 ucharBuffers.push(new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength));
@@ -155,7 +157,8 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
 
     Device.prototype.copyTexImagesToTexture = function (texImages: TexImageSource[], texture: typeof Texture, regions: BufferTextureCopy[]) {
         const buffers: Uint8Array[] = [];
-        for (let i = 0; i < regions.length; i++) {
+        const regionSize = regions.length;
+        for (let i = 0; i < regionSize; i++) {
             if ('getContext' in texImages[i]) {
                 const canvasElem = texImages[i] as HTMLCanvasElement;
                 const imageData = canvasElem.getContext('2d')?.getImageData(0, 0, texImages[i].width, texImages[i].height);
@@ -255,10 +258,9 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
             if (params.includes('sampler')) {
                 const paramIndexSet = new Set<number>();
                 const paramArr = params.split(',');
-
-                for (let i = 0; i < paramArr.length; ++i) {
+                const paramSize = paramArr.length;
+                for (let i = 0; i < paramSize; ++i) {
                     const paramDecl = paramArr[i].split(' ');
-                    // assert(paramDecl.length >= 2)
                     const typeDecl = paramDecl[paramDecl.length - 2];
                     if (typeDecl.includes('sampler') && typeDecl !== 'sampler') {
                         const samplerType = typeDecl.replace('sampler', '');
@@ -284,7 +286,8 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                             let params = stripStr.split(',');
                             let queued = 0; // '('
                             let paramIndex = 0;
-                            for (let i = 0; i < params.length; ++i) {
+                            const currParamsSize = params.length;
+                            for (let i = 0; i < currParamsSize; ++i) {
                                 if (params[i].includes('(')) {
                                     ++queued;
                                 }
@@ -292,7 +295,7 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
                                     --queued;
                                 }
 
-                                if (!queued || i === params.length - 1) {
+                                if (!queued || i === currParamsSize - 1) {
                                     if (paramIndexSet.has(paramIndex)) {
                                         params[i] += `, ${params[i]}_sampler`;
                                     }
@@ -418,7 +421,8 @@ WEBGPU && promiseForWebGPUInstantiation.then(() => {
     const createShader = Device.prototype.createShader;
     Device.prototype.createShader = function (shaderInfo: ShaderInfo) {
         const wgslStages: string[] = [];
-        for (let i = 0; i < shaderInfo.stages.length; ++i) {
+        const stageSize = shaderInfo.stages.length;
+        for (let i = 0; i < stageSize; ++i) {
             let glslSource = seperateCombinedSamplerTexture(shaderInfo.stages[i].source);
             const stageStr = shaderInfo.stages[i].stage === ShaderStageFlagBit.VERTEX ? 'vertex'
                 : shaderInfo.stages[i].stage === ShaderStageFlagBit.FRAGMENT ? 'fragment' : 'compute';

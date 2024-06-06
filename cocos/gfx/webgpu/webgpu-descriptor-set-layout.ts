@@ -81,7 +81,8 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
 
         let descriptorCount = 0; let maxBinding = -1;
         const flattenedIndices: number[] = [];
-        for (let i = 0; i < this._bindings.length; i++) {
+        const bindingSize = this._bindings.length;
+        for (let i = 0; i < bindingSize; i++) {
             const binding = this._bindings[i];
             flattenedIndices.push(descriptorCount);
             descriptorCount += binding.count;
@@ -90,13 +91,13 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
 
         this._bindingIndices = Array(maxBinding + 1).fill(-1);
         const descriptorIndices = this._descriptorIndices = Array(maxBinding + 1).fill(-1);
-        for (let i = 0; i < this._bindings.length; i++) {
+        for (let i = 0; i < bindingSize; i++) {
             const binding = this._bindings[i];
             this._bindingIndices[binding.binding] = i;
             descriptorIndices[binding.binding] = flattenedIndices[i];
         }
         const dynamicBindings: number[] = [];
-        for (let i = 0; i < this._bindings.length; i++) {
+        for (let i = 0; i < bindingSize; i++) {
             const binding = this._bindings[i];
             if (binding.descriptorType & DESCRIPTOR_DYNAMIC_TYPE) {
                 for (let j = 0; j < binding.count; j++) {

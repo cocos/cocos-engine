@@ -41,13 +41,13 @@ export class WebGPUShader extends Shader {
         this._attributes = info.attributes;
         this._blocks = info.blocks;
         this._samplers = info.samplers;
-
+        const stageSize = info.stages.length;
         this._gpuShader = {
             name: info.name,
             blocks: info.blocks.slice(),
             samplers: info.samplers,
 
-            gpuStages: new Array<IWebGPUGPUShaderStage>(info.stages.length),
+            gpuStages: new Array<IWebGPUGPUShaderStage>(stageSize),
             gpuProgram: null,
             gpuInputs: [],
             gpuUniforms: [],
@@ -56,7 +56,7 @@ export class WebGPUShader extends Shader {
             bindings: new Map<number, number[]>(),
         };
 
-        for (let i = 0; i < info.stages.length; ++i) {
+        for (let i = 0; i < stageSize; ++i) {
             const stage = info.stages[i];
             this._gpuShader.gpuStages[i] = {
                 type: stage.stage,

@@ -62,9 +62,9 @@ export class WebGPUInputAssembler extends InputAssembler {
         this._drawInfo.firstInstance = 0;
 
         this._indirectBuffer = info.indirectBuffer || null;
-
-        const gpuVertexBuffers: IWebGPUGPUBuffer[] = new Array<IWebGPUGPUBuffer>(info.vertexBuffers.length);
-        for (let i = 0; i < info.vertexBuffers.length; ++i) {
+        const vertBuffSize = info.vertexBuffers.length;
+        const gpuVertexBuffers: IWebGPUGPUBuffer[] = new Array<IWebGPUGPUBuffer>(vertBuffSize);
+        for (let i = 0; i < vertBuffSize; ++i) {
             const vb = info.vertexBuffers[i] as WebGPUBuffer;
             if (vb.gpuBuffer) {
                 gpuVertexBuffers[i] = vb.gpuBuffer;
