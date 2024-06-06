@@ -338,7 +338,7 @@ const Elements = {
                             });
                         }
                         if (info.subAssets) {
-                            Object.entries(info.subAssets).forEach(subAsset => {
+                            Object.values(info.subAssets).forEach(subAsset => {
                                 if (subAsset.type === 'cc.Prefab') {
                                     values.push(subAsset.value);
                                 }
