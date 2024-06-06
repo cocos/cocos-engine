@@ -31,6 +31,7 @@ import { RenderWindow } from '../core/render-window';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
 import { PostProcess } from '../../rendering/post-process/components/post-process';
 import type { Frustum } from '../../core/geometry';
+import { PipelineSettings } from '../../rendering/custom/settings';
 
 /**
  * @en The enumeration type for the fixed axis of the camera.
@@ -810,6 +811,7 @@ export class Camera {
     public postProcess: PostProcess | null = null;
     public usePostProcess = false;
     public pipeline = '';
+    public pipelineSettings: PipelineSettings | null = null;
 
     private _device: Device;
     private _scene: RenderScene | null = null;

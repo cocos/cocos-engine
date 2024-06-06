@@ -36,10 +36,12 @@ import { DirectionalLight } from '../../render-scene/scene/directional-light';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { CSMLevel } from '../../render-scene/scene/shadows';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { BasicPipeline, BasicRenderPassBuilder, makePipelineSettings, PipelineBuilder, PipelineSettings } from './pipeline';
+import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder } from './pipeline';
 import { QueueHint, SceneFlags } from './types';
 import { supportsR32FloatTexture } from '../define';
 import { Material } from '../../asset/assets';
+import { PipelineSettings } from './settings';
+import { getEditorPipelineCamera, getEditorPipelineSettings } from './framework';
 
 function forwardNeedClearColor (camera: Camera): boolean {
     return !!(camera.clearFlag & (ClearFlagBit.COLOR | (ClearFlagBit.STENCIL << 1)));
@@ -254,6 +256,7 @@ class PipelineConfigs {
     shadowMapSize = new Vec2(1, 1);
     screenSpaceSignY = 1;
     supportDepthSample = false;
+    mobileMaxSpotLightShadowMaps = 1;
     g_platform = new Vec4(0, 0, 0, 0);
 }
 
@@ -282,6 +285,7 @@ class CameraConfigs {
     enableShadowMap = false;
     enablePostProcess = false;
     enableProfiler = false;
+    pipelineSettings: PipelineSettings | null = null;
 }
 
 function setupCameraConfigs (
@@ -296,6 +300,18 @@ function setupCameraConfigs (
     const isEditorView: boolean = camera.cameraUsage === CameraUsage.SCENE_VIEW || camera.cameraUsage === CameraUsage.PREVIEW;
     cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess && (isMainGameWindow || isEditorView);
     cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
+    cameraConfigs.pipelineSettings = camera.pipelineSettings;
+
+    if (isEditorView) {
+        cameraConfigs.pipelineSettings = getEditorPipelineSettings();
+        if (cameraConfigs.pipelineSettings) {
+            const pipelineCamera: Camera | null = getEditorPipelineCamera();
+            cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput
+                && pipelineCamera !== null && pipelineCamera.usePostProcess;
+        } else {
+            cameraConfigs.enablePostProcess = false;
+        }
+    }
 }
 
 export class BuiltinForwardPipeline implements PipelineBuilder {
@@ -322,17 +338,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private _initialized = false; // TODO(zhouzhenglong): Make default effect asset loading earlier and remove this flag
 
     // Forward lighting
-    private readonly settings: PipelineSettings = makePipelineSettings();
     private readonly forwardLighting = new ForwardLighting();
-
-    constructor () {
-        // this.settings.depthOfField.enabled = true;
-        // this.settings.depthOfField.focusDistance = 6.4;
-        // this.settings.depthOfField.focusRange = 13;
-        // this.settings.depthOfField.bokehRadius = 1;
-        this.settings.bloom.enabled = true;
-        this.settings.fxaa.enabled = true;
-    }
 
     //----------------------------------------------------------------
     // Interface
@@ -340,6 +346,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     windowResize (ppl: BasicPipeline, window: RenderWindow, camera: Camera, width: number, height: number): void {
         setupPipelineConfigs(ppl, this._configs);
         setupCameraConfigs(camera, this._configs, this._cameraConfigs);
+        const settings = this._cameraConfigs.pipelineSettings;
 
         const id = window.renderWindowId;
 
@@ -363,7 +370,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Mobile spot-light shadow map
         if (this._configs.isMobile) {
-            const count = this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps;
+            const count = this._configs.mobileMaxSpotLightShadowMaps;
             for (let i = 0; i !== count; ++i) {
                 ppl.addRenderTarget(
                     `SpotShadowMap${i}`,
@@ -386,14 +393,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         // Post Process
-        if (this._cameraConfigs.enablePostProcess) {
+        if (this._cameraConfigs.enablePostProcess && settings != null) {
             // Ldr Color
-            if (this.settings.fxaa.enabled
-                || this.settings.depthOfField.enabled) {
+            if (settings.fxaa.enabled
+                || settings.depthOfField.enabled) {
                 ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
             }
             // DepthOfField
-            if (this.settings.depthOfField.enabled) {
+            if (settings.depthOfField.enabled) {
                 const halfWidth = Math.max(Math.floor(width / 2), 1);
                 const halfHeight = Math.max(Math.floor(height / 2), 1);
                 // `DofCoc${id}` texture will reuse `LdrColor${id}`
@@ -403,10 +410,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                 ppl.addRenderTarget(`DofFilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
             }
             // Bloom (Kawase Dual Filter)
-            if (this.settings.bloom.enabled) {
+            if (settings.bloom.enabled) {
                 let bloomWidth = width;
                 let bloomHeight = height;
-                for (let i = 0; i !== this.settings.bloom.iterations + 1; ++i) {
+                for (let i = 0; i !== settings.bloom.iterations + 1; ++i) {
                     bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
                     bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
                     ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
@@ -441,8 +448,13 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     // Pipelines
     //----------------------------------------------------------------
     // Desktop
-    private _buildForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
+    private _buildForwardPipeline (
+        ppl: BasicPipeline,
+        camera: Camera,
+        scene: RenderScene,
+    ): void {
         // Init
+        const settings = this._cameraConfigs.pipelineSettings;
         const width = Math.max(Math.floor(camera.window.width), 1);
         const height = Math.max(Math.floor(camera.window.height), 1);
         const id = camera.window.renderWindowId;
@@ -464,17 +476,17 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting
         let lastPass: BasicRenderPassBuilder;
         if (this._configs.useFloatOutput) {
-            if (this._cameraConfigs.enablePostProcess) {
-                if (this._configs.supportDepthSample && this.settings.depthOfField.enabled) {
+            if (this._cameraConfigs.enablePostProcess && settings != null) {
+                if (this._configs.supportDepthSample && settings.depthOfField.enabled) {
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, dofRadianceName, depthStencilName, mainLight);
-                    this._addDepthOfFieldPasses(ppl, id, camera, width, height, dofRadianceName, depthStencilName, radianceName);
+                    this._addDepthOfFieldPasses(ppl, settings, id, camera, width, height, dofRadianceName, depthStencilName, radianceName);
                 } else {
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
                 }
-                if (this.settings.bloom.enabled) {
-                    this._addKawaseDualFilterBloomPasses(ppl, id, width, height, radianceName);
+                if (settings.bloom.enabled) {
+                    this._addKawaseDualFilterBloomPasses(ppl, settings, id, width, height, radianceName);
                 }
-                if (this.settings.fxaa.enabled) {
+                if (settings.fxaa.enabled) {
                     this._addCopyAndTonemapPass(ppl, width, height, radianceName, ldrColorName);
                     lastPass = this._addFxaaPass(ppl, width, height, ldrColorName, colorName);
                 } else {
@@ -491,8 +503,13 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     }
 
     // Mobile
-    private _buildMobileForwardPipeline (ppl: BasicPipeline, camera: Camera, scene: RenderScene): void {
+    private _buildMobileForwardPipeline (
+        ppl: BasicPipeline,
+        camera: Camera,
+        scene: RenderScene,
+    ): void {
         // Init
+        const settings = this._cameraConfigs.pipelineSettings;
         const width = Math.max(Math.floor(camera.window.width), 1);
         const height = Math.max(Math.floor(camera.window.height), 1);
         const id = camera.window.renderWindowId;
@@ -512,7 +529,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Spot light shadow maps
         // Currently, only support 1 spot light with shadow map on mobile platform.
         // TODO(zhouzhenglong): Relex this limitation.
-        this.forwardLighting.addMobileShadowPasses(ppl, camera, this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps);
+        this.forwardLighting.addMobileShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
 
         // Forward Lighting
         let lastPass: BasicRenderPassBuilder;
@@ -626,6 +643,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
     private _addDepthOfFieldPasses (
         ppl: BasicPipeline,
+        settings: PipelineSettings,
         id: number,
         camera: Camera,
         width: number,
@@ -634,9 +652,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         depthStencil: string,
         radianceName: string,
     ): void {
-        this._cocParams.x = this.settings.depthOfField.focusDistance;
-        this._cocParams.y = this.settings.depthOfField.focusRange;
-        this._cocParams.z = this.settings.depthOfField.bokehRadius;
+        this._cocParams.x = settings.depthOfField.focusDistance;
+        this._cocParams.y = settings.depthOfField.focusRange;
+        this._cocParams.z = settings.depthOfField.bokehRadius;
         this._cocParams.w = 0.0;
         this._cocTexSize.x = 1.0 / width;
         this._cocTexSize.y = 1.0 / height;
@@ -703,8 +721,8 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
     private _addKawaseDualFilterBloomPasses (
         ppl: BasicPipeline,
+        settings: PipelineSettings,
         id: number,
-        // camera: Camera,
         width: number,
         height: number,
         radianceName: string,
@@ -714,7 +732,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // https://community.arm.com/cfs-file/__key/communityserver-blogs-components-weblogfiles/00-00-00-20-66/siggraph2015_2D00_mmg_2D00_marius_2D00_slides.pdf
 
         // Size: [prefilter(1/2), downsample(1/4), downsample(1/8), downsample(1/16), ...]
-        const iterations = this.settings.bloom.iterations;
+        const iterations = settings.bloom.iterations;
         const sizeCount = iterations + 1;
         this._bloomWidths.length = sizeCount;
         this._bloomHeights.length = sizeCount;
@@ -734,8 +752,8 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Setup bloom parameters
         this._bloomParams.x = this._configs.useFloatOutput ? 1 : 0;
         this._bloomParams.x = 0; // unused
-        this._bloomParams.z = this.settings.bloom.threshold;
-        this._bloomParams.w = this.settings.bloom.enableAlphaMask ? 1 : 0;
+        this._bloomParams.z = settings.bloom.threshold;
+        this._bloomParams.w = settings.bloom.enableAlphaMask ? 1 : 0;
 
         // Prefilter pass
         const prefilterPass = ppl.addRenderPass(this._bloomWidths[0], this._bloomHeights[0], 'bloom1-prefilter');
@@ -916,7 +934,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         this.forwardLighting.addMobileLightQueues(
             pass,
             camera,
-            this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps,
+            this._configs.mobileMaxSpotLightShadowMaps,
         );
 
         //----------------------------------------------------------------
