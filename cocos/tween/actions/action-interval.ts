@@ -28,6 +28,7 @@
 import { FiniteTimeAction, Action } from './action';
 import { macro, logID, errorID } from '../../core';
 import { ActionInstant } from './action-instant';
+import type { TTweenUpdateCallback } from '../tween';
 
 // Extra action for making a Sequence or Spawn when only adding one action to it.
 class DummyAction extends FiniteTimeAction {
@@ -69,17 +70,20 @@ class DummyAction extends FiniteTimeAction {
 export abstract class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
+    protected _startTime = 0;
     protected _firstTick = false;
     protected _speed = 1;
-    protected _repeatForever = false;
-    protected _repeatMethod = false; // Compatible with repeat class, Discard after can be deleted
-    protected _speedMethod = false; // Compatible with repeat class, Discard after can be deleted
 
     constructor (d?: number) {
         super();
         if (d !== undefined && !Number.isNaN(d)) {
             this.initWithDuration(d);
         }
+    }
+
+    setStartTime (time: number): void {
+        time = time < 0 ? 0 : (time > this._duration ? this._duration : time);
+        this._startTime = time;
     }
 
     /*
@@ -110,19 +114,21 @@ export abstract class ActionInterval extends FiniteTimeAction {
     }
 
     _cloneDecoration (action: ActionInterval): void {
-        action._repeatForever = this._repeatForever;
         action._speed = this._speed;
-        action._timesForRepeat = this._timesForRepeat;
-        action._speedMethod = this._speedMethod;
-        action._repeatMethod = this._repeatMethod;
     }
 
     abstract clone (): ActionInterval;
 
     step (dt: number): void {
+        if (this._paused) return;
+        dt *= this._speed;
         if (this._firstTick) {
             this._firstTick = false;
-            this._elapsed = 0;
+            this._elapsed = this._startTime;
+            if (this._startTime > 0) {
+                // _startTime only takes effect in the first tick after tween starts. So reset it to 0 after the first tick.
+                this._startTime = 0;
+            }
         } else this._elapsed += dt;
 
         // this.update((1 > (this._elapsed / this._duration)) ? this._elapsed / this._duration : 1);
@@ -130,19 +136,6 @@ export abstract class ActionInterval extends FiniteTimeAction {
         let t = this._elapsed / (this._duration > 0.0000001192092896 ? this._duration : 0.0000001192092896);
         t = (t < 1 ? t : 1);
         this.update(t > 0 ? t : 0);
-
-        // Compatible with repeat class, Discard after can be deleted (this._repeatMethod)
-        if (this._repeatMethod && this._timesForRepeat > 1 && this.isDone()) {
-            if (!this._repeatForever) {
-                this._timesForRepeat--;
-            }
-            // var diff = locInnerAction.getElapsed() - locInnerAction._duration;
-            this.startWithTarget(this.target);
-            // to prevent jerk. issue #390 ,1247
-            // this._innerAction.step(0);
-            // this._innerAction.step(diff);
-            this.step(this._elapsed - this._duration);
-        }
     }
 
     startWithTarget<T> (target: T | null): void {
@@ -151,32 +144,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
         this._firstTick = true;
     }
 
-    reverse (): ActionInterval {
-        logID(1010);
-        return this;
-    }
-
-    /**
-     * @en
-     * Changes the speed of an action, making it take longer (speed>1)
-     * or less (speed<1) time. <br/>
-     * Useful to simulate 'slow motion' or 'fast forward' effect.
-     * @zh
-     * 改变一个动作的速度，使它的执行使用更长的时间（speed > 1）<br/>
-     * 或更少（speed < 1）可以有效得模拟“慢动作”或“快进”的效果。
-     * @param {Number} speed
-     * @returns {Action}
-     */
-    speed (speed: number): Action {
-        if (speed <= 0) {
-            logID(1013);
-            return this;
-        }
-
-        this._speedMethod = true; // Compatible with repeat class, Discard after can be deleted
-        this._speed *= speed;
-        return this;
-    }
+    abstract reverse (): ActionInterval;
 
     /**
      * @en
@@ -197,44 +165,12 @@ export abstract class ActionInterval extends FiniteTimeAction {
      * @param {Number} speed
      * @returns {ActionInterval}
      */
-    setSpeed (speed: number): ActionInterval {
+    setSpeed (speed: number): void {
         this._speed = speed;
-        return this;
     }
 
-    /**
-     * @en
-     * Repeats an action a number of times.
-     * To repeat an action forever use the CCRepeatForever action.
-     * @zh 重复动作可以按一定次数重复一个动作，使用 RepeatForever 动作来永远重复一个动作。
-     * @method repeat
-     * @param {Number} times
-     * @returns {ActionInterval}
-     */
-    repeat (times: number): ActionInterval {
-        times = Math.round(times);
-        if (Number.isNaN(times) || times < 1) {
-            logID(1014);
-            return this;
-        }
-        this._repeatMethod = true; // Compatible with repeat class, Discard after can be deleted
-        this._timesForRepeat *= times;
-        return this;
-    }
-
-    /**
-     * @en
-     * Repeats an action for ever.  <br/>
-     * To repeat the an action for a limited number of times use the Repeat action. <br/>
-     * @zh 永远地重复一个动作，有限次数内重复一个动作请使用 Repeat 动作。
-     * @method repeatForever
-     * @returns {ActionInterval}
-     */
-    repeatForever (): ActionInterval {
-        this._repeatMethod = true; // Compatible with repeat class, Discard after can be deleted
-        this._timesForRepeat = this.MAX_VALUE;
-        this._repeatForever = true;
-        return this;
+    getDurationScaled (): number {
+        return this._duration / this._speed;
     }
 }
 
@@ -299,9 +235,8 @@ export class Sequence extends ActionInterval {
             return false;
         }
 
-        let durationOne = actionOne._duration; let durationTwo = actionTwo._duration;
-        durationOne *= (actionOne as any)._repeatMethod ? actionOne._timesForRepeat : 1;
-        durationTwo *= (actionTwo as any)._repeatMethod ? actionTwo._timesForRepeat : 1;
+        const durationOne = actionOne.getDurationScaled();
+        const durationTwo = actionTwo.getDurationScaled();
         const d = durationOne + durationTwo;
         this.initWithDuration(d);
 
@@ -312,6 +247,8 @@ export class Sequence extends ActionInterval {
 
     clone (): Sequence {
         const action = new Sequence();
+        action._id = this._id;
+        action._speed = this._speed;
         this._cloneDecoration(action);
         action.initWithTwoActions(this._actions[0].clone(), this._actions[1].clone());
         return action;
@@ -322,8 +259,7 @@ export class Sequence extends ActionInterval {
         if (this._actions.length === 0) {
             return;
         }
-        this._split = this._actions[0]._duration / this._duration;
-        this._split *= (this._actions[0] as any)._repeatMethod ? this._actions[0]._timesForRepeat : 1;
+        this._split = this._actions[0].getDurationScaled() / this._duration;
         this._last = -1;
     }
 
@@ -341,6 +277,7 @@ export class Sequence extends ActionInterval {
         if (locActions.length === 0) {
             return;
         }
+
         let new_t: number = 0;
         let found = 0;
         const locSplit = this._split;
@@ -383,7 +320,6 @@ export class Sequence extends ActionInterval {
         // Last action not found
         if (locLast !== found) actionFound.startWithTarget(this.target);
 
-        new_t *= actionFound._timesForRepeat;
         actionFound.update(new_t > 1 ? new_t % 1 : new_t);
         this._last = found;
     }
@@ -406,6 +342,23 @@ export class Sequence extends ActionInterval {
         } else {
             actionOne.workerTarget = workerTarget;
         }
+    }
+
+    findAction (id: number): FiniteTimeAction | null {
+        for (let i = 0, len = this._actions.length; i < len; ++i) {
+            let action: FiniteTimeAction | null = this._actions[i];
+            if (action.getId() === id) {
+                return action;
+            }
+
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action = action.findAction(id);
+                if (action && action.getId() === id) {
+                    return action;
+                }
+            }
+        }
+        return null;
     }
 }
 
@@ -464,7 +417,7 @@ export class Repeat extends ActionInterval {
         if (!action || times === undefined) {
             return false;
         }
-        const duration = action._duration * times;
+        const duration = action.getDurationScaled() * times;
 
         if (this.initWithDuration(duration)) {
             this._times = times;
@@ -481,6 +434,8 @@ export class Repeat extends ActionInterval {
 
     clone (): Repeat {
         const action = new Repeat();
+        action._id = this._id;
+        action._speed = this._speed;
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone(), this._times);
@@ -490,7 +445,7 @@ export class Repeat extends ActionInterval {
 
     startWithTarget<T> (target: T | null): void {
         this._total = 0;
-        this._nextDt = (this._innerAction ? this._innerAction._duration : 0) / this._duration;
+        this._nextDt = (this._innerAction ? this._innerAction.getDurationScaled() : 0) / this._duration;
         super.startWithTarget(target);
         if (this._innerAction) this._innerAction.startWithTarget(target);
     }
@@ -515,7 +470,7 @@ export class Repeat extends ActionInterval {
                 this._total++;
                 locInnerAction.stop();
                 locInnerAction.startWithTarget(this.target);
-                locNextDt += locInnerAction._duration / locDuration;
+                locNextDt += locInnerAction.getDurationScaled() / locDuration;
                 this._nextDt = locNextDt > 1 ? 1 : locNextDt;
             }
 
@@ -532,7 +487,7 @@ export class Repeat extends ActionInterval {
                     locInnerAction.stop();
                 } else {
                     // issue #390 prevent jerk, use right update
-                    locInnerAction.update(dt - (locNextDt - locInnerAction._duration / locDuration));
+                    locInnerAction.update(dt - (locNextDt - locInnerAction.getDurationScaled() / locDuration));
                 }
             }
         } else {
@@ -620,6 +575,8 @@ export class RepeatForever extends ActionInterval {
 
     clone (): RepeatForever {
         const action = new RepeatForever();
+        action._id = this._id;
+        action._speed = this._speed;
         this._cloneDecoration(action);
         if (this._innerAction) {
             action.initWithAction(this._innerAction.clone());
@@ -635,19 +592,24 @@ export class RepeatForever extends ActionInterval {
     }
 
     step (dt: number): void {
+        if (this._paused) return;
         const locInnerAction = this._innerAction;
         if (!locInnerAction) {
             return;
         }
         locInnerAction.step(dt);
         if (locInnerAction.isDone()) {
-            // var diff = locInnerAction.getElapsed() - locInnerAction._duration;
+            // var diff = locInnerAction.getElapsed() - locInnerAction.getDurationScaled();
             locInnerAction.startWithTarget(this.target);
             // to prevent jerk. issue #390 ,1247
             // this._innerAction.step(0);
             // this._innerAction.step(diff);
-            locInnerAction.step(locInnerAction.getElapsed() - locInnerAction._duration);
+            locInnerAction.step(locInnerAction.getElapsed() - locInnerAction.getDurationScaled());
         }
+    }
+
+    update (_t: number): void {
+        logID(1007); // should never come here.
     }
 
     isDone (): boolean {
@@ -749,8 +711,8 @@ export class Spawn extends ActionInterval {
 
         let ret = false;
 
-        const d1 = action1._duration;
-        const d2 = action2._duration;
+        const d1 = action1.getDurationScaled();
+        const d2 = action2.getDurationScaled();
 
         if (this.initWithDuration(Math.max(d1, d2))) {
             this._one = action1;
@@ -769,6 +731,8 @@ export class Spawn extends ActionInterval {
 
     clone (): Spawn {
         const action = new Spawn();
+        action._id = this._id;
+        action._speed = this._speed;
         this._cloneDecoration(action);
         if (this._one && this._two) {
             action.initWithTwoActions(this._one.clone(), this._two.clone());
@@ -814,6 +778,30 @@ export class Spawn extends ActionInterval {
             one.workerTarget = workerTarget;
         }
     }
+
+    findAction (id: number): FiniteTimeAction | null {
+        const one = this._one;
+        const two = this._two;
+        let foundAction: FiniteTimeAction | null = null;
+        const find = (action: FiniteTimeAction): FiniteTimeAction | null => {
+            if (action.getId() === id) return action;
+            if (action instanceof Sequence || action instanceof Spawn) {
+                const found = action.findAction(id);
+                if (found) return found;
+            }
+            return null;
+        };
+        if (one) {
+            foundAction = find(one);
+            if (foundAction) return foundAction;
+        }
+
+        if (two) {
+            foundAction = find(two);
+            if (foundAction) return foundAction;
+        }
+        return null;
+    }
 }
 
 /**
@@ -847,6 +835,8 @@ class DelayTime extends ActionInterval {
 
     clone (): DelayTime {
         const action = new DelayTime();
+        action._id = this._id;
+        action._speed = this._speed;
         this._cloneDecoration(action);
         action.initWithDuration(this._duration);
         return action;
@@ -903,7 +893,7 @@ export class ReverseTime extends ActionInterval {
             return false;
         }
 
-        if (super.initWithDuration(action._duration)) {
+        if (super.initWithDuration(action.getDurationScaled())) {
             // Don't leak if action is reused
             this._other = action;
             return true;
@@ -913,6 +903,8 @@ export class ReverseTime extends ActionInterval {
 
     clone (): ReverseTime {
         const action = new ReverseTime();
+        action._id = this._id;
+        action._speed = this._speed;
         this._cloneDecoration(action);
         if (this._other) {
             action.initWithAction(this._other.clone());
@@ -954,4 +946,27 @@ export class ReverseTime extends ActionInterval {
  */
 export function reverseTime (action: ActionInterval): ReverseTime {
     return new ReverseTime(action);
+}
+
+export class ActionCustomUpdate<T extends object, Args extends any[]> extends ActionInterval {
+    private _cb: TTweenUpdateCallback<T, Args>;
+    private _args: Args;
+
+    constructor (duration: number, cb: TTweenUpdateCallback<T, Args>, args: Args) {
+        super(duration);
+        this._cb = cb;
+        this._args = args;
+    }
+
+    clone (): ActionCustomUpdate<T, Args> {
+        return new ActionCustomUpdate(this._duration, this._cb, this._args);
+    }
+
+    update (ratio: number): void {
+        this._cb(this.target as T, ratio, ...this._args);
+    }
+
+    reverse (): ActionCustomUpdate<T, Args> {
+        return this.clone();
+    }
 }

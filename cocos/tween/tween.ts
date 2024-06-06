@@ -24,7 +24,10 @@
 
 import { TweenSystem } from './tween-system';
 import { warn } from '../core';
-import { ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence, Spawn, repeat, repeatForever } from './actions/action-interval';
+import {
+    ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence,
+    Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
+} from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, TCallFuncCallback } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
@@ -44,6 +47,8 @@ type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
 
+export type TTweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
+
 /**
  * @en
  * Tween provide a simple and flexible way to action, It's transplanted from cocos creator。
@@ -60,9 +65,10 @@ const notIntervalPrompt = 'the last action is not ActionInterval';
  */
 export class Tween<T extends object = any> {
     private _actions: FiniteTimeAction[] = [];
-    private _finalAction: FiniteTimeAction | null = null;
+    private _finalAction: ActionInterval | null = null;
     private _target: T | null = null;
     private _tag = Action.TAG_INVALID;
+    private _timeScale = 1;
 
     constructor (target?: T | null) {
         this._target = target === undefined ? null : target;
@@ -73,9 +79,23 @@ export class Tween<T extends object = any> {
      * @zh 设置缓动的标签
      * @method tag
      * @param tag @en The tag set for this tween @zh 为当前缓动设置的标签
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     tag (tag: number): Tween<T> {
         this._tag = tag;
+        return this;
+    }
+
+    /**
+     * @en Set the id for previous action
+     * @zh 设置前一个动作的 id
+     * @param id @en The internal action id to set @zh 内部动作的 id 标识，
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    id (id: number): Tween<T> {
+        if (this._actions.length > 0) {
+            this._actions[this._actions.length - 1].setId(id);
+        }
         return this;
     }
 
@@ -86,11 +106,119 @@ export class Tween<T extends object = any> {
      * 插入一个 tween 到队列中。
      * @method then
      * @param other @en The rear tween of this tween @zh 当前缓动的后置缓动
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     then<U extends object = any> (other: Tween<U>): Tween<T> {
         const u = other._union(true);
-        if (u) this._actions.push(u);
+        if (u) {
+            u.setSpeed(other._timeScale);
+            this._actions.push(u);
+        }
         return this;
+    }
+
+    /**
+     * @en Return a new Tween instance which reverses all actions in the current tween.
+     * @zh 返回新的缓动实例，其会翻转当前缓动中的所有动作。
+     * @return @en The new tween instance which reverses all actions in the current tween. @zh 新的缓动实例，其会翻转当前缓动中的所有动作。
+     * @note @en The returned tween instance is a new instance which is not the current tween instance.
+     *       @zh 返回的缓动实例是新的生成的实例，并不是当前缓动实例。
+     */
+    reverse (): Tween<T>;
+
+    /**
+     * @en Reverse an action by ID in the current tween.
+     * @zh 翻转当前缓动中特定标识的动作。
+     * @param id @en The ID of the internal action in the current tween to reverse. @zh 要翻转的当前缓动中的动作标识。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    reverse (id: number): Tween<T>;
+
+    /**
+     * @en Reverse an action by ID in a specific tween
+     * @zh 翻转特定缓动中特定标识的动作
+     * @param otherTween @en The tween in which to find the action by ID
+     *                   @zh 根据标识在关联的缓动中查找动作
+     * @param id @en The ID of the action to reverse @zh 要翻转的动画标识
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    reverse<U extends object = any> (otherTween: Tween<U>, id?: number): Tween<T>;
+
+    reverse<U extends object = any> (otherTweenOrId?: Tween<U> | number, id?: number): Tween<T> {
+        // Overload 1: reverse()
+        if (otherTweenOrId == null && id == null) {
+            return this.reverseTween();
+        }
+
+        let tweenForFindAction: Tween | undefined;
+        let actionId: number | undefined;
+
+        if (otherTweenOrId instanceof Tween) {
+            // Overload 3: reverse(otherTween: Tween<U>, id? number)
+            tweenForFindAction = otherTweenOrId;
+            if (id !== undefined) {
+                actionId = id;
+            }
+        } else if (typeof otherTweenOrId === 'number') {
+            // Overload 2: reverse(id: number)
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            tweenForFindAction = this;
+            actionId = otherTweenOrId;
+        }
+
+        if (tweenForFindAction) {
+            const reversedAction = Tween.reverseAction(tweenForFindAction, actionId);
+            if (reversedAction) {
+                this._actions.push(reversedAction);
+            }
+        }
+        return this;
+    }
+
+    private reverseTween (): Tween<T> {
+        if (this._actions.length === 0) {
+            warn('reverse: current tween could not be reversed, empty actions');
+            return this.clone(this._target as T);
+        }
+        const action = this._union(false); // workerTarget will be updated in the following insertAction
+        const r = tween(this._target as T);
+        r._timeScale = this._timeScale;
+        if (action) r.insertAction(action.reverse());
+        return r;
+    }
+
+    private static reverseAction (t: Tween, actionId?: number): FiniteTimeAction | null {
+        const actions = t._actions;
+        if (actions.length === 0) return null;
+
+        let action: FiniteTimeAction | null = null;
+        let reversedAction: FiniteTimeAction | null = null;
+        if (typeof actionId === 'number') {
+            action = t.findAction(actionId, actions);
+        } else if (t) {
+            action = t._union(false);
+        }
+
+        if (action) {
+            reversedAction = action.reverse();
+            reversedAction.workerTarget = t._target;
+        } else {
+            warn(`reverse: could not find action id ${actionId}`);
+        }
+        return reversedAction;
+    }
+
+    private findAction (id: number, actions: FiniteTimeAction[]): FiniteTimeAction | null {
+        let action: FiniteTimeAction | null = null;
+        for (let i = 0, len = actions.length; i < len; ++i) {
+            action = actions[i];
+            if (action.getId() === id) return action;
+            if (action instanceof Sequence || action instanceof Spawn) {
+                action = action.findAction(id);
+                if (action) return action;
+            }
+        }
+        return null;
     }
 
     /**
@@ -120,6 +248,7 @@ export class Tween<T extends object = any> {
      * 设置 tween 的 target。
      * @method target
      * @param target @en The target of this tween @zh 当前缓动的目标对象
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     target<U extends object = any> (target: U): Tween<U> {
         (this as unknown as Tween<U>)._target = target;
@@ -137,8 +266,20 @@ export class Tween<T extends object = any> {
      * Start this tween.
      * @zh
      * 运行当前 tween。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     start (): Tween<T> {
+        return this.startAt(0);
+    }
+
+    /**
+     * @en Start tween from a specific time, all actions before the time will be executed and finished immediately.
+     * @zh 从指定时间开始执行当前缓动，此时间前的所有缓动将被立马执行完毕。
+     * @param time @en The time (unit: seconds) to start to execute the current tween.
+     *             @zh 要执行当前缓动的开始时间，单位为秒。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    startAt (time: number): Tween<T> {
         if (!this._target) {
             warn('Please set target to tween first');
             return this;
@@ -146,11 +287,16 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
         }
-        this._finalAction = this._union(false);
-        if (this._finalAction) {
-            this._finalAction.setTag(this._tag);
+        const final = this._unionForStart();
+        this._finalAction = final;
+        if (final) {
+            final.setTag(this._tag);
+            final.setSpeed(this._timeScale);
+            final.setStartTime(time);
+            TweenSystem.instance.ActionManager.addAction(final, this._target, false);
+        } else {
+            warn(`start: no actions in Tween`);
         }
-        TweenSystem.instance.ActionManager.addAction(this._finalAction, this._target, false);
         return this;
     }
 
@@ -159,11 +305,40 @@ export class Tween<T extends object = any> {
      * Stop this tween.
      * @zh
      * 停止当前 tween。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     stop (): Tween<T> {
         if (this._finalAction) {
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
             this._finalAction = null;
+        }
+        return this;
+    }
+
+    /**
+     * @en Pause the tween instance.
+     * @zh 暂停此缓动实例。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    pause (): Tween<T> {
+        if (this._finalAction) {
+            this._finalAction.setPaused(true);
+        } else {
+            warn(`pause: tween wasn't started, can't pause`);
+        }
+        return this;
+    }
+
+    /**
+     * @en Resume the tween instance.
+     * @zh 恢复此缓动实例。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    resume (): Tween<T> {
+        if (this._finalAction) {
+            this._finalAction.setPaused(false);
+        } else {
+            warn(`resume: tween wasn't started, can't resume`);
         }
         return this;
     }
@@ -175,23 +350,49 @@ export class Tween<T extends object = any> {
      * 克隆当前 tween。
      * @method clone
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
-    clone<U extends object = any> (target: U): Tween<U> {
+    clone<U extends object = any> (target?: U): Tween<U> {
         const action = this._union(false);
         const r = tween(target);
+        r._timeScale = this._timeScale;
         return action ? r.insertAction(action) : r;
     }
 
     /**
      * @en
-     * Integrate all previous actions to an action.
+     * Integrate to an action by all previous actions or a range from the specific id to the last one.
      * @zh
-     * 将之前所有的 action 整合为一个 action。
+     * 将之前所有的动作或者从指定标识的动作开始的所有动作整合为一个顺序动作。
+     * @method union
+     * @param fromId @en The action with the specific ID to start integrating @zh 指定开始整合的动作标识
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
-    union (): Tween<T> {
-        const action = this._union(false);
-        this._actions.length = 0;
-        if (action) this._actions.push(action);
+    union (fromId?: number): Tween<T> {
+        const unionAll = (): void => {
+            const action = this._union(false);
+            this._actions.length = 0;
+            if (action) this._actions.push(action);
+        };
+
+        if (fromId === undefined) {
+            unionAll();
+            return this;
+        }
+
+        const actions = this._actions;
+        const index = actions.findIndex((action) => action.getId() === fromId);
+
+        const len = actions.length;
+        if (len > 1) {
+            const actionsToUnion = actions.splice(index);
+            if (actionsToUnion.length === 1) {
+                actions.push(actionsToUnion[0]);
+            } else {
+                actions.push(sequence(actionsToUnion));
+            }
+        }
+
         return this;
     }
 
@@ -206,6 +407,7 @@ export class Tween<T extends object = any> {
      * @param opts @en Optional functions of tween @zh 可选的缓动功能
      * @param opts.progress @en Interpolation function @zh 缓动的速度插值函数
      * @param opts.easing @en Tween function or a lambda @zh 缓动的曲线函数或lambda表达式
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     to (duration: number, props: ConstructorType<T>, opts?: ITweenOption<T>): Tween<T> {
         opts = opts || (Object.create(null) as ITweenOption<T>);
@@ -226,12 +428,26 @@ export class Tween<T extends object = any> {
      * @param opts @en Optional functions of tween @zh 可选的缓动功能
      * @param [opts.progress]
      * @param [opts.easing]
-     * @return {Tween}
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     by (duration: number, props: ConstructorType<T>, opts?: ITweenOption<T>): Tween<T> {
         opts = opts || (Object.create(null) as ITweenOption<T>);
         opts.relative = true;
         const action = new TweenAction(duration, props, opts);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en Add an custom action.
+     * @zh 添加一个自定义动作。
+     * @param duration @en The tween time in seconds. @zh 缓动时间，单位为秒。
+     * @param cb @en The callback of the current action. @zh 动作回调函数。
+     * @param args @en The arguments passed to the callback function. @zh 传递给动作回调函数的参数。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    update<Args extends any[]> (duration: number, cb: TTweenUpdateCallback<T, Args>, ...args: Args): Tween<T> {
+        const action = new ActionCustomUpdate<T, Args>(duration, cb, args);
         this._actions.push(action);
         return this;
     }
@@ -243,7 +459,7 @@ export class Tween<T extends object = any> {
      * 直接设置 target 的属性。
      * @method set
      * @param props @en List of properties of tween @zh 缓动的属性列表
-     * @return {Tween}
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     set (props: ConstructorType<T>): Tween<T> {
         const action = new SetAction(props);
@@ -258,7 +474,7 @@ export class Tween<T extends object = any> {
      * 添加一个延时 action。
      * @method delay
      * @param duration @en Delay time of this tween @zh 当前缓动的延迟时间
-     * @return {Tween}
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     delay (duration: number): Tween<T> {
         const action = delayTime(duration);
@@ -275,7 +491,7 @@ export class Tween<T extends object = any> {
      * @param callback @en Callback function at the end of this tween @zh 当前缓动结束时的回调函数
      * @param callbackThis @en The this object in callback function @zh 回调函数中的 this 对象
      * @param data @en The Custom data that will be passed to callback @zh 要传递给回调函数的自定义数据
-     * @return {Tween}
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     call<TCallbackThis, TData> (callback: TCallFuncCallback<T, TData>, callbackThis?: TCallbackThis, data?: TData): Tween<T> {
         const action = callFunc(callback, callbackThis, data);
@@ -290,6 +506,7 @@ export class Tween<T extends object = any> {
      * 添加一个队列 action。
      * @method sequence
      * @param args @en All tween that make up the sequence @zh 组成队列的所有缓动
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     sequence (...args: Tween<any>[]): Tween<T> {
         const action = Tween._wrappedSequence(args);
@@ -304,11 +521,50 @@ export class Tween<T extends object = any> {
      * 添加一个并行 action。
      * @method parallel
      * @param args @en The tween parallel to this tween @zh 与当前缓动并行的缓动
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     parallel (...args: Tween<any>[]): Tween<T> {
         const action = Tween._wrappedParallel(args);
         if (action) this._actions.push(action);
         return this;
+    }
+
+    /**
+     * @en Set the factor that's used to scale time in the animation where 1 = normal speed (the default), 0.5 = half speed, 2 = double speed, etc.
+     * @zh 设置动画中使用的缩放时间因子，其中 1 表示正常速度（默认值），0.5 表示减速一半，2 表示加速一倍，等等。
+     * @param scale @en The scale factor to set. @zh 要设置的缩放因子。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    timeScale (scale: number): Tween<T> {
+        this._timeScale = scale;
+        if (this._finalAction) {
+            this._finalAction.setSpeed(scale);
+        }
+        return this;
+    }
+
+    /**
+     * @en Return the scale time factor of the current tween.
+     * @zh 返回当前缓动的时间缩放因子。
+     * @return @en The scale time factor of the current tween. @zh 当前缓动的时间缩放因子。
+     */
+    getTimeScale (): number {
+        return this._timeScale;
+    }
+
+    /**
+     * @en Return the duration of the current tween, its value is constant which means it's determinted at tween's design time
+     *     and is not affected by the timeScale of the current tween.
+     * @zh 返回当前缓动的总时长，此总时长为缓动的设计总时长，不受当前缓动的 timeScale 值影响。
+     * @return @en The duration of the current tween, unit is seconds. @zh 当中缓动的总时长，单位为秒。
+     * @note @en Return a valid duration value only after tween was started, otherwise, it returns 0.
+     *       @zh 只有在缓动开始后才能返回有效值，否则返回 0。
+     */
+    get duration (): number {
+        if (this._finalAction) {
+            return this._finalAction.getDuration();
+        }
+        return 0;
     }
 
     /**
@@ -319,6 +575,7 @@ export class Tween<T extends object = any> {
      * 添加一个重复 action，这个 action 会将前一个动作作为他的参数。
      * @param repeatTimes @en The repeat times of this tween @zh 重复次数
      * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     repeat (repeatTimes: number, embedTween?: Tween<T>): Tween<T> {
         /** adapter */
@@ -347,6 +604,7 @@ export class Tween<T extends object = any> {
      * 添加一个永久重复 action，这个 action 会将前一个动作作为他的参数。
      * @method repeatForever
      * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     repeatForever (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;
@@ -358,7 +616,9 @@ export class Tween<T extends object = any> {
             action = actions.pop();
         }
 
-        if (action instanceof ActionInterval) {
+        if (action && actions.length !== 0) {
+            actions.push(repeat(action, Number.MAX_SAFE_INTEGER));
+        } else if (action instanceof ActionInterval) {
             actions.push(repeatForever(action));
         } else {
             warn(`repeatForever: ${notIntervalPrompt}`);
@@ -374,6 +634,7 @@ export class Tween<T extends object = any> {
      * 添加一个倒置时间 action，这个 action 会将前一个动作作为他的参数。
      * @method reverseTime
      * @param embedTween @en Optional, embedded tween of this tween @zh 可选，嵌入缓动
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     reverseTime (embedTween?: Tween<T>): Tween<T> {
         const actions = this._actions;
@@ -398,6 +659,7 @@ export class Tween<T extends object = any> {
      * Add a hide action, only for node target.
      * @zh
      * 添加一个隐藏 action，只适用于 target 是节点类型的。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     hide (): TweenWithNodeTargetOrUnknown<T> {
         const isNode = this._target instanceof Node;
@@ -413,6 +675,7 @@ export class Tween<T extends object = any> {
      * Add a show action, only for node target.
      * @zh
      * 添加一个显示 action，只适用于 target 是节点类型的。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     show (): TweenWithNodeTargetOrUnknown<T> {
         const isNode = this._target instanceof Node;
@@ -428,6 +691,7 @@ export class Tween<T extends object = any> {
      * Add a removeSelf action, only for node target.
      * @zh
      * 添加一个移除自己 action，只适用于 target 是节点类型的。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     removeSelf (): TweenWithNodeTargetOrUnknown<T> {
         const isNode = this._target instanceof Node;
@@ -443,6 +707,7 @@ export class Tween<T extends object = any> {
      * Add a destroySelf action, only for node target.
      * @zh
      * 添加一个移除并销毁自己 action，只适用于 target 是节点类型的。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     destroySelf (): TweenWithNodeTargetOrUnknown<T> {
         const isNode = this._target instanceof Node;
@@ -468,7 +733,7 @@ export class Tween<T extends object = any> {
      * @zh
      * 停止所有指定标签的缓动
      */
-    static stopAllByTag (tag: number, target?: object): void {
+    static stopAllByTag<U extends object = any> (tag: number, target?: U): void {
         TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target);
     }
     /**
@@ -477,23 +742,48 @@ export class Tween<T extends object = any> {
      * @zh
      * 停止所有指定对象的缓动
      */
-    static stopAllByTarget (target?: object): void {
+    static stopAllByTarget<U extends object = any> (target?: U): void {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);
     }
 
-    private _union (updateWorkerTarget: boolean): FiniteTimeAction | null {
+    /**
+     * @en Pause all tween instances associated with the target object.
+     * @zh 暂停目标对象关联的所有缓动实例。
+     * @param target @en The target object whose tweens should be paused. @zh 要暂停缓动的目标对象。
+     */
+    static pauseAllByTarget<U extends object = any> (target: U): void {
+        TweenSystem.instance.ActionManager.pauseTarget(target);
+    }
+
+    /**
+     * @en Resume all tween instances associated with the target object.
+     * @zh 恢复目标对象关联的所有缓动实例。
+     * @param target @en The target object whose tweens should be resumed. @zh 要恢复缓动的目标对象。
+     */
+    static resumeAllByTarget<U extends object = any> (target: U): void {
+        TweenSystem.instance.ActionManager.resumeTarget(target);
+    }
+
+    private _union (updateWorkerTarget: boolean): Sequence | null {
         const actions = this._actions;
-        if (!actions) return null;
-        let action: FiniteTimeAction;
-        if (actions.length === 1) {
+        if (actions.length === 0) return null;
+        const action = sequence(actions);
+        if (updateWorkerTarget) {
+            this.updateWorkerTargetForAction(action);
+        }
+        return action;
+    }
+
+    private _unionForStart (): ActionInterval | null {
+        const actions = this._actions;
+        if (actions.length === 0) return null;
+        let action: ActionInterval;
+        if (actions.length === 1 && actions[0] instanceof RepeatForever) {
             action = actions[0];
         } else {
             action = sequence(actions);
         }
 
-        if (updateWorkerTarget) {
-            this.updateWorkerTargetForAction(action);
-        }
         return action;
     }
 
@@ -503,18 +793,21 @@ export class Tween<T extends object = any> {
         const tmp_args = Tween._tmp_args;
         tmp_args.length = 0;
         for (let l = args.length, i = 0; i < l; i++) {
-            const arg = args[i];
-            const action = arg._union(true);
-            if (action) tmp_args.push(action);
+            const t = args[i];
+            const action = t._union(true);
+            if (action) {
+                action.setSpeed(t._timeScale);
+                tmp_args.push(action);
+            }
         }
     }
 
-    private static _wrappedSequence<U extends object = any> (args: Tween<U>[]): FiniteTimeAction | null {
+    private static _wrappedSequence<U extends object = any> (args: Tween<U>[]): Sequence | null {
         Tween._tweenToActions(args);
         return sequence(Tween._tmp_args);
     }
 
-    private static _wrappedParallel<U extends object = any> (args: Tween<U>[]): FiniteTimeAction | null {
+    private static _wrappedParallel<U extends object = any> (args: Tween<U>[]): Spawn | null {
         Tween._tweenToActions(args);
         return spawn(Tween._tmp_args);
     }

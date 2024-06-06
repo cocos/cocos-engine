@@ -2219,12 +2219,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @zh 用欧拉角设置本地旋转
      * @param x X axis rotation
      * @param y Y axis rotation
-     * @param z Z axis rotation
+     * @param zOpt Z axis rotation
      */
     public setRotationFromEuler(x: number, y: number, zOpt?: number): void;
 
     public setRotationFromEuler (val: Vec3 | number, y?: number, zOpt?: number): void {
-        const z = zOpt === undefined ? this._euler.z : zOpt;
         const euler = this._euler;
 
         if (y === undefined) {
@@ -2235,6 +2234,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             Vec3.copy(euler, val as Vec3);
             Quat.fromEuler(this._lrot, (val as Vec3).x, (val as Vec3).y, (val as Vec3).z);
         } else {
+            const z = zOpt === undefined ? this._euler.z : zOpt;
             Vec3.set(v3_a, val as number, y, z);
             if (euler.equals(v3_a)) {
                 return;
@@ -2365,20 +2365,29 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldPosition (val: Vec3 | number, y?: number, z?: number): void {
         const worldPosition = this._pos;
 
+        // Force update may happen in the situation:
+        // - node is created, and added to a scene
+        // - set node's world position to default value(Vec3.ZERO), which equals to node._pos
+        // Then need to update local position, or local position will be wrong.
+        const forceUpdateLocalPosition = this._parent
+                                         && (this._transformFlags & TransformBit.POSITION) !== TransformBit.NONE;
+
         if (y === undefined) {
-            if (worldPosition.equals(val as Vec3)) {
+            if (!forceUpdateLocalPosition && worldPosition.equals(val as Vec3)) {
                 return;
             }
 
             Vec3.copy(worldPosition, val as Vec3);
         } else {
             Vec3.set(v3_a, val as number, y, z!);
-            if (worldPosition.equals(v3_a)) {
+
+            if (!forceUpdateLocalPosition && worldPosition.equals(v3_a)) {
                 return;
             }
 
             Vec3.copy(worldPosition, v3_a);
         }
+
         const parent = this._parent;
         const local = this._lpos;
         if (parent) {
@@ -2432,20 +2441,29 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
     public setWorldRotation (val: Quat | number, y?: number, z?: number, w?: number): void {
         const worldRotation = this._rot;
+
+        // Force update may happen in the situation:
+        // - node is created, and added to a scene
+        // - set node's world rotation to default value(Vec3.ZERO), which equals to node._rot
+        // Then need to update local rotation.
+        const forceUpdateLocalRotation = this._parent
+                                        && (this._transformFlags & TransformBit.ROTATION) !== TransformBit.NONE;
+
         if (y === undefined) {
-            if (worldRotation.equals(val as Quat)) {
+            if (!forceUpdateLocalRotation && worldRotation.equals(val as Quat)) {
                 return;
             }
 
             Quat.copy(worldRotation, val as Quat);
         } else {
             Quat.set(q_a, val as number, y, z!, w!);
-            if (worldRotation.equals(q_a)) {
+            if (!forceUpdateLocalRotation && worldRotation.equals(q_a)) {
                 return;
             }
 
             Quat.copy(worldRotation, q_a);
         }
+
         if (this._parent) {
             this._parent.updateWorldTransform();
             Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), worldRotation);
@@ -2468,26 +2486,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @param z Z axis rotation
      */
     public setWorldRotationFromEuler (x: number, y: number, z: number): void {
-        const worldRotation = this._rot;
-
         Quat.fromEuler(q_a, x, y, z);
-        if (worldRotation.equals(q_a)) {
-            return;
-        }
-
-        Quat.copy(worldRotation, q_a);
-        if (this._parent) {
-            this._parent.updateWorldTransform();
-            Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), worldRotation);
-        } else {
-            Quat.copy(this._lrot, worldRotation);
-        }
-        this._eulerDirty = true;
-
-        this.invalidateChildren(TransformBit.ROTATION);
-        if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
-        }
+        this.setWorldRotation(q_a);
     }
 
     /**
@@ -2523,19 +2523,25 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public setWorldScale (val: Vec3 | number, y?: number, z?: number): void {
         const worldScale = this._scale;
 
+        // Force update may happen in the situation:
+        // - node is created, and added to a scene
+        // - set node's world scale to default value(Vec3(1,1,1)), which equals to node._scale
+        // Then need to update local scale.
+        const forceUpdateLocalScale = this._parent
+                                    && (this._transformFlags & TransformBit.SCALE) !== TransformBit.NONE;
         const parent = this._parent;
         if (parent) {
             this.updateWorldTransform();
         }
         if (y === undefined) {
-            if (worldScale.equals(val as Vec3)) {
+            if (!forceUpdateLocalScale && worldScale.equals(val as Vec3)) {
                 return;
             }
 
             Vec3.copy(worldScale, val as Vec3);
         } else {
             Vec3.set(v3_a, val as number, y, z!);
-            if (worldScale.equals(v3_a)) {
+            if (!forceUpdateLocalScale && worldScale.equals(v3_a)) {
                 return;
             }
 

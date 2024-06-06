@@ -96,6 +96,13 @@ export abstract class Action {
     protected tag = Action.TAG_INVALID;
 
     /**
+     * @en The identifier that to mark an internal action.
+     */
+    protected _id: number | undefined = undefined;
+
+    protected _paused = false;
+
+    /**
      * @en
      * to copy object with deep copy.
      * returns a clone of action.
@@ -128,14 +135,10 @@ export abstract class Action {
     }
 
     // called every frame with it's delta time. <br />
-    step (dt: number): void {
-        logID(1006);
-    }
+    abstract step (dt: number): void;
 
     // Called once per frame. Time is the number of seconds of a frame interval.
-    update (dt: number): void {
-        logID(1007);
-    }
+    abstract update (dt: number): void;
 
     /**
      * @en get the target.
@@ -195,6 +198,26 @@ export abstract class Action {
     }
 
     /**
+     * @en Set the identifier of the current action.
+     * @param id @en The identifier to set
+     */
+    setId (id: number): void {
+        this._id = id;
+    }
+
+    /**
+     * @en Get the identifier of the current action.
+     * @return @en The identifier of the current action, it may be undefined if setId is never called.
+     */
+    getId (): number | undefined {
+        return this._id;
+    }
+
+    setPaused (paused: boolean): void {
+        this._paused = paused;
+    }
+
+    /**
      * @en
      * Returns a reversed action. <br />
      * For example: <br />
@@ -221,8 +244,11 @@ export abstract class Action {
  * @extends Action
  */
 export abstract class FiniteTimeAction extends Action {
-    _duration = 0;
-    _timesForRepeat = 1;
+    protected _duration = 0;
+
+    getDurationScaled (): number {
+        return this._duration;
+    }
 
     /**
      * @en get duration of the action. (seconds).
@@ -231,7 +257,7 @@ export abstract class FiniteTimeAction extends Action {
      * @return {Number}
      */
     getDuration (): number {
-        return this._duration * (this._timesForRepeat || 1);
+        return this._duration;
     }
 
     /**

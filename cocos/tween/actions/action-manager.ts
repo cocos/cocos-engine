@@ -29,9 +29,6 @@ import { errorID, logID } from '../../core/platform/debug';
 import { Action } from './action';
 import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
-import type { ActionInterval } from './action-interval';
-
-let ID_COUNTER = 0;
 
 /*
  * @class HashElement
@@ -109,12 +106,6 @@ export class ActionManager {
         if (!action || !target) {
             errorID(1000);
             return;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        if (target.uuid == null) {
-            (target as any).uuid = `_TWEEN_UUID_${ID_COUNTER++}`;
         }
 
         // check if the action target already exists
@@ -329,6 +320,7 @@ export class ActionManager {
         const element = this._hashTargets.get(target);
         if (element) element.paused = true;
     }
+
     /**
      * @en Resumes the target. All queued actions will be resumed.
      * @zh 让指定目标恢复运行。在执行序列中所有被暂停的动作将重新恢复运行。
@@ -462,10 +454,7 @@ export class ActionManager {
                     locCurrTarget.currentAction = locCurrTarget.actions[locCurrTarget.actionIndex];
                     if (!locCurrTarget.currentAction) continue;
 
-                    // use for speed
-                    locCurrTarget.currentAction.step(
-                        dt * (this._isActionInterval(locCurrTarget.currentAction) ? locCurrTarget.currentAction.getSpeed() : 1),
-                    );
+                    locCurrTarget.currentAction.step(dt);
 
                     if (locCurrTarget.currentAction && locCurrTarget.currentAction.isDone()) {
                         locCurrTarget.currentAction.stop();
@@ -486,9 +475,5 @@ export class ActionManager {
                 }
             }
         }
-    }
-
-    private _isActionInterval<T> (action: any): action is ActionInterval {
-        return typeof action._speedMethod !== 'undefined';
     }
 }

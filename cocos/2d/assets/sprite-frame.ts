@@ -1564,7 +1564,7 @@ export class SpriteFrame extends Asset {
             const l = texw === 0 ? 0 : rectX / texw;
             const r = texw === 0 ? 1 : (rectX + width) / texw;
             const t = texh === 0 ? 1 : (rectY + height) / texh;
-            const b = texh === 0 ? 0 : rect.y / texh;
+            const b = texh === 0 ? 0 : rectY / texh;
 
             // left bottom
             temp_vec3.set(-halfWidth, -halfHeight, 0);

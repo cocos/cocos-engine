@@ -734,7 +734,11 @@ export class Color extends ValueType implements Modifiable {
      * @param other The specified color.
      */
     public multiply (other: Color): Color {
-        Color.multiply(this, this, other);
+        // FIXME: not sure if other is really Color, so use getter.
+        this._data[R_INDEX] *= other.r / 255;
+        this._data[G_INDEX] *= other.g / 255;
+        this._data[B_INDEX] *= other.b / 255;
+        this._data[A_INDEX] *= other.a / 255;
         return this;
     }
 

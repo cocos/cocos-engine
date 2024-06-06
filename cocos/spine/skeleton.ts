@@ -722,7 +722,7 @@ export class Skeleton extends UIRenderer {
     /**
      * @en Clear animation and set to setup pose, default value of track index is 0.
      * @zh 清除指定动画并还原到初始姿势, 默认清除 track索引 为0的动画。
-     * @param {NUmber} [trackIndex] @en track index. @zh track 的索引。
+     * @param {Number} [trackIndex] @en track index. @zh track 的索引。
      */
     public clearAnimation (trackIndex?: number): void {
         if (!this.isAnimationCached()) {
