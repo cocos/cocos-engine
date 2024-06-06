@@ -126,7 +126,7 @@ export class DeviceManager {
         return Promise.resolve(false);
     }
 
-    private _tryInitializeSyncDevice (DeviceConstructor, info: DeviceInfo): boolean {
+    private _tryInitializeDeviceSync (DeviceConstructor, info: DeviceInfo): boolean {
         if (this._deviceInitialized) {
             return true;
         }
@@ -169,18 +169,18 @@ export class DeviceManager {
                     });
                 }
                 if (useWebGL2 && cclegacy.WebGL2Device) {
-                    this._tryInitializeSyncDevice(cclegacy.WebGL2Device, deviceInfo);
+                    this._tryInitializeDeviceSync(cclegacy.WebGL2Device, deviceInfo);
                 }
                 if (cclegacy.WebGLDevice) {
-                    this._tryInitializeSyncDevice(cclegacy.WebGLDevice, deviceInfo);
+                    this._tryInitializeDeviceSync(cclegacy.WebGLDevice, deviceInfo);
                 }
                 if (cclegacy.EmptyDevice) {
-                    this._tryInitializeSyncDevice(cclegacy.EmptyDevice, deviceInfo);
+                    this._tryInitializeDeviceSync(cclegacy.EmptyDevice, deviceInfo);
                 }
                 this._initSwapchain();
             }
         } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
-            this._tryInitializeSyncDevice(cclegacy.EmptyDevice, deviceInfo);
+            this._tryInitializeDeviceSync(cclegacy.EmptyDevice, deviceInfo);
             this._initSwapchain();
         }
 
