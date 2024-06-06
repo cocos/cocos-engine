@@ -308,17 +308,19 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private readonly _bloomHeights: Array<number> = [];
     private readonly _bloomTexNames: Array<string> = [];
     // Materials
-    private readonly _copyAndTonemapMaterial = new Material();
     private readonly _bloomMaterial = new Material();
+    private readonly _copyAndTonemapMaterial = new Material();
+    private readonly _fxaaMaterial = new Material();
     private _initialized = false; // TODO(zhouzhenglong): Make default effect asset loading earlier and remove this flag
 
     // Forward lighting
     private readonly settings: PipelineSettings = makePipelineSettings();
     private readonly forwardLighting = new ForwardLighting();
 
-    // constructor () {
-    //     this.settings.bloom.enabled = true;
-    // }
+    constructor () {
+        this.settings.bloom.enabled = true;
+        this.settings.fxaa.enabled = true;
+    }
 
     //----------------------------------------------------------------
     // Interface
@@ -383,6 +385,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                     ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
                 }
             }
+            if (this.settings.fxaa.enabled) {
+                ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
+            }
         }
     }
     setup (cameras: Camera[], ppl: BasicPipeline): void {
@@ -420,6 +425,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
         const radianceName = `Radiance${id}`;
+        const ldrColorName = `LdrColor${id}`;
         const mainLight = scene.mainLight;
 
         // Forward Lighting (Light Culling)
@@ -432,18 +438,24 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Forward Lighting
         if (this._configs.useFloatOutput) {
+            let lastPass: BasicRenderPassBuilder;
             if (this._cameraConfigs.enablePostProcess) {
                 this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
 
                 if (this.settings.bloom.enabled) {
                     this._addKawaseDualFilterBloomPasses(ppl, id, width, height, radianceName);
                 }
-
-                this._addCopyAndTonemapPass(ppl, camera, width, height, radianceName, colorName);
+                if (this.settings.fxaa.enabled) {
+                    this._addCopyAndTonemapPass(ppl, width, height, radianceName, ldrColorName);
+                    lastPass = this._addFxaaPass(ppl, width, height, ldrColorName, colorName);
+                } else {
+                    lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
+                }
             } else {
                 this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-                this._addCopyAndTonemapPass(ppl, camera, width, height, radianceName, colorName);
+                lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
             }
+            this._addProfilerQueue(camera, lastPass);
         } else {
             this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
         }
@@ -476,7 +488,8 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting
         if (this._configs.useFloatOutput) {
             this._addMobileForwardPass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-            this._addCopyAndTonemapPass(ppl, camera, width, height, radianceName, colorName);
+            const lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
+            this._addProfilerQueue(camera, lastPass);
         } else {
             this._addMobileForwardPass(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
         }
@@ -523,24 +536,18 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
     private _addCopyAndTonemapPass (
         ppl: BasicPipeline,
-        camera: Camera,
         width: number,
         height: number,
         radianceName: string,
         colorName: string,
-    ): void {
+    ): BasicRenderPassBuilder {
         const pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
         pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         pass.addTexture(radianceName, 'inputTexture');
         pass.setVec4('g_platform', this._configs.g_platform);
         pass.addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._copyAndTonemapMaterial, 1);
-        if (this._cameraConfigs.enableProfiler) {
-            pass.showStatistics = true;
-            pass
-                .addQueue(QueueHint.BLEND)
-                .addScene(camera, SceneFlags.PROFILER);
-        }
+        return pass;
     }
 
     private _buildForwardMainLightPass (
@@ -677,6 +684,33 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             .addFullscreenQuad(this._bloomMaterial, 3);
     }
 
+    private _addFxaaPass (
+        ppl: BasicPipeline,
+        // camera: Camera,
+        width: number,
+        height: number,
+        ldrColorName: string,
+        colorName: string,
+    ): BasicRenderPassBuilder {
+        const pass = ppl.addRenderPass(width, height, 'fxaa');
+        pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        pass.addTexture(ldrColorName, 'sceneColorMap');
+        this._fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1 / width, 1 / height));
+        pass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        pass.addQueue(QueueHint.OPAQUE)
+            .addFullscreenQuad(this._fxaaMaterial, 0);
+        return pass;
+    }
+
+    private _addProfilerQueue (camera: Camera, pass: BasicRenderPassBuilder): void {
+        if (this._cameraConfigs.enableProfiler) {
+            pass.showStatistics = true;
+            pass
+                .addQueue(QueueHint.BLEND)
+                .addScene(camera, SceneFlags.PROFILER);
+        }
+    }
+
     //----------------------------------------------------------------
     // Desktop
     //----------------------------------------------------------------
@@ -805,6 +839,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         this._copyAndTonemapMaterial._uuid = `custom-forward-post-final-tonemap-material`;
         this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
+
+        this._fxaaMaterial._uuid = `custom-forward-post-fxaa-material`;
+        this._fxaaMaterial.initialize({ effectName: 'pipeline/post-process/fxaa-hq' });
 
         if (this._copyAndTonemapMaterial.effectAsset !== null
             && this._bloomMaterial.effectAsset !== null
