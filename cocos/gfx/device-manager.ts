@@ -123,10 +123,10 @@ export class DeviceManager {
                 });
             });
         }
-        return Promise.resolve(true);
+        return Promise.resolve(false);
     }
 
-    private _tryInitializeNotSyncDevice (DeviceConstructor, info: DeviceInfo): boolean {
+    private _tryInitializeSyncDevice (DeviceConstructor, info: DeviceInfo): boolean {
         if (this._deviceInitialized) {
             return true;
         }
@@ -134,7 +134,7 @@ export class DeviceManager {
             this._gfxDevice = new DeviceConstructor();
             this._deviceInitialized = this._gfxDevice.initialize(info) as boolean;
         }
-        return false;
+        return this._deviceInitialized;
     }
 
     public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): boolean | Promise<boolean> {
@@ -158,9 +158,7 @@ export class DeviceManager {
                     useWebGL2 = false;
                 }
                 Device.canvas = canvas!;
-                if (WEBGPU) {
-                    this._tryInitializeNotSyncDevice(cclegacy.WebGPUDevice, deviceInfo);
-                } else if (this._renderType === RenderType.WEBGPU) {
+                if (this._renderType === RenderType.WEBGPU) {
                     return new Promise<boolean>((resolve, reject) => {
                         this._tryInitializeWebGPUDevice(cclegacy.WebGPUDevice, deviceInfo).then((val) => {
                             this._initSwapchain();
@@ -171,18 +169,18 @@ export class DeviceManager {
                     });
                 }
                 if (useWebGL2 && cclegacy.WebGL2Device) {
-                    this._tryInitializeNotSyncDevice(cclegacy.WebGL2Device, deviceInfo);
+                    this._tryInitializeSyncDevice(cclegacy.WebGL2Device, deviceInfo);
                 }
                 if (cclegacy.WebGLDevice) {
-                    this._tryInitializeNotSyncDevice(cclegacy.WebGLDevice, deviceInfo);
+                    this._tryInitializeSyncDevice(cclegacy.WebGLDevice, deviceInfo);
                 }
                 if (cclegacy.EmptyDevice) {
-                    this._tryInitializeNotSyncDevice(cclegacy.EmptyDevice, deviceInfo);
+                    this._tryInitializeSyncDevice(cclegacy.EmptyDevice, deviceInfo);
                 }
                 this._initSwapchain();
             }
         } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
-            this._tryInitializeNotSyncDevice(cclegacy.EmptyDevice, deviceInfo);
+            this._tryInitializeSyncDevice(cclegacy.EmptyDevice, deviceInfo);
             this._initSwapchain();
         }
 
