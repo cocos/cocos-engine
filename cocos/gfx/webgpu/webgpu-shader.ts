@@ -48,11 +48,11 @@ export class WebGPUShader extends Shader {
             samplers: info.samplers,
 
             gpuStages: new Array<IWebGPUGPUShaderStage>(info.stages.length),
-            glProgram: null,
-            glInputs: [],
-            glUniforms: [],
-            glBlocks: [],
-            glSamplers: [],
+            gpuProgram: null,
+            gpuInputs: [],
+            gpuUniforms: [],
+            gpuBlocks: [],
+            gpuSamplers: [],
             bindings: new Map<number, number[]>(),
         };
 
@@ -61,7 +61,7 @@ export class WebGPUShader extends Shader {
             this._gpuShader.gpuStages[i] = {
                 type: stage.stage,
                 source: stage.source,
-                glShader: null,
+                gpuShader: null,
                 bindings: [],
                 attrs: new Map(),
             };

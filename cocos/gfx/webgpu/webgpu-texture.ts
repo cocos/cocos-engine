@@ -49,8 +49,8 @@ export class WebGPUTexture extends Texture {
         if (!gpuTexture) {
             return 0;
         }
-        if (gpuTexture.glTexture) {
-            return gpuTexture.glTexture;
+        if (gpuTexture.gpuTexture) {
+            return gpuTexture.gpuTexture;
         }
         return 0;
     }
@@ -112,17 +112,17 @@ export class WebGPUTexture extends Texture {
                 isPowerOf2: this._isPowerOf2,
 
                 // default value, filled in when texture is created.
-                glTarget: '2d',
-                glInternalFmt: 'rgba8unorm',
-                glFormat: 'rgba8unorm',
-                glType: 0,
-                glUsage: GPUTextureUsage.RENDER_ATTACHMENT,
-                glTexture: undefined,
-                glRenderbuffer: null,
-                glWrapS: 'clamp-to-edge',
-                glWrapT: 'clamp-to-edge',
-                glMinFilter: 'linear',
-                glMagFilter: 'linear',
+                gpuTarget: '2d',
+                gpuInternalFmt: 'rgba8unorm',
+                gpuFormat: 'rgba8unorm',
+                gpuType: 0,
+                gpuUsage: GPUTextureUsage.RENDER_ATTACHMENT,
+                gpuTexture: undefined,
+                gpuRenderbuffer: null,
+                gpuWrapS: 'clamp-to-edge',
+                gpuWrapT: 'clamp-to-edge',
+                gpuMinFilter: 'linear',
+                gpuMagFilter: 'linear',
                 getTextureView: this.getNativeTextureView.bind(this),
 
                 isSwapchainTexture: isSwapchainTexture || false,
@@ -132,8 +132,8 @@ export class WebGPUTexture extends Texture {
                 WebGPUCmdFuncCreateTexture(device, this._gpuTexture);
                 device.memoryStatus.textureSize += this._size;
             } else {
-                this._gpuTexture.glInternalFmt = GFXFormatToWGPUFormat(this._gpuTexture.format);
-                this._gpuTexture.glFormat = this._gpuTexture.glInternalFmt;
+                this._gpuTexture.gpuInternalFmt = GFXFormatToWGPUFormat(this._gpuTexture.format);
+                this._gpuTexture.gpuFormat = this._gpuTexture.gpuInternalFmt;
             }
             this._viewInfo.texture = this;
             this._viewInfo.type = info.type;
@@ -160,12 +160,12 @@ export class WebGPUTexture extends Texture {
     }
 
     public getNativeTextureView (): GPUTextureView | null {
-        if (!this._gpuTexture || !this._gpuTexture.glTexture) {
+        if (!this._gpuTexture || !this._gpuTexture.gpuTexture) {
             return null;
         }
-        return this._gpuTexture.glTexture.createView({
-            format: this.gpuTexture.glFormat,
-            dimension: this._gpuTexture.glTarget,
+        return this._gpuTexture.gpuTexture.createView({
+            format: this.gpuTexture.gpuFormat,
+            dimension: this._gpuTexture.gpuTarget,
             mipLevelCount: this._gpuTexture.mipLevel,
             arrayLayerCount: this.viewInfo.layerCount,
             baseMipLevel: 0,

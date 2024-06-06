@@ -139,18 +139,18 @@ export class WebGPUSwapchain extends Swapchain {
     }
 
     public get colorTexture (): Texture {
-        (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
+        (this._colorTexture as WebGPUTexture).gpuTexture.gpuTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
         return this._colorTexture;
     }
 
     public get colorGPUTexture (): GPUTexture {
-        (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
-        return (this._colorTexture as WebGPUTexture).gpuTexture.glTexture!;
+        (this._colorTexture as WebGPUTexture).gpuTexture.gpuTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
+        return (this._colorTexture as WebGPUTexture).gpuTexture.gpuTexture!;
     }
 
     public get colorGPUTextureView (): GPUTextureView {
-        (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
-        return (this._colorTexture as WebGPUTexture).gpuTexture.glTexture!.createView();
+        (this._colorTexture as WebGPUTexture).gpuTexture.gpuTexture = WebGPUDeviceManager.instance.context.getCurrentTexture();
+        return (this._colorTexture as WebGPUTexture).gpuTexture.gpuTexture!.createView();
     }
 
     public get depthStencilTexture (): Texture {
@@ -158,11 +158,11 @@ export class WebGPUSwapchain extends Swapchain {
     }
 
     public get gpuDepthStencilTexture (): GPUTexture {
-        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.glTexture!;
+        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.gpuTexture!;
     }
 
     public get gpuDepthStencilTextureView (): GPUTextureView {
-        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.glTexture!.createView();
+        return (this._depthStencilTexture  as WebGPUTexture).gpuTexture.gpuTexture!.createView();
     }
 
     private _createTexture (width: number, height: number): WebGPUTexture {
@@ -185,7 +185,7 @@ export class WebGPUSwapchain extends Swapchain {
             width,
             height,
         });
-        (this._colorTexture as WebGPUTexture).gpuTexture.glTexture = device.context.getCurrentTexture();
+        (this._colorTexture as WebGPUTexture).gpuTexture.gpuTexture = device.context.getCurrentTexture();
         return (this._colorTexture as WebGPUTexture);
     }
 

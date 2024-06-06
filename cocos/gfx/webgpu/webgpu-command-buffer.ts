@@ -235,7 +235,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         }
 
         if (this._wgpuRenderPass.depthStencilAttachment) {
-            const tex = gpuFramebuffer.gpuDepthStencilTexture?.glTexture;
+            const tex = gpuFramebuffer.gpuDepthStencilTexture?.gpuTexture;
             const depthTex = tex ? tex.createView() : swapchain.gpuDepthStencilTextureView;
             const depthStencilAttachment = this._nativePassDesc.depthStencilAttachment!;
             depthStencilAttachment.view = depthTex;
@@ -463,7 +463,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
                 if (indirectBuffer.drawIndirectByIndex) {
                     const drawFunc = (passEncoder: GPURenderPassEncoder): void => {
                         for (let i = 0; i < drawInfoCount; i++) {
-                            passEncoder?.drawIndexedIndirect(indirectBuffer.glBuffer!, indirectBuffer.glOffset + i * Object.keys(DrawInfo).length);
+                            passEncoder?.drawIndexedIndirect(indirectBuffer.gpuBuffer!, indirectBuffer.gpuOffset + i * Object.keys(DrawInfo).length);
                         }
                     };
                     this._renderPassFuncQueue.push(drawFunc);
@@ -471,7 +471,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
                     // FIXME: draw IndexedIndirect and Indirect by different buffer
                     const drawFunc = (passEncoder: GPURenderPassEncoder): void => {
                         for (let i = 0; i < drawInfoCount; i++) {
-                            passEncoder?.drawIndirect(indirectBuffer.glBuffer!, indirectBuffer.glOffset + i * Object.keys(DrawInfo).length);
+                            passEncoder?.drawIndirect(indirectBuffer.gpuBuffer!, indirectBuffer.gpuOffset + i * Object.keys(DrawInfo).length);
                         }
                     };
                     this._renderPassFuncQueue.push(drawFunc);
@@ -500,8 +500,8 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         this._numInstances += inputAssembler.instanceCount;
         const indexCount = inputAssembler.indexCount || inputAssembler.vertexCount;
         if (this._curGPUPipelineState) {
-            const glPrimitive = this._curGPUPipelineState.glPrimitive;
-            switch (glPrimitive) {
+            const gpuPrimitive = this._curGPUPipelineState.gpuPrimitive;
+            switch (gpuPrimitive) {
             case 'triangle-strip':
                 this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
                 break;
@@ -542,7 +542,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         }
         const device = WebGPUDeviceManager.instance;
         const nativeDevice = (device).nativeDevice;
-        nativeDevice?.queue.writeBuffer(gpuBuffer.glBuffer!, gpuBuffer.glOffset, buff as ArrayBuffer);
+        nativeDevice?.queue.writeBuffer(gpuBuffer.gpuBuffer!, gpuBuffer.gpuOffset, buff as ArrayBuffer);
     }
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
@@ -557,8 +557,6 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         const cmd = this._webGPUAllocator!.copyBufferToTextureCmdPool.alloc(WebGPUCmdCopyBufferToTexture);
         cmd.gpuTexture = gpuTexture;
         cmd.regions = regions;
-        // TODO: Have to copy to staging buffer first to make this work for the execution is deferred.
-        // But since we are using specialized primary command buffers in WebGL backends, we leave it as is for now
         cmd.buffers = buffers;
 
         this.cmdPackage.copyBufferToTextureCmds.push(cmd);
@@ -699,7 +697,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         const ia = this._curGPUInputAssembler!;
         const wgpuVertexBuffers = new Array<{ slot: number, buffer: GPUBuffer, offset: number }>(ia.gpuVertexBuffers.length);
         for (let i = 0; i < ia.gpuVertexBuffers.length; i++) {
-            wgpuVertexBuffers[i] = { slot: i, buffer: ia.gpuVertexBuffers[i].glBuffer!, offset: ia.gpuVertexBuffers[i].glOffset };
+            wgpuVertexBuffers[i] = { slot: i, buffer: ia.gpuVertexBuffers[i].gpuBuffer!, offset: ia.gpuVertexBuffers[i].gpuOffset };
         }
         const vbFunc = (passEncoder: GPURenderPassEncoder): void => {
             for (let i = 0; i < wgpuVertexBuffers.length; i++) {
@@ -709,9 +707,9 @@ export class WebGPUCommandBuffer extends CommandBuffer {
         this._renderPassFuncQueue.push(vbFunc);
         if (ia.gpuIndexBuffer) {
             const wgpuIndexBuffer: { indexType: GPUIndexFormat, buffer: GPUBuffer, offset: number, size: number } = {
-                indexType: ia.glIndexType,
-                buffer: ia.gpuIndexBuffer.glBuffer as GPUBuffer,
-                offset: ia.gpuIndexBuffer.glOffset,
+                indexType: ia.gpuIndexType,
+                buffer: ia.gpuIndexBuffer.gpuBuffer as GPUBuffer,
+                offset: ia.gpuIndexBuffer.gpuOffset,
                 size: ia.gpuIndexBuffer.size,
             };
             const ibFunc = (passEncoder: GPURenderPassEncoder): void => {

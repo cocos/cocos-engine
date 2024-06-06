@@ -61,7 +61,7 @@ import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers, Web
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { debug } from '../../core';
+import { debug, error } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { IWebGLBindingMapping, IWebGLBlitManager } from './webgl-gpu-objects';
@@ -137,7 +137,7 @@ export class WebGLDevice extends Device {
         const gl = this._context = getContext(Device.canvas);
 
         if (!gl) {
-            console.error('This device does not support WebGL.');
+            error('This device does not support WebGL.');
             return Promise.resolve(false);
         }
 
@@ -244,9 +244,13 @@ export class WebGLDevice extends Device {
         this._swapchain = null;
     }
 
-    public flushCommands (cmdBuffs: CommandBuffer[]): void {}
+    public flushCommands (cmdBuffs: CommandBuffer[]): void {
+        // noop
+    }
 
-    public acquire (swapchains: Swapchain[]): void {}
+    public acquire (swapchains: Swapchain[]): void {
+        // noop
+    }
 
     public present (): void {
         const queue = (this._queue as WebGLQueue);

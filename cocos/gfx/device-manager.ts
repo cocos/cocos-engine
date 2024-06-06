@@ -108,25 +108,46 @@ export class DeviceManager {
         return this._swapchain;
     }
 
-    private async _tryInitializeDevice (DeviceConstructor, info: DeviceInfo): Promise<void> {
-        if (!this._deviceInitialized && DeviceConstructor) {
-            this._gfxDevice = new DeviceConstructor();
-            this._deviceInitialized = await this._gfxDevice.initialize(info);
+    private _tryInitializeWebGPUDevice (DeviceConstructor, info: DeviceInfo): Promise<boolean> {
+        if (this._deviceInitialized) {
+            return Promise.resolve(true);
         }
+        if (DeviceConstructor) {
+            this._gfxDevice = new DeviceConstructor();
+            return new Promise<boolean>((resolve, reject) => {
+                (this._gfxDevice.initialize(info) as Promise<boolean>).then((val) => {
+                    this._deviceInitialized = val;
+                    resolve(val);
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
+        }
+        return Promise.resolve(true);
     }
 
-    public async init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): Promise<void> {
+    private _tryInitializeNotSyncDevice (DeviceConstructor, info: DeviceInfo): boolean {
+        if (this._deviceInitialized) {
+            return true;
+        }
+        if (DeviceConstructor) {
+            this._gfxDevice = new DeviceConstructor();
+            this._deviceInitialized = this._gfxDevice.initialize(info) as boolean;
+        }
+        return false;
+    }
+
+    public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): boolean | Promise<boolean> {
         // Avoid setup to be called twice.
-        if (this.initialized) { return; }
+        if (this.initialized) { return true; }
         const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') as LegacyRenderMode;
         this._canvas = canvas;
-
+        if (this._canvas) { this._canvas.oncontextmenu = (): boolean => false; }
         this._renderType = this._determineRenderType(renderMode);
         this._deviceInitialized = false;
+        const deviceInfo = new DeviceInfo(bindingMappingInfo);
         // WebGL or WebGPU context created successfully
         if (this._renderType === RenderType.WEBGL || this._renderType === RenderType.WEBGPU) {
-            const deviceInfo = new DeviceInfo(bindingMappingInfo);
-
             if (JSB && (globalThis as any).gfx) {
                 this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
@@ -137,23 +158,31 @@ export class DeviceManager {
                     useWebGL2 = false;
                 }
                 Device.canvas = canvas!;
-                if (WEBGPU || this._renderType === RenderType.WEBGPU) {
-                    await this._tryInitializeDevice(cclegacy.WebGPUDevice, deviceInfo);
+                if (WEBGPU) {
+                    this._tryInitializeNotSyncDevice(cclegacy.WebGPUDevice, deviceInfo);
+                } else if (this._renderType === RenderType.WEBGPU) {
+                    return new Promise<boolean>((resolve, reject) => {
+                        this._tryInitializeWebGPUDevice(cclegacy.WebGPUDevice, deviceInfo).then((val) => {
+                            this._initSwapchain();
+                            resolve(val);
+                        }).catch((err) => {
+                            reject(err);
+                        });
+                    });
                 }
                 if (useWebGL2 && cclegacy.WebGL2Device) {
-                    await this._tryInitializeDevice(cclegacy.WebGL2Device, deviceInfo);
+                    this._tryInitializeNotSyncDevice(cclegacy.WebGL2Device, deviceInfo);
                 }
                 if (cclegacy.WebGLDevice) {
-                    await this._tryInitializeDevice(cclegacy.WebGLDevice, deviceInfo);
+                    this._tryInitializeNotSyncDevice(cclegacy.WebGLDevice, deviceInfo);
                 }
                 if (cclegacy.EmptyDevice) {
-                    await this._tryInitializeDevice(cclegacy.EmptyDevice, deviceInfo);
+                    this._tryInitializeNotSyncDevice(cclegacy.EmptyDevice, deviceInfo);
                 }
                 this._initSwapchain();
             }
         } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
-            this._gfxDevice = new cclegacy.EmptyDevice();
-            this._deviceInitialized = await this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
+            this._tryInitializeNotSyncDevice(cclegacy.EmptyDevice, deviceInfo);
             this._initSwapchain();
         }
 
@@ -161,10 +190,9 @@ export class DeviceManager {
             // todo fix here for wechat game
             error('can not support canvas rendering in 3D');
             this._renderType = RenderType.UNKNOWN;
-            return;
+            return false;
         }
-
-        if (this._canvas) { this._canvas.oncontextmenu = (): boolean => false; }
+        return true;
     }
 
     private _initSwapchain (): void {

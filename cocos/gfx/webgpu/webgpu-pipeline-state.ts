@@ -110,8 +110,8 @@ export class WebGPUPipelineState extends PipelineState {
         let fragmentStage: GPUProgrammableStage;
         const shaderStages = (this._shader as WebGPUShader).gpuShader.gpuStages;
         for (let i = 0; i < shaderStages.length; i++) {
-            if (shaderStages[i].type === ShaderStageFlagBit.VERTEX) { vertexStage = shaderStages[i].glShader!; }
-            if (shaderStages[i].type === ShaderStageFlagBit.FRAGMENT) { fragmentStage = shaderStages[i].glShader!; }
+            if (shaderStages[i].type === ShaderStageFlagBit.VERTEX) { vertexStage = shaderStages[i].gpuShader!; }
+            if (shaderStages[i].type === ShaderStageFlagBit.FRAGMENT) { fragmentStage = shaderStages[i].gpuShader!; }
         }
 
         const gpuShader = info.shader as WebGPUShader;
@@ -183,7 +183,7 @@ export class WebGPUPipelineState extends PipelineState {
         }
 
         this._gpuPipelineState = {
-            glPrimitive: WebPUPrimitives[info.primitive],
+            gpuPrimitive: WebPUPrimitives[info.primitive],
             gpuShader: gpuShader.gpuShader,
             gpuPipelineLayout: (info.pipelineLayout as WebGPUPipelineLayout).gpuPipelineLayout,
             rs: info.rasterizerState,
@@ -226,18 +226,18 @@ export class WebGPUPipelineState extends PipelineState {
             for (let j = 0; j < shaderAttrs.length; j++) {
                 const shaderAttr = shaderAttrs[j];
                 let hasAttr = false;
-                for (let k = 0; k < ia.glAttribs.length; k++) {
-                    const glAttr = ia.glAttribs[k];
+                for (let k = 0; k < ia.gpuAttribs.length; k++) {
+                    const gpuAttr = ia.gpuAttribs[k];
                     const attr = ia.attributes[k];
                     if (attr.name === shaderAttr.name) {
                         hasAttr = true;
                         const loc = shaderAttr.location;
                         if (attr.stream === i) {
-                            currBufferLayout.arrayStride = glAttr.stride;
+                            currBufferLayout.arrayStride = gpuAttr.stride;
                             currBufferLayout.stepMode = attr.isInstanced ? 'instance' : 'vertex';
                             const attrLayout: GPUVertexAttribute = {
                                 format: GFXFormatToWGPUVertexFormat(attr.format),
-                                offset: glAttr.offset,
+                                offset: gpuAttr.offset,
                                 shaderLocation: loc,
                             };
                             currAttrs.push(attrLayout);

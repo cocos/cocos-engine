@@ -750,7 +750,8 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_INFRASTRUCTURE_INIT);
                 return this.onPreInfrastructureInitDelegate.dispatch();
             })
-            .then(async (): Promise<void> => {
+            // gfx init
+            .then((): boolean | Promise<boolean> => {
                 if (DEBUG) {
                     // eslint-disable-next-line no-console
                     console.time('Init Infrastructure');
@@ -765,8 +766,9 @@ export class Game extends EventTarget {
                 }
                 screen.init();
                 garbageCollectionManager.init();
-                await deviceManager.init(this.canvas, bindingMappingInfo);
-
+                return deviceManager.init(this.canvas, bindingMappingInfo);
+            })
+            .then(() => {
                 const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
                 if (renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
                     if (!macro.CUSTOM_PIPELINE_NAME) {

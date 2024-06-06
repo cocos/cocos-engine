@@ -24,7 +24,7 @@
 
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { IWebGPUGPUDescriptorSetLayout } from './webgpu-gpu-objects';
-import { GLStageToWebGPUStage, GLDescTypeToGPUBufferDescType, GLSamplerToGPUSamplerDescType,
+import { GFXStageToWebGPUStage, GFXDescTypeToGPUBufferDescType, GFXSamplerToGPUSamplerDescType,
     SEPARATE_SAMPLER_BINDING_OFFSET, TextureSampleTypeTrait } from './webgpu-commands';
 import {
     DescriptorSetLayoutInfo,
@@ -122,7 +122,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         sampler: WebGPUSampler | null,
     ): void {
         let bindIdx = binding.binding;
-        const visibility = GLStageToWebGPUStage(binding.stageFlags);
+        const visibility = GFXStageToWebGPUStage(binding.stageFlags);
         const entries = this._bindGrpLayoutEntries;
         const wgpuDeviceInst = WebGPUDeviceManager.instance;
         if (sampler) {
@@ -132,7 +132,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
         currEntry.binding = bindIdx;
         currEntry.visibility = visibility;
         if (buffer) {
-            currEntry.buffer = { type: GLDescTypeToGPUBufferDescType(binding.descriptorType)! };
+            currEntry.buffer = { type: GFXDescTypeToGPUBufferDescType(binding.descriptorType)! };
             currEntry.buffer.hasDynamicOffset = !!(binding.descriptorType & (DescriptorType.DYNAMIC_STORAGE_BUFFER
                 | DescriptorType.DYNAMIC_UNIFORM_BUFFER));
             entries.set(bindIdx, currEntry);
@@ -141,7 +141,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
             const targetTex = texture;
             currEntry.texture = {
                 sampleType: FormatToWGPUFormatType(texture.format),
-                viewDimension: targetTex.gpuTexture.glTarget,
+                viewDimension: targetTex.gpuTexture.gpuTarget,
                 multisampled: Number(targetTex.gpuTexture.samples) > 1,
             };
             // const defaultTexture = wgpuDeviceInst.getDefaultDescResources(currEntry, targetTex.gpuTexture) as WebGPUTexture;
@@ -149,7 +149,7 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
             entries.set(bindIdx, currEntry);
         }
         if (sampler) {
-            currEntry.sampler = { type: GLSamplerToGPUSamplerDescType(sampler.info) };
+            currEntry.sampler = { type: GFXSamplerToGPUSamplerDescType(sampler.info) };
             // const defaultSampler = wgpuDeviceInst.getDefaultDescResources(currEntry, sampler.gpuSampler) as WebGPUSampler;
             // this.samplers.set(bindIdx, defaultSampler);
             entries.set(bindIdx, currEntry);

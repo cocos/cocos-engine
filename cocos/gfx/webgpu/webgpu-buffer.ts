@@ -76,9 +76,9 @@ export class WebGPUBuffer extends Buffer {
                 stride: this._stride,
                 buffer: null,
                 indirects: buffer.gpuBuffer.indirects,
-                glTarget: buffer.gpuBuffer.glTarget,
-                glBuffer: buffer.gpuBuffer.glBuffer,
-                glOffset: info.offset,
+                gpuTarget: buffer.gpuBuffer.gpuTarget,
+                gpuBuffer: buffer.gpuBuffer.gpuBuffer,
+                gpuOffset: info.offset,
                 flags: this._flags,
                 drawIndirectByIndex: false,
             };
@@ -101,10 +101,10 @@ export class WebGPUBuffer extends Buffer {
                 stride: this._stride,
                 buffer: null,
                 indirects: [],
-                glTarget: 0,
+                gpuTarget: 0,
                 flags: this._flags,
-                glBuffer: null,
-                glOffset: 0,
+                gpuBuffer: null,
+                gpuOffset: 0,
                 drawIndirectByIndex: false,
             };
 

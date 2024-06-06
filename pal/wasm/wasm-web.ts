@@ -48,20 +48,28 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
                 return;
             } else if (PREVIEW) {
                 // NOTE: we resolve '/engine_external/' in in editor preview server.
-                fetch(`/engine_external/?url=${binaryUrl}`).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {});
+                fetch(`/engine_external/?url=${binaryUrl}`).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {
+                    // noop
+                });
                 return;
             }
             // here is in the BUILD mode
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore NOTE: we need to use 'import.meta' here, but the tsc won't allow this, so we need to force ignoring this error here.
             binaryUrl = new URL(binaryUrl, import.meta.url).href;
-            fetch(binaryUrl).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {});
+            fetch(binaryUrl).then((response) => response.arrayBuffer().then(resolve)).catch((e) => {
+                // noop
+            });
         } catch (e) {
             reject(e);
         }
     });
 }
 
+/**
+ * @en Translate virtual addresses within the engine to actual addresses of paths, such as external:emscripten/webgpu/glslang.wasm
+ * @zh 把引擎内部的虚拟地址转为路径的实际地址，如external:emscripten/webgpu/glslang.wasm
+ */
 export function fetchUrl (binaryUrl: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         try {

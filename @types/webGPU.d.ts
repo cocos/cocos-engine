@@ -2334,6 +2334,7 @@ declare var GPUComputePipeline: {
   new (): never;
 };
 
+declare interface VideoFrame {}
 interface GPUDevice
   extends EventTarget,
     GPUObjectBase {

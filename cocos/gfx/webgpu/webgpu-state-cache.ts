@@ -31,7 +31,7 @@ import { WebGPUSampler } from './webgpu-sampler';
 import { WebGPUTexture } from './webgpu-texture';
 
 export interface IWebGPUTexUnit {
-    glTexture: WebGPUTexture | null;
+    gpuTexture: WebGPUTexture | null;
 }
 
 export class WebGPUStateCache {
@@ -56,7 +56,7 @@ export class WebGPUStateCache {
     public texUnitCacheMap: Record<string, number> = {};
 
     initialize (texUnit: number, bufferBindings: number, vertexAttributes: number): void {
-        for (let i = 0; i < texUnit; ++i) this.gpuTexUnits.push({ glTexture: null });
+        for (let i = 0; i < texUnit; ++i) this.gpuTexUnits.push({ gpuTexture: null });
 
         this.gpuSamplerUnits.length = texUnit;
         this.gpuSamplerUnits.fill(null);

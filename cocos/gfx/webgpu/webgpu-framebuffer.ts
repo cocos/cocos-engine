@@ -62,7 +62,7 @@ export class WebGPUFramebuffer extends Framebuffer {
             gpuRenderPass: (info.renderPass as WebGPURenderPass).gpuRenderPass,
             gpuColorTextures,
             gpuDepthStencilTexture,
-            glFramebuffer: null,
+            gpuFramebuffer: null,
             isOffscreen,
             get width (): number {
                 if (this.gpuColorTextures.length > 0) {

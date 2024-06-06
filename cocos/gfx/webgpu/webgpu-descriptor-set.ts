@@ -101,12 +101,12 @@ export class WebGPUDescriptorSet extends DescriptorSet {
             destBind.gpuBuffer = buffer.gpuBuffer;
         }
         const layout = this._layout as WebGPUDescriptorSetLayout;
-        const nativeBuffer = buffer.gpuBuffer.glBuffer;
+        const nativeBuffer = buffer.gpuBuffer.gpuBuffer;
         const bindGrpEntry: GPUBindGroupEntry = {
             binding: bind.binding,
             resource: {
                 buffer: nativeBuffer!,
-                offset: buffer.gpuBuffer.glOffset,
+                offset: buffer.gpuBuffer.gpuOffset,
                 size: buffer.gpuBuffer.size,
             },
         };
@@ -135,7 +135,7 @@ export class WebGPUDescriptorSet extends DescriptorSet {
         sampler.createGPUSampler(this._textures[bind.binding].levelCount);
         const bindSamplerGrpEntry: GPUBindGroupEntry = {
             binding: samplerIdx,
-            resource: sampler.gpuSampler?.glSampler as GPUSampler,
+            resource: sampler.gpuSampler?.gpuSampler as GPUSampler,
         };
         layout.updateBindGroupLayout(bind, null, null, sampler);
         this._bindGroupEntries.set(samplerIdx, bindSamplerGrpEntry);

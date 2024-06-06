@@ -66,9 +66,9 @@ export interface IWebGPUGPUBuffer {
     size: number;
     stride: number;
 
-    glTarget: GLenum;
-    glBuffer: GPUBuffer | null;
-    glOffset: number;
+    gpuTarget: number;
+    gpuBuffer: GPUBuffer | null;
+    gpuOffset: number;
     flags: BufferFlags | null;
     buffer: ArrayBufferView | null;
     indirects: DrawInfo[];
@@ -89,17 +89,17 @@ export interface IWebGPUTexture {
     flags: TextureFlags;
     isPowerOf2: boolean;
 
-    glTarget: GPUTextureViewDimension;  // 1d, 2d, 3d
-    glInternalFmt: GPUTextureFormat;// rgba8unorm
-    glFormat: GPUTextureFormat;
-    glType: GLenum;                 // data type, gl.UNSIGNED_BYTE
-    glUsage: GPUTextureUsageFlags;  // webgl:DYNIMIC_DRAW... -> webGPU:COPY_DST/STORAGE...
-    glTexture: GPUTexture | undefined;   // native tex handler
-    glRenderbuffer: null;           // not suitable for webgpu
-    glWrapS: GPUAddressMode;        // clamp-to-edge, repeat...
-    glWrapT: GPUAddressMode;
-    glMinFilter: GPUFilterMode;     // linear, nearest
-    glMagFilter: GPUFilterMode;
+    gpuTarget: GPUTextureViewDimension;  // 1d, 2d, 3d
+    gpuInternalFmt: GPUTextureFormat;// rgba8unorm
+    gpuFormat: GPUTextureFormat;
+    gpuType: number;                 // data type, => gl.UNSIGNED_BYTE
+    gpuUsage: GPUTextureUsageFlags;  // webgl:DYNIMIC_DRAW... -> webGPU:COPY_DST/STORAGE...
+    gpuTexture: GPUTexture | undefined;   // native tex handler
+    gpuRenderbuffer: null;           // not suitable for webgpu
+    gpuWrapS: GPUAddressMode;        // clamp-to-edge, repeat...
+    gpuWrapT: GPUAddressMode;
+    gpuMinFilter: GPUFilterMode;     // linear, nearest
+    gpuMagFilter: GPUFilterMode;
 
     isSwapchainTexture: boolean;
     getTextureView: () => GPUTextureView | null;
@@ -117,13 +117,13 @@ export interface IWebGPUGPUFramebuffer {
     gpuColorTextures: IWebGPUTexture[];
     gpuDepthStencilTexture: IWebGPUTexture | null;
     isOffscreen?: boolean;
-    glFramebuffer: WebGPUFramebuffer | null;
+    gpuFramebuffer: WebGPUFramebuffer | null;
     width: number;
     height: number;
 }
 
 export interface IWebGPUGPUSampler {
-    glSampler: GPUSampler | null;
+    gpuSampler: GPUSampler | null;
     compare: ComparisonFunc;
     minFilter: Filter;
     magFilter: Filter;
@@ -134,12 +134,12 @@ export interface IWebGPUGPUSampler {
     mipLevel: number;
     maxAnisotropy: number;
 
-    glMinFilter: GPUFilterMode;
-    glMagFilter: GPUFilterMode;
-    glMipFilter: GPUFilterMode;
-    glWrapS: GPUAddressMode;
-    glWrapT: GPUAddressMode;
-    glWrapR: GPUAddressMode;
+    gpuMinFilter: GPUFilterMode;
+    gpuMagFilter: GPUFilterMode;
+    gpuMipFilter: GPUFilterMode;
+    gpuWrapS: GPUAddressMode;
+    gpuWrapT: GPUAddressMode;
+    gpuWrapR: GPUAddressMode;
 }
 
 export interface IWebGPUGPUInput {
@@ -149,8 +149,8 @@ export interface IWebGPUGPUInput {
     count: number;
     size: number;
 
-    glType: GLenum;
-    glLoc: GLint;
+    gpuType: number;
+    gpuLoc: number;
 }
 
 export interface IWebGPUGPUUniform {
@@ -162,8 +162,8 @@ export interface IWebGPUGPUUniform {
     size: number;
     offset: number;
 
-    glType: GLenum;
-    glLoc: WebGLUniformLocation;
+    gpuType: number;
+    gpuLoc: number;
     array: number[];
     begin: number;
 }
@@ -174,7 +174,7 @@ export interface IWebGPUGPUUniformBlock {
     idx: number;
     name: string;
     size: number;
-    glBinding: number;
+    gpuBinding: number;
 }
 
 export interface IWebGPUGPUUniformSampler {
@@ -184,16 +184,16 @@ export interface IWebGPUGPUUniformSampler {
     type: Type;
     count: number;
     units: number[];
-    glUnits: Int32Array;
+    gpuUnits: Int32Array;
 
-    glType: GLenum;
-    glLoc: WebGLUniformLocation;
+    gpuType: number;
+    gpuLoc: number;
 }
 
 export interface IWebGPUGPUShaderStage {
     type: ShaderStageFlagBit;
     source: string;
-    glShader: GPUProgrammableStage | null;
+    gpuShader: GPUProgrammableStage | null;
     bindings: number[][];
     attrs: Map<number, string>;
 }
@@ -204,11 +204,11 @@ export interface IWebGPUGPUShader {
     samplers: UniformSampler[];
 
     gpuStages: IWebGPUGPUShaderStage[];
-    glProgram: WebGLProgram | null;
-    glInputs: IWebGPUGPUInput[];
-    glUniforms: IWebGPUGPUUniform[];
-    glBlocks: IWebGPUGPUUniformBlock[];
-    glSamplers: IWebGPUGPUUniformSampler[];
+    gpuProgram: number | null;
+    gpuInputs: IWebGPUGPUInput[];
+    gpuUniforms: IWebGPUGPUUniform[];
+    gpuBlocks: IWebGPUGPUUniformBlock[];
+    gpuSamplers: IWebGPUGPUUniformSampler[];
     bindings: Map<number, number[]>;
 }
 
@@ -230,7 +230,7 @@ export interface IWebGPUGPUPipelineLayout {
 }
 
 export interface IWebGPUGPUPipelineState {
-    glPrimitive: GPUPrimitiveTopology;
+    gpuPrimitive: GPUPrimitiveTopology;
     gpuShader: IWebGPUGPUShader | null;
     gpuPipelineLayout: IWebGPUGPUPipelineLayout | null;
     rs: RasterizerState;
@@ -259,8 +259,8 @@ export interface IWebGPUGPUDescriptorSet {
 
 export interface IWebGPUAttrib {
     name: string;
-    glBuffer: GPUBuffer | null;
-    glType: GLenum;
+    gpuBuffer: GPUBuffer | null;
+    gpuType: number;
     size: number;
     count: number;
     stride: number;
@@ -276,8 +276,8 @@ export interface IWebGPUGPUInputAssembler {
     gpuIndexBuffer: IWebGPUGPUBuffer | null;
     gpuIndirectBuffer: IWebGPUGPUBuffer | null;
 
-    glAttribs: IWebGPUAttrib[];
-    glIndexType: GPUIndexFormat;
+    gpuAttribs: IWebGPUAttrib[];
+    gpuIndexType: GPUIndexFormat;
 }
 
 export interface IWebGPUBindingMapping {
@@ -300,13 +300,9 @@ export class IWebGPUBlitManager {
 
     constructor () {
         const device = WebGPUDeviceManager.instance;
-        // this._srcFramebuffer = gl.createFramebuffer();
-        // this._dstFramebuffer = gl.createFramebuffer();
     }
 
     destroy (): void {
-        // const { gl } = WebGPUDeviceManager.instance;
-        // gl.deleteFramebuffer(this._srcFramebuffer);
-        // gl.deleteFramebuffer(this._dstFramebuffer);
+        // noop
     }
 }

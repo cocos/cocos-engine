@@ -72,14 +72,14 @@ export class WebGPUInputAssembler extends InputAssembler {
         }
 
         let gpuIndexBuffer: IWebGPUGPUBuffer | null = null;
-        let glIndexType: GPUIndexFormat = 'uint16';
+        let gpuIndexType: GPUIndexFormat = 'uint16';
         if (info.indexBuffer) {
             gpuIndexBuffer = (info.indexBuffer as WebGPUBuffer).gpuBuffer;
             if (gpuIndexBuffer) {
                 switch (gpuIndexBuffer.stride) {
-                // case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
-                case 2: glIndexType = 'uint16'; break; // WebGLRenderingContext.UNSIGNED_SHORT
-                case 4: glIndexType = 'uint32'; break; // WebGLRenderingContext.UNSIGNED_INT
+                // case 1: gpuIndexType = 0x1401; break; // => WebGLRenderingContext.UNSIGNED_BYTE
+                case 2: gpuIndexType = 'uint16'; break; // => WebGLRenderingContext.UNSIGNED_SHORT
+                case 4: gpuIndexType = 'uint32'; break; // => WebGLRenderingContext.UNSIGNED_INT
                 default: {
                     error('Illegal index buffer stride.');
                 }
@@ -98,8 +98,8 @@ export class WebGPUInputAssembler extends InputAssembler {
             gpuIndexBuffer,
             gpuIndirectBuffer,
 
-            glAttribs: [],
-            glIndexType,
+            gpuAttribs: [],
+            gpuIndexType,
         };
 
         WebGPUCmdFuncCreateInputAssember(WebGPUDeviceManager.instance, this._gpuInputAssembler);

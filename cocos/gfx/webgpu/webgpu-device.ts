@@ -23,8 +23,10 @@
 */
 
 import { fetchUrl } from 'pal/wasm';
-import glslang  from './external/glslang';
-import twgsl from './external/twgsl';
+import glslangUrl from 'external:emscripten/webgpu/glslang.wasm';
+import twgslUrl from 'external:emscripten/webgpu/twgsl.wasm';
+import glslangLoader from 'external:emscripten/webgpu/glslang.js';
+import twgslLoader from 'external:emscripten/webgpu/twgsl.js';
 import { DescriptorSet } from '../base/descriptor-set';
 import { Buffer } from '../base/buffer';
 import { CommandBuffer } from '../base/command-buffer';
@@ -494,8 +496,8 @@ export class WebGPUDevice extends Device {
             requiredFeatures: submitFeatures,
         });
 
-        this._glslang = await glslang(await fetchUrl('external:emscripten/webgpu/glslang.wasm'));
-        this._twgsl = await twgsl(await fetchUrl('external:emscripten/webgpu/twgsl.wasm'));
+        this._glslang = await glslangLoader(await fetchUrl(glslangUrl));
+        this._twgsl = await twgslLoader(await fetchUrl(twgslUrl));
 
         this._gfxAPI = API.WEBGPU;
 
@@ -615,7 +617,7 @@ export class WebGPUDevice extends Device {
         debug(`VENDOR: ${this._vendor}`);
         debug(`DESCRIPTION: ${description}`);
         debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
-        return true;
+        return Promise.resolve(true);
     }
 
     public destroy (): void {

@@ -64,7 +64,7 @@ import { debug, cclegacy } from '../../core';
 export class EmptyDevice extends Device {
     private _swapchain: EmptySwapchain | null = null;
 
-    public initialize (info: DeviceInfo): Promise<boolean> {
+    public initialize (info: DeviceInfo): boolean {
         this._gfxAPI = API.UNKNOWN;
 
         this._bindingMappingInfo = info.bindingMappingInfo;
@@ -74,7 +74,7 @@ export class EmptyDevice extends Device {
 
         debug('Empty device initialized.');
 
-        return Promise.resolve(true);
+        return true;
     }
 
     public destroy (): void {
@@ -91,9 +91,15 @@ export class EmptyDevice extends Device {
         this._swapchain = null;
     }
 
-    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>): void {}
-    public acquire (swapchains: Readonly<Swapchain[]>): void {}
-    public present (): void {}
+    public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>): void {
+        // noop
+    }
+    public acquire (swapchains: Readonly<Swapchain[]>): void {
+        // noop
+    }
+    public present (): void {
+        // noop
+    }
 
     public createCommandBuffer (info: Readonly<CommandBufferInfo>): CommandBuffer {
         const cmdBuff = new EmptyCommandBuffer();
@@ -210,9 +216,15 @@ export class EmptyDevice extends Device {
         return this._bufferBarriers.get(hash)!;
     }
 
-    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
-    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {}
-    public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
+    public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
+        // noop
+    }
+    public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {
+        // noop
+    }
+    public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
+        // noop
+    }
 }
 
 cclegacy.EmptyDevice = EmptyDevice;

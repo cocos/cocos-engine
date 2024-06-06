@@ -44,7 +44,7 @@ export class WebGPUSampler extends Sampler {
     constructor (info: Readonly<SamplerInfo>, hash: number) {
         super(info, hash);
         this._gpuSampler = {
-            glSampler: null,
+            gpuSampler: null,
             compare: info.cmpFunc,
             minFilter: info.minFilter,
             magFilter: info.magFilter,
@@ -55,17 +55,17 @@ export class WebGPUSampler extends Sampler {
             maxAnisotropy: info.maxAnisotropy,
             mipLevel: 1,
 
-            glMinFilter: 'linear',
-            glMagFilter: 'linear',
-            glMipFilter: 'linear',
-            glWrapS: 'clamp-to-edge',
-            glWrapT: 'clamp-to-edge',
-            glWrapR: 'clamp-to-edge',
+            gpuMinFilter: 'linear',
+            gpuMagFilter: 'linear',
+            gpuMipFilter: 'linear',
+            gpuWrapS: 'clamp-to-edge',
+            gpuWrapT: 'clamp-to-edge',
+            gpuWrapR: 'clamp-to-edge',
         };
     }
 
     public createGPUSampler (mipLevel: number = 1): void {
-        if (this._gpuSampler && !this.gpuSampler.glSampler) {
+        if (this._gpuSampler && !this.gpuSampler.gpuSampler) {
             this._gpuSampler.mipLevel = mipLevel;
             const device = WebGPUDeviceManager.instance;
             this._hasChange = true;

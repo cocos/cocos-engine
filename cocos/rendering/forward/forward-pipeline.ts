@@ -32,7 +32,7 @@ import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
     UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, getDefaultShadowTexture } from '../define';
 import { Swapchain, RenderPass } from '../../gfx';
 import { Camera } from '../../render-scene/scene';
-import { errorID } from '../../core/platform/debug';
+import { errorID, log } from '../../core/platform/debug';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
 
@@ -82,7 +82,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (swapchain: Swapchain): boolean {
-        if (EDITOR) { console.info('Forward render pipeline initialized.'); }
+        if (EDITOR) { log('Forward render pipeline initialized.'); }
 
         this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
         this._pipelineSceneData = new PipelineSceneData();

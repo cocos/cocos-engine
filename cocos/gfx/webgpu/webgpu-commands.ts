@@ -106,7 +106,7 @@ function CmpF32NotEuqal (a: number, b: number): boolean {
     return (c > 0.000001 || c < -0.000001);
 }
 
-export function GLStageToWebGPUStage (stage: ShaderStageFlags): number {
+export function GFXStageToWebGPUStage (stage: ShaderStageFlags): number {
     let flag = 0x0;
     if (stage & ShaderStageFlagBit.VERTEX) { flag |= GPUShaderStage.VERTEX; }
     if (stage & ShaderStageFlagBit.FRAGMENT) { flag |= GPUShaderStage.FRAGMENT; }
@@ -123,7 +123,7 @@ type WebGPUResourceTypeName =
   | 'externalTexture'
   | 'storageTexture';
 
-export function GLSamplerToGPUSamplerDescType (info: Readonly<SamplerInfo>): GPUSamplerBindingType {
+export function GFXSamplerToGPUSamplerDescType (info: Readonly<SamplerInfo>): GPUSamplerBindingType {
     if (info.magFilter !== Filter.LINEAR && info.minFilter !== Filter.LINEAR) {
         return 'non-filtering';
     } else {
@@ -131,7 +131,7 @@ export function GLSamplerToGPUSamplerDescType (info: Readonly<SamplerInfo>): GPU
     }
 }
 
-export function GLDescTypeToGPUBufferDescType (descType: DescriptorType): GPUBufferBindingType {
+export function GFXDescTypeToGPUBufferDescType (descType: DescriptorType): GPUBufferBindingType {
     switch (descType) {
     case DescriptorType.UNIFORM_BUFFER:
     case DescriptorType.DYNAMIC_UNIFORM_BUFFER:
@@ -143,7 +143,7 @@ export function GLDescTypeToGPUBufferDescType (descType: DescriptorType): GPUBuf
     }
 }
 
-export function GLDescTypeToWebGPUDescType (descType: DescriptorType): WebGPUResourceTypeName {
+export function GFXDescTypeToWebGPUDescType (descType: DescriptorType): WebGPUResourceTypeName {
     switch (descType) {
     case DescriptorType.UNIFORM_BUFFER:
     case DescriptorType.DYNAMIC_UNIFORM_BUFFER:
@@ -617,13 +617,13 @@ export function WebGPUCmdFuncCreateBuffer (device: WebGPUDevice, gpuBuffer: IWeb
         bufferUsage |= GPUBufferUsage.COPY_DST;
     }
     bufferDesc.usage = bufferUsage;
-    gpuBuffer.glTarget = bufferUsage;
-    gpuBuffer.glBuffer = nativeDevice.createBuffer(bufferDesc);
+    gpuBuffer.gpuTarget = bufferUsage;
+    gpuBuffer.gpuBuffer = nativeDevice.createBuffer(bufferDesc);
 }
 
 export function WebGPUCmdFuncDestroyBuffer (device: WebGPUDevice, gpuBuffer: IWebGPUGPUBuffer): void {
-    if (gpuBuffer.glBuffer) {
-        gpuBuffer.glBuffer.destroy();
+    if (gpuBuffer.gpuBuffer) {
+        gpuBuffer.gpuBuffer.destroy();
     }
 }
 
@@ -660,7 +660,7 @@ export function WebGPUCmdFuncUpdateBuffer (
         if (rawBuffer.byteLength !== size) {
             rawBuffer = rawBuffer.slice(0, size);
         }
-        // gpuBuffer.glbuffer may not able to be mapped directly, so staging buffer here.
+        // Buffer.gpubuffer may not able to be mapped directly, so staging buffer here.
         const stagingBuffer = nativeDevice.createBuffer({
             label: `staging buffer ${size}`,
             size,
@@ -671,7 +671,7 @@ export function WebGPUCmdFuncUpdateBuffer (
         new Uint8Array(mappedRange).set(new Uint8Array(rawBuffer));
         stagingBuffer.unmap();
         const commandEncoder = nativeDevice.createCommandEncoder();
-        commandEncoder.copyBufferToBuffer(stagingBuffer, 0, gpuBuffer.glBuffer as GPUBuffer, offset, size);
+        commandEncoder.copyBufferToBuffer(stagingBuffer, 0, gpuBuffer.gpuBuffer as GPUBuffer, offset, size);
         const commandBuffer = commandEncoder.finish();
         nativeDevice.queue.submit([commandBuffer]);
         stagingBuffer.destroy();
@@ -680,35 +680,35 @@ export function WebGPUCmdFuncUpdateBuffer (
 
 export function WebGPUCmdFuncCreateTexture (device: WebGPUDevice, gpuTexture: IWebGPUTexture): void {
     // dimension optional
-    gpuTexture.glTarget = GFXTextureToWebGPUTexture(gpuTexture.type);
-    gpuTexture.glInternalFmt = GFXFormatToWGPUTextureFormat(gpuTexture.format);
-    gpuTexture.glFormat = GFXFormatToWGPUFormat(gpuTexture.format);
-    gpuTexture.glUsage = GFXTextureUsageToNative(gpuTexture.usage);
-    gpuTexture.glWrapS = gpuTexture.isPowerOf2 ? 'repeat' : 'clamp-to-edge';
-    gpuTexture.glWrapT = gpuTexture.isPowerOf2 ? 'repeat' : 'clamp-to-edge';
-    gpuTexture.glMinFilter = 'linear';
-    gpuTexture.glMagFilter = 'linear';
+    gpuTexture.gpuTarget = GFXTextureToWebGPUTexture(gpuTexture.type);
+    gpuTexture.gpuInternalFmt = GFXFormatToWGPUTextureFormat(gpuTexture.format);
+    gpuTexture.gpuFormat = GFXFormatToWGPUFormat(gpuTexture.format);
+    gpuTexture.gpuUsage = GFXTextureUsageToNative(gpuTexture.usage);
+    gpuTexture.gpuWrapS = gpuTexture.isPowerOf2 ? 'repeat' : 'clamp-to-edge';
+    gpuTexture.gpuWrapT = gpuTexture.isPowerOf2 ? 'repeat' : 'clamp-to-edge';
+    gpuTexture.gpuMinFilter = 'linear';
+    gpuTexture.gpuMagFilter = 'linear';
     // only 1 and 4 supported.
     gpuTexture.samples = Number(gpuTexture.samples) > 1 ? 4 : 1;
     const texDescriptor: GPUTextureDescriptor = {
         size: [gpuTexture.width, gpuTexture.height, gpuTexture.arrayLayer],
         mipLevelCount: gpuTexture.mipLevel,
         sampleCount: gpuTexture.samples,
-        format: gpuTexture.glFormat,
-        usage: gpuTexture.glUsage,
+        format: gpuTexture.gpuFormat,
+        usage: gpuTexture.gpuUsage,
     };
 
-    gpuTexture.glTexture = device.nativeDevice!.createTexture(texDescriptor);
+    gpuTexture.gpuTexture = device.nativeDevice!.createTexture(texDescriptor);
 }
 
 export function WebGPUCmdFuncDestroyTexture (gpuTexture: IWebGPUTexture): void {
-    if (gpuTexture.glTexture) {
-        gpuTexture.glTexture.destroy();
+    if (gpuTexture.gpuTexture) {
+        gpuTexture.gpuTexture.destroy();
     }
 }
 
 export function WebGPUCmdFuncResizeTexture (device: WebGPUDevice, gpuTexture: IWebGPUTexture): void {
-    if (gpuTexture.glTexture) {
+    if (gpuTexture.gpuTexture) {
         WebGPUCmdFuncDestroyTexture(gpuTexture);
     }
     WebGPUCmdFuncCreateTexture(device, gpuTexture);
@@ -717,20 +717,20 @@ export function WebGPUCmdFuncResizeTexture (device: WebGPUDevice, gpuTexture: IW
 export function WebGPUCmdFuncCreateSampler (device: WebGPUDevice, gpuSampler: IWebGPUGPUSampler): void {
     const nativeDevice: GPUDevice = device.nativeDevice!;
 
-    gpuSampler.glMinFilter = (gpuSampler.minFilter === Filter.LINEAR || gpuSampler.minFilter === Filter.ANISOTROPIC) ? 'linear' : 'nearest';
-    gpuSampler.glMagFilter = (gpuSampler.magFilter === Filter.LINEAR || gpuSampler.magFilter === Filter.ANISOTROPIC) ? 'linear' : 'nearest';
-    gpuSampler.glMipFilter = (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) ? 'linear' : 'nearest';
-    gpuSampler.glWrapS = WebGPUAdressMode[gpuSampler.addressU];
-    gpuSampler.glWrapT = WebGPUAdressMode[gpuSampler.addressV];
-    gpuSampler.glWrapR = WebGPUAdressMode[gpuSampler.addressW];
+    gpuSampler.gpuMinFilter = (gpuSampler.minFilter === Filter.LINEAR || gpuSampler.minFilter === Filter.ANISOTROPIC) ? 'linear' : 'nearest';
+    gpuSampler.gpuMagFilter = (gpuSampler.magFilter === Filter.LINEAR || gpuSampler.magFilter === Filter.ANISOTROPIC) ? 'linear' : 'nearest';
+    gpuSampler.gpuMipFilter = (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) ? 'linear' : 'nearest';
+    gpuSampler.gpuWrapS = WebGPUAdressMode[gpuSampler.addressU];
+    gpuSampler.gpuWrapT = WebGPUAdressMode[gpuSampler.addressV];
+    gpuSampler.gpuWrapR = WebGPUAdressMode[gpuSampler.addressW];
 
     const samplerDesc = {} as GPUSamplerDescriptor;
-    samplerDesc.addressModeU = gpuSampler.glWrapS;
-    samplerDesc.addressModeV = gpuSampler.glWrapT;
-    samplerDesc.addressModeW = gpuSampler.glWrapR;
-    samplerDesc.minFilter = gpuSampler.glMinFilter;
-    samplerDesc.magFilter = gpuSampler.glMagFilter;
-    samplerDesc.mipmapFilter = gpuSampler.glMipFilter;
+    samplerDesc.addressModeU = gpuSampler.gpuWrapS;
+    samplerDesc.addressModeV = gpuSampler.gpuWrapT;
+    samplerDesc.addressModeW = gpuSampler.gpuWrapR;
+    samplerDesc.minFilter = gpuSampler.gpuMinFilter;
+    samplerDesc.magFilter = gpuSampler.gpuMagFilter;
+    samplerDesc.mipmapFilter = gpuSampler.gpuMipFilter;
     samplerDesc.lodMinClamp = 0;// gpuSampler.minLOD;
     samplerDesc.lodMaxClamp = gpuSampler.mipLevel;// gpuSampler.maxLOD;
     if (WebGPUCompareFunc[gpuSampler.compare] !== 'always') {
@@ -738,19 +738,19 @@ export function WebGPUCmdFuncCreateSampler (device: WebGPUDevice, gpuSampler: IW
     }
     samplerDesc.maxAnisotropy = gpuSampler.maxAnisotropy || 1;
     const sampler: GPUSampler = nativeDevice.createSampler(samplerDesc);
-    gpuSampler.glSampler = sampler;
+    gpuSampler.gpuSampler = sampler;
 }
 
 export function WebGPUCmdFuncDestroySampler (device: WebGPUDevice, gpuSampler: IWebGPUGPUSampler): void {
-    if (gpuSampler.glSampler) {
-        gpuSampler.glSampler = null;
+    if (gpuSampler.gpuSampler) {
+        gpuSampler.gpuSampler = null;
     }
 }
 
 export function WebGPUCmdFuncDestroyFramebuffer (device: WebGPUDevice, gpuFramebuffer: IWebGPUGPUFramebuffer): void {
-    if (gpuFramebuffer.glFramebuffer) {
-        gpuFramebuffer.glFramebuffer.destroy();
-        gpuFramebuffer.glFramebuffer = null;
+    if (gpuFramebuffer.gpuFramebuffer) {
+        gpuFramebuffer.gpuFramebuffer.destroy();
+        gpuFramebuffer.gpuFramebuffer = null;
     }
 }
 
@@ -784,7 +784,7 @@ export async function WebGPUCmdFuncCopyTextureToBuffer (
         h = region.texExtent.height;
 
         commandEncoder.copyTextureToBuffer({
-            texture: texture.glTexture!,
+            texture: texture.gpuTexture!,
             mipLevel: 0,
             origin: {
                 x,
@@ -1014,8 +1014,8 @@ const clearPassData: ClearPassData = {
     pipeline: null,
 };
 export function clearRect (device: WebGPUDevice, texture: IWebGPUTexture, renderArea: Rect, color: Color): void {
-    const format = texture.glTexture!.format;
-    const dimension = texture.glTarget;
+    const format = texture.gpuTexture!.format;
+    const dimension = texture.gpuTarget;
     const nativeDevice = device.nativeDevice!;
     if (!clearPassData.vertShader) {
         const clearQuadVert = `
@@ -1129,7 +1129,7 @@ export function clearRect (device: WebGPUDevice, texture: IWebGPUTexture, render
         arrayLayerCount: 1,
         aspect: 'all',
     };
-    const dstView = texture.glTexture?.createView(desc);
+    const dstView = texture.gpuTexture?.createView(desc);
     const bufferDesc: GPUBufferDescriptor = {
         usage: GPUBufferUsage.UNIFORM,
         size: 16,
@@ -1256,7 +1256,7 @@ export function WebGPUCmdFuncCreateGPUShader (device: WebGPUDevice, gpuShader: I
             module: shader,
             entryPoint: 'main',
         };
-        gpuStage.glShader = shaderStage;
+        gpuStage.gpuShader = shaderStage;
         wgslCodes.push(wgsl);
         const bindingList = reflect(wgslCodes);
         gpuStage.bindings = bindingList;
@@ -1277,13 +1277,13 @@ export function WebGPUCmdFuncCreateGPUShader (device: WebGPUDevice, gpuShader: I
 }
 
 export function WebGPUCmdFuncDestroyShader (device: WebGPUDevice, gpuShader: IWebGPUGPUShader): void {
-    if (gpuShader.glProgram) {
-        gpuShader.glProgram = null;
+    if (gpuShader.gpuProgram) {
+        gpuShader.gpuProgram = null;
     }
 }
 
 export function WebGPUCmdFuncCreateInputAssember (device: WebGPUDevice, gpuInputAssembler: IWebGPUGPUInputAssembler): void {
-    gpuInputAssembler.glAttribs = new Array<IWebGPUAttrib>(gpuInputAssembler.attributes.length);
+    gpuInputAssembler.gpuAttribs = new Array<IWebGPUAttrib>(gpuInputAssembler.attributes.length);
 
     const offsets = [0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -1294,13 +1294,13 @@ export function WebGPUCmdFuncCreateInputAssember (device: WebGPUDevice, gpuInput
 
         const gpuBuffer = gpuInputAssembler.gpuVertexBuffers[stream];
 
-        const glType = 0;
+        const gpuType = 0;
         const size = FormatInfos[attrib.format].size;
 
-        gpuInputAssembler.glAttribs[i] = {
+        gpuInputAssembler.gpuAttribs[i] = {
             name: attrib.name,
-            glBuffer: gpuBuffer.glBuffer,
-            glType,
+            gpuBuffer: gpuBuffer.gpuBuffer,
+            gpuType,
             size,
             count: FormatInfos[attrib.format].count,
             stride: gpuBuffer.stride,
@@ -1322,8 +1322,8 @@ interface IWebGPUStateCache {
     gpuPipelineState: IWebGPUGPUPipelineState | null;
     gpuInputAssembler: IWebGPUGPUInputAssembler | null;
     reverseCW: boolean;
-    glPrimitive: GPUPrimitiveTopology;
-    invalidateAttachments: GLenum[];
+    gpuPrimitive: GPUPrimitiveTopology;
+    invalidateAttachments: number[];
 }
 
 function maxElementOfImageArray (bufInfoArr: BufferTextureCopy[]): number {
@@ -1349,7 +1349,7 @@ export function WebGPUCmdFuncCopyTexImagesToTexture (
         nativeDevice.queue.copyExternalImageToTexture(
             { source: texImg },
             {
-                texture: gpuTexture.glTexture!,
+                texture: gpuTexture.gpuTexture!,
                 mipLevel: region.texSubres.mipLevel,
                 origin: {
                     x: region.texOffset.x,
@@ -1425,8 +1425,8 @@ interface MipmapPassData {
 let mipmapData: MipmapPassData;
 
 function genMipMap (device: WebGPUDevice, texture: IWebGPUTexture, fromLevel: number, levelCount: number, baseLayer: number): void {
-    const format = texture.glFormat;
-    const dimension = texture.glTarget;
+    const format = texture.gpuFormat;
+    const dimension = texture.gpuTarget;
     const nativeDevice = device.nativeDevice!;
     if (!mipmapData) {
         mipmapData = {} as any;
@@ -1583,11 +1583,11 @@ function genMipMap (device: WebGPUDevice, texture: IWebGPUTexture, fromLevel: nu
 
     for (let i = fromLevel; i < fromLevel + levelCount; ++i) {
         desc.baseMipLevel = i - 1;
-        const srcView: GPUTextureView = texture.glTexture!.createView(desc);
+        const srcView: GPUTextureView = texture.gpuTexture!.createView(desc);
         desc.baseMipLevel = i;
         desc.baseArrayLayer = baseLayer;
         desc.arrayLayerCount = 1;
-        const dstView: GPUTextureView = texture.glTexture!.createView(desc);
+        const dstView: GPUTextureView = texture.gpuTexture!.createView(desc);
 
         const entries: GPUBindGroupEntry[] = [
             {
@@ -1669,7 +1669,7 @@ export function WebGPUCmdFuncCopyBuffersToTexture (
                         + (l - region.texSubres.baseArrayLayer) * bufferBytesPerImageLayer
                         + (d - region.texOffset.z) * bufferBytesPerImageSlice);
                     const copyTarget = {
-                        texture: gpuTexture.glTexture!,
+                        texture: gpuTexture.gpuTexture!,
                         mipLevel: region.texSubres.mipLevel,
                         origin: {
                             x: region.texOffset.x,
@@ -1685,7 +1685,7 @@ export function WebGPUCmdFuncCopyBuffersToTexture (
                             + ((d - region.texOffset.z) * bufferBytesPerImageSlice
                             + (h - region.texOffset.y) / blockSize.height * bufferBytesPerRow));
                         const copyTarget = {
-                            texture: gpuTexture.glTexture!,
+                            texture: gpuTexture.gpuTexture!,
                             mipLevel: region.texSubres.mipLevel,
                             origin: {
                                 x: region.texOffset.x,
