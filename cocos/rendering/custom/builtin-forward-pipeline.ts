@@ -331,9 +331,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private readonly _bloomHeights: Array<number> = [];
     private readonly _bloomTexNames: Array<string> = [];
     // Materials
+    private readonly _copyAndTonemapMaterial = new Material();
     private readonly _dofMaterial = new Material();
     private readonly _bloomMaterial = new Material();
-    private readonly _copyAndTonemapMaterial = new Material();
     private readonly _fxaaMaterial = new Material();
     private _initialized = false; // TODO(zhouzhenglong): Make default effect asset loading earlier and remove this flag
 
@@ -652,6 +652,8 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         depthStencil: string,
         radianceName: string,
     ): void {
+        // https://catlikecoding.com/unity/tutorials/advanced-rendering/depth-of-field/
+
         this._cocParams.x = settings.depthOfField.focusDistance;
         this._cocParams.y = settings.depthOfField.focusRange;
         this._cocParams.z = settings.depthOfField.bokehRadius;
@@ -955,14 +957,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         setupPipelineConfigs(ppl, this._configs);
 
         // When add new effect asset, please add its uuid to the dependentAssets in cc.config.json.
+        this._copyAndTonemapMaterial._uuid = `custom-forward-post-final-tonemap-material`;
+        this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
+
         this._dofMaterial._uuid = `custom-forward-post-dof-material`;
         this._dofMaterial.initialize({ effectName: 'pipeline/post-process/dof' });
 
         this._bloomMaterial._uuid = `custom-forward-post-bloom-material`;
         this._bloomMaterial.initialize({ effectName: 'pipeline/post-process/bloom1' });
-
-        this._copyAndTonemapMaterial._uuid = `custom-forward-post-final-tonemap-material`;
-        this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
 
         this._fxaaMaterial._uuid = `custom-forward-post-fxaa-material`;
         this._fxaaMaterial.initialize({ effectName: 'pipeline/post-process/fxaa-hq' });
