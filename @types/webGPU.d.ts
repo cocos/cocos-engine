@@ -574,7 +574,7 @@ interface GPUBufferBindingLayout {
    */
   minBindingSize?: GPUSize64;
 }
-
+type PredefinedGPUColorSpace = 'display-p3' | 'srgb';
 interface GPUBufferDescriptor
   extends GPUObjectDescriptorBase {
   /**
@@ -625,7 +625,7 @@ interface GPUCanvasConfiguration {
    * The color space that values written into textures returned by
    * {@link GPUCanvasContext#getCurrentTexture} should be displayed with.
    */
-  colorSpace?: PredefinedColorSpace;
+  colorSpace?: PredefinedGPUColorSpace;
   /**
    * Determines the effect that alpha values will have on the content of textures returned by
    * {@link GPUCanvasContext#getCurrentTexture} when read, displayed, or used as an image source.
@@ -812,7 +812,7 @@ interface GPUExternalTextureDescriptor
   source:
     | HTMLVideoElement
     | VideoFrame;
-  colorSpace?: PredefinedColorSpace;
+  colorSpace?: PredefinedGPUColorSpace;
 }
 
 interface GPUFragmentState
@@ -917,7 +917,7 @@ interface GPUImageCopyTextureTagged
    * If {@link GPUImageCopyTextureTagged#colorSpace} matches the source image,
    * conversion may not be necessary. See [[#color-space-conversion-elision]].
    */
-  colorSpace?: PredefinedColorSpace;
+  colorSpace?: PredefinedGPUColorSpace;
   /**
    * Describes whether the data written into the texture should have its RGB channels
    * premultiplied by the alpha channel, or not.
