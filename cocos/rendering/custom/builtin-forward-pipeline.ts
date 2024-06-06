@@ -717,7 +717,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         combinePass.addTexture(cocName, 'cocTex');
         combinePass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         combinePass
-            .addQueue(QueueHint.BLEND)
+            .addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._dofMaterial, 4);
     }
 
