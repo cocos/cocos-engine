@@ -32,10 +32,11 @@ import {
     DescriptorSetInfo,
     DescriptorSet,
 } from '../gfx';
-import { pipeline, PipelineStateManager } from '../rendering';
+import { PipelineStateManager } from '../rendering';
 import { SetIndex } from '../rendering/define';
 import { ccwindow, legacyCC } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
+import { PipelineRuntime } from '../rendering/custom';
 
 const v2_0 = new Vec2();
 type SplashLogoType = 'default' | 'none' | 'custom';
@@ -524,7 +525,7 @@ export class SplashScreen {
 
                 cmdBuff.begin();
                 cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
-                const pipeline = cclegacy.director.root.pipeline;
+                const pipeline = cclegacy.director.root.pipeline as PipelineRuntime;
                 if (this.settings.background!.type === 'custom') {
                     const bgPass = this.bgMat.passes[0];
                     const bgPso = PipelineStateManager.getOrCreatePipelineState(
@@ -536,7 +537,6 @@ export class SplashScreen {
                     );
 
                     cmdBuff.bindPipelineState(bgPso);
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, bgPass.descriptorSet);
                     cmdBuff.bindInputAssembler(this.quadAssmebler);
@@ -554,7 +554,6 @@ export class SplashScreen {
                     );
 
                     cmdBuff.bindPipelineState(logoPso);
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, logoPass.descriptorSet);
                     cmdBuff.bindInputAssembler(this.quadAssmebler);
@@ -572,7 +571,6 @@ export class SplashScreen {
                     );
 
                     cmdBuff.bindPipelineState(watermarkPso);
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                     cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, wartermarkPass.descriptorSet);
                     cmdBuff.bindInputAssembler(this.quadAssmebler);
