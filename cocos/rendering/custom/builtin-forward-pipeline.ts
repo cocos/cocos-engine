@@ -28,7 +28,7 @@ import { AABB } from '../../core/geometry/aabb';
 import { Frustum } from '../../core/geometry/frustum';
 import intersect from '../../core/geometry/intersect';
 import { Sphere } from '../../core/geometry/sphere';
-import { ClearFlagBit, Color, Format, LoadOp, StoreOp, Viewport } from '../../gfx/base/define';
+import { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, Viewport } from '../../gfx/base/define';
 import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Camera, CameraUsage } from '../../render-scene/scene/camera';
@@ -249,10 +249,11 @@ class PipelineConfigs {
     isHDR = false;
     useFloatOutput = false;
     shadingScale = 1.0;
-    toneMappingType = 0; // ACES
+    toneMappingType = 0; // 0: ACES, 1: None
     shadowMapFormat = Format.R32F;
     shadowMapSize = new Vec2(1, 1);
     screenSpaceSignY = 1;
+    supportDepthSample = false;
     g_platform = new Vec4(0, 0, 0, 0);
 }
 
@@ -260,6 +261,8 @@ function setupPipelineConfigs (
     ppl: BasicPipeline,
     configs: PipelineConfigs,
 ): void {
+    const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+
     configs.isMobile = sys.isMobile;
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -268,6 +271,7 @@ function setupPipelineConfigs (
     configs.shadowMapFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
     configs.shadowMapSize.set(ppl.pipelineSceneData.shadows.size);
     configs.screenSpaceSignY = ppl.device.capabilities.screenSpaceSignY;
+    configs.supportDepthSample = (ppl.device.getFormatFeatures(Format.DEPTH_STENCIL) & sampleFeature) === sampleFeature;
 
     const device = ppl.device;
     configs.g_platform.x = configs.isMobile ? 1.0 : 0.0;
@@ -301,6 +305,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private readonly _viewport = new Viewport();
     private readonly _configs = new PipelineConfigs();
     private readonly _cameraConfigs = new CameraConfigs();
+    // DepthOfField
+    private readonly _cocParams = new Vec4(0, 0, 0, 0);
+    private readonly _cocTexSize = new Vec4(0, 0, 0, 0);
     // Bloom
     private readonly _bloomParams = new Vec4(0, 0, 0, 0);
     private readonly _bloomTexSize = new Vec4(0, 0, 0, 0);
@@ -308,6 +315,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private readonly _bloomHeights: Array<number> = [];
     private readonly _bloomTexNames: Array<string> = [];
     // Materials
+    private readonly _dofMaterial = new Material();
     private readonly _bloomMaterial = new Material();
     private readonly _copyAndTonemapMaterial = new Material();
     private readonly _fxaaMaterial = new Material();
@@ -318,6 +326,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     private readonly forwardLighting = new ForwardLighting();
 
     constructor () {
+        // this.settings.depthOfField.enabled = true;
+        // this.settings.depthOfField.focusDistance = 6.4;
+        // this.settings.depthOfField.focusRange = 13;
+        // this.settings.depthOfField.bokehRadius = 1;
         this.settings.bloom.enabled = true;
         this.settings.fxaa.enabled = true;
     }
@@ -375,6 +387,21 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Post Process
         if (this._cameraConfigs.enablePostProcess) {
+            // Ldr Color
+            if (this.settings.fxaa.enabled
+                || this.settings.depthOfField.enabled) {
+                ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
+            }
+            // DepthOfField
+            if (this.settings.depthOfField.enabled) {
+                const halfWidth = Math.max(Math.floor(width / 2), 1);
+                const halfHeight = Math.max(Math.floor(height / 2), 1);
+                // `DofCoc${id}` texture will reuse `LdrColor${id}`
+                ppl.addRenderTarget(`DofRadiance${id}`, Format.RGBA16F, width, height);
+                ppl.addRenderTarget(`DofPrefilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofBokeh${id}`, Format.RGBA16F, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofFilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+            }
             // Bloom (Kawase Dual Filter)
             if (this.settings.bloom.enabled) {
                 let bloomWidth = width;
@@ -384,9 +411,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                     bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
                     ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
                 }
-            }
-            if (this.settings.fxaa.enabled) {
-                ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
             }
         }
     }
@@ -424,6 +448,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         const id = camera.window.renderWindowId;
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
+        const dofRadianceName = `DofRadiance${id}`;
         const radianceName = `Radiance${id}`;
         const ldrColorName = `LdrColor${id}`;
         const mainLight = scene.mainLight;
@@ -440,8 +465,12 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         let lastPass: BasicRenderPassBuilder;
         if (this._configs.useFloatOutput) {
             if (this._cameraConfigs.enablePostProcess) {
-                this._addForwardRadiancePasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-
+                if (this._configs.supportDepthSample && this.settings.depthOfField.enabled) {
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, dofRadianceName, depthStencilName, mainLight);
+                    this._addDepthOfFieldPasses(ppl, id, camera, width, height, dofRadianceName, depthStencilName, radianceName);
+                } else {
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
+                }
                 if (this.settings.bloom.enabled) {
                     this._addKawaseDualFilterBloomPasses(ppl, id, width, height, radianceName);
                 }
@@ -595,6 +624,83 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
     }
 
+    private _addDepthOfFieldPasses (
+        ppl: BasicPipeline,
+        id: number,
+        camera: Camera,
+        width: number,
+        height: number,
+        dofRadianceName: string,
+        depthStencil: string,
+        radianceName: string,
+    ): void {
+        this._cocParams.x = this.settings.depthOfField.focusDistance;
+        this._cocParams.y = this.settings.depthOfField.focusRange;
+        this._cocParams.z = this.settings.depthOfField.bokehRadius;
+        this._cocParams.w = 0.0;
+        this._cocTexSize.x = 1.0 / width;
+        this._cocTexSize.y = 1.0 / height;
+        this._cocTexSize.z = width;
+        this._cocTexSize.w = height;
+        this._dofMaterial.setProperty('cocParams', this._cocParams);
+        this._dofMaterial.setProperty('mainTexTexelSize', this._cocTexSize);
+
+        const halfWidth = Math.max(Math.floor(width / 2), 1);
+        const halfHeight = Math.max(Math.floor(height / 2), 1);
+
+        const cocName = `LdrColor${id}`;
+        const prefilterName = `DofPrefilter${id}`;
+        const bokehName = `DofBokeh${id}`;
+        const filterName = `DofFilter${id}`;
+
+        // CoC
+        const cocPass = ppl.addRenderPass(width, height, 'dof-coc');
+        cocPass.addRenderTarget(cocName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        cocPass.addTexture(depthStencil, 'DepthTex');
+        cocPass
+            .addQueue(QueueHint.OPAQUE)
+            .addCameraQuad(camera, this._dofMaterial, 0); // addCameraQuad will set camera related UBOs
+
+        // Downsample and Prefilter
+        const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-prefilter');
+        prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        prefilterPass.addTexture(cocName, 'cocTex');
+        prefilterPass.addTexture(dofRadianceName, 'colorTex');
+        // prefilterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        prefilterPass
+            .addQueue(QueueHint.OPAQUE)
+            .addCameraQuad(camera, this._dofMaterial, 1);
+
+        // Bokeh blur
+        const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-bokeh');
+        bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        bokehPass.addTexture(prefilterName, 'prefilterTex');
+        // bokehPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        bokehPass
+            .addQueue(QueueHint.OPAQUE)
+            .addCameraQuad(camera, this._dofMaterial, 2);
+
+        // Filtering
+        const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-filter');
+        filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        filterPass.addTexture(bokehName, 'bokehTex');
+        // filterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        filterPass
+            .addQueue(QueueHint.OPAQUE)
+            .addCameraQuad(camera, this._dofMaterial, 3);
+
+        // Combine
+        const combinePass = ppl.addRenderPass(width, height, 'dof-combine');
+        combinePass.addRenderTarget(radianceName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        combinePass.addTexture(filterName, 'filterTex');
+        combinePass.addTexture(dofRadianceName, 'colorTex');
+        combinePass.addTexture(cocName, 'cocTex');
+        // combinePass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        combinePass
+            .addQueue(QueueHint.BLEND)
+            .addCameraQuad(camera, this._dofMaterial, 4);
+    }
+
     private _addKawaseDualFilterBloomPasses (
         ppl: BasicPipeline,
         id: number,
@@ -693,10 +799,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         ldrColorName: string,
         colorName: string,
     ): BasicRenderPassBuilder {
+        this._fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1 / width, 1 / height));
+
         const pass = ppl.addRenderPass(width, height, 'fxaa');
         pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         pass.addTexture(ldrColorName, 'sceneColorMap');
-        this._fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1 / width, 1 / height));
         pass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         pass.addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._fxaaMaterial, 0);
@@ -831,6 +938,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         setupPipelineConfigs(ppl, this._configs);
 
         // When add new effect asset, please add its uuid to the dependentAssets in cc.config.json.
+        this._dofMaterial._uuid = `custom-forward-post-dof-material`;
+        this._dofMaterial.initialize({ effectName: 'pipeline/post-process/dof' });
+
         this._bloomMaterial._uuid = `custom-forward-post-bloom-material`;
         this._bloomMaterial.initialize({ effectName: 'pipeline/post-process/bloom1' });
 
@@ -841,7 +951,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         this._fxaaMaterial.initialize({ effectName: 'pipeline/post-process/fxaa-hq' });
 
         if (this._copyAndTonemapMaterial.effectAsset !== null
+            && this._dofMaterial.effectAsset !== null
             && this._bloomMaterial.effectAsset !== null
+            && this._fxaaMaterial.effectAsset !== null
         ) {
             this._initialized = true;
         }
