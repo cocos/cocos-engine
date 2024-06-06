@@ -437,10 +437,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         }
 
         // Forward Lighting
+        let lastPass: BasicRenderPassBuilder;
         if (this._configs.useFloatOutput) {
-            let lastPass: BasicRenderPassBuilder;
             if (this._cameraConfigs.enablePostProcess) {
-                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
+                this._addForwardRadiancePasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
 
                 if (this.settings.bloom.enabled) {
                     this._addKawaseDualFilterBloomPasses(ppl, id, width, height, radianceName);
@@ -452,13 +452,13 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                     lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
                 }
             } else {
-                this._addForwardPasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
+                this._addForwardRadiancePasses(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
                 lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
             }
-            this._addProfilerQueue(camera, lastPass);
         } else {
-            this._addForwardPasses(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
+            lastPass = this._addForwardRadiancePasses(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
         }
+        this._addUIQueue(camera, lastPass);
     }
 
     // Mobile
@@ -486,13 +486,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         this.forwardLighting.addMobileShadowPasses(ppl, camera, this.settings.forwardPipeline.mobileMaxSpotLightShadowMaps);
 
         // Forward Lighting
+        let lastPass: BasicRenderPassBuilder;
         if (this._configs.useFloatOutput) {
-            this._addMobileForwardPass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-            const lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
-            this._addProfilerQueue(camera, lastPass);
+            this._addMobileForwardRadiancePass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
+            lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
         } else {
-            this._addMobileForwardPass(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
+            lastPass = this._addMobileForwardRadiancePass(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
         }
+        this._addUIQueue(camera, lastPass);
     }
 
     //----------------------------------------------------------------
@@ -702,19 +703,21 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         return pass;
     }
 
-    private _addProfilerQueue (camera: Camera, pass: BasicRenderPassBuilder): void {
+    private _addUIQueue (camera: Camera, pass: BasicRenderPassBuilder): void {
+        let flags = SceneFlags.UI;
         if (this._cameraConfigs.enableProfiler) {
+            flags |= SceneFlags.PROFILER;
             pass.showStatistics = true;
-            pass
-                .addQueue(QueueHint.BLEND)
-                .addScene(camera, SceneFlags.PROFILER);
         }
+        pass
+            .addQueue(QueueHint.BLEND)
+            .addScene(camera, flags);
     }
 
     //----------------------------------------------------------------
     // Desktop
     //----------------------------------------------------------------
-    private _addForwardPasses (
+    private _addForwardRadiancePasses (
         ppl: BasicPipeline,
         id: number,
         camera: Camera,
@@ -723,7 +726,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         colorName: string,
         depthStencilName: string,
         mainLight: DirectionalLight | null,
-    ): void {
+    ): BasicRenderPassBuilder {
         //----------------------------------------------------------------
         // Dynamic states
         //----------------------------------------------------------------
@@ -757,20 +760,17 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting (Blend)
         //----------------------------------------------------------------
         // Add transparent queue
-        let flags = SceneFlags.BLEND | SceneFlags.UI;
-        if (this._cameraConfigs.enableProfiler && !this._configs.useFloatOutput) {
-            lastPass.showStatistics = true;
-            flags |= SceneFlags.PROFILER;
-        }
         lastPass
             .addQueue(QueueHint.BLEND)
-            .addScene(camera, flags, mainLight || undefined);
+            .addScene(camera, SceneFlags.BLEND, mainLight || undefined);
+
+        return lastPass;
     }
 
     //----------------------------------------------------------------
     // Mobile
     //----------------------------------------------------------------
-    private _addMobileForwardPass (
+    private _addMobileForwardRadiancePass (
         ppl: BasicPipeline,
         id: number,
         camera: Camera,
@@ -779,7 +779,7 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         colorName: string,
         depthStencilName: string,
         mainLight: DirectionalLight | null,
-    ): void {
+    ): BasicRenderPassBuilder {
         //----------------------------------------------------------------
         // Dynamic states
         //----------------------------------------------------------------
@@ -816,14 +816,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         // Forward Lighting (Blend)
         //----------------------------------------------------------------
         // Add transparent queue
-        let flags = SceneFlags.BLEND | SceneFlags.UI;
-        if (this._cameraConfigs.enableProfiler && !this._configs.useFloatOutput) {
-            pass.showStatistics = true;
-            flags |= SceneFlags.PROFILER;
-        }
         pass
             .addQueue(QueueHint.BLEND)
-            .addScene(camera, flags, mainLight || undefined);
+            .addScene(camera, SceneFlags.BLEND, mainLight || undefined);
+
+        return pass;
     }
 
     private _initMaterials (ppl: BasicPipeline): number {
