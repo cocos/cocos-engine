@@ -684,28 +684,28 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         prefilterPass.addTexture(cocName, 'cocTex');
         prefilterPass.addTexture(dofRadianceName, 'colorTex');
-        // prefilterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        prefilterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         prefilterPass
             .addQueue(QueueHint.OPAQUE)
-            .addCameraQuad(camera, this._dofMaterial, 1);
+            .addFullscreenQuad(this._dofMaterial, 1);
 
         // Bokeh blur
         const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-bokeh');
         bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         bokehPass.addTexture(prefilterName, 'prefilterTex');
-        // bokehPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        bokehPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         bokehPass
             .addQueue(QueueHint.OPAQUE)
-            .addCameraQuad(camera, this._dofMaterial, 2);
+            .addFullscreenQuad(this._dofMaterial, 2);
 
         // Filtering
         const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-filter');
         filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         filterPass.addTexture(bokehName, 'bokehTex');
-        // filterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        filterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         filterPass
             .addQueue(QueueHint.OPAQUE)
-            .addCameraQuad(camera, this._dofMaterial, 3);
+            .addFullscreenQuad(this._dofMaterial, 3);
 
         // Combine
         const combinePass = ppl.addRenderPass(width, height, 'dof-combine');
@@ -713,10 +713,10 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         combinePass.addTexture(filterName, 'filterTex');
         combinePass.addTexture(dofRadianceName, 'colorTex');
         combinePass.addTexture(cocName, 'cocTex');
-        // combinePass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
+        combinePass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         combinePass
             .addQueue(QueueHint.BLEND)
-            .addCameraQuad(camera, this._dofMaterial, 4);
+            .addFullscreenQuad(this._dofMaterial, 4);
     }
 
     private _addKawaseDualFilterBloomPasses (
@@ -811,7 +811,6 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
     private _addFxaaPass (
         ppl: BasicPipeline,
-        // camera: Camera,
         width: number,
         height: number,
         ldrColorName: string,
