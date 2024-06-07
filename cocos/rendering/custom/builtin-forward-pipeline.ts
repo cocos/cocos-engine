@@ -515,17 +515,18 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                 if (settings.fxaa.enabled) {
                     // FXAA is applied after tone mapping
                     this._addCopyAndTonemapPass(ppl, width, height, radianceName, ldrColorName);
+                    // Apply FXAA
                     if (this._cameraConfigs.enableShadingScale) {
-                        // Doing FXAA on scaled image
+                        // Apply FXAA on scaled image
                         this._addFxaaPass(ppl, width, height, ldrColorName, aaColorName);
                         // Copy AA result to screen
                         lastPass = this._addCopyPass(ppl, nativeWidth, nativeHeight, aaColorName, colorName);
                     } else {
-                        // Image not scaled, output result to screen directly
+                        // Image not scaled, output FXAA result to screen directly
                         lastPass = this._addFxaaPass(ppl, nativeWidth, nativeHeight, ldrColorName, colorName);
                     }
                 } else {
-                    // No FXAA, output HDR result to screen directly (Size might be scaled)
+                    // No FXAA, tonemap HDR result to screen directly (Size might be scaled)
                     lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
                 }
             } else {

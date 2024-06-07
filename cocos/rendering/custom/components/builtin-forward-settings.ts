@@ -20,9 +20,9 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { CCBoolean, CCFloat, cclegacy } from '../../../core';
+import { CCBoolean, CCFloat, CCInteger, cclegacy } from '../../../core';
 import { ccclass, disallowMultiple, executeInEditMode,
-    menu, range, rangeMin, requireComponent, serializable, slide, type } from '../../../core/data/decorators';
+    menu, range, rangeMin, requireComponent, serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { Camera } from '../../../misc/camera-component';
 import { Component } from '../../../scene-graph';
 import { makePipelineSettings, PipelineSettings } from '../settings';
@@ -37,6 +37,27 @@ export class BuiltinPipelineSettings extends Component {
     @serializable
     readonly settings: PipelineSettings = makePipelineSettings();
 
+    // Enable/Disable
+    onEnable (): void {
+        const cameraComponent = this.getComponent(Camera) as Camera;
+        const camera = cameraComponent.camera;
+        camera.pipelineSettings = this.settings;
+
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    onDisable (): void {
+        const cameraComponent = this.getComponent(Camera) as Camera;
+        const camera = cameraComponent.camera;
+        camera.pipelineSettings = null;
+
+        if (EDITOR) {
+            this._disableEditorPreview();
+        }
+    }
+
+    // Editor Preview
     @serializable
     protected _editorPreview = false;
     @property
@@ -63,39 +84,23 @@ export class BuiltinPipelineSettings extends Component {
             cclegacy.rendering.setEditorPipelineSettings(null);
         }
     }
-    // Enable/Disable
-    onEnable (): void {
-        const cameraComponent = this.getComponent(Camera) as Camera;
-        const camera = cameraComponent.camera;
-        camera.pipelineSettings = this.settings;
 
-        if (EDITOR) {
-            this._tryEnableEditorPreview();
-        }
-    }
-    onDisable (): void {
-        const cameraComponent = this.getComponent(Camera) as Camera;
-        const camera = cameraComponent.camera;
-        camera.pipelineSettings = null;
-
-        if (EDITOR) {
-            this._disableEditorPreview();
-        }
-    }
     // Shading Scale
     @type(CCBoolean)
-    set enableShadingScale (value: boolean) {
+    set shadingScaleEnable (value: boolean) {
         this.settings.enableShadingScale = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get enableShadingScale (): boolean {
+    get shadingScaleEnable (): boolean {
         return this.settings.enableShadingScale;
     }
 
-    @rangeMin(0)
-    @type(CCFloat)
+    @tooltip('i18n:postprocess.shadingScale')
+    @slide
+    @range([0.01, 4, 0.01])
+    @property
     set shadingScale (value: number) {
         this.settings.shadingScale = value;
         if (EDITOR) {
@@ -108,31 +113,31 @@ export class BuiltinPipelineSettings extends Component {
 
     // DepthOfField
     @type(CCBoolean)
-    set enableDOF (value: boolean) {
+    set dofEnable (value: boolean) {
         this.settings.depthOfField.enabled = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get enableDOF (): boolean {
+    get dofEnable (): boolean {
         return this.settings.depthOfField.enabled;
     }
 
     @rangeMin(0)
     @type(CCFloat)
-    set focusDistance (value: number) {
+    set dofFocusDistance (value: number) {
         this.settings.depthOfField.focusDistance = value;
     }
-    get focusDistance (): number {
+    get dofFocusDistance (): number {
         return this.settings.depthOfField.focusDistance;
     }
 
     @rangeMin(0)
     @type(CCFloat)
-    set focusRange (value: number) {
+    set dofFocusRange (value: number) {
         this.settings.depthOfField.focusRange = value;
     }
-    get focusRange (): number {
+    get dofFocusRange (): number {
         return this.settings.depthOfField.focusRange;
     }
 
@@ -140,10 +145,80 @@ export class BuiltinPipelineSettings extends Component {
     @range([1, 10, 0.01])
     @rangeMin(1.0)
     @type(CCFloat)
-    set bokehRadius (value: number) {
+    set dofBokehRadius (value: number) {
         this.settings.depthOfField.bokehRadius = value;
     }
-    get bokehRadius (): number {
+    get dofBokehRadius (): number {
         return this.settings.depthOfField.bokehRadius;
+    }
+
+    // Bloom
+    @type(CCBoolean)
+    set bloomEnable (value: boolean) {
+        this.settings.bloom.enabled = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get bloomEnable (): boolean {
+        return this.settings.bloom.enabled;
+    }
+
+    @tooltip('i18n:bloom.enableAlphaMask')
+    @type(CCBoolean)
+    set bloomEnableAlphaMask (value: boolean) {
+        this.settings.bloom.enableAlphaMask = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get bloomEnableAlphaMask (): boolean {
+        return this.settings.bloom.enableAlphaMask;
+    }
+
+    @tooltip('i18n:bloom.iterations')
+    @slide
+    @range([1, 6, 1])
+    @type(CCInteger)
+    set bloomIterations (value: number) {
+        this.settings.bloom.iterations = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get bloomIterations (): number {
+        return this.settings.bloom.iterations;
+    }
+
+    @tooltip('i18n:bloom.threshold')
+    @rangeMin(0)
+    @type(CCFloat)
+    set bloomThreshold (value: number) {
+        this.settings.bloom.threshold = value;
+    }
+    get bloomThreshold (): number {
+        return this.settings.bloom.threshold;
+    }
+
+    @tooltip('i18n:bloom.intensity')
+    @rangeMin(0)
+    @type(CCFloat)
+    set bloomIntensity (value: number) {
+        this.settings.bloom.intensity = value;
+    }
+    get bloomIntensity (): number {
+        return this.settings.bloom.intensity;
+    }
+
+    // FXAA
+    @type(CCBoolean)
+    set fxaaEnable (value: boolean) {
+        this.settings.fxaa.enabled = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get fxaaEnable (): boolean {
+        return this.settings.fxaa.enabled;
     }
 }

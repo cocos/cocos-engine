@@ -71,7 +71,6 @@ export function makeDepthOfField (): DepthOfField {
 export interface Bloom {
     enabled: boolean; /*false*/
     enableAlphaMask: boolean; /*false*/
-    useHdrIlluminance: boolean; /*false*/
     iterations: number; /*3*/
     threshold: number; /*0.8*/
     intensity: number; /*2.3*/
@@ -82,7 +81,6 @@ export function makeBloom (): Bloom {
     return {
         enabled: false,
         enableAlphaMask: false,
-        useHdrIlluminance: false,
         iterations: 3,
         threshold: 0.8,
         intensity: 2.3,
