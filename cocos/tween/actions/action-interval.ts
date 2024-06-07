@@ -120,7 +120,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
     abstract clone (): ActionInterval;
 
     step (dt: number): void {
-        if (this._paused) return;
+        if (this._paused || this._speed === 0) return;
         dt *= this._speed;
         if (this._firstTick) {
             this._firstTick = false;
@@ -592,7 +592,7 @@ export class RepeatForever extends ActionInterval {
     }
 
     step (dt: number): void {
-        if (this._paused) return;
+        if (this._paused || this._speed === 0) return;
         const locInnerAction = this._innerAction;
         if (!locInnerAction) {
             return;
