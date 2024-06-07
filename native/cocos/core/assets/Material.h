@@ -84,6 +84,10 @@ struct IMaterialInfo {
      * 注意在可能的情况下请尽量少的自定义管线状态，以减小对渲染效率的影响。
      */
     ccstd::optional<PassOverridesType> states;
+
+    bool isEmpty() const {
+        return effectAsset == nullptr && !effectName.has_value() && !technique.has_value() && !defines.has_value() && !states.has_value();
+    }
 };
 
 class Material : public Asset {
@@ -221,7 +225,8 @@ public:
      * @param mat The material to be copied.
      * @param overrides The overriding states on top of the original material.
      */
-    void copy(const Material *mat, IMaterialInfo *overrides = nullptr);
+    void copy(const Material *mat, const IMaterialInfo &overrides);
+    inline void copy(const Material *mat) { copy(mat, IMaterialInfo()); }
 
     void fillInfo(const IMaterialInfo &info);
 
@@ -329,20 +334,20 @@ protected:
                 patchArray.emplace_back(*pOneElement);
             }
 
-            cur.resize(patchArray.size());
+            //cur.resize(patchArray.size());
 
             for (size_t i = 0; i < len; ++i) {
-                cur[i] = patchArray[i];
+                cur.emplace_back(patchArray[i]);
             }
         } else {
             auto *pPatchArray = ccstd::get_if<ccstd::vector<T2>>(&patch);
             if (pPatchArray != nullptr) {
                 const auto &patchArray = *pPatchArray;
                 size_t len = patchArray.size();
-                cur.resize(len);
+                //cur.resize(len);
 
                 for (size_t i = 0; i < len; ++i) {
-                    cur[i] = patchArray[i];
+                    cur.emplace_back(patchArray[i]);
                 }
             }
         }
