@@ -2661,7 +2661,7 @@ test('update 3', function () {
     director.unregisterSystem(sys);
 });
 
-test('Tween.startAt(time)', function () {
+test('Tween.start(time)', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -2690,7 +2690,7 @@ test('Tween.startAt(time)', function () {
         .set({ position: v3(0, 0, 0) })
         .union()
         .repeat(2)
-        .startAt(1.5);
+        .start(1.5);
     
     runFrames(1);
     expect(firstCalled).toBeTruthy();
@@ -2752,7 +2752,7 @@ test('Tween.startAt(time)', function () {
     director.unregisterSystem(sys);
 });
 
-test('Tween.startAt(time) negative time', function () {
+test('Tween.start(time) negative time', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -2762,7 +2762,7 @@ test('Tween.startAt(time) negative time', function () {
 
     tween(node)
         .to(1, { position: v3(90, 90, 90) })
-        .startAt(-100);
+        .start(-100);
 
     // Start
     runFrames(1);
@@ -2781,7 +2781,7 @@ test('Tween.startAt(time) negative time', function () {
     director.unregisterSystem(sys);
 });
 
-test('Tween.startAt(time) time larger than duration', function () {
+test('Tween.start(time) time larger than duration', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -2791,7 +2791,7 @@ test('Tween.startAt(time) time larger than duration', function () {
 
     tween(node)
         .to(1, { position: v3(90, 90, 90) })
-        .startAt(1000);
+        .start(1000);
 
     // Start
     runFrames(1);
