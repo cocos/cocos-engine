@@ -31,7 +31,7 @@ import {
 import { removeSelf, show, hide, callFunc, TCallFuncCallback } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
-import { TweenAction } from './tween-action';
+import { IInternalTweenOption, TweenAction } from './tween-action';
 import { SetAction } from './set-action';
 import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph';
@@ -262,24 +262,13 @@ export class Tween<T extends object = any> {
     }
 
     /**
-     * @en
-     * Start this tween.
-     * @zh
-     * 运行当前 tween。
-     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
-     */
-    start (): Tween<T> {
-        return this.startAt(0);
-    }
-
-    /**
      * @en Start tween from a specific time, all actions before the time will be executed and finished immediately.
      * @zh 从指定时间开始执行当前缓动，此时间前的所有缓动将被立马执行完毕。
-     * @param time @en The time (unit: seconds) to start to execute the current tween.
-     *             @zh 要执行当前缓动的开始时间，单位为秒。
+     * @param time @en The time (unit: seconds) to start to execute the current tween. Default value: 0.
+     *             @zh 要执行当前缓动的开始时间，单位为秒。默认值为 0。
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
-    startAt (time: number): Tween<T> {
+    start (time: number = 0): Tween<T> {
         if (!this._target) {
             warn('Please set target to tween first');
             return this;
@@ -410,9 +399,9 @@ export class Tween<T extends object = any> {
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     to (duration: number, props: ConstructorType<T>, opts?: ITweenOption<T>): Tween<T> {
-        opts = opts || (Object.create(null) as ITweenOption<T>);
-        opts.relative = false;
-        const action = new TweenAction(duration, props, opts);
+        const options = (opts || Object.create(null)) as IInternalTweenOption<T>;
+        options.relative = false;
+        const action = new TweenAction(duration, props, options);
         this._actions.push(action);
         return this;
     }
@@ -431,9 +420,9 @@ export class Tween<T extends object = any> {
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
     by (duration: number, props: ConstructorType<T>, opts?: ITweenOption<T>): Tween<T> {
-        opts = opts || (Object.create(null) as ITweenOption<T>);
-        opts.relative = true;
-        const action = new TweenAction(duration, props, opts);
+        const options = (opts || Object.create(null)) as IInternalTweenOption<T>;
+        options.relative = true;
+        const action = new TweenAction(duration, props, options);
         this._actions.push(action);
         return this;
     }

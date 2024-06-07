@@ -92,16 +92,26 @@ function TweenOptionChecker<T> (opts: ITweenOption<T>): void {
     }
 }
 
+export interface IInternalTweenOption<T> extends ITweenOption<T> {
+    /**
+     * @en
+     * Whether to use relative value calculation method during easing process
+     * @zh
+     * 缓动过程中是否采用相对值计算的方法
+     */
+    relative?: boolean;
+}
+
 export class TweenAction<T> extends ActionInterval {
-    private _opts: ITweenOption<T> | undefined;
+    private _opts: IInternalTweenOption<T>;
     private _props: any;
     private _originProps: any;
     private _reversed = false;
 
-    constructor (duration: number, props: any, opts?: ITweenOption<T>) {
+    constructor (duration: number, props: any, opts?: IInternalTweenOption<T>) {
         super();
         if (opts == null) {
-            opts = Object.create(null);
+            opts = Object.create(null) as IInternalTweenOption<T>;
         } else {
             /** checker */
             TweenOptionChecker(opts);
@@ -163,7 +173,7 @@ export class TweenAction<T> extends ActionInterval {
     }
 
     get relative (): boolean {
-        return !!this._opts!.relative;
+        return !!this._opts.relative;
     }
 
     clone (): TweenAction<T> {
@@ -176,7 +186,7 @@ export class TweenAction<T> extends ActionInterval {
     }
 
     reverse (): TweenAction<T> {
-        if (!this._opts!.relative) {
+        if (!this._opts.relative) {
             warn('reverse: could not reverse a non-relative action');
             return new TweenAction<T>(0, {});
         }
@@ -195,7 +205,7 @@ export class TweenAction<T> extends ActionInterval {
 
         const workerTarget = (this.workerTarget ?? this.target) as T;
         if (!workerTarget) return;
-        const relative = !!this._opts!.relative;
+        const relative = !!this._opts.relative;
         const props = this._props;
         const reversed = this._reversed;
         for (const property in props) {
@@ -232,7 +242,7 @@ export class TweenAction<T> extends ActionInterval {
             }
         }
 
-        if (this._opts!.onStart) { this._opts!.onStart(workerTarget); }
+        if (this._opts.onStart) { this._opts.onStart(workerTarget); }
     }
 
     update (t: number): void {
