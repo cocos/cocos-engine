@@ -20,7 +20,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { CCFloat, cclegacy } from '../../../core';
+import { CCBoolean, CCFloat, cclegacy } from '../../../core';
 import { ccclass, disallowMultiple, executeInEditMode,
     menu, range, rangeMin, requireComponent, serializable, slide, type } from '../../../core/data/decorators';
 import { Camera } from '../../../misc/camera-component';
@@ -34,7 +34,8 @@ import { property } from '../../../core/data/decorators/property';
 @disallowMultiple
 @executeInEditMode
 export class BuiltinPipelineSettings extends Component {
-    settings: PipelineSettings = makePipelineSettings();
+    @serializable
+    readonly settings: PipelineSettings = makePipelineSettings();
 
     @serializable
     protected _editorPreview = false;
@@ -68,9 +69,6 @@ export class BuiltinPipelineSettings extends Component {
         const camera = cameraComponent.camera;
         camera.pipelineSettings = this.settings;
 
-        this.settings.bloom.enabled = true;
-        this.settings.depthOfField.enabled = true;
-
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
@@ -84,7 +82,42 @@ export class BuiltinPipelineSettings extends Component {
             this._disableEditorPreview();
         }
     }
+    // Shading Scale
+    @type(CCBoolean)
+    set enableShadingScale (value: boolean) {
+        this.settings.enableShadingScale = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get enableShadingScale (): boolean {
+        return this.settings.enableShadingScale;
+    }
+
+    @rangeMin(0)
+    @type(CCFloat)
+    set shadingScale (value: number) {
+        this.settings.shadingScale = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get shadingScale (): number {
+        return this.settings.shadingScale;
+    }
+
     // DepthOfField
+    @type(CCBoolean)
+    set enableDOF (value: boolean) {
+        this.settings.depthOfField.enabled = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get enableDOF (): boolean {
+        return this.settings.depthOfField.enabled;
+    }
+
     @rangeMin(0)
     @type(CCFloat)
     set focusDistance (value: number) {

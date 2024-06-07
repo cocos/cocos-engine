@@ -128,6 +128,8 @@ export function makeFXAA (): FXAA {
 }
 
 export interface PipelineSettings {
+    enableShadingScale: boolean; /*false*/
+    shadingScale: number; /*0.5*/
     readonly depthOfField: DepthOfField;
     readonly bloom: Bloom;
     readonly colorGrading: ColorGrading;
@@ -138,6 +140,8 @@ export interface PipelineSettings {
 
 export function makePipelineSettings (): PipelineSettings {
     return {
+        enableShadingScale: false,
+        shadingScale: 0.5,
         depthOfField: makeDepthOfField(),
         bloom: makeBloom(),
         colorGrading: makeColorGrading(),

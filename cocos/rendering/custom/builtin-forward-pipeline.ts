@@ -250,7 +250,6 @@ class PipelineConfigs {
     isMobile = false;
     isHDR = false;
     useFloatOutput = false;
-    shadingScale = 1.0;
     toneMappingType = 0; // 0: ACES, 1: None
     shadowMapFormat = Format.R32F;
     shadowMapSize = new Vec2(1, 1);
@@ -269,7 +268,6 @@ function setupPipelineConfigs (
     configs.isMobile = sys.isMobile;
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
-    configs.shadingScale = ppl.pipelineSceneData.shadingScale;
     configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
     configs.shadowMapFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
     configs.shadowMapSize.set(ppl.pipelineSceneData.shadows.size);
@@ -285,6 +283,8 @@ class CameraConfigs {
     enableShadowMap = false;
     enablePostProcess = false;
     enableProfiler = false;
+    enableShadingScale = false;
+    shadingScale = 0.5;
     pipelineSettings: PipelineSettings | null = null;
 }
 
@@ -312,6 +312,12 @@ function setupCameraConfigs (
             cameraConfigs.enablePostProcess = false;
         }
     }
+
+    cameraConfigs.enableShadingScale = cameraConfigs.pipelineSettings !== null
+        && cameraConfigs.pipelineSettings.enableShadingScale;
+    cameraConfigs.shadingScale = cameraConfigs.pipelineSettings !== null
+        ? cameraConfigs.pipelineSettings.shadingScale
+        : 1.0;
 }
 
 export class BuiltinForwardPipeline implements PipelineBuilder {
@@ -343,15 +349,30 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     //----------------------------------------------------------------
     // Interface
     //----------------------------------------------------------------
-    windowResize (ppl: BasicPipeline, window: RenderWindow, camera: Camera, width: number, height: number): void {
+    windowResize (ppl: BasicPipeline, window: RenderWindow, camera: Camera, nativeWidth: number, nativeHeight: number): void {
         setupPipelineConfigs(ppl, this._configs);
         setupCameraConfigs(camera, this._configs, this._cameraConfigs);
         const settings = this._cameraConfigs.pipelineSettings;
-
         const id = window.renderWindowId;
 
-        // Render Window
-        ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);
+        const width = this._cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeWidth * this._cameraConfigs.shadingScale), 1)
+            : nativeWidth;
+        const height = this._cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeHeight * this._cameraConfigs.shadingScale), 1)
+            : nativeHeight;
+
+        // Render Window (UI)
+        ppl.addRenderWindow(window.colorName, Format.BGRA8, nativeWidth, nativeHeight, window);
+
+        // Radiance
+        if (this._configs.useFloatOutput) {
+            ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
+        } else if (this._cameraConfigs.enableShadingScale) {
+            ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
+        } else {
+            // Reuse render window
+        }
         ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
 
         // Mainlight ShadowMap
@@ -387,17 +408,14 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
             }
         }
 
-        // Float Radiance
-        if (this._configs.useFloatOutput) {
-            ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
-        }
-
         // Post Process
         if (this._cameraConfigs.enablePostProcess && settings != null) {
             // Ldr Color
-            if (settings.fxaa.enabled
-                || settings.depthOfField.enabled) {
+            if (settings.fxaa.enabled || settings.depthOfField.enabled) {
                 ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
+            }
+            if (settings.fxaa.enabled && this._cameraConfigs.enableShadingScale) {
+                ppl.addRenderTarget(`AaColor${id}`, Format.RGBA8, width, height);
             }
             // DepthOfField
             if (settings.depthOfField.enabled) {
@@ -455,14 +473,21 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
     ): void {
         // Init
         const settings = this._cameraConfigs.pipelineSettings;
-        const width = Math.max(Math.floor(camera.window.width), 1);
-        const height = Math.max(Math.floor(camera.window.height), 1);
+        const nativeWidth = Math.max(Math.floor(camera.window.width), 1);
+        const nativeHeight = Math.max(Math.floor(camera.window.height), 1);
+        const width = this._cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeWidth * this._cameraConfigs.shadingScale), 1)
+            : nativeWidth;
+        const height = this._cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeHeight * this._cameraConfigs.shadingScale), 1)
+            : nativeHeight;
         const id = camera.window.renderWindowId;
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
         const dofRadianceName = `DofRadiance${id}`;
         const radianceName = `Radiance${id}`;
         const ldrColorName = `LdrColor${id}`;
+        const aaColorName = `AaColor${id}`;
         const mainLight = scene.mainLight;
 
         // Forward Lighting (Light Culling)
@@ -475,8 +500,9 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Forward Lighting
         let lastPass: BasicRenderPassBuilder;
-        if (this._configs.useFloatOutput) {
+        if (this._configs.useFloatOutput) { // HDR
             if (this._cameraConfigs.enablePostProcess && settings != null) {
+                // Post Process
                 if (this._configs.supportDepthSample && settings.depthOfField.enabled) {
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, dofRadianceName, depthStencilName);
                     this._addDepthOfFieldPasses(ppl, settings, id, camera, width, height, dofRadianceName, depthStencilName, radianceName);
@@ -487,18 +513,33 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                     this._addKawaseDualFilterBloomPasses(ppl, settings, id, width, height, radianceName);
                 }
                 if (settings.fxaa.enabled) {
+                    // FXAA is applied after tone mapping
                     this._addCopyAndTonemapPass(ppl, width, height, radianceName, ldrColorName);
-                    lastPass = this._addFxaaPass(ppl, width, height, ldrColorName, colorName);
+                    if (this._cameraConfigs.enableShadingScale) {
+                        // Doing FXAA on scaled image
+                        this._addFxaaPass(ppl, width, height, ldrColorName, aaColorName);
+                        // Copy AA result to screen
+                        lastPass = this._addCopyPass(ppl, nativeWidth, nativeHeight, aaColorName, colorName);
+                    } else {
+                        // Image not scaled, output result to screen directly
+                        lastPass = this._addFxaaPass(ppl, nativeWidth, nativeHeight, ldrColorName, colorName);
+                    }
                 } else {
-                    lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
+                    // No FXAA, output HDR result to screen directly (Size might be scaled)
+                    lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
                 }
             } else {
+                // No post process, output HDR result to screen directly (Size might be scaled)
                 this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
-                lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
+                lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
             }
-        } else {
-            lastPass = this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, colorName, depthStencilName);
+        } else if (this._cameraConfigs.enableShadingScale) { // LDR (Size is scaled)
+            this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
+            lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
+        } else { // LDR (Size is not scaled)
+            lastPass = this._addForwardRadiancePasses(ppl, id, camera, nativeWidth, nativeHeight, mainLight, colorName, depthStencilName);
         }
+        // UI size is not scaled, does not have AA
         this._addUIQueue(camera, lastPass);
     }
 
@@ -509,9 +550,15 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
         scene: RenderScene,
     ): void {
         // Init
-        const settings = this._cameraConfigs.pipelineSettings;
-        const width = Math.max(Math.floor(camera.window.width), 1);
-        const height = Math.max(Math.floor(camera.window.height), 1);
+        const nativeWidth = Math.max(Math.floor(camera.window.width), 1);
+        const nativeHeight = Math.max(Math.floor(camera.window.height), 1);
+        const width = this._cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeWidth * this._cameraConfigs.shadingScale), 1)
+            : nativeWidth;
+        const height = this._cameraConfigs.enableShadingScale
+            ? Math.max(Math.floor(nativeHeight * this._cameraConfigs.shadingScale), 1)
+            : nativeHeight;
+
         const id = camera.window.renderWindowId;
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
@@ -533,11 +580,11 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
 
         // Forward Lighting
         let lastPass: BasicRenderPassBuilder;
-        if (this._configs.useFloatOutput) {
+        if (this._configs.useFloatOutput || this._cameraConfigs.enableShadingScale) {
             this._addMobileForwardRadiancePass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-            lastPass = this._addCopyAndTonemapPass(ppl, width, height, radianceName, colorName);
+            lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
         } else {
-            lastPass = this._addMobileForwardRadiancePass(ppl, id, camera, width, height, colorName, depthStencilName, mainLight);
+            lastPass = this._addMobileForwardRadiancePass(ppl, id, camera, nativeWidth, nativeHeight, colorName, depthStencilName, mainLight);
         }
         this._addUIQueue(camera, lastPass);
     }
@@ -579,6 +626,22 @@ export class BuiltinForwardPipeline implements PipelineBuilder {
                 .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER)
                 .useLightFrustum(light, level);
         }
+    }
+
+    private _addCopyPass (
+        ppl: BasicPipeline,
+        width: number,
+        height: number,
+        input: string,
+        output: string,
+    ): BasicRenderPassBuilder {
+        const pass = ppl.addRenderPass(width, height, 'post-copy');
+        pass.addRenderTarget(output, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        pass.addTexture(input, 'inputTexture');
+        pass.setVec4('g_platform', this._configs.g_platform);
+        pass.addQueue(QueueHint.OPAQUE)
+            .addFullscreenQuad(this._copyAndTonemapMaterial, 2);
+        return pass;
     }
 
     private _addCopyAndTonemapPass (
