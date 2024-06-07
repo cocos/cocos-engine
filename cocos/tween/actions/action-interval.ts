@@ -570,6 +570,7 @@ export class RepeatForever extends ActionInterval {
         }
 
         this._innerAction = action;
+        this._duration = Infinity;
         return true;
     }
 
