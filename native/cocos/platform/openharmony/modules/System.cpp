@@ -36,7 +36,12 @@ System::OSType System::getOSType() const {
 }
 
 std::string System::getDeviceModel() const {
-    return "";
+    std::string str;
+    auto ret = NapiHelper::napiCallFunction("getDeviceModel");
+    if (ret.IsString()) {
+        str = ret.As<Napi::String>().Utf8Value();
+    }
+    return str;
 }
 
 System::LanguageType System::getCurrentLanguage() const {

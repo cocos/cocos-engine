@@ -16,6 +16,7 @@ interface context {
   shouldStartLoading: (viewTag: number, url: string) => void;
   finishLoading: (viewTag: number, url: string) => void;
   failLoading: (viewTag: number, url: string) => void;
+  onVideoEvent(videoTag: number, ev: number, args: number);
   onBackPress: () => void;
   onCreate: () => void;
   onDestroy: () => void;

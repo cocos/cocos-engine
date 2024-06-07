@@ -290,8 +290,7 @@ struct Index {
           let index = this.videoIndexMap.get(video?.tag as number) as number;
           let resourceType = video.resourceType;
           if (resourceType == 1) {
-            let url = "Resources/" +  video.url as string;
-            this.videoArray[index].url = $rawfile(url);
+            this.videoArray[index].url = $rawfile(video.url as string);
           } else {
             this.videoArray[index].url = video.url as string;
           }
@@ -307,7 +306,11 @@ struct Index {
         }
         case "startVideo": {
           let index = this.videoIndexMap.get(msg.param as number) as number;
-          this.videoArray[index].controller.start();
+          if (this.videoArray[index].duration) {
+            this.videoArray[index].controller.start();
+          } else {
+            this.videoArray[index].isPreparedStart = true;
+          }
           break;
         }
         case "pauseVideo": {
@@ -377,6 +380,13 @@ struct Index {
   onPageHide(): void {
     console.log('[LIFECYCLE-Page] cocos onPageHide');
     nativePageLifecycle.onPageHide();
+  }
+
+  onBackPress() {
+    console.log("[LIFECYCLE-Page] cocos onBackPress");
+    this.workPort.postMessage("backPress", "");
+    // If disable system exit needed, remove comment "return true"
+    // return true;
   }
 
   build() {

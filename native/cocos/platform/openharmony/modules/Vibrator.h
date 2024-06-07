@@ -22,21 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-export enum ContextType {
-    APP_LIFECYCLE = 0,
-    JSPAGE_LIFECYCLE,
-    XCOMPONENT_CONTEXT,
-    XCOMPONENT_REGISTER_LIFECYCLE_CALLBACK,
-    NATIVE_RENDER_API,
-    WORKER_INIT,
-    ENGINE_UTILS,
-    EDITBOX_UTILS,
-    WEBVIEW_UTILS,
-    DISPLAY_UTILS,
-    UV_ASYNC_SEND,
-    VIDEO_UTILS,
-}
 
-export class Constants {
-    static readonly APP_KEY_WORKER_MANAGER = "app_key_worker_manager";
-}
+#pragma once
+
+#include "platform/interfaces/modules/IVibrator.h"
+
+namespace cc {
+
+class Vibrator : public IVibrator {
+public:
+    void vibrate(float duration) override;
+};
+
+} // namespace cc

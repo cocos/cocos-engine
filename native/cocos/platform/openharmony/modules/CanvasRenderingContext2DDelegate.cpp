@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "platform/openharmony/modules/CanvasRenderingContext2DDelegate.h"
+#include "platform/openharmony/FileUtils-openharmony.h"
 #include "platform/openharmony/OpenHarmonyPlatform.h"
 #include <native_drawing/drawing_text_typography.h>
 #include <native_drawing/drawing_canvas.h>
@@ -31,6 +32,7 @@
 #include <native_drawing/drawing_types.h>
 #include <native_drawing/drawing_path.h>
 #include <native_drawing/drawing_brush.h>
+#include <native_drawing/drawing_register_font.h>
 
 namespace cc {
 class CanvasRenderingContext2DDelegate::ScopedTypography {
@@ -54,6 +56,17 @@ CanvasRenderingContext2DDelegate::CanvasRenderingContext2DDelegate() {
     OH_Drawing_SetTypographyTextAlign(_typographyStyle, TEXT_ALIGN_LEFT);
 
     _fontCollection = OH_Drawing_CreateFontCollection();
+    // Register TTF
+    const auto& fontInfoMap = getFontFamilyNameMap();
+    for (auto fontInfo : fontInfoMap) {
+        std::string fontName = fontInfo.first;
+        std::string fontPath = fontInfo.second;
+        Data bufferData = FileUtils::getInstance()->getDataFromFile(fontPath);
+        if (bufferData.isNull()) {
+            continue;
+        }
+        OH_Drawing_RegisterFontBuffer(_fontCollection, fontName.c_str(), bufferData.getBytes(), bufferData.getSize());
+    }
     _typographyCreate = OH_Drawing_CreateTypographyHandler(_typographyStyle, _fontCollection);
     _textStyle = OH_Drawing_CreateTextStyle();
 }

@@ -38,9 +38,14 @@
 #include "audio/android/AudioPlayerProvider.h"
 #include "audio/android/ICallerThreadUtils.h"
 #include "audio/android/PcmAudioPlayer.h"
-#include "audio/android/PcmAudioService.h"
-#include "audio/android/UrlAudioPlayer.h"
 #include "audio/android/utils/Utils.h"
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#include "audio/android/UrlAudioPlayer.h"
+#include "audio/android/PcmAudioService.h"
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+#include "audio/openharmony/UrlAudioPlayer.h"
+#include "audio/openharmony/PcmAudioService.h"
+#endif
 #include "base/ThreadPool.h"
 #include "base/memory/Memory.h"
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
@@ -87,6 +92,7 @@ static AudioFileIndicator gAudioFileIndicator[] = {
     {".ogg", 128000},
     {".mp3", 160000}};
 
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
 AudioPlayerProvider::AudioPlayerProvider(SLEngineItf engineItf, SLObjectItf outputMixObject,
                                          int deviceSampleRate, int bufferSizeInFrames,
                                          const FdGetterCallback &fdGetterCallback, //NOLINT(modernize-pass-by-value)
@@ -102,6 +108,20 @@ AudioPlayerProvider::AudioPlayerProvider(SLEngineItf engineItf, SLObjectItf outp
 
     ALOG_ASSERT(callerThreadUtils != nullptr, "Caller thread utils parameter should not be nullptr!");
 }
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+AudioPlayerProvider::AudioPlayerProvider(SLEngineItf engineItf, int deviceSampleRate,
+                                         const FdGetterCallback &fdGetterCallback, 
+                                         ICallerThreadUtils *callerThreadUtils)
+        : _engineItf(engineItf), _deviceSampleRate(deviceSampleRate), _fdGetterCallback(fdGetterCallback),
+          _callerThreadUtils(callerThreadUtils), _pcmAudioService(nullptr), 
+          _mixController(nullptr), _threadPool(LegacyThreadPool::newCachedThreadPool(1, 8, 5, 2, 2)) 	{
+    _mixController = new AudioMixerController(_deviceSampleRate, 2);
+    _pcmAudioService = new PcmAudioService();
+    _pcmAudioService->init(_mixController, 2, deviceSampleRate, &_bufferSizeInFrames);
+    _mixController->init(_bufferSizeInFrames);
+    ALOG_ASSERT(callerThreadUtils != nullptr, "Caller thread utils parameter should not be nullptr!");
+}
+#endif
 
 AudioPlayerProvider::~AudioPlayerProvider() {
     ALOGV("~AudioPlayerProvider()");
@@ -378,12 +398,15 @@ AudioPlayerProvider::AudioFileInfo AudioPlayerProvider::getFileInfo(
 }
 
 bool AudioPlayerProvider::isSmallFile(const AudioFileInfo &info) { //NOLINT(readability-convert-member-functions-to-static)
-#if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    // TODO(qgh): OpenHarmony system does not support this function yet
-    return true;
-#endif
-    //REFINE: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
+    // REFINE: If file size is smaller than 100k, we think it's a small file. This value should be set by developers.
     auto &audioFileInfo = const_cast<AudioFileInfo &>(info);
+    
+    #if CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    if(audioFileInfo.url[0] == '/') {
+        // avplayer does not support playing audio files in sandbox path currently.
+        return true;
+    }
+    #endif
     size_t judgeCount = sizeof(gAudioFileIndicator) / sizeof(gAudioFileIndicator[0]);
     size_t pos = audioFileInfo.url.rfind('.');
     ccstd::string extension;
@@ -451,15 +474,18 @@ UrlAudioPlayer *AudioPlayerProvider::createUrlAudioPlayer(
     }
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     SLuint32 locatorType = info.assetFd->getFd() > 0 ? SL_DATALOCATOR_ANDROIDFD : SL_DATALOCATOR_URI;
-#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-    SLuint32 locatorType = SL_DATALOCATOR_URI;
-#endif
-
     auto    *urlPlayer   = new (std::nothrow) UrlAudioPlayer(_engineItf, _outputMixObject, _callerThreadUtils);
     bool     ret         = urlPlayer->prepare(info.url, locatorType, info.assetFd, info.start, info.length);
     if (!ret) {
         SL_SAFE_DELETE(urlPlayer);
     }
+#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+    auto *urlPlayer = new (std::nothrow) UrlAudioPlayer(_callerThreadUtils);
+    bool ret = urlPlayer->prepare(info.url, info.assetFd, info.start, info.length);
+    if (!ret) {
+        SL_SAFE_DELETE(urlPlayer);
+    }
+#endif
     return urlPlayer;
 }
 

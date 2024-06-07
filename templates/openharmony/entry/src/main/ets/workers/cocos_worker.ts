@@ -52,6 +52,7 @@ nativeContext.workerInit()
 
 const nativeEditBox = cocos.getContext(ContextType.EDITBOX_UTILS);
 const nativeWebView = cocos.getContext(ContextType.WEBVIEW_UTILS);
+const appLifecycle = cocos.getContext(ContextType.APP_LIFECYCLE);
 const nativeVideo = cocos.getContext(ContextType.VIDEO_UTILS);
 
 let uiPort = new PortProxy(worker.workerPort);
@@ -111,11 +112,10 @@ uiPort._messageHandle = function (e) {
       nativeWebView.failLoading(msg.param.viewTag, msg.param.url);
       break;
     case "onVideoEvent":
-      // @ts-ignore
-      if (globalThis.oh && typeof globalThis.oh.onVideoEvent === "function") {
-        // @ts-ignore
-        globalThis.oh.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
-      }
+      nativeVideo.onVideoEvent(msg.param.videoTag, msg.param.videoEvent, msg.param.args);
+      break;
+    case "backPress":
+      appLifecycle.onBackPress();
       break;
     default:
       console.error("cocos worker: message type unknown");

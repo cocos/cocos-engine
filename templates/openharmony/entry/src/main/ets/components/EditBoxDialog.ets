@@ -50,6 +50,7 @@ export struct EditBoxDialog {
     Column() {
       Row() {
         TextInput({ text: this.showInfo.defaultMessage })
+          .defaultFocus(true)
           .backgroundColor(this.showInfo.backgroundColor)
           .type(this.showInfo.type)
           .maxLength(this.showInfo.maxLength)

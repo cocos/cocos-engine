@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2022-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2023 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -22,21 +22,23 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 ****************************************************************************/
-export enum ContextType {
-    APP_LIFECYCLE = 0,
-    JSPAGE_LIFECYCLE,
-    XCOMPONENT_CONTEXT,
-    XCOMPONENT_REGISTER_LIFECYCLE_CALLBACK,
-    NATIVE_RENDER_API,
-    WORKER_INIT,
-    ENGINE_UTILS,
-    EDITBOX_UTILS,
-    WEBVIEW_UTILS,
-    DISPLAY_UTILS,
-    UV_ASYNC_SEND,
-    VIDEO_UTILS,
+
+#include "platform/openharmony/modules/Network.h"
+#include "platform/openharmony/napi/NapiHelper.h"
+
+namespace cc {
+INetwork::NetworkType Network::getNetworkType() const {
+    auto value = NapiHelper::napiCallFunction("getNetworkType");
+    int32_t result;
+    if (value.IsNumber()) {
+        result = value.As<Napi::Number>().Int32Value();
+    }
+    if(result == 0) {
+        return NetworkType::WWAN;
+    } else if(result == 1 or result == 3) {
+        return NetworkType::LAN;
+    }
+    return NetworkType::NONE;
 }
 
-export class Constants {
-    static readonly APP_KEY_WORKER_MANAGER = "app_key_worker_manager";
-}
+} // namespace cc

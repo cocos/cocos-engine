@@ -68,11 +68,10 @@ namespace {
 AudioEngineImpl *gAudioImpl = nullptr;
 int outputSampleRate = 44100;
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-int              bufferSizeInFrames = 192;
+int bufferSizeInFrames = 192;
 #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
-// TODO(hack) : There is currently a bug in the opensles module,
-// so openharmony must configure a fixed size, otherwise the callback will be suspended
-int              bufferSizeInFrames = 2048;
+// Fixed size in openharmony, only used for audio decoding.
+int bufferSizeInFrames = 2048;
 #endif
 
 void getAudioInfo() {
@@ -194,6 +193,7 @@ bool AudioEngineImpl::init() {
             break;
         }
 
+        #if CC_PLATFORM == CC_PLATFORM_ANDROID
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
         const SLboolean outputMixReqs[] = {};
@@ -209,9 +209,10 @@ bool AudioEngineImpl::init() {
             CC_LOG_ERROR("realize the output mix fail");
             break;
         }
-
-        _audioPlayerProvider = ccnew AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
-
+		_audioPlayerProvider = ccnew AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
+        #elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+        _audioPlayerProvider = ccnew AudioPlayerProvider(_engineEngine, outputSampleRate, fdGetter, &gCallerThreadUtils);
+        #endif
         ret = true;
     } while (false);
 
@@ -229,9 +230,14 @@ int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volu
     auto audioId = AudioEngine::INVALID_AUDIO_ID;
 
     do {
+        #if CC_PLATFORM == CC_PLATFORM_ANDROID
         if (_engineEngine == nullptr || _audioPlayerProvider == nullptr) {
             break;
         }
+		#elif CC_PLATFORM == CC_PLATFORM_OPENHARMONY
+        if (_audioPlayerProvider == nullptr)
+            break;
+        #endif
 
         auto fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
 

@@ -34,12 +34,11 @@
 
 #include "platform/openharmony/modules/SystemWindow.h"
 #include "platform/openharmony/modules/SystemWindowManager.h"
-
-#include "platform/empty/modules/Accelerometer.h"
-#include "platform/empty/modules/Battery.h"
-#include "platform/empty/modules/Network.h"
-#include "platform/empty/modules/Screen.h"
-#include "platform/empty/modules/Vibrator.h"
+#include "platform/openharmony/modules/Network.h"
+#include "platform/openharmony/modules/Battery.h"
+#include "platform/openharmony/modules/Accelerometer.h"
+#include "platform/openharmony/modules/Screen.h"
+#include "platform/openharmony/modules/Vibrator.h"
 #include "platform/openharmony/modules/System.h"
 
 #include <chrono>
