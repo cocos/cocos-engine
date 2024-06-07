@@ -317,6 +317,7 @@ protected:
     bool uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val);
     void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index = 0);
 
+    void prepareInfo(const cc::IMaterialInfo::DefinesType &patch, ccstd::vector<MacroRecord> &curr);
     template <typename T1, typename T2>
     void prepareInfo(const T1 &patch, ccstd::vector<T2> &cur) {
         auto *pOneElement = ccstd::get_if<T2>(&patch);
