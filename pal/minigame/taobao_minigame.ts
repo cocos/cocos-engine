@@ -50,7 +50,7 @@ minigame.isDevTool = my.isIDE;
 
 Object.defineProperty(minigame, 'isLandscape', {
     get () {
-        const windowInfo = minigame.getWindowInfoSync();
+        const windowInfo = my.getWindowInfoSync();
         return windowInfo.windowWidth > windowInfo.windowHeight;
     },
 });
