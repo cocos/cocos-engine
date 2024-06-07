@@ -597,6 +597,7 @@ export class RepeatForever extends ActionInterval {
         if (!locInnerAction) {
             return;
         }
+        dt *= this._speed;
         locInnerAction.step(dt);
         if (locInnerAction.isDone()) {
             // var diff = locInnerAction.getElapsed() - locInnerAction.getDurationScaled();
