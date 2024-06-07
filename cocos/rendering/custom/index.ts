@@ -45,7 +45,6 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 export * from './framework';
-export * from './components/builtin-forward-settings';
 
 export const enableEffectImport = true;
 export const programLib: ProgramLibrary = new WebProgramLibrary(defaultLayoutGraph);

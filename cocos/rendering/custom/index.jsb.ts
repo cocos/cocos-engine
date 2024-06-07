@@ -34,7 +34,6 @@ export * from './types';
 export * from './pipeline';
 export * from './archive';
 export * from './framework';
-export * from './components/builtin-forward-settings';
 
 let _pipeline: Pipeline | null = null;
 
