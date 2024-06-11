@@ -370,11 +370,11 @@ export interface Setter extends RenderNode {
      */
     setTexture (name: string, texture: Texture): void;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     setReadWriteBuffer (name: string, buffer: Buffer): void;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     setReadWriteTexture (name: string, texture: Texture): void;
     /**
@@ -394,7 +394,7 @@ export interface Setter extends RenderNode {
      */
     setBuiltinCameraConstants (camera: Camera): void;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Same as setBuiltinDirectionalLightConstants
      * @zh 同setBuiltinDirectionalLightConstants
      * @param light @en The main light. @zh 主光
@@ -502,7 +502,7 @@ export interface SceneBuilder extends Setter {
  */
 export interface RenderQueueBuilder extends Setter {
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Render the scene the camera is looking at.
      * @zh 渲染当前相机指向的场景。
      * @param camera @en Required camera @zh 所需相机
@@ -654,7 +654,7 @@ export interface BasicRenderPassBuilder extends Setter {
      */
     setViewport (viewport: Viewport): void;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     setVersion (name: string, version: number): void;
     /**
@@ -750,7 +750,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         renderWindow: RenderWindow): number;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update render window information.
      * When render window information is updated, such as resized, user should notify the pipeline.
      * @zh 更新渲染窗口信息。当渲染窗口发生更新时，用户应通知管线。
@@ -790,7 +790,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         residency?: ResourceResidency): number;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update render target information.
      * @zh 更新渲染目标的信息
      * @param name @en Resource name @zh 资源名字
@@ -804,7 +804,7 @@ export interface BasicPipeline extends PipelineRuntime {
         height: number,
         format?: Format): void;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update depth stencil information.
      * @zh 更新深度模板缓冲的信息
      * @param name @en Resource name @zh 资源名字
@@ -832,7 +832,7 @@ export interface BasicPipeline extends PipelineRuntime {
         flags: ResourceFlags,
         residency: ResourceResidency): number;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update buffer information.
      * @zh 更新缓冲的信息
      * @param name @en Resource name @zh 资源名字
@@ -853,7 +853,7 @@ export interface BasicPipeline extends PipelineRuntime {
         texture: Texture,
         flags: ResourceFlags): number;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update external texture information.
      * @zh 更新外部的贴图信息
      * @param name @en Resource name @zh 资源名字
@@ -889,7 +889,7 @@ export interface BasicPipeline extends PipelineRuntime {
         flags: ResourceFlags,
         residency: ResourceResidency): number;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update texture information.
      * @zh 更新贴图信息
      * @param name @en Resource name @zh 资源名字
@@ -939,7 +939,7 @@ export interface BasicPipeline extends PipelineRuntime {
         flags: ResourceFlags,
         residency: ResourceResidency): number;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update resource information.
      * @zh 更新资源信息
      * @param name @en Resource name @zh 资源名字
@@ -1009,7 +1009,7 @@ export interface BasicPipeline extends PipelineRuntime {
         quality: number,
         passName?: string): BasicMultisampleRenderPassBuilder;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     addResolvePass (resolvePairs: ResolvePair[]): void;
     /**
@@ -1709,133 +1709,4 @@ export interface RenderingModule {
     getPassID (name: string): number;
     getSubpassID (passID: number, name: string): number;
     getPhaseID (subpassOrPassID: number, name: string): number;
-}
-
-export interface HBAO {
-    enabled: boolean; /*false*/
-    radiusScale: number; /*1*/
-    angleBiasDegree: number; /*10*/
-    blurSharpness: number; /*3*/
-    aoSaturation: number; /*1*/
-    needBlur: boolean; /*false*/
-    [name: string]: unknown;
-}
-
-export function makeHBAO (): HBAO {
-    return {
-        enabled: false,
-        radiusScale: 1,
-        angleBiasDegree: 10,
-        blurSharpness: 3,
-        aoSaturation: 1,
-        needBlur: false,
-    };
-}
-
-export interface DepthOfField {
-    enabled: boolean; /*false*/
-    focusDistance: number; /*0*/
-    focusRange: number; /*0*/
-    bokehRadius: number; /*1*/
-    [name: string]: unknown;
-}
-
-export function makeDepthOfField (): DepthOfField {
-    return {
-        enabled: false,
-        focusDistance: 0,
-        focusRange: 0,
-        bokehRadius: 1,
-    };
-}
-
-export interface Bloom {
-    enabled: boolean; /*false*/
-    enableAlphaMask: boolean; /*false*/
-    useHdrIlluminance: boolean; /*false*/
-    iterations: number; /*3*/
-    threshold: number; /*0.8*/
-    intensity: number; /*2.3*/
-    [name: string]: unknown;
-}
-
-export function makeBloom (): Bloom {
-    return {
-        enabled: false,
-        enableAlphaMask: false,
-        useHdrIlluminance: false,
-        iterations: 3,
-        threshold: 0.8,
-        intensity: 2.3,
-    };
-}
-
-export interface ColorGrading {
-    enabled: boolean; /*false*/
-    contribute: number; /*0*/
-    /*refcount*/ colorGradingMap?: Texture;
-    [name: string]: unknown;
-}
-
-export function makeColorGrading (): ColorGrading {
-    return {
-        enabled: false,
-        contribute: 0,
-    };
-}
-
-export interface FSR {
-    enabled: boolean; /*false*/
-    sharpness: number; /*0.8*/
-    [name: string]: unknown;
-}
-
-export function makeFSR (): FSR {
-    return {
-        enabled: false,
-        sharpness: 0.8,
-    };
-}
-
-export interface FXAA {
-    enabled: boolean; /*false*/
-    [name: string]: unknown;
-}
-
-export function makeFXAA (): FXAA {
-    return {
-        enabled: false,
-    };
-}
-
-export interface ForwardPipeline {
-    mobileMaxSpotLightShadowMaps: number; /*1*/
-    [name: string]: unknown;
-}
-
-export function makeForwardPipeline (): ForwardPipeline {
-    return {
-        mobileMaxSpotLightShadowMaps: 1,
-    };
-}
-
-export interface PipelineSettings {
-    readonly forwardPipeline: ForwardPipeline;
-    readonly depthOfField: DepthOfField;
-    readonly bloom: Bloom;
-    readonly colorGrading: ColorGrading;
-    readonly fsr: FSR;
-    readonly fxaa: FXAA;
-    [name: string]: unknown;
-}
-
-export function makePipelineSettings (): PipelineSettings {
-    return {
-        forwardPipeline: makeForwardPipeline(),
-        depthOfField: makeDepthOfField(),
-        bloom: makeBloom(),
-        colorGrading: makeColorGrading(),
-        fsr: makeFSR(),
-        fxaa: makeFXAA(),
-    };
 }

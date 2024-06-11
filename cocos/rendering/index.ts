@@ -54,3 +54,6 @@ export { DebugView } from './debug-view';
 
 export { ReflectionProbeFlow } from './reflection-probe/reflection-probe-flow';
 export { ReflectionProbeStage } from './reflection-probe/reflection-probe-stage';
+
+export * from './custom/settings';
+export * from './custom/components/builtin-pipeline-settings';
