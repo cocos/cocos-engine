@@ -228,30 +228,6 @@ const MaterialPropertyVariant *Material::getProperty(const ccstd::string &name, 
     return nullptr;
 }
 
-void Material::prepareInfo(const cc::IMaterialInfo::DefinesType &patch, ccstd::vector<MacroRecord> &curr) {
-    size_t len = _effectAsset != nullptr ? _effectAsset->_techniques[_techIdx].passes.size() : 1;
-    const auto *macroRecordElem = ccstd::get_if<MacroRecord>(&patch);
-    if (macroRecordElem != nullptr) {
-        const auto &macroRecord = *macroRecordElem;
-        curr.resize(len);
-        for (size_t i = 0; i < len; ++i) {
-            for (const auto &field : macroRecord) {
-                curr[i][field.first] = field.second;
-            }
-        }
-    } else {
-        const auto *macroRecordArray = ccstd::get_if<ccstd::vector<MacroRecord>>(&patch);
-        if (macroRecordArray != nullptr) {
-            const auto &currMacroArray = *macroRecordArray;
-            size_t len = currMacroArray.size();
-            curr.resize(len);
-            for (size_t i = 0; i < len; ++i) {
-                curr[i] = currMacroArray[i];
-            }
-        }
-    }
-}
-
 void Material::fillInfo(const IMaterialInfo &info) {
     if (info.technique != ccstd::nullopt) {
         _techIdx = info.technique.value();

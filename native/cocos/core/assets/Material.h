@@ -317,7 +317,30 @@ protected:
     bool uploadProperty(scene::Pass *pass, const ccstd::string &name, const MaterialPropertyVariant &val);
     void bindTexture(scene::Pass *pass, uint32_t handle, const MaterialProperty &val, uint32_t index = 0);
 
-    void prepareInfo(const cc::IMaterialInfo::DefinesType &patch, ccstd::vector<MacroRecord> &curr);
+    template <typename T1>
+    void prepareInfo(const T1 &patch, ccstd::vector<MacroRecord> &curr) {
+        size_t len = _effectAsset != nullptr ? _effectAsset->_techniques[_techIdx].passes.size() : 1;
+        auto *macroRecordElem = ccstd::get_if<MacroRecord>(&patch);
+        if (macroRecordElem != nullptr) {
+            const auto &macroRecord = *macroRecordElem;
+            curr.resize(len);
+            for (size_t i = 0; i < len; ++i) {
+                for (const auto &field : macroRecord) {
+                    curr[i][field.first] = field.second;
+                }
+            }
+        } else {
+            auto *macroRecordArray = ccstd::get_if<ccstd::vector<MacroRecord>>(&patch);
+            if (macroRecordArray != nullptr) {
+                const auto &patchArray = *macroRecordArray;
+                size_t len = patchArray.size();
+                curr.resize(len);
+                for (size_t i = 0; i < len; ++i) {
+                    curr[i] = patchArray[i];
+                }
+            }
+        }
+    }
     template <typename T1, typename T2>
     void prepareInfo(const T1 &patch, ccstd::vector<T2> &cur) {
         auto *pOneElement = ccstd::get_if<T2>(&patch);
