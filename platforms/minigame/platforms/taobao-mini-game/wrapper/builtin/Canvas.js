@@ -1,5 +1,3 @@
-import { innerWidth, innerHeight } from './WindowProperties';
-
 function Canvas () {}
 
 const CanvasProxy = new Proxy(Canvas, {
