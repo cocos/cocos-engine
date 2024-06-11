@@ -29,7 +29,6 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/base/Ptr.h"
 #include "cocos/core/ArrayBuffer.h"
 #include "cocos/core/assets/EffectAsset.h"
 #include "cocos/renderer/core/PassUtils.h"
@@ -450,11 +449,11 @@ public:
      */
     virtual void setTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     virtual void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     virtual void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) = 0;
     /**
@@ -474,7 +473,7 @@ public:
      */
     virtual void setBuiltinCameraConstants(const scene::Camera *camera) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Same as setBuiltinDirectionalLightConstants
      * @zh 同setBuiltinDirectionalLightConstants
      * @param light @en The main light. @zh 主光
@@ -591,7 +590,7 @@ public:
     RenderQueueBuilder() noexcept = default;
 
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Render the scene the camera is looking at.
      * @zh 渲染当前相机指向的场景。
      * @param camera @en Required camera @zh 所需相机
@@ -734,7 +733,7 @@ public:
      */
     virtual void setViewport(const gfx::Viewport &viewport) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     virtual void setVersion(const ccstd::string &name, uint64_t version) = 0;
     /**
@@ -871,7 +870,7 @@ public:
      */
     virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update render window information.
      * When render window information is updated, such as resized, user should notify the pipeline.
      * @zh 更新渲染窗口信息。当渲染窗口发生更新时，用户应通知管线。
@@ -901,7 +900,7 @@ public:
      */
     virtual uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update render target information.
      * @zh 更新渲染目标的信息
      * @param name @en Resource name @zh 资源名字
@@ -911,7 +910,7 @@ public:
      */
     virtual void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update depth stencil information.
      * @zh 更新深度模板缓冲的信息
      * @param name @en Resource name @zh 资源名字
@@ -931,7 +930,7 @@ public:
      */
     virtual uint32_t addBuffer(const ccstd::string &name, uint32_t size, ResourceFlags flags, ResourceResidency residency) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update buffer information.
      * @zh 更新缓冲的信息
      * @param name @en Resource name @zh 资源名字
@@ -949,7 +948,7 @@ public:
      */
     virtual uint32_t addExternalTexture(const ccstd::string &name, gfx::Texture *texture, ResourceFlags flags) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update external texture information.
      * @zh 更新外部的贴图信息
      * @param name @en Resource name @zh 资源名字
@@ -974,7 +973,7 @@ public:
      */
     virtual uint32_t addTexture(const ccstd::string &name, gfx::TextureType type, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update texture information.
      * @zh 更新贴图信息
      * @param name @en Resource name @zh 资源名字
@@ -1005,7 +1004,7 @@ public:
      */
     virtual uint32_t addResource(const ccstd::string &name, ResourceDimension dimension, gfx::Format format, uint32_t width, uint32_t height, uint32_t depth, uint32_t arraySize, uint32_t mipLevels, gfx::SampleCount sampleCount, ResourceFlags flags, ResourceResidency residency) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      * @en Update resource information.
      * @zh 更新资源信息
      * @param name @en Resource name @zh 资源名字
@@ -1059,7 +1058,7 @@ public:
      */
     virtual BasicMultisampleRenderPassBuilder *addMultisampleRenderPass(uint32_t width, uint32_t height, uint32_t count, uint32_t quality, const ccstd::string &passName) = 0;
     /**
-     * @deprecated Method will be removed in 3.9.0
+     * @deprecated Method will be removed in the future
      */
     virtual void addResolvePass(const ccstd::vector<ResolvePair> &resolvePairs) = 0;
     /**
@@ -1798,59 +1797,6 @@ public:
     static RenderingModule* init(gfx::Device* deviceIn, const ccstd::vector<unsigned char>& bufferIn);
     static void destroy(RenderingModule* renderingModule) noexcept;
     static Pipeline *createPipeline();
-};
-
-struct HBAO {
-    bool enabled{false};
-    float radiusScale{1};
-    float angleBiasDegree{10};
-    float blurSharpness{3};
-    float aoSaturation{1};
-    bool needBlur{false};
-};
-
-struct DepthOfField {
-    bool enabled{false};
-    float focusDistance{0};
-    float focusRange{0};
-    float bokehRadius{1};
-};
-
-struct Bloom {
-    bool enabled{false};
-    bool enableAlphaMask{false};
-    bool useHdrIlluminance{false};
-    uint32_t iterations{3};
-    float threshold{0.8};
-    float intensity{2.3};
-};
-
-struct ColorGrading {
-    bool enabled{false};
-    float contribute{0};
-    IntrusivePtr<gfx::Texture> colorGradingMap;
-};
-
-struct FSR {
-    bool enabled{false};
-    float sharpness{0.8};
-};
-
-struct FXAA {
-    bool enabled{false};
-};
-
-struct ForwardPipeline {
-    uint32_t mobileMaxSpotLightShadowMaps{1};
-};
-
-struct PipelineSettings {
-    ForwardPipeline forwardPipeline;
-    DepthOfField depthOfField;
-    Bloom bloom;
-    ColorGrading colorGrading;
-    FSR fsr;
-    FXAA fxaa;
 };
 
 } // namespace render

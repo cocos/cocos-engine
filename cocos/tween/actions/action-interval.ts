@@ -70,6 +70,7 @@ class DummyAction extends FiniteTimeAction {
 export abstract class ActionInterval extends FiniteTimeAction {
     protected MAX_VALUE = 2;
     protected _elapsed = 0;
+    protected _startTime = 0;
     protected _firstTick = false;
     protected _speed = 1;
 
@@ -78,6 +79,11 @@ export abstract class ActionInterval extends FiniteTimeAction {
         if (d !== undefined && !Number.isNaN(d)) {
             this.initWithDuration(d);
         }
+    }
+
+    setStartTime (time: number): void {
+        time = time < 0 ? 0 : (time > this._duration ? this._duration : time);
+        this._startTime = time;
     }
 
     /*
@@ -114,11 +120,15 @@ export abstract class ActionInterval extends FiniteTimeAction {
     abstract clone (): ActionInterval;
 
     step (dt: number): void {
-        if (this._paused) return;
+        if (this._paused || this._speed === 0) return;
         dt *= this._speed;
         if (this._firstTick) {
             this._firstTick = false;
-            this._elapsed = 0;
+            this._elapsed = this._startTime;
+            if (this._startTime > 0) {
+                // _startTime only takes effect in the first tick after tween starts. So reset it to 0 after the first tick.
+                this._startTime = 0;
+            }
         } else this._elapsed += dt;
 
         // this.update((1 > (this._elapsed / this._duration)) ? this._elapsed / this._duration : 1);
@@ -560,6 +570,7 @@ export class RepeatForever extends ActionInterval {
         }
 
         this._innerAction = action;
+        this._duration = Infinity;
         return true;
     }
 
@@ -582,11 +593,12 @@ export class RepeatForever extends ActionInterval {
     }
 
     step (dt: number): void {
-        if (this._paused) return;
+        if (this._paused || this._speed === 0) return;
         const locInnerAction = this._innerAction;
         if (!locInnerAction) {
             return;
         }
+        dt *= this._speed;
         locInnerAction.step(dt);
         if (locInnerAction.isDone()) {
             // var diff = locInnerAction.getElapsed() - locInnerAction.getDurationScaled();

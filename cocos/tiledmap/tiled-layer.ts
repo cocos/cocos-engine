@@ -407,6 +407,7 @@ export class TiledLayer extends UIRenderer {
         colData.count++;
         colData.list.push(dataComp);
         this._userNodeDirty = true;
+        this.markForUpdateRenderData();
     }
 
     public isUserNodeDirty (): boolean {

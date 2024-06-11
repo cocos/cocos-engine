@@ -27,6 +27,41 @@ import { Camera } from '../../render-scene/scene/camera';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { supportsR32FloatTexture } from '../define';
 import { Format } from '../../gfx/base/define';
+import { PipelineSettings } from './settings';
+
+//-----------------------------------------------------------------
+// Editor preview begin
+//-----------------------------------------------------------------
+let editorPipelineSettings: PipelineSettings | null = null;
+let pipelineCamera: Camera | null = null;
+let pipelineCameraUsePostProcess = false;
+let forceResize = false;
+
+export function setEditorPipelineSettings (
+    settings: PipelineSettings | null,
+    camera: Camera | null | undefined,
+): void {
+    editorPipelineSettings = settings;
+    if (settings && camera) {
+        pipelineCamera = camera;
+        pipelineCameraUsePostProcess = camera.usePostProcess;
+    } else if (!settings) {
+        pipelineCamera = null;
+    }
+    forceResize = true;
+}
+
+export function getEditorPipelineSettings (): PipelineSettings | null {
+    return editorPipelineSettings;
+}
+
+export function getEditorPipelineCamera (): Camera | null {
+    return pipelineCamera;
+}
+
+//-----------------------------------------------------------------
+// Editor preview end
+//-----------------------------------------------------------------
 
 export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
     ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);
@@ -45,8 +80,15 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         // Following old prodecure, do nothing
         return;
     }
+
+    // For editor preview
+    if (pipelineCamera && pipelineCamera.usePostProcess !== pipelineCameraUsePostProcess) {
+        pipelineCameraUsePostProcess = pipelineCamera.usePostProcess;
+        forceResize = true;
+    }
+
     for (const camera of cameras) {
-        if (!camera.window.isRenderWindowResized()) {
+        if (!camera.window.isRenderWindowResized() && !forceResize) {
             continue;
         }
 
@@ -56,4 +98,7 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         builder.windowResize(ppl, camera.window, camera, width, height);
         camera.window.setRenderWindowResizeHandled();
     }
+
+    // For editor preview
+    forceResize = false;
 }
