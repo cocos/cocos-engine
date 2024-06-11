@@ -491,7 +491,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         const aaColorName = `AaColor${id}`;
         const mainLight = scene.mainLight;
 
-        // Forward Lighting (renderer.scene.Light Culling)
+        // Forward Lighting (Light Culling)
         this.forwardLighting.cullLights(scene, camera.frustum);
 
         // Main Directional light CSM Shadow Map
