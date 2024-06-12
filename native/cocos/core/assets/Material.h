@@ -84,6 +84,9 @@ struct IMaterialInfo {
      * 注意在可能的情况下请尽量少的自定义管线状态，以减小对渲染效率的影响。
      */
     ccstd::optional<PassOverridesType> states;
+    bool isEmpty() const {
+        return effectAsset == nullptr && !effectName.has_value() && !technique.has_value() && !defines.has_value() && !states.has_value();
+    }
 };
 
 class Material : public Asset {
@@ -221,7 +224,8 @@ public:
      * @param mat The material to be copied.
      * @param overrides The overriding states on top of the original material.
      */
-    void copy(const Material *mat, IMaterialInfo *overrides = nullptr);
+    void copy(const Material *mat, const IMaterialInfo &overrides);
+    inline void copy(const Material *mat) { copy(mat, IMaterialInfo()); }
 
     void fillInfo(const IMaterialInfo &info);
 
@@ -323,7 +327,7 @@ protected:
         auto *macroRecordElem = ccstd::get_if<MacroRecord>(&patch);
         if (macroRecordElem != nullptr) {
             const auto &macroRecord = *macroRecordElem;
-            curr.resize(len);
+            if (curr.size() < len) curr.resize(len);
             for (size_t i = 0; i < len; ++i) {
                 for (const auto &field : macroRecord) {
                     curr[i][field.first] = field.second;
@@ -334,9 +338,33 @@ protected:
             if (macroRecordArray != nullptr) {
                 const auto &patchArray = *macroRecordArray;
                 size_t len = patchArray.size();
-                curr.resize(len);
+                if (curr.size() < len) curr.resize(len);
                 for (size_t i = 0; i < len; ++i) {
-                    curr[i] = patchArray[i];
+                    for (const auto &patchPair : patchArray[i]) {
+                        curr[i][patchPair.first] = patchPair.second;
+                    }
+                }
+            }
+        }
+    }
+    template <typename T1>
+    void prepareInfo(const T1 &patch, ccstd::vector<PassOverrides> &curr) {
+        size_t len = _effectAsset != nullptr ? _effectAsset->_techniques[_techIdx].passes.size() : 1;
+        auto *passOverrideElem = ccstd::get_if<PassOverrides>(&patch);
+        if (passOverrideElem != nullptr) {
+            const auto &passOverride = *passOverrideElem;
+            if (curr.size() < len) curr.resize(len);
+            for (size_t i = 0; i < len; ++i) {
+                curr[i].overrides(IPassInfoFull(passOverride));
+            }
+        } else {
+            auto *passOverrideArray = ccstd::get_if<ccstd::vector<PassOverrides>>(&patch);
+            if (passOverrideArray != nullptr) {
+                const auto &patchArray = *passOverrideArray;
+                size_t len = patchArray.size();
+                if (curr.size() < len) curr.resize(len);
+                for (size_t i = 0; i < len; ++i) {
+                    curr[i].overrides(IPassInfoFull(patchArray[i]));
                 }
             }
         }
@@ -353,7 +381,7 @@ protected:
                 patchArray.emplace_back(*pOneElement);
             }
 
-            cur.resize(patchArray.size());
+            if (cur.size() < len) cur.resize(patchArray.size());
 
             for (size_t i = 0; i < len; ++i) {
                 cur[i] = patchArray[i];
@@ -363,7 +391,7 @@ protected:
             if (pPatchArray != nullptr) {
                 const auto &patchArray = *pPatchArray;
                 size_t len = patchArray.size();
-                cur.resize(len);
+                if (cur.size() < len) cur.resize(len);
 
                 for (size_t i = 0; i < len; ++i) {
                     cur[i] = patchArray[i];

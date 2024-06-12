@@ -247,7 +247,7 @@ void Material::fillInfo(const IMaterialInfo &info) {
     }
 }
 
-void Material::copy(const Material *mat, IMaterialInfo *overrides) {
+void Material::copy(const Material *mat, const IMaterialInfo &overrides) {
     if (mat == nullptr) {
         return;
     }
@@ -266,8 +266,8 @@ void Material::copy(const Material *mat, IMaterialInfo *overrides) {
         _states[i] = mat->_states[i];
     }
     _effectAsset = mat->_effectAsset;
-    if (overrides) {
-        fillInfo(*overrides);
+    if (!overrides.isEmpty()) {
+        fillInfo(overrides);
     }
     update();
 }
