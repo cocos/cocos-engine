@@ -87,7 +87,7 @@ class ScreenAdapter extends EventTarget {
         }
         //Fix: wrong screen size on TAOBAO_MINIGAME iPad device
         if (TAOBAO_MINIGAME) {
-            const windowInfo = minigame.getWindowInfoSync();
+            const windowInfo = my.getWindowInfoSync();
             if (windowInfo) {
                 screenWidth = windowInfo.windowWidth;
                 screenHeight = windowInfo.windowHeight;
