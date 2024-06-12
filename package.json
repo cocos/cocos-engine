@@ -56,7 +56,7 @@
     "fs": "^0.0.1-security",
     "fs-extra": "^7.0.1",
     "ftp": "0.3.10",
-    "gulp": "^4.0.2",
+    "gulp": "^5.0.0",
     "gulp-rename": "^2.0.0",
     "gulp-uglify": "^3.0.2",
     "jest": "^28.0.2",
