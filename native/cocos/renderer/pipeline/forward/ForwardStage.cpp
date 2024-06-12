@@ -137,6 +137,7 @@ void ForwardStage::render(scene::Camera *camera) {
     CC_PROFILE(ForwardStageRender);
     struct RenderData {
         framegraph::TextureHandle outputTex;
+        framegraph::TextureHandle msaaTex;
         framegraph::TextureHandle depth;
     };
     auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
@@ -218,6 +219,18 @@ void ForwardStage::render(scene::Camera *camera) {
 
         data.outputTex = builder.write(data.outputTex, colorAttachmentInfo);
         builder.writeToBlackboard(RenderPipeline::fgStrHandleOutColorTexture, data.outputTex);
+
+        gfx::SampleCount samplerCount = camera->getWindow()->getSamplerCount();
+
+        if (samplerCount > gfx::SampleCount::X1){
+            colorTexInfo.samples = samplerCount;
+            colorAttachmentInfo.samples = samplerCount;
+            data.msaaTex = builder.create(RenderPipeline::fgStrHandleMSAATexture, colorTexInfo);
+            data.msaaTex = builder.write(data.msaaTex, colorAttachmentInfo);
+            builder.writeToBlackboard(RenderPipeline::fgStrHandleMSAATexture, data.msaaTex);
+        }
+
+
         // depth
         gfx::TextureInfo depthTexInfo{
             gfx::TextureType::TEX2D,
@@ -227,6 +240,7 @@ void ForwardStage::render(scene::Camera *camera) {
             static_cast<uint32_t>(static_cast<float>(camera->getWindow()->getHeight()) * shadingScale),
         };
 
+        depthTexInfo.samples = samplerCount;
         framegraph::RenderTargetAttachment::Descriptor depthAttachmentInfo;
         depthAttachmentInfo.usage = framegraph::RenderTargetAttachment::Usage::DEPTH_STENCIL;
         depthAttachmentInfo.loadOp = gfx::LoadOp::CLEAR;

@@ -26,6 +26,7 @@ import { Orientation } from '../../../pal/screen-adapter/enum-type';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, SurfaceTransform, TextureFlagBit, TextureFlags,
+    SampleCount,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera } from '../scene';
@@ -34,6 +35,7 @@ export interface IRenderWindowInfo {
     title?: string;
     width: number;
     height: number;
+    samples?: SampleCount;
     renderPassInfo: RenderPassInfo;
     swapchain?: Swapchain;
     externalResLow?: number; // for vulkan vkImage/opengl es texture created from external

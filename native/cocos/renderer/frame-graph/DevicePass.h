@@ -78,6 +78,7 @@ private:
     ccstd::vector<Attachment> _attachments{};
     uint16_t _usedRenderTargetSlotMask{0};
     DevicePassResourceTable _resourceTable;
+    gfx::SampleCount sampleCount = gfx::SampleCount::X1;
 
     gfx::Viewport _viewport;
     gfx::Rect _scissor;

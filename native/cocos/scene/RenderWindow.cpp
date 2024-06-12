@@ -70,6 +70,7 @@ bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
     _width = info.width;
     _height = info.height;
 
+    _sampleCount = info.sampleCount;
     _renderPass = device->createRenderPass(info.renderPassInfo);
 
     if (info.swapchain != nullptr) {

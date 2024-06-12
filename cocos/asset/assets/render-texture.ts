@@ -26,7 +26,8 @@ import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { clamp, cclegacy, errorID } from '../../core';
 import { Texture, ColorAttachment, DepthStencilAttachment, GeneralBarrierInfo, AccessFlagBit, RenderPassInfo, Format, deviceManager,
-    BufferTextureCopy, TextureFlags, TextureFlagBit } from '../../gfx';
+    BufferTextureCopy, TextureFlags, TextureFlagBit, 
+    SampleCount} from '../../gfx';
 import { RenderWindow, IRenderWindowInfo } from '../../render-scene/core/render-window';
 import { Root } from '../../root';
 import { TextureBase } from './texture-base';
@@ -35,6 +36,7 @@ export interface IRenderTextureCreateInfo {
     name?: string;
     width: number;
     height: number;
+    samples?: SampleCount;
     passInfo?: RenderPassInfo;
     externalResLow?: number; // for vulkan vkImage/opengl es texture created from external
     externalResHigh?: number; // for vulkan vkImage created from external
@@ -61,6 +63,7 @@ const _windowInfo: IRenderWindowInfo = {
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {
     private _window: RenderWindow | null = null;
+    private _samples: SampleCount = SampleCount.X1;
 
     /**
      * @en The render window for the render pipeline, it's created internally and cannot be modified.
@@ -79,6 +82,7 @@ export class RenderTexture extends TextureBase {
         this._name = info.name || '';
         this._width = info.width;
         this._height = info.height;
+        this._samples = info.samples || SampleCount.X1;
         this._initWindow(info);
     }
 
@@ -172,6 +176,7 @@ export class RenderTexture extends TextureBase {
         _windowInfo.width = this._width;
         _windowInfo.height = this._height;
         _windowInfo.renderPassInfo = info && info.passInfo ? info.passInfo : passInfo;
+        _windowInfo.samples = this._samples;
         _windowInfo.externalResLow = info && info.externalResLow ? info.externalResLow : 0;
         _windowInfo.externalResHigh = info && info.externalResHigh ? info.externalResHigh : 0;
         _windowInfo.externalFlag = info && info.externalFlag ? info.externalFlag : TextureFlagBit.NONE;
