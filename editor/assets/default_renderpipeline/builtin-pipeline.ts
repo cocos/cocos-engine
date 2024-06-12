@@ -618,7 +618,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // CSM Shadow Map
         // ----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
-        pass.name = 'CascadeShadowMap';
+        pass.name = 'CascadedShadowMap';
         pass.addRenderTarget(`ShadowMap${id}`, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, 1));
         pass.addDepthStencil(`ShadowDepth${id}`, LoadOp.CLEAR, StoreOp.DISCARD);
         const csmLevel = ppl.pipelineSceneData.csmSupported ? light.csmLevel : 1;
