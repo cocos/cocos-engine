@@ -158,7 +158,7 @@ void DevicePass::passDependency(gfx::RenderPassInfo &rpInfo) {
                 nullptr,
                 {},
                 {},
-                });
+            });
 
             for (const auto &rearBarrier : _barriers[barrierID].get().rearBarriers) {
                 const auto &res = getBarrier(rearBarrier, &_resourceTable);

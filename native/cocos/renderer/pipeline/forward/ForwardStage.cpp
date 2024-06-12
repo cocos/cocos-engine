@@ -222,14 +222,13 @@ void ForwardStage::render(scene::Camera *camera) {
 
         gfx::SampleCount samplerCount = camera->getWindow()->getSamplerCount();
 
-        if (samplerCount > gfx::SampleCount::X1){
+        if (samplerCount > gfx::SampleCount::X1) {
             colorTexInfo.samples = samplerCount;
             colorAttachmentInfo.samples = samplerCount;
             data.msaaTex = builder.create(RenderPipeline::fgStrHandleMSAATexture, colorTexInfo);
             data.msaaTex = builder.write(data.msaaTex, colorAttachmentInfo);
             builder.writeToBlackboard(RenderPipeline::fgStrHandleMSAATexture, data.msaaTex);
         }
-
 
         // depth
         gfx::TextureInfo depthTexInfo{
