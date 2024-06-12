@@ -984,7 +984,6 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // ----------------------------------------------------------------
         let pass: rendering.BasicRenderPassBuilder;
         if (enableMSAA) {
-            assert(this._cameraConfigs.singleForwardRadiancePass, 'Msaa should be used with singleForwardRadiancePass');
             const msaaRadianceName = `MsaaRadiance${id}`;
             const msaaDepthStencilName = `MsaaDepthStencil${id}`;
             const sampleCount = this._cameraConfigs.pipelineSettings.msaa.sampleCount;
