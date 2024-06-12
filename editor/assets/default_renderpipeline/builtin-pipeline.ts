@@ -977,7 +977,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         depthStencilName: string,
         depthStencilStoreOp: gfx.StoreOp
     ): rendering.BasicRenderPassBuilder {
-        assert(this._cameraConfigs.singleForwardRadiancePass, 'Msaa should be used with singleForwardRadiancePass');
+        assert(this._cameraConfigs.singleForwardRadiancePass);
         // ----------------------------------------------------------------
         // Forward Lighting (Main Directional Light)
         // ----------------------------------------------------------------
