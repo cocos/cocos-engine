@@ -1057,16 +1057,16 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         setupPipelineConfigs(ppl, this._configs);
 
         // When add new effect asset, please add its uuid to the dependentAssets in cc.config.json.
-        this._copyAndTonemapMaterial._uuid = `custom-forward-post-final-tonemap-material`;
+        this._copyAndTonemapMaterial._uuid = `builtin-pipeline-post-final-tonemap-material`;
         this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
 
-        this._dofMaterial._uuid = `custom-forward-post-dof-material`;
+        this._dofMaterial._uuid = `builtin-pipeline-post-dof-material`;
         this._dofMaterial.initialize({ effectName: 'pipeline/post-process/dof' });
 
-        this._bloomMaterial._uuid = `custom-forward-post-bloom-material`;
+        this._bloomMaterial._uuid = `builtin-pipeline-post-bloom-material`;
         this._bloomMaterial.initialize({ effectName: 'pipeline/post-process/bloom1' });
 
-        this._fxaaMaterial._uuid = `custom-forward-post-fxaa-material`;
+        this._fxaaMaterial._uuid = `builtin-pipeline-post-fxaa-material`;
         this._fxaaMaterial.initialize({ effectName: 'pipeline/post-process/fxaa-hq' });
 
         if (this._copyAndTonemapMaterial.effectAsset !== null
