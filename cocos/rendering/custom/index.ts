@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
@@ -34,6 +33,7 @@ import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
+import { forceResizeAllWindows } from './framework';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -63,7 +63,9 @@ export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
 
 export function setCustomPipeline (name: string, builder: PipelineBuilder): void {
     customPipelineBuilderMap.set(name, builder);
+    forceResizeAllWindows();
 }
+
 export function getCustomPipeline (name: string): PipelineBuilder {
     let builder = customPipelineBuilderMap.get(name);
     if (!builder) {

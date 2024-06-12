@@ -63,6 +63,10 @@ export function getEditorPipelineCamera (): Camera | null {
 // Editor preview end
 //-----------------------------------------------------------------
 
+export function forceResizeAllWindows (): void {
+    forceResize = true;
+}
+
 export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, width: number, height: number): void {
     ppl.addRenderWindow(window.colorName, Format.BGRA8, width, height, window);
     ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);

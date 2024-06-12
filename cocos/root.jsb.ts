@@ -232,6 +232,7 @@ rootProto.onGlobalPipelineStateChanged = function() {
         if (typeof builder.onGlobalPipelineStateChanged === 'function') {
             builder.onGlobalPipelineStateChanged();
         }
+        legacyCC.rendering.forceResizeAllWindows();
     }
 }
 

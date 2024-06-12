@@ -2180,6 +2180,7 @@ export class WebPipeline implements BasicPipeline {
             if (typeof builder.onGlobalPipelineStateChanged === 'function') {
                 builder.onGlobalPipelineStateChanged();
             }
+            cclegacy.rendering.forceResizeAllWindows();
         }
     }
     beginSetup (): void {

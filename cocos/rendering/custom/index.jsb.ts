@@ -28,6 +28,7 @@ import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { Device } from '../../gfx';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
+import { forceResizeAllWindows } from './framework';
 
 export * from './types';
 export * from './pipeline';
@@ -50,6 +51,7 @@ export const customPipelineBuilderMap = new Map<string, PipelineBuilder>();
 
 export function setCustomPipeline (name: string, builder: PipelineBuilder) {
     customPipelineBuilderMap.set(name, builder);
+    forceResizeAllWindows();
 }
 
 export function getCustomPipeline (name: string): PipelineBuilder {
