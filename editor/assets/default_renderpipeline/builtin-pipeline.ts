@@ -337,11 +337,12 @@ function setupCameraConfigs(
         && !pipelineConfigs.isWeb;
 
     // Shading scale
-    cameraConfigs.enableShadingScale = cameraConfigs.pipelineSettings !== null
-        && cameraConfigs.pipelineSettings.enableShadingScale;
     cameraConfigs.shadingScale = cameraConfigs.pipelineSettings !== null
         ? cameraConfigs.pipelineSettings.shadingScale
         : 1.0;
+    cameraConfigs.enableShadingScale = cameraConfigs.pipelineSettings !== null
+        && cameraConfigs.pipelineSettings.enableShadingScale
+        && cameraConfigs.shadingScale !== 1.0;
 
     // Forward rendering
     cameraConfigs.singleForwardRadiancePass
