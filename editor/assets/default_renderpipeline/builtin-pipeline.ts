@@ -186,7 +186,8 @@ class ForwardLighting {
             }
         }
     }
-    public addMobileLightQueues(pass: rendering.BasicRenderPassBuilder, camera: renderer.scene.Camera, maxNumShadowMaps: number): void {
+    public addLightQueues(pass: rendering.BasicRenderPassBuilder,
+        camera: renderer.scene.Camera, maxNumShadowMaps: number): void {
         this._addLightQueues(camera, pass);
         let i = 0;
         for (const light of this.shadowEnabledSpotLights) {
@@ -209,6 +210,7 @@ class ForwardLighting {
     public addLightPasses(
         colorName: string,
         depthStencilName: string,
+        depthStencilStoreOp: gfx.StoreOp,
         id: number, // window id
         width: number,
         height: number,
@@ -218,6 +220,7 @@ class ForwardLighting {
     ): rendering.BasicRenderPassBuilder {
         this._addLightQueues(camera, pass);
 
+        let count = 0;
         const shadowMapSize = ppl.pipelineSceneData.shadows.size;
         for (const light of this.shadowEnabledSpotLights) {
             const shadowPass = ppl.addRenderPass(shadowMapSize.x, shadowMapSize.y, 'default');
@@ -231,10 +234,15 @@ class ForwardLighting {
 
             // Add spot-light pass
             // Save last RenderPass to the `pass` variable
+            ++count;
+            const storeOp = count === this.shadowEnabledSpotLights.length
+                ? depthStencilStoreOp
+                : StoreOp.STORE;
+
             pass = ppl.addRenderPass(width, height, 'default');
             pass.name = 'SpotlightWithShadowMap';
             pass.addRenderTarget(colorName, LoadOp.LOAD);
-            pass.addDepthStencil(depthStencilName, LoadOp.LOAD);
+            pass.addDepthStencil(depthStencilName, LoadOp.LOAD, storeOp);
             pass.addTexture(`ShadowMap${id}`, 'cc_spotShadowMap');
             const queue = pass.addQueue(QueueHint.BLEND, 'forward-add');
             queue.addScene(
@@ -244,6 +252,10 @@ class ForwardLighting {
             );
         }
         return pass;
+    }
+
+    public isMultipleLightPassesNeeded(): boolean {
+        return this.shadowEnabledSpotLights.length > 0;
     }
 }
 
@@ -536,7 +548,8 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
                 // Post Process
                 if (this._configs.supportDepthSample && settings.depthOfField.enabled) {
                     // Disable MSAA, depth stencil cannot be resolved cross-platformly
-                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, dofRadianceName, depthStencilName, true);
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
+                        dofRadianceName, depthStencilName, true, StoreOp.STORE);
                     this._addDepthOfFieldPasses(ppl, settings, id, camera, width, height, dofRadianceName, depthStencilName, radianceName);
                 } else {
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
@@ -601,7 +614,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // CSM Shadow Map
         // ----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
-        pass.name = 'CSM';
+        pass.name = 'CascadeShadowMap';
         pass.addRenderTarget(`ShadowMap${id}`, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, 1));
         pass.addDepthStencil(`ShadowDepth${id}`, LoadOp.CLEAR, StoreOp.DISCARD);
         const csmLevel = ppl.pipelineSceneData.csmSupported ? light.csmLevel : 1;
@@ -655,18 +668,19 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         camera: renderer.scene.Camera,
         colorName: string,
         depthStencilName: string,
+        depthStencilStoreOp: gfx.StoreOp,
         mainLight: renderer.scene.DirectionalLight | null,
     ): void {
         // set viewport
         pass.setViewport(this._viewport);
 
-        const storeOp = this._cameraConfigs.enableMSAA ? StoreOp.DISCARD : StoreOp.STORE;
+        const colorStoreOp = this._cameraConfigs.enableMSAA ? StoreOp.DISCARD : StoreOp.STORE;
 
         // bind output render target
         if (forwardNeedClearColor(camera)) {
-            pass.addRenderTarget(colorName, LoadOp.CLEAR, storeOp, this._clearColor);
+            pass.addRenderTarget(colorName, LoadOp.CLEAR, colorStoreOp, this._clearColor);
         } else {
-            pass.addRenderTarget(colorName, LoadOp.LOAD, storeOp);
+            pass.addRenderTarget(colorName, LoadOp.LOAD, colorStoreOp);
         }
 
         // bind depth stencil buffer
@@ -674,13 +688,13 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             pass.addDepthStencil(
                 depthStencilName,
                 LoadOp.CLEAR,
-                storeOp,
+                depthStencilStoreOp,
                 camera.clearDepth,
                 camera.clearStencil,
                 camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
             );
         } else {
-            pass.addDepthStencil(depthStencilName, LoadOp.LOAD, storeOp);
+            pass.addDepthStencil(depthStencilName, LoadOp.LOAD, depthStencilStoreOp);
         }
 
         // Set shadow map if enabled
@@ -907,6 +921,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         colorName: string,
         depthStencilName: string,
         disableMSAA: boolean = false,
+        depthStencilStoreOp: gfx.StoreOp = StoreOp.DISCARD,
     ): rendering.BasicRenderPassBuilder {
         // ----------------------------------------------------------------
         // Dynamic states
@@ -925,7 +940,41 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
 
         // MSAA
         const enableMSAA = !disableMSAA && this._cameraConfigs.enableMSAA;
+        assert(!enableMSAA || this._cameraConfigs.singleForwardRadiancePass);
 
+        // ----------------------------------------------------------------
+        // Forward Lighting (Main Directional Light)
+        // ----------------------------------------------------------------
+        const pass = this._cameraConfigs.singleForwardRadiancePass
+            ? this._addForwardSingleRadiancePass(ppl, id, camera, enableMSAA, width, height, mainLight,
+                colorName, depthStencilName, depthStencilStoreOp)
+            : this._addForwardMultipleRadiancePasses(ppl, id, camera, width, height, mainLight,
+                colorName, depthStencilName, depthStencilStoreOp);
+
+        // ----------------------------------------------------------------
+        // Forward Lighting (Blend)
+        // ----------------------------------------------------------------
+        // Add transparent queue
+        pass
+            .addQueue(QueueHint.BLEND)
+            .addScene(camera, SceneFlags.BLEND, mainLight || undefined);
+
+        return pass;
+    }
+
+    private _addForwardSingleRadiancePass(
+        ppl: rendering.BasicPipeline,
+        id: number,
+        camera: renderer.scene.Camera,
+        enableMSAA: boolean,
+        width: number,
+        height: number,
+        mainLight: renderer.scene.DirectionalLight | null,
+        colorName: string,
+        depthStencilName: string,
+        depthStencilStoreOp: gfx.StoreOp
+    ): rendering.BasicRenderPassBuilder {
+        assert(this._cameraConfigs.singleForwardRadiancePass, 'Msaa should be used with singleForwardRadiancePass');
         // ----------------------------------------------------------------
         // Forward Lighting (Main Directional Light)
         // ----------------------------------------------------------------
@@ -939,8 +988,9 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             const msPass = ppl.addMultisampleRenderPass(width, height, sampleCount, 0, 'default');
             msPass.name = 'MsaaForwardPass';
 
+            // MSAA always discards depth stencil
             this._buildForwardMainLightPass(msPass, id, camera,
-                msaaRadianceName, msaaDepthStencilName, mainLight);
+                msaaRadianceName, msaaDepthStencilName, StoreOp.DISCARD, mainLight);
 
             msPass.resolveRenderTarget(msaaRadianceName, colorName);
 
@@ -949,34 +999,49 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             pass = ppl.addRenderPass(width, height, 'default');
             pass.name = 'ForwardPass';
 
-            this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
+            this._buildForwardMainLightPass(pass, id, camera,
+                colorName, depthStencilName, depthStencilStoreOp, mainLight);
         }
         assert(pass !== undefined);
 
-        // ----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
-        // ----------------------------------------------------------------
-        // Additive lights
-        if (this._cameraConfigs.singleForwardRadiancePass) {
-            this.forwardLighting.addMobileLightQueues(
-                pass,
-                camera,
-                this._configs.mobileMaxSpotLightShadowMaps,
-            );
-        } else {
-            assert(!enableMSAA, 'Multiple forward radiance passes should not use MSAA');
-            // Update last RenderPass
-            pass = this.forwardLighting
-                .addLightPasses(colorName, depthStencilName, id, width, height, camera, ppl, pass);
-        }
+        this.forwardLighting.addLightQueues(
+            pass,
+            camera,
+            this._configs.mobileMaxSpotLightShadowMaps,
+        );
 
-        // ----------------------------------------------------------------
-        // Forward Lighting (Blend)
-        // ----------------------------------------------------------------
-        // Add transparent queue
-        pass
-            .addQueue(QueueHint.BLEND)
-            .addScene(camera, SceneFlags.BLEND, mainLight || undefined);
+        return pass;
+    }
+
+    private _addForwardMultipleRadiancePasses(
+        ppl: rendering.BasicPipeline,
+        id: number,
+        camera: renderer.scene.Camera,
+        width: number,
+        height: number,
+        mainLight: renderer.scene.DirectionalLight | null,
+        colorName: string,
+        depthStencilName: string,
+        depthStencilStoreOp: gfx.StoreOp
+    ): rendering.BasicRenderPassBuilder {
+        assert(!this._cameraConfigs.singleForwardRadiancePass);
+
+        // Forward Lighting (Main Directional Light)
+        let pass = ppl.addRenderPass(width, height, 'default');
+        pass.name = 'ForwardPass';
+
+        const firstStoreOp = this.forwardLighting.isMultipleLightPassesNeeded()
+            ? StoreOp.STORE
+            : depthStencilStoreOp;
+
+        this._buildForwardMainLightPass(pass, id, camera,
+            colorName, depthStencilName, firstStoreOp, mainLight);
+
+        // Forward Lighting (Additive Lights)
+        pass = this.forwardLighting
+            .addLightPasses(colorName, depthStencilName, depthStencilStoreOp,
+                id, width, height, camera, ppl, pass);
 
         return pass;
     }
