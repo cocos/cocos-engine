@@ -455,18 +455,13 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             setupCameraConfigs(camera, this._configs, this._cameraConfigs);
 
             // Build pipeline
-            if (this._configs.isMobile) {
-                this._buildMobileForwardPipeline(ppl, camera, camera.scene);
-            } else {
-                this._buildForwardPipeline(ppl, camera, camera.scene);
-            }
+            this._buildForwardPipeline(ppl, camera, camera.scene);
         }
     }
 
     // ----------------------------------------------------------------
     // Pipelines
     // ----------------------------------------------------------------
-    // Desktop
     private _buildForwardPipeline(
         ppl: rendering.BasicPipeline,
         camera: renderer.scene.Camera,
@@ -497,6 +492,13 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // Main Directional light CSM Shadow Map
         if (this._cameraConfigs.enableShadowMap) {
             this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
+        }
+
+        // Spot light shadow maps (Mobile only)
+        if (this._configs.isMobile) {
+            // Currently, only support 1 spot light with shadow map on mobile platform.
+            // TODO(zhouzhenglong): Relex this limitation.
+            this.forwardLighting.addMobileShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
         }
 
         // Forward Lighting
@@ -535,59 +537,15 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
                 this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
             }
-        } else if (this._cameraConfigs.enableShadingScale) { // LDR (Size is scaled)
-            this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
-            lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
-        } else { // LDR (Size is not scaled)
-            lastPass = this._addForwardRadiancePasses(ppl, id, camera, nativeWidth, nativeHeight, mainLight, colorName, depthStencilName);
+        } else {
+            if (this._cameraConfigs.enableShadingScale) { // LDR (Size is scaled)
+                this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
+                lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
+            } else { // LDR (Size is not scaled)
+                lastPass = this._addForwardRadiancePasses(ppl, id, camera, nativeWidth, nativeHeight, mainLight, colorName, depthStencilName);
+            }
         }
         // UI size is not scaled, does not have AA
-        this._addUIQueue(camera, lastPass);
-    }
-
-    // Mobile
-    private _buildMobileForwardPipeline(
-        ppl: rendering.BasicPipeline,
-        camera: renderer.scene.Camera,
-        scene: renderer.RenderScene,
-    ): void {
-        // Init
-        const nativeWidth = Math.max(Math.floor(camera.window.width), 1);
-        const nativeHeight = Math.max(Math.floor(camera.window.height), 1);
-        const width = this._cameraConfigs.enableShadingScale
-            ? Math.max(Math.floor(nativeWidth * this._cameraConfigs.shadingScale), 1)
-            : nativeWidth;
-        const height = this._cameraConfigs.enableShadingScale
-            ? Math.max(Math.floor(nativeHeight * this._cameraConfigs.shadingScale), 1)
-            : nativeHeight;
-
-        const id = camera.window.renderWindowId;
-        const colorName = camera.window.colorName;
-        const depthStencilName = camera.window.depthStencilName;
-        const radianceName = `Radiance${id}`;
-        const mainLight = scene.mainLight;
-
-        // Forward Lighting (Light Culling)
-        this.forwardLighting.cullLights(scene, camera.frustum, camera.position);
-
-        // Main Directional light CSM shadow map
-        if (this._cameraConfigs.enableShadowMap) {
-            this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
-        }
-
-        // Spot light shadow maps
-        // Currently, only support 1 spot light with shadow map on mobile platform.
-        // TODO(zhouzhenglong): Relex this limitation.
-        this.forwardLighting.addMobileShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
-
-        // Forward Lighting
-        let lastPass: rendering.BasicRenderPassBuilder;
-        if (this._configs.useFloatOutput || this._cameraConfigs.enableShadingScale) {
-            this._addMobileForwardRadiancePass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
-            lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
-        } else {
-            lastPass = this._addMobileForwardRadiancePass(ppl, id, camera, nativeWidth, nativeHeight, colorName, depthStencilName, mainLight);
-        }
         this._addUIQueue(camera, lastPass);
     }
 
@@ -906,7 +864,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
     }
 
     // ----------------------------------------------------------------
-    // Desktop
+    // Forward
     // ----------------------------------------------------------------
     private _addForwardRadiancePasses(
         ppl: rendering.BasicPipeline,
@@ -936,7 +894,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // ----------------------------------------------------------------
         // Forward Lighting (Main Directional Light)
         // ----------------------------------------------------------------
-        const pass = ppl.addRenderPass(width, height, 'default');
+        let pass = ppl.addRenderPass(width, height, 'default');
         pass.name = 'ForwardPass';
         this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
 
@@ -944,64 +902,17 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // Forward Lighting (Additive Lights)
         // ----------------------------------------------------------------
         // Additive lights
-        const lastPass = this.forwardLighting
-            .addLightPasses(colorName, depthStencilName, id, width, height, camera, ppl, pass);
-
-        // ----------------------------------------------------------------
-        // Forward Lighting (Blend)
-        // ----------------------------------------------------------------
-        // Add transparent queue
-        lastPass
-            .addQueue(QueueHint.BLEND)
-            .addScene(camera, SceneFlags.BLEND, mainLight || undefined);
-
-        return lastPass;
-    }
-
-    // ----------------------------------------------------------------
-    // Mobile
-    // ----------------------------------------------------------------
-    private _addMobileForwardRadiancePass(
-        ppl: rendering.BasicPipeline,
-        id: number,
-        camera: renderer.scene.Camera,
-        width: number,
-        height: number,
-        colorName: string,
-        depthStencilName: string,
-        mainLight: renderer.scene.DirectionalLight | null,
-    ): rendering.BasicRenderPassBuilder {
-        // ----------------------------------------------------------------
-        // Dynamic states
-        // ----------------------------------------------------------------
-        // Prepare camera clear color
-        this._clearColor.x = camera.clearColor.x;
-        this._clearColor.y = camera.clearColor.y;
-        this._clearColor.z = camera.clearColor.z;
-        this._clearColor.w = camera.clearColor.w;
-
-        // Prepare camera viewport
-        this._viewport.left = Math.floor(camera.viewport.x * width);
-        this._viewport.top = Math.floor(camera.viewport.y * height);
-        this._viewport.width = Math.floor(camera.viewport.z * width);
-        this._viewport.height = Math.floor(camera.viewport.w * height);
-
-        // ----------------------------------------------------------------
-        // Forward Lighting (Main Directional Light)
-        // ----------------------------------------------------------------
-        const pass = ppl.addRenderPass(width, height, 'default');
-        pass.name = 'ForwardPass';
-        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
-
-        // ----------------------------------------------------------------
-        // Forward Lighting (Additive Lights)
-        // ----------------------------------------------------------------
-        // Additive lights
-        this.forwardLighting.addMobileLightQueues(
-            pass,
-            camera,
-            this._configs.mobileMaxSpotLightShadowMaps,
-        );
+        if (this._configs.isMobile) {
+            this.forwardLighting.addMobileLightQueues(
+                pass,
+                camera,
+                this._configs.mobileMaxSpotLightShadowMaps,
+            );
+        } else {
+            // Update last RenderPass
+            pass = this.forwardLighting
+                .addLightPasses(colorName, depthStencilName, id, width, height, camera, ppl, pass);
+        }
 
         // ----------------------------------------------------------------
         // Forward Lighting (Blend)
