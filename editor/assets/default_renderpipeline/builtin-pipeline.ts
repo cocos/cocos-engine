@@ -520,10 +520,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         const id = camera.window.renderWindowId;
         const colorName = camera.window.colorName;
         const depthStencilName = camera.window.depthStencilName;
-        const dofRadianceName = `DofRadiance${id}`;
         const radianceName = `Radiance${id}`;
-        const ldrColorName = `LdrColor${id}`;
-        const aaColorName = `AaColor${id}`;
         const mainLight = scene.mainLight;
 
         // Forward Lighting (Light Culling)
@@ -546,6 +543,10 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         if (this._configs.useFloatOutput) { // HDR
             if (this._cameraConfigs.enablePostProcess && settings !== null) {
                 // Post Process
+                const dofRadianceName = `DofRadiance${id}`;
+                const ldrColorName = `LdrColor${id}`;
+                const aaColorName = `AaColor${id}`;
+                // Radiance and DoF
                 if (this._configs.supportDepthSample && settings.depthOfField.enabled) {
                     // Disable MSAA, depth stencil cannot be resolved cross-platformly
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
@@ -554,9 +555,11 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
                 } else {
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
                 }
+                // Bloom
                 if (settings.bloom.enabled) {
                     this._addKawaseDualFilterBloomPasses(ppl, settings, id, width, height, radianceName);
                 }
+                // Tone Mapping and FXAA
                 if (settings.fxaa.enabled) {
                     // FXAA is applied after tone mapping
                     this._addCopyAndTonemapPass(ppl, width, height, radianceName, ldrColorName);
