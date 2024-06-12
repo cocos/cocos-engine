@@ -400,7 +400,7 @@ export class Root {
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
             this._pipelineEvent = rppl;
-            log('Using custom pipeline');
+            log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
         } else {
             this._classicPipeline = rppl;
             this._pipeline = this._classicPipeline;

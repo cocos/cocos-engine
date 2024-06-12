@@ -246,7 +246,7 @@ rootProto.setRenderPipeline = function (pipeline) {
     if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
         legacyCC.rendering.createCustomPipeline();
         ppl = oldSetPipeline.call(this, null);
-        log('Using custom pipeline');
+        log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered
