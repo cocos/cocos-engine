@@ -99,7 +99,7 @@ export class BuiltinPipelineSettings extends Component {
         return this.settings.msaa.enabled;
     }
 
-    @range([1, 8, 1])
+    @range([2, 8, 2])
     @property
     set msaaSampleCount (value: number) {
         value = 2 ** Math.ceil(Math.log2(Math.max(value, 1)));
