@@ -24,6 +24,7 @@
 
 import { DEBUG } from 'cc/env';
 import {
+    assert,
     geometry,
     gfx,
     Material,
@@ -38,9 +39,9 @@ import {
 } from 'cc';
 
 const { AABB, Sphere, intersect } = geometry;
-const { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, Viewport } = gfx;
+const { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, TextureType, Viewport } = gfx;
 const { scene } = renderer;
-const { QueueHint, SceneFlags } = rendering;
+const { QueueHint, SceneFlags, ResourceFlags, ResourceResidency } = rendering;
 const { CameraUsage, CSMLevel, LightType } = scene;
 
 function forwardNeedClearColor(camera: renderer.scene.Camera): boolean {
@@ -168,7 +169,7 @@ class ForwardLighting {
             );
         }
     }
-    public addMobileShadowPasses(ppl: rendering.BasicPipeline, camera: renderer.scene.Camera, maxNumShadowMaps: number): void {
+    public addSpotlightShadowPasses(ppl: rendering.BasicPipeline, camera: renderer.scene.Camera, maxNumShadowMaps: number): void {
         let i = 0;
         for (const light of this.shadowEnabledSpotLights) {
             const shadowMapSize = ppl.pipelineSceneData.shadows.size;
@@ -247,6 +248,7 @@ class ForwardLighting {
 }
 
 class PipelineConfigs {
+    isWeb = false;
     isMobile = false;
     isHDR = false;
     useFloatOutput = false;
@@ -265,7 +267,7 @@ function setupPipelineConfigs(
     configs: PipelineConfigs,
 ): void {
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
-
+    configs.isWeb = !sys.isNative;
     configs.isMobile = sys.isMobile;
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -285,6 +287,8 @@ class CameraConfigs {
     enablePostProcess = false;
     enableProfiler = false;
     enableShadingScale = false;
+    enableMSAA = false;
+    singleForwardRadiancePass = false;
     shadingScale = 0.5;
     pipelineSettings: PipelineSettings | null = null;
 }
@@ -299,6 +303,7 @@ function setupCameraConfigs(
         : false;
     const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
     const isEditorView: boolean = camera.cameraUsage === CameraUsage.SCENE_VIEW || camera.cameraUsage === CameraUsage.PREVIEW;
+
     cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput && camera.usePostProcess && (isMainGameWindow || isEditorView);
     cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
     cameraConfigs.pipelineSettings = camera.pipelineSettings;
@@ -314,11 +319,21 @@ function setupCameraConfigs(
         }
     }
 
+    // MSAA
+    cameraConfigs.enableMSAA = cameraConfigs.pipelineSettings !== null
+        && cameraConfigs.pipelineSettings.msaa.enabled
+        && !pipelineConfigs.isWeb;
+
+    // Shading scale
     cameraConfigs.enableShadingScale = cameraConfigs.pipelineSettings !== null
         && cameraConfigs.pipelineSettings.enableShadingScale;
     cameraConfigs.shadingScale = cameraConfigs.pipelineSettings !== null
         ? cameraConfigs.pipelineSettings.shadingScale
         : 1.0;
+
+    // Forward rendering
+    cameraConfigs.singleForwardRadiancePass
+        = pipelineConfigs.isMobile || cameraConfigs.enableMSAA;
 }
 
 export class BuiltinPipeline implements rendering.PipelineBuilder {
@@ -376,6 +391,19 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         }
         ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
 
+        // MsaaRadiance
+        if (this._cameraConfigs.enableMSAA) {
+            if (this._configs.useFloatOutput) {
+                ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA16F, width, height, 1, 1, 1,
+                    settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
+            } else {
+                ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA8, width, height, 1, 1, 1,
+                    settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
+            }
+            ppl.addTexture(`MsaaDepthStencil${id}`, TextureType.TEX2D, Format.DEPTH_STENCIL, width, height, 1, 1, 1,
+                settings.msaa.sampleCount, ResourceFlags.DEPTH_STENCIL_ATTACHMENT, ResourceResidency.MEMORYLESS);
+        }
+
         // Mainlight ShadowMap
         ppl.addRenderTarget(
             `ShadowMap${id}`,
@@ -390,8 +418,8 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             this._configs.shadowMapSize.y,
         );
 
-        // Mobile spot-light shadow map
-        if (this._configs.isMobile) {
+        // Spot-light shadow maps
+        if (this._cameraConfigs.singleForwardRadiancePass) {
             const count = this._configs.mobileMaxSpotLightShadowMaps;
             for (let i = 0; i !== count; ++i) {
                 ppl.addRenderTarget(
@@ -494,11 +522,11 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
         }
 
-        // Spot light shadow maps (Mobile only)
-        if (this._configs.isMobile) {
+        // Spot light shadow maps (Mobile or MSAA)
+        if (this._cameraConfigs.singleForwardRadiancePass) {
             // Currently, only support 1 spot light with shadow map on mobile platform.
             // TODO(zhouzhenglong): Relex this limitation.
-            this.forwardLighting.addMobileShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
+            this.forwardLighting.addSpotlightShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
         }
 
         // Forward Lighting
@@ -507,7 +535,8 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             if (this._cameraConfigs.enablePostProcess && settings !== null) {
                 // Post Process
                 if (this._configs.supportDepthSample && settings.depthOfField.enabled) {
-                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, dofRadianceName, depthStencilName);
+                    // Disable MSAA, depth stencil cannot be resolved cross-platformly
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, dofRadianceName, depthStencilName, true);
                     this._addDepthOfFieldPasses(ppl, settings, id, camera, width, height, dofRadianceName, depthStencilName, radianceName);
                 } else {
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
@@ -522,7 +551,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
                     if (this._cameraConfigs.enableShadingScale) {
                         // Apply FXAA on scaled image
                         this._addFxaaPass(ppl, width, height, ldrColorName, aaColorName);
-                        // Copy AA result to screen
+                        // Copy FXAA result to screen
                         lastPass = this._addCopyPass(ppl, nativeWidth, nativeHeight, aaColorName, colorName);
                     } else {
                         // Image not scaled, output FXAA result to screen directly
@@ -537,7 +566,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
                 this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
             }
-        } else {
+        } else { // LDR
             if (this._cameraConfigs.enableShadingScale) { // LDR (Size is scaled)
                 this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
@@ -631,11 +660,13 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // set viewport
         pass.setViewport(this._viewport);
 
+        const storeOp = this._cameraConfigs.enableMSAA ? StoreOp.DISCARD : StoreOp.STORE;
+
         // bind output render target
         if (forwardNeedClearColor(camera)) {
-            pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColor);
+            pass.addRenderTarget(colorName, LoadOp.CLEAR, storeOp, this._clearColor);
         } else {
-            pass.addRenderTarget(colorName, LoadOp.LOAD);
+            pass.addRenderTarget(colorName, LoadOp.LOAD, storeOp);
         }
 
         // bind depth stencil buffer
@@ -643,13 +674,13 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             pass.addDepthStencil(
                 depthStencilName,
                 LoadOp.CLEAR,
-                StoreOp.STORE,
+                storeOp,
                 camera.clearDepth,
                 camera.clearStencil,
                 camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
             );
         } else {
-            pass.addDepthStencil(depthStencilName, LoadOp.LOAD);
+            pass.addDepthStencil(depthStencilName, LoadOp.LOAD, storeOp);
         }
 
         // Set shadow map if enabled
@@ -875,6 +906,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         mainLight: renderer.scene.DirectionalLight | null,
         colorName: string,
         depthStencilName: string,
+        disableMSAA: boolean = false,
     ): rendering.BasicRenderPassBuilder {
         // ----------------------------------------------------------------
         // Dynamic states
@@ -891,24 +923,48 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         this._viewport.width = Math.floor(camera.viewport.z * width);
         this._viewport.height = Math.floor(camera.viewport.w * height);
 
+        // MSAA
+        const enableMSAA = !disableMSAA && this._cameraConfigs.enableMSAA;
+
         // ----------------------------------------------------------------
         // Forward Lighting (Main Directional Light)
         // ----------------------------------------------------------------
-        let pass = ppl.addRenderPass(width, height, 'default');
-        pass.name = 'ForwardPass';
-        this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
+        let pass: rendering.BasicRenderPassBuilder;
+        if (enableMSAA) {
+            assert(this._cameraConfigs.singleForwardRadiancePass, 'Msaa should be used with singleForwardRadiancePass');
+            const msaaRadianceName = `MsaaRadiance${id}`;
+            const msaaDepthStencilName = `MsaaDepthStencil${id}`;
+            const sampleCount = this._cameraConfigs.pipelineSettings.msaa.sampleCount;
+
+            const msPass = ppl.addMultisampleRenderPass(width, height, sampleCount, 0, 'default');
+            msPass.name = 'MsaaForwardPass';
+
+            this._buildForwardMainLightPass(msPass, id, camera,
+                msaaRadianceName, msaaDepthStencilName, mainLight);
+
+            msPass.resolveRenderTarget(msaaRadianceName, colorName);
+
+            pass = msPass;
+        } else {
+            pass = ppl.addRenderPass(width, height, 'default');
+            pass.name = 'ForwardPass';
+
+            this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
+        }
+        assert(pass !== undefined);
 
         // ----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
         // ----------------------------------------------------------------
         // Additive lights
-        if (this._configs.isMobile) {
+        if (this._cameraConfigs.singleForwardRadiancePass) {
             this.forwardLighting.addMobileLightQueues(
                 pass,
                 camera,
                 this._configs.mobileMaxSpotLightShadowMaps,
             );
         } else {
+            assert(!enableMSAA, 'Multiple forward radiance passes should not use MSAA');
             // Update last RenderPass
             pass = this.forwardLighting
                 .addLightPasses(colorName, depthStencilName, id, width, height, camera, ppl, pass);
