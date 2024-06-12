@@ -352,7 +352,7 @@ function setupCameraConfigs(
 export class BuiltinPipeline implements rendering.PipelineBuilder {
     // Internal cached resources
     private readonly _clearColor = new Color(0, 0, 0, 1);
-    private readonly _clearColorOpaqueBlack = new Color(0, 0, 0, 0);
+    private readonly _clearColorTransparentBlack = new Color(0, 0, 0, 0);
     private readonly _viewport = new Viewport();
     private readonly _configs = new PipelineConfigs();
     private readonly _cameraConfigs = new CameraConfigs();
@@ -642,7 +642,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         output: string,
     ): rendering.BasicRenderPassBuilder {
         const pass = ppl.addRenderPass(width, height, 'post-copy');
-        pass.addRenderTarget(output, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        pass.addRenderTarget(output, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         pass.addTexture(input, 'inputTexture');
         pass.setVec4('g_platform', this._configs.platform);
         pass.addQueue(QueueHint.OPAQUE)
@@ -658,7 +658,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         colorName: string,
     ): rendering.BasicRenderPassBuilder {
         const pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
-        pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         pass.addTexture(radianceName, 'inputTexture');
         pass.setVec4('g_platform', this._configs.platform);
         pass.addQueue(QueueHint.OPAQUE)
@@ -747,7 +747,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
 
         // CoC
         const cocPass = ppl.addRenderPass(width, height, 'dof-coc');
-        cocPass.addRenderTarget(cocName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        cocPass.addRenderTarget(cocName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         cocPass.addTexture(depthStencil, 'DepthTex');
         cocPass
             .addQueue(QueueHint.OPAQUE)
@@ -755,7 +755,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
 
         // Downsample and Prefilter
         const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-prefilter');
-        prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         prefilterPass.addTexture(cocName, 'cocTex');
         prefilterPass.addTexture(dofRadianceName, 'colorTex');
         prefilterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
@@ -765,7 +765,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
 
         // Bokeh blur
         const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-bokeh');
-        bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         bokehPass.addTexture(prefilterName, 'prefilterTex');
         bokehPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
         bokehPass
@@ -774,7 +774,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
 
         // Filtering
         const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-filter');
-        filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         filterPass.addTexture(bokehName, 'bokehTex');
         filterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
         filterPass
@@ -783,7 +783,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
 
         // Combine
         const combinePass = ppl.addRenderPass(width, height, 'dof-combine');
-        combinePass.addRenderTarget(radianceName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        combinePass.addRenderTarget(radianceName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         combinePass.addTexture(filterName, 'filterTex');
         combinePass.addTexture(dofRadianceName, 'colorTex');
         combinePass.addTexture(cocName, 'cocTex');
@@ -835,7 +835,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             this._bloomTexNames[0],
             LoadOp.CLEAR,
             StoreOp.STORE,
-            this._clearColorOpaqueBlack,
+            this._clearColorTransparentBlack,
         );
         prefilterPass.addTexture(radianceName, 'inputTexture');
         prefilterPass.setVec4('g_platform', this._configs.platform);
@@ -847,7 +847,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // Downsample passes
         for (let i = 1; i !== sizeCount; ++i) {
             const downPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-downsample');
-            downPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+            downPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             downPass.addTexture(this._bloomTexNames[i - 1], 'bloomTexture');
             this._bloomTexSize.x = this._bloomWidths[i - 1];
             this._bloomTexSize.y = this._bloomHeights[i - 1];
@@ -861,7 +861,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         // Upsample passes
         for (let i = iterations; i-- > 0;) {
             const upPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-upsample');
-            upPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+            upPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             upPass.addTexture(this._bloomTexNames[i + 1], 'bloomTexture');
             this._bloomTexSize.x = this._bloomWidths[i + 1];
             this._bloomTexSize.y = this._bloomHeights[i + 1];
@@ -893,7 +893,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         this._fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1 / width, 1 / height));
 
         const pass = ppl.addRenderPass(width, height, 'fxaa');
-        pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
+        pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
         pass.addTexture(ldrColorName, 'sceneColorMap');
         pass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
         pass.addQueue(QueueHint.OPAQUE)
