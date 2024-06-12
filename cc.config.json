@@ -19,6 +19,11 @@
         "gfx-empty": {
             "modules": ["gfx-empty"]
         },
+        "gfx-webgpu": {
+            "modules": [
+                "gfx-webgpu"
+            ]
+        },
         "3d": {
             "modules": ["3d"],
             "dependentAssets": [

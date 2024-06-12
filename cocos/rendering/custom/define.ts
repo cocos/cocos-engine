@@ -1166,7 +1166,7 @@ function applyGlobalDescBinding (data: RenderData, layout: string, isUpdate = fa
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
         const tex = descriptorSet.getTexture(bindId);
-        if (!tex || (isUpdate && value !== pipeline.defaultTexture)
+        if (!tex || (isUpdate && value !== pipeline.defaultShadowTexture)
         // @ts-ignore
         || (!tex.gpuTexture && !(tex.gpuTextureView && tex.gpuTextureView.gpuTexture))) {
             bindGlobalDesc(descriptorSet, bindId, value);

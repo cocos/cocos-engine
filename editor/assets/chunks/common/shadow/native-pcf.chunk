@@ -4,13 +4,20 @@
 #pragma define CC_SHADOW_PCF_SOFT 1
 #pragma define CC_SHADOW_PCF_SOFT_3X 2
 #pragma define CC_SHADOW_PCF_SOFT_5X 3
-
+#pragma extension([GL_EXT_shader_texture_lod, __VERSION__ < 130])
+vec4 shadowTexure(highp sampler2D shadowMap, vec2 coord) {
+    #if defined(CC_USE_WGPU)
+        return textureLod(shadowMap, coord, 0.0);
+    #else
+      return texture(shadowMap, coord);
+    #endif
+} 
 float SampleShadowMap (vec3 shadowNDCPos, highp sampler2D shadowMap)
 {
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-    return unpackRGBAToDepth(texture(shadowMap, shadowNDCPos.xy));
+    return unpackRGBAToDepth(shadowTexure(shadowMap, shadowNDCPos.xy));
   #else
-    return texture(shadowMap, shadowNDCPos.xy).x;
+    return shadowTexure(shadowMap, shadowNDCPos.xy).x;
   #endif
 }
 
@@ -38,9 +45,9 @@ float SampleShadowMapSoft (vec3 shadowNDCPos, highp sampler2D shadowMap, vec2 sh
 float NativePCFShadowFactorHard (vec3 shadowNDCPos, highp sampler2D shadowMap, vec2 shadowMapResolution)
 {
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-    return step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, shadowNDCPos.xy)));
+    return step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, shadowNDCPos.xy)));
   #else
-    return step(shadowNDCPos.z, texture(shadowMap, shadowNDCPos.xy).x);
+    return step(shadowNDCPos.z, shadowTexure(shadowMap, shadowNDCPos.xy).x);
   #endif
 }
 
@@ -51,15 +58,15 @@ float NativePCFShadowFactorSoft (vec3 shadowNDCPos, highp sampler2D shadowMap, v
 
   float block0, block1, block2, block3;
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-    block0 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y))));
-    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos.y))));
-    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset.y))));
-    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos_offset.y))));
+    block0 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y))));
+    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos.y))));
+    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset.y))));
+    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos_offset.y))));
   #else
-    block0 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y)).x);
-    block1 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos.y)).x);
-    block2 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset.y)).x);
-    block3 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos_offset.y)).x);
+    block0 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y)).x);
+    block1 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos.y)).x);
+    block2 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset.y)).x);
+    block3 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset.x, shadowNDCPos_offset.y)).x);
   #endif
 
   float coefX   = mod(shadowNDCPos.x, oneTap.x) * shadowMapResolution.x;
@@ -80,25 +87,25 @@ float NativePCFShadowFactorSoft3X (vec3 shadowNDCPos, highp sampler2D shadowMap,
 
   float block0, block1, block2, block3, block4, block5, block6, block7, block8;
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-    block0 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_U))));
-    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_U))));
-    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_U))));
-    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos.y))));
-    block4 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y))));
-    block5 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos.y))));
-    block6 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_D))));
-    block7 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_D))));
-    block8 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_D))));
+    block0 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_U))));
+    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_U))));
+    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_U))));
+    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos.y))));
+    block4 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y))));
+    block5 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos.y))));
+    block6 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_D))));
+    block7 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_D))));
+    block8 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_D))));
   #else
-    block0 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_U)).x);
-    block1 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_U)).x);
-    block2 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_U)).x);
-    block3 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos.y)).x);
-    block4 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y)).x);
-    block5 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos.y)).x);
-    block6 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_D)).x);
-    block7 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_D)).x);
-    block8 = step(shadowNDCPos.z, texture(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_D)).x);
+    block0 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_U)).x);
+    block1 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_U)).x);
+    block2 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_U)).x);
+    block3 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos.y)).x);
+    block4 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos.y)).x);
+    block5 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos.y)).x);
+    block6 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset_L, shadowNDCPos_offset_D)).x);
+    block7 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos.x, shadowNDCPos_offset_D)).x);
+    block8 = step(shadowNDCPos.z, shadowTexure(shadowMap, vec2(shadowNDCPos_offset_R, shadowNDCPos_offset_D)).x);
   #endif
 
   float coefX = mod(shadowNDCPos.x, oneTap.x) * shadowMapResolution.x;
@@ -157,57 +164,57 @@ float NativePCFShadowFactorSoft5X (vec3 shadowNDCPos, highp sampler2D shadowMap,
 
   float block1, block2, block3, block4, block5, block6, block7, block8, block9, block10, block11, block12, block13, block14, block15, block16, block17, block18, block19, block20, block21, block22, block23, block24, block25;
   #if CC_SHADOWMAP_FORMAT == SHADOWMAP_FORMAT_RGBA8
-    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset1)));
-    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset2)));
-    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset3)));
-    block4 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset4)));
-    block5 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset5)));
-    block6 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset6)));
-    block7 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset7)));
-    block8 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset8)));
-    block9 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset9)));
-    block10 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset10)));
-    block11 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset11)));
-    block12 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset12)));
-    block13 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset13)));
-    block14 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset14)));
-    block15 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset15)));
-    block16 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset16)));
-    block17 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset17)));
-    block18 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset18)));
-    block19 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset19)));
-    block20 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset20)));
-    block21 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset21)));
-    block22 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset22)));
-    block23 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset23)));
-    block24 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset24)));
-    block25 = step(shadowNDCPos.z, unpackRGBAToDepth(texture(shadowMap, offset25)));
+    block1 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset1)));
+    block2 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset2)));
+    block3 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset3)));
+    block4 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset4)));
+    block5 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset5)));
+    block6 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset6)));
+    block7 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset7)));
+    block8 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset8)));
+    block9 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset9)));
+    block10 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset10)));
+    block11 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset11)));
+    block12 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset12)));
+    block13 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset13)));
+    block14 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset14)));
+    block15 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset15)));
+    block16 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset16)));
+    block17 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset17)));
+    block18 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset18)));
+    block19 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset19)));
+    block20 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset20)));
+    block21 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset21)));
+    block22 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset22)));
+    block23 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset23)));
+    block24 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset24)));
+    block25 = step(shadowNDCPos.z, unpackRGBAToDepth(shadowTexure(shadowMap, offset25)));
   #else
-    block1 = step(shadowNDCPos.z, texture(shadowMap, offset1).x);
-    block2 = step(shadowNDCPos.z, texture(shadowMap, offset2).x);
-    block3 = step(shadowNDCPos.z, texture(shadowMap, offset3).x);
-    block4 = step(shadowNDCPos.z, texture(shadowMap, offset4).x);
-    block5 = step(shadowNDCPos.z, texture(shadowMap, offset5).x);
-    block6 = step(shadowNDCPos.z, texture(shadowMap, offset6).x);
-    block7 = step(shadowNDCPos.z, texture(shadowMap, offset7).x);
-    block8 = step(shadowNDCPos.z, texture(shadowMap, offset8).x);
-    block9 = step(shadowNDCPos.z, texture(shadowMap, offset9).x);
-    block10 = step(shadowNDCPos.z, texture(shadowMap, offset10).x);
-    block11 = step(shadowNDCPos.z, texture(shadowMap, offset11).x);
-    block12 = step(shadowNDCPos.z, texture(shadowMap, offset12).x);
-    block13 = step(shadowNDCPos.z, texture(shadowMap, offset13).x);
-    block14 = step(shadowNDCPos.z, texture(shadowMap, offset14).x);
-    block15 = step(shadowNDCPos.z, texture(shadowMap, offset15).x);
-    block16 = step(shadowNDCPos.z, texture(shadowMap, offset16).x);
-    block17 = step(shadowNDCPos.z, texture(shadowMap, offset17).x);
-    block18 = step(shadowNDCPos.z, texture(shadowMap, offset18).x);
-    block19 = step(shadowNDCPos.z, texture(shadowMap, offset19).x);
-    block20 = step(shadowNDCPos.z, texture(shadowMap, offset20).x);
-    block21 = step(shadowNDCPos.z, texture(shadowMap, offset21).x);
-    block22 = step(shadowNDCPos.z, texture(shadowMap, offset22).x);
-    block23 = step(shadowNDCPos.z, texture(shadowMap, offset23).x);
-    block24 = step(shadowNDCPos.z, texture(shadowMap, offset24).x);
-    block25 = step(shadowNDCPos.z, texture(shadowMap, offset25).x);
+    block1 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset1).x);
+    block2 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset2).x);
+    block3 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset3).x);
+    block4 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset4).x);
+    block5 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset5).x);
+    block6 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset6).x);
+    block7 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset7).x);
+    block8 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset8).x);
+    block9 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset9).x);
+    block10 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset10).x);
+    block11 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset11).x);
+    block12 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset12).x);
+    block13 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset13).x);
+    block14 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset14).x);
+    block15 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset15).x);
+    block16 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset16).x);
+    block17 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset17).x);
+    block18 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset18).x);
+    block19 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset19).x);
+    block20 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset20).x);
+    block21 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset21).x);
+    block22 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset22).x);
+    block23 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset23).x);
+    block24 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset24).x);
+    block25 = step(shadowNDCPos.z, shadowTexure(shadowMap, offset25).x);
   #endif
 
   vec2 coef = fract(shadowNDCPos.xy * shadowMapResolution);

@@ -443,7 +443,7 @@ export class RenderAdditiveLightQueue {
                 if (shadowFrameBufferMap.has(light)) {
                     const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
                     if (texture) {
-                        descriptorSet.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, texture);
+                        globalDSManager.bindTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING, texture);
                     }
                 }
                 break;
@@ -470,7 +470,7 @@ export class RenderAdditiveLightQueue {
             }
             default:
             }
-            descriptorSet.update();
+            globalDSManager.update();
             const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
             cmdBuff.updateBuffer(descriptorSet.getBuffer(binding)!, this._shadowUBO);
         }

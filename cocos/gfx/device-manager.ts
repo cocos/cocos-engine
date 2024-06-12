@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { JSB, WEBGPU } from 'internal:constants';
+import { EDITOR, JSB, WEBGPU } from 'internal:constants';
 import { cclegacy, error, getError, sys, screen, Settings, settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
@@ -67,7 +67,14 @@ export enum LegacyRenderMode {
      * @zh
      * 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用。
      */
-    HEADLESS = 3
+    HEADLESS = 3,
+    /**
+     * @en
+     * Force WebGPU rendering, but this option will be ignored in some browsers.
+     * @zh
+     * 强制使用 WebGPU 渲染，但是在部分浏览器中这个选项会被忽略。
+     */
+    WEBGPU = 4,
 }
 
 /**
@@ -77,8 +84,9 @@ export enum RenderType {
     UNKNOWN = -1,
     CANVAS = 0,
     WEBGL = 1,
-    OPENGL = 2,
-    HEADLESS = 3,
+    WEBGPU = 2,
+    OPENGL = 3,
+    HEADLESS = 4,
 }
 
 /**
@@ -91,7 +99,7 @@ export class DeviceManager {
     private _canvas: HTMLCanvasElement | null = null;
     private _swapchain!: Swapchain;
     private _renderType: RenderType = RenderType.UNKNOWN;
-
+    private _deviceInitialized = false;
     public get gfxDevice (): Device {
         return this._gfxDevice;
     }
@@ -100,18 +108,46 @@ export class DeviceManager {
         return this._swapchain;
     }
 
-    public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): void {
+    private _tryInitializeWebGPUDevice (DeviceConstructor, info: DeviceInfo): Promise<boolean> {
+        if (this._deviceInitialized) {
+            return Promise.resolve(true);
+        }
+        if (DeviceConstructor) {
+            this._gfxDevice = new DeviceConstructor();
+            return new Promise<boolean>((resolve, reject) => {
+                (this._gfxDevice.initialize(info) as Promise<boolean>).then((val) => {
+                    this._deviceInitialized = val;
+                    resolve(val);
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
+        }
+        return Promise.resolve(false);
+    }
+
+    private _tryInitializeDeviceSync (DeviceConstructor, info: DeviceInfo): boolean {
+        if (this._deviceInitialized) {
+            return true;
+        }
+        if (DeviceConstructor) {
+            this._gfxDevice = new DeviceConstructor();
+            this._deviceInitialized = this._gfxDevice.initialize(info) as boolean;
+        }
+        return this._deviceInitialized;
+    }
+
+    public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): boolean | Promise<boolean> {
         // Avoid setup to be called twice.
-        if (this.initialized) { return; }
-        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+        if (this.initialized) { return true; }
+        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') as LegacyRenderMode;
         this._canvas = canvas;
-
+        if (this._canvas) { this._canvas.oncontextmenu = (): boolean => false; }
         this._renderType = this._determineRenderType(renderMode);
-
-        // WebGL context created successfully
-        if (this._renderType === RenderType.WEBGL) {
-            const deviceInfo = new DeviceInfo(bindingMappingInfo);
-
+        this._deviceInitialized = false;
+        const deviceInfo = new DeviceInfo(bindingMappingInfo);
+        // WebGL or WebGPU context created successfully
+        if (this._renderType === RenderType.WEBGL || this._renderType === RenderType.WEBGPU) {
             if (JSB && (globalThis as any).gfx) {
                 this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
@@ -121,31 +157,30 @@ export class DeviceManager {
                 if (sys.browserType === BrowserType.UC) {
                     useWebGL2 = false;
                 }
-
-                const deviceCtors: Constructor<Device>[] = [];
-                if (WEBGPU) {
-                    deviceCtors.push(cclegacy.WebGPUDevice);
+                Device.canvas = canvas!;
+                if (this._renderType === RenderType.WEBGPU) {
+                    return new Promise<boolean>((resolve, reject) => {
+                        this._tryInitializeWebGPUDevice(cclegacy.WebGPUDevice, deviceInfo).then((val) => {
+                            this._initSwapchain();
+                            resolve(val);
+                        }).catch((err) => {
+                            reject(err);
+                        });
+                    });
                 }
                 if (useWebGL2 && cclegacy.WebGL2Device) {
-                    deviceCtors.push(cclegacy.WebGL2Device);
+                    this._tryInitializeDeviceSync(cclegacy.WebGL2Device, deviceInfo);
                 }
                 if (cclegacy.WebGLDevice) {
-                    deviceCtors.push(cclegacy.WebGLDevice);
+                    this._tryInitializeDeviceSync(cclegacy.WebGLDevice, deviceInfo);
                 }
                 if (cclegacy.EmptyDevice) {
-                    deviceCtors.push(cclegacy.EmptyDevice);
-                }
-
-                Device.canvas = canvas!;
-                for (let i = 0; i < deviceCtors.length; i++) {
-                    this._gfxDevice = new deviceCtors[i]();
-                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
+                    this._tryInitializeDeviceSync(cclegacy.EmptyDevice, deviceInfo);
                 }
                 this._initSwapchain();
             }
         } else if (this._renderType === RenderType.HEADLESS && cclegacy.EmptyDevice) {
-            this._gfxDevice = new cclegacy.EmptyDevice();
-            this._gfxDevice.initialize(new DeviceInfo(bindingMappingInfo));
+            this._tryInitializeDeviceSync(cclegacy.EmptyDevice, deviceInfo);
             this._initSwapchain();
         }
 
@@ -153,10 +188,9 @@ export class DeviceManager {
             // todo fix here for wechat game
             error('can not support canvas rendering in 3D');
             this._renderType = RenderType.UNKNOWN;
-            return;
+            return false;
         }
-
-        if (this._canvas) { this._canvas.oncontextmenu = (): boolean => false; }
+        return true;
     }
 
     private _initSwapchain (): void {
@@ -167,8 +201,12 @@ export class DeviceManager {
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
     }
 
+    private _supportWebGPU (): boolean {
+        return 'gpu' in navigator;
+    }
+
     private _determineRenderType (renderMode: LegacyRenderMode): RenderType {
-        if (typeof renderMode !== 'number' || renderMode > RenderType.HEADLESS || renderMode < LegacyRenderMode.AUTO) {
+        if (typeof renderMode !== 'number' || renderMode > LegacyRenderMode.WEBGPU || renderMode < LegacyRenderMode.AUTO) {
             renderMode = LegacyRenderMode.AUTO;
         }
         // Determine RenderType
@@ -178,7 +216,10 @@ export class DeviceManager {
         if (renderMode === LegacyRenderMode.CANVAS) {
             renderType = RenderType.CANVAS;
             supportRender = true;
-        } else if (renderMode === LegacyRenderMode.AUTO || renderMode === LegacyRenderMode.WEBGL) {
+        } else if (renderMode === LegacyRenderMode.AUTO || renderMode === LegacyRenderMode.WEBGPU) {
+            renderType = (this._supportWebGPU() && !EDITOR) ? RenderType.WEBGPU : RenderType.WEBGL;
+            supportRender = true;
+        } else if (renderMode === LegacyRenderMode.WEBGL) {
             renderType = RenderType.WEBGL;
             supportRender = true;
         } else if (renderMode === LegacyRenderMode.HEADLESS) {

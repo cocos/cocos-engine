@@ -51,7 +51,7 @@ export class EmptyTexture extends Texture {
     }
     public destroy (): void {}
 
-    public getGLTextureHandle (): number {
+    public getTextureHandle (): number {
         return 0;
     }
 

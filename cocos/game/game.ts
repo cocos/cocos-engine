@@ -109,15 +109,17 @@ export interface IGameConfig {
      * - 1 - 强制使用 canvas 渲染。
      * - 2 - 强制使用 WebGL 渲染，但是在部分 Android 浏览器中这个选项会被忽略。
      * - 3 - 使用空渲染器，可以用于测试和服务器端环境，目前暂时用于 Cocos 内部测试使用
+     * - 4 - 强制使用 WebGPU 渲染，但是在部分浏览器中这个选项会被忽略
      * @en
      * Sets the renderer type, only useful on web:
      * - 0 - Automatically chosen by engine.
      * - 1 - Forced to use canvas renderer.
      * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
      * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
+     * - 4 - Force WebGPU rendering, but this option will be ignored in some browsers.
      * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.RENDERING: { "renderMode": 0 }}``` to set this.
      */
-    renderMode?: 0 | 1 | 2 | 3;
+    renderMode?: 0 | 1 | 2 | 3 | 4;
 
     /**
      * @en
@@ -748,7 +750,8 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_INFRASTRUCTURE_INIT);
                 return this.onPreInfrastructureInitDelegate.dispatch();
             })
-            .then((): void => {
+            // gfx init
+            .then((): boolean | Promise<boolean> => {
                 if (DEBUG) {
                     // eslint-disable-next-line no-console
                     console.time('Init Infrastructure');
@@ -763,8 +766,9 @@ export class Game extends EventTarget {
                 }
                 screen.init();
                 garbageCollectionManager.init();
-                deviceManager.init(this.canvas, bindingMappingInfo);
-
+                return deviceManager.init(this.canvas, bindingMappingInfo);
+            })
+            .then(() => {
                 const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
                 if (renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
                     if (!macro.CUSTOM_PIPELINE_NAME) {

@@ -126,9 +126,10 @@ export class ForwardStage extends RenderStage {
     }
 
     public render (camera: Camera): void {
-        this._instancedQueue.clear();
         const pipeline = this._pipeline as ForwardPipeline;
         const device = pipeline.device;
+        this._instancedQueue.clear();
+
         this._renderQueues.forEach(renderQueueClearFunc);
 
         const renderObjects = pipeline.pipelineSceneData.renderObjects;

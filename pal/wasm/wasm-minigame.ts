@@ -54,6 +54,17 @@ export function fetchBuffer (binaryUrl: string): Promise<ArrayBuffer> {
     });
 }
 
+export function fetchUrl (binaryUrl: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        getPlatformBinaryUrl(binaryUrl).then((url) => {
+            resolve(url);
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        }).catch((e) => {
+            reject(e);
+        });
+    });
+}
+
 function loadSubpackage (name: string): Promise<void> {
     return new Promise((resolve, reject) => {
         if (minigame.loadSubpackage) {

@@ -161,7 +161,7 @@ export abstract class Device {
 
     public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
 
-    public abstract initialize (info: Readonly<DeviceInfo>): boolean;
+    public abstract initialize (info: Readonly<DeviceInfo>): boolean | Promise<boolean>;
 
     public abstract destroy (): void;
 
@@ -358,7 +358,9 @@ export abstract class Device {
      * @zh 是否开启自动GFX内部barrier推导，web无影响。
      * @param format The GFX format to be queried.
      */
-    public enableAutoBarrier (en: boolean): void {}
+    public enableAutoBarrier (en: boolean): void {
+        // noop
+    }
 
     /**
      * @en Get maximum supported sample count.

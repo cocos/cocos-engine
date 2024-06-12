@@ -29,6 +29,12 @@ import { Layers } from '../scene-graph/layers';
 import { cclegacy } from '../core';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit, UniformStorageBuffer, DescriptorSetLayoutBinding,
     Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, FormatFeatureBit, Format, API,
+    Texture,
+    TextureInfo,
+    TextureType,
+    TextureUsageBit,
+    TextureFlagBit,
+    SampleCount,
 } from '../gfx';
 
 export const PIPELINE_FLOW_MAIN = 'MainFlow';
@@ -810,6 +816,25 @@ export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
 export function supportsR16HalfFloatTexture (device: Device): boolean {
     return (device.getFormatFeatures(Format.R16F) & (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE))
         === (FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE);
+}
+
+let dftShadowTexture: Texture;
+export function getDefaultShadowTexture (device: Device): Texture {
+    if (dftShadowTexture) return dftShadowTexture;
+    const texInfo = new TextureInfo(
+        TextureType.TEX2D,
+        TextureUsageBit.NONE,
+        supportsR32FloatTexture(device) ? Format.R32F : Format.RGBA8,
+        16,
+        16,
+        TextureFlagBit.NONE,
+        1,
+        1,
+        SampleCount.X1,
+        1,
+    );
+    dftShadowTexture = device.createTexture(texInfo);
+    return dftShadowTexture;
 }
 
 /**
