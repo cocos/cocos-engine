@@ -25,7 +25,7 @@ import { ccclass, disallowMultiple, executeInEditMode,
     menu, range, rangeMin, requireComponent, serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { Camera } from '../../../misc/camera-component';
 import { Component } from '../../../scene-graph';
-import { makePipelineSettings, PipelineSettings } from '../settings';
+import { fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings } from '../settings';
 import { property } from '../../../core/data/decorators/property';
 
 @ccclass('cc.BuiltinPipelineSettings')
@@ -39,6 +39,8 @@ export class BuiltinPipelineSettings extends Component {
 
     // Enable/Disable
     onEnable (): void {
+        fillRequiredPipelineSettings(this.settings);
+
         const cameraComponent = this.getComponent(Camera) as Camera;
         const camera = cameraComponent.camera;
         camera.pipelineSettings = this.settings;
@@ -83,6 +85,32 @@ export class BuiltinPipelineSettings extends Component {
         if (current === this.settings) {
             cclegacy.rendering.setEditorPipelineSettings(null);
         }
+    }
+
+    // MSAA
+    @type(CCBoolean)
+    set MsaaEnable (value: boolean) {
+        this.settings.msaa.enabled = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get MsaaEnable (): boolean {
+        return this.settings.msaa.enabled;
+    }
+
+    @range([1, 8, 1])
+    @property
+    set msaaSampleCount (value: number) {
+        value = 2 ** Math.ceil(Math.log2(Math.max(value, 1)));
+        value = Math.min(value, 8);
+        this.settings.msaa.sampleCount = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get msaaSampleCount (): number {
+        return this.settings.msaa.sampleCount;
     }
 
     // Shading Scale

@@ -28,7 +28,29 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Texture } from '../../gfx';
+import { SampleCount, Texture } from '../../gfx';
+
+export interface MSAA {
+    enabled: boolean; /*false*/
+    sampleCount: SampleCount; /*SampleCount.X4*/
+    [name: string]: unknown;
+}
+
+export function makeMSAA (): MSAA {
+    return {
+        enabled: false,
+        sampleCount: SampleCount.X4,
+    };
+}
+
+export function fillRequiredMSAA (value: MSAA): void {
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.sampleCount === undefined) {
+        value.sampleCount = SampleCount.X4;
+    }
+}
 
 export interface HBAO {
     enabled: boolean; /*false*/
@@ -51,6 +73,27 @@ export function makeHBAO (): HBAO {
     };
 }
 
+export function fillRequiredHBAO (value: HBAO): void {
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.radiusScale === undefined) {
+        value.radiusScale = 1;
+    }
+    if (value.angleBiasDegree === undefined) {
+        value.angleBiasDegree = 10;
+    }
+    if (value.blurSharpness === undefined) {
+        value.blurSharpness = 3;
+    }
+    if (value.aoSaturation === undefined) {
+        value.aoSaturation = 1;
+    }
+    if (value.needBlur === undefined) {
+        value.needBlur = false;
+    }
+}
+
 export interface DepthOfField {
     enabled: boolean; /*false*/
     focusDistance: number; /*0*/
@@ -66,6 +109,21 @@ export function makeDepthOfField (): DepthOfField {
         focusRange: 0,
         bokehRadius: 1,
     };
+}
+
+export function fillRequiredDepthOfField (value: DepthOfField): void {
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.focusDistance === undefined) {
+        value.focusDistance = 0;
+    }
+    if (value.focusRange === undefined) {
+        value.focusRange = 0;
+    }
+    if (value.bokehRadius === undefined) {
+        value.bokehRadius = 1;
+    }
 }
 
 export interface Bloom {
@@ -87,6 +145,24 @@ export function makeBloom (): Bloom {
     };
 }
 
+export function fillRequiredBloom (value: Bloom): void {
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.enableAlphaMask === undefined) {
+        value.enableAlphaMask = false;
+    }
+    if (value.iterations === undefined) {
+        value.iterations = 3;
+    }
+    if (value.threshold === undefined) {
+        value.threshold = 0.8;
+    }
+    if (value.intensity === undefined) {
+        value.intensity = 2.3;
+    }
+}
+
 export interface ColorGrading {
     enabled: boolean; /*false*/
     contribute: number; /*0*/
@@ -99,6 +175,15 @@ export function makeColorGrading (): ColorGrading {
         enabled: false,
         contribute: 0,
     };
+}
+
+export function fillRequiredColorGrading (value: ColorGrading): void {
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.contribute === undefined) {
+        value.contribute = 0;
+    }
 }
 
 export interface FSR {
@@ -114,6 +199,15 @@ export function makeFSR (): FSR {
     };
 }
 
+export function fillRequiredFSR (value: FSR): void {
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.sharpness === undefined) {
+        value.sharpness = 0.8;
+    }
+}
+
 export interface FXAA {
     enabled: boolean; /*false*/
     [name: string]: unknown;
@@ -125,7 +219,14 @@ export function makeFXAA (): FXAA {
     };
 }
 
+export function fillRequiredFXAA (value: FXAA): void {
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+}
+
 export interface PipelineSettings {
+    readonly msaa: MSAA;
     enableShadingScale: boolean; /*false*/
     shadingScale: number; /*0.5*/
     readonly depthOfField: DepthOfField;
@@ -138,6 +239,7 @@ export interface PipelineSettings {
 
 export function makePipelineSettings (): PipelineSettings {
     return {
+        msaa: makeMSAA(),
         enableShadingScale: false,
         shadingScale: 0.5,
         depthOfField: makeDepthOfField(),
@@ -146,4 +248,43 @@ export function makePipelineSettings (): PipelineSettings {
         fsr: makeFSR(),
         fxaa: makeFXAA(),
     };
+}
+
+export function fillRequiredPipelineSettings (value: PipelineSettings): void {
+    if (value.msaa === undefined) {
+        (value.msaa as MSAA) = makeMSAA();
+    } else {
+        fillRequiredMSAA(value.msaa);
+    }
+    if (value.enableShadingScale === undefined) {
+        value.enableShadingScale = false;
+    }
+    if (value.shadingScale === undefined) {
+        value.shadingScale = 0.5;
+    }
+    if (value.depthOfField === undefined) {
+        (value.depthOfField as DepthOfField) = makeDepthOfField();
+    } else {
+        fillRequiredDepthOfField(value.depthOfField);
+    }
+    if (value.bloom === undefined) {
+        (value.bloom as Bloom) = makeBloom();
+    } else {
+        fillRequiredBloom(value.bloom);
+    }
+    if (value.colorGrading === undefined) {
+        (value.colorGrading as ColorGrading) = makeColorGrading();
+    } else {
+        fillRequiredColorGrading(value.colorGrading);
+    }
+    if (value.fsr === undefined) {
+        (value.fsr as FSR) = makeFSR();
+    } else {
+        fillRequiredFSR(value.fsr);
+    }
+    if (value.fxaa === undefined) {
+        (value.fxaa as FXAA) = makeFXAA();
+    } else {
+        fillRequiredFXAA(value.fxaa);
+    }
 }
