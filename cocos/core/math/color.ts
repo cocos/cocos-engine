@@ -46,6 +46,8 @@ const A_INDEX = 3;
  * 每个通道都为取值范围 [0, 255] 的整数。<br/>
  */
 export class Color extends ValueType implements Modifiable {
+    // FIXME: Should return new object instead in v4. More information, please refer to
+    // https://forum.cocos.org/t/topic/158610
     public static WHITE = Object.freeze(new Color(255, 255, 255, 255));
     public static GRAY = Object.freeze(new Color(127, 127, 127, 255));
     public static BLACK = Object.freeze(new Color(0, 0, 0, 255));
