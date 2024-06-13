@@ -158,7 +158,7 @@ export class DeviceManager {
                     useWebGL2 = false;
                 }
                 Device.canvas = canvas!;
-                if (this._renderType === RenderType.WEBGPU) {
+                if (this._renderType === RenderType.WEBGPU && cclegacy.WebGPUDevice) {
                     return new Promise<boolean>((resolve, reject) => {
                         this._tryInitializeWebGPUDevice(cclegacy.WebGPUDevice, deviceInfo).then((val) => {
                             this._initSwapchain();
