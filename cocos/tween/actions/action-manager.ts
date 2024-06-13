@@ -424,19 +424,6 @@ export class ActionManager {
         }
     }
 
-    /**
-     * @en
-     * purges the shared action manager. It releases the retained instance. <br/>
-     * because it uses this, so it can not be static.
-     * @zh
-     * 清除共用的动作管理器。它释放了持有的实例。 <br/>
-     * 因为它使用 this，因此它不能是静态的。
-     * @method purgeSharedManager
-     */
-    purgeSharedManager (): void {
-        legacyCC.director.getScheduler().unscheduleUpdate(this);
-    }
-
     // protected
     private _removeActionAtIndex (index: number, element: HashElement): void {
         element.actions.splice(index, 1);
