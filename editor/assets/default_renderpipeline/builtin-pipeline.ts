@@ -40,7 +40,8 @@ import {
 const { AABB, Sphere, intersect } = geometry;
 const { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, Viewport } = gfx;
 const { scene } = renderer;
-const { QueueHint, SceneFlags } = rendering;
+const { QueueHint, SceneFlags } = rendering ? rendering
+    : { QueueHint: undefined, SceneFlags: undefined };
 const { CameraUsage, CSMLevel, LightType } = scene;
 
 function forwardNeedClearColor(camera: renderer.scene.Camera): boolean {
@@ -1046,6 +1047,6 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
     }
 }
 
-if (rendering !== undefined) {
+if (rendering) {
     rendering.setCustomPipeline('Builtin', new BuiltinPipeline());
 }
