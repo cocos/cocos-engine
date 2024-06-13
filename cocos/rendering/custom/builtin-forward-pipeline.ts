@@ -22,37 +22,37 @@
  THE SOFTWARE.
 */
 
-import { DEBUG } from 'cc/env';
-import {
-    geometry,
-    gfx,
-    Material,
-    pipeline,
-    PipelineSettings,
-    renderer,
-    rendering,
-    sys,
-    Vec2,
-    Vec3,
-    Vec4,
-} from 'cc';
+import { DEBUG } from 'internal:constants';
+import { sys, Vec2, Vec3, Vec4 } from '../../core';
+import { AABB } from '../../core/geometry/aabb';
+import { Frustum } from '../../core/geometry/frustum';
+import intersect from '../../core/geometry/intersect';
+import { Sphere } from '../../core/geometry/sphere';
+import { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, Viewport } from '../../gfx/base/define';
+import { RenderScene } from '../../render-scene/core/render-scene';
+import { RenderWindow } from '../../render-scene/core/render-window';
+import { Camera, CameraUsage } from '../../render-scene/scene/camera';
+import { DirectionalLight } from '../../render-scene/scene/directional-light';
+import { Light, LightType } from '../../render-scene/scene/light';
+import { CSMLevel } from '../../render-scene/scene/shadows';
+import { SpotLight } from '../../render-scene/scene/spot-light';
+import { BasicPipeline, BasicRenderPassBuilder, PipelineBuilder } from './pipeline';
+import { QueueHint, SceneFlags } from './types';
+import { supportsR32FloatTexture } from '../define';
+import { Material } from '../../asset/assets';
+import { PipelineSettings } from './settings';
+import { getEditorPipelineCamera, getEditorPipelineSettings } from './framework';
 
-const { AABB, Sphere, intersect } = geometry;
-const { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, Viewport } = gfx;
-const { scene } = renderer;
-const { QueueHint, SceneFlags } = rendering;
-const { CameraUsage, CSMLevel, LightType } = scene;
-
-function forwardNeedClearColor(camera: renderer.scene.Camera): boolean {
+function forwardNeedClearColor (camera: Camera): boolean {
     return !!(camera.clearFlag & (ClearFlagBit.COLOR | (ClearFlagBit.STENCIL << 1)));
 }
 
-function getCsmMainLightViewport(
-    light: renderer.scene.DirectionalLight,
+function getCsmMainLightViewport (
+    light: DirectionalLight,
     w: number,
     h: number,
     level: number,
-    vp: gfx.Viewport,
+    vp: Viewport,
     screenSpaceSignY: number,
 ): void {
     if (light.shadowFixedArea || light.csmLevel === CSMLevel.LEVEL_1) {
@@ -78,19 +78,19 @@ function getCsmMainLightViewport(
 
 class ForwardLighting {
     // Active lights
-    private readonly lights: renderer.scene.Light[] = [];
+    private readonly lights: Light[] = [];
     // Active spot lights with shadows (Mutually exclusive with `lights`)
-    private readonly shadowEnabledSpotLights: renderer.scene.SpotLight[] = [];
+    private readonly shadowEnabledSpotLights: SpotLight[] = [];
 
     // Internal cached resources
     private readonly _sphere = Sphere.create(0, 0, 0, 1);
     private readonly _boundingBox = new AABB();
     private readonly _rangedDirLightBoundingBox = new AABB(0.0, 0.0, 0.0, 0.5, 0.5, 0.5);
 
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------
     // Interface
-    // ----------------------------------------------------------------
-    public cullLights(scene: renderer.RenderScene, frustum: geometry.Frustum, cameraPos?: Vec3): void {
+    //----------------------------------------------------------------
+    public cullLights (scene: RenderScene, frustum: Frustum, cameraPos?: Vec3): void {
         // TODO(zhouzhenglong): Make light culling native
         this.lights.length = 0;
         this.shadowEnabledSpotLights.length = 0;
@@ -142,24 +142,24 @@ class ForwardLighting {
             );
         }
     }
-    private _addLightQueues(camera: renderer.scene.Camera, pass: rendering.BasicRenderPassBuilder): void {
+    private _addLightQueues (camera: Camera, pass: BasicRenderPassBuilder): void {
         for (const light of this.lights) {
             const queue = pass.addQueue(QueueHint.BLEND, 'forward-add');
             switch (light.type) {
-                case LightType.SPHERE:
-                    queue.name = 'sphere-light';
-                    break;
-                case LightType.SPOT:
-                    queue.name = 'spot-light';
-                    break;
-                case LightType.POINT:
-                    queue.name = 'point-light';
-                    break;
-                case LightType.RANGED_DIRECTIONAL:
-                    queue.name = 'ranged-directional-light';
-                    break;
-                default:
-                    queue.name = 'unknown-light';
+            case LightType.SPHERE:
+                queue.name = 'sphere-light';
+                break;
+            case LightType.SPOT:
+                queue.name = 'spot-light';
+                break;
+            case LightType.POINT:
+                queue.name = 'point-light';
+                break;
+            case LightType.RANGED_DIRECTIONAL:
+                queue.name = 'ranged-directional-light';
+                break;
+            default:
+                queue.name = 'unknown-light';
             }
             queue.addScene(
                 camera,
@@ -168,7 +168,7 @@ class ForwardLighting {
             );
         }
     }
-    public addMobileShadowPasses(ppl: rendering.BasicPipeline, camera: renderer.scene.Camera, maxNumShadowMaps: number): void {
+    public addMobileShadowPasses (ppl: BasicPipeline, camera: Camera, maxNumShadowMaps: number): void {
         let i = 0;
         for (const light of this.shadowEnabledSpotLights) {
             const shadowMapSize = ppl.pipelineSceneData.shadows.size;
@@ -185,7 +185,7 @@ class ForwardLighting {
             }
         }
     }
-    public addMobileLightQueues(pass: rendering.BasicRenderPassBuilder, camera: renderer.scene.Camera, maxNumShadowMaps: number): void {
+    public addMobileLightQueues (pass: BasicRenderPassBuilder, camera: Camera, maxNumShadowMaps: number): void {
         this._addLightQueues(camera, pass);
         let i = 0;
         for (const light of this.shadowEnabledSpotLights) {
@@ -205,16 +205,16 @@ class ForwardLighting {
     // Notice: ForwardLighting cannot handle a lot of lights.
     // If there are too many lights, the performance will be very poor.
     // If many lights are needed, please implement a forward+ or deferred rendering pipeline.
-    public addLightPasses(
+    public addLightPasses (
         colorName: string,
         depthStencilName: string,
         id: number, // window id
         width: number,
         height: number,
-        camera: renderer.scene.Camera,
-        ppl: rendering.BasicPipeline,
-        pass: rendering.BasicRenderPassBuilder,
-    ): rendering.BasicRenderPassBuilder {
+        camera: Camera,
+        ppl: BasicPipeline,
+        pass: BasicRenderPassBuilder,
+    ): BasicRenderPassBuilder {
         this._addLightQueues(camera, pass);
 
         const shadowMapSize = ppl.pipelineSceneData.shadows.size;
@@ -256,12 +256,11 @@ class PipelineConfigs {
     screenSpaceSignY = 1;
     supportDepthSample = false;
     mobileMaxSpotLightShadowMaps = 1;
-
-    platform = new Vec4(0, 0, 0, 0);
+    g_platform = new Vec4(0, 0, 0, 0);
 }
 
-function setupPipelineConfigs(
-    ppl: rendering.BasicPipeline,
+function setupPipelineConfigs (
+    ppl: BasicPipeline,
     configs: PipelineConfigs,
 ): void {
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
@@ -270,14 +269,14 @@ function setupPipelineConfigs(
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
-    configs.shadowMapFormat = pipeline.supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
+    configs.shadowMapFormat = supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
     configs.shadowMapSize.set(ppl.pipelineSceneData.shadows.size);
     configs.screenSpaceSignY = ppl.device.capabilities.screenSpaceSignY;
     configs.supportDepthSample = (ppl.device.getFormatFeatures(Format.DEPTH_STENCIL) & sampleFeature) === sampleFeature;
 
     const device = ppl.device;
-    configs.platform.x = configs.isMobile ? 1.0 : 0.0;
-    configs.platform.w = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
+    configs.g_platform.x = configs.isMobile ? 1.0 : 0.0;
+    configs.g_platform.w = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
 }
 
 class CameraConfigs {
@@ -289,8 +288,8 @@ class CameraConfigs {
     pipelineSettings: PipelineSettings | null = null;
 }
 
-function setupCameraConfigs(
-    camera: renderer.scene.Camera,
+function setupCameraConfigs (
+    camera: Camera,
     pipelineConfigs: PipelineConfigs,
     cameraConfigs: CameraConfigs,
 ): void {
@@ -304,9 +303,9 @@ function setupCameraConfigs(
     cameraConfigs.pipelineSettings = camera.pipelineSettings;
 
     if (isEditorView) {
-        cameraConfigs.pipelineSettings = rendering.getEditorPipelineSettings();
+        cameraConfigs.pipelineSettings = getEditorPipelineSettings();
         if (cameraConfigs.pipelineSettings) {
-            const pipelineCamera: renderer.scene.Camera | null = rendering.getEditorPipelineCamera();
+            const pipelineCamera: Camera | null = getEditorPipelineCamera();
             cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput
                 && pipelineCamera !== null && pipelineCamera.usePostProcess;
         } else {
@@ -321,7 +320,7 @@ function setupCameraConfigs(
         : 1.0;
 }
 
-export class BuiltinPipeline implements rendering.PipelineBuilder {
+export class BuiltinForwardPipeline implements PipelineBuilder {
     // Internal cached resources
     private readonly _clearColor = new Color(0, 0, 0, 1);
     private readonly _clearColorOpaqueBlack = new Color(0, 0, 0, 0);
@@ -347,10 +346,10 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
     // Forward lighting
     private readonly forwardLighting = new ForwardLighting();
 
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------
     // Interface
-    // ----------------------------------------------------------------
-    windowResize(ppl: rendering.BasicPipeline, window: renderer.RenderWindow, camera: renderer.scene.Camera, nativeWidth: number, nativeHeight: number): void {
+    //----------------------------------------------------------------
+    windowResize (ppl: BasicPipeline, window: RenderWindow, camera: Camera, nativeWidth: number, nativeHeight: number): void {
         setupPipelineConfigs(ppl, this._configs);
         setupCameraConfigs(camera, this._configs, this._cameraConfigs);
         const settings = this._cameraConfigs.pipelineSettings;
@@ -410,7 +409,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         }
 
         // Post Process
-        if (this._cameraConfigs.enablePostProcess && settings !== null) {
+        if (this._cameraConfigs.enablePostProcess && settings != null) {
             // Ldr Color
             if (settings.fxaa.enabled || settings.depthOfField.enabled) {
                 ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
@@ -440,7 +439,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             }
         }
     }
-    setup(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): void {
+    setup (cameras: Camera[], ppl: BasicPipeline): void {
         // TODO(zhouzhenglong): Make default effect asset loading earlier and remove _initMaterials
         if (this._initMaterials(ppl)) {
             return;
@@ -463,14 +462,14 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         }
     }
 
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------
     // Pipelines
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------
     // Desktop
-    private _buildForwardPipeline(
-        ppl: rendering.BasicPipeline,
-        camera: renderer.scene.Camera,
-        scene: renderer.RenderScene,
+    private _buildForwardPipeline (
+        ppl: BasicPipeline,
+        camera: Camera,
+        scene: RenderScene,
     ): void {
         // Init
         const settings = this._cameraConfigs.pipelineSettings;
@@ -500,9 +499,9 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         }
 
         // Forward Lighting
-        let lastPass: rendering.BasicRenderPassBuilder;
+        let lastPass: BasicRenderPassBuilder;
         if (this._configs.useFloatOutput) { // HDR
-            if (this._cameraConfigs.enablePostProcess && settings !== null) {
+            if (this._cameraConfigs.enablePostProcess && settings != null) {
                 // Post Process
                 if (this._configs.supportDepthSample && settings.depthOfField.enabled) {
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight, dofRadianceName, depthStencilName);
@@ -546,10 +545,10 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
     }
 
     // Mobile
-    private _buildMobileForwardPipeline(
-        ppl: rendering.BasicPipeline,
-        camera: renderer.scene.Camera,
-        scene: renderer.RenderScene,
+    private _buildMobileForwardPipeline (
+        ppl: BasicPipeline,
+        camera: Camera,
+        scene: RenderScene,
     ): void {
         // Init
         const nativeWidth = Math.max(Math.floor(camera.window.width), 1);
@@ -581,7 +580,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         this.forwardLighting.addMobileShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
 
         // Forward Lighting
-        let lastPass: rendering.BasicRenderPassBuilder;
+        let lastPass: BasicRenderPassBuilder;
         if (this._configs.useFloatOutput || this._cameraConfigs.enableShadingScale) {
             this._addMobileForwardRadiancePass(ppl, id, camera, width, height, radianceName, depthStencilName, mainLight);
             lastPass = this._addCopyAndTonemapPass(ppl, nativeWidth, nativeHeight, radianceName, colorName);
@@ -591,18 +590,18 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         this._addUIQueue(camera, lastPass);
     }
 
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------
     // Common Passes
-    // ----------------------------------------------------------------
-    private _addCascadedShadowMapPass(
-        ppl: rendering.BasicPipeline,
+    //----------------------------------------------------------------
+    private _addCascadedShadowMapPass (
+        ppl: BasicPipeline,
         id: number,
-        light: renderer.scene.DirectionalLight,
-        camera: renderer.scene.Camera,
+        light: DirectionalLight,
+        camera: Camera,
     ): void {
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Dynamic states
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         const width = ppl.pipelineSceneData.shadows.size.x;
         const height = ppl.pipelineSceneData.shadows.size.y;
         this._viewport.left = 0;
@@ -610,9 +609,9 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         this._viewport.width = width;
         this._viewport.height = height;
 
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // CSM Shadow Map
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
         pass.name = 'CSM';
         pass.addRenderTarget(`ShadowMap${id}`, LoadOp.CLEAR, StoreOp.STORE, new Color(1, 1, 1, 1));
@@ -630,45 +629,45 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         }
     }
 
-    private _addCopyPass(
-        ppl: rendering.BasicPipeline,
+    private _addCopyPass (
+        ppl: BasicPipeline,
         width: number,
         height: number,
         input: string,
         output: string,
-    ): rendering.BasicRenderPassBuilder {
+    ): BasicRenderPassBuilder {
         const pass = ppl.addRenderPass(width, height, 'post-copy');
         pass.addRenderTarget(output, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         pass.addTexture(input, 'inputTexture');
-        pass.setVec4('g_platform', this._configs.platform);
+        pass.setVec4('g_platform', this._configs.g_platform);
         pass.addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._copyAndTonemapMaterial, 2);
         return pass;
     }
 
-    private _addCopyAndTonemapPass(
-        ppl: rendering.BasicPipeline,
+    private _addCopyAndTonemapPass (
+        ppl: BasicPipeline,
         width: number,
         height: number,
         radianceName: string,
         colorName: string,
-    ): rendering.BasicRenderPassBuilder {
+    ): BasicRenderPassBuilder {
         const pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
         pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         pass.addTexture(radianceName, 'inputTexture');
-        pass.setVec4('g_platform', this._configs.platform);
+        pass.setVec4('g_platform', this._configs.g_platform);
         pass.addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._copyAndTonemapMaterial, 1);
         return pass;
     }
 
-    private _buildForwardMainLightPass(
-        pass: rendering.BasicRenderPassBuilder,
+    private _buildForwardMainLightPass (
+        pass: BasicRenderPassBuilder,
         id: number,
-        camera: renderer.scene.Camera,
+        camera: Camera,
         colorName: string,
         depthStencilName: string,
-        mainLight: renderer.scene.DirectionalLight | null,
+        mainLight: DirectionalLight | null,
     ): void {
         // set viewport
         pass.setViewport(this._viewport);
@@ -706,11 +705,11 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
     }
 
-    private _addDepthOfFieldPasses(
-        ppl: rendering.BasicPipeline,
+    private _addDepthOfFieldPasses (
+        ppl: BasicPipeline,
         settings: PipelineSettings,
         id: number,
-        camera: renderer.scene.Camera,
+        camera: Camera,
         width: number,
         height: number,
         dofRadianceName: string,
@@ -751,7 +750,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         prefilterPass.addTexture(cocName, 'cocTex');
         prefilterPass.addTexture(dofRadianceName, 'colorTex');
-        prefilterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+        prefilterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         prefilterPass
             .addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._dofMaterial, 1);
@@ -760,7 +759,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-bokeh');
         bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         bokehPass.addTexture(prefilterName, 'prefilterTex');
-        bokehPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+        bokehPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         bokehPass
             .addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._dofMaterial, 2);
@@ -769,7 +768,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-filter');
         filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         filterPass.addTexture(bokehName, 'bokehTex');
-        filterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+        filterPass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         filterPass
             .addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._dofMaterial, 3);
@@ -780,14 +779,14 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         combinePass.addTexture(filterName, 'filterTex');
         combinePass.addTexture(dofRadianceName, 'colorTex');
         combinePass.addTexture(cocName, 'cocTex');
-        combinePass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+        combinePass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         combinePass
             .addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._dofMaterial, 4);
     }
 
-    private _addKawaseDualFilterBloomPasses(
-        ppl: rendering.BasicPipeline,
+    private _addKawaseDualFilterBloomPasses (
+        ppl: BasicPipeline,
         settings: PipelineSettings,
         id: number,
         width: number,
@@ -831,7 +830,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             this._clearColorOpaqueBlack,
         );
         prefilterPass.addTexture(radianceName, 'inputTexture');
-        prefilterPass.setVec4('g_platform', this._configs.platform);
+        prefilterPass.setVec4('g_platform', this._configs.g_platform);
         prefilterPass.setVec4('bloomParams', this._bloomParams);
         prefilterPass
             .addQueue(QueueHint.OPAQUE)
@@ -844,7 +843,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             downPass.addTexture(this._bloomTexNames[i - 1], 'bloomTexture');
             this._bloomTexSize.x = this._bloomWidths[i - 1];
             this._bloomTexSize.y = this._bloomHeights[i - 1];
-            downPass.setVec4('g_platform', this._configs.platform);
+            downPass.setVec4('g_platform', this._configs.g_platform);
             downPass.setVec4('bloomTexSize', this._bloomTexSize);
             downPass
                 .addQueue(QueueHint.OPAQUE)
@@ -858,7 +857,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             upPass.addTexture(this._bloomTexNames[i + 1], 'bloomTexture');
             this._bloomTexSize.x = this._bloomWidths[i + 1];
             this._bloomTexSize.y = this._bloomHeights[i + 1];
-            upPass.setVec4('g_platform', this._configs.platform);
+            upPass.setVec4('g_platform', this._configs.g_platform);
             upPass.setVec4('bloomTexSize', this._bloomTexSize);
             upPass
                 .addQueue(QueueHint.OPAQUE)
@@ -869,32 +868,32 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         const combinePass = ppl.addRenderPass(width, height, 'bloom1-combine');
         combinePass.addRenderTarget(radianceName, LoadOp.LOAD, StoreOp.STORE);
         combinePass.addTexture(this._bloomTexNames[0], 'bloomTexture');
-        combinePass.setVec4('g_platform', this._configs.platform);
+        combinePass.setVec4('g_platform', this._configs.g_platform);
         combinePass.setVec4('bloomParams', this._bloomParams);
         combinePass
             .addQueue(QueueHint.BLEND)
             .addFullscreenQuad(this._bloomMaterial, 3);
     }
 
-    private _addFxaaPass(
-        ppl: rendering.BasicPipeline,
+    private _addFxaaPass (
+        ppl: BasicPipeline,
         width: number,
         height: number,
         ldrColorName: string,
         colorName: string,
-    ): rendering.BasicRenderPassBuilder {
+    ): BasicRenderPassBuilder {
         this._fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1 / width, 1 / height));
 
         const pass = ppl.addRenderPass(width, height, 'fxaa');
         pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorOpaqueBlack);
         pass.addTexture(ldrColorName, 'sceneColorMap');
-        pass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+        pass.setVec4('cc_cameraPos', this._configs.g_platform); // We only use cc_cameraPos.w
         pass.addQueue(QueueHint.OPAQUE)
             .addFullscreenQuad(this._fxaaMaterial, 0);
         return pass;
     }
 
-    private _addUIQueue(camera: renderer.scene.Camera, pass: rendering.BasicRenderPassBuilder): void {
+    private _addUIQueue (camera: Camera, pass: BasicRenderPassBuilder): void {
         let flags = SceneFlags.UI;
         if (this._cameraConfigs.enableProfiler) {
             flags |= SceneFlags.PROFILER;
@@ -905,22 +904,22 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             .addScene(camera, flags);
     }
 
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------
     // Desktop
-    // ----------------------------------------------------------------
-    private _addForwardRadiancePasses(
-        ppl: rendering.BasicPipeline,
+    //----------------------------------------------------------------
+    private _addForwardRadiancePasses (
+        ppl: BasicPipeline,
         id: number,
-        camera: renderer.scene.Camera,
+        camera: Camera,
         width: number,
         height: number,
-        mainLight: renderer.scene.DirectionalLight | null,
+        mainLight: DirectionalLight | null,
         colorName: string,
         depthStencilName: string,
-    ): rendering.BasicRenderPassBuilder {
-        // ----------------------------------------------------------------
+    ): BasicRenderPassBuilder {
+        //----------------------------------------------------------------
         // Dynamic states
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Prepare camera clear color
         this._clearColor.x = camera.clearColor.x;
         this._clearColor.y = camera.clearColor.y;
@@ -933,23 +932,23 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         this._viewport.width = Math.floor(camera.viewport.z * width);
         this._viewport.height = Math.floor(camera.viewport.w * height);
 
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Forward Lighting (Main Directional Light)
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
         pass.name = 'ForwardPass';
         this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
 
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Additive lights
         const lastPass = this.forwardLighting
             .addLightPasses(colorName, depthStencilName, id, width, height, camera, ppl, pass);
 
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Forward Lighting (Blend)
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Add transparent queue
         lastPass
             .addQueue(QueueHint.BLEND)
@@ -958,22 +957,22 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         return lastPass;
     }
 
-    // ----------------------------------------------------------------
+    //----------------------------------------------------------------
     // Mobile
-    // ----------------------------------------------------------------
-    private _addMobileForwardRadiancePass(
-        ppl: rendering.BasicPipeline,
+    //----------------------------------------------------------------
+    private _addMobileForwardRadiancePass (
+        ppl: BasicPipeline,
         id: number,
-        camera: renderer.scene.Camera,
+        camera: Camera,
         width: number,
         height: number,
         colorName: string,
         depthStencilName: string,
-        mainLight: renderer.scene.DirectionalLight | null,
-    ): rendering.BasicRenderPassBuilder {
-        // ----------------------------------------------------------------
+        mainLight: DirectionalLight | null,
+    ): BasicRenderPassBuilder {
+        //----------------------------------------------------------------
         // Dynamic states
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Prepare camera clear color
         this._clearColor.x = camera.clearColor.x;
         this._clearColor.y = camera.clearColor.y;
@@ -986,16 +985,16 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         this._viewport.width = Math.floor(camera.viewport.z * width);
         this._viewport.height = Math.floor(camera.viewport.w * height);
 
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Forward Lighting (Main Directional Light)
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         const pass = ppl.addRenderPass(width, height, 'default');
         pass.name = 'ForwardPass';
         this._buildForwardMainLightPass(pass, id, camera, colorName, depthStencilName, mainLight);
 
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Forward Lighting (Additive Lights)
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Additive lights
         this.forwardLighting.addMobileLightQueues(
             pass,
@@ -1003,9 +1002,9 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
             this._configs.mobileMaxSpotLightShadowMaps,
         );
 
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Forward Lighting (Blend)
-        // ----------------------------------------------------------------
+        //----------------------------------------------------------------
         // Add transparent queue
         pass
             .addQueue(QueueHint.BLEND)
@@ -1014,7 +1013,7 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         return pass;
     }
 
-    private _initMaterials(ppl: rendering.BasicPipeline): number {
+    private _initMaterials (ppl: BasicPipeline): number {
         if (this._initialized) {
             return 0;
         }
@@ -1045,5 +1044,3 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
         return this._initialized ? 0 : 1;
     }
 }
-
-rendering.setCustomPipeline('Builtin', new BuiltinPipeline());
