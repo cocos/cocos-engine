@@ -345,7 +345,7 @@ export class Tween<T extends object = any> {
     clone<U extends object = any> (target: U): Tween<U>;
     clone<U extends object = any> (target?: U): Tween<U | T> {
         const action = this._union(false);
-        const r = tween(target ?? this._target as T);
+        const r = tween<U | T>(target ?? this._target as T);
         r._timeScale = this._timeScale;
         return action ? r.insertAction(action) : r;
     }
