@@ -262,6 +262,15 @@ export class Tween<T extends object = any> {
     }
 
     /**
+     * @en Gets the target of the current tween instance.
+     * @zh 获取当前缓动的目标对象。
+     * @return @en the target of the current tween instance. @zh 当前缓动的目标对象。
+     */
+    getTarget (): T | null {
+        return this._target;
+    }
+
+    /**
      * @en Start tween from a specific time, all actions before the time will be executed and finished immediately.
      * @zh 从指定时间开始执行当前缓动，此时间前的所有缓动将被立马执行完毕。
      * @param time @en The time (unit: seconds) to start to execute the current tween. Default value: 0.
