@@ -66,34 +66,23 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
 @interface AudioEngineSessionHandler : NSObject {
 }
 
+@property (nonatomic, assign) Boolean needReactiveContext;
+
 - (id)init;
 - (void)handleInterruption:(NSNotification *)notification;
+- (void)reactiveAudio;
 
 @end
 
 @implementation AudioEngineSessionHandler
 
-void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruption_state) {
-    if (kAudioSessionBeginInterruption == interruption_state) {
-        alcMakeContextCurrent(nullptr);
-    } else if (kAudioSessionEndInterruption == interruption_state) {
-        OSStatus result = AudioSessionSetActive(true);
-        if (result) NSLog(@"Error setting audio session active! %d\n", static_cast<int>(result));
-
-        alcMakeContextCurrent(s_ALContext);
-    }
-}
 
 - (id)init {
     if (self = [super init]) {
-        if ([[[UIDevice currentDevice] systemVersion] intValue] > 5) {
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillResignActiveNotification object:nil];
-        }
-        else {
-            AudioSessionInitialize(NULL, NULL, AudioEngineInterruptionListenerCallback, self);
-        }
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:AVAudioSessionInterruptionNotification object:[AVAudioSession sharedInstance]];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationDidBecomeActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillResignActiveNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleInterruption:) name:UIApplicationWillEnterForegroundNotification object:nil];
 
         BOOL success = [[AVAudioSession sharedInstance]
             setCategory:AVAudioSessionCategoryAmbient
@@ -104,70 +93,41 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
     return self;
 }
 
+- (void)reactiveAudio {
+    if (self.needReactiveContext) {
+        self.needReactiveContext = false;
+        ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
+        NSError *error = nil;
+        BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
+        if (!success) {
+            ALOGE("Fail to set audio session.");
+            return;
+        }
+        [[AVAudioSession sharedInstance] setActive:YES error:&error];
+        if (!alcMakeContextCurrent(s_ALContext)) {
+            ALOGE("audio context is invalid, need to recreate!");
+        }
+    }
+}
+
 - (void)handleInterruption:(NSNotification *)notification {
-    static bool isAudioSessionInterrupted = false;
-    static bool resumeOnBecomingActive = false;
-    static bool pauseOnResignActive = false;
 
     if ([notification.name isEqualToString:AVAudioSessionInterruptionNotification]) {
         NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
         if (reason == AVAudioSessionInterruptionTypeBegan) {
-            isAudioSessionInterrupted = true;
             alcMakeContextCurrent(nullptr);
-
+        } else if (reason == AVAudioSessionInterruptionTypeEnded) {
+            // When the application goes to background, executing alcMakeContextCurrent may faile. So a flag is set here to delay the execution
+            self.needReactiveContext = true;
             if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
-                ALOGD("AVAudioSessionInterruptionTypeBegan, application == UIApplicationStateActive, pauseOnResignActive = true");
-                pauseOnResignActive = true;
+                [self reactiveAudio];
             }
-        }
-
-        if (reason == AVAudioSessionInterruptionTypeEnded) {
-            isAudioSessionInterrupted = false;
-
-            NSError *error = nil;
-            [[AVAudioSession sharedInstance] setActive:YES error:&error];
-            alcMakeContextCurrent(s_ALContext);
-
-            if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-                ALOGD("AVAudioSessionInterruptionTypeEnded, application != UIApplicationStateActive, resumeOnBecomingActive = true");
-                resumeOnBecomingActive = true;
-            }
-        }
-    } else if ([notification.name isEqualToString:UIApplicationWillResignActiveNotification]) {
-        ALOGD("UIApplicationWillResignActiveNotification");
-        if (pauseOnResignActive) {
-            pauseOnResignActive = false;
-            ALOGD("UIApplicationWillResignActiveNotification, alcMakeContextCurrent(nullptr)");
-            alcMakeContextCurrent(nullptr);
         }
     } else if ([notification.name isEqualToString:UIApplicationDidBecomeActiveNotification]) {
         ALOGD("UIApplicationDidBecomeActiveNotification");
-        if (resumeOnBecomingActive) {
-            resumeOnBecomingActive = false;
-            ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
-            NSError *error = nil;
-            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
-            if (!success) {
-                ALOGE("Fail to set audio session.");
-                return;
-            }
-            [[AVAudioSession sharedInstance] setActive:YES error:&error];
-            alcMakeContextCurrent(s_ALContext);
-        } else if (isAudioSessionInterrupted) {
-            isAudioSessionInterrupted = false;
-            ALOGD("UIApplicationDidBecomeActiveNotification, alcMakeContextCurrent(s_ALContext)");
-            NSError *error = nil;
-            BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient error:&error];
-            if (!success) {
-                ALOGE("Fail to set audio session.");
-                return;
-            }
-            [[AVAudioSession sharedInstance] setActive:YES error:&error];
-            alcMakeContextCurrent(s_ALContext);
-
-            // ALOGD("Audio session is still interrupted, pause director!");
-            //IDEA: Director::getInstance()->pause();
-        }
+        [self reactiveAudio];
+    } else if ([notification.name isEqualToString:UIApplicationWillEnterForegroundNotification]) {
+        [self reactiveAudio];
     }
 }
 
