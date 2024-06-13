@@ -65,7 +65,12 @@ vec3 UVToEye(vec2 uv, float eye_z)
 
 //----------------------------------------------------------------------------------
 float GetLinearDepth(vec2 uv) {
-  float depthHS = texture(DepthTex, fixUV(uv)).r * 2.0 - 1.0; // -1.0 ~ +1.0
+  float depthHS = 0.0;
+  #if defined(CC_USE_WGPU)
+      depthHS = textureLod(DepthTex, fixUV(uv), 0.0).r * 2.0 - 1.0;
+  #else
+      depthHS = texture(DepthTex, fixUV(uv)).r * 2.0 - 1.0; // -1.0 ~ +1.0
+  #endif
   return -GetCameraDepthRH(depthHS, cc_matProj);
 }
 
@@ -298,7 +303,12 @@ float CalculateAO(vec2 uv)
 
   #if CC_USE_FOG != CC_FOG_NONE && !CC_USE_FLOAT_OUTPUT
     float fogFactor = 1.0; // no fog
-    float depth = texture(DepthTex, uv).r;
+    float depth = 0.0;
+    #if defined(CC_USE_WGPU)
+      depth = textureLod(DepthTex, uv, 0.0).r;
+    #else
+      depth = texture(DepthTex, uv).r;
+    #endif
     vec3 posHS = vec3(uv, depth) * 2.0 - vec3(1.0);
     CC_HANDLE_GET_CLIP_FLIP(posHS.xy);
     vec4 worldPos = GetWorldPosFromNDCPosRH(posHS, cc_matProj, cc_matViewProjInv);

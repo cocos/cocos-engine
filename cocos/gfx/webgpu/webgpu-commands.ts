@@ -250,8 +250,8 @@ function GFXFormatToWGPUTextureFormat (format: Format): GPUTextureFormat {
     case Format.BC7_SRGB: return 'bc7-rgba-unorm-srgb';
 
     default: {
-        warn('Unsupported Format, return bgra8unorm indefault.');
-        return 'bgra8unorm';
+        warn('Unsupported Format, return rgba8unorm indefault.');
+        return 'rgba8unorm';
     }
     }
 }
@@ -309,7 +309,7 @@ function wGPUTextureFormatToGFXFormat (format: GPUTextureFormat): Format {
     case 'bc7-rgba-unorm': return Format.BC7;
     case 'bc7-rgba-unorm-srgb': return Format.BC7_SRGB;
     default:
-        return Format.BGRA8;
+        return Format.RGBA8;
     }
 }
 

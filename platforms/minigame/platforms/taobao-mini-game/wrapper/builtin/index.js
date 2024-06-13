@@ -49,6 +49,34 @@ function inject () {
     window.top = window.parent = window;
   }
 
+  const windowInfo = my.getWindowInfoSync();
+  let _innerHeight = windowInfo.windowHeight;
+  let _innerWidth = windowInfo.windowWidth;
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    enumerable: true,
+    get() {
+      return _innerWidth;
+    }
+  });
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    enumerable: true,
+    get() {
+      return _innerHeight;
+    }
+  });
+
+  my.onWindowResize((res) => {
+    _innerWidth = res.windowWidth;
+    _innerHeight = res.windowHeight;
+    const screen = window.screen;
+    screen.width = _innerWidth;
+    screen.height = _innerHeight;
+    screen.availWidth = _innerWidth;
+    screen.availHeight = _innerHeight;
+  });
+
   global.setTimeout = setTimeout;
   global.clearTimeout = clearTimeout;
   global.setInterval = setInterval;

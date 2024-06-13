@@ -120,6 +120,8 @@ void TextureValidator::doInit(const TextureViewInfo &info) {
     _inited = true;
     _isTextureView = true;
     CC_ASSERT(info.texture && static_cast<TextureValidator *>(info.texture)->isInited());
+    // TextureView format should equal to the corresponding Texture format.
+    CC_ASSERT(info.texture->getFormat() == info.format);
 
     /////////// execute ///////////
 

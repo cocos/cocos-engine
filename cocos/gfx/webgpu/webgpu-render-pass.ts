@@ -24,7 +24,7 @@
 
 import { RenderPass } from '../base/render-pass';
 import { IWebGPUGPURenderPass } from './webgpu-gpu-objects';
-import { LoadOp, StoreOp, RenderPassInfo, DepthStencilAttachment, ColorAttachment } from '../base/define';
+import { LoadOp, StoreOp, RenderPassInfo, DepthStencilAttachment, ColorAttachment, Format } from '../base/define';
 
 export class WebGPURenderPass extends RenderPass {
     public get gpuRenderPass (): IWebGPUGPURenderPass {
@@ -70,6 +70,7 @@ export class WebGPURenderPass extends RenderPass {
         };
 
         if (info.depthStencilAttachment) {
+            if (info.depthStencilAttachment.format === Format.UNKNOWN) info.depthStencilAttachment.format = Format.DEPTH_STENCIL;
             const depthStencilDescriptor = this._generateDSAttachment(info.depthStencilAttachment);
             const originalDepthStencilDesc = this._generateDSAttachment(info.depthStencilAttachment);
             renderPassDesc.depthStencilAttachment = depthStencilDescriptor;

@@ -97,17 +97,14 @@ if (window.__globalAdapter) {
 
     // Accelerometer
     let accelerometerCallback = null;
-    const systemInfo = my.getSystemInfoSync();
-    const windowWidth = systemInfo.windowWidth;
-    const windowHeight = systemInfo.windowHeight;
-    const isLandscape = windowWidth > windowHeight;
     function accelerometerChangeCallback (res, cb) {
         const resClone = {};
 
         let x = res.x;
         let y = res.y;
 
-        if (isLandscape) {
+        const windowInfo = my.getWindowInfoSync();
+        if (windowInfo.windowWidth > windowInfo.windowHeight) {
             const tmp = x;
             x = -y;
             y = tmp;
