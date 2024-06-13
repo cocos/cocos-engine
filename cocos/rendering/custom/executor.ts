@@ -911,7 +911,7 @@ class DeviceRenderPass implements RecordingInterface {
         }
         const depth = swapchain ? swapchain.depthStencilTexture : depthTex;
         if (!depth) {
-            depthStencilAttachment.format = Format.UNKNOWN;
+            depthStencilAttachment.format = Format.DEPTH_STENCIL;
         }
         this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
         this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(
