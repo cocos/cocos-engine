@@ -2935,3 +2935,190 @@ test('Tween.start(time) time larger than duration', function () {
     //
     director.unregisterSystem(sys);
 });
+
+test('clone', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    const sprite = new Sprite();
+    
+    const t1 = tween(node).by(1, { position: v3(90, 90, 90) });
+    const t2 = t1.clone();
+    const t3 = t1.clone(sprite);
+
+    expect(t1.getTarget()).toBe(node);
+    expect(t2.getTarget()).toBe(node);
+    expect(t3.getTarget()).toBe(sprite);
+
+    director.unregisterSystem(sys);
+});
+
+test('auto pause/resume tween by node active state', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene1 = new Scene('test-auto-pause-resume1');
+    scene1['_inited'] = false;
+    const scene2 = new Scene('test-auto-pause-resume2');
+    scene2['_inited'] = false;
+    const node1 = new Node();
+    const node2 = new Node();
+    scene1.addChild(node1);
+    scene1.addChild(node2);
+
+    tween(node1).by(1, { scale: v3(2, 2, 2) }).start();
+    const t1 = tween(node1).by(1, { position: v3(90, 90, 90) }).start();
+    
+    tween(node2).by(1, { scale: v3(2, 2, 2) }).start();
+    const t2 = tween(node2).by(1, { position: v3(90, 90, 90) }).start();
+
+    node1.active = false;
+    node2.active = false;
+
+    director.runSceneImmediate(scene1);
+
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(100);
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    node1.active = true;
+    node2.active = true;
+
+    // Start
+    runFrames(1);
+
+    runFrames(20);
+    expect(node1.position.equals(v3(30, 30, 30))).toBeTruthy();
+    expect(node2.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    node1.active = false;
+
+    runFrames(20);
+    expect(node1.position.equals(v3(30, 30, 30))).toBeTruthy();
+    expect(node2.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    node1.active = true;
+    node2.active = false;
+
+    runFrames(20);
+    expect(node1.position.equals(v3(60, 60, 60))).toBeTruthy();
+    expect(node2.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node1)).toBe(2);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node2)).toBe(2);
+
+    t2.stop();
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node1)).toBe(2);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node2)).toBe(1);
+
+    t1.stop();
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node1)).toBe(1);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node2)).toBe(1);
+
+    Tween.stopAllByTarget(node1);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node1)).toBe(0);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node2)).toBe(1);
+
+    Tween.stopAllByTarget(node2);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node1)).toBe(0);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node2)).toBe(0);
+
+    t1.clone().start();
+    t2.clone().start();
+
+    node2.active = true;
+
+    runFrames(1); // Start
+    runFrames(20);
+    expect(node1.position.equals(v3(90, 90, 90))).toBeTruthy();
+    expect(node2.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.runSceneImmediate(scene2);
+
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node1)).toBe(0);
+    expect(TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(node2)).toBe(0);
+
+    // node1 and node2 were destroyed.
+    runFrames(20);
+    expect(node1.position).toBeNull();
+    expect(node2.position).toBeNull();
+
+    director.unregisterSystem(sys);
+});
+
+test('node not active 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene1 = new Scene('test-auto-pause-resume1');
+    scene1['_inited'] = false;
+    const scene2 = new Scene('test-auto-pause-resume2');
+    scene2['_inited'] = false;
+    const node1 = new Node();
+    const node2 = new Node();
+    scene1.addChild(node1);
+    scene1.addChild(node2);
+
+    node1.active = false;
+    node2.active = false;
+
+    tween(node1).by(1, { scale: v3(2, 2, 2) }).start();
+    tween(node1).by(1, { position: v3(90, 90, 90) }).start();
+    
+    tween(node2).by(1, { scale: v3(2, 2, 2) }).start();
+    tween(node2).by(1, { position: v3(90, 90, 90) }).start();
+
+    director.runSceneImmediate(scene1);
+
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(100);
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('node not active 3', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene1 = new Scene('test-auto-pause-resume1');
+    scene1['_inited'] = false;
+    const scene2 = new Scene('test-auto-pause-resume2');
+    scene2['_inited'] = false;
+    const node1 = new Node();
+    const node2 = new Node();
+
+    node1.active = false;
+    node2.active = false;
+
+    scene1.addChild(node1);
+    scene1.addChild(node2);
+
+    tween(node1).by(1, { scale: v3(2, 2, 2) }).start();
+    tween(node1).by(1, { position: v3(90, 90, 90) }).start();
+    
+    tween(node2).by(1, { scale: v3(2, 2, 2) }).start();
+    tween(node2).by(1, { position: v3(90, 90, 90) }).start();
+
+    director.runSceneImmediate(scene1);
+
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(100);
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
