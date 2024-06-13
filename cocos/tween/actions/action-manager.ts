@@ -93,7 +93,7 @@ export class ActionManager {
     }
 
     private _onNodeDestroy (target: Node): void {
-        // Doesn't need to off node event since it will be done automatically after this event fired.
+        // Doesn't need to off node event since it will be done automatically after this event is fired.
         this._removeAllActionsFromTarget(target, false);
     }
 
