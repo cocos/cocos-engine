@@ -3122,3 +3122,87 @@ test('node not active 3', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('node active + pause/resume  ', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const scene1 = new Scene('test-auto-pause-resume1');
+    scene1['_inited'] = false;
+    const scene2 = new Scene('test-auto-pause-resume2');
+    scene2['_inited'] = false;
+    const node1 = new Node();
+    const node2 = new Node();
+    node1.setScale(0, 0, 0);
+    node2.setScale(0, 0, 0);
+
+    node1.active = false;
+    node2.active = false;
+
+    scene1.addChild(node1);
+    scene1.addChild(node2);
+
+    const t1 = tween(node1).by(1, { scale: v3(9, 9, 9) }).start();
+    const t2 = tween(node1).by(1, { position: v3(90, 90, 90) }).start();
+    
+    const t3 = tween(node2).by(1, { scale: v3(9, 9, 9) }).start();
+    const t4 = tween(node2).by(1, { position: v3(90, 90, 90) }).start();
+
+    director.runSceneImmediate(scene1);
+
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node1.scale.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.scale.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node1.scale.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.scale.equals(v3(0, 0, 0))).toBeTruthy();
+    
+    t2.resume();
+    t4.resume();
+
+    runFrames(20);
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node1.scale.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.scale.equals(v3(0, 0, 0))).toBeTruthy();
+
+    t1.resume();
+    t3.resume();
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node1.scale.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.scale.equals(v3(0, 0, 0))).toBeTruthy();
+
+    node1.active = true;
+    node2.active = true;
+
+    t1.pause();
+    t2.pause();
+    t3.pause();
+    t4.pause();
+
+    expect(node1.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node1.scale.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.position.equals(v3(0, 0, 0))).toBeTruthy();
+    expect(node2.scale.equals(v3(0, 0, 0))).toBeTruthy();
+
+    t1.resume();
+    t2.resume();
+    t3.resume();
+    t4.resume();
+
+    runFrames(1); // Start
+    
+    runFrames(20);
+    expect(node1.position.equals(v3(30, 30, 30))).toBeTruthy();
+    expect(node1.scale.equals(v3(3, 3, 3))).toBeTruthy();
+    expect(node2.position.equals(v3(30, 30, 30))).toBeTruthy();
+    expect(node2.scale.equals(v3(3, 3, 3))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
