@@ -500,8 +500,8 @@ nodeProto._onActivateNode = function (shouldActiveNow) {
 };
 
 nodeProto._onPostActivated = function (active: boolean) {
-    if (active) { // activated
-        this._eventProcessor.setEnabled(true);
+    this._eventProcessor.setEnabled(active);
+    if (active) {
         // in case transform updated during deactivated period
         this.invalidateChildren(TransformBit.TRS);
         // ALL Node renderData dirty flag will set on here
@@ -510,8 +510,6 @@ nodeProto._onPostActivated = function (active: boolean) {
             this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
             this._uiProps.uiComp.markForUpdateRenderData();
         }
-    } else { // deactivated
-        this._eventProcessor.setEnabled(false);
     }
 };
 

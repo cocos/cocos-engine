@@ -47,6 +47,7 @@ const DontDestroy = CCObject.Flags.DontDestroy;
 const Deactivating = CCObject.Flags.Deactivating;
 
 export const TRANSFORM_ON = 1 << 0;
+const ACTIVE_ON = 1 << 1;
 
 const idGenerator = new js.IDGenerator('Node');
 
@@ -1148,6 +1149,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         case NodeEventType.TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
             break;
+        case NodeEventType.ACTIVE_CHANGED:
+            this._eventMask |= ACTIVE_ON;
+            break;
         default:
             break;
         }
@@ -1179,6 +1183,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             switch (type) {
             case NodeEventType.TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
+                break;
+            case NodeEventType.ACTIVE_CHANGED:
+                this._eventMask &= ~ACTIVE_ON;
                 break;
             default:
                 break;
@@ -1257,6 +1264,10 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         // Check for event mask reset
         if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
             this._eventMask &= ~TRANSFORM_ON;
+        }
+
+        if ((this._eventMask & ACTIVE_ON) && !this._eventProcessor.hasEventListener(NodeEventType.ACTIVE_CHANGED)) {
+            this._eventMask &= ~ACTIVE_ON;
         }
     }
 
@@ -1900,6 +1911,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBatchCreated (dontSyncChildPrefab: boolean): void {
+        if (this._eventMask & ACTIVE_ON) {
+            if (!this._activeInHierarchy) {
+                this.emit(NodeEventType.ACTIVE_CHANGED, this, false);
+            }
+        }
+
         this.hasChangedFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -1920,8 +1937,13 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onPostActivated (active: boolean): void {
+        if (this._eventMask & ACTIVE_ON) {
+            this.emit(NodeEventType.ACTIVE_CHANGED, this, active);
+        }
+
+        this._eventProcessor.setEnabled(active);
+
         if (active) { // activated
-            this._eventProcessor.setEnabled(true);
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
             // ALL Node renderData dirty flag will set on here
@@ -1930,8 +1952,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                 this._uiProps.uiComp.setTextureDirty(); // for dynamic atlas
                 this._uiProps.uiComp.markForUpdateRenderData();
             }
-        } else { // deactivated
-            this._eventProcessor.setEnabled(false);
         }
     }
 
