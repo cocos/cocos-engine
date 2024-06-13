@@ -116,6 +116,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
         NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
         if (reason == AVAudioSessionInterruptionTypeBegan) {
             alcMakeContextCurrent(nullptr);
+            self.needReactiveContext = true;
         } else if (reason == AVAudioSessionInterruptionTypeEnded) {
             // When the application goes to background, executing alcMakeContextCurrent may faile. So a flag is set here to delay the execution
             self.needReactiveContext = true;
