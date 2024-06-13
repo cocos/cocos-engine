@@ -73,6 +73,9 @@ export class BuiltinPipelineSettings extends Component {
         }
     }
     private _tryEnableEditorPreview (): void {
+        if (cclegacy.rendering === undefined) {
+            return;
+        }
         if (this._editorPreview) {
             const camera = (this.getComponent(Camera) as Camera).camera;
             cclegacy.rendering.setEditorPipelineSettings(this.settings, camera);
@@ -81,6 +84,9 @@ export class BuiltinPipelineSettings extends Component {
         }
     }
     private _disableEditorPreview (): void {
+        if (cclegacy.rendering === undefined) {
+            return;
+        }
         const current = cclegacy.rendering.getEditorPipelineSettings();
         if (current === this.settings) {
             cclegacy.rendering.setEditorPipelineSettings(null);
