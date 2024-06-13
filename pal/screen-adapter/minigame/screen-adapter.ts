@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { ALIPAY, BYTEDANCE, COCOSPLAY, VIVO } from 'internal:constants';
+import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
@@ -79,11 +79,16 @@ class ScreenAdapter extends EventTarget {
         if (BYTEDANCE) {
             screenWidth = sysInfo.screenWidth;
             screenHeight = sysInfo.screenHeight;
-        }
-        if (ALIPAY && rotateLandscape  && screenWidth < screenHeight) {
+        } else if (ALIPAY && rotateLandscape && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;
             screenHeight = temp;
+        } else if (TAOBAO_MINIGAME) {
+            const windowInfo = my.getWindowInfoSync();
+            if (windowInfo) {
+                screenWidth = windowInfo.windowWidth;
+                screenHeight = windowInfo.windowHeight;
+            }
         }
         return new Size(screenWidth * dpr, screenHeight * dpr);
     }

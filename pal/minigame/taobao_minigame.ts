@@ -50,12 +50,8 @@ minigame.isDevTool = my.isIDE;
 
 Object.defineProperty(minigame, 'isLandscape', {
     get () {
-        const locSystemInfo = minigame.getSystemInfoSync();
-        if (typeof locSystemInfo.deviceOrientation === 'string') {
-            return locSystemInfo.deviceOrientation.startsWith('landscape');
-        } else {
-            return locSystemInfo.screenWidth > locSystemInfo.screenHeight;
-        }
+        const windowInfo = my.getWindowInfoSync();
+        return windowInfo.windowWidth > windowInfo.windowHeight;
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
