@@ -341,9 +341,11 @@ export class Tween<T extends object = any> {
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
-    clone<U extends object = any> (target?: U): Tween<U> {
+    clone (): Tween<T>;
+    clone<U extends object = any> (target: U): Tween<U>;
+    clone<U extends object = any> (target?: U): Tween<U | T> {
         const action = this._union(false);
-        const r = tween(target);
+        const r = tween(target ?? this._target as T);
         r._timeScale = this._timeScale;
         return action ? r.insertAction(action) : r;
     }
