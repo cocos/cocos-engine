@@ -1046,4 +1046,6 @@ export class BuiltinPipeline implements rendering.PipelineBuilder {
     }
 }
 
-rendering.setCustomPipeline('Builtin', new BuiltinPipeline());
+if (rendering !== undefined) {
+    rendering.setCustomPipeline('Builtin', new BuiltinPipeline());
+}
