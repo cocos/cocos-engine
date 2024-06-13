@@ -34,7 +34,6 @@ import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
-import { BuiltinForwardPipeline } from './builtin-forward-pipeline';
 
 let _pipeline: WebPipeline | null = null;
 
@@ -74,7 +73,7 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 }
 
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
-    map.set('Forward', new BuiltinForwardPipeline());
+    map.set('Forward', new PostProcessBuilder());
     map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new PostProcessBuilder());
 }
