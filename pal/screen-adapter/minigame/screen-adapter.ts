@@ -79,14 +79,11 @@ class ScreenAdapter extends EventTarget {
         if (BYTEDANCE) {
             screenWidth = sysInfo.screenWidth;
             screenHeight = sysInfo.screenHeight;
-        }
-        if (ALIPAY && rotateLandscape && screenWidth < screenHeight) {
+        } else if (ALIPAY && rotateLandscape && screenWidth < screenHeight) {
             const temp = screenWidth;
             screenWidth = screenHeight;
             screenHeight = temp;
-        }
-        //Fix: wrong screen size on TAOBAO_MINIGAME iPad device
-        if (TAOBAO_MINIGAME) {
+        } else if (TAOBAO_MINIGAME) {
             const windowInfo = my.getWindowInfoSync();
             if (windowInfo) {
                 screenWidth = windowInfo.windowWidth;
