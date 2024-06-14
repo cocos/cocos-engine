@@ -106,7 +106,10 @@ const cacheManager = {
         });
         caches.sort((a, b) => a.lastTime - b.lastTime);
         caches.length = Math.floor(caches.length / 3);
-        if (caches.length === 0) return;
+        if (caches.length === 0) {
+            cleaning = false;
+            return;
+        }
         for (let i = 0, l = caches.length; i < l; i++) {
             this.cachedFiles.remove(caches[i].originUrl);
         }
