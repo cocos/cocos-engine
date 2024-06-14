@@ -39,10 +39,19 @@ import { Node } from '../scene-graph';
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
 type AllowedNames<Base, Type> = FlagExcludedType<Base, Type>[keyof Base];
-type KeyPartial<T, K extends keyof T> = { [P in K]?: T[P] };
+type CustomProgress = (start: any, end: any, current: any, ratio: number) => any;
+type CustomEasing = ITweenOption['easing'];
+interface CustomProp<Value> {
+    value: Value;
+    progress?: CustomProgress;
+    easing?: CustomEasing;
+}
+
+type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | CustomProp<T[P]>) };
 type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ConstructorType<T> = OmitType<T, Function>;
+
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
@@ -720,27 +729,27 @@ export class Tween<T extends object = any> {
 
     /**
      * @en
-     * Stop all tweens
+     * Stop all tween instances.
      * @zh
-     * 停止所有缓动
+     * 停止所有缓动实例
      */
     static stopAll (): void {
         TweenSystem.instance.ActionManager.removeAllActions();
     }
     /**
      * @en
-     * Stop all tweens by tag
+     * Stop all tween instances by tag.
      * @zh
-     * 停止所有指定标签的缓动
+     * 停止指定标签关联的所有缓动实例。
      */
     static stopAllByTag<U extends object = any> (tag: number, target?: U): void {
         TweenSystem.instance.ActionManager.removeAllActionsByTag(tag, target);
     }
     /**
      * @en
-     * Stop all tweens by target
+     * Stop all tween instances associated with the target object.
      * @zh
-     * 停止所有指定对象的缓动
+     * 停止指定对象的关联的所有缓动实例。
      */
     static stopAllByTarget<U extends object = any> (target?: U): void {
         TweenSystem.instance.ActionManager.removeAllActionsFromTarget(target);

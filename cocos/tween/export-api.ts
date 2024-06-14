@@ -48,7 +48,7 @@ export type TweenEasing =
  * @zh
  * 缓动的可选属性的接口定义。
  */
-export interface ITweenOption<T> {
+export interface ITweenOption<T extends object = any> {
 
     /**
      * @en
