@@ -1,4 +1,4 @@
-import { Vec3, System, size, Size, approx, color, Color, v3 } from "../../cocos/core";
+import { Vec3, System, size, Size, approx, color, Color, v3, lerp } from "../../cocos/core";
 import { ITweenOption, tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
