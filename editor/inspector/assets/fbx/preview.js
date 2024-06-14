@@ -330,6 +330,20 @@ const Elements = {
                         if (info.type === 'cc.Prefab') {
                             values.push(info.value);
                         }
+                        if (Array.isArray(info.extends)) {
+                            info.extends.forEach(v => {
+                                if (v === 'cc.Prefab') {
+                                    values.push(info.value);
+                                }
+                            });
+                        }
+                        if (info.subAssets) {
+                            Object.values(info.subAssets).forEach(subAsset => {
+                                if (subAsset.type === 'cc.Prefab') {
+                                    values.push(subAsset.value);
+                                }
+                            });
+                        }
                     });
                 }
 

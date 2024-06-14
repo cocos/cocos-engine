@@ -1257,7 +1257,7 @@ const Elements = {
                     $section.innerHTML = `
                     <header class="component-header" slot="header">
                         <ui-checkbox class="active"></ui-checkbox>
-                        <ui-drag-item additional='${additional}'>
+                        <ui-drag-item type="${component.type}" types="${component.type}" additional='${additional}'>
                             <ui-icon default="component" color="true" value="${component.type}"></ui-icon>
                             <span class="name">${component.type}${component.mountedRoot ? '+' : ''}</span>
                         </ui-drag-item>
