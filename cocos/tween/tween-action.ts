@@ -71,7 +71,7 @@ function TweenEasingAdapter (easingName: string): string {
 }
 
 /** checker */
-function TweenOptionChecker<T> (opts: ITweenOption<T>): void {
+function TweenOptionChecker<T extends object> (opts: ITweenOption<T>): void {
     const header = ' [Tween:] ';
     const message = ` option is not support in v + ${VERSION}`;
     const _opts = opts as unknown as any;
@@ -92,7 +92,7 @@ function TweenOptionChecker<T> (opts: ITweenOption<T>): void {
     }
 }
 
-export interface IInternalTweenOption<T> extends ITweenOption<T> {
+export interface IInternalTweenOption<T extends object> extends ITweenOption<T> {
     /**
      * @en
      * Whether to use relative value calculation method during easing process
@@ -102,7 +102,7 @@ export interface IInternalTweenOption<T> extends ITweenOption<T> {
     relative?: boolean;
 }
 
-export class TweenAction<T> extends ActionInterval {
+export class TweenAction<T extends object> extends ActionInterval {
     private _opts: IInternalTweenOption<T>;
     private _props: any;
     private _originProps: any;
@@ -145,26 +145,37 @@ export class TweenAction<T> extends ActionInterval {
             let value = props[name];
             if (typeof value === 'function') {
                 value = value();
+            } else if (value == null || typeof value === 'string') {
+                continue;
             }
-            if (value == null || typeof value === 'string') continue;
             // property may have custom easing or progress function
             let customEasing: any;
-            let progress: any;
-            if (value.value !== undefined && (value.easing || value.progress)) {
-                if (typeof value.easing === 'string') {
-                    customEasing = easing[value.easing];
-                    if (!customEasing) warnID(1031, value.easing as string);
-                } else {
-                    customEasing = value.easing;
+            let customProgress: any;
+            let customValue: any;
+
+            if (value.value !== undefined) {
+                customValue = value.value;
+
+                if (value.easing !== undefined) {
+                    if (typeof value.easing === 'string') {
+                        customEasing = easing[value.easing];
+                        if (!customEasing) warnID(1031, value.easing as string);
+                    } else {
+                        customEasing = value.easing;
+                    }
                 }
-                progress = value.progress;
-                value = value.value;
+
+                if (value.progress !== undefined) {
+                    customProgress = value.progress;
+                }
+            } else {
+                customValue = value;
             }
 
             const prop = Object.create(null);
-            prop.value = value;
+            prop.value = customValue;
             prop.easing = customEasing;
-            prop.progress = progress;
+            prop.progress = customProgress;
             this._props[name] = prop;
         }
 

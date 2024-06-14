@@ -3206,3 +3206,259 @@ test('node active + pause/resume  ', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('custom prop value with callback', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, { angle: ()=>90, position: v3(90, 90, 90) }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(30);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(60);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('custom prop value with value', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, { angle: { value: 90 }, position: v3(90, 90, 90) }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(30);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(60);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('custom prop value with value, custom progress', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, {
+        angle: { 
+            value: 90,
+            progress(start: number, end: number, current: number, ratio: number): number {
+                return lerp(start, end, ratio);
+            },
+        },
+        position: v3(90, 90, 90),
+    }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(30);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(60);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('custom prop value with value, custom easing with builtin string type', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, {
+        angle: { 
+            value: 90,
+            easing: 'backIn',
+        },
+        position: v3(90, 90, 90),
+    }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(-8.010533333333335);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(3.978933333333372);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('custom prop value with value, custom easing function', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, {
+        angle: { 
+            value: 90,
+            easing: (k: number): number => { 
+                if (k === 1) {
+                    return 1;
+                }
+                const s = 1.70158;
+                return k * k * ((s + 1) * k - s);
+            },
+        },
+        position: v3(90, 90, 90),
+    }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(-8.010533333333335);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(3.978933333333372);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('custom progress in opt', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, { angle: 90, position: v3(90, 90, 90) }, {
+        progress(start: number, end: number, current: number, ratio: number): number {
+            return lerp(start, end, ratio);
+        },
+    }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(30);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(60);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('custom easing with builtin type in opt', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, { angle: 90, position: v3(90, 90, 90) }, {
+        easing: 'backIn',
+    }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(-8.010533333333335);
+    expect(node.position.equals(v3(-8.010533333333335, -8.010533333333335, -8.010533333333335))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(3.978933333333372);
+    expect(node.position.equals(v3(3.978933333333372, 3.978933333333372, 3.978933333333372))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+test('custom easing function in opt', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    tween(node).to(1, { angle: 90, position: v3(90, 90, 90) }, {
+        easing: (k: number): number => { 
+            if (k === 1) {
+                return 1;
+            }
+            const s = 1.70158;
+            return k * k * ((s + 1) * k - s);
+         },
+    }).start();
+
+    runFrames(1); // Start
+    expect(node.angle).toBeCloseTo(0);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(-8.010533333333335);
+    expect(node.position.equals(v3(-8.010533333333335, -8.010533333333335, -8.010533333333335))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(3.978933333333372);
+    expect(node.position.equals(v3(3.978933333333372, 3.978933333333372, 3.978933333333372))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.angle).toBeCloseTo(90);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
