@@ -22,7 +22,7 @@
 import { EDITOR } from 'internal:constants';
 import { CCBoolean, CCFloat, CCInteger, cclegacy } from '../../../core';
 import { ccclass, disallowMultiple, executeInEditMode,
-    menu, range, rangeMin, requireComponent, serializable, slide, tooltip, type } from '../../../core/data/decorators';
+    menu, range, rangeMax, rangeMin, requireComponent, serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { Camera } from '../../../misc/camera-component';
 import { Component } from '../../../scene-graph';
 import { fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings } from '../settings';
@@ -147,31 +147,31 @@ export class BuiltinPipelineSettings extends Component {
 
     // DepthOfField
     @type(CCBoolean)
-    set dofEnable (value: boolean) {
+    set ppDofEnable (value: boolean) {
         this.settings.depthOfField.enabled = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get dofEnable (): boolean {
+    get ppDofEnable (): boolean {
         return this.settings.depthOfField.enabled;
     }
 
     @rangeMin(0)
     @type(CCFloat)
-    set dofFocusDistance (value: number) {
+    set ppDofFocusDistance (value: number) {
         this.settings.depthOfField.focusDistance = value;
     }
-    get dofFocusDistance (): number {
+    get ppDofFocusDistance (): number {
         return this.settings.depthOfField.focusDistance;
     }
 
     @rangeMin(0)
     @type(CCFloat)
-    set dofFocusRange (value: number) {
+    set ppDofFocusRange (value: number) {
         this.settings.depthOfField.focusRange = value;
     }
-    get dofFocusRange (): number {
+    get ppDofFocusRange (): number {
         return this.settings.depthOfField.focusRange;
     }
 
@@ -179,34 +179,34 @@ export class BuiltinPipelineSettings extends Component {
     @range([1, 10, 0.01])
     @rangeMin(1.0)
     @type(CCFloat)
-    set dofBokehRadius (value: number) {
+    set ppDofBokehRadius (value: number) {
         this.settings.depthOfField.bokehRadius = value;
     }
-    get dofBokehRadius (): number {
+    get ppDofBokehRadius (): number {
         return this.settings.depthOfField.bokehRadius;
     }
 
     // Bloom
     @type(CCBoolean)
-    set bloomEnable (value: boolean) {
+    set ppBloomEnable (value: boolean) {
         this.settings.bloom.enabled = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get bloomEnable (): boolean {
+    get ppBloomEnable (): boolean {
         return this.settings.bloom.enabled;
     }
 
     @tooltip('i18n:bloom.enableAlphaMask')
     @type(CCBoolean)
-    set bloomEnableAlphaMask (value: boolean) {
+    set ppBloomEnableAlphaMask (value: boolean) {
         this.settings.bloom.enableAlphaMask = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get bloomEnableAlphaMask (): boolean {
+    get ppBloomEnableAlphaMask (): boolean {
         return this.settings.bloom.enableAlphaMask;
     }
 
@@ -214,45 +214,69 @@ export class BuiltinPipelineSettings extends Component {
     @slide
     @range([1, 6, 1])
     @type(CCInteger)
-    set bloomIterations (value: number) {
+    set ppBloomIterations (value: number) {
         this.settings.bloom.iterations = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get bloomIterations (): number {
+    get ppBloomIterations (): number {
         return this.settings.bloom.iterations;
     }
 
     @tooltip('i18n:bloom.threshold')
     @rangeMin(0)
     @type(CCFloat)
-    set bloomThreshold (value: number) {
+    set ppBloomThreshold (value: number) {
         this.settings.bloom.threshold = value;
     }
-    get bloomThreshold (): number {
+    get ppBloomThreshold (): number {
         return this.settings.bloom.threshold;
     }
 
     @tooltip('i18n:bloom.intensity')
     @rangeMin(0)
     @type(CCFloat)
-    set bloomIntensity (value: number) {
+    set ppBloomIntensity (value: number) {
         this.settings.bloom.intensity = value;
     }
-    get bloomIntensity (): number {
+    get ppBloomIntensity (): number {
         return this.settings.bloom.intensity;
     }
 
     // FXAA
     @type(CCBoolean)
-    set fxaaEnable (value: boolean) {
+    set ppFxaaEnable (value: boolean) {
         this.settings.fxaa.enabled = value;
         if (EDITOR) {
             this._tryEnableEditorPreview();
         }
     }
-    get fxaaEnable (): boolean {
+    get ppFxaaEnable (): boolean {
         return this.settings.fxaa.enabled;
+    }
+
+    // FSR
+    @type(CCBoolean)
+    set fsrEnable (value: boolean) {
+        this.settings.fsr.enabled = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get fsrEnable (): boolean {
+        return this.settings.fsr.enabled;
+    }
+
+    @slide
+    @range([0, 1, 0.01])
+    @rangeMin(0)
+    @rangeMax(1)
+    @type(CCFloat)
+    set fsrSharpness (value: number) {
+        this.settings.fsr.sharpness = value;
+    }
+    get fsrSharpness (): number {
+        return this.settings.fsr.sharpness;
     }
 }
