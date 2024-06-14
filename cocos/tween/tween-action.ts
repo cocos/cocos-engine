@@ -145,7 +145,7 @@ export class TweenAction<T extends object> extends ActionInterval {
             let value = props[name];
             if (typeof value === 'function') {
                 value = value();
-            } else if (value == null || typeof value === 'string') {
+            } else if (value == null) {
                 continue;
             }
             // property may have custom easing or progress function
@@ -155,6 +155,9 @@ export class TweenAction<T extends object> extends ActionInterval {
 
             if (value.value !== undefined) {
                 customValue = value.value;
+                if (typeof customValue === 'function') {
+                    customValue = customValue();
+                }
 
                 if (value.easing !== undefined) {
                     if (typeof value.easing === 'string') {
@@ -176,6 +179,13 @@ export class TweenAction<T extends object> extends ActionInterval {
             prop.value = customValue;
             prop.easing = customEasing;
             prop.progress = customProgress;
+            prop.convert = value.convert;
+            prop.clone = value.clone;
+            prop.add = value.add;
+            prop.sub = value.sub;
+            prop.legacyProgress = value.legacyProgress ?? true;
+            prop.toFixed = value.toFixed;
+            prop.valid = true;
             this._props[name] = prop;
         }
 
@@ -230,26 +240,82 @@ export class TweenAction<T extends object> extends ActionInterval {
                 prop.current = _t;
                 prop.end = relative ? (reversed ? _t - value : _t + value) : value;
             } else if (typeof _t === 'object') {
-                if (prop.start == null) {
-                    prop.start = {}; prop.current = {}; prop.end = {};
-                }
+                if (prop.legacyProgress) {
+                    if (prop.start == null) {
+                        prop.start = {}; prop.current = {}; prop.end = {};
+                    }
 
-                let propertyKeys: string[];
-                if (value.getModifiableProperties) {
-                    propertyKeys = value.getModifiableProperties();
+                    let propertyKeys: string[];
+                    if (value.getModifiableProperties) {
+                        propertyKeys = value.getModifiableProperties();
+                    } else {
+                        propertyKeys = Object.keys(value as object);
+                    }
+
+                    for (let i = 0, len = propertyKeys.length; i < len; ++i) {
+                        const k = propertyKeys[i];
+                        // eslint-disable-next-line no-restricted-globals
+                        if (isNaN(_t[k] as number)) continue;
+
+                        prop.start[k] = _t[k];
+                        prop.current[k] = _t[k];
+                        prop.end[k] = relative ? (reversed ? _t[k] - value[k] : _t[k] + value[k]) : value[k];
+                    }
                 } else {
-                    propertyKeys = Object.keys(value as object);
+                    const clone = prop.clone;
+                    if (!clone) {
+                        warn(`Need 'clone' for custom prop '${property}'`);
+                        prop.valid = false;
+                        continue;
+                    } else {
+                        const add = prop.add;
+                        const sub = prop.sub;
+                        if (relative) {
+                            if (!add) {
+                                warn(`Need 'add' for custom prop '${property}'`);
+                                prop.valid = false;
+                            }
+                            if (reversed && !sub) {
+                                warn(`Need 'sub' for custom prop '${property} in reverse mode'`);
+                                prop.valid = false;
+                            }
+                            if (!prop.valid) continue;
+                        }
+
+                        prop.start = clone(_t);
+                        prop.current = clone(_t);
+                        prop.end = relative ? (reversed ? sub(_t, value) : add(_t, value)) : clone(value);
+                    }
+                }
+            } else if (typeof _t === 'string') {
+                const convertFn = prop.convert;
+                const convertToNumber = (v: any): number | null => {
+                    if (typeof v === 'number') return v;
+                    let convertedValue = v;
+                    if (convertFn) {
+                        convertedValue = convertFn(v);
+                    }
+
+                    if (typeof convertedValue !== 'number') {
+                        convertedValue = Number(convertedValue);
+                        if (Number.isNaN(convertedValue)) {
+                            warn(`TweenAction: '${v}' can't be converted to number`);
+                            return null;
+                        }
+                    }
+                    return convertedValue as number;
+                };
+
+                const targetNumValue = convertToNumber(value);
+                const startNumValue = convertToNumber(_t);
+                if (targetNumValue == null || startNumValue == null) {
+                    prop.valid = false;
+                    continue;
                 }
 
-                for (let i = 0, len = propertyKeys.length; i < len; ++i) {
-                    const k = propertyKeys[i];
-                    // eslint-disable-next-line no-restricted-globals
-                    if (isNaN(_t[k] as number)) continue;
-
-                    prop.start[k] = _t[k];
-                    prop.current[k] = _t[k];
-                    prop.end[k] = relative ? (reversed ? _t[k] - value[k] : _t[k] + value[k]) : value[k];
-                }
+                prop.start = startNumValue;
+                prop.current = _t;
+                prop.end = relative ? (reversed ? startNumValue - targetNumValue : startNumValue + targetNumValue) : targetNumValue;
             }
         }
 
@@ -271,24 +337,33 @@ export class TweenAction<T extends object> extends ActionInterval {
         const progress = opts.progress;
         for (const name in props) {
             const prop = props[name];
+            if (!prop.valid) continue;
+
             const time = prop.easing ? prop.easing(t) : easingTime;
             const interpolation = prop.progress ? prop.progress : progress;
 
             const start = prop.start;
             const end = prop.end;
-            if (typeof start === 'number') {
+            const current = prop.current;
+            if (typeof current === 'number') {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
-                // const value = prop.value;
-                for (const k in start) {
-                    // if (value[k].easing) {
-                    //     time = value[k].easing(t);
-                    // }
-                    // if (value[k].progress) {
-                    //     interpolation = value[k].easing(t);
-                    // }
-                    prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
+                if (prop.legacyProgress) {
+                    for (const k in start) {
+                        prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
+                    }
+                } else {
+                    prop.current = interpolation(start, end, prop.current, time);
                 }
+            } else if (typeof current === 'string') {
+                let newCurrent = interpolation(start, end, prop.current, time);
+                if (typeof newCurrent === 'number') {
+                    newCurrent = newCurrent.toFixed((prop.toFixed ?? 0) as number);
+                } else if (typeof newCurrent !== 'string') {
+                    warn(`Wrong return type for 'progress', number or string needed`);
+                    continue;
+                }
+                prop.current = newCurrent;
             }
 
             workerTarget[name] = prop.current;
