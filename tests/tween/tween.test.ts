@@ -1,5 +1,5 @@
 import { Vec3, System, size, Size, approx, color, Color, v3 } from "../../cocos/core";
-import { tween, Tween, TweenSystem } from "../../cocos/tween";
+import { ITweenOption, tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
 import { game, director } from "../../cocos/game";
@@ -52,6 +52,24 @@ test('destroySelf', function () {
     tween(node).destroySelf().start();
     game.step();
     expect(onDestroy).toBeCalledTimes(1);
+    director.unregisterSystem(sys);
+});
+
+test('to/by ITweenOption no type', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    const opt: ITweenOption = {
+        progress(start, end, current, ratio): number {
+            return lerp(start, end, ratio);
+        },
+    };
+
+    tween(node).to(1, { position: v3(90, 0, 0) }, opt).start();
+    tween(node).by(1, { position: v3(90, 0, 0) }, opt).start();
+
     director.unregisterSystem(sys);
 });
 
