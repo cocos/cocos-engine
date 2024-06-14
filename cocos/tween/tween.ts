@@ -262,6 +262,15 @@ export class Tween<T extends object = any> {
     }
 
     /**
+     * @en Gets the target of the current tween instance.
+     * @zh 获取当前缓动的目标对象。
+     * @return @en the target of the current tween instance. @zh 当前缓动的目标对象。
+     */
+    getTarget (): T | null {
+        return this._target;
+    }
+
+    /**
      * @en Start tween from a specific time, all actions before the time will be executed and finished immediately.
      * @zh 从指定时间开始执行当前缓动，此时间前的所有缓动将被立马执行完毕。
      * @param time @en The time (unit: seconds) to start to execute the current tween. Default value: 0.
@@ -341,9 +350,11 @@ export class Tween<T extends object = any> {
      * @param target @en The target of clone tween @zh 克隆缓动的目标对象
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
-    clone<U extends object = any> (target?: U): Tween<U> {
+    clone (): Tween<T>;
+    clone<U extends object = any> (target: U): Tween<U>;
+    clone<U extends object = any> (target?: U): Tween<U | T> {
         const action = this._union(false);
-        const r = tween(target);
+        const r = tween<U | T>(target ?? this._target as T);
         r._timeScale = this._timeScale;
         return action ? r.insertAction(action) : r;
     }

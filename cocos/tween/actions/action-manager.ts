@@ -27,8 +27,8 @@
 
 import { errorID, logID } from '../../core/platform/debug';
 import { Action } from './action';
-import { legacyCC } from '../../core/global-exports';
 import { isCCObject } from '../../core/data/object';
+import { Node, NodeEventType } from '../../scene-graph';
 
 /*
  * @class HashElement
@@ -84,6 +84,29 @@ export class ActionManager {
         this._elementPool.push(element);
     }
 
+    private _onNodeActiveChanged (target: Node, active: boolean): void {
+        if (active) {
+            this.resumeTarget(target);
+        } else {
+            this.pauseTarget(target);
+        }
+    }
+
+    private _onNodeDestroy (target: Node): void {
+        // Doesn't need to off node event since it will be done automatically after this event is fired.
+        this._removeAllActionsFromTarget(target, false);
+    }
+
+    private _registerNodeEvent (target: Node): void {
+        target.on(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
+        target.on(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+    }
+
+    private _unregisterNodeEvent (target: Node): void {
+        target.off(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
+        target.off(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+    }
+
     /**
      * @en
      * Adds an action with a target.<br/>
@@ -118,6 +141,11 @@ export class ActionManager {
         } else if (!element.actions) {
             element.actions = [];
         }
+
+        if (element.actions.length === 0 && target instanceof Node) {
+            this._registerNodeEvent(target);
+        }
+
         // update target due to the same UUID is allowed for different scenarios
         element.target = target;
         element.actions.push(action);
@@ -133,7 +161,13 @@ export class ActionManager {
         const locTargets = this._arrayTargets;
         for (let i = 0; i < locTargets.length; i++) {
             const element = locTargets[i];
-            if (element) this._putElement(element);
+            if (element) {
+                if (element.target instanceof Node) {
+                    this._unregisterNodeEvent(element.target);
+                }
+
+                this._putElement(element);
+            }
         }
         this._arrayTargets.length = 0;
         this._hashTargets = new Map<unknown, HashElement>();
@@ -149,14 +183,23 @@ export class ActionManager {
      * @param {T} target
      */
     removeAllActionsFromTarget<T> (target: T): void {
+        this._removeAllActionsFromTarget(target, true);
+    }
+
+    private _removeAllActionsFromTarget<T> (target: T, offNodeEvent: boolean): void {
         // explicit null handling
         if (target == null) return;
         const element = this._hashTargets.get(target);
         if (element) {
+            if (offNodeEvent && target instanceof Node) {
+                this._unregisterNodeEvent(target);
+            }
+
             element.actions.length = 0;
             this._deleteHashElement(element);
         }
     }
+
     /**
      * @en Removes an action given an action reference.
      * @zh 移除指定的动作。
@@ -381,29 +424,17 @@ export class ActionManager {
         }
     }
 
-    /**
-     * @en
-     * purges the shared action manager. It releases the retained instance. <br/>
-     * because it uses this, so it can not be static.
-     * @zh
-     * 清除共用的动作管理器。它释放了持有的实例。 <br/>
-     * 因为它使用 this，因此它不能是静态的。
-     * @method purgeSharedManager
-     */
-    purgeSharedManager (): void {
-        legacyCC.director.getScheduler().unscheduleUpdate(this);
-    }
-
     // protected
-    private _removeActionAtIndex<T> (index: number, element: HashElement): void {
-        const action = element.actions[index];
-
+    private _removeActionAtIndex (index: number, element: HashElement): void {
         element.actions.splice(index, 1);
 
         // update actionIndex in case we are in tick. looping over the actions
         if (element.actionIndex >= index) element.actionIndex--;
 
         if (element.actions.length === 0) {
+            if (element.target instanceof Node) {
+                this._unregisterNodeEvent(element.target);
+            }
             this._deleteHashElement(element);
         }
     }
@@ -470,6 +501,10 @@ export class ActionManager {
             }
             // only delete currentTarget if no actions were scheduled during the cycle (issue #481)
             if (locCurrTarget.actions.length === 0) {
+                if (target instanceof Node) {
+                    this._unregisterNodeEvent(target);
+                }
+
                 if (this._deleteHashElement(locCurrTarget)) {
                     elt--;
                 }

@@ -298,4 +298,12 @@ export enum NodeEventType {
      * 当光照探针烘焙数据修改后触发的事件
      */
     LIGHT_PROBE_BAKING_CHANGED = 'light-probe-baking-changed',
+
+    /**
+     * @en
+     * The event is fired if the active state is changed.
+     * @zh
+     * 当激活状态改变时将触发的事件。
+     */
+    ACTIVE_CHANGED = 'active-changed',
 }
