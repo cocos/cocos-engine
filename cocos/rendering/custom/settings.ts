@@ -28,7 +28,8 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { SampleCount, Texture } from '../../gfx';
+import { Texture2D } from '../../asset/assets';
+import { SampleCount } from '../../gfx';
 
 export interface MSAA {
     enabled: boolean; /*false*/
@@ -165,15 +166,16 @@ export function fillRequiredBloom (value: Bloom): void {
 
 export interface ColorGrading {
     enabled: boolean; /*false*/
-    contribute: number; /*0*/
-    /*refcount*/ colorGradingMap?: Texture;
+    contribute: number; /*1*/
+    /*refcount*/ colorGradingMap: Texture2D | null;
     [name: string]: unknown;
 }
 
 export function makeColorGrading (): ColorGrading {
     return {
         enabled: false,
-        contribute: 0,
+        contribute: 1,
+        colorGradingMap: null,
     };
 }
 
@@ -182,7 +184,10 @@ export function fillRequiredColorGrading (value: ColorGrading): void {
         value.enabled = false;
     }
     if (value.contribute === undefined) {
-        value.contribute = 0;
+        value.contribute = 1;
+    }
+    if (value.colorGradingMap === undefined) {
+        value.colorGradingMap = null;
     }
 }
 
