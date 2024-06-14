@@ -111,6 +111,7 @@ struct Index {
       confirm: (msg: string): void => {
         this.showInfo.defaultMessage = msg;
         this.workPort.postMessage('onConfirm', msg);
+        this.workPort.postMessage('onComplete', msg);
       },
     }),
     cancel: (): void => {
@@ -143,6 +144,8 @@ struct Index {
             this.showInfo.enterKeyType = EnterKeyType.Go;
           } else if(param?.confirmType == 'next') {
             this.showInfo.enterKeyType = EnterKeyType.Next;
+          } else {
+            this.showInfo.enterKeyType = EnterKeyType.Done;
           }
           if(param?.inputType == 'password') {
             this.showInfo.type = InputType.Password;
@@ -156,14 +159,20 @@ struct Index {
             this.showInfo.type = InputType.PhoneNumber;
           } else if(param?.inputType === 'url') {
             // No url support
+          } else {
+            this.showInfo.type = InputType.Normal;
           }
           if(param?.maxLength != undefined && param?.maxLength > 0) {
             this.showInfo.maxLength = param.maxLength;
+          } else {
+            this.showInfo.maxLength =  65536;
           }
 
           if(param?.isUnderline != undefined) {
             this.showInfo.showUnderline = param?.isUnderline;
             this.showInfo.underLineColor = param?.underlineColor as number;
+          } else {
+            this.showInfo.showUnderline = false;
           }
 
           if(param?.textAlignment == 0) {
@@ -172,6 +181,8 @@ struct Index {
             this.showInfo.textAlign = TextAlign.Center;
           } else if(param?.textAlignment == 2) {
             this.showInfo.textAlign = TextAlign.End;
+          } else {
+            this.showInfo.textAlign = TextAlign.Start;
           }
           this.dialogController.open();
           break;
@@ -290,6 +301,7 @@ struct Index {
           let index = this.videoIndexMap.get(video?.tag as number) as number;
           let resourceType = video.resourceType;
           if (resourceType == 1) {
+            video.url = 'Resources/' + video.url;
             this.videoArray[index].url = $rawfile(video.url as string);
           } else {
             this.videoArray[index].url = video.url as string;
