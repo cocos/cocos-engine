@@ -122,7 +122,7 @@ exports.listeners = {
             if (!value) { return; } // 只有被勾选的时候上报埋点
 
             const trackMap = {
-                meshSimplify: 'A100000',
+                'meshOptimize.enable': 'A100000',
                 'fbx.smartMaterialEnabled': 'A100001',
                 disableMeshSplit: 'A100002',
             };
