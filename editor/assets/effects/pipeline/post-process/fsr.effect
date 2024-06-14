@@ -5,30 +5,20 @@ CCEffect %{
   - passes:
     - vert: vs
       frag: fs-easu
-      pass: post-process
+      pass: fsr-easu
       rasterizerState:
         cullMode: none
       depthStencilState:
         depthTest: false
         depthWrite: false
-      blendState:
-        targets:
-        - blend: true
-          blendSrc: one
-          blendDst: zero
     - vert: vs
       frag: fs-rcas
-      pass: post-process
+      pass: fsr-rcas
       rasterizerState:
         cullMode: none
       depthStencilState:
         depthTest: false
         depthWrite: false
-      blendState:
-        targets:
-        - blend: true
-          blendSrc: one
-          blendDst: zero
 }%
 
 

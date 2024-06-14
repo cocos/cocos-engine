@@ -46,7 +46,7 @@ export class FSRPass extends SettingPass {
         const input0 = this.lastPass!.slotName(camera, 0);
         const easu = `FSR_EASU${cameraID}`;
         passContext
-            .addRenderPass('post-process', `CameraFSR_EASU_Pass${cameraID}`)
+            .addRenderPass('fsr-easu', `CameraFSR_EASU_Pass${cameraID}`)
             .setPassInput(input0, 'outputResultMap')
             .addRasterView(easu, Format.RGBA8)
             .blitScreen(0)
@@ -54,7 +54,7 @@ export class FSRPass extends SettingPass {
 
         const slot0 = this.slotName(camera, 0);
         passContext
-            .addRenderPass('post-process', `CameraFSR_RCAS_Pass${cameraID}`)
+            .addRenderPass('fsr-rcas', `CameraFSR_RCAS_Pass${cameraID}`)
             .setPassInput(easu, 'outputResultMap')
             .addRasterView(slot0, Format.RGBA8)
             .blitScreen(1)
