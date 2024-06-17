@@ -102,7 +102,7 @@ void Texture2D::reset(const ITexture2DCreateInfo &info) {
 
     const uint32_t minLod = info.baseLevel.has_value() ? info.baseLevel.value() : 0;
     const uint32_t maxLod = info.maxLevel.has_value() ? info.maxLevel.value() : 1000;
-    setMipRange(minLod, maxLod);
+    setMipRangeInternal(minLod, maxLod);
 
     tryReset();
 }
