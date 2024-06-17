@@ -1291,7 +1291,9 @@ struct ALIGNAS(8) ColorAttachment {
     LoadOp loadOp{LoadOp::CLEAR};
     StoreOp storeOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-
+#if CC_CPU_ARCH == CC_CPU_ARCH_32
+    uint32_t _padding{0};
+#endif
     EXPOSE_COPY_FN(ColorAttachment)
 };
 
@@ -1305,7 +1307,9 @@ struct ALIGNAS(8) DepthStencilAttachment {
     LoadOp stencilLoadOp{LoadOp::CLEAR};
     StoreOp stencilStoreOp{StoreOp::STORE};
     GeneralBarrier *barrier{nullptr};
-
+#if CC_CPU_ARCH == CC_CPU_ARCH_32
+    uint32_t _padding{0};
+#endif
     EXPOSE_COPY_FN(DepthStencilAttachment)
 };
 
@@ -1401,7 +1405,9 @@ struct ALIGNAS(8) BufferBarrierInfo {
 
     Queue *srcQueue{nullptr}; // @ts-nullable
     Queue *dstQueue{nullptr}; // @ts-nullable
-
+#if CC_CPU_ARCH == CC_CPU_ARCH_32
+    uint32_t _padding{0};
+#endif
     EXPOSE_COPY_FN(BufferBarrierInfo)
 };
 using BufferBarrierInfoList = ccstd::vector<BufferBarrierInfo>;

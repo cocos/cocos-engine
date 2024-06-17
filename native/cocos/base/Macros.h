@@ -409,3 +409,7 @@ It should work same as apples CFSwapInt32LittleToHost(..)
         #define CC_FORCE_INLINE inline
     #endif
 #endif
+
+// Macro definition to check if a type has padding
+#define CC_CHECK_STRUCT_NO_PADDING(T) \
+    static_assert(std::has_unique_object_representations_v<T>, "ERROR: Type has padding bytes!")

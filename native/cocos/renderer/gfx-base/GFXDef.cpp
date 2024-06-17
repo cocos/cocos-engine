@@ -36,6 +36,7 @@ namespace gfx {
 // T must have no implicit padding
 template <typename T>
 ccstd::hash_t quickHashTrivialStruct(const T *info, size_t count = 1) {
+    CC_CHECK_STRUCT_NO_PADDING(T);
     static_assert(std::is_trivially_copyable<T>::value && sizeof(T) % 8 == 0, "T must be 8 bytes aligned and trivially copyable");
     return ccstd::hash_range(reinterpret_cast<const uint64_t *>(info), reinterpret_cast<const uint64_t *>(info + count));
 }
