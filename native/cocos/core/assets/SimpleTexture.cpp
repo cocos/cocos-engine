@@ -212,11 +212,9 @@ void SimpleTexture::setMipRange(uint32_t baseLevel, uint32_t maxLevel) {
     }
     // create a new texture view before the destruction of the previous one to bypass the bug that
     // vulkan destroys textureview in use. This is a temporary solution, should be fixed later.
-#ifdef CC_USE_VULKAN
     gfx::Texture *textureView = createTextureView(device);
     tryDestroyTextureView();
     _gfxTextureView = textureView;
-#endif
 }
 
 bool SimpleTexture::isUsingOfflineMipmaps() {
