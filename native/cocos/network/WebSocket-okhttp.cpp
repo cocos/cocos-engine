@@ -389,6 +389,7 @@ JNI_PATH(nativeOnBinaryMessage)(JNIEnv *env,
         jboolean isCopy = JNI_FALSE;
         jbyte *array = env->GetByteArrayElements(static_cast<jbyteArray>(strongRef), &isCopy);
         wsOkHttp3->onBinaryMessage(reinterpret_cast<uint8_t *>(array), len);
+        env->ReleaseByteArrayElements(static_cast<jbyteArray>(strongRef), array, JNI_ABORT);
         env->DeleteGlobalRef(strongRef);
     } while (false));
 }
