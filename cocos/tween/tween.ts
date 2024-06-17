@@ -39,15 +39,27 @@ import { Node } from '../scene-graph';
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
 type AllowedNames<Base, Type> = FlagExcludedType<Base, Type>[keyof Base];
-type CustomProgress = (start: any, end: any, current: any, ratio: number) => any;
-type CustomEasing = ITweenOption['easing'];
-interface CustomProp<Value> {
-    value: Value;
-    progress?: CustomProgress;
-    easing?: CustomEasing;
+export type TTweenCustomProgress = (start: any, end: any, current: any, ratio: number) => any;
+export type TTweenCustomEasing = ITweenOption['easing'];
+
+type ExtendsReturnResults<T, Base, Result1, Result2> = T extends Base ? Result1 : Result2;
+type ExtendsReturnResultOrNever<T, Base, Result> = ExtendsReturnResults<T, Base, Result, never>;
+
+type MaybeUnionStringNumber<T> = ExtendsReturnResults<T, string, string | number, T>;
+type StringToNumberOrNever<T> = ExtendsReturnResultOrNever<T, string, string | number>;
+export interface TTweenCustomProperty<Value> {
+    value: MaybeUnionStringNumber<Value> | (() => MaybeUnionStringNumber<Value>);
+    progress?: TTweenCustomProgress;
+    easing?: TTweenCustomEasing;
+    convert?: ExtendsReturnResultOrNever<Value, string, (v: string) => number | string>;   // Supported from v3.8.5
+    clone?: ExtendsReturnResultOrNever<Value, object, (v: Value) => Value>; // Supported from v3.8.5
+    add?: (a: Value, b: Value) => Value; // Supported from v3.8.5
+    sub?: (a: Value, b: Value) => Value; // Supported from v3.8.5
+    legacyProgress?: ExtendsReturnResultOrNever<Value, object, boolean>;    // Supported from v3.8.5, the default value is true for compatiblity
+    toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.5
 }
 
-type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | CustomProp<T[P]>) };
+type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | TTweenCustomProperty<T[P]> | StringToNumberOrNever<T[P]>) };
 type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ConstructorType<T> = OmitType<T, Function>;

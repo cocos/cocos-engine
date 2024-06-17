@@ -1,12 +1,12 @@
-import { Vec3, System, size, Size, approx, color, Color, v3, lerp } from "../../cocos/core";
-import { ITweenOption, tween, Tween, TweenSystem } from "../../cocos/tween";
+import { Vec3, System, size, Size, approx, color, Color, v3, lerp, EPSILON } from "../../cocos/core";
+import { ITweenOption, TTweenCustomProperty, tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
 import { game, director } from "../../cocos/game";
 import { UITransform } from "../../cocos/2d/framework/ui-transform";
 import { Canvas } from "../../cocos/2d/framework/canvas";
 import { Batcher2D } from "../../cocos/2d/renderer/batcher-2d";
-import { UIOpacity } from "../../cocos/2d";
+import { Label, UIOpacity } from "../../cocos/2d";
 import { Sprite } from "../../cocos/2d";
 
 function isSizeEqualTo(a: Size, b: Size) {
@@ -3477,6 +3477,700 @@ test('custom easing function in opt', function () {
     runFrames(20);
     expect(node.angle).toBeCloseTo(90);
     expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+
+    director.unregisterSystem(sys);
+});
+
+class StringTarget {
+    string = '';
+}
+
+test('to string, 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '0';
+
+    tween(t).to(1, { string: 100 }).start();
+
+    runFrames(1); // Start
+    expect(t.string).toBe('0');
+
+    runFrames(20);
+    expect(t.string).toBe('33');
+
+    runFrames(20);
+    expect(t.string).toBe('67');
+
+    runFrames(20);
+    expect(t.string).toBe('100');
+
+    director.unregisterSystem(sys);
+});
+
+test('to string, 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '10';
+
+    tween(t).to(1, { string: '100' }).start();
+
+    runFrames(1); // Start
+    expect(t.string).toBe('10');
+
+    runFrames(20);
+    expect(t.string).toBe('40');
+
+    runFrames(20);
+    expect(t.string).toBe('70');
+
+    runFrames(20);
+    expect(t.string).toBe('100');
+
+    director.unregisterSystem(sys);
+});
+
+test('to string, toFixed: 2, 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '10';
+
+    tween(t).to(1, { string: { value: 110, toFixed: 2 } }).start();
+
+    runFrames(1); // Start
+    expect(t.string).toBe('10.00');
+
+    runFrames(20);
+    expect(t.string).toBe('43.33');
+
+    runFrames(20);
+    expect(t.string).toBe('76.67');
+
+    runFrames(20);
+    expect(t.string).toBe('110.00');
+
+    director.unregisterSystem(sys);
+});
+
+test('to string, toFixed: 2, 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '0';
+
+    tween(t).to(1, { string: { value: '100', toFixed: 2 } }).start();
+
+    runFrames(1); // Start
+    expect(t.string).toBe('0.00');
+
+    runFrames(20);
+    expect(t.string).toBe('33.33');
+
+    runFrames(20);
+    expect(t.string).toBe('66.67');
+
+    runFrames(20);
+    expect(t.string).toBe('100.00');
+
+    director.unregisterSystem(sys);
+});
+
+test('by string', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '10';
+
+    tween(t)
+        .by(1, { string: 90 }).id(123)
+        .reverse(123)
+        .start();
+
+    runFrames(1); // Start
+    expect(t.string).toBe('10');
+
+    runFrames(20);
+    expect(t.string).toBe('40');
+
+    runFrames(20);
+    expect(t.string).toBe('70');
+
+    runFrames(20);
+    expect(t.string).toBe('100');
+
+    runFrames(20);
+    expect(t.string).toBe('70');
+
+    runFrames(20);
+    expect(t.string).toBe('40');
+
+    runFrames(20);
+    expect(t.string).toBe('10');
+
+    director.unregisterSystem(sys);
+});
+
+test('by string, toFixed: 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '10';
+
+    tween(t)
+        .by(1, { string: { value: ()=>90, toFixed: 2 } }).id(123)
+        .reverse(123)
+        .start();
+
+    runFrames(1); // Start
+    expect(t.string).toBe('10.00');
+
+    runFrames(20);
+    expect(t.string).toBe('40.00');
+
+    runFrames(20);
+    expect(t.string).toBe('70.00');
+
+    runFrames(20);
+    expect(t.string).toBe('100.00');
+
+    runFrames(20);
+    expect(t.string).toBe('70.00');
+
+    runFrames(20);
+    expect(t.string).toBe('40.00');
+
+    runFrames(20);
+    expect(t.string).toBe('10.00');
+
+    director.unregisterSystem(sys);
+});
+
+test('to string, custom progress', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '0';
+
+    const fnCustomProgress = jest.fn((start: number, end: number, current: string, ratio: number): string => {
+        return lerp(start, end, ratio).toFixed(0);
+    });
+
+    tween(t)
+        .to(1, { string: { value: 100, progress: fnCustomProgress, } })
+        .start();
+
+    runFrames(1); // Start
+    expect(fnCustomProgress).toBeCalledTimes(1);
+    expect(t.string).toBe('0');
+
+    runFrames(20);
+    expect(fnCustomProgress).toBeCalledTimes(1 + 20);
+    expect(t.string).toBe('33');
+
+    runFrames(20);
+    expect(fnCustomProgress).toBeCalledTimes(1 + 20 + 20);
+    expect(t.string).toBe('67');
+
+    runFrames(20);
+    expect(fnCustomProgress).toBeCalledTimes(1 + 20 + 20 + 20);
+    expect(t.string).toBe('100');
+
+    director.unregisterSystem(sys);
+});
+
+test('to string, custom progress, prefix ¥', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const t = new StringTarget();
+    t.string = '¥0';
+
+    const fnCustomProgress = jest.fn((start: number, end: number, current: string, ratio: number): string => {
+        return '¥' + lerp(start, end, ratio).toFixed(2);
+    });
+
+    tween(t)
+        .to(1, { string: { value: 100, progress: fnCustomProgress, convert: (v: string) => v.slice(1) } })
+        .start();
+
+    runFrames(1); // Start
+    expect(fnCustomProgress).toBeCalledTimes(1);
+    expect(t.string).toBe('¥0.00');
+
+    runFrames(20);
+    expect(fnCustomProgress).toBeCalledTimes(1 + 20);
+    expect(t.string).toBe('¥33.33');
+
+    runFrames(20);
+    expect(fnCustomProgress).toBeCalledTimes(1 + 20 + 20);
+    expect(t.string).toBe('¥66.67');
+
+    runFrames(20);
+    expect(fnCustomProgress).toBeCalledTimes(1 + 20 + 20 + 20);
+    expect(t.string).toBe('¥100.00');
+
+    director.unregisterSystem(sys);
+});
+
+test('to string, custom progress, wrap value', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const o = { gold: "¥0.00" };
+
+    function money(value) {
+        return {
+            value: `¥${value}`,
+            progress(start: number, end: number, current: string, ratio: number): string {
+                return `¥${lerp(start, end, ratio).toFixed(2)}`;
+            },
+            convert(v: string): number {
+                return Number(v.slice(1));
+            }
+        }
+    }
+
+    tween(o).to(1, { gold: money(100) }).start();
+
+    runFrames(1); // Start
+    expect(o.gold).toBe('¥0.00');
+
+    runFrames(20);
+    expect(o.gold).toBe('¥33.33');
+
+    runFrames(20);
+    expect(o.gold).toBe('¥66.67');
+
+    runFrames(20);
+    expect(o.gold).toBe('¥100.00');
+
+    director.unregisterSystem(sys);
+});
+
+test('to string, custom progress, wrap value 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const o = { 
+        _position: v3(0, 0, 0),
+        set position(v) {
+            this._position.set(v)
+        },
+        get position() {
+            return this._position;
+        },
+        gold: "¥0.00",
+        exp: '1000/1000',
+        lv: 'Lv.100',
+        attack: '100 points',
+        health: '10.00',
+    };
+
+    const tweenFormat = {
+        currency(value: number): TTweenCustomProperty<string> {
+            return {
+                value: `¥${value}`,
+                progress(start: number, end: number, current: string, ratio: number): string {
+                    return `¥${lerp(start, end, ratio).toFixed(2)}`;
+                },
+                convert(v: string): number {
+                    return Number(v.slice(1));
+                },
+            };
+        },
+
+        health(value: number): TTweenCustomProperty<string> {
+            return {
+                value: `${value}`,
+                toFixed: 2,
+            };
+        },
+
+        exp(value: number): TTweenCustomProperty<string> {
+            return {
+                value: () => `${value}/1000`,
+                progress(start: number, end: number, current: string, ratio: number): string {
+                    return `${lerp(start, end, ratio).toFixed(0)}/1000`;
+                },
+                convert(v: string): number {
+                    return Number(v.slice(0, v.indexOf('/')));
+                },
+            };
+        },
+
+        lv(value: number): TTweenCustomProperty<string> {
+            return {
+                value: `Lv.${value}`,
+                progress(start: number, end: number, current: string, ratio: number): string {
+                    return `Lv.${lerp(start, end, ratio).toFixed(0)}`;
+                },
+                convert(v: string): number {
+                    return Number(v.slice(v.indexOf('.') + 1));
+                },
+            };
+        },
+    };
+
+    tween(o).to(1, { 
+        position: v3(90, 0, 0),
+        gold: tweenFormat.currency(100),
+        health: tweenFormat.health(1),
+        exp: tweenFormat.exp(0),
+        lv: tweenFormat.lv(0),
+    }).start();
+
+    runFrames(1); // Start
+    expect(o.position.equals(v3(0, 0, 0)));
+    expect(o.gold).toBe('¥0.00');
+    expect(o.health).toBe('10.00');
+    expect(o.exp).toBe('1000/1000');
+    expect(o.lv).toBe('Lv.100');
+
+    runFrames(20);
+    expect(o.position.equals(v3(30, 0, 0)));
+    expect(o.gold).toBe('¥33.33');
+    expect(o.health).toBe('7.00');
+    expect(o.exp).toBe('667/1000');
+    expect(o.lv).toBe('Lv.67');
+
+    runFrames(20);
+    expect(o.position.equals(v3(60, 0, 0)));
+    expect(o.gold).toBe('¥66.67');
+    expect(o.health).toBe('4.00');
+    expect(o.exp).toBe('333/1000');
+    expect(o.lv).toBe('Lv.33');
+
+    runFrames(20);
+    expect(o.position.equals(v3(90, 0, 0)));
+    expect(o.gold).toBe('¥100.00');
+    expect(o.health).toBe('1.00');
+    expect(o.exp).toBe('0/1000');
+    expect(o.lv).toBe('Lv.0');
+
+    director.unregisterSystem(sys);
+});
+
+let lerpCalledCount = 0;
+let cloneCalledCount = 0;
+let addCalledCount = 0;
+let subCalledCount = 0;
+class MyProp {
+    constructor(x = 0, y = 0) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public static lerp (a: MyProp, b: MyProp, out: MyProp, t: number): MyProp {
+        ++lerpCalledCount;
+        const x = a.x;
+        const y = a.y;
+        out.x = x + t * (b.x - x);
+        out.y = y + t * (b.y - y);
+        return out;
+    }
+
+    public static add (a: MyProp, b: MyProp): MyProp {
+        ++addCalledCount;
+        const out = new MyProp();
+        out.x = a.x + b.x;
+        out.y = a.y + b.y;
+        return out;
+    }
+
+    public static sub (a: MyProp, b: MyProp): MyProp {
+        ++subCalledCount;
+        const out = new MyProp();
+        out.x = a.x - b.x;
+        out.y = a.y - b.y;
+        return out;
+    }
+
+    clone(): MyProp {
+        ++cloneCalledCount;
+        return new MyProp(this.x, this.y);
+    }
+
+    equals (other: MyProp, epsilon = EPSILON): boolean {
+        return (
+            Math.abs(this.x - other.x)
+            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
+            && Math.abs(this.y - other.y)
+            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
+        );
+    }
+
+    x = 0;
+    y = 0;
+}
+
+class MyObject {
+    angle = 0;
+    str = '';
+    private _myProp = new MyProp();
+
+    set myProp(v) {
+        if (Number.isNaN(v.x) || Number.isNaN(v.y)) {
+            console.error('xxxx');
+        }
+        this._myProp.x = v.x;
+        this._myProp.y = v.y;
+    }
+
+    get myProp() {
+        return this._myProp;
+    }
+}
+
+test('to object, no custom progress', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    lerpCalledCount = 0;
+    cloneCalledCount = 0;
+    addCalledCount = 0;
+
+    const o = new MyObject();
+
+    tween(o)
+        .to(1, {
+            myProp: {
+                value: new MyProp(100, 100),
+            },
+        })
+        .start();
+
+    runFrames(1); // Started
+    expect(o.myProp.equals(new MyProp(0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1/3*100, 1/3*100))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(2/3*100, 2/3*100))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(3/3*100, 3/3*100))).toBeTruthy();
+
+    expect(lerpCalledCount).toBe(0);
+    expect(cloneCalledCount).toBe(0);
+    expect(addCalledCount).toBe(0);
+
+    director.unregisterSystem(sys);
+});
+
+test('by object, no custom progress', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    lerpCalledCount = 0;
+    cloneCalledCount = 0;
+    addCalledCount = 0;
+
+    const o = new MyObject();
+    o.myProp.x = 1;
+    o.myProp.y = 1;
+
+    tween(o)
+        .by(1, { myProp: {
+            value: new MyProp(100, 100),
+        } }).id(123)
+        .reverse(123)
+        .start();
+
+    runFrames(1); // Started
+    expect(o.myProp.equals(new MyProp(1, 1))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 1/3*100, 1 + 1/3*100))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 2/3*100, 1 + 2/3*100))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 3/3*100, 1 + 3/3*100))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 2/3*100, 1 + 2/3*100))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 1/3*100, 1 + 1/3*100))).toBeTruthy();
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1, 1))).toBeTruthy();
+
+    expect(lerpCalledCount).toBe(0);
+    expect(cloneCalledCount).toBe(0);
+    expect(addCalledCount).toBe(0);
+
+    director.unregisterSystem(sys);
+});
+
+test('to object, custom progress', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    lerpCalledCount = 0;
+    cloneCalledCount = 0;
+    addCalledCount = 0;
+
+    const o = new MyObject();
+
+    tween(o)
+        .to(1, { myProp: {
+            value: new MyProp(100, 100),
+            progress: MyProp.lerp,
+            clone: v => v.clone(),
+            legacyProgress: false,
+        } })
+        .start();
+
+    runFrames(1); // Started
+    expect(o.myProp.equals(new MyProp(0, 0))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1);
+    expect(cloneCalledCount).toBe(3);
+    expect(addCalledCount).toBe(0);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1/3*100, 1/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 1);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(2/3*100, 2/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 2);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(3/3*100, 3/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 3);
+
+    director.unregisterSystem(sys);
+});
+
+test('by object, custom progress', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    lerpCalledCount = 0;
+    cloneCalledCount = 0;
+    addCalledCount = 0;
+    subCalledCount = 0;
+
+    const o = new MyObject();
+    o.myProp.x = 1;
+    o.myProp.y = 1;
+
+    tween(o)
+        .by(1, { myProp: {
+            value: new MyProp(100, 100),
+            progress: MyProp.lerp,
+            clone: v => v.clone(),
+            add: MyProp.add,
+            legacyProgress: false,
+        } })
+        .start();
+
+    runFrames(1); // Started
+    expect(o.myProp.equals(new MyProp(1, 1))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1);
+    expect(cloneCalledCount).toBe(2);
+    expect(addCalledCount).toBe(1);
+    expect(subCalledCount).toBe(0);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 1/3*100, 1 + 1/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 1);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 2/3*100, 1 + 2/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 2);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 3/3*100, 1 + 3/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 3);
+
+    director.unregisterSystem(sys);
+});
+
+test('by object, custom progress, reverse', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    lerpCalledCount = 0;
+    cloneCalledCount = 0;
+    addCalledCount = 0;
+    subCalledCount = 0;
+
+    const o = new MyObject();
+    o.myProp.x = 1;
+    o.myProp.y = 1;
+
+    tween(o)
+        .by(1, { myProp: {
+            value: new MyProp(100, 100),
+            progress: MyProp.lerp,
+            clone: v => v.clone(),
+            add: MyProp.add,
+            sub: MyProp.sub,
+            legacyProgress: false,
+        } }).id(123)
+        .reverse(123)
+        .start();
+
+    runFrames(1); // Started
+    expect(o.myProp.equals(new MyProp(1, 1))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1);
+    expect(cloneCalledCount).toBe(2);
+    expect(addCalledCount).toBe(1);
+    expect(subCalledCount).toBe(0);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 1/3*100, 1 + 1/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 1);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 2/3*100, 1 + 2/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(1 + 20 * 2);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 3/3*100, 1 + 3/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(2 + 20 * 3);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 2/3*100, 1 + 2/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(2 + 20 * 4);
+    expect(addCalledCount).toBe(1);
+    expect(subCalledCount).toBe(1);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1 + 1/3*100, 1 + 1/3*100))).toBeTruthy();
+    expect(lerpCalledCount).toBe(2 + 20 * 5);
+
+    runFrames(20);
+    expect(o.myProp.equals(new MyProp(1, 1))).toBeTruthy();
+    expect(lerpCalledCount).toBe(2 + 20 * 6);
 
     director.unregisterSystem(sys);
 });
