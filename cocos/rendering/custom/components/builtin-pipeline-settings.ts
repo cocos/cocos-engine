@@ -27,6 +27,7 @@ import { Camera } from '../../../misc/camera-component';
 import { Component } from '../../../scene-graph';
 import { fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings } from '../settings';
 import { property } from '../../../core/data/decorators/property';
+import { Texture2D } from '../../../asset/assets';
 
 @ccclass('cc.BuiltinPipelineSettings')
 @menu('Rendering/BuiltinPipelineSettings')
@@ -242,6 +243,38 @@ export class BuiltinPipelineSettings extends Component {
     }
     get ppBloomIntensity (): number {
         return this.settings.bloom.intensity;
+    }
+
+    // Color Grading (LDR)
+    @type(CCBoolean)
+    set ppLdrColorGradingEnable (value: boolean) {
+        this.settings.colorGrading.enabled = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
+    }
+    get ppLdrColorGradingEnable (): boolean {
+        return this.settings.colorGrading.enabled;
+    }
+
+    @tooltip('i18n:color_grading.contribute')
+    @slide
+    @range([0, 1, 0.01])
+    @type(CCFloat)
+    set ppLdrColorGradingContribute (value: number) {
+        this.settings.colorGrading.contribute = value;
+    }
+    get ppLdrColorGradingContribute (): number {
+        return this.settings.colorGrading.contribute;
+    }
+
+    @tooltip('i18n:color_grading.originalMap')
+    @type(Texture2D)
+    set ppLdrColorGradingMap (val: Texture2D) {
+        this.settings.colorGrading.colorGradingMap = val;
+    }
+    get ppLdrColorGradingMap (): Texture2D {
+        return this.settings.colorGrading.colorGradingMap!;
     }
 
     // FXAA
