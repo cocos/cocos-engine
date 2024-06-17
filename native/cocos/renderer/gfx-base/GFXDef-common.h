@@ -1400,14 +1400,12 @@ struct ALIGNAS(8) BufferBarrierInfo {
 
     uint32_t offset{0};
     uint32_t size{0};
-
+    uint32_t _padding{0};
     uint64_t discardContents{0}; // @ts-boolean
 
     Queue *srcQueue{nullptr}; // @ts-nullable
     Queue *dstQueue{nullptr}; // @ts-nullable
-#if CC_CPU_ARCH == CC_CPU_ARCH_32
-    uint32_t _padding{0};
-#endif
+
     EXPOSE_COPY_FN(BufferBarrierInfo)
 };
 using BufferBarrierInfoList = ccstd::vector<BufferBarrierInfo>;
