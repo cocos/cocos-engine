@@ -402,7 +402,7 @@ if (rendering) {
         }
     }
 
-    class BuiltinPipeline implements rendering.PipelineBuilder {
+    class BuiltinPipelineBuilder implements rendering.PipelineBuilder {
         // Internal cached resources
         private readonly _clearColor = new Color(0, 0, 0, 1);
         private readonly _clearColorTransparentBlack = new Color(0, 0, 0, 0);
@@ -1269,6 +1269,6 @@ if (rendering) {
         }
     }
 
-    rendering.setCustomPipeline('Builtin', new BuiltinPipeline());
+    rendering.setCustomPipeline('Builtin', new BuiltinPipelineBuilder());
 
 } // if (rendering)
