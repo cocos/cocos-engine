@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Texture2D } from '../../asset/assets';
+import { Material, Texture2D } from '../../asset/assets';
 import { SampleCount } from '../../gfx';
 
 export interface MSAA {
@@ -97,6 +97,7 @@ export function fillRequiredHBAO (value: HBAO): void {
 
 export interface DepthOfField {
     enabled: boolean; /*false*/
+    /*refcount*/ material: Material | null;
     focusDistance: number; /*0*/
     focusRange: number; /*0*/
     bokehRadius: number; /*1*/
@@ -106,6 +107,7 @@ export interface DepthOfField {
 export function makeDepthOfField (): DepthOfField {
     return {
         enabled: false,
+        material: null,
         focusDistance: 0,
         focusRange: 0,
         bokehRadius: 1,
@@ -115,6 +117,9 @@ export function makeDepthOfField (): DepthOfField {
 export function fillRequiredDepthOfField (value: DepthOfField): void {
     if (value.enabled === undefined) {
         value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
     }
     if (value.focusDistance === undefined) {
         value.focusDistance = 0;
@@ -129,6 +134,7 @@ export function fillRequiredDepthOfField (value: DepthOfField): void {
 
 export interface Bloom {
     enabled: boolean; /*false*/
+    /*refcount*/ material: Material | null;
     enableAlphaMask: boolean; /*false*/
     iterations: number; /*3*/
     threshold: number; /*0.8*/
@@ -139,6 +145,7 @@ export interface Bloom {
 export function makeBloom (): Bloom {
     return {
         enabled: false,
+        material: null,
         enableAlphaMask: false,
         iterations: 3,
         threshold: 0.8,
@@ -149,6 +156,9 @@ export function makeBloom (): Bloom {
 export function fillRequiredBloom (value: Bloom): void {
     if (value.enabled === undefined) {
         value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
     }
     if (value.enableAlphaMask === undefined) {
         value.enableAlphaMask = false;
@@ -166,6 +176,7 @@ export function fillRequiredBloom (value: Bloom): void {
 
 export interface ColorGrading {
     enabled: boolean; /*false*/
+    /*refcount*/ material: Material | null;
     contribute: number; /*1*/
     /*refcount*/ colorGradingMap: Texture2D | null;
     [name: string]: unknown;
@@ -174,6 +185,7 @@ export interface ColorGrading {
 export function makeColorGrading (): ColorGrading {
     return {
         enabled: false,
+        material: null,
         contribute: 1,
         colorGradingMap: null,
     };
@@ -182,6 +194,9 @@ export function makeColorGrading (): ColorGrading {
 export function fillRequiredColorGrading (value: ColorGrading): void {
     if (value.enabled === undefined) {
         value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
     }
     if (value.contribute === undefined) {
         value.contribute = 1;
@@ -193,6 +208,7 @@ export function fillRequiredColorGrading (value: ColorGrading): void {
 
 export interface FSR {
     enabled: boolean; /*false*/
+    /*refcount*/ material: Material | null;
     sharpness: number; /*0.8*/
     [name: string]: unknown;
 }
@@ -200,6 +216,7 @@ export interface FSR {
 export function makeFSR (): FSR {
     return {
         enabled: false,
+        material: null,
         sharpness: 0.8,
     };
 }
@@ -208,6 +225,9 @@ export function fillRequiredFSR (value: FSR): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
+    if (value.material === undefined) {
+        value.material = null;
+    }
     if (value.sharpness === undefined) {
         value.sharpness = 0.8;
     }
@@ -215,18 +235,23 @@ export function fillRequiredFSR (value: FSR): void {
 
 export interface FXAA {
     enabled: boolean; /*false*/
+    /*refcount*/ material: Material | null;
     [name: string]: unknown;
 }
 
 export function makeFXAA (): FXAA {
     return {
         enabled: false,
+        material: null,
     };
 }
 
 export function fillRequiredFXAA (value: FXAA): void {
     if (value.enabled === undefined) {
         value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
     }
 }
 
@@ -239,6 +264,7 @@ export interface PipelineSettings {
     readonly colorGrading: ColorGrading;
     readonly fsr: FSR;
     readonly fxaa: FXAA;
+    /*refcount*/ copyMaterial: Material | null;
     [name: string]: unknown;
 }
 
@@ -252,6 +278,7 @@ export function makePipelineSettings (): PipelineSettings {
         colorGrading: makeColorGrading(),
         fsr: makeFSR(),
         fxaa: makeFXAA(),
+        copyMaterial: null,
     };
 }
 
@@ -291,5 +318,8 @@ export function fillRequiredPipelineSettings (value: PipelineSettings): void {
         (value.fxaa as FXAA) = makeFXAA();
     } else {
         fillRequiredFXAA(value.fxaa);
+    }
+    if (value.copyMaterial === undefined) {
+        value.copyMaterial = null;
     }
 }
