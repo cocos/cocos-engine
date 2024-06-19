@@ -176,6 +176,8 @@ export class TweenAction<T extends object> extends ActionInterval {
             }
 
             const prop = Object.create(null);
+            prop.start = prop.current = prop.end = null;
+            prop.keys = null;
             prop.value = customValue;
             prop.easing = customEasing;
             prop.progress = customProgress;
@@ -242,7 +244,10 @@ export class TweenAction<T extends object> extends ActionInterval {
             } else if (typeof _t === 'object') {
                 if (prop.legacyProgress) {
                     if (prop.start == null) {
-                        prop.start = {}; prop.current = {}; prop.end = {};
+                        const Ctor = _t.constructor;
+                        prop.start = new Ctor();
+                        prop.current = new Ctor();
+                        prop.end = new Ctor();
                     }
 
                     let propertyKeys: string[];
@@ -251,6 +256,7 @@ export class TweenAction<T extends object> extends ActionInterval {
                     } else {
                         propertyKeys = Object.keys(value as object);
                     }
+                    prop.keys = propertyKeys;
 
                     for (let i = 0, len = propertyKeys.length; i < len; ++i) {
                         const k = propertyKeys[i];
@@ -349,7 +355,9 @@ export class TweenAction<T extends object> extends ActionInterval {
                 prop.current = interpolation(start, end, prop.current, time);
             } else if (typeof start === 'object') {
                 if (prop.legacyProgress) {
-                    for (const k in start) {
+                    const keys = prop.keys;
+                    for (let i = 0, len = keys.length; i < len; ++i) {
+                        const k = keys[i];
                         prop.current[k] = interpolation(start[k], end[k], prop.current[k], time);
                     }
                 } else {
