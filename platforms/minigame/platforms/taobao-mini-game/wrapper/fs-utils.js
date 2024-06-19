@@ -23,7 +23,7 @@
  THE SOFTWARE.
  ****************************************************************************/
 const fs = my.getFileSystemManager ? my.getFileSystemManager() : null;
-const outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
+const outOfStorageRegExp = "10028";  // not exactly right
 
 const fsUtils = {
 
