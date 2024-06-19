@@ -547,6 +547,9 @@ export class TextProcessing {
             const uploadAgain = this._canvas.width !== 0 && this._canvas.height !== 0;
 
             if (uploadAgain) {
+                const oldGfxTexture = tex.getGFXTexture();
+                const oldGfxSampler = tex.getGFXSampler();
+
                 tex.reset({
                     width: this._canvas.width,
                     height: this._canvas.height,
@@ -560,7 +563,12 @@ export class TextProcessing {
                 }
                 if (cclegacy.director.root && cclegacy.director.root.batcher2D) {
                     if (JSB) {
-                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getGFXTexture(), tex.getGFXSampler());
+                        // NOTE: Release the old descriptor set cache referenced by old gfx texture and sampler.
+                        // We should not release the new generated `tex.getGFXTexture()` and `tex.getGFXSampler()`
+                        // since `tex.reset(...)` will reset `gfxTexture` and `gfxSampler`.
+                        // The other non-JSB branch uses `tex.getHash()` which returns the hash value that will not be
+                        // changed after `tex.reset(...)`, so there will be no problems for non-JSB branch.
+                        cclegacy.director.root.batcher2D._releaseDescriptorSetCache(oldGfxTexture, oldGfxSampler);
                     } else {
                         cclegacy.director.root.batcher2D._releaseDescriptorSetCache(tex.getHash());
                     }
