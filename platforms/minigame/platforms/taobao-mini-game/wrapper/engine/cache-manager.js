@@ -33,9 +33,6 @@
     var cleaning = false;
 
     cacheManager.clearLRU = function() {
-        if(cc.downloadFileNumForTest){
-            cc.downloadFileNumForTest = 0;
-        }
         if (cleaning) return;
         cleaning = true;
         var caches = [];
@@ -46,7 +43,7 @@
                 caches.push({ originUrl: key, url: val, lastTime: time });
             });
         }
-        if(this.tempFiles && this.tempFiles.length > 0){
+        if(this.cachedFiles && this.cachedFiles.length > 0){
             this.cachedFiles.forEach(function (val, key) {
                 if (val.bundle === 'internal') return;
                 if (self._isZipFile(key) && cc.assetManager.bundles.find(bundle => bundle.base.indexOf(val.url) !== -1)) return;
@@ -59,7 +56,7 @@
         caches.length = Math.floor(caches.length / 3);
         if (caches.length === 0) {
             cleaning = false;
-            console.warn('can not get the file system!');
+            console.warn("Please check for large files or multiple large files being downloaded simultaneously.");
             return;
         }
         for (var i = 0, l = caches.length; i < l; i++) {
