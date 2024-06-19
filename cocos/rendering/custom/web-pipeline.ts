@@ -1741,7 +1741,7 @@ export class WebPipeline implements BasicPipeline {
         desc.height = height;
         desc.depthOrArraySize = 1;
         desc.mipLevels = 1;
-        desc.format = format;
+        desc.format = renderWindow.framebuffer.colorTextures[0]!.format;
         desc.flags = ResourceFlags.COLOR_ATTACHMENT;
 
         if (renderWindow.swapchain === null) {

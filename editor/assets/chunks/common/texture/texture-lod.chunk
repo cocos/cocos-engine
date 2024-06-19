@@ -22,11 +22,7 @@ vec4 fragTextureLod (samplerCube tex, vec3 coord, float lod) {
       return textureCube(tex, coord, lod); // fallback to bias
     #endif
   #else
-    #if defined(CC_USE_WGPU)
       return textureLod(tex, coord, lod);
-    #else
-      return textureLod(tex, coord, lod);
-    #endif
   #endif
 }
 

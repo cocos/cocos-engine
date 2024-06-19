@@ -78,6 +78,14 @@ export abstract class Device {
     }
 
     /**
+     * @en The current format of the swapchain being used.
+     * @zh 当前使用的swapchain的格式。
+     */
+    get swapchainFormat (): Format {
+        return this._swapchainFormat;
+    }
+
+    /**
      * @en Renderer description.
      * @zh 渲染器描述。
      */
@@ -158,6 +166,7 @@ export abstract class Device {
     protected _generalBarrierss = new Map<number, GeneralBarrier>();
     protected _textureBarriers = new Map<number, TextureBarrier>();
     protected _bufferBarriers = new Map<number, BufferBarrier>();
+    protected _swapchainFormat = Format.RGBA8;
 
     public static canvas: HTMLCanvasElement; // Hack for WebGL device initialization process
 
