@@ -29,7 +29,7 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC, ccwindow } from '../../core/global-exports';
-import { js, sys } from '../../core';
+import { error, js, sys } from '../../core';
 import { OS } from '../../../pal/system-info/enum-type';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
@@ -156,7 +156,7 @@ export class TextureCube extends SimpleTexture {
                 || front.length !== right.length
                 || front.length !== top.length
                 || front.length !== bottom.length) {
-                console.error('The number of mipmaps of each face is different.');
+                error('The number of mipmaps of each face is different.');
                 this._setMipmapParams([]);
                 return;
             }
@@ -267,8 +267,7 @@ export class TextureCube extends SimpleTexture {
             _forEachFace(faceAtlas, (face, faceIndex): void => {
                 ctx.clearRect(0, 0, imageAtlasAsset.width, imageAtlasAsset.height);
                 const drawImg = face.data as HTMLImageElement;
-                // NOTE: on OH platform, drawImage only supports ImageBitmap and PixelMap type, so we mark drawImg as any.
-                ctx.drawImage(drawImg as any, 0, 0);
+                ctx.drawImage(drawImg, 0, 0);
                 const rawData = ctx.getImageData(layoutInfo.left, layoutInfo.top, layoutInfo.width, layoutInfo.height);
 
                 const bufferAsset = new ImageAsset({
