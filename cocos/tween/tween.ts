@@ -362,6 +362,10 @@ export class Tween<T extends object = any> {
         return this;
     }
 
+    /**
+     * @en Checking whether the current tween instance is running.
+     * @zh 检查当前缓动实例是否在运行。
+     */
     get running (): boolean {
         if (this._finalAction) {
             return TweenSystem.instance.ActionManager.isActionRunning(this._finalAction);
