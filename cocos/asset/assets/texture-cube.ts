@@ -392,7 +392,7 @@ export class TextureCube extends SimpleTexture {
      * @param firstLevel @en First level to be updated. @zh 更新指定层的 mipmap。
      * @param count @en Mipmap level count to be updated。 @zh 指定要更新层的数量。
      */
-    public updateMipmaps (firstLevel = 0, count?: number): void {
+    public updateMipmaps (firstLevel = 0, count: number | undefined = undefined): void {
         if (firstLevel >= this._generatedMipmaps.length) {
             return;
         }
