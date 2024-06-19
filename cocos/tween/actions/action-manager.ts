@@ -98,13 +98,17 @@ export class ActionManager {
     }
 
     private _registerNodeEvent (target: Node): void {
-        target.on(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
-        target.on(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        if (target.isValid) {
+            target.on(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
+            target.on(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        }
     }
 
     private _unregisterNodeEvent (target: Node): void {
-        target.off(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
-        target.off(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        if (target.isValid) {
+            target.off(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
+            target.off(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        }
     }
 
     /**
