@@ -438,7 +438,7 @@ if (rendering) {
                 : nativeHeight;
 
             // Render Window (UI)
-            ppl.addRenderWindow(window.colorName, Format.BGRA8, nativeWidth, nativeHeight, window);
+            ppl.addRenderWindow(window.colorName, Format.RGBA8, nativeWidth, nativeHeight, window);
 
             if (this._cameraConfigs.enableFSR) {
                 ppl.addRenderTarget(`FsrColor${id}`, Format.RGBA8, nativeWidth, nativeHeight);
