@@ -751,6 +751,17 @@ export class Tween<T extends object = any> {
     }
 
     /**
+     * @en Get the count of running tween instances those associate with the target.
+     * @zh 获取目标对象关联的正在运行的缓动实例的个数。
+     * @param target @en The target to check. @zh 要检查的目标对象。
+     * @return @en The count of running tween instances those associate with the target.
+     *         @zh 目标对象关联的正在运行的缓动实例的个数。
+     */
+    static getRunningCount<U extends object = any> (target: U): number {
+        return TweenSystem.instance.ActionManager.getNumberOfRunningActionsInTarget(target);
+    }
+
+    /**
      * @en
      * Stop all tween instances.
      * @zh

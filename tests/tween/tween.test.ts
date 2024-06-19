@@ -4205,7 +4205,7 @@ test('tween custom object, ensure same type', function () {
     director.unregisterSystem(sys);
 });
 
-test('test stop and isRunning', function () {
+test('test stop and running', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
@@ -4278,6 +4278,8 @@ test('stopAll', function () {
                 tween(node).by(1, { angle: 90 })
             )
             .start();
+
+        expect(Tween.getRunningCount(node)).toBe(1);
     }
 
     for (let i = 0; i < tweens.length; ++i) {
@@ -4288,6 +4290,7 @@ test('stopAll', function () {
 
     for (let i = 0; i < tweens.length; ++i) {
         expect(tweens[i].running).toBeFalsy();
+        expect(Tween.getRunningCount(tweens[i].getTarget)).toBe(0);
     }
 
     //
@@ -4373,6 +4376,9 @@ test('stopAllByTag(tag, target)', function () {
             .start();
     }
 
+    expect(Tween.getRunningCount(node1)).toBe(5);
+    expect(Tween.getRunningCount(node2)).toBe(5);
+
     for (let i = 0; i < tweens.length; ++i) {
         expect(tweens[i].running).toBeTruthy();
     }
@@ -4385,6 +4391,9 @@ test('stopAllByTag(tag, target)', function () {
         expect(tweens[i].running).toBeFalsy();
     }
 
+    expect(Tween.getRunningCount(node1)).toBe(0);
+    expect(Tween.getRunningCount(node2)).toBe(5);
+
     runFrames(10);
 
     for (let i = 0; i < tweens.length / 2; ++i) {
@@ -4392,6 +4401,9 @@ test('stopAllByTag(tag, target)', function () {
         Tween.stopAllByTag(i, node2);
         expect(tweens[i+5].running).toBeFalsy();
     }
+
+    expect(Tween.getRunningCount(node1)).toBe(0);
+    expect(Tween.getRunningCount(node2)).toBe(0);
 
     runFrames(10);
 
