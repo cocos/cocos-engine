@@ -21,13 +21,13 @@
 
 import { EDITOR } from 'internal:constants';
 import { CCBoolean, CCFloat, CCInteger, cclegacy } from '../../../core';
-import { ccclass, disallowMultiple, executeInEditMode,
+import { ccclass, disallowMultiple, editable, executeInEditMode,
     menu, range, rangeMax, rangeMin, requireComponent, serializable, slide, tooltip, type } from '../../../core/data/decorators';
 import { Camera } from '../../../misc/camera-component';
 import { Component } from '../../../scene-graph';
 import { fillRequiredPipelineSettings, makePipelineSettings, PipelineSettings } from '../settings';
 import { property } from '../../../core/data/decorators/property';
-import { Texture2D } from '../../../asset/assets';
+import { Material, Texture2D } from '../../../asset/assets';
 
 @ccclass('cc.BuiltinPipelineSettings')
 @menu('Rendering/BuiltinPipelineSettings')
@@ -158,6 +158,15 @@ export class BuiltinPipelineSettings extends Component {
         return this.settings.depthOfField.enabled;
     }
 
+    @editable
+    @type(Material)
+    set ppDofMaterial (value: Material) {
+        this.settings.depthOfField.material = value;
+    }
+    get ppDofMaterial (): Material {
+        return this.settings.depthOfField.material!;
+    }
+
     @rangeMin(0)
     @type(CCFloat)
     set ppDofFocusDistance (value: number) {
@@ -197,6 +206,15 @@ export class BuiltinPipelineSettings extends Component {
     }
     get ppBloomEnable (): boolean {
         return this.settings.bloom.enabled;
+    }
+
+    @editable
+    @type(Material)
+    set ppBloomMaterial (value: Material) {
+        this.settings.bloom.material = value;
+    }
+    get ppBloomMaterial (): Material {
+        return this.settings.bloom.material!;
     }
 
     @tooltip('i18n:bloom.enableAlphaMask')
@@ -257,6 +275,15 @@ export class BuiltinPipelineSettings extends Component {
         return this.settings.colorGrading.enabled;
     }
 
+    @editable
+    @type(Material)
+    set ppLdrColorGradingMaterial (value: Material) {
+        this.settings.colorGrading.material = value;
+    }
+    get ppLdrColorGradingMaterial (): Material {
+        return this.settings.colorGrading.material!;
+    }
+
     @tooltip('i18n:color_grading.contribute')
     @slide
     @range([0, 1, 0.01])
@@ -289,6 +316,15 @@ export class BuiltinPipelineSettings extends Component {
         return this.settings.fxaa.enabled;
     }
 
+    @editable
+    @type(Material)
+    set ppFxaaMaterial (value: Material) {
+        this.settings.fxaa.material = value;
+    }
+    get ppFxaaMaterial (): Material {
+        return this.settings.fxaa.material!;
+    }
+
     // FSR
     @type(CCBoolean)
     set fsrEnable (value: boolean) {
@@ -301,6 +337,15 @@ export class BuiltinPipelineSettings extends Component {
         return this.settings.fsr.enabled;
     }
 
+    @editable
+    @type(Material)
+    set ppFsrMaterial (value: Material) {
+        this.settings.fsr.material = value;
+    }
+    get ppFsrMaterial (): Material {
+        return this.settings.fsr.material!;
+    }
+
     @slide
     @range([0, 1, 0.01])
     @rangeMin(0)
@@ -311,5 +356,14 @@ export class BuiltinPipelineSettings extends Component {
     }
     get fsrSharpness (): number {
         return this.settings.fsr.sharpness;
+    }
+
+    @editable
+    @type(Material)
+    set copyMaterial (value: Material) {
+        this.settings.copyMaterial = value;
+    }
+    get copyMaterial (): Material {
+        return this.settings.copyMaterial!;
     }
 }

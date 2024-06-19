@@ -1525,10 +1525,13 @@ static void doResolve(GLES3Device *device, GLES3GPUFramebuffer *gpuFbo) {
     auto height = gpuFbo->height;
 
     const auto fbHandle = gpuFbo->framebuffer.getHandle();
-    if (cache->glReadFramebuffer != fbHandle) {
-        GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, fbHandle));
-        cache->glReadFramebuffer = fbHandle;
-    }
+
+    // Do not compare `cache->glReadFramebuffer` with `fbHandle` and skip `glBindFramebuffer`.
+    // `fbHandle` might be resized and invalidated,
+    // and then nothing will be bound to `GL_READ_FRAMEBUFFER`.
+    // We always bind `fbHandle` to `GL_READ_FRAMEBUFFER` to avoid this issue.
+    GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, fbHandle));
+    cache->glReadFramebuffer = fbHandle;
 
     const auto rsvHandle = gpuFbo->resolveFramebuffer.getHandle();
     if (cache->glDrawFramebuffer != rsvHandle) {
