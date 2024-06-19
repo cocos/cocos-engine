@@ -4174,3 +4174,33 @@ test('by object, custom progress, reverse', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('tween custom object, ensure same type', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    class MyVec2 {
+        constructor(x = 0, y = 0) {
+            this.x = x;
+            this.y = y;
+        }
+        x = 0;
+        y = 0;
+    }
+
+    class MyTarget {
+        pos = new MyVec2();
+    }
+
+    const target = new MyTarget();
+    tween(target).to(1, { pos: new MyVec2(100, 100) }).start();
+
+    runFrames(61);
+
+    expect(target.pos).toBeInstanceOf(MyVec2);
+    expect(target.pos.x).toBe(100);
+    expect(target.pos.y).toBe(100);
+
+    director.unregisterSystem(sys);
+});
