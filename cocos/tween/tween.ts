@@ -362,6 +362,13 @@ export class Tween<T extends object = any> {
         return this;
     }
 
+    get running (): boolean {
+        if (this._finalAction) {
+            return TweenSystem.instance.ActionManager.isActionRunning(this._finalAction);
+        }
+        return false;
+    }
+
     /**
      * @en
      * Clone a tween.

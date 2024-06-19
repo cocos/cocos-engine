@@ -4204,3 +4204,247 @@ test('tween custom object, ensure same type', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('test stop and isRunning', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const node = new Node();
+
+    const t = tween(node)
+        .parallel(
+            tween(node).by(1, { position: v3(90, 90, 90) }),
+            tween(node).delay(0.5).call(()=>{}),
+        );
+        
+    expect(t.running).toBeFalsy();
+    t.start();
+    expect(t.running).toBeTruthy();
+
+    // Start
+    runFrames(1);
+    expect(node.position.equals(v3(0, 0, 0))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    expect(t.running).toBeTruthy();
+    t.stop();
+    expect(t.running).toBeFalsy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+
+    t.start();
+    expect(t.running).toBeTruthy();
+    // Start
+    runFrames(1);
+    expect(node.position.equals(v3(30, 30, 30))).toBeTruthy();
+    expect(t.running).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(60, 60, 60))).toBeTruthy();
+    expect(t.running).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+    expect(t.running).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(v3(120, 120, 120))).toBeTruthy();
+
+    // DONE
+    expect(t.running).toBeFalsy();
+    //
+    director.unregisterSystem(sys);
+});
+
+test('stopAll', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const tweens: Array<Tween<Node>> = new Array(10);
+    for (let i = 0; i < tweens.length; ++i) {
+        const node = new Node();
+        tweens[i] = tween(node)
+            .by(1, { position: new Vec3(100, 0, 0) })
+            .delay(Math.random() * 10)
+            .parallel(
+                tween(node).by(1, { scale: new Vec3(2, 2, 2) }),
+                tween(node).by(1, { angle: 90 })
+            )
+            .start();
+    }
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+    }
+
+    Tween.stopAll();
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeFalsy();
+    }
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('stopAllByTag(tag) 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const tweens: Array<Tween<Node>> = new Array(10);
+    for (let i = 0; i < tweens.length; ++i) {
+        const node = new Node();
+        tweens[i] = tween(node)
+            .tag(i)
+            .by(1, { position: new Vec3(100, 0, 0) })
+            .start();
+    }
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+    }
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+        Tween.stopAllByTag(i);
+        expect(tweens[i].running).toBeFalsy();
+    }
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('stopAllByTag(tag) 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+
+    const tweens: Array<Tween<Node>> = new Array(10);
+    for (let i = 0; i < tweens.length; ++i) {
+        const node = new Node();
+        tweens[i] = tween(node)
+            .tag(i % 5)
+            .by(1, { position: new Vec3(100, 0, 0) })
+            .start();
+    }
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+    }
+
+    for (let i = 0; i < tweens.length / 2; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+        expect(tweens[i + 5].running).toBeTruthy();
+        Tween.stopAllByTag(i);
+        expect(tweens[i].running).toBeFalsy();
+        expect(tweens[i + 5].running).toBeFalsy();
+    }
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeFalsy();
+    }
+
+    //
+    director.unregisterSystem(sys);
+});
+
+test('stopAllByTag(tag, target)', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const tweens: Array<Tween<Node>> = new Array(10);
+    const node1 = new Node();
+    const node2 = new Node();
+    for (let i = 0; i < tweens.length; ++i) {
+        tweens[i] = tween(Math.floor(i / 5) === 0 ? node1 : node2)
+            .tag(i % 5)
+            .by(1, { position: new Vec3(100, 0, 0) })
+            .start();
+    }
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+    }
+
+    runFrames(10);
+
+    for (let i = 0; i < tweens.length / 2; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+        Tween.stopAllByTag(i, node1);
+        expect(tweens[i].running).toBeFalsy();
+    }
+
+    runFrames(10);
+
+    for (let i = 0; i < tweens.length / 2; ++i) {
+        expect(tweens[i+5].running).toBeTruthy();
+        Tween.stopAllByTag(i, node2);
+        expect(tweens[i+5].running).toBeFalsy();
+    }
+
+    runFrames(10);
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeFalsy();
+    }
+    //
+    director.unregisterSystem(sys);
+});
+
+test('stopAllByTarget(target)', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const tweens: Array<Tween<Node>> = new Array(10);
+    const node1 = new Node();
+    const node2 = new Node();
+    for (let i = 0; i < tweens.length; ++i) {
+        tweens[i] = tween(Math.floor(i / 5) === 0 ? node1 : node2)
+            .tag(i % 5)
+            .by(1, { position: new Vec3(100, 0, 0) })
+            .start();
+    }
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeTruthy();
+    }
+
+    runFrames(10);
+
+    Tween.stopAllByTarget(node1);
+    for (let i = 0; i < tweens.length / 2; ++i) {
+        expect(tweens[i].running).toBeFalsy();
+    }
+
+    for (let i = 0; i < tweens.length / 2; ++i) {
+        expect(tweens[i + 5].running).toBeTruthy();
+    }
+
+    runFrames(10);
+
+    Tween.stopAllByTarget(node2);
+    for (let i = 0; i < tweens.length / 2; ++i) {
+        expect(tweens[i+5].running).toBeFalsy();
+    }
+
+    runFrames(10);
+
+    for (let i = 0; i < tweens.length; ++i) {
+        expect(tweens[i].running).toBeFalsy();
+    }
+
+    //
+    director.unregisterSystem(sys);
+});
