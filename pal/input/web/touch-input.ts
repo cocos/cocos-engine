@@ -93,7 +93,7 @@ export class TouchInputSource {
                     handleTouches,
                     false,
                     eventType,
-                    macro.ENABLE_MULTI_TOUCH ? touchManager.getAllTouches() : handleTouches,
+                    touchManager.getAllTouches(),
                 );
                 this._eventTarget.emit(eventType, eventTouch);
             }

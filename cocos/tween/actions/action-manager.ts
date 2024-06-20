@@ -428,6 +428,13 @@ export class ActionManager {
         }
     }
 
+    isActionRunning (action: Action): boolean {
+        const elements = this._hashTargets.get(action.getOriginalTarget());
+        let index = -1;
+        if (elements) index = elements.actions.indexOf(action);
+        return index !== -1;
+    }
+
     // protected
     private _removeActionAtIndex (index: number, element: HashElement): void {
         element.actions.splice(index, 1);
