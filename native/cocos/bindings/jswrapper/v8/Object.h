@@ -47,7 +47,6 @@
     #define JSB_TRACK_OBJECT_CREATION 0
 
 namespace se {
-
 class Class;
 class ScriptEngine;
 
@@ -108,6 +107,36 @@ public:
         FLOAT64
     };
 
+private:
+    template <typename Ty>
+    static constexpr TypedArrayType _getTypedArrayType() {
+        if constexpr (std::is_same_v<Ty, float>) {
+            static_assert(sizeof(float) == 4);
+            return TypedArrayType::FLOAT32;
+        } else if constexpr (std::is_same_v<Ty, double>) {
+            static_assert(sizeof(double) == 8);
+            return TypedArrayType::FLOAT64;
+        } else if constexpr (std::is_same_v<Ty, std::int32_t>) {
+            return TypedArrayType::INT32;
+        } else if constexpr (std::is_same_v<Ty, std::uint32_t>) {
+            return TypedArrayType::UINT32;
+        } else if constexpr (std::is_same_v<Ty, std::int16_t>) {
+            return TypedArrayType::INT16;
+        } else if constexpr (std::is_same_v<Ty, std::uint16_t>) {
+            return TypedArrayType::UINT16;
+        } else if constexpr (std::is_same_v<Ty, std::int8_t>) {
+            return TypedArrayType::INT8;
+        } else if constexpr (std::is_same_v<Ty, std::uint8_t>) {
+            return TypedArrayType::UINT8;
+        } else {
+            static_assert(!sizeof(Ty *),
+                          "The parameter passed to createTypedArray() is illegal, "
+                          "only pointers to specific arithmetic type are allowed.");
+            return TypedArrayType::NONE;
+        }
+    }
+
+public:
     /**
          *  @brief Creates a JavaScript Typed Array Object with specified format from an existing pointer,
                    if provide a null pointer,then will create a empty JavaScript Typed Array Object.
@@ -118,6 +147,11 @@ public:
          *  @note The return value (non-null) has to be released manually.
          */
     static Object *createTypedArray(TypedArrayType type, const void *data, size_t byteLength);
+
+    template <typename Ty>
+    static inline std::enable_if_t<_getTypedArrayType<Ty>() != TypedArrayType::NONE, Object> *createTypedArray(const Ty *data, std::size_t length) {
+        return createTypedArray(_getTypedArrayType<Ty>(), reinterpret_cast<const void *>(data), length * sizeof(Ty));
+    }
 
     /**
          *  @brief Creates a JavaScript Typed Array Object with a se::Object, which is a ArrayBuffer,
@@ -209,6 +243,17 @@ public:
 
     inline bool getProperty(const ccstd::string &name, Value *value) {
         return getProperty(name.c_str(), value);
+    }
+
+    /**
+     * @brief Gets the property from this object.
+     * @param An utf-8 string containing the property's name.
+     * @returns The property's value if object has the property, otherwise the undefined value.
+     */
+    Value operator[](std::string_view name) {
+        auto result = Value{Value::Undefined};
+        getProperty(name.data(), &result);
+        return result;
     }
 
     /**
@@ -340,6 +385,15 @@ public:
      *  @return true if succeed, otherwise false.
      */
     bool getTypedArrayData(uint8_t **ptr, size_t *length) const;
+
+    template <typename Ty>
+    std::enable_if_t<_getTypedArrayType<Ty>() != TypedArrayType::NONE, bool> getTypedArrayData(Ty **ptr, std::size_t *length) const {
+        std::size_t byteLength = 0;
+        CC_ASSERT(this->getTypedArrayType() == _getTypedArrayType<Ty>() || "Mismatched typed array type.");
+        auto result = getTypedArrayData(reinterpret_cast<std::uint8_t **>(ptr), byteLength);
+        (*length) = byteLength / sizeof(Ty);
+        return result;
+    }
 
     /**
      *  @brief Tests whether an object is an array buffer object.
