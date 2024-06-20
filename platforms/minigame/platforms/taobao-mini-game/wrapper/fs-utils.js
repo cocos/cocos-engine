@@ -29,7 +29,7 @@ const fsUtils = {
 
     fs,
 
-    isOutOfStorage (errMsg) {
+    isOutOfStorage (errorCode) {
         return errorCode.toString() == outOfStorageRegExp;
     },
 
