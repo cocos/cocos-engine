@@ -1,8 +1,6 @@
 
 #include <common/texture/texture-lod>
 
-#define FxaaTex sampler2D
-
 #define int2 vec2
 #define float2 vec2
 #define float3 vec3
@@ -16,14 +14,17 @@
 #define FxaaPow3(x, y) pow(x, y)
 #define FxaaSel3(f, t, b) mix((f), (t), (b))
 #define FxaaToFloat3(a) FxaaFloat3((a), (a), (a))
-float4 FxaaTexLod0(FxaaTex tex, float2 pos) {
-    return texture(tex, pos.xy);
-    // return fragTextureLod(tex, pos.xy, 0.0);
+float4 FxaaTexLod0(sampler2D tex, float2 pos) {
+    #if defined(CC_USE_WGPU)
+        return textureLod(tex, pos.xy, 0.0);
+    #else
+        return texture(tex, pos.xy);
+    #endif
 }
-float4 FxaaTexGrad(FxaaTex tex, float2 pos, float2 grad) {
+float4 FxaaTexGrad(sampler2D tex, float2 pos, float2 grad) {
     return fragTextureGrad(tex, pos.xy, grad, grad);
 }
-float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
+float4 FxaaTexOff(sampler2D tex, float2 pos, int2 off, float2 rcpFrame) {
     return FxaaTexLod0(tex, pos.xy + vec2(off.x, off.y) * rcpFrame);
 }
 
@@ -33,7 +34,7 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
 #ifndef FXAA_PRESET
     #define FXAA_PRESET 3
 #endif
-/*--------------------------------------------------------------------------*/
+
 #if (FXAA_PRESET == 0)
     #define FXAA_EDGE_THRESHOLD      (1.0/4.0)
     #define FXAA_EDGE_THRESHOLD_MIN  (1.0/12.0)
@@ -45,7 +46,7 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
     #define FXAA_SUBPIX_CAP          (2.0/3.0)
     #define FXAA_SUBPIX_TRIM         (1.0/4.0)
 #endif
-/*--------------------------------------------------------------------------*/
+
 #if (FXAA_PRESET == 1)
     #define FXAA_EDGE_THRESHOLD      (1.0/8.0)
     #define FXAA_EDGE_THRESHOLD_MIN  (1.0/16.0)
@@ -57,7 +58,7 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
     #define FXAA_SUBPIX_CAP          (3.0/4.0)
     #define FXAA_SUBPIX_TRIM         (1.0/4.0)
 #endif
-/*--------------------------------------------------------------------------*/
+
 #if (FXAA_PRESET == 2)
     #define FXAA_EDGE_THRESHOLD      (1.0/8.0)
     #define FXAA_EDGE_THRESHOLD_MIN  (1.0/24.0)
@@ -69,7 +70,7 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
     #define FXAA_SUBPIX_CAP          (3.0/4.0)
     #define FXAA_SUBPIX_TRIM         (1.0/4.0)
 #endif
-/*--------------------------------------------------------------------------*/
+
 #if (FXAA_PRESET == 3)
     #define FXAA_EDGE_THRESHOLD      (1.0/8.0)
     #define FXAA_EDGE_THRESHOLD_MIN  (1.0/24.0)
@@ -81,7 +82,7 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
     #define FXAA_SUBPIX_CAP          (3.0/4.0)
     #define FXAA_SUBPIX_TRIM         (1.0/4.0)
 #endif
-/*--------------------------------------------------------------------------*/
+
 #if (FXAA_PRESET == 4)
     #define FXAA_EDGE_THRESHOLD      (1.0/8.0)
     #define FXAA_EDGE_THRESHOLD_MIN  (1.0/24.0)
@@ -93,7 +94,7 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
     #define FXAA_SUBPIX_CAP          (3.0/4.0)
     #define FXAA_SUBPIX_TRIM         (1.0/4.0)
 #endif
-/*--------------------------------------------------------------------------*/
+
 #if (FXAA_PRESET == 5)
     #define FXAA_EDGE_THRESHOLD      (1.0/8.0)
     #define FXAA_EDGE_THRESHOLD_MIN  (1.0/24.0)
@@ -105,7 +106,6 @@ float4 FxaaTexOff(FxaaTex tex, float2 pos, int2 off, float2 rcpFrame) {
     #define FXAA_SUBPIX_CAP          (3.0/4.0)
     #define FXAA_SUBPIX_TRIM         (1.0/4.0)
 #endif
-/*--------------------------------------------------------------------------*/
 #define FXAA_SUBPIX_TRIM_SCALE (1.0/(1.0 - FXAA_SUBPIX_TRIM))
 
 
@@ -128,10 +128,7 @@ float3 FxaaFilterReturn(float3 rgb) {
 }
 
 
-float3 FxaaPixelShader(
-float2 pos,
-FxaaTex tex,
-float2 rcpFrame) {
+float3 FxaaPixelShader(float2 pos, sampler2D tex, float2 rcpFrame) {
     float3 rgbN = FxaaTexOff(tex, pos.xy, FxaaInt2( 0,-1), rcpFrame).xyz;
     float3 rgbW = FxaaTexOff(tex, pos.xy, FxaaInt2(-1, 0), rcpFrame).xyz;
     float3 rgbM = FxaaTexOff(tex, pos.xy, FxaaInt2( 0, 0), rcpFrame).xyz;

@@ -82,6 +82,13 @@ export enum PixelFormat {
     RGBA8888 = Format.RGBA8,
     /**
      * @en
+     * 32-bit pixel format containing blue, green, red, and alpha channels: BGRA8888
+     * @zh
+     * 包含 BGRA 四通道的 32 位整形像素格式：BGRA8888。
+     */
+    BGRA8888 = Format.BGRA8,
+    /**
+     * @en
      * 32-bit float pixel format containing red, green, blue and alpha channels: RGBA32F
      * @zh
      * 32位浮点数像素格式：RGBA32F。

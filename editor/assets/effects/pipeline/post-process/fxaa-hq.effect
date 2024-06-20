@@ -19,6 +19,7 @@ CCProgram fxaa-vs %{
 
 CCProgram fxaa-edge-fs %{
   precision highp float;
+  precision mediump int;
   #include <builtin/uniforms/cc-global>
   #include <common/common-define>
 
@@ -42,7 +43,7 @@ CCProgram fxaa-edge-fs %{
 
 CCProgram copy-fs %{
   precision highp float;
-
+  precision mediump int;
   uniform fxaaUBO {
     vec4 texSize;
   };
