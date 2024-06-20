@@ -47,7 +47,7 @@ type ExtendsReturnResultOrNever<T, Base, Result> = ExtendsReturnResults<T, Base,
 
 type MaybeUnionStringNumber<T> = ExtendsReturnResults<T, string, string | number, T>;
 type StringToNumberOrNever<T> = ExtendsReturnResultOrNever<T, string, string | number>;
-export interface TTweenCustomProperty<Value> {
+export interface ITweenCustomProperty<Value> {
     value: MaybeUnionStringNumber<Value> | (() => MaybeUnionStringNumber<Value>);
     progress?: TTweenCustomProgress;
     easing?: TTweenCustomEasing;
@@ -59,7 +59,7 @@ export interface TTweenCustomProperty<Value> {
     toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.5
 }
 
-type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | TTweenCustomProperty<T[P]> | StringToNumberOrNever<T[P]>) };
+type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | ITweenCustomProperty<T[P]> | StringToNumberOrNever<T[P]>) };
 type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ConstructorType<T> = OmitType<T, Function>;
