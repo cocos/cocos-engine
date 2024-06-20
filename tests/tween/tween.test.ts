@@ -1,4 +1,4 @@
-import { Vec3, System, size, Size, approx, color, Color, v3, lerp, EPSILON } from "../../cocos/core";
+import { Vec3, System, size, Size, approx, color, v3, lerp, EPSILON } from "../../cocos/core";
 import { ITweenOption, TTweenCustomProperty, tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
@@ -4458,5 +4458,39 @@ test('stopAllByTarget(target)', function () {
     }
 
     //
+    director.unregisterSystem(sys);
+});
+
+test('update destroyed node', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    tween(node).to(1, { position: new Vec3(100, 100, 100) }).start();
+
+    runFrames(1);// Start
+
+    runFrames(30);
+    expect(node.position.equals(v3(50, 50, 50))).toBeTruthy();
+
+    node._destroyImmediate();
+
+    expect(node.position).toBeNull();
+    expect(node.scale).toBeNull();
+
+    Tween.stopAllByTarget(node);
+
+    runFrames(30);
+
+    // node was destroyed, it should not be updated any more.
+    tween(node).to(1, { scale: new Vec3(3, 3, 3) }).start();
+
+    runFrames(30);
+
+    expect(node.position).toBeNull();
+    expect(node.scale).toBeNull();
+
     director.unregisterSystem(sys);
 });
