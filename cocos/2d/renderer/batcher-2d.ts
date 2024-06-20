@@ -48,6 +48,7 @@ import { MeshBuffer } from './mesh-buffer';
 import { scene } from '../../render-scene';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { RenderingSubMesh } from '../../asset/assets';
+import { IAssembler } from './base';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -102,7 +103,7 @@ export class Batcher2D implements IBatcher {
     private _currTextureHash = 0;
     private _currSamplerHash = 0;
     private _currLayer = 0;
-    private _currDepthStencilStateStage: any | null = null;
+    private _currDepthStencilStateStage: Stage | null = null;
     private _currIsStatic = false;
     private _currHash = 0;
 
@@ -379,7 +380,13 @@ export class Batcher2D implements IBatcher {
      * @param assembler - The assembler for the current component, could be null
      * @param transform - Node type transform, if passed, then batcher will consider it's using model matrix, could be null
      */
-    public commitComp (comp: UIRenderer, renderData: BaseRenderData|null, frame: TextureBase|SpriteFrame|null, assembler, transform: Node|null): void {
+    public commitComp (
+        comp: UIRenderer,
+        renderData: BaseRenderData | null,
+        frame: TextureBase | SpriteFrame | null,
+        assembler: IAssembler,
+        transform: Node | null,
+    ): void {
         let dataHash = 0;
         let mat;
         let bufferID = -1;
@@ -563,7 +570,7 @@ export class Batcher2D implements IBatcher {
             dssHash = StencilManager.sharedManager!.getStencilHash(comp.stencilStage);
         }
 
-        const stamp = cclegacy.director.getTotalFrames();
+        const stamp: number = cclegacy.director.getTotalFrames();
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);
@@ -856,11 +863,13 @@ export class Batcher2D implements IBatcher {
     }
 
     // TODO: Not a good way to do the job
-    private _releaseDescriptorSetCache (textureHash, sampler = null!): void {
+    // Although it's a private method, it is invoked in text-processing.ts and texture-base.ts
+    // by legacyCC.director.root.batcher2D._releaseDescriptorSetCache
+    private _releaseDescriptorSetCache (textureHash: number | Texture, sampler: Sampler | null = null): void {
         if (JSB) {
-            this._nativeObj.releaseDescriptorSetCache(textureHash, sampler);
+            this._nativeObj.releaseDescriptorSetCache(textureHash as Texture, sampler as Sampler);
         } else {
-            this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
+            this._descriptorSetCache.releaseDescriptorSetCache(textureHash as number);
         }
     }
 
@@ -915,7 +924,7 @@ export class Batcher2D implements IBatcher {
         }
 
         const model = this._maskClearModel!;
-        const stamp = cclegacy.director.getTotalFrames();
+        const stamp: number = cclegacy.director.getTotalFrames();
         if (model) {
             model.updateTransform(stamp);
             model.updateUBOs(stamp);
@@ -955,7 +964,7 @@ class LocalDescriptorSet  {
     private _samplerHash = 0;
     private _localBuffer: Buffer | null = null;
     private _transformUpdate = true;
-    private declare _localData;
+    private declare _localData: Float32Array | null;
 
     public get descriptorSet (): DescriptorSet | null {
         return this._descriptorSet;
@@ -972,7 +981,7 @@ class LocalDescriptorSet  {
         ));
     }
 
-    public initialize (batch): void {
+    public initialize (batch: DrawBatch2D): void {
         const device = deviceManager.gfxDevice;
         this._transform = batch.useLocalData;
         this._textureHash = batch.textureHash;
@@ -1030,7 +1039,7 @@ class LocalDescriptorSet  {
         }
         if (this._transformUpdate) {
             const worldMatrix = node.worldMatrix;
-            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.toArray(this._localData!, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
 
             Mat4.invert(m4_1, worldMatrix);
             Mat4.transpose(m4_1, m4_1);
@@ -1042,8 +1051,8 @@ class LocalDescriptorSet  {
                 const factor = 1.0 / Math.sqrt(det);
                 Mat4.multiplyScalar(m4_1, m4_1, factor);
             }
-            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-            this._localBuffer!.update(this._localData);
+            Mat4.toArray(this._localData!, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            this._localBuffer!.update(this._localData!);
             this._transformUpdate = false;
         }
     }
@@ -1061,7 +1070,6 @@ class DescriptorSetCache {
 
     public getDescriptorSet (batch: DrawBatch2D): DescriptorSet {
         const root = cclegacy.director.root;
-        let hash;
         if (batch.useLocalData) {
             const caches = this._localDescriptorSetCache;
             for (let i = 0, len = caches.length; i < len; i++) {
@@ -1075,7 +1083,7 @@ class DescriptorSetCache {
             this._localDescriptorSetCache.push(localDs);
             return localDs.descriptorSet!;
         } else {
-            hash = batch.textureHash ^ batch.samplerHash;
+            const hash = batch.textureHash ^ batch.samplerHash;
             if (this._descriptorSetCache.has(hash)) {
                 return this._descriptorSetCache.get(hash)!;
             } else {
@@ -1127,7 +1135,7 @@ class DescriptorSetCache {
         this._localDescriptorSetCache.length = 0;
     }
 
-    public releaseDescriptorSetCache (textureHash): void {
+    public releaseDescriptorSetCache (textureHash: number): void {
         const key = this._dsCacheHashByTexture.get(textureHash);
         if (key && this._descriptorSetCache.has(key)) {
             this._descriptorSetCache.get(key)!.destroy();
