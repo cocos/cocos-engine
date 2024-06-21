@@ -111,6 +111,7 @@ export class Factory {
         '.image': createImageAsset,
         '.pvr': createImageAsset,
         '.pkm': createImageAsset,
+        '.astc': createImageAsset,
 
         // Txt
         '.txt': createTextAsset,
