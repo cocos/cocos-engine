@@ -87,7 +87,8 @@ import { WebGPUSwapchain } from './webgpu-swapchain';
 
 import { IWebGPUBindingMapping, IWebGPUGPUBuffer as IWebGPUBuffer, IWebGPUGPUSampler as IWebGPUSampler, IWebGPUTexture } from './webgpu-gpu-objects';
 import { debug, warn } from '../../core';
-import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture, WebGPUCmdFuncCopyTextureToBuffer } from './webgpu-commands';
+import { WebGPUCmdFuncCopyBuffersToTexture, WebGPUCmdFuncCopyTexImagesToTexture,
+    WebGPUCmdFuncCopyTextureToBuffer, WGPUFormatToGFXFormat } from './webgpu-commands';
 
 export class WebGPUDevice extends Device {
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
@@ -181,10 +182,6 @@ export class WebGPUDevice extends Device {
 
     get gpuConfig (): GPUCanvasConfiguration {
         return this._gpuConfig!;
-    }
-
-    get swapchainFormat (): GPUTextureFormat {
-        return 'rgba8unorm';
     }
 
     protected initFormatFeatures (exts: GPUSupportedFeatures): void {
@@ -500,7 +497,7 @@ export class WebGPUDevice extends Device {
         this._twgsl = await twgslLoader(await fetchUrl(twgslUrl));
 
         this._gfxAPI = API.WEBGPU;
-
+        this._swapchainFormat = WGPUFormatToGFXFormat(navigator.gpu.getPreferredCanvasFormat());
         const mapping = this._bindingMappingInfo = info.bindingMappingInfo;
         const blockOffsets: number[] = [];
         const samplerTextureOffsets: number[] = [];

@@ -98,13 +98,17 @@ export class ActionManager {
     }
 
     private _registerNodeEvent (target: Node): void {
-        target.on(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
-        target.on(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        if (target.isValid) {
+            target.on(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
+            target.on(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        }
     }
 
     private _unregisterNodeEvent (target: Node): void {
-        target.off(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
-        target.off(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        if (target.isValid) {
+            target.off(NodeEventType.ACTIVE_CHANGED, this._onNodeActiveChanged, this);
+            target.off(NodeEventType.NODE_DESTROYED, this._onNodeDestroy, this);
+        }
     }
 
     /**
@@ -422,6 +426,13 @@ export class ActionManager {
         for (let i = 0; i < targetsToPause.length; i++) {
             if (targetsToPause[i]) this.pauseTarget(targetsToPause[i]);
         }
+    }
+
+    isActionRunning (action: Action): boolean {
+        const elements = this._hashTargets.get(action.getOriginalTarget());
+        let index = -1;
+        if (elements) index = elements.actions.indexOf(action);
+        return index !== -1;
     }
 
     // protected

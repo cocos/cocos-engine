@@ -224,7 +224,7 @@ export class Texture2D extends SimpleTexture {
         return this._mipmaps.length !== 0 ? this._mipmaps[0].url : '';
     }
 
-    public updateMipmaps (firstLevel = 0, count?: number): void {
+    public updateMipmaps (firstLevel = 0, count: number | undefined = undefined): void {
         if (firstLevel >= this._generatedMipmaps.length) {
             return;
         }
