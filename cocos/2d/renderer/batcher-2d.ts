@@ -789,8 +789,21 @@ export class Batcher2D implements IBatcher {
         this._currMaterial = mat;
     }
 
+    /**
+     * @en
+     * check whether 'node' can be walked.
+     * Developers can override this method to implement custom behavior.
+     *
+     * @zh
+     * 判断 `node` 是否可以被 walk. 
+     * 开发者可以重写该方法, 以实现自定义的行为.
+     */
+    public canWalkNode (node: Node): boolean {
+        return node._activeInHierarchy;
+    }
+
     public walk (node: Node, level = 0): void {
-        if (!node.activeInHierarchy) {
+        if (!this.canWalkNode(node)) {
             return;
         }
         const children = node.children;
