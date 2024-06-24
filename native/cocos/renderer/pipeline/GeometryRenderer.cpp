@@ -820,9 +820,15 @@ void GeometryRenderer::addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2,
     }
 }
 
-void GeometryRenderer::addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index, float knotSize, uint32_t segments, bool depthTest) {
+void GeometryRenderer::addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index, float knotSize, uint32_t segments, bool depthTest, bool useTransform, const Mat4 &transform) {
     const auto numPoints = segments + 1;
     auto points = spline.getPoints(numPoints, index);
+    
+    if (useTransform) {
+        for (auto& point : points) {
+            point.transformMat4(transform);
+        }
+    }
 
     for (auto i = 0U; i < segments; i++) {
         addLine(points[i], points[i + 1], color, depthTest);
@@ -834,7 +840,11 @@ void GeometryRenderer::addSpline(const geometry::Spline &spline, gfx::Color colo
         const auto &knots = spline.getKnots();
 
         for (auto i = 0U; i < numKnots; i++) {
-            addCross(knots[i], knotSize, crossColor, depthTest);
+            Vec3 knot = knots[i];
+            if (useTransform) {
+                knot.transformMat4(transform);
+            }
+            addCross(knot, knotSize, crossColor, depthTest);
         }
     }
 }

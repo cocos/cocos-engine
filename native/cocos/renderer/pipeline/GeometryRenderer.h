@@ -100,7 +100,7 @@ public:
     void addTorus(const Vec3 &center, float bigRadius, float radius, gfx::Color color, uint32_t segmentsU = 32U, uint32_t segmentsV = 32U, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addOctahedron(const Vec3 &center, float radius, gfx::Color color, bool wireframe = true, bool depthTest = true, bool unlit = false, bool useTransform = false, const Mat4 &transform = Mat4());
     void addBezier(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2, const Vec3 &v3, gfx::Color color, uint32_t segments = 32U, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
-    void addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index = 0xffffffff, float knotSize = 0.5F, uint32_t segments = 32U, bool depthTest = true);
+    void addSpline(const geometry::Spline &spline, gfx::Color color, uint32_t index = 0xffffffff, float knotSize = 0.5F, uint32_t segments = 32U, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
     void addMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
     void addIndexedMesh(const Vec3 &center, const ccstd::vector<Vec3> &vertices, const ccstd::vector<uint32_t> &indices, gfx::Color color, bool depthTest = true, bool useTransform = false, const Mat4 &transform = Mat4());
 

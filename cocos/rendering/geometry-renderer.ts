@@ -1017,9 +1017,15 @@ export class GeometryRenderer {
         }
     }
 
-    public addSpline (spline: geometry.Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true): void {
+    public addSpline (spline: geometry.Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true, useTransform = false, transform = new Mat4()): void {
         const numPoints = segments + 1;
         const points = spline.getPoints(numPoints, index);
+
+        if (useTransform) {
+            points.forEach((v: Vec3)=>{
+                v.transformMat4(transform);
+            });
+        }
 
         for (let i = 0; i < segments; i++) {
             this.addLine(points[i], points[i + 1], color, depthTest);
@@ -1031,7 +1037,11 @@ export class GeometryRenderer {
             const knots = spline.knots;
 
             for (let i = 0; i < numKnots; i++) {
-                this.addCross(knots[i], knotSize, crossColor, depthTest);
+                let knot = knots[i];
+                if (useTransform) {
+                    knot = knot.clone().transformMat4(transform);
+                }
+                this.addCross(knot, knotSize, crossColor, depthTest);
             }
         }
     }
