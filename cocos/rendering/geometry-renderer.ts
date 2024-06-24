@@ -1022,7 +1022,7 @@ export class GeometryRenderer {
         const points = spline.getPoints(numPoints, index);
 
         if (useTransform) {
-            points.forEach((v: Vec3)=>{
+            points.forEach((v: Vec3) => {
                 v.transformMat4(transform);
             });
         }
