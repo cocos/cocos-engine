@@ -592,6 +592,11 @@ export class RepeatForever extends ActionInterval {
         }
     }
 
+    stop (): void {
+        if (this._innerAction) this._innerAction.stop();
+        super.stop();
+    }
+
     step (dt: number): void {
         if (this._paused || this._speed === 0) return;
         const locInnerAction = this._innerAction;
