@@ -340,6 +340,8 @@ export class Tween<T extends object = any> {
      */
     stop (): Tween<T> {
         if (this._finalAction) {
+            // ActionManager.removeAction will not stop action, so stop it before removeAction.
+            this._finalAction.stop();
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
             this._finalAction = null;
         }
