@@ -764,7 +764,7 @@ export class Scheduler extends System {
             return;
         }
 
-        for  (let i = timers.length - 1; i >= 0; i--) {
+        for (let i = timers.length - 1; i >= 0; i--) {
             const timer = timers[i];
             if (timer === timerToUnschedule) {
                 timers.splice(i, 1);
