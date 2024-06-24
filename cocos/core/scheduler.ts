@@ -760,14 +760,18 @@ export class Scheduler extends System {
         const targetId = (target.uuid || target.id) as string;
         const element = this._hashForTimers[targetId];
         const timers = element.timers;
-        if (!timers) {
+        if (!timers || timers.length === 0) {
             return;
         }
 
-        for (let i = 0, li = timers.length; i < li; i++) {
+        for  (let i = timers.length - 1; i >= 0; i--) {
             const timer = timers[i];
             if (timer === timerToUnschedule) {
                 timers.splice(i, 1);
+                // update timerIndex in case we are in tick;, looping over the actions
+                if (element.timerIndex >= i) {
+                    element.timerIndex--;
+                }
 
                 if (timers.length === 0) {
                     this._currentTargetSalvaged = true;
