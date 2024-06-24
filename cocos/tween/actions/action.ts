@@ -25,8 +25,6 @@
  THE SOFTWARE.
 */
 
-import { logID } from '../../core';
-
 /**
  * @en Base classAction for action classes.
  * @zh Action 类是所有动作类型的基类。
