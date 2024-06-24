@@ -1,5 +1,5 @@
 import { Vec3, System, size, Size, approx, color, v3, lerp, EPSILON } from "../../cocos/core";
-import { ITweenOption, TTweenCustomProperty, tween, Tween, TweenSystem } from "../../cocos/tween";
+import { ITweenOption, ITweenCustomProperty, tween, Tween, TweenSystem } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
 import { game, director } from "../../cocos/game";
@@ -3786,7 +3786,7 @@ test('to string, custom progress, wrap value 2', function () {
     };
 
     const tweenFormat = {
-        currency(value: number): TTweenCustomProperty<string> {
+        currency(value: number): ITweenCustomProperty<string> {
             return {
                 value: `¥${value}`,
                 progress(start: number, end: number, current: string, ratio: number): string {
@@ -3798,14 +3798,14 @@ test('to string, custom progress, wrap value 2', function () {
             };
         },
 
-        health(value: number): TTweenCustomProperty<string> {
+        health(value: number): ITweenCustomProperty<string> {
             return {
                 value: `${value}`,
                 toFixed: 2,
             };
         },
 
-        exp(value: number): TTweenCustomProperty<string> {
+        exp(value: number): ITweenCustomProperty<string> {
             return {
                 value: () => `${value}/1000`,
                 progress(start: number, end: number, current: string, ratio: number): string {
@@ -3817,7 +3817,7 @@ test('to string, custom progress, wrap value 2', function () {
             };
         },
 
-        lv(value: number): TTweenCustomProperty<string> {
+        lv(value: number): ITweenCustomProperty<string> {
             return {
                 value: `Lv.${value}`,
                 progress(start: number, end: number, current: string, ratio: number): string {

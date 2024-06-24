@@ -28,7 +28,7 @@ import {
     ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence,
     Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
 } from './actions/action-interval';
-import { removeSelf, show, hide, callFunc, TCallFuncCallback } from './actions/action-instant';
+import { removeSelf, show, hide, callFunc, CallFuncCallback } from './actions/action-instant';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { IInternalTweenOption, TweenAction } from './tween-action';
@@ -39,18 +39,18 @@ import { Node } from '../scene-graph';
 // https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
 type FlagExcludedType<Base, Type> = { [Key in keyof Base]: Base[Key] extends Type ? never : Key };
 type AllowedNames<Base, Type> = FlagExcludedType<Base, Type>[keyof Base];
-export type TTweenCustomProgress = (start: any, end: any, current: any, ratio: number) => any;
-export type TTweenCustomEasing = ITweenOption['easing'];
+export type TweenCustomProgress = (start: any, end: any, current: any, ratio: number) => any;
+export type TweenCustomEasing = ITweenOption['easing'];
 
 type ExtendsReturnResults<T, Base, Result1, Result2> = T extends Base ? Result1 : Result2;
 type ExtendsReturnResultOrNever<T, Base, Result> = ExtendsReturnResults<T, Base, Result, never>;
 
 type MaybeUnionStringNumber<T> = ExtendsReturnResults<T, string, string | number, T>;
 type StringToNumberOrNever<T> = ExtendsReturnResultOrNever<T, string, string | number>;
-export interface TTweenCustomProperty<Value> {
+export interface ITweenCustomProperty<Value> {
     value: MaybeUnionStringNumber<Value> | (() => MaybeUnionStringNumber<Value>);
-    progress?: TTweenCustomProgress;
-    easing?: TTweenCustomEasing;
+    progress?: TweenCustomProgress;
+    easing?: TweenCustomEasing;
     convert?: ExtendsReturnResultOrNever<Value, string, (v: string) => number | string>;   // Supported from v3.8.5
     clone?: ExtendsReturnResultOrNever<Value, object, (v: Value) => Value>; // Supported from v3.8.5
     add?: (a: Value, b: Value) => Value; // Supported from v3.8.5
@@ -59,7 +59,7 @@ export interface TTweenCustomProperty<Value> {
     toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.5
 }
 
-type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | TTweenCustomProperty<T[P]> | StringToNumberOrNever<T[P]>) };
+type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | ITweenCustomProperty<T[P]> | StringToNumberOrNever<T[P]>) };
 type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ConstructorType<T> = OmitType<T, Function>;
@@ -68,7 +68,7 @@ type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 
 const notIntervalPrompt = 'the last action is not ActionInterval';
 
-export type TTweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
+export type TweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
 
 /**
  * @en
@@ -478,7 +478,7 @@ export class Tween<T extends object = any> {
      * @param args @en The arguments passed to the callback function. @zh 传递给动作回调函数的参数。
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
-    update<Args extends any[]> (duration: number, cb: TTweenUpdateCallback<T, Args>, ...args: Args): Tween<T> {
+    update<Args extends any[]> (duration: number, cb: TweenUpdateCallback<T, Args>, ...args: Args): Tween<T> {
         const action = new ActionCustomUpdate<T, Args>(duration, cb, args);
         this._actions.push(action);
         return this;
@@ -525,7 +525,7 @@ export class Tween<T extends object = any> {
      * @param data @en The Custom data that will be passed to callback @zh 要传递给回调函数的自定义数据
      * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
      */
-    call<TCallbackThis, TData> (callback: TCallFuncCallback<T, TData>, callbackThis?: TCallbackThis, data?: TData): Tween<T> {
+    call<TCallbackThis, TData> (callback: CallFuncCallback<T, TData>, callbackThis?: TCallbackThis, data?: TData): Tween<T> {
         const action = callFunc(callback, callbackThis, data);
         this._actions.push(action);
         return this;
