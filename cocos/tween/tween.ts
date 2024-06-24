@@ -323,6 +323,7 @@ export class Tween<T extends object = any> {
             final.setTag(this._tag);
             final.setSpeed(this._timeScale);
             final.setStartTime(time);
+            final.setPaused(false); // If a tween was paused, starting the tween again should clear the 'paused' flag for the final action.
             TweenSystem.instance.ActionManager.addAction(final, this._target, false);
         } else {
             warn(`start: no actions in Tween`);
