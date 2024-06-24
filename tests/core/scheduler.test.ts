@@ -9,9 +9,9 @@ test('scheduleOnce', function () {
     let component = new MyComponent;
 
     for (let i = 0; i <= 9; ++i) {
-        component.schedule(()=>{
+        component.scheduleOnce(()=>{
             result += i;
-        }, 0, 0, 0);
+        });
     }
 
     director.getScheduler().update(0.1);

@@ -768,6 +768,8 @@ export class Scheduler extends System {
             const timer = timers[i];
             if (timer === timerToUnschedule) {
                 timers.splice(i, 1);
+                CallbackTimer.put(timer);
+
                 // update timerIndex in case we are in tick;, looping over the actions
                 if (element.timerIndex >= i) {
                     element.timerIndex--;
