@@ -340,7 +340,7 @@ export class TweenAction<T extends object> extends ActionInterval {
         if (this._opts.onStart) { this._opts.onStart(workerTarget); }
     }
 
-    stop(): void {
+    stop (): void {
         const props = this._props;
         for (const name in props) {
             const prop = props[name];
