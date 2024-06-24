@@ -239,7 +239,7 @@ export function removeSelf<T extends Node> (isNeedCleanUp: boolean): RemoveSelf<
     return new RemoveSelf<T>(isNeedCleanUp);
 }
 
-export type TCallFuncCallback<TTarget, TData> = (target?: TTarget, data?: TData) => void;
+export type CallFuncCallback<Target, Data> = (target?: Target, data?: Data) => void;
 
 /*
  * Calls a 'callback'.
@@ -256,31 +256,31 @@ export type TCallFuncCallback<TTarget, TData> = (target?: TTarget, data?: TData)
  * // CallFunc with data
  * var finish = new CallFunc(this.removeFromParentAndCleanup, this,  true);
  */
-export class CallFunc<TCallbackThis, TTarget, TData> extends ActionInstant {
-    private _callbackThis: TCallbackThis | undefined = undefined;
-    private _callback: TCallFuncCallback<TTarget, TData> | undefined = undefined;
-    private _data: TData | undefined = undefined;
+export class CallFunc<CallbackThis, Target, Data> extends ActionInstant {
+    private _callbackThis: CallbackThis | undefined = undefined;
+    private _callback: CallFuncCallback<Target, Data> | undefined = undefined;
+    private _data: Data | undefined = undefined;
 
     /*
      * Constructor function, override it to extend the construction behavior, remember to call "super()". <br />
      * Creates a CallFunc action with the callback.
-     * @param {TCallFuncCallback} callback The callback function
-     * @param {TCallbackThis} callbackThis The this object for callback
-     * @param {TData} data The custom data passed to the callback function, it accepts all data types.
+     * @param callback The callback function
+     * @param callbackThis The this object for callback
+     * @param data The custom data passed to the callback function, it accepts all data types.
      */
-    constructor (selector?: TCallFuncCallback<TTarget, TData>, callbackThis?: TCallbackThis, data?: TData) {
+    constructor (selector?: CallFuncCallback<Target, Data>, callbackThis?: CallbackThis, data?: Data) {
         super();
         this.initWithFunction(selector, callbackThis, data);
     }
 
     /*
      * Initializes the action with a function or function and its target
-     * @param {TCallFuncCallback} callback The callback function
-     * @param {TCallbackThis} callbackThis The this object for callback
-     * @param {TData} data The custom data passed to the callback function, it accepts all data types.
-     * @return {Boolean}
+     * @param callback The callback function
+     * @param callbackThis The this object for callback
+     * @param data The custom data passed to the callback function, it accepts all data types.
+     * @return This function always returns true.
      */
-    initWithFunction (callback?: TCallFuncCallback<TTarget, TData>, callbackThis?: TCallbackThis, data?: TData): boolean {
+    initWithFunction (callback?: CallFuncCallback<Target, Data>, callbackThis?: CallbackThis, data?: Data): boolean {
         if (callback) {
             this._callback = callback;
         }
@@ -298,7 +298,7 @@ export class CallFunc<TCallbackThis, TTarget, TData> extends ActionInstant {
      */
     execute (): void {
         if (this._callback) {
-            const target = (this.workerTarget ?? this.target) as TTarget;
+            const target = (this.workerTarget ?? this.target) as Target;
             this._callback.call(this._callbackThis, target, this._data);
         }
     }
@@ -311,7 +311,7 @@ export class CallFunc<TCallbackThis, TTarget, TData> extends ActionInstant {
      * Get selectorTarget.
      * @return {object}
      */
-    getTargetCallback (): TCallbackThis | undefined {
+    getTargetCallback (): CallbackThis | undefined {
         return this._callbackThis;
     }
 
@@ -319,14 +319,14 @@ export class CallFunc<TCallbackThis, TTarget, TData> extends ActionInstant {
      * Set selectorTarget.
      * @param {object} sel
      */
-    setTargetCallback (sel: TCallbackThis): void {
+    setTargetCallback (sel: CallbackThis): void {
         if (sel !== this._callbackThis) {
             this._callbackThis = sel;
         }
     }
 
-    clone (): CallFunc<TCallbackThis, TTarget, TData> {
-        const action = new CallFunc<TCallbackThis, TTarget, TData>();
+    clone (): CallFunc<CallbackThis, Target, Data> {
+        const action = new CallFunc<CallbackThis, Target, Data>();
         action._id = this._id;
         if (this._callback) action.initWithFunction(this._callback, this._callbackThis, this._data);
         return action;
@@ -349,10 +349,10 @@ export class CallFunc<TCallbackThis, TTarget, TData> extends ActionInstant {
  * // CallFunc with data
  * var finish = callFunc(this.removeFromParentAndCleanup, this._grossini,  true);
  */
-export function callFunc<TSelectorTarget, TTarget, TData> (
-    selector: TCallFuncCallback<TTarget, TData>,
-    selectorTarget?: TSelectorTarget,
-    data?: TData,
+export function callFunc<SelectorTarget, Target, Data> (
+    selector: CallFuncCallback<Target, Data>,
+    selectorTarget?: SelectorTarget,
+    data?: Data,
 ): ActionInstant {
     return new CallFunc(selector, selectorTarget, data);
 }
