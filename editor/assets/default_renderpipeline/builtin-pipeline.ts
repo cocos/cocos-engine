@@ -28,6 +28,7 @@ import {
     clamp,
     geometry,
     gfx,
+    Layers,
     makePipelineSettings,
     Material,
     pipeline,
@@ -126,6 +127,8 @@ class CameraConfigs {
     enableColorGrading = false;
     enableFXAA = false;
     enableFSR = false;
+    enableHDR = false;
+    useFullPipeline = false;
     singleForwardRadiancePass = false;
     shadingScale = 0.5;
     settings: PipelineSettings = defaultSettings;
@@ -158,9 +161,9 @@ function setupPostProcessConfigs(
     cameraConfigs.enablePostProcess = camera.usePostProcess
         && pipelineConfigs.useFloatOutput
         && (cameraConfigs.enableDOF
-        || cameraConfigs.enableBloom
-        || cameraConfigs.enableColorGrading
-        || cameraConfigs.enableFXAA);
+            || cameraConfigs.enableBloom
+            || cameraConfigs.enableColorGrading
+            || cameraConfigs.enableFXAA);
 }
 
 function setupCameraConfigs(
@@ -170,6 +173,8 @@ function setupCameraConfigs(
 ): void {
     const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
     const isEditorView: boolean = camera.cameraUsage === CameraUsage.SCENE_VIEW || camera.cameraUsage === CameraUsage.PREVIEW;
+
+    cameraConfigs.useFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
 
     cameraConfigs.enableShadowMap = camera.scene
         ? camera.scene.mainLight !== null && camera.scene.mainLight.shadowEnabled
@@ -210,6 +215,9 @@ function setupCameraConfigs(
     // Forward rendering (Depend on MSAA and TBR)
     cameraConfigs.singleForwardRadiancePass
         = pipelineConfigs.isMobile || cameraConfigs.enableMSAA;
+
+    cameraConfigs.enableHDR = cameraConfigs.useFullPipeline
+        && pipelineConfigs.useFloatOutput;
 }
 
 if (rendering) {
@@ -358,6 +366,7 @@ if (rendering) {
             width: number,
             height: number,
             camera: renderer.scene.Camera,
+            viewport: gfx.Viewport,
             ppl: rendering.BasicPipeline,
             pass: rendering.BasicRenderPassBuilder,
         ): rendering.BasicRenderPassBuilder {
@@ -384,6 +393,7 @@ if (rendering) {
 
                 pass = ppl.addRenderPass(width, height, 'default');
                 pass.name = 'SpotlightWithShadowMap';
+                pass.setViewport(viewport);
                 pass.addRenderTarget(colorName, LoadOp.LOAD);
                 pass.addDepthStencil(depthStencilName, LoadOp.LOAD, storeOp);
                 pass.addTexture(`ShadowMap${id}`, 'cc_spotShadowMap');
@@ -462,7 +472,7 @@ if (rendering) {
             }
 
             // Radiance
-            if (this._configs.useFloatOutput) {
+            if (this._cameraConfigs.enableHDR) {
                 ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
             } else if (this._cameraConfigs.enableShadingScale) {
                 ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
@@ -477,7 +487,7 @@ if (rendering) {
                 // Notice: We never store multisample results.
                 // These samples are always resolved and discarded at the end of the render pass.
                 // So the ResourceResidency should be MEMORYLESS.
-                if (this._configs.useFloatOutput) {
+                if (this._cameraConfigs.enableHDR) {
                     ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA16F, width, height, 1, 1, 1,
                         settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
                 } else {
@@ -555,6 +565,7 @@ if (rendering) {
                 return;
             }
             // Render cameras
+            // log(`==================== One Frame ====================`);
             for (const camera of cameras) {
                 // Skip invalid camera
                 if (camera.scene === null || camera.window === null) {
@@ -562,15 +573,40 @@ if (rendering) {
                 }
                 // Setup camera configs
                 setupCameraConfigs(camera, this._configs, this._cameraConfigs);
+                // log(`Setup camera: ${camera.node!.name}, window: ${camera.window.renderWindowId}, isFull: ${this._cameraConfigs.useFullPipeline}`);
 
                 // Build pipeline
-                this._buildForwardPipeline(ppl, camera, camera.scene);
+                if (this._cameraConfigs.useFullPipeline) {
+                    this._buildForwardPipeline(ppl, camera, camera.scene);
+                } else {
+                    this._buildSimplePipeline(ppl, camera);
+                }
             }
         }
 
         // ----------------------------------------------------------------
         // Pipelines
         // ----------------------------------------------------------------
+        private _buildSimplePipeline(
+            ppl: rendering.BasicPipeline,
+            camera: renderer.scene.Camera,
+        ): void {
+            const width = Math.max(Math.floor(camera.window.width), 1);
+            const height = Math.max(Math.floor(camera.window.height), 1);
+            const colorName = camera.window.colorName;
+
+            this._viewport.left = Math.floor(camera.viewport.x * width);
+            this._viewport.top = Math.floor(camera.viewport.y * height);
+            this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
+            this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
+
+            const pass = ppl.addRenderPass(width, height, 'default');
+            pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
+            pass.setViewport(this._viewport);
+            pass.addQueue(QueueHint.NONE)
+                .addScene(camera, SceneFlags.BLEND);
+        }
+
         private _buildForwardPipeline(
             ppl: rendering.BasicPipeline,
             camera: renderer.scene.Camera,
@@ -609,7 +645,7 @@ if (rendering) {
 
             // Forward Lighting
             let lastPass: rendering.BasicRenderPassBuilder;
-            if (this._configs.useFloatOutput) { // HDR
+            if (this._cameraConfigs.enableHDR) { // HDR
                 if (this._cameraConfigs.enablePostProcess) { // Post Process
                     // Radiance and DoF
                     if (this._cameraConfigs.enableDOF && settings.depthOfField.material) {
@@ -1140,8 +1176,8 @@ if (rendering) {
             // Prepare camera viewport
             this._viewport.left = Math.floor(camera.viewport.x * width);
             this._viewport.top = Math.floor(camera.viewport.y * height);
-            this._viewport.width = Math.floor(camera.viewport.z * width);
-            this._viewport.height = Math.floor(camera.viewport.w * height);
+            this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
+            this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
 
             // MSAA
             const enableMSAA = !disableMSAA && this._cameraConfigs.enableMSAA;
@@ -1245,7 +1281,7 @@ if (rendering) {
             // Forward Lighting (Additive Lights)
             pass = this.forwardLighting
                 .addLightPasses(colorName, depthStencilName, depthStencilStoreOp,
-                    id, width, height, camera, ppl, pass);
+                    id, width, height, camera, this._viewport, ppl, pass);
 
             return pass;
         }
