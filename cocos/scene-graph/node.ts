@@ -1633,7 +1633,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     @editable
     get angle (): number {
-        return this._euler.z;
+        return this.eulerAngles.z;
     }
 
     set angle (val: number) {
