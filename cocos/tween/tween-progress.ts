@@ -49,7 +49,7 @@ function createSplineProperty (mode: SplineMode, knots: ReadonlyArray<Vec3>): IT
             let reversedLast: Vec3 | null = null;
             if (relative && reversed) {
                 reversedLast = new Vec3();
-                Vec3.subtract(reversedLast, start, knots[knots.length-1]);
+                Vec3.subtract(reversedLast, start, knots[knots.length - 1]);
             }
             for (let i = 0, len = knots.length; i < len; ++i) {
                 const v = reversed ? knots[len - 1 - i] : knots[i];
@@ -75,7 +75,7 @@ function createSplineProperty (mode: SplineMode, knots: ReadonlyArray<Vec3>): IT
             spline = null;
         },
 
-        onStop() {
+        onStop (): void {
             spline = null;
         },
 
