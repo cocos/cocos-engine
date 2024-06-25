@@ -512,7 +512,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const deltaPhi   = Math.PI * 2.0 / segmentsU;
         const deltaTheta = Math.PI / 2.0 / hemiSegmentsV;
@@ -583,7 +583,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const deltaPhi = Math.PI * 2.0 / segments;
         const bottomCenter = new Vec3(center.x, center.y - height / 2.0, center.z);
@@ -629,7 +629,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const deltaPhi = Math.PI * 2.0 / segments;
         const bottomCenter = new Vec3(center.x, center.y - height / 2.0, center.z);
@@ -657,7 +657,7 @@ export class GeometryRenderer {
         }
     }
 
-    public addCircle (center: Vec3, radius: number, color: Color, segments = 32, depthTest = true, useTransform = false, transform = new Mat4()): void {
+    public addCircle (center: Vec3, radius: number, color: Color, segments = 32, depthTest = true, useTransform = false, transform: Readonly<Mat4> = Mat4.IDENTITY): void {
         const deltaPhi = Math.PI * 2.0 / segments;
         const points = new Array<Vec3>();
 
@@ -687,7 +687,7 @@ export class GeometryRenderer {
         segments = 32,
         depthTest = true,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const startRadian = toRadian(startAngle);
         const endRadian   = toRadian(endAngle);
@@ -720,7 +720,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         if (wireframe) {
             this.addCircle(center, radius, color, segments, depthTest, useTransform, transform);
@@ -738,7 +738,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const deltaPhi = Math.PI * 2.0 / segments;
         const points = new Array<Vec3>();
@@ -781,7 +781,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const startRadian = toRadian(startAngle);
         const endRadian   = toRadian(endAngle);
@@ -825,7 +825,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const deltaPhi   = Math.PI * 2.0 / segmentsU;
         const deltaTheta = Math.PI / segmentsV;
@@ -878,7 +878,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const deltaPhi   = Math.PI * 2.0 / segmentsU;
         const deltaTheta = Math.PI * 2.0 / segmentsV;
@@ -927,7 +927,7 @@ export class GeometryRenderer {
         depthTest = true,
         unlit = false,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const points = new Array<Vec3>();
 
@@ -980,7 +980,7 @@ export class GeometryRenderer {
         segments = 32,
         depthTest = true,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         const deltaT = 1.0 / segments;
         const points = new Array<Vec3>();
@@ -1017,7 +1017,7 @@ export class GeometryRenderer {
         }
     }
 
-    public addSpline (spline: geometry.Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true, useTransform = false, transform = new Mat4()): void {
+    public addSpline (spline: geometry.Spline, color: Color, index = 0xffffffff, knotSize = 0.5, segments = 32, depthTest = true, useTransform = false, transform: Readonly<Mat4> = Mat4.IDENTITY): void {
         const numPoints = segments + 1;
         const points = spline.getPoints(numPoints, index);
 
@@ -1046,7 +1046,7 @@ export class GeometryRenderer {
         }
     }
 
-    public addMesh (center: Vec3, vertices: Array<Vec3>, color: Color, depthTest = true, useTransform = false, transform = new Mat4()): void {
+    public addMesh (center: Vec3, vertices: Array<Vec3>, color: Color, depthTest = true, useTransform = false, transform: Readonly<Mat4> = Mat4.IDENTITY): void {
         for (let i = 0; i < vertices.length; i += 3) {
             const v0 = new Vec3(center.x + vertices[i].x, center.y + vertices[i].y, center.z + vertices[i].z);
             const v1 = new Vec3(center.x + vertices[i + 1].x, center.y + vertices[i + 1].y, center.z + vertices[i + 1].z);
@@ -1071,7 +1071,7 @@ export class GeometryRenderer {
         color: Color,
         depthTest = true,
         useTransform = false,
-        transform = new Mat4(),
+        transform: Readonly<Mat4> = Mat4.IDENTITY,
     ): void {
         for (let i = 0; i < indices.length; i += 3) {
             const v0 = new Vec3(center.x + vertices[indices[i]].x, center.y + vertices[indices[i]].y, center.z + vertices[indices[i]].z);
