@@ -522,4 +522,14 @@ describe(`Node`, () => {
 
         expect(son.getScale()).toEqual(new Vec3(1/2, 1/3, 1/4));
     });
+
+    test ('angle', ()=> {
+        let node = new Node();
+
+        // Rotate counterclockwise 90 degrees around the z-axis.
+        let theta = Math.PI / 2;
+        node.setWorldRotation(0, 0, Math.cos(theta / 2), Math.sin(theta / 2));
+
+        expect(node.angle).toEqual(theta / Math.PI * 180);
+    });
 });

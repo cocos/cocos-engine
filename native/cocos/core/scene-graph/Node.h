@@ -412,16 +412,17 @@ public:
 
     void setAngle(float);
 
-    inline const Vec3 &getEulerAngles() {
+    inline const Vec3 &getEulerAngles() const {
         if (_eulerDirty) {
-            Quaternion::toEuler(_localRotation, false, &_euler);
-            _eulerDirty = false;
+            auto *thiz = const_cast<Node *>(this);
+            Quaternion::toEuler(_localRotation, false, &(thiz->_euler));
+            thiz->_eulerDirty = false;
         }
         return _euler;
     }
 
     inline float getAngle() const {
-        return _euler.z;
+        return getEulerAngles().z;
     }
 
     inline Vec3 getForward() const {
