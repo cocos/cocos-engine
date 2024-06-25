@@ -1,5 +1,5 @@
 import { Vec3, System, size, Size, approx, color, v3, lerp, EPSILON } from "../../cocos/core";
-import { ITweenOption, ITweenCustomProperty, tween, Tween, TweenSystem } from "../../cocos/tween";
+import { ITweenOption, ITweenCustomProperty, tween, Tween, TweenSystem, tweenProgress } from "../../cocos/tween";
 import { Node, Scene } from "../../cocos/scene-graph";
 import { Component } from "../../cocos/scene-graph/component";
 import { game, director } from "../../cocos/game";
@@ -2599,6 +2599,38 @@ test('pause/resume 3', function () {
     director.unregisterSystem(sys);
 });
 
+test('pause/start a repeatForever action', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t = tween(node)
+        .by(1, { position: v3(90, 90, 90) })
+        .repeatForever()
+        .start();
+
+    t.pause();
+    t.start();
+
+    // Start
+    runFrames(1);
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
 test('pauseAllByTarget/resumeAllByTarget', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
@@ -4491,6 +4523,131 @@ test('update destroyed node', function () {
 
     expect(node.position).toBeNull();
     expect(node.scale).toBeNull();
+
+    director.unregisterSystem(sys);
+});
+
+test('Bezier Curve', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const originalKnots: ReadonlyArray<Vec3> = [
+        // v3(-360, -180, 0), // start
+        v3(-270, 80, 0),
+        v3(-100, -80, 0),
+        v3(0, 0, 0),
+        v3(0, 0, 0),
+        v3(100, -80, 0),
+        v3(270, 80, 0),
+        v3(360, -180, 0),
+    ];
+
+    const node = new Node();
+    node.setPosition(-360, -180, 0);
+
+    const pos = node.getPosition().clone();
+    const offsetKnots = originalKnots.map((v: Vec3) => v.clone().subtract(pos));
+
+    tween(node)
+        .by(2, { position: tweenProgress.bezier(...offsetKnots) }).id(1)
+        .reverse(1)
+        .start();
+
+    const positionFootprintsBy: Vec3[] = [];
+
+    for (let i = 0, len = 4 * 60 + 1; i < len; ++i) {
+        runFrames(1);
+        positionFootprintsBy.push(node.getPosition().clone());
+    }
+
+    expect(positionFootprintsBy).toMatchSnapshot('BezierBy Positions');
+
+    // Reset position
+    node.setPosition(-360, -180, 0);
+    const reverseKnots = originalKnots.slice();
+    reverseKnots.reverse();
+    reverseKnots.push(pos);
+    reverseKnots.splice(0, 1);
+
+    tween(node)
+        .to(2, { position: tweenProgress.bezier(...originalKnots)})
+        .to(2, { position: tweenProgress.bezier(...reverseKnots)})
+        .start();
+
+    const positionFootprintsTo: Vec3[] = [];
+    for (let i = 0, len = 4 * 60 + 1; i < len; ++i) {
+        runFrames(1);
+        positionFootprintsTo.push(node.getPosition().clone());
+    }
+
+    expect(positionFootprintsBy).toMatchSnapshot('BezierTo Positions');
+    expect(positionFootprintsBy.length).toBe(positionFootprintsTo.length);
+    positionFootprintsBy.forEach((v: Vec3, i: number) => {
+        expect(v.equals(positionFootprintsTo[i])).toBeTruthy();
+    });
+
+    director.unregisterSystem(sys);
+});
+
+test('CatmullRom Curve', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const originalKnots: ReadonlyArray<Vec3> = [
+        // v3(-360, -180, 0), // start
+        v3(-270, 80, 0),
+        v3(-100, -80, 0),
+        v3(0, 0, 0),
+        v3(100, -80, 0),
+        v3(270, 80, 0),
+        v3(360, -180, 0),
+    ];
+
+    const node = new Node();
+    node.setPosition(-360, -180, 0);
+
+    const pos = node.getPosition().clone();
+    const offsetKnots = originalKnots.map((v: Vec3) => v.clone().subtract(pos));
+
+    tween(node)
+        .by(2, { position: tweenProgress.catmullRom(...offsetKnots) }).id(1)
+        .reverse(1)
+        .start();
+
+    const positionFootprintsBy: Vec3[] = [];
+
+    for (let i = 0, len = 4 * 60 + 1; i < len; ++i) {
+        runFrames(1);
+        positionFootprintsBy.push(node.getPosition().clone());
+    }
+
+    expect(positionFootprintsBy).toMatchSnapshot('CatmullRomBy Positions');
+
+    // Reset position
+    node.setPosition(-360, -180, 0);
+    const reverseKnots = originalKnots.slice();
+    reverseKnots.reverse();
+    reverseKnots.push(pos);
+    reverseKnots.splice(0, 1);
+
+    tween(node)
+        .to(2, { position: tweenProgress.catmullRom(...originalKnots)})
+        .to(2, { position: tweenProgress.catmullRom(...reverseKnots)})
+        .start();
+
+    const positionFootprintsTo: Vec3[] = [];
+    for (let i = 0, len = 4 * 60 + 1; i < len; ++i) {
+        runFrames(1);
+        positionFootprintsTo.push(node.getPosition().clone());
+    }
+
+    expect(positionFootprintsBy).toMatchSnapshot('CatmullRomTo Positions');
+    expect(positionFootprintsBy.length).toBe(positionFootprintsTo.length);
+    positionFootprintsBy.forEach((v: Vec3, i: number) => {
+        expect(v.equals(positionFootprintsTo[i])).toBeTruthy();
+    });
 
     director.unregisterSystem(sys);
 });

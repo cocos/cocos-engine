@@ -187,6 +187,9 @@ export class TweenAction<T extends object> extends ActionInterval {
             prop.sub = value.sub;
             prop.legacyProgress = value.legacyProgress ?? true;
             prop.toFixed = value.toFixed;
+            prop.onStart = value.onStart;
+            prop.onStop = value.onStop;
+            prop.onComplete = value.onComplete;
             prop.valid = true;
             this._props[name] = prop;
         }
@@ -323,9 +326,32 @@ export class TweenAction<T extends object> extends ActionInterval {
                 prop.current = _t;
                 prop.end = relative ? (reversed ? startNumValue - targetNumValue : startNumValue + targetNumValue) : targetNumValue;
             }
+
+            if (prop.onStart) {
+                prop.onStart({
+                    relative,
+                    reversed,
+                    start: prop.start,
+                    end: prop.end,
+                });
+            }
         }
 
         if (this._opts.onStart) { this._opts.onStart(workerTarget); }
+    }
+
+    stop (): void {
+        const props = this._props;
+        for (const name in props) {
+            const prop = props[name];
+            if (!prop.valid) continue;
+
+            if (prop.onStop) {
+                prop.onStop();
+            }
+        }
+
+        super.stop();
     }
 
     update (t: number): void {
@@ -375,6 +401,10 @@ export class TweenAction<T extends object> extends ActionInterval {
             }
 
             workerTarget[name] = prop.current;
+
+            if (t === 1 && prop.onComplete) {
+                prop.onComplete();
+            }
         }
         if (opts.onUpdate) { opts.onUpdate(workerTarget, t); }
         if (t === 1 && opts.onComplete) { opts.onComplete(workerTarget); }

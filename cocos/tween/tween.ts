@@ -47,6 +47,14 @@ type ExtendsReturnResultOrNever<T, Base, Result> = ExtendsReturnResults<T, Base,
 
 type MaybeUnionStringNumber<T> = ExtendsReturnResults<T, string, string | number, T>;
 type StringToNumberOrNever<T> = ExtendsReturnResultOrNever<T, string, string | number>;
+
+export interface ITweenCustomPropertyStartParameter<Value> {
+    relative: boolean;
+    reversed: boolean;
+    start: Value;
+    end: Value;
+}
+
 export interface ITweenCustomProperty<Value> {
     value: MaybeUnionStringNumber<Value> | (() => MaybeUnionStringNumber<Value>);
     progress?: TweenCustomProgress;
@@ -57,6 +65,9 @@ export interface ITweenCustomProperty<Value> {
     sub?: (a: Value, b: Value) => Value; // Supported from v3.8.5
     legacyProgress?: ExtendsReturnResultOrNever<Value, object, boolean>;    // Supported from v3.8.5, the default value is true for compatiblity
     toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.5
+    onStart?: (param: ITweenCustomPropertyStartParameter<Value>) => void;
+    onStop?: () => void;
+    onComplete?: () => void;
 }
 
 type KeyPartial<T, K extends keyof T> = { [P in K]?: (T[P] | (() => T[P]) | ITweenCustomProperty<T[P]> | StringToNumberOrNever<T[P]>) };
@@ -312,6 +323,7 @@ export class Tween<T extends object = any> {
             final.setTag(this._tag);
             final.setSpeed(this._timeScale);
             final.setStartTime(time);
+            final.setPaused(false); // If a tween was paused, starting the tween again should clear the 'paused' flag for the final action.
             TweenSystem.instance.ActionManager.addAction(final, this._target, false);
         } else {
             warn(`start: no actions in Tween`);
@@ -328,6 +340,8 @@ export class Tween<T extends object = any> {
      */
     stop (): Tween<T> {
         if (this._finalAction) {
+            // ActionManager.removeAction will not stop action, so stop it before removeAction.
+            this._finalAction.stop();
             TweenSystem.instance.ActionManager.removeAction(this._finalAction);
             this._finalAction = null;
         }
