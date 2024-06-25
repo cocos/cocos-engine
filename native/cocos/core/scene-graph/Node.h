@@ -421,7 +421,7 @@ public:
     }
 
     inline float getAngle() const {
-        return _euler.z;
+        return getEulerAngles().z;
     }
 
     inline Vec3 getForward() const {
