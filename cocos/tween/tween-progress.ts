@@ -26,6 +26,9 @@ import type { ITweenCustomProperty, ITweenCustomPropertyStartParameter } from '.
 import { Spline, SplineMode } from '../core/geometry';
 import { Vec3 } from '../core/math';
 
+const _v3_tmp_1 = new Vec3();
+const _v3_tmp_2 = new Vec3();
+
 function createSplineProperty (mode: SplineMode, knots: ReadonlyArray<Vec3>): ITweenCustomProperty<Vec3> {
     let spline: Spline | null = null;
     return {
@@ -48,7 +51,7 @@ function createSplineProperty (mode: SplineMode, knots: ReadonlyArray<Vec3>): IT
             spline.addKnot(start);
             let reversedLast: Vec3 | null = null;
             if (relative && reversed) {
-                reversedLast = new Vec3();
+                reversedLast = _v3_tmp_2;
                 Vec3.subtract(reversedLast, start, knots[knots.length - 1]);
             }
             for (let i = 0, len = knots.length; i < len; ++i) {
@@ -57,10 +60,11 @@ function createSplineProperty (mode: SplineMode, knots: ReadonlyArray<Vec3>): IT
                     if (reversed) {
                         // Skip the start point ( i = 0 )
                         if (i > 0) {
-                            spline.addKnot(reversedLast!.clone().add(v));
+                            // addKnot will copy the knot, so use a temporary Vec3 object here to avoid GC object being generated. 
+                            spline.addKnot(Vec3.copy(_v3_tmp_1, reversedLast!).add(v));
                         }
                     } else {
-                        spline.addKnot(start.clone().add(v));
+                        spline.addKnot(Vec3.copy(_v3_tmp_1, start).add(v));
                     }
                 } else {
                     spline.addKnot(v);
