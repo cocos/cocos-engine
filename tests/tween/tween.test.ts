@@ -2599,6 +2599,38 @@ test('pause/resume 3', function () {
     director.unregisterSystem(sys);
 });
 
+test('pause/start a repeatForever action', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+    //
+    const node = new Node();
+    node.setScale(0, 0, 0);
+
+    const t = tween(node)
+        .by(1, { position: v3(90, 90, 90) })
+        .repeatForever()
+        .start();
+
+    t.pause();
+    t.start();
+
+    // Start
+    runFrames(1);
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(30, 30, 30))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(60, 60, 60))).toBeTruthy();
+
+    runFrames(20);
+    expect(node.position.equals(new Vec3(90, 90, 90))).toBeTruthy();
+
+    //
+    director.unregisterSystem(sys);
+});
+
 test('pauseAllByTarget/resumeAllByTarget', function () {
     const sys = new TweenSystem();
     (TweenSystem.instance as any) = sys;
