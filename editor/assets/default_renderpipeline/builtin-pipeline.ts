@@ -136,30 +136,24 @@ class CameraConfigs {
 
 function setupPostProcessConfigs(
     pipelineConfigs: PipelineConfigs,
-    camera: renderer.scene.Camera,
     settings: PipelineSettings,
     cameraConfigs: CameraConfigs,
 ) {
-    cameraConfigs.enableDOF = camera.usePostProcess
-        && pipelineConfigs.supportDepthSample
+    cameraConfigs.enableDOF = pipelineConfigs.supportDepthSample
         && settings.depthOfField.enabled
         && settings.depthOfField.material !== null;
 
-    cameraConfigs.enableBloom = camera.usePostProcess
-        && settings.bloom.enabled
+    cameraConfigs.enableBloom = settings.bloom.enabled
         && settings.bloom.material !== null;
 
-    cameraConfigs.enableColorGrading = camera.usePostProcess
-        && settings.colorGrading.enabled
+    cameraConfigs.enableColorGrading = settings.colorGrading.enabled
         && settings.colorGrading.material !== null
         && settings.colorGrading.colorGradingMap !== null;
 
-    cameraConfigs.enableFXAA = camera.usePostProcess
-        && settings.fxaa.enabled
+    cameraConfigs.enableFXAA = settings.fxaa.enabled
         && settings.fxaa.material !== null;
 
-    cameraConfigs.enablePostProcess = camera.usePostProcess
-        && pipelineConfigs.useFloatOutput
+    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput
         && (cameraConfigs.enableDOF
             || cameraConfigs.enableBloom
             || cameraConfigs.enableColorGrading
@@ -185,14 +179,13 @@ function setupCameraConfigs(
     cameraConfigs.settings = camera.pipelineSettings
         ? camera.pipelineSettings : defaultSettings;
 
-    setupPostProcessConfigs(pipelineConfigs, camera, cameraConfigs.settings, cameraConfigs);
+    setupPostProcessConfigs(pipelineConfigs, cameraConfigs.settings, cameraConfigs);
 
     if (isEditorView) {
         const editorSettings = rendering.getEditorPipelineSettings();
-        const pipelineCamera = rendering.getEditorPipelineCamera();
-        if (editorSettings && pipelineCamera) {
+        if (editorSettings) {
             cameraConfigs.settings = editorSettings;
-            setupPostProcessConfigs(pipelineConfigs, pipelineCamera,
+            setupPostProcessConfigs(pipelineConfigs,
                 cameraConfigs.settings, cameraConfigs);
         }
     }
@@ -472,7 +465,7 @@ if (rendering) {
             }
 
             // Radiance
-            if (this._cameraConfigs.enableHDR) {
+            if (this._configs.useFloatOutput) {
                 ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
             } else if (this._cameraConfigs.enableShadingScale) {
                 ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
@@ -1100,7 +1093,7 @@ if (rendering) {
 
             const fsrColorName = `FsrColor${id}`;
 
-            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'fsr-easu');
+            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'post-process');
             easuPass.addRenderTarget(fsrColorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             easuPass.addTexture(ldrColorName, 'outputResultMap');
             easuPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
@@ -1108,7 +1101,7 @@ if (rendering) {
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 0);
 
-            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'fsr-rcas');
+            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'post-process');
             rcasPass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             rcasPass.addTexture(fsrColorName, 'outputResultMap');
             rcasPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
@@ -1308,3 +1301,4 @@ if (rendering) {
     rendering.setCustomPipeline('Builtin', new BuiltinPipelineBuilder());
 
 } // if (rendering)
+
