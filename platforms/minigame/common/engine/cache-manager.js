@@ -183,13 +183,12 @@ var cacheManager = {
         caches.sort(function (a, b) {
             return a.lastTime - b.lastTime;
         });
-        let clearCachCount = Math.floor(caches.length / 3);
         // 大于3则清理1/3， 小于等于3则全部清理
-        if(clearCachCount > 3){
-            caches.length = clearCachCount;
-        }
-        else if(clearCachCount === 0) {
+        if(caches.length < 3){
             console.warn("Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.");
+        }
+        else{
+            caches.length = Math.floor(caches.length / 3);
         }
         for (var i = 0, l = caches.length; i < l; i++) {
             var cacheKey = cc.assetManager.utils.getUuidFromURL(caches[i].originUrl) + "@native";
