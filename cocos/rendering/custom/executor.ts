@@ -134,7 +134,7 @@ import {
     getDescriptorSetDataFromLayout,
     getDescriptorSetDataFromLayoutId,
     getRenderArea,
-    mergeSrcToTargetDesc,
+    mergeSrcToDstDesc,
     updateGlobalDescBinding,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
@@ -1323,9 +1323,9 @@ class DeviceRenderScene implements RecordingInterface {
         const devicePass = this._currentQueue.devicePass;
         const rasterId = devicePass.rasterPassInfo.id;
         const passRenderData = context.renderGraph.getData(rasterId);
-        // CCGlobal
+        // RasterPass first
         this._updateGlobal(passRenderData);
-        // CCCamera, CCShadow, CCCSM
+        // then Queue
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
         this._updateGlobal(queueRenderData);
@@ -1333,7 +1333,7 @@ class DeviceRenderScene implements RecordingInterface {
         const layoutName = context.renderGraph.getLayout(rasterId);
         const descSetData = getDescriptorSetDataFromLayout(layoutName);
         if (context.descriptorSet) {
-            mergeSrcToTargetDesc(descSetData!.descriptorSet, context.descriptorSet, true);
+            mergeSrcToDstDesc(descSetData!.descriptorSet, context.descriptorSet, true);
         }
         this._currentQueue.isUpdateUBO = true;
 
@@ -1415,7 +1415,7 @@ class DeviceRenderScene implements RecordingInterface {
         if (sceneRenderData) this._updateGlobal(sceneRenderData);
         const layoutName = context.renderGraph.getLayout(rasterId);
         const descSetData = getDescriptorSetDataFromLayout(layoutName);
-        mergeSrcToTargetDesc(descSetData!.descriptorSet, context.descriptorSet, true);
+        mergeSrcToDstDesc(descSetData!.descriptorSet, context.descriptorSet, true);
         this._currentQueue.isUpdateUBO = true;
     }
 
