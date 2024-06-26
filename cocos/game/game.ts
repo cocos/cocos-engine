@@ -770,7 +770,7 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-                if (renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
+                if (!renderPipelineUuid || renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
                     if (!macro.CUSTOM_PIPELINE_NAME) {
                         macro.CUSTOM_PIPELINE_NAME = 'Builtin';
                     }
