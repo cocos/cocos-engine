@@ -28,7 +28,7 @@
             "label": "i18n:ENGINE.features.gfx_webgpu.label",
             "description": "i18n:ENGINE.features.gfx_webgpu.description",
             "category": "graphics",
-            "enginePlugin": true
+            "enginePlugin": false
         },
         "animation": {
             "label": "i18n:ENGINE.features.animation.label",
