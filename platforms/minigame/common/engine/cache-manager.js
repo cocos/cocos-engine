@@ -183,10 +183,13 @@ var cacheManager = {
         caches.sort(function (a, b) {
             return a.lastTime - b.lastTime;
         });
-        caches.length = Math.floor(caches.length / 3);
-        if (caches.length === 0) {
-            cleaning = false;
-            return;
+        let clearCachCount = Math.floor(caches.length / 3);
+        // 大于3则清理1/3， 小于等于3则全部清理
+        if(clearCachCount > 3){
+            caches.length = clearCachCount;
+        }
+        else if(clearCachCount === 0) {
+            console.warn("Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.");
         }
         for (var i = 0, l = caches.length; i < l; i++) {
             var cacheKey = cc.assetManager.utils.getUuidFromURL(caches[i].originUrl) + "@native";
@@ -199,8 +202,13 @@ var cacheManager = {
         function deferredDelete () {
             var item = caches.pop();
             if (self._isZipFile(item.originUrl)) {
-                rmdirSync(item.url, true);
-                self._deleteFileCB();
+                if (self._isZipFile(path)){
+                  deleteFile(path, self._deleteFileCB.bind(self));
+                }
+                else{
+                  rmdirSync(path, true);
+                  self._deleteFileCB();
+                }
             }
             else {
                 deleteFile(item.url, self._deleteFileCB.bind(self));
@@ -222,8 +230,13 @@ var cacheManager = {
             clearTimeout(writeCacheFileList);
             this._write();
             if (this._isZipFile(url)) {
-                rmdirSync(path, true);
-                this._deleteFileCB();
+                if (self._isZipFile(path)){
+                  deleteFile(path, self._deleteFileCB.bind(self));
+                }
+                else{
+                  rmdirSync(path, true);
+                  self._deleteFileCB();
+                }
             }
             else {
                 deleteFile(path, this._deleteFileCB.bind(this));
