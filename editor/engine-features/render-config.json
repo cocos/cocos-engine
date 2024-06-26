@@ -278,7 +278,7 @@
             "category": "animation"
         },
         "custom-pipeline": {
-            "default": false,
+            "default": true,
             "label": "i18n:ENGINE.features.custom_pipeline.label",
             "description": "i18n:ENGINE.features.custom_pipeline.description",
             "enginePlugin": false
