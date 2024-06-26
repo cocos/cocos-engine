@@ -29,7 +29,8 @@ import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings, assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings,
+    assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID } from '../core';
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
@@ -770,11 +771,16 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
+                // if render pipeline uuid is not set, or set to 'builtin-pipeline', check macro.CUSTOM_PIPELINE_NAME
                 if (!renderPipelineUuid || renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
+                    // if custom-pipeline is not feature cropped and macro.CUSTOM_PIPELINE_NAME is not set
                     if (cclegacy.rendering && !macro.CUSTOM_PIPELINE_NAME) {
+                        // set macro.CUSTOM_PIPELINE_NAME to Builtin
                         macro.CUSTOM_PIPELINE_NAME = 'Builtin';
                     }
                 }
+                // if custom-pipeline is not feature cropped and macro.CUSTOM_PIPELINE_NAME is not set
+                // Use legacy render pipeline
                 if (macro.CUSTOM_PIPELINE_NAME === '') {
                     cclegacy.rendering = undefined;
                 }
