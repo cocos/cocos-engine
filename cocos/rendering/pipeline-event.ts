@@ -71,7 +71,7 @@ export enum PipelineEventType {
     ATTACHMENT_SCALE_CAHNGED = 'attachment-scale-changed'
 }
 
-export class PipelineEventProcessor extends EventTarget {
+export class PipelineEventProcessor extends EventTarget implements IPipelineEvent {
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
 
