@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,22 +22,9 @@
  THE SOFTWARE.
 */
 
-import './deprecated';
-import * as pipeline from './define';
+import { legacyCC } from '../cocos/core/global-exports';
+import * as legacy_rendering from '../cocos/rendering/legacy';
 
-export { pipeline };
+export { legacy_rendering };
 
-export * from './pass-phase';
-
-export { PipelineSceneData } from './pipeline-scene-data';
-
-export { InstancedBuffer } from './instanced-buffer';
-export { PipelineStateManager } from './pipeline-state-manager';
-
-export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
-export { DebugView } from './debug-view';
-
-export { ReflectionProbeFlow } from './reflection-probe/reflection-probe-flow';
-export { ReflectionProbeStage } from './reflection-probe/reflection-probe-stage';
-
-export * from './custom/settings';
+legacyCC.legacy_rendering = legacy_rendering;

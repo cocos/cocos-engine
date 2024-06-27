@@ -1105,6 +1105,10 @@ module.exports = link(mixin({
             label: "Custom Render Pipeline (Beta)",
             description: "Enable custom render pipeline",
         },
+        legacy_pipeline: {
+            label: "Legacy Render Pipeline",
+            description: "Enable legacy render pipeline",
+        },
         websocket: {
             label: "WebSocket",
             description: "Enable WebSocket for native. For implementation, iOS/macOS uses SocketRocket, Android uses OkHttp, and Windows uses libwebsockets.",

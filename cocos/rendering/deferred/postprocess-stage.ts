@@ -36,7 +36,8 @@ import { Material } from '../../asset/assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { RenderQueueDesc } from '../pipeline-serialization';
 import { renderProfiler } from '../pipeline-funcs';
-import { RenderFlow, RenderPipeline } from '..';
+import { RenderPipeline } from '../render-pipeline';
+import { RenderFlow } from '../render-flow';
 import { UIPhase } from '../ui-phase';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
@@ -110,8 +111,14 @@ export class PostProcessStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
-            colors, camera.clearDepth, camera.clearStencil);
+        cmdBuff.beginRenderPass(
+            renderPass,
+            framebuffer,
+            this._renderArea,
+            colors,
+            camera.clearDepth,
+            camera.clearStencil,
+        );
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
         // Postprocess
         const builtinPostProcess = (sceneData as DeferredPipelineSceneData).postprocessMaterial;

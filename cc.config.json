@@ -208,6 +208,9 @@
                 "10f0d9bc-5c9e-4216-9a94-f3a2ff53bb5f"
             ]
         },
+        "legacy-pipeline": {
+            "modules": ["legacy-pipeline"]
+        },
         "websocket": {
             "modules": [],
             "isNativeOnly": true

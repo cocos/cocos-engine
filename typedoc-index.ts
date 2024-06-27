@@ -6,6 +6,7 @@ export * from './exports/animation';
 export * from './exports/audio';
 export * from './exports/base';
 export * from './exports/custom-pipeline';
+export * from './exports/legacy-pipeline';
 export * from './exports/dragon-bones';
 export * from './exports/geometry-renderer';
 export * from './exports/gfx-empty';
