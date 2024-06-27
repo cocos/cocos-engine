@@ -3293,7 +3293,7 @@ Base pass cannot override states, please use pass instance instead.
 
 ### 12103
 
-Custom pipeline create shader %s failed. Please restart editor.
+Custom pipeline create shader %s failed. Please reimport all effects (Menu->Developer->Refresh All Effect) and restart creator.
 
 ### 12104
 
@@ -3309,11 +3309,11 @@ Cannot patch non-builtin macros.
 
 ### 12107
 
-Custom pipeline invalid render pass, program: %s. Please restart editor.
+Custom pipeline invalid render pass, program: %s. Please reimport all effects (Menu->Developer->Refresh All Effect) and restart creator.
 
 ### 12108
 
-Custom pipeline invalid render phase, program: %s. Please restart editor.
+Custom pipeline invalid render phase, program: %s. Please reimport all effects (Menu->Developer->Refresh All Effect) and restart creator.
 
 ### 13100
 
