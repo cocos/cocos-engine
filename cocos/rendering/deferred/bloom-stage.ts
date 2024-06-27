@@ -30,13 +30,13 @@
 import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { Camera } from '../../render-scene/scene';
 import { SetIndex } from '../define';
-import { RenderFlow, RenderPipeline } from '..';
+import { RenderFlow } from '../render-flow';
 import { Material } from '../../asset/assets/material';
 import { BufferInfo, BufferUsageBit, ClearFlagBit, Color, MemoryUsageBit, PipelineState, Rect, Buffer } from '../../gfx';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { CommonStagePriority } from '../enum';
-import { MAX_BLOOM_FILTER_PASS_NUM } from '../render-pipeline';
+import { MAX_BLOOM_FILTER_PASS_NUM, RenderPipeline } from '../render-pipeline';
 import { BLOOM_COMBINEPASS_INDEX, BLOOM_DOWNSAMPLEPASS_INDEX, BLOOM_PREFILTERPASS_INDEX,
     BLOOM_UPSAMPLEPASS_INDEX,
     DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
