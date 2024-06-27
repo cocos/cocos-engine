@@ -39,6 +39,9 @@ import {
     Vec2,
     Vec3,
     Vec4,
+    cclegacy,
+    PipelineEventType,
+    PipelineEventProcessor,
 } from 'cc';
 
 const { AABB, Sphere, intersect } = geometry;
@@ -406,6 +409,7 @@ if (rendering) {
     }
 
     class BuiltinPipelineBuilder implements rendering.PipelineBuilder {
+        private readonly _pipelineEvent: PipelineEventProcessor = cclegacy.director.root.pipelineEvent as PipelineEventProcessor;
         // Internal cached resources
         private readonly _clearColor = new Color(0, 0, 0, 1);
         private readonly _clearColorTransparentBlack = new Color(0, 0, 0, 0);
@@ -568,12 +572,16 @@ if (rendering) {
                 setupCameraConfigs(camera, this._configs, this._cameraConfigs);
                 // log(`Setup camera: ${camera.node!.name}, window: ${camera.window.renderWindowId}, isFull: ${this._cameraConfigs.useFullPipeline}`);
 
+                this._pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
+
                 // Build pipeline
                 if (this._cameraConfigs.useFullPipeline) {
                     this._buildForwardPipeline(ppl, camera, camera.scene);
                 } else {
                     this._buildSimplePipeline(ppl, camera);
                 }
+
+                this._pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_END, camera);
             }
         }
 
@@ -1301,4 +1309,3 @@ if (rendering) {
     rendering.setCustomPipeline('Builtin', new BuiltinPipelineBuilder());
 
 } // if (rendering)
-
