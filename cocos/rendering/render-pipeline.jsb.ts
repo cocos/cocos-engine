@@ -26,6 +26,8 @@ import { cclegacy } from '../core';
 import { RenderPipeline as NrRenderPipeline } from './render-pipeline';
 import { Buffer, InputAssembler } from '../gfx';
 
+export { MAX_BLOOM_FILTER_PASS_NUM, IRenderPipelineInfo, PipelineRenderData } from './render-pipeline';
+
 declare const nr: any;
 
 export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
