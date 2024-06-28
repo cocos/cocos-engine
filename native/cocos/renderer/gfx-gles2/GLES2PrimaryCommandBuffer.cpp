@@ -98,7 +98,11 @@ void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
         ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
         ccstd::vector<uint32_t> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
-            size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+            CC_ASSERT(i < dynamicOffsetOffsets.size());
+            CC_ASSERT(dynamicOffsetOffsets[i] <= dynamicOffsets.size());
+            size_t count = i + 1 < dynamicOffsetOffsets.size()
+                               ? dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i]
+                               : dynamicOffsets.size() - dynamicOffsetOffsets[i];
             // CC_ASSERT(_curDynamicOffsets[i].size() >= count);
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint32_t));
@@ -222,7 +226,11 @@ void GLES2PrimaryCommandBuffer::bindStates() {
         ccstd::vector<uint32_t> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
         ccstd::vector<uint32_t> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
         for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
-            size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+            CC_ASSERT(i < dynamicOffsetOffsets.size());
+            CC_ASSERT(dynamicOffsetOffsets[i] <= dynamicOffsets.size());
+            size_t count = i + 1 < dynamicOffsetOffsets.size()
+                               ? dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i]
+                               : dynamicOffsets.size() - dynamicOffsetOffsets[i];
             // CC_ASSERT(_curDynamicOffsets[i].size() >= count);
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint32_t));
