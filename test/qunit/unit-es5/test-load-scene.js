@@ -68,7 +68,7 @@ test('persist node with dynamic scene', function () {
     var newScene = new cc.Scene();
     cc.director.runSceneImmediate(newScene);
 
-    ok(globalNode.parent === newScene, 'persist node should not be destoryed automatically when loading a new scene');
+    ok(globalNode.parent === newScene, 'persist node should not be destroyed automatically when loading a new scene');
 });
 
 test('persist node should replace existing node in scene', function () {
@@ -152,6 +152,6 @@ test('lifecycle methods of persist node and replaced node', function () {
 
         cc.director.runSceneImmediate(newScene);
 
-        ok(globalNode.parent === newScene, 'persist node should not be destoryed automatically when loading a new scene');
+        ok(globalNode.parent === newScene, 'persist node should not be destroyed automatically when loading a new scene');
     });
 })();
