@@ -770,8 +770,9 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-                // if render pipeline uuid is not set, or set to 'builtin-pipeline', check macro.CUSTOM_PIPELINE_NAME
-                if (!renderPipelineUuid || renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
+                if (!renderPipelineUuid) {
+                    // Editor, noop
+                } else if (renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') { // builtin-pipeline
                     // if custom-pipeline is not feature cropped and macro.CUSTOM_PIPELINE_NAME is not set
                     if (cclegacy.rendering && !macro.CUSTOM_PIPELINE_NAME) {
                         // set macro.CUSTOM_PIPELINE_NAME to Builtin
@@ -1129,6 +1130,7 @@ export class Game extends EventTarget {
         const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
         if (cclegacy.rendering && (!renderPipeline || renderPipeline === 'ca127c79-69d6-4afd-8183-d712d7b80e14')) {
             log('Using builtin-pipeline');
+            // editor or 'builtin-pipeline', do not load asset
             return this._setRenderPipeline();
         }
         // Pick legacy-pipeline or custom pipeline

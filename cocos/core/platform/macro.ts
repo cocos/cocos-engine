@@ -1126,7 +1126,7 @@ const macro: Macro = {
     MAX_LABEL_CANVAS_POOL_SIZE: 20,
     ENABLE_WEBGL_HIGHP_STRUCT_VALUES: false,
     BATCHER2D_MEM_INCREMENT: 144,
-    CUSTOM_PIPELINE_NAME: '',
+    CUSTOM_PIPELINE_NAME: 'Builtin',
     init () {
         if (NATIVE || MINIGAME || RUNTIME_BASED) {
             this.CLEANUP_IMAGE_CACHE = true;
