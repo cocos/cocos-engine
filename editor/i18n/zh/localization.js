@@ -1080,6 +1080,10 @@ module.exports = link(mixin({
             label: "自定义渲染管线 (Beta)",
             description: "启用自定义渲染管线。",
         },
+        legacy_pipeline: {
+            label: "遗留渲染管线 (Deprecated)",
+            description: "启用遗留渲染管线。",
+        },
         websocket: {
             label: "WebSocket",
             description: "对原生启用 WebSocket。其中iOS/macOS使用SocketRocket实现, Android使用OkHttp实现, Windows使用libwebsockets实现。",
