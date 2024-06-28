@@ -1126,16 +1126,14 @@ export class Game extends EventTarget {
         if (cclegacy.legacy_rendering === undefined && cclegacy.rendering === undefined) {
             return Promise.reject();
         }
-        // Pick builtin-pipeline
-        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-        if (cclegacy.rendering && (!renderPipeline || renderPipeline === 'ca127c79-69d6-4afd-8183-d712d7b80e14')) {
-            log('Using builtin-pipeline');
-            // editor or 'builtin-pipeline', do not load asset
-            return this._setRenderPipeline();
-        }
         // Pick legacy-pipeline or custom pipeline
         if (cclegacy.legacy_rendering) {
-            log('Using legacy rendering pipeline');
+            // Pick builtin-pipeline
+            const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
+            if (!renderPipeline || renderPipeline === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
+                // editor or 'builtin-pipeline', do not load asset
+                return this._setRenderPipeline();
+            }
             return new Promise<any>((resolve, reject): void => {
                 assetManager.loadAny(renderPipeline, (err, asset): void => ((err)
                     ? reject(err)
