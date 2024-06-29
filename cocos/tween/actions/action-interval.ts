@@ -809,7 +809,7 @@ export class Spawn extends ActionInterval {
         }
 
         if (this._two) {
-            if (!this._finished || this._two?.isUnknownTime()) {
+            if (!this._finished || this._two.isUnknownTime()) {
                 this._two.update(t);
             }
         }
