@@ -172,8 +172,8 @@ class CCObject implements EditorExtendableObject {
                 obj._destroyImmediate();
             }
         }
-        // if we called b.destory() in a.onDestroy(), objectsToDestroy will be resized,
-        // but we only destroy the objects which called destory in this frame.
+        // if we called b.destroy() in a.onDestroy(), objectsToDestroy will be resized,
+        // but we only destroy the objects which called destroy in this frame.
         if (deleteCount === objectsToDestroy.length) {
             objectsToDestroy.length = 0;
         } else {
