@@ -864,8 +864,8 @@ export class Spawn extends ActionInterval {
     }
 
     isUnknownTime (): boolean {
-        const one = this._one!;
-        const two = this._two!;
+        const one = this._one;
+        const two = this._two;
 
         if (one == null || two == null) return false;
 
