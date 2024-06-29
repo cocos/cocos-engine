@@ -29,6 +29,7 @@ import {
     Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
 } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, CallFuncCallback } from './actions/action-instant';
+import { ActionUnknownTime } from './actions/action-unknown-time';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { IInternalTweenOption, TweenAction } from './tween-action';
@@ -80,6 +81,7 @@ type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 const notIntervalPrompt = 'the last action is not ActionInterval';
 
 export type TweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
+export type TweenUpdateUntilCallback<T extends object, Args extends any[]> = (target: T, dt: number, ...args: Args) => boolean;
 
 /**
  * @en
@@ -494,6 +496,12 @@ export class Tween<T extends object = any> {
      */
     update<Args extends any[]> (duration: number, cb: TweenUpdateCallback<T, Args>, ...args: Args): Tween<T> {
         const action = new ActionCustomUpdate<T, Args>(duration, cb, args);
+        this._actions.push(action);
+        return this;
+    }
+
+    updateUntil<Args extends any[]> (cb: TweenUpdateUntilCallback<T, Args>, ...args: Args): Tween<T> {
+        const action = new ActionUnknownTime<T, Args>(cb, args);
         this._actions.push(action);
         return this;
     }

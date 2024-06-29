@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2024 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,40 +22,43 @@
  THE SOFTWARE.
 */
 
-import { ActionInstant } from './actions/action-instant';
+import { FiniteTimeAction } from './action';
+import type { TweenUpdateUntilCallback } from '../tween';
+import { cclegacy } from '../../core';
 
-export class SetAction extends ActionInstant {
-    private _props: any;
+export class ActionUnknownTime<T extends object, Args extends any[]> extends FiniteTimeAction {
+    private _finished = false;
+    private _cb: TweenUpdateUntilCallback<T, Args>;
+    private _args: Args;
 
-    constructor (props?: any) {
+    constructor (cb: TweenUpdateUntilCallback<T, Args>, args: Args) {
         super();
-        this._props = {};
-        if (props) this.init(props);
+        this._cb = cb;
+        this._args = args;
     }
 
-    init (props: any): boolean {
-        for (const name in props) {
-            this._props[name] = props[name];
-        }
-        return true;
+    clone (): ActionUnknownTime<T, Args> {
+        return new ActionUnknownTime(this._cb, this._args);
     }
 
-    update (): void {
-        const props = this._props;
-        const target = this.target;
-        for (const name in props) {
-            (target as any)[name] = props[name];
-        }
+    reverse (): ActionUnknownTime<T, Args> {
+        return this.clone();
     }
 
-    clone (): SetAction {
-        const action = new SetAction();
-        action._id = this._id;
-        action.init(this._props);
-        return action;
+    step (dt: number): void {
+        throw new Error('should never go here');
+    }
+
+    update (t: number): void {
+        const dt: number = cclegacy.game.deltaTime;
+        this._finished = this._cb(this.target as T, dt, ...this._args);
+    }
+
+    isDone (): boolean {
+        return this._finished;
     }
 
     isUnknownTime (): boolean {
-        return false;
+        return !this.isDone();
     }
 }
