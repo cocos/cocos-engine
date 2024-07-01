@@ -1081,8 +1081,8 @@ module.exports = link(mixin({
             description: "启用自定义渲染管线。",
         },
         legacy_pipeline: {
-            label: "遗留渲染管线 (Deprecated)",
-            description: "启用遗留渲染管线。",
+            label: "废弃渲染管线 (Deprecated)",
+            description: "启用废弃渲染管线。",
         },
         websocket: {
             label: "WebSocket",
