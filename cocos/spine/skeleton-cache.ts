@@ -24,15 +24,13 @@
 
 import { TrackEntryListeners } from './track-entry-listeners';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d/renderer/vertex-format';
-import { SPINE_WASM } from './lib/instantiated';
+
 import spine from './lib/spine-core.js';
 import { SkeletonData } from './skeleton-data';
 import { warn } from '../core/platform/debug';
-import { Skeleton } from './skeleton';
 
 const MaxCacheTime = 30;
 const FrameTime = 1 / 60;
-const spineTag = SPINE_WASM;
 const _useTint = true;
 const _byteStrideOneColor = getAttributeStride(vfmtPosUvColor4B);
 const _byteStrideTwoColor = getAttributeStride(vfmtPosUvTwoColor4B);

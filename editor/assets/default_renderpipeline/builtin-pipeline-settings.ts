@@ -90,8 +90,7 @@ export class BuiltinPipelineSettings extends Component {
             return;
         }
         if (this._editorPreview) {
-            const camera = this.getComponent(Camera)!.camera;
-            rendering.setEditorPipelineSettings(this._settings, camera);
+            rendering.setEditorPipelineSettings(this._settings);
         } else {
             this._disableEditorPreview();
         }
@@ -102,7 +101,7 @@ export class BuiltinPipelineSettings extends Component {
         }
         const current = rendering.getEditorPipelineSettings();
         if (current === this._settings) {
-            rendering.setEditorPipelineSettings(null, null);
+            rendering.setEditorPipelineSettings(null);
         }
     }
 

@@ -33,7 +33,7 @@ import { RenderPass, LoadOp, StoreOp,
     Framebuffer, DescriptorSet, API } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
-import { RenderPipeline } from '..';
+import { RenderPipeline } from '../render-pipeline';
 import { PCFType, ShadowType } from '../../render-scene/scene/shadows';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { Camera } from '../../render-scene/scene';

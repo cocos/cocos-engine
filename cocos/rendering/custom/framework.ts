@@ -33,30 +33,17 @@ import { PipelineSettings } from './settings';
 // Editor preview begin
 //-----------------------------------------------------------------
 let editorPipelineSettings: PipelineSettings | null = null;
-let pipelineCamera: Camera | null = null;
-let pipelineCameraUsePostProcess = false;
 let forceResize = false;
 
 export function setEditorPipelineSettings (
     settings: PipelineSettings | null,
-    camera: Camera | null | undefined,
 ): void {
     editorPipelineSettings = settings;
-    if (settings && camera) {
-        pipelineCamera = camera;
-        pipelineCameraUsePostProcess = camera.usePostProcess;
-    } else if (!settings) {
-        pipelineCamera = null;
-    }
     forceResize = true;
 }
 
 export function getEditorPipelineSettings (): PipelineSettings | null {
     return editorPipelineSettings;
-}
-
-export function getEditorPipelineCamera (): Camera | null {
-    return pipelineCamera;
 }
 
 //-----------------------------------------------------------------
@@ -83,12 +70,6 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         // No game window resize handler defined.
         // Following old prodecure, do nothing
         return;
-    }
-
-    // For editor preview
-    if (pipelineCamera && pipelineCamera.usePostProcess !== pipelineCameraUsePostProcess) {
-        pipelineCameraUsePostProcess = pipelineCamera.usePostProcess;
-        forceResize = true;
     }
 
     for (const camera of cameras) {

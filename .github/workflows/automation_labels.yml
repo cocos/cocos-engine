@@ -13,13 +13,11 @@ jobs:
     steps:
       - name: Check organization
         id: get_check_code
+        env:
+          user: ${{ github.event.pull_request.user.login }}
         run: |
-          http_code=`curl -s --head -I -H "Authorization: token ${{ secrets.LABEl_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/orgs/cocos/members/${{ github.event.pull_request.user.login }} | awk '/HTTP/{print $2}'`
+          http_code=`curl -s --head -I -H "Authorization: token ${{ secrets.LABEl_TOKEN }}" -H "Accept: application/vnd.github.v3+json" https://api.github.com/orgs/cocos/members/$user | awk '/HTTP/{print $2}'`
           echo "::set-output name=http_code::${http_code}"
-      - name: Echo username organization
-        run: |
-          echo ${{ github.event.pull_request.user.login }}
-          echo ${{ steps.get_check_code.outputs.http_code }}
       - name: Add contribution label
         if: |
           steps.get_check_code.outputs.http_code == 404
