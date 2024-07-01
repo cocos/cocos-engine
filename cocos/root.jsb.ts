@@ -25,7 +25,7 @@
 import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
-import { settings, Settings, warnID, Pool, macro, log } from './core';
+import { settings, Settings, warnID, Pool, macro, log, cclegacy } from './core';
 import { PipelineEventProcessor } from './rendering/pipeline-event';
 import type { Root as JsbRoot } from './root';
 

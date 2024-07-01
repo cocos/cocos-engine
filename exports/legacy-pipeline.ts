@@ -23,5 +23,8 @@
 */
 
 import { legacyCC } from '../cocos/core/global-exports';
+import * as legacy_rendering from '../cocos/rendering/legacy';
 
 export * from '../cocos/rendering/legacy';
+
+legacyCC.legacy_rendering = legacy_rendering;
