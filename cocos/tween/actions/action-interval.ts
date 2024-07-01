@@ -136,6 +136,10 @@ export abstract class ActionInterval extends FiniteTimeAction {
         t = (t < 1 ? t : 1);
         this.update(t > 0 ? t : 0);
 
+        // NOTE: If the action's duration is unknown, the elapsed time should keep at the point of the last frame,
+        // because ActionUnknownDuration will be executed at each frame until its callback returns true.
+        // After ActionUnknownDuration is finished, the isUnknownDuration method will return false
+        // and the elapsed time will go as before.
         if (this.isUnknownDuration() && !this._firstTick) {
             this._elapsed -= dt;
         }
