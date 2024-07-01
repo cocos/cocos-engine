@@ -55,7 +55,7 @@ export class SetAction extends ActionInstant {
         return action;
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return false;
     }
 }

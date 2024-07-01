@@ -60,7 +60,7 @@ export abstract class ActionInstant extends FiniteTimeAction {
 
     abstract clone (): ActionInstant;
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return false;
     }
 }

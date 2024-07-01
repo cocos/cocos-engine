@@ -26,7 +26,7 @@ import { FiniteTimeAction } from './action';
 import type { TweenUpdateUntilCallback } from '../tween';
 import { cclegacy } from '../../core';
 
-export class ActionUnknownTime<T extends object, Args extends any[]> extends FiniteTimeAction {
+export class ActionUnknownDuration<T extends object, Args extends any[]> extends FiniteTimeAction {
     private _finished = false;
     private _cb: TweenUpdateUntilCallback<T, Args>;
     private _args: Args;
@@ -37,11 +37,11 @@ export class ActionUnknownTime<T extends object, Args extends any[]> extends Fin
         this._args = args;
     }
 
-    clone (): ActionUnknownTime<T, Args> {
-        return new ActionUnknownTime(this._cb, this._args);
+    clone (): ActionUnknownDuration<T, Args> {
+        return new ActionUnknownDuration(this._cb, this._args);
     }
 
-    reverse (): ActionUnknownTime<T, Args> {
+    reverse (): ActionUnknownDuration<T, Args> {
         return this.clone();
     }
 
@@ -58,7 +58,7 @@ export class ActionUnknownTime<T extends object, Args extends any[]> extends Fin
         return this._finished;
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return !this.isDone();
     }
 }

@@ -48,7 +48,7 @@ class DummyAction extends FiniteTimeAction {
         // empty
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return false;
     }
 }
@@ -136,7 +136,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
         t = (t < 1 ? t : 1);
         this.update(t > 0 ? t : 0);
 
-        if (this.isUnknownTime() && !this._firstTick) {
+        if (this.isUnknownDuration() && !this._firstTick) {
             this._elapsed -= dt;
         }
 
@@ -305,7 +305,7 @@ export class Sequence extends ActionInterval {
                 // since it will require a hack to know if an action is on reverse mode or not.
                 // "step" should be overriden, and the "reverseMode" value propagated to inner Sequences.
                 two.update(0);
-                if (two.isUnknownTime()) return;
+                if (two.isUnknownDuration()) return;
                 two.stop();
             }
         } else {
@@ -318,13 +318,13 @@ export class Sequence extends ActionInterval {
                 // action[0] was skipped, execute it.
                 one.startWithTarget(this.target);
                 one.update(1);
-                if (one.isUnknownTime()) return;
+                if (one.isUnknownDuration()) return;
                 one.stop();
             }
             if (locLast === 0) {
                 // switching to action 1. stop action 0.
                 one.update(1);
-                if (one.isUnknownTime()) return;
+                if (one.isUnknownDuration()) return;
                 one.stop();
             }
         }
@@ -377,17 +377,17 @@ export class Sequence extends ActionInterval {
         return null;
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         if (this._actions.length === 0) return false;
 
         const one = this._actions[0];
         const two = this._actions[1];
 
         if (this._last < 1) {
-            return one.isUnknownTime();
+            return one.isUnknownDuration();
         }
 
-        return two.isUnknownTime();
+        return two.isUnknownDuration();
     }
 }
 
@@ -496,7 +496,7 @@ export class Repeat extends ActionInterval {
         if (dt >= locNextDt) {
             while (dt > locNextDt && this._total < locTimes) {
                 locInnerAction.update(1);
-                if (locInnerAction.isUnknownTime()) return;
+                if (locInnerAction.isUnknownDuration()) return;
                 this._total++;
                 locInnerAction.stop();
                 locInnerAction.startWithTarget(this.target);
@@ -508,7 +508,7 @@ export class Repeat extends ActionInterval {
             if (dt >= 1.0 && this._total < locTimes) {
                 // fix for cocos-creator/fireball/issues/4310
                 locInnerAction.update(1);
-                if (locInnerAction.isUnknownTime()) return;
+                if (locInnerAction.isUnknownDuration()) return;
                 this._total++;
             }
 
@@ -555,8 +555,8 @@ export class Repeat extends ActionInterval {
         return this._innerAction;
     }
 
-    isUnknownTime (): boolean {
-        if (this._innerAction) { return this._innerAction.isUnknownTime(); }
+    isUnknownDuration (): boolean {
+        if (this._innerAction) { return this._innerAction.isUnknownDuration(); }
         return false;
     }
 }
@@ -686,8 +686,8 @@ export class RepeatForever extends ActionInterval {
         return this._innerAction;
     }
 
-    isUnknownTime (): boolean {
-        if (this._innerAction) { return this._innerAction.isUnknownTime(); }
+    isUnknownDuration (): boolean {
+        if (this._innerAction) { return this._innerAction.isUnknownDuration(); }
         return false;
     }
 }
@@ -803,13 +803,13 @@ export class Spawn extends ActionInterval {
 
     update (t: number): void {
         if (this._one) {
-            if (!this._finished || this._one.isUnknownTime()) {
+            if (!this._finished || this._one.isUnknownDuration()) {
                 this._one.update(t);
             }
         }
 
         if (this._two) {
-            if (!this._finished || this._two.isUnknownTime()) {
+            if (!this._finished || this._two.isUnknownDuration()) {
                 this._two.update(t);
             }
         }
@@ -863,14 +863,14 @@ export class Spawn extends ActionInterval {
         return null;
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         const one = this._one;
         const two = this._two;
 
         if (one == null || two == null) return false;
 
-        const isOneUnknownTime = one.isUnknownTime();
-        const isTwoUnknownTime = two.isUnknownTime();
+        const isOneUnknownTime = one.isUnknownDuration();
+        const isTwoUnknownTime = two.isUnknownDuration();
 
         if (isOneUnknownTime || isTwoUnknownTime) {
             if (isOneUnknownTime && isTwoUnknownTime) return true;
@@ -918,7 +918,7 @@ class DelayTime extends ActionInterval {
         return action;
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return false;
     }
 }
@@ -1013,7 +1013,7 @@ export class ReverseTime extends ActionInterval {
         super.stop();
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return false;
     }
 }
@@ -1054,7 +1054,7 @@ export class ActionCustomUpdate<T extends object, Args extends any[]> extends Ac
         return this.clone();
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return false;
     }
 }

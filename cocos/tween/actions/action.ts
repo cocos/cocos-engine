@@ -280,5 +280,5 @@ export abstract class FiniteTimeAction extends Action {
 
     abstract reverse (): FiniteTimeAction;
 
-    abstract isUnknownTime (): boolean;
+    abstract isUnknownDuration (): boolean;
 }

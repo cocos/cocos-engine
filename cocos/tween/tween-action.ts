@@ -414,7 +414,7 @@ export class TweenAction<T extends object> extends ActionInterval {
         return current = start + (end - start) * t;
     }
 
-    isUnknownTime (): boolean {
+    isUnknownDuration (): boolean {
         return false;
     }
 }

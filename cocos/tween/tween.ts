@@ -29,7 +29,7 @@ import {
     Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
 } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, CallFuncCallback } from './actions/action-instant';
-import { ActionUnknownTime } from './actions/action-unknown-time';
+import { ActionUnknownDuration } from './actions/action-unknown-time';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { IInternalTweenOption, TweenAction } from './tween-action';
@@ -501,7 +501,7 @@ export class Tween<T extends object = any> {
     }
 
     updateUntil<Args extends any[]> (cb: TweenUpdateUntilCallback<T, Args>, ...args: Args): Tween<T> {
-        const action = new ActionUnknownTime<T, Args>(cb, args);
+        const action = new ActionUnknownDuration<T, Args>(cb, args);
         this._actions.push(action);
         return this;
     }
