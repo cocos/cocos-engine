@@ -80,6 +80,9 @@
                 "custom-pipeline": {
                     "$ref": "#/definitions/IFeatureItem"
                 },
+                "legacy-pipeline": {
+                    "$ref": "#/definitions/IFeatureItem"
+                },
                 "debug-renderer": {
                     "$ref": "#/definitions/IFeatureItem"
                 },
@@ -255,6 +258,9 @@
                     "$ref": "#/definitions/BaseItem"
                 },
                 "custom-pipeline": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "legacy-pipeline": {
                     "$ref": "#/definitions/BaseItem"
                 },
                 "debug-renderer": {
