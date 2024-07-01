@@ -24,6 +24,7 @@
 
 import { ccenum } from '../core';
 import spine from './lib/spine-core';
+import './lib/instantiated';
 
 /**
  * @en

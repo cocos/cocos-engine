@@ -40,7 +40,7 @@ import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-wind
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
 import { BasicPipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
-import { IPipelineEvent } from './rendering/pipeline-event';
+import { IPipelineEvent, PipelineEventProcessor } from './rendering/pipeline-event';
 import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
 import { XREye, XRPoseType } from './xr/xr-enums';
 import { ICustomJointTextureLayout } from './3d/skeletal-animation/skeletal-animation-utils';
@@ -255,7 +255,7 @@ export class Root {
     private _tempWindow: RenderWindow | null = null;
     private _usesCustomPipeline = true;
     private _pipeline: PipelineRuntime | null = null;
-    private _pipelineEvent: IPipelineEvent | null = null;
+    private _pipelineEvent: IPipelineEvent | null = new PipelineEventProcessor();
     private _classicPipeline: RenderPipeline | null = null;
     private _customPipeline: BasicPipeline | null = null;
     private _batcher: Batcher2D | null = null;
@@ -399,12 +399,12 @@ export class Root {
             this._customPipeline = rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
-            this._pipelineEvent = rppl;
+            // Use default _pipelineEvent
             log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
         } else {
             this._classicPipeline = rppl;
             this._pipeline = this._classicPipeline;
-            this._pipelineEvent = this._classicPipeline;
+            this._pipelineEvent = this._classicPipeline; // Use forward pipeline's pipeline event
             this._usesCustomPipeline = false;
         }
 

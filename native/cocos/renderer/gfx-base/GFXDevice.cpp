@@ -168,7 +168,7 @@ DefaultResource::DefaultResource(Device *device) {
     }
     {
         BufferInfo bufferInfo = {};
-        bufferInfo.usage = BufferUsageBit::STORAGE | BufferUsageBit::TRANSFER_DST | BufferUsageBit::TRANSFER_SRC | BufferUsageBit::VERTEX | BufferUsageBit::INDEX | BufferUsageBit::INDIRECT;
+        bufferInfo.usage = BufferUsageBit::STORAGE | BufferUsageBit::TRANSFER_DST | BufferUsageBit::TRANSFER_SRC | BufferUsageBit::VERTEX | BufferUsageBit::INDIRECT;
         bufferInfo.memUsage = MemoryUsageBit::DEVICE | MemoryUsageBit::HOST;
         bufferInfo.size = 5 * sizeof(uint32_t); // for indirect command buffer
         bufferInfo.stride = bufferInfo.size;

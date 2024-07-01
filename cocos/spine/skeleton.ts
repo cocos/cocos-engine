@@ -38,14 +38,12 @@ import { legacyCC } from '../core/global-exports';
 import { SkeletonSystem } from './skeleton-system';
 import { RenderEntity, RenderEntityType } from '../2d/renderer/render-entity';
 import { AttachUtil } from './attach-util';
-import { SPINE_WASM } from './lib/instantiated';
 import spine from './lib/spine-core.js';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
 import SkeletonCache, { AnimationCache, AnimationFrame, SkeletonCacheItemInfo } from './skeleton-cache';
 import { TrackEntryListeners } from './track-entry-listeners';
 import { setPropertyEnumType } from '../core/internal-index';
 
-const spineTag = SPINE_WASM;
 const CachedFrameTime = 1 / 60;
 const CUSTOM_SLOT_TEXTURE_BEGIN = 10000;
 let _slotTextureID = CUSTOM_SLOT_TEXTURE_BEGIN;
