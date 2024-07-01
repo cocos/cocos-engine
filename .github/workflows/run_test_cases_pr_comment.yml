@@ -22,12 +22,15 @@ jobs:
           gh run download -R "${{ github.repository }}" --name "pr.txt" "$RUN_ID"
           gh run download -R "${{ github.repository }}" --name "comment.txt" "$RUN_ID"
           gh run download -R "${{ github.repository }}" --name "commentwin.txt" "$RUN_ID"
+          [ -L pr.txt ] || [ -L comment.txt ] || [ -L commentwin.txt ] && exit 1
+
+          
       - name: Set PR environment variable
         uses: actions/github-script@v4
         with:
           script: |
             const fs = require('fs');
-            const pr = fs.readFileSync('pr.txt', 'utf8').trim();
+            const pr = Number(fs.readFileSync('pr.txt', 'utf8'));
             core.exportVariable('PR_NUMBER', pr);
 
       - name: Update Mac Comment
