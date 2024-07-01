@@ -29,7 +29,7 @@ import {
     Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
 } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, CallFuncCallback } from './actions/action-instant';
-import { ActionUnknownDuration } from './actions/action-unknown-time';
+import { ActionUnknownDuration } from './actions/action-unknown-duration';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { IInternalTweenOption, TweenAction } from './tween-action';
