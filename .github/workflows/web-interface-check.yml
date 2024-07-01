@@ -1,24 +1,28 @@
 name: <Web> Interface check
 
-#on: push
-on: [pull_request_target]
+on: [pull_request]
 
 # github.head_ref is only defined on pull_request events
 concurrency:
   group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+
 jobs:
   interface_check:
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: '18.x'
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout Base Ref
         with:
           repository: ${{ github.event.pull_request.base.repo.full_name }}
@@ -27,7 +31,7 @@ jobs:
       - run: |
           "EXT_VERSION=$(node ./engine/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV
         shell: pwsh
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Download external
         with:
           repository: cocos/cocos-engine-external
@@ -44,15 +48,17 @@ jobs:
         run: |
           npm cache clean --force
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout Head Ref
         with:
           ref: 'refs/pull/${{ github.event.pull_request.number }}/merge' # Don't check out the head commit, checkout the "merge commit" instead
           path: './engine-HEAD'
+
       - run: |
           "EXT_VERSION_HEAD=$(node ./engine-HEAD/.github/workflows/get-native-external-version.js)" >> $env:GITHUB_ENV
         shell: pwsh
-      - uses: actions/checkout@v3
+
+      - uses: actions/checkout@v4
         name: Download external
         with:
           repository: cocos/cocos-engine-external
@@ -65,7 +71,7 @@ jobs:
         run: |
           npm install
 
-      - uses: LouisBrunner/diff-action@v0.1.2
+      - uses: LouisBrunner/diff-action@v2.0.0
         with:
           old: ./engine/bin/.declarations/cc.d.ts
           new: ./engine-HEAD/bin/.declarations/cc.d.ts
@@ -79,6 +85,23 @@ jobs:
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
 
-      - uses: marocchino/sticky-pull-request-comment@v2
+      - name: Write PR number to file
+        uses: actions/github-script@v7
         with:
-          path: ./engine/interface-diff.txt
+          script: |
+            const fs = require('fs');
+            fs.writeFileSync('interface-check-pr.txt', process.env.PR_NUMBER);
+
+      - name: Upload PR number artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: interface-check-pr.txt
+          path: |
+            interface-check-pr.txt
+
+      - name: Upload interface diff artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: interface-diff.txt
+          path: |
+            ./engine/interface-diff.txt
