@@ -1144,7 +1144,10 @@ export class Game extends EventTarget {
 
     private _setRenderPipeline (rppl?: RenderPipeline): void {
         if (!director.root!.setRenderPipeline(rppl)) {
-            this._setRenderPipeline();
+            if (!director.root!.setRenderPipeline()) {
+                errorID(1222);
+                return;
+            }
         }
 
         this._rendererInitialized = true;

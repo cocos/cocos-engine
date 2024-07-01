@@ -267,6 +267,14 @@ Failed to set shading scale, pipelineSceneData is invalid.
 
 Setting orientation is not supported yet.
 
+### 1222
+
+Failed to initailize render pipeline.
+
+### 1223
+
+Custom pipeline and legacy pipeline are all culled. 
+
 ### 1300
 
 %s is not in the model pool and cannot be destroyed by destroyModel.

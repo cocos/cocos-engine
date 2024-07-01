@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Pool, cclegacy, warnID, settings, Settings, macro, log } from './core';
+import { Pool, cclegacy, warnID, settings, Settings, macro, log, errorID } from './core';
 import type { RenderPipeline } from './rendering/render-pipeline';
 import { DebugView } from './rendering/debug-view';
 import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
@@ -371,7 +371,7 @@ export class Root {
     public setRenderPipeline (rppl?: RenderPipeline): boolean {
         const { internal, director, rendering, legacy_rendering } = cclegacy;
         if (rendering === undefined && legacy_rendering === undefined) {
-            log(`No render pipeline`);
+            errorID(1223);
             return false;
         }
         //-----------------------------------------------
