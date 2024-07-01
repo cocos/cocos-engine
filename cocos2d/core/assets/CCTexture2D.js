@@ -376,7 +376,8 @@ var Texture2D = cc.Class({
             },
             set (data) {
                 if (data._compressed && data._data) {
-                    this.initWithData(data._data, this._format, data.width, data.height);
+                    let format = data.format;
+                    this.initWithData(data._data, format ? format : this._format, data.width, data.height);
                 }
                 else {
                     this.initWithElement(data);
