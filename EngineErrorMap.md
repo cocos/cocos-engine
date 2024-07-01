@@ -269,7 +269,7 @@ Setting orientation is not supported yet.
 
 ### 1222
 
-Failed to initailize render pipeline.
+Failed to initialize render pipeline.
 
 ### 1223
 
