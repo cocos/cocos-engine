@@ -40,7 +40,7 @@ jobs:
           details: ${{ steps.pr_details.outputs.data }}
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
-          pull_request=$(echo "$details | jq -r '.')
+          pull_request=$(echo "$details" | jq -r '.')
           
           pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
           pr_author=$(echo "$pull_request" | jq -r '.user.login')
@@ -189,7 +189,7 @@ jobs:
           details: ${{ steps.pr_details.outputs.data }}
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
-          pull_request=$(echo "$details | jq -r '.')
+          pull_request=$(echo "$details" | jq -r '.')
           
           pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
           pr_author=$(echo "$pull_request" | jq -r '.user.login')
