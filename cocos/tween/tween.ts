@@ -487,8 +487,8 @@ export class Tween<T extends object = any> {
     }
 
     /**
-     * @en Add an custom action.
-     * @zh 添加一个自定义动作。
+     * @en Add a custom action with constant duration.
+     * @zh 添加一个固定时长的自定义动作。
      * @param duration @en The tween time in seconds. @zh 缓动时间，单位为秒。
      * @param cb @en The callback of the current action. @zh 动作回调函数。
      * @param args @en The arguments passed to the callback function. @zh 传递给动作回调函数的参数。
@@ -500,6 +500,13 @@ export class Tween<T extends object = any> {
         return this;
     }
 
+    /**
+     * @en Add a custom action with unknown duration. If the callback returns true means this action is finished.
+     * @zh 添加一个不确定时长的自定义动作。如果回调函数返回 true，表示当前动作结束。
+     * @param cb @en The callback of the current action. @zh 动作回调函数。如果回调函数返回 true，表示当前动作结束。
+     * @param args @en The arguments passed to the callback function. @zh 传递给动作回调函数的参数。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
     updateUntil<Args extends any[]> (cb: TweenUpdateUntilCallback<T, Args>, ...args: Args): Tween<T> {
         const action = new ActionUnknownDuration<T, Args>(cb, args);
         this._actions.push(action);

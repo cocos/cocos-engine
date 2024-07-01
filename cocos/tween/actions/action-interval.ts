@@ -814,6 +814,9 @@ export class Spawn extends ActionInterval {
             }
         }
 
+        // FIXME(cjh): Checking whether t is 1 to indicate the spawn finished will cause issues
+        // when `timeScale` is a negative value. Currently, there isn't a good way to check that in sub-actions.
+        // So we suggest developer to use `Tween.reverse(...)` instead of `timeScale < 0` to implement a `reverse` effect.
         this._finished = t === 1;
     }
 

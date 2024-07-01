@@ -280,5 +280,7 @@ export abstract class FiniteTimeAction extends Action {
 
     abstract reverse (): FiniteTimeAction;
 
+    // Returns the state of whether the current action's duration is unknown.
+    // This function may return `false` from `true` at some point while the action is running.
     abstract isUnknownDuration (): boolean;
 }
