@@ -24,8 +24,6 @@
 
 import { Pool, cclegacy, warnID, settings, Settings, macro, log } from './core';
 import type { RenderPipeline } from './rendering/render-pipeline';
-import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
-import { createDefaultPipeline } from './rendering/forward/forward-pipeline';
 import { DebugView } from './rendering/debug-view';
 import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
@@ -371,26 +369,32 @@ export class Root {
      * @returns The setup is successful or not
      */
     public setRenderPipeline (rppl?: RenderPipeline): boolean {
-        const { internal, director, rendering } = cclegacy;
+        const { internal, director, rendering, legacy_rendering } = cclegacy;
+        if (rendering === undefined && legacy_rendering === undefined) {
+            log(`No render pipeline`);
+            return false;
+        }
         //-----------------------------------------------
         // prepare classic pipeline
         //-----------------------------------------------
-        if (rppl instanceof DeferredPipeline) {
+        if (legacy_rendering && rppl && (rppl as any).renderTextures !== undefined) {
             this._useDeferredPipeline = true;
         }
 
         let isCreateDefaultPipeline = false;
         if (!rppl) {
-            rppl = createDefaultPipeline();
-            isCreateDefaultPipeline = true;
+            if (legacy_rendering) {
+                rppl = legacy_rendering.createDefaultPipeline();
+                isCreateDefaultPipeline = true;
+            }
         }
 
         // now cluster just enabled in deferred pipeline
         if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
             // disable cluster
-            rppl.clusterEnabled = false;
+            (rppl as any).clusterEnabled = false;
         }
-        rppl.bloomEnabled = false;
+        (rppl as any).bloomEnabled = false;
 
         //-----------------------------------------------
         // choose pipeline
@@ -402,6 +406,10 @@ export class Root {
             // Use default _pipelineEvent
             log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
         } else {
+            if (legacy_rendering === undefined || !rppl) {
+                log(`No render pipeline: legacy-pipeline is not available`);
+                return false;
+            }
             this._classicPipeline = rppl;
             this._pipeline = this._classicPipeline;
             this._pipelineEvent = this._classicPipeline; // Use forward pipeline's pipeline event

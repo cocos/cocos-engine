@@ -26,7 +26,6 @@ import { legacyCC } from './core/global-exports';
 import { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
 import { Device, deviceManager } from './gfx';
 import { settings, Settings, warnID, Pool, macro, log } from './core';
-import { ForwardPipeline } from './rendering';
 import { PipelineEventProcessor } from './rendering/pipeline-event';
 import type { Root as JsbRoot } from './root';
 
@@ -242,8 +241,12 @@ rootProto.setRenderPipeline = function (pipeline) {
     } else {
         if (!pipeline) {
             // pipeline should not be created in C++, ._ctor need to be triggered
-            pipeline = new ForwardPipeline();
-            pipeline.init();
+            if (cclegacy.legacy_rendering) {
+                pipeline = cclegacy.legacy_rendering.createDefaultPipeline();
+                pipeline.init();
+            } else {
+                log(`No render pipeline`);
+            }
         }
         ppl = oldSetPipeline.call(this, pipeline);
     }
