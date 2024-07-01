@@ -322,7 +322,7 @@ export class Sequence extends ActionInterval {
                 // action[0] was skipped, execute it.
                 one.startWithTarget(this.target);
                 one.update(1);
-                if (one.isUnknownDuration()) return;
+                if (one.isUnknownDuration()) return; // Don't stop `one` or update `two` since `one` is `unknown duration`. So just return here.
                 one.stop();
             }
             if (locLast === 0) {
