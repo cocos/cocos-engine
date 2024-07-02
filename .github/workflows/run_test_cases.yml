@@ -80,7 +80,7 @@ jobs:
           git branch -D $BASE
           git branch $BASE
           git branch -D pull-$PR_NUMBER || true
-          git fetch origin $HEAD
+          git fetch origin $HEAD:pull-$PR_NUMBER
           git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
       - name: Download external libraries
         shell: bash
@@ -229,7 +229,7 @@ jobs:
           git branch -D $BASE
           git branch $BASE
           git branch -D pull-$PR_NUMBER || true
-          git fetch origin $HEAD
+          git fetch origin $HEAD:pull-$PR_NUMBER
           git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
       - name: Download external libraries
         shell: bash
