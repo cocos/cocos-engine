@@ -56,7 +56,7 @@ import {
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
     RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GeneralBarrierInfo,
     BufferBarrierInfo, QueueType, API, Feature, BufferTextureCopy, SwapchainInfo, FormatFeature, FormatFeatureBit, Format,
-    Offset, Rect
+    Offset, Rect,
 } from '../base/define';
 import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers, WebGLCmdFuncCopyTexImagesToTexture, WebGLCmdFuncCopyTextureToTexture } from './webgl-commands';
 import { GeneralBarrier } from '../base/states/general-barrier';
@@ -570,7 +570,7 @@ export class WebGLDevice extends Device {
         );
     }
 
-    public copyTextureToTexture(from: Texture, to: Texture, dx: number, dy: number, fromRegion: Readonly<Rect> | null) {
+    public copyTextureToTexture (from: Texture, to: Texture, dx: number, dy: number, fromRegion: Readonly<Rect> | null): void {
         WebGLCmdFuncCopyTextureToTexture(this, (from as WebGLTexture).gpuTexture, (to as WebGLTexture).gpuTexture, dx, dy, fromRegion);
     }
 }

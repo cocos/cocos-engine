@@ -3080,14 +3080,14 @@ export function WebGLCmdFuncCopyTextureToTexture (
     dstGPUTexture: IWebGLGPUTexture,
     dx: number,
     dy: number,
-    srcRect: Readonly<Rect> | null
+    srcRect: Readonly<Rect> | null,
 ): void {
     const { gl } = device;
     const cache = device.stateCache;
 
     if (dstGPUTexture.glTarget != gl.TEXTURE_2D) {
         error('Unsupported GL dst texture type, copy texture to texture failed.');
-        return ;
+        return;
     }
 
     let srcX = 0;
@@ -3096,15 +3096,15 @@ export function WebGLCmdFuncCopyTextureToTexture (
     let srcH = srcGPUTextrue.height;
     if (srcRect) {
         if (srcRect.x + srcRect.width > srcGPUTextrue.width || srcRect.y + srcRect.height > srcGPUTextrue.height) {
-            return ;
+            return;
             //error('Unsupported GL dst texture type, copy texture to texture failed.');
-        } 
+        }
         srcX = srcRect.x;
         srcY = srcRect.y;
         srcW = srcRect.width;
         srcH = srcRect.height;
     }
-    if (dx + srcW > dstGPUTexture.width || dy + srcH > dstGPUTexture.height) return ;
+    if (dx + srcW > dstGPUTexture.width || dy + srcH > dstGPUTexture.height) return;
 
     const framebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);

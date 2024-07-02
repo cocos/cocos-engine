@@ -28,7 +28,7 @@ import {
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
     QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GeneralBarrierInfo, TextureBarrierInfo, BufferBarrierInfo,
     SwapchainInfo, BindingMappingInfo, Format, FormatFeature, TextureType, TextureUsageBit,
-    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers, TextureUsage, TextureFlags, Rect
+    TextureFlagBit, Offset, Extent, SampleCount, TextureSubresLayers, TextureUsage, TextureFlags, Rect,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -343,7 +343,6 @@ export abstract class Device {
      * @param regions The region descriptions.
      */
     public abstract copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void;
-
 
     public abstract copyTextureToTexture(from: Texture, to: Texture, dx: number, dy: number, fromRegion: Readonly<Rect> | null);
 

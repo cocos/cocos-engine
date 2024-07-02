@@ -41,6 +41,7 @@ import {
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
     RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GeneralBarrierInfo,
     BufferBarrierInfo, QueueType, API, BufferTextureCopy, SwapchainInfo,
+    Rect,
 } from '../base/define';
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
@@ -224,6 +225,10 @@ export class EmptyDevice extends Device {
     }
     public copyTexImagesToTexture (texImages: Readonly<TexImageSource[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         // noop
+    }
+
+    public copyTextureToTexture (from: Texture, to: Texture, dx: number, dy: number, fromRegion: Readonly<Rect> | null): void {
+        //
     }
 }
 
