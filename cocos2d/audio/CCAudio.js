@@ -297,6 +297,7 @@ Audio.State = {
                         clip.once('load', function () {
                             // In case set a new src when the old one hasn't finished loading
                             if (clip === self._src) {
+                                clip.loaded = true;
                                 self._onLoaded();
                             }
                         });
