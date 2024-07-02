@@ -1089,7 +1089,7 @@ class DeviceRenderPass implements RecordingInterface {
             const resId = resGraph.vertex(resName);
             const resFbo = resGraph._vertices[resId]._object;
             const resDesc = resGraph.getDesc(resId);
-            if (deviceTex.framebuffer && resFbo instanceof Framebuffer && deviceTex.framebuffer !== resFbo) {
+            if (deviceTex.framebuffer && resFbo instanceof Framebuffer && (deviceTex.framebuffer !== resFbo || resFbo !== this._framebuffer)) {
                 framebuffer = this._framebuffer = deviceTex.framebuffer = resFbo;
             } else if (!currTex || (deviceTex.texture && needRebuild)) {
                 const gfxTex = deviceTex.texture!;
