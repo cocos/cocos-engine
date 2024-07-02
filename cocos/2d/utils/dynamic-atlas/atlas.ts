@@ -25,7 +25,7 @@
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
-import { BufferTextureCopy } from '../../../gfx';
+import { BufferTextureCopy, TextureUsage } from '../../../gfx';
 import { cclegacy, warn } from '../../../core';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
@@ -106,19 +106,19 @@ export class Atlas {
             if (cclegacy.internal.dynamicAtlasManager.textureBleeding) {
                 // Smaller frame is more likely to be affected by linear filter
                 if (width <= 8 || height <= 8) {
-                    this._texture.drawTextureAt(texture.image!, this._x - 1, this._y - 1);
-                    this._texture.drawTextureAt(texture.image!, this._x - 1, this._y + 1);
-                    this._texture.drawTextureAt(texture.image!, this._x + 1, this._y - 1);
-                    this._texture.drawTextureAt(texture.image!, this._x + 1, this._y + 1);
+                    this._texture.drawTextureAt(texture, this._x - 1, this._y - 1);
+                    this._texture.drawTextureAt(texture, this._x - 1, this._y + 1);
+                    this._texture.drawTextureAt(texture, this._x + 1, this._y - 1);
+                    this._texture.drawTextureAt(texture, this._x + 1, this._y + 1);
                 }
 
-                this._texture.drawTextureAt(texture.image!, this._x - 1, this._y);
-                this._texture.drawTextureAt(texture.image!, this._x + 1, this._y);
-                this._texture.drawTextureAt(texture.image!, this._x, this._y - 1);
-                this._texture.drawTextureAt(texture.image!, this._x, this._y + 1);
+                this._texture.drawTextureAt(texture, this._x - 1, this._y);
+                this._texture.drawTextureAt(texture, this._x + 1, this._y);
+                this._texture.drawTextureAt(texture, this._x, this._y - 1);
+                this._texture.drawTextureAt(texture, this._x, this._y + 1);
             }
 
-            this._texture.drawTextureAt(texture.image!, this._x, this._y);
+            this._texture.drawTextureAt(texture, this._x, this._y);
 
             this._innerTextureInfos[texture.getId()] = {
                 x: this._x,
@@ -246,7 +246,18 @@ export class DynamicAtlasTexture extends Texture2D {
      * @param {Number} x
      * @param {Number} y
      */
-    public drawTextureAt (image: ImageAsset, x: number, y: number): void {
+    public drawTextureAt (texture: Texture2D, x: number, y: number): void;
+    public drawTextureAt (image: ImageAsset, x: number, y: number): void;
+
+    public drawTextureAt (imageOrTexture: ImageAsset | Texture2D, x: number, y: number): void {
+        if (imageOrTexture instanceof ImageAsset) {
+            this.drawTextureAtByImage(imageOrTexture, x, y);
+        } else {
+            this.drawTextureAtByTexture(imageOrTexture, x, y);
+        }
+    }
+
+    private drawTextureAtByImage (image: ImageAsset, x: number, y: number): void {
         const gfxTexture = this.getGFXTexture();
         if (!image || !gfxTexture) {
             return;
@@ -264,5 +275,26 @@ export class DynamicAtlasTexture extends Texture2D {
         region.texExtent.width = image.width;
         region.texExtent.height = image.height;
         gfxDevice.copyTexImagesToTexture([image.data as HTMLCanvasElement], gfxTexture, [region]);
+    }
+
+    private drawTextureAtByTexture (texture: Texture2D, x: number, y: number): void {
+        const dstDfxTexture = this.getGFXTexture();
+        if (!texture || !dstDfxTexture) {
+            return;
+        }
+
+        const gfxDevice = this._getGFXDevice();
+        if (!gfxDevice) {
+            warn('Unable to get device');
+            return;
+        }
+
+        const srcGfxTexture = texture.getGFXTexture();
+        if (!srcGfxTexture) {
+            warn('No gfx texture found');
+            return;
+        }
+
+        gfxDevice.copyTextureToTexture(srcGfxTexture, dstDfxTexture, x, y, null);
     }
 }
