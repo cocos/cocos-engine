@@ -43,10 +43,16 @@ export class EmptyCommandBuffer extends CommandBuffer {
         this._queue = info.queue;
     }
     public destroy (): void {}
-    public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer): void {}
+    public begin (renderPass?: RenderPass, subpass?: number, frameBuffer?: Framebuffer): void {}
     public end (): void {}
-    public beginRenderPass (renderPass: RenderPass, framebuffer: Framebuffer, renderArea: Readonly<Rect>,
-        clearColors: Readonly<Color[]>, clearDepth: number, clearStencil: number): void {}
+    public beginRenderPass (
+        renderPass: RenderPass,
+        framebuffer: Framebuffer,
+        renderArea: Readonly<Rect>,
+        clearColors: Readonly<Color[]>,
+        clearDepth: number,
+        clearStencil: number,
+    ): void {}
     public endRenderPass (): void {}
     public bindPipelineState (pipelineState: PipelineState): void {}
     public bindDescriptorSet (set: number, descriptorSet: DescriptorSet, dynamicOffsets?: Readonly<number[]>): void {}
@@ -63,9 +69,12 @@ export class EmptyCommandBuffer extends CommandBuffer {
     public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {}
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {}
     public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {}
-    public pipelineBarrier (GeneralBarrier: Readonly<GeneralBarrier>, bufferBarriers?: Readonly<BufferBarrier[]>,
+    public pipelineBarrier (
+        GeneralBarrier: Readonly<GeneralBarrier>,
+        bufferBarriers?: Readonly<BufferBarrier[]>,
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
-        textures?: Readonly<Texture[]>): void {}
+        textures?: Readonly<Texture[]>,
+    ): void {}
     public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {}
 }

@@ -43,13 +43,13 @@ export class Sampler extends GFXObject {
 
     static computeHash (info: Readonly<SamplerInfo>): Filter {
         let hash = info.minFilter;
-        hash |= (info.magFilter << 2);
-        hash |= (info.mipFilter << 4);
-        hash |= (info.addressU << 6);
-        hash |= (info.addressV << 8);
-        hash |= (info.addressW << 10);
+        hash |= ((info.magFilter as number) << 2);
+        hash |= ((info.mipFilter as number) << 4);
+        hash |= ((info.addressU as number) << 6);
+        hash |= ((info.addressV as number) << 8);
+        hash |= ((info.addressW as number) << 10);
         hash |= (info.maxAnisotropy << 12);
-        hash |= (info.cmpFunc << 16);
+        hash |= ((info.cmpFunc as number) << 16);
         return hash;
     }
 
