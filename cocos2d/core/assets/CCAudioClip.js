@@ -78,7 +78,6 @@ var AudioClip = cc.Class({
                     this._audio = value;
                 }
                 if (this._audio) {
-                    this.loaded = true;
                     this.emit('load');
                 }
             },
