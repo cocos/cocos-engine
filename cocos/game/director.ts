@@ -723,10 +723,12 @@ export class Director extends EventTarget {
         }
         // Here we should build the render pipeline.
         const ppl = this._root.customPipeline;
+        const cameras = this._root.cameraList;
+
         ppl.beginSetup();
         const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
-        cclegacy.rendering.dispatchResizeEvents(this._root.cameraList, builder, ppl);
-        builder.setup(this._root.cameraList, ppl);
+        cclegacy.rendering.dispatchResizeEvents(cameras, builder, ppl);
+        builder.setup(cameras, ppl);
         ppl.endSetup();
     }
 

@@ -208,6 +208,9 @@
                 "10f0d9bc-5c9e-4216-9a94-f3a2ff53bb5f"
             ]
         },
+        "legacy-pipeline": {
+            "modules": ["legacy-pipeline"]
+        },
         "websocket": {
             "modules": [],
             "isNativeOnly": true
@@ -248,6 +251,7 @@
                 "cocos/rendering/render-stage.ts": "cocos/rendering/render-stage.jsb.ts",
                 "cocos/rendering/geometry-renderer.ts": "cocos/rendering/geometry-renderer.jsb.ts",
                 "cocos/rendering/custom/index.ts": "cocos/rendering/custom/index.jsb.ts",
+                "cocos/rendering/legacy/index.ts": "cocos/rendering/legacy/index.jsb.ts",
                 "cocos/render-scene/core/native-pools.ts": "cocos/render-scene/core/native-pools.jsb.ts",
                 "cocos/render-scene/core/material-instance.ts": "cocos/render-scene/core/material-instance.jsb.ts",
                 "cocos/render-scene/core/pass.ts": "cocos/render-scene/core/pass.jsb.ts",

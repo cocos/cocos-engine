@@ -1077,8 +1077,12 @@ module.exports = link(mixin({
             description: "启用 XR 功能系统。",
         },
         custom_pipeline: {
-            label: "自定义渲染管线（实验）",
+            label: "自定义渲染管线 (Beta)",
             description: "启用自定义渲染管线。",
+        },
+        legacy_pipeline: {
+            label: "废弃渲染管线 (Deprecated)",
+            description: "启用废弃渲染管线。",
         },
         websocket: {
             label: "WebSocket",

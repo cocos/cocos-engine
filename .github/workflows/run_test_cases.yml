@@ -12,52 +12,54 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
+env:
+  PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+
 jobs:
   Win-RunTestCases:
     if: |
       contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
-      contains(github.event.comment.body, '@cocos-robot run test cases')
+      (
+        contains(github.event.comment.body, '@cocos-robot run test cases') &&
+        contains(fromJson('["OWNER", "MEMBER"]'), github.event.comment.author_association)
+      )
     runs-on: self-hosted-win
 
     steps:
-      - name: Get PR Number
-        id: get_pr
-        shell: pwsh
-        run: |
-          if ("${{ github.event_name }}" -eq "issue_comment") {
-            Write-Host "::set-output name=pr_number::${{ github.event.issue.number }}"
-          }
-          else {
-            Write-Host "::set-output name=pr_number::${{ github.event.pull_request.number }}"
-          }
       - name: Get PR Details
         id: pr_details
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/cocos/cocos-engine/pulls/${{ steps.get_pr.outputs.pr_number }}
+          route: GET /repos/cocos/cocos-engine/pulls/${{ env.PR_NUMBER }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Parse Pull Request
         id: parse_pr
-        shell: pwsh
+        env:
+          details: ${{ steps.pr_details.outputs.data }}
+          last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
-          $pull_request = @"
-          ${{ steps.pr_details.outputs.data }}
-          "@ | ConvertFrom-Json
-          Write-Host $pull_request
-          Write-Host "::set-output name=pr_html_url::$($pull_request.html_url)"
-          Write-Host "::set-output name=pr_author::$($pull_request.user.login)"
-          Write-Host "::set-output name=pr_head_ref::$($pull_request.head.ref)"
-          Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
-          Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
-          Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
-      - name: Check Job Parameter
-        run: |
-          echo "${{ steps.parse_pr.outputs.pr_head_ref }}"
-          echo "${{ steps.parse_pr.outputs.pr_head_sha }}"
-          echo "${{ steps.parse_pr.outputs.pr_base_ref }}"
-          echo "${{ steps.parse_pr.outputs.pr_base_sha }}"
+          pull_request=$(echo "$details" | jq -r '.')
+          
+          pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
+          pr_author=$(echo "$pull_request" | jq -r '.user.login')
+          pr_head_ref=$(echo "$pull_request" | jq -r '.head.ref')
+          pr_head_sha=$(echo "$pull_request" | jq -r '.head.sha')
+          pr_base_ref=$(echo "$pull_request" | jq -r '.base.ref')
+          pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
+          pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
+
+          if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
+            exit 1
+          fi
+          
+          echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
+          echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
+          echo "pr_head_ref=$pr_head_ref" >> $GITHUB_OUTPUT
+          echo "pr_head_sha=$pr_head_sha" >> $GITHUB_OUTPUT
+          echo "pr_base_ref=$pr_base_ref" >> $GITHUB_OUTPUT
+          echo "pr_base_sha=$pr_base_sha" >> $GITHUB_OUTPUT
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
@@ -65,18 +67,21 @@ jobs:
           ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: Checkout rebase
+        env:
+          BASE: ${{ steps.parse_pr.outputs.pr_base_ref }}
+          HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
         run: |
           git config user.email
           git config user.name
           git fetch origin
           git reset --hard   
-          git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
-          git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
-          git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
-          git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
-          git branch -D pull-${{ steps.get_pr.outputs.pr_number }} || true
-          git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
-          git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
+          git checkout origin/$BASE
+          git pull origin $BASE --allow-unrelated-histories
+          git branch -D $BASE
+          git branch $BASE
+          git branch -D pull-$PR_NUMBER || true
+          git fetch origin $HEAD
+          git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
       - name: Download external libraries
         shell: bash
         run: |
@@ -170,44 +175,40 @@ jobs:
     runs-on: self-hosted-mac
 
     steps:
-      - name: Get PR Number
-        id: get_pr
-        shell: pwsh
-        run: |
-          if ("${{ github.event_name }}" -eq "issue_comment") {
-            Write-Host "::set-output name=pr_number::${{ github.event.issue.number }}"
-          }
-          else {
-            Write-Host "::set-output name=pr_number::${{ github.event.pull_request.number }}"
-          }
       - name: Get PR Details
-        id: pr_deatils
+        id: pr_details
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/cocos/cocos-engine/pulls/${{ steps.get_pr.outputs.pr_number }}
+          route: GET /repos/cocos/cocos-engine/pulls/${{ env.PR_NUMBER }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Parse Pull Request
         id: parse_pr
-        shell: pwsh
+        env:
+          details: ${{ steps.pr_details.outputs.data }}
+          last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
-          $pull_request = @"
-          ${{ steps.pr_deatils.outputs.data }}
-          "@ | ConvertFrom-Json
-          Write-Host $pull_request
-          Write-Host "::set-output name=pr_html_url::$($pull_request.html_url)"
-          Write-Host "::set-output name=pr_author::$($pull_request.user.login)"
-          Write-Host "::set-output name=pr_head_ref::$($pull_request.head.ref)"
-          Write-Host "::set-output name=pr_head_sha::$($pull_request.head.sha)"
-          Write-Host "::set-output name=pr_base_ref::$($pull_request.base.ref)"
-          Write-Host "::set-output name=pr_base_sha::$($pull_request.base.sha)"
-      - name: Check Job Parameter
-        run: |
-          echo "${{ steps.parse_pr.outputs.pr_head_ref }}"
-          echo "${{ steps.parse_pr.outputs.pr_head_sha }}"
-          echo "${{ steps.parse_pr.outputs.pr_base_ref }}"
-          echo "${{ steps.parse_pr.outputs.pr_base_sha }}"
+          pull_request=$(echo "$details" | jq -r '.')
+          
+          pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
+          pr_author=$(echo "$pull_request" | jq -r '.user.login')
+          pr_head_ref=$(echo "$pull_request" | jq -r '.head.ref')
+          pr_head_sha=$(echo "$pull_request" | jq -r '.head.sha')
+          pr_base_ref=$(echo "$pull_request" | jq -r '.base.ref')
+          pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
+          pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
+
+          if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
+            exit 1
+          fi
+          
+          echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
+          echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
+          echo "pr_head_ref=$pr_head_ref" >> $GITHUB_OUTPUT
+          echo "pr_head_sha=$pr_head_sha" >> $GITHUB_OUTPUT
+          echo "pr_base_ref=$pr_base_ref" >> $GITHUB_OUTPUT
+          echo "pr_base_sha=$pr_base_sha" >> $GITHUB_OUTPUT
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
@@ -215,15 +216,21 @@ jobs:
           ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
 
       - name: Checkout rebase
+        env:
+          BASE: ${{ steps.parse_pr.outputs.pr_base_ref }}
+          HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
         run: |
+          git config user.email
+          git config user.name
           git fetch origin
-          git reset --hard
-          git checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
-          git pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
-          git branch -D ${{ steps.parse_pr.outputs.pr_base_ref }}
-          git branch ${{ steps.parse_pr.outputs.pr_base_ref }}
-          git fetch origin pull/${{ steps.get_pr.outputs.pr_number }}/head:pull-${{ steps.get_pr.outputs.pr_number }}
-          git merge --ff -s recursive --no-verify -m "PR Test" origin/${{ steps.parse_pr.outputs.pr_base_ref }} pull-${{ steps.get_pr.outputs.pr_number }}
+          git reset --hard   
+          git checkout origin/$BASE
+          git pull origin $BASE --allow-unrelated-histories
+          git branch -D $BASE
+          git branch $BASE
+          git branch -D pull-$PR_NUMBER || true
+          git fetch origin $HEAD
+          git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
       - name: Download external libraries
         shell: bash
         run: |

@@ -70,6 +70,7 @@ async function buildTsEngine () {
             // "dragon-bones",
             // "marionette",
             'custom-pipeline',
+            'legacy-pipeline',
             // "light-probe",
         ],
         mode: 'BUILD',
