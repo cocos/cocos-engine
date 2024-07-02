@@ -168,7 +168,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                 return;
             }
             // TODO: use pal/fs
-            fsUtils.readArrayBuffer(url, (err: Error, arrayBuffer: ArrayBuffer) => {
+            globalThis.fsUtils.readArrayBuffer(url, (err: Error, arrayBuffer: ArrayBuffer) => {
                 if (err) {
                     reject(err);
                     return;
