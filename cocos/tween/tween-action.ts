@@ -413,4 +413,8 @@ export class TweenAction<T extends object> extends ActionInterval {
     progress (start: number, end: number, current: number, t: number): number {
         return current = start + (end - start) * t;
     }
+
+    isUnknownDuration (): boolean {
+        return false;
+    }
 }

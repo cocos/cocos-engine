@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { FiniteTimeAction, Action } from './action';
+import { FiniteTimeAction } from './action';
 import { macro, logID, errorID } from '../../core';
 import { ActionInstant } from './action-instant';
 import type { TweenUpdateCallback } from '../tween';
@@ -46,6 +46,10 @@ class DummyAction extends FiniteTimeAction {
 
     step (dt: number): void {
         // empty
+    }
+
+    isUnknownDuration (): boolean {
+        return false;
     }
 }
 
@@ -123,12 +127,7 @@ export abstract class ActionInterval extends FiniteTimeAction {
         if (this._paused || this._speed === 0) return;
         dt *= this._speed;
         if (this._firstTick) {
-            this._firstTick = false;
             this._elapsed = this._startTime;
-            if (this._startTime > 0) {
-                // _startTime only takes effect in the first tick after tween starts. So reset it to 0 after the first tick.
-                this._startTime = 0;
-            }
         } else this._elapsed += dt;
 
         // this.update((1 > (this._elapsed / this._duration)) ? this._elapsed / this._duration : 1);
@@ -136,6 +135,22 @@ export abstract class ActionInterval extends FiniteTimeAction {
         let t = this._elapsed / (this._duration > 0.0000001192092896 ? this._duration : 0.0000001192092896);
         t = (t < 1 ? t : 1);
         this.update(t > 0 ? t : 0);
+
+        // NOTE: If the action's duration is unknown, the elapsed time should keep at the point of the last frame,
+        // because ActionUnknownDuration will be executed at each frame until its callback returns true.
+        // After ActionUnknownDuration is finished, the isUnknownDuration method will return false
+        // and the elapsed time will go as before.
+        if (this.isUnknownDuration() && !this._firstTick) {
+            this._elapsed -= dt;
+        }
+
+        if (this._firstTick) {
+            this._firstTick = false;
+            if (this._startTime > 0) {
+                // _startTime only takes effect in the first tick after tween starts. So reset it to 0 after the first tick.
+                this._startTime = 0;
+            }
+        }
     }
 
     startWithTarget<T> (target: T | null): void {
@@ -272,7 +287,7 @@ export class Sequence extends ActionInterval {
         super.stop();
     }
 
-    update (dt: number): void {
+    update (t: number): void {
         const locActions = this._actions;
         if (locActions.length === 0) {
             return;
@@ -283,33 +298,38 @@ export class Sequence extends ActionInterval {
         const locSplit = this._split;
         const locLast = this._last;
 
-        if (dt < locSplit) {
+        if (t < locSplit) {
             // action[0]
-            new_t = (locSplit !== 0) ? dt / locSplit : 1;
+            new_t = (locSplit !== 0) ? t / locSplit : 1;
 
             if (found === 0 && locLast === 1 && this._reversed) {
+                const two = locActions[1];
                 // Reverse mode ?
                 // XXX: Bug. this case doesn't contemplate when _last==-1, found=0 and in "reverse mode"
                 // since it will require a hack to know if an action is on reverse mode or not.
                 // "step" should be overriden, and the "reverseMode" value propagated to inner Sequences.
-                locActions[1].update(0);
-                locActions[1].stop();
+                two.update(0);
+                if (two.isUnknownDuration()) return;
+                two.stop();
             }
         } else {
+            const one = locActions[0];
             // action[1]
             found = 1;
-            new_t = (locSplit === 1) ? 1 : (dt - locSplit) / (1 - locSplit);
+            new_t = (locSplit === 1) ? 1 : (t - locSplit) / (1 - locSplit);
 
             if (locLast === -1) {
                 // action[0] was skipped, execute it.
-                locActions[0].startWithTarget(this.target);
-                locActions[0].update(1);
-                locActions[0].stop();
+                one.startWithTarget(this.target);
+                one.update(1);
+                if (one.isUnknownDuration()) return; // Don't stop `one` or update `two` since `one` is `unknown duration`. So just return here.
+                one.stop();
             }
             if (locLast === 0) {
                 // switching to action 1. stop action 0.
-                locActions[0].update(1);
-                locActions[0].stop();
+                one.update(1);
+                if (one.isUnknownDuration()) return;
+                one.stop();
             }
         }
 
@@ -359,6 +379,19 @@ export class Sequence extends ActionInterval {
             }
         }
         return null;
+    }
+
+    isUnknownDuration (): boolean {
+        if (this._actions.length === 0) return false;
+
+        const one = this._actions[0];
+        const two = this._actions[1];
+
+        if (this._last < 1) {
+            return one.isUnknownDuration();
+        }
+
+        return two.isUnknownDuration();
     }
 }
 
@@ -467,6 +500,7 @@ export class Repeat extends ActionInterval {
         if (dt >= locNextDt) {
             while (dt > locNextDt && this._total < locTimes) {
                 locInnerAction.update(1);
+                if (locInnerAction.isUnknownDuration()) return;
                 this._total++;
                 locInnerAction.stop();
                 locInnerAction.startWithTarget(this.target);
@@ -478,6 +512,7 @@ export class Repeat extends ActionInterval {
             if (dt >= 1.0 && this._total < locTimes) {
                 // fix for cocos-creator/fireball/issues/4310
                 locInnerAction.update(1);
+                if (locInnerAction.isUnknownDuration()) return;
                 this._total++;
             }
 
@@ -522,6 +557,11 @@ export class Repeat extends ActionInterval {
      */
     getInnerAction (): FiniteTimeAction | null {
         return this._innerAction;
+    }
+
+    isUnknownDuration (): boolean {
+        if (this._innerAction) { return this._innerAction.isUnknownDuration(); }
+        return false;
     }
 }
 
@@ -649,6 +689,11 @@ export class RepeatForever extends ActionInterval {
     getInnerAction (): ActionInterval | null {
         return this._innerAction;
     }
+
+    isUnknownDuration (): boolean {
+        if (this._innerAction) { return this._innerAction.isUnknownDuration(); }
+        return false;
+    }
 }
 
 /**
@@ -679,6 +724,7 @@ export class Spawn extends ActionInterval {
 
     private _one: FiniteTimeAction | null = null;
     private _two: FiniteTimeAction | null = null;
+    private _finished = false;
 
     constructor (actions?: FiniteTimeAction[]) {
         super();
@@ -759,9 +805,23 @@ export class Spawn extends ActionInterval {
         super.stop();
     }
 
-    update (dt: number): void {
-        if (this._one) this._one.update(dt);
-        if (this._two) this._two.update(dt);
+    update (t: number): void {
+        if (this._one) {
+            if (!this._finished || this._one.isUnknownDuration()) {
+                this._one.update(t);
+            }
+        }
+
+        if (this._two) {
+            if (!this._finished || this._two.isUnknownDuration()) {
+                this._two.update(t);
+            }
+        }
+
+        // FIXME(cjh): Checking whether t is 1 to indicate the spawn finished will cause issues
+        // when `timeScale` is a negative value. Currently, there isn't a good way to check that in sub-actions.
+        // So we suggest developer to use `Tween.reverse(...)` instead of `timeScale < 0` to implement a `reverse` effect.
+        this._finished = t === 1;
     }
 
     reverse (): Spawn {
@@ -809,6 +869,22 @@ export class Spawn extends ActionInterval {
         }
         return null;
     }
+
+    isUnknownDuration (): boolean {
+        const one = this._one;
+        const two = this._two;
+
+        if (one == null || two == null) return false;
+
+        const isOneUnknownTime = one.isUnknownDuration();
+        const isTwoUnknownTime = two.isUnknownDuration();
+
+        if (isOneUnknownTime || isTwoUnknownTime) {
+            if (isOneUnknownTime && isTwoUnknownTime) return true;
+            else if (this._finished) return true;
+        }
+        return false;
+    }
 }
 
 /**
@@ -847,6 +923,10 @@ class DelayTime extends ActionInterval {
         this._cloneDecoration(action);
         action.initWithDuration(this._duration);
         return action;
+    }
+
+    isUnknownDuration (): boolean {
+        return false;
     }
 }
 
@@ -939,6 +1019,10 @@ export class ReverseTime extends ActionInterval {
         if (this._other) this._other.stop();
         super.stop();
     }
+
+    isUnknownDuration (): boolean {
+        return false;
+    }
 }
 
 /**
@@ -975,5 +1059,9 @@ export class ActionCustomUpdate<T extends object, Args extends any[]> extends Ac
 
     reverse (): ActionCustomUpdate<T, Args> {
         return this.clone();
+    }
+
+    isUnknownDuration (): boolean {
+        return false;
     }
 }

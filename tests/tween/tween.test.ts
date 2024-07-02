@@ -4651,3 +4651,133 @@ test('CatmullRom Curve', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('updateUntil 1', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+    const REPEAT_COUNT = 2;
+    let elapsed = 0;
+    let updateUntilSuccessTimes = 0;
+
+    const firstCb = jest.fn(()=>{
+        // console.log(`first`);
+    });
+
+    const finishCb = jest.fn(()=>{
+        // console.log(`second callback`);
+    });
+
+    tween(node)
+        .call(firstCb)
+        .by(1, { position: v3(90, 90, 90) })
+        .updateUntil((target: Node, dt: number, arg0: number, arg1: boolean, arg2: string): boolean => {
+            elapsed += dt;
+            if (elapsed >= 1) {
+                ++updateUntilSuccessTimes;
+                elapsed = 0;
+                return true;
+            }
+            return false;
+        }, 1, false, 'hello')
+        .call(finishCb)
+        .union().id(1)
+        .reverse(1)
+        .union()
+        .repeat(REPEAT_COUNT)
+        .start();
+
+    runFrames(1); // Start
+
+    for (let i = 0; i < REPEAT_COUNT; ++i) {
+        runFrames(60);
+        runFrames(60);
+        runFrames(60);
+        runFrames(60);
+    }
+
+    expect(firstCb).toBeCalledTimes(REPEAT_COUNT * 2);
+    expect(finishCb).toBeCalledTimes(REPEAT_COUNT * 2);
+    expect(updateUntilSuccessTimes).toBe(REPEAT_COUNT * 2);
+
+    director.unregisterSystem(sys);
+});
+
+test('updateUntil 2', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    let elapsed = 0;
+    let updateUntilSuccessTimes = 0;
+
+    const node = new Node();
+    node.setScale(0, 0, 0);
+    const cb = jest.fn(()=>{});
+    const cb2 = jest.fn(()=>{});
+
+    const target2 = { x: 0 };
+
+    tween(node)
+        .delay(1)
+        .sequence(
+            tween(node).parallel(
+                tween(node).by(1, { position: v3(90, 90, 90) }).call(cb),
+                tween(node).updateUntil((target: Node, dt: number, arg0: number, arg1: boolean, arg2: string): boolean => {
+                    elapsed += dt;
+                    if (elapsed >= 2) {
+                        ++updateUntilSuccessTimes;
+                        elapsed = 0;
+                        return true;
+                    }
+                    return false;
+                }, 1, false, 'hello'),
+                tween(node).by(3, { scale: v3(30, 30, 30) })
+            ),
+            tween(node).call(cb2),
+            tween(target2).by(1, { x: 100 }),
+        )
+        .updateUntil((target: Node, dt: number, arg0: number, arg1: boolean, arg2: string): boolean => {
+            elapsed += dt;
+            if (elapsed >= 2) {
+                ++updateUntilSuccessTimes;
+                elapsed = 0;
+                return true;
+            }
+            return false;
+        }, 2, true, 'world')
+        .start();
+
+    runFrames(1); // Start
+
+    runFrames(60); // Delay 1s
+
+    runFrames(60); // by
+
+    expect(node.position.equals(v3(90, 90, 90))).toBeTruthy();
+    expect(node.scale.equals(v3(10, 10, 10))).toBeTruthy();
+
+    runFrames(1);
+    expect(cb).toBeCalledTimes(1);
+
+    runFrames(60-1); // updateUntil
+
+    expect(cb).toBeCalledTimes(1);
+    expect(updateUntilSuccessTimes).toBe(1);
+    expect(cb2).toBeCalledTimes(0);
+    expect(node.scale.equals(v3(20, 20, 20))).toBeTruthy();
+    runFrames(60);
+    expect(node.scale.equals(v3(30, 30, 30))).toBeTruthy();
+    runFrames(1);
+    expect(cb2).toBeCalledTimes(1);
+
+    runFrames(60); // by
+    expect(target2.x).toBe(100);
+
+    runFrames(120) // updateUnitl 2
+    expect(updateUntilSuccessTimes).toBe(2);
+
+    director.unregisterSystem(sys);
+});

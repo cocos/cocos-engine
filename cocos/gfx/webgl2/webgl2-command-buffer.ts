@@ -60,6 +60,7 @@ import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGL2DeviceManager } from './webgl2-define';
+import { error } from '../../core';
 
 export class WebGL2CommandBuffer extends CommandBuffer {
     public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
@@ -87,7 +88,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         this._cmdAllocator.clearCmds(this.cmdPackage);
     }
 
-    public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer): void {
+    public begin (renderPass?: RenderPass, subpass?: number, frameBuffer?: Framebuffer): void {
         this._cmdAllocator.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
@@ -307,7 +308,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'draw\' must be recorded inside a render pass.');
+            error('Command \'draw\' must be recorded inside a render pass.');
         }
     }
 
@@ -342,7 +343,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 this.cmdPackage.cmds.push(WebGL2Cmd.UPDATE_BUFFER);
             }
         } else {
-            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            error('Command \'updateBuffer\' must be recorded outside a render pass.');
         }
     }
 
@@ -362,7 +363,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
                 this.cmdPackage.cmds.push(WebGL2Cmd.COPY_BUFFER_TO_TEXTURE);
             }
         } else {
-            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
         }
     }
 

@@ -19,10 +19,8 @@ jobs:
   Win-RunTestCases:
     if: |
       contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
-      (
-        contains(github.event.comment.body, '@cocos-robot run test cases') &&
-        contains(fromJson('["OWNER", "MEMBER"]'), github.event.comment.author_association)
-      )
+      contains(github.event.comment.body, '@cocos-robot run test cases')
+
     runs-on: self-hosted-win
 
     steps:
@@ -40,7 +38,7 @@ jobs:
           details: ${{ steps.pr_details.outputs.data }}
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
-          pull_request=$(echo "$details | jq -r '.')
+          pull_request=$(echo "$details" | jq -r '.')
           
           pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
           pr_author=$(echo "$pull_request" | jq -r '.user.login')
@@ -80,7 +78,7 @@ jobs:
           git branch -D $BASE
           git branch $BASE
           git branch -D pull-$PR_NUMBER || true
-          git fetch origin $HEAD
+          git fetch origin $HEAD:pull-$PR_NUMBER
           git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
       - name: Download external libraries
         shell: bash
@@ -189,7 +187,7 @@ jobs:
           details: ${{ steps.pr_details.outputs.data }}
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
-          pull_request=$(echo "$details | jq -r '.')
+          pull_request=$(echo "$details" | jq -r '.')
           
           pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
           pr_author=$(echo "$pull_request" | jq -r '.user.login')
@@ -229,7 +227,7 @@ jobs:
           git branch -D $BASE
           git branch $BASE
           git branch -D pull-$PR_NUMBER || true
-          git fetch origin $HEAD
+          git fetch origin $HEAD:pull-$PR_NUMBER
           git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
       - name: Download external libraries
         shell: bash

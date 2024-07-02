@@ -33,7 +33,7 @@ export class EffectSettings {
         }
         return new Promise((resolve, reject) => {
             if (!HTML5 && !path.startsWith('http')) {
-                fsUtils.readArrayBuffer(path, (err: Error, arrayBuffer: ArrayBuffer) => {
+                globalThis.fsUtils.readArrayBuffer(path, (err: Error, arrayBuffer: ArrayBuffer) => {
                     if (err) {
                         reject(err);
                         return;

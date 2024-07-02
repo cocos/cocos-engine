@@ -501,8 +501,7 @@ export class WebGLCmdDraw extends WebGLCmdObject {
         super(WebGLCmd.DRAW);
     }
 
-    public clear (): void {
-    }
+    public clear (): void {}
 }
 
 export class WebGLCmdUpdateBuffer extends WebGLCmdObject {

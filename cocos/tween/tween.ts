@@ -29,6 +29,7 @@ import {
     Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
 } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, CallFuncCallback } from './actions/action-instant';
+import { ActionUnknownDuration } from './actions/action-unknown-duration';
 import { Action, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { IInternalTweenOption, TweenAction } from './tween-action';
@@ -80,6 +81,7 @@ type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
 const notIntervalPrompt = 'the last action is not ActionInterval';
 
 export type TweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
+export type TweenUpdateUntilCallback<T extends object, Args extends any[]> = (target: T, dt: number, ...args: Args) => boolean;
 
 /**
  * @en
@@ -485,8 +487,8 @@ export class Tween<T extends object = any> {
     }
 
     /**
-     * @en Add an custom action.
-     * @zh 添加一个自定义动作。
+     * @en Add a custom action with constant duration.
+     * @zh 添加一个固定时长的自定义动作。
      * @param duration @en The tween time in seconds. @zh 缓动时间，单位为秒。
      * @param cb @en The callback of the current action. @zh 动作回调函数。
      * @param args @en The arguments passed to the callback function. @zh 传递给动作回调函数的参数。
@@ -494,6 +496,19 @@ export class Tween<T extends object = any> {
      */
     update<Args extends any[]> (duration: number, cb: TweenUpdateCallback<T, Args>, ...args: Args): Tween<T> {
         const action = new ActionCustomUpdate<T, Args>(duration, cb, args);
+        this._actions.push(action);
+        return this;
+    }
+
+    /**
+     * @en Add a custom action with unknown duration. If the callback returns true means this action is finished.
+     * @zh 添加一个不确定时长的自定义动作。如果回调函数返回 true，表示当前动作结束。
+     * @param cb @en The callback of the current action. @zh 动作回调函数。如果回调函数返回 true，表示当前动作结束。
+     * @param args @en The arguments passed to the callback function. @zh 传递给动作回调函数的参数。
+     * @return @en The instance itself for easier chaining. @zh 返回该实例本身，以便于链式调用。
+     */
+    updateUntil<Args extends any[]> (cb: TweenUpdateUntilCallback<T, Args>, ...args: Args): Tween<T> {
+        const action = new ActionUnknownDuration<T, Args>(cb, args);
         this._actions.push(action);
         return this;
     }
