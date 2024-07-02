@@ -26,21 +26,12 @@ import { PipelineLayout } from './pipeline-layout';
 import { RenderPass } from './render-pass';
 import { Shader } from './shader';
 import {
-    BlendFactor,
-    BlendOp,
-    ColorMask,
-    ComparisonFunc,
-    CullMode,
     DynamicStateFlagBit,
     DynamicStateFlags,
     GFXObject,
     ObjectType,
-    PolygonMode,
     PrimitiveMode,
-    ShadeModel,
-    StencilOp,
     InputState,
-    Color,
     PipelineBindPoint,
 } from './define';
 import { BlendState, BlendTarget, RasterizerState, DepthStencilState } from './pipeline-sub-state';
