@@ -19,10 +19,8 @@ jobs:
   Win-RunTestCases:
     if: |
       contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
-      (
-        contains(github.event.comment.body, '@cocos-robot run test cases') &&
-        contains(fromJson('["OWNER", "MEMBER"]'), github.event.comment.author_association)
-      )
+      contains(github.event.comment.body, '@cocos-robot run test cases')
+
     runs-on: self-hosted-win
 
     steps:
