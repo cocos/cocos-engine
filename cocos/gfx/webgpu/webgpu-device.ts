@@ -782,4 +782,8 @@ export class WebGPUDevice extends Device {
     public blitFramebuffer (src: Framebuffer, dst: Framebuffer, srcRect: Rect, dstRect: Rect, filter: Filter): void {
         // noop
     }
+
+    public copyTextureToTexture (from: Texture, to: Texture, dx: number, dy: number, fromRegion: Readonly<Rect> | null): void {
+        throw new Error('Method not implemented.');
+    }
 }
