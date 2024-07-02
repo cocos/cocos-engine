@@ -1,0 +1,50 @@
+name: <Web> Interface Post Comment
+on:
+  workflow_run:
+    workflows: ["<Web> Interface check"]
+    types:
+    - completed
+
+permissions:
+  pull-requests: write
+
+jobs:
+  post-pr-comment:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          merge-multiple: true
+          path: ./artifacts
+
+      - name: Display structure of downloaded files
+        run: |
+          ls -R ./artifacts
+          
+      - name: Set PR environment variable
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const pr = Number(fs.readFileSync('./artifacts/interface-check-pr.txt', 'utf8'));
+            core.exportVariable('PR_NUMBER', pr);
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e
+        id: fc
+        with:
+          issue-number: ${{ env.PR_NUMBER }}
+          comment-author: 'github-actions[bot]'
+          body-includes: Interface Check Report
+
+      - name: Update Comment
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ env.PR_NUMBER }}
+          edit-mode: replace
+          body-path: './artifacts/interface-diff.txt'
