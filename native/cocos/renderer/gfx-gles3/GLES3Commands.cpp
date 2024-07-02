@@ -3004,6 +3004,43 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device, GLES3GPUTextureView *gpuTextur
     }
 }
 
+ void cmdFuncGLES3CopyTextureToTexture(GLES3Device *device, GLES3GPUTextureView *srcTV, GLES3GPUTextureView *dstTV, uint32_t dstX, uint32_t dstY, const Rect* srcRect) {
+    const auto *srcGPU = srcTV->gpuTexture;
+    const auto *dstGPU = dstTV->gpuTexture;
+    CC_ASSERT_NONZERO(dstGPU->glTexture);
+    auto x = 0U, y = 0U, w = srcGPU->width, h = srcGPU->height;
+    if (srcRect) {
+        CC_ASSERT_LE(srcRect->x + srcRect->width, srcGPU->width);
+        CC_ASSERT_LE(srcRect->y + srcRect->height, srcGPU->height);
+        x = srcRect->x;
+        y = srcRect->y;
+        w = srcRect->width;
+        h = srcRect->height;
+    }
+    CC_ASSERT_LE(dstX + w, dstGPU->width);
+    CC_ASSERT_LE(dstY + h, dstGPU->height);
+
+    bool isTexture = srcGPU->glTexture;
+    GLuint glResource = isTexture ? srcGPU->glTexture : srcGPU->glRenderbuffer;
+
+    GLuint framebuffer = 0U;
+    auto cache = device->stateCache();
+    GL_CHECK(glGenFramebuffers(1, &framebuffer));
+    if (cache->glReadFramebuffer != framebuffer) {
+        GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer));
+        cache->glReadFramebuffer = framebuffer;
+    }
+    GL_CHECK(glFramebufferTexture2D(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, srcTV->glTarget, glResource, 0));
+
+    GLenum status;
+    GL_CHECK(status = glCheckFramebufferStatus(GL_READ_FRAMEBUFFER));
+    CC_ASSERT_EQ(status, GL_FRAMEBUFFER_COMPLETE);
+ 
+    GL_CHECK(glBindTexture(dstTV->glTarget, dstGPU->glTexture));
+    cache->glTextures[cache->texUint] = dstGPU->glTexture;
+    GL_CHECK(glCopyTexSubImage2D(dstTV->glTarget, 0, dstX, dstY, x, y, w, h));
+}
+
 void cmdFuncGLES3ExecuteCmds(GLES3Device *device, GLES3CmdPackage *cmdPackage) {
     if (!cmdPackage->cmds.size()) return;
 

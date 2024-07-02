@@ -100,6 +100,9 @@ public:
 
     inline void copyTextureToBuffers(Texture *src, BufferSrcList &buffers, const BufferTextureCopyList &regions);
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
+
+    virtual void copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) = 0;
+
     inline void flushCommands(const ccstd::vector<CommandBuffer *> &cmdBuffs);
     inline void acquire(const ccstd::vector<Swapchain *> &swapchains);
 

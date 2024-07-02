@@ -157,5 +157,8 @@ void EmptyDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, co
 void EmptyDevice::getQueryPoolResults(QueryPool *queryPool) {
 }
 
+void EmptyDevice::copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) {
+}
+
 } // namespace gfx
 } // namespace cc

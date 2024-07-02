@@ -3460,3 +3460,48 @@ export function WebGL2CmdFuncBlitTexture (
         cache.glFramebuffer = origDrawFBO;
     }
 }
+
+export function WebGL2CmdFuncCopyTextureToTexture (
+    device: WebGL2Device,
+    srcGPUTextrue: IWebGL2GPUTexture,
+    dstGPUTexture: IWebGL2GPUTexture,
+    dx: number,
+    dy: number,
+    srcRect: Readonly<Rect> | null
+): void {
+    const { gl } = device;
+    const cache = device.stateCache;
+
+    if (dstGPUTexture.glTarget != gl.TEXTURE_2D) {
+        error('Unsupported GL dst texture type, copy texture to texture failed.');
+        return ;
+    }
+
+    let srcX = 0;
+    let srcY = 0;
+    let srcW = srcGPUTextrue.width;
+    let srcH = srcGPUTextrue.height;
+    if (srcRect) {
+        if (srcRect.x + srcRect.width > srcGPUTextrue.width || srcRect.y + srcRect.height > srcGPUTextrue.height) {
+            return ;
+            //error('Unsupported GL dst texture type, copy texture to texture failed.');
+        } 
+        srcX = srcRect.x;
+        srcY = srcRect.y;
+        srcW = srcRect.width;
+        srcH = srcRect.height;
+    }
+    if (dx + srcW > dstGPUTexture.width || dy + srcH > dstGPUTexture.height) return ;
+    const framebuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, srcGPUTextrue.glTarget, srcGPUTextrue.glTexture, 0);
+    const glTexUnit = cache.glTexUnits[cache.texUnit];
+    if (glTexUnit.glTexture != dstGPUTexture.glTexture) {
+        gl.bindTexture(gl.TEXTURE_2D, dstGPUTexture.glTexture);
+        glTexUnit.glTexture = dstGPUTexture.glTexture;
+    }
+    gl.copyTexSubImage2D(gl.TEXTURE_2D, 0, dx, dy, srcX, srcY, srcW, srcH);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    cache.glFramebuffer = null;
+    gl.deleteFramebuffer(framebuffer);
+}

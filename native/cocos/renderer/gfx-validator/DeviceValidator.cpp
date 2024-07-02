@@ -344,6 +344,12 @@ void DeviceValidator::getQueryPoolResults(QueryPool *queryPool) {
     queryPoolValidator->_results = actorQueryPoolValidator->_results;
 }
 
+void DeviceValidator::copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) {
+    auto *textureValidator1 = static_cast<TextureValidator *>(src);
+    auto *textureValidator2 = static_cast<TextureValidator *>(dst);
+    _actor->copyTextureToTexture(textureValidator1->getActor(), textureValidator2->getActor(), dx, dy, rect);
+}
+
 void DeviceValidator::enableAutoBarrier(bool en) {
     _actor->enableAutoBarrier(en);
 }

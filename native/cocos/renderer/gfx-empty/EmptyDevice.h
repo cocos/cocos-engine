@@ -77,7 +77,8 @@ public:
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
     void getQueryPoolResults(QueryPool *queryPool) override;
 
-protected:
+    void copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) override;
+
     static EmptyDevice *instance;
 
     friend class DeviceManager;

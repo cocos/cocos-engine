@@ -387,6 +387,23 @@ void DeviceAgent::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buff
     _mainMessageQueue->kickAndWait();
 }
 
+void DeviceAgent::copyTextureToTexture(Texture *srcTexture, Texture *dstTexture, uint32_t dx, uint32_t dy, const Rect *rect) {
+    //getActor()->copyTextureToTexture(src, dst, dx, dy, rect);
+    ENQUEUE_MESSAGE_6(
+        _mainMessageQueue,
+        DeviceCopyTextureToTexture,
+        actor, getActor(),
+        src, static_cast<TextureAgent *>(srcTexture)->getActor(),
+        dst, static_cast<TextureAgent *>(dstTexture)->getActor(),
+        dx, dx,
+        dy, dy,
+        rect, rect,
+        {
+            actor->copyTextureToTexture(src, dst, dx, dy, rect);
+        });
+    _mainMessageQueue->kickAndWait();
+}
+
 void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!_multithreaded) return; // all command buffers are immediately executed
 

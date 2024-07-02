@@ -617,6 +617,10 @@ void GLES3Device::getQueryPoolResults(QueryPool *queryPool) {
     cmdBuff->getQueryPoolResults(queryPool);
 }
 
+void GLES3Device::copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) {
+    cmdFuncGLES3CopyTextureToTexture(this, static_cast<GLES3Texture *>(src)->gpuTextureView(), static_cast<GLES3Texture *>(dst)->gpuTextureView(), dx, dy, rect);
+}
+
 SampleCount GLES3Device::getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const {
     return static_cast<SampleCount>(cmdFuncGLES3GetMaxSampleCount(this, format, usage, flags));
 }

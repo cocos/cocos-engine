@@ -97,6 +97,9 @@ public:
 
     inline bool isTextureExclusive(const Format &format) const { return _textureExclusive[static_cast<size_t>(format)]; };
     SampleCount getMaxSampleCount(Format format, TextureUsage usage, TextureFlags flags) const override;
+
+    void copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) override;
+
 protected:
     static GLES3Device *instance;
 

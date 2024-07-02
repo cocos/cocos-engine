@@ -244,6 +244,13 @@ void cmdFuncGLES2BlitTexture(GLES2Device *device,
                              uint32_t count,
                              Filter filter);
 
+void cmdFuncGLES2CopyTextureToTexture(GLES2Device *device,
+                                      GLES2GPUTexture *srcTV,
+                                      GLES2GPUTexture *dstTV,
+                                      uint32_t dstX,
+                                      uint32_t dstY,
+                                      const Rect *srcRect);
+
 void cmdFuncGLES2ExecuteCmds(GLES2Device *device, GLES2CmdPackage *cmdPackage);
 
 void cmdFuncGLES2InsertMarker(GLES2Device *device, GLsizei length, const char *marker);

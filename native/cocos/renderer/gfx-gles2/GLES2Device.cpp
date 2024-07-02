@@ -546,5 +546,9 @@ SampleCount GLES2Device::getMaxSampleCount(Format format, TextureUsage usage, Te
     return static_cast<SampleCount>(cmdFuncGLES2GetMaxSampleCount());
 }
 
+void GLES2Device::copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) {
+    cmdFuncGLES2CopyTextureToTexture(this, static_cast<GLES2Texture *>(src)->gpuTexture(), static_cast<GLES2Texture *>(dst)->gpuTexture(), dx, dy, rect);
+}
+
 } // namespace gfx
 } // namespace cc

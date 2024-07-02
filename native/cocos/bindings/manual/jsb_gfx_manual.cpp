@@ -140,6 +140,42 @@ bool js_gfx_Device_copyTextureToBuffers(se::State &s) { // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_gfx_Device_copyTextureToBuffers)
 
+bool js_gfx_Device_copyTextureToTexture(se::State &s) { // NOLINT(readability-identifier-naming)
+    auto *cobj = static_cast<cc::gfx::Device *>(s.nativeThisObject());
+    SE_PRECONDITION2(cobj, false, "Invalid Native Object");
+
+    const auto &args = s.args();
+    size_t argc = args.size();
+    if (argc < 2) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting at least %d", (int)argc, 2);
+        return false;
+    }
+
+    if (argc > 5) {
+        SE_REPORT_ERROR("wrong number of arguments: %d, was expecting at most %d", (int)argc, 5);
+        return false;
+    }
+
+    cc::gfx::Texture *src = nullptr;
+    cc::gfx::Texture *dst = nullptr;
+    uint32_t dx = 0, dy = 0;
+    cc::gfx::Rect *rect = nullptr;
+    CC_UNUSED bool ok = true;
+    ok &= seval_to_native_ptr(args[0], &src);
+    ok &= seval_to_native_ptr(args[1], &dst);
+    if (argc >= 4) {
+        ok &= sevalue_to_native(args[2], &dx, s.thisObject());
+        ok &= sevalue_to_native(args[3], &dy, s.thisObject());        
+    }
+    if (argc == 5) {
+        ok &= seval_to_native_ptr(args[4], &rect);
+    }
+    SE_PRECONDITION2(ok, false, "Error processing arguments");
+    cobj->copyTextureToTexture(src, dst, dx, dy, rect);
+    return true;
+}
+SE_BIND_FUNC(js_gfx_Device_copyTextureToTexture)
+
 bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::gfx::Device *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
@@ -491,6 +527,7 @@ bool register_all_gfx_manual(se::Object *obj) {
     __jsb_cc_gfx_Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_Device_copyBuffersToTexture));
     __jsb_cc_gfx_Device_proto->defineFunction("copyTextureToBuffers", _SE(js_gfx_Device_copyTextureToBuffers));
     __jsb_cc_gfx_Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_Device_copyTexImagesToTexture));
+    __jsb_cc_gfx_Device_proto->defineFunction("copyTextureToTexture", _SE(js_gfx_Device_copyTextureToTexture));
 
     __jsb_cc_gfx_Device_proto->defineFunction("createBuffer", _SE(js_gfx_Device_createBuffer));
     __jsb_cc_gfx_Device_proto->defineFunction("createTexture", _SE(js_gfx_Device_createTexture));

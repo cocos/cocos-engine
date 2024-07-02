@@ -91,6 +91,9 @@ public:
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint32_t count) override;
     void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint32_t count) override;
     void flushCommands(CommandBuffer *const *cmdBuffs, uint32_t count) override;
+
+    void copyTextureToTexture(Texture *src, Texture *dst, uint32_t dx, uint32_t dy, const Rect *rect) override;
+
     void getQueryPoolResults(QueryPool *queryPool) override;
     MemoryStatus &getMemoryStatus() override { return _actor->getMemoryStatus(); }
     uint32_t getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
