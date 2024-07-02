@@ -183,7 +183,7 @@ var cacheManager = {
         caches.sort(function (a, b) {
             return a.lastTime - b.lastTime;
         });
-        // 大于3则清理1/3， 小于等于3则全部清理
+        // cache length above 3 then clear 1/3， or clear all caches
         if(caches.length < 3){
             console.warn("Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.");
         }
