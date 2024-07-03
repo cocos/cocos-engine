@@ -42,8 +42,8 @@ export default class MultiWebSocket {
 
     socketTask.onMessage((res) => {
       if (typeof this.onmessage === 'function') {
-        if (res && res.data && res.isBuffer) {
-          res.data = _utils.base64ToArrayBuffer(res.data)
+        if (res && res.data && res.data.data && res.data.isBuffer) {
+          res.data = _utils.base64ToArrayBuffer(res.data.data)
         }
         this.onmessage(res)
       }
