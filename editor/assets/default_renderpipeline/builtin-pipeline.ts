@@ -591,6 +591,7 @@ if (rendering) {
         private _buildSimplePipeline(
             ppl: rendering.BasicPipeline,
             camera: renderer.scene.Camera,
+            onlyUI: boolean = false
         ): void {
             const width = Math.max(Math.floor(camera.window.width), 1);
             const height = Math.max(Math.floor(camera.window.height), 1);
@@ -604,8 +605,11 @@ if (rendering) {
             const pass = ppl.addRenderPass(width, height, 'default');
             pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
             pass.setViewport(this._viewport);
-            pass.addQueue(QueueHint.NONE)
-                .addScene(camera, SceneFlags.BLEND);
+            if (!onlyUI) {
+                pass.addQueue(QueueHint.NONE)
+                    .addScene(camera, SceneFlags.BLEND);
+            }
+            this._addUIQueue(camera, pass);
         }
 
         private _buildForwardPipeline(
@@ -717,7 +721,11 @@ if (rendering) {
                 lastPass = this._addForwardRadiancePasses(ppl, id, camera,
                     nativeWidth, nativeHeight, mainLight, colorName, depthStencilName);
             }
-
+            const currLayoutName = ppl.layoutGraph.vertexName(lastPass._layoutID);
+            if (currLayoutName !== 'default') {
+                this._buildSimplePipeline(ppl, camera, true);
+                return;
+            }
             // UI size is not scaled, does not have AA
             this._addUIQueue(camera, lastPass);
         }
