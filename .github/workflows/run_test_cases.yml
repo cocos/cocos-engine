@@ -52,6 +52,9 @@ jobs:
           # Convert PR update time to Unix timestamp and compare with the last update time  
           pr_updated_at_timestamp=$(date -d "$pr_updated_at" +%s)  
           last_update_date_timestamp=$(date -d "$last_update_date" +%s)  
+          # Print out the timestamps  
+          echo "PR Updated At Timestamp: $pr_updated_at_timestamp"  
+          echo "Last Update Date Timestamp: $last_update_date_timestamp"
           # Check if the PR has new updates  
           if [[ $pr_updated_at_timestamp -gt $last_update_date_timestamp ]]; then  
            # If there is an update, exit the script 
