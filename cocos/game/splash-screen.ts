@@ -126,13 +126,13 @@ export class SplashScreen {
     }
 
     public init (): Promise<void[]> {
-        let policy: number = 0;
+        let policy: number = ResolutionPolicy.SHOW_ALL;
         if (!EDITOR) {
             const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
             policy = designResolution.policy as number;
         }
         this.settings = {
-            policy: (policy) ?? 0,
+            policy: (policy) ?? ResolutionPolicy.SHOW_ALL,
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
             totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
             watermarkLocation: settings.querySettings<WatermarkLocationType>(Settings.Category.SPLASH_SCREEN, 'watermarkLocation') ?? 'default',
