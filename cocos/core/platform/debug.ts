@@ -25,11 +25,11 @@
 /* eslint-disable no-console */
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
 import debugInfos from '../../../DebugInfos';
-import { legacyCC, ccwindow } from '../global-exports';
+import { legacyCC, ccwindow, VERSION } from '../global-exports';
 
 const ccdocument = ccwindow.document;
 
-const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/develop/EngineErrorMap.md';
+const ERROR_MAP_URL = `https://github.com/cocos/cocos-engine/blob/${VERSION}/EngineErrorMap.md`;
 
 export type StringSubstitution = number | string;
 
