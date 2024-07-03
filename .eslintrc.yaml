@@ -129,14 +129,7 @@ rules:
     '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
     '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
 
-    '@typescript-eslint/no-empty-function': [error, {
-      allow: [
-        private-constructors,
-        protected-constructors,
-        decoratedFunctions,
-        overrideMethods,
-      ]
-    }]
+    '@typescript-eslint/no-empty-function': off # may become useful in some parent classes
 
     '@typescript-eslint/no-unused-vars': off # may become useful in some parent classes
     '@typescript-eslint/no-non-null-assertion': off # sometimes we just know better than the compiler

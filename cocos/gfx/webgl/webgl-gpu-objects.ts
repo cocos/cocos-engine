@@ -341,12 +341,16 @@ export class IWebGLBlitManager {
         this._gpuShader = {
             name: 'Blit Pass',
             blocks: [
-                new UniformBlock(0, 0, `BlitParams`,
+                new UniformBlock(
+                    0,
+                    0,
+                    `BlitParams`,
                     [
                         new Uniform(`tilingOffsetSrc`, Type.FLOAT4, 1),
                         new Uniform(`tilingOffsetDst`, Type.FLOAT4, 1),
                     ],
-                    1),
+                    1,
+                ),
             ],
             samplerTextures: [new UniformSamplerTexture(0, samplerOffset, 'textureSrc', Type.SAMPLER2D, 1)],
             subpassInputs: [],
@@ -538,7 +542,7 @@ export class IWebGLBlitManager {
         descriptor.gpuSampler = filter === Filter.POINT ? this._gpuPointSampler : this._gpuLinearSampler;
 
         const formatInfo = FormatInfos[gpuTextureDst.format];
-        let attachment = gl.COLOR_ATTACHMENT0;
+        let attachment: number = gl.COLOR_ATTACHMENT0;
         if (formatInfo.hasStencil) {
             attachment = gl.DEPTH_STENCIL_ATTACHMENT;
         } else if (formatInfo.hasDepth) {
@@ -582,8 +586,13 @@ export class IWebGLBlitManager {
             this._uniformBuffer[6] = region.dstOffset.x / dstWidth;
             this._uniformBuffer[7] = region.dstOffset.y / dstHeight;
 
-            WebGLCmdFuncUpdateBuffer(device, this._gpuUniformBuffer, this._uniformBuffer, 0,
-                this._uniformBuffer.length * Float32Array.BYTES_PER_ELEMENT);
+            WebGLCmdFuncUpdateBuffer(
+                device,
+                this._gpuUniformBuffer,
+                this._uniformBuffer,
+                0,
+                this._uniformBuffer.length * Float32Array.BYTES_PER_ELEMENT,
+            );
             WebGLCmdFuncBindStates(device, this._gpuPipelineState, this._gpuInputAssembler, [this._gpuDescriptorSet], [], null!);
             WebGLCmdFuncDraw(device, this._drawInfo);
         }
