@@ -26,7 +26,7 @@
 import { JSB } from 'internal:constants';
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Attribute, DRAW_INFO_SIZE, Buffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../gfx';
+    Attribute, Buffer, BufferInfo, Feature, deviceManager } from '../../gfx';
 import { Color } from '../../core';
 import { scene } from '../../render-scene';
 import { Particle } from '../particle';
@@ -119,7 +119,7 @@ export default class ParticleBatchModel extends scene.Model {
                 return;
             }
             this._mesh = mesh;
-            this._vertAttrs = attrs as NonNullable<typeof this._vertAttrs>;
+            this._vertAttrs = attrs as (Attribute & { offset: number })[];
             this._vertAttribSize = 0;
             for (const a of this._vertAttrs) {
                 a.offset = this._vertAttribSize;
@@ -138,7 +138,7 @@ export default class ParticleBatchModel extends scene.Model {
             return;
         }
         this._mesh = mesh;
-        this._vertAttrs = attrs as NonNullable<typeof this._vertAttrs>;
+        this._vertAttrs = attrs as (Attribute & { offset: number })[];
         this._vertAttribSize = 0;
         this._vertAttribSizeStatic = 0;
         for (const a of this._vertAttrs) {
