@@ -1309,36 +1309,7 @@ export function updatePerPassUBO (layout: string, user: RenderData): void {
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
-}
-
-export function mergeSrcToDstDesc (fromDesc, toDesc, isForce = false): number[] {
-    fromDesc.update();
-    const fromGpuDesc = fromDesc.gpuDescriptorSet;
-    const toGpuDesc = toDesc.gpuDescriptorSet;
-    const extResId: number[] = [];
-    if (isForce) {
-        toGpuDesc.gpuDescriptors = fromGpuDesc.gpuDescriptors;
-        toGpuDesc.descriptorIndices = fromGpuDesc.descriptorIndices;
-        return extResId;
-    }
-    for (let i = 0; i < toGpuDesc.gpuDescriptors.length; i++) {
-        const fromRes = fromGpuDesc.gpuDescriptors[i];
-        if (!fromRes) continue;
-        const currRes = toGpuDesc.gpuDescriptors[i];
-        if (!currRes.gpuBuffer && fromRes.gpuBuffer) {
-            currRes.gpuBuffer = fromRes.gpuBuffer;
-            extResId.push(i);
-        } else if ('gpuTextureView' in currRes && !currRes.gpuTextureView) {
-            currRes.gpuTextureView = fromRes.gpuTextureView;
-            currRes.gpuSampler = fromRes.gpuSampler;
-            extResId.push(i);
-        } else if ('gpuTexture' in currRes && !currRes.gpuTexture) {
-            currRes.gpuTexture = fromRes.gpuTexture;
-            currRes.gpuSampler = fromRes.gpuSampler;
-            extResId.push(i);
-        }
-    }
-    return extResId;
+    descriptorSet.update();
 }
 
 const _varianceArray: number[] = [0.0484, 0.187, 0.567, 1.99, 7.41];
