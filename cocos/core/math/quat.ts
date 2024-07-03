@@ -1,5 +1,3 @@
-/* eslint-disable function-call-argument-newline */
-/* eslint-disable function-paren-newline */
 /*
  Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -24,7 +22,8 @@
  THE SOFTWARE.
 */
 
-// eslint-disable function-paren-newline, function-call-argument-newline
+/* eslint-disable function-call-argument-newline */
+/* eslint-disable function-paren-newline */
 
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';

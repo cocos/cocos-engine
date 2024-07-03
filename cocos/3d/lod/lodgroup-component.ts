@@ -23,7 +23,7 @@
 */
 import { EDITOR, JSB } from 'internal:constants';
 import { ccclass, editable, executeInEditMode, menu, serializable, type } from 'cc.decorator';
-import { Vec3, Mat4, geometry, CCInteger, CCFloat, warn } from '../../core';
+import { Vec3, Mat4, geometry, CCInteger, CCFloat, warn, error } from '../../core';
 import { Node } from '../../scene-graph/node';
 import { Component } from '../../scene-graph/component';
 import { MeshRenderer } from '../framework/mesh-renderer';
@@ -205,7 +205,7 @@ export class LOD {
      */
     public setRenderer (index: number, renderer: MeshRenderer): void {
         if (index < 0 || index >= this.rendererCount) {
-            console.error('setRenderer to LOD error, index out of range');
+            error('setRenderer to LOD error, index out of range');
             return;
         }
         this.deleteRenderer(index);
