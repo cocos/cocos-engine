@@ -256,14 +256,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             if (!this._particleSystem) {
                 return;
             }
-            const pm = this._particleSystem[val];
+            const pm = this._particleSystem[val] as IParticleModule;
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
-                    this._updateList[pm.name] = pm;
+                    this._updateList.set(pm.name, pm);
                 }
 
                 if (pm.needAnimate) {
-                    this._animateList[pm.name] = pm;
+                    this._animateList.set(pm.name, pm);
                 }
             }
         });
@@ -271,9 +271,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p = this._animateList.get(PARTICLE_MODULE_ORDER[i]);
             if (p) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 this._runAnimateList.push(p);
             }
         }
@@ -282,20 +281,20 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public enableModule (name: string, val: boolean, pm: IParticleModule): void {
         if (val) {
             if (pm.needUpdate) {
-                this._updateList[pm.name] = pm;
+                this._updateList.set(pm.name, pm);
             }
 
             if (pm.needAnimate) {
-                this._animateList[pm.name] = pm;
+                this._animateList.set(pm.name, pm);
             }
         } else {
-            delete this._animateList[name];
-            delete this._updateList[name];
+            this._animateList.delete(name);
+            this._updateList.delete(name);
         }
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p: IParticleModule = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p = this._animateList.get(PARTICLE_MODULE_ORDER[i]);
             if (p) {
                 this._runAnimateList.push(p);
             }
