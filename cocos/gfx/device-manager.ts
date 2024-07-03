@@ -202,7 +202,7 @@ export class DeviceManager {
     }
 
     private _supportWebGPU (): boolean {
-        return 'gpu' in navigator;
+        return 'gpu' in globalThis.navigator;
     }
 
     private _determineRenderType (renderMode: LegacyRenderMode): RenderType {
