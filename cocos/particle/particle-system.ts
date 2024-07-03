@@ -1377,9 +1377,9 @@ export class ParticleSystem extends ModelRenderer {
             if (this.startSize3D) {
                 Vec3.set(
                     particle.startSize,
-this.startSizeX.evaluate(loopDelta, rand)!,
-this.startSizeY.evaluate(loopDelta, rand)!,
-this.startSizeZ.evaluate(loopDelta, rand)!,
+                    this.startSizeX.evaluate(loopDelta, rand)!,
+                    this.startSizeY.evaluate(loopDelta, rand)!,
+                    this.startSizeZ.evaluate(loopDelta, rand)!,
                 );
             } else {
                 Vec3.set(particle.startSize, this.startSizeX.evaluate(loopDelta, rand)!, 1, 1);

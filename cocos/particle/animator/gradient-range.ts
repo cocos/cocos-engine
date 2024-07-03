@@ -216,7 +216,12 @@ function evaluateHeight (gr: GradientRange): number {
         return 1;
     }
 }
-export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange): { texture: Texture2D; texdata: Uint8Array; } {
+export function packGradientRange (
+    tex: Texture2D | null,
+    data: Uint8Array | null,
+    samples: number,
+    gr: GradientRange,
+): { texture: Texture2D; texdata: Uint8Array; } {
     const height = evaluateHeight(gr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
