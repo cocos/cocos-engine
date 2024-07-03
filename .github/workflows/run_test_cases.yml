@@ -38,26 +38,37 @@ jobs:
           details: ${{ steps.pr_details.outputs.data }}
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         run: |
-          pull_request=$(echo "$details" | jq -r '.')
+          # Convert the JSON string to a PowerShell object 
+          $pull_request = $env:details | ConvertFrom-Json
+          #$pull_request = ConvertFrom-Json -InputObject "${{ env.details }}"
           
-          pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
-          pr_author=$(echo "$pull_request" | jq -r '.user.login')
-          pr_head_ref=$(echo "$pull_request" | jq -r '.head.ref')
-          pr_head_sha=$(echo "$pull_request" | jq -r '.head.sha')
-          pr_base_ref=$(echo "$pull_request" | jq -r '.base.ref')
-          pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
-          pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
-
-          if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
-            exit 1
-          fi
-          
-          echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
-          echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
-          echo "pr_head_ref=$pr_head_ref" >> $GITHUB_OUTPUT
-          echo "pr_head_sha=$pr_head_sha" >> $GITHUB_OUTPUT
-          echo "pr_base_ref=$pr_base_ref" >> $GITHUB_OUTPUT
-          echo "pr_base_sha=$pr_base_sha" >> $GITHUB_OUTPUT
+          # Extract data from the JSON object
+          $pr_html_url = $pull_request.html_url  
+          $pr_author = $pull_request.user.login  
+          $pr_head_ref = $pull_request.head.ref  
+          $pr_head_sha = $pull_request.head.sha  
+          $pr_base_ref = $pull_request.base.ref  
+          $pr_base_sha = $pull_request.base.sha  
+          $pr_updated_at = [datetime]::Parse($pull_request.updated_at)
+          $last_update_date_str = "${{ env.last_update_date }}"  
+          if ($last_update_date_str) {  
+              $last_update_date = [datetime]::Parse($last_update_date_str)  
+          } else {  
+              # Defaults to a date before the current time  
+              $last_update_date = [datetime]::MinValue  
+          }  
+  
+          if ($pr_updated_at -gt $last_update_date) {  
+               Write-Host "PR is updated after the last update date. Exiting..."  
+               exit 1  
+          } 
+          #Output extracted information into GitHub Actions parameters
+          echo "pr_html_url=$pr_html_url" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
+          echo "pr_author=$pr_author" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
+          echo "pr_head_ref=$pr_head_ref" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
+          echo "pr_head_sha=$pr_head_sha" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
+          echo "pr_base_ref=$pr_base_ref" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
+          echo "pr_base_sha=$pr_base_sha" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
