@@ -1,0 +1,184 @@
+name: run test cases (win)
+
+on:
+  pull_request:
+  issue_comment:
+    types: [created, edited]
+
+permissions: read-all
+
+# github.head_ref is only defined on pull_request events
+concurrency:
+  group: ${{ github.workflow }}-${{ github.actor }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+
+jobs:
+  Win-RunTestCases:
+    if: |
+      contains(github.event.pull_request.body, '[X] needs automatic test cases check') ||
+      contains(github.event.comment.body, '@cocos-robot run test cases')
+
+    runs-on: self-hosted-win
+
+    steps:
+      - name: Get PR Details
+        id: pr_details
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/cocos/cocos-engine/pulls/${{ env.PR_NUMBER }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Parse Pull Request
+        id: parse_pr
+        env:
+          details: ${{ steps.pr_details.outputs.data }}
+          last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
+        shell: bash
+        run: |
+          set -x
+          pull_request=$(echo "$details" | jq -r '.')
+          
+          pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
+          pr_author=$(echo "$pull_request" | jq -r '.user.login')
+          pr_head_ref=$(echo "$pull_request" | jq -r '.head.ref')
+          pr_head_sha=$(echo "$pull_request" | jq -r '.head.sha')
+          pr_base_ref=$(echo "$pull_request" | jq -r '.base.ref')
+          pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
+          pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
+
+          # Convert PR update time to Unix timestamp and compare with the last update time  
+          pr_updated_at_timestamp=$(date -d "$pr_updated_at" +%s)  
+          last_update_date_timestamp=$(date -d "$last_update_date" +%s)
+
+          # Print out the timestamps  
+          echo "PR Updated At Timestamp: $pr_updated_at_timestamp"  
+          echo "Last Update Date Timestamp: $last_update_date_timestamp"
+
+          # Check if the PR has new updates  
+          if [[ $pr_updated_at_timestamp -gt $last_update_date_timestamp ]]; then  
+           # If there is an update, exit the script 
+             exit 1
+          fi
+          # If there are no new updates, write the PR details to the output file
+          echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
+          echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
+          echo "pr_head_ref=$pr_head_ref" >> $GITHUB_OUTPUT
+          echo "pr_head_sha=$pr_head_sha" >> $GITHUB_OUTPUT
+          echo "pr_base_ref=$pr_base_ref" >> $GITHUB_OUTPUT
+          echo "pr_base_sha=$pr_base_sha" >> $GITHUB_OUTPUT  
+      - name: Checkout engine
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ steps.parse_pr.outputs.pr_base_ref }}
+
+      - name: Checkout rebase
+        env:
+          BASE: ${{ steps.parse_pr.outputs.pr_base_ref }}
+          HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
+        run: |
+          git config user.email
+          git config user.name
+          git fetch origin
+          git reset --hard   
+          git checkout origin/$BASE
+          git pull origin $BASE --allow-unrelated-histories
+          git branch -D $BASE
+          git branch $BASE
+          git branch -D pull-$PR_NUMBER || true
+          git fetch origin $HEAD:pull-$PR_NUMBER
+          git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
+      - name: Download external libraries
+        shell: bash
+        run: |
+          set -x
+          EXT_VERSION=`node ./.github/workflows/get-native-external-version.js`
+          PRECLONE_EXTERNAL="E:/preclone/cocos-engine-external"
+          if [ ! -d $PRECLONE_EXTERNAL ]; then
+              mkdir -p $PRECLONE_EXTERNAL
+              git clone https://github.com/cocos/cocos-engine-external $PRECLONE_EXTERNAL
+          else
+              echo "directory $PRECLONE_EXTERNAL is ready"
+          fi
+          if [ ! -d native/external ]; then
+              mkdir native/external
+          fi
+          git -C $PRECLONE_EXTERNAL reset --hard
+          git -C $PRECLONE_EXTERNAL fetch --all --prune
+          git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
+      - name: Generate bindings
+        run: |
+          cd ./native/tools/swig-config
+          echo "Create auto-generated jsbinding glue codes."
+          node genbindings.js &&
+          git status
+      - name: npm install
+        run: |
+          npm -v
+          npm install --registry https://registry.npmmirror.com
+      - name: Checkout test-projects
+        shell: bash
+        run: |
+          set -x
+          TEST_PROJECTS_EXTERNAL="E:/pr-test/cocos-test-projects"
+          CCTEST_PLUGINS="E:/pr-test/TestPlugin"
+          if [ ! -d $TEST_PROJECTS_EXTERNAL ]; then
+              mkdir -p $TEST_PROJECTS_EXTERNAL
+              git clone https://github.com/cocos/cocos-test-projects.git $TEST_PROJECTS_EXTERNAL
+          else
+              echo "directory $TEST_PROJECTS_EXTERNAL is ready"
+          fi
+          git -C $TEST_PROJECTS_EXTERNAL reset --hard
+          git -C $TEST_PROJECTS_EXTERNAL fetch --all --prune
+          git -C $TEST_PROJECTS_EXTERNAL checkout origin/${{ steps.parse_pr.outputs.pr_base_ref }}
+          git -C $TEST_PROJECTS_EXTERNAL pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
+          rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
+          7z x -y $CCTEST_PLUGINS/*.zip -o$TEST_PROJECTS_EXTERNAL/extensions/automation-framework
+
+      - name: Run test cases
+        timeout-minutes: 90
+        id: run_test_cases
+        run: |
+          scheduler cicd -p PR-TEST -v ${{ steps.parse_pr.outputs.pr_base_ref }} -g PR-TEST -i "0,1,3" -d  E:\cctest\devices.json -r https://cctest.cocos.org 
+          $JOBID = Get-Content C:\Users\Administrator\AppData\Roaming\npm\node_modules\@cctest\scheduler\logs\PR-TEST\nowJobId.log
+          cd ..
+          pwd
+          python3 -u ./python/main.py  --target=job_editor --jobid=$JOBID
+      - name: Write comment body and issue number to file
+        uses: actions/github-script@v5
+        env:
+          PR_AUTHOR: ${{ steps.parse_pr.outputs.pr_author }}
+          EDITOR_VERSION: ${{ steps.run_test_cases.outputs.editor }}
+          TASK_STATUS: ${{ steps.run_test_cases.outputs.status }}
+          TASK_REPORT: ${{ steps.run_test_cases.outputs.report }}
+          JOB_ID: ${{ steps.run_test_cases.outputs.jobid }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        with:
+          script: |
+            const fs = require('fs');
+            fs.writeFileSync('pr.txt', process.env.PR_NUMBER);
+            fs.writeFileSync('comment.txt', `@${process.env.PR_AUTHOR}, Please check the result of \`run test cases\`:
+            - Test Platform: PR-Test
+            - Editor Version: ${process.env.EDITOR_VERSION}
+            - Task Result: ${process.env.TASK_STATUS}
+            - Task URL: https://cctest.cocos.org/#/reportview/PR-TEST/${process.env.JOB_ID}/-1
+            - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
+            ## Task Details
+            ${process.env.TASK_REPORT}`);
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: pr.txt
+          path: |
+            pr.txt
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: comment.txt
+          path: |
+            comment.txt
+

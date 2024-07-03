@@ -1,7 +1,7 @@
 name: run test cases PR comment
 on:
   workflow_run:
-    workflows: ["run test cases"]
+    workflows: ["run test cases (win)", "run test cases (mac)"]
     types:
     - completed
 
@@ -21,8 +21,7 @@ jobs:
         run: |
           gh run download -R "${{ github.repository }}" --name "pr.txt" "$RUN_ID"
           gh run download -R "${{ github.repository }}" --name "comment.txt" "$RUN_ID"
-          gh run download -R "${{ github.repository }}" --name "commentwin.txt" "$RUN_ID"
-          [ -L pr.txt ] || [ -L comment.txt ] || [ -L commentwin.txt ] && exit 1
+          [ -L pr.txt ] || [ -L comment.txt ] && exit 1
 
           
       - name: Set PR environment variable
@@ -39,8 +38,3 @@ jobs:
           issue-number: ${{ env.PR_NUMBER }}
           body-path: 'comment.txt'
 
-      - name: Update Win Comment
-        uses: peter-evans/create-or-update-comment@v3
-        with:
-          issue-number: ${{ env.PR_NUMBER }}
-          body-path: 'commentwin.txt'
