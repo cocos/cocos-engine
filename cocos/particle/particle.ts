@@ -144,9 +144,14 @@ export interface IParticleModule {
     bindTarget (target: any): void;
     update (space: number, trans: Mat4): void;
     animate (p: Particle, dt?: number): void;
+    get enable (): boolean;
+    set enable (val: boolean);
 }
 
 export abstract class ParticleModuleBase implements IParticleModule {
+    public abstract get enable(): boolean;
+    public abstract set enable(val: boolean);
+
     public target: ParticleSystemRendererBase | null = null;
     public needUpdate = false;
     public needAnimate = true;

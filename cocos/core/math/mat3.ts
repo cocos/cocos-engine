@@ -21,6 +21,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+/* eslint-disable function-paren-newline */
+/* eslint-disable @typescript-eslint/no-this-alias */
 
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
@@ -44,9 +46,7 @@ export class Mat3 extends ValueType {
      */
     public static clone <Out extends IMat3Like> (a: Out): Mat3 {
         return new Mat3(
-            a.m00, a.m01, a.m02,
-            a.m03, a.m04, a.m05,
-            a.m06, a.m07, a.m08,
+            a.m00, a.m01, a.m02, a.m03, a.m04, a.m05, a.m06, a.m07, a.m08,
         );
     }
 
@@ -356,9 +356,15 @@ export class Mat3 extends ValueType {
         Vec3.cross(v3_2, view, v3_1);
         Mat3.set(
             out,
-            v3_1.x, v3_1.y, v3_1.z,
-            v3_2.x, v3_2.y, v3_2.z,
-            view.x, view.y, view.z,
+            v3_1.x,
+            v3_1.y,
+            v3_1.z,
+            v3_2.x,
+            v3_2.y,
+            v3_2.z,
+            view.x,
+            view.y,
+            view.z,
         );
 
         return out;
@@ -764,9 +770,7 @@ export class Mat3 extends ValueType {
     public clone (): Mat3 {
         const t = this;
         return new Mat3(
-            t.m00, t.m01, t.m02,
-            t.m03, t.m04, t.m05,
-            t.m06, t.m07, t.m08,
+            t.m00, t.m01, t.m02, t.m03, t.m04, t.m05, t.m06, t.m07, t.m08,
         );
     }
 
@@ -1017,19 +1021,17 @@ export class Mat3 extends ValueType {
      * @param vec vector to scale by
      */
     public scale (vec: Vec3): Mat3 {
-        const x = vec.x; const y = vec.y;
+        const x = vec.x;
+        const y = vec.y;
 
-        this.m00 = x * this.m00;
-        this.m01 = x * this.m01;
-        this.m02 = x * this.m02;
+        this.m00 *= x;
+        this.m01 *= x;
+        this.m02 *= x;
 
-        this.m03 = y * this.m03;
-        this.m04 = y * this.m04;
-        this.m05 = y * this.m05;
+        this.m03 *= y;
+        this.m04 *= y;
+        this.m05 *= y;
 
-        this.m06 = this.m06;
-        this.m07 = this.m07;
-        this.m08 = this.m08;
         return this;
     }
 

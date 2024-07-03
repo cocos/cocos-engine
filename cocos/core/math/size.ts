@@ -188,7 +188,7 @@ export function size (other: Size): Size;
 export function size (width?: number, height?: number): Size;
 
 export function size (width: Size | number = 0, height = 0): Size {
-    return new Size(width as any, height);
+    return new Size(width as number, height);
 }
 
 legacyCC.size = size;

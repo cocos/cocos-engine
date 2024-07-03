@@ -99,15 +99,15 @@ export class ParticleCuller {
     }
 
     private _initModuleList (): void {
-        _anim_module.forEach((val): void => {
-            const pm = this._particleSystem[val];
+        _anim_module.forEach((val: string): void => {
+            const pm = this._particleSystem[val] as IParticleModule;
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
-                    this._updateList[pm.name] = pm;
+                    this._updateList.set(pm.name, pm);
                 }
 
                 if (pm.needAnimate) {
-                    this._animateList[pm.name] = pm;
+                    this._animateList.set(pm.name, pm);
                 }
             }
         });
@@ -115,7 +115,7 @@ export class ParticleCuller {
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p = this._animateList.get(PARTICLE_MODULE_ORDER[i]);
             if (p) {
                 this._runAnimateList.push(p);
             }
@@ -166,9 +166,12 @@ export class ParticleCuller {
 
             // apply startSize.
             if (ps.startSize3D) {
-                Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!,
+                Vec3.set(
+                    particle.startSize,
+                    ps.startSizeX.evaluate(loopDelta, rand)!,
                     ps.startSizeY.evaluate(loopDelta, rand)!,
-                    ps.startSizeZ.evaluate(loopDelta, rand)!);
+                    ps.startSizeZ.evaluate(loopDelta, rand)!,
+                );
             } else {
                 Vec3.set(particle.startSize, ps.startSizeX.evaluate(loopDelta, rand)!, 1, 1);
                 particle.startSize.y = particle.startSize.x;

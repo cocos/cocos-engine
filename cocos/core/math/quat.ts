@@ -428,10 +428,18 @@ export class Quat extends ValueType {
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
     public static fromAxes<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, xAxis: VecLike, yAxis: VecLike, zAxis: VecLike): Out {
-        Mat3.set(m3_1,
-            xAxis.x, xAxis.y, xAxis.z,
-            yAxis.x, yAxis.y, yAxis.z,
-            zAxis.x, zAxis.y, zAxis.z);
+        Mat3.set(
+            m3_1,
+            xAxis.x,
+            xAxis.y,
+            xAxis.z,
+            yAxis.x,
+            yAxis.y,
+            yAxis.z,
+            zAxis.x,
+            zAxis.y,
+            zAxis.z,
+        );
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }
 
@@ -908,7 +916,7 @@ export function quat (other: Quat): Quat;
 export function quat (x?: number, y?: number, z?: number, w?: number): Quat;
 
 export function quat (x: number | Quat = 0, y = 0, z = 0, w = 1): Quat {
-    return new Quat(x as any, y, z, w);
+    return new Quat(x as number, y, z, w);
 }
 
 legacyCC.quat = quat;

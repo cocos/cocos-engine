@@ -26,7 +26,7 @@ import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.decorator';
 import { AudioPCMDataView, AudioState } from '../../pal/audio/type';
 import { Component } from '../scene-graph/component';
-import { clamp } from '../core';
+import { clamp, warn } from '../core';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 import { Node } from '../scene-graph';
@@ -230,8 +230,7 @@ export class AudioSource extends Component {
     @range([0.0, 1.0])
     @tooltip('i18n:audio.volume')
     set volume (val) {
-        // eslint-disable-next-line no-console
-        if (Number.isNaN(val)) { console.warn('illegal audio volume!'); return; }
+        if (Number.isNaN(val)) { warn('illegal audio volume!'); return; }
         val = clamp(val, 0, 1);
         if (this._player) {
             this._player.volume = val;
@@ -292,8 +291,7 @@ export class AudioSource extends Component {
     public getPCMData (channelIndex: number): Promise<AudioPCMDataView | undefined> {
         return new Promise((resolve) => {
             if (channelIndex !== 0 && channelIndex !== 1) {
-                // eslint-disable-next-line no-console
-                console.warn('Only support channel index 0 or 1 to get buffer');
+                warn('Only support channel index 0 or 1 to get buffer');
                 resolve(undefined);
                 return;
             }
@@ -476,8 +474,7 @@ export class AudioSource extends Component {
      * @param num playback time to jump to.
      */
     set currentTime (num: number) {
-        // eslint-disable-next-line no-console
-        if (Number.isNaN(num)) { console.warn('illegal audio time!'); return; }
+        if (Number.isNaN(num)) { warn('illegal audio time!'); return; }
         num = clamp(num, 0, this.duration);
         if (!this._isLoaded && this.clip) {
             this._operationsBeforeLoading.push({ op: AudioOperationType.SEEK, params: [num] });

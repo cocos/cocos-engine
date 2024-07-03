@@ -25,7 +25,7 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Armature, Bone, EventObject, AnimationState } from '@cocos/dragonbones-js';
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator } from '../core';
+import { Color, Enum, ccenum, errorID, RecyclePool, js, CCObject, EventTarget, cclegacy, _decorator, warn } from '../core';
 import { BlendFactor } from '../gfx';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
 import { AttachUtil } from './AttachUtil';
@@ -154,7 +154,7 @@ export class DragonBoneSocket {
 
 js.setClassAlias(DragonBoneSocket, 'dragonBones.ArmatureDisplay.DragonBoneSocket');
 
-interface BoneIndex extends Number {
+interface BoneIndex extends number {
     _any: number;
 }
 
@@ -354,7 +354,7 @@ export class ArmatureDisplay extends UIRenderer {
         if (this._defaultCacheMode !== AnimationCacheMode.REALTIME) {
             if (this._armature && !ArmatureCache.canCache(this._armature)) {
                 this._defaultCacheMode = AnimationCacheMode.REALTIME;
-                console.warn('Animation cache mode doesn\'t support skeletal nesting');
+                warn('Animation cache mode doesn\'t support skeletal nesting');
                 return;
             }
         }
@@ -1083,7 +1083,7 @@ export class ArmatureDisplay extends UIRenderer {
         }
 
         if (this._cacheMode !== AnimationCacheMode.REALTIME && this.debugBones) {
-            console.warn('Debug bones is invalid in cached mode');
+            warn('Debug bones is invalid in cached mode');
         }
 
         if (this._armature) {

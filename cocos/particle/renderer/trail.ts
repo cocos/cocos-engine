@@ -27,7 +27,7 @@ import { Material } from '../../asset/assets/material';
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { director } from '../../game/director';
 import { AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Device, Attribute, Buffer, BufferInfo, DrawInfo, DRAW_INFO_SIZE } from '../../gfx';
+    Device, Attribute, BufferInfo } from '../../gfx';
 import { Color, Mat4, Quat, toRadian, Vec3, Pool, warnID, cclegacy } from '../../core';
 import { scene } from '../../render-scene';
 import CurveRange from '../animator/curve-range';
@@ -35,6 +35,7 @@ import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
 import { TransformBit } from '../../scene-graph/node-enum';
+import type { ParticleSystem } from '../particle-system';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;
@@ -120,8 +121,12 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
-    // eslint-disable-next-line max-len
-    public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number): void {
+    public iterateElement (
+        target: TrailModule,
+        f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean,
+        p: Particle,
+        dt: number,
+    ): void {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
             if (f(target, this.trailElements[i % this.trailElements.length], p, dt)) {
@@ -176,7 +181,7 @@ export default class TrailModule {
         }
         if (val && !this._enable) {
             this._enable = val;
-            if (this._particleSystem.processor) this._particleSystem.processor.updateTrailMaterial();
+            if (this._particleSystem!.processor) this._particleSystem!.processor.updateTrailMaterial();
         }
         if (val && !this._trailModel) {
             this._createModel();
@@ -314,7 +319,7 @@ export default class TrailModule {
     private _space = Space.World;
 
     @serializable
-    private _particleSystem: any = null;
+    private _particleSystem: ParticleSystem | null = null;
 
     private _minSquaredDistance = 0;
     private _vertSize: number;
@@ -361,7 +366,7 @@ export default class TrailModule {
         this._inited = false;
     }
 
-    public onInit (ps): void {
+    public onInit (ps: ParticleSystem): void {
         this._particleSystem = ps;
         this.minParticleDistance = this._minParticleDistance;
         let burstCount = 0;
@@ -376,7 +381,11 @@ export default class TrailModule {
             warnID(6036);
         }
         this._trailNum = Math.ceil(psTime * Math.ceil(this.lifeTime.getMax()) * 60 * (psRate * duration + burstCount));
-        this._trailSegments = new Pool((): TrailSegment => new TrailSegment(10), Math.ceil(psRate * duration), (obj: TrailSegment): number => obj.trailElements.length = 0);
+        this._trailSegments = new Pool(
+            (): TrailSegment => new TrailSegment(10),
+            Math.ceil(psRate * duration),
+            (obj: TrailSegment): number => obj.trailElements.length = 0,
+        );
         if (this._enable) {
             this.enable = this._enable;
         }
@@ -400,7 +409,7 @@ export default class TrailModule {
             if (this._trailModel.scene) {
                 this._detachFromScene();
             }
-            this._particleSystem._getRenderScene().addModel(this._trailModel);
+            this._particleSystem!._getRenderScene().addModel(this._trailModel);
         }
     }
 
@@ -447,7 +456,8 @@ export default class TrailModule {
 
     public updateMaterial (): void {
         if (this._particleSystem) {
-            this._material = this._particleSystem.getMaterialInstance(1) || this._particleSystem.processor._defaultTrailMat;
+            this._material = this._particleSystem.getMaterialInstance(1)
+                || (this._particleSystem.processor as any)._defaultTrailMat;
             if (this._trailModel) {
                 this._trailModel.setSubModelMaterial(0, this._material!);
             }
@@ -455,11 +465,11 @@ export default class TrailModule {
     }
 
     public update (): void {
-        this._trailLifetime = this.lifeTime.evaluate(this._particleSystem._time, 1)!;
-        if (this.space === Space.World && this._particleSystem._simulationSpace === Space.Local) {
+        this._trailLifetime = this.lifeTime.evaluate(this._particleSystem!.time, 1)!;
+        if (this.space === Space.World && this._particleSystem!.simulationSpace === Space.Local) {
             this._needTransform = true;
-            this._particleSystem.node.getWorldMatrix(this._psTransform);
-            this._particleSystem.node.getWorldRotation(_temp_quat);
+            this._particleSystem!.node.getWorldMatrix(this._psTransform);
+            this._particleSystem!.node.getWorldRotation(_temp_quat);
         } else {
             this._needTransform = false;
         }
@@ -691,14 +701,14 @@ export default class TrailModule {
 
         const trailModel = this._trailModel;
         if (trailModel && this._material) {
-            trailModel.node = trailModel.transform = this._particleSystem.node;
-            trailModel.visFlags = this._particleSystem.visibility;
+            trailModel.node = trailModel.transform = this._particleSystem!.node;
+            trailModel.visFlags = this._particleSystem!.visibility;
             trailModel.initSubModel(0, this._subMeshData, this._material);
             trailModel.enabled = true;
         }
     }
 
-    private _updateTrailElement (module: any, trailEle: ITrailElement, p: Particle, dt: number): boolean {
+    private _updateTrailElement (module: TrailModule, trailEle: ITrailElement, p: Particle, dt: number): boolean {
         trailEle.lifetime += dt;
         if (module.colorFromParticle) {
             trailEle.color.set(p.color);
