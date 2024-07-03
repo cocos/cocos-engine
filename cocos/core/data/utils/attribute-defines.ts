@@ -29,6 +29,8 @@ type GroupOptions = { name: string; } & Partial<{
     style: string;
 }>;
 
+export interface IExposedAttributesUserData extends Record<string, any> { }
+
 export interface IExposedAttributes {
     /**
      * 指定属性的类型。
@@ -146,7 +148,7 @@ export interface IExposedAttributes {
      * @en User custom data, which can be obtained through the `CCClass.attr()` interface.
      * @zh 用户自定义数据，可以通过 `CCClass.attr()` 接口获取自定义数据。
      */
-    userData?: Record<string, any>;
+    userData?: IExposedAttributesUserData;
 
     /**
      * 在允许的情况下，在编辑器中显示为一组单选按钮
