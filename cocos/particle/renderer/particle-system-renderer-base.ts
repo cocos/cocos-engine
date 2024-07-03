@@ -145,4 +145,5 @@ export abstract class ParticleSystemRendererBase {
     public abstract beforeRender (): void;
     public abstract setUseInstance (value: boolean): void;
     public abstract getNoisePreview (out: number[], width: number, height: number): void;
+    public abstract updateAlignSpace (space: number): void;
 }

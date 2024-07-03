@@ -1187,7 +1187,15 @@ export class Mat4 extends ValueType {
      *
      * @return The receiving matrix.
      */
-    public static frustum<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number): Out {
+    public static frustum<Out extends IMat4Like> (
+        out: Out,
+        left: number,
+        right: number,
+        bottom: number,
+        top: number,
+        near: number,
+        far: number,
+    ): Out {
         const rl = 1 / (right - left);
         const tb = 1 / (top - bottom);
         const nf = 1 / (near - far);

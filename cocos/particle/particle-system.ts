@@ -84,7 +84,7 @@ export class ParticleSystem extends ModelRenderer {
         return this._capacity;
     }
 
-    public set capacity (val) {
+    public set capacity (val: number) {
         this._capacity = Math.floor(val > 0 ? val : 0);
         if (this.processor && this.processor.model) {
             this.processor.model.setCapacity(this._capacity);

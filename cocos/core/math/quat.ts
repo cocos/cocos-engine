@@ -142,7 +142,11 @@ export class Quat extends ValueType {
      * @en Quaternion multiplication and save the results to out quaternion, that is a * b.
      * @zh 四元数乘法，即a * b。
      */
-    public static multiply<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2): Out {
+    public static multiply<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (
+        out: Out,
+        a: QuatLike_1,
+        b: QuatLike_2,
+    ): Out {
         const x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
         const y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
         const z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;

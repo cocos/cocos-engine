@@ -38,6 +38,7 @@ import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { isCurveTwoValues } from '../particle-general-function';
 import type { ParticleSystem } from '../particle-system';
+import type ParticleSystemRenderer from './particle-system-renderer-data';
 
 const _tempNodeScale = new Vec4();
 const _tempAttribUV = new Vec3();
@@ -177,8 +178,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
 
-    constructor (info: any) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    constructor (info: ParticleSystemRenderer) {
         super(info);
 
         this._model = null;
@@ -247,7 +247,6 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultTrailMat;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public setNewParticle (p: Particle): void {
     }
 
@@ -303,7 +302,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateMaterialParams();
     }
 
-    public updateAlignSpace (space): void {
+    public updateAlignSpace (space: number): void {
         this._alignSpace = space;
     }
 

@@ -58,7 +58,8 @@ function formatString (...data: unknown[]): string {
 }
 
 /**
- * @en Outputs a log message to the console. The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
+ * @en Outputs a log message to the console.
+ *     The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
  * @zh 向控制台输出一条日志信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
  */
 export function log (...data: unknown[]): void {
@@ -66,28 +67,26 @@ export function log (...data: unknown[]): void {
 }
 
 /**
- * @en
- * Outputs a warning message to the console. The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
- * - In Cocos Creator, warning is yellow.
- * - In Chrome, warning have a yellow warning icon with the message text.
- * @zh
- * 向控制台输出一条警告信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
- * - 在 Cocos Creator 中，警告信息显示是黄色的。<br/>
- * - 在 Chrome 中，警告信息有着黄色的图标以及黄色的消息文本。<br/>
+ * @en Outputs a warning message to the console.
+ *     The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
+ *     - In Cocos Creator, warning is yellow.
+ *     - In Chrome, warning have a yellow warning icon with the message text.
+ * @zh 向控制台输出一条警告信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
+ *     - 在 Cocos Creator 中，警告信息显示是黄色的。<br/>
+ *     - 在 Chrome 中，警告信息有着黄色的图标以及黄色的消息文本。<br/>
  */
 export function warn (...data: unknown[]): void {
     return ccWarn(...data);
 }
 
 /**
- * @en
- * Outputs an error message to the console. The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
- * - In Cocos Creator, error is red.<br/>
- * - In Chrome, error have a red icon along with red message text.<br/>
- * @zh
- * 向控制台输出一条错误信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
- * - 在 Cocos Creator 中，错误信息显示是红色的。<br/>
- * - 在 Chrome 中，错误信息有红色的图标以及红色的消息文本。<br/>
+ * @en Outputs an error message to the console.
+ *     The message may be a single string (with optional substitution values), or it may be any one or more JavaScript objects.
+ *     - In Cocos Creator, error is red.<br/>
+ *     - In Chrome, error have a red icon along with red message text.<br/>
+ * @zh 向控制台输出一条错误信息。这条信息可能是单个字符串（包括可选的替代字符串），也可能是一个或多个对象。
+ *     - 在 Cocos Creator 中，错误信息显示是红色的。<br/>
+ *     - 在 Chrome 中，错误信息有红色的图标以及红色的消息文本。<br/>
  */
 export function error (...data: unknown[]): void {
     return ccError(...data);
