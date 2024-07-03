@@ -23,6 +23,7 @@
 */
 
 /* eslint-disable function-paren-newline */
+/* eslint-disable function-call-argument-newline */
 
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
@@ -57,7 +58,10 @@ export class Mat4 extends ValueType {
      */
     public static clone (a: IMat4Like): Mat4 {
         return new Mat4(
-            a.m00, a.m01, a.m02, a.m03, a.m04, a.m05, a.m06, a.m07, a.m08, a.m09, a.m10, a.m11, a.m12, a.m13, a.m14, a.m15,
+            a.m00, a.m01, a.m02, a.m03,
+            a.m04, a.m05, a.m06, a.m07,
+            a.m08, a.m09, a.m10, a.m11,
+            a.m12, a.m13, a.m14, a.m15,
         );
     }
 
@@ -956,15 +960,9 @@ export class Mat4 extends ValueType {
     public static toEuler<InType extends IMat4Like, VecLike extends IVec3Like> (m: InType, v: VecLike): boolean {
         Mat3.set(
             m3_1,
-            m.m00,
-            m.m01,
-            m.m02,
-            m.m04,
-            m.m05,
-            m.m06,
-            m.m08,
-            m.m09,
-            m.m10,
+            m.m00, m.m01, m.m02,
+            m.m04, m.m05, m.m06,
+            m.m08, m.m09, m.m10,
         );
         return Mat3.toEuler(m3_1, v);
     }
@@ -1754,7 +1752,10 @@ export class Mat4 extends ValueType {
      */
     public clone (): Mat4 {
         return new Mat4(
-            this.m00, this.m01, this.m02, this.m03, this.m04, this.m05, this.m06, this.m07, this.m08, this.m09, this.m10, this.m11, this.m12, this.m13, this.m14, this.m15,
+            this.m00, this.m01, this.m02, this.m03,
+            this.m04, this.m05, this.m06, this.m07,
+            this.m08, this.m09, this.m10, this.m11,
+            this.m12, this.m13, this.m14, this.m15,
         );
     }
 

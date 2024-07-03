@@ -1,3 +1,5 @@
+/* eslint-disable function-call-argument-newline */
+/* eslint-disable function-paren-newline */
 /*
  Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -21,6 +23,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+// eslint-disable function-paren-newline, function-call-argument-newline
 
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
@@ -430,15 +434,9 @@ export class Quat extends ValueType {
     public static fromAxes<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, xAxis: VecLike, yAxis: VecLike, zAxis: VecLike): Out {
         Mat3.set(
             m3_1,
-            xAxis.x,
-            xAxis.y,
-            xAxis.z,
-            yAxis.x,
-            yAxis.y,
-            yAxis.z,
-            zAxis.x,
-            zAxis.y,
-            zAxis.z,
+            xAxis.x, xAxis.y, xAxis.z,
+            yAxis.x, yAxis.y, yAxis.z,
+            zAxis.x, zAxis.y, zAxis.z,
         );
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }

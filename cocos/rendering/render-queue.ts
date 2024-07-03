@@ -66,7 +66,14 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
-        this._passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
+        this._passPool = new RecyclePool<IRenderPass>((): {
+                priority: number;
+                hash: number;
+                depth: number;
+                shaderId: number;
+                subModel: any;
+                passIdx: number;
+            } => ({
             priority: 0,
             hash: 0,
             depth: 0,

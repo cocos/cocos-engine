@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 /* eslint-disable function-paren-newline */
+/* eslint-disable function-call-argument-newline */
 /* eslint-disable @typescript-eslint/no-this-alias */
 
 import { CCClass } from '../data/class';
@@ -46,7 +47,9 @@ export class Mat3 extends ValueType {
      */
     public static clone <Out extends IMat3Like> (a: Out): Mat3 {
         return new Mat3(
-            a.m00, a.m01, a.m02, a.m03, a.m04, a.m05, a.m06, a.m07, a.m08,
+            a.m00, a.m01, a.m02,
+            a.m03, a.m04, a.m05,
+            a.m06, a.m07, a.m08,
         );
     }
 
@@ -356,15 +359,9 @@ export class Mat3 extends ValueType {
         Vec3.cross(v3_2, view, v3_1);
         Mat3.set(
             out,
-            v3_1.x,
-            v3_1.y,
-            v3_1.z,
-            v3_2.x,
-            v3_2.y,
-            v3_2.z,
-            view.x,
-            view.y,
-            view.z,
+            v3_1.x, v3_1.y, v3_1.z,
+            v3_2.x, v3_2.y, v3_2.z,
+            view.x, view.y, view.z,
         );
 
         return out;
@@ -770,7 +767,9 @@ export class Mat3 extends ValueType {
     public clone (): Mat3 {
         const t = this;
         return new Mat3(
-            t.m00, t.m01, t.m02, t.m03, t.m04, t.m05, t.m06, t.m07, t.m08,
+            t.m00, t.m01, t.m02,
+            t.m03, t.m04, t.m05,
+            t.m06, t.m07, t.m08,
         );
     }
 
