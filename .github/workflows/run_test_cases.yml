@@ -39,8 +39,8 @@ jobs:
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         shell: bash
         run: |
+          set -x
           pull_request=$(echo "$details" | jq -r '.')
-          
           pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
           pr_author=$(echo "$pull_request" | jq -r '.user.login')
           pr_head_ref=$(echo "$pull_request" | jq -r '.head.ref')
@@ -56,10 +56,10 @@ jobs:
           echo "PR Updated At Timestamp: $pr_updated_at_timestamp"  
           echo "Last Update Date Timestamp: $last_update_date_timestamp"
           # Check if the PR has new updates  
-          if [[ $pr_updated_at_timestamp -gt $last_update_date_timestamp ]]; then  
-           # If there is an update, exit the script 
-             exit 1  
-          fi
+          # if [[ $pr_updated_at_timestamp -gt $last_update_date_timestamp ]]; then  
+          #  # If there is an update, exit the script 
+          #    exit 1  
+          # fi
           # If there are no new updates, write the PR details to the output file
           echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
           echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
@@ -205,10 +205,12 @@ jobs:
           pr_base_ref=$(echo "$pull_request" | jq -r '.base.ref')
           pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
           pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
+          echo "PR Updated At Timestamp: $pr_updated_at"  
+          echo "Last Update Date Timestamp: $last_update_date"
 
-          if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
-            exit 1
-          fi
+          # if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
+          #   exit 1
+          # fi
           
           echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
           echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
