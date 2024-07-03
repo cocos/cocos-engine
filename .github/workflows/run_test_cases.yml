@@ -49,10 +49,15 @@ jobs:
           pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
           pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
 
-          if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
-            exit 1
+          # Convert PR update time to Unix timestamp and compare with the last update time  
+          pr_updated_at_timestamp=$(date -d "$pr_updated_at" +%s)  
+          last_update_date_timestamp=$(date -d "$last_update_date" +%s)  
+          # Check if the PR has new updates  
+          if [[ $pr_updated_at_timestamp -gt $last_update_date_timestamp ]]; then  
+           # If there is an update, exit the script 
+             exit 1  
           fi
-          
+          # If there are no new updates, write the PR details to the output file
           echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
           echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
           echo "pr_head_ref=$pr_head_ref" >> $GITHUB_OUTPUT
