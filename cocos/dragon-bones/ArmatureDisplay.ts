@@ -154,7 +154,8 @@ export class DragonBoneSocket {
 
 js.setClassAlias(DragonBoneSocket, 'dragonBones.ArmatureDisplay.DragonBoneSocket');
 
-interface BoneIndex extends number {
+// eslint-disable-next-line @typescript-eslint/ban-types
+interface BoneIndex extends Number {
     _any: number;
 }
 
@@ -282,7 +283,7 @@ export class ArmatureDisplay extends UIRenderer {
     get _defaultArmatureIndex (): DefaultArmaturesEnum {
         return this._defaultArmatureIndexValue;
     }
-    set _defaultArmatureIndex (value) {
+    set _defaultArmatureIndex (value: DefaultArmaturesEnum) {
         this._defaultArmatureIndexValue = value;
         let armatureName = '';
         if (this.dragonAsset) {

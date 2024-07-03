@@ -43,7 +43,8 @@ export class Size extends ValueType {
      * @param from Original Size.
      * @param to Target Size.
      * @param ratio The interpolation coefficient.The range is [0,1].
-     * @returns A vector consisting of linear interpolation of the width and height of the current size to the width and height of the target size at a specified interpolation ratio, respectively.
+     * @return A vector consisting of linear interpolation of the width and height of the current size
+     *         to the width and height of the target size at a specified interpolation ratio, respectively.
      */
     public static lerp <Out extends ISizeLike> (out: Out, from: Out, to: Out, ratio: number): Out {
         out.width = from.width + (to.width - from.width) * ratio;
