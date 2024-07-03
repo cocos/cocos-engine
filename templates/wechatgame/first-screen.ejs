@@ -95,7 +95,8 @@ let useLogo = <%= useLogo%>;
 let useDefaultLogo = <%= useDefaultLogo%>;
 let logoName = '<%= logoName %>';
 let bgName = '<%= bgName %>';
-let policy = '<%= policy %>';
+let fitWidth = <%= fitWidth %>;
+let fitHeight = <%= fitHeight %>;
 
 function initShaders(vshader, fshader) {
     return createProgram(vshader, fshader);
@@ -224,35 +225,31 @@ function updateSloganVertexBuffer() {
 function updateBgVertexBuffer() {
     let widthRatio = 1;
     let heightRatio = 1;
-    if(policy === 4) {
+    if(fitWidth && !fitHeight) {
         widthRatio = canvas.width;
         heightRatio = (canvas.width / bg.width) * bg.height;
-    } else if(policy === 3) {
+    } else if(!fitWidth && fitHeight) {
         widthRatio = (canvas.height / bg.height) * bg.width;
         heightRatio = canvas.height;
-    } else if(policy === 2) {
+    } else if(fitWidth && fitHeight) {
         if(canvas.width > canvas.height) {
             widthRatio = (canvas.height / bg.height) * bg.width;
             heightRatio = canvas.height;
-            console.log('qqqq    1');
         } else {
             widthRatio = canvas.width;
             heightRatio = (canvas.width / bg.width) * bg.height;
-            console.log('qqqq    2');
         }
-    } else if(policy === 1) {
+    } else if(!fitWidth && !fitHeight) {
         if((bg.width / bg.height) > (canvas.width / canvas.height)) {
             widthRatio = canvas.width;
             heightRatio = (canvas.width / bg.width) * bg.height;
-            console.log('qqqq    3');
         } else {
             widthRatio = (canvas.height / bg.height) * bg.width;
             heightRatio = canvas.height;
-            console.log('qqqq    4');
         }
     } else {
         widthRatio = canvas.width;
-        widthRatio = canvas.height;
+        heightRatio = canvas.height;
     }
     widthRatio /= canvas.width;
     heightRatio /= canvas.height;
