@@ -392,7 +392,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         const trailModule = ps._trailModule;
         const trailEnable = trailModule && trailModule.enable;
         if (trailEnable) {
-            trailModule!.update();
+            trailModule.update();
         }
 
         const useGravity = !ps.gravityModifier.isZero();
@@ -417,7 +417,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             if (p.remainingLifetime < 0.0) {
                 if (trailEnable) {
-                    trailModule!.removeParticle(p);
+                    trailModule.removeParticle(p);
                 }
                 this._particles!.removeAt(i);
                 --i;
@@ -457,7 +457,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
             if (trailEnable) {
-                trailModule!.animate(p, dt);
+                trailModule.animate(p, dt);
             }
         }
 
@@ -469,7 +469,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._runAnimateList.forEach((value): void => {
             if (value.name === PARTICLE_MODULE_NAME.NOISE) {
                 const m = value as NoiseModule;
-                m.getNoisePreview(out, this._particleSystem, width, height);
+                m.getNoisePreview(out, this._particleSystem!, width, height);
             }
         });
     }
