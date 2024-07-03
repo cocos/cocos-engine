@@ -45,7 +45,7 @@ type SplashBackgroundType = 'default' | 'color' | 'custom';
 type WatermarkLocationType = 'default' | 'topLeft' | 'topRight' | 'topCenter' | 'bottomLeft' | 'bottomCenter' | 'bottomRight';
 
 interface ISplashSetting {
-    policy: number;
+    policy?: number;
     displayRatio: number;
     totalTime: number;
     watermarkLocation: WatermarkLocationType;
@@ -129,7 +129,9 @@ export class SplashScreen {
         let policy: number = ResolutionPolicy.SHOW_ALL;
         if (!EDITOR) {
             const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
-            policy = designResolution.policy as number;
+            if (designResolution != null) {
+                policy = designResolution.policy as number;
+            }
         }
         this.settings = {
             policy: (policy) ?? ResolutionPolicy.SHOW_ALL,
