@@ -24,7 +24,7 @@ export default class MultiWebSocket {
     }
 
     this.url = url
-    this.readyState = WebSocket.CONNECTING
+    this.readyState = MultiWebSocket.CONNECTING
 
     const socketTask = my.connectSocket({
       url,
@@ -34,7 +34,7 @@ export default class MultiWebSocket {
     this._socketTask = socketTask;
 
     socketTask.onClose((res) => {
-      this.readyState = WebSocket.CLOSED
+      this.readyState = MultiWebSocket.CLOSED
       if (typeof this.onclose === 'function') {
         this.onclose(res)
       }
@@ -50,7 +50,7 @@ export default class MultiWebSocket {
     })
 
     socketTask.onOpen((res) => {
-      this.readyState = WebSocket.OPEN
+      this.readyState = MultiWebSocket.OPEN
       if (typeof this.onopen === 'function') {
         this.onopen(res)
       }
@@ -64,7 +64,7 @@ export default class MultiWebSocket {
   }
 
   close(code, reason) {
-    this.readyState = WebSocket.CLOSING
+    this.readyState = MultiWebSocket.CLOSING
 
     this._socketTask.close({
       code,
