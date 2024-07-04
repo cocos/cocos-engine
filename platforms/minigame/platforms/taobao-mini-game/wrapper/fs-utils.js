@@ -23,14 +23,14 @@
  THE SOFTWARE.
  ****************************************************************************/
 const fs = my.getFileSystemManager ? my.getFileSystemManager() : null;
-const outOfStorageRegExp = "10028";  // not exactly right
+const outOfStorageErrorCode = "10028";  // not exactly right
 
 const fsUtils = {
 
     fs,
 
     isOutOfStorage (errorCode) {
-        return errorCode.toString() == outOfStorageRegExp;
+        return errorCode.toString() === outOfStorageErrorCode;
     },
 
     getUserDataPath () {
