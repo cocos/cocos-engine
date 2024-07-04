@@ -287,8 +287,8 @@ function createDynamicMesh(geometries: IDynamicGeometry[], out?: Mesh): Mesh {
     let maxSubMeshVertices = 0;
     let maxSubMeshIndices = 0;
     for (let i = 0; i < geometries.length; i++) {
-        let geometry: IDynamicGeometry = geometries[i];   
-        maxSubMeshVertices += geometry.positions.length;      
+        const geometry: IDynamicGeometry = geometries[i];
+        maxSubMeshVertices += geometry.positions.length;
         maxSubMeshIndices += (geometry.indices16 ? geometry.indices16.length : geometry.indices32!.length);
 
         if (geometry.positions.length > 0) {
@@ -404,7 +404,7 @@ function createDynamicMesh(geometries: IDynamicGeometry[], out?: Mesh): Mesh {
 
     out.reset(createInfo);
     out.initialize();
-    for(let i=0; i<geometries.length; i++) {
+    for (let i = 0; i < geometries.length; i++) {
         out.updateSubMesh(i, geometries[i]);
     }
     return out;
