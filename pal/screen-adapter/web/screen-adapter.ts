@@ -484,7 +484,7 @@ class ScreenAdapter extends EventTarget {
             if (mediaQueryPortrait.addEventListener) {
                 mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
                 mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
-            } else {
+            } else if (mediaQueryPortrait.addListener){
                 mediaQueryPortrait.addListener(orientationChangeCallback);
                 mediaQueryLandscape.addListener(orientationChangeCallback);
             }
