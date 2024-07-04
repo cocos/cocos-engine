@@ -919,8 +919,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
                 camera.scene,
                 layoutName,
             );
-            if (light && light.type !== LightType.DIRECTIONAL) setShadowUBOLightView(this, camera, light, 0, layoutName);
-            else if (!(sceneFlags & SceneFlags.SHADOW_CASTER)) setShadowUBOView(this, camera, layoutName);
+            if (sceneFlags & SceneFlags.PLANAR_SHADOW) setShadowUBOView(this, camera, layoutName);
             setTextureUBOView(this, camera, this._pipeline);
         }
         const sceneBuilder = pipelinePool.sceneBuilder.add();

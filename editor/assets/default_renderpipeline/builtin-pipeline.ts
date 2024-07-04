@@ -1200,7 +1200,7 @@ if (rendering) {
                     colorName, depthStencilName, depthStencilStoreOp)
                 : this._addForwardMultipleRadiancePasses(ppl, id, camera, width, height, mainLight,
                     colorName, depthStencilName, depthStencilStoreOp);
-
+            this.addPlanarShadowQueues(pass, camera, mainLight);
             // ----------------------------------------------------------------
             // Forward Lighting (Blend)
             // ----------------------------------------------------------------
@@ -1259,10 +1259,17 @@ if (rendering) {
                 camera,
                 this._configs.mobileMaxSpotLightShadowMaps,
             );
-
             return pass;
         }
-
+        public addPlanarShadowQueues(pass: rendering.BasicRenderPassBuilder,
+            camera: renderer.scene.Camera, mainLight: renderer.scene.DirectionalLight | null) {
+            pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'planar-shadow')
+                .addScene(
+                    camera,
+                    SceneFlags.SHADOW_CASTER | SceneFlags.PLANAR_SHADOW | SceneFlags.BLEND,
+                    mainLight
+                );
+        }
         private _addForwardMultipleRadiancePasses(
             ppl: rendering.BasicPipeline,
             id: number,
@@ -1291,7 +1298,6 @@ if (rendering) {
             pass = this.forwardLighting
                 .addLightPasses(colorName, depthStencilName, depthStencilStoreOp,
                     id, width, height, camera, this._viewport, ppl, pass);
-
             return pass;
         }
 
