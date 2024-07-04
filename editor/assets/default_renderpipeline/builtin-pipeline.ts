@@ -1263,7 +1263,7 @@ if (rendering) {
         }
         public addPlanarShadowQueues(pass: rendering.BasicRenderPassBuilder,
             camera: renderer.scene.Camera, mainLight: renderer.scene.DirectionalLight | null) {
-            pass.addQueue(QueueHint.RENDER_TRANSPARENT, 'planar-shadow')
+            pass.addQueue(QueueHint.BLEND, 'planar-shadow')
                 .addScene(
                     camera,
                     SceneFlags.SHADOW_CASTER | SceneFlags.PLANAR_SHADOW | SceneFlags.BLEND,
