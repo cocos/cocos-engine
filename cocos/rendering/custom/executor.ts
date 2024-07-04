@@ -132,9 +132,7 @@ import { VectorGraphColorMap } from './effect';
 import {
     bool,
     getDescriptorSetDataFromLayout,
-    getDescriptorSetDataFromLayoutId,
     getRenderArea,
-    mergeSrcToDstDesc,
     updateGlobalDescBinding,
 } from './define';
 import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
@@ -941,7 +939,7 @@ class DeviceRenderPass implements RecordingInterface {
         this._deviceQueues.set(queue.queueId, queue);
     }
     preRecord (): void {
-        context.descriptorSet = getDescriptorSetDataFromLayout(this.layoutName)!.descriptorSet;
+        context.passDescriptorSet = getDescriptorSetDataFromLayout(this.layoutName)!.descriptorSet;
     }
     protected _applyRenderLayout (input: [string, ComputeView[]]): void {
         const stageName = context.renderGraph.getLayout(this.rasterPassInfo.id);
@@ -977,6 +975,7 @@ class DeviceRenderPass implements RecordingInterface {
         if (!profiler || !profiler.enabled) {
             return;
         }
+        const profilerDesc = context.profilerDescriptorSet;
         const renderPass = this._renderPass;
         const cmdBuff = context.commandBuffer;
         const submodel = profiler.subModels[0];
@@ -996,6 +995,7 @@ class DeviceRenderPass implements RecordingInterface {
         cmdBuff.setViewport(profilerViewport);
         cmdBuff.setScissor(rect);
         cmdBuff.bindPipelineState(pso);
+        cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, profilerDesc);
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, submodel.descriptorSet);
         cmdBuff.bindInputAssembler(ia);
@@ -1025,10 +1025,10 @@ class DeviceRenderPass implements RecordingInterface {
             this.clearDepth,
             this.clearStencil,
         );
-        if (context.descriptorSet) {
+        if (context.passDescriptorSet) {
             cmdBuff.bindDescriptorSet(
                 SetIndex.GLOBAL,
-                context.descriptorSet,
+                context.passDescriptorSet,
             );
         }
 
@@ -1181,7 +1181,7 @@ class DeviceComputePass implements RecordingInterface {
         }
     }
     preRecord (): void {
-        // nothing to do
+        context.passDescriptorSet = getDescriptorSetDataFromLayout(this.layoutName)!.descriptorSet;
     }
     postRecord (): void {
         // nothing to do
@@ -1220,11 +1220,10 @@ class DeviceComputePass implements RecordingInterface {
     // record common buffer
     record (): void {
         const cmdBuff = context.commandBuffer;
-
-        if (context.descriptorSet) {
+        if (context.passDescriptorSet) {
             cmdBuff.bindDescriptorSet(
                 SetIndex.GLOBAL,
-                context.descriptorSet,
+                context.passDescriptorSet,
             );
         }
 
@@ -1330,11 +1329,6 @@ class DeviceRenderScene implements RecordingInterface {
         const queueRenderData = context.renderGraph.getData(queueId)!;
         this._updateGlobal(queueRenderData);
 
-        const layoutName = context.renderGraph.getLayout(rasterId);
-        const descSetData = getDescriptorSetDataFromLayout(layoutName);
-        if (context.descriptorSet) {
-            mergeSrcToDstDesc(descSetData!.descriptorSet, context.descriptorSet, true);
-        }
         this._currentQueue.isUpdateUBO = true;
 
         const batches = this.camera!.scene!.batches;
@@ -1374,7 +1368,6 @@ class DeviceRenderScene implements RecordingInterface {
         const shader = pass.getShaderVariant();
         const devicePass = this._currentQueue.devicePass;
         const screenIa: InputAssembler = this._currentQueue.blitDesc!.screenQuad!.quadIA!;
-        const globalDesc = context.descriptorSet;
         let pso: PipelineState | null = null;
         if (pass !== null && shader !== null && screenIa !== null) {
             pso = PipelineStateManager.getOrCreatePipelineState(
@@ -1413,9 +1406,6 @@ class DeviceRenderScene implements RecordingInterface {
         const sceneId = this.graphScene.sceneID;
         const sceneRenderData = context.renderGraph.getData(sceneId)!;
         if (sceneRenderData) this._updateGlobal(sceneRenderData);
-        const layoutName = context.renderGraph.getLayout(rasterId);
-        const descSetData = getDescriptorSetDataFromLayout(layoutName);
-        mergeSrcToDstDesc(descSetData!.descriptorSet, context.descriptorSet, true);
         this._currentQueue.isUpdateUBO = true;
     }
 
@@ -1731,7 +1721,8 @@ class ExecutorContext {
         this.pools = new ExecutorPools(this);
         this.blit = new BlitInfo(this);
         this.culling = new SceneCulling();
-        this.descriptorSet = descriptorSet;
+        this.passDescriptorSet = descriptorSet;
+        this.profilerDescriptorSet = getDescriptorSetDataFromLayout('default')!.descriptorSet!;
     }
     reset (): void {
         this.culling.clear();
@@ -1768,7 +1759,8 @@ class ExecutorContext {
     width: number;
     height: number;
     cullCamera;
-    descriptorSet: DescriptorSet | null;
+    passDescriptorSet: DescriptorSet | null;
+    profilerDescriptorSet: DescriptorSet;
 }
 
 export class Executor {
