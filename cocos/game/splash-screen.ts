@@ -323,20 +323,20 @@ export class SplashScreen {
                 scaleX = (dh / this.bgImage.height) * this.bgImage.width;
                 scaleY = dh;
             } else if (this.settings.policy === ResolutionPolicy.SHOW_ALL) {
-                if (dw > dh) {
-                    scaleX = (dh / this.bgImage.height) * this.bgImage.width;
-                    scaleY = dh;
-                } else {
+                if ((this.bgImage.width / this.bgHeight) > (dw / dh)) {
                     scaleX = dw;
                     scaleY = (dw / this.bgImage.width) * this.bgImage.height;
+                } else {
+                    scaleX = (dh / this.bgImage.height) * this.bgImage.width;
+                    scaleY = dh;
                 }
             } else if (this.settings.policy === ResolutionPolicy.NO_BORDER) {
                 if ((this.bgImage.width / this.bgImage.height) > (dw / dh)) {
-                    scaleX = dw;
-                    scaleY = (dw / this.bgImage.width) * this.bgImage.height;
-                } else {
                     scaleX = (dh / this.bgImage.height) * this.bgImage.width;
                     scaleY = dh;
+                } else {
+                    scaleX = dw;
+                    scaleY = (dw / this.bgImage.width) * this.bgImage.height;
                 }
             } else {
                 scaleX = dw;
