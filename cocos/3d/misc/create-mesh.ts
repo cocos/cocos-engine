@@ -276,47 +276,51 @@ function getPadding (length: number, align: number): number {
     return 0;
 }
 
-function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions): Mesh {
-    options = options || { maxSubMeshes: 1, maxSubMeshVertices: 1024, maxSubMeshIndices: 1024 };
-
+function createDynamicMesh(geometries: IDynamicGeometry[], out?: Mesh): Mesh {
     const attributes: Attribute[] = [];
     let stream = 0;
-
-    if (geometry.positions.length > 0) {
-        attributes.push(new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, stream++, false, 0));
-    }
-
-    if (geometry.normals && geometry.normals.length > 0) {
-        attributes.push(new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, stream++, false, 0));
-    }
-
-    if (geometry.uvs && geometry.uvs.length > 0) {
-        attributes.push(new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, stream++, false, 0));
-    }
-
-    if (geometry.tangents && geometry.tangents.length > 0) {
-        attributes.push(new Attribute(AttributeName.ATTR_TANGENT, Format.RGBA32F, false, stream++, false, 0));
-    }
-
-    if (geometry.colors && geometry.colors.length > 0) {
-        attributes.push(new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F, false, stream++, false, 0));
-    }
-
-    if (geometry.customAttributes) {
-        for (let k = 0; k < geometry.customAttributes.length; k++) {
-            const ca = geometry.customAttributes[k];
-            const attr = new Attribute();
-            attr.copy(ca.attr);
-            attr.stream = stream++;
-            attributes.push(attr);
-        }
-    }
 
     const vertexBundles: Mesh.IVertexBundle[] = [];
     const primitives: Mesh.ISubMesh[] = [];
     let dataSize = 0;
 
-    for (let i = 0; i < options.maxSubMeshes; i++) {
+    let maxSubMeshVertices = 0;
+    let maxSubMeshIndices = 0;
+    for (let i = 0; i < geometries.length; i++) {
+        let geometry: IDynamicGeometry = geometries[i];   
+        maxSubMeshVertices += geometry.positions.length;      
+        maxSubMeshIndices += (geometry.indices16 ? geometry.indices16.length : geometry.indices32!.length);
+
+        if (geometry.positions.length > 0) {
+            attributes.push(new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, stream++, false, 0));
+        }
+
+        if (geometry.normals && geometry.normals.length > 0) {
+            attributes.push(new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F, false, stream++, false, 0));
+        }
+
+        if (geometry.uvs && geometry.uvs.length > 0) {
+            attributes.push(new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, stream++, false, 0));
+        }
+
+        if (geometry.tangents && geometry.tangents.length > 0) {
+            attributes.push(new Attribute(AttributeName.ATTR_TANGENT, Format.RGBA32F, false, stream++, false, 0));
+        }
+
+        if (geometry.colors && geometry.colors.length > 0) {
+            attributes.push(new Attribute(AttributeName.ATTR_COLOR, Format.RGBA32F, false, stream++, false, 0));
+        }
+
+        if (geometry.customAttributes) {
+            for (let k = 0; k < geometry.customAttributes.length; k++) {
+                const ca = geometry.customAttributes[k];
+                const attr = new Attribute();
+                attr.copy(ca.attr);
+                attr.stream = stream++;
+                attributes.push(attr);
+            }
+        }
+
         const primitive: Mesh.ISubMesh = {
             vertexBundelIndices: [],
             primitiveMode: geometry.primitiveMode || PrimitiveMode.TRIANGLE_LIST,
@@ -325,7 +329,7 @@ function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, 
         // add vertex buffers
         for (const attr of attributes) {
             const formatInfo = FormatInfos[attr.format];
-            const vertexBufferSize = options.maxSubMeshVertices * formatInfo.size;
+            const vertexBufferSize = geometry.positions.length * 3 * formatInfo.size;
 
             const vertexView: Mesh.IBufferView = {
                 offset: dataSize,
@@ -355,7 +359,7 @@ function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, 
 
         if (stride > 0) {
             dataSize += getPadding(dataSize, stride);
-            const indexBufferSize = options.maxSubMeshIndices * stride;
+            const indexBufferSize = stride * (geometry.indices16 ? geometry.indices16.length : geometry.indices32!.length);
 
             const indexView: Mesh.IBufferView = {
                 offset: dataSize,
@@ -372,16 +376,16 @@ function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, 
     }
 
     const dynamicInfo: Mesh.IDynamicInfo = {
-        maxSubMeshes: options.maxSubMeshes,
-        maxSubMeshVertices: options.maxSubMeshVertices,
-        maxSubMeshIndices: options.maxSubMeshIndices,
+        maxSubMeshes: geometries.length,
+        maxSubMeshVertices,
+        maxSubMeshIndices,
     };
 
     const dynamicStruct: Mesh.IDynamicStruct = {
         info: dynamicInfo,
         bounds: [],
     };
-    dynamicStruct.bounds.length = options.maxSubMeshes;
+    dynamicStruct.bounds.length = geometries.length;
 
     const meshStruct: Mesh.IStruct = {
         vertexBundles,
@@ -400,8 +404,9 @@ function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, 
 
     out.reset(createInfo);
     out.initialize();
-    out.updateSubMesh(primitiveIndex, geometry);
-
+    for(let i=0; i<geometries.length; i++) {
+        out.updateSubMesh(i, geometries[i]);
+    }
     return out;
 }
 
@@ -425,14 +430,13 @@ export class MeshUtils {
     /**
      * @en create a dynamic mesh.
      * @zh 创建一个动态网格。
-     * @param primitiveIndex @en sub mesh index @zh 子网格索引
-     * @param geometry @en geometry data use for creating @zh 用于创建的几何数据
+     * @param geometries @en geometry data use for creating @zh 用于创建的几何数据
      * @param out @en output dynamic mesh @zh 输出的动态网格
      * @param options @en options of creating @zh 创建选项
      * @return @en The created dynamic mesh, which is same as out @zh 新创建的动态网格，同 out 参数
      */
-    static createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, out?: Mesh, options?: ICreateDynamicMeshOptions): Mesh {
-        return createDynamicMesh(primitiveIndex, geometry, out, options);
+    static createDynamicMesh (geometries: IDynamicGeometry[], out?: Mesh): Mesh {
+        return createDynamicMesh(geometries, out);
     }
 
     /**
