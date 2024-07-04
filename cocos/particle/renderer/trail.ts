@@ -384,7 +384,7 @@ export default class TrailModule {
         this._trailSegments = new Pool(
             (): TrailSegment => new TrailSegment(10),
             Math.ceil(psRate * duration),
-            (obj: TrailSegment): number => obj.trailElements.length = 0,
+            (obj: TrailSegment): void => { obj.trailElements.length = 0; },
         );
         if (this._enable) {
             this.enable = this._enable;
