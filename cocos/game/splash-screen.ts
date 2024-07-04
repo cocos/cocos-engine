@@ -129,7 +129,7 @@ export class SplashScreen {
         let policy: number = ResolutionPolicy.SHOW_ALL;
         if (!EDITOR) {
             const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
-            if (designResolution != null) {
+            if (designResolution !== null) {
                 policy = designResolution.policy as number;
             }
         }
