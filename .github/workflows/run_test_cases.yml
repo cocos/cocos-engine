@@ -37,38 +37,36 @@ jobs:
         env:
           details: ${{ steps.pr_details.outputs.data }}
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
+        shell: bash
         run: |
-          # Convert the JSON string to a PowerShell object 
-          $pull_request = $env:details | ConvertFrom-Json
-          #$pull_request = ConvertFrom-Json -InputObject "${{ env.details }}"
-          
-          # Extract data from the JSON object
-          $pr_html_url = $pull_request.html_url  
-          $pr_author = $pull_request.user.login  
-          $pr_head_ref = $pull_request.head.ref  
-          $pr_head_sha = $pull_request.head.sha  
-          $pr_base_ref = $pull_request.base.ref  
-          $pr_base_sha = $pull_request.base.sha  
-          $pr_updated_at = [datetime]::Parse($pull_request.updated_at)
-          $last_update_date_str = "${{ env.last_update_date }}"  
-          if ($last_update_date_str) {  
-              $last_update_date = [datetime]::Parse($last_update_date_str)  
-          } else {  
-              # Defaults to a date before the current time  
-              $last_update_date = [datetime]::MinValue  
-          }  
-  
-          if ($pr_updated_at -gt $last_update_date) {  
-               Write-Host "PR is updated after the last update date. Exiting..."  
-               exit 1  
-          } 
-          #Output extracted information into GitHub Actions parameters
-          echo "pr_html_url=$pr_html_url" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
-          echo "pr_author=$pr_author" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
-          echo "pr_head_ref=$pr_head_ref" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
-          echo "pr_head_sha=$pr_head_sha" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
-          echo "pr_base_ref=$pr_base_ref" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
-          echo "pr_base_sha=$pr_base_sha" | Out-File -Append -FilePath $env:GITHUB_OUTPUT  
+          set -x
+          pull_request=$(echo "$details" | jq -r '.')
+          pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
+          pr_author=$(echo "$pull_request" | jq -r '.user.login')
+          pr_head_ref=$(echo "$pull_request" | jq -r '.head.ref')
+          pr_head_sha=$(echo "$pull_request" | jq -r '.head.sha')
+          pr_base_ref=$(echo "$pull_request" | jq -r '.base.ref')
+          pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
+          pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
+
+          # Convert PR update time to Unix timestamp and compare with the last update time  
+          pr_updated_at_timestamp=$(date -d "$pr_updated_at" +%s)  
+          last_update_date_timestamp=$(date -d "$last_update_date" +%s)  
+          # Print out the timestamps  
+          echo "PR Updated At Timestamp: $pr_updated_at_timestamp"  
+          echo "Last Update Date Timestamp: $last_update_date_timestamp"
+          # Check if the PR has new updates  
+          # if [[ $pr_updated_at_timestamp -gt $last_update_date_timestamp ]]; then  
+          #  # If there is an update, exit the script 
+          #    exit 1  
+          # fi
+          # If there are no new updates, write the PR details to the output file
+          echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
+          echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
+          echo "pr_head_ref=$pr_head_ref" >> $GITHUB_OUTPUT
+          echo "pr_head_sha=$pr_head_sha" >> $GITHUB_OUTPUT
+          echo "pr_base_ref=$pr_base_ref" >> $GITHUB_OUTPUT
+          echo "pr_base_sha=$pr_base_sha" >> $GITHUB_OUTPUT  
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
@@ -79,15 +77,19 @@ jobs:
         env:
           BASE: ${{ steps.parse_pr.outputs.pr_base_ref }}
           HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
+        shell: bash
         run: |
+          set -x
           git config user.email
           git config user.name
           git fetch origin
-          git reset --hard   
+          git reset --hard
+          echo "Branch name required: $BASE" 
           git checkout origin/$BASE
           git pull origin $BASE --allow-unrelated-histories
-          git branch -D $BASE
+          git branch -D $BASE 
           git branch $BASE
+          echo "PR_NUMBER: $PR_NUMBER"
           git branch -D pull-$PR_NUMBER || true
           git fetch origin $HEAD:pull-$PR_NUMBER
           git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
@@ -207,10 +209,12 @@ jobs:
           pr_base_ref=$(echo "$pull_request" | jq -r '.base.ref')
           pr_base_sha=$(echo "$pull_request" | jq -r '.base.sha')
           pr_updated_at=$(echo "$pull_request" | jq -r '.updated_at')
+          echo "PR Updated At Timestamp: $pr_updated_at"  
+          echo "Last Update Date Timestamp: $last_update_date"
 
-          if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
-            exit 1
-          fi
+          # if [[ $(date -d "$pr_updated_at" +%s) -gt $(date -d "$last_update_date" +%s) ]]; then
+          #   exit 1
+          # fi
           
           echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
           echo "pr_author=$pr_author" >> $GITHUB_OUTPUT

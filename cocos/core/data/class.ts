@@ -521,7 +521,6 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
         }
         parseSimpleAttribute('slide', 'boolean');
         parseSimpleAttribute('unit', 'string');
-        parseSimpleAttribute('userData', 'object');
         parseSimpleAttribute('radioGroup', 'boolean');
     }
 
@@ -594,6 +593,7 @@ function parseAttributes (constructor: Function, attributes: PropertyStash, clas
     parseSimpleAttribute('min', 'number');
     parseSimpleAttribute('max', 'number');
     parseSimpleAttribute('step', 'number');
+    parseSimpleAttribute('userData', 'object');
 }
 
 CCClass.isArray = function (defaultVal): boolean {
