@@ -474,8 +474,13 @@ class ScreenAdapter extends EventTarget {
                 }
                 notifyOrientationChange(tmpOrientation);
             };
-            mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
-            mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
+            if (mediaQueryPortrait.addEventListener) {
+                mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
+                mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
+            } else {
+                mediaQueryPortrait.addListener(orientationChangeCallback);
+                mediaQueryLandscape.addListener(orientationChangeCallback);
+            }
         } else {
             handleOrientationChange = (): void => {
                 const tmpOrientation = getOrientation();
