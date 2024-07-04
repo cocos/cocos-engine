@@ -609,17 +609,22 @@ export class NodeEventProcessor {
      * @engineInternal
      */
     public _handleEventTouch (eventTouch: EventTouch): boolean | void {
-        switch (eventTouch.type) {
-        case InputEventType.TOUCH_START:
-            return this._handleTouchStart(eventTouch);
-        case InputEventType.TOUCH_MOVE:
-            return this._handleTouchMove(eventTouch);
-        case InputEventType.TOUCH_END:
-            return this._handleTouchEnd(eventTouch);
-        case InputEventType.TOUCH_CANCEL:
-            return this._handleTouchCancel(eventTouch);
-        default:
-            return false;
+        try {
+            switch (eventTouch.type) {
+            case InputEventType.TOUCH_START:
+                return this._handleTouchStart(eventTouch);
+            case InputEventType.TOUCH_MOVE:
+                return this._handleTouchMove(eventTouch);
+            case InputEventType.TOUCH_END:
+                return this._handleTouchEnd(eventTouch);
+            case InputEventType.TOUCH_CANCEL:
+                return this._handleTouchCancel(eventTouch);
+            default:
+                return false;
+            }
+        } catch (err) {
+            this.claimedTouchIdList.length = 0;
+            throw err;
         }
     }
 
