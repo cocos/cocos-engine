@@ -80,8 +80,6 @@ jobs:
         shell: bash
         run: |
           set -x
-          git config user.email
-          git config user.name
           git fetch origin
           git reset --hard
           echo "Branch name required: $BASE" 
@@ -233,8 +231,6 @@ jobs:
           BASE: ${{ steps.parse_pr.outputs.pr_base_ref }}
           HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
         run: |
-          git config user.email
-          git config user.name
           git fetch origin
           git reset --hard   
           git checkout origin/$BASE
