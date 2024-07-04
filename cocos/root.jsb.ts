@@ -245,7 +245,7 @@ rootProto.setRenderPipeline = function (pipeline) {
                 pipeline = cclegacy.legacy_rendering.createDefaultPipeline();
                 pipeline.init();
             } else {
-                log(`No render pipeline`);
+                log(`No render pipeline: legacy-pipeline is not available`);
             }
         }
         ppl = oldSetPipeline.call(this, pipeline);
