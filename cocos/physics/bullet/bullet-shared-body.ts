@@ -513,7 +513,7 @@ export class BulletSharedBody {
         (this.wrappedWorld as any) = null;
         if (this._bodyStruct) {
             const bodyStruct = this._bodyStruct;
-            BulletCache.delWrapper(bodyStruct.body, btCache.BODY_CACHE_NAME);
+            BulletCache.delWrapper(this.id, btCache.BODY_CACHE_NAME);
             bt._safe_delete(bodyStruct.motionState, EBulletType.EBulletTypeMotionState);
             bt._safe_delete(bodyStruct.compound, EBulletType.EBulletTypeCollisionShape);
             bt._safe_delete(bodyStruct.body, EBulletType.EBulletTypeCollisionObject);
