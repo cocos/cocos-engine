@@ -47,7 +47,7 @@ const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
 const _node_euler = new Vec3();
 
-const _anim_module = [
+const _animModule = [
     '_colorOverLifetimeModule',
     '_sizeOvertimeModule',
     '_velocityOvertimeModule',
@@ -251,7 +251,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _initModuleList (): void {
-        _anim_module.forEach((val): void => {
+        _animModule.forEach((val: string): void => {
             if (!this._particleSystem) {
                 return;
             }
@@ -384,7 +384,11 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.doUpdateRotation(pass);
 
         this._updateList.forEach((value: IParticleModule, key: string): void => {
-            value.update(ps.simulationSpace, _tempWorldTrans);
+            // TODO(cjh): Bug here? _updateList is a Map, the old code uses `this._updateList['some_key'] = some_value;`
+            // to do the assignment which forEach will not take care of it.
+            // In order not to change the behavior in this PR ( https://github.com/cocos/cocos-engine/pull/17289 )
+            // We commented the update the particle module temporarily.
+            // value.update(ps.simulationSpace, _tempWorldTrans);
         });
 
         const trailModule = ps._trailModule;
