@@ -436,10 +436,17 @@ class ScreenAdapter extends EventTarget {
             const updateDPRChangeListener = (): void => {
                 const dpr = window.devicePixelRatio;
                 // NOTE: some browsers especially on iPhone doesn't support MediaQueryList
-                window.matchMedia(`(resolution: ${dpr}dppx)`)?.addEventListener?.('change', (): void => {
-                    this.emit('window-resize', this.windowSize.width, this.windowSize.height);
-                    updateDPRChangeListener();
-                }, { once: true });
+                const mediaQueryResolution = window.matchMedia(`(resolution: ${dpr}dppx)`);
+                if (mediaQueryResolution.addEventListener) {
+                    mediaQueryResolution.addEventListener('change', (): void => {
+                        this.emit('window-resize', this.windowSize.width, this.windowSize.height);
+                        updateDPRChangeListener();
+                    }, { once: true });
+                } else if (mediaQueryResolution.addListener) {
+                    mediaQueryResolution.addListener((): void => {
+                        this.emit('window-resize', this.windowSize.width, this.windowSize.height);
+                    });
+                }
             };
             updateDPRChangeListener();
 
@@ -474,8 +481,13 @@ class ScreenAdapter extends EventTarget {
                 }
                 notifyOrientationChange(tmpOrientation);
             };
-            mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
-            mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
+            if (mediaQueryPortrait.addEventListener) {
+                mediaQueryPortrait.addEventListener('change', orientationChangeCallback);
+                mediaQueryLandscape.addEventListener('change', orientationChangeCallback);
+            } else if (mediaQueryPortrait.addListener){
+                mediaQueryPortrait.addListener(orientationChangeCallback);
+                mediaQueryLandscape.addListener(orientationChangeCallback);
+            }
         } else {
             handleOrientationChange = (): void => {
                 const tmpOrientation = getOrientation();
