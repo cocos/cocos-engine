@@ -405,7 +405,7 @@ function createDynamicMesh (primitiveIndex: number, geometry: IDynamicGeometry, 
     return out;
 }
 
-function createDynamicMeshes(geometries: IDynamicGeometry[], out?: Mesh): Mesh {
+function createDynamicMeshes (geometries: IDynamicGeometry[], out?: Mesh): Mesh {
     const attributes: Attribute[] = [];
     let stream = 0;
 
@@ -555,7 +555,7 @@ export class MeshUtils {
     static createMesh (geometry: IGeometry, out?: Mesh, options?: ICreateMeshOptions): Mesh {
         return createMesh(geometry, out, options);
     }
-    
+
     /**
      * @en create a dynamic mesh.
      * @zh 创建一个动态网格。
