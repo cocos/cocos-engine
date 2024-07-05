@@ -53,10 +53,10 @@ jobs:
           echo "PR Updated At Timestamp: $pr_updated_at"  
           echo "Last Update Date Timestamp: $last_update_date"
           # Check if the PR has new updates
-          if [[ $(date -d "$last_update_date" +%s) -gt $(date -d "$pr_updated_at" +%s)]]; then
-             # If there is an update, exit the script 
-             exit 1
-          fi
+          # if [[ $(date -d "$last_update_date" +%s) -gt $(date -d "$pr_updated_at" +%s)]]; then
+          #    # If there is an update, exit the script 
+          #    exit 1
+          # fi
           # If there are no new updates, write the PR details to the output file
           echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
           echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
@@ -210,10 +210,10 @@ jobs:
           echo "PR Updated At Timestamp: $pr_updated_at"  
           echo "Last Update Date Timestamp: $last_update_date"
           # Check if the PR has new updates
-          if [[ $(date -d "$last_update_date" +%s) -gt $(date -d "$pr_updated_at" +%s)]]; then
-             # If there is an update, exit the script 
-             exit 1
-          fi
+          # if [[ $(date -d "$last_update_date" +%s) -gt $(date -d "$pr_updated_at" +%s)]]; then
+          #    # If there is an update, exit the script 
+          #    exit 1
+          # fi
           # If there are no new updates, write the PR details to the output file
           echo "pr_html_url=$pr_html_url" >> $GITHUB_OUTPUT
           echo "pr_author=$pr_author" >> $GITHUB_OUTPUT
