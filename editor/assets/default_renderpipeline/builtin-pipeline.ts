@@ -595,17 +595,44 @@ if (rendering) {
             const width = Math.max(Math.floor(camera.window.width), 1);
             const height = Math.max(Math.floor(camera.window.height), 1);
             const colorName = camera.window.colorName;
+            const depthStencilName = camera.window.depthStencilName;
 
             this._viewport.left = Math.floor(camera.viewport.x * width);
             this._viewport.top = Math.floor(camera.viewport.y * height);
             this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
             this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
 
+            this._clearColor.x = camera.clearColor.x;
+            this._clearColor.y = camera.clearColor.y;
+            this._clearColor.z = camera.clearColor.z;
+            this._clearColor.w = camera.clearColor.w;
+
             const pass = ppl.addRenderPass(width, height, 'default');
-            pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
+
+            // bind output render target
+            if (forwardNeedClearColor(camera)) {
+                pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColor);
+            } else {
+                pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
+            }
+
+            // bind depth stencil buffer
+            if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
+                pass.addDepthStencil(
+                    depthStencilName,
+                    LoadOp.CLEAR,
+                    StoreOp.DISCARD,
+                    camera.clearDepth,
+                    camera.clearStencil,
+                    camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
+                );
+            } else {
+                pass.addDepthStencil(depthStencilName, LoadOp.LOAD, StoreOp.DISCARD);
+            }
+
             pass.setViewport(this._viewport);
-            pass.addQueue(QueueHint.NONE)
-                .addScene(camera, SceneFlags.BLEND);
+            pass.addQueue(QueueHint.BLEND)
+                .addScene(camera, SceneFlags.BLEND | SceneFlags.UI);
         }
 
         private _buildForwardPipeline(
@@ -1146,7 +1173,7 @@ if (rendering) {
                 pass.showStatistics = true;
             }
             pass
-                .addQueue(QueueHint.BLEND)
+                .addQueue(QueueHint.BLEND, 'default', 'default')
                 .addScene(camera, flags);
         }
 

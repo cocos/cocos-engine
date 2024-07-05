@@ -251,9 +251,10 @@ void submitUICommands(
     uint32_t subpassOrPassLayoutID,
     const scene::Camera* camera,
     gfx::CommandBuffer* cmdBuff) {
+    const auto cameraVisFlags = camera->getVisibility();
     const auto& batches = camera->getScene()->getBatches();
     for (auto* batch : batches) {
-        if (!(camera->getVisibility() & batch->getVisFlags())) {
+        if (!(cameraVisFlags & batch->getVisFlags())) {
             continue;
         }
         const auto& passes = batch->getPasses();
