@@ -383,17 +383,17 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void tryBindQueueDescriptorSets(RenderGraph::vertex_descriptor queueID) const {
         auto iter = ctx.renderGraphDescriptorSet.find(queueID);
         if (iter != ctx.renderGraphDescriptorSet.end()) {
-            const auto [passSet, queueSet] = iter->second;
+            const auto& [passSet, queueSet] = iter->second;
             if (passSet) {
                 ctx.cmdBuff->bindDescriptorSet(
                     static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
-                    get<0>(iter->second));
+                    passSet);
             }
-            CC_ENSURES(get<1>(iter->second));
+            CC_ENSURES(queueSet);
             static_assert(static_cast<uint32_t>(pipeline::SetIndex::COUNT) == 3);
             ctx.cmdBuff->bindDescriptorSet(
                 static_cast<uint32_t>(pipeline::SetIndex::COUNT),
-                get<1>(iter->second));
+                queueSet);
         }
     }
     void tryBindLeafOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor leafID) const {
