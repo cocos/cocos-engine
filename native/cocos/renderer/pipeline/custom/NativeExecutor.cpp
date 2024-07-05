@@ -384,16 +384,18 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         auto iter = ctx.renderGraphDescriptorSet.find(queueID);
         if (iter != ctx.renderGraphDescriptorSet.end()) {
             const auto& [passSet, queueSet] = iter->second;
+            CC_EXPECTS(passSet || queueSet);
             if (passSet) {
                 ctx.cmdBuff->bindDescriptorSet(
                     static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
                     passSet);
             }
-            CC_ENSURES(queueSet);
-            static_assert(static_cast<uint32_t>(pipeline::SetIndex::COUNT) == 3);
-            ctx.cmdBuff->bindDescriptorSet(
-                static_cast<uint32_t>(pipeline::SetIndex::COUNT),
-                queueSet);
+            if (queueSet) {
+                static_assert(static_cast<uint32_t>(pipeline::SetIndex::COUNT) == 3);
+                ctx.cmdBuff->bindDescriptorSet(
+                    static_cast<uint32_t>(pipeline::SetIndex::COUNT),
+                    queueSet);
+            }
         }
     }
     void tryBindLeafOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor leafID) const {
