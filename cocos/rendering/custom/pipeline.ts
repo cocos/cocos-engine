@@ -644,6 +644,7 @@ export interface BasicRenderPassBuilder extends Setter {
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @param passName @en The name of the pass declared in the effect. It is used to override the pass name in the parent pass/subpass. @zh effect中通道(pass)的名字，会覆盖(override)父(通道/子通道)中已设置的pass名字。
      * @returns @en render queue builder @zh 渲染队列
      */
     addQueue (
@@ -1163,6 +1164,7 @@ export interface RenderSubpassBuilder extends Setter {
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @param passName @en The name of the pass declared in the effect. It is used to override the pass name in the parent pass/subpass. @zh effect中通道(pass)的名字，会覆盖(override)父(通道/子通道)中已设置的pass名字。
      * @returns @en render queue builder @zh 渲染队列
      */
     addQueue (
@@ -1304,6 +1306,7 @@ export interface ComputeSubpassBuilder extends Setter {
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @param passName @en The name of the pass declared in the effect. It is used to override the pass name in the parent pass/subpass. @zh effect中通道(pass)的名字，会覆盖(override)父(通道/子通道)中已设置的pass名字。
      * @returns @en compute queue builder @zh 计算队列
      */
     addQueue (phaseName?: string, passName?: string): ComputeQueueBuilder;
@@ -1482,6 +1485,7 @@ export interface ComputePassBuilder extends Setter {
      *
      * @param hint @en Usage hint of the queue @zh 用途的提示
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
+     * @param passName @en The name of the pass declared in the effect. It is used to override the pass name in the parent pass/subpass. @zh effect中通道(pass)的名字，会覆盖(override)父(通道/子通道)中已设置的pass名字。
      * @returns @en compute queue builder @zh 计算队列
      */
     addQueue (phaseName?: string, passName?: string): ComputeQueueBuilder;
