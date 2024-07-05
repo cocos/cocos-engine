@@ -679,8 +679,6 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
         const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passID);
         const auto passLayoutID = locate(LayoutGraphData::null_vertex(), passLayoutName, ctx.lg);
         CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
-        CC_EXPECTS(passLayoutID == locate(LayoutGraphData::null_vertex(),
-                                          get(RenderGraph::LayoutTag{}, ctx.g, passID), ctx.lg));
 
         const auto& passLayout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
 
