@@ -454,7 +454,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
     setViewport (viewport: Viewport): void {
         throw new Error('Method not implemented.');
     }
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): RenderQueueBuilder {
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default', passName = ''): RenderQueueBuilder {
         const layoutId = this._lg.locateChild(this._layoutID, layoutName);
         if (DEBUG) {
             assert(layoutId !== 0xFFFFFFFF);
@@ -604,7 +604,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         result.update(data, this._renderGraph, this._lg, vertID, subpass, this._pipeline);
         return result;
     }
-    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default'): WebRenderQueueBuilder {
+    addQueue (hint: QueueHint = QueueHint.RENDER_OPAQUE, layoutName = 'default', passName = ''): WebRenderQueueBuilder {
         const layoutId = this._lg.locateChild(this._layoutID, layoutName);
         if (DEBUG) {
             assert(layoutId !== 0xFFFFFFFF);
@@ -776,7 +776,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
     addMaterialTexture (resourceName: string, flags?: ShaderStageFlagBit | undefined): void {
         throw new Error('Method not implemented.');
     }
-    addQueue (layoutName = 'default'): WebComputeQueueBuilder {
+    addQueue (layoutName = 'default', passName = ''): WebComputeQueueBuilder {
         const layoutId = this._lg.locateChild(this._layoutID, layoutName);
         if (DEBUG) {
             assert(layoutId !== 0xFFFFFFFF);

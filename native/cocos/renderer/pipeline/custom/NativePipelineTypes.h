@@ -209,7 +209,7 @@ public:
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) /*implements*/;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) /*implements*/;
     void setViewport(const gfx::Viewport &viewport) /*implements*/;
-    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) /*implements*/;
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName, const ccstd::string &passName) /*implements*/;
     bool getShowStatistics() const /*implements*/;
     void setShowStatistics(bool enable) /*implements*/;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) /*implements*/;
@@ -400,8 +400,8 @@ public:
     void setViewport(const gfx::Viewport &viewport) override {
         NativeRenderSubpassBuilderImpl::setViewport(viewport);
     }
-    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) override {
-        return NativeRenderSubpassBuilderImpl::addQueue(hint, phaseName);
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName, const ccstd::string &passName) override {
+        return NativeRenderSubpassBuilderImpl::addQueue(hint, phaseName, passName);
     }
     bool getShowStatistics() const override {
         return NativeRenderSubpassBuilderImpl::getShowStatistics();
@@ -511,8 +511,8 @@ public:
     void setViewport(const gfx::Viewport &viewport) override {
         NativeRenderSubpassBuilderImpl::setViewport(viewport);
     }
-    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) override {
-        return NativeRenderSubpassBuilderImpl::addQueue(hint, phaseName);
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName, const ccstd::string &passName) override {
+        return NativeRenderSubpassBuilderImpl::addQueue(hint, phaseName, passName);
     }
     bool getShowStatistics() const override {
         return NativeRenderSubpassBuilderImpl::getShowStatistics();
@@ -611,7 +611,7 @@ public:
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
-    ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) override;
+    ComputeQueueBuilder *addQueue(const ccstd::string &phaseName, const ccstd::string &passName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
@@ -697,7 +697,7 @@ public:
     void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;
-    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) override;
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName, const ccstd::string &passName) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
     bool getShowStatistics() const override;
@@ -796,7 +796,7 @@ public:
     void addRenderTarget(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, const gfx::Color &color) override;
     void addDepthStencil(const ccstd::string &name, gfx::LoadOp loadOp, gfx::StoreOp storeOp, float depth, uint8_t stencil, gfx::ClearFlagBit clearFlags) override;
     void addTexture(const ccstd::string &name, const ccstd::string &slotName, gfx::Sampler *sampler, uint32_t plane) override;
-    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) override;
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName, const ccstd::string &passName) override;
     void setViewport(const gfx::Viewport &viewport) override;
     void setVersion(const ccstd::string &name, uint64_t version) override;
     bool getShowStatistics() const override;
@@ -977,7 +977,7 @@ public:
     void addStorageBuffer(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addStorageImage(const ccstd::string &name, AccessType accessType, const ccstd::string &slotName) override;
     void addMaterialTexture(const ccstd::string &resourceName, gfx::ShaderStageFlagBit flags) override;
-    ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) override;
+    ComputeQueueBuilder *addQueue(const ccstd::string &phaseName, const ccstd::string &passName) override;
     void setCustomShaderStages(const ccstd::string &name, gfx::ShaderStageFlagBit stageFlags) override;
 };
 
