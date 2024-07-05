@@ -39,6 +39,7 @@ jobs:
           last_update_date: ${{ github.event.comment.created_at || github.event.pull_request.updated_at }}
         shell: bash
         run: |
+          whoami
           set -x
           pull_request=$(echo "$details" | jq -r '.')
           pr_html_url=$(echo "$pull_request" | jq -r '.html_url')
@@ -79,6 +80,11 @@ jobs:
           HEAD: ${{ steps.parse_pr.outputs.pr_head_sha }}
         shell: bash
         run: |
+          echo "before whoami"
+          whoami
+          echo "after whoami"
+          git config --list --show-origin
+          echo "after git config"
           set -x
           git config user.email
           git config user.name
