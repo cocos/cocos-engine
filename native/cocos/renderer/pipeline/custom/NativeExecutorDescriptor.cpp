@@ -757,11 +757,11 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
         }
 
         // Try override pass layout
-        if (queueData.passID == LayoutGraphData::null_vertex()) {
+        if (queueData.passLayoutID == LayoutGraphData::null_vertex()) {
             return;
         }
 
-        const auto passLayoutID = queueData.passID;
+        const auto passLayoutID = queueData.passLayoutID;
         const auto& passLayout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
         if (const auto iter = passLayout.descriptorSets.find(UpdateFrequency::PER_PASS);
             iter != passLayout.descriptorSets.end()) {

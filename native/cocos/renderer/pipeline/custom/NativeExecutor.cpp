@@ -672,8 +672,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             const auto queueID = parent(sceneID, ctx.g);
             const auto& queueData = get(QueueTag{}, queueID, ctx.g);
             const auto passOrSubpassID = parent(queueID, ctx.g);
-            if (queueData.passID != LayoutGraphData::null_vertex()) {
-                submitUICommands(ctx.currentPass, queueData.passID, camera, ctx.cmdBuff);
+            if (queueData.passLayoutID != LayoutGraphData::null_vertex()) {
+                submitUICommands(ctx.currentPass, queueData.passLayoutID, camera, ctx.cmdBuff);
             } else {
                 const auto passID = parent(passOrSubpassID, ctx.g);
                 if (passID == RenderGraph::null_vertex()) { // Pass
