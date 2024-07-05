@@ -371,8 +371,8 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             submitBarriers(barrier.rearBarriers);
         }
     }
-    void tryBindPerPassDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.renderGraphDescriptorSet.find(vertID);
+    void tryBindPassDescriptorSet(RenderGraph::vertex_descriptor passOrSubpassID) const {
+        auto iter = ctx.renderGraphDescriptorSet.find(passOrSubpassID);
         if (iter != ctx.renderGraphDescriptorSet.end()) {
             CC_ENSURES(get<0>(iter->second));
             ctx.cmdBuff->bindDescriptorSet(
@@ -380,14 +380,29 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 get<0>(iter->second));
         }
     }
-    void tryBindPerPhaseDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
-        auto iter = ctx.renderGraphDescriptorSet.find(vertID);
+    void tryBindQueueDescriptorSets(RenderGraph::vertex_descriptor queueID) const {
+        auto iter = ctx.renderGraphDescriptorSet.find(queueID);
         if (iter != ctx.renderGraphDescriptorSet.end()) {
+            const auto [passSet, queueSet] = iter->second;
+            if (passSet) {
+                ctx.cmdBuff->bindDescriptorSet(
+                    static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
+                    get<0>(iter->second));
+            }
             CC_ENSURES(get<1>(iter->second));
             static_assert(static_cast<uint32_t>(pipeline::SetIndex::COUNT) == 3);
             ctx.cmdBuff->bindDescriptorSet(
                 static_cast<uint32_t>(pipeline::SetIndex::COUNT),
                 get<1>(iter->second));
+        }
+    }
+    void tryBindLeafOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor leafID) const {
+        auto iter = ctx.renderGraphDescriptorSet.find(leafID);
+        if (iter != ctx.renderGraphDescriptorSet.end()) {
+            CC_ENSURES(get<0>(iter->second));
+            ctx.cmdBuff->bindDescriptorSet(
+                static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
+                get<0>(iter->second));
         }
     }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
@@ -425,7 +440,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
 
         // PerPass DescriptorSet
-        tryBindPerPassDescriptorSet(vertID);
+        tryBindPassDescriptorSet(vertID);
     }
     void begin(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
 #if CC_DEBUG
@@ -447,7 +462,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             ctx.cmdBuff->nextSubpass();
         }
         // ctx.cmdBuff->setViewport(subpass);
-        tryBindPerPassDescriptorSet(vertID);
+        tryBindPassDescriptorSet(vertID);
         ctx.subpassIndex = subpass.subpassID;
         // noop
     }
@@ -490,7 +505,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 }
             }
         }
-        tryBindPerPassDescriptorSet(vertID);
+        tryBindPassDescriptorSet(vertID);
     }
     void begin(const ResolvePass& pass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         std::ignore = pass;
@@ -636,14 +651,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             ctx.cmdBuff->setViewport(queue.viewport);
         }
 
-        // PerPhase DescriptorSet
-        tryBindPerPhaseDescriptorSet(vertID);
+        tryBindQueueDescriptorSets(vertID);
     }
     void begin(const SceneData& sceneData, RenderGraph::vertex_descriptor sceneID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto* const camera = sceneData.camera;
         CC_EXPECTS(camera);
         if (camera) { // update camera data
-            tryBindPerPassDescriptorSet(sceneID);
+            tryBindLeafOverwritePerPassDescriptorSet(sceneID);
         }
         const auto* scene = camera->getScene();
         const auto& queueDesc = ctx.context.sceneCulling.renderQueueIndex.at(sceneID);
@@ -655,8 +669,34 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             queue.probeQueue.removeMacro();
         }
         if (any(sceneData.flags & SceneFlags::UI)) {
-            submitUICommands(ctx.currentPass,
-                             ctx.currentPassLayoutID, camera, ctx.cmdBuff);
+            const auto queueID = parent(sceneID, ctx.g);
+            const auto& queueData = get(QueueTag{}, queueID, ctx.g);
+            const auto passOrSubpassID = parent(queueID, ctx.g);
+            if (queueData.passID != LayoutGraphData::null_vertex()) {
+                submitUICommands(ctx.currentPass, queueData.passID, camera, ctx.cmdBuff);
+            } else {
+                const auto passID = parent(passOrSubpassID, ctx.g);
+                if (passID == RenderGraph::null_vertex()) { // Pass
+                    const auto passLayoutID =
+                        locate(LayoutGraphData::null_vertex(),
+                               get(RenderGraph::LayoutTag{}, ctx.g, passOrSubpassID),
+                               ctx.lg);
+                    submitUICommands(ctx.currentPass, passLayoutID, camera, ctx.cmdBuff);
+                } else { // Subpass
+                    const auto subpassID = passOrSubpassID;
+                    const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passID);
+                    const auto& subpassLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, subpassID);
+                    const auto subpassLayoutID =
+                        subpassLayoutName.empty()
+                            ? locate(LayoutGraphData::null_vertex(),
+                                     get(RenderGraph::LayoutTag{}, ctx.g, passID),
+                                     ctx.lg)
+                            : locate(LayoutGraphData::null_vertex(),
+                                     get(RenderGraph::LayoutTag{}, ctx.g, subpassID),
+                                     ctx.lg);
+                    submitUICommands(ctx.currentPass, subpassLayoutID, camera, ctx.cmdBuff);
+                }
+            }
         }
     }
     void begin(const Blit& blit, RenderGraph::vertex_descriptor vertID) const {
@@ -674,7 +714,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         CC_EXPECTS(blit.material);
         CC_EXPECTS(blit.material->getPasses());
         if (blit.camera) {
-            tryBindPerPassDescriptorSet(vertID);
+            tryBindLeafOverwritePerPassDescriptorSet(vertID);
         }
         // get pass
         auto& pass = *blit.material->getPasses()->at(static_cast<size_t>(blit.passID));
@@ -742,7 +782,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         }
         ctx.cmdBuff->endRenderPass();
         ctx.currentPass = nullptr;
-        ctx.currentPassLayoutID = LayoutGraphData::null_vertex();
     }
     void end(const RasterSubpass& subpass, RenderGraph::vertex_descriptor vertID) const { // NOLINT(readability-convert-member-functions-to-static)
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
@@ -938,11 +977,6 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 ctx.cmdBuff->beginMarker(makeMarkerInfo(get(RenderGraph::NameTag{}, ctx.g, vertID).c_str(), RASTER_COLOR));
 #endif
                 mountResources(pass);
-                {
-                    const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-                    const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
-                    ctx.currentPassLayoutID = layoutID;
-                }
 
                 NativePipeline::prepareDescriptors(ctx, vertID);
 
@@ -951,31 +985,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 begin(pass, vertID);
             },
             [&](const RasterSubpass& subpass) {
-                // mountResources(subpass);
-                {
-                    const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-                    const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
-                    ctx.currentPassLayoutID = layoutID;
-                }
                 begin(subpass, vertID);
             },
             [&](const ComputeSubpass& subpass) {
-                // mountResources(subpass);
-                {
-                    const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-                    const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
-                    ctx.currentPassLayoutID = layoutID;
-                }
                 begin(subpass, vertID);
             },
             [&](const ComputePass& pass) {
                 mountResources(pass);
-
-                {
-                    const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-                    const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
-                    ctx.currentPassLayoutID = layoutID;
-                }
 
                 NativePipeline::prepareDescriptors(ctx, vertID);
 

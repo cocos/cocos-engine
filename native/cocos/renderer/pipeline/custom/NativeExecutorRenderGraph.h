@@ -74,7 +74,6 @@ struct RenderGraphVisitorContext {
     boost::container::pmr::memory_resource* scratch = nullptr;
     gfx::RenderPass* currentPass = nullptr;
     uint32_t subpassIndex = 0;
-    LayoutGraphData::vertex_descriptor currentPassLayoutID = LayoutGraphData::null_vertex();
     RenderGraph::vertex_descriptor currentInFlightPassID = RenderGraph::null_vertex();
     Mat4 currentProjMatrix;
 };
