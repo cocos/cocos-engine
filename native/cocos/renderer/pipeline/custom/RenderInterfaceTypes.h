@@ -725,7 +725,7 @@ public:
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en render queue builder @zh 渲染队列
      */
-    virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
+    virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName, const ccstd::string &passName) = 0;
     /**
      * @en Set rendering viewport.
      * @zh 设置渲染视口
@@ -773,10 +773,13 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE, "default");
+        return addQueue(QueueHint::NONE, "default", "");
     }
     RenderQueueBuilder *addQueue(QueueHint hint) {
-        return addQueue(hint, "default");
+        return addQueue(hint, "default", "");
+    }
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) {
+        return addQueue(hint, phaseName, "");
     }
 };
 
@@ -1207,7 +1210,7 @@ public:
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en render queue builder @zh 渲染队列
      */
-    virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) = 0;
+    virtual RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName, const ccstd::string &passName) = 0;
     /**
      * @en Show statistics on screen
      * @zh 在屏幕上渲染统计数据
@@ -1258,10 +1261,13 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     RenderQueueBuilder *addQueue() {
-        return addQueue(QueueHint::NONE, "default");
+        return addQueue(QueueHint::NONE, "default", "");
     }
     RenderQueueBuilder *addQueue(QueueHint hint) {
-        return addQueue(hint, "default");
+        return addQueue(hint, "default", "");
+    }
+    RenderQueueBuilder *addQueue(QueueHint hint, const ccstd::string &phaseName) {
+        return addQueue(hint, phaseName, "");
     }
 };
 
@@ -1393,7 +1399,7 @@ public:
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en compute queue builder @zh 计算队列
      */
-    virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
+    virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName, const ccstd::string &passName) = 0;
     /**
      * @experimental
      */
@@ -1405,7 +1411,10 @@ public:
         addTexture(name, slotName, sampler, 0);
     }
     ComputeQueueBuilder *addQueue() {
-        return addQueue("default");
+        return addQueue("default", "");
+    }
+    ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) {
+        return addQueue(phaseName, "");
     }
 };
 
@@ -1570,7 +1579,7 @@ public:
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en compute queue builder @zh 计算队列
      */
-    virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) = 0;
+    virtual ComputeQueueBuilder *addQueue(const ccstd::string &phaseName, const ccstd::string &passName) = 0;
     /**
      * @experimental
      */
@@ -1585,7 +1594,10 @@ public:
         addMaterialTexture(resourceName, gfx::ShaderStageFlagBit::COMPUTE);
     }
     ComputeQueueBuilder *addQueue() {
-        return addQueue("default");
+        return addQueue("default", "");
+    }
+    ComputeQueueBuilder *addQueue(const ccstd::string &phaseName) {
+        return addQueue(phaseName, "");
     }
 };
 

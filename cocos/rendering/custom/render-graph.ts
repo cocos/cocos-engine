@@ -1505,17 +1505,20 @@ export class ClearView {
 }
 
 export class RenderQueue {
-    constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF) {
+    constructor (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF, passID = 0xFFFFFFFF) {
         this.hint = hint;
         this.phaseID = phaseID;
+        this.passID = passID;
     }
-    reset (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF): void {
+    reset (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF, passID = 0xFFFFFFFF): void {
         this.hint = hint;
         this.phaseID = phaseID;
+        this.passID = passID;
         this.viewport = null;
     }
     hint: QueueHint;
     phaseID: number;
+    passID: number;
     viewport: Viewport | null = null;
 }
 
@@ -2840,9 +2843,10 @@ export class RenderGraphObjectPool {
     createRenderQueue (
         hint: QueueHint = QueueHint.RENDER_OPAQUE,
         phaseID = 0xFFFFFFFF,
+        passID = 0xFFFFFFFF,
     ): RenderQueue {
         const v = this._renderQueue.add();
-        v.reset(hint, phaseID);
+        v.reset(hint, phaseID, passID);
         return v;
     }
     createSceneData (

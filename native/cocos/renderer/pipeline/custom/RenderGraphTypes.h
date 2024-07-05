@@ -857,14 +857,17 @@ struct ClearView {
 
 struct RenderQueue {
     RenderQueue() = default;
-    RenderQueue(QueueHint hintIn, uint32_t phaseIDIn) noexcept
+    RenderQueue(QueueHint hintIn, uint32_t phaseIDIn, uint32_t passIDIn) noexcept // NOLINT
     : hint(hintIn),
-      phaseID(phaseIDIn) {}
-    RenderQueue(uint32_t phaseIDIn) noexcept // NOLINT
-    : phaseID(phaseIDIn) {}
+      phaseID(phaseIDIn),
+      passID(passIDIn) {}
+    RenderQueue(uint32_t phaseIDIn, uint32_t passIDIn) noexcept
+    : phaseID(phaseIDIn),
+      passID(passIDIn) {}
 
     QueueHint hint{QueueHint::RENDER_OPAQUE};
     uint32_t phaseID{0xFFFFFFFF};
+    uint32_t passID{0xFFFFFFFF};
     gfx::Viewport viewport;
 };
 

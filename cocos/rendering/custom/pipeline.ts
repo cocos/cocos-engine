@@ -646,7 +646,10 @@ export interface BasicRenderPassBuilder extends Setter {
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en render queue builder @zh 渲染队列
      */
-    addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
+    addQueue (
+        hint?: QueueHint,
+        phaseName?: string,
+        passName?: string): RenderQueueBuilder;
     /**
      * @en Set rendering viewport.
      * @zh 设置渲染视口
@@ -1162,7 +1165,10 @@ export interface RenderSubpassBuilder extends Setter {
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en render queue builder @zh 渲染队列
      */
-    addQueue (hint?: QueueHint, phaseName?: string): RenderQueueBuilder;
+    addQueue (
+        hint?: QueueHint,
+        phaseName?: string,
+        passName?: string): RenderQueueBuilder;
     /**
      * @en Show statistics on screen
      * @zh 在屏幕上渲染统计数据
@@ -1300,7 +1306,7 @@ export interface ComputeSubpassBuilder extends Setter {
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en compute queue builder @zh 计算队列
      */
-    addQueue (phaseName?: string): ComputeQueueBuilder;
+    addQueue (phaseName?: string, passName?: string): ComputeQueueBuilder;
     /**
      * @experimental
      */
@@ -1478,7 +1484,7 @@ export interface ComputePassBuilder extends Setter {
      * @param phaseName @en The name of the phase declared in the effect. Default value is 'default' @zh effect中相位(phase)的名字，缺省为'default'。
      * @returns @en compute queue builder @zh 计算队列
      */
-    addQueue (phaseName?: string): ComputeQueueBuilder;
+    addQueue (phaseName?: string, passName?: string): ComputeQueueBuilder;
     /**
      * @experimental
      */
