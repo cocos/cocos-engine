@@ -59,7 +59,10 @@ struct RenderGraphVisitorContext {
     NativePipeline* ppl = nullptr;
     ccstd::pmr::unordered_map<
         RenderGraph::vertex_descriptor,
-        gfx::DescriptorSet*>& renderGraphDescriptorSet;
+        PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>>& perPassResourceIndex;
+    ccstd::pmr::unordered_map<
+        RenderGraph::vertex_descriptor,
+        std::tuple<gfx::DescriptorSet*, gfx::DescriptorSet*>>& renderGraphDescriptorSet;
     ccstd::pmr::unordered_map<
         RenderGraph::vertex_descriptor,
         gfx::DescriptorSet*>& profilerPerPassDescriptorSets;

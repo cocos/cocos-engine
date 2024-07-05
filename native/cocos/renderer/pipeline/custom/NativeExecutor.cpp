@@ -374,20 +374,20 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
     void tryBindPerPassDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
         auto iter = ctx.renderGraphDescriptorSet.find(vertID);
         if (iter != ctx.renderGraphDescriptorSet.end()) {
-            CC_ENSURES(iter->second);
+            CC_ENSURES(get<0>(iter->second));
             ctx.cmdBuff->bindDescriptorSet(
                 static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
-                iter->second);
+                get<0>(iter->second));
         }
     }
     void tryBindPerPhaseDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
         auto iter = ctx.renderGraphDescriptorSet.find(vertID);
         if (iter != ctx.renderGraphDescriptorSet.end()) {
-            CC_ENSURES(iter->second);
+            CC_ENSURES(get<1>(iter->second));
             static_assert(static_cast<uint32_t>(pipeline::SetIndex::COUNT) == 3);
             ctx.cmdBuff->bindDescriptorSet(
                 static_cast<uint32_t>(pipeline::SetIndex::COUNT),
-                iter->second);
+                get<1>(iter->second));
         }
     }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
@@ -1268,7 +1268,12 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
 
         ccstd::pmr::unordered_map<
             RenderGraph::vertex_descriptor,
-            gfx::DescriptorSet*>
+            PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>>
+            perPassResourceIndex(scratch);
+
+        ccstd::pmr::unordered_map<
+            RenderGraph::vertex_descriptor,
+            std::tuple<gfx::DescriptorSet*, gfx::DescriptorSet*>>
             renderGraphDescriptorSet(scratch);
 
         ccstd::pmr::unordered_map<
@@ -1289,6 +1294,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             validPasses,
             ppl.device, submit.primaryCommandBuffer,
             &ppl,
+            perPassResourceIndex,
             renderGraphDescriptorSet,
             profilerPerPassDescriptorSets,
             perInstanceDescriptorSets,

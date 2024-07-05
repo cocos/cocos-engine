@@ -536,7 +536,8 @@ RenderQueueBuilder *NativeRenderSubpassBuilderImpl::addQueue(
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(hint, phaseLayoutID, passLayoutID),
+        std::forward_as_tuple(hint, phaseLayoutID,
+                              passName.empty() ? LayoutGraphData::null_vertex() : passLayoutID),
         *renderGraph, nodeID);
 
     return new NativeRenderQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
@@ -697,7 +698,8 @@ ComputeQueueBuilder *NativeComputeSubpassBuilder::addQueue(
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(phaseLayoutID, passLayoutID),
+        std::forward_as_tuple(phaseLayoutID,
+                              passName.empty() ? LayoutGraphData::null_vertex() : passLayoutID),
         *renderGraph, nodeID);
 
     return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
@@ -1023,7 +1025,8 @@ RenderQueueBuilder *NativeRenderPassBuilder::addQueue(
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(hint, phaseLayoutID, passLayoutID),
+        std::forward_as_tuple(hint, phaseLayoutID,
+                              passName.empty() ? LayoutGraphData::null_vertex() : passLayoutID),
         *renderGraph, nodeID);
 
     return new NativeRenderQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
@@ -1226,7 +1229,8 @@ RenderQueueBuilder *NativeMultisampleRenderPassBuilder::addQueue(
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(hint, phaseLayoutID, passLayoutID),
+        std::forward_as_tuple(hint, phaseLayoutID,
+                              passName.empty() ? LayoutGraphData::null_vertex() : passLayoutID),
         *renderGraph, subpassID);
 
     return new NativeRenderQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
@@ -1413,7 +1417,8 @@ ComputeQueueBuilder *NativeComputePassBuilder::addQueue(
         std::forward_as_tuple(phaseName),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(QueueHint::NONE, phaseLayoutID, passLayoutID),
+        std::forward_as_tuple(QueueHint::NONE, phaseLayoutID,
+                              passName.empty() ? LayoutGraphData::null_vertex() : passLayoutID),
         *renderGraph, nodeID);
 
     return new NativeComputeQueueBuilder(pipelineRuntime, renderGraph, queueID, layoutGraph, phaseLayoutID);
