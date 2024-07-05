@@ -80,8 +80,8 @@ jobs:
         shell: bash
         run: |
           set -x
-          git config user.email
-          git config user.name
+          git config user.email "csq_18@126.com"
+          git config user.name "shaoqiangcai"
           git fetch origin
           git reset --hard
           echo "Branch name required: $BASE" 
