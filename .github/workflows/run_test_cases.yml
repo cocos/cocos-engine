@@ -64,6 +64,7 @@ jobs:
           echo "pr_head_sha=$pr_head_sha" >> $GITHUB_OUTPUT
           echo "pr_base_ref=$pr_base_ref" >> $GITHUB_OUTPUT
           echo "pr_base_sha=$pr_base_sha" >> $GITHUB_OUTPUT  
+      
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
@@ -90,6 +91,7 @@ jobs:
           git branch -D pull-$PR_NUMBER || true
           git fetch origin $HEAD:pull-$PR_NUMBER
           git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
+      
       - name: Download external libraries
         shell: bash
         run: |
@@ -108,16 +110,19 @@ jobs:
           git -C $PRECLONE_EXTERNAL reset --hard
           git -C $PRECLONE_EXTERNAL fetch --all --prune
           git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
+      
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
           echo "Create auto-generated jsbinding glue codes."
           node genbindings.js &&
           git status
+      
       - name: npm install
         run: |
           npm -v
           npm install --registry https://registry.npmmirror.com
+      
       - name: Checkout test-projects
         shell: bash
         run: |
@@ -146,6 +151,7 @@ jobs:
           cd ..
           pwd
           python3 -u ./python/main.py  --target=job_editor --jobid=$JOBID
+      
       - name: Write comment body and issue number to file
         uses: actions/github-script@v5
         env:
@@ -155,7 +161,6 @@ jobs:
           TASK_REPORT: ${{ steps.run_test_cases.outputs.report }}
           JOB_ID: ${{ steps.run_test_cases.outputs.jobid }}
           GITHUB_RUN_ID: ${{ github.run_id }}
-          PR_NUMBER: ${{ steps.get_pr.outputs.pr_number }}
         with:
           script: |
             const fs = require('fs');
@@ -167,14 +172,13 @@ jobs:
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
             ## Task Details
             ${process.env.TASK_REPORT}`);
+      
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: commentwin.txt
           path: |
             commentwin.txt
-
-
 
   macOS-RunTestCases:
     if: |
@@ -221,6 +225,7 @@ jobs:
           echo "pr_head_sha=$pr_head_sha" >> $GITHUB_OUTPUT
           echo "pr_base_ref=$pr_base_ref" >> $GITHUB_OUTPUT
           echo "pr_base_sha=$pr_base_sha" >> $GITHUB_OUTPUT
+      
       - name: Checkout engine
         uses: actions/checkout@v3
         with:
@@ -241,6 +246,7 @@ jobs:
           git branch -D pull-$PR_NUMBER || true
           git fetch origin $HEAD:pull-$PR_NUMBER
           git merge --ff -s recursive --no-verify -m "PR Test" origin/$BASE pull-$PR_NUMBER
+      
       - name: Download external libraries
         shell: bash
         run: |
@@ -262,16 +268,19 @@ jobs:
           git -C $PRECLONE_EXTERNAL reset --hard
           git -C $PRECLONE_EXTERNAL fetch --all --prune
           git -C $PRECLONE_EXTERNAL archive --format=tar $EXT_VERSION | tar -C native/external -xf -
+      
       - name: Generate bindings
         run: |
           cd ./native/tools/swig-config
           echo "Create auto-generated jsbinding glue codes."
           node genbindings.js &&
           git status
+      
       - name: npm install
         run: |
           npm -v
           npm install --registry https://registry.npmmirror.com
+      
       - name: Checkout test-projects
         shell: bash
         run: |
@@ -290,6 +299,7 @@ jobs:
           git -C $TEST_PROJECTS_EXTERNAL pull origin ${{ steps.parse_pr.outputs.pr_base_ref }} --allow-unrelated-histories
           rm -rf $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
           unzip -oq $CCTEST_PLUGINS/*.zip -d $TEST_PROJECTS_EXTERNAL/extensions/automation-framework
+      
       - name: Run test cases
         timeout-minutes: 90
         id: run_test_cases
@@ -298,6 +308,7 @@ jobs:
           JOBID=`cat  /usr/local/lib/node_modules/@cctest/scheduler/logs/PR-TEST/nowJobId.log`
           cd ..
           python3 -u ./python/main.py  --target=job_editor --jobid=$JOBID
+      
       - name: Write comment body and issue number to file
         uses: actions/github-script@v5
         env:
@@ -307,7 +318,6 @@ jobs:
           TASK_REPORT: ${{ steps.run_test_cases.outputs.report }}
           JOB_ID: ${{ steps.run_test_cases.outputs.jobid }}
           GITHUB_RUN_ID: ${{ github.run_id }}
-          PR_NUMBER: ${{ steps.get_pr.outputs.pr_number }}
         with:
           script: |
             const fs = require('fs');
@@ -320,12 +330,14 @@ jobs:
             - GitHub Action: https://github.com/cocos/cocos-engine/actions/runs/${process.env.GITHUB_RUN_ID}
             ## Task Details
             ${process.env.TASK_REPORT}`);
+      
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: pr.txt
           path: |
             pr.txt
+      
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
