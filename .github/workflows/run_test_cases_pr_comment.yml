@@ -34,13 +34,13 @@ jobs:
             core.exportVariable('PR_NUMBER', pr);
 
       - name: Update Mac Comment
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
         with:
           issue-number: ${{ env.PR_NUMBER }}
           body-path: 'comment.txt'
 
       - name: Update Win Comment
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043
         with:
           issue-number: ${{ env.PR_NUMBER }}
           body-path: 'commentwin.txt'
