@@ -43,6 +43,7 @@ const cacheManager = {
         return this.cachedFiles.has(url) ? `${this.cacheDir}/${this.cachedFiles.get(url).url}` : '';
     },
 
+    // eslint-disable-next-line no-unused-vars
     getTemp (url) {
         return '';
     },

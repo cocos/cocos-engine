@@ -212,6 +212,7 @@ const fsUtils = {
     rmdirSync (dirPath, recursive) {
         try {
             fs.rmdirSync({ dirPath, recursive });
+            return null;
         } catch (e) {
             console.warn(`rm directory failed: path: ${dirPath} message: ${e.message}`);
             return new Error(e.message);
@@ -233,7 +234,7 @@ const fsUtils = {
     loadSubpackage (name, onProgress, onComplete) {
         const task = my.loadSubpackage({
             name,
-            success: (res) => {
+            success: () => {
                 onComplete && onComplete();
             },
             fail: (res) => {
