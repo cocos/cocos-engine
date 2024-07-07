@@ -108,12 +108,14 @@ const cacheManager = {
     _cache () {
         checkNextPeriod = false;
         const self = this;
-        const caches = Object.entries(this.cacheQueue);
-        if (caches.length === 0) return;
-
-        const [id, cache] = caches[0];
+        let id = '';
+        // eslint-disable-next-line no-unreachable-loop
+        for (const key in this.cacheQueue) {
+            id = key;
+            break;
+        }
         if (!id) return;
-        const { srcUrl, isCopy, cacheBundleRoot } = cache;
+        const { srcUrl, isCopy, cacheBundleRoot } = this.cacheQueue[id];
         const time = Date.now().toString();
 
         let localPath = '';
