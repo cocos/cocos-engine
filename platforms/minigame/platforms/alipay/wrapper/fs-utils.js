@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/* eslint-disable no-undef */
 const fs = my.getFileSystemManager ? my.getFileSystemManager() : null;
 const outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
 

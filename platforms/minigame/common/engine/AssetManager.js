@@ -255,7 +255,10 @@ function downloadBundle (nameOrUrl, options, onComplete) {
 const originParsePVRTex = parser.parsePVRTex;
 const parsePVRTex = function (file, options, onComplete) {
     readArrayBuffer(file, (err, data) => {
-        if (err) onComplete(err);
+        if (err) {
+            onComplete(err);
+            return;
+        }
         originParsePVRTex(data, options, onComplete);
     });
 };
@@ -263,7 +266,10 @@ const parsePVRTex = function (file, options, onComplete) {
 const originParsePKMTex = parser.parsePKMTex;
 const parsePKMTex = function (file, options, onComplete) {
     readArrayBuffer(file, (err, data) => {
-        if (err) onComplete(err);
+        if (err) {
+            onComplete(err);
+            return;
+        }
         originParsePKMTex(data, options, onComplete);
     });
 };
@@ -271,7 +277,10 @@ const parsePKMTex = function (file, options, onComplete) {
 const originParseASTCTex = parser.parseASTCTex;
 const parseASTCTex = function (file, options, onComplete) {
     readArrayBuffer(file, (err, data) => {
-        if (err) onComplete(err);
+        if (err) {
+            onComplete(err);
+            return;
+        }
         originParseASTCTex(data, options, onComplete);
     });
 };
@@ -279,7 +288,10 @@ const parseASTCTex = function (file, options, onComplete) {
 const originParsePlist = parser.parsePlist;
 const parsePlist = function (url, options, onComplete) {
     readText(url, (err, file) => {
-        if (err) onComplete(err);
+        if (err) {
+            onComplete(err);
+            return;
+        }
         originParsePlist(file, options, onComplete);
     });
 };
