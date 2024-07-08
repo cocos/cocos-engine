@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   win_gen_simulator:
-    runs-on: windows-2019
+    runs-on: windows-latest
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
     name: Windows
@@ -23,7 +23,7 @@ jobs:
         working-directory: ${{github.workspace}}/native
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm install
         run: |
           npm install
@@ -54,7 +54,7 @@ jobs:
       run:
         working-directory: ${{github.workspace}}/native
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm install
         run: |
           npm install
