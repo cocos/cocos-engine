@@ -31,7 +31,6 @@ import { assert, warnID, Color, Vec2, CCObject, cclegacy, js, Size } from '../..
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import { Node } from '../../scene-graph';
 import { CacheMode, HorizontalTextAlignment, Label, VerticalTextAlignment } from './label';
-import { LabelOutline } from './label-outline';
 import { Sprite } from './sprite';
 import { UITransform } from '../framework';
 import { Component } from '../../scene-graph/component';
@@ -63,9 +62,9 @@ const labelPool = new js.Pool((seg: ISegment) => {
     if (!cclegacy.isValid(seg.node)) {
         return false;
     } else {
-        const outline = seg.node.getComponent(LabelOutline);
-        if (outline) {
-            outline.width = 0;
+        const label = seg.node.getComponent(Label);
+        if (label) {
+            label.outlineWidth = 0;
         }
     }
     return true;
@@ -1257,10 +1256,10 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
             }
 
             // adjust y for label with outline
-            const outline = segment.node.getComponent(LabelOutline);
-            if (outline) {
+            const label = segment.node.getComponent(Label);
+            if (label) {
                 const position = segment.node.position.clone();
-                position.y -= outline.width;
+                position.y -= label.outlineWidth;
                 segment.node.position = position;
             }
         }
@@ -1306,13 +1305,13 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
 
             label.isUnderline = !!textStyle.underline;
             if (textStyle.outline) {
-                let labelOutline = labelSeg.node.getComponent(LabelOutline);
-                if (!labelOutline) {
-                    labelOutline = labelSeg.node.addComponent(LabelOutline);
+                let label = labelSeg.node.getComponent(Label);
+                if (!label) {
+                    label = labelSeg.node.addComponent(Label);
                 }
-
-                labelOutline.color = this._convertLiteralColorValue(textStyle.outline.color);
-                labelOutline.width = textStyle.outline.width;
+                label.enableOutline = true;
+                label.outlineColor = this._convertLiteralColorValue(textStyle.outline.color);
+                label.outlineWidth = textStyle.outline.width;
             }
 
             label.fontSize = textStyle.size || this._fontSize;
