@@ -228,13 +228,12 @@ void recreateTextureView(
 
 // NOLINTNEXTLINE(misc-no-recursion)
 void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
-    auto& resg = *this;
     visitObject(
-        vertID, resg,
-        [](const ManagedResource& resource) {
+        vertID, *this,
+        [&](const ManagedResource& resource) {
             // to be removed
         },
-        [this, device, vertID](ManagedBuffer& buffer) {
+        [&](ManagedBuffer& buffer) {
             if (!buffer.buffer) {
                 const auto& desc = get(ResourceGraph::DescTag{}, *this, vertID);
                 auto info = getBufferInfo(desc);
@@ -243,7 +242,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(buffer.buffer);
             buffer.fenceValue = nextFenceValue;
         },
-        [this, device, vertID, &resg](ManagedTexture& texture) {
+        [&](ManagedTexture& texture) {
             const auto& desc = get(ResourceGraph::DescTag{}, *this, vertID);
             if (!texture.checkResource(desc)) {
                 auto info = getTextureInfo(desc);
@@ -253,7 +252,7 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
                     const auto childID = child(e, *this);
                     auto* view = get_if<SubresourceView>(childID, this);
                     if (view) {
-                        const auto [originView, parentID] = getOriginView(resg, childID);
+                        const auto [originView, parentID] = getOriginView(*this, childID);
                         CC_ENSURES(parentID == vertID);
                         recreateTextureView(device, *this, originView, parentID, *view);
                     }
@@ -262,26 +261,27 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(texture.texture);
             texture.fenceValue = nextFenceValue;
         },
-        [](const PersistentBuffer& buffer) {
+        [&](const PersistentBuffer& buffer) {
             CC_EXPECTS(buffer.buffer);
             std::ignore = buffer;
         },
-        [](const PersistentTexture& texture) {
+        [&](const PersistentTexture& texture) {
             CC_EXPECTS(texture.texture);
             std::ignore = texture;
         },
-        [](const IntrusivePtr<gfx::Framebuffer>& fb) {
+        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
             // deprecated
             CC_EXPECTS(false);
             CC_EXPECTS(fb);
             std::ignore = fb;
         },
-        [](const RenderSwapchain& window) {
+        [&](const RenderSwapchain& window) {
             CC_EXPECTS(window.swapchain || window.renderWindow);
             std::ignore = window;
         },
-        [this, device, vertID, &resg](const FormatView& view) { // NOLINT(misc-no-recursion)
+        [&](const FormatView& view) { // NOLINT(misc-no-recursion)
             std::ignore = view;
+            auto& resg = *this;
             auto parentID = parent(vertID, resg);
             CC_EXPECTS(parentID != resg.null_vertex());
             while (resg.isTextureView(parentID)) {
@@ -292,7 +292,8 @@ void ResourceGraph::mount(gfx::Device* device, vertex_descriptor vertID) {
             CC_ENSURES(!resg.isTextureView(parentID));
             mount(device, parentID);
         },
-        [this, device, vertID, &resg](SubresourceView& view) { // NOLINT(misc-no-recursion)
+        [&](SubresourceView& view) { // NOLINT(misc-no-recursion)
+            auto& resg = *this;
             const auto [originView, parentID] = getOriginView(resg, vertID);
             mount(device, parentID); // NOLINT(misc-no-recursion)
             const auto& desc = get(ResourceGraph::DescTag{}, *this, vertID);
