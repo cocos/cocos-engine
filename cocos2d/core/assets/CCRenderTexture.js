@@ -71,7 +71,7 @@ let RenderTexture = cc.Class({
             colors: [ this._texture ],
         };
 
-        if (this._depthStencilBuffer) this._depthStencilBuffer.destroy();
+        if (!CC_JSB && this._depthStencilBuffer) this._depthStencilBuffer.destroy();
         let depthStencilBuffer;
         if (depthStencilFormat) {
             depthStencilBuffer = new gfx.RenderBuffer(renderer.device, depthStencilFormat, width, height);
