@@ -70,7 +70,7 @@ export class WebGPUSampler extends Sampler {
         };
     }
 
-    private _computeHash (info: IWebGPUGPUSampler): number {
+    private _computeSamplerKey (info: IWebGPUGPUSampler): number {
         let hash = info.minFilter;
         hash |= ((info.magFilter as number) << 2);
         hash |= ((info.mipFilter as number) << 4);
@@ -88,15 +88,15 @@ export class WebGPUSampler extends Sampler {
             return null;
         }
         this._gpuSampler.mipLevel = mipLevel;
-        const currHash = this._computeHash(this._gpuSampler);
-        let currGPUSampler = samplerCaches.get(currHash);
+        const currKey = this._computeSamplerKey(this._gpuSampler);
+        let currGPUSampler = samplerCaches.get(currKey);
         if (currGPUSampler) return currGPUSampler;
 
         const device = WebGPUDeviceManager.instance;
         this._hasChange = true;
         WebGPUCmdFuncCreateSampler(device, this._gpuSampler);
         currGPUSampler = this._gpuSampler.gpuSampler!;
-        samplerCaches.set(currHash, currGPUSampler);
+        samplerCaches.set(currKey, currGPUSampler);
         return currGPUSampler;
     }
 
