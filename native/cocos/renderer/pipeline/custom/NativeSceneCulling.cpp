@@ -345,14 +345,16 @@ void SceneCulling::batchFrustumCulling(const NativePipeline& ppl) {
                         break;
                     case scene::LightType::DIRECTIONAL: {
                         const auto* mainLight = dynamic_cast<const scene::DirectionalLight*>(light);
-                        const auto& frustum = getBuiltinShadowFrustum(ppl, camera, mainLight, level);
-                        sceneCulling(
-                            skyboxModel,
-                            *scene, camera,
-                            frustum,
-                            bCastShadow,
-                            nullptr,
-                            models);
+                        const auto* frustum = getBuiltinShadowFrustum(ppl, camera, mainLight, level);
+                        if (frustum) {
+                            sceneCulling(
+                                skyboxModel,
+                                *scene, camera,
+                                *frustum,
+                                bCastShadow,
+                                nullptr,
+                                models);
+                        }
                     } break;
                     default:
                         // noop

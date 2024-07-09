@@ -791,24 +791,47 @@ void setLightUBO(
     }
 }
 
-namespace {
-
-const BuiltinCascadedShadowMap *addBuiltinCSMInfo(
-    const NativePipeline &ppl,
-    const pipeline::PipelineSceneData &pplSceneData,
+const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
+    const PipelineRuntime &pplRuntime,
     const scene::Camera &camera,
-    const scene::DirectionalLight *mainLight,
-    const BuiltinCascadedShadowMapKey &key,
-    pipeline::CSMLayers& csmLayers) {
+    const scene::DirectionalLight *mainLight) {
+    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
+    // no main light
+    if (!mainLight) {
+        return nullptr;
+    }
+    // not attached to a node
+    if (!mainLight->getNode()) {
+        return nullptr;
+    }
+    const pipeline::PipelineSceneData &pplSceneData = *pplRuntime.getPipelineSceneData();
+    auto &csmLayers = *pplSceneData.getCSMLayers();
+    const auto &shadows = *pplSceneData.getShadows();
+    // shadow not enabled
+    if (!shadows.isEnabled()) {
+        return nullptr;
+    }
+    // shadow type is planar
+    if (shadows.getType() == scene::ShadowType::PLANAR) {
+        return nullptr;
+    }
+
+    // find csm
+    const BuiltinCascadedShadowMapKey key{&camera, mainLight};
+    auto iter = ppl.builtinCSMs.find(key);
+    if (iter != ppl.builtinCSMs.end()) {
+        return &iter->second;
+    }
+
     // add new csm info
     bool added = false;
-    auto res = ppl.builtinCSMs.emplace(
+    std::tie(iter, added) = ppl.builtinCSMs.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(key),
         std::forward_as_tuple());
-    CC_ENSURES(res.second);
+    CC_ENSURES(added);
 
-    auto &csm = res.first->second;
+    auto &csm = iter->second;
 
     // update csm layers
     csmLayers.update(&pplSceneData, &camera);
@@ -849,52 +872,7 @@ const BuiltinCascadedShadowMap *addBuiltinCSMInfo(
     return &csm;
 }
 
-} // namespace
-
-const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
-    const PipelineRuntime &pplRuntime,
-    const scene::Camera &camera,
-    const scene::DirectionalLight *mainLight) {
-    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
-    // no main light
-    if (!mainLight) {
-        return nullptr;
-    }
-    // not attached to a node
-    if (!mainLight->getNode()) {
-        return nullptr;
-    }
-
-    const pipeline::PipelineSceneData &pplSceneData = *pplRuntime.getPipelineSceneData();
-    auto &csmLayers = *pplSceneData.getCSMLayers();
-    const auto &shadows = *pplSceneData.getShadows();
-
-    // shadow type is planar
-    if (shadows.getType() == scene::ShadowType::PLANAR) {
-        return nullptr;
-    }
-
-    const BuiltinCascadedShadowMap *result = nullptr;
-    { // find or create csm info
-        const BuiltinCascadedShadowMapKey key{&camera, mainLight};
-        auto iter = ppl.builtinCSMs.find(key);
-        if (iter != ppl.builtinCSMs.end()) {
-            result = &iter->second;
-        } else {
-            result = addBuiltinCSMInfo(ppl, pplSceneData, camera, mainLight, key, csmLayers);
-        }
-    }
-    CC_ENSURES(result);
-
-    // shadow not enabled
-    if (!shadows.isEnabled()) {
-        return nullptr;
-    }
-
-    return result;
-}
-
-const geometry::Frustum &getBuiltinShadowFrustum(
+const geometry::Frustum *getBuiltinShadowFrustum(
     const PipelineRuntime &pplRuntime,
     const scene::Camera &camera,
     const scene::DirectionalLight *mainLight,
@@ -903,22 +881,22 @@ const geometry::Frustum &getBuiltinShadowFrustum(
 
     const auto &shadows = *ppl.pipelineSceneData->getShadows();
     if (shadows.getType() == scene::ShadowType::PLANAR) {
-        return camera.getFrustum();
+        return &camera.getFrustum();
     }
 
     BuiltinCascadedShadowMapKey key{&camera, mainLight};
     auto iter = ppl.builtinCSMs.find(key);
     if (iter == ppl.builtinCSMs.end()) {
-        throw std::runtime_error("Builtin shadow CSM not found");
+        return nullptr;
     }
 
     const auto &csmLevel = mainLight->getCSMLevel();
     const auto &csm = iter->second;
 
     if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
-        return csm.specialLayer.validFrustum;
+        return &csm.specialLayer.validFrustum;
     }
-    return csm.layers[level].validFrustum;
+    return &csm.layers[level].validFrustum;
 }
 
 } // namespace render
