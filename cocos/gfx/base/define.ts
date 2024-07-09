@@ -1631,16 +1631,18 @@ export class RenderPassInfo {
 
     constructor (
         public colorAttachments: ColorAttachment[] = [],
-        public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
-        public depthStencilResolveAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
+        public depthStencilAttachment: DepthStencilAttachment | null = null,
+        public depthStencilResolveAttachment: DepthStencilAttachment | null = null,
         public subpasses: SubpassInfo[] = [],
         public dependencies: SubpassDependency[] = [],
     ) {}
 
     public copy (info: Readonly<RenderPassInfo>): RenderPassInfo {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
-        this.depthStencilAttachment.copy(info.depthStencilAttachment);
-        this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
+        if (info.depthStencilAttachment && this.depthStencilAttachment) this.depthStencilAttachment.copy(info.depthStencilAttachment);
+        if (info.depthStencilResolveAttachment && this.depthStencilResolveAttachment) {
+            this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
+        }
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
         deepCopy(this.dependencies, info.dependencies, SubpassDependency);
         return this;

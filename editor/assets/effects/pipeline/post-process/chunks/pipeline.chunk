@@ -8,5 +8,5 @@ uniform Pipeline {
 // Vulkan 1.0, Flip NDC Y
 #pragma define FLIP_VULKAN_NDC(vec) (vec).y = g_platform.w == 0.0 ? -(vec).y : (vec).y
 
-// Metal, Sample from RT
-#pragma define FLIP_SAMPLE_FROM_RT(vec) (vec).y = g_platform.w == 1.0 ? 1.0-(vec).y : (vec).y
+// GL_Like, Sample from RT
+#pragma define FLIP_SAMPLE_FROM_RT(vec) (vec).y = (g_platform.w > 1.0 ? 1.0-(vec).y : (vec).y)

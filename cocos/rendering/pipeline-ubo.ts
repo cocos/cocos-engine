@@ -446,12 +446,12 @@ export class PipelineUBO {
     protected declare _pipeline: PipelineRuntime;
 
     /**
-     *|combinedSignY|clipSpaceSignY|screenSpaceSignY| Backends |
-     *|    :--:     |    :--:      |      :--:      |   :--:   |
-     *|      0      |      -1      |      -1        |  Vulkan  |
-     *|      1      |       1      |      -1        |  Metal   |
-     *|      2      |      -1      |       1        |          |
-     *|      3      |       1      |       1        |  GL-like |
+     *|combinedSignY|clipSpaceSignY|screenSpaceSignY| Backends   |
+     *|    :--:     |    :--:      |      :--:      |   :--:     |
+     *|      0      |      -1      |      -1        |  Vulkan    |
+     *|      1      |       1      |      -1        |Metal/WebGPU|
+     *|      2      |      -1      |       1        |            |
+     *|      3      |       1      |       1        |  GL-like   |
      */
     public static getCombineSignY (): number {
         return PipelineUBO._combineSignY;
