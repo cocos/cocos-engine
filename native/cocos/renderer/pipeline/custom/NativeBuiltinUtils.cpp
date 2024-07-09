@@ -792,47 +792,24 @@ void setLightUBO(
     }
 }
 
-const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
-    const PipelineRuntime &pplRuntime,
+namespace {
+
+const BuiltinCascadedShadowMap *addBuiltinCSMInfo(
+    const NativePipeline &ppl,
+    const pipeline::PipelineSceneData &pplSceneData,
     const scene::Camera &camera,
-    const scene::DirectionalLight *mainLight) {
-    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
-    // no main light
-    if (!mainLight) {
-        return nullptr;
-    }
-    // not attached to a node
-    if (!mainLight->getNode()) {
-        return nullptr;
-    }
-    const pipeline::PipelineSceneData &pplSceneData = *pplRuntime.getPipelineSceneData();
-    auto &csmLayers = *pplSceneData.getCSMLayers();
-    const auto &shadows = *pplSceneData.getShadows();
-    // shadow not enabled
-    if (!shadows.isEnabled()) {
-        return nullptr;
-    }
-    // shadow type is planar
-    if (shadows.getType() == scene::ShadowType::PLANAR) {
-        return nullptr;
-    }
-
-    // find csm
-    const BuiltinCascadedShadowMapKey key{&camera, mainLight};
-    auto iter = ppl.builtinCSMs.find(key);
-    if (iter != ppl.builtinCSMs.end()) {
-        return &iter->second;
-    }
-
+    const scene::DirectionalLight *mainLight,
+    const BuiltinCascadedShadowMapKey &key,
+    pipeline::CSMLayers& csmLayers) {
     // add new csm info
     bool added = false;
-    std::tie(iter, added) = ppl.builtinCSMs.emplace(
+    auto res = ppl.builtinCSMs.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(key),
         std::forward_as_tuple());
-    CC_ENSURES(added);
+    CC_ENSURES(res.second);
 
-    auto &csm = iter->second;
+    auto &csm = res.first->second;
 
     // update csm layers
     csmLayers.update(&pplSceneData, &camera);
@@ -871,6 +848,50 @@ const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
     csm.shadowDistance = mainLight->getShadowDistance();
 
     return &csm;
+}
+
+} // namespace
+
+const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
+    const PipelineRuntime &pplRuntime,
+    const scene::Camera &camera,
+    const scene::DirectionalLight *mainLight) {
+    const auto &ppl = dynamic_cast<const NativePipeline &>(pplRuntime);
+    // no main light
+    if (!mainLight) {
+        return nullptr;
+    }
+    // not attached to a node
+    if (!mainLight->getNode()) {
+        return nullptr;
+    }
+    const pipeline::PipelineSceneData &pplSceneData = *pplRuntime.getPipelineSceneData();
+    auto &csmLayers = *pplSceneData.getCSMLayers();
+    const auto &shadows = *pplSceneData.getShadows();
+
+    const BuiltinCascadedShadowMap *result = nullptr;
+
+    { // find or create csm info
+        const BuiltinCascadedShadowMapKey key{&camera, mainLight};
+        auto iter = ppl.builtinCSMs.find(key);
+        if (iter != ppl.builtinCSMs.end()) {
+            result = &iter->second;
+        } else {
+            result = addBuiltinCSMInfo(ppl, pplSceneData, camera, mainLight, key, csmLayers);
+        }
+    }
+    CC_ENSURES(result);
+
+    // shadow not enabled
+    if (!shadows.isEnabled()) {
+        return nullptr;
+    }
+    // shadow type is planar
+    if (shadows.getType() == scene::ShadowType::PLANAR) {
+        return nullptr;
+    }
+
+    return result;
 }
 
 const geometry::Frustum &getBuiltinShadowFrustum(
