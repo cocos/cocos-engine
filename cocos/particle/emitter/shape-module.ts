@@ -23,16 +23,17 @@
 */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable, visible, range } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian, warn } from '../../core';
 
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
     randomPointInCube, randomSign, randomSortArray, randomUnitVector } from '../particle-general-function';
 import { ParticleSystem } from '../particle-system';
+import type { Particle } from '../particle';
 
 const _intermediVec = new Vec3(0, 0, 0);
-const _intermediArr: number[] = [];
+const _intermediArr: [number, number, number] = [0, 0, 0];
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
 function getShapeTypeEnumName (enumValue: number): keyof typeof ShapeType {
     let enumName = '';
@@ -374,19 +375,13 @@ export default class ShapeModule {
     @serializable
     private _angle = toRadian(25);
 
-    private mat: Mat4;
-    private quat: Quat;
-    private particleSystem: any;
-    private lastTime: number;
-    private totalAngle: number;
+    private mat = new Mat4();
+    private quat: Quat = new Quat();
+    private particleSystem: ParticleSystem | null = null;
+    private lastTime = 0;
+    private totalAngle = 0;
 
-    constructor () {
-        this.mat = new Mat4();
-        this.quat = new Quat();
-        this.particleSystem = null;
-        this.lastTime = 0;
-        this.totalAngle = 0;
-    }
+    constructor () {}
 
     /**
      * @en Apply particle system to this shape and create shape transform matrix.
@@ -397,7 +392,7 @@ export default class ShapeModule {
     public onInit (ps: ParticleSystem): void {
         this.particleSystem = ps;
         this.constructMat();
-        this.lastTime = this.particleSystem._time;
+        this.lastTime = this.particleSystem.time;
     }
 
     /**
@@ -406,7 +401,7 @@ export default class ShapeModule {
      * @param p @en Particle emitted. @zh 发射出来的粒子。
      * @internal
      */
-    public emit (p): void {
+    public emit (p: Particle): void {
         switch (this.shapeType) {
         case ShapeType.Box:
             boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity);
@@ -424,7 +419,7 @@ export default class ShapeModule {
             hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
             break;
         default:
-            console.warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
+            warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
         }
         if (this.randomPositionAmount > 0) {
             p.position.x += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
@@ -437,7 +432,7 @@ export default class ShapeModule {
             const sphericalVel = Vec3.normalize(_intermediVec, p.position);
             Vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
         }
-        this.lastTime = this.particleSystem._time;
+        this.lastTime = this.particleSystem!.time;
     }
 
     private constructMat (): void {
@@ -449,7 +444,7 @@ export default class ShapeModule {
         if (this.arcMode === ArcMode.Random) {
             return randomRange(0, this._arc);
         }
-        let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem._time, 1)! * (this.particleSystem._time - this.lastTime);
+        let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem!.time, 1)! * (this.particleSystem!.time - this.lastTime);
         this.totalAngle = angle;
         if (this.arcSpread !== 0) {
             angle = Math.floor(angle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
@@ -465,7 +460,7 @@ export default class ShapeModule {
     }
 }
 
-function sphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
+function sphereEmit (emitFrom: number, radius: number, radiusThickness: number, pos: Vec3, dir: Vec3): void {
     switch (emitFrom) {
     case EmitLocation.Volume:
         randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
@@ -477,11 +472,11 @@ function sphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
         Vec3.normalize(dir, pos);
         break;
     default:
-        console.warn(`${emitFrom} is not supported for sphere emitter.`);
+        warn(`${emitFrom} is not supported for sphere emitter.`);
     }
 }
 
-function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
+function hemisphereEmit (emitFrom: number, radius: number, radiusThickness: number, pos: Vec3, dir: Vec3): void {
     switch (emitFrom) {
     case EmitLocation.Volume:
         randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
@@ -499,11 +494,20 @@ function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir): void {
         Vec3.normalize(dir, pos);
         break;
     default:
-        console.warn(`${emitFrom} is not supported for hemisphere emitter.`);
+        warn(`${emitFrom} is not supported for hemisphere emitter.`);
     }
 }
 
-function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir): void {
+function coneEmit (
+    emitFrom: number,
+    radius: number,
+    radiusThickness: number,
+    theta: number,
+    angle: number,
+    length: number,
+    pos: Vec3,
+    dir: Vec3,
+): void {
     switch (emitFrom) {
     case EmitLocation.Base:
         randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
@@ -529,46 +533,44 @@ function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos,
         Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * random() / -dir.z));
         break;
     default:
-        console.warn(`${emitFrom} is not supported for cone emitter.`);
+        warn(`${emitFrom} is not supported for cone emitter.`);
     }
 }
 
-function boxEmit (emitFrom, boxThickness, pos, dir): void {
+function boxEmit (emitFrom: number, boxThickness: Vec3, pos: Vec3, dir: Vec3): void {
     switch (emitFrom) {
     case EmitLocation.Volume:
         randomPointInCube(pos, _unitBoxExtent);
         // randomPointBetweenCube(pos, vec3.multiply(_intermediVec, _unitBoxExtent, boxThickness), _unitBoxExtent);
         break;
     case EmitLocation.Shell:
-        _intermediArr.splice(0, _intermediArr.length);
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomSign() * 0.5);
+        _intermediArr[0] = randomRange(-0.5, 0.5);
+        _intermediArr[1] = randomRange(-0.5, 0.5);
+        _intermediArr[2] = randomSign() * 0.5;
         randomSortArray(_intermediArr);
         applyBoxThickness(_intermediArr, boxThickness);
         Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
         break;
     case EmitLocation.Edge:
-        _intermediArr.splice(0, _intermediArr.length);
-        _intermediArr.push(randomRange(-0.5, 0.5));
-        _intermediArr.push(randomSign() * 0.5);
-        _intermediArr.push(randomSign() * 0.5);
+        _intermediArr[0] = randomRange(-0.5, 0.5);
+        _intermediArr[1] = randomSign() * 0.5;
+        _intermediArr[2] = randomSign() * 0.5;
         randomSortArray(_intermediArr);
         applyBoxThickness(_intermediArr, boxThickness);
         Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
         break;
     default:
-        console.warn(`${emitFrom} is not supported for box emitter.`);
+        warn(`${emitFrom} is not supported for box emitter.`);
     }
     Vec3.copy(dir, particleEmitZAxis);
 }
 
-function circleEmit (radius, radiusThickness, theta, pos, dir): void {
+function circleEmit (radius: number, radiusThickness: number, theta: number, pos: Vec3, dir: Vec3): void {
     randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
     Vec3.normalize(dir, pos);
 }
 
-function applyBoxThickness (pos, thickness): void {
+function applyBoxThickness (pos: [number, number, number], thickness: Vec3): void {
     if (thickness.x > 0) {
         pos[0] += 0.5 * randomRange(-thickness.x, thickness.x);
         pos[0] = clamp(pos[0], -0.5, 0.5);

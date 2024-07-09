@@ -50,7 +50,7 @@ export default class ColorOvertimeModule extends ParticleModuleBase {
         return this._enable;
     }
 
-    public set enable (val) {
+    public set enable (val: boolean) {
         if (this._enable === val) return;
         this._enable = val;
         if (!this.target) return;

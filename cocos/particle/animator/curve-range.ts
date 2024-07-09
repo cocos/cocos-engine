@@ -263,7 +263,12 @@ export default class CurveRange  {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _onBeforeSerialize (props): readonly ['mode', 'constant', 'multiplier'] | readonly ['mode', 'spline', 'multiplier'] | readonly ['mode', 'splineMin', 'splineMax', 'multiplier'] | readonly ['mode', 'constantMin', 'constantMax', 'multiplier'] {
+    public _onBeforeSerialize (
+        props,
+    ): readonly ['mode', 'constant', 'multiplier']
+        | readonly ['mode', 'spline', 'multiplier']
+        | readonly ['mode', 'splineMin', 'splineMax', 'multiplier']
+        | readonly ['mode', 'constantMin', 'constantMax', 'multiplier'] {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this._mode];
     }
@@ -344,7 +349,12 @@ function packTexture (data, width, height): Texture2D {
     return texture;
 }
 
-function updateTexture (tex: Texture2D | null, data, width, height): Texture2D {
+function updateTexture (
+    tex: Texture2D | null,
+    data: Parameters<Texture2D['uploadData']>[0],
+    width: number,
+    height: number,
+): Texture2D {
     if (tex === null || width !== tex.width || height !== tex.height) {
         if (tex) {
             tex.destroy();
@@ -356,7 +366,13 @@ function updateTexture (tex: Texture2D | null, data, width, height): Texture2D {
     return tex;
 }
 
-export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
+export function packCurveRangeZ (
+    tex: Texture2D | null,
+    data: Float32Array | null,
+    samples: number,
+    cr: CurveRange,
+    discrete?: boolean,
+): { texture: Texture2D; texdata: Float32Array; } {
     const height = evaluateHeight(cr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -383,7 +399,13 @@ export function packCurveRangeZ (tex: Texture2D | null, data: Float32Array | nul
     }
     return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
-export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | null, samples: number, cr: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
+export function packCurveRangeN (
+    tex: Texture2D | null,
+    data: Float32Array | null,
+    samples: number,
+    cr: CurveRange,
+    discrete?: boolean,
+): { texture: Texture2D; texdata: Float32Array; } {
     const height = evaluateHeight(cr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -412,8 +434,14 @@ export function packCurveRangeN (tex: Texture2D | null, data: Float32Array | nul
     return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
-// eslint-disable-next-line max-len
-export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
+export function packCurveRangeXY (
+    tex: Texture2D | null,
+    data: Float32Array | null,
+    samples: number,
+    x: CurveRange,
+    y: CurveRange,
+    discrete?: boolean,
+): { texture: Texture2D; texdata: Float32Array; } {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y));
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -442,8 +470,15 @@ export function packCurveRangeXY (tex: Texture2D | null, data: Float32Array | nu
     return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
-// eslint-disable-next-line max-len
-export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
+export function packCurveRangeXYZ (
+    tex: Texture2D | null,
+    data: Float32Array | null,
+    samples: number,
+    x: CurveRange,
+    y: CurveRange,
+    z: CurveRange,
+    discrete?: boolean,
+): { texture: Texture2D; texdata: Float32Array; } {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z));
     const len = samples * height * 4;
     if (data === null || data.length !== len) {
@@ -472,8 +507,16 @@ export function packCurveRangeXYZ (tex: Texture2D | null, data: Float32Array | n
     return { texture: updateTexture(tex, data, samples, height), texdata: data };
 }
 
-// eslint-disable-next-line max-len
-export function packCurveRangeXYZW (tex: Texture2D | null, data: Float32Array | null, samples: number, x: CurveRange, y: CurveRange, z: CurveRange, w: CurveRange, discrete?: boolean): { texture: Texture2D; texdata: Float32Array; } {
+export function packCurveRangeXYZW (
+    tex: Texture2D | null,
+    data: Float32Array | null,
+    samples: number,
+    x: CurveRange,
+    y: CurveRange,
+    z: CurveRange,
+    w: CurveRange,
+    discrete?: boolean,
+): { texture: Texture2D; texdata: Float32Array; } {
     const height = Math.max(evaluateHeight(x), evaluateHeight(y), evaluateHeight(z), evaluateHeight(w));
     const len = samples * height * 4;
     if (data === null || data.length !== len) {

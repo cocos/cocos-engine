@@ -24,7 +24,7 @@
 */
 
 import { Armature, DisplayData, IEventDispatcher, Slot } from '@cocos/dragonbones-js';
-import { Vec3, EventTarget, _decorator } from '../core';
+import { Vec3, EventTarget, _decorator, warn } from '../core';
 // eslint-disable-next-line import/named
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
@@ -77,7 +77,7 @@ export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
      * @zh 方法未实现总返回 false。
      */
     hasEvent (type: string): boolean {
-        console.warn('Method not implemented.');
+        warn('Method not implemented.');
         return false;
     }
     /**
@@ -85,14 +85,14 @@ export class CCArmatureDisplay extends DisplayData implements IEventDispatcher {
      * @zh 方法未实现。
      */
     addEvent (type: string, listener: any, thisObject: any): void {
-        console.warn('Method not implemented.');
+        warn('Method not implemented.');
     }
     /**
      * @en The funciton has no realization.
      * @zh 方法未实现。
      */
     removeEvent (type: string, listener: any, thisObject: any): void {
-        console.warn('Method not implemented.');
+        warn('Method not implemented.');
     }
     /**
      * @en Sets EventTarget object.

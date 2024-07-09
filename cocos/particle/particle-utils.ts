@@ -27,8 +27,6 @@ import { CCObject, Pool } from '../core';
 import { Director, director } from '../game/director';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
-import CurveRange from './animator/curve-range';
-import GradientRange from './animator/gradient-range';
 
 /**
  * @en Contains some util functions for particle system. Such as create and destroy particle system.
@@ -39,16 +37,21 @@ export class ParticleUtils {
      * @en Instantiate particle system from prefab.
      * @zh 从 prefab 实例化粒子系统。
      */
-    public static instantiate (prefab): CCObject {
+    public static instantiate (prefab: any): CCObject {
         if (!this.registeredSceneEvent) {
             director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.onSceneUnload, this);
             this.registeredSceneEvent = true;
         }
-        if (!this.particleSystemPool.has(prefab._uuid)) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            this.particleSystemPool.set(prefab._uuid, new Pool<CCObject>((): any => instantiate(prefab) || new Node(), 1, (prefab): boolean => prefab.destroy()));
+        const uuid = prefab._uuid as string;
+        if (!this.particleSystemPool.has(uuid)) {
+            const ps = new Pool<CCObject>(
+                (): CCObject => instantiate(prefab as CCObject) || new Node(),
+                1,
+                (prefab): boolean => prefab.destroy(),
+            );
+            this.particleSystemPool.set(uuid, ps);
         }
-        return this.particleSystemPool.get(prefab._uuid)!.alloc();
+        return this.particleSystemPool.get(uuid)!.alloc();
     }
 
     /**
@@ -56,10 +59,11 @@ export class ParticleUtils {
      * @zh 销毁创建出来的粒子系统prefab。
      * @param prefab @en Particle system prefab to destroy. @zh 要销毁的粒子系统prefab。
      */
-    public static destroy (prefab): void {
-        if (this.particleSystemPool.has(prefab._prefab.asset._uuid)) {
+    public static destroy (prefab: Node): void {
+        const uuid = prefab.prefab?.asset?.uuid;
+        if (uuid && this.particleSystemPool.has(uuid)) {
             this.stop(prefab);
-            this.particleSystemPool.get(prefab._prefab.asset._uuid)!.free(prefab);
+            this.particleSystemPool.get(uuid)!.free(prefab);
         }
     }
 
@@ -70,7 +74,7 @@ export class ParticleUtils {
      */
     public static play (rootNode: Node): void {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
-            (ps).play();
+            ps.play();
         }
     }
 
@@ -81,7 +85,7 @@ export class ParticleUtils {
      */
     public static stop (rootNode: Node): void {
         for (const ps of rootNode.getComponentsInChildren(ParticleSystem)) {
-            (ps).stop();
+            ps.stop();
         }
     }
 

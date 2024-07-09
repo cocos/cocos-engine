@@ -205,7 +205,7 @@ export class Gradient {
             } else if (time > colorKeys[lastIndex].time) {
                 Color.lerp(out, colorKeys[lastIndex].color, Color.BLACK, (time - colorKeys[lastIndex].time) / (1 - colorKeys[lastIndex].time));
             }
-            // console.warn('something went wrong. can not get gradient color.');
+            // warn('something went wrong. can not get gradient color.');
         } else if (length === 1) {
             Color.copy(out, colorKeys[0].color);
         } else {
