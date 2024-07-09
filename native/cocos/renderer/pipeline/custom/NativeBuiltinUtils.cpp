@@ -30,7 +30,6 @@
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
-#include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
@@ -865,12 +864,17 @@ const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
     if (!mainLight->getNode()) {
         return nullptr;
     }
+
     const pipeline::PipelineSceneData &pplSceneData = *pplRuntime.getPipelineSceneData();
     auto &csmLayers = *pplSceneData.getCSMLayers();
     const auto &shadows = *pplSceneData.getShadows();
 
-    const BuiltinCascadedShadowMap *result = nullptr;
+    // shadow type is planar
+    if (shadows.getType() == scene::ShadowType::PLANAR) {
+        return nullptr;
+    }
 
+    const BuiltinCascadedShadowMap *result = nullptr;
     { // find or create csm info
         const BuiltinCascadedShadowMapKey key{&camera, mainLight};
         auto iter = ppl.builtinCSMs.find(key);
@@ -884,10 +888,6 @@ const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
 
     // shadow not enabled
     if (!shadows.isEnabled()) {
-        return nullptr;
-    }
-    // shadow type is planar
-    if (shadows.getType() == scene::ShadowType::PLANAR) {
         return nullptr;
     }
 
