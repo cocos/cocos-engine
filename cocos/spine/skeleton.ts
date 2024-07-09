@@ -1689,6 +1689,8 @@ export class Skeleton extends UIRenderer {
     protected _ensureListener (): void {
         if (!this._listener) {
             this._listener = new TrackEntryListeners();
+            const listenerID = TrackEntryListeners.addListener(this._listener);
+            this._instance!.setListener(listenerID);
         }
     }
 
@@ -1699,8 +1701,6 @@ export class Skeleton extends UIRenderer {
      */
     public setStartListener (listener: TrackListener): void {
         this._ensureListener();
-        const listenerID = TrackEntryListeners.addListener(listener);
-        this._instance!.setListener(listenerID, spine.EventType.start);
         this._listener!.start = listener;
     }
 
@@ -1711,8 +1711,6 @@ export class Skeleton extends UIRenderer {
      */
     public setInterruptListener (listener: TrackListener): void {
         this._ensureListener();
-        const listenerID = TrackEntryListeners.addListener(listener);
-        this._instance!.setListener(listenerID, spine.EventType.interrupt);
         this._listener!.interrupt = listener;
     }
 
@@ -1723,8 +1721,6 @@ export class Skeleton extends UIRenderer {
      */
     public setEndListener (listener: TrackListener): void {
         this._ensureListener();
-        const listenerID = TrackEntryListeners.addListener(listener);
-        this._instance!.setListener(listenerID, spine.EventType.end);
         this._listener!.end = listener;
     }
 
@@ -1735,8 +1731,6 @@ export class Skeleton extends UIRenderer {
      */
     public setDisposeListener (listener: TrackListener): void {
         this._ensureListener();
-        const listenerID = TrackEntryListeners.addListener(listener);
-        this._instance!.setListener(listenerID, spine.EventType.dispose);
         this._listener!.dispose = listener;
     }
 
@@ -1747,8 +1741,6 @@ export class Skeleton extends UIRenderer {
      */
     public setCompleteListener (listener: TrackListener): void {
         this._ensureListener();
-        const listenerID = TrackEntryListeners.addListener(listener);
-        this._instance!.setListener(listenerID, spine.EventType.complete);
         this._listener!.complete = listener;
     }
 
@@ -1759,8 +1751,6 @@ export class Skeleton extends UIRenderer {
      */
     public setEventListener (listener: TrackListener2): void {
         this._ensureListener();
-        const listenerID = TrackEntryListeners.addListener(listener);
-        this._instance!.setListener(listenerID, spine.EventType.event);
         this._listener!.event = listener;
     }
 
@@ -1813,7 +1803,6 @@ export class Skeleton extends UIRenderer {
     public setTrackCompleteListener (entry: spine.TrackEntry, listener: TrackListener2): void {
         const onComplete = (trackEntry: spine.TrackEntry): void => {
             const loopCount = Math.floor(trackEntry.trackTime / trackEntry.animationEnd);
-            const listenerID = TrackEntryListeners.addListener(listener);
             listener(trackEntry, loopCount);
             // this._instance.setListener(listenerID, spine.EventType.event);
             // this._listener!.event = listener;

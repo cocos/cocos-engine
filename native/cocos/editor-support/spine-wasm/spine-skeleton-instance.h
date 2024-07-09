@@ -51,7 +51,7 @@ public:
     void clearEffect();
     AnimationState *getAnimationState();
     void setMix(const std::string &from, const std::string &to, float duration);
-    void setListener(uint32_t listenerID, uint32_t type);
+    inline void setListener(uint32_t listenerID) { _eventListenerID = listenerID;}
     void setTrackEntryListener(uint32_t trackId, TrackEntry *entry);
     void onAnimationStateEvent(TrackEntry *entry, EventType type, Event *event);
     void onTrackEntryEvent(TrackEntry *entry, EventType type, Event *event);
@@ -73,11 +73,6 @@ private:
     SkeletonClipping *_clipper = nullptr;
     VertexEffect *_effect = nullptr;
     SpineModel *_model = nullptr;
-    uint32_t _startListenerID = 0;
-    uint32_t _interruptListenerID = 0;
-    uint32_t _endListenerID = 0;
-    uint32_t _disposeListenerID = 0;
-    uint32_t _completeListenerID = 0;
     uint32_t _eventListenerID = 0;
     uint32_t _trackEntryListenerID = 0;
     UserData _userData;
