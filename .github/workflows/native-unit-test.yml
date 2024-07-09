@@ -21,7 +21,7 @@ jobs:
       run:
         working-directory: ${{github.workspace}}/native
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
@@ -50,7 +50,7 @@ jobs:
       run:
         working-directory: ${{github.workspace}}/native
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download external libraries
         shell: bash
         run: |
@@ -89,7 +89,7 @@ jobs:
   #   name: "Test sebind on Ubuntu"
   #   runs-on: ubuntu-latest
   #   steps:
-  #     - uses: actions/checkout@v2
+  #     - uses: actions/checkout@v4
   #     - name: Download external libraries
   #       shell: bash
   #       run: |
