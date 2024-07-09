@@ -22,6 +22,9 @@
  THE SOFTWARE.
 */
 
+/* eslint-disable function-paren-newline */
+/* eslint-disable function-call-argument-newline */
+
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
@@ -1184,7 +1187,15 @@ export class Mat4 extends ValueType {
      *
      * @return The receiving matrix.
      */
-    public static frustum<Out extends IMat4Like> (out: Out, left: number, right: number, bottom: number, top: number, near: number, far: number): Out {
+    public static frustum<Out extends IMat4Like> (
+        out: Out,
+        left: number,
+        right: number,
+        bottom: number,
+        top: number,
+        near: number,
+        far: number,
+    ): Out {
         const rl = 1 / (right - left);
         const tb = 1 / (top - bottom);
         const nf = 1 / (near - far);
@@ -2473,12 +2484,12 @@ export function mat4(
     m30?: number, m31?: number, m32?: number, m33?: number): Mat4;
 
 export function mat4 (
-    m00?: Mat4 | number, m01?, m02?, m03?,
-    m10?, m11?, m12?, m13?,
-    m20?, m21?, m22?, m23?,
-    m30?, m31?, m32?, m33?,
+    m00?: Mat4 | number, m01?: number, m02?: number, m03?: number,
+    m10?: number, m11?: number, m12?: number, m13?: number,
+    m20?: number, m21?: number, m22?: number, m23?: number,
+    m30?: number, m31?: number, m32?: number, m33?: number,
 ): Mat4 {
-    return new Mat4(m00 as any, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
+    return new Mat4(m00 as number, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33);
 }
 
 legacyCC.mat4 = mat4;

@@ -32,6 +32,8 @@ import { director } from '../../game/director';
 import { Device, Format, FormatFeatureBit } from '../../gfx';
 import { errorID, warnID, cclegacy } from '../../core';
 
+import type { ParticleSystem } from '../particle-system';
+
 function isSupportGPUParticle (): boolean {
     const device: Device = director.root!.device;
     if (device.capabilities.maxVertexTextureUnits >= 8 && (device.getFormatFeatures(Format.RGBA32F)
@@ -275,7 +277,7 @@ export default class ParticleSystemRenderer {
         return this._alignSpace;
     }
 
-    public set alignSpace (val) {
+    public set alignSpace (val: number) {
         this._alignSpace = val;
         this._particleSystem.processor.updateAlignSpace(this._alignSpace);
     }
@@ -285,9 +287,9 @@ export default class ParticleSystemRenderer {
 
     public static AlignmentSpace = AlignmentSpace;
 
-    private _particleSystem: any = null!; // ParticleSystem
+    private _particleSystem: ParticleSystem = null!;
 
-    create (ps): void {
+    create (ps: ParticleSystem): void {
         // if particle system is null we run the old routine
         // else if particle system is not null we do nothing
         if (this._particleSystem === null) {
@@ -297,7 +299,7 @@ export default class ParticleSystemRenderer {
         }
     }
 
-    onInit (ps): void {
+    onInit (ps: ParticleSystem): void {
         this.create(ps);
         const useGPU = this._useGPU && isSupportGPUParticle();
         if (!this._particleSystem.processor) {
@@ -338,6 +340,6 @@ export default class ParticleSystemRenderer {
         this._particleSystem.processor.updateAlignSpace(this.alignSpace);
         this._particleSystem.processor.onInit(this._particleSystem);
         this._particleSystem.processor.onEnable();
-        this._particleSystem.bindModule();
+        (this._particleSystem as any).bindModule();
     }
 }

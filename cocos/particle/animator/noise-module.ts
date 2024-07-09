@@ -25,6 +25,7 @@
 import { CCFloat, CCInteger, _decorator, Vec3, random } from '../../core';
 import { ParticleNoise } from '../noise';
 import { Particle, PARTICLE_MODULE_NAME, ParticleModuleBase } from '../particle';
+import type { ParticleSystem } from '../particle-system';
 
 const { ccclass, serializable, displayOrder, type, range, slide, visible } = _decorator;
 
@@ -319,7 +320,7 @@ export class NoiseModule extends ParticleModuleBase {
      * @param width @en Texture width @zh 噪声图宽度
      * @param height @en Texture height @zh 噪声图高度
      */
-    public getNoisePreview (out: number[], ps, width: number, height: number): void {
+    public getNoisePreview (out: number[], ps: ParticleSystem, width: number, height: number): void {
         this.noise.setTime(ps.time);
         this.noise.setSpeed(this.noiseSpeedX, this.noiseSpeedY, this.noiseSpeedZ);
         this.noise.setFrequency(this.noiseFrequency);

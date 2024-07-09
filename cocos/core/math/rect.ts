@@ -200,8 +200,10 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形中心点的坐标。
      */
     get center (): Vec2 {
-        return new Vec2(this.x + this.width * 0.5,
-            this.y + this.height * 0.5);
+        return new Vec2(
+            this.x + this.width * 0.5,
+            this.y + this.height * 0.5,
+        );
     }
 
     set center (value) {
@@ -508,7 +510,7 @@ export function rect (rect: Rect): Rect;
 export function rect (x?: number, y?: number, width?: number, height?: number): Rect;
 
 export function rect (x: Rect | number = 0, y = 0, width = 0, height = 0): Rect {
-    return new Rect(x as any, y, width, height);
+    return new Rect(x as number, y, width, height);
 }
 
 legacyCC.rect = rect;
