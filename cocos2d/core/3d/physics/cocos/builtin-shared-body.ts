@@ -80,7 +80,7 @@ export class BuiltinSharedBody {
 
     set reference (v: boolean) {
         v ? this.ref++ : this.ref--;
-        if (this.ref == 0) { this.destory(); }
+        if (this.ref == 0) { this.destroy(); }
     }
 
     /** id generator */
@@ -138,7 +138,7 @@ export class BuiltinSharedBody {
         }
     }
 
-    private destory () {
+    private destroy () {
         BuiltinSharedBody.sharedBodiesMap.delete(this.node._id);
         (this.node as any) = null;
         (this.world as any) = null;
