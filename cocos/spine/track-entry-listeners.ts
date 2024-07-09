@@ -54,40 +54,40 @@ export class TrackEntryListeners {
         const listener = TrackEntryListeners._listenerSet.get(id);
         if (!listener) return;
         switch (eventType) {
-            case spine.EventType.event:
-                if (listener.event) {
-                    listener.event(entry, event);
-                }
-                break;
-            case spine.EventType.start:
-                if (listener.start) {
-                    listener.start(entry);
-                }
-                break;
-            case spine.EventType.interrupt:
-                if (listener.interrupt) {
-                    listener.interrupt(entry);
-                }
-                break;
-            case spine.EventType.end:
-                if (listener.end) {
-                    listener.end(entry);
-                }
-                break;
-            case spine.EventType.dispose:
-                if (listener.dispose) {
-                    listener.dispose(entry);
-                }
-                this._listenerSet.delete(id);
-                break;
-            case spine.EventType.complete:
-                if (listener.complete) {
-                    listener.complete(entry);
-                }
-                break;
-            default:
-                warn('emitListener doesn\'t handled', eventType);
-                break;
+        case spine.EventType.event:
+            if (listener.event) {
+                listener.event(entry, event);
+            }
+            break;
+        case spine.EventType.start:
+            if (listener.start) {
+                listener.start(entry);
+            }
+            break;
+        case spine.EventType.interrupt:
+            if (listener.interrupt) {
+                listener.interrupt(entry);
+            }
+            break;
+        case spine.EventType.end:
+            if (listener.end) {
+                listener.end(entry);
+            }
+            break;
+        case spine.EventType.dispose:
+            if (listener.dispose) {
+                listener.dispose(entry);
+            }
+            this._listenerSet.delete(id);
+            break;
+        case spine.EventType.complete:
+            if (listener.complete) {
+                listener.complete(entry);
+            }
+            break;
+        default:
+            warn('emitListener doesn\'t handled', eventType);
+            break;
         }
     }
 
