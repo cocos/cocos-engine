@@ -23,13 +23,13 @@
 */
 
 import { PixelFormat } from '../../../asset/assets/asset-enum';
-import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
-import { BufferTextureCopy } from '../../../gfx';
+import { Filter, TextureBlit } from '../../../gfx';
 import { cclegacy, warn } from '../../../core';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
 const space = 2;
+const blitTextureRegions = [new TextureBlit()];
 
 export class Atlas {
     private _texture: DynamicAtlasTexture;
@@ -106,19 +106,19 @@ export class Atlas {
             if (cclegacy.internal.dynamicAtlasManager.textureBleeding) {
                 // Smaller frame is more likely to be affected by linear filter
                 if (width <= 8 || height <= 8) {
-                    this._texture.drawTextureAt(texture.image!, this._x - 1, this._y - 1);
-                    this._texture.drawTextureAt(texture.image!, this._x - 1, this._y + 1);
-                    this._texture.drawTextureAt(texture.image!, this._x + 1, this._y - 1);
-                    this._texture.drawTextureAt(texture.image!, this._x + 1, this._y + 1);
+                    this._texture.drawTextureAt(texture, this._x - 1, this._y - 1);
+                    this._texture.drawTextureAt(texture, this._x - 1, this._y + 1);
+                    this._texture.drawTextureAt(texture, this._x + 1, this._y - 1);
+                    this._texture.drawTextureAt(texture, this._x + 1, this._y + 1);
                 }
 
-                this._texture.drawTextureAt(texture.image!, this._x - 1, this._y);
-                this._texture.drawTextureAt(texture.image!, this._x + 1, this._y);
-                this._texture.drawTextureAt(texture.image!, this._x, this._y - 1);
-                this._texture.drawTextureAt(texture.image!, this._x, this._y + 1);
+                this._texture.drawTextureAt(texture, this._x - 1, this._y);
+                this._texture.drawTextureAt(texture, this._x + 1, this._y);
+                this._texture.drawTextureAt(texture, this._x, this._y - 1);
+                this._texture.drawTextureAt(texture, this._x, this._y + 1);
             }
 
-            this._texture.drawTextureAt(texture.image!, this._x, this._y);
+            this._texture.drawTextureAt(texture, this._x, this._y);
 
             this._innerTextureInfos[texture.getId()] = {
                 x: this._x,
@@ -242,13 +242,13 @@ export class DynamicAtlasTexture extends Texture2D {
      * 将指定的图片渲染到指定的位置上。
      *
      * @method drawTextureAt
-     * @param {Texture2D} image
+     * @param {Texture2D} texture
      * @param {Number} x
      * @param {Number} y
      */
-    public drawTextureAt (image: ImageAsset, x: number, y: number): void {
-        const gfxTexture = this.getGFXTexture();
-        if (!image || !gfxTexture) {
+    public drawTextureAt (texture: Texture2D, x: number, y: number): void {
+        const dstDfxTexture = this.getGFXTexture();
+        if (!texture || !dstDfxTexture) {
             return;
         }
 
@@ -258,11 +258,18 @@ export class DynamicAtlasTexture extends Texture2D {
             return;
         }
 
-        const region = new BufferTextureCopy();
-        region.texOffset.x = x;
-        region.texOffset.y = y;
-        region.texExtent.width = image.width;
-        region.texExtent.height = image.height;
-        gfxDevice.copyTexImagesToTexture([image.data as HTMLCanvasElement], gfxTexture, [region]);
+        const srcGfxTexture = texture.getGFXTexture();
+        if (!srcGfxTexture) {
+            warn('No gfx texture found');
+            return;
+        }
+
+        const region = blitTextureRegions[0];
+        region.dstOffset.x = x;
+        region.dstOffset.y = y;
+        region.srcExtent.width = region.dstExtent.width = texture.width;
+        region.srcExtent.height = region.dstExtent.height = texture.height;
+
+        gfxDevice.commandBuffer.blitTexture(srcGfxTexture, dstDfxTexture, blitTextureRegions, Filter.POINT);
     }
 }

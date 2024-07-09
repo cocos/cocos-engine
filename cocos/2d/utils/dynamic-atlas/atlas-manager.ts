@@ -161,7 +161,7 @@ export class DynamicAtlasManager extends System {
      * @internal
      */
     public init (): void {
-        this.enabled = !macro.CLEANUP_IMAGE_CACHE;
+        this.enabled = true;
     }
 
     /**
