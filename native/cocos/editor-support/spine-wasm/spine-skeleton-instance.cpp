@@ -84,8 +84,6 @@ void SpineSkeletonInstance::setSkin(const std::string &name) {
     if (!_skeleton) return;
     _skeleton->setSkin(name.c_str());
     _skeleton->setSlotsToSetupPose();
-    _animState->apply(*_skeleton);
-    _skeleton->updateWorldTransform();
 }
 
 void SpineSkeletonInstance::updateAnimation(float dltTime) {
@@ -412,29 +410,6 @@ void SpineSkeletonInstance::setMix(const std::string &from, const std::string &t
     _animStateData->setMix(from.c_str(), to.c_str(), duration);
 }
 
-void SpineSkeletonInstance::setListener(uint32_t listenerID, uint32_t type) {
-    switch (type) {
-        case EventType_Start:
-            _startListenerID = listenerID;
-            break;
-        case EventType_Interrupt:
-            _interruptListenerID = listenerID;
-            break;
-        case EventType_End:
-            _endListenerID = listenerID;
-            break;
-        case EventType_Dispose:
-            _disposeListenerID = listenerID;
-            break;
-        case EventType_Complete:
-            _completeListenerID = listenerID;
-            break;
-        case EventType_Event:
-            _eventListenerID = listenerID;
-            break;
-    }
-}
-
 void SpineSkeletonInstance::setTrackEntryListener(uint32_t trackId, TrackEntry *entry) {
     if (!entry->getRendererObject()) {
         _trackEntryListenerID = trackId;
@@ -464,43 +439,9 @@ void SpineSkeletonInstance::onAnimationStateEvent(TrackEntry *entry, EventType t
     SpineWasmUtil::s_currentType = type;
     SpineWasmUtil::s_currentEntry = entry;
     SpineWasmUtil::s_currentEvent = event;
-    switch (type) {
-        case EventType_Start:
-            if (_startListenerID != 0) {
-                SpineWasmUtil::s_listenerID = _startListenerID;
-                spineListenerCallBackFromJS();
-            }
-            break;
-        case EventType_Interrupt:
-            if (_interruptListenerID != 0) {
-                SpineWasmUtil::s_listenerID = _interruptListenerID;
-                spineListenerCallBackFromJS();
-            }
-            break;
-        case EventType_End:
-            if (_endListenerID != 0) {
-                SpineWasmUtil::s_listenerID = _endListenerID;
-                spineListenerCallBackFromJS();
-            }
-            break;
-        case EventType_Dispose:
-            if (_disposeListenerID != 0) {
-                SpineWasmUtil::s_listenerID = _disposeListenerID;
-                spineListenerCallBackFromJS();
-            }
-            break;
-        case EventType_Complete:
-            if (_completeListenerID != 0) {
-                SpineWasmUtil::s_listenerID = _completeListenerID;
-                spineListenerCallBackFromJS();
-            }
-            break;
-        case EventType_Event:
-            if (_eventListenerID != 0) {
-                SpineWasmUtil::s_listenerID = _eventListenerID;
-                spineListenerCallBackFromJS();
-            }
-            break;
+    if (_eventListenerID != 0) {
+        SpineWasmUtil::s_listenerID = _eventListenerID;
+        spineListenerCallBackFromJS();
     }
 }
 

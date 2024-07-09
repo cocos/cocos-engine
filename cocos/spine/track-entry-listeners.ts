@@ -50,12 +50,44 @@ export class TrackEntryListeners {
         return entry.listener;
     }
 
-    static emitListener (id: number, entry: spine.TrackEntry, event: spine.Event): void {
+    static emitListener (id: number, entry: spine.TrackEntry, event: spine.Event, eventType: spine.EventType): void {
         const listener = TrackEntryListeners._listenerSet.get(id);
         if (!listener) return;
-        const listener2 = listener as TrackListener2;
-        if (listener2) {
-            listener2(entry, event);
+        switch (eventType) {
+            case spine.EventType.event:
+                if (listener.event) {
+                    listener.event(entry, event);
+                }
+                break;
+            case spine.EventType.start:
+                if (listener.start) {
+                    listener.start(entry);
+                }
+                break;
+            case spine.EventType.interrupt:
+                if (listener.interrupt) {
+                    listener.interrupt(entry);
+                }
+                break;
+            case spine.EventType.end:
+                if (listener.end) {
+                    listener.end(entry);
+                }
+                break;
+            case spine.EventType.dispose:
+                if (listener.dispose) {
+                    listener.dispose(entry);
+                }
+                this._listenerSet.delete(id);
+                break;
+            case spine.EventType.complete:
+                if (listener.complete) {
+                    listener.complete(entry);
+                }
+                break;
+            default:
+                warn('emitListener doesn\'t handled', eventType);
+                break;
         }
     }
 
@@ -101,13 +133,13 @@ export class TrackEntryListeners {
         }
     }
 
-    static addListener (listener: CommonTrackEntryListener): number {
+    static addListener (listener: TrackEntryListeners): number {
         const id = ++_listener_ID;
         TrackEntryListeners._listenerSet.set(id, listener);
         return id;
     }
 
-    private static _listenerSet = new Map<number, CommonTrackEntryListener>();
+    private static _listenerSet = new Map<number, TrackEntryListeners>();
     private static _trackSet = new Map<number, spine.TrackEntry>();
 }
 
