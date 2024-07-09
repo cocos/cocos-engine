@@ -29,7 +29,7 @@ const compareVersions = (curVersion, supportedVersion) => {
 import MultiWebSocket from './MultiWebSocket'
 import WebSocket from './WebSocket'
 const systemInfo = my.getSystemInfoSync();
-if (compareVersions(systemInfo.version, '10.35.30') >= 0) {
+if (typeof my !== 'undefined' && my && my.canIUse && my.canIUse('connectSocket.object.multiple')) {
     $global.WebSocket = MultiWebSocket;
 } else {
     $global.WebSocket = WebSocket;
