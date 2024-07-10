@@ -94,8 +94,6 @@ export const ReflectionProbeStage: typeof NrReflectionProbeStage = nr.Reflection
 export type ReflectionProbeStage = NrReflectionProbeStage;
 export { PipelineEventType } from './pipeline-event';
 
-export * from './custom/settings';
-
 interface IRenderFlowInfo {
     name: string;
     priority: number;
