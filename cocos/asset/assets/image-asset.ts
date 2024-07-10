@@ -28,7 +28,7 @@ import { EDITOR, ALIPAY, XIAOMI, JSB, TEST, BAIDU, TAOBAO, TAOBAO_MINIGAME, WECH
 import { Device, Format, FormatFeatureBit, deviceManager } from '../../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
-import { warnID, macro, sys, cclegacy } from '../../core';
+import { warnID, macro, sys, cclegacy, warn } from '../../core';
 import { ccwindow } from '../../core/global-exports';
 import { Enum } from '../../core/value-types/enum';
 
@@ -231,8 +231,11 @@ export class ImageAsset extends Asset {
             let dataOffset = fileHeaderLength;
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
-                outView.setUint32(COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
-                    file.byteLength, true); //add file data size
+                outView.setUint32(
+                    COMPRESSED_HEADER_LENGTH + COMPRESSED_MIPMAP_LEVEL_COUNT_LENGTH + i * COMPRESSED_MIPMAP_DATA_SIZE_LENGTH,
+                    file.byteLength,
+                    true,
+                ); //add file data size
 
                 // Append compresssed file
                 if (file instanceof ArrayBuffer) {
@@ -246,7 +249,7 @@ export class ImageAsset extends Asset {
             }
         } catch (e) {
             err = e as Error;
-            console.warn(err);
+            warn(err);
         }
 
         return out;
@@ -305,8 +308,14 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parseCompressedTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, type: number, out: IMemoryImageSource): void {
+    public static parseCompressedTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        type: number,
+        out: IMemoryImageSource,
+    ): void {
         switch (type) {
         case compressType.PVR:
             ImageAsset.parsePVRTexture(file, levelIndex, beginOffset, endOffset, out);
@@ -331,8 +340,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parsePVRTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePVRTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         // Get a view of the arrayBuffer that represents the DDS header.
         const header = new Int32Array(buffer, beginOffset, PVR_HEADER_LENGTH);
@@ -383,8 +397,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parsePKMTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parsePKMTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ETC_PKM_HEADER_LENGTH);
         const format = readBEUint16(header, ETC_PKM_FORMAT_OFFSET);
@@ -417,8 +436,13 @@ export class ImageAsset extends Asset {
      * @param out @zh 压缩纹理输出。
      * @engineInternal
      */
-    public static parseASTCTexture (file: ArrayBuffer | ArrayBufferView, levelIndex: number,
-        beginOffset: number, endOffset: number, out: IMemoryImageSource): void {
+    public static parseASTCTexture (
+        file: ArrayBuffer | ArrayBufferView,
+        levelIndex: number,
+        beginOffset: number,
+        endOffset: number,
+        out: IMemoryImageSource,
+    ): void {
         const buffer = file instanceof ArrayBuffer ? file : file.buffer;
         const header = new Uint8Array(buffer, beginOffset, ASTC_HEADER_LENGTH);
 
@@ -531,7 +555,7 @@ export class ImageAsset extends Asset {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
             value.format = value.format || this._format;
         }
-        this.reset(value);
+        this.reset(value as ImageSource);
     }
 
     /**

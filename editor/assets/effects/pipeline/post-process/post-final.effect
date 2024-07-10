@@ -68,7 +68,6 @@ CCProgram vs-tonemap %{
     FLIP_VULKAN_NDC(In.position);
     gl_Position = In.position;
     v_uv = a_texCoord;
-    FLIP_SAMPLE_FROM_RT(v_uv);
   }
 }%
 

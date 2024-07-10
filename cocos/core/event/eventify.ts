@@ -43,7 +43,7 @@ export interface IEventified {
      * @param callback - Callback function when event triggered.
      * @param target - Callback callee.
      */
-    hasEventListener (type: string, callback?: (...any) => void, target?: any): boolean;
+    hasEventListener (type: string, callback?: (...args: any[]) => void, target?: any): boolean;
 
     /**
      * @en
@@ -63,7 +63,7 @@ export interface IEventified {
      *     log("fire in the hole");
      * }, node);
      */
-    on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
+    on<TFunction extends (...args: any[]) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean): typeof callback;
 
     /**
      * @en
@@ -82,7 +82,7 @@ export interface IEventified {
      *     log("this is the callback and will be invoked only once");
      * }, node);
      */
-    once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
+    once<TFunction extends (...args: any[]) => void> (type: EventType, callback: TFunction, thisArg?: any): typeof callback;
 
     /**
      * @en
@@ -105,7 +105,7 @@ export interface IEventified {
      * // remove all fire event listeners
      * eventTarget.off('fire');
      */
-    off<TFunction extends (...any) => void> (type: EventType, callback?: TFunction, thisArg?: any): void;
+    off<TFunction extends (...args: any[]) => void> (type: EventType, callback?: TFunction, thisArg?: any): void;
 
     /**
      * @en Removes all callbacks previously registered with the same target (passed as parameter).

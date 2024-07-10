@@ -32,6 +32,7 @@ import {
     DescriptorSetLayoutBinding,
     Format,
     DescriptorType,
+    Filter,
 } from '../base/define';
 import { DescUpdateFrequency, WebGPUDeviceManager, isBound } from './define';
 import { WebGPUTexture } from './webgpu-texture';
@@ -150,7 +151,9 @@ export class WebGPUDescriptorSetLayout extends DescriptorSetLayout {
             entries.set(bindIdx, currEntry);
         }
         if (sampler) {
-            currEntry.sampler = { type: GFXSamplerToGPUSamplerDescType(sampler.info) };
+            const currTex = entries.get(bindIdx - SEPARATE_SAMPLER_BINDING_OFFSET)!;
+            const isUnFilter = currTex.texture!.sampleType === 'unfilterable-float';
+            currEntry.sampler = { type: isUnFilter ? 'non-filtering' : GFXSamplerToGPUSamplerDescType(sampler.info) };
             // const defaultSampler = wgpuDeviceInst.getDefaultDescResources(currEntry, sampler.gpuSampler) as WebGPUSampler;
             // this.samplers.set(bindIdx, defaultSampler);
             entries.set(bindIdx, currEntry);

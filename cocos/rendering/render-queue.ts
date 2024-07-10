@@ -66,7 +66,14 @@ export class RenderQueue {
      */
     constructor (desc: IRenderQueueDesc) {
         this._passDesc = desc;
-        this._passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
+        this._passPool = new RecyclePool<IRenderPass>((): {
+                priority: number;
+                hash: number;
+                depth: number;
+                shaderId: number;
+                subModel: any;
+                passIdx: number;
+            } => ({
             priority: 0,
             hash: 0,
             depth: 0,
@@ -102,7 +109,7 @@ export class RenderQueue {
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
         }
-        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | (pass.priority as number) << 16 | (subModel.priority as number) << 8 | passIdx;
         const rp = this._passPool.add();
         rp.priority = renderObj.model.priority;
         rp.hash = hash;

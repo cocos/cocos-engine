@@ -25,6 +25,7 @@
 import { ccclass, type, serializable, editable, range } from 'cc.decorator';
 import { repeat } from '../core/math';
 import CurveRange from './animator/curve-range';
+import type { ParticleSystem } from './particle-system';
 
 /**
  * @en
@@ -100,17 +101,17 @@ export default class Burst {
      * @param dt @en Update interval time. @zh 粒子系统更新的间隔时间。
      * @internal
      */
-    public update (psys, dt: number): void {
+    public update (psys: ParticleSystem, dt: number): void {
         if (this._remainingCount === 0) {
             this._remainingCount = this._repeatCount;
             this._curTime = this._time;
         }
         if (this._remainingCount > 0) {
-            let preFrameTime = repeat(psys._time - psys.startDelay.evaluate(0, 1), psys.duration) - dt;
+            let preFrameTime = repeat(psys.time - psys.startDelay.evaluate(0, 1), psys.duration) - dt;
             preFrameTime = (preFrameTime > 0.0) ? preFrameTime : 0.0;
             const curFrameTime = repeat(psys.time - psys.startDelay.evaluate(0, 1), psys.duration);
             if (this._curTime >= preFrameTime && this._curTime < curFrameTime) {
-                psys.emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
+                (psys as any).emit(this.count.evaluate(this._curTime / psys.duration, 1), dt - (curFrameTime - this._curTime));
                 this._curTime += this.repeatInterval;
                 --this._remainingCount;
             }

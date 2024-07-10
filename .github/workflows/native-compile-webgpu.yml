@@ -23,7 +23,7 @@ jobs:
     name: "Emscripten"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Download external libraries
         shell: bash

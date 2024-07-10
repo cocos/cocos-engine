@@ -22,6 +22,9 @@
  THE SOFTWARE.
 */
 
+/* eslint-disable function-call-argument-newline */
+/* eslint-disable function-paren-newline */
+
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
@@ -138,7 +141,11 @@ export class Quat extends ValueType {
      * @en Quaternion multiplication and save the results to out quaternion, that is a * b.
      * @zh 四元数乘法，即a * b。
      */
-    public static multiply<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (out: Out, a: QuatLike_1, b: QuatLike_2): Out {
+    public static multiply<Out extends IQuatLike, QuatLike_1 extends IQuatLike, QuatLike_2 extends IQuatLike> (
+        out: Out,
+        a: QuatLike_1,
+        b: QuatLike_2,
+    ): Out {
         const x = a.x * b.w + a.w * b.x + a.y * b.z - a.z * b.y;
         const y = a.y * b.w + a.w * b.y + a.z * b.x - a.x * b.z;
         const z = a.z * b.w + a.w * b.z + a.x * b.y - a.y * b.x;
@@ -428,10 +435,12 @@ export class Quat extends ValueType {
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
     public static fromAxes<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, xAxis: VecLike, yAxis: VecLike, zAxis: VecLike): Out {
-        Mat3.set(m3_1,
+        Mat3.set(
+            m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
-            zAxis.x, zAxis.y, zAxis.z);
+            zAxis.x, zAxis.y, zAxis.z,
+        );
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }
 
@@ -908,7 +917,7 @@ export function quat (other: Quat): Quat;
 export function quat (x?: number, y?: number, z?: number, w?: number): Quat;
 
 export function quat (x: number | Quat = 0, y = 0, z = 0, w = 1): Quat {
-    return new Quat(x as any, y, z, w);
+    return new Quat(x as number, y, z, w);
 }
 
 legacyCC.quat = quat;

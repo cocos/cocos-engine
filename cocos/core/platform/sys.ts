@@ -312,7 +312,7 @@ export const sys = {
                     localStorage.removeItem('storage');
                     localStorage = null;
                 } catch (e) {
-                    const warn = function (...args: any): any {
+                    const warn = function warn (...args: any): any {
                         warnID(5200);
                     };
                     this.localStorage = {

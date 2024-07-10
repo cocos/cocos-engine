@@ -22,11 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/* eslint-disable no-undef */
+
 const fs = my.getFileSystemManager ? my.getFileSystemManager() : null;
 const outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
 
 const fsUtils = {
-
     fs,
 
     isOutOfStorage (errMsg) {
@@ -205,6 +206,7 @@ const fsUtils = {
     rmdirSync (dirPath, recursive) {
         try {
             fs.rmdirSync({ dirPath, recursive });
+            return null;
         } catch (e) {
             console.warn(`rm directory failed: path: ${dirPath} message: ${e.message}`);
             return new Error(e.message);
@@ -234,7 +236,8 @@ const fsUtils = {
     },
 
     loadSubpackage (name, onProgress, onComplete) {
-        const task = my.loadSubPackage({
+        // const task =
+        my.loadSubPackage({
             name,
             success () {
                 onComplete && onComplete();

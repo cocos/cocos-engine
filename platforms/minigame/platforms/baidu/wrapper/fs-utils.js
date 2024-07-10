@@ -22,6 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
+/* eslint-disable no-undef */
+
 const fs = swan.getFileSystemManager ? swan.getFileSystemManager() : null;
 const outOfStorageRegExp = /file size over/;
 
@@ -87,7 +89,7 @@ const fsUtils = {
         swan.saveFile({
             tempFilePath: srcPath,
             filePath: destPath,
-            success (res) {
+            success () {
                 onComplete && onComplete(null);
             },
             fail (res) {
@@ -209,6 +211,7 @@ const fsUtils = {
     rmdirSync (dirPath, recursive) {
         try {
             fs.rmdirSync(dirPath, recursive);
+            return null;
         } catch (e) {
             console.warn(`rm directory failed: path: ${dirPath} message: ${e.message}`);
             return new Error(e.message);

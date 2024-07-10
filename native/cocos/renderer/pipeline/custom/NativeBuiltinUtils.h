@@ -111,7 +111,7 @@ const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
     const scene::Camera &camera,
     const scene::DirectionalLight *mainLight);
 
-const geometry::Frustum &getBuiltinShadowFrustum(
+const geometry::Frustum *getBuiltinShadowFrustum(
     const PipelineRuntime &pplRuntime,
     const scene::Camera &camera,
     const scene::DirectionalLight *mainLight,

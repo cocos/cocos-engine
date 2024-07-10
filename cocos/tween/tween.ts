@@ -60,12 +60,12 @@ export interface ITweenCustomProperty<Value> {
     value: MaybeUnionStringNumber<Value> | (() => MaybeUnionStringNumber<Value>);
     progress?: TweenCustomProgress;
     easing?: TweenCustomEasing;
-    convert?: ExtendsReturnResultOrNever<Value, string, (v: string) => number | string>;   // Supported from v3.8.5
-    clone?: ExtendsReturnResultOrNever<Value, object, (v: Value) => Value>; // Supported from v3.8.5
-    add?: (a: Value, b: Value) => Value; // Supported from v3.8.5
-    sub?: (a: Value, b: Value) => Value; // Supported from v3.8.5
-    legacyProgress?: ExtendsReturnResultOrNever<Value, object, boolean>;    // Supported from v3.8.5, the default value is true for compatiblity
-    toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.5
+    convert?: ExtendsReturnResultOrNever<Value, string, (v: string) => number | string>;   // Supported from v3.8.4
+    clone?: ExtendsReturnResultOrNever<Value, object, (v: Value) => Value>; // Supported from v3.8.4
+    add?: (a: Value, b: Value) => Value; // Supported from v3.8.4
+    sub?: (a: Value, b: Value) => Value; // Supported from v3.8.4
+    legacyProgress?: ExtendsReturnResultOrNever<Value, object, boolean>;    // Supported from v3.8.4, the default value is true for compatiblity
+    toFixed?: ExtendsReturnResultOrNever<Value, string, number>;            // Supported from v3.8.4
     onStart?: (param: ITweenCustomPropertyStartParameter<Value>) => void;
     onStop?: () => void;
     onComplete?: () => void;
