@@ -29,15 +29,18 @@ import {
     CCFloat,
     CCInteger,
     Component,
-    fillRequiredPipelineSettings,
-    makePipelineSettings,
     Material,
-    PipelineSettings,
     rendering,
     Texture2D,
 } from 'cc';
 
 import { EDITOR } from 'cc/env';
+
+import {
+    PipelineSettings,
+    makePipelineSettings,
+    fillRequiredPipelineSettings,
+} from './builtin-pipeline-types';
 
 const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireComponent, type } = _decorator;
 

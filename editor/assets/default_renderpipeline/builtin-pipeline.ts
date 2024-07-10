@@ -29,10 +29,8 @@ import {
     geometry,
     gfx,
     Layers,
-    makePipelineSettings,
     Material,
     pipeline,
-    PipelineSettings,
     renderer,
     rendering,
     sys,
@@ -43,6 +41,11 @@ import {
     PipelineEventType,
     PipelineEventProcessor,
 } from 'cc';
+
+import {
+    PipelineSettings,
+    makePipelineSettings,
+} from './builtin-pipeline-types';
 
 const { AABB, Sphere, intersect } = geometry;
 const { ClearFlagBit, Color, Format, FormatFeatureBit, LoadOp, StoreOp, TextureType, Viewport } = gfx;
@@ -183,7 +186,7 @@ function setupCameraConfigs(
     cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
 
     cameraConfigs.settings = camera.pipelineSettings
-        ? camera.pipelineSettings : defaultSettings;
+        ? camera.pipelineSettings as PipelineSettings : defaultSettings;
 
     setupPostProcessConfigs(pipelineConfigs, cameraConfigs.settings, cameraConfigs);
 
@@ -800,10 +803,6 @@ if (rendering) {
             this._viewport.width = width;
             this._viewport.height = height;
 
-            // if (cclegacy.WebGPUDevice && ppl.device instanceof cclegacy.WebGPUDevice) {
-            //     width = 512;
-            //     height = 512;
-            // }
             // ----------------------------------------------------------------
             // CSM Shadow Map
             // ----------------------------------------------------------------
@@ -1296,7 +1295,7 @@ if (rendering) {
                 .addScene(
                     camera,
                     SceneFlags.SHADOW_CASTER | SceneFlags.PLANAR_SHADOW | SceneFlags.BLEND,
-                    mainLight
+                    mainLight || undefined
                 );
         }
         private _addForwardMultipleRadiancePasses(
