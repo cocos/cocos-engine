@@ -162,11 +162,10 @@ function setupPostProcessConfigs(
     cameraConfigs.enableFXAA = settings.fxaa.enabled
         && settings.fxaa.material !== null;
 
-    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput
-        && (cameraConfigs.enableDOF
-            || cameraConfigs.enableBloom
-            || cameraConfigs.enableColorGrading
-            || cameraConfigs.enableFXAA);
+    cameraConfigs.enablePostProcess = (cameraConfigs.enableDOF
+        || cameraConfigs.enableBloom
+        || cameraConfigs.enableColorGrading
+        || cameraConfigs.enableFXAA);
 }
 
 function setupCameraConfigs(
@@ -477,7 +476,7 @@ if (rendering) {
             // Radiance
             if (this._configs.useFloatOutput) {
                 ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
-            } else if (this._cameraConfigs.enableShadingScale) {
+            } else if (this._cameraConfigs.enableShadingScale || this._cameraConfigs.enablePostProcess) {
                 ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
             } else {
                 // Reuse render window
@@ -576,7 +575,8 @@ if (rendering) {
                 }
                 // Setup camera configs
                 setupCameraConfigs(camera, this._configs, this._cameraConfigs);
-                // log(`Setup camera: ${camera.node!.name}, window: ${camera.window.renderWindowId}, isFull: ${this._cameraConfigs.useFullPipeline}`);
+                // log(`Setup camera: ${camera.node!.name}, window: ${camera.window.renderWindowId}, isFull: ${this._cameraConfigs.useFullPipeline}, `
+                //     + `size: ${camera.window.width}x${camera.window.height}`);
 
                 this._pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
 
@@ -679,68 +679,63 @@ if (rendering) {
 
             // Forward Lighting
             let lastPass: rendering.BasicRenderPassBuilder;
-            if (this._cameraConfigs.enableHDR) { // HDR
-                if (this._cameraConfigs.enablePostProcess) { // Post Process
-                    // Radiance and DoF
-                    if (this._cameraConfigs.enableDOF && settings.depthOfField.material) {
-                        const dofRadianceName = `DofRadiance${id}`;
-                        // Disable MSAA, depth stencil cannot be resolved cross-platformly
-                        this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
-                            dofRadianceName, depthStencilName, true, StoreOp.STORE);
-                        this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
-                            id, camera, width, height,
-                            dofRadianceName, depthStencilName, radianceName);
-                    } else {
-                        this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
-                            radianceName, depthStencilName);
-                    }
-                    // Bloom
-                    if (this._cameraConfigs.enableBloom && settings.bloom.material) {
-                        this._addKawaseDualFilterBloomPasses(ppl, settings, settings.bloom.material,
-                            id, width, height, radianceName);
-                    }
-                    // Tone Mapping and FXAA
-                    if (settings.fxaa.enabled && settings.fxaa.material) {
-                        const ldrColorName = `LdrColor${id}`;
-                        // FXAA is applied after tone mapping
+            if (this._cameraConfigs.enablePostProcess) { // Post Process
+                // Radiance and DoF
+                if (this._cameraConfigs.enableDOF && settings.depthOfField.material) {
+                    const dofRadianceName = `DofRadiance${id}`;
+                    // Disable MSAA, depth stencil cannot be resolved cross-platformly
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
+                        dofRadianceName, depthStencilName, true, StoreOp.STORE);
+                    this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
+                        id, camera, width, height,
+                        dofRadianceName, depthStencilName, radianceName);
+                } else {
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
+                        radianceName, depthStencilName);
+                }
+                // Bloom
+                if (this._cameraConfigs.enableBloom && settings.bloom.material) {
+                    this._addKawaseDualFilterBloomPasses(ppl, settings, settings.bloom.material,
+                        id, width, height, radianceName);
+                }
+                // Tone Mapping and FXAA
+                if (this._cameraConfigs.enableFXAA && settings.fxaa.material) {
+                    const copyAndTonemapPassNeeded = this._cameraConfigs.enableHDR
+                        || this._cameraConfigs.enableColorGrading;
+                    const ldrColorName = copyAndTonemapPassNeeded ? `LdrColor${id}` : radianceName;
+                    // FXAA is applied after tone mapping
+                    if (copyAndTonemapPassNeeded) {
                         this._addCopyAndTonemapPass(ppl, settings, width, height, radianceName, ldrColorName);
-                        // Apply FXAA
-                        if (this._cameraConfigs.enableShadingScale) {
-                            const aaColorName = `AaColor${id}`;
-                            // Apply FXAA on scaled image
-                            this._addFxaaPass(ppl, settings.fxaa.material,
-                                width, height, ldrColorName, aaColorName);
-                            // Copy FXAA result to screen
-                            if (this._cameraConfigs.enableFSR && settings.fsr.material) {
-                                // Apply FSR
-                                lastPass = this._addFsrPass(ppl, settings, settings.fsr.material,
-                                    id, width, height, aaColorName,
-                                    nativeWidth, nativeHeight, colorName);
-                            } else {
-                                // Scale FXAA result to screen
-                                lastPass = this._addCopyPass(ppl, settings.copyMaterial,
-                                    nativeWidth, nativeHeight, aaColorName, colorName);
-                            }
+                    }
+                    // Apply FXAA
+                    if (this._cameraConfigs.enableShadingScale) {
+                        const aaColorName = `AaColor${id}`;
+                        // Apply FXAA on scaled image
+                        this._addFxaaPass(ppl, settings.fxaa.material,
+                            width, height, ldrColorName, aaColorName);
+                        // Copy FXAA result to screen
+                        if (this._cameraConfigs.enableFSR && settings.fsr.material) {
+                            // Apply FSR
+                            lastPass = this._addFsrPass(ppl, settings, settings.fsr.material,
+                                id, width, height, aaColorName,
+                                nativeWidth, nativeHeight, colorName);
                         } else {
-                            // Image not scaled, output FXAA result to screen directly
-                            lastPass = this._addFxaaPass(ppl, settings.fxaa.material,
-                                nativeWidth, nativeHeight, ldrColorName, colorName);
+                            // Scale FXAA result to screen
+                            lastPass = this._addCopyPass(ppl, settings.copyMaterial,
+                                nativeWidth, nativeHeight, aaColorName, colorName);
                         }
                     } else {
-                        // No FXAA (Size might be scaled)
-                        lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                            width, height, radianceName,
-                            nativeWidth, nativeHeight, colorName);
+                        // Image not scaled, output FXAA result to screen directly
+                        lastPass = this._addFxaaPass(ppl, settings.fxaa.material,
+                            nativeWidth, nativeHeight, ldrColorName, colorName);
                     }
                 } else {
-                    // No post process, output HDR result to screen directly (Size might be scaled)
-                    this._addForwardRadiancePasses(ppl, id, camera,
-                        width, height, mainLight, radianceName, depthStencilName);
+                    // No FXAA (Size might be scaled)
                     lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
                         width, height, radianceName,
                         nativeWidth, nativeHeight, colorName);
                 }
-            } else if (this._cameraConfigs.enableShadingScale) { // LDR (Size is scaled)
+            } else if (this._cameraConfigs.enableHDR || this._cameraConfigs.enableShadingScale) { // HDR or Scaled LDR
                 this._addForwardRadiancePasses(ppl, id, camera,
                     width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
