@@ -52,7 +52,7 @@ export abstract class Action {
     protected target: unknown = null;
 
     /**
-     * The `workerTarget` was added from Cocos Creator 3.8.5 and it's used for nest `Tween` functionality.
+     * The `workerTarget` was added from Cocos Creator 3.8.4 and it's used for nest `Tween` functionality.
      * It stores the target of sub-tween and its value may be different from `target`.
      *
      * Example 1:

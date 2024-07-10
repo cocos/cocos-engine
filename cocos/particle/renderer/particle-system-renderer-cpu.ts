@@ -38,6 +38,7 @@ import { ParticleNoise } from '../noise';
 import { NoiseModule } from '../animator/noise-module';
 import { isCurveTwoValues } from '../particle-general-function';
 import type { ParticleSystem } from '../particle-system';
+import type ParticleSystemRenderer from './particle-system-renderer-data';
 
 const _tempNodeScale = new Vec4();
 const _tempAttribUV = new Vec3();
@@ -46,7 +47,7 @@ const _tempParentInverse = new Mat4();
 const _node_rot = new Quat();
 const _node_euler = new Vec3();
 
-const _anim_module = [
+const _animModule = [
     '_colorOverLifetimeModule',
     '_sizeOvertimeModule',
     '_velocityOvertimeModule',
@@ -177,8 +178,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _localMat: Mat4 = new Mat4();
     private _gravity: Vec4 = new Vec4();
 
-    constructor (info: any) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+    constructor (info: ParticleSystemRenderer) {
         super(info);
 
         this._model = null;
@@ -247,23 +247,22 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         return this._defaultTrailMat;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     public setNewParticle (p: Particle): void {
     }
 
     private _initModuleList (): void {
-        _anim_module.forEach((val): void => {
+        _animModule.forEach((val: string): void => {
             if (!this._particleSystem) {
                 return;
             }
-            const pm = this._particleSystem[val];
+            const pm = this._particleSystem[val] as IParticleModule;
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
-                    this._updateList[pm.name] = pm;
+                    this._updateList.set(pm.name, pm);
                 }
 
                 if (pm.needAnimate) {
-                    this._animateList[pm.name] = pm;
+                    this._animateList.set(pm.name, pm);
                 }
             }
         });
@@ -271,9 +270,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p = this._animateList.get(PARTICLE_MODULE_ORDER[i]);
             if (p) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 this._runAnimateList.push(p);
             }
         }
@@ -282,20 +280,20 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public enableModule (name: string, val: boolean, pm: IParticleModule): void {
         if (val) {
             if (pm.needUpdate) {
-                this._updateList[pm.name] = pm;
+                this._updateList.set(pm.name, pm);
             }
 
             if (pm.needAnimate) {
-                this._animateList[pm.name] = pm;
+                this._animateList.set(pm.name, pm);
             }
         } else {
-            delete this._animateList[name];
-            delete this._updateList[name];
+            this._animateList.delete(name);
+            this._updateList.delete(name);
         }
         // reorder
         this._runAnimateList.length = 0;
         for (let i = 0, len = PARTICLE_MODULE_ORDER.length; i < len; i++) {
-            const p: IParticleModule = this._animateList[PARTICLE_MODULE_ORDER[i]];
+            const p = this._animateList.get(PARTICLE_MODULE_ORDER[i]);
             if (p) {
                 this._runAnimateList.push(p);
             }
@@ -304,7 +302,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.updateMaterialParams();
     }
 
-    public updateAlignSpace (space): void {
+    public updateAlignSpace (space: number): void {
         this._alignSpace = space;
     }
 
@@ -386,13 +384,17 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this.doUpdateRotation(pass);
 
         this._updateList.forEach((value: IParticleModule, key: string): void => {
-            value.update(ps.simulationSpace, _tempWorldTrans);
+            // TODO(cjh): Bug here? _updateList is a Map, the old code uses `this._updateList['some_key'] = some_value;`
+            // to do the assignment which forEach will not take care of it.
+            // In order not to change the behavior in this PR ( https://github.com/cocos/cocos-engine/pull/17289 )
+            // We commented the update the particle module temporarily.
+            // value.update(ps.simulationSpace, _tempWorldTrans);
         });
 
         const trailModule = ps._trailModule;
         const trailEnable = trailModule && trailModule.enable;
         if (trailEnable) {
-            trailModule!.update();
+            trailModule.update();
         }
 
         const useGravity = !ps.gravityModifier.isZero();
@@ -417,7 +419,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             if (p.remainingLifetime < 0.0) {
                 if (trailEnable) {
-                    trailModule!.removeParticle(p);
+                    trailModule.removeParticle(p);
                 }
                 this._particles!.removeAt(i);
                 --i;
@@ -457,7 +459,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             Vec3.scaleAndAdd(p.position, p.position, p.ultimateVelocity, dt); // apply velocity.
             if (trailEnable) {
-                trailModule!.animate(p, dt);
+                trailModule.animate(p, dt);
             }
         }
 
@@ -469,7 +471,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._runAnimateList.forEach((value): void => {
             if (value.name === PARTICLE_MODULE_NAME.NOISE) {
                 const m = value as NoiseModule;
-                m.getNoisePreview(out, this._particleSystem, width, height);
+                m.getNoisePreview(out, this._particleSystem!, width, height);
             }
         });
     }

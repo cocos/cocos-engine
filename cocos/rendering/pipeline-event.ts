@@ -71,25 +71,34 @@ export enum PipelineEventType {
     ATTACHMENT_SCALE_CAHNGED = 'attachment-scale-changed'
 }
 
+export type PipelineEventCallback = (...args: any[]) => void;
 export class PipelineEventProcessor extends EventTarget implements IPipelineEvent {
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
 
-    public on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback {
+    public on<TFunction extends PipelineEventCallback> (
+        type: PipelineEventType,
+        callback: TFunction,
+        target?: any,
+        once?: boolean,
+    ): typeof callback {
         return this.eventTargetOn(type, callback, target, once);
     }
 
-    public once (type: PipelineEventType, callback: any, target?: any): typeof callback {
+    public once<TFunction extends PipelineEventCallback> (
+        type: PipelineEventType,
+        callback: TFunction,
+        target?: any,
+    ): typeof callback {
         return this.eventTargetOnce(type, callback, target);
     }
 }
-
 export interface IPipelineEvent {
-    on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback;
-    once (type: PipelineEventType, callback: any, target?: any): typeof callback;
-    off (type: PipelineEventType, callback?: any, target?: any);
-    emit (type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any);
+    on (type: PipelineEventType, callback: PipelineEventCallback, target?: any, once?: boolean): typeof callback;
+    once (type: PipelineEventType, callback: PipelineEventCallback, target?: any): typeof callback;
+    off (type: PipelineEventType, callback?: PipelineEventCallback, target?: any): void;
+    emit (type: PipelineEventType, arg0?: any, arg1?: any, arg2?: any, arg3?: any, arg4?: any): void;
     targetOff (typeOrTarget: any): void;
     removeAll (typeOrTarget: any): void;
-    hasEventListener (type: PipelineEventType, callback?: any, target?: any): boolean;
+    hasEventListener (type: PipelineEventType, callback?: PipelineEventCallback, target?: any): boolean;
 }

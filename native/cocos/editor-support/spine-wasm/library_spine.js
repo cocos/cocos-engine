@@ -4,7 +4,8 @@ mergeInto(LibraryManager.library, {
         var listenerID = wasmUtil.getCurrentListenerID();
         var trackEntry = wasmUtil.getCurrentTrackEntry();
         var event = wasmUtil.getCurrentEvent();
-        globalThis.TrackEntryListeners.emitListener(listenerID, trackEntry, event);
+        var eventType = wasmUtil.getCurrentEventType();
+        globalThis.TrackEntryListeners.emitListener(listenerID, trackEntry, event, eventType.value);
     },
 
     spineTrackListenerCallback: function() {

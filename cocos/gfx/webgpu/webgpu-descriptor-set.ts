@@ -35,6 +35,7 @@ import {
     DescriptorSetLayoutBinding,
     DescriptorType,
     ShaderStageFlagBit,
+    Filter,
 } from '../base/define';
 import { DescUpdateFrequency, WebGPUDeviceManager, isBound } from './define';
 import { SEPARATE_SAMPLER_BINDING_OFFSET } from './webgpu-commands';
@@ -133,10 +134,19 @@ export class WebGPUDescriptorSet extends DescriptorSet {
         const samplerIdx = bind.binding + SEPARATE_SAMPLER_BINDING_OFFSET;
         this._gpuDescriptorSet!.gpuDescriptors[bind.binding].gpuSampler = sampler.gpuSampler;
         const layout = this._layout as WebGPUDescriptorSetLayout;
-        sampler.createGPUSampler(this._textures[bind.binding].levelCount);
+        const currTexture = this._textures[bind.binding] as WebGPUTexture;
+        const levelCount = currTexture.levelCount;
+        const texFormat = currTexture.format;
+        const isUnFilter = FormatToWGPUFormatType(texFormat) === 'unfilterable-float';
+        if (isUnFilter) {
+            sampler.gpuSampler.minFilter = Filter.POINT;
+            sampler.gpuSampler.magFilter = Filter.POINT;
+            sampler.gpuSampler.mipFilter = Filter.POINT;
+        }
+        const currGPUSampler = sampler.createGPUSampler(levelCount);
         const bindSamplerGrpEntry: GPUBindGroupEntry = {
             binding: samplerIdx,
-            resource: sampler.gpuSampler?.gpuSampler as GPUSampler,
+            resource: currGPUSampler as GPUSampler,
         };
         layout.updateBindGroupLayout(bind, null, null, sampler);
         this._bindGroupEntries.set(samplerIdx, bindSamplerGrpEntry);

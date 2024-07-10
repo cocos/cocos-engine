@@ -84,6 +84,7 @@ function getCsmMainLightViewport(
 
 class PipelineConfigs {
     isWeb = false;
+    isWebGPU = false;
     isMobile = false;
     isHDR = false;
     useFloatOutput = false;
@@ -103,6 +104,7 @@ function setupPipelineConfigs(
 ): void {
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
     configs.isWeb = !sys.isNative;
+    configs.isWebGPU = (cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
     configs.isMobile = sys.isMobile;
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -114,7 +116,8 @@ function setupPipelineConfigs(
 
     const device = ppl.device;
     configs.platform.x = configs.isMobile ? 1.0 : 0.0;
-    configs.platform.w = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
+    const screenSpaceSignY = device.capabilities.screenSpaceSignY;
+    configs.platform.w = (screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
 }
 
 const defaultSettings = makePipelineSettings();
@@ -595,17 +598,44 @@ if (rendering) {
             const width = Math.max(Math.floor(camera.window.width), 1);
             const height = Math.max(Math.floor(camera.window.height), 1);
             const colorName = camera.window.colorName;
+            const depthStencilName = camera.window.depthStencilName;
 
             this._viewport.left = Math.floor(camera.viewport.x * width);
             this._viewport.top = Math.floor(camera.viewport.y * height);
             this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
             this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
 
+            this._clearColor.x = camera.clearColor.x;
+            this._clearColor.y = camera.clearColor.y;
+            this._clearColor.z = camera.clearColor.z;
+            this._clearColor.w = camera.clearColor.w;
+
             const pass = ppl.addRenderPass(width, height, 'default');
-            pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
+
+            // bind output render target
+            if (forwardNeedClearColor(camera)) {
+                pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColor);
+            } else {
+                pass.addRenderTarget(colorName, LoadOp.LOAD, StoreOp.STORE);
+            }
+
+            // bind depth stencil buffer
+            if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
+                pass.addDepthStencil(
+                    depthStencilName,
+                    LoadOp.CLEAR,
+                    StoreOp.DISCARD,
+                    camera.clearDepth,
+                    camera.clearStencil,
+                    camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
+                );
+            } else {
+                pass.addDepthStencil(depthStencilName, LoadOp.LOAD, StoreOp.DISCARD);
+            }
+
             pass.setViewport(this._viewport);
-            pass.addQueue(QueueHint.NONE)
-                .addScene(camera, SceneFlags.BLEND);
+            pass.addQueue(QueueHint.BLEND)
+                .addScene(camera, SceneFlags.BLEND | SceneFlags.UI);
         }
 
         private _buildForwardPipeline(
@@ -770,6 +800,10 @@ if (rendering) {
             this._viewport.width = width;
             this._viewport.height = height;
 
+            // if (cclegacy.WebGPUDevice && ppl.device instanceof cclegacy.WebGPUDevice) {
+            //     width = 512;
+            //     height = 512;
+            // }
             // ----------------------------------------------------------------
             // CSM Shadow Map
             // ----------------------------------------------------------------
@@ -783,7 +817,9 @@ if (rendering) {
             for (let level = 0; level !== csmLevel; ++level) {
                 getCsmMainLightViewport(light, width, height, level, this._viewport, this._configs.screenSpaceSignY);
                 const queue = pass.addQueue(QueueHint.NONE, 'shadow-caster');
-                queue.setViewport(this._viewport);
+                if (!this._configs.isWebGPU) { // Temporary workaround for WebGPU
+                    queue.setViewport(this._viewport);
+                }
                 queue
                     .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER)
                     .useLightFrustum(light, level);
@@ -1146,7 +1182,7 @@ if (rendering) {
                 pass.showStatistics = true;
             }
             pass
-                .addQueue(QueueHint.BLEND)
+                .addQueue(QueueHint.BLEND, 'default', 'default')
                 .addScene(camera, flags);
         }
 
@@ -1192,7 +1228,7 @@ if (rendering) {
                     colorName, depthStencilName, depthStencilStoreOp)
                 : this._addForwardMultipleRadiancePasses(ppl, id, camera, width, height, mainLight,
                     colorName, depthStencilName, depthStencilStoreOp);
-
+            this.addPlanarShadowQueues(ppl, pass, camera, mainLight);
             // ----------------------------------------------------------------
             // Forward Lighting (Blend)
             // ----------------------------------------------------------------
@@ -1254,7 +1290,15 @@ if (rendering) {
 
             return pass;
         }
-
+        public addPlanarShadowQueues(ppl: rendering.BasicPipeline, pass: rendering.BasicRenderPassBuilder,
+            camera: renderer.scene.Camera, mainLight: renderer.scene.DirectionalLight | null) {
+            pass.addQueue(QueueHint.BLEND, 'planar-shadow')
+                .addScene(
+                    camera,
+                    SceneFlags.SHADOW_CASTER | SceneFlags.PLANAR_SHADOW | SceneFlags.BLEND,
+                    mainLight
+                );
+        }
         private _addForwardMultipleRadiancePasses(
             ppl: rendering.BasicPipeline,
             id: number,

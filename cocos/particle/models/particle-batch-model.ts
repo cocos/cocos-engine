@@ -26,7 +26,7 @@
 import { JSB } from 'internal:constants';
 import { Mesh } from '../../3d/assets/mesh';
 import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
-    Attribute, DRAW_INFO_SIZE, Buffer, BufferInfo, DrawInfo, Feature, deviceManager } from '../../gfx';
+    Attribute, Buffer, BufferInfo, Feature, deviceManager } from '../../gfx';
 import { Color } from '../../core';
 import { scene } from '../../render-scene';
 import { Particle } from '../particle';
@@ -50,7 +50,7 @@ const _uvs_ins = [
 export default class ParticleBatchModel extends scene.Model {
     private _capacity: number;
     private _bufferSize: number;
-    private _vertAttrs: Attribute[] | null;
+    private _vertAttrs: (Attribute & { offset: number })[] | null;
     private _vertAttribSize: number;
     private _vBuffer: ArrayBuffer | null;
     private _vertAttrsFloatCount: number;
@@ -119,10 +119,10 @@ export default class ParticleBatchModel extends scene.Model {
                 return;
             }
             this._mesh = mesh;
-            this._vertAttrs = attrs;
+            this._vertAttrs = attrs as (Attribute & { offset: number })[];
             this._vertAttribSize = 0;
             for (const a of this._vertAttrs) {
-                (a as any).offset = this._vertAttribSize;
+                a.offset = this._vertAttribSize;
                 this._vertAttribSize += FormatInfos[a.format].size;
             }
             this._vertAttrsFloatCount = this._vertAttribSize / 4; // number of float
@@ -138,15 +138,15 @@ export default class ParticleBatchModel extends scene.Model {
             return;
         }
         this._mesh = mesh;
-        this._vertAttrs = attrs;
+        this._vertAttrs = attrs as (Attribute & { offset: number })[];
         this._vertAttribSize = 0;
         this._vertAttribSizeStatic = 0;
         for (const a of this._vertAttrs) {
             if (a.stream === 0) {
-                (a as any).offset = this._vertAttribSize;
+                a.offset = this._vertAttribSize;
                 this._vertAttribSize += FormatInfos[a.format].size;
             } else if (a.stream === 1) {
-                (a as any).offset = this._vertAttribSizeStatic;
+                a.offset = this._vertAttribSizeStatic;
                 this._vertAttribSizeStatic += FormatInfos[a.format].size;
             }
         }
@@ -173,15 +173,15 @@ export default class ParticleBatchModel extends scene.Model {
         ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSize * this._bufferSize * this._vertCount);
         if (this._mesh && this._capacity > 0) {
-            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD as string)] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh uv to ATTR_TEX_COORD
+            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD as string)]).offset;
+            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3 as string);
-            vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh position to ATTR_TEX_COORD3
-            vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset as number);  // copy mesh normal to ATTR_NORMAL
-            vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset as number)) {  // copy mesh color to ATTR_COLOR1
+            vOffset = (this._vertAttrs![vIdx++]).offset;
+            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
+            vOffset = (this._vertAttrs![vIdx++]).offset;
+            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSize, vOffset);  // copy mesh normal to ATTR_NORMAL
+            vOffset = (this._vertAttrs![vIdx++]).offset;
+            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
                     vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = Color.toUint32(Color.WHITE);
@@ -269,15 +269,15 @@ export default class ParticleBatchModel extends scene.Model {
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertAttribSizeStatic * this._vertCount);
         if (this._mesh) {
             let vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD as string); // find ATTR_TEX_COORD index
-            let vOffset = (this._vertAttrs![vIdx] as any).offset; // find ATTR_TEX_COORD offset
-            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset as number);  // copy mesh uv to ATTR_TEX_COORD
+            let vOffset = (this._vertAttrs![vIdx]).offset; // find ATTR_TEX_COORD offset
+            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh uv to ATTR_TEX_COORD
             vIdx = this._vertAttrs!.findIndex((val): boolean => val.name === AttributeName.ATTR_TEX_COORD3 as string); // find ATTR_TEX_COORD3 index
-            vOffset = (this._vertAttrs![vIdx++] as any).offset; // find ATTR_TEX_COORD3 offset
-            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset as number);  // copy mesh position to ATTR_TEX_COORD3
-            vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset as number);  // copy mesh normal to ATTR_NORMAL
-            vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset as number)) {  // copy mesh color to ATTR_COLOR1
+            vOffset = (this._vertAttrs![vIdx++]).offset; // find ATTR_TEX_COORD3 offset
+            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh position to ATTR_TEX_COORD3
+            vOffset = (this._vertAttrs![vIdx++]).offset;
+            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertAttribSizeStatic, vOffset);  // copy mesh normal to ATTR_NORMAL
+            vOffset = (this._vertAttrs![vIdx++]).offset;
+            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertAttribSizeStatic, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
                     vb[iVertex * this._vertStaticAttrsFloatCount + vOffset / 4] = Color.toUint32(Color.WHITE);
@@ -539,10 +539,10 @@ export default class ParticleBatchModel extends scene.Model {
             return;
         }
         let vIdx = this._vertAttrs.findIndex((val): boolean => val.name === 'a_position_starttime');
-        let vOffset = (this._vertAttrs[vIdx] as any).offset;
+        let vOffset = (this._vertAttrs[vIdx]).offset;
         this._startTimeOffset = vOffset / 4 + 3;
         vIdx = this._vertAttrs.findIndex((val): boolean => val.name === 'a_dir_life');
-        vOffset = (this._vertAttrs[vIdx] as any).offset;
+        vOffset = (this._vertAttrs[vIdx]).offset;
         this._lifeTimeOffset = vOffset / 4 + 3;
     }
 

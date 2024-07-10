@@ -185,6 +185,7 @@ export default class GradientRange {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _onBeforeSerialize (props: any): any {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this._mode];
     }
 }
@@ -215,7 +216,12 @@ function evaluateHeight (gr: GradientRange): number {
         return 1;
     }
 }
-export function packGradientRange (tex: Texture2D | null, data: Uint8Array | null, samples: number, gr: GradientRange): { texture: Texture2D; texdata: Uint8Array; } {
+export function packGradientRange (
+    tex: Texture2D | null,
+    data: Uint8Array | null,
+    samples: number,
+    gr: GradientRange,
+): { texture: Texture2D; texdata: Uint8Array; } {
     const height = evaluateHeight(gr);
     const len = samples * height * 4;
     if (data === null || data.length !== len) {

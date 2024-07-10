@@ -32,7 +32,7 @@ import { Material } from '../../asset/assets/material';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { Texture2D } from '../../asset/assets/texture-2d';
-import { CCString, Mat4, Vec2, Vec3, cclegacy } from '../../core';
+import { CCString, Mat4, Vec2, Vec3, cclegacy, warn } from '../../core';
 import { AttributeName, FormatInfos, Format, Type, Attribute, BufferTextureCopy } from '../../gfx';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
@@ -118,8 +118,7 @@ export class SkinnedMeshUnit {
         if (comp.skinningRoot) { getWorldTransformUntilRoot(comp.node, comp.skinningRoot, this._localTransform); }
     }
 
-    get copyFrom (): SkinnedMeshRenderer | null
-    {
+    get copyFrom (): SkinnedMeshRenderer | null {
         return null;
     }
 }
@@ -228,7 +227,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
         }
         const mat = this.getMaterialInstance(0);
         if (!mat || !this._batchMaterial || !this._batchMaterial.effectAsset) {
-            console.warn('incomplete batch material!'); return;
+            warn('incomplete batch material!'); return;
         }
         mat.copy(this._batchMaterial); this.resizeAtlases();
         const tech = mat.effectAsset!.techniques[mat.technique];
@@ -236,7 +235,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             const pass = tech.passes[i];
             if (!pass.properties) { continue; }
             for (const prop in pass.properties) {
-                if (pass.properties[prop].type >= Type.SAMPLER1D) { // samplers
+                if (pass.properties[prop].type >= (Type.SAMPLER1D as number)) { // samplers
                     let tex: Texture2D | null = null;
                     if (this.batchableTextureNames.find((n) => n === prop)) {
                         tex = this._textures[prop];
@@ -260,7 +259,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     }
 
     public cookSkeletons (): void {
-        if (!this._skinningRoot) { console.warn('no skinning root specified!'); return; }
+        if (!this._skinningRoot) { warn('no skinning root specified!'); return; }
         // merge joints accordingly
         const joints: string[] = [];
         const bindposes: Mat4[] = [];
@@ -276,7 +275,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                     if (EDITOR) { // consistency check
                         Mat4.multiply(m4_1, partial.bindposes[i], m4_local);
                         if (!m4_1.equals(bindposes[idx])) {
-                            console.warn(`${this.node.name}: Inconsistent bindpose at ${joints[idx]} in unit ${u}, artifacts may present`);
+                            warn(`${this.node.name}: Inconsistent bindpose at ${joints[idx]} in unit ${u}, artifacts may present`);
                         }
                     }
                     continue;
@@ -358,7 +357,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 posFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === AttributeName.ATTR_POSITION) {
+                    if (attr.name === AttributeName.ATTR_POSITION as string) {
                         posFormat = attr.format;
                         break;
                     }
@@ -377,7 +376,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 normalFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === AttributeName.ATTR_NORMAL) {
+                    if (attr.name === AttributeName.ATTR_NORMAL as string) {
                         normalFormat = attr.format;
                         break;
                     }
@@ -396,7 +395,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 tangentFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === AttributeName.ATTR_TANGENT) {
+                    if (attr.name === (AttributeName.ATTR_TANGENT) as string) {
                         tangentFormat = attr.format;
                         break;
                     }
@@ -416,7 +415,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 uvFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === AttributeName.ATTR_BATCH_UV) {
+                    if (attr.name === AttributeName.ATTR_BATCH_UV as string) {
                         uvFormat = attr.format;
                         break;
                     }
@@ -436,7 +435,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 jointFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === AttributeName.ATTR_JOINTS) {
+                    if (attr.name === AttributeName.ATTR_JOINTS as string) {
                         jointFormat = attr.format;
                         break;
                     }
@@ -524,7 +523,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 uvFormat = Format.UNKNOWN;
                 for (let a = 0; a < bundle.attributes.length; a++) {
                     const attr = bundle.attributes[a];
-                    if (attr.name === AttributeName.ATTR_TEX_COORD) {
+                    if (attr.name === AttributeName.ATTR_TEX_COORD as string) {
                         uvFormat = attr.format;
                         break;
                     }
@@ -575,8 +574,8 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
                 // insert batch ID
                 newDataView.setFloat32(newOffset + oldStride, unitIdx);
                 // insert batch UV
-                newDataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], isLittleEndian);
-                newDataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], isLittleEndian);
+                newDataView.setFloat32(newOffset + oldStride + 4, uvs[j * 2], isLittleEndian as boolean);
+                newDataView.setFloat32(newOffset + oldStride + 8, uvs[j * 2 + 1], isLittleEndian as boolean);
                 newOffset += newStride;
                 oldOffset += oldStride;
             }

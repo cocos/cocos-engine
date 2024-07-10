@@ -29,12 +29,11 @@ import { Vec4 } from './vec4';
 import { Quat } from './quat';
 import { Color } from './color';
 
-const defineAttr = (proto, name, offset): void => {
+const defineAttr = (proto: any, name: string, offset: number): void => {
     Object.defineProperty(proto, name, {
         configurable: true,
         enumerable: true,
         get (): any {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return this._data()[offset];
         },
         set (v: number): void {
@@ -56,13 +55,13 @@ export enum MathType {
 }
 
 function extendType (proto: any, parentProto: any, typ: MathType): void {
-    proto._data = function (): Float32Array {
+    proto._data = function _data (): Float32Array {
         if (!this.__data) {
-            this.__data = new Float32Array(this.underlyingData());
+            this.__data = new Float32Array(this.underlyingData() as ArrayBuffer); // underlyingData is a JSB method.
         }
         return this.__data as Float32Array;
     };
-    Object.setPrototypeOf(proto, parentProto);
+    Object.setPrototypeOf(proto, parentProto as object);
     Object.defineProperty(proto, 'type', { configurable: true, enumerable: true, writable: false, value: typ });
 }
 

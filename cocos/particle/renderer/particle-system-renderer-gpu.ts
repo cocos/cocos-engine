@@ -38,6 +38,7 @@ import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
 import { Camera } from '../../render-scene/scene/camera';
 import type { ParticleSystem } from '../particle-system';
+import type ParticleSystemRenderer from './particle-system-renderer-data';
 
 const _tempNodeScale = new Vec4();
 const _tempWorldTrans = new Mat4();
@@ -158,7 +159,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _alignSpace = AlignmentSpace.View;
     private _inited = false;
 
-    constructor (info: any) {
+    constructor (info: ParticleSystemRenderer) {
         super(info);
 
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
@@ -348,7 +349,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         this._model!.updateIA(this._particleNum);
     }
 
-    public updateAlignSpace (space): void {
+    public updateAlignSpace (space: number): void {
         this._alignSpace = space;
     }
 
@@ -409,8 +410,15 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         enable = velocityModule ? velocityModule.enable : false;
         this._defines[VELOCITY_OVER_TIME_MODULE_ENABLE] = enable;
         if (enable) {
-            const packed = packCurveRangeXYZW(this._velocityTexture, this._velocityData, _sample_num, velocityModule!.x, velocityModule!.y,
-                velocityModule!.z, velocityModule!.speedModifier);
+            const packed = packCurveRangeXYZW(
+                this._velocityTexture,
+                this._velocityData,
+                _sample_num,
+                velocityModule!.x,
+                velocityModule!.y,
+                velocityModule!.z,
+                velocityModule!.speedModifier,
+            );
             this._velocityTexture = packed.texture;
             this._velocityData = packed.texdata;
             const handle = pass.getHandle('velocity_over_time_tex0');
