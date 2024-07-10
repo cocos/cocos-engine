@@ -84,6 +84,7 @@ function getCsmMainLightViewport(
 
 class PipelineConfigs {
     isWeb = false;
+    isWebGPU = false;
     isMobile = false;
     isHDR = false;
     useFloatOutput = false;
@@ -97,16 +98,13 @@ class PipelineConfigs {
     platform = new Vec4(0, 0, 0, 0);
 }
 
-function isWebGPU() {
-    return (cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
-}
-
 function setupPipelineConfigs(
     ppl: rendering.BasicPipeline,
     configs: PipelineConfigs,
 ): void {
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
     configs.isWeb = !sys.isNative;
+    configs.isWebGPU = (cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
     configs.isMobile = sys.isMobile;
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -819,7 +817,9 @@ if (rendering) {
             for (let level = 0; level !== csmLevel; ++level) {
                 getCsmMainLightViewport(light, width, height, level, this._viewport, this._configs.screenSpaceSignY);
                 const queue = pass.addQueue(QueueHint.NONE, 'shadow-caster');
-                isWebGPU() || queue.setViewport(this._viewport);
+                if (!this._configs.isWebGPU) { // Temporary workaround for WebGPU
+                    queue.setViewport(this._viewport);
+                }
                 queue
                     .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.SHADOW_CASTER)
                     .useLightFrustum(light, level);

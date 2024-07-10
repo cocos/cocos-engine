@@ -739,7 +739,16 @@ export class Director extends EventTarget {
         // 2. cclegacy.rendering is available
         // 3. The root node is created and uses custom pipeline
         if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
-            this.on(Director.EVENT_BEFORE_RENDER, this.buildRenderPipeline, this);
+            this.on(
+                Director.EVENT_BEFORE_RENDER,
+                this.buildRenderPipeline,
+                this,
+            );
+            this.on(
+                Director.EVENT_BEFORE_SCENE_LAUNCH,
+                cclegacy.rendering.forceResizeAllWindows,
+                cclegacy.rendering,
+            );
         }
     }
 
