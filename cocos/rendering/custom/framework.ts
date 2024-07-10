@@ -27,22 +27,21 @@ import { Camera } from '../../render-scene/scene/camera';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { supportsR32FloatTexture } from '../define';
 import { Format } from '../../gfx/base/define';
-import { PipelineSettings } from './settings';
 
 //-----------------------------------------------------------------
 // Editor preview begin
 //-----------------------------------------------------------------
-let editorPipelineSettings: PipelineSettings | null = null;
+let editorPipelineSettings: object | null = null;
 let forceResize = false;
 
 export function setEditorPipelineSettings (
-    settings: PipelineSettings | null,
+    settings: object | null,
 ): void {
     editorPipelineSettings = settings;
     forceResize = true;
 }
 
-export function getEditorPipelineSettings (): PipelineSettings | null {
+export function getEditorPipelineSettings (): object | null {
     return editorPipelineSettings;
 }
 
