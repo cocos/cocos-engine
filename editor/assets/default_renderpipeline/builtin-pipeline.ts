@@ -190,7 +190,7 @@ function setupCameraConfigs(
     setupPostProcessConfigs(pipelineConfigs, cameraConfigs.settings, cameraConfigs);
 
     if (isEditorView) {
-        const editorSettings = rendering.getEditorPipelineSettings();
+        const editorSettings = rendering.getEditorPipelineSettings() as PipelineSettings | null;
         if (editorSettings) {
             cameraConfigs.settings = editorSettings;
             setupPostProcessConfigs(pipelineConfigs,
