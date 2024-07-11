@@ -70,32 +70,10 @@ cc::IOSPlatform *_platform = nullptr;
     return (float)screenIntf->getDevicePixelRatio();
 }
 
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    cc::IScreen::Orientation orientation;
+ - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     // reference: https://developer.apple.com/documentation/uikit/uiinterfaceorientation?language=objc
-    // UIInterfaceOrientationLandscapeRight = UIDeviceOrientationLandscapeLeft
-    // UIInterfaceOrientationLandscapeLeft = UIDeviceOrientationLandscapeRight
-    switch ([UIDevice currentDevice].orientation) {
-        case UIDeviceOrientationPortrait:
-            orientation = cc::IScreen::Orientation::PORTRAIT;
-            break;
-        case UIDeviceOrientationLandscapeRight:
-            orientation = cc::IScreen::Orientation::LANDSCAPE_LEFT;
-            break;
-        case UIDeviceOrientationPortraitUpsideDown:
-            orientation = cc::IScreen::Orientation::PORTRAIT_UPSIDE_DOWN;
-            break;
-        case UIDeviceOrientationLandscapeLeft:
-            orientation = cc::IScreen::Orientation::LANDSCAPE_RIGHT;
-            break;
-        default:
-            break;
-    }
-    cc::DeviceEvent ev;
     cc::BasePlatform *platform = cc::BasePlatform::getPlatform();
     cc::IScreen *screenIntf = platform->getInterface<cc::IScreen>();
-    cc::events::Orientation::broadcast((int)screenIntf->getDeviceOrientation());
-
     float pixelRatio = screenIntf->getDevicePixelRatio();
     cc::WindowEvent resizeEv;
     resizeEv.windowId = 1;
@@ -103,7 +81,10 @@ cc::IOSPlatform *_platform = nullptr;
     resizeEv.width = size.width * pixelRatio;
     resizeEv.height = size.height * pixelRatio;
     cc::events::WindowEvent::broadcast(resizeEv);
-}
+    [coordinator animateAlongsideTransition:nil completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        cc::events::Orientation::broadcast((int)screenIntf->getDeviceOrientation());
+    }];
+ }
 
 - (void)dispatchTouchEvent:(cc::TouchEvent::Type)type touches:(NSSet *)touches withEvent:(UIEvent *)event {
     cc::TouchEvent touchEvent;
