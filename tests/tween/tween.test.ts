@@ -4781,3 +4781,34 @@ test('updateUntil 2', function () {
 
     director.unregisterSystem(sys);
 });
+
+test('parallel with two call tween', function () {
+    const sys = new TweenSystem();
+    (TweenSystem.instance as any) = sys;
+    director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);
+
+    const node = new Node();
+
+    const cb1 = jest.fn(()=>{});
+    const cb2 = jest.fn(()=>{});
+    
+    const a = tween(node).call(cb1);
+    const b = tween(node).call(cb2);
+
+    tween(node).parallel(a, b).start();
+
+    expect(cb1).toBeCalledTimes(0);
+    expect(cb2).toBeCalledTimes(0);
+
+    runFrames(1);
+
+    expect(cb1).toBeCalledTimes(1);
+    expect(cb2).toBeCalledTimes(1);
+
+    runFrames(60);
+
+    expect(cb1).toBeCalledTimes(1);
+    expect(cb2).toBeCalledTimes(1);
+
+    director.unregisterSystem(sys);
+});
