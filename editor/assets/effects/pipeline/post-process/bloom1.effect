@@ -49,16 +49,17 @@ CCEffect %{
 
 CCProgram bloom-vs %{
   precision highp float;
-  #include <legacy/input-standard>
+  #include <legacy/decode-standard>
   #include <post-process/pipeline>
-  
+
   out vec2 v_uv;
-  
+
   void main () {
     StandardVertInput In;
-    CCVertInput(In);
+    CCDecode(In);
     FLIP_VULKAN_NDC(In.position);
     gl_Position = In.position;
+
     v_uv = a_texCoord;
     FLIP_SAMPLE_FROM_RT(v_uv);
   }
