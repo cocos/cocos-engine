@@ -876,9 +876,9 @@ if (rendering) {
 
                 const isSquareMap = lutTex.width === lutTex.height;
                 if (isSquareMap) {
-                    pass = ppl.addRenderPass(width, height, 'color-grading1-8x8');
+                    pass = ppl.addRenderPass(width, height, 'cc-color-grading-8x8');
                 } else {
-                    pass = ppl.addRenderPass(width, height, 'color-grading1-nx1');
+                    pass = ppl.addRenderPass(width, height, 'cc-color-grading-nx1');
                 }
                 pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 pass.addTexture(radianceName, 'sceneColorMap');
@@ -982,7 +982,7 @@ if (rendering) {
             const filterName = `DofFilter${id}`;
 
             // CoC
-            const cocPass = ppl.addRenderPass(width, height, 'dof1-coc');
+            const cocPass = ppl.addRenderPass(width, height, 'cc-dof-coc');
             cocPass.addRenderTarget(cocName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             cocPass.addTexture(depthStencil, 'DepthTex');
             cocPass.setVec4('g_platform', this._configs.platform);
@@ -993,7 +993,7 @@ if (rendering) {
                 .addCameraQuad(camera, dofMaterial, 0); // addCameraQuad will set camera related UBOs
 
             // Downsample and Prefilter
-            const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof1-prefilter');
+            const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'cc-dof-prefilter');
             prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             prefilterPass.addTexture(dofRadianceName, 'colorTex');
             prefilterPass.addTexture(cocName, 'cocTex');
@@ -1004,7 +1004,7 @@ if (rendering) {
                 .addFullscreenQuad(dofMaterial, 1);
 
             // Bokeh blur
-            const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof1-bokeh');
+            const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'cc-dof-bokeh');
             bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             bokehPass.addTexture(prefilterName, 'prefilterTex');
             bokehPass.setVec4('g_platform', this._configs.platform);
@@ -1015,7 +1015,7 @@ if (rendering) {
                 .addFullscreenQuad(dofMaterial, 2);
 
             // Filtering
-            const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof1-filter');
+            const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'cc-dof-filter');
             filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             filterPass.addTexture(bokehName, 'bokehTex');
             filterPass.setVec4('g_platform', this._configs.platform);
@@ -1025,7 +1025,7 @@ if (rendering) {
                 .addFullscreenQuad(dofMaterial, 3);
 
             // Combine
-            const combinePass = ppl.addRenderPass(width, height, 'dof1-combine');
+            const combinePass = ppl.addRenderPass(width, height, 'cc-dof-combine');
             combinePass.addRenderTarget(radianceName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             combinePass.addTexture(dofRadianceName, 'colorTex');
             combinePass.addTexture(cocName, 'cocTex');
@@ -1075,7 +1075,7 @@ if (rendering) {
             this._bloomParams.w = settings.bloom.enableAlphaMask ? 1 : 0;
 
             // Prefilter pass
-            const prefilterPass = ppl.addRenderPass(this._bloomWidths[0], this._bloomHeights[0], 'bloom1-prefilter');
+            const prefilterPass = ppl.addRenderPass(this._bloomWidths[0], this._bloomHeights[0], 'cc-bloom-prefilter');
             prefilterPass.addRenderTarget(
                 this._bloomTexNames[0],
                 LoadOp.CLEAR,
@@ -1091,7 +1091,7 @@ if (rendering) {
 
             // Downsample passes
             for (let i = 1; i !== sizeCount; ++i) {
-                const downPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-downsample');
+                const downPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'cc-bloom-downsample');
                 downPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 downPass.addTexture(this._bloomTexNames[i - 1], 'bloomTexture');
                 this._bloomTexSize.x = this._bloomWidths[i - 1];
@@ -1105,7 +1105,7 @@ if (rendering) {
 
             // Upsample passes
             for (let i = iterations; i-- > 0;) {
-                const upPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-upsample');
+                const upPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'cc-bloom-upsample');
                 upPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 upPass.addTexture(this._bloomTexNames[i + 1], 'bloomTexture');
                 this._bloomTexSize.x = this._bloomWidths[i + 1];
@@ -1118,7 +1118,7 @@ if (rendering) {
             }
 
             // Combine pass
-            const combinePass = ppl.addRenderPass(width, height, 'bloom1-combine');
+            const combinePass = ppl.addRenderPass(width, height, 'cc-bloom-combine');
             combinePass.addRenderTarget(radianceName, LoadOp.LOAD, StoreOp.STORE);
             combinePass.addTexture(this._bloomTexNames[0], 'bloomTexture');
             combinePass.setVec4('g_platform', this._configs.platform);
@@ -1148,7 +1148,7 @@ if (rendering) {
 
             const fsrColorName = `FsrColor${id}`;
 
-            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'fsr-easu');
+            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'cc-fsr-easu');
             easuPass.addRenderTarget(fsrColorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             easuPass.addTexture(ldrColorName, 'outputResultMap');
             easuPass.setVec4('g_platform', this._configs.platform);
@@ -1157,7 +1157,7 @@ if (rendering) {
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 0);
 
-            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'fsr-rcas');
+            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'cc-fsr-rcas');
             rcasPass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             rcasPass.addTexture(fsrColorName, 'outputResultMap');
             rcasPass.setVec4('g_platform', this._configs.platform);
@@ -1182,7 +1182,7 @@ if (rendering) {
             this._fxaaParams.y = height;
             this._fxaaParams.z = 1 / width;
             this._fxaaParams.w = 1 / height;
-            const pass = ppl.addRenderPass(width, height, 'fxaa1');
+            const pass = ppl.addRenderPass(width, height, 'cc-fxaa');
             pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             pass.addTexture(ldrColorName, 'sceneColorMap');
             pass.setVec4('g_platform', this._configs.platform);
