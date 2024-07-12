@@ -41,6 +41,9 @@ if (cc.internal.VideoPlayer) {
     class VideoPlayerImplMiniGame extends cc.internal.VideoPlayerImpl {
         constructor (componenet) {
             super(componenet);
+            this.cameraNode = new cc.Node();
+            this.cameraNode.addComponent(cc.Sprite);
+            this._node.insertChild(this.cameraNode, 0);
         }
 
         syncClip (clip) {
@@ -79,15 +82,24 @@ if (cc.internal.VideoPlayer) {
             video.onCanplay(() => {
                 if (self._video !== video) return;
                 self._loaded = true;
-                self.setVisible(self._visible);
-                self.dispatchEvent(EventType.READY_TO_PLAY);
-                video.play();
-                const initRect = self._getInitRect();
-                function drawVideo () {
-                  requestAnimationFrame(drawVideo);
-                  video.paintTo(cc.game.canvas, initRect.x, initRect.y, 0, 0, initRect.width, initRect.height);
+                self._playing = true;
+                try {
+                    self.setVisible(self._visible);
+                    self.dispatchEvent(EventType.READY_TO_PLAY);
+                    video.play();
+                    this.videoTexture = new cc.Texture2D();
+                    this.videoTexture.reset({
+                        width: video.width,
+                        height: video.height,
+                        format: cc.Texture2D.PixelFormat.RGBA8888,
+                    });
+                    const sprite = this.cameraNode.getComponent(cc.Sprite);
+                    const spriteFrame = new cc.SpriteFrame();
+                    spriteFrame.texture = this.videoTexture;
+                    sprite.spriteFrame = spriteFrame;
+                } catch (err) {
+                    console.error('Video playback error:', err);
                 }
-                drawVideo(video);
               });
             video.onPlay(() => {
                 if (self._video !== video) return;
@@ -281,6 +293,7 @@ if (cc.internal.VideoPlayer) {
         }
 
         canPlay () {
+            this._playing = true;
             this._video.play();
             this.syncCurrentTime();
         }
@@ -338,7 +351,9 @@ if (cc.internal.VideoPlayer) {
         }
 
         syncMatrix () {
-            // DO NOTHING...
+            if (this.videoTexture) {
+                this.videoTexture.uploadData(this.video);
+            }
         }
 
         _getInitRect () {
