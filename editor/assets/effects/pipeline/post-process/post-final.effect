@@ -58,7 +58,7 @@ CCProgram vs-tonemap %{
   precision highp float;
 
   #include <legacy/decode-standard>
-  #include <./chunks/pipeline>
+  #include <post-process/pipeline>
 
   out vec2 v_uv;
 

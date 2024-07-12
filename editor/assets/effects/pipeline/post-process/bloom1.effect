@@ -50,10 +50,10 @@ CCEffect %{
 CCProgram bloom-vs %{
   precision highp float;
   #include <legacy/input-standard>
-  #include <./chunks/pipeline>
-
+  #include <post-process/pipeline>
+  
   out vec2 v_uv;
-
+  
   void main () {
     StandardVertInput In;
     CCVertInput(In);
