@@ -44,27 +44,7 @@ CCEffect %{
 
 CCProgram ubo %{
     #include <common/common-define>
-    #pragma rate ColorGradingUBO pass
-    uniform ColorGradingUBO {
-        vec4 cocParams;
-        vec4 mainTexTexelSize;
-    };
 
-    #pragma rate colorTex pass
-    uniform sampler2D colorTex;
-
-    #pragma rate cocTex pass
-    uniform sampler2D cocTex;
-
-    #pragma rate prefilterTex pass
-    uniform sampler2D prefilterTex;
-
-    #pragma rate bokehTex pass
-    uniform sampler2D bokehTex;
-
-    #pragma rate filterTex pass
-    uniform sampler2D filterTex;
-    
     #define focusDistance       cocParams.x
     #define focusRange          cocParams.y
     #define bokehRadius         cocParams.z
@@ -86,13 +66,19 @@ CCProgram dof-vs %{
 CCProgram dof-coc-fs %{
   precision highp float;
   #include <ubo>
-  #include <common/common-define>
-  #include <chunks/hbao>
+  #include <./chunks/depth>
+
+  #pragma rate DofCocUBO pass
+  uniform DofCocUBO {
+      mat4 proj;
+      vec4 cocParams;
+  };
+
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
   void main () {
-      float depth = GetLinearDepth(v_uv);
+      float depth = GetLinearDepthWithProj(v_uv, proj);
       //get circle of confusion
       float coc = (depth - focusDistance) / focusRange;
       coc = clamp(coc, -1.0, 1.0);
@@ -103,8 +89,18 @@ CCProgram dof-coc-fs %{
 CCProgram dof-prefilter-fs %{
   precision highp float;
   #include <ubo>
-  #include <common/common-define>
+
+  #pragma rate DofPrefilterUBO pass
+  uniform DofPrefilterUBO {
+      vec4 mainTexTexelSize;
+  };
  
+  #pragma rate colorTex pass
+  uniform sampler2D colorTex;
+
+  #pragma rate cocTex pass
+  uniform sampler2D cocTex;
+
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
@@ -153,7 +149,15 @@ CCProgram dof-prefilter-fs %{
 CCProgram dof-bokeh-fs %{
   precision highp float;
   #include <ubo>
-  #include <common/common-define>
+
+  #pragma rate DofBokehUBO pass
+  uniform DofBokehUBO {
+      vec4 mainTexTexelSize;
+      vec4 cocParams;
+  };
+
+  #pragma rate prefilterTex pass
+  uniform sampler2D prefilterTex;
 
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
@@ -229,6 +233,15 @@ CCProgram dof-bokeh-fs %{
 CCProgram dof-filter-fs %{
   precision highp float;
   #include <ubo>
+
+  #pragma rate DofFilterUBO pass
+  uniform DofFilterUBO {
+      vec4 mainTexTexelSize;
+  };
+
+  #pragma rate bokehTex pass
+  uniform sampler2D bokehTex;
+
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
 
@@ -248,6 +261,20 @@ CCProgram dof-combine-fs %{
   precision highp float;
   #include <ubo>
   #include <common/common-define>
+
+  #pragma rate DofCombineUBO pass
+  uniform DofCombineUBO {
+      vec4 cocParams;
+  };
+
+  #pragma rate colorTex pass
+  uniform sampler2D colorTex;
+
+  #pragma rate cocTex pass
+  uniform sampler2D cocTex;
+
+  #pragma rate filterTex pass
+  uniform sampler2D filterTex;
 
   in vec2 v_uv;
   layout(location = 0) out vec4 fragColor;
