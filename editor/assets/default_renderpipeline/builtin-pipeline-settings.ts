@@ -438,13 +438,13 @@ export class BuiltinPipelineSettings extends Component {
     }
 
     @property({
-        group: { id: 'Copy', name: 'Copy and ToneMapping', style: 'section' },
+        group: { id: 'ToneMapping', name: 'ToneMapping', style: 'section' },
         type: Material,
     })
-    set copyMaterial(value: Material) {
-        this._settings.copyMaterial = value;
+    set toneMappingMaterial(value: Material) {
+        this._settings.toneMapping.material = value;
     }
-    get copyMaterial(): Material {
-        return this._settings.copyMaterial!;
+    get toneMappingMaterial(): Material {
+        return this._settings.toneMapping.material!;
     }
 }

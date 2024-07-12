@@ -92,8 +92,10 @@ class PipelineConfigs {
     isHDR = false;
     useFloatOutput = false;
     toneMappingType = 0; // 0: ACES, 1: None
+    shadowEnabled = false;
     shadowMapFormat = Format.R32F;
     shadowMapSize = new Vec2(1, 1);
+    usePlanarShadow = false;
     screenSpaceSignY = 1;
     supportDepthSample = false;
     mobileMaxSpotLightShadowMaps = 1;
@@ -105,28 +107,36 @@ function setupPipelineConfigs(
     ppl: rendering.BasicPipeline,
     configs: PipelineConfigs,
 ): void {
+    // Platform
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
     configs.isWeb = !sys.isNative;
     configs.isWebGPU = (cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
     configs.isMobile = sys.isMobile;
+    // Rendering
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
+    // Shadow
+    const shadowInfo = ppl.pipelineSceneData.shadows;
+    configs.shadowEnabled = shadowInfo.enabled;
     configs.shadowMapFormat = pipeline.supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
-    configs.shadowMapSize.set(ppl.pipelineSceneData.shadows.size);
+    configs.shadowMapSize.set(shadowInfo.size);
+    configs.usePlanarShadow = shadowInfo.enabled && shadowInfo.type === renderer.scene.ShadowType.Planar;
+    // Device
     configs.screenSpaceSignY = ppl.device.capabilities.screenSpaceSignY;
     configs.supportDepthSample = (ppl.device.getFormatFeatures(Format.DEPTH_STENCIL) & sampleFeature) === sampleFeature;
-
+    // Constants
     const device = ppl.device;
-    configs.platform.x = configs.isMobile ? 1.0 : 0.0;
     const screenSpaceSignY = device.capabilities.screenSpaceSignY;
+    configs.platform.x = configs.isMobile ? 1.0 : 0.0;
     configs.platform.w = (screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
 }
 
 const defaultSettings = makePipelineSettings();
 
 class CameraConfigs {
-    enableShadowMap = false;
+    enableMainLightShadowMap = false;
+    enableMainLightPlanarShadowMap = false;
     enablePostProcess = false;
     enableProfiler = false;
     enableShadingScale = false;
@@ -178,9 +188,17 @@ function setupCameraConfigs(
 
     cameraConfigs.useFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
 
-    cameraConfigs.enableShadowMap = camera.scene
-        ? camera.scene.mainLight !== null && camera.scene.mainLight.shadowEnabled
-        : false;
+    cameraConfigs.enableMainLightShadowMap = pipelineConfigs.shadowEnabled
+        && !pipelineConfigs.usePlanarShadow
+        && camera.scene !== null
+        && camera.scene.mainLight !== null
+        && camera.scene.mainLight.shadowEnabled;
+
+    cameraConfigs.enableMainLightPlanarShadowMap = pipelineConfigs.shadowEnabled
+        && pipelineConfigs.usePlanarShadow
+        && camera.scene !== null
+        && camera.scene.mainLight !== null
+        && camera.scene.mainLight.shadowEnabled;
 
     cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
 
@@ -432,6 +450,8 @@ if (rendering) {
         private readonly _bloomTexNames: Array<string> = [];
         // Color Grading
         private readonly _colorGradingTexSize = new Vec2(0, 0);
+        // FXAA
+        private readonly _fxaaParams = new Vec4(0, 0, 0, 0);
         // FSR
         private readonly _fsrParams = new Vec4(0, 0, 0, 0);
         private readonly _fsrTexSize = new Vec4(0, 0, 0, 0);
@@ -666,7 +686,7 @@ if (rendering) {
             this.forwardLighting.cullLights(scene, camera.frustum);
 
             // Main Directional light CSM Shadow Map
-            if (this._cameraConfigs.enableShadowMap) {
+            if (this._cameraConfigs.enableMainLightShadowMap) {
                 this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
             }
 
@@ -721,7 +741,7 @@ if (rendering) {
                                 nativeWidth, nativeHeight, colorName);
                         } else {
                             // Scale FXAA result to screen
-                            lastPass = this._addCopyPass(ppl, settings.copyMaterial,
+                            lastPass = this._addCopyPass(ppl,
                                 nativeWidth, nativeHeight, aaColorName, colorName);
                         }
                     } else {
@@ -822,23 +842,17 @@ if (rendering) {
 
         private _addCopyPass(
             ppl: rendering.BasicPipeline,
-            copyMaterial: Material | null,
             width: number,
             height: number,
             input: string,
             output: string,
         ): rendering.BasicRenderPassBuilder {
-            const pass = ppl.addRenderPass(width, height, 'post-copy');
+            const pass = ppl.addRenderPass(width, height, 'cc-tone-mapping');
             pass.addRenderTarget(output, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             pass.addTexture(input, 'inputTexture');
             pass.setVec4('g_platform', this._configs.platform);
-            if (copyMaterial) {
-                pass.addQueue(QueueHint.OPAQUE)
-                    .addFullscreenQuad(copyMaterial, 2);
-            } else {
-                pass.addQueue(QueueHint.OPAQUE)
-                    .addFullscreenQuad(this._copyAndTonemapMaterial, 2);
-            }
+            pass.addQueue(QueueHint.OPAQUE)
+                .addFullscreenQuad(this._copyAndTonemapMaterial, 1);
             return pass;
         }
 
@@ -855,35 +869,35 @@ if (rendering) {
                 && settings.colorGrading.material !== null
                 && settings.colorGrading.colorGradingMap !== null) {
                 const lutTex = settings.colorGrading.colorGradingMap;
-
                 settings.colorGrading.material.setProperty('colorGradingMap', lutTex);
-                settings.colorGrading.material.setProperty('contribute', settings.colorGrading.contribute);
+
                 this._colorGradingTexSize.x = lutTex.width;
                 this._colorGradingTexSize.y = lutTex.height;
-                settings.colorGrading.material.setProperty('lutTextureSize', this._colorGradingTexSize);
 
                 const isSquareMap = lutTex.width === lutTex.height;
                 if (isSquareMap) {
-                    pass = ppl.addRenderPass(width, height, 'color-grading-8x8');
+                    pass = ppl.addRenderPass(width, height, 'color-grading1-8x8');
                 } else {
-                    pass = ppl.addRenderPass(width, height, 'color-grading-nx1');
+                    pass = ppl.addRenderPass(width, height, 'color-grading1-nx1');
                 }
                 pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 pass.addTexture(radianceName, 'sceneColorMap');
-                pass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+                pass.setVec4('g_platform', this._configs.platform);
+                pass.setVec2('lutTextureSize', this._colorGradingTexSize);
+                pass.setFloat('contribute', settings.colorGrading.contribute);
                 pass.addQueue(QueueHint.OPAQUE)
                     .addFullscreenQuad(settings.colorGrading.material, isSquareMap ? 1 : 0);
             } else {
-                pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
+                pass = ppl.addRenderPass(width, height, 'cc-tone-mapping');
                 pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 pass.addTexture(radianceName, 'inputTexture');
                 pass.setVec4('g_platform', this._configs.platform);
-                if (settings.copyMaterial) {
+                if (settings.toneMapping.material) {
                     pass.addQueue(QueueHint.OPAQUE)
-                        .addFullscreenQuad(settings.copyMaterial, 1);
+                        .addFullscreenQuad(settings.toneMapping.material, 0);
                 } else {
                     pass.addQueue(QueueHint.OPAQUE)
-                        .addFullscreenQuad(this._copyAndTonemapMaterial, 1);
+                        .addFullscreenQuad(this._copyAndTonemapMaterial, 0);
                 }
             }
             return pass;
@@ -925,7 +939,7 @@ if (rendering) {
             }
 
             // Set shadow map if enabled
-            if (this._cameraConfigs.enableShadowMap) {
+            if (this._cameraConfigs.enableMainLightShadowMap) {
                 pass.addTexture(`ShadowMap${id}`, 'cc_shadowMap');
             }
 
@@ -959,9 +973,6 @@ if (rendering) {
             this._cocTexSize.z = width;
             this._cocTexSize.w = height;
 
-            dofMaterial.setProperty('cocParams', this._cocParams);
-            dofMaterial.setProperty('mainTexTexelSize', this._cocTexSize);
-
             const halfWidth = Math.max(Math.floor(width / 2), 1);
             const halfHeight = Math.max(Math.floor(height / 2), 1);
 
@@ -971,48 +982,56 @@ if (rendering) {
             const filterName = `DofFilter${id}`;
 
             // CoC
-            const cocPass = ppl.addRenderPass(width, height, 'dof-coc');
+            const cocPass = ppl.addRenderPass(width, height, 'dof1-coc');
             cocPass.addRenderTarget(cocName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             cocPass.addTexture(depthStencil, 'DepthTex');
+            cocPass.setVec4('g_platform', this._configs.platform);
+            cocPass.setMat4('proj', camera.matProj);
+            cocPass.setVec4('cocParams', this._cocParams);
             cocPass
                 .addQueue(QueueHint.OPAQUE)
                 .addCameraQuad(camera, dofMaterial, 0); // addCameraQuad will set camera related UBOs
 
             // Downsample and Prefilter
-            const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-prefilter');
+            const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof1-prefilter');
             prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
-            prefilterPass.addTexture(cocName, 'cocTex');
             prefilterPass.addTexture(dofRadianceName, 'colorTex');
-            prefilterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            prefilterPass.addTexture(cocName, 'cocTex');
+            prefilterPass.setVec4('g_platform', this._configs.platform);
+            prefilterPass.setVec4('mainTexTexelSize', this._cocTexSize);
             prefilterPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 1);
 
             // Bokeh blur
-            const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-bokeh');
+            const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof1-bokeh');
             bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             bokehPass.addTexture(prefilterName, 'prefilterTex');
-            bokehPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            bokehPass.setVec4('g_platform', this._configs.platform);
+            bokehPass.setVec4('mainTexTexelSize', this._cocTexSize);
+            bokehPass.setVec4('cocParams', this._cocParams);
             bokehPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 2);
 
             // Filtering
-            const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-filter');
+            const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof1-filter');
             filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             filterPass.addTexture(bokehName, 'bokehTex');
-            filterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            filterPass.setVec4('g_platform', this._configs.platform);
+            filterPass.setVec4('mainTexTexelSize', this._cocTexSize);
             filterPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 3);
 
             // Combine
-            const combinePass = ppl.addRenderPass(width, height, 'dof-combine');
+            const combinePass = ppl.addRenderPass(width, height, 'dof1-combine');
             combinePass.addRenderTarget(radianceName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
-            combinePass.addTexture(filterName, 'filterTex');
             combinePass.addTexture(dofRadianceName, 'colorTex');
             combinePass.addTexture(cocName, 'cocTex');
-            combinePass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            combinePass.addTexture(filterName, 'filterTex');
+            combinePass.setVec4('g_platform', this._configs.platform);
+            combinePass.setVec4('cocParams', this._cocParams);
             combinePass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 4);
@@ -1121,28 +1140,29 @@ if (rendering) {
             nativeHeight: number,
             colorName: string,
         ): rendering.BasicRenderPassBuilder {
-            this._fsrParams.x = clamp(1.0 - settings.fsr.sharpness, 0.02, 0.98);
             this._fsrTexSize.x = width;
             this._fsrTexSize.y = height;
             this._fsrTexSize.z = nativeWidth;
             this._fsrTexSize.w = nativeHeight;
-            fsrMaterial.setProperty('fsrParams', this._fsrParams);
-            fsrMaterial.setProperty('texSize', this._fsrTexSize);
+            this._fsrParams.x = clamp(1.0 - settings.fsr.sharpness, 0.02, 0.98);
 
             const fsrColorName = `FsrColor${id}`;
 
-            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'post-process');
+            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'fsr-easu');
             easuPass.addRenderTarget(fsrColorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             easuPass.addTexture(ldrColorName, 'outputResultMap');
-            easuPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            easuPass.setVec4('g_platform', this._configs.platform);
+            easuPass.setVec4('texSize', this._fsrTexSize);
             easuPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 0);
 
-            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'post-process');
+            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'fsr-rcas');
             rcasPass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             rcasPass.addTexture(fsrColorName, 'outputResultMap');
-            rcasPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            rcasPass.setVec4('g_platform', this._configs.platform);
+            rcasPass.setVec4('texSize', this._fsrTexSize);
+            rcasPass.setVec4('fsrParams', this._fsrParams);
             rcasPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 1);
@@ -1158,12 +1178,15 @@ if (rendering) {
             ldrColorName: string,
             colorName: string,
         ): rendering.BasicRenderPassBuilder {
-            fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1 / width, 1 / height));
-
-            const pass = ppl.addRenderPass(width, height, 'fxaa');
+            this._fxaaParams.x = width;
+            this._fxaaParams.y = height;
+            this._fxaaParams.z = 1 / width;
+            this._fxaaParams.w = 1 / height;
+            const pass = ppl.addRenderPass(width, height, 'fxaa1');
             pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             pass.addTexture(ldrColorName, 'sceneColorMap');
-            pass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            pass.setVec4('g_platform', this._configs.platform);
+            pass.setVec4('texSize', this._fxaaParams);
             pass.addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fxaaMaterial, 0);
             return pass;
@@ -1222,7 +1245,12 @@ if (rendering) {
                     colorName, depthStencilName, depthStencilStoreOp)
                 : this._addForwardMultipleRadiancePasses(ppl, id, camera, width, height, mainLight,
                     colorName, depthStencilName, depthStencilStoreOp);
-            this.addPlanarShadowQueues(ppl, pass, camera, mainLight);
+
+            // Planar Shadow
+            if (this._cameraConfigs.enableMainLightPlanarShadowMap) {
+                this.addPlanarShadowQueue(camera, mainLight, pass);
+            }
+
             // ----------------------------------------------------------------
             // Forward Lighting (Blend)
             // ----------------------------------------------------------------
@@ -1284,13 +1312,16 @@ if (rendering) {
 
             return pass;
         }
-        public addPlanarShadowQueues(ppl: rendering.BasicPipeline, pass: rendering.BasicRenderPassBuilder,
-            camera: renderer.scene.Camera, mainLight: renderer.scene.DirectionalLight | null) {
+        public addPlanarShadowQueue(
+            camera: renderer.scene.Camera,
+            mainLight: renderer.scene.DirectionalLight | null,
+            pass: rendering.BasicRenderPassBuilder,
+        ) {
             pass.addQueue(QueueHint.BLEND, 'planar-shadow')
                 .addScene(
                     camera,
                     SceneFlags.SHADOW_CASTER | SceneFlags.PLANAR_SHADOW | SceneFlags.BLEND,
-                    mainLight || undefined
+                    mainLight || undefined,
                 );
         }
         private _addForwardMultipleRadiancePasses(
@@ -1333,8 +1364,8 @@ if (rendering) {
             setupPipelineConfigs(ppl, this._configs);
 
             // When add new effect asset, please add its uuid to the dependentAssets in cc.config.json.
-            this._copyAndTonemapMaterial._uuid = `builtin-pipeline-post-final-tonemap-material`;
-            this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
+            this._copyAndTonemapMaterial._uuid = `builtin-pipeline-tone-mapping-material`;
+            this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/tone-mapping' });
 
             if (this._copyAndTonemapMaterial.effectAsset !== null) {
                 this._initialized = true;
