@@ -283,7 +283,6 @@ export interface PipelineSettings {
     readonly colorGrading: ColorGrading;
     readonly fsr: FSR;
     readonly fxaa: FXAA;
-    /* refcount */ copyMaterial: Material | null;
     [name: string]: unknown;
 }
 
@@ -298,7 +297,6 @@ export function makePipelineSettings(): PipelineSettings {
         colorGrading: makeColorGrading(),
         fsr: makeFSR(),
         fxaa: makeFXAA(),
-        copyMaterial: null,
     };
 }
 
@@ -343,8 +341,5 @@ export function fillRequiredPipelineSettings(value: PipelineSettings): void {
         (value.fxaa as FXAA) = makeFXAA();
     } else {
         fillRequiredFXAA(value.fxaa);
-    }
-    if (value.copyMaterial === undefined) {
-        value.copyMaterial = null;
     }
 }
