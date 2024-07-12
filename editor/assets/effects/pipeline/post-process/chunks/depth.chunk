@@ -6,11 +6,6 @@
 uniform sampler2D DepthTex; //Sample_Point_Clamp
 
 float GetLinearDepthWithProj(vec2 uv, mat4 proj) {
-  float depthHS = 0.0;
-  #if defined(CC_USE_WGPU)
-      depthHS = textureLod(DepthTex, saturate(uv), 0.0).r * 2.0 - 1.0;
-  #else
-      depthHS = texture(DepthTex, saturate(uv)).r * 2.0 - 1.0; // -1.0 ~ +1.0
-  #endif
+  float depthHS = texture(DepthTex, saturate(uv)).r * 2.0 - 1.0; // -1.0 ~ +1.0
   return -GetCameraDepthRH(depthHS, proj);
 }
