@@ -5,31 +5,31 @@ CCEffect %{
   - passes:
     - vert: dof-vs
       frag: dof-coc-fs
-      pass: dof1-coc
+      pass: cc-dof-coc
       depthStencilState:
         depthTest: false
         depthWrite: false
     - vert: dof-vs
       frag: dof-prefilter-fs
-      pass: dof1-prefilter
+      pass: cc-dof-prefilter
       depthStencilState:
         depthTest: false
         depthWrite: false
     - vert: dof-vs
       frag: dof-bokeh-fs
-      pass: dof1-bokeh
+      pass: cc-dof-bokeh
       depthStencilState:
         depthTest: false
         depthWrite: false
     - vert: dof-vs
       frag: dof-filter-fs
-      pass: dof1-filter
+      pass: cc-dof-filter
       depthStencilState:
         depthTest: false
         depthWrite: false
     - vert: dof-vs
       frag: dof-combine-fs
-      pass: dof1-combine
+      pass: cc-dof-combine
       depthStencilState:
         depthTest: false
         depthWrite: false

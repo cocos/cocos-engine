@@ -5,7 +5,7 @@ CCEffect %{
     passes:
     - vert: fxaa-vs
       frag: fxaa-edge-fs:frag
-      pass: fxaa1
+      pass: cc-fxaa
       depthStencilState:
         depthTest: false
         depthWrite: false

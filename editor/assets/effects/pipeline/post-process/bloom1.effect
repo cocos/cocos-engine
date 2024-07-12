@@ -8,7 +8,7 @@ CCEffect %{
   - passes:
     - vert: bloom-vs
       frag: prefilter-fs
-      pass: bloom1-prefilter
+      pass: cc-bloom-prefilter
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -16,7 +16,7 @@ CCEffect %{
         depthWrite: false
     - vert: bloom-vs
       frag: downsample-fs
-      pass: bloom1-downsample
+      pass: cc-bloom-downsample
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -24,7 +24,7 @@ CCEffect %{
         depthWrite: false
     - vert: bloom-vs
       frag: upsample-fs
-      pass: bloom1-upsample
+      pass: cc-bloom-upsample
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -32,7 +32,7 @@ CCEffect %{
         depthWrite: false
     - vert: bloom-vs
       frag: combine-fs
-      pass: bloom1-combine
+      pass: cc-bloom-combine
       rasterizerState:
         cullMode: none
       depthStencilState:

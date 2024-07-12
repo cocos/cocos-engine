@@ -5,7 +5,7 @@ CCEffect %{
   - passes:
     - vert: vs
       frag: fs-easu
-      pass: fsr-easu
+      pass: cc-fsr-easu
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -13,7 +13,7 @@ CCEffect %{
         depthWrite: false
     - vert: vs
       frag: fs-rcas
-      pass: fsr-rcas
+      pass: cc-fsr-rcas
       rasterizerState:
         cullMode: none
       depthStencilState:
