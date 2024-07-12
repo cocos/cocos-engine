@@ -55,10 +55,26 @@ export default class WebSocket {
     my.onSocketOpen(this._onOpen)
 
     this._onMessage = (res) => {
-      if (res && res.data && res.isBuffer) {
-        res.data = _utils.base64ToArrayBuffer(res.data)
+      function deepCopy(obj) {
+        if (typeof obj !== 'object' || obj === null) {
+          return obj;
+        }
+      
+        const copiedObj = {};
+      
+        for (const key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            copiedObj[key] = deepCopy(obj[key]);
+          }
+        }
+      
+        return copiedObj;
       }
-      this._triggerEvent('message', res)
+      let tmp = deepCopy(res);
+      if (tmp && tmp.data && tmp.isBuffer) {
+        tmp.data = _utils.base64ToArrayBuffer(tmp.data)
+      }
+      this._triggerEvent('message', tmp)
     }
     my.onSocketMessage(this._onMessage)
 
@@ -69,10 +85,10 @@ export default class WebSocket {
     my.onSocketError(this._onError)
 
     this._onClose = (res) => {
-      this.readyState = WebSocket.CLOSED
-      this._triggerEvent('close')
-      this._removeAllSocketListenr()
+      this.readyState = WebSocket.CLOSED;
       this._decreaseCount();
+      this._removeAllSocketListener();
+      this._triggerEvent('close');
     }
     my.onSocketClose(this._onClose)
 
@@ -110,7 +126,7 @@ export default class WebSocket {
     }
   }
 
-  _removeAllSocketListenr(){
+  _removeAllSocketListener(){
     my.offSocketOpen(this._onOpen)
     my.offSocketMessage(this._onMessage)
     my.offSocketError(this._onError)
