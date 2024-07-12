@@ -256,12 +256,30 @@ export function fillRequiredFXAA(value: FXAA): void {
     }
 }
 
+export interface ToneMapping {
+    /* refcount */ material: Material | null;
+    [name: string]: unknown;
+}
+
+export function makeToneMapping(): ToneMapping {
+    return {
+        material: null,
+    };
+}
+
+export function fillRequiredToneMapping(value: ToneMapping): void {
+    if (value.material === undefined) {
+        value.material = null;
+    }
+}
+
 export interface PipelineSettings {
     readonly msaa: MSAA;
     enableShadingScale: boolean; /* false */
     shadingScale: number; /* 0.5 */
     readonly depthOfField: DepthOfField;
     readonly bloom: Bloom;
+    readonly toneMapping: ToneMapping;
     readonly colorGrading: ColorGrading;
     readonly fsr: FSR;
     readonly fxaa: FXAA;
@@ -276,6 +294,7 @@ export function makePipelineSettings(): PipelineSettings {
         shadingScale: 0.5,
         depthOfField: makeDepthOfField(),
         bloom: makeBloom(),
+        toneMapping: makeToneMapping(),
         colorGrading: makeColorGrading(),
         fsr: makeFSR(),
         fxaa: makeFXAA(),
@@ -304,6 +323,11 @@ export function fillRequiredPipelineSettings(value: PipelineSettings): void {
         (value.bloom as Bloom) = makeBloom();
     } else {
         fillRequiredBloom(value.bloom);
+    }
+    if (value.toneMapping === undefined) {
+        (value.toneMapping as ToneMapping) = makeToneMapping();
+    } else {
+        fillRequiredToneMapping(value.toneMapping);
     }
     if (value.colorGrading === undefined) {
         (value.colorGrading as ColorGrading) = makeColorGrading();
