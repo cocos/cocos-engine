@@ -367,6 +367,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingMap(val: Texture2D) {
         this._settings.colorGrading.colorGradingMap = val;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMap(): Texture2D {
         return this._settings.colorGrading.colorGradingMap!;

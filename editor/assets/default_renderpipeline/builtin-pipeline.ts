@@ -553,32 +553,37 @@ if (rendering) {
                 }
             }
 
+            // ---------------------------------------------------------
             // Post Process
-            if (this._cameraConfigs.enablePostProcess) {
-                // DepthOfField
-                if (this._cameraConfigs.enableDOF) {
-                    const halfWidth = Math.max(Math.floor(width / 2), 1);
-                    const halfHeight = Math.max(Math.floor(height / 2), 1);
-                    // `DofCoc${id}` texture will reuse `LdrColor${id}`
-                    ppl.addRenderTarget(`DofRadiance${id}`, Format.RGBA16F, width, height);
-                    ppl.addRenderTarget(`DofPrefilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                    ppl.addRenderTarget(`DofBokeh${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                    ppl.addRenderTarget(`DofFilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+            // ---------------------------------------------------------
+            // DepthOfField
+            if (this._cameraConfigs.enableDOF) {
+                const halfWidth = Math.max(Math.floor(width / 2), 1);
+                const halfHeight = Math.max(Math.floor(height / 2), 1);
+                // `DofCoc${id}` texture will reuse `LdrColor${id}`
+                ppl.addRenderTarget(`DofRadiance${id}`, Format.RGBA16F, width, height);
+                ppl.addRenderTarget(`DofPrefilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofBokeh${id}`, Format.RGBA16F, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofFilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+            }
+            // Bloom (Kawase Dual Filter)
+            if (this._cameraConfigs.enableBloom) {
+                let bloomWidth = width;
+                let bloomHeight = height;
+                for (let i = 0; i !== settings.bloom.iterations + 1; ++i) {
+                    bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
+                    bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
+                    ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
                 }
-                // Bloom (Kawase Dual Filter)
-                if (this._cameraConfigs.enableBloom) {
-                    let bloomWidth = width;
-                    let bloomHeight = height;
-                    for (let i = 0; i !== settings.bloom.iterations + 1; ++i) {
-                        bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
-                        bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
-                        ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
-                    }
-                }
-                // FXAA
-                if (this._cameraConfigs.enableFXAA && this._cameraConfigs.enableShadingScale) {
-                    ppl.addRenderTarget(`AaColor${id}`, Format.RGBA8, width, height);
-                }
+            }
+            // Color Grading
+            if (this._cameraConfigs.enableColorGrading && settings.colorGrading.material && settings.colorGrading.colorGradingMap) {
+                settings.colorGrading.material.setProperty(
+                    'colorGradingMap', settings.colorGrading.colorGradingMap);
+            }
+            // FXAA
+            if (this._cameraConfigs.enableFXAA && this._cameraConfigs.enableShadingScale) {
+                ppl.addRenderTarget(`AaColor${id}`, Format.RGBA8, width, height);
             }
         }
         setup(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): void {
@@ -687,7 +692,8 @@ if (rendering) {
 
             // Main Directional light CSM Shadow Map
             if (this._cameraConfigs.enableMainLightShadowMap) {
-                this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
+                assert(mainLight !== null);
+                this._addCascadedShadowMapPass(ppl, id, mainLight, camera);
             }
 
             // Spot light shadow maps (Mobile or MSAA)
@@ -701,7 +707,8 @@ if (rendering) {
             let lastPass: rendering.BasicRenderPassBuilder;
             if (this._cameraConfigs.enablePostProcess) { // Post Process
                 // Radiance and DoF
-                if (this._cameraConfigs.enableDOF && settings.depthOfField.material) {
+                if (this._cameraConfigs.enableDOF) {
+                    assert(settings.depthOfField.material !== null);
                     const dofRadianceName = `DofRadiance${id}`;
                     // Disable MSAA, depth stencil cannot be resolved cross-platformly
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
@@ -710,16 +717,20 @@ if (rendering) {
                         id, camera, width, height,
                         dofRadianceName, depthStencilName, radianceName);
                 } else {
-                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
+                    this._addForwardRadiancePasses(
+                        ppl, id, camera, width, height, mainLight,
                         radianceName, depthStencilName);
                 }
                 // Bloom
-                if (this._cameraConfigs.enableBloom && settings.bloom.material) {
-                    this._addKawaseDualFilterBloomPasses(ppl, settings, settings.bloom.material,
+                if (this._cameraConfigs.enableBloom) {
+                    assert(settings.bloom.material !== null);
+                    this._addKawaseDualFilterBloomPasses(
+                        ppl, settings, settings.bloom.material,
                         id, width, height, radianceName);
                 }
                 // Tone Mapping and FXAA
-                if (this._cameraConfigs.enableFXAA && settings.fxaa.material) {
+                if (this._cameraConfigs.enableFXAA) {
+                    assert(settings.fxaa.material !== null);
                     const copyAndTonemapPassNeeded = this._cameraConfigs.enableHDR
                         || this._cameraConfigs.enableColorGrading;
                     const ldrColorName = copyAndTonemapPassNeeded ? `LdrColor${id}` : radianceName;
@@ -869,8 +880,6 @@ if (rendering) {
                 && settings.colorGrading.material !== null
                 && settings.colorGrading.colorGradingMap !== null) {
                 const lutTex = settings.colorGrading.colorGradingMap;
-                settings.colorGrading.material.setProperty('colorGradingMap', lutTex);
-
                 this._colorGradingTexSize.x = lutTex.width;
                 this._colorGradingTexSize.y = lutTex.height;
 
