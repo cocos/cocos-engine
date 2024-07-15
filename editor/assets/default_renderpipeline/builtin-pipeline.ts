@@ -87,6 +87,7 @@ function getCsmMainLightViewport(
 
 class PipelineConfigs {
     isWeb = false;
+    isWebGL1 = false;
     isWebGPU = false;
     isMobile = false;
     isHDR = false;
@@ -111,6 +112,7 @@ function setupPipelineConfigs(
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
     configs.isWeb = !sys.isNative;
     configs.isWebGPU = (cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
+    configs.isWebGL1 = (cclegacy.director.root.device as gfx.Device).gfxAPI === gfx.API.WEBGL;
     configs.isMobile = sys.isMobile;
     // Rendering
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
@@ -218,7 +220,8 @@ function setupCameraConfigs(
 
     // MSAA
     cameraConfigs.enableMSAA = cameraConfigs.settings.msaa.enabled
-        && !pipelineConfigs.isWeb;
+        && !pipelineConfigs.isWeb // TODO(zhouzhenglong): remove this constraint
+        && !pipelineConfigs.isWebGL1;
 
     // Shading scale
     cameraConfigs.shadingScale = cameraConfigs.settings.shadingScale;
