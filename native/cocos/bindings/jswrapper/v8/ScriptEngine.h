@@ -370,7 +370,7 @@ private:
     #endif
     );
     static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
-    static void onPromiseRejectCallback(v8::PromiseRejectMessage msg);
+    static void onPromiseRejectCallback(v8::PromiseRejectMessage data);
 
     /**
      *  @brief Load the bytecode file and set the return value
