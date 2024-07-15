@@ -79,8 +79,7 @@ namespace {
 void seLogCallback(const v8::FunctionCallbackInfo<v8::Value> &info) {
     if (info[0]->IsString()) {
         v8::String::Utf8Value utf8(v8::Isolate::GetCurrent(), info[0]);
-        cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG
-            , "JS: %s", *utf8);
+        cc::Log::logMessage(cc::LogType::KERNEL, cc::LogLevel::LEVEL_DEBUG, "JS: %s", *utf8);
     }
 }
 
@@ -96,14 +95,14 @@ ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
 
     char tmp[100] = {0};
     for (int i = 0, e = stack->GetFrameCount(); i < e; ++i) {
-        v8::Local<v8::StackFrame> frame = stack->GetFrame(v8::Isolate::GetCurrent(), i);
-        v8::Local<v8::String> script = frame->GetScriptName();
+        v8::Local<v8::StackFrame> const frame = stack->GetFrame(v8::Isolate::GetCurrent(), i);
+        v8::Local<v8::String> const script = frame->GetScriptName();
         ccstd::string scriptName;
         if (!script.IsEmpty()) {
             scriptName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), script);
         }
 
-        v8::Local<v8::String> func = frame->GetFunctionName();
+        v8::Local<v8::String> const func = frame->GetFunctionName();
         ccstd::string funcName;
         if (!func.IsEmpty()) {
             funcName = *v8::String::Utf8Value(v8::Isolate::GetCurrent(), func);
@@ -113,10 +112,10 @@ ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
         snprintf(tmp, sizeof(tmp), "%d", i);
         stackStr += tmp;
         stackStr += "]";
-        
+
         // Add function name
         stackStr += (funcName.empty() ? "anonymous" : funcName.c_str());
-        
+
         // Add script file name
         stackStr += "@";
         stackStr += (scriptName.empty() ? "(no filename)" : scriptName.c_str());
@@ -130,7 +129,7 @@ ccstd::string stackTraceToString(v8::Local<v8::StackTrace> stack) {
         stackStr += ":";
         snprintf(tmp, sizeof(tmp), "%d", frame->GetColumn());
         stackStr += tmp;
-        
+
         if (i < (e - 1)) {
             stackStr += "\n";
         }
@@ -152,11 +151,10 @@ bool jsbConsoleFormatLog(State &state, cc::LogLevel level, int msgIndex = 0) {
     }
 
     const auto &args = state.args();
-    int argc = static_cast<int>(args.size());
+    int const argc = static_cast<int>(args.size());
     if ((argc - msgIndex) == 1) {
-        ccstd::string msg = args[msgIndex].toStringForce();
-        cc::Log::logMessage(cc::LogType::KERNEL, level 
-            ,"JS: %s", msg.c_str());
+        ccstd::string const msg = args[msgIndex].toStringForce();
+        cc::Log::logMessage(cc::LogType::KERNEL, level, "JS: %s", msg.c_str());
     } else if (argc > 1) {
         ccstd::string msg = args[msgIndex].toStringForce();
         size_t pos;
@@ -168,8 +166,7 @@ bool jsbConsoleFormatLog(State &state, cc::LogLevel level, int msgIndex = 0) {
                 msg += " " + args[i].toStringForce();
             }
         }
-        cc::Log::logMessage(cc::LogType::KERNEL, level
-            ,"JS: %s", msg.c_str());
+        cc::Log::logMessage(cc::LogType::KERNEL, level, "JS: %s", msg.c_str());
     }
 
     return true;
@@ -250,17 +247,17 @@ public:
             v8::V8::SetFlagsFromString(flags.c_str(), static_cast<int>(flags.length()));
         }
 
-        bool ok = v8::V8::Initialize();
+        bool const ok = v8::V8::Initialize();
         CC_ASSERT(ok);
     }
 
     ~ScriptEngineV8Context() {
         v8::V8::Dispose();
-#if V8_MAJOR_VERSION > 9 || ( V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION > 7)
+        #if V8_MAJOR_VERSION > 9 || (V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION > 7)
         v8::V8::DisposePlatform();
-#else
+        #else
         v8::V8::ShutdownPlatform();
-#endif
+        #endif
         delete platform;
     }
     v8::Platform *platform = nullptr;
@@ -294,21 +291,21 @@ void ScriptEngine::onFatalErrorCallback(const char *location, const char *messag
 }
 
 void ScriptEngine::onOOMErrorCallback(const char *location,
-#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
-                                      const v8::OOMDetails& details
-#else
+    #if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+                                      const v8::OOMDetails &details
+    #else
                                       bool isHeapOom
-#endif
-                                      ) {
+    #endif
+) {
     ccstd::string errorStr = "[OOM ERROR] location: ";
     errorStr += location;
     ccstd::string message;
     message = "is heap out of memory: ";
-#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+    #if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
     if (details.is_heap_oom) {
-#else
+    #else
     if (isHeapOom) {
-#endif
+    #endif
         message += "true";
     } else {
         message += "false";
@@ -319,185 +316,14 @@ void ScriptEngine::onOOMErrorCallback(const char *location,
     getInstance()->callExceptionCallback(location, message.c_str(), "(no stack information)");
 }
 
-void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> /*data*/) {
+void ScriptEngine::onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data) {
     ScriptEngine *thiz = getInstance();
-    v8::Local<v8::String> msg = message->Get();
-    Value msgVal;
-    internal::jsToSeValue(v8::Isolate::GetCurrent(), msg, &msgVal);
-    CC_ASSERT(msgVal.isString());
-    v8::ScriptOrigin origin = message->GetScriptOrigin();
-    Value resouceNameVal;
-    internal::jsToSeValue(v8::Isolate::GetCurrent(), origin.ResourceName(), &resouceNameVal);
-    Value line(origin.LineOffset());
-    Value column(origin.ColumnOffset());
 
-    ccstd::string location = resouceNameVal.toStringForce() + ":" + line.toStringForce() + ":" + column.toStringForce();
-
-    ccstd::string errorStr = msgVal.toString() + ", location: " + location;
-    ccstd::string stackStr = stackTraceToString(message->GetStackTrace());
-    if (!stackStr.empty()) {
-        if (line.toInt32() == 0) {
-            location = "(see stack)";
-        }
-        errorStr += "\nSTACK:\n" + stackStr;
-    }
-    SE_LOGE("ERROR: %s\n", errorStr.c_str());
-
-    thiz->callExceptionCallback(location.c_str(), msgVal.toString().c_str(), stackStr.c_str());
-
-    if (!thiz->_isErrorHandleWorking) {
-        thiz->_isErrorHandleWorking = true;
-
-        Value errorHandler;
-        if (thiz->_globalObj && thiz->_globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction()) {
-            ValueArray args;
-            args.push_back(resouceNameVal);
-            args.push_back(line);
-            args.push_back(msgVal);
-            args.push_back(Value(stackStr));
-            errorHandler.toObject()->call(args, thiz->_globalObj);
-        }
-
-        thiz->_isErrorHandleWorking = false;
-    } else {
-        SE_LOGE("ERROR: __errorHandler has exception\n");
-    }
-}
-/**
- * Bug in v8 stacktrace:
- * "handlerAddedAfterPromiseRejected" event is triggered if a resolve handler is added.
- * But if no reject handler is added, then "unhandledRejectedPromise" exception will be called again, but the stacktrace this time become empty
- * LastStackTrace is used to store it.
- */
-void ScriptEngine::pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace) {
-    using element_type = decltype(_promiseArray)::value_type;
-    element_type *current;
-
-    auto itr = std::find_if(_promiseArray.begin(), _promiseArray.end(), [&](const auto &e) -> bool {
-        return std::get<0>(e)->Get(_isolate) == promise;
-    });
-
-    if (itr == _promiseArray.end()) { // Not found, create one
-        _promiseArray.emplace_back(std::make_unique<v8::Persistent<v8::Promise>>(), ccstd::vector<PromiseExceptionMsg>{});
-        std::get<0>(_promiseArray.back())->Reset(_isolate, promise);
-        current = &_promiseArray.back();
-    } else {
-        current = &(*itr);
-    }
-
-    auto &exceptions = std::get<1>(*current);
-    if (strcmp(event, "handlerAddedAfterPromiseRejected") == 0) {
-        for (int i = 0; i < exceptions.size(); i++) {
-            if (exceptions[i].event == "unhandledRejectedPromise") {
-                _lastStackTrace = exceptions[i].stackTrace;
-                exceptions.erase(exceptions.begin() + i);
-                return;
-            }
-        }
-    }
-    exceptions.push_back(PromiseExceptionMsg{event, stackTrace});
+    thiz->reportException(thiz->_isolate, message, data);
 }
 
 void ScriptEngine::handlePromiseExceptions() {
-    if (_promiseArray.empty()) {
-        return;
-    }
-    for (auto &exceptionsPair : _promiseArray) {
-        auto &exceptionVector = std::get<1>(exceptionsPair);
-        for (const auto &exceptions : exceptionVector) {
-            getInstance()->callExceptionCallback("", exceptions.event.c_str(), exceptions.stackTrace.c_str());
-        }
-        std::get<0>(exceptionsPair).get()->Reset();
-    }
-    _promiseArray.clear();
-    _lastStackTrace.clear();
-}
-
-void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
-    /* Reject message contains different types, yet not every type will lead to the exception in the end.
-     * A detection is needed: if the reject handler is added after the promise is triggered, it's actually valid.*/
-    v8::Isolate *isolate = getInstance()->_isolate;
-    v8::HandleScope scope(isolate);
-    v8::TryCatch tryCatch(isolate);
-    std::stringstream ss;
-    auto event = msg.GetEvent();
-    v8::Local<v8::Value> value = msg.GetValue();
-    auto promiseName = msg.GetPromise()->GetConstructorName();
-
-    if (!value.IsEmpty()) {
-        // prepend error object to stack message
-        // v8::MaybeLocal<v8::String> maybeStr = value->ToString(isolate->GetCurrentContext());
-        if (value->IsString()) {
-            v8::Local<v8::String> str = value->ToString(isolate->GetCurrentContext()).ToLocalChecked();
-
-            v8::String::Utf8Value valueUtf8(isolate, str);
-            auto *strp = *valueUtf8;
-            if (strp == nullptr) {
-                ss << "value: null" << std::endl;
-                auto tn = value->TypeOf(isolate);
-                v8::String::Utf8Value tnUtf8(isolate, tn);
-                strp = *tnUtf8;
-                ss << " type: " << strp << std::endl;
-            }
-
-        } else if (value->IsObject()) {
-            v8::MaybeLocal<v8::String> json = v8::JSON::Stringify(isolate->GetCurrentContext(), value);
-            if (!json.IsEmpty()) {
-                v8::String::Utf8Value jsonStr(isolate, json.ToLocalChecked());
-                auto *strp = *jsonStr;
-                if (strp) {
-                    ss << " obj: " << strp << std::endl;
-                } else {
-                    ss << " obj: null" << std::endl;
-                }
-            } else {
-                v8::Local<v8::Object> obj = value->ToObject(isolate->GetCurrentContext()).ToLocalChecked();
-                v8::Local<v8::Array> attrNames = obj->GetOwnPropertyNames(isolate->GetCurrentContext()).ToLocalChecked();
-
-                if (!attrNames.IsEmpty()) {
-                    uint32_t size = attrNames->Length();
-                    for (uint32_t i = 0; i < size; i++) {
-                        se::Value e;
-                        v8::Local<v8::String> attrName = attrNames->Get(isolate->GetCurrentContext(), i)
-                                                             .ToLocalChecked()
-                                                             ->ToString(isolate->GetCurrentContext())
-                                                             .ToLocalChecked();
-                        v8::String::Utf8Value attrUtf8(isolate, attrName);
-                        auto *strp = *attrUtf8;
-                        ss << " obj.property " << strp << std::endl;
-                    }
-                    ss << " obj: JSON.parse failed!" << std::endl;
-                }
-            }
-        }
-        v8::String::Utf8Value valuePromiseConstructor(isolate, promiseName);
-        auto *strp = *valuePromiseConstructor;
-        if (strp) {
-            ss << "PromiseConstructor " << strp;
-        }
-    }
-    auto stackStr = getInstance()->getCurrentStackTrace();
-    ss << "stacktrace: " << std::endl;
-    if (stackStr.empty()) {
-        ss << getInstance()->_lastStackTrace << std::endl;
-    } else {
-        ss << stackStr << std::endl;
-    }
-    // Check event immediately, for certain case throw exception.
-    switch (event) {
-        case v8::kPromiseRejectWithNoHandler:
-            getInstance()->pushPromiseExeception(msg.GetPromise(), "unhandledRejectedPromise", ss.str().c_str());
-            break;
-        case v8::kPromiseHandlerAddedAfterReject:
-            getInstance()->pushPromiseExeception(msg.GetPromise(), "handlerAddedAfterPromiseRejected", ss.str().c_str());
-            break;
-        case v8::kPromiseRejectAfterResolved:
-            getInstance()->callExceptionCallback("", "rejectAfterPromiseResolved", stackStr.c_str());
-            break;
-        case v8::kPromiseResolveAfterResolved:
-            getInstance()->callExceptionCallback("", "resolveAfterPromiseResolved", stackStr.c_str());
-            break;
-    }
+    handleUnhandledPromiseRejections(_isolate);
 }
 
 ScriptEngine *ScriptEngine::getInstance() {
@@ -507,22 +333,7 @@ ScriptEngine *ScriptEngine::getInstance() {
 void ScriptEngine::destroyInstance() {
 }
 
-ScriptEngine::ScriptEngine()
-: _isolate(nullptr),
-  _handleScope(nullptr),
-  _globalObj(nullptr)
-    #if SE_ENABLE_INSPECTOR
-  ,
-  _env(nullptr),
-  _isolateData(nullptr)
-    #endif
-  ,
-  _debuggerServerPort(0),
-  _vmId(0),
-  _isValid(false),
-  _isGarbageCollecting(false),
-  _isInCleanup(false),
-  _isErrorHandleWorking(false) {
+ScriptEngine::ScriptEngine() {
     #if !CC_EDITOR
     if (!gSharedV8) {
         gSharedV8 = ccnew ScriptEngineV8Context();
@@ -547,15 +358,15 @@ ScriptEngine::~ScriptEngine() { // NOLINT(bugprone-exception-escape)
 }
 
 bool ScriptEngine::postInit() {
-    v8::HandleScope hs(_isolate);
+    v8::HandleScope const hs(_isolate);
     // editor has it's own isolate,no need to enter and set callback.
     #if !CC_EDITOR
     _isolate->Enter();
     _isolate->SetCaptureStackTraceForUncaughtExceptions(true, JSB_STACK_FRAME_LIMIT, v8::StackTrace::kOverview);
-    _isolate->SetFatalErrorHandler(onFatalErrorCallback);
-    _isolate->SetOOMErrorHandler(onOOMErrorCallback);
-    _isolate->AddMessageListener(onMessageCallback);
-    _isolate->SetPromiseRejectCallback(onPromiseRejectCallback);
+    _isolate->SetFatalErrorHandler(ScriptEngine::onFatalErrorCallback);
+    _isolate->SetOOMErrorHandler(ScriptEngine::onOOMErrorCallback);
+    _isolate->AddMessageListener(ScriptEngine::onMessageCallback);
+    _isolate->SetPromiseRejectCallback(ScriptEngine::onPromiseRejectCallback);
     #endif
     NativePtrToObjectMap::init();
 
@@ -635,7 +446,7 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
 
     if (isolate != nullptr) {
         _isolate = isolate;
-        v8::Local<v8::Context> context = _isolate->GetCurrentContext();
+        v8::Local<v8::Context> const context = _isolate->GetCurrentContext();
         _context.Reset(_isolate, context);
     } else {
         static v8::ArrayBuffer::Allocator *arrayBufferAllocator{nullptr};
@@ -645,7 +456,7 @@ bool ScriptEngine::init(v8::Isolate *isolate) {
         v8::Isolate::CreateParams createParams;
         createParams.array_buffer_allocator = arrayBufferAllocator;
         _isolate = v8::Isolate::New(createParams);
-        v8::HandleScope hs(_isolate);
+        v8::HandleScope const hs(_isolate);
         _context.Reset(_isolate, v8::Context::New(_isolate));
         _context.Get(_isolate)->Enter();
     }
@@ -664,7 +475,7 @@ void ScriptEngine::cleanup() {
     cc::events::ScriptEngine::broadcast(cc::ScriptEngineEvent::BEFORE_CLEANUP);
 
     {
-        AutoHandleScope hs;
+        AutoHandleScope const hs;
         for (const auto &hook : _beforeCleanupHookArray) {
             hook();
         }
@@ -766,7 +577,7 @@ void ScriptEngine::addPermanentRegisterCallback(RegisterCallback cb) {
 }
 
 bool ScriptEngine::callRegisteredCallback() {
-    se::AutoHandleScope hs;
+    se::AutoHandleScope const hs;
     bool ok = false;
     _startTime = std::chrono::steady_clock::now();
 
@@ -796,7 +607,7 @@ bool ScriptEngine::start() {
     if (!init()) {
         return false;
     }
-    se::AutoHandleScope hs;
+    se::AutoHandleScope const hs;
 
     // Check the cache of debuggerInfo. Enable debugger if it's valid.
     if (debuggerInfo.isValid()) {
@@ -816,7 +627,7 @@ bool ScriptEngine::start() {
         options.set_inspector_enabled(true);
         options.set_port(static_cast<int>(_debuggerServerPort));
         options.set_host_name(_debuggerServerAddr);
-        bool ok = _env->inspector_agent()->Start(gSharedV8->platform, "", options);
+        bool const ok = _env->inspector_agent()->Start(gSharedV8->platform, "", options);
         CC_ASSERT(ok);
     #endif
     }
@@ -870,18 +681,19 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
         fileName = "(no filename)";
     }
 
+    v8::TryCatch const tryCatch(_isolate);
     // Fix the source url is too long displayed in Chrome debugger.
     ccstd::string sourceUrl = fileName;
     static const ccstd::string PREFIX_KEY = "/temp/quick-scripts/";
-    size_t prefixPos = sourceUrl.find(PREFIX_KEY);
+    size_t const prefixPos = sourceUrl.find(PREFIX_KEY);
     if (prefixPos != ccstd::string::npos) {
         sourceUrl = sourceUrl.substr(prefixPos + PREFIX_KEY.length());
     }
 
     // It is needed, or will crash if invoked from non C++ context, such as invoked from objective-c context(for example, handler of UIKit).
-    v8::HandleScope handleScope(_isolate);
+    v8::HandleScope const handleScope(_isolate);
 
-    ccstd::string scriptStr(script, length);
+    ccstd::string const scriptStr(script, length);
     v8::MaybeLocal<v8::String> source = v8::String::NewFromUtf8(_isolate, scriptStr.c_str(), v8::NewStringType::kNormal);
     if (source.IsEmpty()) {
         return false;
@@ -897,14 +709,14 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
 
     bool success = false;
 
-    if (!maybeScript.IsEmpty()) {
-        v8::TryCatch block(_isolate);
-
-        v8::Local<v8::Script> v8Script = maybeScript.ToLocalChecked();
+    if (maybeScript.IsEmpty()) {
+        reportException(_isolate, tryCatch);
+    } else {
+        v8::Local<v8::Script> const v8Script = maybeScript.ToLocalChecked();
         v8::MaybeLocal<v8::Value> maybeResult = v8Script->Run(_context.Get(_isolate));
 
         if (!maybeResult.IsEmpty()) {
-            v8::Local<v8::Value> result = maybeResult.ToLocalChecked();
+            v8::Local<v8::Value> const result = maybeResult.ToLocalChecked();
 
             if (!result->IsUndefined() && ret != nullptr) {
                 internal::jsToSeValue(_isolate, result, ret);
@@ -913,10 +725,9 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
             success = true;
         }
 
-        if (block.HasCaught()) {
-            v8::Local<v8::Message> message = block.Message();
+        if (tryCatch.HasCaught()) {
             SE_LOGE("ScriptEngine::evalString catch exception:\n");
-            onMessageCallback(message, v8::Undefined(_isolate));
+            reportException(_isolate, tryCatch);
         }
     }
 
@@ -929,11 +740,11 @@ bool ScriptEngine::evalString(const char *script, uint32_t length /* = 0 */, Val
 
 ccstd::string ScriptEngine::getCurrentStackTrace() {
     if (!_isValid) {
-        return ccstd::string();
+        return {};
     }
 
-    v8::HandleScope hs(_isolate);
-    v8::Local<v8::StackTrace> stack = v8::StackTrace::CurrentStackTrace(_isolate, JSB_STACK_FRAME_LIMIT, v8::StackTrace::kOverview);
+    v8::HandleScope const hs(_isolate);
+    v8::Local<v8::StackTrace> const stack = v8::StackTrace::CurrentStackTrace(_isolate, JSB_STACK_FRAME_LIMIT, v8::StackTrace::kOverview);
     return stackTraceToString(stack);
 }
 
@@ -970,7 +781,7 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
             SE_LOGE("ScriptEngine::generateByteCode no directory component found in path %s\n", path.c_str());
             return false;
         }
-        ccstd::string pathBcDir = pathBc.substr(0, lastSep);
+        ccstd::string const pathBcDir = pathBc.substr(0, lastSep);
         success = fu->createDirectory(pathBcDir);
         if (!success) {
             SE_LOGE("ScriptEngine::generateByteCode failed to create bytecode for %s\n", path.c_str());
@@ -979,17 +790,17 @@ bool ScriptEngine::saveByteCodeToFile(const ccstd::string &path, const ccstd::st
     }
 
     // load script file
-    ccstd::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
-    v8::Local<v8::String> code = v8::String::NewFromUtf8(_isolate, scriptBuffer.c_str(), v8::NewStringType::kNormal, static_cast<int>(scriptBuffer.length())).ToLocalChecked();
-    v8::Local<v8::Value> scriptPath = v8::String::NewFromUtf8(_isolate, path.data(), v8::NewStringType::kNormal).ToLocalChecked();
+    ccstd::string const scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+    v8::Local<v8::String> const code = v8::String::NewFromUtf8(_isolate, scriptBuffer.c_str(), v8::NewStringType::kNormal, static_cast<int>(scriptBuffer.length())).ToLocalChecked();
+    v8::Local<v8::Value> const scriptPath = v8::String::NewFromUtf8(_isolate, path.data(), v8::NewStringType::kNormal).ToLocalChecked();
     // create unbound script
-    v8::ScriptOrigin origin(_isolate, scriptPath);
+    v8::ScriptOrigin const origin(_isolate, scriptPath);
     v8::ScriptCompiler::Source source(code, origin);
-    v8::Local<v8::Context> parsingContext = v8::Local<v8::Context>::New(_isolate, _context);
-    v8::Context::Scope parsingScope(parsingContext);
-    v8::TryCatch tryCatch(_isolate);
-    v8::Local<v8::UnboundScript> v8Script = v8::ScriptCompiler::CompileUnboundScript(_isolate, &source, v8::ScriptCompiler::kEagerCompile)
-                                                .ToLocalChecked();
+    v8::Local<v8::Context> const parsingContext = v8::Local<v8::Context>::New(_isolate, _context);
+    v8::Context::Scope const parsingScope(parsingContext);
+    v8::TryCatch const tryCatch(_isolate);
+    v8::Local<v8::UnboundScript> const v8Script = v8::ScriptCompiler::CompileUnboundScript(_isolate, &source, v8::ScriptCompiler::kEagerCompile)
+                                                      .ToLocalChecked();
     // create CachedData
     v8::ScriptCompiler::CachedData *cd = v8::ScriptCompiler::CreateCodeCache(v8Script);
 
@@ -1023,14 +834,14 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
 
     // read origin source file length from .bc file
     uint8_t *p = cachedData.getBytes() + 8;
-    int filesize = p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
+    int const filesize = p[0] + (p[1] << 8) + (p[2] << 16) + (p[3] << 24);
 
     {
         // fix bytecode
-        v8::HandleScope scope(_isolate);
-        v8::Local<v8::String> dummyBytecodeSource = v8::String::NewFromUtf8(_isolate, "\" \"", v8::NewStringType::kNormal).ToLocalChecked();
+        v8::HandleScope const scope(_isolate);
+        v8::Local<v8::String> const dummyBytecodeSource = v8::String::NewFromUtf8(_isolate, "\" \"", v8::NewStringType::kNormal).ToLocalChecked();
         v8::ScriptCompiler::Source dummySource(dummyBytecodeSource);
-        v8::Local<v8::UnboundScript> dummyFunction = v8::ScriptCompiler::CompileUnboundScript(_isolate, &dummySource, v8::ScriptCompiler::kEagerCompile).ToLocalChecked();
+        v8::Local<v8::UnboundScript> const dummyFunction = v8::ScriptCompiler::CompileUnboundScript(_isolate, &dummySource, v8::ScriptCompiler::kEagerCompile).ToLocalChecked();
         v8::ScriptCompiler::CachedData *dummyData = v8::ScriptCompiler::CreateCodeCache(dummyFunction);
         memcpy(p + 4, dummyData->data + 12, 4);
 
@@ -1043,8 +854,8 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
     }
 
     // setup ScriptOrigin
-    v8::Local<v8::Value> scriptPath = v8::String::NewFromUtf8(_isolate, pathBc.data(), v8::NewStringType::kNormal).ToLocalChecked();
-    v8::ScriptOrigin origin(_isolate, scriptPath, 0, 0, true);
+    v8::Local<v8::Value> const scriptPath = v8::String::NewFromUtf8(_isolate, pathBc.data(), v8::NewStringType::kNormal).ToLocalChecked();
+    v8::ScriptOrigin const origin(_isolate, scriptPath, 0, 0, true);
 
     // restore CacheData
     auto *v8CacheData = ccnew v8::ScriptCompiler::CachedData(cachedData.getBytes(), static_cast<int>(cachedData.getSize()));
@@ -1070,9 +881,9 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
         return false;
     }
 
-    v8::TryCatch tryCatch(_isolate);
-    v8::Local<v8::UnboundScript> v8Script = v8::ScriptCompiler::CompileUnboundScript(_isolate, &source, v8::ScriptCompiler::kConsumeCodeCache)
-                                                .ToLocalChecked();
+    v8::TryCatch const tryCatch(_isolate);
+    v8::Local<v8::UnboundScript> const v8Script = v8::ScriptCompiler::CompileUnboundScript(_isolate, &source, v8::ScriptCompiler::kConsumeCodeCache)
+                                                      .ToLocalChecked();
 
     if (v8Script.IsEmpty()) {
         SE_LOGE("ScriptEngine::runByteCodeFile can not compile %s!\n", pathBc.c_str());
@@ -1084,7 +895,7 @@ bool ScriptEngine::runByteCodeFile(const ccstd::string &pathBc, Value *ret /* = 
         return false;
     }
 
-    v8::Local<v8::Script> runnableScript = v8Script->BindToCurrentContext();
+    v8::Local<v8::Script> const runnableScript = v8Script->BindToCurrentContext();
     v8::MaybeLocal<v8::Value> result = runnableScript->Run(_context.Get(_isolate));
 
     if (result.IsEmpty()) {
@@ -1117,7 +928,7 @@ bool ScriptEngine::runScript(const ccstd::string &path, Value *ret /* = nullptr 
         return runByteCodeFile(path, ret);
     }
 
-    ccstd::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
+    ccstd::string const scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
 
     if (!scriptBuffer.empty()) {
         return evalString(scriptBuffer.c_str(), static_cast<uint32_t>(scriptBuffer.length()), ret, path.c_str());
@@ -1132,9 +943,9 @@ void ScriptEngine::clearException() {
 }
 
 void ScriptEngine::throwException(const ccstd::string &errorMessage) {
-    v8::HandleScope scope(_isolate);
-    v8::Local<v8::String> message = v8::String::NewFromUtf8(_isolate, errorMessage.data()).ToLocalChecked();
-    v8::Local<v8::Value> error = v8::Exception::Error(message);
+    v8::HandleScope const scope(_isolate);
+    v8::Local<v8::String> const message = v8::String::NewFromUtf8(_isolate, errorMessage.data()).ToLocalChecked();
+    v8::Local<v8::Value> const error = v8::Exception::Error(message);
     _isolate->ThrowException(error);
 }
 
@@ -1165,7 +976,7 @@ void ScriptEngine::mainLoopUpdate() {
 }
 
 bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_t argc, Value *args, Value *rval /* = nullptr*/) {
-    v8::HandleScope handleScope(_isolate);
+    v8::HandleScope const handleScope(_isolate);
 
     v8::MaybeLocal<v8::String> nameValue = _getStringPool().get(_isolate, funcName);
 
@@ -1176,9 +987,9 @@ bool ScriptEngine::callFunction(Object *targetObj, const char *funcName, uint32_
         return false;
     }
 
-    v8::Local<v8::String> nameValToLocal = nameValue.ToLocalChecked();
-    v8::Local<v8::Context> context = _isolate->GetCurrentContext();
-    v8::Local<v8::Object> localObj = targetObj->_obj.handle(_isolate);
+    v8::Local<v8::String> const nameValToLocal = nameValue.ToLocalChecked();
+    v8::Local<v8::Context> const context = _isolate->GetCurrentContext();
+    v8::Local<v8::Object> const localObj = targetObj->_obj.handle(_isolate);
 
     v8::MaybeLocal<v8::Value> funcVal = localObj->Get(context, nameValToLocal);
     if (funcVal.IsEmpty()) {
@@ -1258,6 +1069,183 @@ void ScriptEngine::VMStringPool::clear() {
         delete e.second;
     }
     _vmStringPoolMap.clear();
+}
+
+void ScriptEngine::reportException(v8::Isolate *isolate, v8::Local<v8::Message> message, v8::Local<v8::Value> exceptionObj) {
+    v8::HandleScope const handleScope(isolate);
+    v8::Local<v8::Context> const context = isolate->GetCurrentContext();
+    bool const enterContext = context.IsEmpty();
+    if (enterContext) {
+        return;
+    }
+    // Converts a V8 value to a C string.
+    auto toCString = [](const v8::String::Utf8Value &value) {
+        return *value ? *value : "<string conversion failed>";
+    };
+
+    ccstd::string location;
+    int linenum = 0;
+    int column = 0;
+
+    v8::String::Utf8Value const exception(isolate, exceptionObj);
+    const char *exceptionString = toCString(exception);
+
+    if (message.IsEmpty()) {
+        // V8 didn't provide any extra information about this error; just
+        // print the exception.
+    } else if (message->GetScriptOrigin().Options().IsWasm()) {
+        // Print wasm-function[(function index)]:(offset): (message).
+        int const functionIndex = message->GetWasmFunctionIndex();
+        int const offset = message->GetStartColumn(context).FromJust();
+        char tmp[50] = {0};
+        snprintf(tmp, sizeof(tmp), "wasm-function[%d]:0x%x", functionIndex, offset);
+        location = tmp;
+    } else {
+        std::stringstream ss;
+        // Print (filename):(line number): (message).
+        v8::String::Utf8Value const filename(isolate, message->GetScriptOrigin().ResourceName());
+        const char *filenameString = toCString(filename);
+        linenum = message->GetLineNumber(context).FromMaybe(-1);
+        column = message->GetStartColumn(context).FromMaybe(-1);
+
+        ss.clear();
+        ss << filenameString;
+        char tmp[50] = {0};
+        snprintf(tmp, sizeof(tmp), ":%d:%d: ", linenum, column);
+        ss << tmp << '\n';
+
+        v8::Local<v8::String> sourceline;
+        if (message->GetSourceLine(context).ToLocal(&sourceline)) {
+            // Print line of source code.
+            v8::String::Utf8Value const sourcelinevalue(isolate, sourceline);
+            const char *sourcelineString = toCString(sourcelinevalue);
+            ss << sourcelineString << '\n';
+            // Print wavy underline (GetUnderline is deprecated).
+            int const start = message->GetStartColumn(context).FromJust();
+            for (int i = 0; i < start; i++) {
+                ss << ' ';
+            }
+            int const end = message->GetEndColumn(context).FromJust();
+            for (int i = start; i < end; i++) {
+                ss << '^';
+            }
+            ss << '\n';
+        }
+
+        location = ss.str();
+    }
+
+    ccstd::string stack;
+    v8::Local<v8::Value> stackTraceString;
+    if (v8::TryCatch::StackTrace(context, exceptionObj).ToLocal(&stackTraceString) && stackTraceString->IsString()) {
+        v8::String::Utf8Value const stackTrace(isolate, stackTraceString.As<v8::String>());
+        stack = toCString(stackTrace);
+    }
+    if (enterContext) context->Exit();
+
+    ccstd::string exceptionMessage = exceptionString;
+    exceptionMessage.append("\n");
+    callExceptionCallback(location.c_str(), exceptionMessage.c_str(), stack.c_str());
+
+    // For compatiblity
+    if (!_isErrorHandleWorking) {
+        _isErrorHandleWorking = true;
+
+        Value errorHandler;
+        if (_globalObj && _globalObj->getProperty("__errorHandler", &errorHandler) && errorHandler.isObject() && errorHandler.toObject()->isFunction()) {
+            ValueArray args;
+            args.emplace_back(location);
+            args.emplace_back(linenum);
+            args.emplace_back(exceptionMessage);
+            args.emplace_back(stack);
+            errorHandler.toObject()->call(args, _globalObj);
+        }
+
+        _isErrorHandleWorking = false;
+    } else {
+        SE_LOGE("ERROR: __errorHandler has exception\n");
+    }
+}
+
+void ScriptEngine::reportException(v8::Isolate *isolate, const v8::TryCatch &tryCatch) {
+    if (isolate->IsExecutionTerminating()) {
+        CC_LOG_ERROR("Got Execution Termination Exception\n");
+    } else {
+        reportException(isolate, tryCatch.Message(), tryCatch.Exception());
+    }
+}
+
+void ScriptEngine::removeUnhandledPromise(v8::Local<v8::Promise> promise) {
+    if (_ignoreUnhandledPromises) return;
+    // Remove handled promises from the list
+    SE_ASSERT(promise->GetIsolate() == _isolate, "Wrong isolate");
+    auto *isolate = promise->GetIsolate();
+    for (auto it = _unhandledPromises.begin(); it != _unhandledPromises.end(); ++it) {
+        v8::Local<v8::Promise> const unhandledPromise = std::get<0>(*it).Get(isolate);
+        if (unhandledPromise == promise) {
+            _unhandledPromises.erase(it--);
+        }
+    }
+}
+
+void ScriptEngine::addUnhandledPromise(v8::Local<v8::Promise> promise, v8::Local<v8::Message> message, v8::Local<v8::Value> exception) {
+    if (_ignoreUnhandledPromises) return;
+    SE_ASSERT(promise->GetIsolate() == _isolate, "Wrong isolate");
+    auto *isolate = promise->GetIsolate();
+    _unhandledPromises.emplace_back(v8::Global<v8::Promise>(isolate, promise), v8::Global<v8::Message>(isolate, message), v8::Global<v8::Value>(isolate, exception));
+}
+
+int ScriptEngine::handleUnhandledPromiseRejections(v8::Isolate *isolate) {
+    // Avoid recursive calls to HandleUnhandledPromiseRejections.
+    if (_ignoreUnhandledPromises) return 0;
+    if (isolate->IsExecutionTerminating()) return 0;
+    _ignoreUnhandledPromises = true;
+    v8::HandleScope const scope(isolate);
+    // Ignore promises that get added during error reporting.
+    size_t i = 0;
+    for (; i < _unhandledPromises.size(); i++) {
+        const auto &tuple = _unhandledPromises[i];
+        v8::Local<v8::Message> const message = std::get<1>(tuple).Get(isolate);
+        v8::Local<v8::Value> const value = std::get<2>(tuple).Get(isolate);
+        reportException(isolate, message, value);
+    }
+    _unhandledPromises.clear();
+    _ignoreUnhandledPromises = false;
+    return static_cast<int>(i);
+}
+
+void ScriptEngine::onPromiseRejectCallbackPerInstance(v8::PromiseRejectMessage data) {
+    if (_ignoreUnhandledPromises) return;
+    if (data.GetEvent() == v8::kPromiseRejectAfterResolved || data.GetEvent() == v8::kPromiseResolveAfterResolved) {
+        // Ignore reject/resolve after resolved.
+        return;
+    }
+    v8::Local<v8::Promise> const promise = data.GetPromise();
+    v8::Isolate *isolate = promise->GetIsolate();
+
+    if (data.GetEvent() == v8::kPromiseHandlerAddedAfterReject) {
+        removeUnhandledPromise(promise);
+        return;
+    }
+
+    v8::Local<v8::Value> exception = data.GetValue();
+    v8::Local<v8::Message> message;
+    // Assume that all objects are stack-traces.
+    if (exception->IsObject()) {
+        message = v8::Exception::CreateMessage(isolate, exception);
+    }
+
+    if (!exception->IsNativeError() && (message.IsEmpty() || message->GetStackTrace().IsEmpty())) {
+        // If there is no real Error object, manually create a stack trace.
+        exception = v8::Exception::Error(v8::String::NewFromUtf8Literal(isolate, "Unhandled Promise."));
+        message = v8::Exception::CreateMessage(isolate, exception);
+    }
+
+    addUnhandledPromise(promise, message, exception);
+}
+
+void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage data) {
+    getInstance()->onPromiseRejectCallbackPerInstance(data);
 }
 
 } // namespace se

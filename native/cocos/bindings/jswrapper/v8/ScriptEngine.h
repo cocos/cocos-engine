@@ -363,12 +363,12 @@ private:
     static void onFatalErrorCallback(const char *location, const char *message);
 
     static void onOOMErrorCallback(const char *location,
-#if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
-                                      const v8::OOMDetails& details
-#else
-                                      bool isHeapOom
-#endif
-                                   );
+    #if V8_MAJOR_VERSION > 10 || (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 4)
+                                   const v8::OOMDetails &details
+    #else
+                                   bool isHeapOom
+    #endif
+    );
     static void onMessageCallback(v8::Local<v8::Message> message, v8::Local<v8::Value> data);
     static void onPromiseRejectCallback(v8::PromiseRejectMessage msg);
 
@@ -382,19 +382,23 @@ private:
     void callExceptionCallback(const char *, const char *, const char *);
     bool callRegisteredCallback();
     bool postInit();
-    // Struct to save exception info
-    struct PromiseExceptionMsg {
-        ccstd::string event;
-        ccstd::string stackTrace;
-    };
-    // Push promise and exception msg to _promiseArray
-    void pushPromiseExeception(const v8::Local<v8::Promise> &promise, const char *event, const char *stackTrace);
+
+    void reportException(v8::Isolate *isolate, v8::Local<v8::Message> message, v8::Local<v8::Value> exceptionObj);
+    void reportException(v8::Isolate *isolate, const v8::TryCatch &tryCatch);
+    void removeUnhandledPromise(v8::Local<v8::Promise> promise);
+    void addUnhandledPromise(v8::Local<v8::Promise> promise, v8::Local<v8::Message> message, v8::Local<v8::Value> exception);
+    int handleUnhandledPromiseRejections(v8::Isolate *isolate);
+    void onPromiseRejectCallbackPerInstance(v8::PromiseRejectMessage data);
 
     static ScriptEngine *instance;
 
     static DebuggerInfo debuggerInfo;
 
-    ccstd::vector<std::tuple<std::unique_ptr<v8::Persistent<v8::Promise>>, ccstd::vector<PromiseExceptionMsg>>> _promiseArray;
+    std::vector<std::tuple<
+        v8::Global<v8::Promise>,
+        v8::Global<v8::Message>,
+        v8::Global<v8::Value>>>
+        _unhandledPromises;
 
     std::chrono::steady_clock::time_point _startTime;
     ccstd::vector<RegisterCallback> _registerCallbackArray;
@@ -406,9 +410,9 @@ private:
 
     v8::Persistent<v8::Context> _context;
 
-    v8::Isolate *_isolate;
-    v8::HandleScope *_handleScope;
-    Object *_globalObj;
+    v8::Isolate *_isolate{nullptr};
+    v8::HandleScope *_handleScope{nullptr};
+    Object *_globalObj{nullptr};
     Value _gcFuncValue;
     Object *_gcFunc = nullptr;
 
@@ -417,23 +421,23 @@ private:
     ExceptionCallback _jsExceptionCallback = nullptr;
 
     #if SE_ENABLE_INSPECTOR
-    node::Environment *_env;
-    node::IsolateData *_isolateData;
+    node::Environment *_env{nullptr};
+    node::IsolateData *_isolateData{nullptr};
     #endif
     VMStringPool _stringPool;
 
-    std::thread::id _engineThreadId;
-    ccstd::string _lastStackTrace;
+    std::thread::id _engineThreadId{};
     ccstd::string _debuggerServerAddr;
-    uint32_t _debuggerServerPort;
-    bool _isWaitForConnect;
+    uint32_t _debuggerServerPort{0};
+    bool _isWaitForConnect{false};
 
-    uint32_t _vmId;
+    uint32_t _vmId{0};
 
-    bool _isValid;
-    bool _isGarbageCollecting;
-    bool _isInCleanup;
-    bool _isErrorHandleWorking;
+    bool _isValid{false};
+    bool _isGarbageCollecting{false};
+    bool _isInCleanup{false};
+    bool _isErrorHandleWorking{false};
+    bool _ignoreUnhandledPromises{false};
 };
 
 } // namespace se
