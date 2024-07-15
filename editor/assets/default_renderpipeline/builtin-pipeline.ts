@@ -160,17 +160,17 @@ function setupPostProcessConfigs(
 ) {
     cameraConfigs.enableDOF = pipelineConfigs.supportDepthSample
         && settings.depthOfField.enabled
-        && settings.depthOfField.material !== null;
+        && !!settings.depthOfField.material;
 
     cameraConfigs.enableBloom = settings.bloom.enabled
-        && settings.bloom.material !== null;
+        && !!settings.bloom.material;
 
     cameraConfigs.enableColorGrading = settings.colorGrading.enabled
-        && settings.colorGrading.material !== null
-        && settings.colorGrading.colorGradingMap !== null;
+        && !!settings.colorGrading.material
+        && !!settings.colorGrading.colorGradingMap;
 
     cameraConfigs.enableFXAA = settings.fxaa.enabled
-        && settings.fxaa.material !== null;
+        && !!settings.fxaa.material;
 
     cameraConfigs.enablePostProcess = (cameraConfigs.enableDOF
         || cameraConfigs.enableBloom
@@ -190,14 +190,14 @@ function setupCameraConfigs(
 
     cameraConfigs.enableMainLightShadowMap = pipelineConfigs.shadowEnabled
         && !pipelineConfigs.usePlanarShadow
-        && camera.scene !== null
-        && camera.scene.mainLight !== null
+        && !!camera.scene
+        && !!camera.scene.mainLight
         && camera.scene.mainLight.shadowEnabled;
 
     cameraConfigs.enableMainLightPlanarShadowMap = pipelineConfigs.shadowEnabled
         && pipelineConfigs.usePlanarShadow
-        && camera.scene !== null
-        && camera.scene.mainLight !== null
+        && !!camera.scene
+        && !!camera.scene.mainLight
         && camera.scene.mainLight.shadowEnabled;
 
     cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
@@ -227,7 +227,7 @@ function setupCameraConfigs(
 
     // FSR (Depend on Shading scale)
     cameraConfigs.enableFSR = cameraConfigs.settings.fsr.enabled
-        && cameraConfigs.settings.fsr.material !== null
+        && !!cameraConfigs.settings.fsr.material
         && cameraConfigs.enableShadingScale
         && cameraConfigs.shadingScale < 1.0;
 
@@ -595,7 +595,7 @@ if (rendering) {
             // log(`==================== One Frame ====================`);
             for (const camera of cameras) {
                 // Skip invalid camera
-                if (camera.scene === null || camera.window === null) {
+                if (!camera.scene || !camera.window) {
                     continue;
                 }
                 // Setup camera configs
@@ -692,7 +692,7 @@ if (rendering) {
 
             // Main Directional light CSM Shadow Map
             if (this._cameraConfigs.enableMainLightShadowMap) {
-                assert(mainLight !== null);
+                assert(!!mainLight);
                 this._addCascadedShadowMapPass(ppl, id, mainLight, camera);
             }
 
@@ -708,7 +708,7 @@ if (rendering) {
             if (this._cameraConfigs.enablePostProcess) { // Post Process
                 // Radiance and DoF
                 if (this._cameraConfigs.enableDOF) {
-                    assert(settings.depthOfField.material !== null);
+                    assert(!!settings.depthOfField.material);
                     const dofRadianceName = `DofRadiance${id}`;
                     // Disable MSAA, depth stencil cannot be resolved cross-platformly
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
@@ -723,14 +723,14 @@ if (rendering) {
                 }
                 // Bloom
                 if (this._cameraConfigs.enableBloom) {
-                    assert(settings.bloom.material !== null);
+                    assert(!!settings.bloom.material);
                     this._addKawaseDualFilterBloomPasses(
                         ppl, settings, settings.bloom.material,
                         id, width, height, radianceName);
                 }
                 // Tone Mapping and FXAA
                 if (this._cameraConfigs.enableFXAA) {
-                    assert(settings.fxaa.material !== null);
+                    assert(!!settings.fxaa.material);
                     const copyAndTonemapPassNeeded = this._cameraConfigs.enableHDR
                         || this._cameraConfigs.enableColorGrading;
                     const ldrColorName = copyAndTonemapPassNeeded ? `LdrColor${id}` : radianceName;
@@ -877,8 +877,8 @@ if (rendering) {
         ): rendering.BasicRenderPassBuilder {
             let pass: rendering.BasicRenderPassBuilder;
             if (this._cameraConfigs.enableColorGrading
-                && settings.colorGrading.material !== null
-                && settings.colorGrading.colorGradingMap !== null) {
+                && settings.colorGrading.material
+                && settings.colorGrading.colorGradingMap) {
                 const lutTex = settings.colorGrading.colorGradingMap;
                 this._colorGradingTexSize.x = lutTex.width;
                 this._colorGradingTexSize.y = lutTex.height;
@@ -1376,7 +1376,7 @@ if (rendering) {
             this._copyAndTonemapMaterial._uuid = `builtin-pipeline-tone-mapping-material`;
             this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/tone-mapping' });
 
-            if (this._copyAndTonemapMaterial.effectAsset !== null) {
+            if (this._copyAndTonemapMaterial.effectAsset) {
                 this._initialized = true;
             }
 
