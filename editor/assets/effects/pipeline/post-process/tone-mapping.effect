@@ -1,0 +1,62 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: vs
+      frag: fs-tonemap
+      pass: cc-tone-mapping
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+    - vert: vs
+      frag: fs-copy
+      pass: cc-tone-mapping
+      rasterizerState:
+        cullMode: none
+      depthStencilState:
+        depthTest: false
+        depthWrite: false
+}%
+
+CCProgram vs %{
+  #include <./chunks/vs1>
+}%
+
+CCProgram fs-tonemap %{
+  precision highp float;
+  #include <common/color/gamma>
+  #include <common/color/tone-mapping>
+
+  in vec2 v_uv;
+
+  #pragma rate inputTexture pass
+  uniform sampler2D inputTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    fragColor = texture(inputTexture, v_uv);
+    #if CC_USE_FLOAT_OUTPUT
+      fragColor.rgb = HDRToLDR(fragColor.rgb);
+      fragColor.rgb = LinearToSRGB(fragColor.rgb);
+    #endif
+  }
+}%
+
+CCProgram fs-copy %{
+  precision highp float;
+
+  in vec2 v_uv;
+
+  #pragma rate inputTexture pass
+  uniform sampler2D inputTexture;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    fragColor = texture(inputTexture, v_uv);
+  }
+}%

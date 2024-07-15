@@ -196,7 +196,7 @@ export class Canvas extends RenderRoot2D {
             this._objFlags |= cclegacy.Object.Flags.IsPositionLocked | cclegacy.Object.Flags.IsSizeLocked | cclegacy.Object.Flags.IsAnchorLocked;
         } else {
             // In Editor dont need resized camera when scene window resize
-            this.node.on(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+            view.on('canvas-resize', this._thisOnCameraResized, this);
         }
     }
 
@@ -216,8 +216,7 @@ export class Canvas extends RenderRoot2D {
 
     public onDestroy (): void {
         super.onDestroy();
-
-        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._thisOnCameraResized);
+        view.off('canvas-resize', this._thisOnCameraResized, this);
     }
 
     protected _onResizeCamera (): void {

@@ -28,23 +28,24 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Material, Texture2D } from '../../asset/assets';
-import { SampleCount } from '../../gfx';
+import { Material, Texture2D, gfx } from 'cc';
+
+const { SampleCount } = gfx;
 
 export interface MSAA {
-    enabled: boolean; /*false*/
-    sampleCount: SampleCount; /*SampleCount.X4*/
+    enabled: boolean; /* false */
+    sampleCount: gfx.SampleCount; /* SampleCount.X4 */
     [name: string]: unknown;
 }
 
-export function makeMSAA (): MSAA {
+export function makeMSAA(): MSAA {
     return {
         enabled: false,
         sampleCount: SampleCount.X4,
     };
 }
 
-export function fillRequiredMSAA (value: MSAA): void {
+export function fillRequiredMSAA(value: MSAA): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
@@ -54,16 +55,16 @@ export function fillRequiredMSAA (value: MSAA): void {
 }
 
 export interface HBAO {
-    enabled: boolean; /*false*/
-    radiusScale: number; /*1*/
-    angleBiasDegree: number; /*10*/
-    blurSharpness: number; /*3*/
-    aoSaturation: number; /*1*/
-    needBlur: boolean; /*false*/
+    enabled: boolean; /* false */
+    radiusScale: number; /* 1 */
+    angleBiasDegree: number; /* 10 */
+    blurSharpness: number; /* 3 */
+    aoSaturation: number; /* 1 */
+    needBlur: boolean; /* false */
     [name: string]: unknown;
 }
 
-export function makeHBAO (): HBAO {
+export function makeHBAO(): HBAO {
     return {
         enabled: false,
         radiusScale: 1,
@@ -74,7 +75,7 @@ export function makeHBAO (): HBAO {
     };
 }
 
-export function fillRequiredHBAO (value: HBAO): void {
+export function fillRequiredHBAO(value: HBAO): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
@@ -96,15 +97,15 @@ export function fillRequiredHBAO (value: HBAO): void {
 }
 
 export interface DepthOfField {
-    enabled: boolean; /*false*/
-    /*refcount*/ material: Material | null;
-    focusDistance: number; /*0*/
-    focusRange: number; /*0*/
-    bokehRadius: number; /*1*/
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    focusDistance: number; /* 0 */
+    focusRange: number; /* 0 */
+    bokehRadius: number; /* 1 */
     [name: string]: unknown;
 }
 
-export function makeDepthOfField (): DepthOfField {
+export function makeDepthOfField(): DepthOfField {
     return {
         enabled: false,
         material: null,
@@ -114,7 +115,7 @@ export function makeDepthOfField (): DepthOfField {
     };
 }
 
-export function fillRequiredDepthOfField (value: DepthOfField): void {
+export function fillRequiredDepthOfField(value: DepthOfField): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
@@ -133,16 +134,16 @@ export function fillRequiredDepthOfField (value: DepthOfField): void {
 }
 
 export interface Bloom {
-    enabled: boolean; /*false*/
-    /*refcount*/ material: Material | null;
-    enableAlphaMask: boolean; /*false*/
-    iterations: number; /*3*/
-    threshold: number; /*0.8*/
-    intensity: number; /*2.3*/
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    enableAlphaMask: boolean; /* false */
+    iterations: number; /* 3 */
+    threshold: number; /* 0.8 */
+    intensity: number; /* 2.3 */
     [name: string]: unknown;
 }
 
-export function makeBloom (): Bloom {
+export function makeBloom(): Bloom {
     return {
         enabled: false,
         material: null,
@@ -153,7 +154,7 @@ export function makeBloom (): Bloom {
     };
 }
 
-export function fillRequiredBloom (value: Bloom): void {
+export function fillRequiredBloom(value: Bloom): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
@@ -175,14 +176,14 @@ export function fillRequiredBloom (value: Bloom): void {
 }
 
 export interface ColorGrading {
-    enabled: boolean; /*false*/
-    /*refcount*/ material: Material | null;
-    contribute: number; /*1*/
-    /*refcount*/ colorGradingMap: Texture2D | null;
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    contribute: number; /* 1 */
+    /* refcount */ colorGradingMap: Texture2D | null;
     [name: string]: unknown;
 }
 
-export function makeColorGrading (): ColorGrading {
+export function makeColorGrading(): ColorGrading {
     return {
         enabled: false,
         material: null,
@@ -191,7 +192,7 @@ export function makeColorGrading (): ColorGrading {
     };
 }
 
-export function fillRequiredColorGrading (value: ColorGrading): void {
+export function fillRequiredColorGrading(value: ColorGrading): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
@@ -207,13 +208,13 @@ export function fillRequiredColorGrading (value: ColorGrading): void {
 }
 
 export interface FSR {
-    enabled: boolean; /*false*/
-    /*refcount*/ material: Material | null;
-    sharpness: number; /*0.8*/
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    sharpness: number; /* 0.8 */
     [name: string]: unknown;
 }
 
-export function makeFSR (): FSR {
+export function makeFSR(): FSR {
     return {
         enabled: false,
         material: null,
@@ -221,7 +222,7 @@ export function makeFSR (): FSR {
     };
 }
 
-export function fillRequiredFSR (value: FSR): void {
+export function fillRequiredFSR(value: FSR): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
@@ -234,19 +235,19 @@ export function fillRequiredFSR (value: FSR): void {
 }
 
 export interface FXAA {
-    enabled: boolean; /*false*/
-    /*refcount*/ material: Material | null;
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
     [name: string]: unknown;
 }
 
-export function makeFXAA (): FXAA {
+export function makeFXAA(): FXAA {
     return {
         enabled: false,
         material: null,
     };
 }
 
-export function fillRequiredFXAA (value: FXAA): void {
+export function fillRequiredFXAA(value: FXAA): void {
     if (value.enabled === undefined) {
         value.enabled = false;
     }
@@ -255,34 +256,51 @@ export function fillRequiredFXAA (value: FXAA): void {
     }
 }
 
-export interface PipelineSettings {
-    readonly msaa: MSAA;
-    enableShadingScale: boolean; /*false*/
-    shadingScale: number; /*0.5*/
-    readonly depthOfField: DepthOfField;
-    readonly bloom: Bloom;
-    readonly colorGrading: ColorGrading;
-    readonly fsr: FSR;
-    readonly fxaa: FXAA;
-    /*refcount*/ copyMaterial: Material | null;
+export interface ToneMapping {
+    /* refcount */ material: Material | null;
     [name: string]: unknown;
 }
 
-export function makePipelineSettings (): PipelineSettings {
+export function makeToneMapping(): ToneMapping {
+    return {
+        material: null,
+    };
+}
+
+export function fillRequiredToneMapping(value: ToneMapping): void {
+    if (value.material === undefined) {
+        value.material = null;
+    }
+}
+
+export interface PipelineSettings {
+    readonly msaa: MSAA;
+    enableShadingScale: boolean; /* false */
+    shadingScale: number; /* 0.5 */
+    readonly depthOfField: DepthOfField;
+    readonly bloom: Bloom;
+    readonly toneMapping: ToneMapping;
+    readonly colorGrading: ColorGrading;
+    readonly fsr: FSR;
+    readonly fxaa: FXAA;
+    [name: string]: unknown;
+}
+
+export function makePipelineSettings(): PipelineSettings {
     return {
         msaa: makeMSAA(),
         enableShadingScale: false,
         shadingScale: 0.5,
         depthOfField: makeDepthOfField(),
         bloom: makeBloom(),
+        toneMapping: makeToneMapping(),
         colorGrading: makeColorGrading(),
         fsr: makeFSR(),
         fxaa: makeFXAA(),
-        copyMaterial: null,
     };
 }
 
-export function fillRequiredPipelineSettings (value: PipelineSettings): void {
+export function fillRequiredPipelineSettings(value: PipelineSettings): void {
     if (value.msaa === undefined) {
         (value.msaa as MSAA) = makeMSAA();
     } else {
@@ -304,6 +322,11 @@ export function fillRequiredPipelineSettings (value: PipelineSettings): void {
     } else {
         fillRequiredBloom(value.bloom);
     }
+    if (value.toneMapping === undefined) {
+        (value.toneMapping as ToneMapping) = makeToneMapping();
+    } else {
+        fillRequiredToneMapping(value.toneMapping);
+    }
     if (value.colorGrading === undefined) {
         (value.colorGrading as ColorGrading) = makeColorGrading();
     } else {
@@ -318,8 +341,5 @@ export function fillRequiredPipelineSettings (value: PipelineSettings): void {
         (value.fxaa as FXAA) = makeFXAA();
     } else {
         fillRequiredFXAA(value.fxaa);
-    }
-    if (value.copyMaterial === undefined) {
-        value.copyMaterial = null;
     }
 }
