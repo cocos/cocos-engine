@@ -1,0 +1,14 @@
+precision highp float;
+#include <legacy/decode-standard>
+#include <post-process/pipeline>
+
+out vec2 v_uv;
+
+void main () {
+  StandardVertInput In;
+  CCDecode(In);
+  FLIP_VULKAN_NDC(In.position);
+  gl_Position = In.position;
+
+  v_uv = a_texCoord;
+}

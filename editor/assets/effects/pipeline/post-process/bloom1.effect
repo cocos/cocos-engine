@@ -8,7 +8,7 @@ CCEffect %{
   - passes:
     - vert: bloom-vs
       frag: prefilter-fs
-      pass: bloom1-prefilter
+      pass: cc-bloom-prefilter
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -16,7 +16,7 @@ CCEffect %{
         depthWrite: false
     - vert: bloom-vs
       frag: downsample-fs
-      pass: bloom1-downsample
+      pass: cc-bloom-downsample
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -24,7 +24,7 @@ CCEffect %{
         depthWrite: false
     - vert: bloom-vs
       frag: upsample-fs
-      pass: bloom1-upsample
+      pass: cc-bloom-upsample
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -32,7 +32,7 @@ CCEffect %{
         depthWrite: false
     - vert: bloom-vs
       frag: combine-fs
-      pass: bloom1-combine
+      pass: cc-bloom-combine
       rasterizerState:
         cullMode: none
       depthStencilState:
@@ -49,16 +49,17 @@ CCEffect %{
 
 CCProgram bloom-vs %{
   precision highp float;
-  #include <legacy/input-standard>
-  #include <./chunks/pipeline>
+  #include <legacy/decode-standard>
+  #include <post-process/pipeline>
 
   out vec2 v_uv;
 
   void main () {
     StandardVertInput In;
-    CCVertInput(In);
+    CCDecode(In);
     FLIP_VULKAN_NDC(In.position);
     gl_Position = In.position;
+
     v_uv = a_texCoord;
     FLIP_SAMPLE_FROM_RT(v_uv);
   }
