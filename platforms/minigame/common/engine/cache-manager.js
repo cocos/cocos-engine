@@ -185,9 +185,8 @@ const cacheManager = {
         caches.sort((a, b) => a.lastTime - b.lastTime);
         // cache length above 3 then clear 1/3, or clear all caches
         if (caches.length < 3) {
-            console.warn("Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.");
-        }
-        else {
+            console.warn('Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.');
+        } else {
             caches.length = Math.floor(caches.length / 3);
         }
         for (let i = 0, l = caches.length; i < l; i++) {
@@ -201,11 +200,10 @@ const cacheManager = {
         function deferredDelete () {
             const item = caches.pop();
             if (self._isZipFile(item.originUrl)) {
-                if (self._isZipFile(path)) {
-                    deleteFile(path, self._deleteFileCB.bind(self));
-                }
-                else {
-                    rmdirSync(path, true);
+                if (self._isZipFile(item.url)) {
+                    deleteFile(item.url, self._deleteFileCB.bind(self));
+                } else {
+                    rmdirSync(item.url, true);
                     self._deleteFileCB();
                 }
             } else {
@@ -228,8 +226,7 @@ const cacheManager = {
             if (this._isZipFile(url)) {
                 if (this._isZipFile(path)) {
                     deleteFile(path, this._deleteFileCB.bind(this));
-                }
-                else {
+                } else {
                     rmdirSync(path, true);
                     this._deleteFileCB();
                 }
