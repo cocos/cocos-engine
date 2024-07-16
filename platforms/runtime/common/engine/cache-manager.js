@@ -183,7 +183,7 @@
              caches.length = Math.floor(caches.length / 3);
          }
          for (let i = 0, l = caches.length; i < l; i++) {
-             var cacheKey = cc.assetManager.utils.getUuidFromURL(caches[i].originUrl) + "@native";
+            const cacheKey = `${cc.assetManager.utils.getUuidFromURL(caches[i].originUrl)}@native`;
              cc.assetManager._files.remove(cacheKey);
              this.cachedFiles.remove(caches[i].originUrl);
          }
@@ -214,20 +214,19 @@
  
      removeCache (url) {
          if (this.cachedFiles.has(url)) {
-             const self = this;
              const path = this.cachedFiles.remove(url).url;
              clearTimeout(writeCacheFileList);
              this._write();
              if (this._isZipFile(url)) {
                 if (this._isZipFile(path)) {
-                    deleteFile(path, self._deleteFileCB.bind(self));
+                    deleteFile(path, this._deleteFileCB.bind(this));
                 }
                 else {
                     rmdirSync(path, true);
-                    self._deleteFileCB();
+                    this._deleteFileCB();
                 }
              } else {
-                 deleteFile(path, self._deleteFileCB.bind(self));
+                 deleteFile(path, this._deleteFileCB.bind(this));
              }
          }
      },
