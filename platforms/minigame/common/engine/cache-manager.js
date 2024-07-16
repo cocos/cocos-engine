@@ -199,16 +199,7 @@ const cacheManager = {
         this._write();
         function deferredDelete () {
             const item = caches.pop();
-            if (self._isZipFile(item.originUrl)) {
-                if (self._isZipFile(item.url)) {
-                    deleteFile(item.url, self._deleteFileCB.bind(self));
-                } else {
-                    rmdirSync(item.url, true);
-                    self._deleteFileCB();
-                }
-            } else {
-                deleteFile(item.url, self._deleteFileCB.bind(self));
-            }
+            self._remove(item.originUrl, item.url);
             if (caches.length > 0) {
                 setTimeout(deferredDelete, self.deleteInterval);
             } else {
@@ -223,16 +214,20 @@ const cacheManager = {
             const path = this.cachedFiles.remove(url).url;
             clearTimeout(writeCacheFileList);
             this._write();
-            if (this._isZipFile(url)) {
-                if (this._isZipFile(path)) {
-                    deleteFile(path, this._deleteFileCB.bind(this));
-                } else {
-                    rmdirSync(path, true);
-                    this._deleteFileCB();
-                }
-            } else {
+            this._remove(url, path);
+        }
+    },
+
+    _remove (url, path) {
+        if (this._isZipFile(url)) {
+            if (this._isZipFile(path)) {
                 deleteFile(path, this._deleteFileCB.bind(this));
+            } else {
+                rmdirSync(path, true);
+                this._deleteFileCB();
             }
+        } else {
+            deleteFile(path, this._deleteFileCB.bind(this));
         }
     },
 
