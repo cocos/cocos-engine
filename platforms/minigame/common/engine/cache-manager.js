@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const {
+ const {
     getUserDataPath, readJsonSync, makeDirSync,
     writeFileSync, copyFile, downloadFile, deleteFile,
     rmdirSync, unzip, isOutOfStorage,
@@ -183,10 +183,11 @@ const cacheManager = {
             caches.push({ originUrl: key, url: val.url, lastTime: val.lastTime });
         });
         caches.sort((a, b) => a.lastTime - b.lastTime);
-        caches.length = Math.floor(caches.length / 3);
-        if (caches.length === 0) {
-            cleaning = false;
-            return;
+        // cache length above 3 then clear 1/3, or clear all caches
+        if (caches.length < 3) {
+            console.warn('Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.');
+        } else {
+            caches.length = Math.floor(caches.length / 3);
         }
         for (let i = 0, l = caches.length; i < l; i++) {
             const cacheKey = `${cc.assetManager.utils.getUuidFromURL(caches[i].originUrl)}@native`;
@@ -199,8 +200,12 @@ const cacheManager = {
         function deferredDelete () {
             const item = caches.pop();
             if (self._isZipFile(item.originUrl)) {
-                rmdirSync(item.url, true);
-                self._deleteFileCB();
+                if (self._isZipFile(item.url)) {
+                    deleteFile(item.url, self._deleteFileCB.bind(self));
+                } else {
+                    rmdirSync(item.url, true);
+                    self._deleteFileCB();
+                }
             } else {
                 deleteFile(item.url, self._deleteFileCB.bind(self));
             }
@@ -219,8 +224,12 @@ const cacheManager = {
             clearTimeout(writeCacheFileList);
             this._write();
             if (this._isZipFile(url)) {
-                rmdirSync(path, true);
-                this._deleteFileCB();
+                if (this._isZipFile(path)) {
+                    deleteFile(path, this._deleteFileCB.bind(this));
+                } else {
+                    rmdirSync(path, true);
+                    this._deleteFileCB();
+                }
             } else {
                 deleteFile(path, this._deleteFileCB.bind(this));
             }

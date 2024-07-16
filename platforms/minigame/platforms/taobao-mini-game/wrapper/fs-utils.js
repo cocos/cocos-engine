@@ -25,13 +25,13 @@
 /* eslint-disable no-undef */
 
 const fs = my.getFileSystemManager ? my.getFileSystemManager() : null;
-const outOfStorageRegExp = /the maximum size of the file storage/;  // not exactly right
+const outOfStorageErrorCode = '10028';  // not exactly right
 
 const fsUtils = {
     fs,
 
-    isOutOfStorage (errMsg) {
-        return outOfStorageRegExp.test(errMsg);
+    isOutOfStorage (errorCode) {
+        return errorCode.toString() === outOfStorageErrorCode;
     },
 
     getUserDataPath () {
@@ -70,8 +70,11 @@ const fsUtils = {
                 }
             },
             fail (res) {
+                if (fsUtils.isOutOfStorage(res.error)) {
+                    cc.assetManager.cacheManager.clearLRU();
+                }
                 console.warn(`Download file failed: path: ${remoteUrl} message: ${res.errorMessage}`);
-                onComplete && onComplete(new Error(res.errorMessage), null);
+                onComplete && onComplete(new Error(res.error), null);
             },
         };
         if (header) options.header = header;
@@ -93,7 +96,7 @@ const fsUtils = {
             },
             fail (res) {
                 console.warn(`Copy file failed: path: ${srcPath} message: ${res.errorMessage}`);
-                onComplete && onComplete(new Error(res.errorMessage));
+                onComplete && onComplete(new Error(res.error));
             },
         });
     },
@@ -107,8 +110,11 @@ const fsUtils = {
                 onComplete && onComplete(null);
             },
             fail (res) {
+                if (fsUtils.isOutOfStorage(res.error)) {
+                    cc.assetManager.cacheManager.clearLRU();
+                }
                 console.warn(`Write file failed: path: ${path} message: ${res.errorMessage}`);
-                onComplete && onComplete(new Error(res.errorMessage));
+                onComplete && onComplete(new Error(res.error));
             },
         });
     },
@@ -260,7 +266,7 @@ const fsUtils = {
             },
             fail (res) {
                 console.warn(`unzip failed: path: ${zipFilePath} message: ${res.errorMessage}`);
-                onComplete && onComplete(new Error(`unzip failed: ${res.errorMessage}`));
+                onComplete && onComplete(new Error(res.error));
             },
         });
     },
