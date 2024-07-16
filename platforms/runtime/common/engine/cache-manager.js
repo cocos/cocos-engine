@@ -101,6 +101,7 @@
          checkNextPeriod = false;
          const self = this;
          let id = '';
+         // eslint-disable-next-line no-unreachable-loop
          for (const key in this.cacheQueue) {
              id = key;
              break;
