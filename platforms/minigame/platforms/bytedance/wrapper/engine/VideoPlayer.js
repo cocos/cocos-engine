@@ -41,6 +41,9 @@ if (cc.internal.VideoPlayer) {
     class VideoPlayerImplMiniGame extends cc.internal.VideoPlayerImpl {
         constructor (componenet) {
             super(componenet);
+            this.videoNode = new cc.Node();
+            this.videoNode.addComponent(cc.Sprite);
+            this._node.insertChild(this.videoNode, 0);
         }
 
         syncClip (clip) {
@@ -79,15 +82,24 @@ if (cc.internal.VideoPlayer) {
             video.onCanplay(() => {
                 if (self._video !== video) return;
                 self._loaded = true;
-                self.setVisible(self._visible);
-                self.dispatchEvent(EventType.READY_TO_PLAY);
-                video.play();
-                const initRect = self._getInitRect();
-                function drawVideo () {
-                  requestAnimationFrame(drawVideo);
-                  video.paintTo(cc.game.canvas, initRect.x, initRect.y, 0, 0, initRect.width, initRect.height);
+                self._playing = true;
+                try {
+                    self.setVisible(self._visible);
+                    self.dispatchEvent(EventType.READY_TO_PLAY);
+                    video.play();
+                    this.videoTexture = new cc.Texture2D();
+                    this.videoTexture.reset({
+                        width: video.width,
+                        height: video.height,
+                        format: cc.Texture2D.PixelFormat.RGBA8888,
+                    });
+                    const sprite = this.videoNode.getComponent(cc.Sprite);
+                    const spriteFrame = new cc.SpriteFrame();
+                    spriteFrame.texture = this.videoTexture;
+                    sprite.spriteFrame = spriteFrame;
+                } catch (err) {
+                    console.error('Video playback error:', err);
                 }
-                drawVideo(video);
               });
             video.onPlay(() => {
                 if (self._video !== video) return;
@@ -281,6 +293,7 @@ if (cc.internal.VideoPlayer) {
         }
 
         canPlay () {
+            this._playing = true;
             this._video.play();
             this.syncCurrentTime();
         }
@@ -338,54 +351,9 @@ if (cc.internal.VideoPlayer) {
         }
 
         syncMatrix () {
-            // DO NOTHING...
-        }
-
-        _getInitRect () {
-            if (!this._component || !this._uiTrans) return;
-
-            const camera = this.UICamera;
-            if (!camera) {
-                return;
+            if (this.videoTexture) {
+                this.videoTexture.uploadData(this.video);
             }
-
-            this._component.node.getWorldMatrix(_mat4_temp);
-            const uiWidth = this._uiTrans.contentSize.width;
-            const uiHeight = this._uiTrans.contentSize.height;
-
-            this._m00 = _mat4_temp.m00;
-            this._m01 = _mat4_temp.m01;
-            this._m04 = _mat4_temp.m04;
-            this._m05 = _mat4_temp.m05;
-            this._m12 = _mat4_temp.m12;
-            this._m13 = _mat4_temp.m13;
-            this._w = uiWidth;
-            this._h = uiHeight;
-
-            const canvas_width = cc.game.canvas.width;
-            const canvas_height = cc.game.canvas.height;
-
-            const ap = this._uiTrans.anchorPoint;
-            // Vectors in node space
-            vec3.set(_topLeft, -ap.x * this._w, (1.0 - ap.y) * this._h, 0);
-            vec3.set(_bottomRight, (1 - ap.x) * this._w, -ap.y * this._h, 0);
-            // Convert to world space
-            vec3.transformMat4(_topLeft, _topLeft, _mat4_temp);
-            vec3.transformMat4(_bottomRight, _bottomRight, _mat4_temp);
-            // Convert to Screen space
-            camera.worldToScreen(_topLeft, _topLeft);
-            camera.worldToScreen(_bottomRight, _bottomRight);
-
-            const finalWidth = _bottomRight.x - _topLeft.x;
-            const finalHeight = _topLeft.y - _bottomRight.y;
-
-            const x = _topLeft.x;
-            const y = canvas_height - _topLeft.y;
-            const width = finalWidth;
-            const height = finalHeight;
-            return {
-                x, y, width, height,
-            };
         }
     }
 }
