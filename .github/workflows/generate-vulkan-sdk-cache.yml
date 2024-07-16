@@ -12,7 +12,7 @@ on:
 jobs:
   generate_vulkan_sdk_cache:
     name: "Generate Vulkan SDK cache"
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
       - name: Setup Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0

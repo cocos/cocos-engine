@@ -825,11 +825,6 @@ class DeviceRenderPass implements RecordingInterface {
         this._passID = cclegacy.rendering.getPassID(this._layoutName);
         const depthStencilAttachment = new DepthStencilAttachment();
         depthStencilAttachment.format = Format.DEPTH_STENCIL;
-        depthStencilAttachment.depthLoadOp = LoadOp.DISCARD;
-        depthStencilAttachment.stencilLoadOp = LoadOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
-        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
-
         const colors: ColorAttachment[] = [];
         const colorTexs: Texture[] = [];
         let depthTex: Texture | null = null;
@@ -907,11 +902,13 @@ class DeviceRenderPass implements RecordingInterface {
             const currTex = device.createTexture(new TextureInfo());
             colorTexs.push(currTex);
         }
+        const renderPassInfo = new RenderPassInfo();
+        renderPassInfo.colorAttachments = colors;
         const depth = swapchain ? swapchain.depthStencilTexture : depthTex;
-        if (!depth) {
-            depthStencilAttachment.format = Format.DEPTH_STENCIL;
+        if (depth) {
+            renderPassInfo.depthStencilAttachment = depthStencilAttachment;
         }
-        this._renderPass = device.createRenderPass(new RenderPassInfo(colors, depthStencilAttachment));
+        this._renderPass = device.createRenderPass(renderPassInfo);
         this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(
             this._renderPass,
             swapchain ? [swapchain.colorTexture] : colorTexs,

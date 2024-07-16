@@ -40,7 +40,7 @@ import { GeometryRenderer } from './geometry-renderer';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { PipelineUBO } from './pipeline-ubo';
 import { RenderFlow } from './render-flow';
-import { IPipelineEvent, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
+import { IPipelineEvent, PipelineEventCallback, PipelineEventProcessor, PipelineEventType } from './pipeline-event';
 import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../pal/system-info/enum-type';
 import { macro, murmurhash2_32_gc, cclegacy } from '../core';
@@ -340,7 +340,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
         const sceneData = this.pipelineSceneData;
         const width = this._width * sceneData.shadingScale;
         const height = this._height * sceneData.shadingScale;
-        const colorTexArr: any = dyingFramebuffer.colorTextures;
+        const colorTexArr: Texture[] = dyingFramebuffer.colorTextures as Texture[];
         for (let i = 0; i < colorTexArr.length; i++) {
             colorTexArr[i]!.resize(width, height);
         }
@@ -841,7 +841,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @zh
      * 在渲染管线中注册管线事件类型的回调。
      */
-    public on (type: PipelineEventType, callback: any, target?: any, once?: boolean): typeof callback {
+    public on<TFunction extends PipelineEventCallback> (type: PipelineEventType, callback: TFunction, target?: any, once?: boolean): typeof callback {
         return this._eventProcessor.on(type, callback, target, once);
     }
 
@@ -852,7 +852,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @zh
      * 在渲染管线中注册管线事件类型的回调, 回调后会在第一时间删除自身。
      */
-    public once (type: PipelineEventType, callback: any, target?: any): typeof callback {
+    public once<TFunction extends PipelineEventCallback> (type: PipelineEventType, callback: TFunction, target?: any): typeof callback {
         return this._eventProcessor.once(type, callback, target);
     }
 
@@ -863,7 +863,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @zh
      * 删除之前用同类型、回调、目标或 useCapture 注册的事件监听器，如果只传递 type，将会删除 type 类型的所有事件监听器。
      */
-    public off (type: PipelineEventType, callback?: any, target?: any): void {
+    public off<TFunction extends PipelineEventCallback> (type: PipelineEventType, callback?: TFunction, target?: any): void {
         this._eventProcessor.off(type, callback, target);
     }
 
@@ -907,7 +907,7 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
      * @param callback - Callback function when event triggered.
      * @param target - Callback callee.
      */
-    public hasEventListener (type: PipelineEventType, callback?: any, target?: any): boolean {
+    public hasEventListener (type: PipelineEventType, callback?: PipelineEventCallback, target?: any): boolean {
         return this._eventProcessor.hasEventListener(type, callback, target);
     }
 }

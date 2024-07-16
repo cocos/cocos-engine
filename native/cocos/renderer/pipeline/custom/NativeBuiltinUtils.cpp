@@ -30,7 +30,6 @@
 #include "cocos/renderer/pipeline/PipelineSceneData.h"
 #include "cocos/renderer/pipeline/custom/LayoutGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
-#include "cocos/renderer/pipeline/custom/NativeTypes.h"
 #include "cocos/renderer/pipeline/custom/NativeUtils.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
@@ -873,7 +872,7 @@ const BuiltinCascadedShadowMap *getBuiltinShadowCSM(
     return &csm;
 }
 
-const geometry::Frustum &getBuiltinShadowFrustum(
+const geometry::Frustum *getBuiltinShadowFrustum(
     const PipelineRuntime &pplRuntime,
     const scene::Camera &camera,
     const scene::DirectionalLight *mainLight,
@@ -882,22 +881,22 @@ const geometry::Frustum &getBuiltinShadowFrustum(
 
     const auto &shadows = *ppl.pipelineSceneData->getShadows();
     if (shadows.getType() == scene::ShadowType::PLANAR) {
-        return camera.getFrustum();
+        return &camera.getFrustum();
     }
 
     BuiltinCascadedShadowMapKey key{&camera, mainLight};
     auto iter = ppl.builtinCSMs.find(key);
     if (iter == ppl.builtinCSMs.end()) {
-        throw std::runtime_error("Builtin shadow CSM not found");
+        return nullptr;
     }
 
     const auto &csmLevel = mainLight->getCSMLevel();
     const auto &csm = iter->second;
 
     if (mainLight->isShadowFixedArea() || csmLevel == scene::CSMLevel::LEVEL_1) {
-        return csm.specialLayer.validFrustum;
+        return &csm.specialLayer.validFrustum;
     }
-    return csm.layers[level].validFrustum;
+    return &csm.layers[level].validFrustum;
 }
 
 } // namespace render

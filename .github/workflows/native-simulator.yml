@@ -23,7 +23,7 @@ jobs:
         working-directory: ${{github.workspace}}/native
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm install
         run: |
           npm install
@@ -54,7 +54,7 @@ jobs:
       run:
         working-directory: ${{github.workspace}}/native
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: npm install
         run: |
           npm install

@@ -93,14 +93,16 @@ export function randomPointBetweenCircleAtFixedAngle (out: Vec3, minRadius: numb
 }
 
 export function randomPointInCube (out: Vec3, extents: Vec3): void {
-    Vec3.set(out,
+    Vec3.set(
+        out,
         randomRange(-extents.x, extents.x),
         randomRange(-extents.y, extents.y),
-        randomRange(-extents.z, extents.z));
+        randomRange(-extents.z, extents.z),
+    );
 }
 
 export function randomPointBetweenCube (out: Vec3, minBox: Vec3, maxBox: Vec3): void {
-    const subscript = ['x', 'y', 'z'];
+    const subscript: ['x', 'y', 'z'] = ['x', 'y', 'z'];
     const edge = randomRangeInt(0, 3);
     for (let i = 0; i < 3; i++) {
         if (i === edge) {
@@ -117,7 +119,7 @@ export function randomPointBetweenCube (out: Vec3, minBox: Vec3, maxBox: Vec3): 
 }
 
 // Fisher–Yates shuffle
-export function randomSortArray (arr: any[]): void {
+export function randomSortArray (arr: number[]): void {
     for (let i = 0; i < arr.length; i++) {
         const transpose = i + randomRangeInt(0, arr.length - i);
         const val = arr[transpose];

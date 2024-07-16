@@ -152,16 +152,21 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         const randZ = isCurveTwoValues(this.z) ? pseudoRandom(p.randomSeed ^ VELOCITY_Z_OVERTIME_RAND_OFFSET) : 0;
         const randSpeed = isCurveTwoValues(this.speedModifier) ? pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET) : 0;
 
-        const vel = Vec3.set(_temp_v3,
+        const vel = Vec3.set(
+            _temp_v3,
             this.x.evaluate(normalizedTime, randX)!,
             this.y.evaluate(normalizedTime, randY)!,
-            this.z.evaluate(normalizedTime, randZ)!);
+            this.z.evaluate(normalizedTime, randZ)!,
+        );
         if (this.needTransform) {
             Vec3.transformQuat(vel, vel, this.rotation);
         }
         Vec3.add(p.animatedVelocity, p.animatedVelocity, vel);
         Vec3.add(p.ultimateVelocity, p.velocity, p.animatedVelocity);
-        Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity,
-            this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, randSpeed)!);
+        Vec3.multiplyScalar(
+            p.ultimateVelocity,
+            p.ultimateVelocity,
+            this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, randSpeed)!,
+        );
     }
 }

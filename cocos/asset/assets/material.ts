@@ -29,9 +29,10 @@ import { Texture, Type } from '../../gfx';
 import { TextureBase } from './texture-base';
 import { IPassInfoFull, Pass, PassOverrides } from '../../render-scene/core/pass';
 import { MacroRecord, MaterialProperty } from '../../render-scene/core/pass-utils';
-import { Color, warnID, Vec4, cclegacy } from '../../core';
+import { Color, warnID, Vec4, cclegacy, warn } from '../../core';
 import { SRGBToLinear } from '../../rendering/pipeline-funcs';
 import { Renderer } from '../../misc/renderer';
+import type { Root } from '../../root';
 
 const v4_1 = new Vec4();
 
@@ -250,7 +251,7 @@ export class Material extends Asset {
      * @param passIdx @en The pass to apply to. Will apply to all passes if not specified. @zh 要重编的 pass 索引，如果没有指定，则重编所有 pass。
      */
     public recompileShaders (overrides: MacroRecord, passIdx?: number): void {
-        console.warn(`Shaders in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
+        warn(`Shaders in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
     }
 
     /**
@@ -260,7 +261,7 @@ export class Material extends Asset {
      * @param passIdx The pass to apply to. Will apply to all passes if not specified.
      */
     public overridePipelineStates (overrides: PassOverrides, passIdx?: number): void {
-        console.warn(`Pipeline states in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
+        warn(`Pipeline states in material asset '${this.name}' cannot be modified at runtime, please instantiate the material first.`);
     }
 
     /**
@@ -312,7 +313,7 @@ export class Material extends Asset {
                 }
             }
         } else {
-            if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return; }
+            if (passIdx >= this._passes.length) { warn(`illegal pass index: ${passIdx}.`); return; }
             const pass = this._passes[passIdx];
             if (this._uploadProperty(pass, name, val)) {
                 this._props[pass.propertyIndex][name] = val;
@@ -320,7 +321,7 @@ export class Material extends Asset {
             }
         }
         if (!success) {
-            console.warn(`illegal property name: ${name}.`);
+            warn(`illegal property name: ${name}.`);
         }
     }
 
@@ -348,7 +349,7 @@ export class Material extends Asset {
                 if (name in props) { return props[name]; }
             }
         } else {
-            if (passIdx >= this._passes.length) { console.warn(`illegal pass index: ${passIdx}.`); return null; }
+            if (passIdx >= this._passes.length) { warn(`illegal pass index: ${passIdx}.`); return null; }
             const props = this._props[this._passes[passIdx].propertyIndex];
             if (name in props) { return props[name]; }
         }
@@ -428,7 +429,7 @@ export class Material extends Asset {
                 Object.assign(defines, passInfo.embeddedMacros);
             }
             if (passInfo.switch && !defines[passInfo.switch]) { continue; }
-            const pass = new Pass(cclegacy.director.root);
+            const pass = new Pass(cclegacy.director.root as Root);
             pass.initialize(passInfo);
             passes.push(pass);
         }
@@ -469,7 +470,7 @@ export class Material extends Asset {
         const handle = pass.getHandle(name);
         if (!handle) { return false; }
         const type = Pass.getTypeFromHandle(handle);
-        if (type < Type.SAMPLER1D) {
+        if (type < (Type.SAMPLER1D as number)) {
             if (Array.isArray(val)) {
                 pass.setUniformArray(handle, val as MaterialProperty[]);
             } else if (val !== null) {
@@ -505,7 +506,7 @@ export class Material extends Asset {
         } else if (val instanceof TextureBase) {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
-                // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
+                // warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
                 return;
             }
             pass.bindTexture(binding, texture, index);

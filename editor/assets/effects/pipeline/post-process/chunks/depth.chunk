@@ -1,0 +1,11 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+#include <common/common-define>
+#include <common/math/coordinates>
+
+#pragma rate DepthTex pass
+uniform sampler2D DepthTex; //Sample_Point_Clamp
+
+float GetLinearDepthWithProj(vec2 uv, mat4 proj) {
+  float depthHS = texture(DepthTex, saturate(uv)).r * 2.0 - 1.0; // -1.0 ~ +1.0
+  return -GetCameraDepthRH(depthHS, proj);
+}

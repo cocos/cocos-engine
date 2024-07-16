@@ -304,7 +304,7 @@ export function enumerableProps (prototype: ValueType, attrs: string[]): void {
  * convert float to half (short)
  */
 
-const toHalf = (function () {
+const toHalf = (function toHalf () {
     // https://stackoverflow.com/questions/32633585/how-do-you-convert-to-half-floats-in-javascript
     const floatView = new Float32Array(1);
     const int32View = new Int32Array(floatView.buffer);
@@ -328,7 +328,7 @@ const toHalf = (function () {
     };
 }());
 
-const fromHalf = (function () {
+const fromHalf = (function fromHalf () {
     const floatView = new Float32Array(1);
     const int32View = new Int32Array(floatView.buffer);
 
@@ -358,10 +358,10 @@ const fromHalf = (function () {
     };
 }());
 
-export function floatToHalf (val: number) {
+export function floatToHalf (val: number): number {
     return toHalf(val);
 }
 
-export function halfToFloat (val: number) {
+export function halfToFloat (val: number): number {
     return fromHalf(val);
 }
