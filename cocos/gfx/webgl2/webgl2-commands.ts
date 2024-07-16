@@ -46,7 +46,7 @@ import {
     IWebGL2GPUUniformSamplerTexture,
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
-import { CachedArray, error, errorID, debug, cclegacy, assertID } from '../../core';
+import { CachedArray, error, errorID, debug, cclegacy, assertID, warn } from '../../core';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -3406,23 +3406,30 @@ export function WebGL2CmdFuncBlitTexture (
         cache.glReadFramebuffer = srcFramebuffer;
     }
 
-    if (cache.glFramebuffer !== dstFramebuffer) {
-        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFramebuffer);
-        cache.glFramebuffer = dstFramebuffer;
-    }
-
     if (src.glTexture) {
         gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
     } else {
         gl.framebufferRenderbuffer(gl.READ_FRAMEBUFFER, srcAttachment, gl.RENDERBUFFER, src.glRenderbuffer);
     }
-
-    if (dst.glTexture) {
-        gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
-    } else {
-        gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
+    const status = gl.checkFramebufferStatus(gl.READ_FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        warn('Framebuffer is not complete', status);
     }
-
+    const isSwapchain = dst.isSwapchainTexture;
+    if (cache.glFramebuffer !== dstFramebuffer && !isSwapchain) {
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFramebuffer);
+        cache.glFramebuffer = dstFramebuffer;
+    } else if (isSwapchain) {
+        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+        cache.glFramebuffer = null;
+    }
+    if (!isSwapchain) {
+        if (dst.glTexture) {
+            gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+        } else {
+            gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
+        }
+    }
     for (let i = 0; i < regionIndices.length; i++) {
         const region = regions[regionIndices[i]];
 
@@ -3431,7 +3438,7 @@ export function WebGL2CmdFuncBlitTexture (
             gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
         }
 
-        if (dst.glTexture && dstMip !== region.dstSubres.mipLevel) {
+        if (dst.glTexture && dstMip !== region.dstSubres.mipLevel && !isSwapchain) {
             dstMip = region.dstSubres.mipLevel;
             gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
         }

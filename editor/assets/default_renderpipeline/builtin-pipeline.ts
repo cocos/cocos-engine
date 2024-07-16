@@ -56,6 +56,10 @@ function forwardNeedClearColor(camera: renderer.scene.Camera): boolean {
     return !!(camera.clearFlag & (ClearFlagBit.COLOR | (ClearFlagBit.STENCIL << 1)));
 }
 
+function getScreenFormat(): gfx.Format {
+    return cclegacy.director.root.device.getSwapchains()[0].format;
+}
+
 function getCsmMainLightViewport(
     light: renderer.scene.DirectionalLight,
     w: number,
@@ -220,7 +224,7 @@ function setupCameraConfigs(
 
     // MSAA
     cameraConfigs.enableMSAA = cameraConfigs.settings.msaa.enabled
-        && !pipelineConfigs.isWeb // TODO(zhouzhenglong): remove this constraint
+        // && !pipelineConfigs.isWeb // TODO(zhouzhenglong): remove this constraint
         && !pipelineConfigs.isWebGL1;
 
     // Shading scale
@@ -513,10 +517,10 @@ if (rendering) {
                 // These samples are always resolved and discarded at the end of the render pass.
                 // So the ResourceResidency should be MEMORYLESS.
                 if (this._cameraConfigs.enableHDR) {
-                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA16F, width, height, 1, 1, 1,
+                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, getScreenFormat(), width, height, 1, 1, 1,
                         settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
                 } else {
-                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA8, width, height, 1, 1, 1,
+                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, getScreenFormat(), width, height, 1, 1, 1,
                         settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
                 }
                 ppl.addTexture(`MsaaDepthStencil${id}`, TextureType.TEX2D, Format.DEPTH_STENCIL, width, height, 1, 1, 1,

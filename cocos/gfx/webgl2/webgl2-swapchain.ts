@@ -116,17 +116,17 @@ export function getExtensions (gl: WebGL2RenderingContext): IWebGL2Extensions {
 
     return res;
 }
-
+const premultipliedAlpha = false;
 export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext | null {
     let context: WebGL2RenderingContext | null = null;
     try {
         if (globalThis.__globalXR?.webxrCompatible) {
             const glAttribs = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                antialias: EDITOR,
                 depth: true,
                 stencil: true,
-                premultipliedAlpha: false,
+                premultipliedAlpha,
                 preserveDrawingBuffer: false,
                 powerPreference: 'default',
                 failIfMajorPerformanceCaveat: false,
@@ -138,10 +138,10 @@ export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext |
 
         const webGLCtxAttribs: WebGLContextAttributes = {
             alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-            antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+            antialias: EDITOR,
             depth: true,
             stencil: true,
-            premultipliedAlpha: false,
+            premultipliedAlpha,
             preserveDrawingBuffer: false,
             powerPreference: 'default',
             failIfMajorPerformanceCaveat: false,
@@ -186,13 +186,13 @@ export class WebGL2Swapchain extends Swapchain {
             WebGL2DeviceManager.instance.capabilities.maxUniformBufferBindings,
             WebGL2DeviceManager.instance.capabilities.maxVertexAttributes,
         );
-
+        this._format = premultipliedAlpha ? Format.RGBA8 : Format.RGB8;
         this._extensions = getExtensions(gl);
 
         // init states
         initStates(gl);
 
-        const colorFmt = Format.RGBA8;
+        const colorFmt = this._format;
         let depthStencilFmt = Format.DEPTH_STENCIL;
 
         const depthBits = gl.getParameter(gl.DEPTH_BITS);

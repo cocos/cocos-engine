@@ -176,7 +176,7 @@ export class RenderTexture extends TextureBase {
         _windowInfo.externalResHigh = info && info.externalResHigh ? info.externalResHigh : 0;
         _windowInfo.externalFlag = info && info.externalFlag ? info.externalFlag : TextureFlagBit.NONE;
         _windowInfo.renderPassInfo.colorAttachments.forEach((colorAttachment) => {
-            colorAttachment.format = root.device.swapchainFormat;
+            colorAttachment.format = root.device.getSwapchains()[0].format;
         });
 
         _colorAttachment.barrier = deviceManager.gfxDevice.getGeneralBarrier(new GeneralBarrierInfo(

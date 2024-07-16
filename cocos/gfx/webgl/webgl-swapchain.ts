@@ -191,7 +191,7 @@ export function getExtensions (gl: WebGLRenderingContext): IWebGLExtensions {
 
     return res;
 }
-
+const premultipliedAlpha = false;
 export function getContext (canvas: HTMLCanvasElement): WebGLRenderingContext | null {
     let context: WebGLRenderingContext | null = null;
     try {
@@ -200,7 +200,7 @@ export function getContext (canvas: HTMLCanvasElement): WebGLRenderingContext | 
             antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
             depth: true,
             stencil: true,
-            premultipliedAlpha: false,
+            premultipliedAlpha,
             preserveDrawingBuffer: false,
             powerPreference: 'default',
             failIfMajorPerformanceCaveat: false,
@@ -245,13 +245,13 @@ export class WebGLSwapchain extends Swapchain {
             WebGLDeviceManager.instance.capabilities.maxTextureUnits,
             WebGLDeviceManager.instance.capabilities.maxVertexAttributes,
         );
-
+        this._format = premultipliedAlpha ? Format.RGBA8 : Format.RGB8;
         this._extensions = getExtensions(gl);
 
         // init states
         initStates(gl);
 
-        const colorFmt = Format.RGBA8;
+        const colorFmt = this._format;
         let depthStencilFmt = Format.DEPTH_STENCIL;
 
         let depthBits = gl.getParameter(gl.DEPTH_BITS);
@@ -311,7 +311,8 @@ export class WebGLSwapchain extends Swapchain {
         nullTexRegion.texSubres.layerCount = 6;
         WebGLDeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion],
+            this.nullTexCube,
+            [nullTexRegion],
         );
         this._blitManager = new IWebGLBlitManager();
     }

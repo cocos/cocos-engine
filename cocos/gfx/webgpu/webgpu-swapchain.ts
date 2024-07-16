@@ -29,7 +29,7 @@ import { Swapchain } from '../base/swapchain';
 import { WebGPUTexture } from './webgpu-texture';
 import { debug, warn, warnID } from '../../core';
 import { WebGPUDeviceManager } from './define';
-import { GFXFormatToWGPUFormat } from './webgpu-commands';
+import { WGPUFormatToGFXFormat } from './webgpu-commands';
 import { IWebGPUBlitManager } from './webgpu-gpu-objects';
 /**
  * @en GFX Swapchain implementation based on WebGPU.
@@ -167,13 +167,14 @@ export class WebGPUSwapchain extends Swapchain {
 
     private _createTexture (width: number, height: number): WebGPUTexture {
         const device = WebGPUDeviceManager.instance;
-        const gfxSwapchainFormat = device.swapchainFormat;
-        const swapchainFormat = GFXFormatToWGPUFormat(gfxSwapchainFormat);// navigator.gpu.getPreferredCanvasFormat();
+        const gpuFormat = navigator.gpu.getPreferredCanvasFormat();
+        const format = WGPUFormatToGFXFormat(gpuFormat);
+        this._format = format;
         if (!this._colorTexture) {
             const nativeDevice = device.nativeDevice as GPUDevice;
             const gpuConfig: GPUCanvasConfiguration = {
                 device: nativeDevice,
-                format: swapchainFormat,
+                format: gpuFormat,
                 alphaMode: 'opaque',
             };
             device.gpuConfig = gpuConfig;
@@ -182,7 +183,7 @@ export class WebGPUSwapchain extends Swapchain {
         this._colorTexture = new WebGPUTexture();
         this._colorTexture.initAsSwapchainTexture({
             swapchain: this,
-            format: gfxSwapchainFormat,
+            format,
             width,
             height,
         });

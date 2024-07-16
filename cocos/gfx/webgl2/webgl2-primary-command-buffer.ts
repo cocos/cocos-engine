@@ -52,7 +52,10 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
             WebGL2DeviceManager.instance,
             (renderPass as WebGL2RenderPass).gpuRenderPass,
             (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
-            renderArea, clearColors, clearDepth, clearStencil,
+            renderArea,
+            clearColors,
+            clearDepth,
+            clearStencil,
         );
         this._isInRenderPass = true;
     }
@@ -165,8 +168,14 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     protected bindStates (): void {
-        WebGL2CmdFuncBindStates(WebGL2DeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
-            this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
+        WebGL2CmdFuncBindStates(
+            WebGL2DeviceManager.instance,
+            this._curGPUPipelineState,
+            this._curGPUInputAssembler,
+            this._curGPUDescriptorSets,
+            this._curDynamicOffsets,
+            this._curDynamicStates,
+        );
         this._isStateInvalied = false;
     }
 

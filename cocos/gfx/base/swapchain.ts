@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { GFXObject, ObjectType, SurfaceTransform, SwapchainInfo } from './define';
+import { Format, GFXObject, ObjectType, SurfaceTransform, SwapchainInfo } from './define';
 import { Texture } from './texture';
 
 /**
@@ -62,10 +62,18 @@ export abstract class Swapchain extends GFXObject {
         return this._colorTexture.height;
     }
 
+    /**
+     * @en The optimal format used by the swap chain.
+     * @zh 交换链使用的最优格式。
+     */
+    get format (): Format {
+        return this._format;
+    }
+
     protected _transform = SurfaceTransform.IDENTITY;
     protected _colorTexture: Texture = null!;
     protected _depthStencilTexture: Texture = null!;
-
+    protected _format: Format = Format.RGBA8;
     constructor () {
         super(ObjectType.SWAPCHAIN);
     }

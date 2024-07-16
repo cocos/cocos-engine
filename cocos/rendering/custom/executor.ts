@@ -48,6 +48,7 @@ import {
     Device,
     deviceManager,
     DispatchInfo,
+    Filter,
     Format,
     Framebuffer,
     FramebufferInfo,
@@ -66,6 +67,7 @@ import {
     SurfaceTransform,
     Swapchain,
     Texture,
+    TextureBlit,
     TextureInfo,
     TextureType,
     TextureUsageBit,
@@ -113,12 +115,15 @@ import {
     ResourceGraphVisitor,
     ResourceTraits,
     SceneData,
+    Subpass,
+    SubpassGraph,
     SubresourceView,
 } from './render-graph';
 import {
     AccessType,
     AttachmentType,
     QueueHint,
+    ResolvePair,
     ResourceDimension,
     ResourceFlags,
     ResourceResidency,
@@ -291,14 +296,25 @@ class DeviceTexture extends DeviceResource {
         if (info.flags & ResourceFlags.STORAGE) usageFlags |= TextureUsageBit.STORAGE;
         if (info.flags & ResourceFlags.TRANSFER_SRC) usageFlags |= TextureUsageBit.TRANSFER_SRC;
         if (info.flags & ResourceFlags.TRANSFER_DST) usageFlags |= TextureUsageBit.TRANSFER_DST;
-
-        this._texture = context.device.createTexture(new TextureInfo(
+        const texInfo = new TextureInfo(
             type,
             usageFlags,
             info.format,
             info.width,
             info.height,
-        ));
+        );
+        texInfo.samples = info.sampleCount;
+        this._texture = context.device.createTexture(texInfo);
+    }
+
+    public getGPUTexture (): Texture {
+        let gpuTex: Texture = this._texture!;
+        if (this.framebuffer) {
+            gpuTex = this.framebuffer.colorTextures[0]!;
+        } else if (this.swapchain) {
+            gpuTex = this.swapchain.colorTexture;
+        }
+        return gpuTex;
     }
 
     release (): void {
@@ -752,6 +768,13 @@ class RasterPassInfo {
     protected _pass!: RasterPass;
     get id (): number { return this._id; }
     get pass (): RasterPass { return this._pass; }
+    private _copySubpass (subpass: SubpassGraph): void {
+        const currSubpassGraph = this.pass.subpassGraph;
+        currSubpassGraph._subpasses.length = 0;
+        subpass._subpasses.forEach((subpass: Subpass) => {
+            currSubpassGraph._subpasses.push(subpass);
+        });
+    }
     private _copyPass (pass: RasterPass): void {
         const rasterPass = this._pass || new RasterPass();
         rasterPass.width = pass.width;
@@ -760,6 +783,7 @@ class RasterPassInfo {
         rasterPass.version = pass.version;
         rasterPass.showStatistics = pass.showStatistics;
         rasterPass.viewport.copy(pass.viewport);
+        // rasterPass.subpassGraph = pass.subpassGraph;
         for (const val of pass.rasterViews) {
             const currRasterKey = val[0];
             const currRasterView = val[1];
@@ -796,6 +820,7 @@ class RasterPassInfo {
             rasterPass.computeViews.set(currComputeKey, computeViews);
         }
         this._pass = rasterPass;
+        this._copySubpass(pass.subpassGraph);
     }
     applyInfo (id: number, pass: RasterPass): void {
         this._id = id;
@@ -806,6 +831,7 @@ class RasterPassInfo {
 const profilerViewport = new Viewport();
 const renderPassArea = new Rect();
 const resourceVisitor = new ResourceVisitor();
+const textureBlit = new TextureBlit();
 class DeviceRenderPass implements RecordingInterface {
     protected _renderPass: RenderPass;
     protected _framebuffer: Framebuffer;
@@ -818,6 +844,39 @@ class DeviceRenderPass implements RecordingInterface {
     protected _viewport: Viewport | null = null;
     private _rasterInfo: RasterPassInfo;
     private _layout: RenderPassLayoutInfo | null = null;
+
+    private _traversalResolves (callback: (resolvePair: ResolvePair) => void): void {
+        const subpassGraph = this.rasterPassInfo.pass.subpassGraph;
+        const subpasses = subpassGraph._subpasses;
+        for (const subpass of subpasses) {
+            const resolvePairs = subpass.resolvePairs;
+            for (const resolve of resolvePairs) {
+                callback(resolve);
+            }
+        }
+    }
+
+    private _getOrCreateDeviceTex (resName: string): DeviceTexture {
+        let resTex = context.deviceTextures.get(resName);
+        if (!resTex) {
+            this.visitResource(resName);
+            resTex = context.deviceTextures.get(resName)!;
+        } else {
+            const resGraph = context.resourceGraph;
+            const resId = resGraph.vertex(resName);
+            const resFbo = resGraph._vertices[resId]._object;
+            if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
+                resTex.framebuffer = resFbo;
+            } else if (resTex.texture) {
+                const desc = resGraph.getDesc(resId);
+                if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
+                    resTex.texture.resize(desc.width, desc.height);
+                }
+            }
+        }
+        return resTex;
+    }
+
     constructor (passInfo: RasterPassInfo) {
         this._rasterInfo = passInfo;
         const device = context.device;
@@ -833,28 +892,16 @@ class DeviceRenderPass implements RecordingInterface {
         for (const cv of passInfo.pass.computeViews) {
             this._applyRenderLayout(cv);
         }
+        // resolve msaa
+        this._traversalResolves((resolvePair: ResolvePair) => {
+            this._getOrCreateDeviceTex(resolvePair.target);
+        });
         // update the layout descriptorSet
         if (this.renderLayout && this.renderLayout.descriptorSet) {
             this.renderLayout.descriptorSet.update();
         }
         for (const [resName, rasterV] of passInfo.pass.rasterViews) {
-            let resTex = context.deviceTextures.get(resName);
-            if (!resTex) {
-                this.visitResource(resName);
-                resTex = context.deviceTextures.get(resName)!;
-            } else {
-                const resGraph = context.resourceGraph;
-                const resId = resGraph.vertex(resName);
-                const resFbo = resGraph._vertices[resId]._object;
-                if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
-                    resTex.framebuffer = resFbo;
-                } else if (resTex.texture) {
-                    const desc = resGraph.getDesc(resId);
-                    if (resTex.texture.width !== desc.width || resTex.texture.height !== desc.height) {
-                        resTex.texture.resize(desc.width, desc.height);
-                    }
-                }
-            }
+            const resTex = this._getOrCreateDeviceTex(resName);
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
             const clearFlag = rasterV.clearFlags & 0xffffffff;
@@ -1039,7 +1086,16 @@ class DeviceRenderPass implements RecordingInterface {
     }
 
     postRecord (): void {
-        // nothing to do
+        this._traversalResolves((resolve) => {
+            const cmdBuff = context.commandBuffer;
+            const sourceTex = this._getOrCreateDeviceTex(resolve.source).getGPUTexture();
+            const targetTex = this._getOrCreateDeviceTex(resolve.target).getGPUTexture();
+            textureBlit.srcExtent.width = sourceTex.width;
+            textureBlit.srcExtent.height = sourceTex.height;
+            textureBlit.dstExtent.width = targetTex.width;
+            textureBlit.dstExtent.height = targetTex.height;
+            cmdBuff.blitTexture(sourceTex, targetTex, [textureBlit], Filter.LINEAR);
+        });
     }
     resetResource (id: number, pass: RasterPass): void {
         this._rasterInfo.applyInfo(id, pass);
@@ -1955,6 +2011,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         this.currPass = new DeviceComputePass(computeInfo);
         this.currPass.preRecord();
         this.currPass.record();
+        this.currPass.postRecord();
     }
     copy (value: CopyPass): void {
         if (value.uploadPairs.length) {
@@ -2057,6 +2114,7 @@ class PostRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor 
         if (!currPass) return;
         this.currPass = currPass;
         this.currPass.record();
+        this.currPass.postRecord();
     }
     rasterSubpass (value: RasterSubpass): void {
         // do nothing
