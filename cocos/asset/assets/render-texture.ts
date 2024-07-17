@@ -53,6 +53,10 @@ const _windowInfo: IRenderWindowInfo = {
     renderPassInfo: passInfo,
 };
 
+function isWebGPU (): boolean {
+    return !!(cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
+}
+
 /**
  * @en Render texture is a render target for [[Camera]] or [[Canvas]] component,
  * the render pipeline will use its `RenderWindow` as the target of the rendering process.
@@ -176,7 +180,8 @@ export class RenderTexture extends TextureBase {
         _windowInfo.externalResHigh = info && info.externalResHigh ? info.externalResHigh : 0;
         _windowInfo.externalFlag = info && info.externalFlag ? info.externalFlag : TextureFlagBit.NONE;
         _windowInfo.renderPassInfo.colorAttachments.forEach((colorAttachment) => {
-            colorAttachment.format = root.device.getSwapchains()[0].format;
+            // It is recommended to use the swapchain format, but distinctions have been made here for the sake of compatibility.
+            colorAttachment.format = isWebGPU() ? root.device.getSwapchains()[0].format : Format.RGBA8;
         });
 
         _colorAttachment.barrier = deviceManager.gfxDevice.getGeneralBarrier(new GeneralBarrierInfo(

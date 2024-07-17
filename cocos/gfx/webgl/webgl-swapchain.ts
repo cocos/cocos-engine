@@ -250,8 +250,8 @@ export class WebGLSwapchain extends Swapchain {
 
         // init states
         initStates(gl);
-
-        const colorFmt = this._format;
+        // It is recommended to use the swapchain format, but for compatibility considerations, here it is set to RGBA8.
+        const colorFmt = Format.RGBA8;
         let depthStencilFmt = Format.DEPTH_STENCIL;
 
         let depthBits = gl.getParameter(gl.DEPTH_BITS);
