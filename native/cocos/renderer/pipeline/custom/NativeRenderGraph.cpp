@@ -808,7 +808,8 @@ void NativeSceneBuilder::useLightFrustum(
 }
 
 SceneBuilder *NativeRenderQueueBuilder::addScene(
-    const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) {
+    const scene::Camera *camera, SceneFlags sceneFlags,
+    scene::Light *light, scene::RenderScene *scene) {
     const auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Scene"),
@@ -816,8 +817,8 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
         std::forward_as_tuple(),
         std::forward_as_tuple(),
         std::forward_as_tuple(
-            camera->getScene(), // Scene and camera should be decoupled.
-            camera,             // They are coupled for now.
+            scene ? scene : camera->getScene(), // Scene and camera should be decoupled.
+            camera,                             // They are coupled for now.
             sceneFlags,
             LightInfo{nullptr, 0},
             // Objects are projected to camera by default and are culled further if light is available.
@@ -836,7 +837,15 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
 
     if (!any(sceneFlags & SceneFlags::NON_BUILTIN)) {
         // objects are projected to camera, set camera ubo
-        builder->setBuiltinCameraConstants(camera);
+        auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneID);
+        setCameraUBOValues(
+            *camera,
+            *layoutGraph,
+            *pipelineRuntime->getPipelineSceneData(),
+            scene ? scene->getMainLight()
+                  : (camera->getScene() ? camera->getScene()->getMainLight()
+                                        : nullptr),
+            data);
 
         if (light) {
             switch (light->getType()) {
@@ -863,7 +872,6 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
         }
 
         // set builtin legacy ubo
-        auto &data = get(RenderGraph::DataTag{}, *renderGraph, sceneID);
         setLegacyTextureUBOView(
             *pipelineRuntime->getDevice(),
             *layoutGraph,

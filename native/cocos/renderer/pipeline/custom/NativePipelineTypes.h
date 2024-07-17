@@ -295,7 +295,7 @@ public:
     }
 
     void addSceneOfCamera(scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) override;
-    SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) override;
+    SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light, scene::RenderScene *scene) override;
     void addFullscreenQuad(Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void addCameraQuad(scene::Camera *camera, Material *material, uint32_t passID, SceneFlags sceneFlags) override;
     void clearRenderTarget(const ccstd::string &name, const gfx::Color &color) override;

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG } from 'cc/env';
+import { DEBUG, EDITOR } from 'cc/env';
 import {
     assert,
     clamp,
@@ -40,6 +40,7 @@ import {
     cclegacy,
     PipelineEventType,
     PipelineEventProcessor,
+    ReflectionProbeManager,
 } from 'cc';
 
 import {
@@ -151,6 +152,7 @@ class CameraConfigs {
     enableHDR = false;
     useFullPipeline = false;
     singleForwardRadiancePass = false;
+    radianceFormat = gfx.Format.RGBA8;
     shadingScale = 0.5;
     settings: PipelineSettings = defaultSettings;
 }
@@ -240,6 +242,9 @@ function setupCameraConfigs(
 
     cameraConfigs.enableHDR = cameraConfigs.useFullPipeline
         && pipelineConfigs.useFloatOutput;
+
+    cameraConfigs.radianceFormat = cameraConfigs.enableHDR
+        ? gfx.Format.RGBA16F : gfx.Format.RGBA8;
 }
 
 if (rendering) {
@@ -498,7 +503,7 @@ if (rendering) {
 
             // Radiance
             if (this._configs.useFloatOutput) {
-                ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
+                ppl.addRenderTarget(`Radiance${id}`, this._cameraConfigs.radianceFormat, width, height);
             } else if (this._cameraConfigs.enableShadingScale || this._cameraConfigs.enablePostProcess) {
                 ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
             } else {
@@ -513,7 +518,7 @@ if (rendering) {
                 // These samples are always resolved and discarded at the end of the render pass.
                 // So the ResourceResidency should be MEMORYLESS.
                 if (this._cameraConfigs.enableHDR) {
-                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA16F, width, height, 1, 1, 1,
+                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, this._cameraConfigs.radianceFormat, width, height, 1, 1, 1,
                         settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
                 } else {
                     ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA8, width, height, 1, 1, 1,
@@ -564,10 +569,10 @@ if (rendering) {
                 const halfWidth = Math.max(Math.floor(width / 2), 1);
                 const halfHeight = Math.max(Math.floor(height / 2), 1);
                 // `DofCoc${id}` texture will reuse `LdrColor${id}`
-                ppl.addRenderTarget(`DofRadiance${id}`, Format.RGBA16F, width, height);
-                ppl.addRenderTarget(`DofPrefilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                ppl.addRenderTarget(`DofBokeh${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                ppl.addRenderTarget(`DofFilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`DofPrefilter${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofBokeh${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofFilter${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
             }
             // Bloom (Kawase Dual Filter)
             if (this._cameraConfigs.enableBloom) {
@@ -576,7 +581,7 @@ if (rendering) {
                 for (let i = 0; i !== settings.bloom.iterations + 1; ++i) {
                     bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
                     bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
-                    ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
+                    ppl.addRenderTarget(`BloomTex${id}_${i}`, this._cameraConfigs.radianceFormat, bloomWidth, bloomHeight);
                 }
             }
             // Color Grading
@@ -705,6 +710,8 @@ if (rendering) {
                 // TODO(zhouzhenglong): Relex this limitation.
                 this.forwardLighting.addSpotlightShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
             }
+
+            this._tryAddReflectionProbePasses(ppl, id, mainLight);
 
             // Forward Lighting
             let lastPass: rendering.BasicRenderPassBuilder;
@@ -1366,6 +1373,53 @@ if (rendering) {
                     id, width, height, camera, this._viewport, ppl, pass);
 
             return pass;
+        }
+
+        private _tryAddReflectionProbePasses(ppl: rendering.BasicPipeline, id: number,
+            mainLight: renderer.scene.DirectionalLight | null): void {
+            const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+            const probes = reflectionProbeManager.getProbes();
+            const maxProbeCount = 4;
+            let probeID = 0;
+            for (const probe of probes) {
+                if (!probe.needRender) {
+                    continue;
+                }
+                const area = probe.renderArea();
+                const width = Math.max(Math.floor(area.x), 1);
+                const height = Math.max(Math.floor(area.y), 1);
+
+                if (probe.probeType === renderer.scene.ProbeType.PLANAR) {
+                    const window: renderer.RenderWindow = probe.realtimePlanarTexture!.window!;
+                    const colorName = `PlanarProbeRT${probeID}`;
+                    const depthStencilName = `PlanarProbeDS${probeID}`;
+                    // ProbeResource
+                    ppl.addRenderWindow(colorName,
+                        this._cameraConfigs.radianceFormat, width, height, window);
+                    ppl.addDepthStencil(depthStencilName,
+                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+
+                    // Rendering
+                    const probePass = ppl.addRenderPass(width, height, 'default');
+                    probePass.name = `PlanarProbe${probeID}`;
+                    this._viewport.left = 0;
+                    this._viewport.top = 0;
+                    this._viewport.width = width;
+                    this._viewport.height = height;
+                    this._buildForwardMainLightPass(probePass, id, probe.camera,
+                        colorName, depthStencilName, StoreOp.DISCARD, mainLight);
+                } else if (EDITOR) {
+                    // for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                    //     probe.updateCameraDir(faceIdx);
+                    //     buildReflectionProbeRes(ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+                    // }
+                    probe.needRender = false;
+                }
+                ++probeID;
+                if (probeID === maxProbeCount) {
+                    break;
+                }
+            }
         }
 
         private _initMaterials(ppl: rendering.BasicPipeline): number {
