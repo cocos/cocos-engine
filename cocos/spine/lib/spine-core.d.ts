@@ -27,7 +27,7 @@ declare namespace spine {
 
     class String {
         constructor(name: string, own: boolean);
-        constructor(val: String);
+        constructor(val: spine.String);
         length: number;
         isEmpty: boolean;
         strPtr: number;
@@ -774,6 +774,7 @@ declare namespace spine {
         static filterFromString(text: string): TextureFilter;
         static wrapFromString(text: string): TextureWrap;
     }
+    /* eslint-disable @typescript-eslint/no-duplicate-enum-values */
     enum TextureFilter {
         Nearest = 9728,
         Linear = 9729,
@@ -783,6 +784,7 @@ declare namespace spine {
         MipMapNearestLinear = 9986,
         MipMapLinearLinear = 9987
     }
+    /* eslint-enable @typescript-eslint/no-duplicate-enum-values */
     enum TextureWrap {
         MirroredRepeat = 33648,
         ClampToEdge = 33071,
