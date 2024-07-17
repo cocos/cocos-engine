@@ -209,7 +209,18 @@
             ]
         },
         "legacy-pipeline": {
-            "modules": ["legacy-pipeline"]
+            "modules": ["legacy-pipeline"],
+            "dependentScripts": [
+                "b2bd1fa7-8d7c-49c5-a158-df29a6d3a594"
+            ]
+        },
+        "builtin-pipeline": {
+            "modules": [],
+            "dependentScripts": [
+                "15049ccd-4dd7-451e-a8ae-af66735c929e",
+                "521c5f6e-1a26-42e2-8108-4400c912d9bf",
+                "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3"
+            ]
         },
         "websocket": {
             "modules": [],
