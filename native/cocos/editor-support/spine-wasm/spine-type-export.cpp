@@ -61,8 +61,7 @@ void VECTOR_STD_COPY_SP(std::vector<T> &stdVector, Vector<T> &spVector) {
 }
 
 String* constructorSpineString(emscripten::val name, bool own) {
-    std::string tmp = name.as<std::string>();
-    return new String(tmp.c_str(), own);
+    return new String(name.as<std::string>().c_str(), own);
 }
 
 using SPVectorFloat = Vector<float>;
