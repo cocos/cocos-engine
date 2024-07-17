@@ -497,20 +497,19 @@ if (rendering) {
             // Render Window (UI)
             ppl.addRenderWindow(window.colorName, Format.RGBA8, nativeWidth, nativeHeight, window);
 
+            if (this._cameraConfigs.enableShadingScale) {
+                ppl.addDepthStencil(`ScaledDepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`ScaledRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`ScaledLdrColor${id}`, Format.RGBA8, width, height);
+            } else {
+                ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`Radiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
+            }
+
             if (this._cameraConfigs.enableFSR) {
                 ppl.addRenderTarget(`FsrColor${id}`, Format.RGBA8, nativeWidth, nativeHeight);
             }
-
-            // Radiance
-            if (this._configs.useFloatOutput) {
-                ppl.addRenderTarget(`Radiance${id}`, this._cameraConfigs.radianceFormat, width, height);
-            } else if (this._cameraConfigs.enableShadingScale || this._cameraConfigs.enablePostProcess) {
-                ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
-            } else {
-                // Reuse render window
-            }
-            ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
-            ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
 
             // MsaaRadiance
             if (this._cameraConfigs.enableMSAA) {
@@ -568,7 +567,7 @@ if (rendering) {
             if (this._cameraConfigs.enableDOF) {
                 const halfWidth = Math.max(Math.floor(width / 2), 1);
                 const halfHeight = Math.max(Math.floor(height / 2), 1);
-                // `DofCoc${id}` texture will reuse `LdrColor${id}`
+                // `DofCoc${id}` texture will reuse ldrColorName
                 ppl.addRenderTarget(`DofRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
                 ppl.addRenderTarget(`DofPrefilter${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
                 ppl.addRenderTarget(`DofBokeh${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
@@ -691,8 +690,15 @@ if (rendering) {
                 : nativeHeight;
             const id = camera.window.renderWindowId;
             const colorName = camera.window.colorName;
-            const depthStencilName = camera.window.depthStencilName;
-            const radianceName = `Radiance${id}`;
+            const depthStencilName = this._cameraConfigs.enableShadingScale
+                ? `ScaledDepthStencil${id}`
+                : camera.window.depthStencilName;
+            const radianceName = this._cameraConfigs.enableShadingScale
+                ? `ScaledRadiance${id}`
+                : `Radiance${id}`;
+            const ldrColorName = this._cameraConfigs.enableShadingScale
+                ? `ScaledLdrColor${id}`
+                : `LdrColor${id}`;
             const mainLight = scene.mainLight;
 
             // Forward Lighting (Light Culling)
@@ -725,7 +731,7 @@ if (rendering) {
                         dofRadianceName, depthStencilName, true, StoreOp.STORE);
                     this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
                         id, camera, width, height,
-                        dofRadianceName, depthStencilName, radianceName);
+                        dofRadianceName, depthStencilName, radianceName, ldrColorName);
                 } else {
                     this._addForwardRadiancePasses(
                         ppl, id, camera, width, height, mainLight,
@@ -743,17 +749,17 @@ if (rendering) {
                     assert(!!settings.fxaa.material);
                     const copyAndTonemapPassNeeded = this._cameraConfigs.enableHDR
                         || this._cameraConfigs.enableColorGrading;
-                    const ldrColorName = copyAndTonemapPassNeeded ? `LdrColor${id}` : radianceName;
+                    const ldrColorBufferName = copyAndTonemapPassNeeded ? ldrColorName : radianceName;
                     // FXAA is applied after tone mapping
                     if (copyAndTonemapPassNeeded) {
-                        this._addCopyAndTonemapPass(ppl, settings, width, height, radianceName, ldrColorName);
+                        this._addCopyAndTonemapPass(ppl, settings, width, height, radianceName, ldrColorBufferName);
                     }
                     // Apply FXAA
                     if (this._cameraConfigs.enableShadingScale) {
                         const aaColorName = `AaColor${id}`;
                         // Apply FXAA on scaled image
                         this._addFxaaPass(ppl, settings.fxaa.material,
-                            width, height, ldrColorName, aaColorName);
+                            width, height, ldrColorBufferName, aaColorName);
                         // Copy FXAA result to screen
                         if (this._cameraConfigs.enableFSR && settings.fsr.material) {
                             // Apply FSR
@@ -768,19 +774,19 @@ if (rendering) {
                     } else {
                         // Image not scaled, output FXAA result to screen directly
                         lastPass = this._addFxaaPass(ppl, settings.fxaa.material,
-                            nativeWidth, nativeHeight, ldrColorName, colorName);
+                            nativeWidth, nativeHeight, ldrColorBufferName, colorName);
                     }
                 } else {
                     // No FXAA (Size might be scaled)
                     lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                        width, height, radianceName,
+                        width, height, radianceName, ldrColorName,
                         nativeWidth, nativeHeight, colorName);
                 }
             } else if (this._cameraConfigs.enableHDR || this._cameraConfigs.enableShadingScale) { // HDR or Scaled LDR
                 this._addForwardRadiancePasses(ppl, id, camera,
                     width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                    width, height, radianceName,
+                    width, height, radianceName, ldrColorName,
                     nativeWidth, nativeHeight, colorName);
             } else { // LDR (Size is not scaled)
                 lastPass = this._addForwardRadiancePasses(ppl, id, camera,
@@ -801,11 +807,11 @@ if (rendering) {
             width: number,
             height: number,
             radianceName: string,
+            ldrColorName: string,
             nativeWidth: number,
             nativeHeight: number,
             colorName: string,
         ): rendering.BasicRenderPassBuilder {
-            const ldrColorName = `LdrColor${id}`;
             let lastPass: rendering.BasicRenderPassBuilder;
             if (this._cameraConfigs.enableFSR && settings.fsr.material) {
                 // Apply FSR
@@ -984,6 +990,7 @@ if (rendering) {
             dofRadianceName: string,
             depthStencil: string,
             radianceName: string,
+            ldrColorName: string,
         ): void {
             // https://catlikecoding.com/unity/tutorials/advanced-rendering/depth-of-field/
 
@@ -999,7 +1006,7 @@ if (rendering) {
             const halfWidth = Math.max(Math.floor(width / 2), 1);
             const halfHeight = Math.max(Math.floor(height / 2), 1);
 
-            const cocName = `LdrColor${id}`;
+            const cocName = ldrColorName;
             const prefilterName = `DofPrefilter${id}`;
             const bokehName = `DofBokeh${id}`;
             const filterName = `DofFilter${id}`;
