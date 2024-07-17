@@ -208,8 +208,19 @@
                 "6a2d0734-bd9e-4ddf-946e-caa52498cb75"
             ]
         },
+        "custom-pipeline-builtin-scripts": {
+            "modules": [],
+            "dependentScripts": [
+                "ff9b0199-ce04-4cfe-86cc-6c719f08d6e4",
+                "de1c2107-70c8-4021-8459-6399f24d01c6",
+                "cbf30902-517f-40dc-af90-a550bac27cf1"
+            ]
+        },
         "legacy-pipeline": {
-            "modules": ["legacy-pipeline"]
+            "modules": ["legacy-pipeline"],
+            "dependentScripts": [
+                "b2bd1fa7-8d7c-49c5-a158-df29a6d3a594"
+            ]
         },
         "websocket": {
             "modules": [],
