@@ -770,20 +770,8 @@ export class Game extends EventTarget {
                 return deviceManager.init(this.canvas, bindingMappingInfo);
             })
             .then(() => {
-                const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-                if (!renderPipelineUuid) {
-                    // Editor, noop
-                } else if (renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') { // builtin-pipeline
-                    // if custom-pipeline is not feature cropped and macro.CUSTOM_PIPELINE_NAME is not set
-                    if (cclegacy.rendering && !macro.CUSTOM_PIPELINE_NAME) {
-                        // set macro.CUSTOM_PIPELINE_NAME to Builtin
-                        macro.CUSTOM_PIPELINE_NAME = 'Builtin';
-                    }
-                }
-                // if custom-pipeline is not feature cropped and macro.CUSTOM_PIPELINE_NAME is not set
-                // Use legacy render pipeline
-                if (macro.CUSTOM_PIPELINE_NAME === '') {
-                    cclegacy.rendering = undefined;
+                if (cclegacy.rendering && !macro.CUSTOM_PIPELINE_NAME) {
+                    macro.CUSTOM_PIPELINE_NAME = 'Builtin';
                 }
                 assetManager.init();
                 builtinResMgr.init();
