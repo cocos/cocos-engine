@@ -192,7 +192,7 @@ const cacheManager = {
         this._write();
         function deferredDelete () {
             const item = caches.pop();
-            self._remove(item.originUrl, item.url);
+            self._removePathOrFile(item.originUrl, item.url);
             if (caches.length > 0) {
                 setTimeout(deferredDelete, self.deleteInterval);
             } else {
@@ -207,11 +207,11 @@ const cacheManager = {
             const path = this.cachedFiles.remove(url).url;
             clearTimeout(writeCacheFileList);
             this._write();
-            this._remove(url, path);
+            this._removePathOrFile(url, path);
         }
     },
 
-    _remove (url, path) {
+    _removePathOrFile (url, path) {
         if (this._isZipFile(url)) {
             if (this._isZipFile(path)) {
                 deleteFile(path, this._deleteFileCB.bind(this));
