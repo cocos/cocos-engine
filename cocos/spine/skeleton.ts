@@ -697,6 +697,7 @@ export class Skeleton extends UIRenderer {
     public onDestroy (): void {
         if (this._eventListenerID > 0) {
             TrackEntryListeners.removeListener(this._eventListenerID);
+            this._eventListenerID = -1;
         }
         this._drawList.destroy();
         this.destroyRenderData();
