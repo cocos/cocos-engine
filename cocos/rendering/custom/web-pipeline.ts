@@ -36,7 +36,7 @@ import { Light, LightType } from '../../render-scene/scene/light';
 import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { MacroRecord } from '../../render-scene';
+import { MacroRecord, RenderScene } from '../../render-scene';
 import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { getDefaultShadowTexture, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
@@ -283,9 +283,9 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         }
         setTextureUBOView(this, camera, this._pipeline);
     }
-    addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined = undefined): SceneBuilder {
+    addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined = undefined, scene: RenderScene | undefined = undefined): SceneBuilder {
         const sceneData = renderGraphPool.createSceneData(
-            camera.scene,
+            scene || camera.scene,
             camera,
             sceneFlags,
             light && !(sceneFlags & SceneFlags.SHADOW_CASTER) ? CullingFlags.CAMERA_FRUSTUM | CullingFlags.LIGHT_BOUNDS : CullingFlags.CAMERA_FRUSTUM,
@@ -299,7 +299,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
                 this,
                 camera,
                 this._pipeline,
-                camera.scene,
+                scene || camera.scene,
                 layoutName,
             );
             if (light && light.type !== LightType.DIRECTIONAL) setShadowUBOLightView(this, camera, light, 0, layoutName);
