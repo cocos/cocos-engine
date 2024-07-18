@@ -311,6 +311,7 @@ export class Skeleton extends UIRenderer {
     _iBuffer: Uint8Array | null = null;
     _model: any;
     _tempColor: TempColor = { r: 0, g: 0, b: 0, a: 0 };
+    private _eventListenerID: number = -1;
 
     constructor () {
         super();
@@ -694,6 +695,9 @@ export class Skeleton extends UIRenderer {
     }
 
     public onDestroy (): void {
+        if (this._eventListenerID > 0) {
+            TrackEntryListeners.removeListener(this._eventListenerID);
+        }
         this._drawList.destroy();
         this.destroyRenderData();
         this._cleanMaterialCache();
@@ -1689,8 +1693,8 @@ export class Skeleton extends UIRenderer {
     protected _ensureListener (): void {
         if (!this._listener) {
             this._listener = new TrackEntryListeners();
-            const listenerID = TrackEntryListeners.addListener(this._listener);
-            this._instance!.setListener(listenerID);
+            this._eventListenerID = TrackEntryListeners.addListener(this._listener);
+            this._instance!.setListener(this._eventListenerID);
         }
     }
 

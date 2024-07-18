@@ -78,7 +78,6 @@ export class TrackEntryListeners {
             if (listener.dispose) {
                 listener.dispose(entry);
             }
-            this._listenerSet.delete(id);
             break;
         case spine.EventType.complete:
             if (listener.complete) {
@@ -137,6 +136,10 @@ export class TrackEntryListeners {
         const id = ++_listener_ID;
         TrackEntryListeners._listenerSet.set(id, listener);
         return id;
+    }
+
+    static removeListener(id: number): void {
+        TrackEntryListeners._listenerSet.delete(id);
     }
 
     private static _listenerSet = new Map<number, TrackEntryListeners>();
