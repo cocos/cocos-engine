@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
- const {
+const {
     getUserDataPath, readJsonSync, makeDirSync,
     writeFileSync, copyFile, downloadFile, deleteFile,
     rmdirSync, unzip, isOutOfStorage,
@@ -185,7 +185,7 @@ const cacheManager = {
         caches.sort((a, b) => a.lastTime - b.lastTime);
         // cache length above 3 then clear 1/3, or clear all caches
         if (caches.length < 3) {
-            console.warn('Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.');
+            console.warn('Insufficient storage, cleaning now');
         } else {
             caches.length = Math.floor(caches.length / 3);
         }

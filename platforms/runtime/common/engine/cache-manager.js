@@ -178,7 +178,7 @@ const cacheManager = {
         caches.length = Math.floor(caches.length / 3);
         // cache length above 3 then clear 1/3， or clear all caches
         if (caches.length < 3) {
-            console.warn('Due to caching large files in the game, there is insufficient storage space. Now starting forced cleaning.');
+            console.warn('Insufficient storage, cleaning now');
         } else {
             caches.length = Math.floor(caches.length / 3);
         }
