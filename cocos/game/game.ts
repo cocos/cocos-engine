@@ -770,8 +770,22 @@ export class Game extends EventTarget {
                 return deviceManager.init(this.canvas, bindingMappingInfo);
             })
             .then(() => {
-                if (cclegacy.rendering && !macro.CUSTOM_PIPELINE_NAME) {
-                    macro.CUSTOM_PIPELINE_NAME = 'Builtin';
+                const usesCustomPipeline = settings.querySettings(
+                    Settings.Category.RENDERING,
+                    'customPipeline',
+                );
+                if (usesCustomPipeline) {
+                    if (!cclegacy.rendering) {
+                        errorID(12109);
+                        return;
+                    }
+                    if (!macro.CUSTOM_PIPELINE_NAME) {
+                        // If custom pipeline is used, but the name is not set, use the default name
+                        macro.CUSTOM_PIPELINE_NAME = 'Builtin';
+                    }
+                } else {
+                    // If custom pipeline is not used, disable custom-pipeline module
+                    cclegacy.rendering = undefined;
                 }
                 assetManager.init();
                 builtinResMgr.init();
