@@ -60,6 +60,10 @@ void VECTOR_STD_COPY_SP(std::vector<T> &stdVector, Vector<T> &spVector) {
     }
 }
 
+String* constructorSpineString(emscripten::val name, bool own) {
+    return new String(name.as<std::string>().c_str(), own);
+}
+
 using SPVectorFloat = Vector<float>;
 using SPVectorVectorFloat = Vector<Vector<float>>;
 using SPVectorInt = Vector<int>;
@@ -302,6 +306,9 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("normalize", &Vector2::normalize);
 
     class_<String>("String")
+        .constructor<>()
+        .constructor(constructorSpineString)
+        .constructor<const String &>()
         .function("length", &String::length)
         .function("isEmpty", &String::isEmpty)
         .function("append", select_overload<String&(const String&)>(&String::append))
@@ -499,6 +506,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setTranslateMix", &PathConstraintData::setTranslateMix);
 
     class_<SkeletonBounds>("SkeletonBounds")
+        .constructor<>()
         .function("update", &SkeletonBounds::update)
         .function("aabbContainsPoint", &SkeletonBounds::aabbcontainsPoint)
         .function("aabbIntersectsSegment", &SkeletonBounds::aabbintersectsSegment)
