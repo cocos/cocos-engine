@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG } from 'cc/env';
+import { DEBUG, EDITOR } from 'cc/env';
 import {
     assert,
     clamp,
@@ -40,6 +40,7 @@ import {
     cclegacy,
     PipelineEventType,
     PipelineEventProcessor,
+    ReflectionProbeManager,
 } from 'cc';
 
 import {
@@ -151,6 +152,7 @@ class CameraConfigs {
     enableHDR = false;
     useFullPipeline = false;
     singleForwardRadiancePass = false;
+    radianceFormat = gfx.Format.RGBA8;
     shadingScale = 0.5;
     settings: PipelineSettings = defaultSettings;
 }
@@ -240,6 +242,9 @@ function setupCameraConfigs(
 
     cameraConfigs.enableHDR = cameraConfigs.useFullPipeline
         && pipelineConfigs.useFloatOutput;
+
+    cameraConfigs.radianceFormat = cameraConfigs.enableHDR
+        ? gfx.Format.RGBA16F : gfx.Format.RGBA8;
 }
 
 if (rendering) {
@@ -492,20 +497,19 @@ if (rendering) {
             // Render Window (UI)
             ppl.addRenderWindow(window.colorName, Format.RGBA8, nativeWidth, nativeHeight, window);
 
+            if (this._cameraConfigs.enableShadingScale) {
+                ppl.addDepthStencil(`ScaledDepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`ScaledRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`ScaledLdrColor${id}`, Format.RGBA8, width, height);
+            } else {
+                ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`Radiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
+            }
+
             if (this._cameraConfigs.enableFSR) {
                 ppl.addRenderTarget(`FsrColor${id}`, Format.RGBA8, nativeWidth, nativeHeight);
             }
-
-            // Radiance
-            if (this._configs.useFloatOutput) {
-                ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
-            } else if (this._cameraConfigs.enableShadingScale || this._cameraConfigs.enablePostProcess) {
-                ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
-            } else {
-                // Reuse render window
-            }
-            ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
-            ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
 
             // MsaaRadiance
             if (this._cameraConfigs.enableMSAA) {
@@ -513,7 +517,7 @@ if (rendering) {
                 // These samples are always resolved and discarded at the end of the render pass.
                 // So the ResourceResidency should be MEMORYLESS.
                 if (this._cameraConfigs.enableHDR) {
-                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA16F, width, height, 1, 1, 1,
+                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, this._cameraConfigs.radianceFormat, width, height, 1, 1, 1,
                         settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
                 } else {
                     ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA8, width, height, 1, 1, 1,
@@ -563,11 +567,11 @@ if (rendering) {
             if (this._cameraConfigs.enableDOF) {
                 const halfWidth = Math.max(Math.floor(width / 2), 1);
                 const halfHeight = Math.max(Math.floor(height / 2), 1);
-                // `DofCoc${id}` texture will reuse `LdrColor${id}`
-                ppl.addRenderTarget(`DofRadiance${id}`, Format.RGBA16F, width, height);
-                ppl.addRenderTarget(`DofPrefilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                ppl.addRenderTarget(`DofBokeh${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                ppl.addRenderTarget(`DofFilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+                // `DofCoc${id}` texture will reuse ldrColorName
+                ppl.addRenderTarget(`DofRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`DofPrefilter${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofBokeh${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofFilter${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
             }
             // Bloom (Kawase Dual Filter)
             if (this._cameraConfigs.enableBloom) {
@@ -576,7 +580,7 @@ if (rendering) {
                 for (let i = 0; i !== settings.bloom.iterations + 1; ++i) {
                     bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
                     bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
-                    ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
+                    ppl.addRenderTarget(`BloomTex${id}_${i}`, this._cameraConfigs.radianceFormat, bloomWidth, bloomHeight);
                 }
             }
             // Color Grading
@@ -686,8 +690,15 @@ if (rendering) {
                 : nativeHeight;
             const id = camera.window.renderWindowId;
             const colorName = camera.window.colorName;
-            const depthStencilName = camera.window.depthStencilName;
-            const radianceName = `Radiance${id}`;
+            const depthStencilName = this._cameraConfigs.enableShadingScale
+                ? `ScaledDepthStencil${id}`
+                : camera.window.depthStencilName;
+            const radianceName = this._cameraConfigs.enableShadingScale
+                ? `ScaledRadiance${id}`
+                : `Radiance${id}`;
+            const ldrColorName = this._cameraConfigs.enableShadingScale
+                ? `ScaledLdrColor${id}`
+                : `LdrColor${id}`;
             const mainLight = scene.mainLight;
 
             // Forward Lighting (Light Culling)
@@ -706,6 +717,8 @@ if (rendering) {
                 this.forwardLighting.addSpotlightShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
             }
 
+            // this._tryAddReflectionProbePasses(ppl, id, mainLight, camera.scene);
+
             // Forward Lighting
             let lastPass: rendering.BasicRenderPassBuilder;
             if (this._cameraConfigs.enablePostProcess) { // Post Process
@@ -718,7 +731,7 @@ if (rendering) {
                         dofRadianceName, depthStencilName, true, StoreOp.STORE);
                     this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
                         id, camera, width, height,
-                        dofRadianceName, depthStencilName, radianceName);
+                        dofRadianceName, depthStencilName, radianceName, ldrColorName);
                 } else {
                     this._addForwardRadiancePasses(
                         ppl, id, camera, width, height, mainLight,
@@ -736,17 +749,17 @@ if (rendering) {
                     assert(!!settings.fxaa.material);
                     const copyAndTonemapPassNeeded = this._cameraConfigs.enableHDR
                         || this._cameraConfigs.enableColorGrading;
-                    const ldrColorName = copyAndTonemapPassNeeded ? `LdrColor${id}` : radianceName;
+                    const ldrColorBufferName = copyAndTonemapPassNeeded ? ldrColorName : radianceName;
                     // FXAA is applied after tone mapping
                     if (copyAndTonemapPassNeeded) {
-                        this._addCopyAndTonemapPass(ppl, settings, width, height, radianceName, ldrColorName);
+                        this._addCopyAndTonemapPass(ppl, settings, width, height, radianceName, ldrColorBufferName);
                     }
                     // Apply FXAA
                     if (this._cameraConfigs.enableShadingScale) {
                         const aaColorName = `AaColor${id}`;
                         // Apply FXAA on scaled image
                         this._addFxaaPass(ppl, settings.fxaa.material,
-                            width, height, ldrColorName, aaColorName);
+                            width, height, ldrColorBufferName, aaColorName);
                         // Copy FXAA result to screen
                         if (this._cameraConfigs.enableFSR && settings.fsr.material) {
                             // Apply FSR
@@ -761,19 +774,19 @@ if (rendering) {
                     } else {
                         // Image not scaled, output FXAA result to screen directly
                         lastPass = this._addFxaaPass(ppl, settings.fxaa.material,
-                            nativeWidth, nativeHeight, ldrColorName, colorName);
+                            nativeWidth, nativeHeight, ldrColorBufferName, colorName);
                     }
                 } else {
                     // No FXAA (Size might be scaled)
                     lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                        width, height, radianceName,
+                        width, height, radianceName, ldrColorName,
                         nativeWidth, nativeHeight, colorName);
                 }
             } else if (this._cameraConfigs.enableHDR || this._cameraConfigs.enableShadingScale) { // HDR or Scaled LDR
                 this._addForwardRadiancePasses(ppl, id, camera,
                     width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                    width, height, radianceName,
+                    width, height, radianceName, ldrColorName,
                     nativeWidth, nativeHeight, colorName);
             } else { // LDR (Size is not scaled)
                 lastPass = this._addForwardRadiancePasses(ppl, id, camera,
@@ -794,11 +807,11 @@ if (rendering) {
             width: number,
             height: number,
             radianceName: string,
+            ldrColorName: string,
             nativeWidth: number,
             nativeHeight: number,
             colorName: string,
         ): rendering.BasicRenderPassBuilder {
-            const ldrColorName = `LdrColor${id}`;
             let lastPass: rendering.BasicRenderPassBuilder;
             if (this._cameraConfigs.enableFSR && settings.fsr.material) {
                 // Apply FSR
@@ -923,6 +936,7 @@ if (rendering) {
             depthStencilName: string,
             depthStencilStoreOp: gfx.StoreOp,
             mainLight: renderer.scene.DirectionalLight | null,
+            scene: renderer.RenderScene | null = null,
         ): void {
             // set viewport
             pass.setViewport(this._viewport);
@@ -959,7 +973,10 @@ if (rendering) {
 
             // add opaque and mask queue
             pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
-                .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
+                .addScene(camera,
+                    SceneFlags.OPAQUE | SceneFlags.MASK,
+                    mainLight || undefined,
+                    scene ? scene : undefined);
         }
 
         private _addDepthOfFieldPasses(
@@ -973,6 +990,7 @@ if (rendering) {
             dofRadianceName: string,
             depthStencil: string,
             radianceName: string,
+            ldrColorName: string,
         ): void {
             // https://catlikecoding.com/unity/tutorials/advanced-rendering/depth-of-field/
 
@@ -988,7 +1006,7 @@ if (rendering) {
             const halfWidth = Math.max(Math.floor(width / 2), 1);
             const halfHeight = Math.max(Math.floor(height / 2), 1);
 
-            const cocName = `LdrColor${id}`;
+            const cocName = ldrColorName;
             const prefilterName = `DofPrefilter${id}`;
             const bokehName = `DofBokeh${id}`;
             const filterName = `DofFilter${id}`;
@@ -1366,6 +1384,55 @@ if (rendering) {
                     id, width, height, camera, this._viewport, ppl, pass);
 
             return pass;
+        }
+
+        private _tryAddReflectionProbePasses(ppl: rendering.BasicPipeline, id: number,
+            mainLight: renderer.scene.DirectionalLight | null,
+            scene: renderer.RenderScene | null,
+        ): void {
+            const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+            const probes = reflectionProbeManager.getProbes();
+            const maxProbeCount = 4;
+            let probeID = 0;
+            for (const probe of probes) {
+                if (!probe.needRender) {
+                    continue;
+                }
+                const area = probe.renderArea();
+                const width = Math.max(Math.floor(area.x), 1);
+                const height = Math.max(Math.floor(area.y), 1);
+
+                if (probe.probeType === renderer.scene.ProbeType.PLANAR) {
+                    const window: renderer.RenderWindow = probe.realtimePlanarTexture!.window!;
+                    const colorName = `PlanarProbeRT${probeID}`;
+                    const depthStencilName = `PlanarProbeDS${probeID}`;
+                    // ProbeResource
+                    ppl.addRenderWindow(colorName,
+                        this._cameraConfigs.radianceFormat, width, height, window);
+                    ppl.addDepthStencil(depthStencilName,
+                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+
+                    // Rendering
+                    const probePass = ppl.addRenderPass(width, height, 'default');
+                    probePass.name = `PlanarProbe${probeID}`;
+                    this._viewport.left = 0;
+                    this._viewport.top = 0;
+                    this._viewport.width = width;
+                    this._viewport.height = height;
+                    this._buildForwardMainLightPass(probePass, id, probe.camera,
+                        colorName, depthStencilName, StoreOp.DISCARD, mainLight, scene);
+                } else if (EDITOR) {
+                    // for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                    //     probe.updateCameraDir(faceIdx);
+                    //     buildReflectionProbeRes(ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
+                    // }
+                    probe.needRender = false;
+                }
+                ++probeID;
+                if (probeID === maxProbeCount) {
+                    break;
+                }
+            }
         }
 
         private _initMaterials(ppl: rendering.BasicPipeline): number {

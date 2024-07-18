@@ -608,7 +608,7 @@ public:
      * @param sceneFlags @en Rendering flags of the scene @zh 场景渲染标志位
      * @param light @en Light used for lighting computation @zh 用于光照的光源
      */
-    virtual SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) = 0;
+    virtual SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light, scene::RenderScene *scene) = 0;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形
@@ -647,7 +647,10 @@ public:
         addSceneOfCamera(camera, std::move(light), SceneFlags::NONE);
     }
     SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags) {
-        return addScene(camera, sceneFlags, nullptr);
+        return addScene(camera, sceneFlags, nullptr, nullptr);
+    }
+    SceneBuilder *addScene(const scene::Camera *camera, SceneFlags sceneFlags, scene::Light *light) {
+        return addScene(camera, sceneFlags, light, nullptr);
     }
     void addFullscreenQuad(Material *material, uint32_t passID) {
         addFullscreenQuad(material, passID, SceneFlags::NONE);

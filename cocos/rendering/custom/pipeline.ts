@@ -40,6 +40,7 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 import { PointLight } from '../../render-scene/scene/point-light';
 import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
 import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
+import { RenderScene } from '../../render-scene/core/render-scene';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { Light, Model } from '../../render-scene/scene';
 import { SphereLight } from '../../render-scene/scene/sphere-light';
@@ -526,7 +527,8 @@ export interface RenderQueueBuilder extends Setter {
     addScene (
         camera: Camera,
         sceneFlags: SceneFlags,
-        light?: Light): SceneBuilder;
+        light?: Light,
+        scene?: RenderScene): SceneBuilder;
     /**
      * @en Render a full-screen quad.
      * @zh 渲染全屏四边形

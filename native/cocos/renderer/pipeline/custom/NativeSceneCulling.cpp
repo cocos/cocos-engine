@@ -312,7 +312,7 @@ void SceneCulling::batchFrustumCulling(const NativePipeline& ppl) {
         CC_ENSURES(scene);
         for (const auto& [key, frustomCulledResultID] : queries.resultIndex) {
             CC_EXPECTS(key.camera);
-            CC_EXPECTS(key.camera->getScene() == scene);
+            CC_EXPECTS(key.camera->getScene() == nullptr || key.camera->getScene() == scene);
             const auto* light = key.light;
             const auto level = key.lightLevel;
             const auto bCastShadow = key.castShadow;
