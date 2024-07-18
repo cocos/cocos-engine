@@ -1471,7 +1471,7 @@ if (rendering) {
 
                     // Rendering
                     const probePass = ppl.addRenderPass(width, height, 'default');
-                    probePass.name = `PlanarProbe${probeID}`;
+                    probePass.name = `PlanarReflectionProbe${probeID}`;
                     this._buildReflectionProbePass(probePass, id, probe.camera,
                         colorName, depthStencilName, mainLight, scene);
                 } else if (EDITOR) {
