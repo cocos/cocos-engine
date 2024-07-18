@@ -717,7 +717,7 @@ if (rendering) {
                 this.forwardLighting.addSpotlightShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
             }
 
-            this._tryAddReflectionProbePasses(ppl, id, mainLight, camera.scene);
+            // this._tryAddReflectionProbePasses(ppl, id, mainLight, camera.scene);
 
             // Forward Lighting
             let lastPass: rendering.BasicRenderPassBuilder;
