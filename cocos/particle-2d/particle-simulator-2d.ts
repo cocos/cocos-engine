@@ -140,7 +140,7 @@ export class Simulator {
         const particles = this.particles;
         for (let id = 0; id < particles.length; ++id) pool.put(particles[id]);
         particles.length = 0;
-        this.renderData.resize(0, 0);
+        if (this.renderData) this.renderData.resize(0, 0);
     }
 
     public emitParticle (pos): void {
