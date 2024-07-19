@@ -1475,10 +1475,23 @@ if (rendering) {
                     this._buildReflectionProbePass(probePass, id, probe.camera,
                         colorName, depthStencilName, mainLight, scene);
                 } else if (EDITOR) {
-                    // for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
-                    //     probe.updateCameraDir(faceIdx);
-                    //     buildReflectionProbeRes(ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
-                    // }
+                    for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                        probe.updateCameraDir(faceIdx);
+                        const window: renderer.RenderWindow = probe.bakedCubeTextures[faceIdx].window!;
+                        const colorName = `CubeProbeRT${probeID}${faceIdx}`;
+                        const depthStencilName = `CubeProbeDS${probeID}${faceIdx}`;
+                        // ProbeResource
+                        ppl.addRenderWindow(colorName,
+                        this._cameraConfigs.radianceFormat, width, height, window);
+                        ppl.addDepthStencil(depthStencilName,
+                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+
+                        // Rendering
+                        const probePass = ppl.addRenderPass(width, height, 'default');
+                        probePass.name = `CubeProbe${probeID}${faceIdx}`;
+                        this._buildReflectionProbePass(probePass, id, probe.camera,
+                        colorName, depthStencilName, mainLight, scene);
+                    }
                     probe.needRender = false;
                 }
                 ++probeID;
