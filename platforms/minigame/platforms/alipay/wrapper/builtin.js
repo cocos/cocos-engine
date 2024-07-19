@@ -245,7 +245,7 @@ var Audio = function (_HTMLAudioElement) {
     }, {
         key: 'destroy',
         value: function destroy() {
-            console.log("destory: " + _typeof(_innerAudioContextMap.get(this).destroy));
+            console.log("destroy: " + _typeof(_innerAudioContextMap.get(this).destroy));
             _innerAudioContextMap.get(this).destroy();
         }
     }, {
