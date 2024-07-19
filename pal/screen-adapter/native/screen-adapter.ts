@@ -116,23 +116,10 @@ class ScreenAdapter extends EventTarget {
     public get safeAreaEdge (): SafeAreaEdge {
         const nativeSafeArea = jsb.device.getSafeAreaEdge();
         const dpr = this.devicePixelRatio;
-        let topEdge = nativeSafeArea.x * dpr;
-        let bottomEdge = nativeSafeArea.z * dpr;
-        let leftEdge = nativeSafeArea.y * dpr;
-        let rightEdge = nativeSafeArea.w * dpr;
-        const orientation = this.orientation;
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
+        const topEdge = nativeSafeArea.x * dpr;
+        const bottomEdge = nativeSafeArea.z * dpr;
+        const leftEdge = nativeSafeArea.y * dpr;
+        const rightEdge = nativeSafeArea.w * dpr;
         return {
             top: topEdge,
             bottom: bottomEdge,

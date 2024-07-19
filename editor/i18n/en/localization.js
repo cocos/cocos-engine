@@ -911,6 +911,9 @@ module.exports = link(mixin({
         brief_help:
             'This component will block all input events, <br>preventing the input from penetrating to other nodes below the screen, <br>typically for the background of the top-level UI of the screen.',
     },
+    safe_area: {
+        symmetric: 'Whether it is symmetric based on the screen',
+    },
     tiledtile: {
         row: 'Specify the TiledTile horizontal coordinate, <br>use map tile as the unit.',
         column: 'Specify the TiledTile vertical coordinate, <br>use map tile as the unit.',
