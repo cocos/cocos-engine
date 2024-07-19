@@ -886,6 +886,9 @@ module.exports = link(mixin({
     block_input_events: {
         brief_help: '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。',
     },
+    safe_area: {
+        symmetric: '是否基于屏幕对称',
+    },
     tiledtile: {
         row: '指定 Tiled Tile 的横向坐标，以地图块为单位',
         column: '指定 Tiled Tile 的纵向坐标，以地图块为单位',
