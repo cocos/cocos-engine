@@ -28,6 +28,8 @@ import { RenderWindow } from '../../render-scene/core/render-window';
 import { supportsR32FloatTexture } from '../define';
 import { Format } from '../../gfx/base/define';
 
+export { packRGBE } from '../../core/math/color';
+
 //-----------------------------------------------------------------
 // Editor preview begin
 //-----------------------------------------------------------------
