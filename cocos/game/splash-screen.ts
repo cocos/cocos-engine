@@ -37,6 +37,7 @@ import { SetIndex } from '../rendering/define';
 import { ccwindow, legacyCC } from '../core/global-exports';
 import { XREye } from '../xr/xr-enums';
 import { PipelineRuntime } from '../rendering/custom';
+import { ResolutionPolicy } from '../ui/view';
 
 const v2_0 = new Vec2();
 type SplashLogoType = 'default' | 'none' | 'custom';
@@ -44,6 +45,7 @@ type SplashBackgroundType = 'default' | 'color' | 'custom';
 type WatermarkLocationType = 'default' | 'topLeft' | 'topRight' | 'topCenter' | 'bottomLeft' | 'bottomCenter' | 'bottomRight';
 
 interface ISplashSetting {
+    policy?: number;
     displayRatio: number;
     totalTime: number;
     watermarkLocation: WatermarkLocationType;
@@ -96,7 +98,6 @@ export class SplashScreen {
     // layout
     private bgWidth = 1920;
     private bgHeight = 1080;
-    private bgRatio = 16 / 9;
     private logoWidthTemp = 140;
     private logoHeightTemp = 200;
     private logoWidth = 0;
@@ -125,7 +126,15 @@ export class SplashScreen {
     }
 
     public init (): Promise<void[]> {
+        let policy: number = ResolutionPolicy.SHOW_ALL;
+        if (!EDITOR) {
+            const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
+            if (designResolution !== null) {
+                policy = designResolution.policy as number;
+            }
+        }
         this.settings = {
+            policy: (policy) ?? ResolutionPolicy.SHOW_ALL,
             displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
             totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
             watermarkLocation: settings.querySettings<WatermarkLocationType>(Settings.Category.SPLASH_SCREEN, 'watermarkLocation') ?? 'default',
@@ -307,12 +316,31 @@ export class SplashScreen {
         let scaleY = 1;
         // update bg uniform
         if (this.settings.background!.type === 'custom') {
-            if (dw < dh) {
-                scaleX = dh * this.bgRatio;
+            if (this.settings.policy === ResolutionPolicy.FIXED_WIDTH) {
+                scaleX = dw;
+                scaleY = (dw / this.bgImage.width) * this.bgImage.height;
+            } else if (this.settings.policy === ResolutionPolicy.FIXED_HEIGHT) {
+                scaleX = (dh / this.bgImage.height) * this.bgImage.width;
                 scaleY = dh;
+            } else if (this.settings.policy === ResolutionPolicy.SHOW_ALL) {
+                if ((this.bgImage.width / this.bgHeight) > (dw / dh)) {
+                    scaleX = dw;
+                    scaleY = (dw / this.bgImage.width) * this.bgImage.height;
+                } else {
+                    scaleX = (dh / this.bgImage.height) * this.bgImage.width;
+                    scaleY = dh;
+                }
+            } else if (this.settings.policy === ResolutionPolicy.NO_BORDER) {
+                if ((this.bgImage.width / this.bgImage.height) > (dw / dh)) {
+                    scaleX = (dh / this.bgImage.height) * this.bgImage.width;
+                    scaleY = dh;
+                } else {
+                    scaleX = dw;
+                    scaleY = (dw / this.bgImage.width) * this.bgImage.height;
+                }
             } else {
                 scaleX = dw;
-                scaleY = dw * this.bgRatio;
+                scaleY = dh;
             }
 
             this.bgMat.setProperty('resolution', v2_0.set(dw, dh), 0);
@@ -325,9 +353,9 @@ export class SplashScreen {
         // update logo uniform
         const logoYTrans = dh * this.logoYTrans;
         if (this.settings.logo!.type !== 'none') {
-            scaleX = this.logoWidth * this.scaleSize * settings.displayRatio;
-            scaleY = this.logoHeight * this.scaleSize * settings.displayRatio;
-
+            // Product design is 0.185 of the height of the screen resolution as the display height of the logo.
+            scaleY = dh * 0.185 * settings.displayRatio;
+            scaleX = this.logoWidth * (dh * 0.185 / this.logoHeight) * settings.displayRatio;
             this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
             this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
             this.logoMat.setProperty('translate', v2_0.set(dw * this.logoXTrans, logoYTrans), 0);
