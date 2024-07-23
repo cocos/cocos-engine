@@ -1223,7 +1223,7 @@ if (rendering) {
         }
 
         private _addUIQueue(camera: renderer.scene.Camera, pass: rendering.BasicRenderPassBuilder): void {
-            let flags = SceneFlags.UI;
+            let flags = SceneFlags.UI | SceneFlags.GEOMETRY;
             if (this._cameraConfigs.enableProfiler) {
                 flags |= SceneFlags.PROFILER;
                 pass.showStatistics = true;
