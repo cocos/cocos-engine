@@ -41,6 +41,7 @@ import {
     PipelineEventType,
     PipelineEventProcessor,
     ReflectionProbeManager,
+    warn,
 } from 'cc';
 
 import {
@@ -91,6 +92,7 @@ class PipelineConfigs {
     isWeb = false;
     isWebGL1 = false;
     isWebGPU = false;
+    isOpenGLFamily = false;
     isMobile = false;
     isHDR = false;
     useFloatOutput = false;
@@ -115,9 +117,14 @@ function setupPipelineConfigs(
     // Platform
     configs.gfxAPI = device.gfxAPI;
     configs.isWeb = !sys.isNative;
-    configs.isWebGPU = configs.gfxAPI === gfx.API.WEBGPU;
     configs.isWebGL1 = configs.gfxAPI === gfx.API.WEBGL;
+    configs.isWebGPU = configs.gfxAPI === gfx.API.WEBGPU;
+    configs.isOpenGLFamily = configs.gfxAPI === gfx.API.WEBGL
+        || configs.gfxAPI === gfx.API.WEBGL2
+        || configs.gfxAPI === gfx.API.GLES2
+        || configs.gfxAPI === gfx.API.GLES3;
     configs.isMobile = sys.isMobile;
+
     // Rendering
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -202,7 +209,7 @@ function setupCameraConfigs(
     cameraConfigs.isDefaultFramebuffer = !!window.swapchain;
     cameraConfigs.defaultFramebufferHasDepthStencil
         = cameraConfigs.isDefaultFramebuffer
-        && pipelineConfigs.gfxAPI !== gfx.API.VULKAN;
+        && pipelineConfigs.isOpenGLFamily;
 
     cameraConfigs.useFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
 
@@ -966,23 +973,25 @@ if (rendering) {
             }
 
             // bind depth stencil buffer
-            if (this._cameraConfigs.defaultFramebufferHasDepthStencil && colorName === this._cameraConfigs.colorName) {
-                // noop
-                // For WebGL Series, if we render to the default framebuffer,
-                // we will use the depth stencil buffer of the default framebuffer.
-            } else {
-                if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
-                    pass.addDepthStencil(
-                        depthStencilName,
-                        LoadOp.CLEAR,
-                        depthStencilStoreOp,
-                        camera.clearDepth,
-                        camera.clearStencil,
-                        camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
-                    );
-                } else {
-                    pass.addDepthStencil(depthStencilName, LoadOp.LOAD, depthStencilStoreOp);
+            if (DEBUG) {
+                if (this._cameraConfigs.defaultFramebufferHasDepthStencil &&
+                    colorName === this._cameraConfigs.colorName &&
+                    depthStencilName !== this._cameraConfigs.depthStencilName) {
+                    warn('Default framebuffer cannot use custom depth stencil buffer');
                 }
+            }
+
+            if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
+                pass.addDepthStencil(
+                    depthStencilName,
+                    LoadOp.CLEAR,
+                    depthStencilStoreOp,
+                    camera.clearDepth,
+                    camera.clearStencil,
+                    camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
+                );
+            } else {
+                pass.addDepthStencil(depthStencilName, LoadOp.LOAD, depthStencilStoreOp);
             }
 
             // Set shadow map if enabled
@@ -1502,15 +1511,15 @@ if (rendering) {
                         const depthStencilName = `CubeProbeDS${probeID}${faceIdx}`;
                         // ProbeResource
                         ppl.addRenderWindow(colorName,
-                        this._cameraConfigs.radianceFormat, width, height, window);
+                            this._cameraConfigs.radianceFormat, width, height, window);
                         ppl.addDepthStencil(depthStencilName,
-                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+                            gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
 
                         // Rendering
                         const probePass = ppl.addRenderPass(width, height, 'default');
                         probePass.name = `CubeProbe${probeID}${faceIdx}`;
                         this._buildReflectionProbePass(probePass, id, probe.camera,
-                        colorName, depthStencilName, mainLight, scene);
+                            colorName, depthStencilName, mainLight, scene);
                     }
                     probe.needRender = false;
                 }
