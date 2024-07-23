@@ -444,6 +444,7 @@ if (rendering) {
         // Internal cached resources
         private readonly _clearColor = new Color(0, 0, 0, 1);
         private readonly _clearColorTransparentBlack = new Color(0, 0, 0, 0);
+        private readonly _reflectionProbeClearColor = new Vec3(0, 0, 0);
         private readonly _viewport = new Viewport();
         private readonly _configs = new PipelineConfigs();
         private readonly _cameraConfigs = new CameraConfigs();
@@ -717,7 +718,7 @@ if (rendering) {
                 this.forwardLighting.addSpotlightShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
             }
 
-            // this._tryAddReflectionProbePasses(ppl, id, mainLight, camera.scene);
+            this._tryAddReflectionProbePasses(ppl, id, mainLight, camera.scene);
 
             // Forward Lighting
             let lastPass: rendering.BasicRenderPassBuilder;
@@ -1386,6 +1387,62 @@ if (rendering) {
             return pass;
         }
 
+        private _buildReflectionProbePass(
+            pass: rendering.BasicRenderPassBuilder,
+            id: number,
+            camera: renderer.scene.Camera,
+            colorName: string,
+            depthStencilName: string,
+            mainLight: renderer.scene.DirectionalLight | null,
+            scene: renderer.RenderScene | null = null,
+        ): void {
+            // set viewport
+            const colorStoreOp = this._cameraConfigs.enableMSAA ? StoreOp.DISCARD : StoreOp.STORE;
+
+            // bind output render target
+            if (forwardNeedClearColor(camera)) {
+                this._reflectionProbeClearColor.x = camera.clearColor.x;
+                this._reflectionProbeClearColor.y = camera.clearColor.y;
+                this._reflectionProbeClearColor.z = camera.clearColor.z;
+                const clearColor = rendering.packRGBE(this._reflectionProbeClearColor);
+                this._clearColor.x = clearColor.x;
+                this._clearColor.y = clearColor.y;
+                this._clearColor.z = clearColor.z;
+                this._clearColor.w = clearColor.w;
+                pass.addRenderTarget(colorName, LoadOp.CLEAR, colorStoreOp, this._clearColor);
+            } else {
+                pass.addRenderTarget(colorName, LoadOp.LOAD, colorStoreOp);
+            }
+
+            // bind depth stencil buffer
+            if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
+                pass.addDepthStencil(
+                    depthStencilName,
+                    LoadOp.CLEAR,
+                    StoreOp.DISCARD,
+                    camera.clearDepth,
+                    camera.clearStencil,
+                    camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
+                );
+            } else {
+                pass.addDepthStencil(depthStencilName, LoadOp.LOAD, StoreOp.DISCARD);
+            }
+
+            // Set shadow map if enabled
+            if (this._cameraConfigs.enableMainLightShadowMap) {
+                pass.addTexture(`ShadowMap${id}`, 'cc_shadowMap');
+            }
+
+            // TODO(zhouzhenglong): Separate OPAQUE and MASK queue
+
+            // add opaque and mask queue
+            pass.addQueue(QueueHint.NONE, 'reflect-map') // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
+                .addScene(camera,
+                    SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.REFLECTION_PROBE,
+                    mainLight || undefined,
+                    scene ? scene : undefined);
+        }
+
         private _tryAddReflectionProbePasses(ppl: rendering.BasicPipeline, id: number,
             mainLight: renderer.scene.DirectionalLight | null,
             scene: renderer.RenderScene | null,
@@ -1414,18 +1471,27 @@ if (rendering) {
 
                     // Rendering
                     const probePass = ppl.addRenderPass(width, height, 'default');
-                    probePass.name = `PlanarProbe${probeID}`;
-                    this._viewport.left = 0;
-                    this._viewport.top = 0;
-                    this._viewport.width = width;
-                    this._viewport.height = height;
-                    this._buildForwardMainLightPass(probePass, id, probe.camera,
-                        colorName, depthStencilName, StoreOp.DISCARD, mainLight, scene);
+                    probePass.name = `PlanarReflectionProbe${probeID}`;
+                    this._buildReflectionProbePass(probePass, id, probe.camera,
+                        colorName, depthStencilName, mainLight, scene);
                 } else if (EDITOR) {
-                    // for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
-                    //     probe.updateCameraDir(faceIdx);
-                    //     buildReflectionProbeRes(ppl, probe, probe.bakedCubeTextures[faceIdx].window!, faceIdx);
-                    // }
+                    for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                        probe.updateCameraDir(faceIdx);
+                        const window: renderer.RenderWindow = probe.bakedCubeTextures[faceIdx].window!;
+                        const colorName = `CubeProbeRT${probeID}${faceIdx}`;
+                        const depthStencilName = `CubeProbeDS${probeID}${faceIdx}`;
+                        // ProbeResource
+                        ppl.addRenderWindow(colorName,
+                        this._cameraConfigs.radianceFormat, width, height, window);
+                        ppl.addDepthStencil(depthStencilName,
+                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+
+                        // Rendering
+                        const probePass = ppl.addRenderPass(width, height, 'default');
+                        probePass.name = `CubeProbe${probeID}${faceIdx}`;
+                        this._buildReflectionProbePass(probePass, id, probe.camera,
+                        colorName, depthStencilName, mainLight, scene);
+                    }
                     probe.needRender = false;
                 }
                 ++probeID;

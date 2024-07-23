@@ -1043,7 +1043,7 @@ struct ProbeHelperQueue {
 
     void removeMacro() const;
 
-    static uint32_t getPassIndexFromLayout(const IntrusivePtr<scene::SubModel>& subModel, LayoutGraphData::vertex_descriptor phaseLayoutId);
+    static int32_t getPassIndexFromLayout(const IntrusivePtr<scene::SubModel>& subModel, LayoutGraphData::vertex_descriptor phaseLayoutId);
 
     void applyMacro(const LayoutGraphData &lg, const scene::Model& model, LayoutGraphData::vertex_descriptor probeLayoutId);
 
@@ -1277,11 +1277,12 @@ struct FrustumCullingKey {
     const scene::Light* light{nullptr};
     uint32_t lightLevel{0xFFFFFFFF};
     bool castShadow{false};
+    bool probePass{false};
 };
 
 inline bool operator==(const FrustumCullingKey& lhs, const FrustumCullingKey& rhs) noexcept {
-    return std::forward_as_tuple(lhs.camera, lhs.probe, lhs.light, lhs.lightLevel, lhs.castShadow) ==
-           std::forward_as_tuple(rhs.camera, rhs.probe, rhs.light, rhs.lightLevel, rhs.castShadow);
+    return std::forward_as_tuple(lhs.camera, lhs.probe, lhs.light, lhs.lightLevel, lhs.castShadow, lhs.probePass) ==
+           std::forward_as_tuple(rhs.camera, rhs.probe, rhs.light, rhs.lightLevel, rhs.castShadow, rhs.probePass);
 }
 
 inline bool operator!=(const FrustumCullingKey& lhs, const FrustumCullingKey& rhs) noexcept {
@@ -1742,6 +1743,7 @@ inline hash_t hash<cc::render::FrustumCullingKey>::operator()(const cc::render::
     hash_combine(seed, val.light);
     hash_combine(seed, val.lightLevel);
     hash_combine(seed, val.castShadow);
+    hash_combine(seed, val.probePass);
     return seed;
 }
 
