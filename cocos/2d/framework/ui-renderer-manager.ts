@@ -62,9 +62,8 @@ export class UIRendererManager {
     }
 
     public updateAllDirtyRenderers (): void {
-        const length = this._dirtyRenderers.length;
         const dirtyRenderers = this._dirtyRenderers;
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < this._dirtyRenderers.length; i++) {
             if (DEBUG) {
                 assert(dirtyRenderers[i]._internalId !== -1);
             }
