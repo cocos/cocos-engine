@@ -26,9 +26,9 @@ CCProgram vs %{
 }%
 
 CCProgram ubo %{
-    #pragma rate PostUBO pass
-    uniform PostUBO {
-        vec4 texSize;
+    #pragma rate FsrUBO pass
+    uniform FsrUBO {
+        vec4 fsrTexSize;
         vec4 fsrParams;
     };
     #pragma rate outputResultMap pass
@@ -44,7 +44,7 @@ CCProgram fs-easu %{
   #include <ubo>
 
   vec4 FsrRcasLoadF(vec2 p) {
-    vec4 color = texture(outputResultMap, p/texSize.zw);
+    vec4 color = texture(outputResultMap, p/fsrTexSize.zw);
     return color;
   }
   vec3 FsrEasuCF(vec2 p) {
@@ -58,10 +58,10 @@ CCProgram fs-easu %{
     vec4 con0, con1, con2, con3;
 
     // "rendersize" refers to size of source image before upscaling.
-    vec2 rendersize = texSize.xy;
+    vec2 rendersize = fsrTexSize.xy;
     FsrEasuCon(
       con0, con1, con2, con3,
-      rendersize, rendersize, texSize.zw
+      rendersize, rendersize, fsrTexSize.zw
     );
     FsrEasuF(c, gl_FragCoord.xy, con0, con1, con2, con3);
     float alpha = texture(outputResultMap, v_uv).a;
@@ -79,7 +79,7 @@ CCProgram fs-rcas %{
   #include <ubo>
 
   vec4 FsrRcasLoadF(vec2 p) {
-    vec4 color = texture(outputResultMap, p/texSize.zw);
+    vec4 color = texture(outputResultMap, p/fsrTexSize.zw);
     return color;
   }
   vec3 FsrEasuCF(vec2 p) {

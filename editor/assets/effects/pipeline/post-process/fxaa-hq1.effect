@@ -20,6 +20,7 @@ CCProgram fxaa-vs %{
 CCProgram fxaa-edge-fs %{
   precision highp float;
   precision mediump int;
+  #include <common/common-define>
 
   //#define FXAA_PRESET 5
   #include <post-process/fxaa-hq>
