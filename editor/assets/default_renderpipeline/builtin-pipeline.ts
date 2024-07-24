@@ -88,7 +88,6 @@ function getCsmMainLightViewport(
 }
 
 class PipelineConfigs {
-    gfxAPI: gfx.API = gfx.API.UNKNOWN;
     isWeb = false;
     isWebGL1 = false;
     isWebGPU = false;
@@ -114,10 +113,9 @@ function setupPipelineConfigs(
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
     const device = ppl.device;
     // Platform
-    configs.gfxAPI = device.gfxAPI;
     configs.isWeb = !sys.isNative;
-    configs.isWebGL1 = configs.gfxAPI === gfx.API.WEBGL;
-    configs.isWebGPU = configs.gfxAPI === gfx.API.WEBGPU;
+    configs.isWebGL1 = device.gfxAPI === gfx.API.WEBGL;
+    configs.isWebGPU = device.gfxAPI === gfx.API.WEBGPU;
     configs.isMobile = sys.isMobile;
 
     // Rendering
