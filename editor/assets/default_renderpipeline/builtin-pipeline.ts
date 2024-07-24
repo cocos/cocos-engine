@@ -92,7 +92,6 @@ class PipelineConfigs {
     isWeb = false;
     isWebGL1 = false;
     isWebGPU = false;
-    isOpenGLFamily = false;
     isMobile = false;
     isHDR = false;
     useFloatOutput = false;
@@ -119,10 +118,6 @@ function setupPipelineConfigs(
     configs.isWeb = !sys.isNative;
     configs.isWebGL1 = configs.gfxAPI === gfx.API.WEBGL;
     configs.isWebGPU = configs.gfxAPI === gfx.API.WEBGPU;
-    configs.isOpenGLFamily = configs.gfxAPI === gfx.API.WEBGL
-        || configs.gfxAPI === gfx.API.WEBGL2
-        || configs.gfxAPI === gfx.API.GLES2
-        || configs.gfxAPI === gfx.API.GLES3;
     configs.isMobile = sys.isMobile;
 
     // Rendering
@@ -149,8 +144,6 @@ const defaultSettings = makePipelineSettings();
 class CameraConfigs {
     colorName = '';
     depthStencilName = '';
-    isDefaultFramebuffer = false;
-    defaultFramebufferHasDepthStencil = false;
     enableMainLightShadowMap = false;
     enableMainLightPlanarShadowMap = false;
     enablePostProcess = false;
@@ -206,10 +199,6 @@ function setupCameraConfigs(
 
     cameraConfigs.colorName = window.colorName;
     cameraConfigs.depthStencilName = window.depthStencilName;
-    cameraConfigs.isDefaultFramebuffer = !!window.swapchain;
-    cameraConfigs.defaultFramebufferHasDepthStencil
-        = cameraConfigs.isDefaultFramebuffer
-        && pipelineConfigs.isOpenGLFamily;
 
     cameraConfigs.useFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
 
@@ -977,8 +966,7 @@ if (rendering) {
 
             // bind depth stencil buffer
             if (DEBUG) {
-                if (this._cameraConfigs.defaultFramebufferHasDepthStencil &&
-                    colorName === this._cameraConfigs.colorName &&
+                if (colorName === this._cameraConfigs.colorName &&
                     depthStencilName !== this._cameraConfigs.depthStencilName) {
                     warn('Default framebuffer cannot use custom depth stencil buffer');
                 }
