@@ -1215,7 +1215,7 @@ if (rendering) {
             easuPass.addRenderTarget(fsrColorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             easuPass.addTexture(ldrColorName, 'outputResultMap');
             easuPass.setVec4('g_platform', this._configs.platform);
-            easuPass.setVec4('texSize', this._fsrTexSize);
+            easuPass.setVec4('fsrTexSize', this._fsrTexSize);
             easuPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 0);
@@ -1224,7 +1224,7 @@ if (rendering) {
             rcasPass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             rcasPass.addTexture(fsrColorName, 'outputResultMap');
             rcasPass.setVec4('g_platform', this._configs.platform);
-            rcasPass.setVec4('texSize', this._fsrTexSize);
+            rcasPass.setVec4('fsrTexSize', this._fsrTexSize);
             rcasPass.setVec4('fsrParams', this._fsrParams);
             rcasPass
                 .addQueue(QueueHint.OPAQUE)
