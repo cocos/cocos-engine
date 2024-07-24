@@ -1,5 +1,5 @@
-if (cc && cc.LabelComponent) {
-    const Label = cc.LabelComponent;
+if (cc && cc.Label) {
+    const Label = cc.Label;
 
     // shared label canvas
     const _sharedLabelCanvas = my.createCanvas();
