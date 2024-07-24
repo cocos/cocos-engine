@@ -377,7 +377,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
     setViewport (viewport: Viewport): void {
         const currViewport = pipelinePool.viewport.add();
-        this._queue.viewport =  currViewport.copy(viewport);
+        this._queue.viewport = currViewport.copy(viewport);
     }
     addCustomCommand (customBehavior: string): void {
         throw new Error('Method not implemented.');
@@ -892,6 +892,34 @@ export class WebPipeline implements BasicPipeline {
     addCustomTexture (name: string, info: TextureInfo, type: string): number {
         throw new Error('Method not implemented.');
     }
+    tryAddRenderWindowDepthStencil (
+        width: number,
+        height: number,
+        depthStencilName?: string,
+        swapchain?: Swapchain,
+    ): void {
+        if (!depthStencilName) {
+            return;
+        }
+        if (swapchain) {
+            this.addDepthStencilImpl(
+                depthStencilName,
+                swapchain.depthStencilTexture.format,
+                width,
+                height,
+                ResourceResidency.BACKBUFFER,
+                swapchain,
+            );
+        } else {
+            this.addDepthStencilImpl(
+                depthStencilName,
+                Format.DEPTH_STENCIL,
+                width,
+                height,
+                ResourceResidency.MANAGED,
+            );
+        }
+    }
     addRenderWindow (
         name: string,
         format: Format,
@@ -905,26 +933,8 @@ export class WebPipeline implements BasicPipeline {
             this.updateRenderWindow(name, renderWindow, depthStencilName);
             return resID;
         }
-        if (depthStencilName) {
-            if (renderWindow.swapchain) {
-                this.addDepthStencilImpl(
-                    depthStencilName,
-                    renderWindow.swapchain.depthStencilTexture.format,
-                    width,
-                    height,
-                    ResourceResidency.BACKBUFFER,
-                    renderWindow.swapchain,
-                );
-            } else {
-                this.addDepthStencilImpl(
-                    depthStencilName,
-                    Format.DEPTH_STENCIL,
-                    width,
-                    height,
-                    ResourceResidency.MANAGED,
-                );
-            }
-        }
+
+        this.tryAddRenderWindowDepthStencil(width, height, depthStencilName, renderWindow.swapchain);
 
         // Objects need to be held for a long time, so there is no need to use pool management
         const desc = new ResourceDesc();
@@ -970,26 +980,7 @@ export class WebPipeline implements BasicPipeline {
         if (currFbo !== renderWindow.framebuffer) {
             this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
         }
-        if (depthStencilName) {
-            if (renderWindow.swapchain) {
-                this.addDepthStencilImpl(
-                    depthStencilName,
-                    renderWindow.swapchain.depthStencilTexture.format,
-                    renderWindow.width,
-                    renderWindow.height,
-                    ResourceResidency.BACKBUFFER,
-                    renderWindow.swapchain,
-                );
-            } else {
-                this.addDepthStencilImpl(
-                    depthStencilName,
-                    Format.DEPTH_STENCIL,
-                    renderWindow.width,
-                    renderWindow.height,
-                    ResourceResidency.MANAGED,
-                );
-            }
-        }
+        this.tryAddRenderWindowDepthStencil(renderWindow.width, renderWindow.height, depthStencilName, renderWindow.swapchain);
     }
     updateStorageBuffer (name: string, size: number, format = Format.UNKNOWN): void {
         const resId = this.resourceGraph.vertex(name);
