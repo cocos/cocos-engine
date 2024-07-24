@@ -867,15 +867,21 @@ public:
     virtual bool containsResource(const ccstd::string &name) const = 0;
     /**
      * @en Add or update render window to the pipeline.
-     * @zh 注册或更新渲染窗口(RenderWindow)
+     * If the render window is a swapchain and its default framebuffer contains depth stencil buffer,
+     * user should specify the name of the depth stencil buffer.
+     * If the depth stencil name is specified but the depth stencil buffer does not exist, a managed one will be created.
+     * @zh 注册或更新渲染窗口(RenderWindow)。
+     * 如果渲染窗口是交换链并且默认Framebuffer包含深度模板缓冲。用户需要指定深度模板缓冲的名字。
+     * 如果指定了深度模板缓冲的名字，但深度模板缓冲不存在，会创建一个托管的深度模板缓冲。
      * @param name @en Resource name @zh 资源名字
      * @param format @en Expected format of the render window @zh 期望的渲染窗口格式
      * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
      * @param height @en Expected height of the render window @zh 期望的渲染窗口高度
      * @param renderWindow @en The render window to add. @zh 需要注册的渲染窗口
+     * @param depthStencilName @en The name of the depth stencil buffer of the default framebuffer. @zh 默认Framebuffer的深度模板缓冲的名字
      * @returns Resource ID
      */
-    virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) = 0;
+    virtual uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow, const ccstd::string &depthStencilName) = 0;
     /**
      * @deprecated Method will be removed in the future
      * @en Update render window information.
@@ -883,7 +889,7 @@ public:
      * @zh 更新渲染窗口信息。当渲染窗口发生更新时，用户应通知管线。
      * @param renderWindow @en The render window to update. @zh 渲染窗口
      */
-    virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) = 0;
+    virtual void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow, const ccstd::string &depthStencilName) = 0;
     /**
      * @en Add or update 2D render target.
      * @zh 添加或更新2D渲染目标
@@ -1090,6 +1096,7 @@ public:
      */
     virtual void addCopyPass(const ccstd::vector<CopyPair> &copyPairs) = 0;
     /**
+     * @deprecated Method will be removed in the future
      * @en Builtin reflection probe pass
      * @zh 添加内置环境光反射通道
      * @param camera @en Capturing camera @zh 用于捕捉的相机
@@ -1099,6 +1106,12 @@ public:
      * @engineInternal
      */
     virtual gfx::DescriptorSetLayout *getDescriptorSetLayout(const ccstd::string &shaderName, UpdateFrequency freq) = 0;
+    uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) {
+        return addRenderWindow(name, format, width, height, renderWindow, "");
+    }
+    void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) {
+        updateRenderWindow(name, renderWindow, "");
+    }
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height) {
         return addRenderTarget(name, format, width, height, ResourceResidency::MANAGED);
     }

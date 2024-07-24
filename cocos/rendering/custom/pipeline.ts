@@ -741,12 +741,18 @@ export interface BasicPipeline extends PipelineRuntime {
     containsResource (name: string): boolean;
     /**
      * @en Add or update render window to the pipeline.
-     * @zh 注册或更新渲染窗口(RenderWindow)
+     * If the render window is a swapchain and its default framebuffer contains depth stencil buffer,
+     * user should specify the name of the depth stencil buffer.
+     * If the depth stencil name is specified but the depth stencil buffer does not exist, a managed one will be created.
+     * @zh 注册或更新渲染窗口(RenderWindow)。
+     * 如果渲染窗口是交换链并且默认Framebuffer包含深度模板缓冲。用户需要指定深度模板缓冲的名字。
+     * 如果指定了深度模板缓冲的名字，但深度模板缓冲不存在，会创建一个托管的深度模板缓冲。
      * @param name @en Resource name @zh 资源名字
      * @param format @en Expected format of the render window @zh 期望的渲染窗口格式
      * @param width @en Expected width of the render window @zh 期望的渲染窗口宽度
      * @param height @en Expected height of the render window @zh 期望的渲染窗口高度
      * @param renderWindow @en The render window to add. @zh 需要注册的渲染窗口
+     * @param depthStencilName @en The name of the depth stencil buffer of the default framebuffer. @zh 默认Framebuffer的深度模板缓冲的名字
      * @returns Resource ID
      */
     addRenderWindow (
@@ -754,7 +760,8 @@ export interface BasicPipeline extends PipelineRuntime {
         format: Format,
         width: number,
         height: number,
-        renderWindow: RenderWindow): number;
+        renderWindow: RenderWindow,
+        depthStencilName?: string): number;
     /**
      * @deprecated Method will be removed in the future
      * @en Update render window information.
@@ -762,7 +769,10 @@ export interface BasicPipeline extends PipelineRuntime {
      * @zh 更新渲染窗口信息。当渲染窗口发生更新时，用户应通知管线。
      * @param renderWindow @en The render window to update. @zh 渲染窗口
      */
-    updateRenderWindow (name: string, renderWindow: RenderWindow): void;
+    updateRenderWindow (
+        name: string,
+        renderWindow: RenderWindow,
+        depthStencilName?: string): void;
     /**
      * @en Add or update 2D render target.
      * @zh 添加或更新2D渲染目标
@@ -1040,6 +1050,7 @@ export interface BasicPipeline extends PipelineRuntime {
      */
     addCopyPass (copyPairs: CopyPair[]): void;
     /**
+     * @deprecated Method will be removed in the future
      * @en Builtin reflection probe pass
      * @zh 添加内置环境光反射通道
      * @param camera @en Capturing camera @zh 用于捕捉的相机

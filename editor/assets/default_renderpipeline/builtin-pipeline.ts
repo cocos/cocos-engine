@@ -517,14 +517,16 @@ if (rendering) {
                 : nativeHeight;
 
             // Render Window (UI)
-            ppl.addRenderWindow(this._cameraConfigs.colorName, Format.RGBA8, nativeWidth, nativeHeight, window);
+            ppl.addRenderWindow(this._cameraConfigs.colorName,
+                Format.RGBA8, nativeWidth, nativeHeight, window,
+                this._cameraConfigs.depthStencilName);
 
             if (this._cameraConfigs.enableShadingScale) {
-                ppl.addDepthStencil(`ScaledDepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addDepthStencil(`ScaledSceneDepth${id}`, Format.DEPTH_STENCIL, width, height);
                 ppl.addRenderTarget(`ScaledRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
                 ppl.addRenderTarget(`ScaledLdrColor${id}`, Format.RGBA8, width, height);
             } else {
-                ppl.addDepthStencil(this._cameraConfigs.depthStencilName, Format.DEPTH_STENCIL, width, height);
+                ppl.addDepthStencil(`SceneDepth${id}`, Format.DEPTH_STENCIL, width, height);
                 ppl.addRenderTarget(`Radiance${id}`, this._cameraConfigs.radianceFormat, width, height);
                 ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
             }
@@ -712,9 +714,9 @@ if (rendering) {
                 : nativeHeight;
             const id = camera.window.renderWindowId;
             const colorName = this._cameraConfigs.colorName;
-            const depthStencilName = this._cameraConfigs.enableShadingScale
-                ? `ScaledDepthStencil${id}`
-                : this._cameraConfigs.depthStencilName;
+            const sceneDepth = this._cameraConfigs.enableShadingScale
+                ? `ScaledSceneDepth${id}`
+                : `SceneDepth${id}`;
             const radianceName = this._cameraConfigs.enableShadingScale
                 ? `ScaledRadiance${id}`
                 : `Radiance${id}`;
@@ -750,14 +752,14 @@ if (rendering) {
                     const dofRadianceName = `DofRadiance${id}`;
                     // Disable MSAA, depth stencil cannot be resolved cross-platformly
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
-                        dofRadianceName, depthStencilName, true, StoreOp.STORE);
+                        dofRadianceName, sceneDepth, true, StoreOp.STORE);
                     this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
                         id, camera, width, height,
-                        dofRadianceName, depthStencilName, radianceName, ldrColorName);
+                        dofRadianceName, sceneDepth, radianceName, ldrColorName);
                 } else {
                     this._addForwardRadiancePasses(
                         ppl, id, camera, width, height, mainLight,
-                        radianceName, depthStencilName);
+                        radianceName, sceneDepth);
                 }
                 // Bloom
                 if (this._cameraConfigs.enableBloom) {
@@ -806,13 +808,14 @@ if (rendering) {
                 }
             } else if (this._cameraConfigs.enableHDR || this._cameraConfigs.enableShadingScale) { // HDR or Scaled LDR
                 this._addForwardRadiancePasses(ppl, id, camera,
-                    width, height, mainLight, radianceName, depthStencilName);
+                    width, height, mainLight, radianceName, sceneDepth);
                 lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
                     width, height, radianceName, ldrColorName,
                     nativeWidth, nativeHeight, colorName);
             } else { // LDR (Size is not scaled)
                 lastPass = this._addForwardRadiancePasses(ppl, id, camera,
-                    nativeWidth, nativeHeight, mainLight, colorName, depthStencilName);
+                    nativeWidth, nativeHeight, mainLight,
+                    colorName, this._cameraConfigs.depthStencilName);
             }
 
             // UI size is not scaled, does not have AA

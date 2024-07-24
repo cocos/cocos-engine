@@ -40,24 +40,18 @@
 #include "LayoutGraphTypes.h"
 #include "NativeRenderGraphUtils.h"
 #include "RenderGraphGraphs.h"
-#include "base/Log.h"
 #include "boost/graph/depth_first_search.hpp"
-#include "boost/graph/hawick_circuits.hpp"
-#include "boost/graph/visitors.hpp"
-#include "boost/lexical_cast.hpp"
+#include "cocos/scene/RenderWindow.h"
 #include "details/GraphView.h"
 #include "details/Range.h"
 #include "gfx-base/GFXBarrier.h"
 #include "gfx-base/GFXDef-common.h"
 #include "gfx-base/GFXDef.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/states/GFXBufferBarrier.h"
-#include "gfx-base/states/GFXTextureBarrier.h"
 #include "math/Vec2.h"
 #include "pipeline/custom/RenderCommonFwd.h"
 #include "pipeline/custom/RenderGraphTypes.h"
 #include "pipeline/custom/details/GslUtils.h"
-#include "cocos/scene/RenderWindow.h"
 
 #ifndef BRANCH_CULLING
     #define BRANCH_CULLING 0
@@ -363,6 +357,11 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                 [&](const IntrusivePtr<gfx::Texture> &tex) {
                     dsAttachment = tex.get();
                 },
+                [&](const RenderSwapchain &sc) {
+                    CC_EXPECTS(sc.swapchain);
+                    CC_EXPECTS(sc.swapchain->getDepthStencilTexture());
+                    dsAttachment = sc.swapchain->getDepthStencilTexture();
+                },
                 [&](const FormatView &view) {
                     std::ignore = view;
                     CC_EXPECTS(false);
@@ -381,7 +380,10 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
     return renderingInfo;
 }
 
-LayoutAccess FrameGraphDispatcher::getResourceAccess(ResourceGraph::vertex_descriptor r, RenderGraph::vertex_descriptor p) const {
+LayoutAccess FrameGraphDispatcher::getResourceAccess(
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    ResourceGraph::vertex_descriptor r,
+    RenderGraph::vertex_descriptor p) const {
     auto ragVertID = resourceAccessGraph.passIndex.at(p);
     const auto &resName = get(ResourceGraph::NameTag{}, resourceGraph, r);
     auto range = resourceAccessGraph.resourceAccess.at(resName).equal_range(ragVertID);
@@ -659,11 +661,11 @@ gfx::ShaderStageFlagBit getVisibility(const RenderGraph &renderGraph, const Layo
     auto slotID = iter->second;
 
     auto layoutID = LayoutGraphData::null_vertex();
-    const auto& layoutName = get(RenderGraph::LayoutTag{}, renderGraph, passID);
+    const auto &layoutName = get(RenderGraph::LayoutTag{}, renderGraph, passID);
     if (layoutName.empty()) { // must be single subpass
         auto parentID = parent(passID, renderGraph);
         CC_EXPECTS(parentID != RenderGraph::null_vertex() &&
-            parent(parentID, renderGraph) == RenderGraph::null_vertex());
+                   parent(parentID, renderGraph) == RenderGraph::null_vertex());
         const auto &layoutName2 = get(RenderGraph::LayoutTag{}, renderGraph, parentID);
         CC_EXPECTS(!layoutName2.empty());
         layoutID = locate(LayoutGraphData::null_vertex(), layoutName2, lgd);
@@ -968,7 +970,7 @@ auto checkRasterViews(const Graphs &graphs,
         const auto resID = vertex(resName, resourceGraph);
         auto access = rasterView.accessType;
         gfx::ShaderStageFlagBit originVis = getVisibility(renderGraph, layoutGraphData, passID, pair.second.slotName) | explicitVis | pair.second.shaderStageFlags;
-        const auto &[vis, accessFlag] = getTextureStatus(resName.data(), access, originVis, resourceGraph, true);
+        const auto &[vis, accessFlag] = getTextureStatus(resName, access, originVis, resourceGraph, true);
         auto range = getResourceRange(resID, resourceGraph);
 
         ViewStatus viewStatus{resName, access, vis, accessFlag, range};
@@ -1392,29 +1394,31 @@ void startCopyPass(const Graphs &graphs, uint32_t passID, const CopyPass &pass) 
     auto &resg = resourceGraph;
     auto &rag = resourceAccessGraph;
     auto &rlg = relationGraph;
-    auto checkCopy = [&](const ccstd::pmr::string &resName,
-                         uint32_t firstSlice,
-                         uint32_t firstMip,
-                         uint32_t firstPlane,
-                         uint32_t sliceCount,
-                         uint32_t mipCount,
-                         bool read) {
-        auto srcID = vertex(resName, resg);
-        auto srcRange = getResourceRange(srcID, resg);
-        srcRange.firstSlice = firstSlice;
-        srcRange.mipLevel = firstMip;
-        srcRange.basePlane = firstPlane;
-        srcRange.numSlices = sliceCount;
-        srcRange.levelCount = mipCount;
+    auto checkCopy =
+        [&](const ccstd::pmr::string &resName,
+            // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+            uint32_t firstSlice,
+            uint32_t firstMip,
+            uint32_t firstPlane,
+            uint32_t sliceCount,
+            uint32_t mipCount,
+            bool read) {
+            auto srcID = vertex(resName, resg);
+            auto srcRange = getResourceRange(srcID, resg);
+            srcRange.firstSlice = firstSlice;
+            srcRange.mipLevel = firstMip;
+            srcRange.basePlane = firstPlane;
+            srcRange.numSlices = sliceCount;
+            srcRange.levelCount = mipCount;
 
-        AccessType access = read ? AccessType::READ : AccessType::WRITE;
-        gfx::AccessFlags accessFlag = read ? gfx::AccessFlags::TRANSFER_READ : gfx::AccessFlags::TRANSFER_WRITE;
-        ViewStatus srcViewStatus{resName, access, gfx::ShaderStageFlagBit::NONE, accessFlag, srcRange};
-        addAccessStatus(rag, resg, accessNode, srcViewStatus);
-        const auto &[lastVertSrc, ignore1] = dependencyCheck(rag, vertID, resg, srcViewStatus);
-        tryAddEdge(lastVertSrc, vertID, rag);
-        tryAddEdge(lastVertSrc, rlgVertID, rlg);
-    };
+            AccessType access = read ? AccessType::READ : AccessType::WRITE;
+            gfx::AccessFlags accessFlag = read ? gfx::AccessFlags::TRANSFER_READ : gfx::AccessFlags::TRANSFER_WRITE;
+            ViewStatus srcViewStatus{resName, access, gfx::ShaderStageFlagBit::NONE, accessFlag, srcRange};
+            addAccessStatus(rag, resg, accessNode, srcViewStatus);
+            const auto &[lastVertSrc, ignore1] = dependencyCheck(rag, vertID, resg, srcViewStatus);
+            tryAddEdge(lastVertSrc, vertID, rag);
+            tryAddEdge(lastVertSrc, rlgVertID, rlg);
+        };
 
     for (const auto &copy : pass.copyPairs) {
         checkCopy(copy.source,
@@ -1444,12 +1448,12 @@ void startRaytracePass(const Graphs &graphs, uint32_t passID, const RaytracePass
     std::ignore = checkComputeViews(graphs, rlgVertID, accessNode, pass.computeViews);
 }
 
-bool rangeCheck(ResourceNode &status,
-                const ResourceDesc & /*desc*/,
-                const PmrString & /*targetName*/,
-                uint32_t firstSlice, uint32_t numSlices,
-                uint32_t firstMip, uint32_t mipLevels,
-                uint32_t planeIndex) {
+bool rangeCheck(
+    ResourceNode &status,
+    const ResourceDesc & /*desc*/,
+    const PmrString & /*targetName*/,
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    uint32_t firstSlice, uint32_t numSlices, uint32_t firstMip, uint32_t mipLevels, uint32_t planeIndex) {
     CC_ASSERT(planeIndex < status.planes.size());
     // spare space in target
     bool check = !status.full;
@@ -1522,7 +1526,7 @@ bool moveValidation(const MovePass &pass, ResourceAccessGraph &rag, const Resour
             }
         }
 
-        auto safeShift = [](uint32_t num, uint8_t bit) { return std::max(1u, num >> bit); };
+        auto safeShift = [](uint32_t num, uint8_t bit) { return std::max(1U, num >> bit); };
 
         rangeCheck(rag.movedTargetStatus[toResName], toResDesc, toResName, movePair.targetFirstSlice, movePair.numSlices, movePair.targetMostDetailedMip, movePair.mipLevels, movePair.targetPlaneSlice);
         uint32_t validConditions[] = {
@@ -1584,7 +1588,7 @@ gfx::SamplerInfo makePointSamplerInfo() {
     return gfx::SamplerInfo{gfx::Filter::POINT, gfx::Filter::POINT, gfx::Filter::POINT};
 }
 
-SubresourceView makeSubresourceView(const ResourceDesc &targetDesc, const gfx::ResourceRange& range) {
+SubresourceView makeSubresourceView(const ResourceDesc &targetDesc, const gfx::ResourceRange &range) {
     SubresourceView view{};
     view.firstArraySlice = range.firstSlice;
     view.numArraySlices = range.numSlices;
@@ -2372,6 +2376,7 @@ void evaluateAndTryMerge(const ResourceAccessGraph &rag, const ResourceGraph &re
             }
             auto srcVert = source(e, relationGraph);
             auto dstVert = target(e, relationGraph);
+            // NOLINTNEXTLINE(readability-suspicious-call-argument)
             tryAddEdge(tailVert, srcVert, relationGraph);
             tailVert = dstVert;
         }
@@ -2516,7 +2521,7 @@ void passReorder(FrameGraphDispatcher &fgDispatcher) {
             if (reduced) {
                 ++count;
                 iter = circuits.erase(iter);
-                percent = count / static_cast<float>(total);
+                percent = static_cast<float>(count) / static_cast<float>(total);
             } else {
                 ++iter;
             }
