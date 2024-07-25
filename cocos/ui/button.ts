@@ -628,9 +628,6 @@ export class Button extends Component {
     }
 
     public update (dt: number): void {
-        if (EDITOR_NOT_IN_PREVIEW) {
-            return;
-        }
         const target = this.target;
         if (this._transitionFinished || !target) {
             return;
@@ -942,8 +939,9 @@ export class Button extends Component {
             return;
         }
 
-        if (EDITOR || state === State.DISABLED) {
+        if (EDITOR_NOT_IN_PREVIEW || state === State.DISABLED) {
             renderComp.color = color;
+            this._transitionFinished = true;
         } else {
             this._fromColor = renderComp.color.clone();
             this._toColor = color;
