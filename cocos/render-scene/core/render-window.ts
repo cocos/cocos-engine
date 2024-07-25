@@ -313,6 +313,11 @@ export class RenderWindow {
         }
         this._cameras.push(camera);
         this.sortCameras();
+
+        // This resize should only be handled by the render pipeline
+        // If the camera is attached to the render window,
+        // resize handler should be called to update render window resouces
+        this._isResized = true;
     }
 
     /**
