@@ -66,6 +66,8 @@ export function defaultWindowResize (ppl: BasicPipeline, window: RenderWindow, w
     ppl.addDepthStencil(`ShadowDepth${id}`, Format.DEPTH_STENCIL, shadowSize.x, shadowSize.y);
 }
 
+const _resizedWindows: RenderWindow[] = [];
+
 export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilder, ppl: BasicPipeline): void {
     if (!builder.windowResize) {
         // No game window resize handler defined.
@@ -73,6 +75,9 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         return;
     }
 
+    // Resize all windows.
+    // Notice: A window might be resized multiple times with different cameras.
+    // User should avoid resource collision between different cameras.
     for (const camera of cameras) {
         if (!camera.window.isRenderWindowResized() && !forceResize) {
             continue;
@@ -82,8 +87,17 @@ export function dispatchResizeEvents (cameras: Camera[], builder: PipelineBuilde
         const height = Math.max(Math.floor(camera.window.height), 1);
 
         builder.windowResize(ppl, camera.window, camera, width, height);
-        camera.window.setRenderWindowResizeHandled();
+
+        _resizedWindows.push(camera.window);
     }
+
+    // Reset resize flags
+    for (const window of _resizedWindows) {
+        window.setRenderWindowResizeHandled();
+    }
+
+    // Clear resized windows
+    _resizedWindows.length = 0;
 
     // For editor preview
     forceResize = false;
