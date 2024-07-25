@@ -628,6 +628,9 @@ export class Button extends Component {
     }
 
     public update (dt: number): void {
+        if (EDITOR){
+            return;
+        }
         const target = this.target;
         if (this._transitionFinished || !target) {
             return;
