@@ -628,7 +628,7 @@ export class Button extends Component {
     }
 
     public update (dt: number): void {
-        if (EDITOR){
+        if (EDITOR) {
             return;
         }
         const target = this.target;
