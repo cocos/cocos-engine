@@ -480,6 +480,10 @@ void ScriptEngine::cleanup() {
             hook();
         }
         _beforeCleanupHookArray.clear();
+        
+        // Clear unhandled promises
+        _unhandledPromises.clear();
+        _ignoreUnhandledPromises = false;
 
         _stringPool.clear();
 
