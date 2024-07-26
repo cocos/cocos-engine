@@ -95,6 +95,8 @@ let useLogo = <%= useLogo%>;
 let useDefaultLogo = <%= useDefaultLogo%>;
 let logoName = '<%= logoName %>';
 let bgName = '<%= bgName %>';
+let fitWidth = <%= fitWidth %>;
+let fitHeight = <%= fitHeight %>;
 
 function initShaders(vshader, fshader) {
     return createProgram(vshader, fshader);
@@ -191,16 +193,14 @@ function initProgressVertexBuffer() {
 }
 
 function updateVertexBuffer() {
-    // By default, maintain aspect ratio by constraining display at 200px height
-    const defaultRatio = 200 / image.height;
-    const widthRatio = image.width / canvas.width * 1.35 * defaultRatio * displayRatio;
-    const heightRatio = image.height / canvas.height * 1.35 * defaultRatio * displayRatio;
-    const heightOffset = 1/6; // canvas:(-1,1) -> (button, top); heightOffset = (5/12) * (-2) + 1 = 1/6
+    const heightRatio = 1.0 * 0.185 * displayRatio;
+    const widthRatio = image.width * (canvas.height * 0.185 / image.height) / canvas.width * displayRatio;
+    
     const vertices = new Float32Array([
-        widthRatio, heightOffset - heightRatio, 1.0, 1.0,
-        widthRatio, heightOffset + heightRatio, 1.0, 0.0,
-        -widthRatio, heightOffset - heightRatio, 0.0, 1.0,
-        -widthRatio, heightOffset + heightRatio, 0.0, 0.0,
+        widthRatio, -heightRatio, 1.0, 1.0,
+        widthRatio, heightRatio, 1.0, 0.0,
+        -widthRatio, -heightRatio, 0.0, 1.0,
+        -widthRatio, heightRatio, 0.0, 0.0,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -223,11 +223,42 @@ function updateSloganVertexBuffer() {
 }
 
 function updateBgVertexBuffer() {
+    let widthRatio = 1;
+    let heightRatio = 1;
+    if(fitWidth && !fitHeight) {
+        widthRatio = canvas.width;
+        heightRatio = (canvas.width / bg.width) * bg.height;
+    } else if(!fitWidth && fitHeight) {
+        widthRatio = (canvas.height / bg.height) * bg.width;
+        heightRatio = canvas.height;
+    } else if(fitWidth && fitHeight) {
+        if ((bg.width / bg.height) > (canvas.width / canvas.height)) {
+            widthRatio = canvas.width;
+            heightRatio = (canvas.width / bg.width) * bg.height;
+        } else {
+            widthRatio = (canvas.height / bg.height) * bg.width;
+            heightRatio = canvas.height;
+        }
+    } else if(!fitWidth && !fitHeight) {
+        if ((bg.width / bg.height) > (canvas.width / canvas.height)) {
+            widthRatio = (canvas.height / bg.height) * bg.width;
+            heightRatio = canvas.height;
+        } else {
+            widthRatio = canvas.width;
+            heightRatio = (canvas.width / bg.width) * bg.height;
+        }
+    } else {
+        widthRatio = canvas.width;
+        heightRatio = canvas.height;
+    }
+    widthRatio /= canvas.width;
+    heightRatio /= canvas.height;
+
     const vertices = new Float32Array([
-        1.0, 1.0, 1.0, 1.0,
-        1.0, -1.0, 1.0, 0.0,
-        -1.0, 1.0, 0.0, 1.0,
-        -1.0, -1.0, 0.0, 0.0,
+        widthRatio, heightRatio, 1.0, 1.0,
+        widthRatio, -heightRatio, 1.0, 0.0,
+        -widthRatio, heightRatio, 0.0, 1.0,
+        -widthRatio, -heightRatio, 0.0, 0.0,
     ]);
     gl.bindBuffer(gl.ARRAY_BUFFER, bgVertexBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);

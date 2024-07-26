@@ -50,7 +50,7 @@ ApplicationManager::ApplicationPtr ApplicationManager::getCurrentAppSafe() const
 } // namespace cc
 
 //
-void cocos_destory() { // NOLINT(readability-identifier-naming)
+void cocos_destroy() { // NOLINT(readability-identifier-naming)
     // Called in the platform layer, because the platform layer is isolated from the application layer
     // It is the platform layer to drive applications and reclaim resources.
     cc::ApplicationManager::getInstance()->releaseAllApplications();

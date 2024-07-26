@@ -367,6 +367,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingMap(val: Texture2D) {
         this._settings.colorGrading.colorGradingMap = val;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMap(): Texture2D {
         return this._settings.colorGrading.colorGradingMap!;
@@ -438,13 +441,13 @@ export class BuiltinPipelineSettings extends Component {
     }
 
     @property({
-        group: { id: 'Copy', name: 'Copy and ToneMapping', style: 'section' },
+        group: { id: 'ToneMapping', name: 'ToneMapping', style: 'section' },
         type: Material,
     })
-    set copyMaterial(value: Material) {
-        this._settings.copyMaterial = value;
+    set toneMappingMaterial(value: Material) {
+        this._settings.toneMapping.material = value;
     }
-    get copyMaterial(): Material {
-        return this._settings.copyMaterial!;
+    get toneMappingMaterial(): Material {
+        return this._settings.toneMapping.material!;
     }
 }

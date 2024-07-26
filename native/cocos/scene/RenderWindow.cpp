@@ -185,6 +185,11 @@ void RenderWindow::attachCamera(Camera *camera) {
     }
     _cameras.emplace_back(camera);
     sortCameras();
+
+    // This resize should only be handled by the render pipeline
+    // If the camera is attached to the render window,
+    // resize handler should be called to update render window resouces
+    _isResized = true;
 }
 
 void RenderWindow::detachCamera(Camera *camera) {

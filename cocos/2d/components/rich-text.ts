@@ -1257,7 +1257,7 @@ this._measureText(styleIndex) as unknown as (s: string) => number,
 
             // adjust y for label with outline
             const label = segment.node.getComponent(Label);
-            if (label) {
+            if (label && label.enableOutline) {
                 const position = segment.node.position.clone();
                 position.y -= label.outlineWidth;
                 segment.node.position = position;

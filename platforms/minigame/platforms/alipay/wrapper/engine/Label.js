@@ -1,6 +1,6 @@
-if (cc && cc.LabelComponent) {
+if (cc && cc.Label) {
     // const gfx = cc.gfx;
-    const Label = cc.LabelComponent;
+    const Label = cc.Label;
     const isDevTool = __globalAdapter.isDevTool;
     // shared label canvas
     let _sharedLabelCanvas = document.createElement('canvas');

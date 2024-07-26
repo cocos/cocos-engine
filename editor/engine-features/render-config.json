@@ -14,9 +14,7 @@
             "label": "i18n:ENGINE.features.gfx_webgl.label",
             "description": "i18n:ENGINE.features.gfx_webgl.description",
             "category": "graphics",
-            "enginePlugin": true,
-            "readonly": true,
-            "required": true
+            "enginePlugin": true
         },
         "gfx-webgl2": {
             "label": "i18n:ENGINE.features.gfx_webgl2.label",
@@ -279,14 +277,10 @@
         },
         "custom-pipeline": {
             "default": true,
-            "label": "i18n:ENGINE.features.custom_pipeline.label",
-            "description": "i18n:ENGINE.features.custom_pipeline.description",
             "enginePlugin": false
         },
         "legacy-pipeline": {
-            "default": true,
-            "label": "i18n:ENGINE.features.legacy_pipeline.label",
-            "description": "i18n:ENGINE.features.legacy_pipeline.description",
+            "default": false,
             "enginePlugin": false
         }
     },

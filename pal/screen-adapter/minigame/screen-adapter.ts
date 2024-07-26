@@ -125,23 +125,10 @@ class ScreenAdapter extends EventTarget {
         // NOTE: safe area info on vivo platform is in physical pixel.
         // No need to multiply with DPR.
         const dpr = VIVO ? 1 : this.devicePixelRatio;
-        let topEdge = minigameSafeArea.top * dpr;
-        let bottomEdge = windowSize.height - minigameSafeArea.bottom * dpr;
-        let leftEdge = minigameSafeArea.left * dpr;
-        let rightEdge = windowSize.width - minigameSafeArea.right * dpr;
-        const orientation = this.orientation;
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
+        const topEdge = minigameSafeArea.top * dpr;
+        const bottomEdge = windowSize.height - minigameSafeArea.bottom * dpr;
+        const leftEdge = minigameSafeArea.left * dpr;
+        const rightEdge = windowSize.width - minigameSafeArea.right * dpr;
         return {
             top: topEdge,
             bottom: bottomEdge,

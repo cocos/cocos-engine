@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG } from 'cc/env';
+import { DEBUG, EDITOR } from 'cc/env';
 import {
     assert,
     clamp,
@@ -40,6 +40,7 @@ import {
     cclegacy,
     PipelineEventType,
     PipelineEventProcessor,
+    ReflectionProbeManager,
 } from 'cc';
 
 import {
@@ -87,13 +88,16 @@ function getCsmMainLightViewport(
 
 class PipelineConfigs {
     isWeb = false;
+    isWebGL1 = false;
     isWebGPU = false;
     isMobile = false;
     isHDR = false;
     useFloatOutput = false;
     toneMappingType = 0; // 0: ACES, 1: None
+    shadowEnabled = false;
     shadowMapFormat = Format.R32F;
     shadowMapSize = new Vec2(1, 1);
+    usePlanarShadow = false;
     screenSpaceSignY = 1;
     supportDepthSample = false;
     mobileMaxSpotLightShadowMaps = 1;
@@ -105,28 +109,37 @@ function setupPipelineConfigs(
     ppl: rendering.BasicPipeline,
     configs: PipelineConfigs,
 ): void {
+    // Platform
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
     configs.isWeb = !sys.isNative;
     configs.isWebGPU = (cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
+    configs.isWebGL1 = (cclegacy.director.root.device as gfx.Device).gfxAPI === gfx.API.WEBGL;
     configs.isMobile = sys.isMobile;
+    // Rendering
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
     configs.toneMappingType = ppl.pipelineSceneData.postSettings.toneMappingType;
+    // Shadow
+    const shadowInfo = ppl.pipelineSceneData.shadows;
+    configs.shadowEnabled = shadowInfo.enabled;
     configs.shadowMapFormat = pipeline.supportsR32FloatTexture(ppl.device) ? Format.R32F : Format.RGBA8;
-    configs.shadowMapSize.set(ppl.pipelineSceneData.shadows.size);
+    configs.shadowMapSize.set(shadowInfo.size);
+    configs.usePlanarShadow = shadowInfo.enabled && shadowInfo.type === renderer.scene.ShadowType.Planar;
+    // Device
     configs.screenSpaceSignY = ppl.device.capabilities.screenSpaceSignY;
     configs.supportDepthSample = (ppl.device.getFormatFeatures(Format.DEPTH_STENCIL) & sampleFeature) === sampleFeature;
-
+    // Constants
     const device = ppl.device;
-    configs.platform.x = configs.isMobile ? 1.0 : 0.0;
     const screenSpaceSignY = device.capabilities.screenSpaceSignY;
+    configs.platform.x = configs.isMobile ? 1.0 : 0.0;
     configs.platform.w = (screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
 }
 
 const defaultSettings = makePipelineSettings();
 
 class CameraConfigs {
-    enableShadowMap = false;
+    enableMainLightShadowMap = false;
+    enableMainLightPlanarShadowMap = false;
     enablePostProcess = false;
     enableProfiler = false;
     enableShadingScale = false;
@@ -139,6 +152,7 @@ class CameraConfigs {
     enableHDR = false;
     useFullPipeline = false;
     singleForwardRadiancePass = false;
+    radianceFormat = gfx.Format.RGBA8;
     shadingScale = 0.5;
     settings: PipelineSettings = defaultSettings;
 }
@@ -150,23 +164,22 @@ function setupPostProcessConfigs(
 ) {
     cameraConfigs.enableDOF = pipelineConfigs.supportDepthSample
         && settings.depthOfField.enabled
-        && settings.depthOfField.material !== null;
+        && !!settings.depthOfField.material;
 
     cameraConfigs.enableBloom = settings.bloom.enabled
-        && settings.bloom.material !== null;
+        && !!settings.bloom.material;
 
     cameraConfigs.enableColorGrading = settings.colorGrading.enabled
-        && settings.colorGrading.material !== null
-        && settings.colorGrading.colorGradingMap !== null;
+        && !!settings.colorGrading.material
+        && !!settings.colorGrading.colorGradingMap;
 
     cameraConfigs.enableFXAA = settings.fxaa.enabled
-        && settings.fxaa.material !== null;
+        && !!settings.fxaa.material;
 
-    cameraConfigs.enablePostProcess = pipelineConfigs.useFloatOutput
-        && (cameraConfigs.enableDOF
-            || cameraConfigs.enableBloom
-            || cameraConfigs.enableColorGrading
-            || cameraConfigs.enableFXAA);
+    cameraConfigs.enablePostProcess = (cameraConfigs.enableDOF
+        || cameraConfigs.enableBloom
+        || cameraConfigs.enableColorGrading
+        || cameraConfigs.enableFXAA);
 }
 
 function setupCameraConfigs(
@@ -179,9 +192,17 @@ function setupCameraConfigs(
 
     cameraConfigs.useFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
 
-    cameraConfigs.enableShadowMap = camera.scene
-        ? camera.scene.mainLight !== null && camera.scene.mainLight.shadowEnabled
-        : false;
+    cameraConfigs.enableMainLightShadowMap = pipelineConfigs.shadowEnabled
+        && !pipelineConfigs.usePlanarShadow
+        && !!camera.scene
+        && !!camera.scene.mainLight
+        && camera.scene.mainLight.shadowEnabled;
+
+    cameraConfigs.enableMainLightPlanarShadowMap = pipelineConfigs.shadowEnabled
+        && pipelineConfigs.usePlanarShadow
+        && !!camera.scene
+        && !!camera.scene.mainLight
+        && camera.scene.mainLight.shadowEnabled;
 
     cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
 
@@ -191,7 +212,7 @@ function setupCameraConfigs(
     setupPostProcessConfigs(pipelineConfigs, cameraConfigs.settings, cameraConfigs);
 
     if (isEditorView) {
-        const editorSettings = rendering.getEditorPipelineSettings();
+        const editorSettings = rendering.getEditorPipelineSettings() as PipelineSettings | null;
         if (editorSettings) {
             cameraConfigs.settings = editorSettings;
             setupPostProcessConfigs(pipelineConfigs,
@@ -201,7 +222,8 @@ function setupCameraConfigs(
 
     // MSAA
     cameraConfigs.enableMSAA = cameraConfigs.settings.msaa.enabled
-        && !pipelineConfigs.isWeb;
+        && !pipelineConfigs.isWeb // TODO(zhouzhenglong): remove this constraint
+        && !pipelineConfigs.isWebGL1;
 
     // Shading scale
     cameraConfigs.shadingScale = cameraConfigs.settings.shadingScale;
@@ -210,7 +232,7 @@ function setupCameraConfigs(
 
     // FSR (Depend on Shading scale)
     cameraConfigs.enableFSR = cameraConfigs.settings.fsr.enabled
-        && cameraConfigs.settings.fsr.material !== null
+        && !!cameraConfigs.settings.fsr.material
         && cameraConfigs.enableShadingScale
         && cameraConfigs.shadingScale < 1.0;
 
@@ -220,6 +242,9 @@ function setupCameraConfigs(
 
     cameraConfigs.enableHDR = cameraConfigs.useFullPipeline
         && pipelineConfigs.useFloatOutput;
+
+    cameraConfigs.radianceFormat = cameraConfigs.enableHDR
+        ? gfx.Format.RGBA16F : gfx.Format.RGBA8;
 }
 
 if (rendering) {
@@ -419,6 +444,7 @@ if (rendering) {
         // Internal cached resources
         private readonly _clearColor = new Color(0, 0, 0, 1);
         private readonly _clearColorTransparentBlack = new Color(0, 0, 0, 0);
+        private readonly _reflectionProbeClearColor = new Vec3(0, 0, 0);
         private readonly _viewport = new Viewport();
         private readonly _configs = new PipelineConfigs();
         private readonly _cameraConfigs = new CameraConfigs();
@@ -433,6 +459,8 @@ if (rendering) {
         private readonly _bloomTexNames: Array<string> = [];
         // Color Grading
         private readonly _colorGradingTexSize = new Vec2(0, 0);
+        // FXAA
+        private readonly _fxaaParams = new Vec4(0, 0, 0, 0);
         // FSR
         private readonly _fsrParams = new Vec4(0, 0, 0, 0);
         private readonly _fsrTexSize = new Vec4(0, 0, 0, 0);
@@ -470,20 +498,19 @@ if (rendering) {
             // Render Window (UI)
             ppl.addRenderWindow(window.colorName, Format.RGBA8, nativeWidth, nativeHeight, window);
 
+            if (this._cameraConfigs.enableShadingScale) {
+                ppl.addDepthStencil(`ScaledDepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`ScaledRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`ScaledLdrColor${id}`, Format.RGBA8, width, height);
+            } else {
+                ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
+                ppl.addRenderTarget(`Radiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
+            }
+
             if (this._cameraConfigs.enableFSR) {
                 ppl.addRenderTarget(`FsrColor${id}`, Format.RGBA8, nativeWidth, nativeHeight);
             }
-
-            // Radiance
-            if (this._configs.useFloatOutput) {
-                ppl.addRenderTarget(`Radiance${id}`, Format.RGBA16F, width, height);
-            } else if (this._cameraConfigs.enableShadingScale) {
-                ppl.addRenderTarget(`Radiance${id}`, Format.RGBA8, width, height);
-            } else {
-                // Reuse render window
-            }
-            ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
-            ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
 
             // MsaaRadiance
             if (this._cameraConfigs.enableMSAA) {
@@ -491,7 +518,7 @@ if (rendering) {
                 // These samples are always resolved and discarded at the end of the render pass.
                 // So the ResourceResidency should be MEMORYLESS.
                 if (this._cameraConfigs.enableHDR) {
-                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA16F, width, height, 1, 1, 1,
+                    ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, this._cameraConfigs.radianceFormat, width, height, 1, 1, 1,
                         settings.msaa.sampleCount, ResourceFlags.COLOR_ATTACHMENT, ResourceResidency.MEMORYLESS);
                 } else {
                     ppl.addTexture(`MsaaRadiance${id}`, TextureType.TEX2D, Format.RGBA8, width, height, 1, 1, 1,
@@ -534,32 +561,37 @@ if (rendering) {
                 }
             }
 
+            // ---------------------------------------------------------
             // Post Process
-            if (this._cameraConfigs.enablePostProcess) {
-                // DepthOfField
-                if (this._cameraConfigs.enableDOF) {
-                    const halfWidth = Math.max(Math.floor(width / 2), 1);
-                    const halfHeight = Math.max(Math.floor(height / 2), 1);
-                    // `DofCoc${id}` texture will reuse `LdrColor${id}`
-                    ppl.addRenderTarget(`DofRadiance${id}`, Format.RGBA16F, width, height);
-                    ppl.addRenderTarget(`DofPrefilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                    ppl.addRenderTarget(`DofBokeh${id}`, Format.RGBA16F, halfWidth, halfHeight);
-                    ppl.addRenderTarget(`DofFilter${id}`, Format.RGBA16F, halfWidth, halfHeight);
+            // ---------------------------------------------------------
+            // DepthOfField
+            if (this._cameraConfigs.enableDOF) {
+                const halfWidth = Math.max(Math.floor(width / 2), 1);
+                const halfHeight = Math.max(Math.floor(height / 2), 1);
+                // `DofCoc${id}` texture will reuse ldrColorName
+                ppl.addRenderTarget(`DofRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
+                ppl.addRenderTarget(`DofPrefilter${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofBokeh${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
+                ppl.addRenderTarget(`DofFilter${id}`, this._cameraConfigs.radianceFormat, halfWidth, halfHeight);
+            }
+            // Bloom (Kawase Dual Filter)
+            if (this._cameraConfigs.enableBloom) {
+                let bloomWidth = width;
+                let bloomHeight = height;
+                for (let i = 0; i !== settings.bloom.iterations + 1; ++i) {
+                    bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
+                    bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
+                    ppl.addRenderTarget(`BloomTex${id}_${i}`, this._cameraConfigs.radianceFormat, bloomWidth, bloomHeight);
                 }
-                // Bloom (Kawase Dual Filter)
-                if (this._cameraConfigs.enableBloom) {
-                    let bloomWidth = width;
-                    let bloomHeight = height;
-                    for (let i = 0; i !== settings.bloom.iterations + 1; ++i) {
-                        bloomWidth = Math.max(Math.floor(bloomWidth / 2), 1);
-                        bloomHeight = Math.max(Math.floor(bloomHeight / 2), 1);
-                        ppl.addRenderTarget(`BloomTex${id}_${i}`, Format.RGBA16F, bloomWidth, bloomHeight);
-                    }
-                }
-                // FXAA
-                if (this._cameraConfigs.enableFXAA && this._cameraConfigs.enableShadingScale) {
-                    ppl.addRenderTarget(`AaColor${id}`, Format.RGBA8, width, height);
-                }
+            }
+            // Color Grading
+            if (this._cameraConfigs.enableColorGrading && settings.colorGrading.material && settings.colorGrading.colorGradingMap) {
+                settings.colorGrading.material.setProperty(
+                    'colorGradingMap', settings.colorGrading.colorGradingMap);
+            }
+            // FXAA
+            if (this._cameraConfigs.enableFXAA && this._cameraConfigs.enableShadingScale) {
+                ppl.addRenderTarget(`AaColor${id}`, Format.RGBA8, width, height);
             }
         }
         setup(cameras: renderer.scene.Camera[], ppl: rendering.BasicPipeline): void {
@@ -571,12 +603,13 @@ if (rendering) {
             // log(`==================== One Frame ====================`);
             for (const camera of cameras) {
                 // Skip invalid camera
-                if (camera.scene === null || camera.window === null) {
+                if (!camera.scene || !camera.window) {
                     continue;
                 }
                 // Setup camera configs
                 setupCameraConfigs(camera, this._configs, this._cameraConfigs);
-                // log(`Setup camera: ${camera.node!.name}, window: ${camera.window.renderWindowId}, isFull: ${this._cameraConfigs.useFullPipeline}`);
+                // log(`Setup camera: ${camera.node!.name}, window: ${camera.window.renderWindowId}, isFull: ${this._cameraConfigs.useFullPipeline}, `
+                //     + `size: ${camera.window.width}x${camera.window.height}`);
 
                 this._pipelineEvent.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
 
@@ -658,16 +691,24 @@ if (rendering) {
                 : nativeHeight;
             const id = camera.window.renderWindowId;
             const colorName = camera.window.colorName;
-            const depthStencilName = camera.window.depthStencilName;
-            const radianceName = `Radiance${id}`;
+            const depthStencilName = this._cameraConfigs.enableShadingScale
+                ? `ScaledDepthStencil${id}`
+                : camera.window.depthStencilName;
+            const radianceName = this._cameraConfigs.enableShadingScale
+                ? `ScaledRadiance${id}`
+                : `Radiance${id}`;
+            const ldrColorName = this._cameraConfigs.enableShadingScale
+                ? `ScaledLdrColor${id}`
+                : `LdrColor${id}`;
             const mainLight = scene.mainLight;
 
             // Forward Lighting (Light Culling)
             this.forwardLighting.cullLights(scene, camera.frustum);
 
             // Main Directional light CSM Shadow Map
-            if (this._cameraConfigs.enableShadowMap) {
-                this._addCascadedShadowMapPass(ppl, id, mainLight!, camera);
+            if (this._cameraConfigs.enableMainLightShadowMap) {
+                assert(!!mainLight);
+                this._addCascadedShadowMapPass(ppl, id, mainLight, camera);
             }
 
             // Spot light shadow maps (Mobile or MSAA)
@@ -677,74 +718,76 @@ if (rendering) {
                 this.forwardLighting.addSpotlightShadowPasses(ppl, camera, this._configs.mobileMaxSpotLightShadowMaps);
             }
 
+            this._tryAddReflectionProbePasses(ppl, id, mainLight, camera.scene);
+
             // Forward Lighting
             let lastPass: rendering.BasicRenderPassBuilder;
-            if (this._cameraConfigs.enableHDR) { // HDR
-                if (this._cameraConfigs.enablePostProcess) { // Post Process
-                    // Radiance and DoF
-                    if (this._cameraConfigs.enableDOF && settings.depthOfField.material) {
-                        const dofRadianceName = `DofRadiance${id}`;
-                        // Disable MSAA, depth stencil cannot be resolved cross-platformly
-                        this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
-                            dofRadianceName, depthStencilName, true, StoreOp.STORE);
-                        this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
-                            id, camera, width, height,
-                            dofRadianceName, depthStencilName, radianceName);
-                    } else {
-                        this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
-                            radianceName, depthStencilName);
+            if (this._cameraConfigs.enablePostProcess) { // Post Process
+                // Radiance and DoF
+                if (this._cameraConfigs.enableDOF) {
+                    assert(!!settings.depthOfField.material);
+                    const dofRadianceName = `DofRadiance${id}`;
+                    // Disable MSAA, depth stencil cannot be resolved cross-platformly
+                    this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
+                        dofRadianceName, depthStencilName, true, StoreOp.STORE);
+                    this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
+                        id, camera, width, height,
+                        dofRadianceName, depthStencilName, radianceName, ldrColorName);
+                } else {
+                    this._addForwardRadiancePasses(
+                        ppl, id, camera, width, height, mainLight,
+                        radianceName, depthStencilName);
+                }
+                // Bloom
+                if (this._cameraConfigs.enableBloom) {
+                    assert(!!settings.bloom.material);
+                    this._addKawaseDualFilterBloomPasses(
+                        ppl, settings, settings.bloom.material,
+                        id, width, height, radianceName);
+                }
+                // Tone Mapping and FXAA
+                if (this._cameraConfigs.enableFXAA) {
+                    assert(!!settings.fxaa.material);
+                    const copyAndTonemapPassNeeded = this._cameraConfigs.enableHDR
+                        || this._cameraConfigs.enableColorGrading;
+                    const ldrColorBufferName = copyAndTonemapPassNeeded ? ldrColorName : radianceName;
+                    // FXAA is applied after tone mapping
+                    if (copyAndTonemapPassNeeded) {
+                        this._addCopyAndTonemapPass(ppl, settings, width, height, radianceName, ldrColorBufferName);
                     }
-                    // Bloom
-                    if (this._cameraConfigs.enableBloom && settings.bloom.material) {
-                        this._addKawaseDualFilterBloomPasses(ppl, settings, settings.bloom.material,
-                            id, width, height, radianceName);
-                    }
-                    // Tone Mapping and FXAA
-                    if (settings.fxaa.enabled && settings.fxaa.material) {
-                        const ldrColorName = `LdrColor${id}`;
-                        // FXAA is applied after tone mapping
-                        this._addCopyAndTonemapPass(ppl, settings, width, height, radianceName, ldrColorName);
-                        // Apply FXAA
-                        if (this._cameraConfigs.enableShadingScale) {
-                            const aaColorName = `AaColor${id}`;
-                            // Apply FXAA on scaled image
-                            this._addFxaaPass(ppl, settings.fxaa.material,
-                                width, height, ldrColorName, aaColorName);
-                            // Copy FXAA result to screen
-                            if (this._cameraConfigs.enableFSR && settings.fsr.material) {
-                                // Apply FSR
-                                lastPass = this._addFsrPass(ppl, settings, settings.fsr.material,
-                                    id, width, height, aaColorName,
-                                    nativeWidth, nativeHeight, colorName);
-                            } else {
-                                // Scale FXAA result to screen
-                                lastPass = this._addCopyPass(ppl, settings.copyMaterial,
-                                    nativeWidth, nativeHeight, aaColorName, colorName);
-                            }
+                    // Apply FXAA
+                    if (this._cameraConfigs.enableShadingScale) {
+                        const aaColorName = `AaColor${id}`;
+                        // Apply FXAA on scaled image
+                        this._addFxaaPass(ppl, settings.fxaa.material,
+                            width, height, ldrColorBufferName, aaColorName);
+                        // Copy FXAA result to screen
+                        if (this._cameraConfigs.enableFSR && settings.fsr.material) {
+                            // Apply FSR
+                            lastPass = this._addFsrPass(ppl, settings, settings.fsr.material,
+                                id, width, height, aaColorName,
+                                nativeWidth, nativeHeight, colorName);
                         } else {
-                            // Image not scaled, output FXAA result to screen directly
-                            lastPass = this._addFxaaPass(ppl, settings.fxaa.material,
-                                nativeWidth, nativeHeight, ldrColorName, colorName);
+                            // Scale FXAA result to screen
+                            lastPass = this._addCopyPass(ppl,
+                                nativeWidth, nativeHeight, aaColorName, colorName);
                         }
                     } else {
-                        // No FXAA (Size might be scaled)
-                        lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                            width, height, radianceName,
-                            nativeWidth, nativeHeight, colorName);
+                        // Image not scaled, output FXAA result to screen directly
+                        lastPass = this._addFxaaPass(ppl, settings.fxaa.material,
+                            nativeWidth, nativeHeight, ldrColorBufferName, colorName);
                     }
                 } else {
-                    // No post process, output HDR result to screen directly (Size might be scaled)
-                    this._addForwardRadiancePasses(ppl, id, camera,
-                        width, height, mainLight, radianceName, depthStencilName);
+                    // No FXAA (Size might be scaled)
                     lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                        width, height, radianceName,
+                        width, height, radianceName, ldrColorName,
                         nativeWidth, nativeHeight, colorName);
                 }
-            } else if (this._cameraConfigs.enableShadingScale) { // LDR (Size is scaled)
+            } else if (this._cameraConfigs.enableHDR || this._cameraConfigs.enableShadingScale) { // HDR or Scaled LDR
                 this._addForwardRadiancePasses(ppl, id, camera,
                     width, height, mainLight, radianceName, depthStencilName);
                 lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
-                    width, height, radianceName,
+                    width, height, radianceName, ldrColorName,
                     nativeWidth, nativeHeight, colorName);
             } else { // LDR (Size is not scaled)
                 lastPass = this._addForwardRadiancePasses(ppl, id, camera,
@@ -765,11 +808,11 @@ if (rendering) {
             width: number,
             height: number,
             radianceName: string,
+            ldrColorName: string,
             nativeWidth: number,
             nativeHeight: number,
             colorName: string,
         ): rendering.BasicRenderPassBuilder {
-            const ldrColorName = `LdrColor${id}`;
             let lastPass: rendering.BasicRenderPassBuilder;
             if (this._cameraConfigs.enableFSR && settings.fsr.material) {
                 // Apply FSR
@@ -827,23 +870,17 @@ if (rendering) {
 
         private _addCopyPass(
             ppl: rendering.BasicPipeline,
-            copyMaterial: Material | null,
             width: number,
             height: number,
             input: string,
             output: string,
         ): rendering.BasicRenderPassBuilder {
-            const pass = ppl.addRenderPass(width, height, 'post-copy');
+            const pass = ppl.addRenderPass(width, height, 'cc-tone-mapping');
             pass.addRenderTarget(output, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             pass.addTexture(input, 'inputTexture');
             pass.setVec4('g_platform', this._configs.platform);
-            if (copyMaterial) {
-                pass.addQueue(QueueHint.OPAQUE)
-                    .addFullscreenQuad(copyMaterial, 2);
-            } else {
-                pass.addQueue(QueueHint.OPAQUE)
-                    .addFullscreenQuad(this._copyAndTonemapMaterial, 2);
-            }
+            pass.addQueue(QueueHint.OPAQUE)
+                .addFullscreenQuad(this._copyAndTonemapMaterial, 1);
             return pass;
         }
 
@@ -857,38 +894,36 @@ if (rendering) {
         ): rendering.BasicRenderPassBuilder {
             let pass: rendering.BasicRenderPassBuilder;
             if (this._cameraConfigs.enableColorGrading
-                && settings.colorGrading.material !== null
-                && settings.colorGrading.colorGradingMap !== null) {
+                && settings.colorGrading.material
+                && settings.colorGrading.colorGradingMap) {
                 const lutTex = settings.colorGrading.colorGradingMap;
-
-                settings.colorGrading.material.setProperty('colorGradingMap', lutTex);
-                settings.colorGrading.material.setProperty('contribute', settings.colorGrading.contribute);
                 this._colorGradingTexSize.x = lutTex.width;
                 this._colorGradingTexSize.y = lutTex.height;
-                settings.colorGrading.material.setProperty('lutTextureSize', this._colorGradingTexSize);
 
                 const isSquareMap = lutTex.width === lutTex.height;
                 if (isSquareMap) {
-                    pass = ppl.addRenderPass(width, height, 'color-grading-8x8');
+                    pass = ppl.addRenderPass(width, height, 'cc-color-grading-8x8');
                 } else {
-                    pass = ppl.addRenderPass(width, height, 'color-grading-nx1');
+                    pass = ppl.addRenderPass(width, height, 'cc-color-grading-nx1');
                 }
                 pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 pass.addTexture(radianceName, 'sceneColorMap');
-                pass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+                pass.setVec4('g_platform', this._configs.platform);
+                pass.setVec2('lutTextureSize', this._colorGradingTexSize);
+                pass.setFloat('contribute', settings.colorGrading.contribute);
                 pass.addQueue(QueueHint.OPAQUE)
                     .addFullscreenQuad(settings.colorGrading.material, isSquareMap ? 1 : 0);
             } else {
-                pass = ppl.addRenderPass(width, height, 'post-final-tonemap');
+                pass = ppl.addRenderPass(width, height, 'cc-tone-mapping');
                 pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 pass.addTexture(radianceName, 'inputTexture');
                 pass.setVec4('g_platform', this._configs.platform);
-                if (settings.copyMaterial) {
+                if (settings.toneMapping.material) {
                     pass.addQueue(QueueHint.OPAQUE)
-                        .addFullscreenQuad(settings.copyMaterial, 1);
+                        .addFullscreenQuad(settings.toneMapping.material, 0);
                 } else {
                     pass.addQueue(QueueHint.OPAQUE)
-                        .addFullscreenQuad(this._copyAndTonemapMaterial, 1);
+                        .addFullscreenQuad(this._copyAndTonemapMaterial, 0);
                 }
             }
             return pass;
@@ -902,6 +937,7 @@ if (rendering) {
             depthStencilName: string,
             depthStencilStoreOp: gfx.StoreOp,
             mainLight: renderer.scene.DirectionalLight | null,
+            scene: renderer.RenderScene | null = null,
         ): void {
             // set viewport
             pass.setViewport(this._viewport);
@@ -930,7 +966,7 @@ if (rendering) {
             }
 
             // Set shadow map if enabled
-            if (this._cameraConfigs.enableShadowMap) {
+            if (this._cameraConfigs.enableMainLightShadowMap) {
                 pass.addTexture(`ShadowMap${id}`, 'cc_shadowMap');
             }
 
@@ -938,7 +974,10 @@ if (rendering) {
 
             // add opaque and mask queue
             pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
-                .addScene(camera, SceneFlags.OPAQUE | SceneFlags.MASK, mainLight || undefined);
+                .addScene(camera,
+                    SceneFlags.OPAQUE | SceneFlags.MASK,
+                    mainLight || undefined,
+                    scene ? scene : undefined);
         }
 
         private _addDepthOfFieldPasses(
@@ -952,6 +991,7 @@ if (rendering) {
             dofRadianceName: string,
             depthStencil: string,
             radianceName: string,
+            ldrColorName: string,
         ): void {
             // https://catlikecoding.com/unity/tutorials/advanced-rendering/depth-of-field/
 
@@ -964,60 +1004,65 @@ if (rendering) {
             this._cocTexSize.z = width;
             this._cocTexSize.w = height;
 
-            dofMaterial.setProperty('cocParams', this._cocParams);
-            dofMaterial.setProperty('mainTexTexelSize', this._cocTexSize);
-
             const halfWidth = Math.max(Math.floor(width / 2), 1);
             const halfHeight = Math.max(Math.floor(height / 2), 1);
 
-            const cocName = `LdrColor${id}`;
+            const cocName = ldrColorName;
             const prefilterName = `DofPrefilter${id}`;
             const bokehName = `DofBokeh${id}`;
             const filterName = `DofFilter${id}`;
 
             // CoC
-            const cocPass = ppl.addRenderPass(width, height, 'dof-coc');
+            const cocPass = ppl.addRenderPass(width, height, 'cc-dof-coc');
             cocPass.addRenderTarget(cocName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             cocPass.addTexture(depthStencil, 'DepthTex');
+            cocPass.setVec4('g_platform', this._configs.platform);
+            cocPass.setMat4('proj', camera.matProj);
+            cocPass.setVec4('cocParams', this._cocParams);
             cocPass
                 .addQueue(QueueHint.OPAQUE)
                 .addCameraQuad(camera, dofMaterial, 0); // addCameraQuad will set camera related UBOs
 
             // Downsample and Prefilter
-            const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-prefilter');
+            const prefilterPass = ppl.addRenderPass(halfWidth, halfHeight, 'cc-dof-prefilter');
             prefilterPass.addRenderTarget(prefilterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
-            prefilterPass.addTexture(cocName, 'cocTex');
             prefilterPass.addTexture(dofRadianceName, 'colorTex');
-            prefilterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            prefilterPass.addTexture(cocName, 'cocTex');
+            prefilterPass.setVec4('g_platform', this._configs.platform);
+            prefilterPass.setVec4('mainTexTexelSize', this._cocTexSize);
             prefilterPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 1);
 
             // Bokeh blur
-            const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-bokeh');
+            const bokehPass = ppl.addRenderPass(halfWidth, halfHeight, 'cc-dof-bokeh');
             bokehPass.addRenderTarget(bokehName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             bokehPass.addTexture(prefilterName, 'prefilterTex');
-            bokehPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            bokehPass.setVec4('g_platform', this._configs.platform);
+            bokehPass.setVec4('mainTexTexelSize', this._cocTexSize);
+            bokehPass.setVec4('cocParams', this._cocParams);
             bokehPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 2);
 
             // Filtering
-            const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'dof-filter');
+            const filterPass = ppl.addRenderPass(halfWidth, halfHeight, 'cc-dof-filter');
             filterPass.addRenderTarget(filterName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             filterPass.addTexture(bokehName, 'bokehTex');
-            filterPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            filterPass.setVec4('g_platform', this._configs.platform);
+            filterPass.setVec4('mainTexTexelSize', this._cocTexSize);
             filterPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 3);
 
             // Combine
-            const combinePass = ppl.addRenderPass(width, height, 'dof-combine');
+            const combinePass = ppl.addRenderPass(width, height, 'cc-dof-combine');
             combinePass.addRenderTarget(radianceName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
-            combinePass.addTexture(filterName, 'filterTex');
             combinePass.addTexture(dofRadianceName, 'colorTex');
             combinePass.addTexture(cocName, 'cocTex');
-            combinePass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            combinePass.addTexture(filterName, 'filterTex');
+            combinePass.setVec4('g_platform', this._configs.platform);
+            combinePass.setVec4('cocParams', this._cocParams);
             combinePass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(dofMaterial, 4);
@@ -1061,7 +1106,7 @@ if (rendering) {
             this._bloomParams.w = settings.bloom.enableAlphaMask ? 1 : 0;
 
             // Prefilter pass
-            const prefilterPass = ppl.addRenderPass(this._bloomWidths[0], this._bloomHeights[0], 'bloom1-prefilter');
+            const prefilterPass = ppl.addRenderPass(this._bloomWidths[0], this._bloomHeights[0], 'cc-bloom-prefilter');
             prefilterPass.addRenderTarget(
                 this._bloomTexNames[0],
                 LoadOp.CLEAR,
@@ -1077,7 +1122,7 @@ if (rendering) {
 
             // Downsample passes
             for (let i = 1; i !== sizeCount; ++i) {
-                const downPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-downsample');
+                const downPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'cc-bloom-downsample');
                 downPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 downPass.addTexture(this._bloomTexNames[i - 1], 'bloomTexture');
                 this._bloomTexSize.x = this._bloomWidths[i - 1];
@@ -1091,7 +1136,7 @@ if (rendering) {
 
             // Upsample passes
             for (let i = iterations; i-- > 0;) {
-                const upPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'bloom1-upsample');
+                const upPass = ppl.addRenderPass(this._bloomWidths[i], this._bloomHeights[i], 'cc-bloom-upsample');
                 upPass.addRenderTarget(this._bloomTexNames[i], LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
                 upPass.addTexture(this._bloomTexNames[i + 1], 'bloomTexture');
                 this._bloomTexSize.x = this._bloomWidths[i + 1];
@@ -1104,7 +1149,7 @@ if (rendering) {
             }
 
             // Combine pass
-            const combinePass = ppl.addRenderPass(width, height, 'bloom1-combine');
+            const combinePass = ppl.addRenderPass(width, height, 'cc-bloom-combine');
             combinePass.addRenderTarget(radianceName, LoadOp.LOAD, StoreOp.STORE);
             combinePass.addTexture(this._bloomTexNames[0], 'bloomTexture');
             combinePass.setVec4('g_platform', this._configs.platform);
@@ -1126,28 +1171,29 @@ if (rendering) {
             nativeHeight: number,
             colorName: string,
         ): rendering.BasicRenderPassBuilder {
-            this._fsrParams.x = clamp(1.0 - settings.fsr.sharpness, 0.02, 0.98);
             this._fsrTexSize.x = width;
             this._fsrTexSize.y = height;
             this._fsrTexSize.z = nativeWidth;
             this._fsrTexSize.w = nativeHeight;
-            fsrMaterial.setProperty('fsrParams', this._fsrParams);
-            fsrMaterial.setProperty('texSize', this._fsrTexSize);
+            this._fsrParams.x = clamp(1.0 - settings.fsr.sharpness, 0.02, 0.98);
 
             const fsrColorName = `FsrColor${id}`;
 
-            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'post-process');
+            const easuPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'cc-fsr-easu');
             easuPass.addRenderTarget(fsrColorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             easuPass.addTexture(ldrColorName, 'outputResultMap');
-            easuPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            easuPass.setVec4('g_platform', this._configs.platform);
+            easuPass.setVec4('texSize', this._fsrTexSize);
             easuPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 0);
 
-            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'post-process');
+            const rcasPass = ppl.addRenderPass(nativeWidth, nativeHeight, 'cc-fsr-rcas');
             rcasPass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             rcasPass.addTexture(fsrColorName, 'outputResultMap');
-            rcasPass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            rcasPass.setVec4('g_platform', this._configs.platform);
+            rcasPass.setVec4('texSize', this._fsrTexSize);
+            rcasPass.setVec4('fsrParams', this._fsrParams);
             rcasPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 1);
@@ -1163,19 +1209,22 @@ if (rendering) {
             ldrColorName: string,
             colorName: string,
         ): rendering.BasicRenderPassBuilder {
-            fxaaMaterial.setProperty('texSize', new Vec4(width, height, 1 / width, 1 / height));
-
-            const pass = ppl.addRenderPass(width, height, 'fxaa');
+            this._fxaaParams.x = width;
+            this._fxaaParams.y = height;
+            this._fxaaParams.z = 1 / width;
+            this._fxaaParams.w = 1 / height;
+            const pass = ppl.addRenderPass(width, height, 'cc-fxaa');
             pass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             pass.addTexture(ldrColorName, 'sceneColorMap');
-            pass.setVec4('cc_cameraPos', this._configs.platform); // We only use cc_cameraPos.w
+            pass.setVec4('g_platform', this._configs.platform);
+            pass.setVec4('texSize', this._fxaaParams);
             pass.addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fxaaMaterial, 0);
             return pass;
         }
 
         private _addUIQueue(camera: renderer.scene.Camera, pass: rendering.BasicRenderPassBuilder): void {
-            let flags = SceneFlags.UI;
+            let flags = SceneFlags.UI | SceneFlags.GEOMETRY;
             if (this._cameraConfigs.enableProfiler) {
                 flags |= SceneFlags.PROFILER;
                 pass.showStatistics = true;
@@ -1227,7 +1276,12 @@ if (rendering) {
                     colorName, depthStencilName, depthStencilStoreOp)
                 : this._addForwardMultipleRadiancePasses(ppl, id, camera, width, height, mainLight,
                     colorName, depthStencilName, depthStencilStoreOp);
-            this.addPlanarShadowQueues(ppl, pass, camera, mainLight);
+
+            // Planar Shadow
+            if (this._cameraConfigs.enableMainLightPlanarShadowMap) {
+                this.addPlanarShadowQueue(camera, mainLight, pass);
+            }
+
             // ----------------------------------------------------------------
             // Forward Lighting (Blend)
             // ----------------------------------------------------------------
@@ -1289,13 +1343,16 @@ if (rendering) {
 
             return pass;
         }
-        public addPlanarShadowQueues(ppl: rendering.BasicPipeline, pass: rendering.BasicRenderPassBuilder,
-            camera: renderer.scene.Camera, mainLight: renderer.scene.DirectionalLight | null) {
+        public addPlanarShadowQueue(
+            camera: renderer.scene.Camera,
+            mainLight: renderer.scene.DirectionalLight | null,
+            pass: rendering.BasicRenderPassBuilder,
+        ) {
             pass.addQueue(QueueHint.BLEND, 'planar-shadow')
                 .addScene(
                     camera,
                     SceneFlags.SHADOW_CASTER | SceneFlags.PLANAR_SHADOW | SceneFlags.BLEND,
-                    mainLight || undefined
+                    mainLight || undefined,
                 );
         }
         private _addForwardMultipleRadiancePasses(
@@ -1330,6 +1387,120 @@ if (rendering) {
             return pass;
         }
 
+        private _buildReflectionProbePass(
+            pass: rendering.BasicRenderPassBuilder,
+            id: number,
+            camera: renderer.scene.Camera,
+            colorName: string,
+            depthStencilName: string,
+            mainLight: renderer.scene.DirectionalLight | null,
+            scene: renderer.RenderScene | null = null,
+        ): void {
+            // set viewport
+            const colorStoreOp = this._cameraConfigs.enableMSAA ? StoreOp.DISCARD : StoreOp.STORE;
+
+            // bind output render target
+            if (forwardNeedClearColor(camera)) {
+                this._reflectionProbeClearColor.x = camera.clearColor.x;
+                this._reflectionProbeClearColor.y = camera.clearColor.y;
+                this._reflectionProbeClearColor.z = camera.clearColor.z;
+                const clearColor = rendering.packRGBE(this._reflectionProbeClearColor);
+                this._clearColor.x = clearColor.x;
+                this._clearColor.y = clearColor.y;
+                this._clearColor.z = clearColor.z;
+                this._clearColor.w = clearColor.w;
+                pass.addRenderTarget(colorName, LoadOp.CLEAR, colorStoreOp, this._clearColor);
+            } else {
+                pass.addRenderTarget(colorName, LoadOp.LOAD, colorStoreOp);
+            }
+
+            // bind depth stencil buffer
+            if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
+                pass.addDepthStencil(
+                    depthStencilName,
+                    LoadOp.CLEAR,
+                    StoreOp.DISCARD,
+                    camera.clearDepth,
+                    camera.clearStencil,
+                    camera.clearFlag & ClearFlagBit.DEPTH_STENCIL,
+                );
+            } else {
+                pass.addDepthStencil(depthStencilName, LoadOp.LOAD, StoreOp.DISCARD);
+            }
+
+            // Set shadow map if enabled
+            if (this._cameraConfigs.enableMainLightShadowMap) {
+                pass.addTexture(`ShadowMap${id}`, 'cc_shadowMap');
+            }
+
+            // TODO(zhouzhenglong): Separate OPAQUE and MASK queue
+
+            // add opaque and mask queue
+            pass.addQueue(QueueHint.NONE, 'reflect-map') // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
+                .addScene(camera,
+                    SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.REFLECTION_PROBE,
+                    mainLight || undefined,
+                    scene ? scene : undefined);
+        }
+
+        private _tryAddReflectionProbePasses(ppl: rendering.BasicPipeline, id: number,
+            mainLight: renderer.scene.DirectionalLight | null,
+            scene: renderer.RenderScene | null,
+        ): void {
+            const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+            const probes = reflectionProbeManager.getProbes();
+            const maxProbeCount = 4;
+            let probeID = 0;
+            for (const probe of probes) {
+                if (!probe.needRender) {
+                    continue;
+                }
+                const area = probe.renderArea();
+                const width = Math.max(Math.floor(area.x), 1);
+                const height = Math.max(Math.floor(area.y), 1);
+
+                if (probe.probeType === renderer.scene.ProbeType.PLANAR) {
+                    const window: renderer.RenderWindow = probe.realtimePlanarTexture!.window!;
+                    const colorName = `PlanarProbeRT${probeID}`;
+                    const depthStencilName = `PlanarProbeDS${probeID}`;
+                    // ProbeResource
+                    ppl.addRenderWindow(colorName,
+                        this._cameraConfigs.radianceFormat, width, height, window);
+                    ppl.addDepthStencil(depthStencilName,
+                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+
+                    // Rendering
+                    const probePass = ppl.addRenderPass(width, height, 'default');
+                    probePass.name = `PlanarReflectionProbe${probeID}`;
+                    this._buildReflectionProbePass(probePass, id, probe.camera,
+                        colorName, depthStencilName, mainLight, scene);
+                } else if (EDITOR) {
+                    for (let faceIdx = 0; faceIdx < probe.bakedCubeTextures.length; faceIdx++) {
+                        probe.updateCameraDir(faceIdx);
+                        const window: renderer.RenderWindow = probe.bakedCubeTextures[faceIdx].window!;
+                        const colorName = `CubeProbeRT${probeID}${faceIdx}`;
+                        const depthStencilName = `CubeProbeDS${probeID}${faceIdx}`;
+                        // ProbeResource
+                        ppl.addRenderWindow(colorName,
+                        this._cameraConfigs.radianceFormat, width, height, window);
+                        ppl.addDepthStencil(depthStencilName,
+                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+
+                        // Rendering
+                        const probePass = ppl.addRenderPass(width, height, 'default');
+                        probePass.name = `CubeProbe${probeID}${faceIdx}`;
+                        this._buildReflectionProbePass(probePass, id, probe.camera,
+                        colorName, depthStencilName, mainLight, scene);
+                    }
+                    probe.needRender = false;
+                }
+                ++probeID;
+                if (probeID === maxProbeCount) {
+                    break;
+                }
+            }
+        }
+
         private _initMaterials(ppl: rendering.BasicPipeline): number {
             if (this._initialized) {
                 return 0;
@@ -1338,10 +1509,10 @@ if (rendering) {
             setupPipelineConfigs(ppl, this._configs);
 
             // When add new effect asset, please add its uuid to the dependentAssets in cc.config.json.
-            this._copyAndTonemapMaterial._uuid = `builtin-pipeline-post-final-tonemap-material`;
-            this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/post-final' });
+            this._copyAndTonemapMaterial._uuid = `builtin-pipeline-tone-mapping-material`;
+            this._copyAndTonemapMaterial.initialize({ effectName: 'pipeline/post-process/tone-mapping' });
 
-            if (this._copyAndTonemapMaterial.effectAsset !== null) {
+            if (this._copyAndTonemapMaterial.effectAsset) {
                 this._initialized = true;
             }
 

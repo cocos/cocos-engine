@@ -770,19 +770,21 @@ export class Game extends EventTarget {
                 return deviceManager.init(this.canvas, bindingMappingInfo);
             })
             .then(() => {
-                const renderPipelineUuid = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-                if (!renderPipelineUuid) {
-                    // Editor, noop
-                } else if (renderPipelineUuid === 'ca127c79-69d6-4afd-8183-d712d7b80e14') { // builtin-pipeline
-                    // if custom-pipeline is not feature cropped and macro.CUSTOM_PIPELINE_NAME is not set
-                    if (cclegacy.rendering && !macro.CUSTOM_PIPELINE_NAME) {
-                        // set macro.CUSTOM_PIPELINE_NAME to Builtin
+                const usesCustomPipeline = settings.querySettings(
+                    Settings.Category.RENDERING,
+                    'customPipeline',
+                );
+                if (usesCustomPipeline) {
+                    if (!cclegacy.rendering) {
+                        errorID(12109);
+                        return;
+                    }
+                    if (!macro.CUSTOM_PIPELINE_NAME) {
+                        // If custom pipeline is used, but the name is not set, use the default name
                         macro.CUSTOM_PIPELINE_NAME = 'Builtin';
                     }
-                }
-                // if custom-pipeline is not feature cropped and macro.CUSTOM_PIPELINE_NAME is not set
-                // Use legacy render pipeline
-                if (macro.CUSTOM_PIPELINE_NAME === '') {
+                } else {
+                    // If custom pipeline is not used, disable custom-pipeline module
                     cclegacy.rendering = undefined;
                 }
                 assetManager.init();

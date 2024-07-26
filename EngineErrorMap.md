@@ -3323,6 +3323,10 @@ Custom pipeline invalid render pass, program: %s. Please reimport all effects (M
 
 Custom pipeline invalid render phase, program: %s. Please reimport all effects (Menu->Developer->Refresh All Effect) and restart creator.
 
+### 12109
+
+custom-pipeline module not available.
+
 ### 13100
 
 Incorrect CCON magic.

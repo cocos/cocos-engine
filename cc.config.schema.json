@@ -78,14 +78,21 @@
       "description": "An engine feature.",
       "properties": {
         "dependentAssets": {
-          "description": "List of uuid that the feature depend on.",
+          "description": "List of uuid that the feature depends on.",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "dependentModules": {
-          "description": "List of module that the feature depend on.",
+          "description": "List of module that the feature depends on.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "dependentScripts": {
+          "description": "List of script uuid that the feature depends on.",
           "items": {
             "type": "string"
           },

@@ -514,7 +514,7 @@ export class SceneCulling {
                 const cullingKey = queries.resultKeyIndex.get(key)!;
                 const sceneData = cullingKey.sceneData!;
                 assert(!!sceneData.camera);
-                assert(sceneData.camera.scene === scene);
+                assert(!sceneData.camera.scene || sceneData.camera.scene === scene);
                 const light = sceneData.light.light;
                 const level = sceneData.light.level;
                 const castShadow = cullingKey.castShadows;
@@ -604,7 +604,7 @@ export class SceneCulling {
                 const frustumCullingResult = this.frustumCullingResults[frustumCullingID];
                 assert(!!sceneData.camera);
                 assert(!!sceneData.shadingLight);
-                assert(sceneData.camera.scene === scene);
+                assert(!sceneData.camera.scene || sceneData.camera.scene === scene);
                 assert(cullingID < this.frustumCullingResults.length);
                 const lightBoundsCullingResult = this.lightBoundsCullingResults[cullingID];
                 assert(lightBoundsCullingResult.instances.length === 0);

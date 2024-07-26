@@ -32,6 +32,7 @@ import { Vec2 } from '../math/vec2';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType, Feature } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
+import { macro } from './macro';
 
 // TODO: the type Storage conflicts with the one on OH platform.
 type Storage = any;
@@ -361,11 +362,25 @@ export const sys = {
      * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。
      * 目前支持安卓、iOS 原生平台和微信、字节小游戏平台。
      * @method getSafeAreaRect
+     * @param [symmetric=true] @zh 基于屏幕对称的 Rect。 @en Rect that is symmetric based on the screen.
      * @return {Rect}
      */
-    getSafeAreaRect (): Rect {
+    getSafeAreaRect (symmetric: boolean = true): Rect {
         const locView = legacyCC.view;
         const edge = screenAdapter.safeAreaEdge;
+        if (symmetric) {
+            if (screenAdapter.orientation === macro.ORIENTATION_PORTRAIT) {
+                if (edge.top < edge.bottom) {
+                    edge.top = edge.bottom;
+                } else {
+                    edge.bottom = edge.top;
+                }
+            } else if (edge.left < edge.right) {
+                edge.left = edge.right;
+            } else {
+                edge.right = edge.left;
+            }
+        }
         const windowSize = screenAdapter.windowSize;
 
         // Get leftBottom and rightTop point in screen coordinates system.

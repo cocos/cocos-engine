@@ -26,6 +26,8 @@
 declare namespace spine {
 
     class String {
+        constructor(name: string, own: boolean);
+        constructor(val: spine.String);
         length: number;
         isEmpty: boolean;
         strPtr: number;
