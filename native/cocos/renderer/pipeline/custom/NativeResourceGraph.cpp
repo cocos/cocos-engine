@@ -382,52 +382,54 @@ gfx::Buffer* ResourceGraph::getBuffer(vertex_descriptor resID) {
 }
 
 gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
-    gfx::Texture* texture = nullptr;
-    visitObject(
+    gfx::Texture* texture = visitObject(
         resID, *this,
-        [&](const ManagedTexture& res) {
-            texture = res.texture.get();
+        [](const ManagedTexture& res) -> gfx::Texture* {
+            return res.texture.get();
         },
-        [&](const IntrusivePtr<gfx::Texture>& tex) {
-            texture = tex.get();
+        [](const IntrusivePtr<gfx::Texture>& tex) -> gfx::Texture* {
+            return tex.get();
         },
-        [&](const IntrusivePtr<gfx::Framebuffer>& fb) {
+        [](const IntrusivePtr<gfx::Framebuffer>& fb) -> gfx::Texture* {
             // deprecated
             CC_EXPECTS(false);
             CC_EXPECTS(fb->getColorTextures().size() == 1);
             CC_EXPECTS(fb->getColorTextures().at(0));
-            texture = fb->getColorTextures()[0];
+            return fb->getColorTextures()[0];
         },
-        [&](const RenderSwapchain& sc) {
+        [](const RenderSwapchain& sc) -> gfx::Texture* {
+            gfx::Texture* texture1 = nullptr;
             if (sc.swapchain) {
-                const auto format = get(ResourceGraph::DescTag{}, *this, resID).format;
-                CC_EXPECTS(format != gfx::Format::UNKNOWN);
-                if (format == gfx::Format::DEPTH || format == gfx::Format::DEPTH_STENCIL) {
-                    texture = sc.swapchain->getDepthStencilTexture();
+                if (sc.isDepthStencil) {
+                    texture1 = sc.swapchain->getDepthStencilTexture();
                 } else {
-                    texture = sc.swapchain->getColorTexture();
+                    texture1 = sc.swapchain->getColorTexture();
                 }
             } else {
                 CC_EXPECTS(sc.renderWindow);
+                CC_EXPECTS(!sc.isDepthStencil);
                 const auto& fb = sc.renderWindow->getFramebuffer();
                 CC_EXPECTS(fb);
                 CC_EXPECTS(fb->getColorTextures().size() == 1);
                 CC_EXPECTS(fb->getColorTextures().at(0));
-                texture = fb->getColorTextures()[0];
+                texture1 = fb->getColorTextures()[0];
             }
+            return texture1;
         },
-        [&](const FormatView& view) {
+        [](const FormatView& view) -> gfx::Texture* {
             // TODO(zhouzhenglong): add ImageView support
             std::ignore = view;
             CC_EXPECTS(false);
+            return nullptr;
         },
-        [&](const SubresourceView& view) {
+        [](const SubresourceView& view) -> gfx::Texture* {
             // TODO(zhouzhenglong): add ImageView support
-            texture = view.textureView;
+            return view.textureView;
         },
-        [&](const auto& buffer) {
+        [](const auto& buffer) -> gfx::Texture* {
             std::ignore = buffer;
             CC_EXPECTS(false);
+            return nullptr;
         });
     CC_ENSURES(texture);
 
