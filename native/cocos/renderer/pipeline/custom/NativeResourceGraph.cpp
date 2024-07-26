@@ -27,10 +27,10 @@
 #include "RenderGraphGraphs.h"
 #include "RenderGraphTypes.h"
 #include "cocos/renderer/gfx-base/GFXDevice.h"
+#include "cocos/scene/RenderWindow.h"
 #include "details/Range.h"
 #include "gfx-base/GFXDef-common.h"
 #include "pipeline/custom/RenderCommonFwd.h"
-#include "cocos/scene/RenderWindow.h"
 
 namespace cc {
 
@@ -159,7 +159,7 @@ gfx::TextureViewInfo getTextureViewInfo(const SubresourceView& subresView, gfx::
     };
 }
 
-bool isTextureEqual(const gfx::Texture *texture, const ResourceDesc& desc) {
+bool isTextureEqual(const gfx::Texture* texture, const ResourceDesc& desc) {
     if (!texture) {
         return false;
     }
@@ -400,7 +400,13 @@ gfx::Texture* ResourceGraph::getTexture(vertex_descriptor resID) {
         },
         [&](const RenderSwapchain& sc) {
             if (sc.swapchain) {
-                texture = sc.swapchain->getColorTexture();
+                const auto format = get(ResourceGraph::DescTag{}, *this, resID).format;
+                CC_EXPECTS(format != gfx::Format::UNKNOWN);
+                if (format == gfx::Format::DEPTH || format == gfx::Format::DEPTH_STENCIL) {
+                    texture = sc.swapchain->getDepthStencilTexture();
+                } else {
+                    texture = sc.swapchain->getColorTexture();
+                }
             } else {
                 CC_EXPECTS(sc.renderWindow);
                 const auto& fb = sc.renderWindow->getFramebuffer();

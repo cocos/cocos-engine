@@ -377,7 +377,7 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
     }
     setViewport (viewport: Viewport): void {
         const currViewport = pipelinePool.viewport.add();
-        this._queue.viewport =  currViewport.copy(viewport);
+        this._queue.viewport = currViewport.copy(viewport);
     }
     addCustomCommand (customBehavior: string): void {
         throw new Error('Method not implemented.');
@@ -892,12 +892,50 @@ export class WebPipeline implements BasicPipeline {
     addCustomTexture (name: string, info: TextureInfo, type: string): number {
         throw new Error('Method not implemented.');
     }
-    addRenderWindow (name: string, format: Format, width: number, height: number, renderWindow: RenderWindow): number {
+    tryAddRenderWindowDepthStencil (
+        width: number,
+        height: number,
+        depthStencilName?: string,
+        swapchain?: Swapchain,
+    ): void {
+        if (!depthStencilName) {
+            return;
+        }
+        if (swapchain) {
+            this.addDepthStencilImpl(
+                depthStencilName,
+                swapchain.depthStencilTexture.format,
+                width,
+                height,
+                ResourceResidency.BACKBUFFER,
+                swapchain,
+            );
+        } else {
+            this.addDepthStencilImpl(
+                depthStencilName,
+                Format.DEPTH_STENCIL,
+                width,
+                height,
+                ResourceResidency.MANAGED,
+            );
+        }
+    }
+    addRenderWindow (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        renderWindow: RenderWindow,
+        depthStencilName?: string,
+    ): number {
         const resID = this._resourceGraph.find(name);
         if (resID !== 0xFFFFFFFF) {
-            this.updateRenderWindow(name, renderWindow);
+            this.updateRenderWindow(name, renderWindow, depthStencilName);
             return resID;
         }
+
+        this.tryAddRenderWindowDepthStencil(width, height, depthStencilName, renderWindow.swapchain);
+
         // Objects need to be held for a long time, so there is no need to use pool management
         const desc = new ResourceDesc();
         desc.dimension = ResourceDimension.TEXTURE2D;
@@ -908,7 +946,7 @@ export class WebPipeline implements BasicPipeline {
         desc.format = renderWindow.framebuffer.colorTextures[0]!.format;
         desc.flags = ResourceFlags.COLOR_ATTACHMENT;
 
-        if (renderWindow.swapchain === null) {
+        if (!renderWindow.swapchain) {
             assert(renderWindow.framebuffer.colorTextures.length === 1
                 && renderWindow.framebuffer.colorTextures[0] !== null);
             desc.sampleCount = renderWindow.framebuffer.colorTextures[0].info.samples;
@@ -916,7 +954,6 @@ export class WebPipeline implements BasicPipeline {
                 ResourceGraphValue.Framebuffer,
                 renderWindow.framebuffer,
                 name,
-
                 desc,
                 new ResourceTraits(ResourceResidency.EXTERNAL),
                 new ResourceStates(),
@@ -927,7 +964,6 @@ export class WebPipeline implements BasicPipeline {
                 ResourceGraphValue.Swapchain,
                 new RenderSwapchain(renderWindow.swapchain),
                 name,
-
                 desc,
                 new ResourceTraits(ResourceResidency.BACKBUFFER),
                 new ResourceStates(),
@@ -935,7 +971,7 @@ export class WebPipeline implements BasicPipeline {
             );
         }
     }
-    updateRenderWindow (name: string, renderWindow: RenderWindow): void {
+    updateRenderWindow (name: string, renderWindow: RenderWindow, depthStencilName?: string): void {
         const resId = this.resourceGraph.vertex(name);
         const desc = this.resourceGraph.getDesc(resId);
         desc.width = renderWindow.width;
@@ -944,6 +980,7 @@ export class WebPipeline implements BasicPipeline {
         if (currFbo !== renderWindow.framebuffer) {
             this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
         }
+        this.tryAddRenderWindowDepthStencil(renderWindow.width, renderWindow.height, depthStencilName, renderWindow.swapchain);
     }
     updateStorageBuffer (name: string, size: number, format = Format.UNKNOWN): void {
         const resId = this.resourceGraph.vertex(name);
@@ -961,11 +998,11 @@ export class WebPipeline implements BasicPipeline {
         if (format !== Format.UNKNOWN) desc.format = format;
     }
     updateDepthStencil (name: string, width: number, height: number, format: Format = Format.UNKNOWN): void {
-        const resId = this.resourceGraph.vertex(name);
-        const desc = this.resourceGraph.getDesc(resId);
-        desc.width = width;
-        desc.height = height;
-        if (format !== Format.UNKNOWN) desc.format = format;
+        const resId = this.resourceGraph.find(name);
+        if (resId === 0xFFFFFFFF) {
+            return;
+        }
+        this.updateDepthStencilImpl(resId, width, height, format);
     }
     updateStorageTexture (name: string, width: number, height: number, format = Format.UNKNOWN): void {
         const resId = this.resourceGraph.vertex(name);
@@ -1406,17 +1443,43 @@ export class WebPipeline implements BasicPipeline {
             ResourceGraphValue.Managed,
             new ManagedResource(),
             name,
-
             desc,
             new ResourceTraits(residency),
             new ResourceStates(),
             new SamplerInfo(Filter.LINEAR, Filter.LINEAR, Filter.NONE, Address.CLAMP, Address.CLAMP, Address.CLAMP),
         );
     }
-    addDepthStencil (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED): number {
+    updateDepthStencilImpl (
+        resId: number,
+        width: number,
+        height: number,
+        format: Format,
+        swapchain?: Swapchain,
+    ): void {
+        const desc = this.resourceGraph.getDesc(resId);
+        desc.width = width;
+        desc.height = height;
+        if (swapchain) {
+            assert(this.resourceGraph.id(resId) === ResourceGraphValue.Swapchain);
+            const sc = this.resourceGraph.getSwapchain(resId);
+            assert(!!sc.swapchain);
+            sc.swapchain = swapchain;
+            desc.format = sc.swapchain.depthStencilTexture.format;
+        } else if (format !== Format.UNKNOWN) {
+            desc.format = format;
+        }
+    }
+    addDepthStencilImpl (
+        name: string,
+        format: Format,
+        width: number,
+        height: number,
+        residency: ResourceResidency,
+        swapchain?: Swapchain,
+    ): number {
         const resID = this._resourceGraph.find(name);
         if (resID !== 0xFFFFFFFF) {
-            this.updateDepthStencil(name, width, height, format);
+            this.updateDepthStencilImpl(resID, width, height, format, swapchain);
             return resID;
         }
         const desc = new ResourceDesc();
@@ -1428,16 +1491,32 @@ export class WebPipeline implements BasicPipeline {
         desc.format = format;
         desc.sampleCount = SampleCount.X1;
         desc.flags = ResourceFlags.DEPTH_STENCIL_ATTACHMENT | ResourceFlags.SAMPLED;
-        return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
-            ResourceGraphValue.Managed,
-            new ManagedResource(),
-            name,
 
-            desc,
-            new ResourceTraits(residency),
-            new ResourceStates(),
-            new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
-        );
+        if (swapchain) {
+            assert(residency === ResourceResidency.BACKBUFFER);
+            return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
+                ResourceGraphValue.Swapchain,
+                new RenderSwapchain(swapchain),
+                name,
+                desc,
+                new ResourceTraits(residency),
+                new ResourceStates(),
+                new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
+            );
+        } else {
+            return this._resourceGraph.addVertex<ResourceGraphValue.Managed>(
+                ResourceGraphValue.Managed,
+                new ManagedResource(),
+                name,
+                desc,
+                new ResourceTraits(residency),
+                new ResourceStates(),
+                new SamplerInfo(Filter.POINT, Filter.POINT, Filter.NONE),
+            );
+        }
+    }
+    addDepthStencil (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED): number {
+        return this.addDepthStencilImpl(name, format, width, height, residency);
     }
     addStorageTexture (name: string, format: Format, width: number, height: number, residency = ResourceResidency.MANAGED): number {
         const resID = this._resourceGraph.find(name);
@@ -1457,7 +1536,6 @@ export class WebPipeline implements BasicPipeline {
             ResourceGraphValue.Managed,
             new ManagedResource(),
             name,
-
             desc,
             new ResourceTraits(residency),
             new ResourceStates(),
@@ -1483,7 +1561,6 @@ export class WebPipeline implements BasicPipeline {
             ResourceGraphValue.Managed,
             new ManagedResource(),
             name,
-
             desc,
             new ResourceTraits(residency),
             new ResourceStates(),
