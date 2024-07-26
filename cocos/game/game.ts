@@ -1126,27 +1126,32 @@ export class Game extends EventTarget {
     }
 
     private _setupRenderPipeline (): void | Promise<void> {
+        const usesCustomPipeline = settings.querySettings(
+            Settings.Category.RENDERING,
+            'customPipeline',
+        );
+
         const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-        if (!renderPipeline || renderPipeline === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
-            // editor or 'builtin-pipeline', do not load asset
-            return this._setRenderPipeline();
+        if (usesCustomPipeline || !renderPipeline) {
+            return this._setRenderPipeline(!!usesCustomPipeline);
         }
+
         return new Promise<RenderPipeline>((resolve, reject): void => {
             assetManager.loadAny(renderPipeline, (err, asset): void => ((err || !(asset instanceof RenderPipeline))
                 ? reject(err)
                 : resolve(asset)));
         }).then((asset): void => {
-            this._setRenderPipeline(asset);
+            this._setRenderPipeline(!!usesCustomPipeline, asset);
         }).catch((reason): void => {
             warn(reason);
             warn(`Failed load render pipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-            this._setRenderPipeline();
+            this._setRenderPipeline(!!usesCustomPipeline);
         });
     }
 
-    private _setRenderPipeline (rppl?: RenderPipeline): void {
-        if (!director.root!.setRenderPipeline(rppl)) {
-            if (!director.root!.setRenderPipeline()) {
+    private _setRenderPipeline (customPipeline: boolean, rppl?: RenderPipeline): void {
+        if (!director.root!.setRenderPipeline(rppl, customPipeline)) {
+            if (!director.root!.setRenderPipeline(undefined, customPipeline)) {
                 errorID(1222);
                 return;
             }

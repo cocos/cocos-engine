@@ -232,9 +232,9 @@ rootProto.frameMove = function (deltaTime: number) {
 };
 
 const oldSetPipeline = rootProto.setRenderPipeline;
-rootProto.setRenderPipeline = function (pipeline) {
+rootProto.setRenderPipeline = function (pipeline, customPipeline: boolean) {
     let ppl;
-    if (macro.CUSTOM_PIPELINE_NAME !== '' && legacyCC.rendering && this.usesCustomPipeline) {
+    if (customPipeline) {
         legacyCC.rendering.createCustomPipeline();
         ppl = oldSetPipeline.call(this, null);
         log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
