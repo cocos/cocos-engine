@@ -481,7 +481,7 @@ void ScriptEngine::cleanup() {
         }
         _beforeCleanupHookArray.clear();
         
-        // Clear unhanded promises
+        // Clear unhandled promises
         _unhandledPromises.clear();
         _ignoreUnhandledPromises = false;
 
