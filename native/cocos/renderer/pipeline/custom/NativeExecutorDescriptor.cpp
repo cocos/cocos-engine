@@ -453,11 +453,10 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
 }
 
 gfx::DescriptorSet* updateCameraUniformBufferAndDescriptorSet(
+    LayoutGraphData::vertex_descriptor passLayoutID,
     RenderGraphVisitorContext& ctx, RenderGraph::vertex_descriptor sceneID) {
     gfx::DescriptorSet* perPassSet = nullptr;
     // update states
-    CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
-    const auto& passLayoutID = ctx.currentPassLayoutID;
     auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
     auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
     if (iter != layout.descriptorSets.end()) {
@@ -482,10 +481,38 @@ getComputeViews(RenderGraph::vertex_descriptor passID, const RenderGraph& rg) {
 }
 
 struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
-    void updateAndCreatePerPassDescriptorSet(RenderGraph::vertex_descriptor vertID) const {
-        auto* perPassSet = updateCameraUniformBufferAndDescriptorSet(ctx, vertID);
-        if (perPassSet) {
-            ctx.renderGraphDescriptorSet[vertID] = perPassSet;
+    void updateAndCreatePerPassDescriptorSet(
+        RenderGraph::vertex_descriptor leafNodeID) const {
+        const auto queueID = parent(leafNodeID, ctx.g);
+        const auto passOrSubpassID = parent(queueID, ctx.g);
+        const auto passID = parent(passOrSubpassID, ctx.g);
+
+        if (passID == RenderGraph::null_vertex()) {
+            const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passOrSubpassID);
+            const auto passLayoutID = locate(
+                LayoutGraphData::null_vertex(), passLayoutName, ctx.lg);
+            auto* perPassSet = updateCameraUniformBufferAndDescriptorSet(
+                passLayoutID, ctx, leafNodeID);
+            if (perPassSet) {
+                get<0>(ctx.renderGraphDescriptorSet[leafNodeID]) = perPassSet;
+            }
+        } else {
+            const auto subpassID = passOrSubpassID;
+            const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passID);
+            const auto& subpassLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, subpassID);
+            const auto subpassLayoutID =
+                subpassLayoutName.empty()
+                    ? locate(LayoutGraphData::null_vertex(),
+                             get(RenderGraph::LayoutTag{}, ctx.g, passID),
+                             ctx.lg)
+                    : locate(LayoutGraphData::null_vertex(),
+                             get(RenderGraph::LayoutTag{}, ctx.g, subpassID),
+                             ctx.lg);
+            auto* perPassSet = updateCameraUniformBufferAndDescriptorSet(
+                subpassLayoutID, ctx, leafNodeID);
+            if (perPassSet) {
+                get<0>(ctx.renderGraphDescriptorSet[leafNodeID]) = perPassSet;
+            }
         }
     }
     void uploadBlitOrDispatchUniformBlokcs(
@@ -586,83 +613,172 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
         return nullptr;
     }
 
+    void buildPerPassDescriptorSet(
+        RenderGraph::vertex_descriptor passOrSubpassID,
+        const DescriptorSetData& passLayoutData,
+        LayoutGraphData::vertex_descriptor passLayoutID,
+        const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& passResourceIndex,
+        RenderGraph::vertex_descriptor targetPassOrQueueID) const {
+        // Pass data
+        const auto& passUserData = get(RenderGraph::DataTag{}, ctx.g, passOrSubpassID);
+        auto& passLayoutResources = ctx.context.layoutGraphResources.at(passLayoutID);
+
+        // Get pass accesses
+        const auto& accessNode = ctx.fgd.getAccessNode(passOrSubpassID);
+
+        // Populate set
+        auto* perPassSet = initDescriptorSet(
+            ctx.resourceGraph,
+            ctx.device, ctx.cmdBuff,
+            *ctx.context.defaultResource, ctx.lg,
+            passResourceIndex, passLayoutData,
+            passUserData,
+            passLayoutResources, &accessNode);
+        CC_ENSURES(perPassSet);
+
+        get<0>(ctx.renderGraphDescriptorSet[targetPassOrQueueID]) = perPassSet;
+    }
+
+    void buildPerPhaseDescriptorSet(
+        RenderGraph::vertex_descriptor queueID,
+        const DescriptorSetData& queueLayoutData,
+        LayoutGraphData::vertex_descriptor queueLayoutID,
+        const PmrFlatMap<NameLocalID, ResourceGraph::vertex_descriptor>& passResourceIndex) const {
+        // Queue data
+        const auto& queueUserData = get(RenderGraph::DataTag{}, ctx.g, queueID);
+        auto& queueLayoutResources = ctx.context.layoutGraphResources.at(queueLayoutID);
+
+        // Find scene resource
+        const auto* const sceneResource = getFirstSceneResource(queueID);
+
+        // Populate set
+        auto* perPhaseSet = initDescriptorSet(
+            ctx.resourceGraph,
+            ctx.device, ctx.cmdBuff,
+            *ctx.context.defaultResource, ctx.lg,
+            passResourceIndex, queueLayoutData,
+            queueUserData,
+            queueLayoutResources, nullptr, sceneResource);
+        CC_ENSURES(perPhaseSet);
+
+        get<1>(ctx.renderGraphDescriptorSet[queueID]) = perPhaseSet;
+    }
+
+    void buildRenderOrComputePassDescriptorSet(RenderGraph::vertex_descriptor passID) const {
+        // prepare pass resource index
+        {
+            const auto& computeViews =
+                holds<RasterPassTag>(passID, ctx.g)
+                    ? get(RasterPassTag{}, passID, ctx.g).computeViews
+                    : get(ComputeTag{}, passID, ctx.g).computeViews;
+            const auto& resourceIndex = ctx.fgd.buildDescriptorIndex(computeViews, ctx.scratch);
+            ctx.perPassResourceIndex[passID] = resourceIndex;
+        }
+
+        // try to build per pass descriptor set
+        const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passID);
+        const auto passLayoutID = locate(LayoutGraphData::null_vertex(), passLayoutName, ctx.lg);
+        CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
+
+        const auto& passLayout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
+
+        const auto iter = passLayout.descriptorSets.find(UpdateFrequency::PER_PASS);
+        if (iter == passLayout.descriptorSets.end()) {
+            return;
+        }
+        const auto& passLayoutData = iter->second;
+        const auto& resourceIndex = ctx.perPassResourceIndex.at(passID);
+        buildPerPassDescriptorSet(passID, passLayoutData, passLayoutID, resourceIndex,
+                                  passID);
+    }
+
+    void buildRenderSubpassDescriptorSet(RenderGraph::vertex_descriptor subpassID) const {
+        // prepare subpass resource index
+        {
+            const auto& subpass = get(RasterSubpassTag{}, subpassID, ctx.g);
+            ctx.perPassResourceIndex[subpassID] = ctx.fgd.buildDescriptorIndex(
+                subpass.computeViews, subpass.rasterViews, ctx.scratch);
+        }
+
+        // Overwrite current passLayoutID
+        const auto subpassLayoutID = [&]() {
+            const auto passID = parent(subpassID, ctx.g);
+            const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passID);
+            const auto& subpassLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, subpassID);
+            return subpassLayoutName.empty()
+                       ? locate(LayoutGraphData::null_vertex(),
+                                get(RenderGraph::LayoutTag{}, ctx.g, passID),
+                                ctx.lg)
+                       : locate(LayoutGraphData::null_vertex(),
+                                get(RenderGraph::LayoutTag{}, ctx.g, subpassID),
+                                ctx.lg);
+        }();
+        CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
+
+        // try to build per pass descriptor set
+        const auto& passLayout = get(LayoutGraphData::LayoutTag{}, ctx.lg, subpassLayoutID);
+
+        const auto iter = passLayout.descriptorSets.find(UpdateFrequency::PER_PASS);
+        if (iter == passLayout.descriptorSets.end()) {
+            return;
+        }
+        const auto& passLayoutData = iter->second;
+        const auto& resourceIndex = ctx.perPassResourceIndex.at(subpassID);
+        buildPerPassDescriptorSet(subpassID, passLayoutData, subpassLayoutID, resourceIndex,
+                                  subpassID);
+    }
+
+    void buildQueueDescriptorSets(RenderGraph::vertex_descriptor queueID) const {
+        // Queue Data
+        const auto& queueData = get(QueueTag{}, queueID, ctx.g);
+        const auto queueLayoutID = queueData.phaseID;
+        CC_EXPECTS(queueData.phaseID != LayoutGraphData::null_vertex());
+        if (queueData.phaseID == LayoutGraphData::null_vertex()) {
+            return;
+        }
+
+        // Pass ID
+        const auto passID = parent(queueID, ctx.g);
+        CC_EXPECTS(
+            holds<RasterPassTag>(passID, ctx.g) ||
+            holds<RasterSubpassTag>(passID, ctx.g) ||
+            holds<ComputeTag>(passID, ctx.g));
+
+        // Build Phase
+        const auto& queueLayout = get(LayoutGraphData::LayoutTag{}, ctx.lg, queueLayoutID);
+        if (const auto iter = queueLayout.descriptorSets.find(UpdateFrequency::PER_PHASE);
+            iter != queueLayout.descriptorSets.end()) {
+            const auto& queueLayoutData = iter->second;
+            const auto& resourceIndex = ctx.perPassResourceIndex.at(passID);
+            buildPerPhaseDescriptorSet(
+                queueID, queueLayoutData, queueLayoutID, resourceIndex);
+        }
+
+        // Try override pass layout
+        if (queueData.passLayoutID == LayoutGraphData::null_vertex()) {
+            return;
+        }
+
+        const auto passLayoutID = queueData.passLayoutID;
+        const auto& passLayout = get(LayoutGraphData::LayoutTag{}, ctx.lg, passLayoutID);
+        if (const auto iter = passLayout.descriptorSets.find(UpdateFrequency::PER_PASS);
+            iter != passLayout.descriptorSets.end()) {
+            const auto& passLayoutData = iter->second;
+            const auto& resourceIndex = ctx.perPassResourceIndex.at(passID);
+            buildPerPassDescriptorSet(
+                passID, passLayoutData, passLayoutID, resourceIndex, queueID);
+        }
+    }
+
     void discover_vertex(
         RenderGraph::vertex_descriptor vertID, const AddressableView<RenderGraph>& gv) const {
         std::ignore = gv;
-        CC_EXPECTS(ctx.currentPassLayoutID != LayoutGraphData::null_vertex());
-
         if (holds<RasterPassTag>(vertID, ctx.g) || holds<ComputeTag>(vertID, ctx.g)) {
-            // const auto& pass = get(RasterPassTag{}, vertID, ctx.g);
-            const auto& computeViews =
-                holds<RasterPassTag>(vertID, ctx.g)
-                    ? get(RasterPassTag{}, vertID, ctx.g).computeViews
-                    : get(ComputeTag{}, vertID, ctx.g).computeViews;
-
-            // render pass
-            const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-            const auto& layoutID = locate(LayoutGraphData::null_vertex(), layoutName, ctx.lg);
-            CC_EXPECTS(layoutID == ctx.currentPassLayoutID);
-            // get layout
-            auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
-
-            // update states
-            auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
-            if (iter == layout.descriptorSets.end()) {
-                return;
-            }
-
-            // build pass resources
-            const auto& resourceIndex = ctx.fgd.buildDescriptorIndex(computeViews, ctx.scratch);
-
-            // populate set
-            auto& set = iter->second;
-            const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
-            auto& node = ctx.context.layoutGraphResources.at(layoutID);
-            const auto& accessNode = ctx.fgd.getAccessNode(vertID);
-            auto* perPassSet = initDescriptorSet(
-                ctx.resourceGraph,
-                ctx.device, ctx.cmdBuff,
-                *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node, &accessNode);
-            CC_ENSURES(perPassSet);
-            ctx.renderGraphDescriptorSet[vertID] = perPassSet;
+            buildRenderOrComputePassDescriptorSet(vertID);
+        } else if (holds<RasterSubpassTag>(vertID, ctx.g)) {
+            buildRenderSubpassDescriptorSet(vertID);
         } else if (holds<QueueTag>(vertID, ctx.g)) {
-            const auto& queue = get(QueueTag{}, vertID, ctx.g);
-            if (queue.phaseID == LayoutGraphData::null_vertex()) {
-                return;
-            }
-
-            const auto layoutID = queue.phaseID;
-
-            const auto passID = parent(vertID, ctx.g);
-            const auto& computeViews = getComputeViews(passID, ctx.g);
-
-            // get layout
-            auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
-            auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PHASE);
-            if (iter == layout.descriptorSets.end()) {
-                return;
-            }
-
-            // build pass resources
-            const auto& resourceIndex = ctx.fgd.buildDescriptorIndex(computeViews, ctx.scratch);
-
-            // find scene resource
-            const auto* const sceneResource = getFirstSceneResource(vertID);
-
-            // populate set
-            auto& set = iter->second;
-            const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
-            auto& node = ctx.context.layoutGraphResources.at(layoutID);
-
-            auto* perPhaseSet = initDescriptorSet(
-                ctx.resourceGraph,
-                ctx.device, ctx.cmdBuff,
-                *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node, nullptr, sceneResource);
-            CC_ENSURES(perPhaseSet);
-
-            ctx.renderGraphDescriptorSet[vertID] = perPhaseSet;
+            buildQueueDescriptorSets(vertID);
         } else if (holds<SceneTag>(vertID, ctx.g)) {
             const auto& sceneData = get(SceneTag{}, vertID, ctx.g);
             if (sceneData.camera) {
@@ -682,44 +798,6 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
             const auto& dispatch = get(DispatchTag{}, vertID, ctx.g);
             auto& pass = *dispatch.material->getPasses()->at(static_cast<size_t>(dispatch.passID));
             uploadBlitOrDispatchUniformBlokcs(vertID, pass);
-        } else if (holds<RasterSubpassTag>(vertID, ctx.g)) {
-            const auto& subpass = get(RasterSubpassTag{}, vertID, ctx.g);
-            // render pass
-            const auto& layoutName = get(RenderGraph::LayoutTag{}, ctx.g, vertID);
-            auto parentLayoutID = ctx.currentPassLayoutID;
-            auto layoutID = parentLayoutID;
-            if (!layoutName.empty()) {
-                auto parentID = parent(ctx.currentPassLayoutID, ctx.lg);
-                if (parentID != LayoutGraphData::null_vertex()) {
-                    parentLayoutID = parentID;
-                }
-                layoutID = locate(parentLayoutID, layoutName, ctx.lg);
-            }
-
-            ctx.currentPassLayoutID = layoutID;
-            // get layout
-            auto& layout = get(LayoutGraphData::LayoutTag{}, ctx.lg, layoutID);
-
-            // update states
-            auto iter = layout.descriptorSets.find(UpdateFrequency::PER_PASS);
-            if (iter == layout.descriptorSets.end()) {
-                return;
-            }
-
-            const auto& resourceIndex = ctx.fgd.buildDescriptorIndex(subpass.computeViews, subpass.rasterViews, ctx.scratch);
-            // populate set
-            auto& set = iter->second;
-            const auto& user = get(RenderGraph::DataTag{}, ctx.g, vertID);
-            auto& node = ctx.context.layoutGraphResources.at(layoutID);
-            const auto& accessNode = ctx.fgd.getAccessNode(vertID);
-
-            auto* perPassSet = initDescriptorSet(
-                ctx.resourceGraph,
-                ctx.device, ctx.cmdBuff,
-                *ctx.context.defaultResource, ctx.lg,
-                resourceIndex, set, user, node, &accessNode);
-            CC_ENSURES(perPassSet);
-            ctx.renderGraphDescriptorSet[vertID] = perPassSet;
         }
     }
 
