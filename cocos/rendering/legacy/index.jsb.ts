@@ -45,9 +45,11 @@ import * as decors from '../../native-binding/decorators';
 import { ccclass, serializable, editable, type } from '../../core/data/class-decorator';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
-export {
-    createDefaultPipeline
-} from './index';
+export function createDefaultPipeline (): ForwardPipeline {
+    const rppl = new ForwardPipeline();
+    rppl.initialize({ flows: [] });
+    return rppl;
+}
 export const ForwardPipeline: typeof NrForwardPipeline = nr.ForwardPipeline;
 export type ForwardPipeline = NrForwardPipeline;
 export const ForwardFlow: typeof NrForwardFlow = nr.ForwardFlow;
