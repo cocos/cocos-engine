@@ -1335,9 +1335,10 @@ static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-ident
     if (argc > 0) {
         if (args[0].isString()) {
             // https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings
-            // NOTE: We only support utf-8 encoding now.
+            // NOTE: We only support utf-8 and utf-16 encoding now.
             auto label = args[0].toString();
             
+            // Convert to lowercase to support 'UTF-8', 'UTF-16'
             std::transform(label.begin(), label.end(), label.begin(), [](char c){
                 return std::tolower(c);
             });
