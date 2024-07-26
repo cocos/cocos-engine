@@ -29,6 +29,7 @@
 #include "base/DeferredReleasePool.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"
+#include "base/UTF8.h"
 #include "base/ZipUtils.h"
 #include "base/base64.h"
 #include "bindings/auto/jsb_cocos_auto.h"
@@ -1288,14 +1289,8 @@ SE_BIND_FINALIZE_FUNC(js_TextEncoder_finalize)
 
 static bool js_TextEncoder_constructor(se::State &s) // NOLINT(readability-identifier-naming)
 {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    if (argc > 0) {
-        if (args[0].isString() && args[0].toString() != "utf-8") {
-            CC_LOG_WARNING("TextEncoder only supports utf-8");
-        }
-    }
-    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    // https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/TextEncoder
+    // Since TextEncoder doesn't associate with a c++ object, set the private object to nullptr.
     s.thisObject()->setPrivateObject(nullptr);
     return true;
 }
@@ -1303,6 +1298,7 @@ SE_BIND_CTOR(js_TextEncoder_constructor, __jsb_TextEncoder_class, js_TextEncoder
 
 static bool js_TextEncoder_encode(se::State &s) // NOLINT(readability-identifier-naming)
 {
+    // https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/encode
     const auto &args = s.args();
     size_t argc = args.size();
 
@@ -1335,15 +1331,32 @@ static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-ident
 {
     const auto &args = s.args();
     size_t argc = args.size();
+    ccstd::string encoding = "utf-8";
     if (argc > 0) {
-        if (args[0].isString() && args[0].toString() != "utf-8") {
-            CC_LOG_WARNING("TextDecoder only supports utf-8");
+        if (args[0].isString()) {
+            // https://developer.mozilla.org/en-US/docs/Web/API/Encoding_API/Encodings
+            // NOTE: We only support utf-8 and utf-16 encoding now.
+            auto label = args[0].toString();
+            
+            // Convert to lowercase to support 'UTF-8', 'UTF-16'
+            std::transform(label.begin(), label.end(), label.begin(), [](char c){
+                return std::tolower(c);
+            });
+            
+            if (label == "unicode-1-1-utf-8" || label == "utf-8" || label == "utf8") {
+                encoding = "utf-8";
+            } else if (label == "utf-16" || label == "utf-16le") {
+                encoding = "utf-16le";
+            } else {
+                CC_LOG_WARNING("TextDecoder only supports utf-8 and utf-16, but got: %s", label.c_str());
+            }
         }
     }
-    s.thisObject()->setProperty("encoding", se::Value{"utf-8"});
+    s.thisObject()->setProperty("encoding", se::Value{encoding});
     s.thisObject()->setProperty("fatal", se::Value{false});
     s.thisObject()->setProperty("ignoreBOM", se::Value{false});
-    s.thisObject()->setPrivateObject(nullptr); // FIXME: Don't need this line if https://github.com/cocos/3d-tasks/issues/11365 is done.
+    // Since TextDecoder doesn't associate with a c++ object, set the private object to nullptr.
+    s.thisObject()->setPrivateObject(nullptr);
     return true;
 }
 SE_BIND_CTOR(js_TextDecoder_constructor, __jsb_TextDecoder_class, js_TextDecoder_finalize)
@@ -1362,8 +1375,25 @@ static bool js_TextDecoder_decode(se::State &s) // NOLINT(readability-identifier
         bool ok = uint8ArrayObj->getTypedArrayData(&uint8ArrayData, &length);
         SE_PRECONDITION2(ok, false, "js_TextDecoder_decode, get typedarray data failed!");
 
-        ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
-        s.rval().setString(str);
+        se::Value encodingVal;
+        s.thisObject()->getProperty("encoding", &encodingVal);
+        if (encodingVal.isString()) {
+            const auto &encoding = encodingVal.toString();
+            if (encoding == "utf-8") {
+                ccstd::string str{reinterpret_cast<const char *>(uint8ArrayData), length};
+                s.rval().setString(str);
+            } else if (encoding == "utf-16le") {
+                std::u16string u16Str{reinterpret_cast<const char16_t *>(uint8ArrayData), length / 2};
+                ccstd::string u8Str;
+                cc::StringUtils::UTF16ToUTF8(u16Str, u8Str);
+                s.rval().setString(u8Str);
+            } else {
+                SE_REPORT_ERROR("Wrong encoding: %s, only utf-8 & utf-16 are supported", encoding.c_str());
+            }
+        } else {
+            SE_REPORT_ERROR("TextDecoder.encoding is not a string");
+        }
+
         return true;
     }
 
