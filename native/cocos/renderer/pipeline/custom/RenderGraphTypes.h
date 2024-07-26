@@ -188,14 +188,16 @@ struct ResourceTraits {
 
 struct RenderSwapchain {
     RenderSwapchain() = default;
-    RenderSwapchain(gfx::Swapchain* swapchainIn) noexcept // NOLINT
-    : swapchain(swapchainIn) {}
+    RenderSwapchain(gfx::Swapchain* swapchainIn, bool isDepthStencilIn) noexcept // NOLINT
+    : swapchain(swapchainIn),
+      isDepthStencil(isDepthStencilIn) {}
 
     gfx::Swapchain* swapchain{nullptr};
     scene::RenderWindow* renderWindow{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
     uint32_t generation{0xFFFFFFFF};
+    bool isDepthStencil{false};
 };
 
 struct ResourceStates {

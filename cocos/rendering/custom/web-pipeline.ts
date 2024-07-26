@@ -1496,7 +1496,7 @@ export class WebPipeline implements BasicPipeline {
             assert(residency === ResourceResidency.BACKBUFFER);
             return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
                 ResourceGraphValue.Swapchain,
-                new RenderSwapchain(swapchain),
+                new RenderSwapchain(swapchain, true),
                 name,
                 desc,
                 new ResourceTraits(residency),

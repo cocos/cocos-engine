@@ -236,6 +236,7 @@ void updateDepthStencilImpl(
             CC_EXPECTS(swapchain);
             CC_EXPECTS(swapchain->getWidth() == width && swapchain->getHeight() == height);
             CC_EXPECTS(swapchain->getDepthStencilTexture()->getFormat() == format);
+            CC_EXPECTS(sc.isDepthStencil);
             bool invalidated =
                 std::forward_as_tuple(desc.width, desc.height, desc.format) !=
                     std::forward_as_tuple(width, height, format) ||
@@ -295,7 +296,7 @@ uint32_t addDepthStencilImpl(
             std::forward_as_tuple(ResourceTraits{residency}),
             std::forward_as_tuple(),
             std::forward_as_tuple(samplerInfo),
-            std::forward_as_tuple(RenderSwapchain{swapchain}),
+            std::forward_as_tuple(RenderSwapchain{swapchain, true}),
             ppl.resourceGraph);
     } else {
         CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
@@ -375,6 +376,7 @@ uint32_t NativePipeline::addRenderWindow(
         desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
         RenderSwapchain sc{};
         sc.renderWindow = renderWindow;
+        CC_ENSURES(!sc.isDepthStencil);
 
         CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
         return addVertex(
@@ -401,7 +403,7 @@ uint32_t NativePipeline::addRenderWindow(
         std::forward_as_tuple(ResourceTraits{ResourceResidency::BACKBUFFER}),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain()}),
+        std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain(), false}),
         resourceGraph);
 }
 
@@ -752,6 +754,7 @@ void NativePipeline::updateRenderWindow(
             fb = renderWindow->getFramebuffer();
         },
         [&](RenderSwapchain &sc) {
+            CC_EXPECTS(!sc.isDepthStencil);
             auto *newSwapchain = renderWindow->getSwapchain();
             const auto &oldTexture = resourceGraph.getTexture(resID);
             resourceGraph.invalidatePersistentRenderPassAndFramebuffer(oldTexture);
