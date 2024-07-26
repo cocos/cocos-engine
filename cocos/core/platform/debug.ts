@@ -207,8 +207,7 @@ export function _resetDebugSetting (mode: DebugMode): void {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
-                    // eslint-disable-next-line no-debugger
-                    debugger;
+                    console.error(errorText);
                 } else {
                     throw new Error(errorText);
                 }
