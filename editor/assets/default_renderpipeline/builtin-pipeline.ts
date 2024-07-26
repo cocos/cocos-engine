@@ -41,6 +41,7 @@ import {
     PipelineEventType,
     PipelineEventProcessor,
     ReflectionProbeManager,
+    warn,
 } from 'cc';
 
 import {
@@ -109,12 +110,14 @@ function setupPipelineConfigs(
     ppl: rendering.BasicPipeline,
     configs: PipelineConfigs,
 ): void {
-    // Platform
     const sampleFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
+    const device = ppl.device;
+    // Platform
     configs.isWeb = !sys.isNative;
-    configs.isWebGPU = (cclegacy.WebGPUDevice && cclegacy.director.root.device instanceof cclegacy.WebGPUDevice);
-    configs.isWebGL1 = (cclegacy.director.root.device as gfx.Device).gfxAPI === gfx.API.WEBGL;
+    configs.isWebGL1 = device.gfxAPI === gfx.API.WEBGL;
+    configs.isWebGPU = device.gfxAPI === gfx.API.WEBGPU;
     configs.isMobile = sys.isMobile;
+
     // Rendering
     configs.isHDR = ppl.pipelineSceneData.isHDR; // Has tone mapping
     configs.useFloatOutput = ppl.getMacroBool('CC_USE_FLOAT_OUTPUT');
@@ -129,7 +132,6 @@ function setupPipelineConfigs(
     configs.screenSpaceSignY = ppl.device.capabilities.screenSpaceSignY;
     configs.supportDepthSample = (ppl.device.getFormatFeatures(Format.DEPTH_STENCIL) & sampleFeature) === sampleFeature;
     // Constants
-    const device = ppl.device;
     const screenSpaceSignY = device.capabilities.screenSpaceSignY;
     configs.platform.x = configs.isMobile ? 1.0 : 0.0;
     configs.platform.w = (screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
@@ -138,6 +140,8 @@ function setupPipelineConfigs(
 const defaultSettings = makePipelineSettings();
 
 class CameraConfigs {
+    colorName = '';
+    depthStencilName = '';
     enableMainLightShadowMap = false;
     enableMainLightPlanarShadowMap = false;
     enablePostProcess = false;
@@ -187,8 +191,12 @@ function setupCameraConfigs(
     pipelineConfigs: PipelineConfigs,
     cameraConfigs: CameraConfigs,
 ): void {
-    const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!camera.window.swapchain;
+    const window = camera.window;
+    const isMainGameWindow: boolean = camera.cameraUsage === CameraUsage.GAME && !!window.swapchain;
     const isEditorView: boolean = camera.cameraUsage === CameraUsage.SCENE_VIEW || camera.cameraUsage === CameraUsage.PREVIEW;
+
+    cameraConfigs.colorName = window.colorName;
+    cameraConfigs.depthStencilName = window.depthStencilName;
 
     cameraConfigs.useFullPipeline = (camera.visibility & (Layers.Enum.DEFAULT)) !== 0;
 
@@ -496,14 +504,16 @@ if (rendering) {
                 : nativeHeight;
 
             // Render Window (UI)
-            ppl.addRenderWindow(window.colorName, Format.RGBA8, nativeWidth, nativeHeight, window);
+            ppl.addRenderWindow(this._cameraConfigs.colorName,
+                Format.RGBA8, nativeWidth, nativeHeight, window,
+                this._cameraConfigs.depthStencilName);
 
             if (this._cameraConfigs.enableShadingScale) {
-                ppl.addDepthStencil(`ScaledDepthStencil${id}`, Format.DEPTH_STENCIL, width, height);
+                ppl.addDepthStencil(`ScaledSceneDepth${id}`, Format.DEPTH_STENCIL, width, height);
                 ppl.addRenderTarget(`ScaledRadiance${id}`, this._cameraConfigs.radianceFormat, width, height);
                 ppl.addRenderTarget(`ScaledLdrColor${id}`, Format.RGBA8, width, height);
             } else {
-                ppl.addDepthStencil(window.depthStencilName, Format.DEPTH_STENCIL, width, height);
+                ppl.addDepthStencil(`SceneDepth${id}`, Format.DEPTH_STENCIL, width, height);
                 ppl.addRenderTarget(`Radiance${id}`, this._cameraConfigs.radianceFormat, width, height);
                 ppl.addRenderTarget(`LdrColor${id}`, Format.RGBA8, width, height);
             }
@@ -633,8 +643,8 @@ if (rendering) {
         ): void {
             const width = Math.max(Math.floor(camera.window.width), 1);
             const height = Math.max(Math.floor(camera.window.height), 1);
-            const colorName = camera.window.colorName;
-            const depthStencilName = camera.window.depthStencilName;
+            const colorName = this._cameraConfigs.colorName;
+            const depthStencilName = this._cameraConfigs.depthStencilName;
 
             this._viewport.left = Math.floor(camera.viewport.x * width);
             this._viewport.top = Math.floor(camera.viewport.y * height);
@@ -690,10 +700,10 @@ if (rendering) {
                 ? Math.max(Math.floor(nativeHeight * this._cameraConfigs.shadingScale), 1)
                 : nativeHeight;
             const id = camera.window.renderWindowId;
-            const colorName = camera.window.colorName;
-            const depthStencilName = this._cameraConfigs.enableShadingScale
-                ? `ScaledDepthStencil${id}`
-                : camera.window.depthStencilName;
+            const colorName = this._cameraConfigs.colorName;
+            const sceneDepth = this._cameraConfigs.enableShadingScale
+                ? `ScaledSceneDepth${id}`
+                : `SceneDepth${id}`;
             const radianceName = this._cameraConfigs.enableShadingScale
                 ? `ScaledRadiance${id}`
                 : `Radiance${id}`;
@@ -729,14 +739,14 @@ if (rendering) {
                     const dofRadianceName = `DofRadiance${id}`;
                     // Disable MSAA, depth stencil cannot be resolved cross-platformly
                     this._addForwardRadiancePasses(ppl, id, camera, width, height, mainLight,
-                        dofRadianceName, depthStencilName, true, StoreOp.STORE);
+                        dofRadianceName, sceneDepth, true, StoreOp.STORE);
                     this._addDepthOfFieldPasses(ppl, settings, settings.depthOfField.material,
                         id, camera, width, height,
-                        dofRadianceName, depthStencilName, radianceName, ldrColorName);
+                        dofRadianceName, sceneDepth, radianceName, ldrColorName);
                 } else {
                     this._addForwardRadiancePasses(
                         ppl, id, camera, width, height, mainLight,
-                        radianceName, depthStencilName);
+                        radianceName, sceneDepth);
                 }
                 // Bloom
                 if (this._cameraConfigs.enableBloom) {
@@ -785,13 +795,14 @@ if (rendering) {
                 }
             } else if (this._cameraConfigs.enableHDR || this._cameraConfigs.enableShadingScale) { // HDR or Scaled LDR
                 this._addForwardRadiancePasses(ppl, id, camera,
-                    width, height, mainLight, radianceName, depthStencilName);
+                    width, height, mainLight, radianceName, sceneDepth);
                 lastPass = this._addTonemapResizeOrSuperResolutionPasses(ppl, settings, id,
                     width, height, radianceName, ldrColorName,
                     nativeWidth, nativeHeight, colorName);
             } else { // LDR (Size is not scaled)
                 lastPass = this._addForwardRadiancePasses(ppl, id, camera,
-                    nativeWidth, nativeHeight, mainLight, colorName, depthStencilName);
+                    nativeWidth, nativeHeight, mainLight,
+                    colorName, this._cameraConfigs.depthStencilName);
             }
 
             // UI size is not scaled, does not have AA
@@ -952,6 +963,13 @@ if (rendering) {
             }
 
             // bind depth stencil buffer
+            if (DEBUG) {
+                if (colorName === this._cameraConfigs.colorName &&
+                    depthStencilName !== this._cameraConfigs.depthStencilName) {
+                    warn('Default framebuffer cannot use custom depth stencil buffer');
+                }
+            }
+
             if (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) {
                 pass.addDepthStencil(
                     depthStencilName,
@@ -1183,7 +1201,7 @@ if (rendering) {
             easuPass.addRenderTarget(fsrColorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             easuPass.addTexture(ldrColorName, 'outputResultMap');
             easuPass.setVec4('g_platform', this._configs.platform);
-            easuPass.setVec4('texSize', this._fsrTexSize);
+            easuPass.setVec4('fsrTexSize', this._fsrTexSize);
             easuPass
                 .addQueue(QueueHint.OPAQUE)
                 .addFullscreenQuad(fsrMaterial, 0);
@@ -1192,7 +1210,7 @@ if (rendering) {
             rcasPass.addRenderTarget(colorName, LoadOp.CLEAR, StoreOp.STORE, this._clearColorTransparentBlack);
             rcasPass.addTexture(fsrColorName, 'outputResultMap');
             rcasPass.setVec4('g_platform', this._configs.platform);
-            rcasPass.setVec4('texSize', this._fsrTexSize);
+            rcasPass.setVec4('fsrTexSize', this._fsrTexSize);
             rcasPass.setVec4('fsrParams', this._fsrParams);
             rcasPass
                 .addQueue(QueueHint.OPAQUE)
@@ -1482,15 +1500,15 @@ if (rendering) {
                         const depthStencilName = `CubeProbeDS${probeID}${faceIdx}`;
                         // ProbeResource
                         ppl.addRenderWindow(colorName,
-                        this._cameraConfigs.radianceFormat, width, height, window);
+                            this._cameraConfigs.radianceFormat, width, height, window);
                         ppl.addDepthStencil(depthStencilName,
-                        gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
+                            gfx.Format.DEPTH_STENCIL, width, height, ResourceResidency.MEMORYLESS);
 
                         // Rendering
                         const probePass = ppl.addRenderPass(width, height, 'default');
                         probePass.name = `CubeProbe${probeID}${faceIdx}`;
                         this._buildReflectionProbePass(probePass, id, probe.camera,
-                        colorName, depthStencilName, mainLight, scene);
+                            colorName, depthStencilName, mainLight, scene);
                     }
                     probe.needRender = false;
                 }

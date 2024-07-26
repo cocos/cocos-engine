@@ -1626,8 +1626,8 @@ public:
     bool getEnableCpuLightCulling() const override;
     void setEnableCpuLightCulling(bool enable) override;
     bool containsResource(const ccstd::string &name) const override;
-    uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow) override;
-    void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow) override;
+    uint32_t addRenderWindow(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, scene::RenderWindow *renderWindow, const ccstd::string &depthStencilName) override;
+    void updateRenderWindow(const ccstd::string &name, scene::RenderWindow *renderWindow, const ccstd::string &depthStencilName) override;
     uint32_t addRenderTarget(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     uint32_t addDepthStencil(const ccstd::string &name, gfx::Format format, uint32_t width, uint32_t height, ResourceResidency residency) override;
     void updateRenderTarget(const ccstd::string &name, uint32_t width, uint32_t height, gfx::Format format) override;
@@ -1699,6 +1699,7 @@ public:
     mutable PmrFlatMap<BuiltinCascadedShadowMapKey, BuiltinCascadedShadowMap> builtinCSMs;
     PipelineStatistics statistics;
     PipelineCustomization custom;
+    bool defaultFramebufferHasDepthStencil{false};
 };
 
 class NativeProgramProxy final : public ProgramProxy {

@@ -884,7 +884,11 @@ class DeviceRenderPass implements RecordingInterface {
                     rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                     rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.DEPTH_STENCIL_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                 ));
-                if (!resTex.swapchain && !resTex.framebuffer) depthTex = resTex.texture!;
+                if (!resTex.swapchain && !resTex.framebuffer) {
+                    depthTex = resTex.texture!;
+                } else if (resTex.swapchain) {
+                    depthTex = resTex.swapchain.depthStencilTexture;
+                }
                 this._clearDepth = rasterV.clearColor.x;
                 this._clearStencil = rasterV.clearColor.y;
                 break;
