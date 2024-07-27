@@ -275,7 +275,6 @@ export class SkeletonData extends Asset {
     public destroy (): boolean {
         SkeletonCache.sharedCache.destroyCachedAnimations(this._uuid);
         spine.wasmUtil.destroySpineSkeletonDataWithUUID(this._uuid);
-        this._skeletonCache = null
         return super.destroy();
     }
 }
