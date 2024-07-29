@@ -187,21 +187,24 @@ export class ResourceTraits {
 }
 
 export class RenderSwapchain {
-    constructor (swapchain: Swapchain | null = null) {
+    constructor (swapchain: Swapchain | null = null, isDepthStencil = false) {
         this.swapchain = swapchain;
+        this.isDepthStencil = isDepthStencil;
     }
-    reset (swapchain: Swapchain | null = null): void {
+    reset (swapchain: Swapchain | null = null, isDepthStencil = false): void {
         this.swapchain = swapchain;
         this.renderWindow = null;
         this.currentID = 0;
         this.numBackBuffers = 0;
         this.generation = 0xFFFFFFFF;
+        this.isDepthStencil = isDepthStencil;
     }
     /*pointer*/ swapchain: Swapchain | null;
     /*pointer*/ renderWindow: RenderWindow | null = null;
     currentID = 0;
     numBackBuffers = 0;
     generation = 0xFFFFFFFF;
+    isDepthStencil: boolean;
 }
 
 export class ResourceStates {
@@ -2710,9 +2713,10 @@ export class RenderGraphObjectPool {
     }
     createRenderSwapchain (
         swapchain: Swapchain | null = null,
+        isDepthStencil = false,
     ): RenderSwapchain {
         const v = this._renderSwapchain.add();
-        v.reset(swapchain);
+        v.reset(swapchain, isDepthStencil);
         return v;
     }
     createResourceStates (): ResourceStates {
