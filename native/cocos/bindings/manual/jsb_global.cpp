@@ -1340,7 +1340,7 @@ static bool js_TextDecoder_constructor(se::State &s) // NOLINT(readability-ident
             
             // Convert to lowercase to support 'UTF-8', 'UTF-16'
             std::transform(label.begin(), label.end(), label.begin(), [](char c){
-                return std::tolower(c);
+                return ::tolower(c);
             });
             
             if (label == "unicode-1-1-utf-8" || label == "utf-8" || label == "utf8") {
