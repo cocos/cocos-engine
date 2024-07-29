@@ -56,6 +56,8 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 1219, "Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit." },
 { 1220, "Failed to set shading scale, pipelineSceneData is invalid." },
 { 1221, "Setting orientation is not supported yet." },
+{ 1222, "Failed to initialize render pipeline." },
+{ 1223, "Custom pipeline and legacy pipeline are all culled." },
 { 1300, "%s is not in the model pool and cannot be destroyed by destroyModel." },
 { 1400, "'%s' is deprecated, please use '%s' instead." },
 { 1404, "cc.spriteFrameCache is removed, please use cc.loader to load and cache sprite frames of atlas format." },
