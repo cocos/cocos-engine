@@ -38,7 +38,6 @@ import { EDITOR } from 'cc/env';
 
 import {
     PipelineSettings,
-    makePipelineSettings,
     fillRequiredPipelineSettings,
 } from './builtin-pipeline-types';
 
@@ -51,7 +50,7 @@ const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireCom
 @executeInEditMode
 export class BuiltinPipelineSettings extends Component {
     @property
-    private readonly _settings: PipelineSettings = makePipelineSettings();
+    private readonly _settings: PipelineSettings = new PipelineSettings();
 
     // Enable/Disable
     onEnable(): void {
