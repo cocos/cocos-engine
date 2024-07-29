@@ -15,19 +15,6 @@ import { _decorator as $ } from '../core';
 
 const defaultExec = (cb: () => void, decorator?: string, attr?: string | null) => { cb(); };
 
-//---- class BloomStage
-interface BloomStage_Context_Args {
-   BloomStage: any;
-   Material: any;
-}
-export function patch_BloomStage(ctx: BloomStage_Context_Args, apply = defaultExec) {
-  const { BloomStage, Material } = { ...ctx };
-  apply(() => { $.displayOrder(3)(BloomStage.prototype, '_bloomMaterial',  () => { return null; }); }, 'displayOrder', '_bloomMaterial');
-  apply(() => { $.serializable(BloomStage.prototype, '_bloomMaterial',  () => { return null; }); }, 'serializable', '_bloomMaterial');
-  apply(() => { $.type(Material)(BloomStage.prototype, '_bloomMaterial',  () => { return null; }); }, 'type', '_bloomMaterial');
-  apply(() => { $.ccclass('BloomStage')(BloomStage); }, 'ccclass', null);
-} // end of patch_BloomStage
-
 //---- class cc_AmbientInfo
 interface cc_AmbientInfo_Context_Args {
    AmbientInfo: any;
@@ -1367,54 +1354,6 @@ export function patch_cc_Vertex(ctx: cc_Vertex_Context_Args, apply = defaultExec
   apply(() => { $.ccclass('cc.Vertex')(Vertex); }, 'ccclass', null);
 } // end of patch_cc_Vertex
 
-//---- class DeferredPipeline
-interface DeferredPipeline_Context_Args {
-   DeferredPipeline: any;
-   RenderTextureConfig: any;
-}
-export function patch_DeferredPipeline(ctx: DeferredPipeline_Context_Args, apply = defaultExec) {
-  const { DeferredPipeline, RenderTextureConfig } = { ...ctx };
-  apply(() => { $.displayOrder(2)(DeferredPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'displayOrder', 'renderTextures');
-  apply(() => { $.serializable(DeferredPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'serializable', 'renderTextures');
-  apply(() => { $.type([RenderTextureConfig])(DeferredPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'type', 'renderTextures');
-  apply(() => { $.ccclass('DeferredPipeline')(DeferredPipeline); }, 'ccclass', null);
-} // end of patch_DeferredPipeline
-
-//---- class ForwardFlow
-interface ForwardFlow_Context_Args {
-   ForwardFlow: any;
-}
-export function patch_ForwardFlow(ctx: ForwardFlow_Context_Args, apply = defaultExec) {
-  const { ForwardFlow } = { ...ctx };
-  apply(() => { $.ccclass('ForwardFlow')(ForwardFlow); }, 'ccclass', null);
-} // end of patch_ForwardFlow
-
-//---- class ForwardPipeline
-interface ForwardPipeline_Context_Args {
-   ForwardPipeline: any;
-   RenderTextureConfig: any;
-}
-export function patch_ForwardPipeline(ctx: ForwardPipeline_Context_Args, apply = defaultExec) {
-  const { ForwardPipeline, RenderTextureConfig } = { ...ctx };
-  apply(() => { $.displayOrder(2)(ForwardPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'displayOrder', 'renderTextures');
-  apply(() => { $.serializable(ForwardPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'serializable', 'renderTextures');
-  apply(() => { $.type([RenderTextureConfig])(ForwardPipeline.prototype, 'renderTextures',  () => { return []; }); }, 'type', 'renderTextures');
-  apply(() => { $.ccclass('ForwardPipeline')(ForwardPipeline); }, 'ccclass', null);
-} // end of patch_ForwardPipeline
-
-//---- class ForwardStage
-interface ForwardStage_Context_Args {
-   ForwardStage: any;
-   RenderQueueDesc: any;
-}
-export function patch_ForwardStage(ctx: ForwardStage_Context_Args, apply = defaultExec) {
-  const { ForwardStage, RenderQueueDesc } = { ...ctx };
-  apply(() => { $.displayOrder(2)(ForwardStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
-  apply(() => { $.serializable(ForwardStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(ForwardStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
-  apply(() => { $.ccclass('ForwardStage')(ForwardStage); }, 'ccclass', null);
-} // end of patch_ForwardStage
-
 //---- class FrameBufferDesc
 interface FrameBufferDesc_Context_Args {
    FrameBufferDesc: any;
@@ -1433,62 +1372,6 @@ export function patch_FrameBufferDesc(ctx: FrameBufferDesc_Context_Args, apply =
   apply(() => { $.type(RenderTexture)(FrameBufferDesc.prototype, 'texture',  () => { return null; }); }, 'type', 'texture');
   apply(() => { $.ccclass('FrameBufferDesc')(FrameBufferDesc); }, 'ccclass', null);
 } // end of patch_FrameBufferDesc
-
-//---- class GbufferStage
-interface GbufferStage_Context_Args {
-   GbufferStage: any;
-   RenderQueueDesc: any;
-}
-export function patch_GbufferStage(ctx: GbufferStage_Context_Args, apply = defaultExec) {
-  const { GbufferStage, RenderQueueDesc } = { ...ctx };
-  apply(() => { $.displayOrder(2)(GbufferStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
-  apply(() => { $.serializable(GbufferStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(GbufferStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
-  apply(() => { $.ccclass('GbufferStage')(GbufferStage); }, 'ccclass', null);
-} // end of patch_GbufferStage
-
-//---- class LightingStage
-interface LightingStage_Context_Args {
-   LightingStage: any;
-   Material: any;
-   RenderQueueDesc: any;
-}
-export function patch_LightingStage(ctx: LightingStage_Context_Args, apply = defaultExec) {
-  const { LightingStage, Material, RenderQueueDesc } = { ...ctx };
-  apply(() => { $.displayOrder(3)(LightingStage.prototype, '_deferredMaterial',  () => { return null; }); }, 'displayOrder', '_deferredMaterial');
-  apply(() => { $.serializable(LightingStage.prototype, '_deferredMaterial',  () => { return null; }); }, 'serializable', '_deferredMaterial');
-  apply(() => { $.type(Material)(LightingStage.prototype, '_deferredMaterial',  () => { return null; }); }, 'type', '_deferredMaterial');
-  apply(() => { $.displayOrder(2)(LightingStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
-  apply(() => { $.serializable(LightingStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(LightingStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
-  apply(() => { $.ccclass('LightingStage')(LightingStage); }, 'ccclass', null);
-} // end of patch_LightingStage
-
-//---- class MainFlow
-interface MainFlow_Context_Args {
-   MainFlow: any;
-}
-export function patch_MainFlow(ctx: MainFlow_Context_Args, apply = defaultExec) {
-  const { MainFlow } = { ...ctx };
-  apply(() => { $.ccclass('MainFlow')(MainFlow); }, 'ccclass', null);
-} // end of patch_MainFlow
-
-//---- class PostProcessStage
-interface PostProcessStage_Context_Args {
-   PostProcessStage: any;
-   Material: any;
-   RenderQueueDesc: any;
-}
-export function patch_PostProcessStage(ctx: PostProcessStage_Context_Args, apply = defaultExec) {
-  const { PostProcessStage, Material, RenderQueueDesc } = { ...ctx };
-  apply(() => { $.displayOrder(3)(PostProcessStage.prototype, '_postProcessMaterial',  () => { return null; }); }, 'displayOrder', '_postProcessMaterial');
-  apply(() => { $.serializable(PostProcessStage.prototype, '_postProcessMaterial',  () => { return null; }); }, 'serializable', '_postProcessMaterial');
-  apply(() => { $.type(Material)(PostProcessStage.prototype, '_postProcessMaterial',  () => { return null; }); }, 'type', '_postProcessMaterial');
-  apply(() => { $.displayOrder(2)(PostProcessStage.prototype, 'renderQueues',  () => { return []; }); }, 'displayOrder', 'renderQueues');
-  apply(() => { $.serializable(PostProcessStage.prototype, 'renderQueues',  () => { return []; }); }, 'serializable', 'renderQueues');
-  apply(() => { $.type([RenderQueueDesc])(PostProcessStage.prototype, 'renderQueues',  () => { return []; }); }, 'type', 'renderQueues');
-  apply(() => { $.ccclass('PostProcessStage')(PostProcessStage); }, 'ccclass', null);
-} // end of patch_PostProcessStage
 
 //---- class ReflectionProbeFlow
 interface ReflectionProbeFlow_Context_Args {
@@ -1592,21 +1475,3 @@ export function patch_RenderTextureDesc(ctx: RenderTextureDesc_Context_Args, app
   apply(() => { $.serializable(RenderTextureDesc.prototype, 'height',  () => { return -1; }); }, 'serializable', 'height');
   apply(() => { $.ccclass('RenderTextureDesc')(RenderTextureDesc); }, 'ccclass', null);
 } // end of patch_RenderTextureDesc
-
-//---- class ShadowFlow
-interface ShadowFlow_Context_Args {
-   ShadowFlow: any;
-}
-export function patch_ShadowFlow(ctx: ShadowFlow_Context_Args, apply = defaultExec) {
-  const { ShadowFlow } = { ...ctx };
-  apply(() => { $.ccclass('ShadowFlow')(ShadowFlow); }, 'ccclass', null);
-} // end of patch_ShadowFlow
-
-//---- class ShadowStage
-interface ShadowStage_Context_Args {
-   ShadowStage: any;
-}
-export function patch_ShadowStage(ctx: ShadowStage_Context_Args, apply = defaultExec) {
-  const { ShadowStage } = { ...ctx };
-  apply(() => { $.ccclass('ShadowStage')(ShadowStage); }, 'ccclass', null);
-} // end of patch_ShadowStage
