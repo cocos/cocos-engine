@@ -225,7 +225,7 @@ export class SkeletonData extends Asset {
                 spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
             }
         }
-        
+
         return this._skeletonCache;
     }
 
