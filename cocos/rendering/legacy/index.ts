@@ -22,5 +22,14 @@
  THE SOFTWARE.
 */
 
-// Dummy, will be removed in the future
-export class LegacyPipeline {}
+export { ForwardPipeline, createDefaultPipeline } from '../forward/forward-pipeline';
+export { ForwardFlow } from '../forward/forward-flow';
+export { ForwardStage } from '../forward/forward-stage';
+export { DeferredPipeline } from '../deferred/deferred-pipeline';
+export { MainFlow } from '../deferred/main-flow';
+export { GbufferStage } from '../deferred/gbuffer-stage';
+export { LightingStage } from '../deferred/lighting-stage';
+export { BloomStage } from '../deferred/bloom-stage';
+export { PostProcessStage } from '../deferred/postprocess-stage';
+export { ShadowFlow } from '../shadow/shadow-flow';
+export { ShadowStage } from '../shadow/shadow-stage';
