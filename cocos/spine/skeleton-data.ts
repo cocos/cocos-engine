@@ -211,7 +211,7 @@ export class SkeletonData extends Asset {
         if (spData) {
             this._skeletonCache = spData;
         } else {
-            const jsonStr = this.skeletonJsonStr
+            const jsonStr = this.skeletonJsonStr;
             if (jsonStr) {
                 this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(jsonStr, this._atlasText);
                 spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
