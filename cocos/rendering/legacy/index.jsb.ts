@@ -298,30 +298,3 @@ postProcessStageProto.init = function (pipeline) {
     const info: IRenderStageInfo = { name: this._name, priority: this._priority, tag: this._tag, renderQueues: queues };
     this.initialize(info);
 }
-
-@ccclass('RenderTextureConfig')
-class RenderTextureConfig {
-    @serializable
-    @editable
-    public name = '';
-    @type(RenderTexture)
-    public texture: RenderTexture | null = null;
-}
-
-//-------------------- register types -------------------- 
-
-const Material = jsb.Material;
-
-decors.patch_GbufferStage({GbufferStage, RenderQueueDesc});
-decors.patch_LightingStage({LightingStage, RenderQueueDesc, Material});
-decors.patch_BloomStage({BloomStage, Material});
-decors.patch_PostProcessStage({PostProcessStage, Material, RenderQueueDesc});
-decors.patch_ForwardStage({ForwardStage, RenderQueueDesc});
-decors.patch_ShadowStage({ShadowStage});
-
-decors.patch_MainFlow({MainFlow});
-decors.patch_ForwardFlow({ForwardFlow});
-decors.patch_ShadowFlow({ShadowFlow});
-
-decors.patch_ForwardPipeline({ForwardPipeline, RenderTextureConfig});
-decors.patch_DeferredPipeline({DeferredPipeline, RenderTextureConfig});
