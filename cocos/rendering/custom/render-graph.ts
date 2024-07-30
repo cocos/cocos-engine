@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, reindexEdgeList, traversal } from './graph';
+import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, traversal } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
@@ -288,32 +288,6 @@ export class SubpassGraphVertex {
     readonly _outEdges: OutE[] = [];
     readonly _inEdges: OutE[] = [];
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
-export class SubpassGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class SubpassGraphSubpassMap implements PropertyMap {
-    constructor (readonly subpasses: Subpass[]) {
-        this._subpasses = subpasses;
-    }
-    get (v: number): Subpass {
-        return this._subpasses[v];
-    }
-    readonly _subpasses: Subpass[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum SubpassGraphComponent {
@@ -324,11 +298,6 @@ export const enum SubpassGraphComponent {
 export interface SubpassGraphComponentType {
     [SubpassGraphComponent.Name]: string;
     [SubpassGraphComponent.Subpass]: Subpass;
-}
-
-export interface SubpassGraphComponentPropertyMap {
-    [SubpassGraphComponent.Name]: SubpassGraphNameMap;
-    [SubpassGraphComponent.Subpass]: SubpassGraphSubpassMap;
 }
 
 //-----------------------------------------------------------------
@@ -430,118 +399,16 @@ export class SubpassGraph implements BidirectionalGraph
         this._subpasses.push(subpass);
         return v;
     }
-    clearVertex (v: number): void {
-        const vert = this._vertices[v];
-        // clear out edges
-        for (const oe of vert._outEdges) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-                if (target._inEdges[i].target === v) {
-                    target._inEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._outEdges.length = 0;
-
-        // clear in edges
-        for (const ie of vert._inEdges) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-                if (source._outEdges[i].target === v) {
-                    source._outEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._inEdges.length = 0;
-    }
-    removeVertex (u: number): void {
-        this._vertices.splice(u, 1);
-        this._names.splice(u, 1);
-        this._subpasses.splice(u, 1);
-
-        const sz = this._vertices.length;
-        if (u === sz) {
-            return;
-        }
-
-        for (let v = 0; v !== sz; ++v) {
-            const vert = this._vertices[v];
-            reindexEdgeList(vert._outEdges, u);
-            reindexEdgeList(vert._inEdges, u);
-        }
-    }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
         this._vertices[u]._outEdges.push(new OutE(v));
         this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
-    removeEdges (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeEdge (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._outEdges.length;) {
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) {
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
         return this._names[v];
-    }
-    vertexNameMap (): SubpassGraphNameMap {
-        return new SubpassGraphNameMap(this._names);
-    }
-    //-----------------------------------------------------------------
-    // PropertyGraph
-    get (tag: string): SubpassGraphNameMap | SubpassGraphSubpassMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new SubpassGraphNameMap(this._names);
-        case 'Subpass':
-            return new SubpassGraphSubpassMap(this._subpasses);
-        default:
-            throw Error('property map not found');
-        }
     }
     //-----------------------------------------------------------------
     // ComponentGraph
@@ -553,16 +420,6 @@ export class SubpassGraph implements BidirectionalGraph
             return this._subpasses[v] as SubpassGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends SubpassGraphComponent> (id: T): SubpassGraphComponentPropertyMap[T] {
-        switch (id) {
-        case SubpassGraphComponent.Name:
-            return new SubpassGraphNameMap(this._names) as SubpassGraphComponentPropertyMap[T];
-        case SubpassGraphComponent.Subpass:
-            return new SubpassGraphSubpassMap(this._subpasses) as SubpassGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -781,62 +638,6 @@ export class ResourceGraphVertex {
     readonly _id: ResourceGraphValue;
     _object: ResourceGraphObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
-export class ResourceGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class ResourceGraphDescMap implements PropertyMap {
-    constructor (readonly descs: ResourceDesc[]) {
-        this._descs = descs;
-    }
-    get (v: number): ResourceDesc {
-        return this._descs[v];
-    }
-    readonly _descs: ResourceDesc[];
-}
-
-export class ResourceGraphTraitsMap implements PropertyMap {
-    constructor (readonly traits: ResourceTraits[]) {
-        this._traits = traits;
-    }
-    get (v: number): ResourceTraits {
-        return this._traits[v];
-    }
-    readonly _traits: ResourceTraits[];
-}
-
-export class ResourceGraphStatesMap implements PropertyMap {
-    constructor (readonly states: ResourceStates[]) {
-        this._states = states;
-    }
-    get (v: number): ResourceStates {
-        return this._states[v];
-    }
-    readonly _states: ResourceStates[];
-}
-
-export class ResourceGraphSamplerMap implements PropertyMap {
-    constructor (readonly samplerInfo: SamplerInfo[]) {
-        this._samplerInfo = samplerInfo;
-    }
-    get (v: number): SamplerInfo {
-        return this._samplerInfo[v];
-    }
-    readonly _samplerInfo: SamplerInfo[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
@@ -853,14 +654,6 @@ export interface ResourceGraphComponentType {
     [ResourceGraphComponent.Traits]: ResourceTraits;
     [ResourceGraphComponent.States]: ResourceStates;
     [ResourceGraphComponent.Sampler]: SamplerInfo;
-}
-
-export interface ResourceGraphComponentPropertyMap {
-    [ResourceGraphComponent.Name]: ResourceGraphNameMap;
-    [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
-    [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
-    [ResourceGraphComponent.States]: ResourceGraphStatesMap;
-    [ResourceGraphComponent.Sampler]: ResourceGraphSamplerMap;
 }
 
 //-----------------------------------------------------------------
@@ -992,135 +785,16 @@ export class ResourceGraph implements BidirectionalGraph
 
         return v;
     }
-    clearVertex (v: number): void {
-        // ReferenceGraph(Alias)
-        const vert = this._vertices[v];
-        // clear out edges
-        for (const oe of vert._outEdges) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-                if (target._inEdges[i].target === v) {
-                    target._inEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._outEdges.length = 0;
-
-        // clear in edges
-        for (const ie of vert._inEdges) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-                if (source._outEdges[i].target === v) {
-                    source._outEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._inEdges.length = 0;
-    }
-    removeVertex (u: number): void {
-        { // UuidGraph
-            const key = this._names[u];
-            this._valueIndex.delete(key);
-            this._valueIndex.forEach((v): void => {
-                if (v > u) { --v; }
-            });
-        }
-        this._vertices.splice(u, 1);
-        this._names.splice(u, 1);
-        this._descs.splice(u, 1);
-        this._traits.splice(u, 1);
-        this._states.splice(u, 1);
-        this._samplerInfo.splice(u, 1);
-
-        const sz = this._vertices.length;
-        if (u === sz) {
-            return;
-        }
-
-        for (let v = 0; v !== sz; ++v) {
-            const vert = this._vertices[v];
-            reindexEdgeList(vert._outEdges, u);
-            reindexEdgeList(vert._inEdges, u);
-        }
-    }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
         this._vertices[u]._outEdges.push(new OutE(v));
         this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
-    removeEdges (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeEdge (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._outEdges.length;) {
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) {
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
         return this._names[v];
-    }
-    vertexNameMap (): ResourceGraphNameMap {
-        return new ResourceGraphNameMap(this._names);
-    }
-    //-----------------------------------------------------------------
-    // PropertyGraph
-    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap | ResourceGraphSamplerMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new ResourceGraphNameMap(this._names);
-        case 'Desc':
-            return new ResourceGraphDescMap(this._descs);
-        case 'Traits':
-            return new ResourceGraphTraitsMap(this._traits);
-        case 'States':
-            return new ResourceGraphStatesMap(this._states);
-        case 'Sampler':
-            return new ResourceGraphSamplerMap(this._samplerInfo);
-        default:
-            throw Error('property map not found');
-        }
     }
     //-----------------------------------------------------------------
     // ComponentGraph
@@ -1138,22 +812,6 @@ export class ResourceGraph implements BidirectionalGraph
             return this._samplerInfo[v] as ResourceGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends ResourceGraphComponent> (id: T): ResourceGraphComponentPropertyMap[T] {
-        switch (id) {
-        case ResourceGraphComponent.Name:
-            return new ResourceGraphNameMap(this._names) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Desc:
-            return new ResourceGraphDescMap(this._descs) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Traits:
-            return new ResourceGraphTraitsMap(this._traits) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.States:
-            return new ResourceGraphStatesMap(this._states) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Sampler:
-            return new ResourceGraphSamplerMap(this._samplerInfo) as ResourceGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -1418,12 +1076,6 @@ export class ResourceGraph implements BidirectionalGraph
     // MutableReferenceGraph
     addReference (u: number, v: number): ED | null {
         return this.addEdge(u, v);
-    }
-    removeReference (e: ED): void {
-        return this.removeEdge(e);
-    }
-    removeReferences (u: number, v: number): void {
-        return this.removeEdges(u, v);
     }
     //-----------------------------------------------------------------
     // UuidGraph
@@ -1745,58 +1397,6 @@ export class RenderGraphVertex {
     readonly _id: RenderGraphValue;
     _object: RenderGraphObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
-export class RenderGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class RenderGraphLayoutMap implements PropertyMap {
-    constructor (readonly layoutNodes: string[]) {
-        this._layoutNodes = layoutNodes;
-    }
-    get (v: number): string {
-        return this._layoutNodes[v];
-    }
-    set (v: number, layoutNodes: string): void {
-        this._layoutNodes[v] = layoutNodes;
-    }
-    readonly _layoutNodes: string[];
-}
-
-export class RenderGraphDataMap implements PropertyMap {
-    constructor (readonly data: RenderData[]) {
-        this._data = data;
-    }
-    get (v: number): RenderData {
-        return this._data[v];
-    }
-    readonly _data: RenderData[];
-}
-
-export class RenderGraphValidMap implements PropertyMap {
-    constructor (readonly valid: boolean[]) {
-        this._valid = valid;
-    }
-    get (v: number): boolean {
-        return this._valid[v];
-    }
-    set (v: number, valid: boolean): void {
-        this._valid[v] = valid;
-    }
-    readonly _valid: boolean[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum RenderGraphComponent {
@@ -1811,13 +1411,6 @@ export interface RenderGraphComponentType {
     [RenderGraphComponent.Layout]: string;
     [RenderGraphComponent.Data]: RenderData;
     [RenderGraphComponent.Valid]: boolean;
-}
-
-export interface RenderGraphComponentPropertyMap {
-    [RenderGraphComponent.Name]: RenderGraphNameMap;
-    [RenderGraphComponent.Layout]: RenderGraphLayoutMap;
-    [RenderGraphComponent.Data]: RenderGraphDataMap;
-    [RenderGraphComponent.Valid]: RenderGraphValidMap;
 }
 
 //-----------------------------------------------------------------
@@ -1941,154 +1534,16 @@ export class RenderGraph implements BidirectionalGraph
 
         return v;
     }
-    clearVertex (v: number): void {
-        // ReferenceGraph(Separated)
-        const vert = this._vertices[v];
-        // clear out edges
-        for (const oe of vert._outEdges) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-                if (target._inEdges[i].target === v) {
-                    target._inEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._outEdges.length = 0;
-
-        // clear in edges
-        for (const ie of vert._inEdges) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-                if (source._outEdges[i].target === v) {
-                    source._outEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._inEdges.length = 0;
-
-        // clear child edges
-        for (const oe of vert._children) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._parents.length;) { // remove all edges
-                if (target._parents[i].target === v) {
-                    target._parents.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._children.length = 0;
-
-        // clear parent edges
-        for (const ie of vert._parents) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._children.length;) { // remove all edges
-                if (source._children[i].target === v) {
-                    source._children.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._parents.length = 0;
-    }
-    removeVertex (u: number): void {
-        this._vertices.splice(u, 1);
-        this._names.splice(u, 1);
-        this._layoutNodes.splice(u, 1);
-        this._data.splice(u, 1);
-        this._valid.splice(u, 1);
-
-        const sz = this._vertices.length;
-        if (u === sz) {
-            return;
-        }
-
-        for (let v = 0; v !== sz; ++v) {
-            const vert = this._vertices[v];
-            reindexEdgeList(vert._outEdges, u);
-            reindexEdgeList(vert._inEdges, u);
-            // ReferenceGraph (Separated)
-            reindexEdgeList(vert._children, u);
-            reindexEdgeList(vert._parents, u);
-        }
-    }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
         this._vertices[u]._outEdges.push(new OutE(v));
         this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
-    removeEdges (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeEdge (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._outEdges.length;) {
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) {
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
         return this._names[v];
-    }
-    vertexNameMap (): RenderGraphNameMap {
-        return new RenderGraphNameMap(this._names);
-    }
-    //-----------------------------------------------------------------
-    // PropertyGraph
-    get (tag: string): RenderGraphNameMap | RenderGraphLayoutMap | RenderGraphDataMap | RenderGraphValidMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new RenderGraphNameMap(this._names);
-        case 'Layout':
-            return new RenderGraphLayoutMap(this._layoutNodes);
-        case 'Data':
-            return new RenderGraphDataMap(this._data);
-        case 'Valid':
-            return new RenderGraphValidMap(this._valid);
-        default:
-            throw Error('property map not found');
-        }
     }
     //-----------------------------------------------------------------
     // ComponentGraph
@@ -2104,20 +1559,6 @@ export class RenderGraph implements BidirectionalGraph
             return this._valid[v] as RenderGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends RenderGraphComponent> (id: T): RenderGraphComponentPropertyMap[T] {
-        switch (id) {
-        case RenderGraphComponent.Name:
-            return new RenderGraphNameMap(this._names) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Layout:
-            return new RenderGraphLayoutMap(this._layoutNodes) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Data:
-            return new RenderGraphDataMap(this._data) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Valid:
-            return new RenderGraphValidMap(this._valid) as RenderGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -2468,48 +1909,6 @@ export class RenderGraph implements BidirectionalGraph
         this._vertices[u]._children.push(new OutE(v));
         this._vertices[v]._parents.push(new OutE(u));
         return new ED(u, v);
-    }
-    removeReference (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._children.length;) {
-            if (source._children[i].target === v) {
-                source._children.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._parents.length;) {
-            if (target._parents[i].target === u) {
-                target._parents.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeReferences (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._children.length;) { // remove all edges
-            if (source._children[i].target === v) {
-                source._children.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._parents.length;) { // remove all edges
-            if (target._parents[i].target === u) {
-                target._parents.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
     }
 
     readonly components: string[] = ['Name', 'Layout', 'Data', 'Valid'];
