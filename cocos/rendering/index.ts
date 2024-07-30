@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import './deprecated';
 import * as pipeline from './define';
 
 export { pipeline };

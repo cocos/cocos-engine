@@ -483,8 +483,8 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
             const camera = cameras[i];
             if (camera.scene) {
                 this.emit(PipelineEventType.RENDER_CAMERA_BEGIN, camera);
-                validPunctualLightsCulling(this, camera);
-                sceneCulling(this, camera);
+                validPunctualLightsCulling(this.pipelineSceneData, camera);
+                sceneCulling(this.pipelineSceneData, this.pipelineUBO, camera);
                 this._pipelineUBO.updateGlobalUBO(camera.window);
                 this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {

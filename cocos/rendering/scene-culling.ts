@@ -24,7 +24,7 @@
 import { Model } from '../render-scene/scene/model';
 import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
 import { Vec3, Pool, geometry, cclegacy } from '../core';
-import { RenderPipeline } from './render-pipeline';
+import { PipelineUBO } from './pipeline-ubo';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
@@ -50,8 +50,7 @@ function getRenderObject (model: Model, camera: Camera): IRenderObject {
     return ro;
 }
 
-export function validPunctualLightsCulling (pipeline: RenderPipeline, camera: Camera): void {
-    const sceneData = pipeline.pipelineSceneData;
+export function validPunctualLightsCulling (sceneData: PipelineSceneData, camera: Camera): void {
     const validPunctualLights = sceneData.validPunctualLights;
     validPunctualLights.length = 0;
 
@@ -147,10 +146,9 @@ export function shadowCulling (camera: Camera, sceneData: PipelineSceneData, lay
     }
 }
 
-export function sceneCulling (pipeline: RenderPipeline, camera: Camera): void {
+export function sceneCulling (sceneData: PipelineSceneData, pipelineUBO: PipelineUBO, camera: Camera): void {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
-    const sceneData = pipeline.pipelineSceneData;
     const shadows = sceneData.shadows;
     const skybox = sceneData.skybox;
     const csmLayers = sceneData.csmLayers;
@@ -164,7 +162,7 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera): void {
     csmLayerObjects.clear();
 
     if (shadows.enabled) {
-        pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
+        pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
             // update CSM layers
             if (mainLight && mainLight.node) {

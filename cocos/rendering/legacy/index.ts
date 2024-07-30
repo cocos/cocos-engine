@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import '../deprecated';
 
 export { ForwardPipeline, createDefaultPipeline } from '../forward/forward-pipeline';
 export { ForwardFlow } from '../forward/forward-flow';
