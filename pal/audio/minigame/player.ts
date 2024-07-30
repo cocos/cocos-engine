@@ -70,11 +70,11 @@ export class AudioPlayer {
                 AudioPlayerWeb.load(url).then((webPlayer) => {
                     resolve(new AudioPlayer(webPlayer));
                 }).catch(reject);
-            } else */{
-                AudioPlayerMinigame.load(url).then((minigamePlayer) => {
-                    resolve(new AudioPlayer(minigamePlayer));
-                }).catch(reject);
-            }
+            } else {*/
+            AudioPlayerMinigame.load(url).then((minigamePlayer) => {
+                resolve(new AudioPlayer(minigamePlayer));
+            }).catch(reject);
+            // }
         });
     }
     destroy (): void {
@@ -93,12 +93,13 @@ export class AudioPlayer {
                     // HACK: AudioPlayer should be a friend class in OneShotAudio
                     resolve(new (OneShotAudio as any)(oneShotAudioWeb));
                 }).catch(reject);
-            } else */{
-                AudioPlayerMinigame.loadOneShotAudio(url, volume).then((oneShotAudioMinigame) => {
-                    // HACK: AudioPlayer should be a friend class in OneShotAudio
-                    resolve(new (OneShotAudio as any)(oneShotAudioMinigame));
-                }).catch(reject);
-            }
+            } else {*/
+            AudioPlayerMinigame.loadOneShotAudio(url, volume).then((oneShotAudioMinigame) => {
+                // HACK: AudioPlayer should be a friend class in OneShotAudio
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                resolve(new (OneShotAudio as any)(oneShotAudioMinigame));
+            }).catch(reject);
+            //}
         });
     }
     static readonly maxAudioChannel = 10;
