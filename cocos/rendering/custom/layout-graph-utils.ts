@@ -595,7 +595,7 @@ export class VisibilityGraph {
                 const phaseName = getPhaseName(pass);
                 const phaseData = passData.getPhase(phaseName);
                 for (const list of shader.descriptors) {
-                    if (list.rate < UpdateFrequency.PER_PHASE) {
+                    if (list.rate < (UpdateFrequency.PER_PHASE as number)) {
                         // do not merger PER_BATCH, PER_INSTANCE descriptors
                         continue;
                     }
