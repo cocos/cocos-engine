@@ -24,7 +24,10 @@
 
 import { cclegacy } from '../core';
 import { RenderPipeline as NrRenderPipeline } from './render-pipeline';
-import { Buffer, InputAssembler } from '../gfx';
+export {
+    IRenderPipelineInfo, MAX_BLOOM_FILTER_PASS_NUM,
+    BloomRenderData, PipelineRenderData
+} from './render-pipeline';
 
 declare const nr: any;
 
