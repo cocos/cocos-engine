@@ -25,7 +25,6 @@
 declare const render: any;
 
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
-import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { Device } from '../../gfx';
 import { PostProcessBuilder } from '../post-process/post-process-builder';
 import { forceResizeAllWindows } from './framework';
@@ -64,7 +63,6 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>) {
     map.set('Forward', new PostProcessBuilder());
-    map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new PostProcessBuilder());
 }
 

@@ -25,7 +25,6 @@
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
-import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
@@ -76,7 +75,6 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 
 function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
     map.set('Forward', new PostProcessBuilder());
-    map.set('Deferred', new DeferredPipelineBuilder());
     map.set('Custom', new PostProcessBuilder());
 }
 

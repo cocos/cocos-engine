@@ -45,7 +45,6 @@ import { PipelineUBO } from '../pipeline-ubo';
 import { builtinResMgr } from '../../asset/asset-manager';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material, TextureCube } from '../../asset/assets';
-import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { buildReflectionProbePass } from './define';
@@ -1265,8 +1264,6 @@ export class WebPipeline implements BasicPipeline {
         if (this.usesDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
         }
-        this._forward = new ForwardPipelineBuilder();
-        this._deferred = new DeferredPipelineBuilder();
         return true;
     }
     public destroy (): boolean {
@@ -1763,8 +1760,6 @@ export class WebPipeline implements BasicPipeline {
     private _compiler: Compiler | null = null;
     private _executor: Executor | null = null;
     private _customPipelineName = '';
-    private _forward!: ForwardPipelineBuilder;
-    private _deferred!: DeferredPipelineBuilder;
     private _globalDescSetData!: DescriptorSetData;
     private _combineSignY = 0;
     // csm uniform used vectors count
