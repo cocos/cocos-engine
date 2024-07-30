@@ -296,18 +296,10 @@ export class LayoutGraph implements BidirectionalGraph
         }
     }
     getRenderStage (v: number): RenderPassType {
-        if (this._vertices[v]._id === LayoutGraphValue.RenderStage) {
-            return this._vertices[v]._object as RenderPassType;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderPassType;
     }
     getRenderPhase (v: number): RenderPhase {
-        if (this._vertices[v]._id === LayoutGraphValue.RenderPhase) {
-            return this._vertices[v]._object as RenderPhase;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderPhase;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -849,18 +841,10 @@ export class LayoutGraphData implements BidirectionalGraph
         }
     }
     getRenderStage (v: number): RenderStageData {
-        if (this._vertices[v]._id === LayoutGraphDataValue.RenderStage) {
-            return this._vertices[v]._object as RenderStageData;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderStageData;
     }
     getRenderPhase (v: number): RenderPhaseData {
-        if (this._vertices[v]._id === LayoutGraphDataValue.RenderPhase) {
-            return this._vertices[v]._object as RenderPhaseData;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderPhaseData;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
