@@ -32,6 +32,7 @@ import {
     Blit, ClearView, ComputePass, ComputeSubpass, CopyPass, Dispatch, FormatView, ManagedBuffer, ManagedResource, ManagedTexture, MovePass,
     RasterPass, RasterSubpass, RaytracePass, RenderGraph, RenderGraphVisitor, RasterView, ComputeView,
     RenderQueue, RenderSwapchain, ResolvePass, ResourceGraph, ResourceGraphVisitor, SceneData, SubresourceView, PersistentBuffer, PersistentTexture,
+    RenderGraphValue,
 } from './render-graph';
 import { AccessType, ResourceResidency, SceneFlags } from './types';
 import { hashCombineNum, hashCombineStr } from './define';
@@ -96,19 +97,19 @@ class PassVisitor implements RenderGraphVisitor {
         this._resVisitor = new ResourceVisitor(this.context);
     }
     protected _isRasterPass (u: number): boolean {
-        return !!this.context.renderGraph.tryGetRasterPass(u);
+        return this.context.renderGraph.holds(RenderGraphValue.RasterPass, u);
     }
     protected _isCopyPass (u: number): boolean {
-        return !!this.context.renderGraph.tryGetCopy(u);
+        return this.context.renderGraph.holds(RenderGraphValue.Copy, u);
     }
     protected _isCompute (u: number): boolean {
-        return !!this.context.renderGraph.tryGetCompute(u);
+        return this.context.renderGraph.holds(RenderGraphValue.Compute, u);
     }
     protected _isDispatch (u: number): boolean {
-        return !!this.context.renderGraph.tryGetDispatch(u);
+        return this.context.renderGraph.holds(RenderGraphValue.Dispatch, u);
     }
     protected _isQueue (u: number): boolean {
-        return !!this.context.renderGraph.tryGetQueue(u);
+        return this.context.renderGraph.holds(RenderGraphValue.Queue, u);
     }
     protected _isShadowMap (u: number): boolean {
         const sceneData = this._getSceneData(u);
@@ -118,13 +119,16 @@ class PassVisitor implements RenderGraphVisitor {
         return false;
     }
     protected _getSceneData (u: number): SceneData | null {
-        return this.context.renderGraph.tryGetScene(u);
+        if (!this.context.renderGraph.holds(RenderGraphValue.Scene, u)) {
+            return null;
+        }
+        return this.context.renderGraph.getScene(u);
     }
     protected _isScene (u: number): boolean {
-        return !!this._getSceneData(u);
+        return this.context.renderGraph.holds(RenderGraphValue.Scene, u);
     }
     protected _isBlit (u: number): boolean {
-        return !!this.context.renderGraph.tryGetBlit(u);
+        return this.context.renderGraph.holds(RenderGraphValue.Blit, u);
     }
 
     private _useResourceInfo (input: string, raster: RasterView): void {
