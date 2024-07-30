@@ -71,7 +71,7 @@ export function getReadonlyNodeSize (parent: Node | Scene): {
 
 export function computeInverseTransForTarget (widgetNode: Node, target: Node, out_inverseTranslate: Vec2, out_inverseScale: Vec2): void {
     if (widgetNode.parent) {
-        _tempScale.set(widgetNode.parent.getScale().x, widgetNode.parent.getScale().y);
+        _tempScale.set(widgetNode.parent.scale.x, widgetNode.parent.scale.y);
     } else {
         _tempScale.set(0, 0);
     }
@@ -87,14 +87,14 @@ export function computeInverseTransForTarget (widgetNode: Node, target: Node, ou
             return;
         }
 
-        const pos = node.getPosition();
+        const pos = node.position;
         translateX += pos.x;
         translateY += pos.y;
         node = node.parent;    // loop increment
 
         if (node !== target) {
             if (node) {
-                _tempScale.set(node.getScale().x, node.getScale().y);
+                _tempScale.set(node.scale.x, node.scale.y);
             } else {
                 _tempScale.set(0, 0);
             }
