@@ -37,3 +37,7 @@ export { ShadowStage } from '../shadow/shadow-stage';
 
 export { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
 export { ReflectionProbeStage } from '../reflection-probe/reflection-probe-stage';
+
+export { RenderPipeline } from '../render-pipeline';
+export { RenderFlow } from '../render-flow';
+export { RenderStage } from '../render-stage';
