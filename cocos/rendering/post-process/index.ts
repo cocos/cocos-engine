@@ -6,4 +6,5 @@ export * from './components';
 export * from './passes';
 export * from './post-process-builder';
 
+setCustomPipeline('Forward', new PostProcessBuilder());
 setCustomPipeline('Custom', new PostProcessBuilder());
