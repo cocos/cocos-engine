@@ -112,9 +112,6 @@ export class LayoutGraphVertex {
     readonly _id: LayoutGraphValue;
     _object: LayoutGraphObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum LayoutGraphComponent {
@@ -250,8 +247,6 @@ export class LayoutGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    //-----------------------------------------------------------------
-    // PropertyGraph
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends LayoutGraphComponent> (id: T, v: number): LayoutGraphComponentType[T] {
@@ -671,9 +666,6 @@ export class LayoutGraphDataVertex {
     readonly _id: LayoutGraphDataValue;
     _object: LayoutGraphDataObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum LayoutGraphDataComponent {
@@ -821,8 +813,6 @@ export class LayoutGraphData implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    //-----------------------------------------------------------------
-    // PropertyGraph
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends LayoutGraphDataComponent> (id: T, v: number): LayoutGraphDataComponentType[T] {

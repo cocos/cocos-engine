@@ -288,9 +288,6 @@ export class SubpassGraphVertex {
     readonly _outEdges: OutE[] = [];
     readonly _inEdges: OutE[] = [];
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum SubpassGraphComponent {
@@ -413,8 +410,6 @@ export class SubpassGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    //-----------------------------------------------------------------
-    // PropertyGraph
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends SubpassGraphComponent> (id: T, v: number): SubpassGraphComponentType[T] {
@@ -643,9 +638,6 @@ export class ResourceGraphVertex {
     readonly _id: ResourceGraphValue;
     _object: ResourceGraphObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
@@ -804,8 +796,6 @@ export class ResourceGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    //-----------------------------------------------------------------
-    // PropertyGraph
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends ResourceGraphComponent> (id: T, v: number): ResourceGraphComponentType[T] {
@@ -1407,9 +1397,6 @@ export class RenderGraphVertex {
     readonly _id: RenderGraphValue;
     _object: RenderGraphObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum RenderGraphComponent {
@@ -1558,8 +1545,6 @@ export class RenderGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    //-----------------------------------------------------------------
-    // PropertyGraph
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends RenderGraphComponent> (id: T, v: number): RenderGraphComponentType[T] {
