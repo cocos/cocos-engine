@@ -37,7 +37,6 @@ import * as gfx from '../cocos/gfx';
 export * from '../cocos/core';
 
 export * from '../cocos/rendering';
-export * from '../cocos/rendering/custom/builtin-pipelines';
 export * from '../cocos/scene-graph';
 export * from '../cocos/misc';
 export * from '../cocos/game';
