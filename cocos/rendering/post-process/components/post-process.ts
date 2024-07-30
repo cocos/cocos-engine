@@ -1,7 +1,6 @@
 import { EDITOR } from 'internal:constants';
 import { property, serializable } from '../../../core/data/class-decorator';
 import { ccclass, disallowMultiple, executeInEditMode, help, range, slide, tooltip } from '../../../core/data/decorators';
-import { Director, director } from '../../../game';
 import { Component } from '../../../scene-graph';
 import { PostProcessSetting } from './post-process-setting';
 
