@@ -45,6 +45,7 @@ import { decideProfilerCamera } from './pipeline-funcs';
 import { OS } from '../../pal/system-info/enum-type';
 import { macro, murmurhash2_32_gc, cclegacy } from '../core';
 import { UBOSkinning } from './define';
+import { PipelineInputAssemblerData } from './render-types';
 import { PipelineRuntime } from './custom/pipeline';
 
 /**
@@ -84,12 +85,6 @@ export class PipelineRenderData {
     sampler: Sampler = null!;
 
     bloom: BloomRenderData | null = null;
-}
-
-export class PipelineInputAssemblerData {
-    quadIB: Buffer|null = null;
-    quadVB: Buffer|null = null;
-    quadIA: InputAssembler|null = null;
 }
 
 function hashFrameBuffer (fbo: Framebuffer): number {

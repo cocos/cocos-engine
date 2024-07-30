@@ -41,6 +41,7 @@ import {
 
 export { pipeline };
 export * from './pass-phase';
+export * from './render-types';
 export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
 export type RenderPipeline = NrRenderPipeline;
 export const RenderFlow: typeof NrRenderFlow = nr.RenderFlow;

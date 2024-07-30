@@ -79,7 +79,7 @@ import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
 import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { PipelineInputAssemblerData } from '../render-pipeline';
+import { PipelineInputAssemblerData } from '../render-types';
 import { DescriptorSetData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
 import {
@@ -125,7 +125,6 @@ import {
     SceneFlags,
     UpdateFrequency,
 } from './types';
-import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
 import {
@@ -134,7 +133,6 @@ import {
     getRenderArea,
     updateGlobalDescBinding,
 } from './define';
-import { RenderReflectionProbeQueue } from '../render-reflection-probe-queue';
 import { LightResource, SceneCulling } from './scene-culling';
 import { Pass, RenderScene } from '../../render-scene';
 import { WebProgramLibrary } from './web-program-library';
@@ -670,17 +668,6 @@ class DeviceRenderQueue implements RecordingInterface {
 
     postRecord (): void {
         // nothing to do
-    }
-}
-
-class SubmitInfo {
-    // <scene id, shadow queue>
-    public additiveLight: RenderAdditiveLightQueue | null = null;
-    public reflectionProbe: RenderReflectionProbeQueue | null = null;
-
-    reset (): void {
-        this.additiveLight = null;
-        this.reflectionProbe = null;
     }
 }
 
@@ -1470,7 +1457,6 @@ class ExecutorPools {
         this.graphScenePool = new RecyclePool<GraphScene>((): GraphScene => new GraphScene(), 16);
         this.rasterPassInfoPool = new RecyclePool<RasterPassInfo>((): RasterPassInfo => new RasterPassInfo(), 16);
         this.computePassInfoPool = new RecyclePool<ComputePassInfo>((): ComputePassInfo => new ComputePassInfo(), 16);
-        this.reflectionProbe = new RecyclePool<RenderReflectionProbeQueue>((): RenderReflectionProbeQueue => new RenderReflectionProbeQueue(context.pipeline), 8);
         this.passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
             priority: 0,
             hash: 0,
@@ -1492,9 +1478,6 @@ class ExecutorPools {
     addDeviceScene (): DeviceRenderScene {
         return this.deviceScenePool.add();
     }
-    addReflectionProbe (): RenderReflectionProbeQueue {
-        return this.reflectionProbe.add();
-    }
     addRasterPassInfo (): RasterPassInfo {
         return this.rasterPassInfoPool.add();
     }
@@ -1505,14 +1488,12 @@ class ExecutorPools {
         this.deviceQueuePool.reset();
         this.computeQueuePool.reset();
         this.graphScenePool.reset();
-        this.reflectionProbe.reset();
         this.computePassInfoPool.reset();
         this.deviceScenePool.reset();
     }
     readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
     readonly computeQueuePool: RecyclePool<DeviceComputeQueue>;
     readonly graphScenePool: RecyclePool<GraphScene>;
-    readonly reflectionProbe: RecyclePool<RenderReflectionProbeQueue>;
     readonly passPool: RecyclePool<IRenderPass>;
     readonly rasterPassInfoPool: RecyclePool<RasterPassInfo>;
     readonly computePassInfoPool: RecyclePool<ComputePassInfo>;
@@ -1719,7 +1700,6 @@ class ExecutorContext {
         this.layoutGraph = layoutGraph;
         this.width = width;
         this.height = height;
-        this.additiveLight = new RenderAdditiveLightQueue(pipeline);
         this.pools = new ExecutorPools(this);
         this.blit = new BlitInfo(this);
         this.culling = new SceneCulling();
@@ -1730,9 +1710,6 @@ class ExecutorContext {
         this.culling.clear();
         this.pools.reset();
         this.cullCamera = null;
-        for (const infoMap of this.submitMap) {
-            for (const info of infoMap[1]) info[1].reset();
-        }
         this.lightResource.clear();
     }
     resize (width: number, height: number): void {
@@ -1750,8 +1727,6 @@ class ExecutorContext {
     readonly deviceBuffers: Map<string, DeviceBuffer> = new Map<string, DeviceBuffer>();
     readonly layoutGraph: LayoutGraphData;
     readonly root: Root;
-    readonly additiveLight: RenderAdditiveLightQueue;
-    readonly submitMap: Map<Camera, Map<number, SubmitInfo>> = new Map<Camera, Map<number, SubmitInfo>>();
     readonly pools: ExecutorPools;
     readonly blit: BlitInfo;
     readonly culling: SceneCulling;
