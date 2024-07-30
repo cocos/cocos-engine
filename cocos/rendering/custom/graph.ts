@@ -350,7 +350,7 @@ export interface MutableVertexPropertyMap<T> extends PropertyMap {
 // PropertyGraph
 //--------------------------------------------------------------------------
 export interface PropertyGraph extends Graph {
-    get (tag: string): PropertyMap;
+    // get (tag: string): PropertyMap;
 }
 
 //--------------------------------------------------------------------------
@@ -358,7 +358,7 @@ export interface PropertyGraph extends Graph {
 //--------------------------------------------------------------------------
 export interface NamedGraph extends Graph {
     vertexName (v: vertex_descriptor): string;
-    vertexNameMap (): PropertyMap;
+    // vertexNameMap (): PropertyMap;
 }
 
 //--------------------------------------------------------------------------
@@ -367,7 +367,7 @@ export interface NamedGraph extends Graph {
 export interface ComponentGraph extends Graph {
     readonly components: string[];
     component (id: number, v: vertex_descriptor): unknown;
-    componentMap (id: number): unknown; // should be PropertyMap
+    // componentMap (id: number): unknown; // should be PropertyMap
 }
 
 //--------------------------------------------------------------------------

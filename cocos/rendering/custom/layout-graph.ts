@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, traversal } from './graph';
+import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, traversal } from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
 import { OutputArchive, InputArchive } from './archive';
@@ -115,27 +115,6 @@ export class LayoutGraphVertex {
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class LayoutGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    // skip set, name is constant in AddressableGraph
-    readonly _names: string[];
-}
-
-export class LayoutGraphDescriptorsMap implements PropertyMap {
-    constructor (readonly descriptors: DescriptorDB[]) {
-        this._descriptors = descriptors;
-    }
-    get (v: number): DescriptorDB {
-        return this._descriptors[v];
-    }
-    readonly _descriptors: DescriptorDB[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum LayoutGraphComponent {
@@ -146,11 +125,6 @@ export const enum LayoutGraphComponent {
 export interface LayoutGraphComponentType {
     [LayoutGraphComponent.Name]: string;
     [LayoutGraphComponent.Descriptors]: DescriptorDB;
-}
-
-export interface LayoutGraphComponentPropertyMap {
-    [LayoutGraphComponent.Name]: LayoutGraphNameMap;
-    [LayoutGraphComponent.Descriptors]: LayoutGraphDescriptorsMap;
 }
 
 //-----------------------------------------------------------------
@@ -276,22 +250,8 @@ export class LayoutGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    vertexNameMap (): LayoutGraphNameMap {
-        return new LayoutGraphNameMap(this._names);
-    }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): LayoutGraphNameMap | LayoutGraphDescriptorsMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new LayoutGraphNameMap(this._names);
-        case 'Descriptors':
-            return new LayoutGraphDescriptorsMap(this._descriptors);
-        default:
-            throw Error('property map not found');
-        }
-    }
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends LayoutGraphComponent> (id: T, v: number): LayoutGraphComponentType[T] {
@@ -302,16 +262,6 @@ export class LayoutGraph implements BidirectionalGraph
             return this._descriptors[v] as LayoutGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends LayoutGraphComponent> (id: T): LayoutGraphComponentPropertyMap[T] {
-        switch (id) {
-        case LayoutGraphComponent.Name:
-            return new LayoutGraphNameMap(this._names) as LayoutGraphComponentPropertyMap[T];
-        case LayoutGraphComponent.Descriptors:
-            return new LayoutGraphDescriptorsMap(this._descriptors) as LayoutGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     // skip setName, Name is constant in AddressableGraph
@@ -724,40 +674,6 @@ export class LayoutGraphDataVertex {
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class LayoutGraphDataNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    // skip set, name is constant in AddressableGraph
-    readonly _names: string[];
-}
-
-export class LayoutGraphDataUpdateMap implements PropertyMap {
-    constructor (readonly updateFrequencies: UpdateFrequency[]) {
-        this._updateFrequencies = updateFrequencies;
-    }
-    get (v: number): UpdateFrequency {
-        return this._updateFrequencies[v];
-    }
-    set (v: number, updateFrequencies: UpdateFrequency): void {
-        this._updateFrequencies[v] = updateFrequencies;
-    }
-    readonly _updateFrequencies: UpdateFrequency[];
-}
-
-export class LayoutGraphDataLayoutMap implements PropertyMap {
-    constructor (readonly layouts: PipelineLayoutData[]) {
-        this._layouts = layouts;
-    }
-    get (v: number): PipelineLayoutData {
-        return this._layouts[v];
-    }
-    readonly _layouts: PipelineLayoutData[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum LayoutGraphDataComponent {
@@ -770,12 +686,6 @@ export interface LayoutGraphDataComponentType {
     [LayoutGraphDataComponent.Name]: string;
     [LayoutGraphDataComponent.Update]: UpdateFrequency;
     [LayoutGraphDataComponent.Layout]: PipelineLayoutData;
-}
-
-export interface LayoutGraphDataComponentPropertyMap {
-    [LayoutGraphDataComponent.Name]: LayoutGraphDataNameMap;
-    [LayoutGraphDataComponent.Update]: LayoutGraphDataUpdateMap;
-    [LayoutGraphDataComponent.Layout]: LayoutGraphDataLayoutMap;
 }
 
 //-----------------------------------------------------------------
@@ -911,24 +821,8 @@ export class LayoutGraphData implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    vertexNameMap (): LayoutGraphDataNameMap {
-        return new LayoutGraphDataNameMap(this._names);
-    }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): LayoutGraphDataNameMap | LayoutGraphDataUpdateMap | LayoutGraphDataLayoutMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new LayoutGraphDataNameMap(this._names);
-        case 'Update':
-            return new LayoutGraphDataUpdateMap(this._updateFrequencies);
-        case 'Layout':
-            return new LayoutGraphDataLayoutMap(this._layouts);
-        default:
-            throw Error('property map not found');
-        }
-    }
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends LayoutGraphDataComponent> (id: T, v: number): LayoutGraphDataComponentType[T] {
@@ -941,18 +835,6 @@ export class LayoutGraphData implements BidirectionalGraph
             return this._layouts[v] as LayoutGraphDataComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends LayoutGraphDataComponent> (id: T): LayoutGraphDataComponentPropertyMap[T] {
-        switch (id) {
-        case LayoutGraphDataComponent.Name:
-            return new LayoutGraphDataNameMap(this._names) as LayoutGraphDataComponentPropertyMap[T];
-        case LayoutGraphDataComponent.Update:
-            return new LayoutGraphDataUpdateMap(this._updateFrequencies) as LayoutGraphDataComponentPropertyMap[T];
-        case LayoutGraphDataComponent.Layout:
-            return new LayoutGraphDataLayoutMap(this._layouts) as LayoutGraphDataComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     // skip setName, Name is constant in AddressableGraph

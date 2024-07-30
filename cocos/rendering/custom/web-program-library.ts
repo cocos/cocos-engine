@@ -907,7 +907,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         // init layout graph
         const lg = this.layoutGraph;
         for (const v of lg.vertices()) {
-            const layout: PipelineLayoutData = lg.get('Layout').get(v) as PipelineLayoutData;
+            const layout: PipelineLayoutData = lg.getLayout(v);
             for (const [update, set] of layout.descriptorSets) {
                 initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData, set.descriptorSetLayoutInfo);
                 set.descriptorSetLayout = this.device.createDescriptorSetLayout(set.descriptorSetLayoutInfo);

@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, traversal } from './graph';
+import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, traversal } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
@@ -291,29 +291,6 @@ export class SubpassGraphVertex {
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class SubpassGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class SubpassGraphSubpassMap implements PropertyMap {
-    constructor (readonly subpasses: Subpass[]) {
-        this._subpasses = subpasses;
-    }
-    get (v: number): Subpass {
-        return this._subpasses[v];
-    }
-    readonly _subpasses: Subpass[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum SubpassGraphComponent {
@@ -324,11 +301,6 @@ export const enum SubpassGraphComponent {
 export interface SubpassGraphComponentType {
     [SubpassGraphComponent.Name]: string;
     [SubpassGraphComponent.Subpass]: Subpass;
-}
-
-export interface SubpassGraphComponentPropertyMap {
-    [SubpassGraphComponent.Name]: SubpassGraphNameMap;
-    [SubpassGraphComponent.Subpass]: SubpassGraphSubpassMap;
 }
 
 //-----------------------------------------------------------------
@@ -441,22 +413,8 @@ export class SubpassGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    vertexNameMap (): SubpassGraphNameMap {
-        return new SubpassGraphNameMap(this._names);
-    }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): SubpassGraphNameMap | SubpassGraphSubpassMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new SubpassGraphNameMap(this._names);
-        case 'Subpass':
-            return new SubpassGraphSubpassMap(this._subpasses);
-        default:
-            throw Error('property map not found');
-        }
-    }
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends SubpassGraphComponent> (id: T, v: number): SubpassGraphComponentType[T] {
@@ -467,16 +425,6 @@ export class SubpassGraph implements BidirectionalGraph
             return this._subpasses[v] as SubpassGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends SubpassGraphComponent> (id: T): SubpassGraphComponentPropertyMap[T] {
-        switch (id) {
-        case SubpassGraphComponent.Name:
-            return new SubpassGraphNameMap(this._names) as SubpassGraphComponentPropertyMap[T];
-        case SubpassGraphComponent.Subpass:
-            return new SubpassGraphSubpassMap(this._subpasses) as SubpassGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -698,59 +646,6 @@ export class ResourceGraphVertex {
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class ResourceGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class ResourceGraphDescMap implements PropertyMap {
-    constructor (readonly descs: ResourceDesc[]) {
-        this._descs = descs;
-    }
-    get (v: number): ResourceDesc {
-        return this._descs[v];
-    }
-    readonly _descs: ResourceDesc[];
-}
-
-export class ResourceGraphTraitsMap implements PropertyMap {
-    constructor (readonly traits: ResourceTraits[]) {
-        this._traits = traits;
-    }
-    get (v: number): ResourceTraits {
-        return this._traits[v];
-    }
-    readonly _traits: ResourceTraits[];
-}
-
-export class ResourceGraphStatesMap implements PropertyMap {
-    constructor (readonly states: ResourceStates[]) {
-        this._states = states;
-    }
-    get (v: number): ResourceStates {
-        return this._states[v];
-    }
-    readonly _states: ResourceStates[];
-}
-
-export class ResourceGraphSamplerMap implements PropertyMap {
-    constructor (readonly samplerInfo: SamplerInfo[]) {
-        this._samplerInfo = samplerInfo;
-    }
-    get (v: number): SamplerInfo {
-        return this._samplerInfo[v];
-    }
-    readonly _samplerInfo: SamplerInfo[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
@@ -767,14 +662,6 @@ export interface ResourceGraphComponentType {
     [ResourceGraphComponent.Traits]: ResourceTraits;
     [ResourceGraphComponent.States]: ResourceStates;
     [ResourceGraphComponent.Sampler]: SamplerInfo;
-}
-
-export interface ResourceGraphComponentPropertyMap {
-    [ResourceGraphComponent.Name]: ResourceGraphNameMap;
-    [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
-    [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
-    [ResourceGraphComponent.States]: ResourceGraphStatesMap;
-    [ResourceGraphComponent.Sampler]: ResourceGraphSamplerMap;
 }
 
 //-----------------------------------------------------------------
@@ -917,28 +804,8 @@ export class ResourceGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    vertexNameMap (): ResourceGraphNameMap {
-        return new ResourceGraphNameMap(this._names);
-    }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap | ResourceGraphSamplerMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new ResourceGraphNameMap(this._names);
-        case 'Desc':
-            return new ResourceGraphDescMap(this._descs);
-        case 'Traits':
-            return new ResourceGraphTraitsMap(this._traits);
-        case 'States':
-            return new ResourceGraphStatesMap(this._states);
-        case 'Sampler':
-            return new ResourceGraphSamplerMap(this._samplerInfo);
-        default:
-            throw Error('property map not found');
-        }
-    }
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends ResourceGraphComponent> (id: T, v: number): ResourceGraphComponentType[T] {
@@ -955,22 +822,6 @@ export class ResourceGraph implements BidirectionalGraph
             return this._samplerInfo[v] as ResourceGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends ResourceGraphComponent> (id: T): ResourceGraphComponentPropertyMap[T] {
-        switch (id) {
-        case ResourceGraphComponent.Name:
-            return new ResourceGraphNameMap(this._names) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Desc:
-            return new ResourceGraphDescMap(this._descs) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Traits:
-            return new ResourceGraphTraitsMap(this._traits) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.States:
-            return new ResourceGraphStatesMap(this._states) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Sampler:
-            return new ResourceGraphSamplerMap(this._samplerInfo) as ResourceGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -1559,55 +1410,6 @@ export class RenderGraphVertex {
 
 //-----------------------------------------------------------------
 // PropertyGraph Concept
-export class RenderGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class RenderGraphLayoutMap implements PropertyMap {
-    constructor (readonly layoutNodes: string[]) {
-        this._layoutNodes = layoutNodes;
-    }
-    get (v: number): string {
-        return this._layoutNodes[v];
-    }
-    set (v: number, layoutNodes: string): void {
-        this._layoutNodes[v] = layoutNodes;
-    }
-    readonly _layoutNodes: string[];
-}
-
-export class RenderGraphDataMap implements PropertyMap {
-    constructor (readonly data: RenderData[]) {
-        this._data = data;
-    }
-    get (v: number): RenderData {
-        return this._data[v];
-    }
-    readonly _data: RenderData[];
-}
-
-export class RenderGraphValidMap implements PropertyMap {
-    constructor (readonly valid: boolean[]) {
-        this._valid = valid;
-    }
-    get (v: number): boolean {
-        return this._valid[v];
-    }
-    set (v: number, valid: boolean): void {
-        this._valid[v] = valid;
-    }
-    readonly _valid: boolean[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum RenderGraphComponent {
@@ -1622,13 +1424,6 @@ export interface RenderGraphComponentType {
     [RenderGraphComponent.Layout]: string;
     [RenderGraphComponent.Data]: RenderData;
     [RenderGraphComponent.Valid]: boolean;
-}
-
-export interface RenderGraphComponentPropertyMap {
-    [RenderGraphComponent.Name]: RenderGraphNameMap;
-    [RenderGraphComponent.Layout]: RenderGraphLayoutMap;
-    [RenderGraphComponent.Data]: RenderGraphDataMap;
-    [RenderGraphComponent.Valid]: RenderGraphValidMap;
 }
 
 //-----------------------------------------------------------------
@@ -1763,26 +1558,8 @@ export class RenderGraph implements BidirectionalGraph
     vertexName (v: number): string {
         return this._names[v];
     }
-    vertexNameMap (): RenderGraphNameMap {
-        return new RenderGraphNameMap(this._names);
-    }
     //-----------------------------------------------------------------
     // PropertyGraph
-    get (tag: string): RenderGraphNameMap | RenderGraphLayoutMap | RenderGraphDataMap | RenderGraphValidMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new RenderGraphNameMap(this._names);
-        case 'Layout':
-            return new RenderGraphLayoutMap(this._layoutNodes);
-        case 'Data':
-            return new RenderGraphDataMap(this._data);
-        case 'Valid':
-            return new RenderGraphValidMap(this._valid);
-        default:
-            throw Error('property map not found');
-        }
-    }
     //-----------------------------------------------------------------
     // ComponentGraph
     component<T extends RenderGraphComponent> (id: T, v: number): RenderGraphComponentType[T] {
@@ -1797,20 +1574,6 @@ export class RenderGraph implements BidirectionalGraph
             return this._valid[v] as RenderGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends RenderGraphComponent> (id: T): RenderGraphComponentPropertyMap[T] {
-        switch (id) {
-        case RenderGraphComponent.Name:
-            return new RenderGraphNameMap(this._names) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Layout:
-            return new RenderGraphLayoutMap(this._layoutNodes) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Data:
-            return new RenderGraphDataMap(this._data) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Valid:
-            return new RenderGraphValidMap(this._valid) as RenderGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
