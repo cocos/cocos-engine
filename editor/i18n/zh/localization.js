@@ -1083,6 +1083,10 @@ module.exports = link(mixin({
             label: "自定义渲染管线 (Beta)",
             description: "启用自定义渲染管线。",
         },
+        custom_pipeline_post_process: {
+            label: "自定义渲染管线的后处理模块 (Deprecated)",
+            description: "启用自定义渲染管线的后处理模块",
+        },
         legacy_pipeline: {
             label: "废弃渲染管线 (Deprecated)",
             description: "启用废弃渲染管线。",

@@ -279,6 +279,12 @@
             "default": true,
             "enginePlugin": false
         },
+        "custom-pipeline-post-process": {
+            "default": false,
+            "label": "i18n:ENGINE.features.custom_pipeline_post_process.label",
+            "description": "i18n:ENGINE.features.custom_pipeline_post_process.description",
+            "enginePlugin": false
+        },
         "legacy-pipeline": {
             "default": false,
             "enginePlugin": false

@@ -190,6 +190,20 @@
         "custom-pipeline": {
             "modules": ["custom-pipeline"],
             "dependentAssets": [
+                "6a2d0734-bd9e-4ddf-946e-caa52498cb75"
+            ]
+        },
+        "custom-pipeline-builtin-scripts": {
+            "modules": [],
+            "dependentScripts": [
+                "ff9b0199-ce04-4cfe-86cc-6c719f08d6e4",
+                "de1c2107-70c8-4021-8459-6399f24d01c6",
+                "cbf30902-517f-40dc-af90-a550bac27cf1"
+            ]
+        },
+        "custom-pipeline-post-process": {
+            "modules": ["custom-pipeline-post-process"],
+            "dependentAssets":[ 
                 "15049ccd-4dd7-451e-a8ae-af66735c929e",
                 "521c5f6e-1a26-42e2-8108-4400c912d9bf",
                 "4c3ce6de-e6d1-47f7-aa36-36b9b58f72d3",
@@ -204,17 +218,9 @@
                 "45e7c0c8-2699-4912-b45f-d42bb8384189",
                 "84ac6f69-3086-455a-86a4-561da8ee710b",
                 "5c601d96-e4c7-4698-991b-7ee674b11079",
-                "bf0a6d94-58f0-4ad2-bdf2-c4a31c7dd856",
-                "6a2d0734-bd9e-4ddf-946e-caa52498cb75"
-            ]
-        },
-        "custom-pipeline-builtin-scripts": {
-            "modules": [],
-            "dependentScripts": [
-                "ff9b0199-ce04-4cfe-86cc-6c719f08d6e4",
-                "de1c2107-70c8-4021-8459-6399f24d01c6",
-                "cbf30902-517f-40dc-af90-a550bac27cf1"
-            ]
+                "bf0a6d94-58f0-4ad2-bdf2-c4a31c7dd856"
+            ],
+            "dependentModules": ["custom-pipeline"]
         },
         "legacy-pipeline": {
             "modules": ["legacy-pipeline"],
