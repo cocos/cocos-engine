@@ -125,7 +125,6 @@ import {
     SceneFlags,
     UpdateFrequency,
 } from './types';
-import { PipelineUBO } from '../pipeline-ubo';
 import { RenderAdditiveLightQueue } from '../render-additive-light-queue';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { VectorGraphColorMap } from './effect';
@@ -1702,7 +1701,6 @@ class BlitInfo {
 class ExecutorContext {
     constructor (
         pipeline: BasicPipeline,
-        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         renderGraph: RenderGraph,
@@ -1718,7 +1716,6 @@ class ExecutorContext {
         this.resourceGraph = resourceGraph;
         this.renderGraph = renderGraph;
         this.root = legacyCC.director.root;
-        this.ubo = ubo;
         this.layoutGraph = layoutGraph;
         this.width = width;
         this.height = height;
@@ -1753,7 +1750,6 @@ class ExecutorContext {
     readonly deviceBuffers: Map<string, DeviceBuffer> = new Map<string, DeviceBuffer>();
     readonly layoutGraph: LayoutGraphData;
     readonly root: Root;
-    readonly ubo: PipelineUBO;
     readonly additiveLight: RenderAdditiveLightQueue;
     readonly submitMap: Map<Camera, Map<number, SubmitInfo>> = new Map<Camera, Map<number, SubmitInfo>>();
     readonly pools: ExecutorPools;
@@ -1771,7 +1767,6 @@ class ExecutorContext {
 export class Executor {
     constructor (
         pipeline: BasicPipeline,
-        ubo: PipelineUBO,
         device: Device,
         resourceGraph: ResourceGraph,
         layoutGraph: LayoutGraphData,
@@ -1780,7 +1775,6 @@ export class Executor {
     ) {
         context = this._context = new ExecutorContext(
             pipeline,
-            ubo,
             device,
             resourceGraph,
             new RenderGraph(),
