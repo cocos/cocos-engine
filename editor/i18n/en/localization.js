@@ -1108,6 +1108,10 @@ module.exports = link(mixin({
             label: "Custom Render Pipeline (Beta)",
             description: "Enable custom render pipeline",
         },
+        custom_pipeline_post_process: {
+            label: "Custom Render Pipeline Post Process (Deprecated)",
+            description: "Enable custom render pipeline post process",
+        },
         legacy_pipeline: {
             label: "Legacy Render Pipeline (Deprecated)",
             description: "Enable legacy render pipeline",
