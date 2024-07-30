@@ -66,11 +66,11 @@ export class AudioPlayer {
 
     static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
         return new Promise((resolve, reject) => {
-            if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
+            /*if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
                 AudioPlayerWeb.load(url).then((webPlayer) => {
                     resolve(new AudioPlayer(webPlayer));
                 }).catch(reject);
-            } else {
+            } else */{
                 AudioPlayerMinigame.load(url).then((minigamePlayer) => {
                     resolve(new AudioPlayer(minigamePlayer));
                 }).catch(reject);
@@ -81,19 +81,19 @@ export class AudioPlayer {
         this._player.destroy();
     }
     static loadNative (url: string, opts?: AudioLoadOptions): Promise<unknown> {
-        if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
+        /*if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
             return AudioPlayerWeb.loadNative(url);
-        }
+        }*/
         return AudioPlayerMinigame.loadNative(url);
     }
     static loadOneShotAudio (url: string, volume: number, opts?: AudioLoadOptions): Promise<OneShotAudio> {
         return new Promise((resolve, reject) => {
-            if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
+            /*if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
                 AudioPlayerWeb.loadOneShotAudio(url, volume).then((oneShotAudioWeb) => {
                     // HACK: AudioPlayer should be a friend class in OneShotAudio
                     resolve(new (OneShotAudio as any)(oneShotAudioWeb));
                 }).catch(reject);
-            } else {
+            } else */{
                 AudioPlayerMinigame.loadOneShotAudio(url, volume).then((oneShotAudioMinigame) => {
                     // HACK: AudioPlayer should be a friend class in OneShotAudio
                     resolve(new (OneShotAudio as any)(oneShotAudioMinigame));
