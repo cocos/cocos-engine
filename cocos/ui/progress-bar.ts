@@ -333,7 +333,7 @@ export class ProgressBar extends Component {
                 const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
                 const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
 
-                let finalPosition = new Vec3(entity.position);
+                const finalPosition = new Vec3(entity.position);
                 finalPosition.add3f(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY, 0);
                 entity.setPosition(finalPosition);
 
