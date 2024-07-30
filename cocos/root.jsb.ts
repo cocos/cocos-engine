@@ -232,23 +232,21 @@ rootProto.frameMove = function (deltaTime: number) {
 };
 
 const oldSetPipeline = rootProto.setRenderPipeline;
-rootProto.setRenderPipeline = function (pipeline, customPipeline: boolean) {
+rootProto.setRenderPipeline = function (customPipeline: boolean) {
     let ppl;
     if (customPipeline) {
         legacyCC.rendering.createCustomPipeline();
         ppl = oldSetPipeline.call(this, null);
         log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
     } else {
-        if (!pipeline) {
-            // pipeline should not be created in C++, ._ctor need to be triggered
-            if (cclegacy.legacy_rendering) {
-                pipeline = cclegacy.legacy_rendering.createDefaultPipeline();
-                pipeline.init();
-            } else {
-                log(`No render pipeline: legacy-pipeline is not available`);
-            }
+        // pipeline should not be created in C++, ._ctor need to be triggered
+        if (cclegacy.legacy_rendering) {
+            const pipeline = cclegacy.legacy_rendering.createDefaultPipeline();
+            pipeline.init();
+            ppl = oldSetPipeline.call(this, pipeline);
+        } else {
+            log(`No render pipeline: legacy-pipeline is not available`);
         }
-        ppl = oldSetPipeline.call(this, pipeline);
     }
     this._createBatcher2D();
     return ppl;
