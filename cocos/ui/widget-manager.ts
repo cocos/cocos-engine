@@ -70,7 +70,7 @@ function align (node: Node, widget: Widget): void {
     let x = _tempPos.x;
     let y = _tempPos.y;
     const anchor = uiTrans.anchorPoint;
-    const scale = node.scale;
+    const scale = node.scale;    // a reference, and its value will change with node scaling
 
     if (widget.alignFlags & AlignFlags.HORIZONTAL) {
         let localLeft = 0;
