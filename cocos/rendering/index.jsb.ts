@@ -37,8 +37,6 @@ import {
     RenderStage as NrRenderStage,
     InstancedBuffer as NrInstancedBuffer,
     PipelineStateManager as NrPipelineStateManager,
-    ReflectionProbeFlow as NrReflectionProbeFlow,
-    ReflectionProbeStage as NrReflectionProbeStage,
 } from './index';
 
 export { pipeline };
@@ -54,67 +52,12 @@ export type InstancedBuffer = NrInstancedBuffer;
 export const PipelineStateManager: typeof NrPipelineStateManager = nr.PipelineStateManager;
 export type PipelineStateManager = NrPipelineStateManager;
 
-export const ReflectionProbeFlow: typeof NrReflectionProbeFlow = nr.ReflectionProbeFlow;
-export type ReflectionProbeFlow = NrReflectionProbeFlow;
-export const ReflectionProbeStage: typeof NrReflectionProbeStage = nr.ReflectionProbeStage;
-export type ReflectionProbeStage = NrReflectionProbeStage;
 export { PipelineEventType } from './pipeline-event';
-
-interface IRenderFlowInfo {
-    name: string;
-    priority: number;
-    stages: any[];
-    tag: number;
-}
-
-interface IRenderStageInfo {
-    name: string;
-    priority: number;
-    tag: number;
-    renderQueues: RenderQueueDesc[];
-}
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function (device, pass, shader, renderPass, ia) {
     return getOrCreatePipelineState(pass, shader, renderPass, ia); //cjh TODO: remove hacking. c++ API doesn't access device argument.
 };
-
-
-
-// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
-const reflectionProbeFlowProto: any = ReflectionProbeFlow.prototype;
-reflectionProbeFlowProto._ctor = function () {
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this._stages = [];
-}
-reflectionProbeFlowProto.init = function (pipeline) {
-    for (let i = 0; i < this._stages.length; i++) {
-        this._stages[i].init(pipeline);
-    }
-    const info: IRenderFlowInfo = { name: this._name, priority: this._priority, tag: this._tag, stages: this._stages };
-    this.initialize(info);
-}
-
-// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
-const reflectionProbeStage: any = ReflectionProbeStage.prototype;
-reflectionProbeStage._ctor = function () {
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this.renderQueues = [];
-}
-reflectionProbeStage.init = function (pipeline) {
-    const queues = [];
-    for (let i = 0; i < this.renderQueues.length; i++) {
-        // @ts-ignore
-        queues.push(this.renderQueues[i].init());
-    }
-    const info: IRenderStageInfo = { name: this._name, priority: this._priority, tag: this._tag, renderQueues: queues };
-    this.initialize(info);
-}
-
 
 export enum RenderQueueSortMode {
     FRONT_TO_BACK,
@@ -200,9 +143,7 @@ if (!OPEN_HARMONY) {
 
 decors.patch_RenderQueueDesc({RenderQueueDesc, RenderQueueSortMode, CCString});
 decors.patch_RenderStage({RenderStage});
-decors.patch_ReflectionProbeStage({ReflectionProbeStage});
 
 decors.patch_RenderFlow({RenderFlow, RenderStage});
-decors.patch_ReflectionProbeFlow({ReflectionProbeFlow});
 
 decors.patch_cc_RenderPipeline({RenderPipeline, RenderFlow});

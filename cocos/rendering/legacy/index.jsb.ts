@@ -37,6 +37,8 @@ import {
     PostProcessStage as NrPostProcessStage,
     GbufferStage as NrGbufferStage,
     BloomStage as NrBloomStage,
+    ReflectionProbeFlow as NrReflectionProbeFlow,
+    ReflectionProbeStage as NrReflectionProbeStage,
 } from './index';
 import {
     RenderQueueDesc
@@ -72,6 +74,10 @@ export const GbufferStage: typeof NrGbufferStage = nr.GbufferStage;
 export type GbufferStage = NrGbufferStage;
 export const BloomStage: typeof NrBloomStage = nr.BloomStage;
 export type BloomStage = NrBloomStage;
+export const ReflectionProbeFlow: typeof NrReflectionProbeFlow = nr.ReflectionProbeFlow;
+export type ReflectionProbeFlow = NrReflectionProbeFlow;
+export const ReflectionProbeStage: typeof NrReflectionProbeStage = nr.ReflectionProbeStage;
+export type ReflectionProbeStage = NrReflectionProbeStage;
 
 interface IRenderPipelineInfo {
     flows: any[];
@@ -299,6 +305,40 @@ postProcessStageProto.init = function (pipeline) {
     this.initialize(info);
 }
 
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const reflectionProbeFlowProto: any = ReflectionProbeFlow.prototype;
+reflectionProbeFlowProto._ctor = function () {
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+}
+reflectionProbeFlowProto.init = function (pipeline) {
+    for (let i = 0; i < this._stages.length; i++) {
+        this._stages[i].init(pipeline);
+    }
+    const info: IRenderFlowInfo = { name: this._name, priority: this._priority, tag: this._tag, stages: this._stages };
+    this.initialize(info);
+}
+
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const reflectionProbeStage: any = ReflectionProbeStage.prototype;
+reflectionProbeStage._ctor = function () {
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+}
+reflectionProbeStage.init = function (pipeline) {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
+    }
+    const info: IRenderStageInfo = { name: this._name, priority: this._priority, tag: this._tag, renderQueues: queues };
+    this.initialize(info);
+}
+
 @ccclass('RenderTextureConfig')
 class RenderTextureConfig {
     @serializable
@@ -318,10 +358,12 @@ decors.patch_BloomStage({BloomStage, Material});
 decors.patch_PostProcessStage({PostProcessStage, Material, RenderQueueDesc});
 decors.patch_ForwardStage({ForwardStage, RenderQueueDesc});
 decors.patch_ShadowStage({ShadowStage});
+decors.patch_ReflectionProbeStage({ReflectionProbeStage});
 
 decors.patch_MainFlow({MainFlow});
 decors.patch_ForwardFlow({ForwardFlow});
 decors.patch_ShadowFlow({ShadowFlow});
+decors.patch_ReflectionProbeFlow({ReflectionProbeFlow});
 
 decors.patch_ForwardPipeline({ForwardPipeline, RenderTextureConfig});
 decors.patch_DeferredPipeline({DeferredPipeline, RenderTextureConfig});

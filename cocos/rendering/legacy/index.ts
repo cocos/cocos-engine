@@ -33,3 +33,6 @@ export { BloomStage } from '../deferred/bloom-stage';
 export { PostProcessStage } from '../deferred/postprocess-stage';
 export { ShadowFlow } from '../shadow/shadow-flow';
 export { ShadowStage } from '../shadow/shadow-stage';
+
+export { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
+export { ReflectionProbeStage } from '../reflection-probe/reflection-probe-stage';
