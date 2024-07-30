@@ -210,20 +210,17 @@ export class SkeletonData extends Asset {
         const spData = spine.wasmUtil.querySpineSkeletonDataByUUID(this._uuid);
         if (spData) {
             this._skeletonCache = spData;
+        } else if (this._skeletonJson) {
+            this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(this.skeletonJsonStr, this._atlasText);
+            spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
         } else {
-            const jsonStr = this.skeletonJsonStr;
-            if (jsonStr) {
-                this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithJson(jsonStr, this._atlasText);
-                spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
-            } else {
-                const rawData = new Uint8Array(this._nativeAsset);
-                const byteSize = rawData.length;
-                const ptr = spine.wasmUtil.queryStoreMemory(byteSize);
-                const wasmMem = spine.wasmUtil.wasm.HEAPU8.subarray(ptr, ptr + byteSize);
-                wasmMem.set(rawData);
-                this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithBinary(byteSize, this._atlasText);
-                spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
-            }
+            const rawData = new Uint8Array(this._nativeAsset);
+            const byteSize = rawData.length;
+            const ptr = spine.wasmUtil.queryStoreMemory(byteSize);
+            const wasmMem = spine.wasmUtil.wasm.HEAPU8.subarray(ptr, ptr + byteSize);
+            wasmMem.set(rawData);
+            this._skeletonCache = spine.wasmUtil.createSpineSkeletonDataWithBinary(byteSize, this._atlasText);
+            spine.wasmUtil.registerSpineSkeletonDataWithUUID(this._skeletonCache, this._uuid);
         }
 
         return this._skeletonCache;
