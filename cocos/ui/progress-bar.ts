@@ -287,7 +287,7 @@ export class ProgressBar extends Component {
             const entTrans = entity._uiProps.uiTransformComp!;
             const entityAnchorPoint = entTrans.anchorPoint;
             const entitySize = entTrans.contentSize;
-            const entityPosition = entity.getPosition();
+            const entityPosition = entity.position;
 
             let anchorPoint = new Vec2(0, 0.5);
             const progress = clamp01(this._progress);

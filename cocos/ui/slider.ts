@@ -296,7 +296,7 @@ export class Slider extends Component {
         if (!this._handle) {
             return;
         }
-        this._handleLocalPos.set(this._handle.node.getPosition());
+        this._handleLocalPos.set(this._handle.node.position);
         const uiTrans = this.node._uiProps.uiTransformComp!;
         if (this._direction === Direction.Horizontal) {
             this._handleLocalPos.x = -uiTrans.width * uiTrans.anchorX + this.progress * uiTrans.width;
