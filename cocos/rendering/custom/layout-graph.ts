@@ -284,13 +284,6 @@ export class LayoutGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryValue<T extends LayoutGraphValue> (id: T, v: number): LayoutGraphValueType[T] | null {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as LayoutGraphValueType[T];
-        } else {
-            return null;
-        }
-    }
     visitVertex (visitor: LayoutGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
@@ -303,32 +296,10 @@ export class LayoutGraph implements BidirectionalGraph
         }
     }
     getRenderStage (v: number): RenderPassType {
-        if (this._vertices[v]._id === LayoutGraphValue.RenderStage) {
-            return this._vertices[v]._object as RenderPassType;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderPassType;
     }
     getRenderPhase (v: number): RenderPhase {
-        if (this._vertices[v]._id === LayoutGraphValue.RenderPhase) {
-            return this._vertices[v]._object as RenderPhase;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    tryGetRenderStage (v: number): RenderPassType | null {
-        if (this._vertices[v]._id === LayoutGraphValue.RenderStage) {
-            return this._vertices[v]._object as RenderPassType;
-        } else {
-            return null;
-        }
-    }
-    tryGetRenderPhase (v: number): RenderPhase | null {
-        if (this._vertices[v]._id === LayoutGraphValue.RenderPhase) {
-            return this._vertices[v]._object as RenderPhase;
-        } else {
-            return null;
-        }
+        return this._vertices[v]._object as RenderPhase;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -858,13 +829,6 @@ export class LayoutGraphData implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryValue<T extends LayoutGraphDataValue> (id: T, v: number): LayoutGraphDataValueType[T] | null {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as LayoutGraphDataValueType[T];
-        } else {
-            return null;
-        }
-    }
     visitVertex (visitor: LayoutGraphDataVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
@@ -877,32 +841,10 @@ export class LayoutGraphData implements BidirectionalGraph
         }
     }
     getRenderStage (v: number): RenderStageData {
-        if (this._vertices[v]._id === LayoutGraphDataValue.RenderStage) {
-            return this._vertices[v]._object as RenderStageData;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderStageData;
     }
     getRenderPhase (v: number): RenderPhaseData {
-        if (this._vertices[v]._id === LayoutGraphDataValue.RenderPhase) {
-            return this._vertices[v]._object as RenderPhaseData;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    tryGetRenderStage (v: number): RenderStageData | null {
-        if (this._vertices[v]._id === LayoutGraphDataValue.RenderStage) {
-            return this._vertices[v]._object as RenderStageData;
-        } else {
-            return null;
-        }
-    }
-    tryGetRenderPhase (v: number): RenderPhaseData | null {
-        if (this._vertices[v]._id === LayoutGraphDataValue.RenderPhase) {
-            return this._vertices[v]._object as RenderPhaseData;
-        } else {
-            return null;
-        }
+        return this._vertices[v]._object as RenderPhaseData;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph

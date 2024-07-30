@@ -378,7 +378,7 @@ export interface PolymorphicGraph extends Graph {
     id (v: vertex_descriptor): number;
     object (v: vertex_descriptor): unknown;
     value (id: number, v: vertex_descriptor): unknown;
-    tryValue(id: number, v: vertex_descriptor): unknown;
+    // tryValue(id: number, v: vertex_descriptor): unknown;
     visitVertex (visitor: unknown, v: vertex_descriptor): void;
 }
 

@@ -80,7 +80,7 @@ import { Root } from '../../root';
 import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-pipeline';
-import { DescriptorSetData, LayoutGraphData, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
+import { DescriptorSetData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
 import { BasicPipeline } from './pipeline';
 import {
     Blit,
@@ -103,6 +103,7 @@ import {
     RaytracePass,
     RenderData,
     RenderGraph,
+    RenderGraphValue,
     RenderGraphVisitor,
     RenderQueue,
     RenderSwapchain,
@@ -542,7 +543,9 @@ class DeviceComputeQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.tryGetRenderPhase(value);
+        this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
+            ? layoutGraph.getRenderPhase(value)
+            : null;
         const layout = layoutGraph.getLayout(value);
         this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
     }
@@ -593,7 +596,9 @@ class DeviceRenderQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.tryGetRenderPhase(value);
+        this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
+            ? layoutGraph.getRenderPhase(value)
+            : null;
         const layout = layoutGraph.getLayout(value);
         this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
     }
@@ -1878,22 +1883,22 @@ class BaseRenderVisitor {
         this.rg = context.renderGraph;
     }
     protected _isRasterPass (u: number): boolean {
-        return !!context.renderGraph.tryGetRasterPass(u);
+        return context.renderGraph.holds(RenderGraphValue.RasterPass, u);
     }
     protected isComputePass (u: number): boolean {
-        return !!context.renderGraph.tryGetCompute(u);
+        return context.renderGraph.holds(RenderGraphValue.Compute, u);
     }
     protected isDispatch (u: number): boolean {
-        return !!context.renderGraph.tryGetDispatch(u);
+        return context.renderGraph.holds(RenderGraphValue.Dispatch, u);
     }
     protected _isQueue (u: number): boolean {
-        return !!context.renderGraph.tryGetQueue(u);
+        return context.renderGraph.holds(RenderGraphValue.Queue, u);
     }
     protected _isScene (u: number): boolean {
-        return !!context.renderGraph.tryGetScene(u);
+        return context.renderGraph.holds(RenderGraphValue.Scene, u);
     }
     protected _isBlit (u: number): boolean {
-        return !!context.renderGraph.tryGetBlit(u);
+        return context.renderGraph.holds(RenderGraphValue.Blit, u);
     }
     applyID (id: number): void {
         if (this._isRasterPass(id)) {

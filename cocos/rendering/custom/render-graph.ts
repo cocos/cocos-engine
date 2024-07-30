@@ -850,13 +850,6 @@ export class ResourceGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryValue<T extends ResourceGraphValue> (id: T, v: number): ResourceGraphValueType[T] | null {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as ResourceGraphValueType[T];
-        } else {
-            return null;
-        }
-    }
     visitVertex (visitor: ResourceGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
@@ -883,130 +876,31 @@ export class ResourceGraph implements BidirectionalGraph
         }
     }
     getManaged (v: number): ManagedResource {
-        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
-            return this._vertices[v]._object as ManagedResource;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ManagedResource;
     }
     getManagedBuffer (v: number): ManagedBuffer {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
-            return this._vertices[v]._object as ManagedBuffer;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ManagedBuffer;
     }
     getManagedTexture (v: number): ManagedTexture {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
-            return this._vertices[v]._object as ManagedTexture;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ManagedTexture;
     }
     getPersistentBuffer (v: number): PersistentBuffer {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
-            return this._vertices[v]._object as PersistentBuffer;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as PersistentBuffer;
     }
     getPersistentTexture (v: number): PersistentTexture {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
-            return this._vertices[v]._object as PersistentTexture;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as PersistentTexture;
     }
     getFramebuffer (v: number): Framebuffer {
-        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
-            return this._vertices[v]._object as Framebuffer;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as Framebuffer;
     }
     getSwapchain (v: number): RenderSwapchain {
-        if (this._vertices[v]._id === ResourceGraphValue.Swapchain) {
-            return this._vertices[v]._object as RenderSwapchain;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderSwapchain;
     }
     getFormatView (v: number): FormatView {
-        if (this._vertices[v]._id === ResourceGraphValue.FormatView) {
-            return this._vertices[v]._object as FormatView;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as FormatView;
     }
     getSubresourceView (v: number): SubresourceView {
-        if (this._vertices[v]._id === ResourceGraphValue.SubresourceView) {
-            return this._vertices[v]._object as SubresourceView;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    tryGetManaged (v: number): ManagedResource | null {
-        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
-            return this._vertices[v]._object as ManagedResource;
-        } else {
-            return null;
-        }
-    }
-    tryGetManagedBuffer (v: number): ManagedBuffer | null {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
-            return this._vertices[v]._object as ManagedBuffer;
-        } else {
-            return null;
-        }
-    }
-    tryGetManagedTexture (v: number): ManagedTexture | null {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
-            return this._vertices[v]._object as ManagedTexture;
-        } else {
-            return null;
-        }
-    }
-    tryGetPersistentBuffer (v: number): PersistentBuffer | null {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
-            return this._vertices[v]._object as PersistentBuffer;
-        } else {
-            return null;
-        }
-    }
-    tryGetPersistentTexture (v: number): PersistentTexture | null {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
-            return this._vertices[v]._object as PersistentTexture;
-        } else {
-            return null;
-        }
-    }
-    tryGetFramebuffer (v: number): Framebuffer | null {
-        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
-            return this._vertices[v]._object as Framebuffer;
-        } else {
-            return null;
-        }
-    }
-    tryGetSwapchain (v: number): RenderSwapchain | null {
-        if (this._vertices[v]._id === ResourceGraphValue.Swapchain) {
-            return this._vertices[v]._object as RenderSwapchain;
-        } else {
-            return null;
-        }
-    }
-    tryGetFormatView (v: number): FormatView | null {
-        if (this._vertices[v]._id === ResourceGraphValue.FormatView) {
-            return this._vertices[v]._object as FormatView;
-        } else {
-            return null;
-        }
-    }
-    tryGetSubresourceView (v: number): SubresourceView | null {
-        if (this._vertices[v]._id === ResourceGraphValue.SubresourceView) {
-            return this._vertices[v]._object as SubresourceView;
-        } else {
-            return null;
-        }
+        return this._vertices[v]._object as SubresourceView;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -1600,13 +1494,6 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryValue<T extends RenderGraphValue> (id: T, v: number): RenderGraphValueType[T] | null {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as RenderGraphValueType[T];
-        } else {
-            return null;
-        }
-    }
     visitVertex (visitor: RenderGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
@@ -1643,200 +1530,46 @@ export class RenderGraph implements BidirectionalGraph
         }
     }
     getRasterPass (v: number): RasterPass {
-        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
-            return this._vertices[v]._object as RasterPass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RasterPass;
     }
     getRasterSubpass (v: number): RasterSubpass {
-        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
-            return this._vertices[v]._object as RasterSubpass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RasterSubpass;
     }
     getComputeSubpass (v: number): ComputeSubpass {
-        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
-            return this._vertices[v]._object as ComputeSubpass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ComputeSubpass;
     }
     getCompute (v: number): ComputePass {
-        if (this._vertices[v]._id === RenderGraphValue.Compute) {
-            return this._vertices[v]._object as ComputePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ComputePass;
     }
     getResolve (v: number): ResolvePass {
-        if (this._vertices[v]._id === RenderGraphValue.Resolve) {
-            return this._vertices[v]._object as ResolvePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ResolvePass;
     }
     getCopy (v: number): CopyPass {
-        if (this._vertices[v]._id === RenderGraphValue.Copy) {
-            return this._vertices[v]._object as CopyPass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as CopyPass;
     }
     getMove (v: number): MovePass {
-        if (this._vertices[v]._id === RenderGraphValue.Move) {
-            return this._vertices[v]._object as MovePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as MovePass;
     }
     getRaytrace (v: number): RaytracePass {
-        if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
-            return this._vertices[v]._object as RaytracePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RaytracePass;
     }
     getQueue (v: number): RenderQueue {
-        if (this._vertices[v]._id === RenderGraphValue.Queue) {
-            return this._vertices[v]._object as RenderQueue;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderQueue;
     }
     getScene (v: number): SceneData {
-        if (this._vertices[v]._id === RenderGraphValue.Scene) {
-            return this._vertices[v]._object as SceneData;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as SceneData;
     }
     getBlit (v: number): Blit {
-        if (this._vertices[v]._id === RenderGraphValue.Blit) {
-            return this._vertices[v]._object as Blit;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as Blit;
     }
     getDispatch (v: number): Dispatch {
-        if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
-            return this._vertices[v]._object as Dispatch;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as Dispatch;
     }
     getClear (v: number): ClearView[] {
-        if (this._vertices[v]._id === RenderGraphValue.Clear) {
-            return this._vertices[v]._object as ClearView[];
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ClearView[];
     }
     getViewport (v: number): Viewport {
-        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
-            return this._vertices[v]._object as Viewport;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    tryGetRasterPass (v: number): RasterPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
-            return this._vertices[v]._object as RasterPass;
-        } else {
-            return null;
-        }
-    }
-    tryGetRasterSubpass (v: number): RasterSubpass | null {
-        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
-            return this._vertices[v]._object as RasterSubpass;
-        } else {
-            return null;
-        }
-    }
-    tryGetComputeSubpass (v: number): ComputeSubpass | null {
-        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
-            return this._vertices[v]._object as ComputeSubpass;
-        } else {
-            return null;
-        }
-    }
-    tryGetCompute (v: number): ComputePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Compute) {
-            return this._vertices[v]._object as ComputePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetResolve (v: number): ResolvePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Resolve) {
-            return this._vertices[v]._object as ResolvePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetCopy (v: number): CopyPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Copy) {
-            return this._vertices[v]._object as CopyPass;
-        } else {
-            return null;
-        }
-    }
-    tryGetMove (v: number): MovePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Move) {
-            return this._vertices[v]._object as MovePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetRaytrace (v: number): RaytracePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
-            return this._vertices[v]._object as RaytracePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetQueue (v: number): RenderQueue | null {
-        if (this._vertices[v]._id === RenderGraphValue.Queue) {
-            return this._vertices[v]._object as RenderQueue;
-        } else {
-            return null;
-        }
-    }
-    tryGetScene (v: number): SceneData | null {
-        if (this._vertices[v]._id === RenderGraphValue.Scene) {
-            return this._vertices[v]._object as SceneData;
-        } else {
-            return null;
-        }
-    }
-    tryGetBlit (v: number): Blit | null {
-        if (this._vertices[v]._id === RenderGraphValue.Blit) {
-            return this._vertices[v]._object as Blit;
-        } else {
-            return null;
-        }
-    }
-    tryGetDispatch (v: number): Dispatch | null {
-        if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
-            return this._vertices[v]._object as Dispatch;
-        } else {
-            return null;
-        }
-    }
-    tryGetClear (v: number): ClearView[] | null {
-        if (this._vertices[v]._id === RenderGraphValue.Clear) {
-            return this._vertices[v]._object as ClearView[];
-        } else {
-            return null;
-        }
-    }
-    tryGetViewport (v: number): Viewport | null {
-        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
-            return this._vertices[v]._object as Viewport;
-        } else {
-            return null;
-        }
+        return this._vertices[v]._object as Viewport;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
