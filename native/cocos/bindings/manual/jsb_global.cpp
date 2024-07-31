@@ -42,7 +42,6 @@
 #include "platform/interfaces/modules/ISystem.h"
 #include "platform/interfaces/modules/ISystemWindow.h"
 #include "ui/edit-box/EditBox.h"
-#include "v8/Object.h"
 #include "xxtea/xxtea.h"
 
 #include <chrono>

@@ -704,7 +704,7 @@ static bool js_readFile(se::State &s) { // NOLINT
         // fullPathForFilename is not threadsafe, so don't invoke it in thread pool.
         ccstd::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(path);
         
-        gIOThreadPool->pushTask([fullPath, callbackPtr](int tid) {
+        gIOThreadPool->pushTask([fullPath, callbackPtr](int/* tid */) {
             auto *fs = cc::FileUtils::getInstance();
             if (fs == nullptr) {
                 return;
