@@ -51,6 +51,8 @@ import * as decors from '../../native-binding/decorators';
 import { ccclass, serializable, editable, type } from '../../core/data/class-decorator';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
+export { loadRenderPipeline } from './index';
+
 export function createDefaultPipeline (): ForwardPipeline {
     const rppl = new ForwardPipeline();
     rppl.initialize({ flows: [] });
@@ -464,3 +466,4 @@ decors.patch_RenderStage({RenderStage});
 decors.patch_RenderFlow({RenderFlow, RenderStage});
 
 decors.patch_cc_RenderPipeline({RenderPipeline, RenderFlow});
+
