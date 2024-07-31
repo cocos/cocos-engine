@@ -404,7 +404,7 @@ export class UniformData {
         this.uniformType = uniformType;
         this.offset = offset;
     }
-    reset (uniformID = 0xFFFFFFFF, uniformType: Type = Type.UNKNOWN, offset = 0): void {
+    reset (uniformID: number, uniformType: Type, offset: number): void {
         this.uniformID = uniformID;
         this.uniformType = uniformType;
         this.offset = offset;
@@ -431,7 +431,7 @@ export class DescriptorData {
         this.type = type;
         this.count = count;
     }
-    reset (descriptorID = 0, type: Type = Type.UNKNOWN, count = 1): void {
+    reset (descriptorID: number, type: Type, count: number): void {
         this.descriptorID = descriptorID;
         this.type = type;
         this.count = count;
@@ -447,7 +447,7 @@ export class DescriptorBlockData {
         this.visibility = visibility;
         this.capacity = capacity;
     }
-    reset (type: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER, visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE, capacity = 0): void {
+    reset (type: DescriptorTypeOrder, visibility: ShaderStageFlagBit, capacity: number): void {
         this.type = type;
         this.visibility = visibility;
         this.offset = 0;
@@ -476,8 +476,8 @@ export class DescriptorSetLayoutData {
         this.bindingMap = bindingMap;
     }
     reset (
-        slot = 0xFFFFFFFF,
-        capacity = 0,
+        slot: number,
+        capacity: number,
     ): void {
         this.slot = slot;
         this.capacity = capacity;
@@ -502,8 +502,8 @@ export class DescriptorSetData {
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
-    reset (descriptorSetLayout: DescriptorSetLayout | null = null, descriptorSet: DescriptorSet | null = null): void {
-        this.descriptorSetLayoutData.reset();
+    reset (descriptorSetLayout: DescriptorSetLayout | null, descriptorSet: DescriptorSet | null): void {
+        this.descriptorSetLayoutData.reset(0xFFFFFFFF, 0);
         this.descriptorSetLayoutInfo.reset();
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
