@@ -33,10 +33,23 @@
     #include "ScriptEngine.h"
     #include "base/Log.h"
     #include "base/Macros.h"
+    #include "base/UTF8.h"
 
 namespace se {
 
 namespace internal {
+
+namespace {
+
+inline v8::MaybeLocal<v8::String> createV8StringFromUtf8(v8::Isolate* isolate, const ccstd::string &u8Str, v8::NewStringType type = v8::NewStringType::kNormal) {
+    std::u16string u16Str;
+    if (cc::StringUtils::UTF8ToUTF16(u8Str, u16Str)) {
+        return v8::String::NewFromTwoByte(isolate, reinterpret_cast<const uint16_t*>(u16Str.data()), type, static_cast<int>(u16Str.length()));
+    }
+    return {};
+}
+
+} // namespace {
 
 void jsToSeArgs(const v8::FunctionCallbackInfo<v8::Value> &v8args, ValueArray &outArr) {
     v8::Isolate *isolate = v8args.GetIsolate();
@@ -62,7 +75,8 @@ void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *out
             *outJsVal = v8::Number::New(isolate, v.toDouble());
             break;
         case Value::Type::String: {
-            v8::MaybeLocal<v8::String> str = v8::String::NewFromUtf8(isolate, v.toString().data(), v8::NewStringType::kNormal, static_cast<int>(v.toString().length()));
+//            v8::MaybeLocal<v8::String> str = v8::String::NewFromUtf8(isolate, v.toString().data(), v8::NewStringType::kNormal, static_cast<int>(v.toString().length()));
+            auto str = createV8StringFromUtf8(isolate, v.toString(), v8::NewStringType::kNormal);
             if (!str.IsEmpty()) {
                 *outJsVal = str.ToLocalChecked();
             } else {
@@ -181,7 +195,8 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
             break;
         }
         case Value::Type::String: {
-            v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
+//            v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
+            auto value = createV8StringFromUtf8(argv.GetIsolate(), data.toString(), v8::NewStringType::kNormal);
             CC_ASSERT(!value.IsEmpty());
             argv.GetReturnValue().Set(value.ToLocalChecked());
             break;
