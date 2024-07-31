@@ -1620,6 +1620,6 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
         SAFE_DEC_REF(__jsbObj);
         SAFE_DEC_REF(__glObj);
     });
-    
+
     return true;
 }
