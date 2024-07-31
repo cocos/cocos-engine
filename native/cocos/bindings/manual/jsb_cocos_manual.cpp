@@ -722,10 +722,10 @@ static bool js_readFile(se::State &s) { // NOLINT
             if (!engine) {
                 return;
             }
-            
+
+            std::shared_ptr<std::u16string> u16str;
             // TODO(cjh): OpenHarmony NAPI support
 #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
-            std::shared_ptr<std::u16string> u16str;
             if constexpr (std::is_same_v<T, ccstd::string> && isJson) {
                 u16str = std::make_shared<std::u16string>();
                 if (!cc::StringUtils::UTF8ToUTF16(*content, *u16str)) {
