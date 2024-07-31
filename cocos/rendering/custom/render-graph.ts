@@ -1071,7 +1071,7 @@ export class RenderQueue {
     viewport: Viewport | null = null;
 }
 
-export enum CullingFlags {
+export const enum CullingFlags {
     NONE = 0,
     CAMERA_FRUSTUM = 0x1,
     LIGHT_FRUSTUM = 0x2,
@@ -1654,113 +1654,9 @@ export class RenderGraph implements BidirectionalGraph
     readonly sortedVertices: number[] = [];
 }
 
-export class RenderGraphObjectPoolSettings {
-    constructor (batchSize: number) {
-        this.clearValueBatchSize = batchSize;
-        this.rasterViewBatchSize = batchSize;
-        this.computeViewBatchSize = batchSize;
-        this.resourceDescBatchSize = batchSize;
-        this.resourceTraitsBatchSize = batchSize;
-        this.renderSwapchainBatchSize = batchSize;
-        this.resourceStatesBatchSize = batchSize;
-        this.managedBufferBatchSize = batchSize;
-        this.persistentBufferBatchSize = batchSize;
-        this.managedTextureBatchSize = batchSize;
-        this.persistentTextureBatchSize = batchSize;
-        this.managedResourceBatchSize = batchSize;
-        this.subpassBatchSize = batchSize;
-        this.subpassGraphBatchSize = batchSize;
-        this.rasterSubpassBatchSize = batchSize;
-        this.computeSubpassBatchSize = batchSize;
-        this.rasterPassBatchSize = batchSize;
-        this.persistentRenderPassAndFramebufferBatchSize = batchSize;
-        this.formatViewBatchSize = batchSize;
-        this.subresourceViewBatchSize = batchSize;
-        this.resourceGraphBatchSize = batchSize;
-        this.computePassBatchSize = batchSize;
-        this.resolvePassBatchSize = batchSize;
-        this.copyPassBatchSize = batchSize;
-        this.movePassBatchSize = batchSize;
-        this.raytracePassBatchSize = batchSize;
-        this.clearViewBatchSize = batchSize;
-        this.renderQueueBatchSize = batchSize;
-        this.sceneDataBatchSize = batchSize;
-        this.dispatchBatchSize = batchSize;
-        this.blitBatchSize = batchSize;
-        this.renderDataBatchSize = batchSize;
-        this.renderGraphBatchSize = batchSize;
-    }
-    clearValueBatchSize = 16;
-    rasterViewBatchSize = 16;
-    computeViewBatchSize = 16;
-    resourceDescBatchSize = 16;
-    resourceTraitsBatchSize = 16;
-    renderSwapchainBatchSize = 16;
-    resourceStatesBatchSize = 16;
-    managedBufferBatchSize = 16;
-    persistentBufferBatchSize = 16;
-    managedTextureBatchSize = 16;
-    persistentTextureBatchSize = 16;
-    managedResourceBatchSize = 16;
-    subpassBatchSize = 16;
-    subpassGraphBatchSize = 16;
-    rasterSubpassBatchSize = 16;
-    computeSubpassBatchSize = 16;
-    rasterPassBatchSize = 16;
-    persistentRenderPassAndFramebufferBatchSize = 16;
-    formatViewBatchSize = 16;
-    subresourceViewBatchSize = 16;
-    resourceGraphBatchSize = 16;
-    computePassBatchSize = 16;
-    resolvePassBatchSize = 16;
-    copyPassBatchSize = 16;
-    movePassBatchSize = 16;
-    raytracePassBatchSize = 16;
-    clearViewBatchSize = 16;
-    renderQueueBatchSize = 16;
-    sceneDataBatchSize = 16;
-    dispatchBatchSize = 16;
-    blitBatchSize = 16;
-    renderDataBatchSize = 16;
-    renderGraphBatchSize = 16;
-}
-
 export class RenderGraphObjectPool {
-    constructor (settings: RenderGraphObjectPoolSettings, renderCommon: RenderCommonObjectPool) {
+    constructor (renderCommon: RenderCommonObjectPool) {
         this.renderCommon = renderCommon;
-        this._clearValue = new RecyclePool<ClearValue>(() => new ClearValue(), settings.clearValueBatchSize);
-        this._rasterView = new RecyclePool<RasterView>(() => new RasterView(), settings.rasterViewBatchSize);
-        this._computeView = new RecyclePool<ComputeView>(() => new ComputeView(), settings.computeViewBatchSize);
-        this._resourceDesc = new RecyclePool<ResourceDesc>(() => new ResourceDesc(), settings.resourceDescBatchSize);
-        this._resourceTraits = new RecyclePool<ResourceTraits>(() => new ResourceTraits(), settings.resourceTraitsBatchSize);
-        this._renderSwapchain = new RecyclePool<RenderSwapchain>(() => new RenderSwapchain(), settings.renderSwapchainBatchSize);
-        this._resourceStates = new RecyclePool<ResourceStates>(() => new ResourceStates(), settings.resourceStatesBatchSize);
-        this._managedBuffer = new RecyclePool<ManagedBuffer>(() => new ManagedBuffer(), settings.managedBufferBatchSize);
-        this._persistentBuffer = new RecyclePool<PersistentBuffer>(() => new PersistentBuffer(), settings.persistentBufferBatchSize);
-        this._managedTexture = new RecyclePool<ManagedTexture>(() => new ManagedTexture(), settings.managedTextureBatchSize);
-        this._persistentTexture = new RecyclePool<PersistentTexture>(() => new PersistentTexture(), settings.persistentTextureBatchSize);
-        this._managedResource = new RecyclePool<ManagedResource>(() => new ManagedResource(), settings.managedResourceBatchSize);
-        this._subpass = new RecyclePool<Subpass>(() => new Subpass(), settings.subpassBatchSize);
-        this._subpassGraph = new RecyclePool<SubpassGraph>(() => new SubpassGraph(), settings.subpassGraphBatchSize);
-        this._rasterSubpass = new RecyclePool<RasterSubpass>(() => new RasterSubpass(), settings.rasterSubpassBatchSize);
-        this._computeSubpass = new RecyclePool<ComputeSubpass>(() => new ComputeSubpass(), settings.computeSubpassBatchSize);
-        this._rasterPass = new RecyclePool<RasterPass>(() => new RasterPass(), settings.rasterPassBatchSize);
-        this._persistentRenderPassAndFramebuffer = new RecyclePool<PersistentRenderPassAndFramebuffer>(() => new PersistentRenderPassAndFramebuffer(), settings.persistentRenderPassAndFramebufferBatchSize);
-        this._formatView = new RecyclePool<FormatView>(() => new FormatView(), settings.formatViewBatchSize);
-        this._subresourceView = new RecyclePool<SubresourceView>(() => new SubresourceView(), settings.subresourceViewBatchSize);
-        this._resourceGraph = new RecyclePool<ResourceGraph>(() => new ResourceGraph(), settings.resourceGraphBatchSize);
-        this._computePass = new RecyclePool<ComputePass>(() => new ComputePass(), settings.computePassBatchSize);
-        this._resolvePass = new RecyclePool<ResolvePass>(() => new ResolvePass(), settings.resolvePassBatchSize);
-        this._copyPass = new RecyclePool<CopyPass>(() => new CopyPass(), settings.copyPassBatchSize);
-        this._movePass = new RecyclePool<MovePass>(() => new MovePass(), settings.movePassBatchSize);
-        this._raytracePass = new RecyclePool<RaytracePass>(() => new RaytracePass(), settings.raytracePassBatchSize);
-        this._clearView = new RecyclePool<ClearView>(() => new ClearView(), settings.clearViewBatchSize);
-        this._renderQueue = new RecyclePool<RenderQueue>(() => new RenderQueue(), settings.renderQueueBatchSize);
-        this._sceneData = new RecyclePool<SceneData>(() => new SceneData(), settings.sceneDataBatchSize);
-        this._dispatch = new RecyclePool<Dispatch>(() => new Dispatch(), settings.dispatchBatchSize);
-        this._blit = new RecyclePool<Blit>(() => new Blit(), settings.blitBatchSize);
-        this._renderData = new RecyclePool<RenderData>(() => new RenderData(), settings.renderDataBatchSize);
-        this._renderGraph = new RecyclePool<RenderGraph>(() => new RenderGraph(), settings.renderGraphBatchSize);
     }
     reset (): void {
         this._clearValue.reset();
@@ -2028,37 +1924,37 @@ export class RenderGraphObjectPool {
         return v;
     }
     public readonly renderCommon: RenderCommonObjectPool;
-    private readonly _clearValue: RecyclePool<ClearValue>;
-    private readonly _rasterView: RecyclePool<RasterView>;
-    private readonly _computeView: RecyclePool<ComputeView>;
-    private readonly _resourceDesc: RecyclePool<ResourceDesc>;
-    private readonly _resourceTraits: RecyclePool<ResourceTraits>;
-    private readonly _renderSwapchain: RecyclePool<RenderSwapchain>;
-    private readonly _resourceStates: RecyclePool<ResourceStates>;
-    private readonly _managedBuffer: RecyclePool<ManagedBuffer>;
-    private readonly _persistentBuffer: RecyclePool<PersistentBuffer>;
-    private readonly _managedTexture: RecyclePool<ManagedTexture>;
-    private readonly _persistentTexture: RecyclePool<PersistentTexture>;
-    private readonly _managedResource: RecyclePool<ManagedResource>;
-    private readonly _subpass: RecyclePool<Subpass>;
-    private readonly _subpassGraph: RecyclePool<SubpassGraph>;
-    private readonly _rasterSubpass: RecyclePool<RasterSubpass>;
-    private readonly _computeSubpass: RecyclePool<ComputeSubpass>;
-    private readonly _rasterPass: RecyclePool<RasterPass>;
-    private readonly _persistentRenderPassAndFramebuffer: RecyclePool<PersistentRenderPassAndFramebuffer>;
-    private readonly _formatView: RecyclePool<FormatView>;
-    private readonly _subresourceView: RecyclePool<SubresourceView>;
-    private readonly _resourceGraph: RecyclePool<ResourceGraph>;
-    private readonly _computePass: RecyclePool<ComputePass>;
-    private readonly _resolvePass: RecyclePool<ResolvePass>;
-    private readonly _copyPass: RecyclePool<CopyPass>;
-    private readonly _movePass: RecyclePool<MovePass>;
-    private readonly _raytracePass: RecyclePool<RaytracePass>;
-    private readonly _clearView: RecyclePool<ClearView>;
-    private readonly _renderQueue: RecyclePool<RenderQueue>;
-    private readonly _sceneData: RecyclePool<SceneData>;
-    private readonly _dispatch: RecyclePool<Dispatch>;
-    private readonly _blit: RecyclePool<Blit>;
-    private readonly _renderData: RecyclePool<RenderData>;
-    private readonly _renderGraph: RecyclePool<RenderGraph>;
+    private readonly _clearValue: RecyclePool<ClearValue> = new RecyclePool<ClearValue>(() => new ClearValue(), 16);
+    private readonly _rasterView: RecyclePool<RasterView> = new RecyclePool<RasterView>(() => new RasterView(), 16);
+    private readonly _computeView: RecyclePool<ComputeView> = new RecyclePool<ComputeView>(() => new ComputeView(), 16);
+    private readonly _resourceDesc: RecyclePool<ResourceDesc> = new RecyclePool<ResourceDesc>(() => new ResourceDesc(), 16);
+    private readonly _resourceTraits: RecyclePool<ResourceTraits> = new RecyclePool<ResourceTraits>(() => new ResourceTraits(), 16);
+    private readonly _renderSwapchain: RecyclePool<RenderSwapchain> = new RecyclePool<RenderSwapchain>(() => new RenderSwapchain(), 16);
+    private readonly _resourceStates: RecyclePool<ResourceStates> = new RecyclePool<ResourceStates>(() => new ResourceStates(), 16);
+    private readonly _managedBuffer: RecyclePool<ManagedBuffer> = new RecyclePool<ManagedBuffer>(() => new ManagedBuffer(), 16);
+    private readonly _persistentBuffer: RecyclePool<PersistentBuffer> = new RecyclePool<PersistentBuffer>(() => new PersistentBuffer(), 16);
+    private readonly _managedTexture: RecyclePool<ManagedTexture> = new RecyclePool<ManagedTexture>(() => new ManagedTexture(), 16);
+    private readonly _persistentTexture: RecyclePool<PersistentTexture> = new RecyclePool<PersistentTexture>(() => new PersistentTexture(), 16);
+    private readonly _managedResource: RecyclePool<ManagedResource> = new RecyclePool<ManagedResource>(() => new ManagedResource(), 16);
+    private readonly _subpass: RecyclePool<Subpass> = new RecyclePool<Subpass>(() => new Subpass(), 16);
+    private readonly _subpassGraph: RecyclePool<SubpassGraph> = new RecyclePool<SubpassGraph>(() => new SubpassGraph(), 16);
+    private readonly _rasterSubpass: RecyclePool<RasterSubpass> = new RecyclePool<RasterSubpass>(() => new RasterSubpass(), 16);
+    private readonly _computeSubpass: RecyclePool<ComputeSubpass> = new RecyclePool<ComputeSubpass>(() => new ComputeSubpass(), 16);
+    private readonly _rasterPass: RecyclePool<RasterPass> = new RecyclePool<RasterPass>(() => new RasterPass(), 16);
+    private readonly _persistentRenderPassAndFramebuffer: RecyclePool<PersistentRenderPassAndFramebuffer> = new RecyclePool<PersistentRenderPassAndFramebuffer>(() => new PersistentRenderPassAndFramebuffer(), 16);
+    private readonly _formatView: RecyclePool<FormatView> = new RecyclePool<FormatView>(() => new FormatView(), 16);
+    private readonly _subresourceView: RecyclePool<SubresourceView> = new RecyclePool<SubresourceView>(() => new SubresourceView(), 16);
+    private readonly _resourceGraph: RecyclePool<ResourceGraph> = new RecyclePool<ResourceGraph>(() => new ResourceGraph(), 16);
+    private readonly _computePass: RecyclePool<ComputePass> = new RecyclePool<ComputePass>(() => new ComputePass(), 16);
+    private readonly _resolvePass: RecyclePool<ResolvePass> = new RecyclePool<ResolvePass>(() => new ResolvePass(), 16);
+    private readonly _copyPass: RecyclePool<CopyPass> = new RecyclePool<CopyPass>(() => new CopyPass(), 16);
+    private readonly _movePass: RecyclePool<MovePass> = new RecyclePool<MovePass>(() => new MovePass(), 16);
+    private readonly _raytracePass: RecyclePool<RaytracePass> = new RecyclePool<RaytracePass>(() => new RaytracePass(), 16);
+    private readonly _clearView: RecyclePool<ClearView> = new RecyclePool<ClearView>(() => new ClearView(), 16);
+    private readonly _renderQueue: RecyclePool<RenderQueue> = new RecyclePool<RenderQueue>(() => new RenderQueue(), 16);
+    private readonly _sceneData: RecyclePool<SceneData> = new RecyclePool<SceneData>(() => new SceneData(), 16);
+    private readonly _dispatch: RecyclePool<Dispatch> = new RecyclePool<Dispatch>(() => new Dispatch(), 16);
+    private readonly _blit: RecyclePool<Blit> = new RecyclePool<Blit>(() => new Blit(), 16);
+    private readonly _renderData: RecyclePool<RenderData> = new RecyclePool<RenderData>(() => new RenderData(), 16);
+    private readonly _renderGraph: RecyclePool<RenderGraph> = new RecyclePool<RenderGraph>(() => new RenderGraph(), 16);
 }

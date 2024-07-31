@@ -27,8 +27,8 @@ import { systemInfo } from 'pal/system-info';
 import { DEBUG, EDITOR } from 'internal:constants';
 import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc } from '../../gfx';
 import { Vec4, assert, macro, cclegacy, RecyclePool } from '../../core';
-import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, RenderCommonObjectPoolSettings, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
-import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, RenderGraphObjectPoolSettings, CullingFlags, ManagedResource, ManagedBuffer } from './render-graph';
+import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
+import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, CullingFlags, ManagedResource, ManagedBuffer } from './render-graph';
 import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { Model, Camera, PCFType, ProbeType } from '../../render-scene/scene';
@@ -64,8 +64,6 @@ const _samplerPointInfo = new SamplerInfo(
     Address.CLAMP,
 );
 
-const renderCommonObjectSetting = new RenderCommonObjectPoolSettings(16);
-const renderGraphPoolSetting: RenderGraphObjectPoolSettings = new RenderGraphObjectPoolSettings(16);
 class PipelinePool {
     renderData = new RenderData();
     layoutGraph = new LayoutGraphData();
@@ -85,8 +83,8 @@ class PipelinePool {
     computePassBuilder = new RecyclePool<WebComputePassBuilder>(() => new WebComputePassBuilder(this.renderData, this.rg, this.layoutGraph, this.resourceGraph, this.vertId, this.computePass, this.getPipelineSceneData()), 16);
     samplerInfo = new RecyclePool<SamplerInfo>(() => new SamplerInfo(), 16);
     color = new RecyclePool<Color>(() => new Color(), 16);
-    renderCommonObjectPool = new RenderCommonObjectPool(renderCommonObjectSetting);
-    renderGraphPool = new RenderGraphObjectPool(renderGraphPoolSetting, this.renderCommonObjectPool);
+    renderCommonObjectPool = new RenderCommonObjectPool();
+    renderGraphPool = new RenderGraphObjectPool(this.renderCommonObjectPool);
     viewport = new RecyclePool(() => new Viewport(), 16);
 
     getPipelineSceneData (): PipelineSceneData {
