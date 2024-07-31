@@ -367,10 +367,7 @@ export class Root {
      * @param rppl The render pipeline
      * @returns The setup is successful or not
      */
-    public setRenderPipeline (
-        rppl?: (PipelineRuntime & IPipelineEvent),
-        useCustomPipeline?: boolean,
-    ): boolean {
+    public setRenderPipeline (useCustomPipeline?: boolean): boolean {
         const { internal, director, rendering, legacy_rendering } = cclegacy;
         if (rendering === undefined && legacy_rendering === undefined) {
             errorID(1223);
@@ -387,19 +384,8 @@ export class Root {
             // Use default _pipelineEvent
             log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
         } else {
-            if (rppl && (rppl as any).renderTextures !== undefined) {
-                this._useDeferredPipeline = true;
-            }
-            if (!rppl) {
-                rppl = legacy_rendering.createDefaultPipeline();
-                isCreateDefaultPipeline = true;
-            }
-            if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
-                // disable cluster
-                (rppl as any).clusterEnabled = false;
-            }
-            (rppl as any).bloomEnabled = false;
-
+            const rppl: (PipelineRuntime & IPipelineEvent) = legacy_rendering.createDefaultPipeline();
+            isCreateDefaultPipeline = true;
             log(`Using legacy pipeline`);
 
             this._classicPipeline = rppl!;

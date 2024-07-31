@@ -41,9 +41,6 @@ import { bindingMappingInfo } from '../rendering/define';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
 import { effectSettings } from '../core/effect-settings';
-import type { PipelineRuntime } from '../rendering/custom';
-import type { IPipelineEvent } from '../rendering/pipeline-event';
-
 /**
  * @zh
  * 游戏配置。
@@ -1133,28 +1130,13 @@ export class Game extends EventTarget {
             'customPipeline',
         );
 
-        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-
-        if (usesCustomPipeline || !renderPipeline) {
-            return this._setRenderPipeline(!!usesCustomPipeline);
-        }
-
-        return (cclegacy.legacy_rendering.loadRenderPipeline(assetManager, renderPipeline) as Promise<any>)
-            .then((asset: PipelineRuntime & IPipelineEvent): void => {
-                this._setRenderPipeline(!!usesCustomPipeline, asset);
-            }).catch((reason): void => {
-                warn(reason);
-                warn(`Failed load render pipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-                this._setRenderPipeline(!!usesCustomPipeline);
-            });
+        return this._setRenderPipeline(!!usesCustomPipeline);
     }
 
-    private _setRenderPipeline (customPipeline: boolean, rppl?: PipelineRuntime & IPipelineEvent): void {
-        if (!director.root!.setRenderPipeline(rppl, customPipeline)) {
-            if (!director.root!.setRenderPipeline(undefined, customPipeline)) {
-                errorID(1222);
-                return;
-            }
+    private _setRenderPipeline (customPipeline: boolean): void {
+        if (!director.root!.setRenderPipeline(customPipeline)) {
+            errorID(1222);
+            return;
         }
 
         this._rendererInitialized = true;

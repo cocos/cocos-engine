@@ -22,8 +22,6 @@
  THE SOFTWARE.
 */
 import '../deprecated';
-import type { AssetManager } from '../../asset/asset-manager';
-import { RenderPipeline } from '../render-pipeline';
 
 export { ForwardPipeline, createDefaultPipeline } from '../forward/forward-pipeline';
 export { ForwardFlow } from '../forward/forward-flow';
@@ -43,11 +41,3 @@ export { ReflectionProbeStage } from '../reflection-probe/reflection-probe-stage
 export { RenderPipeline } from '../render-pipeline';
 export { RenderFlow } from '../render-flow';
 export { RenderStage } from '../render-stage';
-
-export function loadRenderPipeline (assetManager: AssetManager, renderPipeline: string): Promise<any> {
-    return new Promise<RenderPipeline>((resolve, reject): void => {
-        assetManager.loadAny(renderPipeline, (err, asset): void => ((err || !(asset instanceof RenderPipeline))
-            ? reject(err)
-            : resolve(asset)));
-    });
-}
