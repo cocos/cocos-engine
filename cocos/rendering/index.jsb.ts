@@ -25,184 +25,23 @@
 declare const nr: any;
 declare const jsb: any;
 
-import { OPEN_HARMONY } from 'internal:constants'
-import { ccenum, CCString } from '../core';
 import * as pipeline from './define';
-import { serializable, editable, type } from '../core/data/class-decorator';
-import { legacyCC } from '../core/global-exports';
-import * as decors from '../native-binding/decorators';
 import { 
-    RenderPipeline as NrRenderPipeline,
-    RenderFlow as NrRenderFlow,
-    RenderStage as NrRenderStage,
     InstancedBuffer as NrInstancedBuffer,
     PipelineStateManager as NrPipelineStateManager,
-    ReflectionProbeFlow as NrReflectionProbeFlow,
-    ReflectionProbeStage as NrReflectionProbeStage,
 } from './index';
 
 export { pipeline };
 export * from './pass-phase';
-export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
-export type RenderPipeline = NrRenderPipeline;
-export const RenderFlow: typeof NrRenderFlow = nr.RenderFlow;
-export type RenderFlow = NrRenderFlow;
-export const RenderStage: typeof NrRenderStage = nr.RenderStage;
-export type RenderStage = NrRenderStage;
+export * from './render-types';
 export const InstancedBuffer: typeof NrInstancedBuffer = nr.InstancedBuffer;
 export type InstancedBuffer = NrInstancedBuffer;
 export const PipelineStateManager: typeof NrPipelineStateManager = nr.PipelineStateManager;
 export type PipelineStateManager = NrPipelineStateManager;
 
-export const ReflectionProbeFlow: typeof NrReflectionProbeFlow = nr.ReflectionProbeFlow;
-export type ReflectionProbeFlow = NrReflectionProbeFlow;
-export const ReflectionProbeStage: typeof NrReflectionProbeStage = nr.ReflectionProbeStage;
-export type ReflectionProbeStage = NrReflectionProbeStage;
 export { PipelineEventType } from './pipeline-event';
-
-interface IRenderFlowInfo {
-    name: string;
-    priority: number;
-    stages: any[];
-    tag: number;
-}
-
-interface IRenderStageInfo {
-    name: string;
-    priority: number;
-    tag: number;
-    renderQueues: RenderQueueDesc[];
-}
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function (device, pass, shader, renderPass, ia) {
     return getOrCreatePipelineState(pass, shader, renderPass, ia); //cjh TODO: remove hacking. c++ API doesn't access device argument.
 };
-
-
-
-// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
-const reflectionProbeFlowProto: any = ReflectionProbeFlow.prototype;
-reflectionProbeFlowProto._ctor = function () {
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this._stages = [];
-}
-reflectionProbeFlowProto.init = function (pipeline) {
-    for (let i = 0; i < this._stages.length; i++) {
-        this._stages[i].init(pipeline);
-    }
-    const info: IRenderFlowInfo = { name: this._name, priority: this._priority, tag: this._tag, stages: this._stages };
-    this.initialize(info);
-}
-
-// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
-const reflectionProbeStage: any = ReflectionProbeStage.prototype;
-reflectionProbeStage._ctor = function () {
-    this._name = 0;
-    this._priority = 0;
-    this._tag = 0;
-    this.renderQueues = [];
-}
-reflectionProbeStage.init = function (pipeline) {
-    const queues = [];
-    for (let i = 0; i < this.renderQueues.length; i++) {
-        // @ts-ignore
-        queues.push(this.renderQueues[i].init());
-    }
-    const info: IRenderStageInfo = { name: this._name, priority: this._priority, tag: this._tag, renderQueues: queues };
-    this.initialize(info);
-}
-
-
-export enum RenderQueueSortMode {
-    FRONT_TO_BACK,
-    BACK_TO_FRONT,
-}
-ccenum(RenderQueueSortMode);
-
-export class RenderQueueDesc {
-
-    /**
- * @en Whether the render queue is a transparent queue
- * @zh 当前队列是否是半透明队列
-    */
-    @serializable
-    @editable
-    public isTransparent = false;
-
-    /**
-     * @en The sort mode of the render queue
-     * @zh 渲染队列的排序模式
-     */
-    @type(RenderQueueSortMode)
-    public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
-
-    /**
- * @en The stages using this queue
- * @zh 使用当前渲染队列的阶段列表
- */
-    @type([CCString])
-    public stages: string[] = [];
-
-    constructor() {
-        this.stages = [];
-    }
-
-    public init(): any {
-        return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
-    }
-}
-
-legacyCC.RenderFlow = RenderFlow;
-legacyCC.RenderStage = RenderStage;
-legacyCC.RenderPipeline = RenderPipeline;
-
-function proxyArrayAttributeImpl(proto: any, attr: string): void {
-    const proxyTarget = `_${attr}_target`;
-    let arrayProxy = (self, targetArrayAttr: string): any => {
-        return new Proxy(self[targetArrayAttr], {
-            get(targetArray, prop, receiver): any {
-                return Reflect.get(targetArray, prop, receiver);
-            },
-            set(targetArray, prop, receiver): boolean {
-                const ret = Reflect.set(targetArray, prop, receiver);
-                self[targetArrayAttr] = targetArray;
-                return ret;
-            }
-        });
-    }
-
-    Object.defineProperty(proto, attr, {
-        configurable: true,
-        enumerable: true,
-        get: function () {
-            this[proxyTarget] ||= [];
-            return arrayProxy(this, proxyTarget);
-        },
-        set: function (v) {
-            this[proxyTarget] = v;
-        }
-    });
-}
-
-
-let proxyArrayAttribute = proxyArrayAttributeImpl;
-
-if (!OPEN_HARMONY) {
-    // WORKAROUND: the proxy array getLength crashed on OH platform
-    proxyArrayAttribute(RenderFlow.prototype, '_stages');
-    proxyArrayAttribute(RenderPipeline.prototype, '_flows');
-}
-
-//-------------------- register types -------------------- 
-
-decors.patch_RenderQueueDesc({RenderQueueDesc, RenderQueueSortMode, CCString});
-decors.patch_RenderStage({RenderStage});
-decors.patch_ReflectionProbeStage({ReflectionProbeStage});
-
-decors.patch_RenderFlow({RenderFlow, RenderStage});
-decors.patch_ReflectionProbeFlow({ReflectionProbeFlow});
-
-decors.patch_cc_RenderPipeline({RenderPipeline, RenderFlow});

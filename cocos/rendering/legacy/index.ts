@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import '../deprecated';
 
 export { ForwardPipeline, createDefaultPipeline } from '../forward/forward-pipeline';
 export { ForwardFlow } from '../forward/forward-flow';
@@ -33,3 +34,10 @@ export { BloomStage } from '../deferred/bloom-stage';
 export { PostProcessStage } from '../deferred/postprocess-stage';
 export { ShadowFlow } from '../shadow/shadow-flow';
 export { ShadowStage } from '../shadow/shadow-stage';
+
+export { ReflectionProbeFlow } from '../reflection-probe/reflection-probe-flow';
+export { ReflectionProbeStage } from '../reflection-probe/reflection-probe-stage';
+
+export { RenderPipeline } from '../render-pipeline';
+export { RenderFlow } from '../render-flow';
+export { RenderStage } from '../render-stage';

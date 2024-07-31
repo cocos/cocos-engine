@@ -25,6 +25,10 @@
 declare const nr: any;
 declare const jsb: any;
 
+import { OPEN_HARMONY } from 'internal:constants'
+import { legacyCC } from '../../core/global-exports';
+import { ccenum, CCString } from '../../core';
+
 import { 
     ForwardPipeline as NrForwardPipeline,
     ForwardFlow as NrForwardFlow,
@@ -37,10 +41,12 @@ import {
     PostProcessStage as NrPostProcessStage,
     GbufferStage as NrGbufferStage,
     BloomStage as NrBloomStage,
+    ReflectionProbeFlow as NrReflectionProbeFlow,
+    ReflectionProbeStage as NrReflectionProbeStage,
+    RenderPipeline as NrRenderPipeline,
+    RenderFlow as NrRenderFlow,
+    RenderStage as NrRenderStage,
 } from './index';
-import {
-    RenderQueueDesc
-} from '../index.jsb';
 import * as decors from '../../native-binding/decorators';
 import { ccclass, serializable, editable, type } from '../../core/data/class-decorator';
 import { RenderTexture } from '../../asset/assets/render-texture';
@@ -72,6 +78,20 @@ export const GbufferStage: typeof NrGbufferStage = nr.GbufferStage;
 export type GbufferStage = NrGbufferStage;
 export const BloomStage: typeof NrBloomStage = nr.BloomStage;
 export type BloomStage = NrBloomStage;
+export const ReflectionProbeFlow: typeof NrReflectionProbeFlow = nr.ReflectionProbeFlow;
+export type ReflectionProbeFlow = NrReflectionProbeFlow;
+export const ReflectionProbeStage: typeof NrReflectionProbeStage = nr.ReflectionProbeStage;
+export type ReflectionProbeStage = NrReflectionProbeStage;
+export const RenderPipeline: typeof NrRenderPipeline = nr.RenderPipeline;
+export type RenderPipeline = NrRenderPipeline;
+export const RenderFlow: typeof NrRenderFlow = nr.RenderFlow;
+export type RenderFlow = NrRenderFlow;
+export const RenderStage: typeof NrRenderStage = nr.RenderStage;
+export type RenderStage = NrRenderStage;
+
+legacyCC.RenderFlow = RenderFlow;
+legacyCC.RenderStage = RenderStage;
+legacyCC.RenderPipeline = RenderPipeline;
 
 interface IRenderPipelineInfo {
     flows: any[];
@@ -299,6 +319,40 @@ postProcessStageProto.init = function (pipeline) {
     this.initialize(info);
 }
 
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const reflectionProbeFlowProto: any = ReflectionProbeFlow.prototype;
+reflectionProbeFlowProto._ctor = function () {
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this._stages = [];
+}
+reflectionProbeFlowProto.init = function (pipeline) {
+    for (let i = 0; i < this._stages.length; i++) {
+        this._stages[i].init(pipeline);
+    }
+    const info: IRenderFlowInfo = { name: this._name, priority: this._priority, tag: this._tag, stages: this._stages };
+    this.initialize(info);
+}
+
+// TODO: we mark it as type of any, because here we have many dynamic injected property @dumganhar
+const reflectionProbeStage: any = ReflectionProbeStage.prototype;
+reflectionProbeStage._ctor = function () {
+    this._name = 0;
+    this._priority = 0;
+    this._tag = 0;
+    this.renderQueues = [];
+}
+reflectionProbeStage.init = function (pipeline) {
+    const queues = [];
+    for (let i = 0; i < this.renderQueues.length; i++) {
+        // @ts-ignore
+        queues.push(this.renderQueues[i].init());
+    }
+    const info: IRenderStageInfo = { name: this._name, priority: this._priority, tag: this._tag, renderQueues: queues };
+    this.initialize(info);
+}
+
 @ccclass('RenderTextureConfig')
 class RenderTextureConfig {
     @serializable
@@ -306,6 +360,82 @@ class RenderTextureConfig {
     public name = '';
     @type(RenderTexture)
     public texture: RenderTexture | null = null;
+}
+
+export enum RenderQueueSortMode {
+    FRONT_TO_BACK,
+    BACK_TO_FRONT,
+}
+ccenum(RenderQueueSortMode);
+
+export class RenderQueueDesc {
+
+    /**
+ * @en Whether the render queue is a transparent queue
+ * @zh 当前队列是否是半透明队列
+    */
+    @serializable
+    @editable
+    public isTransparent = false;
+
+    /**
+     * @en The sort mode of the render queue
+     * @zh 渲染队列的排序模式
+     */
+    @type(RenderQueueSortMode)
+    public sortMode: RenderQueueSortMode = RenderQueueSortMode.FRONT_TO_BACK;
+
+    /**
+ * @en The stages using this queue
+ * @zh 使用当前渲染队列的阶段列表
+ */
+    @type([CCString])
+    public stages: string[] = [];
+
+    constructor() {
+        this.stages = [];
+    }
+
+    public init(): any {
+        return new nr.RenderQueueDesc(this.isTransparent, this.sortMode, this.stages);
+    }
+}
+
+function proxyArrayAttributeImpl(proto: any, attr: string): void {
+    const proxyTarget = `_${attr}_target`;
+    let arrayProxy = (self, targetArrayAttr: string): any => {
+        return new Proxy(self[targetArrayAttr], {
+            get(targetArray, prop, receiver): any {
+                return Reflect.get(targetArray, prop, receiver);
+            },
+            set(targetArray, prop, receiver): boolean {
+                const ret = Reflect.set(targetArray, prop, receiver);
+                self[targetArrayAttr] = targetArray;
+                return ret;
+            }
+        });
+    }
+
+    Object.defineProperty(proto, attr, {
+        configurable: true,
+        enumerable: true,
+        get: function () {
+            this[proxyTarget] ||= [];
+            return arrayProxy(this, proxyTarget);
+        },
+        set: function (v) {
+            this[proxyTarget] = v;
+        }
+    });
+}
+
+
+let proxyArrayAttribute = proxyArrayAttributeImpl;
+
+if (!OPEN_HARMONY) {
+    // WORKAROUND: the proxy array getLength crashed on OH platform
+    proxyArrayAttribute(RenderFlow.prototype, '_stages');
+    proxyArrayAttribute(RenderPipeline.prototype, '_flows');
 }
 
 //-------------------- register types -------------------- 
@@ -318,10 +448,19 @@ decors.patch_BloomStage({BloomStage, Material});
 decors.patch_PostProcessStage({PostProcessStage, Material, RenderQueueDesc});
 decors.patch_ForwardStage({ForwardStage, RenderQueueDesc});
 decors.patch_ShadowStage({ShadowStage});
+decors.patch_ReflectionProbeStage({ReflectionProbeStage});
 
 decors.patch_MainFlow({MainFlow});
 decors.patch_ForwardFlow({ForwardFlow});
 decors.patch_ShadowFlow({ShadowFlow});
+decors.patch_ReflectionProbeFlow({ReflectionProbeFlow});
 
 decors.patch_ForwardPipeline({ForwardPipeline, RenderTextureConfig});
 decors.patch_DeferredPipeline({DeferredPipeline, RenderTextureConfig});
+
+decors.patch_RenderQueueDesc({RenderQueueDesc, RenderQueueSortMode, CCString});
+decors.patch_RenderStage({RenderStage});
+
+decors.patch_RenderFlow({RenderFlow, RenderStage});
+
+decors.patch_cc_RenderPipeline({RenderPipeline, RenderFlow});

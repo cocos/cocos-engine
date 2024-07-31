@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2020-2023 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
  https://www.cocos.com/
 
@@ -22,17 +22,10 @@
  THE SOFTWARE.
 */
 
-import * as pipeline from './define';
+import { Buffer, InputAssembler } from '../gfx';
 
-export { pipeline };
-
-export * from './pass-phase';
-export * from './render-types';
-
-export { PipelineSceneData } from './pipeline-scene-data';
-
-export { InstancedBuffer } from './instanced-buffer';
-export { PipelineStateManager } from './pipeline-state-manager';
-
-export { PipelineEventProcessor, PipelineEventType } from './pipeline-event';
-export { DebugView } from './debug-view';
+export class PipelineInputAssemblerData {
+    quadIB: Buffer|null = null;
+    quadVB: Buffer|null = null;
+    quadIA: InputAssembler|null = null;
+}

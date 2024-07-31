@@ -41,7 +41,6 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { getDefaultShadowTexture, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
-import { PipelineUBO } from '../pipeline-ubo';
 import { GeometryRenderer } from '../geometry-renderer';
 import { Material } from '../../asset/assets';
 import { decideProfilerCamera } from '../pipeline-funcs';
@@ -1232,7 +1231,6 @@ export class WebPipeline implements BasicPipeline {
         this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16HalfFloatTexture(this._device));
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
-        this._pipelineUBO.activate(this._device, this);
         this._initCombineSignY();
         const isFloat = supportsR32FloatTexture(this._device) ? 0 : 1;
         this.setMacroInt('CC_SHADOWMAP_FORMAT', isFloat);
@@ -1590,7 +1588,6 @@ export class WebPipeline implements BasicPipeline {
         if (!this._executor) {
             this._executor = new Executor(
                 this,
-                this._pipelineUBO,
                 this._device,
                 this._resourceGraph,
                 this.layoutGraph,
@@ -1749,7 +1746,6 @@ export class WebPipeline implements BasicPipeline {
     private _constantMacros = '';
     private _lightingMode = LightingMode.DEFAULT;
     private _profiler: Model | null = null;
-    private _pipelineUBO: PipelineUBO = new PipelineUBO();
     private _cameras: Camera[] = [];
     private _resourceUses: string[] = [];
 

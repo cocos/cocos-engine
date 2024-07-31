@@ -34,7 +34,6 @@ import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Sett
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
-import { RenderPipeline } from '../rendering';
 import { Layers, Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Director, director } from './director';
@@ -1131,30 +1130,13 @@ export class Game extends EventTarget {
             'customPipeline',
         );
 
-        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-        if (usesCustomPipeline || !renderPipeline) {
-            return this._setRenderPipeline(!!usesCustomPipeline);
-        }
-
-        return new Promise<RenderPipeline>((resolve, reject): void => {
-            assetManager.loadAny(renderPipeline, (err, asset): void => ((err || !(asset instanceof RenderPipeline))
-                ? reject(err)
-                : resolve(asset)));
-        }).then((asset): void => {
-            this._setRenderPipeline(!!usesCustomPipeline, asset);
-        }).catch((reason): void => {
-            warn(reason);
-            warn(`Failed load render pipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-            this._setRenderPipeline(!!usesCustomPipeline);
-        });
+        return this._setRenderPipeline(!!usesCustomPipeline);
     }
 
-    private _setRenderPipeline (customPipeline: boolean, rppl?: RenderPipeline): void {
-        if (!director.root!.setRenderPipeline(rppl, customPipeline)) {
-            if (!director.root!.setRenderPipeline(undefined, customPipeline)) {
-                errorID(1222);
-                return;
-            }
+    private _setRenderPipeline (customPipeline: boolean): void {
+        if (!director.root!.setRenderPipeline(customPipeline)) {
+            errorID(1222);
+            return;
         }
 
         this._rendererInitialized = true;
