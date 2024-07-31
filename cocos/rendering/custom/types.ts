@@ -444,43 +444,8 @@ export class PipelineStatistics {
     numInstancingUniformBlocks = 0;
 }
 
-export class RenderCommonObjectPoolSettings {
-    constructor (batchSize: number) {
-        this.lightInfoBatchSize = batchSize;
-        this.descriptorBatchSize = batchSize;
-        this.descriptorBlockBatchSize = batchSize;
-        this.descriptorBlockFlattenedBatchSize = batchSize;
-        this.descriptorBlockIndexBatchSize = batchSize;
-        this.resolvePairBatchSize = batchSize;
-        this.copyPairBatchSize = batchSize;
-        this.uploadPairBatchSize = batchSize;
-        this.movePairBatchSize = batchSize;
-        this.pipelineStatisticsBatchSize = batchSize;
-    }
-    lightInfoBatchSize = 16;
-    descriptorBatchSize = 16;
-    descriptorBlockBatchSize = 16;
-    descriptorBlockFlattenedBatchSize = 16;
-    descriptorBlockIndexBatchSize = 16;
-    resolvePairBatchSize = 16;
-    copyPairBatchSize = 16;
-    uploadPairBatchSize = 16;
-    movePairBatchSize = 16;
-    pipelineStatisticsBatchSize = 16;
-}
-
 export class RenderCommonObjectPool {
-    constructor (settings: RenderCommonObjectPoolSettings) {
-        this._lightInfo = new RecyclePool<LightInfo>(() => new LightInfo(), settings.lightInfoBatchSize);
-        this._descriptor = new RecyclePool<Descriptor>(() => new Descriptor(), settings.descriptorBatchSize);
-        this._descriptorBlock = new RecyclePool<DescriptorBlock>(() => new DescriptorBlock(), settings.descriptorBlockBatchSize);
-        this._descriptorBlockFlattened = new RecyclePool<DescriptorBlockFlattened>(() => new DescriptorBlockFlattened(), settings.descriptorBlockFlattenedBatchSize);
-        this._descriptorBlockIndex = new RecyclePool<DescriptorBlockIndex>(() => new DescriptorBlockIndex(), settings.descriptorBlockIndexBatchSize);
-        this._resolvePair = new RecyclePool<ResolvePair>(() => new ResolvePair(), settings.resolvePairBatchSize);
-        this._copyPair = new RecyclePool<CopyPair>(() => new CopyPair(), settings.copyPairBatchSize);
-        this._uploadPair = new RecyclePool<UploadPair>(() => new UploadPair(), settings.uploadPairBatchSize);
-        this._movePair = new RecyclePool<MovePair>(() => new MovePair(), settings.movePairBatchSize);
-        this._pipelineStatistics = new RecyclePool<PipelineStatistics>(() => new PipelineStatistics(), settings.pipelineStatisticsBatchSize);
+    constructor () {
     }
     reset (): void {
         this._lightInfo.reset();
@@ -591,16 +556,16 @@ export class RenderCommonObjectPool {
         v.reset();
         return v;
     }
-    private readonly _lightInfo: RecyclePool<LightInfo>;
-    private readonly _descriptor: RecyclePool<Descriptor>;
-    private readonly _descriptorBlock: RecyclePool<DescriptorBlock>;
-    private readonly _descriptorBlockFlattened: RecyclePool<DescriptorBlockFlattened>;
-    private readonly _descriptorBlockIndex: RecyclePool<DescriptorBlockIndex>;
-    private readonly _resolvePair: RecyclePool<ResolvePair>;
-    private readonly _copyPair: RecyclePool<CopyPair>;
-    private readonly _uploadPair: RecyclePool<UploadPair>;
-    private readonly _movePair: RecyclePool<MovePair>;
-    private readonly _pipelineStatistics: RecyclePool<PipelineStatistics>;
+    private readonly _lightInfo: RecyclePool<LightInfo> = new RecyclePool<LightInfo>(() => new LightInfo(), 16);
+    private readonly _descriptor: RecyclePool<Descriptor> = new RecyclePool<Descriptor>(() => new Descriptor(), 16);
+    private readonly _descriptorBlock: RecyclePool<DescriptorBlock> = new RecyclePool<DescriptorBlock>(() => new DescriptorBlock(), 16);
+    private readonly _descriptorBlockFlattened: RecyclePool<DescriptorBlockFlattened> = new RecyclePool<DescriptorBlockFlattened>(() => new DescriptorBlockFlattened(), 16);
+    private readonly _descriptorBlockIndex: RecyclePool<DescriptorBlockIndex> = new RecyclePool<DescriptorBlockIndex>(() => new DescriptorBlockIndex(), 16);
+    private readonly _resolvePair: RecyclePool<ResolvePair> = new RecyclePool<ResolvePair>(() => new ResolvePair(), 16);
+    private readonly _copyPair: RecyclePool<CopyPair> = new RecyclePool<CopyPair>(() => new CopyPair(), 16);
+    private readonly _uploadPair: RecyclePool<UploadPair> = new RecyclePool<UploadPair>(() => new UploadPair(), 16);
+    private readonly _movePair: RecyclePool<MovePair> = new RecyclePool<MovePair>(() => new MovePair(), 16);
+    private readonly _pipelineStatistics: RecyclePool<PipelineStatistics> = new RecyclePool<PipelineStatistics>(() => new PipelineStatistics(), 16);
 }
 
 export function saveLightInfo (a: OutputArchive, v: LightInfo): void {
