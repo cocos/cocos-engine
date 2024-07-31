@@ -43,23 +43,6 @@ export enum UpdateFrequency {
     COUNT,
 }
 
-export function getUpdateFrequencyName (e: UpdateFrequency): string {
-    switch (e) {
-    case UpdateFrequency.PER_INSTANCE:
-        return 'PER_INSTANCE';
-    case UpdateFrequency.PER_BATCH:
-        return 'PER_BATCH';
-    case UpdateFrequency.PER_PHASE:
-        return 'PER_PHASE';
-    case UpdateFrequency.PER_PASS:
-        return 'PER_PASS';
-    case UpdateFrequency.COUNT:
-        return 'COUNT';
-    default:
-        return '';
-    }
-}
-
 export enum ParameterType {
     CONSTANTS,
     CBV,
@@ -69,48 +52,12 @@ export enum ParameterType {
     SSV,
 }
 
-export function getParameterTypeName (e: ParameterType): string {
-    switch (e) {
-    case ParameterType.CONSTANTS:
-        return 'CONSTANTS';
-    case ParameterType.CBV:
-        return 'CBV';
-    case ParameterType.UAV:
-        return 'UAV';
-    case ParameterType.SRV:
-        return 'SRV';
-    case ParameterType.TABLE:
-        return 'TABLE';
-    case ParameterType.SSV:
-        return 'SSV';
-    default:
-        return '';
-    }
-}
-
 export enum ResourceResidency {
     MANAGED,
     MEMORYLESS,
     PERSISTENT,
     EXTERNAL,
     BACKBUFFER,
-}
-
-export function getResourceResidencyName (e: ResourceResidency): string {
-    switch (e) {
-    case ResourceResidency.MANAGED:
-        return 'MANAGED';
-    case ResourceResidency.MEMORYLESS:
-        return 'MEMORYLESS';
-    case ResourceResidency.PERSISTENT:
-        return 'PERSISTENT';
-    case ResourceResidency.EXTERNAL:
-        return 'EXTERNAL';
-    case ResourceResidency.BACKBUFFER:
-        return 'BACKBUFFER';
-    default:
-        return '';
-    }
 }
 
 export enum QueueHint {
@@ -123,41 +70,11 @@ export enum QueueHint {
     RENDER_TRANSPARENT = BLEND,
 }
 
-export function getQueueHintName (e: QueueHint): string {
-    switch (e) {
-    case QueueHint.NONE:
-        return 'NONE';
-    case QueueHint.OPAQUE:
-        return 'OPAQUE';
-    case QueueHint.MASK:
-        return 'MASK';
-    case QueueHint.BLEND:
-        return 'BLEND';
-    default:
-        return '';
-    }
-}
-
 export enum ResourceDimension {
     BUFFER,
     TEXTURE1D,
     TEXTURE2D,
     TEXTURE3D,
-}
-
-export function getResourceDimensionName (e: ResourceDimension): string {
-    switch (e) {
-    case ResourceDimension.BUFFER:
-        return 'BUFFER';
-    case ResourceDimension.TEXTURE1D:
-        return 'TEXTURE1D';
-    case ResourceDimension.TEXTURE2D:
-        return 'TEXTURE2D';
-    case ResourceDimension.TEXTURE3D:
-        return 'TEXTURE3D';
-    default:
-        return '';
-    }
 }
 
 export enum ResourceFlags {
@@ -177,17 +94,6 @@ export enum ResourceFlags {
 export enum TaskType {
     SYNC,
     ASYNC,
-}
-
-export function getTaskTypeName (e: TaskType): string {
-    switch (e) {
-    case TaskType.SYNC:
-        return 'SYNC';
-    case TaskType.ASYNC:
-        return 'ASYNC';
-    default:
-        return '';
-    }
 }
 
 export enum SceneFlags {
@@ -220,36 +126,10 @@ export enum LightingMode {
     CLUSTERED,
 }
 
-export function getLightingModeName (e: LightingMode): string {
-    switch (e) {
-    case LightingMode.NONE:
-        return 'NONE';
-    case LightingMode.DEFAULT:
-        return 'DEFAULT';
-    case LightingMode.CLUSTERED:
-        return 'CLUSTERED';
-    default:
-        return '';
-    }
-}
-
 export enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
     SHADING_RATE,
-}
-
-export function getAttachmentTypeName (e: AttachmentType): string {
-    switch (e) {
-    case AttachmentType.RENDER_TARGET:
-        return 'RENDER_TARGET';
-    case AttachmentType.DEPTH_STENCIL:
-        return 'DEPTH_STENCIL';
-    case AttachmentType.SHADING_RATE:
-        return 'SHADING_RATE';
-    default:
-        return '';
-    }
 }
 
 export enum AccessType {
@@ -258,36 +138,10 @@ export enum AccessType {
     WRITE,
 }
 
-export function getAccessTypeName (e: AccessType): string {
-    switch (e) {
-    case AccessType.READ:
-        return 'READ';
-    case AccessType.READ_WRITE:
-        return 'READ_WRITE';
-    case AccessType.WRITE:
-        return 'WRITE';
-    default:
-        return '';
-    }
-}
-
 export enum ClearValueType {
     NONE,
     FLOAT_TYPE,
     INT_TYPE,
-}
-
-export function getClearValueTypeName (e: ClearValueType): string {
-    switch (e) {
-    case ClearValueType.NONE:
-        return 'NONE';
-    case ClearValueType.FLOAT_TYPE:
-        return 'FLOAT_TYPE';
-    case ClearValueType.INT_TYPE:
-        return 'INT_TYPE';
-    default:
-        return '';
-    }
 }
 
 export class LightInfo {
@@ -297,7 +151,7 @@ export class LightInfo {
         this.level = level;
         this.culledByLight = culledByLight;
     }
-    reset (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null): void {
+    reset (light: Light | null, level: number, culledByLight: boolean, probe: ReflectionProbe | null): void {
         this.light = light;
         this.probe = probe;
         this.level = level;
@@ -321,36 +175,11 @@ export enum DescriptorTypeOrder {
     INPUT_ATTACHMENT,
 }
 
-export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
-    switch (e) {
-    case DescriptorTypeOrder.UNIFORM_BUFFER:
-        return 'UNIFORM_BUFFER';
-    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
-        return 'DYNAMIC_UNIFORM_BUFFER';
-    case DescriptorTypeOrder.SAMPLER_TEXTURE:
-        return 'SAMPLER_TEXTURE';
-    case DescriptorTypeOrder.SAMPLER:
-        return 'SAMPLER';
-    case DescriptorTypeOrder.TEXTURE:
-        return 'TEXTURE';
-    case DescriptorTypeOrder.STORAGE_BUFFER:
-        return 'STORAGE_BUFFER';
-    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
-        return 'DYNAMIC_STORAGE_BUFFER';
-    case DescriptorTypeOrder.STORAGE_IMAGE:
-        return 'STORAGE_IMAGE';
-    case DescriptorTypeOrder.INPUT_ATTACHMENT:
-        return 'INPUT_ATTACHMENT';
-    default:
-        return '';
-    }
-}
-
 export class Descriptor {
     constructor (type: Type = Type.UNKNOWN) {
         this.type = type;
     }
-    reset (type: Type = Type.UNKNOWN): void {
+    reset (type: Type): void {
         this.type = type;
         this.count = 1;
     }
@@ -423,11 +252,11 @@ export class ResolvePair {
         this.mode1 = mode1;
     }
     reset (
-        source = '',
-        target = '',
-        resolveFlags: ResolveFlags = ResolveFlags.NONE,
-        mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
-        mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        source: string,
+        target: string,
+        resolveFlags: ResolveFlags,
+        mode: ResolveMode,
+        mode1: ResolveMode,
     ): void {
         this.source = source;
         this.target = target;
@@ -467,16 +296,16 @@ export class CopyPair {
         this.targetPlaneSlice = targetPlaneSlice;
     }
     reset (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        sourceMostDetailedMip = 0,
-        sourceFirstSlice = 0,
-        sourcePlaneSlice = 0,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
+        source: string,
+        target: string,
+        mipLevels: number,
+        numSlices: number,
+        sourceMostDetailedMip: number,
+        sourceFirstSlice: number,
+        sourcePlaneSlice: number,
+        targetMostDetailedMip: number,
+        targetFirstSlice: number,
+        targetPlaneSlice: number,
     ): void {
         this.source = source;
         this.target = target;
@@ -520,12 +349,12 @@ export class UploadPair {
         this.targetPlaneSlice = targetPlaneSlice;
     }
     reset (
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
+        target: string,
+        mipLevels: number,
+        numSlices: number,
+        targetMostDetailedMip: number,
+        targetFirstSlice: number,
+        targetPlaneSlice: number,
     ): void {
         // source: Uint8Array size unchanged
         this.target = target;
@@ -563,13 +392,13 @@ export class MovePair {
         this.targetPlaneSlice = targetPlaneSlice;
     }
     reset (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
+        source: string,
+        target: string,
+        mipLevels: number,
+        numSlices: number,
+        targetMostDetailedMip: number,
+        targetFirstSlice: number,
+        targetPlaneSlice: number,
     ): void {
         this.source = source;
         this.target = target;

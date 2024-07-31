@@ -45,7 +45,7 @@ export class ClearValue {
         this.z = z;
         this.w = w;
     }
-    reset (x = 0, y = 0, z = 0, w = 0): void {
+    reset (x: number, y: number, z: number, w: number): void {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -78,13 +78,13 @@ export class RasterView {
         this.shaderStageFlags = shaderStageFlags;
     }
     reset (
-        slotName = '',
-        accessType: AccessType = AccessType.WRITE,
-        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
-        loadOp: LoadOp = LoadOp.LOAD,
-        storeOp: StoreOp = StoreOp.STORE,
-        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
-        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        slotName: string,
+        accessType: AccessType,
+        attachmentType: AttachmentType,
+        loadOp: LoadOp,
+        storeOp: StoreOp,
+        clearFlags: ClearFlagBit,
+        shaderStageFlags: ShaderStageFlagBit,
     ): void {
         this.slotName = slotName;
         this.slotName1 = '';
@@ -126,18 +126,18 @@ export class ComputeView {
         this.shaderStageFlags = shaderStageFlags;
     }
     reset (
-        name = '',
-        accessType: AccessType = AccessType.READ,
-        clearFlags: ClearFlagBit = ClearFlagBit.NONE,
-        clearValueType: ClearValueType = ClearValueType.NONE,
-        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        name: string,
+        accessType: AccessType,
+        clearFlags: ClearFlagBit,
+        clearValueType: ClearValueType,
+        shaderStageFlags: ShaderStageFlagBit,
     ): void {
         this.name = name;
         this.accessType = accessType;
         this.plane = 0;
         this.clearFlags = clearFlags;
         this.clearValueType = clearValueType;
-        this.clearValue.reset();
+        this.clearValue.reset(0, 0, 0, 0);
         this.shaderStageFlags = shaderStageFlags;
     }
     name: string;
@@ -180,7 +180,7 @@ export class ResourceTraits {
     constructor (residency: ResourceResidency = ResourceResidency.MANAGED) {
         this.residency = residency;
     }
-    reset (residency: ResourceResidency = ResourceResidency.MANAGED): void {
+    reset (residency: ResourceResidency): void {
         this.residency = residency;
     }
     residency: ResourceResidency;
@@ -191,7 +191,7 @@ export class RenderSwapchain {
         this.swapchain = swapchain;
         this.isDepthStencil = isDepthStencil;
     }
-    reset (swapchain: Swapchain | null = null, isDepthStencil = false): void {
+    reset (swapchain: Swapchain | null, isDepthStencil: boolean): void {
         this.swapchain = swapchain;
         this.renderWindow = null;
         this.currentID = 0;
@@ -218,7 +218,7 @@ export class ManagedBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
     }
-    reset (buffer: Buffer | null = null): void {
+    reset (buffer: Buffer | null): void {
         this.buffer = buffer;
         this.fenceValue = 0;
     }
@@ -230,7 +230,7 @@ export class PersistentBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
     }
-    reset (buffer: Buffer | null = null): void {
+    reset (buffer: Buffer | null): void {
         this.buffer = buffer;
         this.fenceValue = 0;
     }
@@ -242,7 +242,7 @@ export class ManagedTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
     }
-    reset (texture: Texture | null = null): void {
+    reset (texture: Texture | null): void {
         this.texture = texture;
         this.fenceValue = 0;
     }
@@ -254,7 +254,7 @@ export class PersistentTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
     }
-    reset (texture: Texture | null = null): void {
+    reset (texture: Texture | null): void {
         this.texture = texture;
         this.fenceValue = 0;
     }
@@ -444,7 +444,7 @@ export class RasterSubpass {
         this.count = count;
         this.quality = quality;
     }
-    reset (subpassID = 0xFFFFFFFF, count = 1, quality = 0): void {
+    reset (subpassID: number, count: number, quality: number): void {
         this.rasterViews.clear();
         this.computeViews.clear();
         this.resolvePairs.length = 0;
@@ -468,7 +468,7 @@ export class ComputeSubpass {
     constructor (subpassID = 0xFFFFFFFF) {
         this.subpassID = subpassID;
     }
-    reset (subpassID = 0xFFFFFFFF): void {
+    reset (subpassID: number): void {
         this.rasterViews.clear();
         this.computeViews.clear();
         this.subpassID = subpassID;
@@ -516,7 +516,7 @@ export class PersistentRenderPassAndFramebuffer {
         this.renderPass = renderPass;
         this.framebuffer = framebuffer;
     }
-    reset (renderPass: RenderPass | null = null, framebuffer: Framebuffer | null = null): void {
+    reset (renderPass: RenderPass | null, framebuffer: Framebuffer | null): void {
         this.renderPass = renderPass;
         this.framebuffer = framebuffer;
         this.clearColors.length = 0;
@@ -1043,7 +1043,7 @@ export class ClearView {
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
     }
-    reset (slotName = '', clearFlags: ClearFlagBit = ClearFlagBit.ALL): void {
+    reset (slotName: string, clearFlags: ClearFlagBit): void {
         this.slotName = slotName;
         this.clearFlags = clearFlags;
         this.clearColor.reset();
@@ -1059,7 +1059,7 @@ export class RenderQueue {
         this.phaseID = phaseID;
         this.passLayoutID = passLayoutID;
     }
-    reset (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF, passLayoutID = 0xFFFFFFFF): void {
+    reset (hint: QueueHint, phaseID: number, passLayoutID: number): void {
         this.hint = hint;
         this.phaseID = phaseID;
         this.passLayoutID = passLayoutID;
@@ -1095,15 +1095,15 @@ export class SceneData {
         this.shadingLight = shadingLight;
     }
     reset (
-        scene: RenderScene | null = null,
-        camera: Camera | null = null,
-        flags: SceneFlags = SceneFlags.NONE,
-        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
-        shadingLight: Light | null = null,
+        scene: RenderScene | null,
+        camera: Camera | null,
+        flags: SceneFlags,
+        cullingFlags: CullingFlags,
+        shadingLight: Light | null,
     ): void {
         this.scene = scene;
         this.camera = camera;
-        this.light.reset();
+        this.light.reset(null, 0, false, null);
         this.flags = flags;
         this.cullingFlags = cullingFlags;
         this.shadingLight = shadingLight;
@@ -1131,11 +1131,11 @@ export class Dispatch {
         this.threadGroupCountZ = threadGroupCountZ;
     }
     reset (
-        material: Material | null = null,
-        passID = 0,
-        threadGroupCountX = 0,
-        threadGroupCountY = 0,
-        threadGroupCountZ = 0,
+        material: Material | null,
+        passID: number,
+        threadGroupCountX: number,
+        threadGroupCountY: number,
+        threadGroupCountZ: number,
     ): void {
         this.material = material;
         this.passID = passID;
@@ -1157,7 +1157,7 @@ export class Blit {
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
-    reset (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null): void {
+    reset (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null): void {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
