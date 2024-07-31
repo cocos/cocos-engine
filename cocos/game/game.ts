@@ -1133,10 +1133,7 @@ export class Game extends EventTarget {
             'customPipeline',
         );
 
-        const renderPipeline = settings.querySettings(
-            Settings.Category.RENDERING,
-            'renderPipeline',
-        ) as string;
+        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
 
         if (usesCustomPipeline || !renderPipeline) {
             return this._setRenderPipeline(!!usesCustomPipeline);
@@ -1154,8 +1151,10 @@ export class Game extends EventTarget {
 
     private _setRenderPipeline (customPipeline: boolean, rppl?: PipelineRuntime & IPipelineEvent): void {
         if (!director.root!.setRenderPipeline(rppl, customPipeline)) {
-            errorID(1222);
-            return;
+            if (!director.root!.setRenderPipeline(undefined, customPipeline)) {
+                errorID(1222);
+                return;
+            }
         }
 
         this._rendererInitialized = true;
