@@ -67,6 +67,10 @@ public:
     size_t length() const override {
         return _s.length();
     }
+    
+    void Dispose() override {
+        delete this;
+    }
 private:
     std::u16string _s;
 };
