@@ -32,159 +32,313 @@ import { Material, Texture2D, gfx } from 'cc';
 
 const { SampleCount } = gfx;
 
-export class MSAA {
-    enabled = false;
-    sampleCount: gfx.SampleCount = SampleCount.X4;
+export interface MSAA {
+    enabled: boolean; /* false */
+    sampleCount: gfx.SampleCount; /* SampleCount.X4 */
+    [name: string]: unknown;
+}
+
+export function makeMSAA(): MSAA {
+    return {
+        enabled: false,
+        sampleCount: SampleCount.X4,
+    };
 }
 
 export function fillRequiredMSAA(value: MSAA): void {
-    value.enabled ??= false;
-    value.sampleCount ??= SampleCount.X4;
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.sampleCount === undefined) {
+        value.sampleCount = SampleCount.X4;
+    }
 }
 
-export class HBAO {
-    enabled = false;
-    radiusScale = 1;
-    angleBiasDegree = 10;
-    blurSharpness = 3;
-    aoSaturation = 1;
-    needBlur = false;
+export interface HBAO {
+    enabled: boolean; /* false */
+    radiusScale: number; /* 1 */
+    angleBiasDegree: number; /* 10 */
+    blurSharpness: number; /* 3 */
+    aoSaturation: number; /* 1 */
+    needBlur: boolean; /* false */
+    [name: string]: unknown;
+}
+
+export function makeHBAO(): HBAO {
+    return {
+        enabled: false,
+        radiusScale: 1,
+        angleBiasDegree: 10,
+        blurSharpness: 3,
+        aoSaturation: 1,
+        needBlur: false,
+    };
 }
 
 export function fillRequiredHBAO(value: HBAO): void {
-    value.enabled ??= false;
-    value.radiusScale ??= 1;
-    value.angleBiasDegree ??= 10;
-    value.blurSharpness ??= 3;
-    value.aoSaturation ??= 1;
-    value.needBlur ??= false;
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.radiusScale === undefined) {
+        value.radiusScale = 1;
+    }
+    if (value.angleBiasDegree === undefined) {
+        value.angleBiasDegree = 10;
+    }
+    if (value.blurSharpness === undefined) {
+        value.blurSharpness = 3;
+    }
+    if (value.aoSaturation === undefined) {
+        value.aoSaturation = 1;
+    }
+    if (value.needBlur === undefined) {
+        value.needBlur = false;
+    }
 }
 
-export class DepthOfField {
-    enabled = false;
-    /* refcount */ material: Material | null = null;
-    focusDistance = 0;
-    focusRange = 0;
-    bokehRadius = 1;
+export interface DepthOfField {
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    focusDistance: number; /* 0 */
+    focusRange: number; /* 0 */
+    bokehRadius: number; /* 1 */
+    [name: string]: unknown;
+}
+
+export function makeDepthOfField(): DepthOfField {
+    return {
+        enabled: false,
+        material: null,
+        focusDistance: 0,
+        focusRange: 0,
+        bokehRadius: 1,
+    };
 }
 
 export function fillRequiredDepthOfField(value: DepthOfField): void {
-    value.enabled ??= false;
-    value.material ??= null;
-    value.focusDistance ??= 0;
-    value.focusRange ??= 0;
-    value.bokehRadius ??= 1;
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
+    }
+    if (value.focusDistance === undefined) {
+        value.focusDistance = 0;
+    }
+    if (value.focusRange === undefined) {
+        value.focusRange = 0;
+    }
+    if (value.bokehRadius === undefined) {
+        value.bokehRadius = 1;
+    }
 }
 
-export class Bloom {
-    enabled = false;
-    /* refcount */ material: Material | null = null;
-    enableAlphaMask = false;
-    iterations = 3;
-    threshold = 0.8;
-    intensity = 2.3;
+export interface Bloom {
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    enableAlphaMask: boolean; /* false */
+    iterations: number; /* 3 */
+    threshold: number; /* 0.8 */
+    intensity: number; /* 2.3 */
+    [name: string]: unknown;
+}
+
+export function makeBloom(): Bloom {
+    return {
+        enabled: false,
+        material: null,
+        enableAlphaMask: false,
+        iterations: 3,
+        threshold: 0.8,
+        intensity: 2.3,
+    };
 }
 
 export function fillRequiredBloom(value: Bloom): void {
-    value.enabled ??= false;
-    value.material ??= null;
-    value.enableAlphaMask ??= false;
-    value.iterations ??= 3;
-    value.threshold ??= 0.8;
-    value.intensity ??= 2.3;
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
+    }
+    if (value.enableAlphaMask === undefined) {
+        value.enableAlphaMask = false;
+    }
+    if (value.iterations === undefined) {
+        value.iterations = 3;
+    }
+    if (value.threshold === undefined) {
+        value.threshold = 0.8;
+    }
+    if (value.intensity === undefined) {
+        value.intensity = 2.3;
+    }
 }
 
-export class ColorGrading {
-    enabled = false;
-    /* refcount */ material: Material | null = null;
-    contribute = 1;
-    /* refcount */ colorGradingMap: Texture2D | null = null;
+export interface ColorGrading {
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    contribute: number; /* 1 */
+    /* refcount */ colorGradingMap: Texture2D | null;
+    [name: string]: unknown;
+}
+
+export function makeColorGrading(): ColorGrading {
+    return {
+        enabled: false,
+        material: null,
+        contribute: 1,
+        colorGradingMap: null,
+    };
 }
 
 export function fillRequiredColorGrading(value: ColorGrading): void {
-    value.enabled ??= false;
-    value.material ??= null;
-    value.contribute ??= 1;
-    value.colorGradingMap ??= null;
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
+    }
+    if (value.contribute === undefined) {
+        value.contribute = 1;
+    }
+    if (value.colorGradingMap === undefined) {
+        value.colorGradingMap = null;
+    }
 }
 
-export class FSR {
-    enabled = false;
-    /* refcount */ material: Material | null = null;
-    sharpness = 0.8;
+export interface FSR {
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    sharpness: number; /* 0.8 */
+    [name: string]: unknown;
+}
+
+export function makeFSR(): FSR {
+    return {
+        enabled: false,
+        material: null,
+        sharpness: 0.8,
+    };
 }
 
 export function fillRequiredFSR(value: FSR): void {
-    value.enabled ??= false;
-    value.material ??= null;
-    value.sharpness ??= 0.8;
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
+    }
+    if (value.sharpness === undefined) {
+        value.sharpness = 0.8;
+    }
 }
 
-export class FXAA {
-    enabled = false;
-    /* refcount */ material: Material | null = null;
+export interface FXAA {
+    enabled: boolean; /* false */
+    /* refcount */ material: Material | null;
+    [name: string]: unknown;
+}
+
+export function makeFXAA(): FXAA {
+    return {
+        enabled: false,
+        material: null,
+    };
 }
 
 export function fillRequiredFXAA(value: FXAA): void {
-    value.enabled ??= false;
-    value.material ??= null;
+    if (value.enabled === undefined) {
+        value.enabled = false;
+    }
+    if (value.material === undefined) {
+        value.material = null;
+    }
 }
 
-export class ToneMapping {
-    /* refcount */ material: Material | null = null;
+export interface ToneMapping {
+    /* refcount */ material: Material | null;
+    [name: string]: unknown;
+}
+
+export function makeToneMapping(): ToneMapping {
+    return {
+        material: null,
+    };
 }
 
 export function fillRequiredToneMapping(value: ToneMapping): void {
-    value.material ??= null;
+    if (value.material === undefined) {
+        value.material = null;
+    }
 }
 
-export class PipelineSettings {
-    readonly msaa: MSAA = new MSAA();
-    enableShadingScale = false;
-    shadingScale = 0.5;
-    readonly depthOfField: DepthOfField = new DepthOfField();
-    readonly bloom: Bloom = new Bloom();
-    readonly toneMapping: ToneMapping = new ToneMapping();
-    readonly colorGrading: ColorGrading = new ColorGrading();
-    readonly fsr: FSR = new FSR();
-    readonly fxaa: FXAA = new FXAA();
+export interface PipelineSettings {
+    readonly msaa: MSAA;
+    enableShadingScale: boolean; /* false */
+    shadingScale: number; /* 0.5 */
+    readonly depthOfField: DepthOfField;
+    readonly bloom: Bloom;
+    readonly toneMapping: ToneMapping;
+    readonly colorGrading: ColorGrading;
+    readonly fsr: FSR;
+    readonly fxaa: FXAA;
+    [name: string]: unknown;
+}
+
+export function makePipelineSettings(): PipelineSettings {
+    return {
+        msaa: makeMSAA(),
+        enableShadingScale: false,
+        shadingScale: 0.5,
+        depthOfField: makeDepthOfField(),
+        bloom: makeBloom(),
+        toneMapping: makeToneMapping(),
+        colorGrading: makeColorGrading(),
+        fsr: makeFSR(),
+        fxaa: makeFXAA(),
+    };
 }
 
 export function fillRequiredPipelineSettings(value: PipelineSettings): void {
     if (!value.msaa) {
-        (value.msaa as MSAA) = new MSAA();
+        (value.msaa as MSAA) = makeMSAA();
     } else {
         fillRequiredMSAA(value.msaa);
     }
-    value.enableShadingScale ??= false;
-    value.shadingScale ??= 0.5;
+    if (value.enableShadingScale === undefined) {
+        value.enableShadingScale = false;
+    }
+    if (value.shadingScale === undefined) {
+        value.shadingScale = 0.5;
+    }
     if (!value.depthOfField) {
-        (value.depthOfField as DepthOfField) = new DepthOfField();
+        (value.depthOfField as DepthOfField) = makeDepthOfField();
     } else {
         fillRequiredDepthOfField(value.depthOfField);
     }
     if (!value.bloom) {
-        (value.bloom as Bloom) = new Bloom();
+        (value.bloom as Bloom) = makeBloom();
     } else {
         fillRequiredBloom(value.bloom);
     }
     if (!value.toneMapping) {
-        (value.toneMapping as ToneMapping) = new ToneMapping();
+        (value.toneMapping as ToneMapping) = makeToneMapping();
     } else {
         fillRequiredToneMapping(value.toneMapping);
     }
     if (!value.colorGrading) {
-        (value.colorGrading as ColorGrading) = new ColorGrading();
+        (value.colorGrading as ColorGrading) = makeColorGrading();
     } else {
         fillRequiredColorGrading(value.colorGrading);
     }
     if (!value.fsr) {
-        (value.fsr as FSR) = new FSR();
+        (value.fsr as FSR) = makeFSR();
     } else {
         fillRequiredFSR(value.fsr);
     }
     if (!value.fxaa) {
-        (value.fxaa as FXAA) = new FXAA();
+        (value.fxaa as FXAA) = makeFXAA();
     } else {
         fillRequiredFXAA(value.fxaa);
     }
