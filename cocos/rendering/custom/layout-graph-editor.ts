@@ -29,7 +29,8 @@ import { ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { DefaultVisitor, depthFirstSearch, GraphColor, MutableVertexPropertyMap } from './graph';
 import { DescriptorBlockData, DescriptorData, DescriptorDB, DescriptorSetData, LayoutGraph, LayoutGraphData, LayoutGraphDataValue, LayoutGraphValue, PipelineLayoutData, RenderPassType, RenderPhase, RenderPhaseData, RenderStageData, ShaderProgramData } from './layout-graph';
 import { ENABLE_SUBPASS, getOrCreateDescriptorID, sortDescriptorBlocks } from './layout-graph-utils';
-import { UpdateFrequency, getUpdateFrequencyName, getDescriptorTypeOrderName, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
+import { UpdateFrequency, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
+import { getUpdateFrequencyName, getDescriptorTypeOrderName } from './types-names';
 
 // get name of gfx.Type
 function getGfxTypeName (type: Type): string {

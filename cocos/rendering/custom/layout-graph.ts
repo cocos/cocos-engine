@@ -55,19 +55,6 @@ export enum RenderPassType {
     RENDER_SUBPASS,
 }
 
-export function getRenderPassTypeName (e: RenderPassType): string {
-    switch (e) {
-    case RenderPassType.SINGLE_RENDER_PASS:
-        return 'SINGLE_RENDER_PASS';
-    case RenderPassType.RENDER_PASS:
-        return 'RENDER_PASS';
-    case RenderPassType.RENDER_SUBPASS:
-        return 'RENDER_SUBPASS';
-    default:
-        return '';
-    }
-}
-
 //=================================================================
 // LayoutGraph
 //=================================================================
