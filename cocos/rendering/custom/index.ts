@@ -25,14 +25,12 @@
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
-import { DeferredPipelineBuilder } from './builtin-pipelines';
 import { LayoutGraphData, loadLayoutGraphData } from './layout-graph';
 import { BinaryInputArchive } from './binary-archive';
 import { WebProgramLibrary } from './web-program-library';
 import { Device } from '../../gfx';
 import { initializeLayoutGraphData, terminateLayoutGraphData, getCustomPassID, getCustomPhaseID, getCustomSubpassID } from './layout-graph-utils';
 import { ProgramLibrary } from './private';
-import { PostProcessBuilder } from '../post-process/post-process-builder';
 import { forceResizeAllWindows } from './framework';
 
 let _pipeline: WebPipeline | null = null;
@@ -73,14 +71,6 @@ export function getCustomPipeline (name: string): PipelineBuilder {
     }
     return builder;
 }
-
-function addCustomBuiltinPipelines (map: Map<string, PipelineBuilder>): void {
-    map.set('Forward', new PostProcessBuilder());
-    map.set('Deferred', new DeferredPipelineBuilder());
-    map.set('Custom', new PostProcessBuilder());
-}
-
-addCustomBuiltinPipelines(customPipelineBuilderMap);
 
 export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
     if (arrayBuffer) {

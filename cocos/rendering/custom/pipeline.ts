@@ -217,17 +217,6 @@ export enum PipelineType {
     STANDARD,
 }
 
-export function getPipelineTypeName (e: PipelineType): string {
-    switch (e) {
-    case PipelineType.BASIC:
-        return 'BASIC';
-    case PipelineType.STANDARD:
-        return 'STANDARD';
-    default:
-        return '';
-    }
-}
-
 /**
  * @en Render subpass capabilities.
  * Tile-based GPUs support reading color or depth_stencil attachment in pixel shader.

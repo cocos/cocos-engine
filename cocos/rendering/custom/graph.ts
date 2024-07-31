@@ -328,11 +328,11 @@ export interface EdgeListGraph extends Graph {
 //--------------------------------------------------------------------------
 export interface MutableGraph extends Graph {
     addVertex (...args): vertex_descriptor;
-    clearVertex (v: vertex_descriptor): void;
-    removeVertex (v: vertex_descriptor): void;
+    // clearVertex (v: vertex_descriptor): void;
+    // removeVertex (v: vertex_descriptor): void;
     addEdge (u: vertex_descriptor, v: vertex_descriptor, p?: unknown): edge_descriptor | null;
-    removeEdges (u: vertex_descriptor, v: vertex_descriptor): void;
-    removeEdge (e: edge_descriptor): void;
+    // removeEdges (u: vertex_descriptor, v: vertex_descriptor): void;
+    // removeEdge (e: edge_descriptor): void;
 }
 
 //--------------------------------------------------------------------------
@@ -350,7 +350,7 @@ export interface MutableVertexPropertyMap<T> extends PropertyMap {
 // PropertyGraph
 //--------------------------------------------------------------------------
 export interface PropertyGraph extends Graph {
-    get (tag: string): PropertyMap;
+    // get (tag: string): PropertyMap;
 }
 
 //--------------------------------------------------------------------------
@@ -358,7 +358,7 @@ export interface PropertyGraph extends Graph {
 //--------------------------------------------------------------------------
 export interface NamedGraph extends Graph {
     vertexName (v: vertex_descriptor): string;
-    vertexNameMap (): PropertyMap;
+    // vertexNameMap (): PropertyMap;
 }
 
 //--------------------------------------------------------------------------
@@ -367,7 +367,7 @@ export interface NamedGraph extends Graph {
 export interface ComponentGraph extends Graph {
     readonly components: string[];
     component (id: number, v: vertex_descriptor): unknown;
-    componentMap (id: number): unknown; // should be PropertyMap
+    // componentMap (id: number): unknown; // should be PropertyMap
 }
 
 //--------------------------------------------------------------------------
@@ -378,7 +378,7 @@ export interface PolymorphicGraph extends Graph {
     id (v: vertex_descriptor): number;
     object (v: vertex_descriptor): unknown;
     value (id: number, v: vertex_descriptor): unknown;
-    tryValue(id: number, v: vertex_descriptor): unknown;
+    // tryValue(id: number, v: vertex_descriptor): unknown;
     visitVertex (visitor: unknown, v: vertex_descriptor): void;
 }
 
@@ -406,8 +406,8 @@ export interface ReferenceGraph extends Graph {
 //--------------------------------------------------------------------------
 export interface MutableReferenceGraph extends ReferenceGraph {
     addReference (u: vertex_descriptor, v: vertex_descriptor, p?: unknown): reference_descriptor | null;
-    removeReference (e: reference_descriptor): void;
-    removeReferences (u: vertex_descriptor, v: vertex_descriptor): void;
+    // removeReference (e: reference_descriptor): void;
+    // removeReferences (u: vertex_descriptor, v: vertex_descriptor): void;
 }
 
 //--------------------------------------------------------------------------

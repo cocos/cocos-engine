@@ -236,6 +236,7 @@ void updateDepthStencilImpl(
             CC_EXPECTS(swapchain);
             CC_EXPECTS(swapchain->getWidth() == width && swapchain->getHeight() == height);
             CC_EXPECTS(swapchain->getDepthStencilTexture()->getFormat() == format);
+            CC_EXPECTS(sc.isDepthStencil);
             bool invalidated =
                 std::forward_as_tuple(desc.width, desc.height, desc.format) !=
                     std::forward_as_tuple(width, height, format) ||
@@ -295,7 +296,7 @@ uint32_t addDepthStencilImpl(
             std::forward_as_tuple(ResourceTraits{residency}),
             std::forward_as_tuple(),
             std::forward_as_tuple(samplerInfo),
-            std::forward_as_tuple(RenderSwapchain{swapchain}),
+            std::forward_as_tuple(RenderSwapchain{swapchain, true}),
             ppl.resourceGraph);
     } else {
         CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
@@ -375,6 +376,7 @@ uint32_t NativePipeline::addRenderWindow(
         desc.sampleCount = renderWindow->getFramebuffer()->getColorTextures().at(0)->getInfo().samples;
         RenderSwapchain sc{};
         sc.renderWindow = renderWindow;
+        CC_ENSURES(!sc.isDepthStencil);
 
         CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
         return addVertex(
@@ -401,7 +403,7 @@ uint32_t NativePipeline::addRenderWindow(
         std::forward_as_tuple(ResourceTraits{ResourceResidency::BACKBUFFER}),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain()}),
+        std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain(), false}),
         resourceGraph);
 }
 
@@ -739,24 +741,26 @@ void NativePipeline::updateRenderWindow(
     if (resID == ResourceGraph::null_vertex()) {
         return;
     }
-    auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
+    uint32_t width = 0;
+    uint32_t height = 0;
     visitObject(
         resID, resourceGraph,
         [&](IntrusivePtr<gfx::Framebuffer> &fb) {
             // deprecated
             CC_EXPECTS(false);
             CC_EXPECTS(!renderWindow->getSwapchain());
-            desc.width = renderWindow->getWidth();
-            desc.height = renderWindow->getHeight();
+            width = renderWindow->getWidth();
+            height = renderWindow->getHeight();
             fb = renderWindow->getFramebuffer();
         },
         [&](RenderSwapchain &sc) {
+            CC_EXPECTS(!sc.isDepthStencil);
             auto *newSwapchain = renderWindow->getSwapchain();
             const auto &oldTexture = resourceGraph.getTexture(resID);
             resourceGraph.invalidatePersistentRenderPassAndFramebuffer(oldTexture);
             if (newSwapchain) {
-                desc.width = newSwapchain->getWidth();
-                desc.height = newSwapchain->getHeight();
+                width = newSwapchain->getWidth();
+                height = newSwapchain->getHeight();
 
                 sc.renderWindow = nullptr;
                 sc.swapchain = renderWindow->getSwapchain();
@@ -767,8 +771,8 @@ void NativePipeline::updateRenderWindow(
                 CC_EXPECTS(renderWindow->getFramebuffer()->getColorTextures().front());
 
                 const auto &texture = renderWindow->getFramebuffer()->getColorTextures().front();
-                desc.width = texture->getWidth();
-                desc.height = texture->getHeight();
+                width = texture->getWidth();
+                height = texture->getHeight();
 
                 sc.renderWindow = renderWindow;
                 sc.swapchain = nullptr;
@@ -777,10 +781,19 @@ void NativePipeline::updateRenderWindow(
         },
         [](const auto & /*res*/) {});
 
+    CC_ENSURES(width);
+    CC_ENSURES(height);
+
+    {
+        auto &desc = get(ResourceGraph::DescTag{}, resourceGraph, resID);
+        desc.width = width;
+        desc.height = height;
+    }
+
     // Associated depth stencil
     tryAddRenderWindowDepthStencil(
         *this, depthStencilName,
-        desc.width, desc.height,
+        width, height,
         renderWindow->getSwapchain());
 }
 

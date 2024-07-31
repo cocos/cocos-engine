@@ -34,7 +34,6 @@ import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Sett
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
-import { RenderPipeline } from '../rendering';
 import { Layers, Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
 import { Director, director } from './director';
@@ -1126,27 +1125,18 @@ export class Game extends EventTarget {
     }
 
     private _setupRenderPipeline (): void | Promise<void> {
-        const renderPipeline = settings.querySettings(Settings.Category.RENDERING, 'renderPipeline') as string;
-        if (!renderPipeline || renderPipeline === 'ca127c79-69d6-4afd-8183-d712d7b80e14') {
-            // editor or 'builtin-pipeline', do not load asset
-            return this._setRenderPipeline();
-        }
-        return new Promise<RenderPipeline>((resolve, reject): void => {
-            assetManager.loadAny(renderPipeline, (err, asset): void => ((err || !(asset instanceof RenderPipeline))
-                ? reject(err)
-                : resolve(asset)));
-        }).then((asset): void => {
-            this._setRenderPipeline(asset);
-        }).catch((reason): void => {
-            warn(reason);
-            warn(`Failed load render pipeline: ${renderPipeline}, engine failed to initialize, will fallback to default pipeline`);
-            this._setRenderPipeline();
-        });
+        const usesCustomPipeline = settings.querySettings(
+            Settings.Category.RENDERING,
+            'customPipeline',
+        );
+
+        return this._setRenderPipeline(!!usesCustomPipeline);
     }
 
-    private _setRenderPipeline (rppl?: RenderPipeline): void {
-        if (!director.root!.setRenderPipeline(rppl)) {
-            this._setRenderPipeline();
+    private _setRenderPipeline (customPipeline: boolean): void {
+        if (!director.root!.setRenderPipeline(customPipeline)) {
+            errorID(1222);
+            return;
         }
 
         this._rendererInitialized = true;

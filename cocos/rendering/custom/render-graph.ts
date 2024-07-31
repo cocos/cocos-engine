@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, PropertyMap, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, reindexEdgeList, traversal } from './graph';
+import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, traversal } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
@@ -45,7 +45,7 @@ export class ClearValue {
         this.z = z;
         this.w = w;
     }
-    reset (x = 0, y = 0, z = 0, w = 0): void {
+    reset (x: number, y: number, z: number, w: number): void {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -78,13 +78,13 @@ export class RasterView {
         this.shaderStageFlags = shaderStageFlags;
     }
     reset (
-        slotName = '',
-        accessType: AccessType = AccessType.WRITE,
-        attachmentType: AttachmentType = AttachmentType.RENDER_TARGET,
-        loadOp: LoadOp = LoadOp.LOAD,
-        storeOp: StoreOp = StoreOp.STORE,
-        clearFlags: ClearFlagBit = ClearFlagBit.ALL,
-        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        slotName: string,
+        accessType: AccessType,
+        attachmentType: AttachmentType,
+        loadOp: LoadOp,
+        storeOp: StoreOp,
+        clearFlags: ClearFlagBit,
+        shaderStageFlags: ShaderStageFlagBit,
     ): void {
         this.slotName = slotName;
         this.slotName1 = '';
@@ -126,18 +126,18 @@ export class ComputeView {
         this.shaderStageFlags = shaderStageFlags;
     }
     reset (
-        name = '',
-        accessType: AccessType = AccessType.READ,
-        clearFlags: ClearFlagBit = ClearFlagBit.NONE,
-        clearValueType: ClearValueType = ClearValueType.NONE,
-        shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
+        name: string,
+        accessType: AccessType,
+        clearFlags: ClearFlagBit,
+        clearValueType: ClearValueType,
+        shaderStageFlags: ShaderStageFlagBit,
     ): void {
         this.name = name;
         this.accessType = accessType;
         this.plane = 0;
         this.clearFlags = clearFlags;
         this.clearValueType = clearValueType;
-        this.clearValue.reset();
+        this.clearValue.reset(0, 0, 0, 0);
         this.shaderStageFlags = shaderStageFlags;
     }
     name: string;
@@ -180,28 +180,31 @@ export class ResourceTraits {
     constructor (residency: ResourceResidency = ResourceResidency.MANAGED) {
         this.residency = residency;
     }
-    reset (residency: ResourceResidency = ResourceResidency.MANAGED): void {
+    reset (residency: ResourceResidency): void {
         this.residency = residency;
     }
     residency: ResourceResidency;
 }
 
 export class RenderSwapchain {
-    constructor (swapchain: Swapchain | null = null) {
+    constructor (swapchain: Swapchain | null = null, isDepthStencil = false) {
         this.swapchain = swapchain;
+        this.isDepthStencil = isDepthStencil;
     }
-    reset (swapchain: Swapchain | null = null): void {
+    reset (swapchain: Swapchain | null, isDepthStencil: boolean): void {
         this.swapchain = swapchain;
         this.renderWindow = null;
         this.currentID = 0;
         this.numBackBuffers = 0;
         this.generation = 0xFFFFFFFF;
+        this.isDepthStencil = isDepthStencil;
     }
     /*pointer*/ swapchain: Swapchain | null;
     /*pointer*/ renderWindow: RenderWindow | null = null;
     currentID = 0;
     numBackBuffers = 0;
     generation = 0xFFFFFFFF;
+    isDepthStencil: boolean;
 }
 
 export class ResourceStates {
@@ -215,7 +218,7 @@ export class ManagedBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
     }
-    reset (buffer: Buffer | null = null): void {
+    reset (buffer: Buffer | null): void {
         this.buffer = buffer;
         this.fenceValue = 0;
     }
@@ -227,7 +230,7 @@ export class PersistentBuffer {
     constructor (buffer: Buffer | null = null) {
         this.buffer = buffer;
     }
-    reset (buffer: Buffer | null = null): void {
+    reset (buffer: Buffer | null): void {
         this.buffer = buffer;
         this.fenceValue = 0;
     }
@@ -239,7 +242,7 @@ export class ManagedTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
     }
-    reset (texture: Texture | null = null): void {
+    reset (texture: Texture | null): void {
         this.texture = texture;
         this.fenceValue = 0;
     }
@@ -251,7 +254,7 @@ export class PersistentTexture {
     constructor (texture: Texture | null = null) {
         this.texture = texture;
     }
-    reset (texture: Texture | null = null): void {
+    reset (texture: Texture | null): void {
         this.texture = texture;
         this.fenceValue = 0;
     }
@@ -285,32 +288,6 @@ export class SubpassGraphVertex {
     readonly _outEdges: OutE[] = [];
     readonly _inEdges: OutE[] = [];
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
-export class SubpassGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class SubpassGraphSubpassMap implements PropertyMap {
-    constructor (readonly subpasses: Subpass[]) {
-        this._subpasses = subpasses;
-    }
-    get (v: number): Subpass {
-        return this._subpasses[v];
-    }
-    readonly _subpasses: Subpass[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum SubpassGraphComponent {
@@ -321,11 +298,6 @@ export const enum SubpassGraphComponent {
 export interface SubpassGraphComponentType {
     [SubpassGraphComponent.Name]: string;
     [SubpassGraphComponent.Subpass]: Subpass;
-}
-
-export interface SubpassGraphComponentPropertyMap {
-    [SubpassGraphComponent.Name]: SubpassGraphNameMap;
-    [SubpassGraphComponent.Subpass]: SubpassGraphSubpassMap;
 }
 
 //-----------------------------------------------------------------
@@ -427,118 +399,16 @@ export class SubpassGraph implements BidirectionalGraph
         this._subpasses.push(subpass);
         return v;
     }
-    clearVertex (v: number): void {
-        const vert = this._vertices[v];
-        // clear out edges
-        for (const oe of vert._outEdges) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-                if (target._inEdges[i].target === v) {
-                    target._inEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._outEdges.length = 0;
-
-        // clear in edges
-        for (const ie of vert._inEdges) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-                if (source._outEdges[i].target === v) {
-                    source._outEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._inEdges.length = 0;
-    }
-    removeVertex (u: number): void {
-        this._vertices.splice(u, 1);
-        this._names.splice(u, 1);
-        this._subpasses.splice(u, 1);
-
-        const sz = this._vertices.length;
-        if (u === sz) {
-            return;
-        }
-
-        for (let v = 0; v !== sz; ++v) {
-            const vert = this._vertices[v];
-            reindexEdgeList(vert._outEdges, u);
-            reindexEdgeList(vert._inEdges, u);
-        }
-    }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
         this._vertices[u]._outEdges.push(new OutE(v));
         this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
-    removeEdges (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeEdge (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._outEdges.length;) {
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) {
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
         return this._names[v];
-    }
-    vertexNameMap (): SubpassGraphNameMap {
-        return new SubpassGraphNameMap(this._names);
-    }
-    //-----------------------------------------------------------------
-    // PropertyGraph
-    get (tag: string): SubpassGraphNameMap | SubpassGraphSubpassMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new SubpassGraphNameMap(this._names);
-        case 'Subpass':
-            return new SubpassGraphSubpassMap(this._subpasses);
-        default:
-            throw Error('property map not found');
-        }
     }
     //-----------------------------------------------------------------
     // ComponentGraph
@@ -550,16 +420,6 @@ export class SubpassGraph implements BidirectionalGraph
             return this._subpasses[v] as SubpassGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends SubpassGraphComponent> (id: T): SubpassGraphComponentPropertyMap[T] {
-        switch (id) {
-        case SubpassGraphComponent.Name:
-            return new SubpassGraphNameMap(this._names) as SubpassGraphComponentPropertyMap[T];
-        case SubpassGraphComponent.Subpass:
-            return new SubpassGraphSubpassMap(this._subpasses) as SubpassGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -584,7 +444,7 @@ export class RasterSubpass {
         this.count = count;
         this.quality = quality;
     }
-    reset (subpassID = 0xFFFFFFFF, count = 1, quality = 0): void {
+    reset (subpassID: number, count: number, quality: number): void {
         this.rasterViews.clear();
         this.computeViews.clear();
         this.resolvePairs.length = 0;
@@ -608,7 +468,7 @@ export class ComputeSubpass {
     constructor (subpassID = 0xFFFFFFFF) {
         this.subpassID = subpassID;
     }
-    reset (subpassID = 0xFFFFFFFF): void {
+    reset (subpassID: number): void {
         this.rasterViews.clear();
         this.computeViews.clear();
         this.subpassID = subpassID;
@@ -656,7 +516,7 @@ export class PersistentRenderPassAndFramebuffer {
         this.renderPass = renderPass;
         this.framebuffer = framebuffer;
     }
-    reset (renderPass: RenderPass | null = null, framebuffer: Framebuffer | null = null): void {
+    reset (renderPass: RenderPass | null, framebuffer: Framebuffer | null): void {
         this.renderPass = renderPass;
         this.framebuffer = framebuffer;
         this.clearColors.length = 0;
@@ -778,62 +638,6 @@ export class ResourceGraphVertex {
     readonly _id: ResourceGraphValue;
     _object: ResourceGraphObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
-export class ResourceGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class ResourceGraphDescMap implements PropertyMap {
-    constructor (readonly descs: ResourceDesc[]) {
-        this._descs = descs;
-    }
-    get (v: number): ResourceDesc {
-        return this._descs[v];
-    }
-    readonly _descs: ResourceDesc[];
-}
-
-export class ResourceGraphTraitsMap implements PropertyMap {
-    constructor (readonly traits: ResourceTraits[]) {
-        this._traits = traits;
-    }
-    get (v: number): ResourceTraits {
-        return this._traits[v];
-    }
-    readonly _traits: ResourceTraits[];
-}
-
-export class ResourceGraphStatesMap implements PropertyMap {
-    constructor (readonly states: ResourceStates[]) {
-        this._states = states;
-    }
-    get (v: number): ResourceStates {
-        return this._states[v];
-    }
-    readonly _states: ResourceStates[];
-}
-
-export class ResourceGraphSamplerMap implements PropertyMap {
-    constructor (readonly samplerInfo: SamplerInfo[]) {
-        this._samplerInfo = samplerInfo;
-    }
-    get (v: number): SamplerInfo {
-        return this._samplerInfo[v];
-    }
-    readonly _samplerInfo: SamplerInfo[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum ResourceGraphComponent {
@@ -850,14 +654,6 @@ export interface ResourceGraphComponentType {
     [ResourceGraphComponent.Traits]: ResourceTraits;
     [ResourceGraphComponent.States]: ResourceStates;
     [ResourceGraphComponent.Sampler]: SamplerInfo;
-}
-
-export interface ResourceGraphComponentPropertyMap {
-    [ResourceGraphComponent.Name]: ResourceGraphNameMap;
-    [ResourceGraphComponent.Desc]: ResourceGraphDescMap;
-    [ResourceGraphComponent.Traits]: ResourceGraphTraitsMap;
-    [ResourceGraphComponent.States]: ResourceGraphStatesMap;
-    [ResourceGraphComponent.Sampler]: ResourceGraphSamplerMap;
 }
 
 //-----------------------------------------------------------------
@@ -989,135 +785,16 @@ export class ResourceGraph implements BidirectionalGraph
 
         return v;
     }
-    clearVertex (v: number): void {
-        // ReferenceGraph(Alias)
-        const vert = this._vertices[v];
-        // clear out edges
-        for (const oe of vert._outEdges) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-                if (target._inEdges[i].target === v) {
-                    target._inEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._outEdges.length = 0;
-
-        // clear in edges
-        for (const ie of vert._inEdges) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-                if (source._outEdges[i].target === v) {
-                    source._outEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._inEdges.length = 0;
-    }
-    removeVertex (u: number): void {
-        { // UuidGraph
-            const key = this._names[u];
-            this._valueIndex.delete(key);
-            this._valueIndex.forEach((v): void => {
-                if (v > u) { --v; }
-            });
-        }
-        this._vertices.splice(u, 1);
-        this._names.splice(u, 1);
-        this._descs.splice(u, 1);
-        this._traits.splice(u, 1);
-        this._states.splice(u, 1);
-        this._samplerInfo.splice(u, 1);
-
-        const sz = this._vertices.length;
-        if (u === sz) {
-            return;
-        }
-
-        for (let v = 0; v !== sz; ++v) {
-            const vert = this._vertices[v];
-            reindexEdgeList(vert._outEdges, u);
-            reindexEdgeList(vert._inEdges, u);
-        }
-    }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
         this._vertices[u]._outEdges.push(new OutE(v));
         this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
-    removeEdges (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeEdge (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._outEdges.length;) {
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) {
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
         return this._names[v];
-    }
-    vertexNameMap (): ResourceGraphNameMap {
-        return new ResourceGraphNameMap(this._names);
-    }
-    //-----------------------------------------------------------------
-    // PropertyGraph
-    get (tag: string): ResourceGraphNameMap | ResourceGraphDescMap | ResourceGraphTraitsMap | ResourceGraphStatesMap | ResourceGraphSamplerMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new ResourceGraphNameMap(this._names);
-        case 'Desc':
-            return new ResourceGraphDescMap(this._descs);
-        case 'Traits':
-            return new ResourceGraphTraitsMap(this._traits);
-        case 'States':
-            return new ResourceGraphStatesMap(this._states);
-        case 'Sampler':
-            return new ResourceGraphSamplerMap(this._samplerInfo);
-        default:
-            throw Error('property map not found');
-        }
     }
     //-----------------------------------------------------------------
     // ComponentGraph
@@ -1135,22 +812,6 @@ export class ResourceGraph implements BidirectionalGraph
             return this._samplerInfo[v] as ResourceGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends ResourceGraphComponent> (id: T): ResourceGraphComponentPropertyMap[T] {
-        switch (id) {
-        case ResourceGraphComponent.Name:
-            return new ResourceGraphNameMap(this._names) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Desc:
-            return new ResourceGraphDescMap(this._descs) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Traits:
-            return new ResourceGraphTraitsMap(this._traits) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.States:
-            return new ResourceGraphStatesMap(this._states) as ResourceGraphComponentPropertyMap[T];
-        case ResourceGraphComponent.Sampler:
-            return new ResourceGraphSamplerMap(this._samplerInfo) as ResourceGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -1189,13 +850,6 @@ export class ResourceGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryValue<T extends ResourceGraphValue> (id: T, v: number): ResourceGraphValueType[T] | null {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as ResourceGraphValueType[T];
-        } else {
-            return null;
-        }
-    }
     visitVertex (visitor: ResourceGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
@@ -1222,130 +876,31 @@ export class ResourceGraph implements BidirectionalGraph
         }
     }
     getManaged (v: number): ManagedResource {
-        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
-            return this._vertices[v]._object as ManagedResource;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ManagedResource;
     }
     getManagedBuffer (v: number): ManagedBuffer {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
-            return this._vertices[v]._object as ManagedBuffer;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ManagedBuffer;
     }
     getManagedTexture (v: number): ManagedTexture {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
-            return this._vertices[v]._object as ManagedTexture;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ManagedTexture;
     }
     getPersistentBuffer (v: number): PersistentBuffer {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
-            return this._vertices[v]._object as PersistentBuffer;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as PersistentBuffer;
     }
     getPersistentTexture (v: number): PersistentTexture {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
-            return this._vertices[v]._object as PersistentTexture;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as PersistentTexture;
     }
     getFramebuffer (v: number): Framebuffer {
-        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
-            return this._vertices[v]._object as Framebuffer;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as Framebuffer;
     }
     getSwapchain (v: number): RenderSwapchain {
-        if (this._vertices[v]._id === ResourceGraphValue.Swapchain) {
-            return this._vertices[v]._object as RenderSwapchain;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderSwapchain;
     }
     getFormatView (v: number): FormatView {
-        if (this._vertices[v]._id === ResourceGraphValue.FormatView) {
-            return this._vertices[v]._object as FormatView;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as FormatView;
     }
     getSubresourceView (v: number): SubresourceView {
-        if (this._vertices[v]._id === ResourceGraphValue.SubresourceView) {
-            return this._vertices[v]._object as SubresourceView;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    tryGetManaged (v: number): ManagedResource | null {
-        if (this._vertices[v]._id === ResourceGraphValue.Managed) {
-            return this._vertices[v]._object as ManagedResource;
-        } else {
-            return null;
-        }
-    }
-    tryGetManagedBuffer (v: number): ManagedBuffer | null {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedBuffer) {
-            return this._vertices[v]._object as ManagedBuffer;
-        } else {
-            return null;
-        }
-    }
-    tryGetManagedTexture (v: number): ManagedTexture | null {
-        if (this._vertices[v]._id === ResourceGraphValue.ManagedTexture) {
-            return this._vertices[v]._object as ManagedTexture;
-        } else {
-            return null;
-        }
-    }
-    tryGetPersistentBuffer (v: number): PersistentBuffer | null {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentBuffer) {
-            return this._vertices[v]._object as PersistentBuffer;
-        } else {
-            return null;
-        }
-    }
-    tryGetPersistentTexture (v: number): PersistentTexture | null {
-        if (this._vertices[v]._id === ResourceGraphValue.PersistentTexture) {
-            return this._vertices[v]._object as PersistentTexture;
-        } else {
-            return null;
-        }
-    }
-    tryGetFramebuffer (v: number): Framebuffer | null {
-        if (this._vertices[v]._id === ResourceGraphValue.Framebuffer) {
-            return this._vertices[v]._object as Framebuffer;
-        } else {
-            return null;
-        }
-    }
-    tryGetSwapchain (v: number): RenderSwapchain | null {
-        if (this._vertices[v]._id === ResourceGraphValue.Swapchain) {
-            return this._vertices[v]._object as RenderSwapchain;
-        } else {
-            return null;
-        }
-    }
-    tryGetFormatView (v: number): FormatView | null {
-        if (this._vertices[v]._id === ResourceGraphValue.FormatView) {
-            return this._vertices[v]._object as FormatView;
-        } else {
-            return null;
-        }
-    }
-    tryGetSubresourceView (v: number): SubresourceView | null {
-        if (this._vertices[v]._id === ResourceGraphValue.SubresourceView) {
-            return this._vertices[v]._object as SubresourceView;
-        } else {
-            return null;
-        }
+        return this._vertices[v]._object as SubresourceView;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -1415,12 +970,6 @@ export class ResourceGraph implements BidirectionalGraph
     // MutableReferenceGraph
     addReference (u: number, v: number): ED | null {
         return this.addEdge(u, v);
-    }
-    removeReference (e: ED): void {
-        return this.removeEdge(e);
-    }
-    removeReferences (u: number, v: number): void {
-        return this.removeEdges(u, v);
     }
     //-----------------------------------------------------------------
     // UuidGraph
@@ -1494,7 +1043,7 @@ export class ClearView {
         this.clearFlags = clearFlags;
         this.clearColor = clearColor;
     }
-    reset (slotName = '', clearFlags: ClearFlagBit = ClearFlagBit.ALL): void {
+    reset (slotName: string, clearFlags: ClearFlagBit): void {
         this.slotName = slotName;
         this.clearFlags = clearFlags;
         this.clearColor.reset();
@@ -1510,7 +1059,7 @@ export class RenderQueue {
         this.phaseID = phaseID;
         this.passLayoutID = passLayoutID;
     }
-    reset (hint: QueueHint = QueueHint.RENDER_OPAQUE, phaseID = 0xFFFFFFFF, passLayoutID = 0xFFFFFFFF): void {
+    reset (hint: QueueHint, phaseID: number, passLayoutID: number): void {
         this.hint = hint;
         this.phaseID = phaseID;
         this.passLayoutID = passLayoutID;
@@ -1546,15 +1095,15 @@ export class SceneData {
         this.shadingLight = shadingLight;
     }
     reset (
-        scene: RenderScene | null = null,
-        camera: Camera | null = null,
-        flags: SceneFlags = SceneFlags.NONE,
-        cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
-        shadingLight: Light | null = null,
+        scene: RenderScene | null,
+        camera: Camera | null,
+        flags: SceneFlags,
+        cullingFlags: CullingFlags,
+        shadingLight: Light | null,
     ): void {
         this.scene = scene;
         this.camera = camera;
-        this.light.reset();
+        this.light.reset(null, 0, false, null);
         this.flags = flags;
         this.cullingFlags = cullingFlags;
         this.shadingLight = shadingLight;
@@ -1582,11 +1131,11 @@ export class Dispatch {
         this.threadGroupCountZ = threadGroupCountZ;
     }
     reset (
-        material: Material | null = null,
-        passID = 0,
-        threadGroupCountX = 0,
-        threadGroupCountY = 0,
-        threadGroupCountZ = 0,
+        material: Material | null,
+        passID: number,
+        threadGroupCountX: number,
+        threadGroupCountY: number,
+        threadGroupCountZ: number,
     ): void {
         this.material = material;
         this.passID = passID;
@@ -1608,7 +1157,7 @@ export class Blit {
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
-    reset (material: Material | null = null, passID = 0, sceneFlags: SceneFlags = SceneFlags.NONE, camera: Camera | null = null): void {
+    reset (material: Material | null, passID: number, sceneFlags: SceneFlags, camera: Camera | null): void {
         this.material = material;
         this.passID = passID;
         this.sceneFlags = sceneFlags;
@@ -1742,58 +1291,6 @@ export class RenderGraphVertex {
     readonly _id: RenderGraphValue;
     _object: RenderGraphObject;
 }
-
-//-----------------------------------------------------------------
-// PropertyGraph Concept
-export class RenderGraphNameMap implements PropertyMap {
-    constructor (readonly names: string[]) {
-        this._names = names;
-    }
-    get (v: number): string {
-        return this._names[v];
-    }
-    set (v: number, names: string): void {
-        this._names[v] = names;
-    }
-    readonly _names: string[];
-}
-
-export class RenderGraphLayoutMap implements PropertyMap {
-    constructor (readonly layoutNodes: string[]) {
-        this._layoutNodes = layoutNodes;
-    }
-    get (v: number): string {
-        return this._layoutNodes[v];
-    }
-    set (v: number, layoutNodes: string): void {
-        this._layoutNodes[v] = layoutNodes;
-    }
-    readonly _layoutNodes: string[];
-}
-
-export class RenderGraphDataMap implements PropertyMap {
-    constructor (readonly data: RenderData[]) {
-        this._data = data;
-    }
-    get (v: number): RenderData {
-        return this._data[v];
-    }
-    readonly _data: RenderData[];
-}
-
-export class RenderGraphValidMap implements PropertyMap {
-    constructor (readonly valid: boolean[]) {
-        this._valid = valid;
-    }
-    get (v: number): boolean {
-        return this._valid[v];
-    }
-    set (v: number, valid: boolean): void {
-        this._valid[v] = valid;
-    }
-    readonly _valid: boolean[];
-}
-
 //-----------------------------------------------------------------
 // ComponentGraph Concept
 export const enum RenderGraphComponent {
@@ -1808,13 +1305,6 @@ export interface RenderGraphComponentType {
     [RenderGraphComponent.Layout]: string;
     [RenderGraphComponent.Data]: RenderData;
     [RenderGraphComponent.Valid]: boolean;
-}
-
-export interface RenderGraphComponentPropertyMap {
-    [RenderGraphComponent.Name]: RenderGraphNameMap;
-    [RenderGraphComponent.Layout]: RenderGraphLayoutMap;
-    [RenderGraphComponent.Data]: RenderGraphDataMap;
-    [RenderGraphComponent.Valid]: RenderGraphValidMap;
 }
 
 //-----------------------------------------------------------------
@@ -1938,154 +1428,16 @@ export class RenderGraph implements BidirectionalGraph
 
         return v;
     }
-    clearVertex (v: number): void {
-        // ReferenceGraph(Separated)
-        const vert = this._vertices[v];
-        // clear out edges
-        for (const oe of vert._outEdges) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-                if (target._inEdges[i].target === v) {
-                    target._inEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._outEdges.length = 0;
-
-        // clear in edges
-        for (const ie of vert._inEdges) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-                if (source._outEdges[i].target === v) {
-                    source._outEdges.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._inEdges.length = 0;
-
-        // clear child edges
-        for (const oe of vert._children) {
-            const target = this._vertices[oe.target as number];
-            for (let i = 0; i !== target._parents.length;) { // remove all edges
-                if (target._parents[i].target === v) {
-                    target._parents.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._children.length = 0;
-
-        // clear parent edges
-        for (const ie of vert._parents) {
-            const source = this._vertices[ie.target as number];
-            for (let i = 0; i !== source._children.length;) { // remove all edges
-                if (source._children[i].target === v) {
-                    source._children.splice(i, 1);
-                } else {
-                    ++i;
-                }
-            }
-        }
-        vert._parents.length = 0;
-    }
-    removeVertex (u: number): void {
-        this._vertices.splice(u, 1);
-        this._names.splice(u, 1);
-        this._layoutNodes.splice(u, 1);
-        this._data.splice(u, 1);
-        this._valid.splice(u, 1);
-
-        const sz = this._vertices.length;
-        if (u === sz) {
-            return;
-        }
-
-        for (let v = 0; v !== sz; ++v) {
-            const vert = this._vertices[v];
-            reindexEdgeList(vert._outEdges, u);
-            reindexEdgeList(vert._inEdges, u);
-            // ReferenceGraph (Separated)
-            reindexEdgeList(vert._children, u);
-            reindexEdgeList(vert._parents, u);
-        }
-    }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
         this._vertices[u]._outEdges.push(new OutE(v));
         this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
-    removeEdges (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._outEdges.length;) { // remove all edges
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) { // remove all edges
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeEdge (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._outEdges.length;) {
-            if (source._outEdges[i].target === v) {
-                source._outEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._inEdges.length;) {
-            if (target._inEdges[i].target === u) {
-                target._inEdges.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
     //-----------------------------------------------------------------
     // NamedGraph
     vertexName (v: number): string {
         return this._names[v];
-    }
-    vertexNameMap (): RenderGraphNameMap {
-        return new RenderGraphNameMap(this._names);
-    }
-    //-----------------------------------------------------------------
-    // PropertyGraph
-    get (tag: string): RenderGraphNameMap | RenderGraphLayoutMap | RenderGraphDataMap | RenderGraphValidMap {
-        switch (tag) {
-        // Components
-        case 'Name':
-            return new RenderGraphNameMap(this._names);
-        case 'Layout':
-            return new RenderGraphLayoutMap(this._layoutNodes);
-        case 'Data':
-            return new RenderGraphDataMap(this._data);
-        case 'Valid':
-            return new RenderGraphValidMap(this._valid);
-        default:
-            throw Error('property map not found');
-        }
     }
     //-----------------------------------------------------------------
     // ComponentGraph
@@ -2101,20 +1453,6 @@ export class RenderGraph implements BidirectionalGraph
             return this._valid[v] as RenderGraphComponentType[T];
         default:
             throw Error('component not found');
-        }
-    }
-    componentMap<T extends RenderGraphComponent> (id: T): RenderGraphComponentPropertyMap[T] {
-        switch (id) {
-        case RenderGraphComponent.Name:
-            return new RenderGraphNameMap(this._names) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Layout:
-            return new RenderGraphLayoutMap(this._layoutNodes) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Data:
-            return new RenderGraphDataMap(this._data) as RenderGraphComponentPropertyMap[T];
-        case RenderGraphComponent.Valid:
-            return new RenderGraphValidMap(this._valid) as RenderGraphComponentPropertyMap[T];
-        default:
-            throw Error('component map not found');
         }
     }
     getName (v: number): string {
@@ -2156,13 +1494,6 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('value id not match');
         }
     }
-    tryValue<T extends RenderGraphValue> (id: T, v: number): RenderGraphValueType[T] | null {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as RenderGraphValueType[T];
-        } else {
-            return null;
-        }
-    }
     visitVertex (visitor: RenderGraphVisitor, v: number): unknown {
         const vert = this._vertices[v];
         switch (vert._id) {
@@ -2199,200 +1530,46 @@ export class RenderGraph implements BidirectionalGraph
         }
     }
     getRasterPass (v: number): RasterPass {
-        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
-            return this._vertices[v]._object as RasterPass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RasterPass;
     }
     getRasterSubpass (v: number): RasterSubpass {
-        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
-            return this._vertices[v]._object as RasterSubpass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RasterSubpass;
     }
     getComputeSubpass (v: number): ComputeSubpass {
-        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
-            return this._vertices[v]._object as ComputeSubpass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ComputeSubpass;
     }
     getCompute (v: number): ComputePass {
-        if (this._vertices[v]._id === RenderGraphValue.Compute) {
-            return this._vertices[v]._object as ComputePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ComputePass;
     }
     getResolve (v: number): ResolvePass {
-        if (this._vertices[v]._id === RenderGraphValue.Resolve) {
-            return this._vertices[v]._object as ResolvePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ResolvePass;
     }
     getCopy (v: number): CopyPass {
-        if (this._vertices[v]._id === RenderGraphValue.Copy) {
-            return this._vertices[v]._object as CopyPass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as CopyPass;
     }
     getMove (v: number): MovePass {
-        if (this._vertices[v]._id === RenderGraphValue.Move) {
-            return this._vertices[v]._object as MovePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as MovePass;
     }
     getRaytrace (v: number): RaytracePass {
-        if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
-            return this._vertices[v]._object as RaytracePass;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RaytracePass;
     }
     getQueue (v: number): RenderQueue {
-        if (this._vertices[v]._id === RenderGraphValue.Queue) {
-            return this._vertices[v]._object as RenderQueue;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as RenderQueue;
     }
     getScene (v: number): SceneData {
-        if (this._vertices[v]._id === RenderGraphValue.Scene) {
-            return this._vertices[v]._object as SceneData;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as SceneData;
     }
     getBlit (v: number): Blit {
-        if (this._vertices[v]._id === RenderGraphValue.Blit) {
-            return this._vertices[v]._object as Blit;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as Blit;
     }
     getDispatch (v: number): Dispatch {
-        if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
-            return this._vertices[v]._object as Dispatch;
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as Dispatch;
     }
     getClear (v: number): ClearView[] {
-        if (this._vertices[v]._id === RenderGraphValue.Clear) {
-            return this._vertices[v]._object as ClearView[];
-        } else {
-            throw Error('value id not match');
-        }
+        return this._vertices[v]._object as ClearView[];
     }
     getViewport (v: number): Viewport {
-        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
-            return this._vertices[v]._object as Viewport;
-        } else {
-            throw Error('value id not match');
-        }
-    }
-    tryGetRasterPass (v: number): RasterPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.RasterPass) {
-            return this._vertices[v]._object as RasterPass;
-        } else {
-            return null;
-        }
-    }
-    tryGetRasterSubpass (v: number): RasterSubpass | null {
-        if (this._vertices[v]._id === RenderGraphValue.RasterSubpass) {
-            return this._vertices[v]._object as RasterSubpass;
-        } else {
-            return null;
-        }
-    }
-    tryGetComputeSubpass (v: number): ComputeSubpass | null {
-        if (this._vertices[v]._id === RenderGraphValue.ComputeSubpass) {
-            return this._vertices[v]._object as ComputeSubpass;
-        } else {
-            return null;
-        }
-    }
-    tryGetCompute (v: number): ComputePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Compute) {
-            return this._vertices[v]._object as ComputePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetResolve (v: number): ResolvePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Resolve) {
-            return this._vertices[v]._object as ResolvePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetCopy (v: number): CopyPass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Copy) {
-            return this._vertices[v]._object as CopyPass;
-        } else {
-            return null;
-        }
-    }
-    tryGetMove (v: number): MovePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Move) {
-            return this._vertices[v]._object as MovePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetRaytrace (v: number): RaytracePass | null {
-        if (this._vertices[v]._id === RenderGraphValue.Raytrace) {
-            return this._vertices[v]._object as RaytracePass;
-        } else {
-            return null;
-        }
-    }
-    tryGetQueue (v: number): RenderQueue | null {
-        if (this._vertices[v]._id === RenderGraphValue.Queue) {
-            return this._vertices[v]._object as RenderQueue;
-        } else {
-            return null;
-        }
-    }
-    tryGetScene (v: number): SceneData | null {
-        if (this._vertices[v]._id === RenderGraphValue.Scene) {
-            return this._vertices[v]._object as SceneData;
-        } else {
-            return null;
-        }
-    }
-    tryGetBlit (v: number): Blit | null {
-        if (this._vertices[v]._id === RenderGraphValue.Blit) {
-            return this._vertices[v]._object as Blit;
-        } else {
-            return null;
-        }
-    }
-    tryGetDispatch (v: number): Dispatch | null {
-        if (this._vertices[v]._id === RenderGraphValue.Dispatch) {
-            return this._vertices[v]._object as Dispatch;
-        } else {
-            return null;
-        }
-    }
-    tryGetClear (v: number): ClearView[] | null {
-        if (this._vertices[v]._id === RenderGraphValue.Clear) {
-            return this._vertices[v]._object as ClearView[];
-        } else {
-            return null;
-        }
-    }
-    tryGetViewport (v: number): Viewport | null {
-        if (this._vertices[v]._id === RenderGraphValue.Viewport) {
-            return this._vertices[v]._object as Viewport;
-        } else {
-            return null;
-        }
+        return this._vertices[v]._object as Viewport;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -2465,48 +1642,6 @@ export class RenderGraph implements BidirectionalGraph
         this._vertices[u]._children.push(new OutE(v));
         this._vertices[v]._parents.push(new OutE(u));
         return new ED(u, v);
-    }
-    removeReference (e: ED): void {
-        const u = e.source as number;
-        const v = e.target as number;
-        const source = this._vertices[u];
-        for (let i = 0; i !== source._children.length;) {
-            if (source._children[i].target === v) {
-                source._children.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._parents.length;) {
-            if (target._parents[i].target === u) {
-                target._parents.splice(i, 1);
-                break; // remove one edge
-            } else {
-                ++i;
-            }
-        }
-    }
-    removeReferences (u: number, v: number): void {
-        const source = this._vertices[u];
-        // remove out edges of u
-        for (let i = 0; i !== source._children.length;) { // remove all edges
-            if (source._children[i].target === v) {
-                source._children.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
-        // remove in edges of v
-        const target = this._vertices[v];
-        for (let i = 0; i !== target._parents.length;) { // remove all edges
-            if (target._parents[i].target === u) {
-                target._parents.splice(i, 1);
-            } else {
-                ++i;
-            }
-        }
     }
 
     readonly components: string[] = ['Name', 'Layout', 'Data', 'Valid'];
@@ -2710,9 +1845,10 @@ export class RenderGraphObjectPool {
     }
     createRenderSwapchain (
         swapchain: Swapchain | null = null,
+        isDepthStencil = false,
     ): RenderSwapchain {
         const v = this._renderSwapchain.add();
-        v.reset(swapchain);
+        v.reset(swapchain, isDepthStencil);
         return v;
     }
     createResourceStates (): ResourceStates {

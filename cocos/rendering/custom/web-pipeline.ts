@@ -25,13 +25,13 @@
 /* eslint-disable max-len */
 import { systemInfo } from 'pal/system-info';
 import { DEBUG, EDITOR } from 'internal:constants';
-import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, UniformBlock, ResolveMode, SampleCount, Color, ComparisonFunc } from '../../gfx';
-import { Mat4, Vec3, Vec4, assert, macro, cclegacy, Color as CoreColor, RecyclePool } from '../../core';
+import { DescriptorSetLayout, Device, Feature, Format, FormatFeatureBit, Sampler, Swapchain, Texture, ClearFlagBit, DescriptorSet, deviceManager, Viewport, API, CommandBuffer, Type, SamplerInfo, Filter, Address, DescriptorSetInfo, LoadOp, StoreOp, ShaderStageFlagBit, BufferInfo, TextureInfo, TextureType, ResolveMode, SampleCount, Color, ComparisonFunc } from '../../gfx';
+import { Vec4, assert, macro, cclegacy, RecyclePool } from '../../core';
 import { AccessType, AttachmentType, CopyPair, LightInfo, LightingMode, MovePair, QueueHint, RenderCommonObjectPool, RenderCommonObjectPoolSettings, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
 import { ComputePass, CopyPass, MovePass, RasterPass, RasterSubpass, RenderData, RenderGraph, RenderGraphComponent, RenderGraphValue, RenderQueue, RenderSwapchain, ResourceDesc, ResourceGraph, ResourceGraphValue, ResourceStates, ResourceTraits, SceneData, Subpass, PersistentBuffer, RenderGraphObjectPool, RenderGraphObjectPoolSettings, CullingFlags, ManagedResource, ManagedBuffer } from './render-graph';
-import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, PipelineBuilder, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
+import { ComputePassBuilder, ComputeQueueBuilder, BasicPipeline, RenderQueueBuilder, RenderSubpassBuilder, PipelineType, BasicRenderPassBuilder, PipelineCapabilities, BasicMultisampleRenderPassBuilder, Setter, SceneBuilder } from './pipeline';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { Model, Camera, ShadowType, CSMLevel, DirectionalLight, SpotLight, PCFType, Shadows, SphereLight, PointLight, RangedDirectionalLight, ProbeType } from '../../render-scene/scene';
+import { Model, Camera, PCFType, ProbeType } from '../../render-scene/scene';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { Executor } from './executor';
@@ -41,11 +41,8 @@ import { GlobalDSManager } from '../global-descriptor-set-manager';
 import { getDefaultShadowTexture, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture, UBOSkinning } from '../define';
 import { OS } from '../../../pal/system-info/enum-type';
 import { Compiler } from './compiler';
-import { PipelineUBO } from '../pipeline-ubo';
-import { builtinResMgr } from '../../asset/asset-manager';
 import { GeometryRenderer } from '../geometry-renderer';
-import { Material, TextureCube } from '../../asset/assets';
-import { DeferredPipelineBuilder, ForwardPipelineBuilder } from './builtin-pipelines';
+import { Material } from '../../asset/assets';
 import { decideProfilerCamera } from '../pipeline-funcs';
 import { DebugViewCompositeType } from '../debug-view';
 import { buildReflectionProbePass } from './define';
@@ -1234,7 +1231,6 @@ export class WebPipeline implements BasicPipeline {
         this.setMacroBool('CC_USE_FLOAT_OUTPUT', macro.ENABLE_FLOAT_OUTPUT && supportsRGBA16HalfFloatTexture(this._device));
         this._generateConstantMacros(false);
         this._pipelineSceneData.activate(this._device);
-        this._pipelineUBO.activate(this._device, this);
         this._initCombineSignY();
         const isFloat = supportsR32FloatTexture(this._device) ? 0 : 1;
         this.setMacroInt('CC_SHADOWMAP_FORMAT', isFloat);
@@ -1265,8 +1261,6 @@ export class WebPipeline implements BasicPipeline {
         if (this.usesDeferredPipeline) {
             this.setMacroInt('CC_PIPELINE_TYPE', 1);
         }
-        this._forward = new ForwardPipelineBuilder();
-        this._deferred = new DeferredPipelineBuilder();
         return true;
     }
     public destroy (): boolean {
@@ -1496,7 +1490,7 @@ export class WebPipeline implements BasicPipeline {
             assert(residency === ResourceResidency.BACKBUFFER);
             return this._resourceGraph.addVertex<ResourceGraphValue.Swapchain>(
                 ResourceGraphValue.Swapchain,
-                new RenderSwapchain(swapchain),
+                new RenderSwapchain(swapchain, true),
                 name,
                 desc,
                 new ResourceTraits(residency),
@@ -1594,7 +1588,6 @@ export class WebPipeline implements BasicPipeline {
         if (!this._executor) {
             this._executor = new Executor(
                 this,
-                this._pipelineUBO,
                 this._device,
                 this._resourceGraph,
                 this.layoutGraph,
@@ -1753,7 +1746,6 @@ export class WebPipeline implements BasicPipeline {
     private _constantMacros = '';
     private _lightingMode = LightingMode.DEFAULT;
     private _profiler: Model | null = null;
-    private _pipelineUBO: PipelineUBO = new PipelineUBO();
     private _cameras: Camera[] = [];
     private _resourceUses: string[] = [];
 
@@ -1763,8 +1755,6 @@ export class WebPipeline implements BasicPipeline {
     private _compiler: Compiler | null = null;
     private _executor: Executor | null = null;
     private _customPipelineName = '';
-    private _forward!: ForwardPipelineBuilder;
-    private _deferred!: DeferredPipelineBuilder;
     private _globalDescSetData!: DescriptorSetData;
     private _combineSignY = 0;
     // csm uniform used vectors count

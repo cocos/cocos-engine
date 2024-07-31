@@ -43,7 +43,6 @@ import { ShadowType } from '../render-scene/scene/shadows';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 import { PipelineUBO } from './pipeline-ubo';
 import { PipelineRuntime } from './custom/pipeline';
-import { getDescBindingFromName } from './custom/define';
 import { AABB } from '../core/geometry';
 
 interface IAdditiveLightPass {
@@ -173,8 +172,7 @@ export class RenderAdditiveLightQueue {
             const key = keys[i] as Light;
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
-                const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
-                descriptorSet.getBuffer(binding).destroy();
+                descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.destroy();
@@ -207,7 +205,6 @@ export class RenderAdditiveLightQueue {
                 if (isTransparent) {
                     continue;
                 }
-                const binding = isEnableEffect() ? getDescBindingFromName('CCForwardLight') : UBOForwardLight.BINDING;
                 subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
                 subModel.descriptorSet.update();
 
@@ -471,8 +468,7 @@ export class RenderAdditiveLightQueue {
             default:
             }
             globalDSManager.update();
-            const binding = isEnableEffect() ? getDescBindingFromName('CCShadow') : UBOShadow.BINDING;
-            cmdBuff.updateBuffer(descriptorSet.getBuffer(binding)!, this._shadowUBO);
+            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOShadow.BINDING)!, this._shadowUBO);
         }
     }
 

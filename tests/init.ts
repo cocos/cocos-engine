@@ -138,6 +138,7 @@ import { glsl4 } from './fixtures/builtin-glsl4';
 import { initBuiltinMaterial } from './fixtures/builtin-material';
 import { initBuiltinPhysicsMaterial } from './fixtures/builtin-physics-material';
 import '../cocos/2d/utils/dynamic-atlas/atlas-manager';
+import '../exports/legacy-pipeline';
 
 const canvas = document.createElement('canvas');
 const div = document.createElement('div');

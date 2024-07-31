@@ -322,6 +322,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                     fbInfo.colorTextures.emplace_back(fb->getColorTextures().at(0));
                 },
                 [&](const RenderSwapchain &sc) {
+                    CC_EXPECTS(!sc.isDepthStencil);
                     if (sc.swapchain) {
                         fbInfo.colorTextures.emplace_back(sc.swapchain->getColorTexture());
                     } else {
@@ -358,6 +359,7 @@ RenderingInfo FrameGraphDispatcher::getRenderPassAndFrameBuffer(RenderGraph::ver
                     dsAttachment = tex.get();
                 },
                 [&](const RenderSwapchain &sc) {
+                    CC_EXPECTS(sc.isDepthStencil);
                     CC_EXPECTS(sc.swapchain);
                     CC_EXPECTS(sc.swapchain->getDepthStencilTexture());
                     dsAttachment = sc.swapchain->getDepthStencilTexture();

@@ -43,23 +43,6 @@ export enum UpdateFrequency {
     COUNT,
 }
 
-export function getUpdateFrequencyName (e: UpdateFrequency): string {
-    switch (e) {
-    case UpdateFrequency.PER_INSTANCE:
-        return 'PER_INSTANCE';
-    case UpdateFrequency.PER_BATCH:
-        return 'PER_BATCH';
-    case UpdateFrequency.PER_PHASE:
-        return 'PER_PHASE';
-    case UpdateFrequency.PER_PASS:
-        return 'PER_PASS';
-    case UpdateFrequency.COUNT:
-        return 'COUNT';
-    default:
-        return '';
-    }
-}
-
 export enum ParameterType {
     CONSTANTS,
     CBV,
@@ -69,48 +52,12 @@ export enum ParameterType {
     SSV,
 }
 
-export function getParameterTypeName (e: ParameterType): string {
-    switch (e) {
-    case ParameterType.CONSTANTS:
-        return 'CONSTANTS';
-    case ParameterType.CBV:
-        return 'CBV';
-    case ParameterType.UAV:
-        return 'UAV';
-    case ParameterType.SRV:
-        return 'SRV';
-    case ParameterType.TABLE:
-        return 'TABLE';
-    case ParameterType.SSV:
-        return 'SSV';
-    default:
-        return '';
-    }
-}
-
 export enum ResourceResidency {
     MANAGED,
     MEMORYLESS,
     PERSISTENT,
     EXTERNAL,
     BACKBUFFER,
-}
-
-export function getResourceResidencyName (e: ResourceResidency): string {
-    switch (e) {
-    case ResourceResidency.MANAGED:
-        return 'MANAGED';
-    case ResourceResidency.MEMORYLESS:
-        return 'MEMORYLESS';
-    case ResourceResidency.PERSISTENT:
-        return 'PERSISTENT';
-    case ResourceResidency.EXTERNAL:
-        return 'EXTERNAL';
-    case ResourceResidency.BACKBUFFER:
-        return 'BACKBUFFER';
-    default:
-        return '';
-    }
 }
 
 export enum QueueHint {
@@ -123,41 +70,11 @@ export enum QueueHint {
     RENDER_TRANSPARENT = BLEND,
 }
 
-export function getQueueHintName (e: QueueHint): string {
-    switch (e) {
-    case QueueHint.NONE:
-        return 'NONE';
-    case QueueHint.OPAQUE:
-        return 'OPAQUE';
-    case QueueHint.MASK:
-        return 'MASK';
-    case QueueHint.BLEND:
-        return 'BLEND';
-    default:
-        return '';
-    }
-}
-
 export enum ResourceDimension {
     BUFFER,
     TEXTURE1D,
     TEXTURE2D,
     TEXTURE3D,
-}
-
-export function getResourceDimensionName (e: ResourceDimension): string {
-    switch (e) {
-    case ResourceDimension.BUFFER:
-        return 'BUFFER';
-    case ResourceDimension.TEXTURE1D:
-        return 'TEXTURE1D';
-    case ResourceDimension.TEXTURE2D:
-        return 'TEXTURE2D';
-    case ResourceDimension.TEXTURE3D:
-        return 'TEXTURE3D';
-    default:
-        return '';
-    }
 }
 
 export enum ResourceFlags {
@@ -177,17 +94,6 @@ export enum ResourceFlags {
 export enum TaskType {
     SYNC,
     ASYNC,
-}
-
-export function getTaskTypeName (e: TaskType): string {
-    switch (e) {
-    case TaskType.SYNC:
-        return 'SYNC';
-    case TaskType.ASYNC:
-        return 'ASYNC';
-    default:
-        return '';
-    }
 }
 
 export enum SceneFlags {
@@ -220,36 +126,10 @@ export enum LightingMode {
     CLUSTERED,
 }
 
-export function getLightingModeName (e: LightingMode): string {
-    switch (e) {
-    case LightingMode.NONE:
-        return 'NONE';
-    case LightingMode.DEFAULT:
-        return 'DEFAULT';
-    case LightingMode.CLUSTERED:
-        return 'CLUSTERED';
-    default:
-        return '';
-    }
-}
-
 export enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
     SHADING_RATE,
-}
-
-export function getAttachmentTypeName (e: AttachmentType): string {
-    switch (e) {
-    case AttachmentType.RENDER_TARGET:
-        return 'RENDER_TARGET';
-    case AttachmentType.DEPTH_STENCIL:
-        return 'DEPTH_STENCIL';
-    case AttachmentType.SHADING_RATE:
-        return 'SHADING_RATE';
-    default:
-        return '';
-    }
 }
 
 export enum AccessType {
@@ -258,36 +138,10 @@ export enum AccessType {
     WRITE,
 }
 
-export function getAccessTypeName (e: AccessType): string {
-    switch (e) {
-    case AccessType.READ:
-        return 'READ';
-    case AccessType.READ_WRITE:
-        return 'READ_WRITE';
-    case AccessType.WRITE:
-        return 'WRITE';
-    default:
-        return '';
-    }
-}
-
 export enum ClearValueType {
     NONE,
     FLOAT_TYPE,
     INT_TYPE,
-}
-
-export function getClearValueTypeName (e: ClearValueType): string {
-    switch (e) {
-    case ClearValueType.NONE:
-        return 'NONE';
-    case ClearValueType.FLOAT_TYPE:
-        return 'FLOAT_TYPE';
-    case ClearValueType.INT_TYPE:
-        return 'INT_TYPE';
-    default:
-        return '';
-    }
 }
 
 export class LightInfo {
@@ -297,7 +151,7 @@ export class LightInfo {
         this.level = level;
         this.culledByLight = culledByLight;
     }
-    reset (light: Light | null = null, level = 0, culledByLight = false, probe: ReflectionProbe | null = null): void {
+    reset (light: Light | null, level: number, culledByLight: boolean, probe: ReflectionProbe | null): void {
         this.light = light;
         this.probe = probe;
         this.level = level;
@@ -321,36 +175,11 @@ export enum DescriptorTypeOrder {
     INPUT_ATTACHMENT,
 }
 
-export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
-    switch (e) {
-    case DescriptorTypeOrder.UNIFORM_BUFFER:
-        return 'UNIFORM_BUFFER';
-    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
-        return 'DYNAMIC_UNIFORM_BUFFER';
-    case DescriptorTypeOrder.SAMPLER_TEXTURE:
-        return 'SAMPLER_TEXTURE';
-    case DescriptorTypeOrder.SAMPLER:
-        return 'SAMPLER';
-    case DescriptorTypeOrder.TEXTURE:
-        return 'TEXTURE';
-    case DescriptorTypeOrder.STORAGE_BUFFER:
-        return 'STORAGE_BUFFER';
-    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
-        return 'DYNAMIC_STORAGE_BUFFER';
-    case DescriptorTypeOrder.STORAGE_IMAGE:
-        return 'STORAGE_IMAGE';
-    case DescriptorTypeOrder.INPUT_ATTACHMENT:
-        return 'INPUT_ATTACHMENT';
-    default:
-        return '';
-    }
-}
-
 export class Descriptor {
     constructor (type: Type = Type.UNKNOWN) {
         this.type = type;
     }
-    reset (type: Type = Type.UNKNOWN): void {
+    reset (type: Type): void {
         this.type = type;
         this.count = 1;
     }
@@ -423,11 +252,11 @@ export class ResolvePair {
         this.mode1 = mode1;
     }
     reset (
-        source = '',
-        target = '',
-        resolveFlags: ResolveFlags = ResolveFlags.NONE,
-        mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
-        mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
+        source: string,
+        target: string,
+        resolveFlags: ResolveFlags,
+        mode: ResolveMode,
+        mode1: ResolveMode,
     ): void {
         this.source = source;
         this.target = target;
@@ -467,16 +296,16 @@ export class CopyPair {
         this.targetPlaneSlice = targetPlaneSlice;
     }
     reset (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        sourceMostDetailedMip = 0,
-        sourceFirstSlice = 0,
-        sourcePlaneSlice = 0,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
+        source: string,
+        target: string,
+        mipLevels: number,
+        numSlices: number,
+        sourceMostDetailedMip: number,
+        sourceFirstSlice: number,
+        sourcePlaneSlice: number,
+        targetMostDetailedMip: number,
+        targetFirstSlice: number,
+        targetPlaneSlice: number,
     ): void {
         this.source = source;
         this.target = target;
@@ -520,12 +349,12 @@ export class UploadPair {
         this.targetPlaneSlice = targetPlaneSlice;
     }
     reset (
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
+        target: string,
+        mipLevels: number,
+        numSlices: number,
+        targetMostDetailedMip: number,
+        targetFirstSlice: number,
+        targetPlaneSlice: number,
     ): void {
         // source: Uint8Array size unchanged
         this.target = target;
@@ -563,13 +392,13 @@ export class MovePair {
         this.targetPlaneSlice = targetPlaneSlice;
     }
     reset (
-        source = '',
-        target = '',
-        mipLevels = 0xFFFFFFFF,
-        numSlices = 0xFFFFFFFF,
-        targetMostDetailedMip = 0,
-        targetFirstSlice = 0,
-        targetPlaneSlice = 0,
+        source: string,
+        target: string,
+        mipLevels: number,
+        numSlices: number,
+        targetMostDetailedMip: number,
+        targetFirstSlice: number,
+        targetPlaneSlice: number,
     ): void {
         this.source = source;
         this.target = target;
@@ -774,216 +603,216 @@ export class RenderCommonObjectPool {
     private readonly _pipelineStatistics: RecyclePool<PipelineStatistics>;
 }
 
-export function saveLightInfo (ar: OutputArchive, v: LightInfo): void {
+export function saveLightInfo (a: OutputArchive, v: LightInfo): void {
     // skip, v.light: Light
     // skip, v.probe: ReflectionProbe
-    ar.writeNumber(v.level);
-    ar.writeBool(v.culledByLight);
+    a.n(v.level);
+    a.b(v.culledByLight);
 }
 
-export function loadLightInfo (ar: InputArchive, v: LightInfo): void {
+export function loadLightInfo (a: InputArchive, v: LightInfo): void {
     // skip, v.light: Light
     // skip, v.probe: ReflectionProbe
-    v.level = ar.readNumber();
-    v.culledByLight = ar.readBool();
+    v.level = a.n();
+    v.culledByLight = a.b();
 }
 
-export function saveDescriptor (ar: OutputArchive, v: Descriptor): void {
-    ar.writeNumber(v.type);
-    ar.writeNumber(v.count);
+export function saveDescriptor (a: OutputArchive, v: Descriptor): void {
+    a.n(v.type);
+    a.n(v.count);
 }
 
-export function loadDescriptor (ar: InputArchive, v: Descriptor): void {
-    v.type = ar.readNumber();
-    v.count = ar.readNumber();
+export function loadDescriptor (a: InputArchive, v: Descriptor): void {
+    v.type = a.n();
+    v.count = a.n();
 }
 
-export function saveDescriptorBlock (ar: OutputArchive, v: DescriptorBlock): void {
-    ar.writeNumber(v.descriptors.size); // Map<string, Descriptor>
+export function saveDescriptorBlock (a: OutputArchive, v: DescriptorBlock): void {
+    a.n(v.descriptors.size); // Map<string, Descriptor>
     for (const [k1, v1] of v.descriptors) {
-        ar.writeString(k1);
-        saveDescriptor(ar, v1);
+        a.s(k1);
+        saveDescriptor(a, v1);
     }
-    ar.writeNumber(v.uniformBlocks.size); // Map<string, UniformBlock>
+    a.n(v.uniformBlocks.size); // Map<string, UniformBlock>
     for (const [k1, v1] of v.uniformBlocks) {
-        ar.writeString(k1);
-        saveUniformBlock(ar, v1);
+        a.s(k1);
+        saveUniformBlock(a, v1);
     }
-    ar.writeNumber(v.capacity);
-    ar.writeNumber(v.count);
+    a.n(v.capacity);
+    a.n(v.count);
 }
 
-export function loadDescriptorBlock (ar: InputArchive, v: DescriptorBlock): void {
+export function loadDescriptorBlock (a: InputArchive, v: DescriptorBlock): void {
     let sz = 0;
-    sz = ar.readNumber(); // Map<string, Descriptor>
+    sz = a.n(); // Map<string, Descriptor>
     for (let i1 = 0; i1 !== sz; ++i1) {
-        const k1 = ar.readString();
+        const k1 = a.s();
         const v1 = new Descriptor();
-        loadDescriptor(ar, v1);
+        loadDescriptor(a, v1);
         v.descriptors.set(k1, v1);
     }
-    sz = ar.readNumber(); // Map<string, UniformBlock>
+    sz = a.n(); // Map<string, UniformBlock>
     for (let i1 = 0; i1 !== sz; ++i1) {
-        const k1 = ar.readString();
+        const k1 = a.s();
         const v1 = new UniformBlock();
-        loadUniformBlock(ar, v1);
+        loadUniformBlock(a, v1);
         v.uniformBlocks.set(k1, v1);
     }
-    v.capacity = ar.readNumber();
-    v.count = ar.readNumber();
+    v.capacity = a.n();
+    v.count = a.n();
 }
 
-export function saveDescriptorBlockFlattened (ar: OutputArchive, v: DescriptorBlockFlattened): void {
-    ar.writeNumber(v.descriptorNames.length); // string[]
+export function saveDescriptorBlockFlattened (a: OutputArchive, v: DescriptorBlockFlattened): void {
+    a.n(v.descriptorNames.length); // string[]
     for (const v1 of v.descriptorNames) {
-        ar.writeString(v1);
+        a.s(v1);
     }
-    ar.writeNumber(v.uniformBlockNames.length); // string[]
+    a.n(v.uniformBlockNames.length); // string[]
     for (const v1 of v.uniformBlockNames) {
-        ar.writeString(v1);
+        a.s(v1);
     }
-    ar.writeNumber(v.descriptors.length); // Descriptor[]
+    a.n(v.descriptors.length); // Descriptor[]
     for (const v1 of v.descriptors) {
-        saveDescriptor(ar, v1);
+        saveDescriptor(a, v1);
     }
-    ar.writeNumber(v.uniformBlocks.length); // UniformBlock[]
+    a.n(v.uniformBlocks.length); // UniformBlock[]
     for (const v1 of v.uniformBlocks) {
-        saveUniformBlock(ar, v1);
+        saveUniformBlock(a, v1);
     }
-    ar.writeNumber(v.capacity);
-    ar.writeNumber(v.count);
+    a.n(v.capacity);
+    a.n(v.count);
 }
 
-export function loadDescriptorBlockFlattened (ar: InputArchive, v: DescriptorBlockFlattened): void {
+export function loadDescriptorBlockFlattened (a: InputArchive, v: DescriptorBlockFlattened): void {
     let sz = 0;
-    sz = ar.readNumber(); // string[]
+    sz = a.n(); // string[]
     v.descriptorNames.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
-        v.descriptorNames[i1] = ar.readString();
+        v.descriptorNames[i1] = a.s();
     }
-    sz = ar.readNumber(); // string[]
+    sz = a.n(); // string[]
     v.uniformBlockNames.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
-        v.uniformBlockNames[i1] = ar.readString();
+        v.uniformBlockNames[i1] = a.s();
     }
-    sz = ar.readNumber(); // Descriptor[]
+    sz = a.n(); // Descriptor[]
     v.descriptors.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
         const v1 = new Descriptor();
-        loadDescriptor(ar, v1);
+        loadDescriptor(a, v1);
         v.descriptors[i1] = v1;
     }
-    sz = ar.readNumber(); // UniformBlock[]
+    sz = a.n(); // UniformBlock[]
     v.uniformBlocks.length = sz;
     for (let i1 = 0; i1 !== sz; ++i1) {
         const v1 = new UniformBlock();
-        loadUniformBlock(ar, v1);
+        loadUniformBlock(a, v1);
         v.uniformBlocks[i1] = v1;
     }
-    v.capacity = ar.readNumber();
-    v.count = ar.readNumber();
+    v.capacity = a.n();
+    v.count = a.n();
 }
 
-export function saveDescriptorBlockIndex (ar: OutputArchive, v: DescriptorBlockIndex): void {
-    ar.writeNumber(v.updateFrequency);
-    ar.writeNumber(v.parameterType);
-    ar.writeNumber(v.descriptorType);
-    ar.writeNumber(v.visibility);
+export function saveDescriptorBlockIndex (a: OutputArchive, v: DescriptorBlockIndex): void {
+    a.n(v.updateFrequency);
+    a.n(v.parameterType);
+    a.n(v.descriptorType);
+    a.n(v.visibility);
 }
 
-export function loadDescriptorBlockIndex (ar: InputArchive, v: DescriptorBlockIndex): void {
-    v.updateFrequency = ar.readNumber();
-    v.parameterType = ar.readNumber();
-    v.descriptorType = ar.readNumber();
-    v.visibility = ar.readNumber();
+export function loadDescriptorBlockIndex (a: InputArchive, v: DescriptorBlockIndex): void {
+    v.updateFrequency = a.n();
+    v.parameterType = a.n();
+    v.descriptorType = a.n();
+    v.visibility = a.n();
 }
 
-export function saveResolvePair (ar: OutputArchive, v: ResolvePair): void {
-    ar.writeString(v.source);
-    ar.writeString(v.target);
-    ar.writeNumber(v.resolveFlags);
-    ar.writeNumber(v.mode);
-    ar.writeNumber(v.mode1);
+export function saveResolvePair (a: OutputArchive, v: ResolvePair): void {
+    a.s(v.source);
+    a.s(v.target);
+    a.n(v.resolveFlags);
+    a.n(v.mode);
+    a.n(v.mode1);
 }
 
-export function loadResolvePair (ar: InputArchive, v: ResolvePair): void {
-    v.source = ar.readString();
-    v.target = ar.readString();
-    v.resolveFlags = ar.readNumber();
-    v.mode = ar.readNumber();
-    v.mode1 = ar.readNumber();
+export function loadResolvePair (a: InputArchive, v: ResolvePair): void {
+    v.source = a.s();
+    v.target = a.s();
+    v.resolveFlags = a.n();
+    v.mode = a.n();
+    v.mode1 = a.n();
 }
 
-export function saveCopyPair (ar: OutputArchive, v: CopyPair): void {
-    ar.writeString(v.source);
-    ar.writeString(v.target);
-    ar.writeNumber(v.mipLevels);
-    ar.writeNumber(v.numSlices);
-    ar.writeNumber(v.sourceMostDetailedMip);
-    ar.writeNumber(v.sourceFirstSlice);
-    ar.writeNumber(v.sourcePlaneSlice);
-    ar.writeNumber(v.targetMostDetailedMip);
-    ar.writeNumber(v.targetFirstSlice);
-    ar.writeNumber(v.targetPlaneSlice);
+export function saveCopyPair (a: OutputArchive, v: CopyPair): void {
+    a.s(v.source);
+    a.s(v.target);
+    a.n(v.mipLevels);
+    a.n(v.numSlices);
+    a.n(v.sourceMostDetailedMip);
+    a.n(v.sourceFirstSlice);
+    a.n(v.sourcePlaneSlice);
+    a.n(v.targetMostDetailedMip);
+    a.n(v.targetFirstSlice);
+    a.n(v.targetPlaneSlice);
 }
 
-export function loadCopyPair (ar: InputArchive, v: CopyPair): void {
-    v.source = ar.readString();
-    v.target = ar.readString();
-    v.mipLevels = ar.readNumber();
-    v.numSlices = ar.readNumber();
-    v.sourceMostDetailedMip = ar.readNumber();
-    v.sourceFirstSlice = ar.readNumber();
-    v.sourcePlaneSlice = ar.readNumber();
-    v.targetMostDetailedMip = ar.readNumber();
-    v.targetFirstSlice = ar.readNumber();
-    v.targetPlaneSlice = ar.readNumber();
+export function loadCopyPair (a: InputArchive, v: CopyPair): void {
+    v.source = a.s();
+    v.target = a.s();
+    v.mipLevels = a.n();
+    v.numSlices = a.n();
+    v.sourceMostDetailedMip = a.n();
+    v.sourceFirstSlice = a.n();
+    v.sourcePlaneSlice = a.n();
+    v.targetMostDetailedMip = a.n();
+    v.targetFirstSlice = a.n();
+    v.targetPlaneSlice = a.n();
 }
 
-export function saveMovePair (ar: OutputArchive, v: MovePair): void {
-    ar.writeString(v.source);
-    ar.writeString(v.target);
-    ar.writeNumber(v.mipLevels);
-    ar.writeNumber(v.numSlices);
-    ar.writeNumber(v.targetMostDetailedMip);
-    ar.writeNumber(v.targetFirstSlice);
-    ar.writeNumber(v.targetPlaneSlice);
+export function saveMovePair (a: OutputArchive, v: MovePair): void {
+    a.s(v.source);
+    a.s(v.target);
+    a.n(v.mipLevels);
+    a.n(v.numSlices);
+    a.n(v.targetMostDetailedMip);
+    a.n(v.targetFirstSlice);
+    a.n(v.targetPlaneSlice);
 }
 
-export function loadMovePair (ar: InputArchive, v: MovePair): void {
-    v.source = ar.readString();
-    v.target = ar.readString();
-    v.mipLevels = ar.readNumber();
-    v.numSlices = ar.readNumber();
-    v.targetMostDetailedMip = ar.readNumber();
-    v.targetFirstSlice = ar.readNumber();
-    v.targetPlaneSlice = ar.readNumber();
+export function loadMovePair (a: InputArchive, v: MovePair): void {
+    v.source = a.s();
+    v.target = a.s();
+    v.mipLevels = a.n();
+    v.numSlices = a.n();
+    v.targetMostDetailedMip = a.n();
+    v.targetFirstSlice = a.n();
+    v.targetPlaneSlice = a.n();
 }
 
-export function savePipelineStatistics (ar: OutputArchive, v: PipelineStatistics): void {
-    ar.writeNumber(v.numRenderPasses);
-    ar.writeNumber(v.numManagedTextures);
-    ar.writeNumber(v.totalManagedTextures);
-    ar.writeNumber(v.numUploadBuffers);
-    ar.writeNumber(v.numUploadBufferViews);
-    ar.writeNumber(v.numFreeUploadBuffers);
-    ar.writeNumber(v.numFreeUploadBufferViews);
-    ar.writeNumber(v.numDescriptorSets);
-    ar.writeNumber(v.numFreeDescriptorSets);
-    ar.writeNumber(v.numInstancingBuffers);
-    ar.writeNumber(v.numInstancingUniformBlocks);
+export function savePipelineStatistics (a: OutputArchive, v: PipelineStatistics): void {
+    a.n(v.numRenderPasses);
+    a.n(v.numManagedTextures);
+    a.n(v.totalManagedTextures);
+    a.n(v.numUploadBuffers);
+    a.n(v.numUploadBufferViews);
+    a.n(v.numFreeUploadBuffers);
+    a.n(v.numFreeUploadBufferViews);
+    a.n(v.numDescriptorSets);
+    a.n(v.numFreeDescriptorSets);
+    a.n(v.numInstancingBuffers);
+    a.n(v.numInstancingUniformBlocks);
 }
 
-export function loadPipelineStatistics (ar: InputArchive, v: PipelineStatistics): void {
-    v.numRenderPasses = ar.readNumber();
-    v.numManagedTextures = ar.readNumber();
-    v.totalManagedTextures = ar.readNumber();
-    v.numUploadBuffers = ar.readNumber();
-    v.numUploadBufferViews = ar.readNumber();
-    v.numFreeUploadBuffers = ar.readNumber();
-    v.numFreeUploadBufferViews = ar.readNumber();
-    v.numDescriptorSets = ar.readNumber();
-    v.numFreeDescriptorSets = ar.readNumber();
-    v.numInstancingBuffers = ar.readNumber();
-    v.numInstancingUniformBlocks = ar.readNumber();
+export function loadPipelineStatistics (a: InputArchive, v: PipelineStatistics): void {
+    v.numRenderPasses = a.n();
+    v.numManagedTextures = a.n();
+    v.totalManagedTextures = a.n();
+    v.numUploadBuffers = a.n();
+    v.numUploadBufferViews = a.n();
+    v.numFreeUploadBuffers = a.n();
+    v.numFreeUploadBufferViews = a.n();
+    v.numDescriptorSets = a.n();
+    v.numFreeDescriptorSets = a.n();
+    v.numInstancingBuffers = a.n();
+    v.numInstancingUniformBlocks = a.n();
 }

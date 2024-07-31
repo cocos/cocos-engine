@@ -27,15 +27,46 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-/* eslint-disable max-len */
-export interface OutputArchive {
-    b (value: boolean): void;
-    n (value: number): void;
-    s (value: string): void;
+import { DescriptorTypeOrder, UpdateFrequency } from './types'
+
+export function getUpdateFrequencyName (e: UpdateFrequency): string {
+    switch (e) {
+    case UpdateFrequency.PER_INSTANCE:
+        return 'PER_INSTANCE';
+    case UpdateFrequency.PER_BATCH:
+        return 'PER_BATCH';
+    case UpdateFrequency.PER_PHASE:
+        return 'PER_PHASE';
+    case UpdateFrequency.PER_PASS:
+        return 'PER_PASS';
+    case UpdateFrequency.COUNT:
+        return 'COUNT';
+    default:
+        return '';
+    }
 }
 
-export interface InputArchive {
-    b (): boolean;
-    n (): number;
-    s (): string;
+export function getDescriptorTypeOrderName (e: DescriptorTypeOrder): string {
+    switch (e) {
+    case DescriptorTypeOrder.UNIFORM_BUFFER:
+        return 'UNIFORM_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_UNIFORM_BUFFER:
+        return 'DYNAMIC_UNIFORM_BUFFER';
+    case DescriptorTypeOrder.SAMPLER_TEXTURE:
+        return 'SAMPLER_TEXTURE';
+    case DescriptorTypeOrder.SAMPLER:
+        return 'SAMPLER';
+    case DescriptorTypeOrder.TEXTURE:
+        return 'TEXTURE';
+    case DescriptorTypeOrder.STORAGE_BUFFER:
+        return 'STORAGE_BUFFER';
+    case DescriptorTypeOrder.DYNAMIC_STORAGE_BUFFER:
+        return 'DYNAMIC_STORAGE_BUFFER';
+    case DescriptorTypeOrder.STORAGE_IMAGE:
+        return 'STORAGE_IMAGE';
+    case DescriptorTypeOrder.INPUT_ATTACHMENT:
+        return 'INPUT_ATTACHMENT';
+    default:
+        return '';
+    }
 }

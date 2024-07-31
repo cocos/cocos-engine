@@ -22,10 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Pool, cclegacy, warnID, settings, Settings, macro, log } from './core';
-import type { RenderPipeline } from './rendering/render-pipeline';
-import { DeferredPipeline } from './rendering/deferred/deferred-pipeline';
-import { createDefaultPipeline } from './rendering/forward/forward-pipeline';
+import { Pool, cclegacy, warnID, settings, Settings, macro, log, errorID } from './core';
 import { DebugView } from './rendering/debug-view';
 import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
@@ -256,7 +253,7 @@ export class Root {
     private _usesCustomPipeline = true;
     private _pipeline: PipelineRuntime | null = null;
     private _pipelineEvent: IPipelineEvent | null = new PipelineEventProcessor();
-    private _classicPipeline: RenderPipeline | null = null;
+    private _classicPipeline: (PipelineRuntime & IPipelineEvent) | null = null;
     private _customPipeline: BasicPipeline | null = null;
     private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
@@ -370,39 +367,28 @@ export class Root {
      * @param rppl The render pipeline
      * @returns The setup is successful or not
      */
-    public setRenderPipeline (rppl?: RenderPipeline): boolean {
-        const { internal, director, rendering } = cclegacy;
+    public setRenderPipeline (useCustomPipeline?: boolean): boolean {
+        const { internal, director, rendering, legacy_rendering } = cclegacy;
+        if (rendering === undefined && legacy_rendering === undefined) {
+            errorID(1223);
+            return false;
+        }
         //-----------------------------------------------
         // prepare classic pipeline
         //-----------------------------------------------
-        if (rppl instanceof DeferredPipeline) {
-            this._useDeferredPipeline = true;
-        }
-
         let isCreateDefaultPipeline = false;
-        if (!rppl) {
-            rppl = createDefaultPipeline();
-            isCreateDefaultPipeline = true;
-        }
-
-        // now cluster just enabled in deferred pipeline
-        if (!this._useDeferredPipeline || !this.device.hasFeature(Feature.COMPUTE_SHADER)) {
-            // disable cluster
-            rppl.clusterEnabled = false;
-        }
-        rppl.bloomEnabled = false;
-
-        //-----------------------------------------------
-        // choose pipeline
-        //-----------------------------------------------
-        if (macro.CUSTOM_PIPELINE_NAME !== '' && rendering && this.usesCustomPipeline) {
+        if (useCustomPipeline) {
             this._customPipeline = rendering.createCustomPipeline();
             isCreateDefaultPipeline = true;
             this._pipeline = this._customPipeline!;
             // Use default _pipelineEvent
             log(`Using custom pipeline: ${macro.CUSTOM_PIPELINE_NAME}`);
         } else {
-            this._classicPipeline = rppl;
+            const rppl: (PipelineRuntime & IPipelineEvent) = legacy_rendering.createDefaultPipeline();
+            isCreateDefaultPipeline = true;
+            log(`Using legacy pipeline`);
+
+            this._classicPipeline = rppl!;
             this._pipeline = this._classicPipeline;
             this._pipelineEvent = this._classicPipeline; // Use forward pipeline's pipeline event
             this._usesCustomPipeline = false;
@@ -741,7 +727,7 @@ export class Root {
                 for (let i = 0; i < webxrHmdPoseInfos.length; i++) {
                     const info = webxrHmdPoseInfos[i];
                     if ((info.code === XRPoseType.VIEW_LEFT && xrEye === XREye.LEFT)
-                    || (info.code === XRPoseType.VIEW_RIGHT && xrEye === XREye.RIGHT)) {
+                        || (info.code === XRPoseType.VIEW_RIGHT && xrEye === XREye.RIGHT)) {
                         cameraPosition[0] = info.position.x;
                         cameraPosition[1] = info.position.y;
                         cameraPosition[2] = info.position.z;
@@ -768,7 +754,7 @@ export class Root {
             for (let i = cameraList.length - 1; i >= 0; i--) {
                 const camera = cameraList[i];
                 const isMismatchedCam = (xrEye === XREye.LEFT && camera.cameraType === CameraType.RIGHT_EYE)
-                        || (xrEye === XREye.RIGHT && camera.cameraType === CameraType.LEFT_EYE);
+                    || (xrEye === XREye.RIGHT && camera.cameraType === CameraType.LEFT_EYE);
                 if (isMismatchedCam) {
                     // currently is left eye loop, so right camera do not need active
                     cameraList.splice(i, 1);

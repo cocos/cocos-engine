@@ -38,7 +38,6 @@ import { EDITOR } from 'cc/env';
 
 import {
     PipelineSettings,
-    makePipelineSettings,
     fillRequiredPipelineSettings,
 } from './builtin-pipeline-types';
 
@@ -51,7 +50,7 @@ const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireCom
 @executeInEditMode
 export class BuiltinPipelineSettings extends Component {
     @property
-    private readonly _settings: PipelineSettings = makePipelineSettings();
+    private readonly _settings: PipelineSettings = new PipelineSettings();
 
     // Enable/Disable
     onEnable(): void {
@@ -176,6 +175,7 @@ export class BuiltinPipelineSettings extends Component {
     @property({
         group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
         type: CCBoolean,
+        visible: false,
     })
     set dofEnable(value: boolean) {
         this._settings.depthOfField.enabled = value;
@@ -190,6 +190,7 @@ export class BuiltinPipelineSettings extends Component {
     @property({
         group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
         type: Material,
+        visible: false,
     })
     set dofMaterial(value: Material) {
         this._settings.depthOfField.material = value;
@@ -202,6 +203,7 @@ export class BuiltinPipelineSettings extends Component {
         group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
         type: CCFloat,
         min: 0,
+        visible: false,
     })
     set dofFocusDistance(value: number) {
         this._settings.depthOfField.focusDistance = value;
@@ -214,6 +216,7 @@ export class BuiltinPipelineSettings extends Component {
         group: { id: 'DepthOfField', name: 'DepthOfField (PostProcessing)', style: 'section' },
         type: CCFloat,
         min: 0,
+        visible: false,
     })
     set dofFocusRange(value: number) {
         this._settings.depthOfField.focusRange = value;
@@ -228,6 +231,7 @@ export class BuiltinPipelineSettings extends Component {
         type: CCFloat,
         range: [1, 10, 0.01],
         slide: true,
+        visible: false,
     })
     set dofBokehRadius(value: number) {
         this._settings.depthOfField.bokehRadius = value;

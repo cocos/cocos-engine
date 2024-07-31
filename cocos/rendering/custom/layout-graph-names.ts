@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2021-2024 Xiamen Yaji Software Co., Ltd.
 
- https://www.cocos.com/
+ https://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -22,9 +22,8 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../cocos/core/global-exports';
-import * as legacy_rendering from '../cocos/rendering/legacy';
-
-export * from '../cocos/rendering/legacy';
-
-legacyCC.legacy_rendering = legacy_rendering;
+/**
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ * The following section is auto-generated.
+ * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
+ */

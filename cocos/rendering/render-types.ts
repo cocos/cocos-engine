@@ -22,9 +22,10 @@
  THE SOFTWARE.
 */
 
-import { legacyCC } from '../cocos/core/global-exports';
-import * as legacy_rendering from '../cocos/rendering/legacy';
+import { Buffer, InputAssembler } from '../gfx';
 
-export * from '../cocos/rendering/legacy';
-
-legacyCC.legacy_rendering = legacy_rendering;
+export class PipelineInputAssemblerData {
+    quadIB: Buffer|null = null;
+    quadVB: Buffer|null = null;
+    quadIA: InputAssembler|null = null;
+}
