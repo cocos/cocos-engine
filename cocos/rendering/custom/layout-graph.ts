@@ -49,7 +49,7 @@ export class RenderPhase {
     readonly shaders: Set<string> = new Set<string>();
 }
 
-export enum RenderPassType {
+export const enum RenderPassType {
     SINGLE_RENDER_PASS,
     RENDER_PASS,
     RENDER_SUBPASS,

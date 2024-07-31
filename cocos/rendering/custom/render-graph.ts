@@ -1071,7 +1071,7 @@ export class RenderQueue {
     viewport: Viewport | null = null;
 }
 
-export enum CullingFlags {
+export const enum CullingFlags {
     NONE = 0,
     CAMERA_FRUSTUM = 0x1,
     LIGHT_FRUSTUM = 0x2,

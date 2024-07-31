@@ -43,7 +43,7 @@ export enum UpdateFrequency {
     COUNT,
 }
 
-export enum ParameterType {
+export const enum ParameterType {
     CONSTANTS,
     CBV,
     UAV,
@@ -91,7 +91,7 @@ export enum ResourceFlags {
     TRANSFER_DST = 0x200,
 }
 
-export enum TaskType {
+export const enum TaskType {
     SYNC,
     ASYNC,
 }
@@ -120,13 +120,13 @@ export enum SceneFlags {
     ALL = 0xFFFFFFFF,
 }
 
-export enum LightingMode {
+export const enum LightingMode {
     NONE,
     DEFAULT,
     CLUSTERED,
 }
 
-export enum AttachmentType {
+export const enum AttachmentType {
     RENDER_TARGET,
     DEPTH_STENCIL,
     SHADING_RATE,
@@ -138,7 +138,7 @@ export enum AccessType {
     WRITE,
 }
 
-export enum ClearValueType {
+export const enum ClearValueType {
     NONE,
     FLOAT_TYPE,
     INT_TYPE,
@@ -163,7 +163,7 @@ export class LightInfo {
     culledByLight: boolean;
 }
 
-export enum DescriptorTypeOrder {
+export const enum DescriptorTypeOrder {
     UNIFORM_BUFFER,
     DYNAMIC_UNIFORM_BUFFER,
     SAMPLER_TEXTURE,
@@ -230,7 +230,7 @@ export class DescriptorBlockIndex {
     visibility: ShaderStageFlagBit;
 }
 
-export enum ResolveFlags {
+export const enum ResolveFlags {
     NONE = 0,
     COLOR = 1 << 0,
     DEPTH = 1 << 1,
