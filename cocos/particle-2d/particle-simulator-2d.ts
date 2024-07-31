@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, misc, random, IColorLike } from '../core';
+import { Vec2, Color, js, misc, random, IColorLike, Vec4 } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -33,6 +33,7 @@ const _pos = new Vec2();
 const _tpa = new Vec2();
 const _tpb = new Vec2();
 const _tpc = new Vec2();
+const _col = new Vec4();
 
 const formatBytes = getComponentPerVertex(vfmtPosUvColor);
 
@@ -313,11 +314,19 @@ export class Simulator {
             vbuf[offset + 28] = y + halfHeight;
             vbuf[offset + 29] = 0;
         }
+
+        // normalize
+        const pcol = particle.color as IColorLike;
+        _col.x = pcol.r / 255;
+        _col.y = pcol.g / 255;
+        _col.z = pcol.b / 255;
+        _col.w = pcol.a / 255;
+
         // color
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 5);
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 14);
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 23);
-        Color.toArray(vbuf, particle.color as IColorLike, offset + 32);
+        Vec4.toArray(vbuf, _col, offset + 5);
+        Vec4.toArray(vbuf, _col, offset + 14);
+        Vec4.toArray(vbuf, _col, offset + 23);
+        Vec4.toArray(vbuf, _col, offset + 32);
     }
 
     public step (dt: number): void {
