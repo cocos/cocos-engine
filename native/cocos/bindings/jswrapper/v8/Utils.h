@@ -50,6 +50,27 @@ void setPrivate(v8::Isolate *isolate, ObjectWrap &wrap, Object *obj);
 Object *getPrivate(v8::Isolate *isolate, v8::Local<v8::Value> value);
 void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
 
+class ExternalStringResource : public v8::String::ExternalStringResource {
+public:
+    ExternalStringResource(std::u16string &s)
+    : _s(std::move(s)) {
+        
+    }
+    
+    ~ExternalStringResource() {
+    }
+    
+    const uint16_t* data() const override {
+        return reinterpret_cast<const uint16_t*>(_s.data());
+    }
+
+    size_t length() const override {
+        return _s.length();
+    }
+private:
+    std::u16string _s;
+};
+
 } // namespace internal
 } // namespace se
 

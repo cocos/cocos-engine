@@ -60,7 +60,7 @@ extern void jsb_register_ADPF(se::Object *); // NOLINT
 
 using namespace cc; // NOLINT
 
-static LegacyThreadPool *gThreadPool = nullptr;
+LegacyThreadPool *gIOThreadPool = nullptr;
 
 static std::shared_ptr<cc::network::Downloader> gLocalDownloader = nullptr;
 static ccstd::unordered_map<ccstd::string, std::function<void(const ccstd::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
@@ -590,7 +590,7 @@ bool jsb_global_load_image(const ccstd::string &path, const se::Value &callbackV
     auto initImageFunc = [path, callbackPtr](const ccstd::string &fullPath, unsigned char *imageData, int imageBytes) {
         auto *img = ccnew Image();
 
-        gThreadPool->pushTask([=](int /*tid*/) {
+        gIOThreadPool->pushTask([=](int /*tid*/) {
             // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
             // Image::initWithImageFile will call fullPathForFilename internally which may
             // cause thread race issues. Therefore, we get the full path of file before
@@ -725,7 +725,7 @@ static bool js_saveImageData(se::State &s) { // NOLINT
             callbackObj->incRef();
         }
 
-        gThreadPool->pushTask([=](int /*tid*/) {
+        gIOThreadPool->pushTask([=](int /*tid*/) {
             // isToRGB = false, to keep alpha channel
             auto *img = ccnew Image();
             // A conversion from size_t to uint32_t might lose integer precision
@@ -1526,7 +1526,7 @@ SE_BIND_FUNC(JSB_openharmony_postSyncMessage)
 #endif
 
 bool jsb_register_global_variables(se::Object *global) { // NOLINT
-    gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
+    gIOThreadPool = LegacyThreadPool::newFixedThreadPool(5);
 
 #if CC_EDITOR
     global->defineFunction("__require", _SE(require));
@@ -1546,6 +1546,7 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
     __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
     __jsbObj->defineFunction("destroyImage", _SE(js_destroyImage));
+    
 #if CC_USE_EDITBOX
     __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
     __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
@@ -1605,8 +1606,8 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
     se::ScriptEngine::getInstance()->clearException();
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        delete gThreadPool;
-        gThreadPool = nullptr;
+        delete gIOThreadPool;
+        gIOThreadPool = nullptr;
 
         DeferredReleasePool::clear();
     });
@@ -1619,6 +1620,6 @@ bool jsb_register_global_variables(se::Object *global) { // NOLINT
         SAFE_DEC_REF(__jsbObj);
         SAFE_DEC_REF(__glObj);
     });
-
+    
     return true;
 }

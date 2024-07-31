@@ -24,11 +24,14 @@
 
 #include "jsb_cocos_manual.h"
 
+#include "base/ThreadPool.h"
+#include "base/UTF8.h"
+
 #include "bindings/manual/jsb_global.h"
-#include "cocos/bindings/auto/jsb_cocos_auto.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global_init.h"
+#include "bindings/auto/jsb_cocos_auto.h"
+#include "bindings/jswrapper/SeApi.h"
+#include "bindings/manual/jsb_conversions.h"
+#include "bindings/manual/jsb_global_init.h"
 
 #include "application/ApplicationManager.h"
 #include "platform/interfaces/modules/ISystemWindowManager.h"
@@ -672,8 +675,127 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_se_setExceptionCallback) // NOLINT(readability-identifier-naming)
 
+template<typename T, bool isJson = false>
+static bool js_readFile(se::State &s) { // NOLINT
+    const auto &args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        ccstd::string path;
+        ok &= sevalue_to_native(args[0], &path);
+        SE_PRECONDITION2(ok, false, "Error processing arguments");
+
+        const auto &callbackVal = args[1];
+        CC_ASSERT(callbackVal.isObject());
+        CC_ASSERT(callbackVal.toObject()->isFunction());
+        
+        
+        if (path.empty()) {
+            se::ValueArray seArgs;
+            seArgs.reserve(2);
+            seArgs.emplace_back(se::Value("Path is empty"));
+            seArgs.emplace_back(se::Value::Null);
+            callbackVal.toObject()->call(seArgs, nullptr);
+            return true;
+        }
+
+        std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
+        
+        // fullPathForFilename is not threadsafe, so don't invoke it in thread pool.
+        ccstd::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(path);
+        
+        gIOThreadPool->pushTask([fullPath, callbackPtr](int tid) {
+            auto *fs = cc::FileUtils::getInstance();
+            if (fs == nullptr) {
+                return;
+            }
+            
+            auto app = CC_CURRENT_APPLICATION();
+            if (!app) {
+                return;
+            }
+
+            auto content = std::make_shared<T>();
+            fs->getContents(fullPath, content.get());
+            
+            auto engine = app->getEngine();
+            if (!engine) {
+                return;
+            }
+            
+            // TODO(cjh): OpenHarmony NAPI support
+#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+            std::shared_ptr<std::u16string> u16str;
+            if constexpr (std::is_same_v<T, ccstd::string> && isJson) {
+                u16str = std::make_shared<std::u16string>();
+                if (!cc::StringUtils::UTF8ToUTF16(*content, *u16str)) {
+                    CC_LOG_ERROR("UTF8ToUTF16 failed, file: %s", fullPath.c_str());
+                }
+            }
+#endif
+            
+            engine->getScheduler()->performFunctionInCocosThread([callbackPtr, content, u16str](){
+                se::AutoHandleScope hs;
+                se::ValueArray seArgs;
+                seArgs.reserve(2);
+                
+                if constexpr (std::is_same_v<T, ccstd::string>) {
+                    if constexpr (isJson) {
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
+                        se::HandleObject jsonObj(se::Object::createJSONObject(*content));
+#else
+                        se::HandleObject jsonObj(se::Object::createJSONObject(*u16str));
+#endif
+                        if (!jsonObj.get()) {
+                            seArgs.emplace_back(se::Value("Parse json failed!"));
+                            seArgs.emplace_back(se::Value::Null);
+                        } else {
+                            seArgs.emplace_back(se::Value::Null);
+                            seArgs.emplace_back(se::Value(jsonObj));
+                        }
+                        callbackPtr->toObject()->call(seArgs, nullptr);
+                    } else {
+                        seArgs.emplace_back(se::Value::Null);
+                        seArgs.emplace_back(se::Value(*content));
+                        callbackPtr->toObject()->call(seArgs, nullptr);
+                    }
+                } else if constexpr (std::is_same_v<T, cc::Data>) {
+                    se::HandleObject dataObj(se::Object::createArrayBufferObject(content->getBytes(), content->getSize()));
+                    seArgs.emplace_back(se::Value::Null);
+                    seArgs.emplace_back(se::Value(dataObj));
+                    callbackPtr->toObject()->call(seArgs, nullptr);
+                }
+            });
+        });
+        
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+
+static bool js_readTextFile(se::State &s) { // NOLINT
+    return js_readFile<ccstd::string>(s);
+}
+SE_BIND_FUNC(js_readTextFile)
+
+static bool js_readDataFile(se::State &s) { // NOLINT
+    return js_readFile<cc::Data>(s);
+}
+SE_BIND_FUNC(js_readDataFile)
+
+static bool js_readJsonFile(se::State &s) { // NOLINT
+    return js_readFile<ccstd::string, true>(s);
+}
+SE_BIND_FUNC(js_readJsonFile)
+
+
 static bool register_filetuils_ext(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_FileUtils_proto->defineFunction("listFilesRecursively", _SE(js_engine_FileUtils_listFilesRecursively));
+    __jsb_cc_FileUtils_proto->defineFunction("readTextFile", _SE(js_readTextFile));
+    __jsb_cc_FileUtils_proto->defineFunction("readDataFile", _SE(js_readDataFile));
+    __jsb_cc_FileUtils_proto->defineFunction("readJsonFile", _SE(js_readJsonFile));
+    
     return true;
 }
 

@@ -24,12 +24,20 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#define CC_USE_SIMD_UTF 1
+
 #include "base/UTF8.h"
 
 #include <cstdarg>
 #include <cstdlib>
 
 #include "ConvertUTF/ConvertUTF.h"
+
+#if CC_USE_SIMD_UTF
+#include "simdutf/simdutf.cpp"
+#include "simdutf/simdutf.h"
+#endif
+
 #include "base/Log.h"
 
 namespace cc {
@@ -211,7 +219,29 @@ CC_DLL void UTF8LooseFix(const ccstd::string &in, ccstd::string &out) { //NOLINT
 }
 
 bool UTF8ToUTF16(const ccstd::string &utf8, std::u16string &outUtf16) { //NOLINT
+#if CC_USE_SIMD_UTF
+    bool validutf8 = simdutf::validate_utf8(utf8.c_str(), utf8.length());
+    if (!validutf8) {
+        outUtf16.clear();
+        return false;
+    }
+
+    // We need a buffer of size where to write the UTF-16LE words.
+    size_t expected_utf16words = simdutf::utf16_length_from_utf8(utf8.c_str(), utf8.length());
+    outUtf16.resize(expected_utf16words);
+
+    // convert to UTF-16LE
+    size_t utf16words = simdutf::convert_utf8_to_utf16le(utf8.c_str(), utf8.length(), outUtf16.data());
+    bool validutf16 = simdutf::validate_utf16le(outUtf16.c_str(), utf16words);
+    if (!validutf16) {
+        outUtf16.clear();
+        return false;
+    }
+
+    return true;
+#else
     return utfConvert(utf8, outUtf16, ConvertUTF8toUTF16);
+#endif
 }
 
 bool UTF8ToUTF32(const ccstd::string &utf8, std::u32string &outUtf32) { //NOLINT

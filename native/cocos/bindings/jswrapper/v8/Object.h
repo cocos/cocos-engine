@@ -152,6 +152,7 @@ public:
      *  @note The return value (non-null) has to be released manually.
      */
     static Object *createJSONObject(const ccstd::string &jsonStr);
+    static Object *createJSONObject(std::u16string &jsonStr);
 
     /**
      *  @brief Creates a JavaScript Native Binding Object from an existing se::Class instance.

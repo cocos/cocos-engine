@@ -400,6 +400,22 @@ Object *Object::createJSONObject(const ccstd::string &jsonStr) {
     return Object::_createJSObject(nullptr, jsobj);
 }
 
+Object *Object::createJSONObject(std::u16string &jsonStr) {
+    auto v8Str = v8::String::NewExternalTwoByte(__isolate, ccnew internal::ExternalStringResource(jsonStr));
+    if (v8Str.IsEmpty()) {
+        return nullptr;
+    }
+
+    v8::Local<v8::Context> context = __isolate->GetCurrentContext();
+    v8::MaybeLocal<v8::Value> ret = v8::JSON::Parse(context, v8Str.ToLocalChecked());
+    if (ret.IsEmpty()) {
+        return nullptr;
+    }
+
+    v8::Local<v8::Object> jsobj = v8::Local<v8::Object>::Cast(ret.ToLocalChecked());
+    return Object::_createJSObject(nullptr, jsobj);
+}
+
 bool Object::init(Class *cls, v8::Local<v8::Object> obj) {
     _cls = cls;
 
