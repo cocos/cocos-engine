@@ -46,6 +46,7 @@ import {
 
 import {
     PipelineSettings,
+    makePipelineSettings,
 } from './builtin-pipeline-types';
 
 const { AABB, Sphere, intersect } = geometry;
@@ -136,7 +137,7 @@ function setupPipelineConfigs(
     configs.platform.w = (screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
 }
 
-const defaultSettings = new PipelineSettings();
+const defaultSettings = makePipelineSettings();
 
 class CameraConfigs {
     colorName = '';
