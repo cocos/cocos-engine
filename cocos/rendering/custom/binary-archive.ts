@@ -30,7 +30,7 @@ export class BinaryOutputArchive implements OutputArchive {
         this.buffer = new Uint8Array(this.capacity);
         this.dataView = new DataView(this.buffer.buffer);
     }
-    writeBool (value: boolean): void {
+    b (value: boolean): void {
         const newSize = this.size + 1;
         if (newSize > this.capacity) {
             this.reserve(newSize);
@@ -38,7 +38,7 @@ export class BinaryOutputArchive implements OutputArchive {
         this.dataView.setUint8(this.size, value ? 1 : 0);
         this.size = newSize;
     }
-    writeNumber (value: number): void {
+    n (value: number): void {
         const newSize = this.size + 8;
         if (newSize > this.capacity) {
             this.reserve(newSize);
@@ -46,8 +46,8 @@ export class BinaryOutputArchive implements OutputArchive {
         this.dataView.setFloat64(this.size, value, true);
         this.size = newSize;
     }
-    writeString (value: string): void {
-        this.writeNumber(value.length);
+    s (value: string): void {
+        this.n(value.length);
         const newSize = this.size + value.length;
         if (newSize > this.capacity) {
             this.reserve(newSize);
@@ -78,16 +78,16 @@ export class BinaryInputArchive implements InputArchive {
     constructor (data: ArrayBuffer) {
         this.dataView = new DataView(data);
     }
-    readBool (): boolean {
+    b (): boolean {
         return this.dataView.getUint8(this.offset++) !== 0;
     }
-    readNumber (): number {
+    n (): number {
         const value = this.dataView.getFloat64(this.offset, true);
         this.offset += 8;
         return value;
     }
-    readString (): string {
-        const length = this.readNumber();
+    s (): string {
+        const length = this.n();
         // we only support ascii string now, so we can use String.fromCharCode
         // see https://stackoverflow.com/questions/67057689/typscript-type-uint8array-is-missing-the-following-properties-from-type-numb
         // answer on stackoverflow might be wrong.
