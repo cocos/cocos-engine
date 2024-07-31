@@ -332,6 +332,40 @@ void Scheduler::removeAllFunctionsToBePerformedInCocosThread() {
     _functionsToPerform.clear();
 }
 
+void Scheduler::runFunctionsToBePerformedInCocosThread() {
+    //
+    // Functions allocated from another thread
+    //
+    auto beginTime = std::chrono::steady_clock::now();
+    auto nowTime = beginTime;
+
+    // Testing size is faster than locking / unlocking.
+    // And almost never there will be functions scheduled to be called.
+    if (!_functionsToPerform.empty()) {
+        _performMutex.lock();
+        // fixed #4123: Save the callback functions, they must be invoked after '_performMutex.unlock()', otherwise if new functions are added in callback, it will cause thread deadlock.
+        auto temp = std::move(_functionsToPerform);
+        _performMutex.unlock();
+        
+        auto iter = temp.begin();
+        for (; iter != temp.end(); ++iter) {
+            nowTime = std::chrono::steady_clock::now();
+            auto passedMS = std::chrono::duration_cast<std::chrono::milliseconds>(nowTime - beginTime).count();
+            // If the callbacks takes more than 16ms, delay the remaining jobs to next frame.
+            if (passedMS > 16) {
+                break;
+            }
+            
+            (*iter)();
+        }
+        
+        std::lock_guard<std::mutex> lk(_performMutex);
+        for (; iter != temp.end(); ++iter) {
+            _functionsToPerform.emplace_back(std::move(*iter));
+        }
+    }
+}
+
 // main loop
 void Scheduler::update(float dt) {
     _updateHashLocked = true;
@@ -377,22 +411,7 @@ void Scheduler::update(float dt) {
     _updateHashLocked = false;
     _currentTarget = nullptr;
 
-    //
-    // Functions allocated from another thread
-    //
-
-    // Testing size is faster than locking / unlocking.
-    // And almost never there will be functions scheduled to be called.
-    if (!_functionsToPerform.empty()) {
-        _performMutex.lock();
-        // fixed #4123: Save the callback functions, they must be invoked after '_performMutex.unlock()', otherwise if new functions are added in callback, it will cause thread deadlock.
-        auto temp = _functionsToPerform;
-        _functionsToPerform.clear();
-        _performMutex.unlock();
-        for (const auto &function : temp) {
-            function();
-        }
-    }
+    runFunctionsToBePerformedInCocosThread();
 }
 
 } // namespace cc

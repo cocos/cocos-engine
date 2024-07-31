@@ -815,6 +815,31 @@ export declare namespace native {
          *
          */
         export function getStringFromFile(filename: string): string;
+
+        /**
+         * @en Read utf-8 text file asynchronously.
+         * @zh 异步读取 utf-8 编码的文本文件
+         * @param filepath @en The file path. @zh 文件路径
+         * @param onComplete @en The complete callback. @zh 读取完成回调
+         */
+        export function readTextFile(filepath: string, onComplete: (err: string | null, content: string) => void): void;
+
+        /**
+         * @en Read utf-8 json file asynchronously.
+         * @zh 异步读取 utf-8 编码的 json 文件
+         * @param filepath @en The file path. @zh 文件路径
+         * @param onComplete @en The complete callback. @zh 读取完成回调
+         */
+        export function readJsonFile(filepath: string, onComplete: (err: string | null, content: object) => void): void;
+
+        /**
+         * @en Read binary file asynchronously.
+         * @zh 异步读取二进制文件
+         * @param filepath @en The file path. @zh 文件路径
+         * @param onComplete @en The complete callback. @zh 读取完成回调
+         */
+        export function readDataFile(filepath: string, onComplete: (err: string | null, content: ArrayBuffer) => void): void;
+
         /**
          *  @en
          *  Removes a file.

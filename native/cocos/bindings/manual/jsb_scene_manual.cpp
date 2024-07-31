@@ -28,6 +28,7 @@
 #include "core/Root.h"
 #include "core/scene-graph/Node.h"
 #include "scene/Model.h"
+#include "application/ApplicationManager.h"
 
 #ifndef JSB_ALLOC
     #define JSB_ALLOC(kls, ...) ccnew kls(__VA_ARGS__)
@@ -115,7 +116,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
     auto *cobj = SE_THIS_OBJECT<cc::Root>(s);
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
 
-#define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName)                                                         \
+#define DISPATCH_EVENT_TO_JS_ARGS_0(eventType, jsFuncName, postCode)                                               \
     cobj->on<eventType>([](cc::Root *rootObj) {                                                                    \
         se::AutoHandleScope hs;                                                                                    \
         se::Value rootVal;                                                                                         \
@@ -124,12 +125,15 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
         if (rootVal.isObject()) {                                                                                  \
             se::ScriptEngine::getInstance()->callFunction(rootVal.toObject(), #jsFuncName, 0, nullptr);            \
         }                                                                                                          \
+        postCode                                                                                                   \
     });
 
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeCommit, _onDirectorBeforeCommit);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeRender, _onDirectorBeforeRender);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender);
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::PipelineChanged, _onDirectorPipelineChanged);
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeCommit, _onDirectorBeforeCommit, {});
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeRender, _onDirectorBeforeRender, {});
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender, {
+        CC_CURRENT_APPLICATION()->getEngine()->getScheduler()->runFunctionsToBePerformedInCocosThread();
+    });
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::PipelineChanged, _onDirectorPipelineChanged, {});
 
     return true;
 }

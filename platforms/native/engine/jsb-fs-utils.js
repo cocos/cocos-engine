@@ -139,21 +139,21 @@ const fsUtils = {
             cc.warn(`Write file failed: path: ${path}`);
             return new Error(`Write file failed: path: ${path}`);
         }
+        return null;
     },
 
     readFile (filePath, encoding, onComplete) {
-        let content = null; let err = null;
         if (encoding === 'utf-8' || encoding === 'utf8') {
-            content = fs.getStringFromFile(filePath);
+            fs.readTextFile(filePath, (err, content) => {
+                if (err) err = new Error(err);
+                onComplete && onComplete(err, content);
+            });
         } else {
-            content = fs.getDataFromFile(filePath);
+            fs.readDataFile(filePath, (err, content) => {
+                if (err) err = new Error(err);
+                onComplete && onComplete(err, content);
+            });
         }
-        if (!content) {
-            err = new Error(`Read file failed: path: ${filePath}`);
-            cc.warn(err.message);
-        }
-
-        onComplete && onComplete(err, content);
     },
 
     readDir (filePath, onComplete) {
@@ -176,17 +176,12 @@ const fsUtils = {
     },
 
     readJson (filePath, onComplete) {
-        fsUtils.readFile(filePath, 'utf8', (err, text) => {
-            let out = null;
-            if (!err) {
-                try {
-                    out = JSON.parse(text);
-                } catch (e) {
-                    cc.warn(`Read json failed: path: ${filePath} message: ${e.message}`);
-                    err = new Error(e.message);
-                }
+        fs.readJsonFile(filePath, (err, jsonObj) => {
+            if (err) {
+                cc.warn(`Read json failed: path: ${filePath} message: ${err}`);
+                err = new Error(err);
             }
-            onComplete && onComplete(err, out);
+            onComplete && onComplete(err, jsonObj);
         });
     },
 
@@ -206,6 +201,7 @@ const fsUtils = {
             cc.warn(`Make directory failed: path: ${path}`);
             return new Error(`Make directory failed: path: ${path}`);
         }
+        return null;
     },
 
     rmdirSync (dirPath, recursive) {
@@ -214,6 +210,7 @@ const fsUtils = {
             cc.warn(`rm directory failed: path: ${dirPath}`);
             return new Error(`rm directory failed: path: ${dirPath}`);
         }
+        return null;
     },
 
     exists (filePath, onComplete) {

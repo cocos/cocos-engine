@@ -152,6 +152,14 @@ public:
      *  @note The return value (non-null) has to be released manually.
      */
     static Object *createJSONObject(const ccstd::string &jsonStr);
+    
+    /**
+     *  @brief Creates a JavaScript Object from a JSON formatted string.
+     *  @param[in] jsonStr The utf-16 string containing the JSON string to be parsed.
+     *  @return A JavaScript Object containing the parsed value, or nullptr if the input is invalid.
+     *  @note The return value (non-null) has to be released manually. In order to avoid memory copy, use std::u16string reference directly without const, after this method is invoked, jsonStr will be empty since it was moved.
+     */
+    static Object *createJSONObject(std::u16string &jsonStr);
 
     /**
      *  @brief Creates a JavaScript Native Binding Object from an existing se::Class instance.
