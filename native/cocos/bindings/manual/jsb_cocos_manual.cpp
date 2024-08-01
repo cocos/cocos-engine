@@ -27,10 +27,10 @@
 #include "base/ThreadPool.h"
 #include "base/UTF8.h"
 
-#include "bindings/manual/jsb_global.h"
 #include "bindings/auto/jsb_cocos_auto.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
+#include "bindings/manual/jsb_global.h"
 #include "bindings/manual/jsb_global_init.h"
 
 #include "application/ApplicationManager.h"
@@ -356,7 +356,7 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
     return true;
 }
 
-//IDEA:  move to auto bindings.
+// IDEA:  move to auto bindings.
 static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::ICanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "Invalid Native Object");
@@ -653,7 +653,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
     if (s.thisObject()) {
         s.thisObject()->attachObject(objFunc); // prevent GC
     } else {
-        //prevent GC in C++ & JS
+        // prevent GC in C++ & JS
         objFunc->root();
     }
 
@@ -675,7 +675,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_se_setExceptionCallback) // NOLINT(readability-identifier-naming)
 
-static bool js_readFile_getParameters(se::State &s, ccstd::string &fullPath, std::shared_ptr<se::Value>& callbackPtr) { // NOLINT
+static bool js_readFile_getParameters(se::State &s, ccstd::string &fullPath, std::shared_ptr<se::Value> &callbackPtr) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -687,7 +687,7 @@ static bool js_readFile_getParameters(se::State &s, ccstd::string &fullPath, std
         const auto &callbackVal = args[1];
         CC_ASSERT(callbackVal.isObject());
         CC_ASSERT(callbackVal.toObject()->isFunction());
-        
+
         if (path.empty()) {
             se::ValueArray seArgs;
             seArgs.reserve(2);
@@ -698,7 +698,7 @@ static bool js_readFile_getParameters(se::State &s, ccstd::string &fullPath, std
         }
 
         callbackPtr = std::make_shared<se::Value>(callbackVal);
-        
+
         // fullPathForFilename is not threadsafe, so don't invoke it in thread pool.
         fullPath = cc::FileUtils::getInstance()->fullPathForFilename(path);
         return true;
@@ -712,7 +712,7 @@ struct ReadFileDoJobReturnType {
     using value = std::shared_ptr<T>;
 };
 
-template<>
+template <>
 struct ReadFileDoJobReturnType<ccstd::string, true> {
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
     using value = std::shared_ptr<ccstd::string>;
@@ -721,7 +721,7 @@ struct ReadFileDoJobReturnType<ccstd::string, true> {
 #endif
 };
 
-template<>
+template <>
 struct ReadFileDoJobReturnType<ccstd::string, false> {
     using value = std::shared_ptr<ccstd::string>;
 };
@@ -732,7 +732,7 @@ static bool js_readFile_doJob(const ccstd::string &fullPath, typename ReadFileDo
     if (fs == nullptr) {
         return false;
     }
-    
+
     auto app = CC_CURRENT_APPLICATION();
     if (!app) {
         return false;
@@ -740,12 +740,12 @@ static bool js_readFile_doJob(const ccstd::string &fullPath, typename ReadFileDo
 
     auto content = std::make_shared<T>();
     fs->getContents(fullPath, content.get());
-    
+
     auto engine = app->getEngine();
     if (!engine) {
         return false;
     }
-    
+
     // TODO(cjh): OpenHarmony NAPI support
 #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
     if constexpr (std::is_same_v<T, ccstd::string> && isJson) {
@@ -768,16 +768,16 @@ static void js_readFile_invokeCallback(bool doJobSucceed, typename ReadFileDoJob
     se::AutoHandleScope hs;
     se::ValueArray seArgs;
     seArgs.reserve(2);
-    
+
     if (!doJobSucceed) {
         seArgs.emplace_back(se::Value("readFile failed!"));
         seArgs.emplace_back(se::Value::Null);
         callbackPtr->toObject()->call(seArgs, nullptr);
         return;
     }
-    
+
     static_assert(std::is_same_v<T, ccstd::string> || std::is_same_v<T, cc::Data>, "No supported type!");
-    
+
     if constexpr (std::is_same_v<T, ccstd::string>) {
         if constexpr (isJson) {
 #if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
@@ -806,32 +806,32 @@ static void js_readFile_invokeCallback(bool doJobSucceed, typename ReadFileDoJob
     }
 }
 
-#define JSB_READ_FILE(funcName, type, isJson) \
-static bool funcName(se::State &s) { \
-    ccstd::string fullPath; \
-    std::shared_ptr<se::Value> callbackPtr; \
-    bool ok = js_readFile_getParameters(s, fullPath, callbackPtr); \
-    if (!ok) return false; \
-\
-    gIOThreadPool->pushTask([fullPath, callbackPtr](int/* tid */) { \
-        ReadFileDoJobReturnType<type, isJson>::value content; \
-        bool doJobSucceed = js_readFile_doJob<type, isJson>(fullPath, content); \
-        auto app = CC_CURRENT_APPLICATION(); \
-        if (!app) { \
-            return; \
-        } \
-        auto engine = app->getEngine(); \
-        if (!engine) { \
-            return; \
-        } \
-        engine->getScheduler()->performFunctionInCocosThread([doJobSucceed, callbackPtr, content](){ \
-            js_readFile_invokeCallback<type, isJson>(doJobSucceed, content, callbackPtr); \
-        }); \
-    }); \
-\
-    return true; \
-} \
-SE_BIND_FUNC(funcName)
+#define JSB_READ_FILE(funcName, type, isJson)                                                             \
+    static bool funcName(se::State &s) {                                                                  \
+        ccstd::string fullPath;                                                                           \
+        std::shared_ptr<se::Value> callbackPtr;                                                           \
+        bool ok = js_readFile_getParameters(s, fullPath, callbackPtr);                                    \
+        if (!ok) return false;                                                                            \
+                                                                                                          \
+        gIOThreadPool->pushTask([fullPath, callbackPtr](int /* tid */) {                                  \
+            ReadFileDoJobReturnType<type, isJson>::value content;                                         \
+            bool doJobSucceed = js_readFile_doJob<type, isJson>(fullPath, content);                       \
+            auto app = CC_CURRENT_APPLICATION();                                                          \
+            if (!app) {                                                                                   \
+                return;                                                                                   \
+            }                                                                                             \
+            auto engine = app->getEngine();                                                               \
+            if (!engine) {                                                                                \
+                return;                                                                                   \
+            }                                                                                             \
+            engine->getScheduler()->performFunctionInCocosThread([doJobSucceed, callbackPtr, content]() { \
+                js_readFile_invokeCallback<type, isJson>(doJobSucceed, content, callbackPtr);             \
+            });                                                                                           \
+        });                                                                                               \
+                                                                                                          \
+        return true;                                                                                      \
+    }                                                                                                     \
+    SE_BIND_FUNC(funcName)
 
 JSB_READ_FILE(js_readTextFile, ccstd::string, false)
 JSB_READ_FILE(js_readJsonFile, ccstd::string, true)
@@ -842,7 +842,7 @@ static bool register_filetuils_ext(se::Object * /*obj*/) { // NOLINT(readability
     __jsb_cc_FileUtils_proto->defineFunction("readTextFile", _SE(js_readTextFile));
     __jsb_cc_FileUtils_proto->defineFunction("readDataFile", _SE(js_readDataFile));
     __jsb_cc_FileUtils_proto->defineFunction("readJsonFile", _SE(js_readJsonFile));
-    
+
     return true;
 }
 
