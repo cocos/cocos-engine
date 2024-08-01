@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Color, Mat4 } from '../../../core';
+import { Color } from '../../../core';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Sprite } from '../../components';
@@ -30,7 +30,6 @@ import { IAssembler } from '../../renderer/base';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
-const m = new Mat4();
 const tempRenderData: IRenderData[] = [];
 for (let i = 0; i < 4; i++) {
     tempRenderData.push({ x: 0, y: 0, z: 0, u: 0, v: 0, color: new Color() });
@@ -180,13 +179,16 @@ export const sliced: IAssembler = {
     },
 
     updateWorldVertexData (sprite: Sprite, chunk: StaticVBChunk) {
-        const node = sprite.node;
-        node.getWorldMatrix(m);
-
         const renderData = sprite.renderData!;
         const stride = renderData.floatStride;
         const dataList: IRenderData[] = renderData.data;
         const vData = chunk.vb;
+        const node = sprite.node;
+        const m = node.worldMatrix;
+
+        const m00 = m.m00; const m01 = m.m01; const m02 = m.m02; const m03 = m.m03;
+        const m04 = m.m04; const m05 = m.m05; const m06 = m.m06; const m07 = m.m07;
+        const m12 = m.m12; const m13 = m.m13; const m14 = m.m14; const m15 = m.m15;
 
         let offset = 0;
         for (let row = 0; row < 4; ++row) {
@@ -195,13 +197,13 @@ export const sliced: IAssembler = {
                 const colD = dataList[col];
                 const x = colD.x;
                 const y = rowD.y;
-                let rhw = m.m03 * x + m.m07 * y + m.m15;
+                let rhw = m03 * x + m07 * y + m15;
                 rhw = rhw ? 1 / rhw : 1;
 
                 offset = (row * 4 + col) * stride;
-                vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
-                vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
-                vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
+                vData[offset + 0] = (m00 * x + m04 * y + m12) * rhw;
+                vData[offset + 1] = (m01 * x + m05 * y + m13) * rhw;
+                vData[offset + 2] = (m02 * x + m06 * y + m14) * rhw;
             }
         }
     },
