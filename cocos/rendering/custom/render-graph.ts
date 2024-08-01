@@ -629,12 +629,12 @@ export class ResourceGraphVertex {
         readonly object: ResourceGraphObject,
     ) {
         this.t = id;
-        this._object = object;
+        this.j = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
     readonly t: ResourceGraphValue;
-    _object: ResourceGraphObject;
+    j: ResourceGraphObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -839,11 +839,11 @@ export class ResourceGraph implements BidirectionalGraph
         return this.x[v].t;
     }
     object (v: number): ResourceGraphObject {
-        return this.x[v]._object;
+        return this.x[v].j;
     }
     value<T extends ResourceGraphValue> (id: T, v: number): ResourceGraphValueType[T] {
         if (this.x[v].t === id) {
-            return this.x[v]._object as ResourceGraphValueType[T];
+            return this.x[v].j as ResourceGraphValueType[T];
         } else {
             throw Error('value id not match');
         }
@@ -852,53 +852,53 @@ export class ResourceGraph implements BidirectionalGraph
         const vert = this.x[v];
         switch (vert.t) {
         case ResourceGraphValue.Managed:
-            return visitor.managed(vert._object as ManagedResource);
+            return visitor.managed(vert.j as ManagedResource);
         case ResourceGraphValue.ManagedBuffer:
-            return visitor.managedBuffer(vert._object as ManagedBuffer);
+            return visitor.managedBuffer(vert.j as ManagedBuffer);
         case ResourceGraphValue.ManagedTexture:
-            return visitor.managedTexture(vert._object as ManagedTexture);
+            return visitor.managedTexture(vert.j as ManagedTexture);
         case ResourceGraphValue.PersistentBuffer:
-            return visitor.persistentBuffer(vert._object as PersistentBuffer);
+            return visitor.persistentBuffer(vert.j as PersistentBuffer);
         case ResourceGraphValue.PersistentTexture:
-            return visitor.persistentTexture(vert._object as PersistentTexture);
+            return visitor.persistentTexture(vert.j as PersistentTexture);
         case ResourceGraphValue.Framebuffer:
-            return visitor.framebuffer(vert._object as Framebuffer);
+            return visitor.framebuffer(vert.j as Framebuffer);
         case ResourceGraphValue.Swapchain:
-            return visitor.swapchain(vert._object as RenderSwapchain);
+            return visitor.swapchain(vert.j as RenderSwapchain);
         case ResourceGraphValue.FormatView:
-            return visitor.formatView(vert._object as FormatView);
+            return visitor.formatView(vert.j as FormatView);
         case ResourceGraphValue.SubresourceView:
-            return visitor.subresourceView(vert._object as SubresourceView);
+            return visitor.subresourceView(vert.j as SubresourceView);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getManaged (v: number): ManagedResource {
-        return this.x[v]._object as ManagedResource;
+        return this.x[v].j as ManagedResource;
     }
     getManagedBuffer (v: number): ManagedBuffer {
-        return this.x[v]._object as ManagedBuffer;
+        return this.x[v].j as ManagedBuffer;
     }
     getManagedTexture (v: number): ManagedTexture {
-        return this.x[v]._object as ManagedTexture;
+        return this.x[v].j as ManagedTexture;
     }
     getPersistentBuffer (v: number): PersistentBuffer {
-        return this.x[v]._object as PersistentBuffer;
+        return this.x[v].j as PersistentBuffer;
     }
     getPersistentTexture (v: number): PersistentTexture {
-        return this.x[v]._object as PersistentTexture;
+        return this.x[v].j as PersistentTexture;
     }
     getFramebuffer (v: number): Framebuffer {
-        return this.x[v]._object as Framebuffer;
+        return this.x[v].j as Framebuffer;
     }
     getSwapchain (v: number): RenderSwapchain {
-        return this.x[v]._object as RenderSwapchain;
+        return this.x[v].j as RenderSwapchain;
     }
     getFormatView (v: number): FormatView {
-        return this.x[v]._object as FormatView;
+        return this.x[v].j as FormatView;
     }
     getSubresourceView (v: number): SubresourceView {
-        return this.x[v]._object as SubresourceView;
+        return this.x[v].j as SubresourceView;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -1250,14 +1250,14 @@ export class RenderGraphVertex {
         readonly object: RenderGraphObject,
     ) {
         this.t = id;
-        this._object = object;
+        this.j = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
     readonly c: OutE[] = [];
     readonly p: OutE[] = [];
     readonly t: RenderGraphValue;
-    _object: RenderGraphObject;
+    j: RenderGraphObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -1453,11 +1453,11 @@ export class RenderGraph implements BidirectionalGraph
         return this.x[v].t;
     }
     object (v: number): RenderGraphObject {
-        return this.x[v]._object;
+        return this.x[v].j;
     }
     value<T extends RenderGraphValue> (id: T, v: number): RenderGraphValueType[T] {
         if (this.x[v].t === id) {
-            return this.x[v]._object as RenderGraphValueType[T];
+            return this.x[v].j as RenderGraphValueType[T];
         } else {
             throw Error('value id not match');
         }
@@ -1466,78 +1466,78 @@ export class RenderGraph implements BidirectionalGraph
         const vert = this.x[v];
         switch (vert.t) {
         case RenderGraphValue.RasterPass:
-            return visitor.rasterPass(vert._object as RasterPass);
+            return visitor.rasterPass(vert.j as RasterPass);
         case RenderGraphValue.RasterSubpass:
-            return visitor.rasterSubpass(vert._object as RasterSubpass);
+            return visitor.rasterSubpass(vert.j as RasterSubpass);
         case RenderGraphValue.ComputeSubpass:
-            return visitor.computeSubpass(vert._object as ComputeSubpass);
+            return visitor.computeSubpass(vert.j as ComputeSubpass);
         case RenderGraphValue.Compute:
-            return visitor.compute(vert._object as ComputePass);
+            return visitor.compute(vert.j as ComputePass);
         case RenderGraphValue.Resolve:
-            return visitor.resolve(vert._object as ResolvePass);
+            return visitor.resolve(vert.j as ResolvePass);
         case RenderGraphValue.Copy:
-            return visitor.copy(vert._object as CopyPass);
+            return visitor.copy(vert.j as CopyPass);
         case RenderGraphValue.Move:
-            return visitor.move(vert._object as MovePass);
+            return visitor.move(vert.j as MovePass);
         case RenderGraphValue.Raytrace:
-            return visitor.raytrace(vert._object as RaytracePass);
+            return visitor.raytrace(vert.j as RaytracePass);
         case RenderGraphValue.Queue:
-            return visitor.queue(vert._object as RenderQueue);
+            return visitor.queue(vert.j as RenderQueue);
         case RenderGraphValue.Scene:
-            return visitor.scene(vert._object as SceneData);
+            return visitor.scene(vert.j as SceneData);
         case RenderGraphValue.Blit:
-            return visitor.blit(vert._object as Blit);
+            return visitor.blit(vert.j as Blit);
         case RenderGraphValue.Dispatch:
-            return visitor.dispatch(vert._object as Dispatch);
+            return visitor.dispatch(vert.j as Dispatch);
         case RenderGraphValue.Clear:
-            return visitor.clear(vert._object as ClearView[]);
+            return visitor.clear(vert.j as ClearView[]);
         case RenderGraphValue.Viewport:
-            return visitor.viewport(vert._object as Viewport);
+            return visitor.viewport(vert.j as Viewport);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getRasterPass (v: number): RasterPass {
-        return this.x[v]._object as RasterPass;
+        return this.x[v].j as RasterPass;
     }
     getRasterSubpass (v: number): RasterSubpass {
-        return this.x[v]._object as RasterSubpass;
+        return this.x[v].j as RasterSubpass;
     }
     getComputeSubpass (v: number): ComputeSubpass {
-        return this.x[v]._object as ComputeSubpass;
+        return this.x[v].j as ComputeSubpass;
     }
     getCompute (v: number): ComputePass {
-        return this.x[v]._object as ComputePass;
+        return this.x[v].j as ComputePass;
     }
     getResolve (v: number): ResolvePass {
-        return this.x[v]._object as ResolvePass;
+        return this.x[v].j as ResolvePass;
     }
     getCopy (v: number): CopyPass {
-        return this.x[v]._object as CopyPass;
+        return this.x[v].j as CopyPass;
     }
     getMove (v: number): MovePass {
-        return this.x[v]._object as MovePass;
+        return this.x[v].j as MovePass;
     }
     getRaytrace (v: number): RaytracePass {
-        return this.x[v]._object as RaytracePass;
+        return this.x[v].j as RaytracePass;
     }
     getQueue (v: number): RenderQueue {
-        return this.x[v]._object as RenderQueue;
+        return this.x[v].j as RenderQueue;
     }
     getScene (v: number): SceneData {
-        return this.x[v]._object as SceneData;
+        return this.x[v].j as SceneData;
     }
     getBlit (v: number): Blit {
-        return this.x[v]._object as Blit;
+        return this.x[v].j as Blit;
     }
     getDispatch (v: number): Dispatch {
-        return this.x[v]._object as Dispatch;
+        return this.x[v].j as Dispatch;
     }
     getClear (v: number): ClearView[] {
-        return this.x[v]._object as ClearView[];
+        return this.x[v].j as ClearView[];
     }
     getViewport (v: number): Viewport {
-        return this.x[v]._object as Viewport;
+        return this.x[v].j as Viewport;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph

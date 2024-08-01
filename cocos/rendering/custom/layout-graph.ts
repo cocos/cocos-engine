@@ -92,12 +92,12 @@ export class LayoutGraphVertex {
         readonly object: LayoutGraphObject,
     ) {
         this.t = id;
-        this._object = object;
+        this.j = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
     readonly t: LayoutGraphValue;
-    _object: LayoutGraphObject;
+    j: LayoutGraphObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -262,11 +262,11 @@ export class LayoutGraph implements BidirectionalGraph
         return this.x[v].t;
     }
     object (v: number): LayoutGraphObject {
-        return this.x[v]._object;
+        return this.x[v].j;
     }
     value<T extends LayoutGraphValue> (id: T, v: number): LayoutGraphValueType[T] {
         if (this.x[v].t === id) {
-            return this.x[v]._object as LayoutGraphValueType[T];
+            return this.x[v].j as LayoutGraphValueType[T];
         } else {
             throw Error('value id not match');
         }
@@ -275,18 +275,18 @@ export class LayoutGraph implements BidirectionalGraph
         const vert = this.x[v];
         switch (vert.t) {
         case LayoutGraphValue.RenderStage:
-            return visitor.renderStage(vert._object as RenderPassType);
+            return visitor.renderStage(vert.j as RenderPassType);
         case LayoutGraphValue.RenderPhase:
-            return visitor.renderPhase(vert._object as RenderPhase);
+            return visitor.renderPhase(vert.j as RenderPhase);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getRenderStage (v: number): RenderPassType {
-        return this.x[v]._object as RenderPassType;
+        return this.x[v].j as RenderPassType;
     }
     getRenderPhase (v: number): RenderPhase {
-        return this.x[v]._object as RenderPhase;
+        return this.x[v].j as RenderPhase;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -584,12 +584,12 @@ export class LayoutGraphDataVertex {
         readonly object: LayoutGraphDataObject,
     ) {
         this.t = id;
-        this._object = object;
+        this.j = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
     readonly t: LayoutGraphDataValue;
-    _object: LayoutGraphDataObject;
+    j: LayoutGraphDataObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -774,11 +774,11 @@ export class LayoutGraphData implements BidirectionalGraph
         return this.x[v].t;
     }
     object (v: number): LayoutGraphDataObject {
-        return this.x[v]._object;
+        return this.x[v].j;
     }
     value<T extends LayoutGraphDataValue> (id: T, v: number): LayoutGraphDataValueType[T] {
         if (this.x[v].t === id) {
-            return this.x[v]._object as LayoutGraphDataValueType[T];
+            return this.x[v].j as LayoutGraphDataValueType[T];
         } else {
             throw Error('value id not match');
         }
@@ -787,18 +787,18 @@ export class LayoutGraphData implements BidirectionalGraph
         const vert = this.x[v];
         switch (vert.t) {
         case LayoutGraphDataValue.RenderStage:
-            return visitor.renderStage(vert._object as RenderStageData);
+            return visitor.renderStage(vert.j as RenderStageData);
         case LayoutGraphDataValue.RenderPhase:
-            return visitor.renderPhase(vert._object as RenderPhaseData);
+            return visitor.renderPhase(vert.j as RenderPhaseData);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getRenderStage (v: number): RenderStageData {
-        return this.x[v]._object as RenderStageData;
+        return this.x[v].j as RenderStageData;
     }
     getRenderPhase (v: number): RenderPhaseData {
-        return this.x[v]._object as RenderPhaseData;
+        return this.x[v].j as RenderPhaseData;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
