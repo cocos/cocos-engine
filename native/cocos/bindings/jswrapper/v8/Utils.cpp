@@ -243,6 +243,28 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
     }
 }
 
+// ExternalStringResource
+ExternalStringResource::ExternalStringResource(std::u16string &&s)
+: _s(std::move(s)) {
+}
+
+const uint16_t* ExternalStringResource::data() const {
+    return reinterpret_cast<const uint16_t*>(_s.data());
+}
+
+size_t ExternalStringResource::length() const {
+    return _s.length();
+}
+
+void ExternalStringResource::Dispose() {
+    delete this;
+}
+
+void ExternalStringResource::freeMemory() {
+    _s.clear();
+    _s.shrink_to_fit();
+}
+
 } // namespace internal
 } // namespace se
 

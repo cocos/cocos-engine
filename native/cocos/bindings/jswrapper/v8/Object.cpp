@@ -401,13 +401,18 @@ Object *Object::createJSONObject(const ccstd::string &jsonStr) {
 }
 
 Object *Object::createJSONObject(std::u16string &&jsonStr) {
-    auto v8Str = v8::String::NewExternalTwoByte(__isolate, ccnew internal::ExternalStringResource(std::move(jsonStr)));
+    auto *external = ccnew internal::ExternalStringResource(std::move(jsonStr));
+    auto v8Str = v8::String::NewExternalTwoByte(__isolate, external);
     if (v8Str.IsEmpty()) {
         return nullptr;
     }
 
     v8::Local<v8::Context> context = __isolate->GetCurrentContext();
     v8::MaybeLocal<v8::Value> ret = v8::JSON::Parse(context, v8Str.ToLocalChecked());
+    
+    // After v8::JSON::Parse, the memory of u16string could be freed.
+    external->freeMemory();
+    
     if (ret.IsEmpty()) {
         return nullptr;
     }
