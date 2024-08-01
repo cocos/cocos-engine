@@ -402,11 +402,8 @@ Object *Object::createJSONObject(const ccstd::string &jsonStr) {
 
 Object *Object::createJSONObject(std::u16string &&jsonStr) {
     auto *external = ccnew internal::ExternalStringResource(std::move(jsonStr));
-    external->addRef();
-
     auto v8Str = v8::String::NewExternalTwoByte(__isolate, external);
     if (v8Str.IsEmpty()) {
-        external->release();
         return nullptr;
     }
 
@@ -415,8 +412,6 @@ Object *Object::createJSONObject(std::u16string &&jsonStr) {
     
     // After v8::JSON::Parse, the memory of u16string could be freed.
     external->freeMemory();
-    external->release();
-    external = nullptr;
     
     if (ret.IsEmpty()) {
         return nullptr;
