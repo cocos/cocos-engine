@@ -243,8 +243,6 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap) {
     }
 }
 
-std::atomic_int gExternalCount = 0;
-
 // ExternalStringResource
 ExternalStringResource::ExternalStringResource(std::u16string &&s)
 : _s(std::move(s)) {
