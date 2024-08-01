@@ -393,12 +393,12 @@ export interface ReferenceGraph extends Graph {
     reference (u: vertex_descriptor, v: vertex_descriptor): boolean;
     parent (e: reference_descriptor): vertex_descriptor;
     child (e: reference_descriptor): vertex_descriptor;
-    parents (v: vertex_descriptor): parent_iterator;
+    // parents (v: vertex_descriptor): parent_iterator;
     children (v: vertex_descriptor): child_iterator;
-    numParents (v: vertex_descriptor): number;
+    // numParents (v: vertex_descriptor): number;
     numChildren (v: vertex_descriptor): number;
     getParent (v: vertex_descriptor): vertex_descriptor | null;
-    isAncestor (ancestor: vertex_descriptor, descendent: vertex_descriptor): boolean;
+    // isAncestor (ancestor: vertex_descriptor, descendent: vertex_descriptor): boolean;
 }
 
 //--------------------------------------------------------------------------
@@ -421,7 +421,7 @@ export interface ParentGraph extends ReferenceGraph, NamedGraph {
 // AddressableGraph
 //--------------------------------------------------------------------------
 export interface AddressableGraph extends ParentGraph {
-    addressable (absPath: string): boolean;
+    // addressable (absPath: string): boolean;
     locate (absPath: string): vertex_descriptor | null;
     locateRelative (path: string, start?: vertex_descriptor | null): vertex_descriptor | null;
     path (v: vertex_descriptor): string;

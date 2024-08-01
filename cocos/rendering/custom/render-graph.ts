@@ -921,14 +921,8 @@ export class ResourceGraph implements BidirectionalGraph
     child (e: ED): number {
         return e.target as number;
     }
-    parents (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
-    }
     children (v: number): OutEI {
         return new OutEI(this._vertices[v]._outEdges.values(), v);
-    }
-    numParents (v: number): number {
-        return this._vertices[v]._inEdges.length;
     }
     numChildren (v: number): number {
         return this._vertices[v]._outEdges.length;
@@ -943,28 +937,6 @@ export class ResourceGraph implements BidirectionalGraph
         } else {
             return list[0].target as number;
         }
-    }
-    isAncestor (ancestor: number, descendent: number): boolean {
-        const pseudo = 0xFFFFFFFF;
-        if (ancestor === descendent) {
-            // when ancestor === descendent, is_ancestor is defined as false
-            return false;
-        }
-        if (ancestor === pseudo) {
-            // special case: pseudo root is always ancestor
-            return true;
-        }
-        if (descendent === pseudo) {
-            // special case: pseudo root is never descendent
-            return false;
-        }
-        for (let parent = this.getParent(descendent); parent !== pseudo;) {
-            if (ancestor === parent) {
-                return true;
-            }
-            parent = this.getParent(parent);
-        }
-        return false;
     }
     //-----------------------------------------------------------------
     // MutableReferenceGraph
@@ -1590,14 +1562,8 @@ export class RenderGraph implements BidirectionalGraph
     child (e: ED): number {
         return e.target as number;
     }
-    parents (v: number): InEI {
-        return new InEI(this._vertices[v]._parents.values(), v);
-    }
     children (v: number): OutEI {
         return new OutEI(this._vertices[v]._children.values(), v);
-    }
-    numParents (v: number): number {
-        return this._vertices[v]._parents.length;
     }
     numChildren (v: number): number {
         return this._vertices[v]._children.length;
@@ -1612,28 +1578,6 @@ export class RenderGraph implements BidirectionalGraph
         } else {
             return list[0].target as number;
         }
-    }
-    isAncestor (ancestor: number, descendent: number): boolean {
-        const pseudo = 0xFFFFFFFF;
-        if (ancestor === descendent) {
-            // when ancestor === descendent, is_ancestor is defined as false
-            return false;
-        }
-        if (ancestor === pseudo) {
-            // special case: pseudo root is always ancestor
-            return true;
-        }
-        if (descendent === pseudo) {
-            // special case: pseudo root is never descendent
-            return false;
-        }
-        for (let parent = this.getParent(descendent); parent !== pseudo;) {
-            if (ancestor === parent) {
-                return true;
-            }
-            parent = this.getParent(parent);
-        }
-        return false;
     }
     //-----------------------------------------------------------------
     // MutableReferenceGraph
