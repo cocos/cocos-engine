@@ -360,8 +360,6 @@ export class LayoutGraph implements BidirectionalGraph
     path (v: number): string {
         return getPath(this, v);
     }
-
-    readonly components: string[] = ['Name', 'Descriptors'];
     readonly x: LayoutGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descriptors: DescriptorDB[] = [];
@@ -874,8 +872,6 @@ export class LayoutGraphData implements BidirectionalGraph
     path (v: number): string {
         return getPath(this, v);
     }
-
-    readonly components: string[] = ['Name', 'Update', 'Layout'];
     readonly x: LayoutGraphDataVertex[] = [];
     readonly _names: string[] = [];
     readonly _updateFrequencies: UpdateFrequency[] = [];

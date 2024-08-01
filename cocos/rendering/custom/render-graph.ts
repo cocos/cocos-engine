@@ -431,8 +431,6 @@ export class SubpassGraph implements BidirectionalGraph
     getSubpass (v: number): Subpass {
         return this._subpasses[v];
     }
-
-    readonly components: string[] = ['Name', 'Subpass'];
     readonly x: SubpassGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _subpasses: Subpass[] = [];
@@ -956,8 +954,6 @@ export class ResourceGraph implements BidirectionalGraph
         if (v === undefined) return 0xFFFFFFFF;
         return v;
     }
-
-    readonly components: string[] = ['Name', 'Desc', 'Traits', 'States', 'Sampler'];
     readonly x: ResourceGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descs: ResourceDesc[] = [];
@@ -1587,8 +1583,6 @@ export class RenderGraph implements BidirectionalGraph
         this.x[v]._parents.push(new OutE(u));
         return new ED(u, v);
     }
-
-    readonly components: string[] = ['Name', 'Layout', 'Data', 'Valid'];
     readonly x: RenderGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _layoutNodes: string[] = [];
