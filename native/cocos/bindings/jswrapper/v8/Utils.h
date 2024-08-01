@@ -52,24 +52,14 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
 
 class ExternalStringResource : public v8::String::ExternalStringResource {
 public:
-    explicit ExternalStringResource(std::u16string &&s)
-    : _s(std::move(s)) {
-        
-    }
-    
+    explicit ExternalStringResource(std::u16string &&s);
     ~ExternalStringResource() override = default;
     
-    const uint16_t* data() const override {
-        return reinterpret_cast<const uint16_t*>(_s.data());
-    }
+    const uint16_t* data() const override;
+    size_t length() const override;
+    void Dispose() override;
 
-    size_t length() const override {
-        return _s.length();
-    }
-    
-    void Dispose() override {
-        delete this;
-    }
+    void freeMemory();
 private:
     std::u16string _s;
 };
