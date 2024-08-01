@@ -285,8 +285,8 @@ export class Subpass {
 //=================================================================
 // Graph Concept
 export class SubpassGraphVertex {
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
+    readonly o: OutE[] = [];
+    readonly i: OutE[] = [];
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -325,7 +325,7 @@ export class SubpassGraph implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -339,19 +339,19 @@ export class SubpassGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this.x[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this.x[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -401,8 +401,8 @@ export class SubpassGraph implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this.x[u]._outEdges.push(new OutE(v));
-        this.x[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -631,8 +631,8 @@ export class ResourceGraphVertex {
         this._id = id;
         this._object = object;
     }
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
+    readonly o: OutE[] = [];
+    readonly i: OutE[] = [];
     readonly _id: ResourceGraphValue;
     _object: ResourceGraphObject;
 }
@@ -683,7 +683,7 @@ export class ResourceGraph implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -697,19 +697,19 @@ export class ResourceGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this.x[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this.x[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -785,8 +785,8 @@ export class ResourceGraph implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this.x[u]._outEdges.push(new OutE(v));
-        this.x[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -906,7 +906,7 @@ export class ResourceGraph implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -920,16 +920,16 @@ export class ResourceGraph implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     numChildren (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this.x[v]._inEdges;
+        const list = this.x[v].i;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -1252,8 +1252,8 @@ export class RenderGraphVertex {
         this._id = id;
         this._object = object;
     }
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
+    readonly o: OutE[] = [];
+    readonly i: OutE[] = [];
     readonly _children: OutE[] = [];
     readonly _parents: OutE[] = [];
     readonly _id: RenderGraphValue;
@@ -1303,7 +1303,7 @@ export class RenderGraph implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -1317,19 +1317,19 @@ export class RenderGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this.x[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this.x[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -1398,8 +1398,8 @@ export class RenderGraph implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this.x[u]._outEdges.push(new OutE(v));
-        this.x[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
