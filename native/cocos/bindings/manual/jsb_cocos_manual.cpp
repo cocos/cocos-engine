@@ -734,7 +734,9 @@ static bool js_readFile_doJob(const ccstd::string &fullPath, typename ReadFileDo
     }
 
     auto content = std::make_shared<T>();
-    fs->getContents(fullPath, content.get());
+    if (cc::FileUtils::Status::OK != fs->getContents(fullPath, content.get())) {
+        return false;
+    }
 
     // TODO(cjh): OpenHarmony NAPI support
 #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
@@ -745,16 +747,15 @@ static bool js_readFile_doJob(const ccstd::string &fullPath, typename ReadFileDo
             return false;
         }
         outValue = u16str;
-        return true;
     } else {
         outValue = content;
-        return true;
     }
 #endif
+    return true;
 }
 
 template <typename T, bool isJson>
-static void js_readFile_invokeCallback(bool doJobSucceed, typename ReadFileDoJobReturnType<T, isJson>::value content, std::shared_ptr<se::Value> callbackPtr) {
+static void js_readFile_invokeCallback(bool doJobSucceed, const typename ReadFileDoJobReturnType<T, isJson>::value &content, const std::shared_ptr<se::Value> &callbackPtr) {
     se::AutoHandleScope hs;
     se::ValueArray seArgs;
     seArgs.reserve(2);
