@@ -971,7 +971,7 @@ export class WebPipeline implements BasicPipeline {
         const desc = this.resourceGraph.getDesc(resId);
         desc.width = renderWindow.width;
         desc.height = renderWindow.height;
-        const currFbo = this.resourceGraph._vertices[resId]._object;
+        const currFbo = this.resourceGraph.object(resId);
         if (currFbo !== renderWindow.framebuffer) {
             this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
         }

@@ -835,7 +835,7 @@ class DeviceRenderPass implements RecordingInterface {
             } else {
                 const resGraph = context.resourceGraph;
                 const resId = resGraph.vertex(resName);
-                const resFbo = resGraph._vertices[resId]._object;
+                const resFbo = resGraph.object(resId);
                 if (resTex.framebuffer && resFbo instanceof Framebuffer && resTex.framebuffer !== resFbo) {
                     resTex.framebuffer = resFbo;
                 } else if (resTex.texture) {
@@ -1078,7 +1078,7 @@ class DeviceRenderPass implements RecordingInterface {
             }
             const resGraph = context.resourceGraph;
             const resId = resGraph.vertex(resName);
-            const resFbo = resGraph._vertices[resId]._object;
+            const resFbo = resGraph.object(resId);
             const resDesc = resGraph.getDesc(resId);
             if (deviceTex.framebuffer && resFbo instanceof Framebuffer && (deviceTex.framebuffer !== resFbo || resFbo !== this._framebuffer)) {
                 framebuffer = this._framebuffer = deviceTex.framebuffer = resFbo;
