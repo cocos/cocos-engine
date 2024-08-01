@@ -140,7 +140,7 @@ export class LayoutGraph implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this._vertices[u]._outEdges) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -154,19 +154,19 @@ export class LayoutGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     outDegree (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this._vertices[v]._outEdges.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this.x[v]._inEdges.values(), v);
+        return new InEI(this._vertices[v]._inEdges.values(), v);
     }
     inDegree (v: number): number {
-        return this.x[v]._inEdges.length;
+        return this._vertices[v]._inEdges.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -180,10 +180,10 @@ export class LayoutGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // VertexListGraph
     vertices (): IterableIterator<number> {
-        return this.x.keys();
+        return this._vertices.keys();
     }
     numVertices (): number {
-        return this.x.length;
+        return this._vertices.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
@@ -201,7 +201,7 @@ export class LayoutGraph implements BidirectionalGraph
         this._names.length = 0;
         this._descriptors.length = 0;
         // Graph Vertices
-        this.x.length = 0;
+        this._vertices.length = 0;
     }
     addVertex<T extends LayoutGraphValue> (
         id: LayoutGraphValue,
@@ -211,8 +211,8 @@ export class LayoutGraph implements BidirectionalGraph
         u = 0xFFFFFFFF,
     ): number {
         const vert = new LayoutGraphVertex(id, object);
-        const v = this.x.length;
-        this.x.push(vert);
+        const v = this._vertices.length;
+        this._vertices.push(vert);
         this._names.push(name);
         this._descriptors.push(descriptors);
 
@@ -225,8 +225,8 @@ export class LayoutGraph implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this.x[u]._outEdges.push(new OutE(v));
-        this.x[v]._inEdges.push(new OutE(u));
+        this._vertices[u]._outEdges.push(new OutE(v));
+        this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -256,23 +256,23 @@ export class LayoutGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: LayoutGraphValue, v: number): boolean {
-        return this.x[v]._id === id;
+        return this._vertices[v]._id === id;
     }
     id (v: number): LayoutGraphValue {
-        return this.x[v]._id;
+        return this._vertices[v]._id;
     }
     object (v: number): LayoutGraphObject {
-        return this.x[v]._object;
+        return this._vertices[v]._object;
     }
     value<T extends LayoutGraphValue> (id: T, v: number): LayoutGraphValueType[T] {
-        if (this.x[v]._id === id) {
-            return this.x[v]._object as LayoutGraphValueType[T];
+        if (this._vertices[v]._id === id) {
+            return this._vertices[v]._object as LayoutGraphValueType[T];
         } else {
             throw Error('value id not match');
         }
     }
     visitVertex (visitor: LayoutGraphVisitor, v: number): unknown {
-        const vert = this.x[v];
+        const vert = this._vertices[v];
         switch (vert._id) {
         case LayoutGraphValue.RenderStage:
             return visitor.renderStage(vert._object as RenderPassType);
@@ -283,10 +283,10 @@ export class LayoutGraph implements BidirectionalGraph
         }
     }
     getRenderStage (v: number): RenderPassType {
-        return this.x[v]._object as RenderPassType;
+        return this._vertices[v]._object as RenderPassType;
     }
     getRenderPhase (v: number): RenderPhase {
-        return this.x[v]._object as RenderPhase;
+        return this._vertices[v]._object as RenderPhase;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -294,7 +294,7 @@ export class LayoutGraph implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this._vertices[u]._outEdges) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -308,16 +308,16 @@ export class LayoutGraph implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     numChildren (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this._vertices[v]._outEdges.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this.x[v]._inEdges;
+        const list = this._vertices[v]._inEdges;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -333,15 +333,15 @@ export class LayoutGraph implements BidirectionalGraph
     // ParentGraph
     locateChild (u: number, name: string): number {
         if (u === 0xFFFFFFFF) {
-            for (const v of this.x.keys()) {
-                const vert = this.x[v];
+            for (const v of this._vertices.keys()) {
+                const vert = this._vertices[v];
                 if (vert._inEdges.length === 0 && this._names[v] === name) {
                     return v;
                 }
             }
             return 0xFFFFFFFF;
         }
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this._vertices[u]._outEdges) {
             const child = oe.target as number;
             if (name === this._names[child]) {
                 return child;
@@ -362,7 +362,7 @@ export class LayoutGraph implements BidirectionalGraph
     }
 
     readonly components: string[] = ['Name', 'Descriptors'];
-    readonly x: LayoutGraphVertex[] = [];
+    readonly _vertices: LayoutGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descriptors: DescriptorDB[] = [];
 }
@@ -636,7 +636,7 @@ export class LayoutGraphData implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this._vertices[u]._outEdges) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -650,19 +650,19 @@ export class LayoutGraphData implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     outDegree (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this._vertices[v]._outEdges.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this.x[v]._inEdges.values(), v);
+        return new InEI(this._vertices[v]._inEdges.values(), v);
     }
     inDegree (v: number): number {
-        return this.x[v]._inEdges.length;
+        return this._vertices[v]._inEdges.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -676,10 +676,10 @@ export class LayoutGraphData implements BidirectionalGraph
     //-----------------------------------------------------------------
     // VertexListGraph
     vertices (): IterableIterator<number> {
-        return this.x.keys();
+        return this._vertices.keys();
     }
     numVertices (): number {
-        return this.x.length;
+        return this._vertices.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
@@ -705,7 +705,7 @@ export class LayoutGraphData implements BidirectionalGraph
         this._updateFrequencies.length = 0;
         this._layouts.length = 0;
         // Graph Vertices
-        this.x.length = 0;
+        this._vertices.length = 0;
     }
     addVertex<T extends LayoutGraphDataValue> (
         id: LayoutGraphDataValue,
@@ -716,8 +716,8 @@ export class LayoutGraphData implements BidirectionalGraph
         u = 0xFFFFFFFF,
     ): number {
         const vert = new LayoutGraphDataVertex(id, object);
-        const v = this.x.length;
-        this.x.push(vert);
+        const v = this._vertices.length;
+        this._vertices.push(vert);
         this._names.push(name);
         this._updateFrequencies.push(update);
         this._layouts.push(layout);
@@ -731,8 +731,8 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this.x[u]._outEdges.push(new OutE(v));
-        this.x[v]._inEdges.push(new OutE(u));
+        this._vertices[u]._outEdges.push(new OutE(v));
+        this._vertices[v]._inEdges.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -770,23 +770,23 @@ export class LayoutGraphData implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: LayoutGraphDataValue, v: number): boolean {
-        return this.x[v]._id === id;
+        return this._vertices[v]._id === id;
     }
     id (v: number): LayoutGraphDataValue {
-        return this.x[v]._id;
+        return this._vertices[v]._id;
     }
     object (v: number): LayoutGraphDataObject {
-        return this.x[v]._object;
+        return this._vertices[v]._object;
     }
     value<T extends LayoutGraphDataValue> (id: T, v: number): LayoutGraphDataValueType[T] {
-        if (this.x[v]._id === id) {
-            return this.x[v]._object as LayoutGraphDataValueType[T];
+        if (this._vertices[v]._id === id) {
+            return this._vertices[v]._object as LayoutGraphDataValueType[T];
         } else {
             throw Error('value id not match');
         }
     }
     visitVertex (visitor: LayoutGraphDataVisitor, v: number): unknown {
-        const vert = this.x[v];
+        const vert = this._vertices[v];
         switch (vert._id) {
         case LayoutGraphDataValue.RenderStage:
             return visitor.renderStage(vert._object as RenderStageData);
@@ -797,10 +797,10 @@ export class LayoutGraphData implements BidirectionalGraph
         }
     }
     getRenderStage (v: number): RenderStageData {
-        return this.x[v]._object as RenderStageData;
+        return this._vertices[v]._object as RenderStageData;
     }
     getRenderPhase (v: number): RenderPhaseData {
-        return this.x[v]._object as RenderPhaseData;
+        return this._vertices[v]._object as RenderPhaseData;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -808,7 +808,7 @@ export class LayoutGraphData implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this._vertices[u]._outEdges) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -822,16 +822,16 @@ export class LayoutGraphData implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this.x[v]._outEdges.values(), v);
+        return new OutEI(this._vertices[v]._outEdges.values(), v);
     }
     numChildren (v: number): number {
-        return this.x[v]._outEdges.length;
+        return this._vertices[v]._outEdges.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this.x[v]._inEdges;
+        const list = this._vertices[v]._inEdges;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -847,15 +847,15 @@ export class LayoutGraphData implements BidirectionalGraph
     // ParentGraph
     locateChild (u: number, name: string): number {
         if (u === 0xFFFFFFFF) {
-            for (const v of this.x.keys()) {
-                const vert = this.x[v];
+            for (const v of this._vertices.keys()) {
+                const vert = this._vertices[v];
                 if (vert._inEdges.length === 0 && this._names[v] === name) {
                     return v;
                 }
             }
             return 0xFFFFFFFF;
         }
-        for (const oe of this.x[u]._outEdges) {
+        for (const oe of this._vertices[u]._outEdges) {
             const child = oe.target as number;
             if (name === this._names[child]) {
                 return child;
@@ -876,7 +876,7 @@ export class LayoutGraphData implements BidirectionalGraph
     }
 
     readonly components: string[] = ['Name', 'Update', 'Layout'];
-    readonly x: LayoutGraphDataVertex[] = [];
+    readonly _vertices: LayoutGraphDataVertex[] = [];
     readonly _names: string[] = [];
     readonly _updateFrequencies: UpdateFrequency[] = [];
     readonly _layouts: PipelineLayoutData[] = [];
