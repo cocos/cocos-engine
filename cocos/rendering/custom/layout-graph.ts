@@ -307,14 +307,8 @@ export class LayoutGraph implements BidirectionalGraph
     child (e: ED): number {
         return e.target as number;
     }
-    parents (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
-    }
     children (v: number): OutEI {
         return new OutEI(this._vertices[v]._outEdges.values(), v);
-    }
-    numParents (v: number): number {
-        return this._vertices[v]._inEdges.length;
     }
     numChildren (v: number): number {
         return this._vertices[v]._outEdges.length;
@@ -329,28 +323,6 @@ export class LayoutGraph implements BidirectionalGraph
         } else {
             return list[0].target as number;
         }
-    }
-    isAncestor (ancestor: number, descendent: number): boolean {
-        const pseudo = 0xFFFFFFFF;
-        if (ancestor === descendent) {
-            // when ancestor === descendent, is_ancestor is defined as false
-            return false;
-        }
-        if (ancestor === pseudo) {
-            // special case: pseudo root is always ancestor
-            return true;
-        }
-        if (descendent === pseudo) {
-            // special case: pseudo root is never descendent
-            return false;
-        }
-        for (let parent = this.getParent(descendent); parent !== pseudo;) {
-            if (ancestor === parent) {
-                return true;
-            }
-            parent = this.getParent(parent);
-        }
-        return false;
     }
     //-----------------------------------------------------------------
     // MutableReferenceGraph
@@ -379,9 +351,6 @@ export class LayoutGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // AddressableGraph
-    addressable (absPath: string): boolean {
-        return findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
-    }
     locate (absPath: string): number {
         return findRelative(this, 0xFFFFFFFF, absPath) as number;
     }
@@ -852,14 +821,8 @@ export class LayoutGraphData implements BidirectionalGraph
     child (e: ED): number {
         return e.target as number;
     }
-    parents (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
-    }
     children (v: number): OutEI {
         return new OutEI(this._vertices[v]._outEdges.values(), v);
-    }
-    numParents (v: number): number {
-        return this._vertices[v]._inEdges.length;
     }
     numChildren (v: number): number {
         return this._vertices[v]._outEdges.length;
@@ -874,28 +837,6 @@ export class LayoutGraphData implements BidirectionalGraph
         } else {
             return list[0].target as number;
         }
-    }
-    isAncestor (ancestor: number, descendent: number): boolean {
-        const pseudo = 0xFFFFFFFF;
-        if (ancestor === descendent) {
-            // when ancestor === descendent, is_ancestor is defined as false
-            return false;
-        }
-        if (ancestor === pseudo) {
-            // special case: pseudo root is always ancestor
-            return true;
-        }
-        if (descendent === pseudo) {
-            // special case: pseudo root is never descendent
-            return false;
-        }
-        for (let parent = this.getParent(descendent); parent !== pseudo;) {
-            if (ancestor === parent) {
-                return true;
-            }
-            parent = this.getParent(parent);
-        }
-        return false;
     }
     //-----------------------------------------------------------------
     // MutableReferenceGraph
@@ -924,9 +865,6 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // AddressableGraph
-    addressable (absPath: string): boolean {
-        return findRelative(this, 0xFFFFFFFF, absPath) as number !== 0xFFFFFFFF;
-    }
     locate (absPath: string): number {
         return findRelative(this, 0xFFFFFFFF, absPath) as number;
     }
