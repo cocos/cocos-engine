@@ -755,7 +755,7 @@ export class Button extends Component {
             if (!this._originalScale) {
                 this._originalScale = new Vec3();
             }
-            Vec3.copy(this._originalScale, this.target.getScale());
+            Vec3.copy(this._originalScale, this.target.scale);
             this._registerTargetEvent(this.target);
         }
     }
@@ -817,7 +817,7 @@ export class Button extends Component {
         // update originalScale
         if ((transformBit & TransformBit.SCALE) && this._originalScale
             && this._transition === Transition.SCALE && this._transitionFinished) {
-            Vec3.copy(this._originalScale, this.target.getScale());
+            Vec3.copy(this._originalScale, this.target.scale);
         }
     }
 
@@ -984,7 +984,7 @@ export class Button extends Component {
         if (!this.target || !this._originalScale) {
             return;
         }
-        Vec3.copy(this._fromScale, this.target.getScale());
+        Vec3.copy(this._fromScale, this.target.scale);
         Vec3.copy(this._toScale, this._originalScale);
         this._time = 0;
         this._transitionFinished = false;

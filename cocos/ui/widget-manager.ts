@@ -70,7 +70,7 @@ function align (node: Node, widget: Widget): void {
     let x = _tempPos.x;
     let y = _tempPos.y;
     const anchor = uiTrans.anchorPoint;
-    const scale = node.getScale();
+    const scale = node.scale;    // It is a reference of Node's scale, don't change its value in this function.
 
     if (widget.alignFlags & AlignFlags.HORIZONTAL) {
         let localLeft = 0;
@@ -348,9 +348,9 @@ export const widgetManager = cclegacy._widgetManager = {
             const trans = widgetNode._uiProps.uiTransformComp!;
             const matchSize = getReadonlyNodeSize(widgetParent);
             const myAP = trans.anchorPoint;
-            const pos = widgetNode.getPosition();
+            const pos = widgetNode.position;
             const alignFlags = AlignFlags;
-            const widgetNodeScale = widgetNode.getScale();
+            const widgetNodeScale = widgetNode.scale;
 
             let temp = 0;
 

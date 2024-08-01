@@ -287,7 +287,6 @@ export class ProgressBar extends Component {
             const entTrans = entity._uiProps.uiTransformComp!;
             const entityAnchorPoint = entTrans.anchorPoint;
             const entitySize = entTrans.contentSize;
-            const entityPosition = entity.getPosition();
 
             let anchorPoint = new Vec2(0, 0.5);
             const progress = clamp01(this._progress);
@@ -333,9 +332,10 @@ export class ProgressBar extends Component {
             } else if (this._barSprite.type !== Sprite.Type.FILLED) {
                 const anchorOffsetX = anchorPoint.x - entityAnchorPoint.x;
                 const anchorOffsetY = anchorPoint.y - entityAnchorPoint.y;
-                const finalPosition = new Vec3(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY, 0);
 
-                entity.setPosition(entityPosition.x + finalPosition.x, entityPosition.y + finalPosition.y, entityPosition.z);
+                const finalPosition = new Vec3(entity.position);
+                finalPosition.add3f(totalWidth * anchorOffsetX, totalHeight * anchorOffsetY, 0);
+                entity.setPosition(finalPosition);
 
                 entTrans.setAnchorPoint(anchorPoint);
                 entTrans.setContentSize(finalContentSize);
