@@ -73,20 +73,24 @@ export const simple: IAssembler = {
         const node = sprite.node;
         const m = node.worldMatrix;
 
+        const m00 = m.m00; const m01 = m.m01; const m02 = m.m02; const m03 = m.m03;
+        const m04 = m.m04; const m05 = m.m05; const m06 = m.m06; const m07 = m.m07;
+        const m12 = m.m12; const m13 = m.m13; const m14 = m.m14; const m15 = m.m15;
+
         const stride = renderData.floatStride;
         let offset = 0;
         const length = dataList.length;
-        for (let i = 0; i < length; i++) {
+        for (let i = 0; i < length; ++i) {
             const curData = dataList[i];
             const x = curData.x;
             const y = curData.y;
-            let rhw = m.m03 * x + m.m07 * y + m.m15;
+            let rhw = m03 * x + m07 * y + m15;
             rhw = rhw ? 1 / rhw : 1;
 
             offset = i * stride;
-            vData[offset + 0] = (m.m00 * x + m.m04 * y + m.m12) * rhw;
-            vData[offset + 1] = (m.m01 * x + m.m05 * y + m.m13) * rhw;
-            vData[offset + 2] = (m.m02 * x + m.m06 * y + m.m14) * rhw;
+            vData[offset + 0] = (m00 * x + m04 * y + m12) * rhw;
+            vData[offset + 1] = (m01 * x + m05 * y + m13) * rhw;
+            vData[offset + 2] = (m02 * x + m06 * y + m14) * rhw;
         }
     },
 
