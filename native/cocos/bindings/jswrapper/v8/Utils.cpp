@@ -259,12 +259,23 @@ size_t ExternalStringResource::length() const {
 }
 
 void ExternalStringResource::Dispose() {
-    delete this;
+    release();
 }
 
 void ExternalStringResource::freeMemory() {
     _s.clear();
     _s.shrink_to_fit();
+}
+
+void ExternalStringResource::addRef() {
+    ++_refCount;
+}
+
+void ExternalStringResource::release() {
+    --_refCount;
+    if (_refCount == 0) {
+        delete this;
+    }
 }
 
 } // namespace internal
