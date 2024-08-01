@@ -400,8 +400,8 @@ Object *Object::createJSONObject(const ccstd::string &jsonStr) {
     return Object::_createJSObject(nullptr, jsobj);
 }
 
-Object *Object::createJSONObject(std::u16string &jsonStr) {
-    auto v8Str = v8::String::NewExternalTwoByte(__isolate, ccnew internal::ExternalStringResource(jsonStr));
+Object *Object::createJSONObject(std::u16string &&jsonStr) {
+    auto v8Str = v8::String::NewExternalTwoByte(__isolate, ccnew internal::ExternalStringResource(std::move(jsonStr)));
     if (v8Str.IsEmpty()) {
         return nullptr;
     }

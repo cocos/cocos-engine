@@ -52,7 +52,7 @@ void clearPrivate(v8::Isolate *isolate, ObjectWrap &wrap);
 
 class ExternalStringResource : public v8::String::ExternalStringResource {
 public:
-    explicit ExternalStringResource(std::u16string &s)
+    explicit ExternalStringResource(std::u16string &&s)
     : _s(std::move(s)) {
         
     }
