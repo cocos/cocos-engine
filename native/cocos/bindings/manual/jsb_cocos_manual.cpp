@@ -733,18 +733,8 @@ static bool js_readFile_doJob(const ccstd::string &fullPath, typename ReadFileDo
         return false;
     }
 
-    auto app = CC_CURRENT_APPLICATION();
-    if (!app) {
-        return false;
-    }
-
     auto content = std::make_shared<T>();
     fs->getContents(fullPath, content.get());
-
-    auto engine = app->getEngine();
-    if (!engine) {
-        return false;
-    }
 
     // TODO(cjh): OpenHarmony NAPI support
 #if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
