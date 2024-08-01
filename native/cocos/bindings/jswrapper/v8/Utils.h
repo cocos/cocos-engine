@@ -60,12 +60,9 @@ public:
     void Dispose() override;
 
     void freeMemory();
-    
-    void addRef();
-    void release();
+
 private:
     std::u16string _s;
-    uint32_t _refCount{1};
 };
 
 } // namespace internal
