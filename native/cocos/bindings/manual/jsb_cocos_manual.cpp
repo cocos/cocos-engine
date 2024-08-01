@@ -675,8 +675,7 @@ static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_se_setExceptionCallback) // NOLINT(readability-identifier-naming)
 
-template<typename T, bool isJson = false>
-static bool js_readFile(se::State &s) { // NOLINT
+static bool js_readFile_getParameters(se::State &s, ccstd::string &fullPath, std::shared_ptr<se::Value>& callbackPtr) { // NOLINT
     const auto &args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
@@ -689,7 +688,6 @@ static bool js_readFile(se::State &s) { // NOLINT
         CC_ASSERT(callbackVal.isObject());
         CC_ASSERT(callbackVal.toObject()->isFunction());
         
-        
         if (path.empty()) {
             se::ValueArray seArgs;
             seArgs.reserve(2);
@@ -699,96 +697,145 @@ static bool js_readFile(se::State &s) { // NOLINT
             return true;
         }
 
-        std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
+        callbackPtr = std::make_shared<se::Value>(callbackVal);
         
         // fullPathForFilename is not threadsafe, so don't invoke it in thread pool.
-        ccstd::string fullPath = cc::FileUtils::getInstance()->fullPathForFilename(path);
-        
-        gIOThreadPool->pushTask([fullPath, callbackPtr](int/* tid */) {
-            auto *fs = cc::FileUtils::getInstance();
-            if (fs == nullptr) {
-                return;
-            }
-            
-            auto app = CC_CURRENT_APPLICATION();
-            if (!app) {
-                return;
-            }
-
-            auto content = std::make_shared<T>();
-            fs->getContents(fullPath, content.get());
-            
-            auto engine = app->getEngine();
-            if (!engine) {
-                return;
-            }
-
-            std::shared_ptr<std::u16string> u16str;
-            // TODO(cjh): OpenHarmony NAPI support
-#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
-            if constexpr (std::is_same_v<T, ccstd::string> && isJson) {
-                u16str = std::make_shared<std::u16string>();
-                if (!cc::StringUtils::UTF8ToUTF16(*content, *u16str)) {
-                    CC_LOG_ERROR("UTF8ToUTF16 failed, file: %s", fullPath.c_str());
-                }
-            }
-#endif
-            
-            engine->getScheduler()->performFunctionInCocosThread([callbackPtr, content, u16str](){
-                se::AutoHandleScope hs;
-                se::ValueArray seArgs;
-                seArgs.reserve(2);
-                
-                if constexpr (std::is_same_v<T, ccstd::string>) {
-                    if constexpr (isJson) {
-#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
-                        se::HandleObject jsonObj(se::Object::createJSONObject(*content));
-#else
-                        se::HandleObject jsonObj(se::Object::createJSONObject(*u16str));
-#endif
-                        if (!jsonObj.get()) {
-                            seArgs.emplace_back(se::Value("Parse json failed!"));
-                            seArgs.emplace_back(se::Value::Null);
-                        } else {
-                            seArgs.emplace_back(se::Value::Null);
-                            seArgs.emplace_back(se::Value(jsonObj));
-                        }
-                        callbackPtr->toObject()->call(seArgs, nullptr);
-                    } else {
-                        seArgs.emplace_back(se::Value::Null);
-                        seArgs.emplace_back(se::Value(*content));
-                        callbackPtr->toObject()->call(seArgs, nullptr);
-                    }
-                } else if constexpr (std::is_same_v<T, cc::Data>) {
-                    se::HandleObject dataObj(se::Object::createArrayBufferObject(content->getBytes(), content->getSize()));
-                    seArgs.emplace_back(se::Value::Null);
-                    seArgs.emplace_back(se::Value(dataObj));
-                    callbackPtr->toObject()->call(seArgs, nullptr);
-                }
-            });
-        });
-        
+        fullPath = cc::FileUtils::getInstance()->fullPathForFilename(path);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 
-static bool js_readTextFile(se::State &s) { // NOLINT
-    return js_readFile<ccstd::string>(s);
-}
-SE_BIND_FUNC(js_readTextFile)
+template <typename T, bool isJson>
+struct ReadFileDoJobReturnType {
+    using value = std::shared_ptr<T>;
+};
 
-static bool js_readDataFile(se::State &s) { // NOLINT
-    return js_readFile<cc::Data>(s);
-}
-SE_BIND_FUNC(js_readDataFile)
+template<>
+struct ReadFileDoJobReturnType<ccstd::string, true> {
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
+    using value = std::shared_ptr<ccstd::string>;
+#else
+    using value = std::shared_ptr<std::u16string>;
+#endif
+};
 
-static bool js_readJsonFile(se::State &s) { // NOLINT
-    return js_readFile<ccstd::string, true>(s);
-}
-SE_BIND_FUNC(js_readJsonFile)
+template<>
+struct ReadFileDoJobReturnType<ccstd::string, false> {
+    using value = std::shared_ptr<ccstd::string>;
+};
 
+template <typename T, bool isJson>
+static bool js_readFile_doJob(const ccstd::string &fullPath, typename ReadFileDoJobReturnType<T, isJson>::value &outValue) {
+    auto *fs = cc::FileUtils::getInstance();
+    if (fs == nullptr) {
+        return false;
+    }
+    
+    auto app = CC_CURRENT_APPLICATION();
+    if (!app) {
+        return false;
+    }
+
+    auto content = std::make_shared<T>();
+    fs->getContents(fullPath, content.get());
+    
+    auto engine = app->getEngine();
+    if (!engine) {
+        return false;
+    }
+    
+    // TODO(cjh): OpenHarmony NAPI support
+#if SCRIPT_ENGINE_TYPE != SCRIPT_ENGINE_NAPI
+    if constexpr (std::is_same_v<T, ccstd::string> && isJson) {
+        auto u16str = std::make_shared<std::u16string>();
+        if (!cc::StringUtils::UTF8ToUTF16(*content, *u16str)) {
+            CC_LOG_ERROR("UTF8ToUTF16 failed, file: %s", fullPath.c_str());
+            return false;
+        }
+        outValue = u16str;
+        return true;
+    } else {
+        outValue = content;
+        return true;
+    }
+#endif
+}
+
+template <typename T, bool isJson>
+static void js_readFile_invokeCallback(bool doJobSucceed, typename ReadFileDoJobReturnType<T, isJson>::value content, std::shared_ptr<se::Value> callbackPtr) {
+    se::AutoHandleScope hs;
+    se::ValueArray seArgs;
+    seArgs.reserve(2);
+    
+    if (!doJobSucceed) {
+        seArgs.emplace_back(se::Value("readFile failed!"));
+        seArgs.emplace_back(se::Value::Null);
+        callbackPtr->toObject()->call(seArgs, nullptr);
+        return;
+    }
+    
+    static_assert(std::is_same_v<T, ccstd::string> || std::is_same_v<T, cc::Data>, "No supported type!");
+    
+    if constexpr (std::is_same_v<T, ccstd::string>) {
+        if constexpr (isJson) {
+#if SCRIPT_ENGINE_TYPE == SCRIPT_ENGINE_NAPI
+            se::HandleObject jsonObj(se::Object::createJSONObject(*content));
+#else
+            se::HandleObject jsonObj(se::Object::createJSONObject(std::move(*content)));
+#endif
+            if (!jsonObj.get()) {
+                seArgs.emplace_back(se::Value("Parse json failed!"));
+                seArgs.emplace_back(se::Value::Null);
+            } else {
+                seArgs.emplace_back(se::Value::Null);
+                seArgs.emplace_back(se::Value(jsonObj));
+            }
+            callbackPtr->toObject()->call(seArgs, nullptr);
+        } else {
+            seArgs.emplace_back(se::Value::Null);
+            seArgs.emplace_back(se::Value(*content));
+            callbackPtr->toObject()->call(seArgs, nullptr);
+        }
+    } else if constexpr (std::is_same_v<T, cc::Data>) {
+        se::HandleObject dataObj(se::Object::createArrayBufferObject(content->getBytes(), content->getSize()));
+        seArgs.emplace_back(se::Value::Null);
+        seArgs.emplace_back(se::Value(dataObj));
+        callbackPtr->toObject()->call(seArgs, nullptr);
+    }
+}
+
+#define JSB_READ_FILE(funcName, type, isJson) \
+static bool funcName(se::State &s) { \
+    ccstd::string fullPath; \
+    std::shared_ptr<se::Value> callbackPtr; \
+    bool ok = js_readFile_getParameters(s, fullPath, callbackPtr); \
+    if (!ok) return false; \
+\
+    gIOThreadPool->pushTask([fullPath, callbackPtr](int/* tid */) { \
+        ReadFileDoJobReturnType<type, isJson>::value content; \
+        bool doJobSucceed = js_readFile_doJob<type, isJson>(fullPath, content); \
+        auto app = CC_CURRENT_APPLICATION(); \
+        if (!app) { \
+            return; \
+        } \
+        auto engine = app->getEngine(); \
+        if (!engine) { \
+            return; \
+        } \
+        engine->getScheduler()->performFunctionInCocosThread([doJobSucceed, callbackPtr, content](){ \
+            js_readFile_invokeCallback<type, isJson>(doJobSucceed, content, callbackPtr); \
+        }); \
+    }); \
+\
+    return true; \
+} \
+SE_BIND_FUNC(funcName)
+
+JSB_READ_FILE(js_readTextFile, ccstd::string, false)
+JSB_READ_FILE(js_readJsonFile, ccstd::string, true)
+JSB_READ_FILE(js_readDataFile, cc::Data, false)
 
 static bool register_filetuils_ext(se::Object * /*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_FileUtils_proto->defineFunction("listFilesRecursively", _SE(js_engine_FileUtils_listFilesRecursively));
