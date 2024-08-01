@@ -824,7 +824,7 @@ static void js_readFile_invokeCallback(bool doJobSucceed, typename ReadFileDoJob
             if (!engine) {                                                                                \
                 return;                                                                                   \
             }                                                                                             \
-            engine->getScheduler()->performFunctionInCocosThread([doJobSucceed, callbackPtr, content]() { \
+            engine->getScheduler()->performFunctionInCocosThread([doJobSucceed, content, callbackPtr]() { \
                 js_readFile_invokeCallback<type, isJson>(doJobSucceed, content, callbackPtr);             \
             });                                                                                           \
         });                                                                                               \
