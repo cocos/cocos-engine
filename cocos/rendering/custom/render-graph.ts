@@ -628,12 +628,12 @@ export class ResourceGraphVertex {
         readonly id: ResourceGraphValue,
         readonly object: ResourceGraphObject,
     ) {
-        this._id = id;
+        this.t = id;
         this._object = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
-    readonly _id: ResourceGraphValue;
+    readonly t: ResourceGraphValue;
     _object: ResourceGraphObject;
 }
 //-----------------------------------------------------------------
@@ -833,16 +833,16 @@ export class ResourceGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: ResourceGraphValue, v: number): boolean {
-        return this.x[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): ResourceGraphValue {
-        return this.x[v]._id;
+        return this.x[v].t;
     }
     object (v: number): ResourceGraphObject {
         return this.x[v]._object;
     }
     value<T extends ResourceGraphValue> (id: T, v: number): ResourceGraphValueType[T] {
-        if (this.x[v]._id === id) {
+        if (this.x[v].t === id) {
             return this.x[v]._object as ResourceGraphValueType[T];
         } else {
             throw Error('value id not match');
@@ -850,7 +850,7 @@ export class ResourceGraph implements BidirectionalGraph
     }
     visitVertex (visitor: ResourceGraphVisitor, v: number): unknown {
         const vert = this.x[v];
-        switch (vert._id) {
+        switch (vert.t) {
         case ResourceGraphValue.Managed:
             return visitor.managed(vert._object as ManagedResource);
         case ResourceGraphValue.ManagedBuffer:
@@ -1249,14 +1249,14 @@ export class RenderGraphVertex {
         readonly id: RenderGraphValue,
         readonly object: RenderGraphObject,
     ) {
-        this._id = id;
+        this.t = id;
         this._object = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
     readonly c: OutE[] = [];
     readonly p: OutE[] = [];
-    readonly _id: RenderGraphValue;
+    readonly t: RenderGraphValue;
     _object: RenderGraphObject;
 }
 //-----------------------------------------------------------------
@@ -1447,16 +1447,16 @@ export class RenderGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: RenderGraphValue, v: number): boolean {
-        return this.x[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): RenderGraphValue {
-        return this.x[v]._id;
+        return this.x[v].t;
     }
     object (v: number): RenderGraphObject {
         return this.x[v]._object;
     }
     value<T extends RenderGraphValue> (id: T, v: number): RenderGraphValueType[T] {
-        if (this.x[v]._id === id) {
+        if (this.x[v].t === id) {
             return this.x[v]._object as RenderGraphValueType[T];
         } else {
             throw Error('value id not match');
@@ -1464,7 +1464,7 @@ export class RenderGraph implements BidirectionalGraph
     }
     visitVertex (visitor: RenderGraphVisitor, v: number): unknown {
         const vert = this.x[v];
-        switch (vert._id) {
+        switch (vert.t) {
         case RenderGraphValue.RasterPass:
             return visitor.rasterPass(vert._object as RasterPass);
         case RenderGraphValue.RasterSubpass:

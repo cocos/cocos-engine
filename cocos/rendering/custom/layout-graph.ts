@@ -91,12 +91,12 @@ export class LayoutGraphVertex {
         readonly id: LayoutGraphValue,
         readonly object: LayoutGraphObject,
     ) {
-        this._id = id;
+        this.t = id;
         this._object = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
-    readonly _id: LayoutGraphValue;
+    readonly t: LayoutGraphValue;
     _object: LayoutGraphObject;
 }
 //-----------------------------------------------------------------
@@ -256,16 +256,16 @@ export class LayoutGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: LayoutGraphValue, v: number): boolean {
-        return this.x[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): LayoutGraphValue {
-        return this.x[v]._id;
+        return this.x[v].t;
     }
     object (v: number): LayoutGraphObject {
         return this.x[v]._object;
     }
     value<T extends LayoutGraphValue> (id: T, v: number): LayoutGraphValueType[T] {
-        if (this.x[v]._id === id) {
+        if (this.x[v].t === id) {
             return this.x[v]._object as LayoutGraphValueType[T];
         } else {
             throw Error('value id not match');
@@ -273,7 +273,7 @@ export class LayoutGraph implements BidirectionalGraph
     }
     visitVertex (visitor: LayoutGraphVisitor, v: number): unknown {
         const vert = this.x[v];
-        switch (vert._id) {
+        switch (vert.t) {
         case LayoutGraphValue.RenderStage:
             return visitor.renderStage(vert._object as RenderPassType);
         case LayoutGraphValue.RenderPhase:
@@ -583,12 +583,12 @@ export class LayoutGraphDataVertex {
         readonly id: LayoutGraphDataValue,
         readonly object: LayoutGraphDataObject,
     ) {
-        this._id = id;
+        this.t = id;
         this._object = object;
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
-    readonly _id: LayoutGraphDataValue;
+    readonly t: LayoutGraphDataValue;
     _object: LayoutGraphDataObject;
 }
 //-----------------------------------------------------------------
@@ -768,16 +768,16 @@ export class LayoutGraphData implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: LayoutGraphDataValue, v: number): boolean {
-        return this.x[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): LayoutGraphDataValue {
-        return this.x[v]._id;
+        return this.x[v].t;
     }
     object (v: number): LayoutGraphDataObject {
         return this.x[v]._object;
     }
     value<T extends LayoutGraphDataValue> (id: T, v: number): LayoutGraphDataValueType[T] {
-        if (this.x[v]._id === id) {
+        if (this.x[v].t === id) {
             return this.x[v]._object as LayoutGraphDataValueType[T];
         } else {
             throw Error('value id not match');
@@ -785,7 +785,7 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     visitVertex (visitor: LayoutGraphDataVisitor, v: number): unknown {
         const vert = this.x[v];
-        switch (vert._id) {
+        switch (vert.t) {
         case LayoutGraphDataValue.RenderStage:
             return visitor.renderStage(vert._object as RenderStageData);
         case LayoutGraphDataValue.RenderPhase:
