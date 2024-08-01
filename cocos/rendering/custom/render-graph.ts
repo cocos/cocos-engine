@@ -1254,8 +1254,8 @@ export class RenderGraphVertex {
     }
     readonly o: OutE[] = [];
     readonly i: OutE[] = [];
-    readonly _children: OutE[] = [];
-    readonly _parents: OutE[] = [];
+    readonly c: OutE[] = [];
+    readonly p: OutE[] = [];
     readonly _id: RenderGraphValue;
     _object: RenderGraphObject;
 }
@@ -1390,8 +1390,8 @@ export class RenderGraph implements BidirectionalGraph
 
         // ReferenceGraph
         if (u !== 0xFFFFFFFF) {
-            this.x[u]._children.push(new OutE(v));
-            vert._parents.push(new OutE(u));
+            this.x[u].c.push(new OutE(v));
+            vert.p.push(new OutE(u));
         }
 
         return v;
@@ -1545,7 +1545,7 @@ export class RenderGraph implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this.x[u]._children) {
+        for (const oe of this.x[u].c) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -1559,16 +1559,16 @@ export class RenderGraph implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this.x[v]._children.values(), v);
+        return new OutEI(this.x[v].c.values(), v);
     }
     numChildren (v: number): number {
-        return this.x[v]._children.length;
+        return this.x[v].c.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this.x[v]._parents;
+        const list = this.x[v].p;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -1579,8 +1579,8 @@ export class RenderGraph implements BidirectionalGraph
     // MutableReferenceGraph
     addReference (u: number, v: number): ED | null {
         // update in/out edge list
-        this.x[u]._children.push(new OutE(v));
-        this.x[v]._parents.push(new OutE(u));
+        this.x[u].c.push(new OutE(v));
+        this.x[v].p.push(new OutE(u));
         return new ED(u, v);
     }
     readonly x: RenderGraphVertex[] = [];
