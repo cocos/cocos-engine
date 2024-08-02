@@ -125,10 +125,8 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this._jsbTextures = jsbTextures;
 
-        let filePath = null;
-        if (this.skeletonJsonStr) {
-            filePath = this.skeletonJsonStr;
-        } else {
+        let filePath = this.skeletonJsonStr;
+        if (!filePath) {
             filePath = cacheManager.getCache(this.nativeUrl) || this.nativeUrl;
         }
         this._skeletonCache = spine.initSkeletonData(uuid, filePath, atlasText, jsbTextures, this.scale);
