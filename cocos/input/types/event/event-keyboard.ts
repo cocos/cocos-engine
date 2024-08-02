@@ -38,13 +38,13 @@ export class EventKeyboard extends Event {
      * @en The unique ID of window which triggered the event.
      * @zh 触发键盘事件的窗口 ID
      */
-    public windowId: number;
+    public declare windowId: number;
 
     /**
      * @en The KeyCode enum value of current keyboard event.
      * @zh 当前键盘事件的 KeyCode 枚举值
      */
-    public keyCode: KeyCode;
+    public declare keyCode: KeyCode;
 
     /**
      * @en Raw DOM KeyboardEvent.
@@ -54,7 +54,7 @@ export class EventKeyboard extends Event {
      */
     public rawEvent?: KeyboardEvent;
 
-    private _isPressed: boolean;
+    private declare _isPressed: boolean;
     /**
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下

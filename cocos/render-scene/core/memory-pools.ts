@@ -37,7 +37,7 @@ interface IMemoryPool<P extends PoolType> {
 }
 
 // a little hacky, but works (different specializations should not be assignable to each other)
-interface IHandle<P extends PoolType> extends Number {
+interface IHandle<P extends PoolType> extends number {
     // we make this non-optional so that even plain numbers would not be directly assignable to handles.
     // this strictness will introduce some casting hassle in the pool implementation itself
     // but becomes generally more useful for client code type checking.
@@ -50,7 +50,11 @@ enum BufferDataType {
     NEVER,
 }
 
-type BufferManifest = { [key: string]: number | string; COUNT: number };
+interface BufferManifest {
+     [key: string]: number | string;
+     COUNT: number;
+}
+
 type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
 type BufferDataMembersManifest<E extends BufferManifest> = { [key in E[keyof E]]: number };
 type BufferArrayType = Float32Array | Uint32Array;
@@ -59,22 +63,22 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
     // naming convension:
     // this._bufferViews[chunk][entry][element]
 
-    private _dataType: BufferDataTypeManifest<E>;
-    private _dataMembers: BufferDataMembersManifest<E>;
-    private _elementCount: number;
-    private _entryBits: number;
-    private _stride: number;
-    private _entriesPerChunk: number;
-    private _entryMask: number;
-    private _chunkMask: number;
-    private _poolFlag: number;
+    private declare _dataType: BufferDataTypeManifest<E>;
+    private declare _dataMembers: BufferDataMembersManifest<E>;
+    private declare _elementCount: number;
+    private declare _entryBits: number;
+    private declare _stride: number;
+    private declare _entriesPerChunk: number;
+    private declare _entryMask: number;
+    private declare _chunkMask: number;
+    private declare _poolFlag: number;
     private _arrayBuffers: ArrayBuffer[] = [];
     private _freeLists: number[][] = [];
     private _uint32BufferViews: Uint32Array[][] = [];
     private _float32BufferViews: Float32Array[][] = [];
     private _hasUint32 = false;
     private _hasFloat32 = false;
-    private _nativePool: NativeBufferPool;
+    private declare _nativePool: NativeBufferPool;
 
     constructor (poolType: P, dataType: BufferDataTypeManifest<E>, dataMembers: BufferDataMembersManifest<E>, enumType: E, entryBits = 8) {
         this._elementCount = enumType.COUNT;

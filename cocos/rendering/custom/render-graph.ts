@@ -183,7 +183,7 @@ export class ResourceTraits {
     reset (residency: ResourceResidency): void {
         this.residency = residency;
     }
-    residency: ResourceResidency;
+    declare residency: ResourceResidency;
 }
 
 export class RenderSwapchain {

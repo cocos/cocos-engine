@@ -24,11 +24,11 @@
 
 class Aim {
     // vertex index in coordinates array
-    public i: number;
+    public declare i: number;
 
     // vertex coordinates
-    public x: number;
-    public y: number;
+    public declare x: number;
+    public declare y: number;
 
     // previous and next vertex nodes in a polygon ring
     public prev: Aim | null = null;

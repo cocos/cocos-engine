@@ -49,9 +49,17 @@ export class Triangle {
      * @param {number} cz @en The z component of point c @zh c 点的 z 部分。
      * @returns {Triangle} @en The created Triangle instance. @zh 创建出的三角形实例。
      */
-    public static create (ax = 1, ay = 0, az = 0,
-        bx = 0, by = 0, bz = 0,
-        cx = 0, cy = 0, cz = 1): Triangle {
+    public static create (
+        ax = 1,
+ay = 0,
+az = 0,
+        bx = 0,
+by = 0,
+bz = 0,
+        cx = 0,
+cy = 0,
+cz = 1,
+    ): Triangle {
         return new Triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
     }
 
@@ -65,9 +73,15 @@ export class Triangle {
      */
     public static clone (t: Triangle): Triangle {
         return new Triangle(
-            t.a.x, t.a.y, t.a.z,
-            t.b.x, t.b.y, t.b.z,
-            t.c.x, t.c.y, t.c.z,
+            t.a.x,
+            t.a.y,
+            t.a.z,
+            t.b.x,
+            t.b.y,
+            t.b.z,
+            t.c.x,
+            t.c.y,
+            t.c.z,
         );
     }
 
@@ -123,10 +137,18 @@ export class Triangle {
      * @param cz @en The value to set out.c.z. @zh c 点的 z 部分。
      * @returns @en The Triangle object to be set, same as the `out` parameter. @zh 接受操作的三角形，与 `out` 参数相同。
      */
-    public static set (out: Triangle,
-        ax: number, ay: number, az: number,
-        bx: number, by: number, bz: number,
-        cx: number, cy: number, cz: number): Triangle {
+    public static set (
+        out: Triangle,
+        ax: number,
+        ay: number,
+        az: number,
+        bx: number,
+        by: number,
+        bz: number,
+        cx: number,
+        cy: number,
+        cz: number,
+    ): Triangle {
         out.a.x = ax;
         out.a.y = ay;
         out.a.z = az;
@@ -148,7 +170,7 @@ export class Triangle {
      * @zh
      * 点 a。
      */
-    public a: Vec3;
+    public declare a: Vec3;
 
     /**
      * @en
@@ -156,7 +178,7 @@ export class Triangle {
      * @zh
      * 点 b。
      */
-    public b: Vec3;
+    public declare b: Vec3;
 
     /**
      * @en
@@ -164,7 +186,7 @@ export class Triangle {
      * @zh
      * 点 c。
      */
-    public c: Vec3;
+    public declare c: Vec3;
 
     /**
      * @en
@@ -176,7 +198,7 @@ export class Triangle {
         return this._type;
     }
 
-    protected readonly _type: number;
+    protected readonly _type: number = enums.SHAPE_TRIANGLE;
 
     /**
      * @en
@@ -193,10 +215,17 @@ export class Triangle {
      * @param {number} cy @en y component of point c. @zh c 点的 y 部分。
      * @param {number} cz @en z component of point c. @zh c 点的 z 部分。
      */
-    constructor (ax = 0, ay = 0, az = 0,
-        bx = 1, by = 0, bz = 0,
-        cx = 0, cy = 1, cz = 0) {
-        this._type = enums.SHAPE_TRIANGLE;
+    constructor (
+ax = 0,
+ay = 0,
+az = 0,
+        bx = 1,
+by = 0,
+bz = 0,
+        cx = 0,
+cy = 1,
+cz = 0,
+    ) {
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);
         this.c = new Vec3(cx, cy, cz);

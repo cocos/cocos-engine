@@ -47,11 +47,11 @@ export class SpotLight extends Light {
 
     protected _angleAttenuationStrength = 0;
 
-    protected _pos: Vec3;
+    protected _pos: Vec3 = new Vec3();
 
-    protected _aabb: geometry.AABB;
+    protected _aabb: geometry.AABB = geometry.AABB.create();
 
-    protected _frustum: geometry.Frustum;
+    protected _frustum: geometry.Frustum = geometry.Frustum.create();
 
     /**
      * @en User-specified full-angle radians.
@@ -255,9 +255,6 @@ export class SpotLight extends Light {
 
     constructor () {
         super();
-        this._aabb = geometry.AABB.create();
-        this._frustum = geometry.Frustum.create();
-        this._pos = new Vec3();
         this._type = LightType.SPOT;
     }
 

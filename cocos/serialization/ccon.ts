@@ -44,8 +44,8 @@ export class CCON {
         return this._chunks;
     }
 
-    private _document: unknown;
-    private _chunks: Uint8Array[];
+    private declare _document: unknown;
+    private declare _chunks: Uint8Array[];
 }
 
 interface CCONPreface {

@@ -47,7 +47,7 @@ export class StaticVBChunk {
     public get ib (): Readonly<Uint16Array> {
         return this._ib;
     }
-    private _ib: Uint16Array;
+    private declare _ib: Uint16Array;
 
     constructor (
         public vertexAccessor: StaticVBAccessor,

@@ -77,7 +77,7 @@ export class Scene extends Node {
 
     protected _renderScene: RenderScene | null = null;
 
-    protected _inited: boolean;
+    protected declare _inited: boolean;
 
     protected _prefabSyncedInLiveReload = false;
 

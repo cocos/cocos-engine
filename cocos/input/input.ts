@@ -52,7 +52,7 @@ export interface IEventDispatcher {
 
 class InputEventDispatcher implements IEventDispatcher {
     public priority: EventDispatcherPriority = EventDispatcherPriority.GLOBAL;
-    private _inputEventTarget: EventTarget;
+    private declare _inputEventTarget: EventTarget;
 
     constructor (inputEventTarget: EventTarget) {
         this._inputEventTarget = inputEventTarget;
@@ -153,7 +153,7 @@ export class Input {
 
     private _needSimulateTouchMoveEvent = false;
 
-    private _inputEventDispatcher: InputEventDispatcher;
+    private declare _inputEventDispatcher: InputEventDispatcher;
     private _eventDispatcherList: IEventDispatcher[] = [];
 
     constructor () {

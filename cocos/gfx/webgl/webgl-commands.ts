@@ -446,7 +446,7 @@ export enum WebGLCmd {
 }
 
 export abstract class WebGLCmdObject {
-    public cmdType: WebGLCmd;
+    public declare cmdType: WebGLCmd;
     public refCount = 0;
 
     constructor (type: WebGLCmd) {

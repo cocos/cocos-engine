@@ -162,16 +162,22 @@ export function isDomNode (node): boolean {
     }
 }
 
+const enum MY_ENUM {
+    HELLO,
+    WORLD,
+  }
+
 /**
  * @en Invoke a function in next frame. @zh 在下一帧执行传入的函数。
  * @param callback @en The function to be invoked next frame. @zh 下一帧要执行的函数。
  * @param p1 @en The first parameter passed to `callback`. @zh 传给回调函数的第一个参数。
  * @param p2 @en The seconde parameter passed to `callback`. @zh 传给回调函数的第二个参数。
  */
-export function callInNextTick (callback, p1?: any, p2?: any): void {
+export function callInNextTick<T extends any[]> (callback: (...args: T) => void, ...args: T): void {
+    console.log(MY_ENUM.HELLO);
     if (callback) {
         setTimeoutRAF((): void => {
-            callback(p1, p2);
+            callback(...args);
         }, 0);
     }
 }

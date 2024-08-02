@@ -82,13 +82,13 @@ export class Batcher2D implements IBatcher {
         this._currIsStatic = value;
     }
 
-    public device: Device;
+    public declare device: Device;
     private _screens: RenderRoot2D[] = [];
     private _staticVBBuffer: StaticVBAccessor | null = null;
     private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
 
-    private _drawBatchPool: Pool<DrawBatch2D>;
-    private _batches: CachedArray<DrawBatch2D>;
+    private declare _drawBatchPool: Pool<DrawBatch2D>;
+    private declare _batches: CachedArray<DrawBatch2D>;
     private _currBID = -1;
     private _indexStart = 0;
 
@@ -1062,7 +1062,7 @@ class DescriptorSetCache {
     private _descriptorSetCache = new Map<number, DescriptorSet>();
     private _dsCacheHashByTexture = new Map<number, number>();
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
-    private _localCachePool: Pool<LocalDescriptorSet>;
+    private declare _localCachePool: Pool<LocalDescriptorSet>;
 
     constructor () {
         this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());

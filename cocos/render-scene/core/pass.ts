@@ -200,8 +200,8 @@ export class Pass {
     protected _instancedBuffers: Record<number, InstancedBuffer> = {};
     protected _hash = 0;
     // external references
-    protected _root: Root;
-    protected _device: Device;
+    protected declare _root: Root;
+    protected declare _device: Device;
     protected _rootBufferDirty = false;
 
     constructor (root: Root) {

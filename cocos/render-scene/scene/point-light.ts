@@ -106,13 +106,11 @@ export class PointLight extends Light {
     private _range = 1.0;
     private _luminanceHDR = 0;
     private _luminanceLDR = 0;
-    private _pos: Vec3;
-    private _aabb: AABB;
+    private _pos: Vec3 = new Vec3();
+    private _aabb: AABB = AABB.create();
 
     constructor () {
         super();
-        this._aabb = AABB.create();
-        this._pos = new Vec3();
         this._type = LightType.POINT;
     }
 

@@ -26,6 +26,7 @@ import { UIRenderer } from '../2d/framework/ui-renderer';
 import { UITransform } from '../2d/framework/ui-transform';
 import { warnID } from '../core/platform/debug';
 import { UIMeshRenderer } from '../2d';
+import type { Node } from './node';
 
 /**
  * @en Node's UI properties abstraction
@@ -38,7 +39,7 @@ export class NodeUIProperties {
      */
     get uiTransformComp (): UITransform | null {
         if (!this._uiTransformComp) {
-            this._uiTransformComp = this._node.getComponent('cc.UITransform') as UITransform;
+            this._uiTransformComp = this._node.getComponent(UITransform);
         }
 
         return this._uiTransformComp;
@@ -89,9 +90,9 @@ export class NodeUIProperties {
 
     public colorDirty = true;
     protected _uiTransformComp: UITransform | null = null;
-    private _node: any;
+    private declare _node: Node;
 
-    constructor (node: any) {
+    constructor (node: Node) {
         this._node = node;
     }
 

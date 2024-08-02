@@ -122,9 +122,9 @@ export class Canvas extends RenderRoot2D {
     @serializable
     protected _alignCanvasWithScreen = true;
 
-    protected _thisOnCameraResized: () => void;
+    protected declare _thisOnCameraResized: () => void;
     // fit canvas node to design resolution
-    protected fitDesignResolution_EDITOR: (() => void) | undefined;
+    protected declare fitDesignResolution_EDITOR: (() => void) | undefined;
 
     private _pos = new Vec3();
     private _renderMode = RenderMode.OVERLAY;

@@ -121,15 +121,15 @@ const BASELINE_OFFSET = getBaselineOffset();
 
 class LetterTexture {
     public image: ImageAsset | null = null;
-    public labelInfo: ILabelInfo;
-    public char: string;
+    public declare labelInfo: ILabelInfo;
+    public declare char: string;
     public data: ISharedLabelData | null  = null;
     public canvas: HTMLCanvasElement | null = null;
     public context: CanvasRenderingContext2D | null = null;
     public width = 0;
     public height = 0;
     public offsetY = 0;
-    public hash: string;
+    public declare hash: string;
     constructor (char: string, labelInfo: ILabelInfo) {
         this.char = char;
         this.labelInfo = labelInfo;

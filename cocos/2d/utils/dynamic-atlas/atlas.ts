@@ -32,15 +32,15 @@ import { SpriteFrame } from '../../assets/sprite-frame';
 const space = 2;
 
 export class Atlas {
-    private _texture: DynamicAtlasTexture;
-    private _width: any;
-    private _height: any;
-    private _x: number;
-    private _y: number;
-    private _nextY: number;
+    private declare _texture: DynamicAtlasTexture;
+    private declare _width: number;
+    private declare _height: number;
+    private declare _x: number;
+    private declare _y: number;
+    private declare _nextY: number;
     private _innerTextureInfos = {};
-    private _innerSpriteFrames: SpriteFrame[];
-    private _count: number;
+    private _innerSpriteFrames: SpriteFrame[] = [];
+    private _count: number = 0;
 
     constructor (width: number, height: number) {
         const texture = new DynamicAtlasTexture();
@@ -53,11 +53,6 @@ export class Atlas {
         this._x = space;
         this._y = space;
         this._nextY = space;
-
-        this._innerTextureInfos = {};
-        this._innerSpriteFrames = [];
-
-        this._count = 0;
     }
 
     /**

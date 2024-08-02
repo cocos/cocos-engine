@@ -54,10 +54,10 @@ export class RenderQueue {
      * @en A cached array of render passes
      * @zh 基于缓存数组的渲染过程队列。
      */
-    public queue: CachedArray<IRenderPass>;
+    public declare queue: CachedArray<IRenderPass>;
 
-    private _passDesc: IRenderQueueDesc;
-    private _passPool: RecyclePool<IRenderPass>;
+    private declare _passDesc: IRenderQueueDesc;
+    private declare _passPool: RecyclePool<IRenderPass>;
 
     /**
      * @en Construct a RenderQueue with render queue descriptor

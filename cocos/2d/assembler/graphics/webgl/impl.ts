@@ -86,7 +86,7 @@ export class Impl {
     private _points: Point[] = [];
     private _renderDataList: MeshRenderData[] = [];
     private _curPath: Path | null = null;
-    private _comp: Graphics;
+    private declare _comp: Graphics;
 
     constructor (comp: Graphics) {
         this._comp = comp;

@@ -54,7 +54,7 @@ export class ShadowLayerVolume {
 
     protected _shadowCameraFar = 0;
     // Level is a vector, Indicates the location.range: [0 ~ 3]
-    protected _level: number;
+    protected declare _level: number;
 
     protected _matShadowView: Mat4 = new Mat4();
     protected _matShadowProj: Mat4 = new Mat4();

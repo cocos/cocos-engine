@@ -508,7 +508,7 @@ export class RichText extends Component {
     protected _labelHeight = 0;
     protected _layoutDirty = true;
     protected _lineOffsetX = 0;
-    protected _updateRichTextStatus: () => void;
+    protected declare _updateRichTextStatus: () => void;
     protected _labelChildrenNum = 0; // only ISegment
 
     constructor () {

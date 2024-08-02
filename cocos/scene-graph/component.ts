@@ -68,6 +68,10 @@ class Component extends CCObject {
      */
     public static _requireComponent: Constructor<Component> | null = null;
 
+    constructor () {
+        super();
+    }
+
     get name (): string {
         if (this._name) {
             return this._name;

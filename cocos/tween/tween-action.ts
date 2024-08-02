@@ -103,9 +103,9 @@ export interface IInternalTweenOption<T extends object> extends ITweenOption<T> 
 }
 
 export class TweenAction<T extends object> extends ActionInterval {
-    private _opts: IInternalTweenOption<T>;
-    private _props: any;
-    private _originProps: any;
+    private declare _opts: IInternalTweenOption<T>;
+    private declare _props: any;
+    private declare _originProps: any;
     private _reversed = false;
 
     constructor (duration: number, props: any, opts?: IInternalTweenOption<T>) {

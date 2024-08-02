@@ -117,7 +117,7 @@ export class EventMouse extends Event {
      */
     public preventSwallow = false;
 
-    private _eventType: SystemEventTypeUnion;
+    private declare _eventType: SystemEventTypeUnion;
     /**
      * @en The type of the event
      * @zh 鼠标事件类型

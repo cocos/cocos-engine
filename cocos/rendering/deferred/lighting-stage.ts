@@ -64,13 +64,12 @@ const colors: Color[] = [new Color(0, 0, 0, 1)];
 export class LightingStage extends RenderStage {
     private _deferredLitsBufs: Buffer = null!;
     private _maxDeferredLights = UBODeferredLight.LIGHTS_PER_PASS;
-    private _lightBufferData!: Float32Array;
+    private _lightBufferData: Float32Array = null!;
     private _lightMeterScale = 10000.0;
     private _descriptorSet: DescriptorSet = null!;
-    private _descriptorSetLayout!: DescriptorSetLayout;
     private _renderArea = new Rect();
-    private declare _planarQueue: PlanarShadowQueue;
-    private _uiPhase: UIPhase;
+    private _planarQueue: PlanarShadowQueue = null!;
+    private _uiPhase: UIPhase = new UIPhase();
 
     @type(Material)
     @serializable
@@ -92,7 +91,6 @@ export class LightingStage extends RenderStage {
 
     constructor () {
         super();
-        this._uiPhase = new UIPhase();
     }
 
     public initialize (info: IRenderStageInfo): boolean {

@@ -38,7 +38,7 @@ export class EventAcceleration extends Event {
      * @en The acceleration object
      * @zh 加速度对象
      */
-    public acc: Acceleration;
+    public declare acc: Acceleration;
 
     /**
      * @param acc - The acceleration

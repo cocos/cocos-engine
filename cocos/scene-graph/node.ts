@@ -383,8 +383,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public set id (v: string) { this._id = v; }
     protected _id: string = idGenerator.getNewId();
 
-    protected _name: string;
-
     protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
     protected _eventMask = 0;
 
@@ -1549,8 +1547,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _hasChangedFlags = 0;
 
     constructor (name?: string) {
+        if (name === undefined) name = 'New Node';
         super(name);
-        this._name = name !== undefined ? name : 'New Node';
 
         this._pos = new Vec3();
         this._rot = new Quat();

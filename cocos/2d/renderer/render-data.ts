@@ -558,8 +558,8 @@ export class MeshRenderData extends BaseRenderData {
     get vDataOffset (): number { return this._byteLength >>> 2; }
 
     public _isMeshBuffer = true;
-    public vData: Float32Array;
-    public iData: Uint16Array;
+    public declare vData: Float32Array;
+    public declare iData: Uint16Array;
     /**
      * First vertex used in the current IA
      */

@@ -112,17 +112,17 @@ function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[],
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
-    private _pipeline: PipelineRuntime;
-    private _device: Device;
+    private declare _pipeline: PipelineRuntime;
+    private declare _device: Device;
     private _lightPasses: IAdditiveLightPass[] = [];
     private _instancedLightPassPool = _lightPassPool.alloc();
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
-    private _lightBufferStride: number;
-    private _lightBufferElementCount: number;
-    private _lightBuffer: Buffer;
-    private _firstLightBufferView: Buffer;
-    private _lightBufferData: Float32Array;
+    private declare _lightBufferStride: number;
+    private declare _lightBufferElementCount: number;
+    private declare _lightBuffer: Buffer;
+    private declare _firstLightBufferView: Buffer;
+    private declare _lightBufferData: Float32Array;
     private _instancedQueues: RenderInstancedQueue[] = [];
     private _lightMeterScale = 10000.0;
 

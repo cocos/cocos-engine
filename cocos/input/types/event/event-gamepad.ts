@@ -42,7 +42,7 @@ export class EventGamepad extends Event {
      * @en The gamepad device which trigger the current gamepad event
      * @zh 触发当前手柄事件的手柄设备
      */
-    public gamepad: Gamepad;
+    public declare gamepad: Gamepad;
 
     constructor (type: string, gamepad: Gamepad) {
         super(type, false);

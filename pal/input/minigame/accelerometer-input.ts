@@ -32,7 +32,7 @@ export class AccelerometerInputSource {
     private _isStarted = false;
     private _accelMode: AccelerometerIntervalMode = 'normal';
     private _eventTarget: EventTarget = new  EventTarget();
-    private _didAccelerateFunc: (event: AccelerometerData) => void;
+    private declare _didAccelerateFunc: (event: AccelerometerData) => void;
 
     constructor () {
         this._didAccelerateFunc  = this._didAccelerate.bind(this);

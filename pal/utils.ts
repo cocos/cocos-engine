@@ -191,7 +191,7 @@ export function versionCompare (versionA: string, versionB: string): number {
  * @param args The arguments to be passed to the callback function.
  * @returns A unique identifier for the timer.
  */
-export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number, ...args: any[]): number {
+export function setTimeoutRAF<T extends any[]> (callback: (...args: T) => void, delay: number, ...args: T): number {
     const start = performance.now();
 
     const raf = requestAnimationFrame
@@ -221,7 +221,7 @@ export function setTimeoutRAF (callback: (...args: any[]) => void, delay: number
  * @param id A numeric ID that represents the timer to be canceled.
  * @returns Nothing.
  */
-export function clearTimeoutRAF (id): void {
+export function clearTimeoutRAF (id: number): void {
     const caf = cancelAnimationFrame
         || window.cancelAnimationFrame
         || window.cancelRequestAnimationFrame
