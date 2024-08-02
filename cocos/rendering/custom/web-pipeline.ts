@@ -973,7 +973,7 @@ export class WebPipeline implements BasicPipeline {
         desc.height = renderWindow.height;
         const currFbo = this.resourceGraph.object(resId);
         if (currFbo !== renderWindow.framebuffer) {
-            this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
+            this.resourceGraph.x[resId].j = renderWindow.framebuffer;
         }
         this.tryAddRenderWindowDepthStencil(renderWindow.width, renderWindow.height, depthStencilName, renderWindow.swapchain);
     }

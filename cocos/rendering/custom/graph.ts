@@ -365,7 +365,7 @@ export interface NamedGraph extends Graph {
 // ComponentGraph
 //--------------------------------------------------------------------------
 export interface ComponentGraph extends Graph {
-    readonly components: string[];
+    // readonly components: string[];
     component (id: number, v: vertex_descriptor): unknown;
     // componentMap (id: number): unknown; // should be PropertyMap
 }

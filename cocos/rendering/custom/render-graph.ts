@@ -285,8 +285,8 @@ export class Subpass {
 //=================================================================
 // Graph Concept
 export class SubpassGraphVertex {
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
+    readonly o: OutE[] = [];
+    readonly i: OutE[] = [];
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -325,7 +325,7 @@ export class SubpassGraph implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -339,19 +339,19 @@ export class SubpassGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this._vertices[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -365,10 +365,10 @@ export class SubpassGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // VertexListGraph
     vertices (): IterableIterator<number> {
-        return this._vertices.keys();
+        return this.x.keys();
     }
     numVertices (): number {
-        return this._vertices.length;
+        return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
@@ -386,23 +386,23 @@ export class SubpassGraph implements BidirectionalGraph
         this._names.length = 0;
         this._subpasses.length = 0;
         // Graph Vertices
-        this._vertices.length = 0;
+        this.x.length = 0;
     }
     addVertex (
         name: string,
         subpass: Subpass,
     ): number {
         const vert = new SubpassGraphVertex();
-        const v = this._vertices.length;
-        this._vertices.push(vert);
+        const v = this.x.length;
+        this.x.push(vert);
         this._names.push(name);
         this._subpasses.push(subpass);
         return v;
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._outEdges.push(new OutE(v));
-        this._vertices[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -431,9 +431,7 @@ export class SubpassGraph implements BidirectionalGraph
     getSubpass (v: number): Subpass {
         return this._subpasses[v];
     }
-
-    readonly components: string[] = ['Name', 'Subpass'];
-    readonly _vertices: SubpassGraphVertex[] = [];
+    readonly x: SubpassGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _subpasses: Subpass[] = [];
 }
@@ -630,13 +628,13 @@ export class ResourceGraphVertex {
         readonly id: ResourceGraphValue,
         readonly object: ResourceGraphObject,
     ) {
-        this._id = id;
-        this._object = object;
+        this.t = id;
+        this.j = object;
     }
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
-    readonly _id: ResourceGraphValue;
-    _object: ResourceGraphObject;
+    readonly o: OutE[] = [];
+    readonly i: OutE[] = [];
+    readonly t: ResourceGraphValue;
+    j: ResourceGraphObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -685,7 +683,7 @@ export class ResourceGraph implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -699,19 +697,19 @@ export class ResourceGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this._vertices[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -725,10 +723,10 @@ export class ResourceGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // VertexListGraph
     vertices (): IterableIterator<number> {
-        return this._vertices.keys();
+        return this.x.keys();
     }
     numVertices (): number {
-        return this._vertices.length;
+        return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
@@ -755,7 +753,7 @@ export class ResourceGraph implements BidirectionalGraph
         this._states.length = 0;
         this._samplerInfo.length = 0;
         // Graph Vertices
-        this._vertices.length = 0;
+        this.x.length = 0;
     }
     addVertex<T extends ResourceGraphValue> (
         id: ResourceGraphValue,
@@ -768,8 +766,8 @@ export class ResourceGraph implements BidirectionalGraph
         u = 0xFFFFFFFF,
     ): number {
         const vert = new ResourceGraphVertex(id, object);
-        const v = this._vertices.length;
-        this._vertices.push(vert);
+        const v = this.x.length;
+        this.x.push(vert);
         this._names.push(name);
         this._descs.push(desc);
         this._traits.push(traits);
@@ -787,8 +785,8 @@ export class ResourceGraph implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._outEdges.push(new OutE(v));
-        this._vertices[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -835,72 +833,72 @@ export class ResourceGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: ResourceGraphValue, v: number): boolean {
-        return this._vertices[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): ResourceGraphValue {
-        return this._vertices[v]._id;
+        return this.x[v].t;
     }
     object (v: number): ResourceGraphObject {
-        return this._vertices[v]._object;
+        return this.x[v].j;
     }
     value<T extends ResourceGraphValue> (id: T, v: number): ResourceGraphValueType[T] {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as ResourceGraphValueType[T];
+        if (this.x[v].t === id) {
+            return this.x[v].j as ResourceGraphValueType[T];
         } else {
             throw Error('value id not match');
         }
     }
     visitVertex (visitor: ResourceGraphVisitor, v: number): unknown {
-        const vert = this._vertices[v];
-        switch (vert._id) {
+        const vert = this.x[v];
+        switch (vert.t) {
         case ResourceGraphValue.Managed:
-            return visitor.managed(vert._object as ManagedResource);
+            return visitor.managed(vert.j as ManagedResource);
         case ResourceGraphValue.ManagedBuffer:
-            return visitor.managedBuffer(vert._object as ManagedBuffer);
+            return visitor.managedBuffer(vert.j as ManagedBuffer);
         case ResourceGraphValue.ManagedTexture:
-            return visitor.managedTexture(vert._object as ManagedTexture);
+            return visitor.managedTexture(vert.j as ManagedTexture);
         case ResourceGraphValue.PersistentBuffer:
-            return visitor.persistentBuffer(vert._object as PersistentBuffer);
+            return visitor.persistentBuffer(vert.j as PersistentBuffer);
         case ResourceGraphValue.PersistentTexture:
-            return visitor.persistentTexture(vert._object as PersistentTexture);
+            return visitor.persistentTexture(vert.j as PersistentTexture);
         case ResourceGraphValue.Framebuffer:
-            return visitor.framebuffer(vert._object as Framebuffer);
+            return visitor.framebuffer(vert.j as Framebuffer);
         case ResourceGraphValue.Swapchain:
-            return visitor.swapchain(vert._object as RenderSwapchain);
+            return visitor.swapchain(vert.j as RenderSwapchain);
         case ResourceGraphValue.FormatView:
-            return visitor.formatView(vert._object as FormatView);
+            return visitor.formatView(vert.j as FormatView);
         case ResourceGraphValue.SubresourceView:
-            return visitor.subresourceView(vert._object as SubresourceView);
+            return visitor.subresourceView(vert.j as SubresourceView);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getManaged (v: number): ManagedResource {
-        return this._vertices[v]._object as ManagedResource;
+        return this.x[v].j as ManagedResource;
     }
     getManagedBuffer (v: number): ManagedBuffer {
-        return this._vertices[v]._object as ManagedBuffer;
+        return this.x[v].j as ManagedBuffer;
     }
     getManagedTexture (v: number): ManagedTexture {
-        return this._vertices[v]._object as ManagedTexture;
+        return this.x[v].j as ManagedTexture;
     }
     getPersistentBuffer (v: number): PersistentBuffer {
-        return this._vertices[v]._object as PersistentBuffer;
+        return this.x[v].j as PersistentBuffer;
     }
     getPersistentTexture (v: number): PersistentTexture {
-        return this._vertices[v]._object as PersistentTexture;
+        return this.x[v].j as PersistentTexture;
     }
     getFramebuffer (v: number): Framebuffer {
-        return this._vertices[v]._object as Framebuffer;
+        return this.x[v].j as Framebuffer;
     }
     getSwapchain (v: number): RenderSwapchain {
-        return this._vertices[v]._object as RenderSwapchain;
+        return this.x[v].j as RenderSwapchain;
     }
     getFormatView (v: number): FormatView {
-        return this._vertices[v]._object as FormatView;
+        return this.x[v].j as FormatView;
     }
     getSubresourceView (v: number): SubresourceView {
-        return this._vertices[v]._object as SubresourceView;
+        return this.x[v].j as SubresourceView;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -908,7 +906,7 @@ export class ResourceGraph implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -922,16 +920,16 @@ export class ResourceGraph implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     numChildren (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this._vertices[v]._inEdges;
+        const list = this.x[v].i;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -956,9 +954,7 @@ export class ResourceGraph implements BidirectionalGraph
         if (v === undefined) return 0xFFFFFFFF;
         return v;
     }
-
-    readonly components: string[] = ['Name', 'Desc', 'Traits', 'States', 'Sampler'];
-    readonly _vertices: ResourceGraphVertex[] = [];
+    readonly x: ResourceGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descs: ResourceDesc[] = [];
     readonly _traits: ResourceTraits[] = [];
@@ -1253,15 +1249,15 @@ export class RenderGraphVertex {
         readonly id: RenderGraphValue,
         readonly object: RenderGraphObject,
     ) {
-        this._id = id;
-        this._object = object;
+        this.t = id;
+        this.j = object;
     }
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
-    readonly _children: OutE[] = [];
-    readonly _parents: OutE[] = [];
-    readonly _id: RenderGraphValue;
-    _object: RenderGraphObject;
+    readonly o: OutE[] = [];
+    readonly i: OutE[] = [];
+    readonly c: OutE[] = [];
+    readonly p: OutE[] = [];
+    readonly t: RenderGraphValue;
+    j: RenderGraphObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -1307,7 +1303,7 @@ export class RenderGraph implements BidirectionalGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -1321,19 +1317,19 @@ export class RenderGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this._vertices[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -1347,10 +1343,10 @@ export class RenderGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // VertexListGraph
     vertices (): IterableIterator<number> {
-        return this._vertices.keys();
+        return this.x.keys();
     }
     numVertices (): number {
-        return this._vertices.length;
+        return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
@@ -1373,7 +1369,7 @@ export class RenderGraph implements BidirectionalGraph
         this._data.length = 0;
         this._valid.length = 0;
         // Graph Vertices
-        this._vertices.length = 0;
+        this.x.length = 0;
     }
     addVertex<T extends RenderGraphValue> (
         id: RenderGraphValue,
@@ -1385,8 +1381,8 @@ export class RenderGraph implements BidirectionalGraph
         u = 0xFFFFFFFF,
     ): number {
         const vert = new RenderGraphVertex(id, object);
-        const v = this._vertices.length;
-        this._vertices.push(vert);
+        const v = this.x.length;
+        this.x.push(vert);
         this._names.push(name);
         this._layoutNodes.push(layout);
         this._data.push(data);
@@ -1394,16 +1390,16 @@ export class RenderGraph implements BidirectionalGraph
 
         // ReferenceGraph
         if (u !== 0xFFFFFFFF) {
-            this._vertices[u]._children.push(new OutE(v));
-            vert._parents.push(new OutE(u));
+            this.x[u].c.push(new OutE(v));
+            vert.p.push(new OutE(u));
         }
 
         return v;
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._outEdges.push(new OutE(v));
-        this._vertices[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -1451,97 +1447,97 @@ export class RenderGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: RenderGraphValue, v: number): boolean {
-        return this._vertices[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): RenderGraphValue {
-        return this._vertices[v]._id;
+        return this.x[v].t;
     }
     object (v: number): RenderGraphObject {
-        return this._vertices[v]._object;
+        return this.x[v].j;
     }
     value<T extends RenderGraphValue> (id: T, v: number): RenderGraphValueType[T] {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as RenderGraphValueType[T];
+        if (this.x[v].t === id) {
+            return this.x[v].j as RenderGraphValueType[T];
         } else {
             throw Error('value id not match');
         }
     }
     visitVertex (visitor: RenderGraphVisitor, v: number): unknown {
-        const vert = this._vertices[v];
-        switch (vert._id) {
+        const vert = this.x[v];
+        switch (vert.t) {
         case RenderGraphValue.RasterPass:
-            return visitor.rasterPass(vert._object as RasterPass);
+            return visitor.rasterPass(vert.j as RasterPass);
         case RenderGraphValue.RasterSubpass:
-            return visitor.rasterSubpass(vert._object as RasterSubpass);
+            return visitor.rasterSubpass(vert.j as RasterSubpass);
         case RenderGraphValue.ComputeSubpass:
-            return visitor.computeSubpass(vert._object as ComputeSubpass);
+            return visitor.computeSubpass(vert.j as ComputeSubpass);
         case RenderGraphValue.Compute:
-            return visitor.compute(vert._object as ComputePass);
+            return visitor.compute(vert.j as ComputePass);
         case RenderGraphValue.Resolve:
-            return visitor.resolve(vert._object as ResolvePass);
+            return visitor.resolve(vert.j as ResolvePass);
         case RenderGraphValue.Copy:
-            return visitor.copy(vert._object as CopyPass);
+            return visitor.copy(vert.j as CopyPass);
         case RenderGraphValue.Move:
-            return visitor.move(vert._object as MovePass);
+            return visitor.move(vert.j as MovePass);
         case RenderGraphValue.Raytrace:
-            return visitor.raytrace(vert._object as RaytracePass);
+            return visitor.raytrace(vert.j as RaytracePass);
         case RenderGraphValue.Queue:
-            return visitor.queue(vert._object as RenderQueue);
+            return visitor.queue(vert.j as RenderQueue);
         case RenderGraphValue.Scene:
-            return visitor.scene(vert._object as SceneData);
+            return visitor.scene(vert.j as SceneData);
         case RenderGraphValue.Blit:
-            return visitor.blit(vert._object as Blit);
+            return visitor.blit(vert.j as Blit);
         case RenderGraphValue.Dispatch:
-            return visitor.dispatch(vert._object as Dispatch);
+            return visitor.dispatch(vert.j as Dispatch);
         case RenderGraphValue.Clear:
-            return visitor.clear(vert._object as ClearView[]);
+            return visitor.clear(vert.j as ClearView[]);
         case RenderGraphValue.Viewport:
-            return visitor.viewport(vert._object as Viewport);
+            return visitor.viewport(vert.j as Viewport);
         default:
             throw Error('polymorphic type not found');
         }
     }
     getRasterPass (v: number): RasterPass {
-        return this._vertices[v]._object as RasterPass;
+        return this.x[v].j as RasterPass;
     }
     getRasterSubpass (v: number): RasterSubpass {
-        return this._vertices[v]._object as RasterSubpass;
+        return this.x[v].j as RasterSubpass;
     }
     getComputeSubpass (v: number): ComputeSubpass {
-        return this._vertices[v]._object as ComputeSubpass;
+        return this.x[v].j as ComputeSubpass;
     }
     getCompute (v: number): ComputePass {
-        return this._vertices[v]._object as ComputePass;
+        return this.x[v].j as ComputePass;
     }
     getResolve (v: number): ResolvePass {
-        return this._vertices[v]._object as ResolvePass;
+        return this.x[v].j as ResolvePass;
     }
     getCopy (v: number): CopyPass {
-        return this._vertices[v]._object as CopyPass;
+        return this.x[v].j as CopyPass;
     }
     getMove (v: number): MovePass {
-        return this._vertices[v]._object as MovePass;
+        return this.x[v].j as MovePass;
     }
     getRaytrace (v: number): RaytracePass {
-        return this._vertices[v]._object as RaytracePass;
+        return this.x[v].j as RaytracePass;
     }
     getQueue (v: number): RenderQueue {
-        return this._vertices[v]._object as RenderQueue;
+        return this.x[v].j as RenderQueue;
     }
     getScene (v: number): SceneData {
-        return this._vertices[v]._object as SceneData;
+        return this.x[v].j as SceneData;
     }
     getBlit (v: number): Blit {
-        return this._vertices[v]._object as Blit;
+        return this.x[v].j as Blit;
     }
     getDispatch (v: number): Dispatch {
-        return this._vertices[v]._object as Dispatch;
+        return this.x[v].j as Dispatch;
     }
     getClear (v: number): ClearView[] {
-        return this._vertices[v]._object as ClearView[];
+        return this.x[v].j as ClearView[];
     }
     getViewport (v: number): Viewport {
-        return this._vertices[v]._object as Viewport;
+        return this.x[v].j as Viewport;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -1549,7 +1545,7 @@ export class RenderGraph implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._children) {
+        for (const oe of this.x[u].c) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -1563,16 +1559,16 @@ export class RenderGraph implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this._vertices[v]._children.values(), v);
+        return new OutEI(this.x[v].c.values(), v);
     }
     numChildren (v: number): number {
-        return this._vertices[v]._children.length;
+        return this.x[v].c.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this._vertices[v]._parents;
+        const list = this.x[v].p;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -1583,13 +1579,11 @@ export class RenderGraph implements BidirectionalGraph
     // MutableReferenceGraph
     addReference (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._children.push(new OutE(v));
-        this._vertices[v]._parents.push(new OutE(u));
+        this.x[u].c.push(new OutE(v));
+        this.x[v].p.push(new OutE(u));
         return new ED(u, v);
     }
-
-    readonly components: string[] = ['Name', 'Layout', 'Data', 'Valid'];
-    readonly _vertices: RenderGraphVertex[] = [];
+    readonly x: RenderGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _layoutNodes: string[] = [];
     readonly _data: RenderData[] = [];
