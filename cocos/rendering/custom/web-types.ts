@@ -46,11 +46,11 @@ export class ProgramInfo {
         this.blockSizes = blockSizes;
         this.handleMap = handleMap;
     }
-    readonly programInfo: IProgramInfo;
-    readonly shaderInfo: ShaderInfo;
-    readonly attributes: Attribute[];
-    readonly blockSizes: number[];
-    readonly handleMap: Record<string, number>;
+    declare readonly programInfo: IProgramInfo;
+    declare readonly shaderInfo: ShaderInfo;
+    declare readonly attributes: Attribute[];
+    declare readonly blockSizes: number[];
+    declare readonly handleMap: Record<string, number>;
 }
 
 export class ProgramGroup {
