@@ -441,11 +441,7 @@ export class TMXObjectGroupInfo {
 }
 
 export interface TMXObject {
-    /**
-     * Properties of the layer info.
-     * @property {Object} properties
-     */
-    properties: PropertiesInfo = {} as any;
+    properties: PropertiesInfo
     id: number | string;
     name: string;
     width: number;
