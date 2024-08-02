@@ -23,11 +23,12 @@
 ****************************************************************************/
 
 /* eslint-disable max-len */
+import type { LayoutGraphData, PipelineLayoutData, RenderPhaseData } from './layout-graph';
+import { DescriptorBlockData, DescriptorData, DescriptorSetLayoutData, LayoutGraphDataValue } from './layout-graph';
 import { EffectAsset } from '../../asset/assets';
 import { assert, error, warn } from '../../core';
 import { DescriptorSetInfo, DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo, DescriptorType, Device, Feature, Format, FormatFeatureBit, GetTypeSize, PipelineLayout, PipelineLayoutInfo, ShaderStageFlagBit, Type, Uniform, UniformBlock } from '../../gfx';
 import { UBOForwardLight, UBOSkinning } from '../define';
-import { DescriptorBlockData, DescriptorData, DescriptorSetLayoutData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData } from './layout-graph';
 import { UpdateFrequency, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 
 export const INVALID_ID = 0xFFFFFFFF;
@@ -455,7 +456,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData):
         populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_PHASE, info);
         populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_BATCH, info);
         populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_INSTANCE, info);
-        const phase = lg.getRenderPhase(phaseID);
+        const phase = lg.j<RenderPhaseData>(phaseID);
         phase.pipelineLayout = device.createPipelineLayout(info);
     }
 }
@@ -573,7 +574,7 @@ export function getOrCreateDescriptorBlockData (
 
 export function getProgramID (lg: LayoutGraphData, phaseID: number, programName: string): number {
     assert(phaseID !== lg.nullVertex());
-    const phase = lg.getRenderPhase(phaseID);
+    const phase = lg.j<RenderPhaseData>(phaseID);
     const programID = phase.shaderIndex.get(programName);
     if (programID === undefined) {
         return INVALID_ID;
@@ -628,7 +629,7 @@ export function getPerBatchDescriptorSetLayoutData (
     programID,
 ): DescriptorSetLayoutData | null {
     assert(phaseID !== lg.nullVertex());
-    const phase = lg.getRenderPhase(phaseID);
+    const phase = lg.j<RenderPhaseData>(phaseID);
     assert(programID < phase.shaderPrograms.length);
     const program = phase.shaderPrograms[programID];
     const set = program.layout.descriptorSets.get(UpdateFrequency.PER_BATCH);
@@ -644,7 +645,7 @@ export function getPerInstanceDescriptorSetLayoutData (
     programID,
 ): DescriptorSetLayoutData | null {
     assert(phaseID !== lg.nullVertex());
-    const phase = lg.getRenderPhase(phaseID);
+    const phase = lg.j<RenderPhaseData>(phaseID);
     assert(programID < phase.shaderPrograms.length);
     const program = phase.shaderPrograms[programID];
     const set = program.layout.descriptorSets.get(UpdateFrequency.PER_INSTANCE);

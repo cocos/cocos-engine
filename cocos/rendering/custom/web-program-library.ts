@@ -788,7 +788,7 @@ export function getOrCreateProgramDescriptorSetLayout (
     rate: UpdateFrequency,
 ): DescriptorSetLayout {
     assert(rate < UpdateFrequency.PER_PHASE);
-    const phase = lg.getRenderPhase(phaseID);
+    const phase = lg.j<RenderPhaseData>(phaseID);
     const programID = phase.shaderIndex.get(programName);
     if (programID === undefined) {
         return getEmptyDescriptorSetLayout();
@@ -815,7 +815,7 @@ export function getProgramDescriptorSetLayout (
     rate: UpdateFrequency,
 ): DescriptorSetLayout | null {
     assert(rate < UpdateFrequency.PER_PHASE);
-    const phase = lg.getRenderPhase(phaseID);
+    const phase = lg.j<RenderPhaseData>(phaseID);
     const programID = phase.shaderIndex.get(programName);
     if (programID === undefined) {
         return null;
@@ -930,7 +930,7 @@ export class WebProgramLibrary implements ProgramLibrary {
             populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_PHASE, info);
             populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_BATCH, info);
             populatePipelineLayoutInfo(phaseLayout, UpdateFrequency.PER_INSTANCE, info);
-            const phase = lg.getRenderPhase(phaseID);
+            const phase = lg.j<RenderPhaseData>(phaseID);
             phase.pipelineLayout = this.device.createPipelineLayout(info);
         }
 
@@ -989,7 +989,7 @@ export class WebProgramLibrary implements ProgramLibrary {
                 // collect program descriptors
                 let programData: ShaderProgramData | null = null;
                 if (!this.mergeHighFrequency) {
-                    const phase = lg.getRenderPhase(phaseID);
+                    const phase = lg.j<RenderPhaseData>(phaseID);
                     programData = new ShaderProgramData();
                     buildProgramData(programName, srcShaderInfo, lg, phase, programData, this.fixedLocal);
                 }
@@ -1203,11 +1203,11 @@ export class WebProgramLibrary implements ProgramLibrary {
     getPipelineLayout (device: Device, phaseID: number, programName: string): PipelineLayout {
         if (this.mergeHighFrequency) {
             assert(phaseID !== INVALID_ID);
-            const layout = this.layoutGraph.getRenderPhase(phaseID);
+            const layout = this.layoutGraph.j<RenderPhaseData>(phaseID);
             return layout.pipelineLayout!;
         }
         const lg = this.layoutGraph;
-        const phase = lg.getRenderPhase(phaseID);
+        const phase = lg.j<RenderPhaseData>(phaseID);
         const programID = phase.shaderIndex.get(programName);
         if (programID === undefined) {
             return getEmptyPipelineLayout();

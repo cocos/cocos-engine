@@ -204,7 +204,7 @@ export class LayoutGraph implements BidirectionalGraph
         this.x.length = 0;
     }
     addVertex<T extends LayoutGraphValue> (
-        id: LayoutGraphValue,
+        id: T,
         object: LayoutGraphValueType[T],
         name: string,
         descriptors: DescriptorDB,
@@ -282,11 +282,8 @@ export class LayoutGraph implements BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getRenderStage (v: number): RenderPassType {
-        return this.x[v].j as RenderPassType;
-    }
-    getRenderPhase (v: number): RenderPhase {
-        return this.x[v].j as RenderPhase;
+    j<T extends LayoutGraphObject> (v: number): T {
+        return this.x[v].j as T;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -706,7 +703,7 @@ export class LayoutGraphData implements BidirectionalGraph
         this.x.length = 0;
     }
     addVertex<T extends LayoutGraphDataValue> (
-        id: LayoutGraphDataValue,
+        id: T,
         object: LayoutGraphDataValueType[T],
         name: string,
         update: UpdateFrequency,
@@ -794,11 +791,8 @@ export class LayoutGraphData implements BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getRenderStage (v: number): RenderStageData {
-        return this.x[v].j as RenderStageData;
-    }
-    getRenderPhase (v: number): RenderPhaseData {
-        return this.x[v].j as RenderPhaseData;
+    j<T extends LayoutGraphDataObject> (v: number): T {
+        return this.x[v].j as T;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -1101,10 +1095,10 @@ export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
         saveDescriptorDB(a, g.getDescriptors(v));
         switch (g.id(v)) {
         case LayoutGraphValue.RenderStage:
-            a.n(g.getRenderStage(v));
+            a.n(g.x[v].j as RenderPassType);
             break;
         case LayoutGraphValue.RenderPhase:
-            saveRenderPhase(a, g.getRenderPhase(v));
+            saveRenderPhase(a, g.x[v].j as RenderPhase);
             break;
         default:
             break;
@@ -1471,10 +1465,10 @@ export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void
         savePipelineLayoutData(a, g.getLayout(v));
         switch (g.id(v)) {
         case LayoutGraphDataValue.RenderStage:
-            saveRenderStageData(a, g.getRenderStage(v));
+            saveRenderStageData(a, g.x[v].j as RenderStageData);
             break;
         case LayoutGraphDataValue.RenderPhase:
-            saveRenderPhaseData(a, g.getRenderPhase(v));
+            saveRenderPhaseData(a, g.x[v].j as RenderPhaseData);
             break;
         default:
             break;

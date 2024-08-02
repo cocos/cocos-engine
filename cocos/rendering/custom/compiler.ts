@@ -122,7 +122,7 @@ class PassVisitor implements RenderGraphVisitor {
         if (!this.context.renderGraph.holds(RenderGraphValue.Scene, u)) {
             return null;
         }
-        return this.context.renderGraph.getScene(u);
+        return this.context.renderGraph.j<SceneData>(u);
     }
     protected _isScene (u: number): boolean {
         return this.context.renderGraph.holds(RenderGraphValue.Scene, u);

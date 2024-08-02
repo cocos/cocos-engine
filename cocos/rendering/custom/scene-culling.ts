@@ -9,7 +9,7 @@ import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { hashCombineStr, getSubpassOrPassID, bool, AlignUp, SetLightUBO } from './define';
 import { LayoutGraphData } from './layout-graph';
-import { CullingFlags, RenderGraph, RenderGraphValue, SceneData } from './render-graph';
+import { CullingFlags, RenderGraph, RenderGraphValue, SceneData, RenderQueue as RenderQueue0 } from './render-graph';
 import { SceneFlags } from './types';
 import { RenderQueue, RenderQueueDesc, instancePool } from './web-pipeline-types';
 import { ObjectPool } from './utils';
@@ -322,7 +322,7 @@ export class SceneCulling {
     // target id
     numRenderQueues = 0;
     layoutGraph;
-    renderGraph;
+    renderGraph!: RenderGraph;
     enableLightCulling = true;
     resetPool (): void {
         const cullingPools = this.cullingPools;
@@ -400,7 +400,7 @@ export class SceneCulling {
     }
 
     private getOrCreateFrustumCulling (sceneId: number): number {
-        const sceneData: SceneData = this.renderGraph.getScene(sceneId);
+        const sceneData: SceneData = this.renderGraph.j<SceneData>(sceneId);
         const scene = sceneData.scene!;
         let queries = this.frustumCullings.get(scene);
         if (!queries) {
@@ -453,7 +453,7 @@ export class SceneCulling {
             if (!rg.holds(RenderGraphValue.Scene, v) || !rg.getValid(v)) {
                 continue;
             }
-            const sceneData = rg.getScene(v);
+            const sceneData = rg.j<SceneData>(v);
             if (!sceneData.scene) {
                 assert(!!sceneData.scene);
                 continue;
@@ -484,7 +484,7 @@ export class SceneCulling {
         const rg: RenderGraph = this.renderGraph;
         const renderQueueId = rg.getParent(scene);
         assert(rg.holds(RenderGraphValue.Queue, renderQueueId));
-        const graphRenderQueue = rg.getQueue(renderQueueId);
+        const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
         return graphRenderQueue.phaseID;
     }
 
@@ -647,7 +647,7 @@ export class SceneCulling {
             const frustomCulledResultID = desc.frustumCulledResultID;
             const lightBoundsCullingID = desc.lightBoundsCulledResultID;
             const targetId = desc.renderQueueTarget;
-            const sceneData = rg.getScene(sceneId);
+            const sceneData = rg.j<SceneData>(sceneId);
             const isDrawBlend: boolean = bool(sceneData.flags & SceneFlags.TRANSPARENT_OBJECT);
             const isDrawOpaqueOrMask: boolean = bool(sceneData.flags & (SceneFlags.OPAQUE_OBJECT | SceneFlags.CUTOUT_OBJECT));
             const isDrawShadowCaster: boolean = bool(sceneData.flags & SceneFlags.SHADOW_CASTER);
@@ -658,7 +658,7 @@ export class SceneCulling {
             // render queue info
             const renderQueueId = rg.getParent(sceneId);
             assert(rg.holds(RenderGraphValue.Queue, renderQueueId));
-            const graphRenderQueue = rg.getQueue(renderQueueId);
+            const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
             const phaseLayoutId = graphRenderQueue.phaseID;
             assert(phaseLayoutId !== this.layoutGraph.nullVertex());
 
