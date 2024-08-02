@@ -94,9 +94,13 @@ export class LayoutGraphVertex {
         this.t = id;
         this.j = object;
     }
+    /** Out edge list */
     readonly o: OutE[] = [];
+    /** In edge list */
     readonly i: OutE[] = [];
+    /** Polymorphic object Id */
     readonly t: LayoutGraphValue;
+    /** Polymorphic object */
     j: LayoutGraphObject;
 }
 //-----------------------------------------------------------------
@@ -583,9 +587,13 @@ export class LayoutGraphDataVertex {
         this.t = id;
         this.j = object;
     }
+    /** Out edge list */
     readonly o: OutE[] = [];
+    /** In edge list */
     readonly i: OutE[] = [];
+    /** Polymorphic object Id */
     readonly t: LayoutGraphDataValue;
+    /** Polymorphic object */
     j: LayoutGraphDataObject;
 }
 //-----------------------------------------------------------------

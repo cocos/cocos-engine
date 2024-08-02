@@ -285,7 +285,9 @@ export class Subpass {
 //=================================================================
 // Graph Concept
 export class SubpassGraphVertex {
+    /** Out edge list */
     readonly o: OutE[] = [];
+    /** In edge list */
     readonly i: OutE[] = [];
 }
 //-----------------------------------------------------------------
@@ -631,9 +633,13 @@ export class ResourceGraphVertex {
         this.t = id;
         this.j = object;
     }
+    /** Out edge list */
     readonly o: OutE[] = [];
+    /** In edge list */
     readonly i: OutE[] = [];
+    /** Polymorphic object Id */
     readonly t: ResourceGraphValue;
+    /** Polymorphic object */
     j: ResourceGraphObject;
 }
 //-----------------------------------------------------------------
@@ -1228,11 +1234,17 @@ export class RenderGraphVertex {
         this.t = id;
         this.j = object;
     }
+    /** Out edge list */
     readonly o: OutE[] = [];
+    /** In edge list */
     readonly i: OutE[] = [];
+    /** Child edge list */
     readonly c: OutE[] = [];
+    /** Parent edge list */
     readonly p: OutE[] = [];
+    /** Polymorphic object Id */
     readonly t: RenderGraphValue;
+    /** Polymorphic object */
     j: RenderGraphObject;
 }
 //-----------------------------------------------------------------
