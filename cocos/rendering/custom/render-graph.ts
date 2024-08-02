@@ -756,7 +756,7 @@ export class ResourceGraph implements BidirectionalGraph
         this.x.length = 0;
     }
     addVertex<T extends ResourceGraphValue> (
-        id: ResourceGraphValue,
+        id: T,
         object: ResourceGraphValueType[T],
         name: string,
         desc: ResourceDesc,
@@ -873,32 +873,8 @@ export class ResourceGraph implements BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getManaged (v: number): ManagedResource {
-        return this.x[v].j as ManagedResource;
-    }
-    getManagedBuffer (v: number): ManagedBuffer {
-        return this.x[v].j as ManagedBuffer;
-    }
-    getManagedTexture (v: number): ManagedTexture {
-        return this.x[v].j as ManagedTexture;
-    }
-    getPersistentBuffer (v: number): PersistentBuffer {
-        return this.x[v].j as PersistentBuffer;
-    }
-    getPersistentTexture (v: number): PersistentTexture {
-        return this.x[v].j as PersistentTexture;
-    }
-    getFramebuffer (v: number): Framebuffer {
-        return this.x[v].j as Framebuffer;
-    }
-    getSwapchain (v: number): RenderSwapchain {
-        return this.x[v].j as RenderSwapchain;
-    }
-    getFormatView (v: number): FormatView {
-        return this.x[v].j as FormatView;
-    }
-    getSubresourceView (v: number): SubresourceView {
-        return this.x[v].j as SubresourceView;
+    j<T extends ResourceGraphObject> (v: number): T {
+        return this.x[v].j as T;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -1372,7 +1348,7 @@ export class RenderGraph implements BidirectionalGraph
         this.x.length = 0;
     }
     addVertex<T extends RenderGraphValue> (
-        id: RenderGraphValue,
+        id: T,
         object: RenderGraphValueType[T],
         name: string,
         layout: string,
@@ -1497,47 +1473,8 @@ export class RenderGraph implements BidirectionalGraph
             throw Error('polymorphic type not found');
         }
     }
-    getRasterPass (v: number): RasterPass {
-        return this.x[v].j as RasterPass;
-    }
-    getRasterSubpass (v: number): RasterSubpass {
-        return this.x[v].j as RasterSubpass;
-    }
-    getComputeSubpass (v: number): ComputeSubpass {
-        return this.x[v].j as ComputeSubpass;
-    }
-    getCompute (v: number): ComputePass {
-        return this.x[v].j as ComputePass;
-    }
-    getResolve (v: number): ResolvePass {
-        return this.x[v].j as ResolvePass;
-    }
-    getCopy (v: number): CopyPass {
-        return this.x[v].j as CopyPass;
-    }
-    getMove (v: number): MovePass {
-        return this.x[v].j as MovePass;
-    }
-    getRaytrace (v: number): RaytracePass {
-        return this.x[v].j as RaytracePass;
-    }
-    getQueue (v: number): RenderQueue {
-        return this.x[v].j as RenderQueue;
-    }
-    getScene (v: number): SceneData {
-        return this.x[v].j as SceneData;
-    }
-    getBlit (v: number): Blit {
-        return this.x[v].j as Blit;
-    }
-    getDispatch (v: number): Dispatch {
-        return this.x[v].j as Dispatch;
-    }
-    getClear (v: number): ClearView[] {
-        return this.x[v].j as ClearView[];
-    }
-    getViewport (v: number): Viewport {
-        return this.x[v].j as Viewport;
+    j<T extends RenderGraphObject> (v: number): T {
+        return this.x[v].j as T;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
