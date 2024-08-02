@@ -40,6 +40,10 @@ export const BLOOM_UPSAMPLEPASS_INDEX = BLOOM_DOWNSAMPLEPASS_INDEX + MAX_BLOOM_F
 export const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 export class DeferredPipelineSceneData extends PipelineSceneData {
     protected _antiAliasing: AntiAliasing = AntiAliasing.NONE;
+
+    constructor () {
+        super();
+    }
     set antiAliasing (value: AntiAliasing) {
         this._antiAliasing = value;
         if (this._postprocessMaterial) {

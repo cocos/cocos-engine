@@ -61,6 +61,10 @@ export class WebGLCommandBuffer extends CommandBuffer {
     protected _curDynamicStates: DynamicStates = new DynamicStates();
     protected _isStateInvalied = false;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<CommandBufferInfo>): void {
         this._type = info.type;
         this._queue = info.queue;

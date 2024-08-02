@@ -61,6 +61,9 @@ const _windowInfo: IRenderWindowInfo = {
 @ccclass('cc.RenderTexture')
 export class RenderTexture extends TextureBase {
     private _window: RenderWindow | null = null;
+    constructor () {
+        super();
+    }
 
     /**
      * @en The render window for the render pipeline, it's created internally and cannot be modified.

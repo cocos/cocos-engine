@@ -128,6 +128,10 @@ export class TextureCube extends SimpleTexture {
     @serializable
     _mipmapMode = MipmapMode.NONE;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
      * When setup mipmap, the size of the texture and pixel format could be modified.

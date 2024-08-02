@@ -39,6 +39,11 @@ export class WebGLFramebuffer extends Framebuffer {
     private _gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
     private _gpuColorTextures: (WebGLTexture | null)[] = [];
     private _gpuDepthStencilTexture: WebGLTexture | null | undefined;
+
+    constructor () {
+        super();
+    }
+
     get needRebuild (): boolean {
         if (this.gpuFramebuffer) {
             for (let i = 0; i < this.gpuFramebuffer.gpuColorTextures.length; i++) {

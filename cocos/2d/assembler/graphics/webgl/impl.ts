@@ -38,6 +38,10 @@ export class Point extends Vec2 {
     public flags = 0;
     public len = 0;
 
+    constructor () {
+        super();
+    }
+
     public reset (): void {
         this.dx = 0;
         this.dy = 0;

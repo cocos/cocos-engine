@@ -389,6 +389,10 @@ export class Game extends EventTarget {
      */
     public onStart: Game.OnStart | null = null;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en Indicates whether the engine and the renderer has been initialized
      * @zh 引擎和渲染器是否以完成初始化

@@ -51,6 +51,10 @@ const PIPELINE_TYPE = 1;
 export class DeferredRenderData extends PipelineRenderData {
     gbufferFrameBuffer: Framebuffer = null!;
     gbufferRenderTargets: Texture[] = [];
+
+    constructor () {
+        super();
+    }
 }
 
 /**
@@ -66,6 +70,10 @@ export class DeferredPipeline extends RenderPipeline {
     @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: IRenderPipelineInfo): boolean {
         super.initialize(info);

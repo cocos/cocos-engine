@@ -766,6 +766,11 @@ class ContentStrategy {
  */
 class EqualToFrame extends ContainerStrategy {
     public name = 'EqualToFrame';
+
+    constructor () {
+        super();
+    }
+
     public apply (_view, designedResolution): void {
         screenAdapter.isProportionalToFrame = false;
         this._setupCanvas();
@@ -778,6 +783,10 @@ class EqualToFrame extends ContainerStrategy {
      */
 class ProportionalToFrame extends ContainerStrategy {
     public name = 'ProportionalToFrame';
+    constructor () {
+        super();
+    }
+
     public apply (_view, designedResolution): void {
         screenAdapter.isProportionalToFrame = true;
         this._setupCanvas();

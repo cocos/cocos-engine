@@ -167,6 +167,10 @@ enum EventType {
 @executionOrder(110)
 @menu('2D/Sprite')
 export class Sprite extends UIRenderer {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * The sprite atlas where the sprite is.

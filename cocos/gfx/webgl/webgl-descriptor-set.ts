@@ -37,6 +37,10 @@ export class WebGLDescriptorSet extends DescriptorSet {
 
     private _gpuDescriptorSet: IWebGLGPUDescriptorSet | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<DescriptorSetInfo>): void {
         this._layout = info.layout;
         const { bindings, descriptorIndices, descriptorCount } = (info.layout as WebGLDescriptorSetLayout).gpuDescriptorSetLayout;

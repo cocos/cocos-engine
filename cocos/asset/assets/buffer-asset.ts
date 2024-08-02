@@ -37,6 +37,10 @@ import { Asset } from './asset';
 export class BufferAsset extends Asset {
     private _buffer: ArrayBuffer | null = null;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */

@@ -53,6 +53,10 @@ export class DynamicAtlasManager extends System {
 
     private _enabled = false;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Enable or disable the dynamic atlas.

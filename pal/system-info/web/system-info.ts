@@ -43,9 +43,9 @@ class SystemInfo extends EventTarget {
     public declare readonly browserType: BrowserType;
     public declare readonly browserVersion: string;
     public declare readonly isXR: boolean;
-    private _battery?: any;
-    private _featureMap: IFeatureMap;
-    private _initPromise: Promise<void>[];
+    private _battery: any = null;
+    private declare _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[] = [];
 
     constructor () {
         super();
@@ -251,7 +251,6 @@ class SystemInfo extends EventTarget {
             [Feature.WASM]: supportWasm,
         };
 
-        this._initPromise = [];
         this._initPromise.push(this._supportsImageBitmapPromise());
 
         this._registerEvent();

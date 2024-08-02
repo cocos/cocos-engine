@@ -48,6 +48,10 @@ export class WebGLBuffer extends Buffer {
     private _gpuBufferView: IWebGLGPUBufferView | null = null;
     private _uniformBuffer: Uint8Array | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<BufferInfo> | Readonly<BufferViewInfo>): void {
         if ('buffer' in info) { // buffer view
             this._isBufferView = true;

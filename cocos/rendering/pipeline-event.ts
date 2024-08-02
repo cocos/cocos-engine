@@ -76,6 +76,10 @@ export class PipelineEventProcessor extends EventTarget implements IPipelineEven
     public eventTargetOn = super.on;
     public eventTargetOnce = super.once;
 
+    constructor () {
+        super();
+    }
+
     public on<TFunction extends PipelineEventCallback> (
         type: PipelineEventType,
         callback: TFunction,

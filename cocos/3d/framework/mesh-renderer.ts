@@ -146,6 +146,10 @@ class ModelBakeSettings extends EventTarget {
     public probeBlendCubemap: TextureCube | null = null;
     public probePlanarmap: Texture | null = null;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en Whether the model is static and bake-able with light map.
      * Notice: the model's vertex data must have the second UV attribute to enable light map baking.

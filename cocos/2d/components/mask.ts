@@ -121,6 +121,10 @@ export class Mask extends Component {
      */
     public static Type = MaskType;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * The mask type.

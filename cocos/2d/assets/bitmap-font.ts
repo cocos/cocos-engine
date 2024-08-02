@@ -138,6 +138,10 @@ export class BitmapFont extends Font {
      */
     public declare fontDefDictionary: FontAtlas;
 
+    constructor () {
+        super();
+    }
+
     onLoaded (): void {
         const spriteFrame = this.spriteFrame;
         if (!this.fontDefDictionary && spriteFrame) {

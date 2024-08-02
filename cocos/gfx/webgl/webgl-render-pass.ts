@@ -33,6 +33,10 @@ export class WebGLRenderPass extends RenderPass {
 
     private _gpuRenderPass: IWebGLGPURenderPass | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<RenderPassInfo>): void {
         this._colorInfos = info.colorAttachments;
         this._depthStencilInfo = info.depthStencilAttachment;

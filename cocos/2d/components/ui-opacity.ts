@@ -46,6 +46,10 @@ import { NodeEventType } from '../../scene-graph/node-event';
 @executeInEditMode
 @disallowMultiple
 export class UIOpacity extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * The parent node's opacity.

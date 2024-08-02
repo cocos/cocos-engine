@@ -40,6 +40,10 @@ export default class JsonAsset extends Asset {
     @serializable
     @editable
     public json: Record<string, any> | null = null;
+
+    constructor () {
+        super();
+    }
 }
 
 cclegacy.JsonAsset = JsonAsset;

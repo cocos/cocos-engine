@@ -325,6 +325,10 @@ export class EffectAsset extends Asset {
     @editorOnly
     public hideInEditor = false;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en The loaded callback which should be invoked by the [[AssetManager]], will automatically register the effect.
      * @zh 通过 [[AssetManager]] 加载完成时的回调，将自动注册 effect 资源。

@@ -39,13 +39,17 @@ export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
     private _usedMaterials = new Set<Material>();
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en Acquire the material's macro patches for the given sub model.
      * @zh 获取指定子模型的材质宏组合。
      * @param subModelIndex @en The index for the requested sub model. @zh 子模型的序号。
      * @returns @en The macro patches. @zh 材质宏组合
      */
-    public getMacroPatches (subModelIndex: number) : IMacroPatch[] | null {
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (this._morphRenderingInstance) {
             const morphInstanceMacroPatches = this._morphRenderingInstance.requiredPatches(subModelIndex);

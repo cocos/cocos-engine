@@ -68,6 +68,10 @@ import { IWebGLBindingMapping, IWebGLBlitManager } from './webgl-gpu-objects';
 import type { WebGLStateCache } from './webgl-state-cache';
 
 export class WebGLDevice extends Device {
+    constructor () {
+        super();
+    }
+
     get gl (): WebGLRenderingContext {
         return this._context!;
     }

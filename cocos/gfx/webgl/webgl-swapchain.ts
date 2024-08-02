@@ -233,6 +233,10 @@ export class WebGLSwapchain extends Swapchain {
     private _extensions: IWebGLExtensions | null = null;
     private _blitManager: IWebGLBlitManager | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<SwapchainInfo>): void {
         this._canvas = info.windowHandle;
 
@@ -311,7 +315,8 @@ export class WebGLSwapchain extends Swapchain {
         nullTexRegion.texSubres.layerCount = 6;
         WebGLDeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion],
+            this.nullTexCube,
+            [nullTexRegion],
         );
         this._blitManager = new IWebGLBlitManager();
     }
