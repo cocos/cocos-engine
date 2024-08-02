@@ -51,10 +51,10 @@ export class ClearValue {
         this.z = z;
         this.w = w;
     }
-    x: number;
-    y: number;
-    z: number;
-    w: number;
+    declare x: number;
+    declare y: number;
+    declare z: number;
+    declare w: number;
 }
 
 export class RasterView {
@@ -97,16 +97,16 @@ export class RasterView {
         this.slotID = 0;
         this.shaderStageFlags = shaderStageFlags;
     }
-    slotName: string;
+    declare slotName: string;
     slotName1 = '';
-    accessType: AccessType;
-    attachmentType: AttachmentType;
-    loadOp: LoadOp;
-    storeOp: StoreOp;
-    clearFlags: ClearFlagBit;
-    readonly clearColor: Color;
+    declare accessType: AccessType;
+    declare attachmentType: AttachmentType;
+    declare loadOp: LoadOp;
+    declare storeOp: StoreOp;
+    declare clearFlags: ClearFlagBit;
+    declare readonly clearColor: Color;
     slotID = 0;
-    shaderStageFlags: ShaderStageFlagBit;
+    declare shaderStageFlags: ShaderStageFlagBit;
 }
 
 export class ComputeView {
@@ -140,13 +140,13 @@ export class ComputeView {
         this.clearValue.reset(0, 0, 0, 0);
         this.shaderStageFlags = shaderStageFlags;
     }
-    name: string;
-    accessType: AccessType;
+    declare name: string;
+    declare accessType: AccessType;
     plane = 0;
-    clearFlags: ClearFlagBit;
-    clearValueType: ClearValueType;
-    readonly clearValue: ClearValue;
-    shaderStageFlags: ShaderStageFlagBit;
+    declare clearFlags: ClearFlagBit;
+    declare clearValueType: ClearValueType;
+    declare readonly clearValue: ClearValue;
+    declare shaderStageFlags: ShaderStageFlagBit;
 }
 
 export class ResourceDesc {
@@ -183,7 +183,7 @@ export class ResourceTraits {
     reset (residency: ResourceResidency): void {
         this.residency = residency;
     }
-    residency: ResourceResidency;
+    declare residency: ResourceResidency;
 }
 
 export class RenderSwapchain {
@@ -199,12 +199,12 @@ export class RenderSwapchain {
         this.generation = 0xFFFFFFFF;
         this.isDepthStencil = isDepthStencil;
     }
-    /*pointer*/ swapchain: Swapchain | null;
+    declare /*pointer*/ swapchain: Swapchain | null;
     /*pointer*/ renderWindow: RenderWindow | null = null;
     currentID = 0;
     numBackBuffers = 0;
     generation = 0xFFFFFFFF;
-    isDepthStencil: boolean;
+    declare isDepthStencil: boolean;
 }
 
 export class ResourceStates {
@@ -222,7 +222,7 @@ export class ManagedBuffer {
         this.buffer = buffer;
         this.fenceValue = 0;
     }
-    /*refcount*/ buffer: Buffer | null;
+    declare /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
 }
 
@@ -234,7 +234,7 @@ export class PersistentBuffer {
         this.buffer = buffer;
         this.fenceValue = 0;
     }
-    /*refcount*/ buffer: Buffer | null;
+    declare /*refcount*/ buffer: Buffer | null;
     fenceValue = 0;
 }
 
@@ -246,7 +246,7 @@ export class ManagedTexture {
         this.texture = texture;
         this.fenceValue = 0;
     }
-    /*refcount*/ texture: Texture | null;
+    declare /*refcount*/ texture: Texture | null;
     fenceValue = 0;
 }
 
@@ -258,7 +258,7 @@ export class PersistentTexture {
         this.texture = texture;
         this.fenceValue = 0;
     }
-    /*refcount*/ texture: Texture | null;
+    declare /*refcount*/ texture: Texture | null;
     fenceValue = 0;
 }
 
@@ -458,9 +458,9 @@ export class RasterSubpass {
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
     readonly resolvePairs: ResolvePair[] = [];
     readonly viewport: Viewport = new Viewport();
-    subpassID: number;
-    count: number;
-    quality: number;
+    declare subpassID: number;
+    declare count: number;
+    declare quality: number;
     showStatistics = false;
 }
 
@@ -475,7 +475,7 @@ export class ComputeSubpass {
     }
     readonly rasterViews: Map<string, RasterView> = new Map<string, RasterView>();
     readonly computeViews: Map<string, ComputeView[]> = new Map<string, ComputeView[]>();
-    subpassID: number;
+    declare subpassID: number;
 }
 
 export class RasterPass {
@@ -523,8 +523,8 @@ export class PersistentRenderPassAndFramebuffer {
         this.clearDepth = 0;
         this.clearStencil = 0;
     }
-    /*refcount*/ renderPass: RenderPass | null;
-    /*refcount*/ framebuffer: Framebuffer | null;
+    declare /*refcount*/ renderPass: RenderPass | null;
+    declare /*refcount*/ framebuffer: Framebuffer | null;
     readonly clearColors: Color[] = [];
     clearDepth = 0;
     clearStencil = 0;
@@ -998,9 +998,9 @@ export class ClearView {
         this.clearFlags = clearFlags;
         this.clearColor.reset();
     }
-    slotName: string;
-    clearFlags: ClearFlagBit;
-    readonly clearColor: Color;
+    declare slotName: string;
+    declare clearFlags: ClearFlagBit;
+    declare readonly clearColor: Color;
 }
 
 export class RenderQueue {
@@ -1015,9 +1015,9 @@ export class RenderQueue {
         this.passLayoutID = passLayoutID;
         this.viewport = null;
     }
-    hint: QueueHint;
-    phaseID: number;
-    passLayoutID: number;
+    declare hint: QueueHint;
+    declare phaseID: number;
+    declare passLayoutID: number;
     viewport: Viewport | null = null;
 }
 
@@ -1058,12 +1058,12 @@ export class SceneData {
         this.cullingFlags = cullingFlags;
         this.shadingLight = shadingLight;
     }
-    /*pointer*/ scene: RenderScene | null;
-    /*pointer*/ camera: Camera | null;
-    readonly light: LightInfo;
-    flags: SceneFlags;
-    cullingFlags: CullingFlags;
-    /*refcount*/ shadingLight: Light | null;
+    declare /*pointer*/ scene: RenderScene | null;
+    declare /*pointer*/ camera: Camera | null;
+    declare readonly light: LightInfo;
+    declare flags: SceneFlags;
+    declare cullingFlags: CullingFlags;
+    declare /*refcount*/ shadingLight: Light | null;
 }
 
 export class Dispatch {
@@ -1093,11 +1093,11 @@ export class Dispatch {
         this.threadGroupCountY = threadGroupCountY;
         this.threadGroupCountZ = threadGroupCountZ;
     }
-    /*refcount*/ material: Material | null;
-    passID: number;
-    threadGroupCountX: number;
-    threadGroupCountY: number;
-    threadGroupCountZ: number;
+    declare /*refcount*/ material: Material | null;
+    declare passID: number;
+    declare threadGroupCountX: number;
+    declare threadGroupCountY: number;
+    declare threadGroupCountZ: number;
 }
 
 export class Blit {
@@ -1113,10 +1113,10 @@ export class Blit {
         this.sceneFlags = sceneFlags;
         this.camera = camera;
     }
-    /*refcount*/ material: Material | null;
-    passID: number;
-    sceneFlags: SceneFlags;
-    /*pointer*/ camera: Camera | null;
+    declare /*refcount*/ material: Material | null;
+    declare passID: number;
+    declare sceneFlags: SceneFlags;
+    declare /*pointer*/ camera: Camera | null;
 }
 
 export class RenderData {

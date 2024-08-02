@@ -378,9 +378,9 @@ export class UniformData {
         this.offset = offset;
         this.size = 0;
     }
-    uniformID: number;
-    uniformType: Type;
-    offset: number;
+    declare uniformID: number;
+    declare uniformType: Type;
+    declare offset: number;
     size = 0;
 }
 
@@ -404,9 +404,9 @@ export class DescriptorData {
         this.type = type;
         this.count = count;
     }
-    descriptorID: number;
-    type: Type;
-    count: number;
+    declare descriptorID: number;
+    declare type: Type;
+    declare count: number;
 }
 
 export class DescriptorBlockData {
@@ -422,10 +422,10 @@ export class DescriptorBlockData {
         this.capacity = capacity;
         this.descriptors.length = 0;
     }
-    type: DescriptorTypeOrder;
-    visibility: ShaderStageFlagBit;
+    declare type: DescriptorTypeOrder;
+    declare visibility: ShaderStageFlagBit;
     offset = 0;
-    capacity: number;
+    declare capacity: number;
     readonly descriptors: DescriptorData[] = [];
 }
 
@@ -455,13 +455,13 @@ export class DescriptorSetLayoutData {
         this.uniformBlocks.clear();
         this.bindingMap.clear();
     }
-    slot: number;
-    capacity: number;
+    declare slot: number;
+    declare capacity: number;
     uniformBlockCapacity = 0;
     samplerTextureCapacity = 0;
-    readonly descriptorBlocks: DescriptorBlockData[];
-    readonly uniformBlocks: Map<number, UniformBlock>;
-    readonly bindingMap: Map<number, number>;
+    declare readonly descriptorBlocks: DescriptorBlockData[];
+    declare readonly uniformBlocks: Map<number, UniformBlock>;
+    declare readonly bindingMap: Map<number, number>;
 }
 
 export class DescriptorSetData {
@@ -476,10 +476,10 @@ export class DescriptorSetData {
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
-    readonly descriptorSetLayoutData: DescriptorSetLayoutData;
+    declare readonly descriptorSetLayoutData: DescriptorSetLayoutData;
     readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
-    /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
-    /*refcount*/ descriptorSet: DescriptorSet | null;
+    declare /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
+    declare /*refcount*/ descriptorSet: DescriptorSet | null;
 }
 
 export class PipelineLayoutData {
