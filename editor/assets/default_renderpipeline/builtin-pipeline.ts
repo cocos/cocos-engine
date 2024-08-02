@@ -1465,7 +1465,10 @@ if (rendering) {
             mainLight: renderer.scene.DirectionalLight | null,
             scene: renderer.RenderScene | null,
         ): void {
-            const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+            const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager | undefined;
+            if (!reflectionProbeManager) {
+                return;
+            }
             const probes = reflectionProbeManager.getProbes();
             const maxProbeCount = 4;
             let probeID = 0;
