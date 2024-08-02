@@ -24,6 +24,7 @@
 
 declare const render: any;
 
+import zlib from '../../../external/compression/zlib.min';
 import { Pipeline, PipelineBuilder, RenderingModule } from './pipeline';
 import { Device } from '../../gfx';
 import { forceResizeAllWindows } from './framework';
@@ -62,7 +63,9 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 
 export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
     if (arrayBuffer) {
-        _renderModule = render.Factory.init(device, arrayBuffer);
+        const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer));
+        const decompressed = inflator.decompress() as Uint16Array;
+        _renderModule = render.Factory.init(device, decompressed.buffer);
     } else {
         _renderModule = render.Factory.init(device, new ArrayBuffer(0));
     }
