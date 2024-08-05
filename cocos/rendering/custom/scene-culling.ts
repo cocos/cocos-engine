@@ -450,7 +450,7 @@ export class SceneCulling {
 
     private collectCullingQueries (rg: RenderGraph, lg: LayoutGraphData): void {
         for (const v of rg.vertices()) {
-            if (!rg.holds(RenderGraphValue.Scene, v) || !rg.getValid(v)) {
+            if (!rg.h(RenderGraphValue.Scene, v) || !rg.getValid(v)) {
                 continue;
             }
             const sceneData = rg.j<SceneData>(v);
@@ -483,7 +483,7 @@ export class SceneCulling {
     private _getPhaseIdFromScene (scene: number): number {
         const rg: RenderGraph = this.renderGraph;
         const renderQueueId = rg.getParent(scene);
-        assert(rg.holds(RenderGraphValue.Queue, renderQueueId));
+        assert(rg.h(RenderGraphValue.Queue, renderQueueId));
         const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
         return graphRenderQueue.phaseID;
     }
@@ -643,7 +643,7 @@ export class SceneCulling {
 
     private fillRenderQueues (rg: RenderGraph, pplSceneData: PipelineSceneData): void {
         for (const [sceneId, desc] of this.renderQueueIndex) {
-            assert(rg.holds(RenderGraphValue.Scene, sceneId));
+            assert(rg.h(RenderGraphValue.Scene, sceneId));
             const frustomCulledResultID = desc.frustumCulledResultID;
             const lightBoundsCullingID = desc.lightBoundsCulledResultID;
             const targetId = desc.renderQueueTarget;
@@ -657,7 +657,7 @@ export class SceneCulling {
             }
             // render queue info
             const renderQueueId = rg.getParent(sceneId);
-            assert(rg.holds(RenderGraphValue.Queue, renderQueueId));
+            assert(rg.h(RenderGraphValue.Queue, renderQueueId));
             const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
             const phaseLayoutId = graphRenderQueue.phaseID;
             assert(phaseLayoutId !== this.layoutGraph.N);

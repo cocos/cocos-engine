@@ -885,7 +885,7 @@ export class WebProgramLibrary implements ProgramLibrary {
     constructor (lg: LayoutGraphData) {
         this.layoutGraph = lg;
         for (const v of lg.vertices()) {
-            if (lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+            if (lg.h(LayoutGraphDataValue.RenderPhase, v)) {
                 this.phases.set(v, new ProgramGroup());
             }
         }
@@ -918,7 +918,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         }
 
         for (const v of lg.vertices()) {
-            if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+            if (!lg.h(LayoutGraphDataValue.RenderPhase, v)) {
                 continue;
             }
             const phaseID = v;

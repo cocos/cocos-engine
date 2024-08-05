@@ -147,7 +147,7 @@ export class PrintVisitor extends DefaultVisitor {
         const name: string = g._names[u];
         const freq: UpdateFrequency = g._updateFrequencies[u];
         this.oss += `${this.space}"${name}": `;
-        if (g.holds(LayoutGraphDataValue.RenderStage, u)) {
+        if (g.h(LayoutGraphDataValue.RenderStage, u)) {
             this.oss += `RenderStage {\n`;
         } else {
             this.oss += `RenderPhase {\n`;
@@ -285,7 +285,7 @@ class LayoutGraphPrintVisitor extends DefaultVisitor {
         const name = g.getName(v);
 
         this.oss += `${this.space}"${name}": `;
-        switch (g.id(v)) {
+        switch (g.w(v)) {
         case LayoutGraphValue.RenderStage:
             this.oss += `RenderStage {\n`;
             break;
@@ -801,14 +801,14 @@ export class LayoutGraphInfo {
         const visMap = new Map<number, VisibilityDB>();
         // merge phase to pass
         for (const v of lg.vertices()) {
-            if (lg.id(v) === LayoutGraphValue.RenderStage) {
+            if (lg.w(v) === LayoutGraphValue.RenderStage) {
                 // create visibility database
                 visMap.set(v, new VisibilityDB());
                 continue;
             }
             const phaseID = v;
             const parentID = lg.getParent(phaseID);
-            if (lg.id(parentID) !== LayoutGraphValue.RenderStage) {
+            if (lg.w(parentID) !== LayoutGraphValue.RenderStage) {
                 error(`phase: ${lg.getName(phaseID)} has no parent stage`);
                 return 1;
             }
@@ -833,12 +833,12 @@ export class LayoutGraphInfo {
         }
         // build phase decriptors
         for (const v of lg.vertices()) {
-            if (lg.id(v) === LayoutGraphValue.RenderStage) {
+            if (lg.w(v) === LayoutGraphValue.RenderStage) {
                 continue;
             }
             const phaseID = v;
             const parentID = lg.getParent(phaseID);
-            if (lg.id(parentID) !== LayoutGraphValue.RenderStage) {
+            if (lg.w(parentID) !== LayoutGraphValue.RenderStage) {
                 error(`phase: ${lg.getName(phaseID)} has no parent stage`);
                 return 1;
             }
@@ -888,7 +888,7 @@ export class LayoutGraphInfo {
         // update pass
         for (const passID of lg.vertices()) {
             // skip RenderPhase
-            if (lg.id(passID) !== LayoutGraphValue.RenderStage) {
+            if (lg.w(passID) !== LayoutGraphValue.RenderStage) {
                 continue;
             }
             // skip RENDER_PASS
@@ -902,7 +902,7 @@ export class LayoutGraphInfo {
             // update children phases
             for (const e of lg.children(passID)) {
                 const phaseID = lg.child(e);
-                if (lg.id(phaseID) !== LayoutGraphValue.RenderPhase) {
+                if (lg.w(phaseID) !== LayoutGraphValue.RenderPhase) {
                     error(`pass: ${lg.getName(passID)} is not single_render_pass or render_subpass`);
                     return 1;
                 }
@@ -953,7 +953,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
         let minLevel = UpdateFrequency.PER_INSTANCE;
         let maxLevel = UpdateFrequency.PER_PASS;
         let isRenderPass = false;
-        switch (graph.id(v)) {
+        switch (graph.w(v)) {
         case LayoutGraphValue.RenderStage: {
             const type = graph.j<RenderPassType>(v);
             const parentID = graph.getParent(v);

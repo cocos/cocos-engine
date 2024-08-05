@@ -243,10 +243,10 @@ export class LayoutGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
-    holds (id: LayoutGraphValue, v: number): boolean {
+    h (id: LayoutGraphValue, v: number): boolean {
         return this.x[v].t === id;
     }
-    id (v: number): LayoutGraphValue {
+    w (v: number): LayoutGraphValue {
         return this.x[v].t;
     }
     object (v: number): LayoutGraphObject {
@@ -738,10 +738,10 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
-    holds (id: LayoutGraphDataValue, v: number): boolean {
+    h (id: LayoutGraphDataValue, v: number): boolean {
         return this.x[v].t === id;
     }
-    id (v: number): LayoutGraphDataValue {
+    w (v: number): LayoutGraphDataValue {
         return this.x[v].t;
     }
     object (v: number): LayoutGraphDataObject {
@@ -1049,7 +1049,7 @@ export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
     let numStages = 0;
     let numPhases = 0;
     for (const v of g.vertices()) {
-        switch (g.id(v)) {
+        switch (g.w(v)) {
         case LayoutGraphValue.RenderStage:
             numStages += 1;
             break;
@@ -1063,11 +1063,11 @@ export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
     a.n(numStages);
     a.n(numPhases);
     for (const v of g.vertices()) {
-        a.n(g.id(v));
+        a.n(g.w(v));
         a.n(g.getParent(v));
         a.s(g.getName(v));
         saveDescriptorDB(a, g.getDescriptors(v));
-        switch (g.id(v)) {
+        switch (g.w(v)) {
         case LayoutGraphValue.RenderStage:
             a.n(g.x[v].j as RenderPassType);
             break;
@@ -1418,7 +1418,7 @@ export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void
     let numStages = 0;
     let numPhases = 0;
     for (const v of g.vertices()) {
-        switch (g.id(v)) {
+        switch (g.w(v)) {
         case LayoutGraphDataValue.RenderStage:
             numStages += 1;
             break;
@@ -1432,12 +1432,12 @@ export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void
     a.n(numStages);
     a.n(numPhases);
     for (const v of g.vertices()) {
-        a.n(g.id(v));
+        a.n(g.w(v));
         a.n(g.getParent(v));
         a.s(g.getName(v));
         a.n(g.getUpdate(v));
         savePipelineLayoutData(a, g.getLayout(v));
-        switch (g.id(v)) {
+        switch (g.w(v)) {
         case LayoutGraphDataValue.RenderStage:
             saveRenderStageData(a, g.x[v].j as RenderStageData);
             break;
