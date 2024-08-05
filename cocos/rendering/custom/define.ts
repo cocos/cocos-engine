@@ -484,7 +484,7 @@ export function getDescriptorSetDataFromLayout (layoutName: string): DescriptorS
         return descLayout;
     }
     const webPip = cclegacy.director.root.pipeline as WebPipeline;
-    const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.nullVertex(), layoutName);
+    const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.N, layoutName);
     assert(stageId !== 0xFFFFFFFF);
     const layout = webPip.layoutGraph.getLayout(stageId);
     const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
@@ -798,27 +798,27 @@ export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: Layout
     const subpassOrPassID = rg.getParent(queueId);
     assert(subpassOrPassID !== 0xFFFFFFFF);
     const passId = rg.getParent(subpassOrPassID);
-    let layoutId = lg.nullVertex();
+    let layoutId = lg.N;
     // single render pass
-    if (passId === rg.nullVertex()) {
+    if (passId === rg.N) {
         const layoutName: string = rg.getLayout(subpassOrPassID);
         assert(!!layoutName);
-        layoutId = lg.locateChild(lg.nullVertex(), layoutName);
+        layoutId = lg.locateChild(lg.N, layoutName);
     } else {
         const passLayoutName: string = rg.getLayout(passId);
         assert(!!passLayoutName);
-        const passLayoutId = lg.locateChild(lg.nullVertex(), passLayoutName);
-        assert(passLayoutId !== lg.nullVertex());
+        const passLayoutId = lg.locateChild(lg.N, passLayoutName);
+        assert(passLayoutId !== lg.N);
 
         const subpassLayoutName: string = rg.getLayout(subpassOrPassID);
         if (subpassLayoutName.length === 0) {
             layoutId = passLayoutId;
         } else {
             const subpassLayoutId = lg.locateChild(passLayoutId, subpassLayoutName);
-            assert(subpassLayoutId !== lg.nullVertex());
+            assert(subpassLayoutId !== lg.N);
             layoutId = subpassLayoutId;
         }
     }
-    assert(layoutId !== lg.nullVertex());
+    assert(layoutId !== lg.N);
     return layoutId;
 }

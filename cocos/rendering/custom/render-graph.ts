@@ -313,8 +313,8 @@ export class SubpassGraph implements BidirectionalGraph
 , ComponentGraph {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
     //-----------------------------------------------------------------
     // IncidenceGraph
@@ -659,8 +659,8 @@ export class ResourceGraph implements BidirectionalGraph
 , UuidGraph<string> {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
     //-----------------------------------------------------------------
     // IncidenceGraph
@@ -1239,8 +1239,8 @@ export class RenderGraph implements BidirectionalGraph
 , MutableReferenceGraph {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
     //-----------------------------------------------------------------
     // IncidenceGraph

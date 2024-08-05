@@ -936,14 +936,14 @@ class DeviceRenderPass implements RecordingInterface {
         const stageName = context.renderGraph.getLayout(this.rasterPassInfo.id);
         if (stageName) {
             const layoutGraph = context.layoutGraph;
-            const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
+            const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
                 this._layout = new RenderPassLayoutInfo(stageId, this.rasterPassInfo.id, input);
             }
         }
     }
     getGlobalDescData (): DescriptorSetData {
-        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         assert(stageId !== 0xFFFFFFFF);
         const layout = context.layoutGraph.getLayout(stageId);
         const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
@@ -1194,14 +1194,14 @@ class DeviceComputePass implements RecordingInterface {
         const stageName = context.renderGraph.getLayout(this._computeInfo.id);
         if (stageName) {
             const layoutGraph = context.layoutGraph;
-            const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
+            const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
                 this._layout = new RenderPassLayoutInfo(stageId, this._computeInfo.id, input);
             }
         }
     }
     getGlobalDescData (): DescriptorSetData {
-        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         assert(stageId !== 0xFFFFFFFF);
         const layout = context.layoutGraph.getLayout(stageId);
         const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;

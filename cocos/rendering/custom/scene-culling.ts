@@ -660,7 +660,7 @@ export class SceneCulling {
             assert(rg.holds(RenderGraphValue.Queue, renderQueueId));
             const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
             const phaseLayoutId = graphRenderQueue.phaseID;
-            assert(phaseLayoutId !== this.layoutGraph.nullVertex());
+            assert(phaseLayoutId !== this.layoutGraph.N);
 
             // culling source
             assert(frustomCulledResultID < this.frustumCullingResults.length);
