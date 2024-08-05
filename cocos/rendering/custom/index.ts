@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import zlib from '../../../external/compression/zlib.min';
 import { BasicPipeline, PipelineBuilder } from './pipeline';
 import { WebPipeline } from './web-pipeline';
 import { macro } from '../../core/platform/macro';
@@ -74,7 +75,9 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 
 export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
     if (arrayBuffer) {
-        const readBinaryData = new BinaryInputArchive(arrayBuffer);
+        const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer));
+        const decompressed = inflator.decompress() as Uint16Array;
+        const readBinaryData = new BinaryInputArchive(decompressed.buffer);
         loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
     }
     initializeLayoutGraphData(device, defaultLayoutGraph);
