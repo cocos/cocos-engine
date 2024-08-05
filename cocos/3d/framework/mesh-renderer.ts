@@ -308,7 +308,7 @@ export class MeshRenderer extends ModelRenderer {
     @editable
     @disallowAnimation
     @displayOrder(3)
-    public bakeSettings = new ModelBakeSettings(this);
+    public bakeSettings = new ModelBakeSettings();
 
     @serializable
     protected _mesh: Mesh | null = null;

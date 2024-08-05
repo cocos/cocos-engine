@@ -37,7 +37,8 @@ interface IMemoryPool<P extends PoolType> {
 }
 
 // a little hacky, but works (different specializations should not be assignable to each other)
-interface IHandle<P extends PoolType> extends number {
+// eslint-disable-next-line @typescript-eslint/ban-types
+interface IHandle<P extends PoolType> extends Number {
     // we make this non-optional so that even plain numbers would not be directly assignable to handles.
     // this strictness will introduce some casting hassle in the pool implementation itself
     // but becomes generally more useful for client code type checking.
