@@ -397,7 +397,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._subpass = subpass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     update (
@@ -415,7 +415,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._subpass = subpass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     addRenderTarget (name: string, accessType: AccessType, slotName?: string | undefined, loadOp?: LoadOp | undefined, storeOp?: StoreOp | undefined, color?: Color | undefined): void {
@@ -481,7 +481,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._vertID = vertID;
         this._pass = pass;
         this._pipeline = pipeline;
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     update (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData): void {
@@ -492,7 +492,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pass = pass;
         this._pipeline = pipeline;
         this._data = data;
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
 
@@ -732,7 +732,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._pass = pass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     update (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: ComputePass, pipeline: PipelineSceneData): void {
@@ -744,7 +744,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._pass = pass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {

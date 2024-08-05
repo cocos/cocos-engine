@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, traversal } from './graph';
+import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, VertexListGraph, findRelative, getPath } from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
 import { OutputArchive, InputArchive } from './archive';
@@ -133,12 +133,6 @@ export class LayoutGraph implements BidirectionalGraph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
@@ -240,16 +234,6 @@ export class LayoutGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends LayoutGraphComponent> (id: T, v: number): LayoutGraphComponentType[T] {
-        switch (id) {
-        case LayoutGraphComponent.Name:
-            return this._names[v] as LayoutGraphComponentType[T];
-        case LayoutGraphComponent.Descriptors:
-            return this._descriptors[v] as LayoutGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
@@ -628,12 +612,6 @@ export class LayoutGraphData implements BidirectionalGraph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
@@ -745,18 +723,6 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends LayoutGraphDataComponent> (id: T, v: number): LayoutGraphDataComponentType[T] {
-        switch (id) {
-        case LayoutGraphDataComponent.Name:
-            return this._names[v] as LayoutGraphDataComponentType[T];
-        case LayoutGraphDataComponent.Update:
-            return this._updateFrequencies[v] as LayoutGraphDataComponentType[T];
-        case LayoutGraphDataComponent.Layout:
-            return this._layouts[v] as LayoutGraphDataComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
