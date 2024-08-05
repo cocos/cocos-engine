@@ -183,7 +183,7 @@ function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => v
     if (asset.addRef) {
         asset.addRef();
     }
-    getDepends(uuid, asset, Object.create(null), depends, config!);
+    getDepends(uuid, asset, Object.create(null) as Record<string, any>, depends, config!);
     if (progress.canInvoke) {
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
     }
@@ -235,7 +235,7 @@ function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => v
                     error(`The asset ${uuid} is invalid for some reason and will be reverted to default asset, please check it out!`);
                     asset.initDefault();
                 }
-                cache(uuid, asset, cacheAsset);
+                cache(uuid, asset, cacheAsset as boolean);
                 subTask.recycle();
             }
 

@@ -129,6 +129,7 @@ export class SpriteAtlas extends Asset {
                 spriteFrames: frames,
             };
         }
+        return null;
     }
 
     /**

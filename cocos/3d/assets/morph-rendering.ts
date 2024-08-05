@@ -508,18 +508,21 @@ class MorphUniforms {
 
     public setWeights (weights: number[]): void {
         assertIsTrue(weights.length === this._targetCount);
+        const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
-            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], cclegacy.sys.isLittleEndian);
+            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], isLittleEndian);
         }
     }
 
     public setMorphTextureInfo (width: number, height: number): void {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, cclegacy.sys.isLittleEndian);
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, cclegacy.sys.isLittleEndian);
+        const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, isLittleEndian);
     }
 
     public setVerticesCount (count: number): void {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, cclegacy.sys.isLittleEndian);
+        const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, isLittleEndian);
     }
 
     public commit (): void {

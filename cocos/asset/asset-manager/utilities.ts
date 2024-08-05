@@ -67,13 +67,13 @@ export function urlAppendTimestamp (url: string, append: boolean): string {
     return url;
 }
 
-export type RetryFunction = (times: number, done: ((err: Error | null, data?: any | null) => void)) => void;
+export type RetryFunction = (times: number, done: ((err: Error | null, data?: any) => void)) => void;
 
 export function retry (
     process: RetryFunction,
     times: number,
     wait: number,
-    onComplete: ((err: Error | null, data?: any | null) => void),
+    onComplete: ((err: Error | null, data?: any) => void),
     index = 0,
 ): void {
     process(index, (err, result): void => {
@@ -154,7 +154,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             } else {
                 depend.owner[depend.prop] = dependAsset.addRef();
                 if (EDITOR) {
-                    let reference = references!.get(dependAsset);
+                    let reference = references!.get(dependAsset as string);
                     if (!reference || isScene(asset)) {
                         reference = [];
                         references!.add(depend.uuid, reference);
@@ -203,7 +203,7 @@ export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onCom
     if (length === 0 && onComplete) {
         onComplete(errs);
     }
-    const cb = (err): void => {
+    const cb = (err?: Error | null): void => {
         if (err) {
             errs.push(err);
         }

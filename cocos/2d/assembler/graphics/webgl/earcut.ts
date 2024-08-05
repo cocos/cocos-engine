@@ -182,7 +182,7 @@ function isEar (ear: Aim): boolean {
     return true;
 }
 
-function isEarHashed (ear: Aim, minX: number, minY: number, size): boolean {
+function isEarHashed (ear: Aim, minX: number, minY: number, size: number): boolean {
     const a = ear.prev!;
     const b = ear;
     const c = ear.next!;

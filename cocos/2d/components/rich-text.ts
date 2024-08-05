@@ -513,9 +513,6 @@ export class RichText extends Component {
 
     constructor () {
         super();
-        if (EDITOR) {
-            this._userDefinedFont = null;
-        }
         this._updateRichTextStatus = this._updateRichText;
     }
 

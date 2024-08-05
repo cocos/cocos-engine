@@ -28,6 +28,8 @@ import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
 import { cclegacy, js, warn } from '../../core';
 import { getSymbolCodeAt } from '../utils';
+import { TextureBase } from '../../asset/assets/texture-base';
+import { IShareLabelInfo } from '../assembler/label/font-utils';
 
 export interface IConfig {
     [key: string]: any;
@@ -50,15 +52,14 @@ export interface ILetterDefinition {
 }
 
 export class FontAtlas {
-    public declare letterDefinitions;
-    public declare texture;
+    public letterDefinitions: ILetterDefinition = {};
+    public declare texture: TextureBase;
 
-    constructor (texture) {
-        this.letterDefinitions = {};
+    constructor (texture: TextureBase) {
         this.texture = texture;
     }
 
-    public addLetterDefinitions (letter, letterDefinition): void {
+    public addLetterDefinitions (letter: string, letterDefinition: FontLetterDefinition): void {
         this.letterDefinitions[letter] = letterDefinition;
     }
 
@@ -72,22 +73,20 @@ export class FontAtlas {
         return copyLetterDefinitions;
     }
 
-    public getTexture (): any {
+    public getTexture (): TextureBase {
         return this.texture;
     }
 
-    public getLetter (key): any {
+    public getLetter (key: string): FontLetterDefinition {
         return this.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char, labelInfo?): any {
-        const key = getSymbolCodeAt(char as string, 0);
-        const hasKey = this.letterDefinitions.hasOwnProperty(key);
-        let letter;
+    public getLetterDefinitionForChar (char: string, labelInfo?: IShareLabelInfo): FontLetterDefinition | null {
+        const key = getSymbolCodeAt(char, 0);
+        const hasKey = Object.prototype.hasOwnProperty.call(this.letterDefinitions, key);
+        let letter: FontLetterDefinition | null = null;
         if (hasKey) {
             letter = this.letterDefinitions[key];
-        } else {
-            letter = null;
         }
         return letter;
     }

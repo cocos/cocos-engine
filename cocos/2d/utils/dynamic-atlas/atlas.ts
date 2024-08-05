@@ -26,7 +26,7 @@ import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { ImageAsset } from '../../../asset/assets/image-asset';
 import { Texture2D } from '../../../asset/assets/texture-2d';
 import { BufferTextureCopy } from '../../../gfx';
-import { cclegacy, warn } from '../../../core';
+import { cclegacy, js, warn } from '../../../core';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
 const space = 2;
@@ -38,7 +38,11 @@ export class Atlas {
     private declare _x: number;
     private declare _y: number;
     private declare _nextY: number;
-    private _innerTextureInfos = {};
+    private _innerTextureInfos: Record<string, {
+            x: number,
+            y: number,
+            texture: Texture2D,
+        }> = {};
     private _innerSpriteFrames: SpriteFrame[] = [];
     private _count: number = 0;
 
@@ -138,6 +142,10 @@ export class Atlas {
         this._innerSpriteFrames.push(spriteFrame);
 
         return frame;
+    }
+
+    public removeSpriteFrame (spriteFrame: SpriteFrame): void {
+        js.array.fastRemove(this._innerSpriteFrames, spriteFrame);
     }
 
     /**
