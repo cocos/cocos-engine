@@ -745,9 +745,9 @@ export class ReferenceGraphView <BaseGraph extends ReferenceGraph & VertexListGr
 implements IncidenceGraph, VertexListGraph {
     constructor (g: BaseGraph) {
         this.g = g;
-        this.directed_category = directional.directed;
-        this.edge_parallel_category = parallel.allow;
-        this.traversal_category = traversal.incidence | traversal.vertex_list;
+        // this.directed_category = directional.directed;
+        // this.edge_parallel_category = parallel.allow;
+        // this.traversal_category = traversal.incidence | traversal.vertex_list;
     }
     nullVertex (): vertex_descriptor | null {
         return this.g.nullVertex();
@@ -773,8 +773,8 @@ implements IncidenceGraph, VertexListGraph {
     numVertices (): number {
         return this.g.numVertices();
     }
-    readonly directed_category: directional;
-    readonly edge_parallel_category: parallel;
-    readonly traversal_category: traversal;
+    // readonly directed_category: directional;
+    // readonly edge_parallel_category: parallel;
+    // readonly traversal_category: traversal;
     g: BaseGraph;
 }
