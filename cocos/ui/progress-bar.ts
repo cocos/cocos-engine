@@ -100,6 +100,10 @@ Enum(Mode);
 @requireComponent(UITransform)
 // @executeInEditMode
 export class ProgressBar extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * The targeted Sprite which will be changed progressively.

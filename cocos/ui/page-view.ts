@@ -27,7 +27,7 @@ import { ccclass, help, executionOrder, menu, tooltip, type, slide, range, visib
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { EventHandler as ComponentEventHandler, Node } from '../scene-graph';
 import { EventTouch } from '../input/types';
-import { Vec2, Vec3 } from '../core/math';
+import { v2, v3, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
@@ -362,11 +362,15 @@ export class PageView extends ScrollView {
     protected _curPageIdx = 0;
     protected _lastPageIdx = 0;
     protected _pages: Node[] = [];
-    protected _initContentPos = new Vec3();
+    protected _initContentPos = v3();
     protected _scrollCenterOffsetX: number[] = []; // 每一个页面居中时需要的偏移量（X）
     protected _scrollCenterOffsetY: number[] = []; // 每一个页面居中时需要的偏移量（Y）
-    protected _touchBeganPosition = new Vec2();
-    protected _touchEndPosition = new Vec2();
+    protected _touchBeganPosition = v2();
+    protected _touchEndPosition = v2();
+
+    constructor () {
+        super();
+    }
 
     public onEnable (): void {
         super.onEnable();
@@ -623,23 +627,23 @@ export class PageView extends ScrollView {
         }
     }
 
-    protected _onTouchBegan (event: EventTouch, captureListeners: any): void {
+    protected _onTouchBegan (event: EventTouch, captureListeners: Node[]): void {
         event.touch!.getUILocation(_tempVec2);
         Vec2.set(this._touchBeganPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchBegan(event, captureListeners);
     }
 
-    protected _onTouchMoved (event: EventTouch, captureListeners: any): void {
+    protected _onTouchMoved (event: EventTouch, captureListeners: Node[]): void {
         super._onTouchMoved(event, captureListeners);
     }
 
-    protected _onTouchEnded (event: EventTouch, captureListeners: any): void {
+    protected _onTouchEnded (event: EventTouch, captureListeners: Node[]): void {
         event.touch!.getUILocation(_tempVec2);
         Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchEnded(event, captureListeners);
     }
 
-    protected _onTouchCancelled (event: EventTouch, captureListeners: any): void {
+    protected _onTouchCancelled (event: EventTouch, captureListeners: Node[]): void {
         event.touch!.getUILocation(_tempVec2);
         Vec2.set(this._touchEndPosition, _tempVec2.x, _tempVec2.y);
         super._onTouchCancelled(event, captureListeners);
