@@ -408,16 +408,6 @@ export class SubpassGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends SubpassGraphComponent> (id: T, v: number): SubpassGraphComponentType[T] {
-        switch (id) {
-        case SubpassGraphComponent.Name:
-            return this._names[v] as SubpassGraphComponentType[T];
-        case SubpassGraphComponent.Subpass:
-            return this._subpasses[v] as SubpassGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     getName (v: number): string {
         return this._names[v];
     }
@@ -790,22 +780,6 @@ export class ResourceGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends ResourceGraphComponent> (id: T, v: number): ResourceGraphComponentType[T] {
-        switch (id) {
-        case ResourceGraphComponent.Name:
-            return this._names[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.Desc:
-            return this._descs[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.Traits:
-            return this._traits[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.States:
-            return this._states[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.Sampler:
-            return this._samplerInfo[v] as ResourceGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     getName (v: number): string {
         return this._names[v];
     }
@@ -1379,20 +1353,6 @@ export class RenderGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends RenderGraphComponent> (id: T, v: number): RenderGraphComponentType[T] {
-        switch (id) {
-        case RenderGraphComponent.Name:
-            return this._names[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.Layout:
-            return this._layoutNodes[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.Data:
-            return this._data[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.Valid:
-            return this._valid[v] as RenderGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     getName (v: number): string {
         return this._names[v];
     }

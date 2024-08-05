@@ -234,16 +234,6 @@ export class LayoutGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends LayoutGraphComponent> (id: T, v: number): LayoutGraphComponentType[T] {
-        switch (id) {
-        case LayoutGraphComponent.Name:
-            return this._names[v] as LayoutGraphComponentType[T];
-        case LayoutGraphComponent.Descriptors:
-            return this._descriptors[v] as LayoutGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
@@ -733,18 +723,6 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends LayoutGraphDataComponent> (id: T, v: number): LayoutGraphDataComponentType[T] {
-        switch (id) {
-        case LayoutGraphDataComponent.Name:
-            return this._names[v] as LayoutGraphDataComponentType[T];
-        case LayoutGraphDataComponent.Update:
-            return this._updateFrequencies[v] as LayoutGraphDataComponentType[T];
-        case LayoutGraphDataComponent.Layout:
-            return this._layouts[v] as LayoutGraphDataComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
