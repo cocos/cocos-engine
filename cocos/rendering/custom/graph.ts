@@ -750,7 +750,7 @@ implements IncidenceGraph, VertexListGraph {
         // this.edge_parallel_category = parallel.allow;
         // this.traversal_category = traversal.incidence | traversal.vertex_list;
     }
-    declare N: number | null;
+    declare readonly N: number | null;
 
     edge (u: vertex_descriptor, v: vertex_descriptor): boolean {
         return this.g.reference(u, v);
