@@ -226,9 +226,9 @@ export type in_edge_iterator = InEI | InEPI;
 // Graph
 //--------------------------------------------------------------------------
 export interface Graph {
-    readonly directed_category: directional;
-    readonly edge_parallel_category: parallel;
-    readonly traversal_category: traversal;
+    // readonly directed_category: directional;
+    // readonly edge_parallel_category: parallel;
+    // readonly traversal_category: traversal;
 
     nullVertex (): vertex_descriptor | null;
 }

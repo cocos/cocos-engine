@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, traversal } from './graph';
+import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph } from './graph';
 import { Material } from '../../asset/assets';
 import { Camera } from '../../render-scene/scene/camera';
 import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
@@ -316,12 +316,6 @@ export class SubpassGraph implements BidirectionalGraph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
@@ -678,12 +672,6 @@ export class ResourceGraph implements BidirectionalGraph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
@@ -1280,12 +1268,6 @@ export class RenderGraph implements BidirectionalGraph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
