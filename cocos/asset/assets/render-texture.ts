@@ -224,7 +224,9 @@ export class RenderTexture extends TextureBase {
      * @param height @en The pixel height. @zh 像素高度。
      * @param buffer @en The buffer to hold pixel data. @zh 像素缓存。
      */
-    public readPixels (x = 0, y = 0, width?: number, height?: number, buffer?: Uint8Array): Uint8Array | null {
+    public readPixels (x?: number, y?: number, width?: number, height?: number, buffer?: Uint8Array): Uint8Array | null {
+        x = x || 0;
+        y = y || 0;
         width = width || this.width;
         height = height || this.height;
         const gfxTexture = this.getGFXTexture();
