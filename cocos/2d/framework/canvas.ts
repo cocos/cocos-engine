@@ -31,7 +31,6 @@ import { Widget } from '../../ui/widget';
 import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
-import { NodeEventType } from '../../scene-graph/node-event';
 
 const _worldPos = new Vec3();
 
