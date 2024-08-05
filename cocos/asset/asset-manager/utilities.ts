@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { cclegacy, error, js, misc } from '../../core';
+import { cclegacy, error, errorID, js, misc } from '../../core';
 import Config from './config';
 import { dependMap, nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
@@ -141,7 +141,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                     }
                     missingAssetReporter.stashByOwner(depend.owner, depend.prop, EditorExtends.serialize.asAsset(depend.uuid));
                 } else {
-                    error(`The asset ${depend.uuid} is missing!`);
+                    errorID(16350, depend.uuid);
                 }
                 cclegacy.assetManager.dispatchAssetMissing(asset, depend.owner, depend.prop, depend.uuid);
                 if (depend.type && depend.type !== Asset) {
@@ -175,7 +175,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             asset._nativeAsset = assetsMap[`${uuid}@native`];
         } else {
             missingAsset = true;
-            error(`the native asset of ${uuid} is missing!`);
+            errorID(16351, uuid);
         }
         nativeDependMap.delete(asset);
     }

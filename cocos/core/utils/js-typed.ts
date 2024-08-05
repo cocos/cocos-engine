@@ -630,14 +630,14 @@ function setup (tag: string, table: Record<string | number, any>, allowExist: bo
         if (id) {
             const registered = table[id];
             if (!allowExist && registered && registered !== constructor) {
-                let err = `A Class already exists with the same ${tag} : "${id}".`;
+                let detail = '';
                 if (TEST) {
                     // eslint-disable-next-line no-multi-str
-                    err += ' (This may be caused by error of unit test.) \
+                    detail += ' (This may be caused by error of unit test.) \
 If you dont need serialization, you can set class id to "". You can also call \
 js.unregisterClass to remove the id of unused class';
                 }
-                error(err);
+                errorID(16334, tag, id, detail);
             } else {
                 table[id] = constructor;
             }
@@ -697,11 +697,11 @@ export function setClassAlias (target: Constructor, alias: string): void {
     const idRegistry = _idToClass[alias];
     let ok = true;
     if (nameRegistry && nameRegistry !== target) {
-        error(`"${alias}" has already been set as name or alias of another class.`);
+        errorID(16335, alias);
         ok = false;
     }
     if (idRegistry && idRegistry !== target) {
-        error(`"${alias}" has already been set as id or alias of another class.`);
+        errorID(16336, alias);
         ok = false;
     }
     if (ok) {

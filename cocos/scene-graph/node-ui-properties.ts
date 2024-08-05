@@ -23,10 +23,10 @@
 */
 
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { UITransform } from '../2d/framework/ui-transform';
 import { warnID } from '../core/platform/debug';
 import { UIMeshRenderer } from '../2d';
 import type { Node } from './node';
+import type { UITransform } from '../2d/framework/ui-transform';
 
 /**
  * @en Node's UI properties abstraction
@@ -39,7 +39,7 @@ export class NodeUIProperties {
      */
     get uiTransformComp (): UITransform | null {
         if (!this._uiTransformComp) {
-            this._uiTransformComp = this._node.getComponent(UITransform);
+            this._uiTransformComp = this._node.getComponent('cc.UITransform') as UITransform;
         }
 
         return this._uiTransformComp;
@@ -99,7 +99,7 @@ export class NodeUIProperties {
     /**
      * @deprecated since v3.4
      */
-    public applyOpacity (effectOpacity): void {
+    public applyOpacity (effectOpacity: number): void {
         this._opacity = this._localOpacity * effectOpacity;
     }
 

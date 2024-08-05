@@ -34,6 +34,7 @@ export {
     error,
     warn,
     assert,
+    debugID,
     logID,
     errorID,
     warnID,

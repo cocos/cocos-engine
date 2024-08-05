@@ -25,7 +25,7 @@
 
 import { ccclass, inspector, editorOnly, serializable } from 'cc.decorator';
 import { Component } from '../scene-graph/component';
-import { warnID, error, js, cclegacy  } from '../core';
+import { warnID, error, js, cclegacy, errorID  } from '../core';
 
 /**
  * @en
@@ -84,10 +84,10 @@ cclegacy._MissingScript = MissingScript;
 try {
     const props = MissingScript.__values__;
     if (props.length === 0 || props[props.length - 1] !== '_$erialized') {
-        error(`The '_$erialized' prop in MissingScript is missing. Please contact jare.`);
-        error(`    Error props: ['${props}']`);
+        errorID(16338);
+        errorID(16339, props.join(', '));
         // props.push('_$erialized');
     }
 } catch (e) {
-    error(`Error when checking MissingScript 5, ${e}`);
+    errorID(16340, `${e}`);
 }

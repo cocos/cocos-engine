@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
+import { errorID } from '../../core/platform/debug';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
 import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
@@ -130,7 +131,7 @@ function getUniformSize (prevSize: number, m: Uniform): number {
         if (count !== undefined) {
             return prevSize + GetTypeSize(m.type) * count;
         }
-        console.error(`uniform '${m.name}' must have a count`);
+        errorID(16345, m.name);
     }
     return prevSize;
 }

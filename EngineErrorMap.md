@@ -573,6 +573,10 @@ Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its valu
 <!-- DEPRECATED -->
 cc.Action is deprecated, please use cc.Tween instead
 
+### 1640
+
+Node %s(%s) has not attached to a scene.
+
 ### 1700
 
 <!-- DEPRECATED -->
@@ -3452,3 +3456,195 @@ Skin material needs floating-point render target, please check ENABLE_FLOAT_OUTP
 ### 16304
 
 Skin material may need more accurate calculations, please select a head model of standard size, check the isGlobalStandardSkinObject option in the MeshRender component.
+
+### 16305
+
+failed to stop accelerometer
+
+### 16306
+
+The data must have positions field
+
+### 16307
+
+please change type to sprite_stencil first
+
+### 16308
+
+illegal index count!
+
+### 16309
+
+Unsupported Format, convert to WebGL internal format failed.
+
+### 16310
+
+Unsupported Format, convert to WebGL format failed.
+
+### 16311
+
+Unsupported GLType, convert to GL type failed.
+
+### 16312
+
+Unsupported GLType, convert to TypedArrayConstructor failed.
+
+### 16313
+
+Unsupported GLType, convert to Type failed.
+
+### 16314
+
+Unsupported GLType, get type failed.
+
+### 16315
+
+Unsupported BufferType, create buffer failed.
+
+### 16316
+
+Unsupported BufferType, update buffer failed.
+
+### 16317
+
+Unsupported TextureType, create texture failed.
+
+### 16318
+
+glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT
+
+### 16319
+
+glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT
+
+### 16320
+
+glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS
+
+### 16321
+
+glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED
+
+### 16322
+
+Unsupported ShaderType.
+
+### 16323
+
+ %s in '%s' compilation failed.
+
+### 16324
+
+Shader source dump: %s
+
+### 16325
+
+Shader '%s' compilation succeeded.
+
+### 16326
+
+Failed to link shader: %s
+
+### 16327
+
+Unsupported GL texture type, copy buffer to texture failed.
+
+### 16328
+
+Command 'draw' must be recorded inside a render pass.
+
+### 16329
+
+Command 'updateBuffer' must be recorded outside a render pass.
+
+### 16330
+
+Command 'copyBufferToTexture' must be recorded outside a render pass.
+
+### 16331
+
+InputAssemblerInfo.vertexBuffers is null.
+
+### 16332
+
+Illegal index buffer stride.
+
+### 16333
+
+This device does not support WebGL.
+
+### 16334
+
+A Class already exists with the same %s : %s. %s
+
+### 16335
+
+"%s" has already been set as name or alias of another class.
+
+### 16336
+
+"%s" has already been set as id or alias of another class.
+
+### 16337
+
+can not support canvas rendering in 3D
+
+### 16338
+
+The '_$erialized' prop in MissingScript is missing. Please contact jare.
+
+### 16339
+
+Error props: ['%s']
+
+### 16340
+
+Error when checking MissingScript 5, %s
+
+### 16341
+
+The '_$erialized' prop of MissingScript is missing. Will force the raw data to be save.
+
+### 16342
+
+Error props: ['%s']. Please contact jare.
+
+### 16343
+
+Unable to stash previously serialized data. %s
+
+### 16344
+
+Error when checking MissingScript 6, %s
+
+### 16345
+
+uniform '%s' must have a count
+
+### 16346
+
+Invalid GFX API!
+
+### 16347
+
+The number of mipmaps of each face is different.
+
+### 16348
+
+builtin UBO '%s' not available!
+
+### 16349
+
+builtin samplerTexture '%s' not available!
+
+### 16350
+
+The asset %s is missing!
+
+### 16351
+
+the native asset of %s is missing!
+
+### 16352
+
+The asset %s is invalid for some reason, detail message: %s, stack: %s

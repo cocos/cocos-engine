@@ -27,6 +27,7 @@ import { minigame, AccelerometerIntervalMode } from 'pal/minigame';
 import { Acceleration, EventAcceleration } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
+import { errorID } from '../../../cocos/core/platform/debug';
 
 export class AccelerometerInputSource {
     private _isStarted = false;
@@ -68,7 +69,7 @@ export class AccelerometerInputSource {
                 this._isStarted = false;
             },
             fail () {
-                console.error('failed to stop accelerometer');
+                errorID(16305);
             },
         });
         this._unregisterEvent();

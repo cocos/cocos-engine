@@ -38,6 +38,7 @@ import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLDeviceManager } from './webgl-define';
+import { errorID } from '../../core/platform/debug';
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     public beginRenderPass (
@@ -52,7 +53,10 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
             WebGLDeviceManager.instance,
             (renderPass as WebGLRenderPass).gpuRenderPass,
             (framebuffer as WebGLFramebuffer).gpuFramebuffer,
-            renderArea, clearColors, clearDepth, clearStencil,
+            renderArea,
+            clearColors,
+            clearDepth,
+            clearStencil,
         );
         this._isInRenderPass = true;
     }
@@ -86,7 +90,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'draw\' must be recorded inside a render pass.');
+            errorID(16328);
         }
     }
 
@@ -138,7 +142,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 WebGLCmdFuncUpdateBuffer(WebGLDeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
-            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            errorID(16329);
         }
     }
 
@@ -149,7 +153,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
                 WebGLCmdFuncCopyBuffersToTexture(WebGLDeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
-            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            errorID(16330);
         }
     }
 
@@ -165,8 +169,14 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     }
 
     protected bindStates (): void {
-        WebGLCmdFuncBindStates(WebGLDeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
-            this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
+        WebGLCmdFuncBindStates(
+            WebGLDeviceManager.instance,
+            this._curGPUPipelineState,
+            this._curGPUInputAssembler,
+            this._curGPUDescriptorSets,
+            this._curDynamicOffsets,
+            this._curDynamicStates,
+        );
         this._isStateInvalied = false;
     }
 

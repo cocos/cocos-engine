@@ -61,7 +61,7 @@ import { WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers, Web
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { debug, error } from '../../core';
+import { debug, errorID } from '../../core';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { IWebGLBindingMapping, IWebGLBlitManager } from './webgl-gpu-objects';
@@ -141,7 +141,7 @@ export class WebGLDevice extends Device {
         const gl = this._context = getContext(Device.canvas);
 
         if (!gl) {
-            error('This device does not support WebGL.');
+            errorID(16333);
             return false;
         }
 

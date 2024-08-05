@@ -29,7 +29,7 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC, ccwindow } from '../../core/global-exports';
-import { error, js, sys } from '../../core';
+import { errorID, js, sys } from '../../core';
 import { OS } from '../../../pal/system-info/enum-type';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
@@ -160,7 +160,7 @@ export class TextureCube extends SimpleTexture {
                 || front.length !== right.length
                 || front.length !== top.length
                 || front.length !== bottom.length) {
-                error('The number of mipmaps of each face is different.');
+                errorID(16347);
                 this._setMipmapParams([]);
                 return;
             }

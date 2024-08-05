@@ -23,7 +23,7 @@
 */
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, cclegacy } from '../../core';
+import { error, cclegacy, errorID } from '../../core';
 import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';
@@ -218,7 +218,7 @@ function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => v
                         onLoadedInvokedMap.add(asset);
                     }
                 } catch (e) {
-                    error(`The asset ${uuid} is invalid for some reason, detail message: ${(e as Error).message}, stack: ${(e as Error).stack!}`);
+                    errorID(16352, uuid, (e as Error).message, (e as Error).stack!);
                     if (EDITOR || PREVIEW) {
                         if (asset instanceof Asset) {
                             asset.initDefault();
