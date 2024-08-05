@@ -151,29 +151,29 @@ export class LayoutGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
     degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
     adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
@@ -188,7 +188,7 @@ export class LayoutGraph implements BidirectionalGraph
     numEdges (): number {
         let numEdges = 0;
         for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -630,29 +630,29 @@ export class LayoutGraphData implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
     degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
     adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
@@ -667,7 +667,7 @@ export class LayoutGraphData implements BidirectionalGraph
     numEdges (): number {
         let numEdges = 0;
         for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+            numEdges += this.od(v);
         }
         return numEdges;
     }

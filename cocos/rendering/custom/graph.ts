@@ -240,16 +240,20 @@ export interface IncidenceGraph extends Graph {
     edge (u: vertex_descriptor, v: vertex_descriptor): boolean;
     source (e: edge_descriptor): vertex_descriptor;
     target (e: edge_descriptor): vertex_descriptor;
-    outEdges (v: vertex_descriptor): out_edge_iterator;
-    outDegree (v: vertex_descriptor): number;
+    /** Return out edge iterator of the vertex */
+    oe (v: vertex_descriptor): out_edge_iterator;
+    /** Return out degree of the vertex */
+    od (v: vertex_descriptor): number;
 }
 
 //--------------------------------------------------------------------------
 // BidirectionalGraph
 //--------------------------------------------------------------------------
 export interface BidirectionalGraph extends IncidenceGraph {
-    inEdges (v: vertex_descriptor): in_edge_iterator;
-    inDegree (v: vertex_descriptor): number;
+    /** Return in edge iterator of the vertex */
+    ie (v: vertex_descriptor): in_edge_iterator;
+    /** Return in degree of the vertex */
+    id (v: vertex_descriptor): number;
     degree (v: vertex_descriptor): number;
 }
 
@@ -618,7 +622,7 @@ function depthFirstVisitImpl (
     color.put(u, GraphColor.GRAY);
     visitor.discoverVertex(u, g);
 
-    ei = g.outEdges(u);
+    ei = g.oe(u);
     if (func.terminate(u, g)) {
         // If this vertex terminates the search, we push empty range
         stack.push(new VertexInfo(u, null, null));
@@ -649,7 +653,7 @@ function depthFirstVisitImpl (
                     u = v;
                     color.put(u, GraphColor.GRAY);
                     visitor.discoverVertex(u, g);
-                    ei = g.outEdges(u);
+                    ei = g.oe(u);
                     if (func.terminate(u, g)) {
                         break;
                     }
@@ -763,10 +767,10 @@ implements IncidenceGraph, VertexListGraph {
     target (e: edge_descriptor): vertex_descriptor {
         return this.g.child(e);
     }
-    outEdges (v: vertex_descriptor): out_edge_iterator {
+    oe (v: vertex_descriptor): out_edge_iterator {
         return this.g.children(v);
     }
-    outDegree (v: vertex_descriptor): number {
+    od (v: vertex_descriptor): number {
         return this.g.numChildren(v);
     }
     vertices (): IterableIterator<vertex_descriptor> {
