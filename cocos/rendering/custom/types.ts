@@ -157,10 +157,10 @@ export class LightInfo {
         this.level = level;
         this.culledByLight = culledByLight;
     }
-    /*refcount*/ light: Light | null;
-    /*pointer*/ probe: ReflectionProbe | null;
-    level: number;
-    culledByLight: boolean;
+    declare /*refcount*/ light: Light | null;
+    declare /*pointer*/ probe: ReflectionProbe | null;
+    declare level: number;
+    declare culledByLight: boolean;
 }
 
 export const enum DescriptorTypeOrder {
@@ -183,7 +183,7 @@ export class Descriptor {
         this.type = type;
         this.count = 1;
     }
-    type: Type;
+    declare type: Type;
     count = 1;
 }
 
@@ -224,10 +224,10 @@ export class DescriptorBlockIndex {
         this.descriptorType = descriptorType;
         this.visibility = visibility;
     }
-    updateFrequency: UpdateFrequency;
-    parameterType: ParameterType;
-    descriptorType: DescriptorTypeOrder;
-    visibility: ShaderStageFlagBit;
+    declare updateFrequency: UpdateFrequency;
+    declare parameterType: ParameterType;
+    declare descriptorType: DescriptorTypeOrder;
+    declare visibility: ShaderStageFlagBit;
 }
 
 export const enum ResolveFlags {
@@ -264,11 +264,11 @@ export class ResolvePair {
         this.mode = mode;
         this.mode1 = mode1;
     }
-    source: string;
-    target: string;
-    resolveFlags: ResolveFlags;
-    mode: ResolveMode;
-    mode1: ResolveMode;
+    declare source: string;
+    declare target: string;
+    declare resolveFlags: ResolveFlags;
+    declare mode: ResolveMode;
+    declare mode1: ResolveMode;
 }
 
 export class CopyPair {
@@ -318,16 +318,16 @@ export class CopyPair {
         this.targetFirstSlice = targetFirstSlice;
         this.targetPlaneSlice = targetPlaneSlice;
     }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    sourceMostDetailedMip: number;
-    sourceFirstSlice: number;
-    sourcePlaneSlice: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
+    declare source: string;
+    declare target: string;
+    declare mipLevels: number;
+    declare numSlices: number;
+    declare sourceMostDetailedMip: number;
+    declare sourceFirstSlice: number;
+    declare sourcePlaneSlice: number;
+    declare targetMostDetailedMip: number;
+    declare targetFirstSlice: number;
+    declare targetPlaneSlice: number;
 }
 
 export class UploadPair {
@@ -364,13 +364,13 @@ export class UploadPair {
         this.targetFirstSlice = targetFirstSlice;
         this.targetPlaneSlice = targetPlaneSlice;
     }
-    readonly source: Uint8Array;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
+    declare readonly source: Uint8Array;
+    declare target: string;
+    declare mipLevels: number;
+    declare numSlices: number;
+    declare targetMostDetailedMip: number;
+    declare targetFirstSlice: number;
+    declare targetPlaneSlice: number;
 }
 
 export class MovePair {
@@ -408,13 +408,13 @@ export class MovePair {
         this.targetFirstSlice = targetFirstSlice;
         this.targetPlaneSlice = targetPlaneSlice;
     }
-    source: string;
-    target: string;
-    mipLevels: number;
-    numSlices: number;
-    targetMostDetailedMip: number;
-    targetFirstSlice: number;
-    targetPlaneSlice: number;
+    declare source: string;
+    declare target: string;
+    declare mipLevels: number;
+    declare numSlices: number;
+    declare targetMostDetailedMip: number;
+    declare targetFirstSlice: number;
+    declare targetPlaneSlice: number;
 }
 
 export class PipelineStatistics {

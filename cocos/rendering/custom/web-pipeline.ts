@@ -397,7 +397,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._subpass = subpass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     update (
@@ -415,7 +415,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._subpass = subpass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     addRenderTarget (name: string, accessType: AccessType, slotName?: string | undefined, loadOp?: LoadOp | undefined, storeOp?: StoreOp | undefined, color?: Color | undefined): void {
@@ -481,7 +481,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._vertID = vertID;
         this._pass = pass;
         this._pipeline = pipeline;
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     update (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData): void {
@@ -492,7 +492,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pass = pass;
         this._pipeline = pipeline;
         this._data = data;
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
 
@@ -732,7 +732,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._pass = pass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     update (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: ComputePass, pipeline: PipelineSceneData): void {
@@ -744,7 +744,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._pass = pass;
         this._pipeline = pipeline;
 
-        const layoutName = this._renderGraph.component<RenderGraphComponent.Layout>(RenderGraphComponent.Layout, this._vertID);
+        const layoutName = this._renderGraph.getLayout(this._vertID);
         this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
@@ -973,7 +973,7 @@ export class WebPipeline implements BasicPipeline {
         desc.height = renderWindow.height;
         const currFbo = this.resourceGraph.object(resId);
         if (currFbo !== renderWindow.framebuffer) {
-            this.resourceGraph._vertices[resId]._object = renderWindow.framebuffer;
+            this.resourceGraph.x[resId].j = renderWindow.framebuffer;
         }
         this.tryAddRenderWindowDepthStencil(renderWindow.width, renderWindow.height, depthStencilName, renderWindow.swapchain);
     }
@@ -1453,7 +1453,7 @@ export class WebPipeline implements BasicPipeline {
         desc.height = height;
         if (swapchain) {
             assert(this.resourceGraph.id(resId) === ResourceGraphValue.Swapchain);
-            const sc = this.resourceGraph.getSwapchain(resId);
+            const sc = this.resourceGraph.j<RenderSwapchain>(resId);
             assert(!!sc.swapchain);
             sc.swapchain = swapchain;
             desc.format = sc.swapchain.depthStencilTexture.format;

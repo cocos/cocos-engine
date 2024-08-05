@@ -541,7 +541,7 @@ class DeviceComputeQueue implements RecordingInterface {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
         this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
-            ? layoutGraph.getRenderPhase(value)
+            ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
         this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
@@ -594,7 +594,7 @@ class DeviceRenderQueue implements RecordingInterface {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
         this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
-            ? layoutGraph.getRenderPhase(value)
+            ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
         this._descSetData = layout.descriptorSets.get(UpdateFrequency.PER_PHASE)!;
@@ -683,7 +683,7 @@ class RenderPassLayoutInfo {
         this._layoutID = layoutId;
         this._vertID = vertId;
         const lg = context.layoutGraph;
-        this._stage = lg.getRenderStage(layoutId);
+        this._stage = lg.j<RenderStageData>(layoutId);
         this._layout = lg.getLayout(layoutId);
         const layoutData = this._layout.descriptorSets.get(UpdateFrequency.PER_PASS);
         if (!layoutData) {

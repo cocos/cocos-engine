@@ -892,12 +892,12 @@ export class LayoutGraphInfo {
                 continue;
             }
             // skip RENDER_PASS
-            if (lg.getRenderStage(passID) === RenderPassType.RENDER_PASS) {
+            if (lg.j<RenderPassType>(passID) === RenderPassType.RENDER_PASS) {
                 continue;
             }
             // build SINGLE_RENDER_PASS or RENDER_SUBPASS
-            assert(lg.getRenderStage(passID) === RenderPassType.SINGLE_RENDER_PASS
-                || lg.getRenderStage(passID) === RenderPassType.RENDER_SUBPASS);
+            assert(lg.j<RenderPassType>(passID) === RenderPassType.SINGLE_RENDER_PASS
+                || lg.j<RenderPassType>(passID) === RenderPassType.RENDER_SUBPASS);
             const passDB = lg.getDescriptors(passID);
             // update children phases
             for (const e of lg.children(passID)) {
@@ -955,7 +955,7 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
         let isRenderPass = false;
         switch (graph.id(v)) {
         case LayoutGraphValue.RenderStage: {
-            const type = graph.getRenderStage(v);
+            const type = graph.j<RenderPassType>(v);
             const parentID = graph.getParent(v);
             if (type === RenderPassType.RENDER_SUBPASS) {
                 assert(parentID !== graph.nullVertex());
@@ -975,13 +975,13 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
         }
         case LayoutGraphValue.RenderPhase: {
             const parentID = graph.getParent(v);
-            const parentType = graph.getRenderStage(parentID);
+            const parentType = graph.j<RenderPassType>(parentID);
             assert(parentType === RenderPassType.RENDER_SUBPASS || parentType === RenderPassType.SINGLE_RENDER_PASS);
             const vertID = builder.addRenderPhase(graph.getName(v), parentID);
             if (vertID !== v) {
                 error('vertex id mismatch');
             }
-            const phase = graph.getRenderPhase(v);
+            const phase = graph.j<RenderPhase>(v);
             for (const shaderName of phase.shaders) {
                 builder.addShader(shaderName, v);
             }
@@ -1072,7 +1072,7 @@ class LayoutGraphBuilder2 {
     }
     addShader (name: string, parentPhaseID: number): void {
         const lg = this.lg;
-        const phaseData = lg.getRenderPhase(parentPhaseID);
+        const phaseData = lg.j<RenderPhaseData>(parentPhaseID);
         // 填充shaderData数据
         const shaderData = new ShaderProgramData();
         const id = phaseData.shaderPrograms.length;

@@ -28,7 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, VertexListGraph, directional, findRelative, getPath, parallel, traversal } from './graph';
+import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, VertexListGraph, findRelative, getPath } from './graph';
 import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
 import { OutputArchive, InputArchive } from './archive';
@@ -91,13 +91,17 @@ export class LayoutGraphVertex {
         readonly id: LayoutGraphValue,
         readonly object: LayoutGraphObject,
     ) {
-        this._id = id;
-        this._object = object;
+        this.t = id;
+        this.j = object;
     }
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
-    readonly _id: LayoutGraphValue;
-    _object: LayoutGraphObject;
+    /** Out edge list */
+    readonly o: OutE[] = [];
+    /** In edge list */
+    readonly i: OutE[] = [];
+    /** Polymorphic object Id */
+    readonly t: LayoutGraphValue;
+    /** Polymorphic object */
+    j: LayoutGraphObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -129,18 +133,12 @@ export class LayoutGraph implements BidirectionalGraph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -154,19 +152,19 @@ export class LayoutGraph implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this._vertices[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -180,10 +178,10 @@ export class LayoutGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // VertexListGraph
     vertices (): IterableIterator<number> {
-        return this._vertices.keys();
+        return this.x.keys();
     }
     numVertices (): number {
-        return this._vertices.length;
+        return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
@@ -201,18 +199,18 @@ export class LayoutGraph implements BidirectionalGraph
         this._names.length = 0;
         this._descriptors.length = 0;
         // Graph Vertices
-        this._vertices.length = 0;
+        this.x.length = 0;
     }
     addVertex<T extends LayoutGraphValue> (
-        id: LayoutGraphValue,
+        id: T,
         object: LayoutGraphValueType[T],
         name: string,
         descriptors: DescriptorDB,
         u = 0xFFFFFFFF,
     ): number {
         const vert = new LayoutGraphVertex(id, object);
-        const v = this._vertices.length;
-        this._vertices.push(vert);
+        const v = this.x.length;
+        this.x.push(vert);
         this._names.push(name);
         this._descriptors.push(descriptors);
 
@@ -225,8 +223,8 @@ export class LayoutGraph implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._outEdges.push(new OutE(v));
-        this._vertices[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -236,16 +234,6 @@ export class LayoutGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends LayoutGraphComponent> (id: T, v: number): LayoutGraphComponentType[T] {
-        switch (id) {
-        case LayoutGraphComponent.Name:
-            return this._names[v] as LayoutGraphComponentType[T];
-        case LayoutGraphComponent.Descriptors:
-            return this._descriptors[v] as LayoutGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
@@ -256,37 +244,34 @@ export class LayoutGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: LayoutGraphValue, v: number): boolean {
-        return this._vertices[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): LayoutGraphValue {
-        return this._vertices[v]._id;
+        return this.x[v].t;
     }
     object (v: number): LayoutGraphObject {
-        return this._vertices[v]._object;
+        return this.x[v].j;
     }
     value<T extends LayoutGraphValue> (id: T, v: number): LayoutGraphValueType[T] {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as LayoutGraphValueType[T];
+        if (this.x[v].t === id) {
+            return this.x[v].j as LayoutGraphValueType[T];
         } else {
             throw Error('value id not match');
         }
     }
     visitVertex (visitor: LayoutGraphVisitor, v: number): unknown {
-        const vert = this._vertices[v];
-        switch (vert._id) {
+        const vert = this.x[v];
+        switch (vert.t) {
         case LayoutGraphValue.RenderStage:
-            return visitor.renderStage(vert._object as RenderPassType);
+            return visitor.renderStage(vert.j as RenderPassType);
         case LayoutGraphValue.RenderPhase:
-            return visitor.renderPhase(vert._object as RenderPhase);
+            return visitor.renderPhase(vert.j as RenderPhase);
         default:
             throw Error('polymorphic type not found');
         }
     }
-    getRenderStage (v: number): RenderPassType {
-        return this._vertices[v]._object as RenderPassType;
-    }
-    getRenderPhase (v: number): RenderPhase {
-        return this._vertices[v]._object as RenderPhase;
+    j<T extends LayoutGraphObject> (v: number): T {
+        return this.x[v].j as T;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -294,7 +279,7 @@ export class LayoutGraph implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -308,16 +293,16 @@ export class LayoutGraph implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     numChildren (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this._vertices[v]._inEdges;
+        const list = this.x[v].i;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -333,15 +318,15 @@ export class LayoutGraph implements BidirectionalGraph
     // ParentGraph
     locateChild (u: number, name: string): number {
         if (u === 0xFFFFFFFF) {
-            for (const v of this._vertices.keys()) {
-                const vert = this._vertices[v];
-                if (vert._inEdges.length === 0 && this._names[v] === name) {
+            for (const v of this.x.keys()) {
+                const vert = this.x[v];
+                if (vert.i.length === 0 && this._names[v] === name) {
                     return v;
                 }
             }
             return 0xFFFFFFFF;
         }
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             const child = oe.target as number;
             if (name === this._names[child]) {
                 return child;
@@ -360,9 +345,7 @@ export class LayoutGraph implements BidirectionalGraph
     path (v: number): string {
         return getPath(this, v);
     }
-
-    readonly components: string[] = ['Name', 'Descriptors'];
-    readonly _vertices: LayoutGraphVertex[] = [];
+    readonly x: LayoutGraphVertex[] = [];
     readonly _names: string[] = [];
     readonly _descriptors: DescriptorDB[] = [];
 }
@@ -379,9 +362,9 @@ export class UniformData {
         this.offset = offset;
         this.size = 0;
     }
-    uniformID: number;
-    uniformType: Type;
-    offset: number;
+    declare uniformID: number;
+    declare uniformType: Type;
+    declare offset: number;
     size = 0;
 }
 
@@ -405,9 +388,9 @@ export class DescriptorData {
         this.type = type;
         this.count = count;
     }
-    descriptorID: number;
-    type: Type;
-    count: number;
+    declare descriptorID: number;
+    declare type: Type;
+    declare count: number;
 }
 
 export class DescriptorBlockData {
@@ -423,10 +406,10 @@ export class DescriptorBlockData {
         this.capacity = capacity;
         this.descriptors.length = 0;
     }
-    type: DescriptorTypeOrder;
-    visibility: ShaderStageFlagBit;
+    declare type: DescriptorTypeOrder;
+    declare visibility: ShaderStageFlagBit;
     offset = 0;
-    capacity: number;
+    declare capacity: number;
     readonly descriptors: DescriptorData[] = [];
 }
 
@@ -456,13 +439,13 @@ export class DescriptorSetLayoutData {
         this.uniformBlocks.clear();
         this.bindingMap.clear();
     }
-    slot: number;
-    capacity: number;
+    declare slot: number;
+    declare capacity: number;
     uniformBlockCapacity = 0;
     samplerTextureCapacity = 0;
-    readonly descriptorBlocks: DescriptorBlockData[];
-    readonly uniformBlocks: Map<number, UniformBlock>;
-    readonly bindingMap: Map<number, number>;
+    declare readonly descriptorBlocks: DescriptorBlockData[];
+    declare readonly uniformBlocks: Map<number, UniformBlock>;
+    declare readonly bindingMap: Map<number, number>;
 }
 
 export class DescriptorSetData {
@@ -477,10 +460,10 @@ export class DescriptorSetData {
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }
-    readonly descriptorSetLayoutData: DescriptorSetLayoutData;
+    declare readonly descriptorSetLayoutData: DescriptorSetLayoutData;
     readonly descriptorSetLayoutInfo: DescriptorSetLayoutInfo = new DescriptorSetLayoutInfo();
-    /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
-    /*refcount*/ descriptorSet: DescriptorSet | null;
+    declare /*refcount*/ descriptorSetLayout: DescriptorSetLayout | null;
+    declare /*refcount*/ descriptorSet: DescriptorSet | null;
 }
 
 export class PipelineLayoutData {
@@ -585,13 +568,17 @@ export class LayoutGraphDataVertex {
         readonly id: LayoutGraphDataValue,
         readonly object: LayoutGraphDataObject,
     ) {
-        this._id = id;
-        this._object = object;
+        this.t = id;
+        this.j = object;
     }
-    readonly _outEdges: OutE[] = [];
-    readonly _inEdges: OutE[] = [];
-    readonly _id: LayoutGraphDataValue;
-    _object: LayoutGraphDataObject;
+    /** Out edge list */
+    readonly o: OutE[] = [];
+    /** In edge list */
+    readonly i: OutE[] = [];
+    /** Polymorphic object Id */
+    readonly t: LayoutGraphDataValue;
+    /** Polymorphic object */
+    j: LayoutGraphDataObject;
 }
 //-----------------------------------------------------------------
 // ComponentGraph Concept
@@ -625,18 +612,12 @@ export class LayoutGraphData implements BidirectionalGraph
     // type vertex_descriptor = number;
     nullVertex (): number { return 0xFFFFFFFF; }
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
     // type degree_size_type = number;
     edge (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -650,19 +631,19 @@ export class LayoutGraphData implements BidirectionalGraph
         return e.target as number;
     }
     outEdges (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     outDegree (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
     inEdges (v: number): InEI {
-        return new InEI(this._vertices[v]._inEdges.values(), v);
+        return new InEI(this.x[v].i.values(), v);
     }
     inDegree (v: number): number {
-        return this._vertices[v]._inEdges.length;
+        return this.x[v].i.length;
     }
     degree (v: number): number {
         return this.outDegree(v) + this.inDegree(v);
@@ -676,10 +657,10 @@ export class LayoutGraphData implements BidirectionalGraph
     //-----------------------------------------------------------------
     // VertexListGraph
     vertices (): IterableIterator<number> {
-        return this._vertices.keys();
+        return this.x.keys();
     }
     numVertices (): number {
-        return this._vertices.length;
+        return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
@@ -705,10 +686,10 @@ export class LayoutGraphData implements BidirectionalGraph
         this._updateFrequencies.length = 0;
         this._layouts.length = 0;
         // Graph Vertices
-        this._vertices.length = 0;
+        this.x.length = 0;
     }
     addVertex<T extends LayoutGraphDataValue> (
-        id: LayoutGraphDataValue,
+        id: T,
         object: LayoutGraphDataValueType[T],
         name: string,
         update: UpdateFrequency,
@@ -716,8 +697,8 @@ export class LayoutGraphData implements BidirectionalGraph
         u = 0xFFFFFFFF,
     ): number {
         const vert = new LayoutGraphDataVertex(id, object);
-        const v = this._vertices.length;
-        this._vertices.push(vert);
+        const v = this.x.length;
+        this.x.push(vert);
         this._names.push(name);
         this._updateFrequencies.push(update);
         this._layouts.push(layout);
@@ -731,8 +712,8 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     addEdge (u: number, v: number): ED | null {
         // update in/out edge list
-        this._vertices[u]._outEdges.push(new OutE(v));
-        this._vertices[v]._inEdges.push(new OutE(u));
+        this.x[u].o.push(new OutE(v));
+        this.x[v].i.push(new OutE(u));
         return new ED(u, v);
     }
     //-----------------------------------------------------------------
@@ -742,18 +723,6 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends LayoutGraphDataComponent> (id: T, v: number): LayoutGraphDataComponentType[T] {
-        switch (id) {
-        case LayoutGraphDataComponent.Name:
-            return this._names[v] as LayoutGraphDataComponentType[T];
-        case LayoutGraphDataComponent.Update:
-            return this._updateFrequencies[v] as LayoutGraphDataComponentType[T];
-        case LayoutGraphDataComponent.Layout:
-            return this._layouts[v] as LayoutGraphDataComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     // skip setName, Name is constant in AddressableGraph
     getName (v: number): string {
         return this._names[v];
@@ -770,37 +739,34 @@ export class LayoutGraphData implements BidirectionalGraph
     //-----------------------------------------------------------------
     // PolymorphicGraph
     holds (id: LayoutGraphDataValue, v: number): boolean {
-        return this._vertices[v]._id === id;
+        return this.x[v].t === id;
     }
     id (v: number): LayoutGraphDataValue {
-        return this._vertices[v]._id;
+        return this.x[v].t;
     }
     object (v: number): LayoutGraphDataObject {
-        return this._vertices[v]._object;
+        return this.x[v].j;
     }
     value<T extends LayoutGraphDataValue> (id: T, v: number): LayoutGraphDataValueType[T] {
-        if (this._vertices[v]._id === id) {
-            return this._vertices[v]._object as LayoutGraphDataValueType[T];
+        if (this.x[v].t === id) {
+            return this.x[v].j as LayoutGraphDataValueType[T];
         } else {
             throw Error('value id not match');
         }
     }
     visitVertex (visitor: LayoutGraphDataVisitor, v: number): unknown {
-        const vert = this._vertices[v];
-        switch (vert._id) {
+        const vert = this.x[v];
+        switch (vert.t) {
         case LayoutGraphDataValue.RenderStage:
-            return visitor.renderStage(vert._object as RenderStageData);
+            return visitor.renderStage(vert.j as RenderStageData);
         case LayoutGraphDataValue.RenderPhase:
-            return visitor.renderPhase(vert._object as RenderPhaseData);
+            return visitor.renderPhase(vert.j as RenderPhaseData);
         default:
             throw Error('polymorphic type not found');
         }
     }
-    getRenderStage (v: number): RenderStageData {
-        return this._vertices[v]._object as RenderStageData;
-    }
-    getRenderPhase (v: number): RenderPhaseData {
-        return this._vertices[v]._object as RenderPhaseData;
+    j<T extends LayoutGraphDataObject> (v: number): T {
+        return this.x[v].j as T;
     }
     //-----------------------------------------------------------------
     // ReferenceGraph
@@ -808,7 +774,7 @@ export class LayoutGraphData implements BidirectionalGraph
     // type child_iterator = OutEI;
     // type parent_iterator = InEI;
     reference (u: number, v: number): boolean {
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             if (v === oe.target as number) {
                 return true;
             }
@@ -822,16 +788,16 @@ export class LayoutGraphData implements BidirectionalGraph
         return e.target as number;
     }
     children (v: number): OutEI {
-        return new OutEI(this._vertices[v]._outEdges.values(), v);
+        return new OutEI(this.x[v].o.values(), v);
     }
     numChildren (v: number): number {
-        return this._vertices[v]._outEdges.length;
+        return this.x[v].o.length;
     }
     getParent (v: number): number {
         if (v === 0xFFFFFFFF) {
             return 0xFFFFFFFF;
         }
-        const list = this._vertices[v]._inEdges;
+        const list = this.x[v].i;
         if (list.length === 0) {
             return 0xFFFFFFFF;
         } else {
@@ -847,15 +813,15 @@ export class LayoutGraphData implements BidirectionalGraph
     // ParentGraph
     locateChild (u: number, name: string): number {
         if (u === 0xFFFFFFFF) {
-            for (const v of this._vertices.keys()) {
-                const vert = this._vertices[v];
-                if (vert._inEdges.length === 0 && this._names[v] === name) {
+            for (const v of this.x.keys()) {
+                const vert = this.x[v];
+                if (vert.i.length === 0 && this._names[v] === name) {
                     return v;
                 }
             }
             return 0xFFFFFFFF;
         }
-        for (const oe of this._vertices[u]._outEdges) {
+        for (const oe of this.x[u].o) {
             const child = oe.target as number;
             if (name === this._names[child]) {
                 return child;
@@ -874,9 +840,7 @@ export class LayoutGraphData implements BidirectionalGraph
     path (v: number): string {
         return getPath(this, v);
     }
-
-    readonly components: string[] = ['Name', 'Update', 'Layout'];
-    readonly _vertices: LayoutGraphDataVertex[] = [];
+    readonly x: LayoutGraphDataVertex[] = [];
     readonly _names: string[] = [];
     readonly _updateFrequencies: UpdateFrequency[] = [];
     readonly _layouts: PipelineLayoutData[] = [];
@@ -1105,10 +1069,10 @@ export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
         saveDescriptorDB(a, g.getDescriptors(v));
         switch (g.id(v)) {
         case LayoutGraphValue.RenderStage:
-            a.n(g.getRenderStage(v));
+            a.n(g.x[v].j as RenderPassType);
             break;
         case LayoutGraphValue.RenderPhase:
-            saveRenderPhase(a, g.getRenderPhase(v));
+            saveRenderPhase(a, g.x[v].j as RenderPhase);
             break;
         default:
             break;
@@ -1475,10 +1439,10 @@ export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void
         savePipelineLayoutData(a, g.getLayout(v));
         switch (g.id(v)) {
         case LayoutGraphDataValue.RenderStage:
-            saveRenderStageData(a, g.getRenderStage(v));
+            saveRenderStageData(a, g.x[v].j as RenderStageData);
             break;
         case LayoutGraphDataValue.RenderPhase:
-            saveRenderPhaseData(a, g.getRenderPhase(v));
+            saveRenderPhaseData(a, g.x[v].j as RenderPhaseData);
             break;
         default:
             break;

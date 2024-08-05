@@ -226,9 +226,9 @@ export type in_edge_iterator = InEI | InEPI;
 // Graph
 //--------------------------------------------------------------------------
 export interface Graph {
-    readonly directed_category: directional;
-    readonly edge_parallel_category: parallel;
-    readonly traversal_category: traversal;
+    // readonly directed_category: directional;
+    // readonly edge_parallel_category: parallel;
+    // readonly traversal_category: traversal;
 
     nullVertex (): vertex_descriptor | null;
 }
@@ -365,8 +365,8 @@ export interface NamedGraph extends Graph {
 // ComponentGraph
 //--------------------------------------------------------------------------
 export interface ComponentGraph extends Graph {
-    readonly components: string[];
-    component (id: number, v: vertex_descriptor): unknown;
+    // readonly components: string[];
+    // m (id: number, v: vertex_descriptor): unknown;
     // componentMap (id: number): unknown; // should be PropertyMap
 }
 
@@ -745,9 +745,9 @@ export class ReferenceGraphView <BaseGraph extends ReferenceGraph & VertexListGr
 implements IncidenceGraph, VertexListGraph {
     constructor (g: BaseGraph) {
         this.g = g;
-        this.directed_category = directional.directed;
-        this.edge_parallel_category = parallel.allow;
-        this.traversal_category = traversal.incidence | traversal.vertex_list;
+        // this.directed_category = directional.directed;
+        // this.edge_parallel_category = parallel.allow;
+        // this.traversal_category = traversal.incidence | traversal.vertex_list;
     }
     nullVertex (): vertex_descriptor | null {
         return this.g.nullVertex();
@@ -773,8 +773,8 @@ implements IncidenceGraph, VertexListGraph {
     numVertices (): number {
         return this.g.numVertices();
     }
-    readonly directed_category: directional;
-    readonly edge_parallel_category: parallel;
-    readonly traversal_category: traversal;
+    // readonly directed_category: directional;
+    // readonly edge_parallel_category: parallel;
+    // readonly traversal_category: traversal;
     g: BaseGraph;
 }
