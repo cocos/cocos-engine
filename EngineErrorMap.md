@@ -3648,3 +3648,15 @@ the native asset of %s is missing!
 ### 16352
 
 The asset %s is invalid for some reason, detail message: %s, stack: %s
+
+### 16353
+
+Can't find letter in this bitmap-font
+
+### 16354
+
+Can't find letter definition in texture atlas %s for letter:%s
+
+### 16355
+
+Can't find letter definition in font family %s for letter: %s

@@ -25,7 +25,7 @@ import { ANDROID, JSB } from 'internal:constants';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
 import { cclegacy, Color, Pool, Rect, Vec2 } from '../../../core';
-import { log, logID, warn } from '../../../core/platform';
+import { log, logID, warnID } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
@@ -832,9 +832,9 @@ export class TextProcessing {
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     if (style.fntConfig != null) {
-                        log(`Can't find letter definition in texture atlas ${style.fntConfig.atlasName} for letter:${character}`);
+                        logID(16354, style.fntConfig.atlasName as string, character);
                     } else {
-                        log(`Can't find letter definition in font family ${style.fontFamily} for letter:${character}`);
+                        logID(16355, style.fontFamily, character);
                     }
                     continue;
                 }
@@ -1178,7 +1178,7 @@ export class TextProcessing {
             if (!letterInfo.valid) { continue; }
             const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
             if (!letterDef) {
-                warn('Can\'t find letter in this bitmap-font');
+                warnID(16353);
                 continue;
             }
 
