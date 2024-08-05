@@ -28,8 +28,8 @@ import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
 import { cclegacy, js, warn } from '../../core';
 import { getSymbolCodeAt } from '../utils';
-import { TextureBase } from '../../asset/assets/texture-base';
 import { IShareLabelInfo } from '../assembler/label/font-utils';
+import { TextureBase } from '../../asset/assets/texture-base';
 
 export interface IConfig {
     [key: string]: any;
@@ -42,7 +42,6 @@ export class FontLetterDefinition {
     public h = 0;
     public offsetX = 0;
     public offsetY = 0;
-    public textureID = 0;
     public valid = false;
     public xAdvance = 0;
 }
@@ -53,9 +52,9 @@ export interface ILetterDefinition {
 
 export class FontAtlas {
     public letterDefinitions: ILetterDefinition = {};
-    public declare texture: TextureBase;
+    public declare texture: TextureBase | null;
 
-    constructor (texture: TextureBase) {
+    constructor (texture: TextureBase | null) {
         this.texture = texture;
     }
 
@@ -73,7 +72,7 @@ export class FontAtlas {
         return copyLetterDefinitions;
     }
 
-    public getTexture (): TextureBase {
+    public getTexture (): TextureBase | null {
         return this.texture;
     }
 
@@ -155,18 +154,17 @@ export class BitmapFont extends Font {
 
         const fontDict = fntConfig.fontDefDictionary;
         for (const fontDef in fontDict) {
+            const info = fontDict[fontDef];
             const letter = new FontLetterDefinition();
-            const rect = fontDict[fontDef].rect;
-            letter.offsetX = fontDict[fontDef].xOffset;
-            letter.offsetY = fontDict[fontDef].yOffset;
+            const rect = info.rect;
+            letter.offsetX = info.xOffset;
+            letter.offsetY = info.yOffset;
             letter.w = rect.width;
             letter.h = rect.height;
             letter.u = rect.x;
             letter.v = rect.y;
-            // FIXME: only one texture supported for now
-            letter.textureID = 0;
             letter.valid = true;
-            letter.xAdvance = fontDict[fontDef].xAdvance;
+            letter.xAdvance = info.xAdvance;
 
             this.fontDefDictionary.addLetterDefinitions(fontDef, letter);
         }

@@ -283,7 +283,7 @@ export class DynamicAtlasManager extends System {
      * @method packToDynamicAtlas
      * @param frame  the sprite frame that will be packed in the dynamic atlas.
      */
-    public packToDynamicAtlas (comp, frame: SpriteFrame): void {
+    public packToDynamicAtlas (comp, frame: SpriteFrame | null): void {
         if (EDITOR_NOT_IN_PREVIEW || !this._enabled) return;
 
         if (frame && !frame.original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {

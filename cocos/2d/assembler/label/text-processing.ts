@@ -25,7 +25,7 @@ import { ANDROID, JSB } from 'internal:constants';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
 import { cclegacy, Color, Pool, Rect, Vec2 } from '../../../core';
-import { log, logID, warnID } from '../../../core/platform';
+import { logID, warnID } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
