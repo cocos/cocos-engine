@@ -276,7 +276,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         } else {
             setShadowUBOView(this, camera, layoutName);
         }
-        setTextureUBOView(this, camera, this._pipeline);
     }
     addScene (camera: Camera, sceneFlags = SceneFlags.NONE, light: Light | undefined = undefined, scene: RenderScene | undefined = undefined): SceneBuilder {
         const sceneData = renderGraphPool.createSceneData(
@@ -299,7 +298,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
             );
             if (light && light.type !== LightType.DIRECTIONAL) setShadowUBOLightView(this, camera, light, 0, layoutName);
             else if (!(sceneFlags & SceneFlags.SHADOW_CASTER)) setShadowUBOView(this, camera, layoutName);
-            setTextureUBOView(this, camera, this._pipeline);
         }
         const sceneBuilder = pipelinePool.sceneBuilder.add();
         sceneBuilder.update(renderData, this._lg, this._renderGraph, sceneId, sceneData);
@@ -329,7 +327,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         } else {
             setShadowUBOView(this, null, layoutName);
         }
-        setTextureUBOView(this, null, this._pipeline);
     }
     addCameraQuad (camera: Camera, material: Material, passID: number, sceneFlags = SceneFlags.NONE): void {
         this._renderGraph.addVertex<RenderGraphValue.Blit>(
@@ -355,7 +352,6 @@ export class WebRenderQueueBuilder extends WebSetter implements RenderQueueBuild
         } else {
             setShadowUBOView(this, camera, layoutName);
         }
-        setTextureUBOView(this, camera, this._pipeline);
     }
     clearRenderTarget (name: string, color: Color = new Color()): void {
         const clearView = renderGraphPool.createClearView(name, ClearFlagBit.COLOR);
@@ -1669,6 +1665,7 @@ export class WebPipeline implements BasicPipeline {
         const result = pipelinePool.renderPassBuilder.add();
         result.update(data, this._renderGraph!, this._layoutGraph, this._resourceGraph, vertID, pass, this._pipelineSceneData);
         this._updateRasterPassConstants(result, width, height, layoutName);
+        setTextureUBOView(result, this._pipelineSceneData);
         return result;
     }
     addRenderPass (width: number, height: number, layoutName = 'default'): BasicRenderPassBuilder {
