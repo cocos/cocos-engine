@@ -91,7 +91,7 @@ export function getDescriptorTypeOrder (type: DescriptorType): DescriptorTypeOrd
 
 // find passID using name
 export function getCustomPassID (lg: LayoutGraphData, name: string | undefined): number {
-    return lg.locateChild(lg.nullVertex(), name || 'default');
+    return lg.locateChild(lg.N, name || 'default');
 }
 
 // find subpassID using name
@@ -573,7 +573,7 @@ export function getOrCreateDescriptorBlockData (
 }
 
 export function getProgramID (lg: LayoutGraphData, phaseID: number, programName: string): number {
-    assert(phaseID !== lg.nullVertex());
+    assert(phaseID !== lg.N);
     const phase = lg.j<RenderPhaseData>(phaseID);
     const programID = phase.shaderIndex.get(programName);
     if (programID === undefined) {
@@ -601,7 +601,7 @@ export function getPerPassDescriptorSetLayoutData (
     lg: LayoutGraphData,
     subpassOrPassID: number,
 ): DescriptorSetLayoutData | null {
-    assert(subpassOrPassID !== lg.nullVertex());
+    assert(subpassOrPassID !== lg.N);
     const node = lg.getLayout(subpassOrPassID);
     const set = node.descriptorSets.get(UpdateFrequency.PER_PASS);
     if (set === undefined) {
@@ -614,7 +614,7 @@ export function getPerPhaseDescriptorSetLayoutData (
     lg: LayoutGraphData,
     phaseID: number,
 ): DescriptorSetLayoutData | null {
-    assert(phaseID !== lg.nullVertex());
+    assert(phaseID !== lg.N);
     const node = lg.getLayout(phaseID);
     const set = node.descriptorSets.get(UpdateFrequency.PER_PHASE);
     if (set === undefined) {
@@ -628,7 +628,7 @@ export function getPerBatchDescriptorSetLayoutData (
     phaseID: number,
     programID,
 ): DescriptorSetLayoutData | null {
-    assert(phaseID !== lg.nullVertex());
+    assert(phaseID !== lg.N);
     const phase = lg.j<RenderPhaseData>(phaseID);
     assert(programID < phase.shaderPrograms.length);
     const program = phase.shaderPrograms[programID];
@@ -644,7 +644,7 @@ export function getPerInstanceDescriptorSetLayoutData (
     phaseID: number,
     programID,
 ): DescriptorSetLayoutData | null {
-    assert(phaseID !== lg.nullVertex());
+    assert(phaseID !== lg.N);
     const phase = lg.j<RenderPhaseData>(phaseID);
     assert(programID < phase.shaderPrograms.length);
     const program = phase.shaderPrograms[programID];

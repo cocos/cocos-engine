@@ -230,7 +230,7 @@ export interface Graph {
     // readonly edge_parallel_category: parallel;
     // readonly traversal_category: traversal;
 
-    nullVertex (): vertex_descriptor | null;
+    readonly N: number | null; // nullVertex (): vertex_descriptor | null;
 }
 
 //--------------------------------------------------------------------------
@@ -467,11 +467,11 @@ export function removeAllEdgesFromList (edges: Set<Edge>, el: OutEP[], v: vertex
 }
 
 export function getPath (g: ReferenceGraph & NamedGraph, v: vertex_descriptor | null): string {
-    if (v === g.nullVertex()) {
+    if (v === g.N) {
         return '';
     }
     const paths: string[] = [];
-    for (; v !== g.nullVertex(); v = g.getParent(v as vertex_descriptor)) {
+    for (; v !== g.N; v = g.getParent(v as vertex_descriptor)) {
         paths.push(g.vertexName(v as vertex_descriptor));
     }
     let path = '';
@@ -483,7 +483,7 @@ export function getPath (g: ReferenceGraph & NamedGraph, v: vertex_descriptor | 
 }
 
 export function findRelative (g: ParentGraph, v: vertex_descriptor | null, path: string): vertex_descriptor | null {
-    const pseudo = g.nullVertex();
+    const pseudo = g.N;
     const names = path.split('/');
 
     if (names.length === 0) { // empty string
@@ -552,7 +552,7 @@ function getDefaultStartingVertex (g: IncidenceGraph & VertexListGraph): vertex_
     const iter = g.vertices();
     const v = iter.next();
     if (v.done) {
-        return g.nullVertex();
+        return g.N;
     } else {
         return v.value;
     }
@@ -745,13 +745,13 @@ export class ReferenceGraphView <BaseGraph extends ReferenceGraph & VertexListGr
 implements IncidenceGraph, VertexListGraph {
     constructor (g: BaseGraph) {
         this.g = g;
+        this.N = g.N;
         // this.directed_category = directional.directed;
         // this.edge_parallel_category = parallel.allow;
         // this.traversal_category = traversal.incidence | traversal.vertex_list;
     }
-    nullVertex (): vertex_descriptor | null {
-        return this.g.nullVertex();
-    }
+    declare readonly N: number | null;
+
     edge (u: vertex_descriptor, v: vertex_descriptor): boolean {
         return this.g.reference(u, v);
     }

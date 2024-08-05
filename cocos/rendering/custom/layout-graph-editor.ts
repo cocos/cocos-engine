@@ -515,23 +515,23 @@ export class LayoutGraphInfo {
     readonly enableDebug = false;
     private getPassID (passName: string, type: RenderPassType): number {
         const lg = this.lg;
-        let passID = lg.locateChild(lg.nullVertex(), passName);
-        if (passID === lg.nullVertex()) {
+        let passID = lg.locateChild(lg.N, passName);
+        if (passID === lg.N) {
             passID = lg.addVertex<LayoutGraphValue.RenderStage>(
                 LayoutGraphValue.RenderStage,
                 type,
                 passName,
                 new DescriptorDB(),
-                lg.nullVertex(),
+                lg.N,
             );
         }
-        assert(passID !== lg.nullVertex());
+        assert(passID !== lg.N);
         return passID;
     }
     private getSubpassID (subpassName: string, passID: number): number {
         const lg = this.lg;
         let subpassID = lg.locateChild(passID, subpassName);
-        if (subpassID === lg.nullVertex()) {
+        if (subpassID === lg.N) {
             subpassID = lg.addVertex<LayoutGraphValue.RenderStage>(
                 LayoutGraphValue.RenderStage,
                 RenderPassType.RENDER_SUBPASS,
@@ -540,13 +540,13 @@ export class LayoutGraphInfo {
                 passID,
             );
         }
-        assert(subpassID !== lg.nullVertex());
+        assert(subpassID !== lg.N);
         return subpassID;
     }
     private getPhaseID (phaseName: string, subpassOrPassID: number): number {
         const lg = this.lg;
         let phaseID = lg.locateChild(subpassOrPassID, phaseName);
-        if (phaseID === lg.nullVertex()) {
+        if (phaseID === lg.N) {
             phaseID = lg.addVertex<LayoutGraphValue.RenderPhase>(
                 LayoutGraphValue.RenderPhase,
                 new RenderPhase(),
@@ -555,7 +555,7 @@ export class LayoutGraphInfo {
                 subpassOrPassID,
             );
         }
-        assert(phaseID !== lg.nullVertex());
+        assert(phaseID !== lg.N);
         return phaseID;
     }
     private getDescriptorBlock (key: string, descriptorDB: DescriptorDB): DescriptorBlock {
@@ -958,9 +958,9 @@ function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuild
             const type = graph.j<RenderPassType>(v);
             const parentID = graph.getParent(v);
             if (type === RenderPassType.RENDER_SUBPASS) {
-                assert(parentID !== graph.nullVertex());
+                assert(parentID !== graph.N);
             } else {
-                assert(parentID === graph.nullVertex());
+                assert(parentID === graph.N);
             }
             if (type === RenderPassType.RENDER_PASS) {
                 isRenderPass = true;

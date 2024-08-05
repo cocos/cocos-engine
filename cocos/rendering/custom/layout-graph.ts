@@ -130,8 +130,8 @@ export class LayoutGraph implements BidirectionalGraph
 , AddressableGraph {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
     //-----------------------------------------------------------------
     // IncidenceGraph
@@ -609,8 +609,8 @@ export class LayoutGraphData implements BidirectionalGraph
 , AddressableGraph {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
     //-----------------------------------------------------------------
     // IncidenceGraph

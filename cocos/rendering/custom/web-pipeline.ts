@@ -394,7 +394,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._pipeline = pipeline;
 
         const layoutName = this._renderGraph.getLayout(this._vertID);
-        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+        this._layoutID = layoutGraph.locateChild(layoutGraph.N, layoutName);
     }
     update (
         data: RenderData,
@@ -412,7 +412,7 @@ export class WebRenderSubpassBuilder extends WebSetter implements RenderSubpassB
         this._pipeline = pipeline;
 
         const layoutName = this._renderGraph.getLayout(this._vertID);
-        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+        this._layoutID = layoutGraph.locateChild(layoutGraph.N, layoutName);
     }
     addRenderTarget (name: string, accessType: AccessType, slotName?: string | undefined, loadOp?: LoadOp | undefined, storeOp?: StoreOp | undefined, color?: Color | undefined): void {
         throw new Error('Method not implemented.');
@@ -478,7 +478,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pass = pass;
         this._pipeline = pipeline;
         const layoutName = this._renderGraph.getLayout(this._vertID);
-        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+        this._layoutID = layoutGraph.locateChild(layoutGraph.N, layoutName);
     }
     update (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: RasterPass, pipeline: PipelineSceneData): void {
         this._renderGraph = renderGraph;
@@ -489,7 +489,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
         this._pipeline = pipeline;
         this._data = data;
         const layoutName = this._renderGraph.getLayout(this._vertID);
-        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+        this._layoutID = layoutGraph.locateChild(layoutGraph.N, layoutName);
     }
 
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
@@ -729,7 +729,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._pipeline = pipeline;
 
         const layoutName = this._renderGraph.getLayout(this._vertID);
-        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+        this._layoutID = layoutGraph.locateChild(layoutGraph.N, layoutName);
     }
     update (data: RenderData, renderGraph: RenderGraph, layoutGraph: LayoutGraphData, resourceGraph: ResourceGraph, vertID: number, pass: ComputePass, pipeline: PipelineSceneData): void {
         this._data = data;
@@ -741,7 +741,7 @@ export class WebComputePassBuilder extends WebSetter implements ComputePassBuild
         this._pipeline = pipeline;
 
         const layoutName = this._renderGraph.getLayout(this._vertID);
-        this._layoutID = layoutGraph.locateChild(layoutGraph.nullVertex(), layoutName);
+        this._layoutID = layoutGraph.locateChild(layoutGraph.N, layoutName);
     }
     setCustomShaderStages (name: string, stageFlags: ShaderStageFlagBit): void {
         throw new Error('Method not implemented.');
@@ -1171,7 +1171,7 @@ export class WebPipeline implements BasicPipeline {
     }
 
     public getGlobalDescriptorSetData (): DescriptorSetData | undefined {
-        const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), 'default');
+        const stageId = this.layoutGraph.locateChild(this.layoutGraph.N, 'default');
         assert(stageId !== 0xFFFFFFFF);
         const layout = this.layoutGraph.getLayout(stageId);
         const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
@@ -1647,7 +1647,7 @@ export class WebPipeline implements BasicPipeline {
     }
     addRenderPassImpl (width: number, height: number, layoutName: string, count = 1, quality = 0): BasicMultisampleRenderPassBuilder {
         if (DEBUG) {
-            const stageId = this.layoutGraph.locateChild(this.layoutGraph.nullVertex(), layoutName);
+            const stageId = this.layoutGraph.locateChild(this.layoutGraph.N, layoutName);
             assert(stageId !== 0xFFFFFFFF);
             const layout = this.layoutGraph.getLayout(stageId);
             assert(Boolean(layout));
