@@ -434,7 +434,7 @@ const WebGLBlendFactors: GLenum[] = [
     0x8004, // WebGLRenderingContext.ONE_MINUS_CONSTANT_ALPHA,
 ];
 
-export enum WebGLCmd {
+export const enum WebGLCmd {
     BEGIN_RENDER_PASS,
     END_RENDER_PASS,
     BIND_STATES,

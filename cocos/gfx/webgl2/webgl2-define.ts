@@ -25,7 +25,7 @@
 import { WebGL2Device } from './webgl2-device';
 
 // Extensions
-export enum WebGL2EXT {
+export const enum WebGL2EXT {
     COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0,
     COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1,
     COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2,

@@ -25,7 +25,7 @@
 import { WebGLDevice } from './webgl-device';
 
 // Extensions
-export enum WebGLEXT {
+export const enum WebGLEXT {
     RGBA16F_EXT = 0x881A,
     RGB16F_EXT = 0x881B,
     RGBA32F_EXT = 0x8814,

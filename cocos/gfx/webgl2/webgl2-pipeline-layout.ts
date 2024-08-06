@@ -43,7 +43,7 @@ export class WebGL2PipelineLayout extends PipelineLayout {
         for (let i = 0; i < this._setLayouts.length; i++) {
             const setLayout = this._setLayouts[i] as WebGL2DescriptorSetLayout;
             const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings;
-            const indices = Array(setLayout.bindingIndices.length).fill(-1);
+            const indices = Array<number>(setLayout.bindingIndices.length).fill(-1);
             for (let j = 0; j < dynamicBindings.length; j++) {
                 const binding = dynamicBindings[j];
                 if (indices[binding] < 0) indices[binding] = dynamicOffsetCount + j;

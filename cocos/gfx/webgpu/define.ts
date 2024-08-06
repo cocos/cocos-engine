@@ -87,7 +87,7 @@ export function copyNumbersToTarget (source: number[], target: number[], start: 
     target.splice(start, count, ...sliceToCopy);
 }
 
-export enum DescUpdateFrequency {
+export const enum DescUpdateFrequency {
     LOW,
     NORMAL,
 }

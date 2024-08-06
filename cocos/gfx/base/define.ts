@@ -32,8 +32,6 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 
 import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
-import { TextureBarrier } from './states/texture-barrier';
-import { BufferBarrier } from './states/buffer-barrier';
 import { GCObject } from '../../core';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
@@ -58,7 +56,7 @@ const deepCopy = <T extends ICopyable> (target: T[], source: T[], Ctor: Construc
  * @en Graphics object type
  * @zh 图形API对象的类型
  */
-export enum ObjectType {
+export const enum ObjectType {
     UNKNOWN,
     SWAPCHAIN,
     BUFFER,
@@ -81,13 +79,13 @@ export enum ObjectType {
     COUNT,
 }
 
-export enum Status {
+export const enum Status {
     UNREADY,
     FAILED,
     SUCCESS,
 }
 
-export enum API {
+export const enum API {
     UNKNOWN,
     GLES2,
     GLES3,
@@ -99,14 +97,14 @@ export enum API {
     WEBGPU,
 }
 
-export enum SurfaceTransform {
+export const enum SurfaceTransform {
     IDENTITY,
     ROTATE_90,
     ROTATE_180,
     ROTATE_270,
 }
 
-export enum Feature {
+export const enum Feature {
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
@@ -134,7 +132,7 @@ export enum Feature {
     COUNT,
 }
 
-export enum Format {
+export const enum Format {
 
     UNKNOWN,
 
@@ -288,7 +286,7 @@ export enum Format {
     COUNT,
 }
 
-export enum FormatType {
+export const enum FormatType {
     NONE,
     UNORM,
     SNORM,
@@ -298,7 +296,7 @@ export enum FormatType {
     FLOAT,
 }
 
-export enum Type {
+export const enum Type {
     UNKNOWN,
     BOOL,
     BOOL2,
@@ -353,7 +351,7 @@ export enum Type {
     COUNT,
 }
 
-export enum BufferUsageBit {
+export const enum BufferUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
@@ -364,24 +362,24 @@ export enum BufferUsageBit {
     INDIRECT = 0x40,
 }
 
-export enum BufferFlagBit {
+export const enum BufferFlagBit {
     NONE = 0,
 }
 
-export enum MemoryAccessBit {
+export const enum MemoryAccessBit {
     NONE = 0,
     READ_ONLY = 0x1,
     WRITE_ONLY = 0x2,
     READ_WRITE = READ_ONLY | WRITE_ONLY,
 }
 
-export enum MemoryUsageBit {
+export const enum MemoryUsageBit {
     NONE = 0,
     DEVICE = 0x1, // for rarely-updated resources, use MemoryUsageBit::DEVICE
     HOST = 0x2,   // for frequently-updated resources, use MemoryUsageBit::DEVICE | MemoryUsageBit::HOST
 }
 
-export enum TextureType {
+export const enum TextureType {
     TEX1D,
     TEX2D,
     TEX3D,
@@ -390,7 +388,7 @@ export enum TextureType {
     TEX2D_ARRAY,
 }
 
-export enum TextureUsageBit {
+export const enum TextureUsageBit {
     NONE = 0,
     TRANSFER_SRC = 0x1,
     TRANSFER_DST = 0x2,
@@ -401,7 +399,7 @@ export enum TextureUsageBit {
     INPUT_ATTACHMENT = 0x40,
 }
 
-export enum TextureFlagBit {
+export const enum TextureFlagBit {
     NONE = 0,
     GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
     GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
@@ -412,7 +410,7 @@ export enum TextureFlagBit {
     MUTABLE_STORAGE = 0x80, // mutable storage for gl
 }
 
-export enum FormatFeatureBit {
+export const enum FormatFeatureBit {
     NONE = 0,
     RENDER_TARGET = 0x1,     // Allow usages as render pass attachments
     SAMPLED_TEXTURE = 0x2,   // Allow sampled reads in shaders
@@ -421,7 +419,7 @@ export enum FormatFeatureBit {
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
 }
 
-export enum SampleCount {
+export const enum SampleCount {
     X1  = 0x01,
     X2  = 0x02,
     X4  = 0x04,
@@ -431,7 +429,7 @@ export enum SampleCount {
     X64 = 0x40
 }
 
-export enum VsyncMode {
+export const enum VsyncMode {
     // The application does not synchronizes with the vertical sync.
     // If application renders faster than the display refreshes, frames are wasted and tearing may be observed.
     // FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
@@ -455,21 +453,21 @@ export enum VsyncMode {
     HALF,
 }
 
-export enum Filter {
+export const enum Filter {
     NONE,
     POINT,
     LINEAR,
     ANISOTROPIC,
 }
 
-export enum Address {
+export const enum Address {
     WRAP,
     MIRROR,
     CLAMP,
     BORDER,
 }
 
-export enum ComparisonFunc {
+export const enum ComparisonFunc {
     NEVER,
     LESS,
     EQUAL,
@@ -480,7 +478,7 @@ export enum ComparisonFunc {
     ALWAYS,
 }
 
-export enum StencilOp {
+export const enum StencilOp {
     ZERO,
     KEEP,
     REPLACE,
@@ -491,7 +489,7 @@ export enum StencilOp {
     DECR_WRAP,
 }
 
-export enum BlendFactor {
+export const enum BlendFactor {
     ZERO,
     ONE,
     SRC_ALPHA,
@@ -509,7 +507,7 @@ export enum BlendFactor {
     ONE_MINUS_CONSTANT_ALPHA,
 }
 
-export enum BlendOp {
+export const enum BlendOp {
     ADD,
     SUB,
     REV_SUB,
@@ -517,7 +515,7 @@ export enum BlendOp {
     MAX,
 }
 
-export enum ColorMask {
+export const enum ColorMask {
     NONE = 0x0,
     R = 0x1,
     G = 0x2,
@@ -526,7 +524,7 @@ export enum ColorMask {
     ALL = R | G | B | A,
 }
 
-export enum ShaderStageFlagBit {
+export const enum ShaderStageFlagBit {
     NONE = 0x0,
     VERTEX = 0x1,
     CONTROL = 0x2,
@@ -537,18 +535,18 @@ export enum ShaderStageFlagBit {
     ALL = 0x3f,
 }
 
-export enum LoadOp {
+export const enum LoadOp {
     LOAD,    // Load the previous content from memory
     CLEAR,   // Clear the content to a fixed value
     DISCARD, // Discard the previous content
 }
 
-export enum StoreOp {
+export const enum StoreOp {
     STORE,   // Store the pending content to memory
     DISCARD, // Discard the pending content
 }
 
-export enum AccessFlagBit {
+export const enum AccessFlagBit {
     NONE = 0,
 
     // Read accesses
@@ -583,7 +581,7 @@ export enum AccessFlagBit {
     HOST_WRITE = 1 << 26,                     // Written on the host
 }
 
-export enum ResolveMode {
+export const enum ResolveMode {
     NONE,
     SAMPLE_ZERO,
     AVERAGE,
@@ -591,13 +589,13 @@ export enum ResolveMode {
     MAX,
 }
 
-export enum PipelineBindPoint {
+export const enum PipelineBindPoint {
     GRAPHICS,
     COMPUTE,
     RAY_TRACING,
 }
 
-export enum PrimitiveMode {
+export const enum PrimitiveMode {
     POINT_LIST,
     LINE_LIST,
     LINE_STRIP,
@@ -615,24 +613,24 @@ export enum PrimitiveMode {
     QUAD_PATCH_LIST,
 }
 
-export enum PolygonMode {
+export const enum PolygonMode {
     FILL,
     POINT,
     LINE,
 }
 
-export enum ShadeModel {
+export const enum ShadeModel {
     GOURAND,
     FLAT,
 }
 
-export enum CullMode {
+export const enum CullMode {
     NONE,
     FRONT,
     BACK,
 }
 
-export enum DynamicStateFlagBit {
+export const enum DynamicStateFlagBit {
     NONE = 0x0,
     LINE_WIDTH = 0x1,
     DEPTH_BIAS = 0x2,
@@ -642,13 +640,13 @@ export enum DynamicStateFlagBit {
     STENCIL_COMPARE_MASK = 0x20,
 }
 
-export enum StencilFace {
+export const enum StencilFace {
     FRONT = 0x1,
     BACK = 0x2,
     ALL = 0x3,
 }
 
-export enum DescriptorType {
+export const enum DescriptorType {
     UNKNOWN = 0,
     UNIFORM_BUFFER = 0x1,
     DYNAMIC_UNIFORM_BUFFER = 0x2,
@@ -661,24 +659,24 @@ export enum DescriptorType {
     INPUT_ATTACHMENT = 0x100,
 }
 
-export enum QueueType {
+export const enum QueueType {
     GRAPHICS,
     COMPUTE,
     TRANSFER,
 }
 
-export enum QueryType {
+export const enum QueryType {
     OCCLUSION,
     PIPELINE_STATISTICS,
     TIMESTAMP,
 }
 
-export enum CommandBufferType {
+export const enum CommandBufferType {
     PRIMARY,
     SECONDARY,
 }
 
-export enum ClearFlagBit {
+export const enum ClearFlagBit {
     NONE = 0,
     COLOR = 0x1,
     DEPTH = 0x2,
@@ -687,13 +685,13 @@ export enum ClearFlagBit {
     ALL = COLOR | DEPTH | STENCIL,
 }
 
-export enum BarrierType {
+export const enum BarrierType {
     FULL,
     SPLIT_BEGIN,
     SPLIT_END,
 }
 
-export enum PassType {
+export const enum PassType {
     RASTER,
     COMPUTE,
     COPY,
@@ -1991,7 +1989,7 @@ export interface ISwapchainTextureInfo {
     height: number;
 }
 
-export enum AttributeName {
+export const enum AttributeName {
     ATTR_POSITION = 'a_position',
     ATTR_NORMAL = 'a_normal',
     ATTR_TANGENT = 'a_tangent',

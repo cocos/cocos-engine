@@ -435,7 +435,7 @@ export const WebGPUBlendFactors: GPUBlendFactor[] = [
     'one-minus-src-alpha', // ONE_MINUS_CONSTANT_ALPHA: not supported
 ];
 
-export enum WebGPUCmd {
+export const enum WebGPUCmd {
     BEGIN_RENDER_PASS,
     END_RENDER_PASS,
     BIND_STATES,

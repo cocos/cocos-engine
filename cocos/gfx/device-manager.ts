@@ -39,7 +39,7 @@ import { BrowserType } from '../../pal/system-info/enum-type';
  * 设置渲染器类型，仅适用于 web 端
  * @internal
  */
-export enum LegacyRenderMode {
+export const enum LegacyRenderMode {
     /**
      * @en
      * Automatically chosen by engine.
@@ -80,7 +80,7 @@ export enum LegacyRenderMode {
 /**
  * @internal
  */
-export enum RenderType {
+export const enum RenderType {
     UNKNOWN = -1,
     CANVAS = 0,
     WEBGL = 1,
