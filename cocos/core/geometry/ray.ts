@@ -168,12 +168,12 @@ export class Ray {
      * @param dz @en The z component of direction point. @zh 方向的 z 部分。
      */
     constructor (
-ox = 0,
-oy = 0,
-oz = 0,
+        ox = 0,
+        oy = 0,
+        oz = 0,
         dx = 0,
-dy = 0,
-dz = -1,
+        dy = 0,
+        dz = -1,
     ) {
         this.o = new Vec3(ox, oy, oz);
         this.d = new Vec3(dx, dy, dz);

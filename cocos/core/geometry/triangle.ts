@@ -38,27 +38,27 @@ export class Triangle {
      * Creates a new triangle instance.
      * @zh
      * 创建一个新的三角形。
-     * @param {number} ax @en The x component of point a @zh a 点的 x 部分。
-     * @param {number} ay @en The y component of point a @zh a 点的 y 部分。
-     * @param {number} az @en The z component of point a @zh a 点的 z 部分。
-     * @param {number} bx @en The x component of point b @zh b 点的 x 部分。
-     * @param {number} by @en The y component of point b @zh b 点的 y 部分。
-     * @param {number} bz @en The z component of point b @zh b 点的 z 部分。
-     * @param {number} cx @en The x component of point c @zh c 点的 x 部分。
-     * @param {number} cy @en The y component of point c @zh c 点的 y 部分。
-     * @param {number} cz @en The z component of point c @zh c 点的 z 部分。
-     * @returns {Triangle} @en The created Triangle instance. @zh 创建出的三角形实例。
+     * @param ax @en The x component of point a @zh a 点的 x 部分。
+     * @param ay @en The y component of point a @zh a 点的 y 部分。
+     * @param az @en The z component of point a @zh a 点的 z 部分。
+     * @param bx @en The x component of point b @zh b 点的 x 部分。
+     * @param by @en The y component of point b @zh b 点的 y 部分。
+     * @param bz @en The z component of point b @zh b 点的 z 部分。
+     * @param cx @en The x component of point c @zh c 点的 x 部分。
+     * @param cy @en The y component of point c @zh c 点的 y 部分。
+     * @param cz @en The z component of point c @zh c 点的 z 部分。
+     * @returns @en The created Triangle instance. @zh 创建出的三角形实例。
      */
     public static create (
         ax = 1,
-ay = 0,
-az = 0,
+        ay = 0,
+        az = 0,
         bx = 0,
-by = 0,
-bz = 0,
+        by = 0,
+        bz = 0,
         cx = 0,
-cy = 0,
-cz = 1,
+        cy = 0,
+        cz = 1,
     ): Triangle {
         return new Triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
     }
@@ -205,26 +205,26 @@ cz = 1,
      * Constructs a triangle.
      * @zh
      * 构造一个三角形。
-     * @param {number} ax @en x component of point a. @zh a 点的 x 部分。
-     * @param {number} ay @en y component of point a. @zh a 点的 y 部分。
-     * @param {number} az @en z component of point a. @zh a 点的 z 部分。
-     * @param {number} bx @en x component of point b. @zh b 点的 x 部分。
-     * @param {number} by @en y component of point b. @zh b 点的 y 部分。
-     * @param {number} bz @en z component of point b. @zh b 点的 z 部分。
-     * @param {number} cx @en x component of point c. @zh c 点的 x 部分。
-     * @param {number} cy @en y component of point c. @zh c 点的 y 部分。
-     * @param {number} cz @en z component of point c. @zh c 点的 z 部分。
+     * @param ax @en x component of point a. @zh a 点的 x 部分。
+     * @param ay @en y component of point a. @zh a 点的 y 部分。
+     * @param az @en z component of point a. @zh a 点的 z 部分。
+     * @param bx @en x component of point b. @zh b 点的 x 部分。
+     * @param by @en y component of point b. @zh b 点的 y 部分。
+     * @param bz @en z component of point b. @zh b 点的 z 部分。
+     * @param cx @en x component of point c. @zh c 点的 x 部分。
+     * @param cy @en y component of point c. @zh c 点的 y 部分。
+     * @param cz @en z component of point c. @zh c 点的 z 部分。
      */
     constructor (
-ax = 0,
-ay = 0,
-az = 0,
+        ax = 0,
+        ay = 0,
+        az = 0,
         bx = 1,
-by = 0,
-bz = 0,
+        by = 0,
+        bz = 0,
         cx = 0,
-cy = 1,
-cz = 0,
+        cy = 1,
+        cz = 0,
     ) {
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);
