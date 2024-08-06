@@ -374,8 +374,10 @@ export interface ComponentGraph extends Graph {
 // PolymorphicGraph
 //--------------------------------------------------------------------------
 export interface PolymorphicGraph extends Graph {
-    holds (id: number, v: vertex_descriptor): boolean;
-    id (v: vertex_descriptor): number;
+    /** Checks if a vertex currently holds a given type */
+    h (id: number, v: vertex_descriptor): boolean;
+    /** Returns the zero-based index of the alternative held by the vertex */
+    w (v: vertex_descriptor): number;
     object (v: vertex_descriptor): unknown;
     value (id: number, v: vertex_descriptor): unknown;
     // tryValue(id: number, v: vertex_descriptor): unknown;

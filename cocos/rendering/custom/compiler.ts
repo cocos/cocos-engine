@@ -97,19 +97,19 @@ class PassVisitor implements RenderGraphVisitor {
         this._resVisitor = new ResourceVisitor(this.context);
     }
     protected _isRasterPass (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.RasterPass, u);
+        return this.context.renderGraph.h(RenderGraphValue.RasterPass, u);
     }
     protected _isCopyPass (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Copy, u);
+        return this.context.renderGraph.h(RenderGraphValue.Copy, u);
     }
     protected _isCompute (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Compute, u);
+        return this.context.renderGraph.h(RenderGraphValue.Compute, u);
     }
     protected _isDispatch (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Dispatch, u);
+        return this.context.renderGraph.h(RenderGraphValue.Dispatch, u);
     }
     protected _isQueue (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Queue, u);
+        return this.context.renderGraph.h(RenderGraphValue.Queue, u);
     }
     protected _isShadowMap (u: number): boolean {
         const sceneData = this._getSceneData(u);
@@ -119,16 +119,16 @@ class PassVisitor implements RenderGraphVisitor {
         return false;
     }
     protected _getSceneData (u: number): SceneData | null {
-        if (!this.context.renderGraph.holds(RenderGraphValue.Scene, u)) {
+        if (!this.context.renderGraph.h(RenderGraphValue.Scene, u)) {
             return null;
         }
         return this.context.renderGraph.j<SceneData>(u);
     }
     protected _isScene (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Scene, u);
+        return this.context.renderGraph.h(RenderGraphValue.Scene, u);
     }
     protected _isBlit (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Blit, u);
+        return this.context.renderGraph.h(RenderGraphValue.Blit, u);
     }
 
     private _useResourceInfo (input: string, raster: RasterView): void {

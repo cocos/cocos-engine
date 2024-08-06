@@ -444,7 +444,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData):
     }
     // create pipeline layouts
     for (const v of lg.vertices()) {
-        if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+        if (!lg.h(LayoutGraphDataValue.RenderPhase, v)) {
             continue;
         }
         const subpassOrPassID = lg.getParent(v);

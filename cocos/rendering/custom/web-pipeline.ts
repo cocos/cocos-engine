@@ -1448,7 +1448,7 @@ export class WebPipeline implements BasicPipeline {
         desc.width = width;
         desc.height = height;
         if (swapchain) {
-            assert(this.resourceGraph.id(resId) === ResourceGraphValue.Swapchain);
+            assert(this.resourceGraph.w(resId) === ResourceGraphValue.Swapchain);
             const sc = this.resourceGraph.j<RenderSwapchain>(resId);
             assert(!!sc.swapchain);
             sc.swapchain = swapchain;

@@ -800,10 +800,10 @@ export class ResourceGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
-    holds (id: ResourceGraphValue, v: number): boolean {
+    h (id: ResourceGraphValue, v: number): boolean {
         return this.x[v].t === id;
     }
-    id (v: number): ResourceGraphValue {
+    w (v: number): ResourceGraphValue {
         return this.x[v].t;
     }
     object (v: number): ResourceGraphObject {
@@ -1376,10 +1376,10 @@ export class RenderGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
-    holds (id: RenderGraphValue, v: number): boolean {
+    h (id: RenderGraphValue, v: number): boolean {
         return this.x[v].t === id;
     }
-    id (v: number): RenderGraphValue {
+    w (v: number): RenderGraphValue {
         return this.x[v].t;
     }
     object (v: number): RenderGraphObject {

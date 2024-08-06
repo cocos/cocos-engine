@@ -540,7 +540,7 @@ class DeviceComputeQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
+        this._renderPhase = layoutGraph.h(LayoutGraphDataValue.RenderPhase, value)
             ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
@@ -593,7 +593,7 @@ class DeviceRenderQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
+        this._renderPhase = layoutGraph.h(LayoutGraphDataValue.RenderPhase, value)
             ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
@@ -1852,22 +1852,22 @@ class BaseRenderVisitor {
         this.rg = context.renderGraph;
     }
     protected _isRasterPass (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.RasterPass, u);
+        return context.renderGraph.h(RenderGraphValue.RasterPass, u);
     }
     protected isComputePass (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Compute, u);
+        return context.renderGraph.h(RenderGraphValue.Compute, u);
     }
     protected isDispatch (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Dispatch, u);
+        return context.renderGraph.h(RenderGraphValue.Dispatch, u);
     }
     protected _isQueue (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Queue, u);
+        return context.renderGraph.h(RenderGraphValue.Queue, u);
     }
     protected _isScene (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Scene, u);
+        return context.renderGraph.h(RenderGraphValue.Scene, u);
     }
     protected _isBlit (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Blit, u);
+        return context.renderGraph.h(RenderGraphValue.Blit, u);
     }
     applyID (id: number): void {
         if (this._isRasterPass(id)) {
