@@ -49,6 +49,10 @@ enum SpriteMode {
 @menu('2D/SpriteRenderer')
 @executeInEditMode
 export class SpriteRenderer extends ModelRenderer {
+    constructor () {
+        super();
+    }
+
     /**
     * @en The spriteFrame that the component should render.
     * @zh 该组件应渲染的 spriteFrame。

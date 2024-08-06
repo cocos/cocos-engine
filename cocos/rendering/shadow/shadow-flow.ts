@@ -58,7 +58,11 @@ export class ShadowFlow extends RenderFlow {
         stages: [],
     };
 
-    private _shadowRenderPass: RenderPass|null = null;
+    private _shadowRenderPass: RenderPass | null = null;
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: IRenderFlowInfo): boolean {
         super.initialize(info);

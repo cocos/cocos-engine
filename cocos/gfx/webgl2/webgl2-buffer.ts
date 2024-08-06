@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warn } from '../../core';
+import { warnID } from '../../core';
 import { Buffer } from '../base/buffer';
 import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
 import {
@@ -102,7 +102,7 @@ export class WebGL2Buffer extends Buffer {
 
     public resize (size: number): void {
         if (this._isBufferView) {
-            warn('cannot resize buffer views!');
+            warnID(16379);
             return;
         }
 
@@ -124,7 +124,7 @@ export class WebGL2Buffer extends Buffer {
 
     public update (buffer: Readonly<BufferSource>, size?: number): void {
         if (this._isBufferView) {
-            warn('cannot update through buffer views!');
+            warnID(16380);
             return;
         }
 

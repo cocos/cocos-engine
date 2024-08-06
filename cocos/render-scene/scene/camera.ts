@@ -805,20 +805,20 @@ export class Camera {
      * set to 1 to keep the same with the canvas size.
      * @zh 相机内部缓冲尺寸的缩放值, 1 为与 canvas 尺寸相同。
      */
-    public screenScale: number;
+    public screenScale: number = 1;
 
     public postProcess: PostProcess | null = null;
     public usePostProcess = false;
     public pipeline = '';
     public pipelineSettings: object | null = null;
 
-    private _device: Device;
+    private declare _device: Device;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
     private _name: string | null = null;
     private _enabled = false;
     private _proj: CameraProjection = -1;
-    private _aspect: number;
+    private _aspect: number = 1;
     private _orthoHeight = 10.0;
     private _fovAxis = CameraFOVAxis.VERTICAL;
     private _fov: number = toRadian(45);
@@ -839,7 +839,7 @@ export class Camera {
     private _position: Vec3 = new Vec3();
     private _priority = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
-    private _apertureValue: number;
+    private declare _apertureValue: number;
     private _shutter: CameraShutter = CameraShutter.D125;
     private _shutterValue = 0.0;
     private _iso: CameraISO = CameraISO.ISO100;
@@ -864,7 +864,6 @@ export class Camera {
         this._shutterValue = SHUTTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
 
-        this._aspect = this.screenScale = 1;
         this._frustum.accurate = true;
 
         if (!correctionMatrices.length) {

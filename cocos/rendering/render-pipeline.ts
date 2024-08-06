@@ -160,6 +160,10 @@ export abstract class RenderPipeline extends Asset implements IPipelineEvent, Pi
     protected _quadIAOffscreen: InputAssembler | null = null;
     protected _eventProcessor: PipelineEventProcessor = new PipelineEventProcessor();
 
+    constructor () {
+        super();
+    }
+
     /**
      * @zh
      * 四边形输入汇集器。

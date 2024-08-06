@@ -162,6 +162,10 @@ export class PageViewIndicator extends Component {
     protected _pageView: PageView | null = null;
     protected _indicators: Node[] = [];
 
+    constructor () {
+        super();
+    }
+
     public onLoad (): void {
         this._updateLayout();
     }

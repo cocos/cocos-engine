@@ -27,7 +27,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { EDITOR, TEST, BUILD } from 'internal:constants';
-import { Mat4, Rect, Size, Vec2, Vec3, Vec4, cclegacy, errorID, warnID, js } from '../../core';
+import { Rect, Size, Vec2, Vec3, Vec4, cclegacy, errorID, warnID, js, v3, mat4, rect, v4, v2, size } from '../../core';
 import { Asset } from '../../asset/assets/asset';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { ImageAsset, ImageSource } from '../../asset/assets/image-asset';
@@ -42,8 +42,8 @@ const INSET_LEFT = 0;
 const INSET_TOP = 1;
 const INSET_RIGHT = 2;
 const INSET_BOTTOM = 3;
-const temp_vec3 = new Vec3();
-const temp_matrix = new Mat4();
+const temp_vec3 = v3();
+const temp_matrix = mat4();
 
 enum MeshType {
     RECT = 0,
@@ -586,15 +586,15 @@ export class SpriteFrame extends Asset {
     public uvSliced: IUV[] = [];
 
     // the location of the sprite on rendering texture
-    protected _rect = new Rect();
+    protected _rect = rect();
 
-    protected _trimmedBorder = new Vec4();
-
-    // for trimming
-    protected _offset = new Vec2();
+    protected _trimmedBorder = v4();
 
     // for trimming
-    protected _originalSize = new Size();
+    protected _offset = v2();
+
+    // for trimming
+    protected _originalSize = size();
 
     protected _rotated = false;
 
@@ -619,7 +619,7 @@ export class SpriteFrame extends Asset {
 
     protected _pixelsToUnit = 100;
 
-    protected _pivot = new Vec2(0.5, 0.5); // center
+    protected _pivot = v2(0.5, 0.5); // center
 
     // Todo: Some features need add
     protected _meshType = MeshType.RECT;
@@ -635,9 +635,9 @@ export class SpriteFrame extends Asset {
     // (updated after attribute value changes in the editor, adjusting vertices/re-generation)
 
     // Mesh api
-    protected declare _mesh: Mesh | null;
-    protected _minPos = new Vec3();
-    protected _maxPos = new Vec3();
+    protected _mesh: Mesh | null = null;
+    protected _minPos = v3();
+    protected _maxPos = v3();
 
     constructor () {
         super();
@@ -1351,12 +1351,12 @@ export class SpriteFrame extends Asset {
 
         const offset = data.offset;
         if (data.offset) {
-            this._offset = new Vec2(offset.x, offset.y);
+            this._offset = v2(offset.x, offset.y);
         }
 
         const originalSize = data.originalSize;
         if (data.originalSize) {
-            this._originalSize = new Size(originalSize.width, originalSize.height);
+            this._originalSize = size(originalSize.width, originalSize.height);
         }
         this._rotated = !!data.rotated;
         this._name = data.name;
@@ -1365,7 +1365,7 @@ export class SpriteFrame extends Asset {
         this._pixelsToUnit = data.pixelsToUnit;
         const pivot = data.pivot;
         if (pivot) {
-            this._pivot = new Vec2(pivot.x, pivot.y);
+            this._pivot = v2(pivot.x, pivot.y);
         }
         this._meshType = data.meshType;
 
@@ -1397,14 +1397,14 @@ export class SpriteFrame extends Asset {
                     indexes: vertices.indexes,
                     uv: vertices.uv,
                     nuv: vertices.nuv,
-                    minPos: new Vec3(vertices.minPos.x, vertices.minPos.y, vertices.minPos.z),
-                    maxPos: new Vec3(vertices.maxPos.x, vertices.maxPos.y, vertices.maxPos.z),
+                    minPos: v3(vertices.minPos.x, vertices.minPos.y, vertices.minPos.z),
+                    maxPos: v3(vertices.maxPos.x, vertices.maxPos.y, vertices.maxPos.z),
                 };
             }
             this.vertices.rawPosition.length = 0;
             const rawPosition = vertices.rawPosition;
             for (let i = 0; i < rawPosition.length; i += 3) {
-                this.vertices.rawPosition.push(new Vec3(rawPosition[i], rawPosition[i + 1], rawPosition[i + 2]));
+                this.vertices.rawPosition.push(v3(rawPosition[i], rawPosition[i + 1], rawPosition[i + 2]));
             }
             this._updateMeshVertices();
         }
@@ -1470,7 +1470,7 @@ export class SpriteFrame extends Asset {
         const config: ISpriteFrameInitInfo = {};
         let isReset = false;
         if (this._rect.width === 0 || this._rect.height === 0 || !this.checkRect(tex)) {
-            config.rect = new Rect(0, 0, tex.width, tex.height);
+            config.rect = rect(0, 0, tex.width, tex.height);
             isReset = true;
         }
 
@@ -1479,7 +1479,7 @@ export class SpriteFrame extends Asset {
             || this._originalSize.height === 0
             || isReset
         ) {
-            config.originalSize = new Size(tex.width, tex.height);
+            config.originalSize = size(tex.width, tex.height);
             isReset = true;
         }
 
@@ -1534,8 +1534,8 @@ export class SpriteFrame extends Asset {
                 indexes: [],
                 uv: [],
                 nuv: [],
-                minPos: new Vec3(),
-                maxPos: new Vec3(),
+                minPos: v3(),
+                maxPos: v3(),
             };
         } else {
             this.vertices.rawPosition.length = 0;
@@ -1614,7 +1614,7 @@ export class SpriteFrame extends Asset {
         const units = 1 / this._pixelsToUnit;
         const PosX = -(this._pivot.x - 0.5) * this.rect.width * units;
         const PosY = -(this._pivot.y - 0.5) * this.rect.height * units;
-        const temp_vec3 = new Vec3(PosX, PosY, 0);
+        const temp_vec3 = v3(PosX, PosY, 0);
         temp_matrix.transform(temp_vec3);
         temp_vec3.set(units, units, 1);
         temp_matrix.scale(temp_vec3);

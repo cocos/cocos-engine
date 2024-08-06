@@ -440,7 +440,7 @@ export class Model {
      * @en Current gfx device
      * @zh 当前 GFX 设备
      */
-    protected _device: Device;
+    protected declare _device: Device;
 
     /**
      * @en Whether the model is initialized

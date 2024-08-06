@@ -38,12 +38,12 @@ export class HMDInputDevice {
 
     private _eventTarget: EventTarget = new EventTarget();
 
-    private _viewLeftPosition!: InputSourcePosition;
-    private _viewLeftOrientation!: InputSourceOrientation;
-    private _viewRightPosition!: InputSourcePosition;
-    private _viewRightOrientation!: InputSourceOrientation;
-    private _headMiddlePosition!: InputSourcePosition;
-    private _headMiddleOrientation!: InputSourceOrientation;
+    private declare _viewLeftPosition: InputSourcePosition;
+    private declare _viewLeftOrientation: InputSourceOrientation;
+    private declare _viewRightPosition: InputSourcePosition;
+    private declare _viewRightOrientation: InputSourceOrientation;
+    private declare _headMiddlePosition: InputSourcePosition;
+    private declare _headMiddleOrientation: InputSourceOrientation;
 
     constructor () {
         this._initInputSource();

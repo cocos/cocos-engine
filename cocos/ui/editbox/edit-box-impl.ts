@@ -103,6 +103,11 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _placeholderStyleSheet: HTMLStyleElement | null = null;
     private _domId = `EditBoxId_${++_domCount}`;
     private _forceUpdate: boolean = false;
+
+    constructor () {
+        super();
+    }
+
     public init (delegate: EditBox): void {
         if (!delegate) {
             return;

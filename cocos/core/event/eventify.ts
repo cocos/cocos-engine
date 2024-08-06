@@ -164,7 +164,7 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
 
     // Mixin with `CallbacksInvokers`'s prototype
     const callbacksInvokerPrototype = CallbacksInvoker.prototype;
-    const propertyKeys: (string | symbol)[] =        (Object.getOwnPropertyNames(callbacksInvokerPrototype) as (string | symbol)[]).concat(
+    const propertyKeys: (string | symbol)[] = (Object.getOwnPropertyNames(callbacksInvokerPrototype) as (string | symbol)[]).concat(
         Object.getOwnPropertySymbols(callbacksInvokerPrototype),
     );
     for (let iPropertyKey = 0; iPropertyKey < propertyKeys.length; ++iPropertyKey) {

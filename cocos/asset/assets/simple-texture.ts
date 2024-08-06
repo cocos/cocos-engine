@@ -81,6 +81,10 @@ export class SimpleTexture extends TextureBase {
      */
     protected _maxLevel = 1000;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en The mipmap level of the texture.
      * @zh 贴图中的 Mipmap 层级数量。

@@ -57,15 +57,14 @@ function getShadowPassIndex (subModel: SubModel): number {
  * 阴影渲染队列
  */
 export class RenderShadowMapBatchedQueue {
-    private _pipeline: PipelineRuntime;
+    private declare _pipeline: PipelineRuntime;
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
-    private _instancedQueue: RenderInstancedQueue;
+    private _instancedQueue: RenderInstancedQueue = new RenderInstancedQueue();
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
-        this._instancedQueue = new RenderInstancedQueue();
     }
 
     public gatherLightPasses (camera: Camera, light: Light, cmdBuff: CommandBuffer, level = 0): void {

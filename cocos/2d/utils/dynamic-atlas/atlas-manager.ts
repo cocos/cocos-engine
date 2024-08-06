@@ -23,11 +23,13 @@
 */
 
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
-import { System, macro, js, cclegacy } from '../../../core';
+import { System, macro, cclegacy } from '../../../core';
 import { Atlas, DynamicAtlasTexture } from './atlas';
 import { director } from '../../../game';
 import { SpriteFrame } from '../../assets';
-import  { Filter } from '../../../gfx/base/define';
+import { Filter } from '../../../gfx/base/define';
+import { TextureBase } from '../../../asset/assets/texture-base';
+import { Texture2D } from '../../../asset/assets';
 
 /**
  * @en The dynamic atlas manager which manages all runtime dynamic packed atlas texture for UI rendering.
@@ -52,6 +54,10 @@ export class DynamicAtlasManager extends System {
     private _textureBleeding = true;
 
     private _enabled = false;
+
+    constructor () {
+        super();
+    }
 
     /**
      * @en
@@ -231,15 +237,15 @@ export class DynamicAtlasManager extends System {
      * @method deleteAtlasSpriteFrame
      * @param spriteFrame  the sprite frame that will be removed from the atlas.
      */
-    public deleteAtlasSpriteFrame (spriteFrame): void {
-        if (!spriteFrame._original) return;
+    public deleteAtlasSpriteFrame (spriteFrame: SpriteFrame): void {
+        if (!spriteFrame.original) return;
 
-        let atlas;
+        let atlas: Atlas;
         for (let i = this._atlases.length - 1; i >= 0; i--) {
             atlas = this._atlases[i];
-            js.array.fastRemove(atlas._innerSpriteFrames, spriteFrame);
+            atlas.removeSpriteFrame(spriteFrame);
         }
-        const texture = spriteFrame._original._texture;
+        const texture = spriteFrame.original._texture;
         this.deleteAtlasTexture(texture);
     }
 
@@ -253,10 +259,10 @@ export class DynamicAtlasManager extends System {
      * @method deleteAtlasTexture
      * @param texture  the texture that will be removed from the atlas.
      */
-    public deleteAtlasTexture (texture): void {
+    public deleteAtlasTexture (texture: TextureBase): void {
         if (texture) {
             for (let i = this._atlases.length - 1; i >= 0; i--) {
-                this._atlases[i].deleteInnerTexture(texture);
+                this._atlases[i].deleteInnerTexture(texture as Texture2D);
 
                 if (this._atlases[i].isEmpty()) {
                     this._atlases[i].destroy();
@@ -277,10 +283,10 @@ export class DynamicAtlasManager extends System {
      * @method packToDynamicAtlas
      * @param frame  the sprite frame that will be packed in the dynamic atlas.
      */
-    public packToDynamicAtlas (comp, frame): void {
+    public packToDynamicAtlas (comp, frame: SpriteFrame | null): void {
         if (EDITOR_NOT_IN_PREVIEW || !this._enabled) return;
 
-        if (frame && !frame._original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
+        if (frame && !frame.original && frame.packable && frame.texture && frame.texture.width > 0 && frame.texture.height > 0) {
             const packedFrame = this.insertSpriteFrame(frame);
             if (packedFrame) {
                 frame._setDynamicAtlasFrame(packedFrame);

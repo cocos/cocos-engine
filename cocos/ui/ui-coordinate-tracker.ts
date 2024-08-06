@@ -28,7 +28,7 @@ import { Component } from '../scene-graph/component';
 import { EventHandler } from '../scene-graph/component-event-handler';
 import { Node } from '../scene-graph/node';
 import { Camera } from '../misc/camera-component';
-import { Vec3 } from '../core/math';
+import { v3, Vec3 } from '../core/math';
 
 /**
  * @en The component that converts 3D node coordinates to UI node coordinates.
@@ -148,11 +148,15 @@ export class UICoordinateTracker extends Component {
     @serializable
     protected _distance = 1;
 
-    protected _transformPos = new Vec3();
-    protected _viewPos = new Vec3();
+    protected _transformPos = v3();
+    protected _viewPos = v3();
     protected _canMove = true;
-    protected _lastWPos = new Vec3();
-    protected _lastCameraPos = new Vec3();
+    protected _lastWPos = v3();
+    protected _lastCameraPos = v3();
+
+    constructor () {
+        super();
+    }
 
     public onEnable (): void {
         this._checkCanMove();

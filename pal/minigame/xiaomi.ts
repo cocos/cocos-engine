@@ -26,6 +26,7 @@ import { IMiniGame } from 'pal/minigame';
 import { checkPalIntegrity, withImpl } from '../integrity-check';
 import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
+import { warn } from '../../cocos/core/platform/debug';
 
 declare let qg: any;
 
@@ -55,16 +56,16 @@ Object.defineProperty(minigame, 'orientation', {
 // #endregion SystemInfo
 
 // #region TouchEvent
-minigame.onTouchStart = function (cb): void {
+minigame.onTouchStart = (cb): void => {
     window.canvas.ontouchstart = cb;
 };
-minigame.onTouchMove = function (cb): void {
+minigame.onTouchMove = (cb): void => {
     window.canvas.ontouchmove = cb;
 };
-minigame.onTouchEnd = function (cb): void {
+minigame.onTouchEnd = (cb): void => {
     window.canvas.ontouchend = cb;
 };
-minigame.onTouchCancel = function (cb): void {
+minigame.onTouchCancel = (cb): void => {
     window.canvas.ontouchcancel = cb;
 };
 // #endregion TouchEvent
@@ -78,7 +79,7 @@ minigame.onTouchCancel = function (cb): void {
 // #region Accelerometer
 let _customAccelerometerCb: AccelerometerChangeCallback | undefined;
 let _innerAccelerometerCb: AccelerometerChangeCallback | undefined;
-minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
+minigame.onAccelerometerChange = (cb: AccelerometerChangeCallback): void => {
     // qg.offAccelerometerChange() is not supported.
     // so we can only register AccelerometerChange callback, but can't unregister.
     if (!_innerAccelerometerCb) {
@@ -106,7 +107,7 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): voi
     }
     _customAccelerometerCb = cb;
 };
-minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
+minigame.offAccelerometerChange = (cb?: AccelerometerChangeCallback): void => {
     // qg.offAccelerometerChange() is not supported.
     _customAccelerometerCb = undefined;
 };
@@ -120,7 +121,7 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(qg, {
     onSeek: false,
 });
 const originalCreateInnerAudioContext = minigame.createInnerAudioContext;
-minigame.createInnerAudioContext = function (): InnerAudioContext {
+minigame.createInnerAudioContext = (): InnerAudioContext => {
     const audioContext = originalCreateInnerAudioContext.call(minigame);
     const originalStop = audioContext.stop;
     Object.defineProperty(audioContext, 'stop', {
@@ -136,8 +137,8 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
 // #endregion InnerAudioContext
 
 // #region SafeArea
-minigame.getSafeArea = function (): SafeArea {
-    console.warn('getSafeArea is not supported on this platform');
+minigame.getSafeArea = (): SafeArea => {
+    warn('getSafeArea is not supported on this platform');
     const systemInfo =  minigame.getSystemInfoSync();
     return {
         top: 0,

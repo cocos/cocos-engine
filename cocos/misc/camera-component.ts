@@ -183,6 +183,10 @@ export class Camera extends Component {
     @serializable
     protected _trackingType: TrackingType = TrackingType.NO_TRACKING;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en The render camera representation.
      * @zh 渲染场景中的相机对象。

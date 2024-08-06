@@ -178,46 +178,23 @@ export class Director extends EventTarget {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _compScheduler: ComponentScheduler;
+    public _compScheduler: ComponentScheduler = new ComponentScheduler(); // Scheduler for life-cycle methods in component
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _nodeActivator: NodeActivator;
-    private _invalid: boolean;
-    private _paused: boolean;
-    private _root: Root | null;
-    private _loadingScene: string;
-    private _scene: Scene | null;
-    private _totalFrames: number;
-    private _scheduler: Scheduler;
-    private _systems: System[];
+    public _nodeActivator: NodeActivator = new NodeActivator();
+    private _invalid: boolean = false;
+    private _paused: boolean = false;
+    private _root: Root | null = null;
+    private _loadingScene: string = '';
+    private _scene: Scene | null = null;
+    private _totalFrames: number = 0; // FPS
+    private _scheduler: Scheduler = new Scheduler(); // Scheduler for user registration update
+    private _systems: System[] = [];
     private _persistRootNodes: Record<string, Node> = {};
 
     constructor () {
         super();
-
-        this._invalid = false;
-        // paused?
-        this._paused = false;
-
-        // root
-        this._root = null;
-
-        // scenes
-        this._loadingScene = '';
-        this._scene = null;
-
-        // FPS
-        this._totalFrames = 0;
-
-        // Scheduler for user registration update
-        this._scheduler = new Scheduler();
-        // Scheduler for life-cycle methods in component
-        this._compScheduler = new ComponentScheduler();
-        // Node activator
-        this._nodeActivator = new NodeActivator();
-
-        this._systems = [];
     }
 
     /**

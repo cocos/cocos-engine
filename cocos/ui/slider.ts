@@ -116,7 +116,7 @@ export class Slider extends Component {
     }
 
     set direction (value: number) {
-        if (this._direction === value) {
+        if ((this._direction as number) === value) {
             return;
         }
 
@@ -172,6 +172,10 @@ export class Slider extends Component {
     private _touchHandle = false;
     private _handleLocalPos = new Vec3();
     private _touchPos = new Vec3();
+
+    constructor () {
+        super();
+    }
 
     public __preload (): void {
         this._updateHandlePosition();
@@ -285,7 +289,7 @@ export class Slider extends Component {
         Vec3.set(this._touchPos, touchPos.x, touchPos.y, 0);
         const uiTrans = this.node._uiProps.uiTransformComp!;
         const localTouchPos = uiTrans.convertToNodeSpaceAR(this._touchPos, _tempPos);
-        if (this.direction === Direction.Horizontal) {
+        if (this.direction === Direction.Horizontal as number) {
             this.progress = clamp01(0.5 + (localTouchPos.x - this._offset.x) / uiTrans.width);
         } else {
             this.progress = clamp01(0.5 + (localTouchPos.y - this._offset.y) / uiTrans.height);
@@ -327,7 +331,7 @@ export class Slider extends Component {
         if (!this._touchHandle) {
             const uiTrans = this.node._uiProps.uiTransformComp!;
             uiTrans.convertToNodeSpaceAR(point, _tempPos);
-            if (this.direction === Direction.Horizontal) {
+            if (this.direction === Direction.Horizontal as number) {
                 this.progress = clamp01(0.5 + (_tempPos.x - this.node.position.x) / uiTrans.width);
             } else {
                 this.progress = clamp01(0.5 + (_tempPos.y - this.node.position.y) / uiTrans.height);

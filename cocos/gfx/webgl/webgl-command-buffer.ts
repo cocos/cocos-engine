@@ -47,7 +47,7 @@ import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGLDeviceManager } from './webgl-define';
-import { error } from '../../core';
+import { error, errorID } from '../../core';
 
 export class WebGLCommandBuffer extends CommandBuffer {
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
@@ -60,6 +60,10 @@ export class WebGLCommandBuffer extends CommandBuffer {
     protected _curDynamicOffsets: number[] = Array(8).fill(0);
     protected _curDynamicStates: DynamicStates = new DynamicStates();
     protected _isStateInvalied = false;
+
+    constructor () {
+        super();
+    }
 
     public initialize (info: Readonly<CommandBufferInfo>): void {
         this._type = info.type;
@@ -296,7 +300,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 }
             }
         } else {
-            error('Command \'draw\' must be recorded inside a render pass.');
+            errorID(16328);
         }
     }
 
@@ -332,7 +336,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 this.cmdPackage.cmds.push(WebGLCmd.UPDATE_BUFFER);
             }
         } else {
-            error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            errorID(16329);
         }
     }
 
@@ -354,7 +358,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 }
             }
         } else {
-            error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            errorID(16330);
         }
     }
 

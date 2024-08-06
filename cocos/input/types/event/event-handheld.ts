@@ -38,7 +38,7 @@ export class EventHandheld extends Event {
      * @en The handheld device which trigger the current handheld event
      * @zh 触发当前手持设备事件的手持设备
      */
-    public handheldInputDevice: HandheldInputDevice;
+    public declare handheldInputDevice: HandheldInputDevice;
 
     /**
      * @param eventType - The type of the event

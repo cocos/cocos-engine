@@ -81,13 +81,13 @@ export class RenderDrawInfo {
     protected _useLocal = false;
 
     protected _model: Model | null = null;
-    protected _drawInfoType :RenderDrawInfoType = RenderDrawInfoType.COMP;
+    protected _drawInfoType: RenderDrawInfoType = RenderDrawInfoType.COMP;
     protected _subNode: Node | null = null;
 
     protected declare _nativeObj: NativeRenderDrawInfo;
-    protected _uint8SharedBuffer: Uint8Array;
-    protected _uint16SharedBuffer: Uint16Array;
-    protected _uint32SharedBuffer: Uint32Array;
+    protected declare _uint8SharedBuffer: Uint8Array;
+    protected declare _uint16SharedBuffer: Uint16Array;
+    protected declare _uint32SharedBuffer: Uint32Array;
 
     // SharedBuffer of pos/uv/color
     protected declare _render2dBuffer: Float32Array;
@@ -276,7 +276,7 @@ export class RenderDrawInfo {
         this._drawInfoType = drawInfoType;
     }
 
-    public setSubNode (node : Node): void {
+    public setSubNode (node: Node): void {
         if (JSB) {
             if (this._subNode !== node) {
                 this._nativeObj.subNode = node;

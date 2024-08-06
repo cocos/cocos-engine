@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { cclegacy, error, js, misc } from '../../core';
+import { cclegacy, error, errorID, js, misc } from '../../core';
 import Config from './config';
 import { dependMap, nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
@@ -67,9 +67,15 @@ export function urlAppendTimestamp (url: string, append: boolean): string {
     return url;
 }
 
-export type RetryFunction = (times: number, done: ((err: Error | null, data?: any | null) => void)) => void;
+export type RetryFunction = (times: number, done: ((err: Error | null, data?: any) => void)) => void;
 
-export function retry (process: RetryFunction, times: number, wait: number, onComplete: ((err: Error | null, data?: any | null) => void), index = 0): void {
+export function retry (
+    process: RetryFunction,
+    times: number,
+    wait: number,
+    onComplete: ((err: Error | null, data?: any) => void),
+    index = 0,
+): void {
     process(index, (err, result): void => {
         index++;
         if (!err || index > times) {
@@ -84,8 +90,13 @@ export function retry (process: RetryFunction, times: number, wait: number, onCo
     });
 }
 
-export function getDepends (uuid: string, data: Asset | Record<string, any>, exclude: Record<string, any>,
-    depends: any[], config: Config): void {
+export function getDepends (
+    uuid: string,
+    data: Asset | Record<string, any>,
+    exclude: Record<string, any>,
+    depends: any[],
+    config: Config,
+): void {
     try {
         const info = dependUtil.parse(uuid, data);
         for (let i = 0, l = info.deps.length; i < l; i++) {
@@ -130,7 +141,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                     }
                     missingAssetReporter.stashByOwner(depend.owner, depend.prop, EditorExtends.serialize.asAsset(depend.uuid));
                 } else {
-                    error(`The asset ${depend.uuid} is missing!`);
+                    errorID(16350, depend.uuid);
                 }
                 cclegacy.assetManager.dispatchAssetMissing(asset, depend.owner, depend.prop, depend.uuid);
                 if (depend.type && depend.type !== Asset) {
@@ -143,7 +154,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             } else {
                 depend.owner[depend.prop] = dependAsset.addRef();
                 if (EDITOR) {
-                    let reference = references!.get(dependAsset);
+                    let reference = references!.get(dependAsset as string);
                     if (!reference || isScene(asset)) {
                         reference = [];
                         references!.add(depend.uuid, reference);
@@ -164,7 +175,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             asset._nativeAsset = assetsMap[`${uuid}@native`];
         } else {
             missingAsset = true;
-            console.error(`the native asset of ${uuid} is missing!`);
+            errorID(16351, uuid);
         }
         nativeDependMap.delete(asset);
     }
@@ -192,7 +203,7 @@ export function forEach<T = any> (array: T[], process: ForEachFunction<T>, onCom
     if (length === 0 && onComplete) {
         onComplete(errs);
     }
-    const cb = (err): void => {
+    const cb = (err?: Error | null): void => {
         if (err) {
             errs.push(err);
         }
@@ -220,10 +231,12 @@ interface ILoadResArgs<T> {
     onComplete: T | null;
 }
 
-export function parseParameters<T extends (...args) => void> (
+export function parseParameters<T extends (
+...args) => void> (
     options: Record<string, any> | ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
     onProgress: ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
-    onComplete: T | null | undefined): IParameters<T> {
+    onComplete: T | null | undefined,
+): IParameters<T> {
     let optionsOut: any = options;
     let onProgressOut: any = onProgress;
     let onCompleteOut: any = onComplete;
@@ -248,10 +261,12 @@ export function parseParameters<T extends (...args) => void> (
     return { options: optionsOut || Object.create(null), onProgress: onProgressOut, onComplete: onCompleteOut };
 }
 
-export function parseLoadResArgs<T extends (...args) => void> (
+export function parseLoadResArgs<T extends (
+...args) => void> (
     type: Constructor<Asset> | ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
     onProgress: ((finished: number, total: number, item: RequestItem) => void) | T | null | undefined,
-    onComplete: T | null | undefined): ILoadResArgs<T> {
+    onComplete: T | null | undefined,
+): ILoadResArgs<T> {
     let typeOut: any = type;
     let onProgressOut: any = onProgress;
     let onCompleteOut: any = onComplete;

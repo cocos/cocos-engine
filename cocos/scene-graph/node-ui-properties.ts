@@ -23,9 +23,10 @@
 */
 
 import { UIRenderer } from '../2d/framework/ui-renderer';
-import { UITransform } from '../2d/framework/ui-transform';
 import { warnID } from '../core/platform/debug';
 import { UIMeshRenderer } from '../2d';
+import type { Node } from './node';
+import type { UITransform } from '../2d/framework/ui-transform';
 
 /**
  * @en Node's UI properties abstraction
@@ -89,16 +90,16 @@ export class NodeUIProperties {
 
     public colorDirty = true;
     protected _uiTransformComp: UITransform | null = null;
-    private _node: any;
+    private declare _node: Node;
 
-    constructor (node: any) {
+    constructor (node: Node) {
         this._node = node;
     }
 
     /**
      * @deprecated since v3.4
      */
-    public applyOpacity (effectOpacity): void {
+    public applyOpacity (effectOpacity: number): void {
         this._opacity = this._localOpacity * effectOpacity;
     }
 

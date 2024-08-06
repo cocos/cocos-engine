@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { errorID } from '../../core/platform/debug';
 import { InputAssemblerInfo } from '../base/define';
 import { InputAssembler } from '../base/input-assembler';
 import { WebGLBuffer } from './webgl-buffer';
@@ -36,9 +37,13 @@ export class WebGLInputAssembler extends InputAssembler {
 
     private _gpuInputAssembler: IWebGLGPUInputAssembler | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<InputAssemblerInfo>): void {
         if (info.vertexBuffers.length === 0) {
-            console.error('InputAssemblerInfo.vertexBuffers is null.');
+            errorID(16331);
             return;
         }
 
@@ -79,7 +84,7 @@ export class WebGLInputAssembler extends InputAssembler {
                 case 2: glIndexType = 0x1403; break; // WebGLRenderingContext.UNSIGNED_SHORT
                 case 4: glIndexType = 0x1405; break; // WebGLRenderingContext.UNSIGNED_INT
                 default: {
-                    console.error('Error index buffer stride.');
+                    errorID(16332);
                 }
                 }
             }

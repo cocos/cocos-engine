@@ -224,6 +224,10 @@ const LEFT_RIGHT = AlignFlags.LEFT | AlignFlags.RIGHT;
 @requireComponent(UITransform)
 @executeInEditMode
 export class Widget extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Specifies an alignment target that can only be one of the parent nodes of the current node.

@@ -34,7 +34,7 @@ import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramInfo } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID, ENABLE_SUBPASS, getCustomSubpassID, generateConstantMacros, populatePipelineLayoutInfo } from './layout-graph-utils';
-import { assert, error } from '../../core/platform/debug';
+import { assert, error, errorID } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, UBOSkinning, localDescriptorSetLayout } from '../define';
 import { PipelineRuntime } from './pipeline';
 
@@ -1113,7 +1113,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         if (deviceShaderVersion) {
             src = programInfo[deviceShaderVersion];
         } else {
-            error('Invalid GFX API!');
+            errorID(16346);
         }
 
         // prepare shader info

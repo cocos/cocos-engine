@@ -54,6 +54,10 @@ function getSkinPassIndex (subModel: SubModel): number {
  */
 @ccclass('cc.ModelRenderer')
 export class ModelRenderer extends Renderer {
+    constructor () {
+        super();
+    }
+
     /**
      * @en The visibility which will be applied to the committed models.
      * @zh 应用于所有提交渲染的 Model 的可见性

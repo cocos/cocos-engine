@@ -409,6 +409,10 @@ export class EditBox extends Component {
 
     private _isLabelVisible = false;
 
+    constructor () {
+        super();
+    }
+
     public __preload (): void {
         this._init();
     }

@@ -27,6 +27,7 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { Orientation } from '../enum-type';
+import { warn, warnID } from '../../../cocos/core/platform/debug';
 
 export interface SafeAreaEdge {
     top: number;
@@ -79,15 +80,15 @@ class ScreenAdapter extends EventTarget {
     public get windowSize (): Size {
         const dpr = this.devicePixelRatio;
         // NOTE: fix precision issue on Metal render end.
-        const width = jsb.window.innerWidth;
-        const height = jsb.window.innerHeight;
+        const width = jsb.window.innerWidth as number;
+        const height = jsb.window.innerHeight as number;
         // NOTE: fix precision issue on Metal render end.
         const roundWidth = Math.round(width);
         const roundHeight = Math.round(height);
         return new Size(roundWidth * dpr, roundHeight * dpr);
     }
     public set windowSize (size: Size) {
-        console.warn('Setting window size is not supported yet.');
+        warn('Setting window size is not supported yet.');
     }
 
     public get resolution (): Size {
@@ -110,7 +111,7 @@ class ScreenAdapter extends EventTarget {
         return orientationMap[jsb.device.getDeviceOrientation()];
     }
     public set orientation (value: Orientation) {
-        console.warn('Setting orientation is not supported yet.');
+        warnID(1221);
     }
 
     public get safeAreaEdge (): SafeAreaEdge {
