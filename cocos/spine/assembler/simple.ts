@@ -33,7 +33,7 @@ import { legacyCC } from '../../core/global-exports';
 import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core.js';
-import { Color, Vec3 } from '../../core';
+import { Color, EPSILON, Vec3 } from '../../core';
 import { MaterialInstance } from '../../render-scene';
 
 const _slotColor = new Color(0, 0, 255, 255);
@@ -279,11 +279,12 @@ function cacheTraverse (comp: Skeleton): void {
     vUint8Buf.set(model.vData as TypedArray);
 
     const nodeColor = comp.color;
-    if (Color.toUint32(nodeColor) !== 0xffffffff ||  _premultipliedAlpha) {
+    const opacity = comp.node._uiProps.opacity;
+    if ((1 - opacity) > EPSILON || Color.toUint32(nodeColor) !== 0xffffffff ||  _premultipliedAlpha) {
         _nodeR = nodeColor.r / 255;
         _nodeG = nodeColor.g / 255;
         _nodeB = nodeColor.b / 255;
-        _nodeA = nodeColor.a / 255;
+        _nodeA = nodeColor.a * opacity / 255;
         for (let i = 0; i < vc; i++) {
             const index = i * _byteStrideTwoColor + 5 * Float32Array.BYTES_PER_ELEMENT;
             const R = vUint8Buf[index];
