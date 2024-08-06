@@ -31,6 +31,7 @@ declare let wx: any;
 // NOTE: getApp is defined on wechat miniprogram platform
 declare const getApp: any;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error can't init minigame when it's declared
 const minigame: IMiniGame = {};
 cloneObject(minigame, wx);
@@ -47,8 +48,9 @@ minigame.wx.onWheel = wx.onWheel?.bind(wx);
 
 // #region SystemInfo
 let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error TODO: move into minigame.d.ts
-minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterval: number): void {
+minigame.testAndUpdateSystemInfoCache = (testAmount: number, testInterval: number): void => {
     let successfullyTestTimes = 0;
     let intervalTimer: number | null = null;
     function testCachedSystemInfo (): void {
@@ -65,15 +67,14 @@ minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterv
     }
     intervalTimer = setInterval(testCachedSystemInfo, testInterval);
 };
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error TODO: update when view resize
 minigame.testAndUpdateSystemInfoCache(10, 500);
 minigame.onWindowResize?.((): void => {
     // update cached system info
     _cachedSystemInfo = wx.getSystemInfoSync() as SystemInfo;
 });
-minigame.getSystemInfoSync = function (): SystemInfo {
-    return _cachedSystemInfo;
-};
+minigame.getSystemInfoSync = (): SystemInfo => _cachedSystemInfo;
 
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
@@ -110,7 +111,7 @@ Object.defineProperty(minigame, 'orientation', {
 
 // #region Accelerometer
 let _accelerometerCb: AccelerometerChangeCallback | undefined;
-minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): void {
+minigame.onAccelerometerChange = (cb: AccelerometerChangeCallback): void => {
     minigame.offAccelerometerChange();
     // onAccelerometerChange would start accelerometer
     // so we won't call this method here
@@ -132,13 +133,13 @@ minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback): voi
         cb(resClone);
     };
 };
-minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback): void {
+minigame.offAccelerometerChange = (cb?: AccelerometerChangeCallback): void => {
     if (_accelerometerCb) {
         wx.offAccelerometerChange(_accelerometerCb);
         _accelerometerCb = undefined;
     }
 };
-minigame.startAccelerometer = function (res: any): void {
+minigame.startAccelerometer = (res: any): void => {
     if (_accelerometerCb) {
         wx.onAccelerometerChange(_accelerometerCb);
     }
@@ -155,7 +156,7 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(wx, {
 
 // #region SafeArea
 // FIX_ME: wrong safe area when orientation is landscape left
-minigame.getSafeArea = function (): SafeArea {
+minigame.getSafeArea = (): SafeArea => {
     const locSystemInfo = wx.getSystemInfoSync() as SystemInfo;
     return locSystemInfo.safeArea;
 };
@@ -163,12 +164,13 @@ minigame.getSafeArea = function (): SafeArea {
 
 // HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
 if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '2.16.0') < 0) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error canvas defined in global
     const locCanvas = canvas;
     if (locCanvas) {
         const webglRC = locCanvas.getContext('webgl');
         const originalUseProgram = webglRC.useProgram.bind(webglRC);
-        webglRC.useProgram = function (program): void {
+        webglRC.useProgram = (program): void => {
             if (program) {
                 originalUseProgram(program);
             }
@@ -179,7 +181,7 @@ if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '
 // HACK: adapt gl.texSubImage2D: gl.texSubImage2D do not support 2d canvas in wechat miniprogram
 const gl = getApp().GameGlobal.canvas.getContext('webgl');
 const oldTexSubImage2D = gl.texSubImage2D;
-gl.texSubImage2D = function (...args): void {
+gl.texSubImage2D = (...args: any[]): void => {
     if (args.length === 7) {
         const canvas = args[6];
         if (typeof canvas.type !== 'undefined' && canvas.type === 'canvas') {
@@ -187,8 +189,18 @@ gl.texSubImage2D = function (...args): void {
             const texOffsetX = args[2];
             const texOffsetY = args[3];
             const imgData = ctx.getImageData(texOffsetX, texOffsetY, canvas.width, canvas.height);
-            oldTexSubImage2D.call(gl, args[0], args[1], texOffsetX, texOffsetY,
-                canvas.width, canvas.height, args[4], args[5], new Uint8Array(imgData.data));
+            oldTexSubImage2D.call(
+                gl,
+                args[0],
+                args[1],
+                texOffsetX,
+                texOffsetY,
+                canvas.width,
+                canvas.height,
+                args[4],
+                args[5],
+                new Uint8Array(imgData.data as ArrayBuffer),
+            );
         } else {
             oldTexSubImage2D.apply(gl, args);
         }

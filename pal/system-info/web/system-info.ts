@@ -27,6 +27,7 @@ import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+import { warn } from '../../../cocos/core/platform/debug';
 
 class SystemInfo extends EventTarget {
     public declare readonly networkType: NetworkType;
@@ -267,7 +268,7 @@ class SystemInfo extends EventTarget {
                     imageBitmap?.close();
                 });
             } else if (DEBUG) {
-                console.warn('The return value of createImageBitmap is not Promise.');
+                warn('The return value of createImageBitmap is not Promise.');
             }
         }
         return Promise.resolve();
@@ -358,14 +359,14 @@ class SystemInfo extends EventTarget {
             return this._battery.level as number;
         } else {
             if (DEBUG) {
-                console.warn('getBatteryLevel is not supported');
+                warn('getBatteryLevel is not supported');
             }
             return 1;
         }
     }
     public triggerGC (): void {
         if (DEBUG) {
-            console.warn('triggerGC is not supported.');
+            warn('triggerGC is not supported.');
         }
     }
     public openURL (url: string): void {
@@ -380,7 +381,7 @@ class SystemInfo extends EventTarget {
     }
     public restartJSVM (): void {
         if (DEBUG) {
-            console.warn('restartJSVM is not supported.');
+            warn('restartJSVM is not supported.');
         }
     }
 
