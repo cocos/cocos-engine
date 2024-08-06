@@ -68,17 +68,16 @@ function getReflectMapPassIndex (subModel: SubModel): number {
  * 反射探针渲染队列
  */
 export class RenderReflectionProbeQueue {
-    private _pipeline: PipelineRuntime;
+    private declare _pipeline: PipelineRuntime;
     private _subModelsArray: SubModel[] = [];
     private _passArray: Pass[] = [];
     private _shaderArray: Shader[] = [];
     private _rgbeSubModelsArray: SubModel[] = [];
-    private _instancedQueue: RenderInstancedQueue;
+    private _instancedQueue: RenderInstancedQueue = new RenderInstancedQueue();
     private _patches: IMacroPatch[] = [];
 
     public constructor (pipeline: PipelineRuntime) {
         this._pipeline = pipeline;
-        this._instancedQueue = new RenderInstancedQueue();
     }
     public gatherRenderObjects (probe: ReflectionProbe, camera: Camera, cmdBuff: CommandBuffer): void {
         this.clear();

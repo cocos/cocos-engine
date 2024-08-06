@@ -174,6 +174,7 @@ export function removeIf<T> (array: T[], predicate: (value: T) => boolean): T | 
         removeAt(array, index);
         return value;
     }
+    return undefined;
 }
 
 /**

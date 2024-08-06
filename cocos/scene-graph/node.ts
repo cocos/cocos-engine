@@ -29,7 +29,7 @@ import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../core/global-exports';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
-import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
+import { approx, EPSILON, Mat3, mat4, Mat4, quat, Quat, v3, Vec3 } from '../core/math';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { errorID, warnID, error, log, getError } from '../core/platform/debug';
@@ -63,16 +63,15 @@ function getConstructor<T> (typeOrClassName: string | Constructor<T> | Abstracte
     return typeOrClassName;
 }
 
-const v3_a = new Vec3();
-const v3_b = new Vec3();
-const q_a = new Quat();
-const q_b = new Quat();
-const qt_1 = new Quat();
+const v3_a = v3();
+const v3_b = v3();
+const q_a = quat();
+const q_b = quat();
+const qt_1 = quat();
 const m3_1 = new Mat3();
-const m3_scaling = new Mat3();
-const m4_1 = new Mat4();
-const m4_2 = new Mat4();
-const dirtyNodes: any[] = [];
+const m4_1 = mat4();
+const m4_2 = mat4();
+const dirtyNodes: Node[] = [];
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 let globalFlagChangeVersion = 0;
@@ -383,8 +382,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public set id (v: string) { this._id = v; }
     protected _id: string = idGenerator.getNewId();
 
-    protected _name: string;
-
     protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
     protected _eventMask = 0;
 
@@ -414,7 +411,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     protected _updateScene (): void {
         if (this._parent == null) {
-            error('Node %s(%s) has not attached to a scene.', this.name, this.uuid);
+            errorID(1640, this.name, this.uuid);
         } else {
             this._scene = this._parent._scene;
         }
@@ -1549,8 +1546,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _hasChangedFlags = 0;
 
     constructor (name?: string) {
+        if (name === undefined) name = 'New Node';
         super(name);
-        this._name = name !== undefined ? name : 'New Node';
 
         this._pos = new Vec3();
         this._rot = new Quat();
@@ -2042,8 +2039,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         let i = 0;
         let j = 0;
         let l = 0;
-        let cur: this;
-        let children: this[];
+        let cur: Node;
+        let children: Node[];
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
@@ -2074,14 +2071,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (!this._transformFlags) { return; }
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur: this | null = this;
+        let cur: Node | null = this;
         let i = 0;
         while (cur && cur._transformFlags) {
             // top level node
             dirtyNodes[i++] = cur;
             cur = cur._parent;
         }
-        let child: this; let dirtyBits = 0;
+        let child: Node;
+        let dirtyBits = 0;
 
         while (i) {
             child = dirtyNodes[--i];
@@ -2353,7 +2351,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         Vec3.copy(out, p);
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur = this;
+        let cur: Node = this;
         let i = 0;
         while (cur._parent) {
             dirtyNodes[i++] = cur;

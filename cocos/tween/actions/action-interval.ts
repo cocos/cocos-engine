@@ -1040,8 +1040,8 @@ export function reverseTime (action: ActionInterval): ReverseTime {
 }
 
 export class ActionCustomUpdate<T extends object, Args extends any[]> extends ActionInterval {
-    private _cb: TweenUpdateCallback<T, Args>;
-    private _args: Args;
+    private declare _cb: TweenUpdateCallback<T, Args>;
+    private declare _args: Args;
 
     constructor (duration: number, cb: TweenUpdateCallback<T, Args>, args: Args) {
         super(duration);

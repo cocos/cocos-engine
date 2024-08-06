@@ -212,6 +212,10 @@ const _tempVec3 = new Vec3();
 @requireComponent(UITransform)
 @executeInEditMode
 export class Layout extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Alignment horizontal. Fixed starting position in the same direction when Type is Horizontal.

@@ -35,9 +35,9 @@ import {
 } from './webgl-commands';
 
 export class WebGLCommandPool<T extends WebGLCmdObject> {
-    private _frees: (T|null)[];
+    private declare _frees: (T|null)[];
     private _freeIdx = 0;
-    private _freeCmds: CachedArray<T>;
+    private declare _freeCmds: CachedArray<T>;
 
     constructor (Clazz: new() => T, count: number) {
         this._frees = new Array(count);
@@ -104,12 +104,12 @@ export class WebGLCommandPool<T extends WebGLCmdObject> {
 }
 
 export class WebGLCommandAllocator {
-    public beginRenderPassCmdPool: WebGLCommandPool<WebGLCmdBeginRenderPass>;
-    public bindStatesCmdPool: WebGLCommandPool<WebGLCmdBindStates>;
-    public drawCmdPool: WebGLCommandPool<WebGLCmdDraw>;
-    public updateBufferCmdPool: WebGLCommandPool<WebGLCmdUpdateBuffer>;
-    public copyBufferToTextureCmdPool: WebGLCommandPool<WebGLCmdCopyBufferToTexture>;
-    public blitTextureCmdPool: WebGLCommandPool<WebGLCmdBlitTexture>;
+    public declare beginRenderPassCmdPool: WebGLCommandPool<WebGLCmdBeginRenderPass>;
+    public declare bindStatesCmdPool: WebGLCommandPool<WebGLCmdBindStates>;
+    public declare drawCmdPool: WebGLCommandPool<WebGLCmdDraw>;
+    public declare updateBufferCmdPool: WebGLCommandPool<WebGLCmdUpdateBuffer>;
+    public declare copyBufferToTextureCmdPool: WebGLCommandPool<WebGLCmdCopyBufferToTexture>;
+    public declare blitTextureCmdPool: WebGLCommandPool<WebGLCmdBlitTexture>;
 
     constructor () {
         this.beginRenderPassCmdPool = new WebGLCommandPool(WebGLCmdBeginRenderPass, 1);

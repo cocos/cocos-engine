@@ -66,7 +66,7 @@ const eventMap = {
     'scroll-to-bottom': 1,
     'scroll-to-left': 2,
     'scroll-to-right': 3,
-    'scrolling': 4,
+    scrolling: 4,
     'bounce-bottom': 6,
     'bounce-left': 7,
     'bounce-right': 8,
@@ -463,6 +463,10 @@ export class ScrollView extends ViewGroup {
     protected _deltaAmount = new Vec3();
 
     protected _hoverIn: XrhoverType = XrhoverType.NONE;
+
+    constructor () {
+        super();
+    }
 
     /**
      * @en
@@ -1319,7 +1323,7 @@ export class ScrollView extends ViewGroup {
             // eslint-disable-next-line function-paren-newline
             out.set(totalMovement.x * (1 - this.brake) / totalTime,
                 totalMovement.y * (1 - this.brake) / totalTime,
-                totalMovement.z
+                totalMovement.z,
             );
         }
         return out;

@@ -28,8 +28,8 @@ import { cclegacy } from '../../core';
 
 export class ActionUnknownDuration<T extends object, Args extends any[]> extends FiniteTimeAction {
     private _finished = false;
-    private _cb: TweenUpdateUntilCallback<T, Args>;
-    private _args: Args;
+    private declare _cb: TweenUpdateUntilCallback<T, Args>;
+    private declare _args: Args;
 
     constructor (cb: TweenUpdateUntilCallback<T, Args>, args: Args) {
         super();

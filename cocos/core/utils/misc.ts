@@ -168,10 +168,10 @@ export function isDomNode (node): boolean {
  * @param p1 @en The first parameter passed to `callback`. @zh 传给回调函数的第一个参数。
  * @param p2 @en The seconde parameter passed to `callback`. @zh 传给回调函数的第二个参数。
  */
-export function callInNextTick (callback, p1?: any, p2?: any): void {
+export function callInNextTick<T extends any[]> (callback: (...args: T) => void, ...args: T): void {
     if (callback) {
         setTimeoutRAF((): void => {
-            callback(p1, p2);
+            callback(...args);
         }, 0);
     }
 }

@@ -24,7 +24,7 @@
 */
 
 import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
-import { cclegacy, js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, error, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput } from '../core';
+import { cclegacy, js, misc, CCClass, ENUM_TAG, BITMASK_TAG, sys, error, assertIsTrue, CustomSerializable, DeserializationContext, deserializeTag, SerializationInput, errorID } from '../core';
 import { MissingScript } from '../misc/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../pal/system-info/enum-type';
@@ -383,8 +383,8 @@ class _Deserializer {
 
     public declare result: Details;
     public declare customEnv: unknown;
-    public deserializedList: Array<Record<PropertyKey, unknown> | undefined>;
-    public deserializedData: any;
+    public deserializedList: Array<Record<PropertyKey, unknown> | undefined> = [];
+    public deserializedData: any = null;
     private declare _classFinder: ClassFinder;
     private declare _reportMissingClass: ReportMissingClass;
     private declare _onDereferenced: ClassFinder['onDereferenced'];
@@ -392,7 +392,7 @@ class _Deserializer {
      * @engineInternal
      */
     public get ignoreEditorOnly (): unknown { return this._ignoreEditorOnly; }
-    private _ignoreEditorOnly: unknown;
+    private declare _ignoreEditorOnly: unknown;
     private declare _mainBinChunk: Uint8Array;
     private declare _serializedData: SerializedObject | SerializedObject[];
     private declare _context: DeserializationContext;
@@ -400,8 +400,6 @@ class _Deserializer {
     constructor (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown) {
         this.result = result;
         this.customEnv = customEnv;
-        this.deserializedList = [];
-        this.deserializedData = null;
         this._classFinder = classFinder;
         this._reportMissingClass = reportMissingClass;
         this._onDereferenced = classFinder?.onDereferenced;
@@ -651,8 +649,8 @@ class _Deserializer {
                 if (klass === MissingScript) {
                     const props: string[] = klass.__values__;
                     if (props.length === 0 || props[props.length - 1] !== '_$erialized') {
-                        error(`The '_$erialized' prop of MissingScript is missing. Will force the raw data to be save.`);
-                        error(`    Error props: ['${props}']. Please contact jare.`);
+                        errorID(16341);
+                        errorID(16342, props.join(', '));
                         // props.push('_$erialized');
                     }
 
@@ -665,12 +663,12 @@ class _Deserializer {
                     ): void {
                         rawDeserialize(deserializer, object, deserialized, constructor);
                         if (!object._$erialized) {
-                            error(`Unable to stash previously serialized data. ${JSON.stringify(deserialized)}`);
+                            errorID(16343, JSON.stringify(deserialized));
                         }
                     };
                 }
             } catch (e) {
-                error(`Error when checking MissingScript 6, ${e}`);
+                errorID(16344, `${e}`);
             }
 
             js.value(klass, '__deserialize__', deserialize, true);

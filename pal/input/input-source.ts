@@ -102,12 +102,12 @@ export class CompositeInputSourceAxis1D extends InputSourceAxis1D {
      * @en The input source object of positive 1D axis
      * @zh 1D 轴的正向的输入源对象
      */
-    public positive: InputSourceButton;
+    public declare positive: InputSourceButton;
     /**
      * @en The input source object of negative 1D axis
      * @zh 1D 轴的负向的输入源对象
      */
-    public negative: InputSourceButton;
+    public declare negative: InputSourceButton;
     constructor (options: {positive: InputSourceButton, negative: InputSourceButton}) {
         super();
         this.positive = options.positive;
@@ -136,33 +136,33 @@ export class CompositeInputSourceAxis2D extends InputSourceAxis2D {
      * @en The input source object of up direction of 2D axis
      * @zh 2D 轴的向上的输入源对象
      */
-    public up: InputSourceButton;
+    public declare up: InputSourceButton;
     /**
      * @en The input source object of down direction of 2D axis
      * @zh 2D 轴的向下的输入源对象
      */
-    public down: InputSourceButton;
+    public declare down: InputSourceButton;
     /**
      * @en The input source object of left direction of 2D axis
      * @zh 2D 轴的向左的输入源对象
      */
-    public left: InputSourceButton;
+    public declare left: InputSourceButton;
     /**
      * @en The input source object of right direction of 2D axis
      * @zh 2D 轴的向右的输入源对象
      */
-    public right: InputSourceButton;
+    public declare right: InputSourceButton;
 
     /**
      * @en The composite input source object on the x axis of 2D axis
      * @zh 2D 轴在 x 轴上的组合输入源对象
      */
-    public xAxis: CompositeInputSourceAxis1D;
+    public declare xAxis: CompositeInputSourceAxis1D;
     /**
      * @en The composite input source object on the y axis of 2D axis
      * @zh 2D 轴在 y 轴上的组合输入源对象
      */
-    public yAxis: CompositeInputSourceAxis1D;
+    public declare yAxis: CompositeInputSourceAxis1D;
     constructor (options: {up: InputSourceButton, down: InputSourceButton, left: InputSourceButton, right: InputSourceButton}) {
         super();
         this.up = options.up;
@@ -190,48 +190,48 @@ export class CompositeInputSourceAxis3D extends InputSourceAxis3D {
      * @en The input source object of up direction of 3D axis
      * @zh 3D 轴的向上的输入源对象
      */
-    public up: InputSourceButton;
+    public declare up: InputSourceButton;
     /**
      * @en The input source object of down direction of 3D axis
      * @zh 3D 轴的向下的输入源对象
      */
-    public down: InputSourceButton;
+    public declare down: InputSourceButton;
     /**
      * @en The input source object of left direction of 3D axis
      * @zh 3D 轴的向左的输入源对象
      */
-    public left: InputSourceButton;
+    public declare left: InputSourceButton;
     /**
      * @en The input source object of right direction of 3D axis
      * @zh 3D 轴的向右的输入源对象
      */
-    public right: InputSourceButton;
+    public declare right: InputSourceButton;
     /**
      * @en The input source object of forward direction of 3D axis
      * @zh 3D 轴的向前的输入源对象
      */
-    public forward: InputSourceButton;
+    public declare forward: InputSourceButton;
     /**
      * @en The input source object of backward direction of 3D axis
      * @zh 3D 轴的向后的输入源对象
      */
-    public backward: InputSourceButton;
+    public declare backward: InputSourceButton;
 
     /**
      * @en The composite input source object on the x axis of 3D axis
      * @zh 3D 轴在 x 轴上的组合输入源对象
      */
-    public xAxis: CompositeInputSourceAxis1D;
+    public declare xAxis: CompositeInputSourceAxis1D;
     /**
      * @en The composite input source object on the y axis of 3D axis
      * @zh 3D 轴在 y 轴上的组合输入源对象
      */
-    public yAxis: CompositeInputSourceAxis1D;
+    public declare yAxis: CompositeInputSourceAxis1D;
     /**
      * @en The composite input source object on the z axis of 3D axis
      * @zh 3D 轴在 z 轴上的组合输入源对象
      */
-    public zAxis: CompositeInputSourceAxis1D;
+    public declare zAxis: CompositeInputSourceAxis1D;
     constructor (options: {up: InputSourceButton, down: InputSourceButton, left: InputSourceButton,
         right: InputSourceButton, forward: InputSourceButton, backward: InputSourceButton}) {
         super();

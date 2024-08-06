@@ -582,6 +582,10 @@ export class Button extends Component {
     private _sprite: Sprite | null = null;
     private _targetScale: Vec3 = new Vec3();
 
+    constructor () {
+        super();
+    }
+
     public __preload (): void {
         if (!this.target) {
             this.target = this.node;

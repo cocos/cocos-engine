@@ -31,7 +31,7 @@ import { ImageAsset } from '../../asset/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
 import { Morph, SubMeshMorph } from './morph';
-import { assertIsNonNullable, assertIsTrue, warn, bits, nextPow2, cclegacy } from '../../core';
+import { assertIsNonNullable, assertIsTrue, warn, bits, nextPow2, cclegacy, warnID } from '../../core';
 import { IMacroPatch } from '../../render-scene';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 
@@ -100,7 +100,7 @@ export function createMorphRendering (mesh: Mesh, gfxDevice: Device): MorphRende
  * 每个子网格形变都使用自己独立的 [[MorphRenderingInstance]]，它的形变目标权重、渲染管线状态和形变混合计算策略都是独立控制的。
  */
 export class StdMorphRendering implements MorphRendering {
-    private _mesh: Mesh;
+    private declare _mesh: Mesh;
     private _subMeshRenderings: (SubMeshMorphRendering | null)[] = [];
 
     constructor (mesh: Mesh, gfxDevice: Device) {
@@ -230,17 +230,17 @@ interface SubMeshMorphRenderingInstance {
  * Target displacements of each attribute are transferred through vertex texture, say, morph texture.
  */
 class GpuComputing implements SubMeshMorphRendering {
-    private _gfxDevice: Device;
-    private _subMeshMorph: SubMeshMorph;
-    private _textureInfo: {
+    private declare _gfxDevice: Device;
+    private declare _subMeshMorph: SubMeshMorph;
+    private declare _textureInfo: {
         width: number;
         height: number;
     };
-    private _attributes: {
+    private declare _attributes: {
         name: string;
         morphTexture: MorphTexture;
     }[];
-    private _verticesCount: number;
+    private declare _verticesCount: number;
 
     constructor (mesh: Mesh, subMeshIndex: number, morph: Morph, gfxDevice: Device) {
         this._gfxDevice = gfxDevice;
@@ -299,7 +299,7 @@ class GpuComputing implements SubMeshMorphRendering {
         requiredPatches: () => IMacroPatch[];
         adaptPipelineState: (descriptorSet: DescriptorSet) => void;
         destroy: () => void;
-    } {
+        } {
         const morphUniforms = new MorphUniforms(this._gfxDevice, this._subMeshMorph.targets.length);
         morphUniforms.setMorphTextureInfo(this._textureInfo.width, this._textureInfo.height);
         morphUniforms.setVerticesCount(this._verticesCount);
@@ -320,7 +320,7 @@ class GpuComputing implements SubMeshMorphRendering {
                     case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
                     case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
                     default:
-                        warn('Unexpected attribute!'); break;
+                        warnID(16374); break;
                     }
                     if (binding !== undefined) {
                         descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
@@ -344,7 +344,7 @@ class GpuComputing implements SubMeshMorphRendering {
  * The displacements, then, are passed to GPU.
  */
 class CpuComputing implements SubMeshMorphRendering {
-    private _gfxDevice: Device;
+    private declare _gfxDevice: Device;
     private _attributes: {
         name: string;
         targets: {
@@ -390,12 +390,12 @@ class CpuComputing implements SubMeshMorphRendering {
     }
 }
 class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
-    private _attributes: {
+    private declare _attributes: {
         attributeName: string;
         morphTexture: MorphTexture;
     }[];
-    private _owner: CpuComputing;
-    private _morphUniforms: MorphUniforms;
+    private declare _owner: CpuComputing;
+    private declare _morphUniforms: MorphUniforms;
 
     public constructor (owner: CpuComputing, nVertices: number, gfxDevice: Device) {
         this._owner = owner;
@@ -459,7 +459,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
             case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
             default:
-                warn('Unexpected attribute!'); break;
+                warnID(16374); break;
             }
             if (binding !== undefined) {
                 descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
@@ -483,9 +483,9 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
  * Provides the access to morph related uniforms.
  */
 class MorphUniforms {
-    private _targetCount: number;
-    private _localBuffer: DataView;
-    private _remoteBuffer: Buffer;
+    private declare _targetCount: number;
+    private declare _localBuffer: DataView;
+    private declare _remoteBuffer: Buffer;
 
     constructor (gfxDevice: Device, targetCount: number) {
         this._targetCount = targetCount;
@@ -508,18 +508,21 @@ class MorphUniforms {
 
     public setWeights (weights: number[]): void {
         assertIsTrue(weights.length === this._targetCount);
+        const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
         for (let iWeight = 0; iWeight < weights.length; ++iWeight) {
-            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], cclegacy.sys.isLittleEndian);
+            this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_WEIGHTS + 4 * iWeight, weights[iWeight], isLittleEndian);
         }
     }
 
     public setMorphTextureInfo (width: number, height: number): void {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, cclegacy.sys.isLittleEndian);
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, cclegacy.sys.isLittleEndian);
+        const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH, width, isLittleEndian);
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT, height, isLittleEndian);
     }
 
     public setVerticesCount (count: number): void {
-        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, cclegacy.sys.isLittleEndian);
+        const isLittleEndian = cclegacy.sys.isLittleEndian as boolean;
+        this._localBuffer.setFloat32(UBOMorph.OFFSET_OF_VERTICES_COUNT, count, isLittleEndian);
     }
 
     public commit (): void {
@@ -585,7 +588,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number): {
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
             textureAsset.image = image;
             if (!textureAsset.getGFXTexture()) {
-                warn('Unexpected: failed to create morph texture?');
+                warnID(16375);
             }
             const sampler = gfxDevice.getSampler(textureAsset.getSamplerInfo());
             return {

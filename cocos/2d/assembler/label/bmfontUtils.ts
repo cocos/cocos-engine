@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import { IConfig, FontAtlas } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
-import { Rect } from '../../../core';
+import { Rect, errorID } from '../../../core';
 import { Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
 import { LetterAtlas, shareLabelInfo } from './font-utils';
@@ -44,13 +44,18 @@ let _uiTrans: UITransform | null = null;
 
 let _fntConfig: IConfig | null = null;
 let _spriteFrame: SpriteFrame|null = null;
-let QUAD_INDICES;
+let QUAD_INDICES: Uint16Array | null = null;
 
 export const bmfontUtils = {
 
-    updateProcessingData (style: TextStyle, layout: TextLayout,
-        outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData,
-        comp: Label, trans: UITransform): void {
+    updateProcessingData (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        comp: Label,
+        trans: UITransform,
+    ): void {
         style.fontSize = comp.fontSize;
         style.actualFontSize = comp.fontSize;
         style.originFontSize = _fntConfig ? _fntConfig.fontSize : comp.fontSize;
@@ -118,8 +123,15 @@ export const bmfontUtils = {
             processing.processingString(true, style, layout, outputLayoutData, comp.string);
             // generateVertex
             outputRenderData.quadCount = 0;
-            processing.generateRenderInfo(true, style, layout, outputLayoutData, outputRenderData,
-                comp.string, this.generateVertexData);
+            processing.generateRenderInfo(
+                true,
+                style,
+                layout,
+                outputLayoutData,
+                outputRenderData,
+                comp.string,
+                this.generateVertexData,
+            );
             let isResized = false;
             if (renderData.dataLength !== outputRenderData.quadCount) {
                 this.resetRenderData(comp);
@@ -134,7 +146,7 @@ export const bmfontUtils = {
 
             const indexCount = renderData.indexCount;
             this.createQuadIndices(indexCount);
-            renderData.chunk.setIndexBuffer(QUAD_INDICES);
+            renderData.chunk.setIndexBuffer(QUAD_INDICES!);
 
             _comp.actualFontSize = style.actualFontSize;
             _uiTrans.setContentSize(outputLayoutData.nodeContentSize);
@@ -204,8 +216,17 @@ export const bmfontUtils = {
     },
 
     // callBack function
-    generateVertexData (style: TextStyle, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData, offset: number,
-        spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number): void {
+    generateVertexData (
+        style: TextStyle,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+        offset: number,
+        spriteFrame: SpriteFrame,
+        rect: Rect,
+        rotated: boolean,
+        x: number,
+        y: number,
+    ): void {
         const dataOffset = offset;
         const scale = style.bmfontScale;
 
@@ -290,13 +311,12 @@ export const bmfontUtils = {
         shareLabelInfo.margin = 0;
     },
 
-    createQuadIndices (indexCount): void {
+    createQuadIndices (indexCount: number): void {
         if (indexCount % 6 !== 0) {
-            console.error('illegal index count!');
+            errorID(16308);
             return;
         }
         const quadCount = indexCount / 6;
-        QUAD_INDICES = null;
         QUAD_INDICES = new Uint16Array(indexCount);
         let offset = 0;
         for (let i = 0; i < quadCount; i++) {

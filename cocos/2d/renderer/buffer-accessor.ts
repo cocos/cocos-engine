@@ -31,10 +31,10 @@ export class BufferAccessor {
     public get vertexFormatBytes (): number { return this._vertexFormatBytes; }
     public get floatsPerVertex (): number { return this._floatsPerVertex; }
 
-    protected _device: Device = null!
-    protected _attributes: Attribute[] = null!;
-    protected _vertexFormatBytes: number;
-    protected _floatsPerVertex: number;
+    protected declare _device: Device;
+    protected declare _attributes: Attribute[];
+    protected declare _vertexFormatBytes: number;
+    protected declare _floatsPerVertex: number;
     protected _buffers: MeshBuffer[] = [];
 
     constructor (device: Device, attributes: Attribute[]) {

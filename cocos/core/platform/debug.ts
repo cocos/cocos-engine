@@ -261,7 +261,7 @@ export function _throw (error_: any): any {
     }
 }
 
-function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert'): (id: number, ...args: StringSubstitution[]) => string {
+function getTypedFormatter (type: 'Log' | 'Debug' | 'Warning' | 'Error' | 'Assert'): (id: number, ...args: StringSubstitution[]) => string {
     return (id: number, ...args: StringSubstitution[]): string => {
         const msg = DEBUG ? (debugInfos[id] || 'unknown id') : `${type} ${id}, please go to ${ERROR_MAP_URL}#${id} to see details.`;
         if (args.length === 0) {
@@ -274,6 +274,11 @@ function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert'): (id: 
 const logFormatter = getTypedFormatter('Log');
 export function logID (id: number, ...optionalParams: StringSubstitution[]): void {
     log(logFormatter(id, ...optionalParams));
+}
+
+const debugFormatter = getTypedFormatter('Debug');
+export function debugID (id: number, ...optionalParams: StringSubstitution[]): void {
+    debug(debugFormatter(id, ...optionalParams));
 }
 
 const warnFormatter = getTypedFormatter('Warning');

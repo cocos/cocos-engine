@@ -30,7 +30,7 @@ import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, lerp, random } from './utils';
 import { legacyCC } from '../global-exports';
-import { warn } from '../platform/debug';
+import { warnID } from '../platform/debug';
 
 /**
  * @en Representation of 3D vectors and points.
@@ -1071,8 +1071,9 @@ export class Vec3 extends ValueType {
      * @param scalar scalar number
      */
     public multiplyScalar (scalar: number): Vec3 {
-        // TODO: can not use cc.warn, or will cause circular dependency.
-        if (typeof scalar === 'object') { warn('should use Vec3.multiply for vector * vector operation'); }
+        if (typeof scalar === 'object') {
+            warnID(16357);
+        }
         this.x *= scalar;
         this.y *= scalar;
         this.z *= scalar;
@@ -1085,8 +1086,9 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public multiply (other: Vec3): Vec3 {
-        // TODO: can not use cc.warn, or will cause circular dependency.
-        if (typeof other !== 'object') { warn('should use Vec3.scale for vector * scalar operation'); }
+        if (typeof other !== 'object') {
+            warnID(16358);
+        }
         this.x *= other.x;
         this.y *= other.y;
         this.z *= other.z;

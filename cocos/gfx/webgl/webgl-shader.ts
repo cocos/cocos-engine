@@ -38,6 +38,10 @@ export class WebGLShader extends Shader {
 
     private _gpuShader: IWebGLGPUShader | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<ShaderInfo>): void {
         this._name = info.name;
         this._stages = info.stages;

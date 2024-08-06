@@ -55,6 +55,10 @@ export class SpriteAtlas extends Asset {
     @editable
     public spriteFrames: ISpriteFrameList = js.createMap();
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en Get the [[Texture2D]] asset of the atlas.
      * @zh 获取精灵图集的贴图。
@@ -125,6 +129,7 @@ export class SpriteAtlas extends Asset {
                 spriteFrames: frames,
             };
         }
+        return null;
     }
 
     /**

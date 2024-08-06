@@ -24,7 +24,7 @@
 */
 
 import { EDITOR, JSB, WEBGPU } from 'internal:constants';
-import { cclegacy, error, getError, sys, screen, Settings, settings } from '../core';
+import { cclegacy, getError, sys, screen, Settings, settings, errorID } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
@@ -186,7 +186,7 @@ export class DeviceManager {
 
         if (!this._gfxDevice) {
             // todo fix here for wechat game
-            error('can not support canvas rendering in 3D');
+            errorID(16337);
             this._renderType = RenderType.UNKNOWN;
             return false;
         }

@@ -40,6 +40,10 @@ export class WebGLTexture extends Texture {
     private _gpuTexture: IWebGLGPUTexture | null = null;
     private _lodLevel = 0;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean): void {
         let texInfo = info as Readonly<TextureInfo>;
         const viewInfo = info as Readonly<TextureViewInfo>;

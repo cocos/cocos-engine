@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { debug, error, errorID, CachedArray, cclegacy, assertID } from '../../core';
+import { debugID, error, errorID, CachedArray, cclegacy, assertID } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
@@ -179,7 +179,7 @@ export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGLRenderi
     case Format.DEPTH_STENCIL: return gl.DEPTH_STENCIL;
 
     default: {
-        error('Unsupported Format, convert to WebGL internal format failed.');
+        errorID(16309);
         return gl.RGBA;
     }
     }
@@ -261,7 +261,7 @@ export function GFXFormatToWebGLFormat (format: Format, gl: WebGLRenderingContex
     case Format.ASTC_SRGBA_12X12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
     default: {
-        error('Unsupported Format, convert to WebGL format failed.');
+        errorID(16310);
         return gl.RGBA;
     }
     }
@@ -288,7 +288,7 @@ function GFXTypeToWebGLType (type: Type, gl: WebGLRenderingContext): GLenum {
     case Type.SAMPLER2D: return gl.SAMPLER_2D;
     case Type.SAMPLER_CUBE: return gl.SAMPLER_CUBE;
     default: {
-        error('Unsupported GLType, convert to GL type failed.');
+        errorID(16311);
         return Type.UNKNOWN;
     }
     }
@@ -315,7 +315,7 @@ function GFXTypeToTypedArrayCtor (type: Type): Int32ArrayConstructor | Float32Ar
     case Type.MAT4:
         return Float32Array;
     default: {
-        error('Unsupported GLType, convert to TypedArrayConstructor failed.');
+        errorID(16312);
         return Float32Array;
     }
     }
@@ -342,7 +342,7 @@ function WebGLTypeToGFXType (glType: GLenum, gl: WebGLRenderingContext): Type {
     case gl.SAMPLER_2D: return Type.SAMPLER2D;
     case gl.SAMPLER_CUBE: return Type.SAMPLER_CUBE;
     default: {
-        error('Unsupported GLType, convert to Type failed.');
+        errorID(16313);
         return Type.UNKNOWN;
     }
     }
@@ -369,7 +369,7 @@ function WebGLGetTypeSize (glType: GLenum, gl: WebGLRenderingContext): number {
     case gl.SAMPLER_2D: return 4;
     case gl.SAMPLER_CUBE: return 4;
     default: {
-        error('Unsupported GLType, get type failed.');
+        errorID(16314);
         return 0;
     }
     }
@@ -446,7 +446,7 @@ export enum WebGLCmd {
 }
 
 export abstract class WebGLCmdObject {
-    public cmdType: WebGLCmd;
+    public declare cmdType: WebGLCmd;
     public refCount = 0;
 
     constructor (type: WebGLCmd) {
@@ -664,7 +664,7 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
     } else if (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC) {
         gpuBuffer.glTarget = gl.NONE;
     } else {
-        error('Unsupported BufferType, create buffer failed.');
+        errorID(16315);
         gpuBuffer.glTarget = gl.NONE;
     }
 }
@@ -763,7 +763,7 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
             || (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC)) {
         gpuBuffer.glTarget = gl.NONE;
     } else {
-        error('Unsupported BufferType, create buffer failed.');
+        errorID(16315);
         gpuBuffer.glTarget = gl.NONE;
     }
 }
@@ -824,7 +824,7 @@ export function WebGLCmdFuncUpdateBuffer (
             break;
         }
         default: {
-            error('Unsupported BufferType, update buffer failed.');
+            errorID(16316);
             return;
         }
         }
@@ -980,7 +980,7 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
         break;
     }
     default: {
-        error('Unsupported TextureType, create texture failed.');
+        errorID(16317);
         gpuTexture.type = TextureType.TEX2D;
         gpuTexture.glTarget = gl.TEXTURE_2D;
     }
@@ -1116,7 +1116,7 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
         break;
     }
     default: {
-        error('Unsupported TextureType, create texture failed.');
+        errorID(16317);
         gpuTexture.type = TextureType.TEX2D;
         gpuTexture.glTarget = gl.TEXTURE_2D;
     }
@@ -1200,19 +1200,19 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
         if (status !== gl.FRAMEBUFFER_COMPLETE) {
             switch (status) {
             case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
-                error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
+                errorID(16318);
                 break;
             }
             case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
-                error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
+                errorID(16319);
                 break;
             }
             case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
-                error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
+                errorID(16320);
                 break;
             }
             case gl.FRAMEBUFFER_UNSUPPORTED: {
-                error('glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED');
+                errorID(16321);
                 break;
             }
             default:
@@ -1258,7 +1258,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
             break;
         }
         default: {
-            error('Unsupported ShaderType.');
+            errorID(16322);
             return;
         }
         }
@@ -1270,8 +1270,8 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
             gl.compileShader(gpuStage.glShader);
 
             if (!gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS)) {
-                error(`${shaderTypeStr} in '${gpuShader.name}' compilation failed.`);
-                error('Shader source dump:', gpuStage.source.replace(/^|\n/g, (): string => `\n${lineNumber++} `));
+                errorID(16323, shaderTypeStr, gpuShader.name);
+                errorID(16324, gpuStage.source.replace(/^|\n/g, (): string => `\n${lineNumber++} `));
                 error(gl.getShaderInfoLog(gpuStage.glShader));
 
                 for (let l = 0; l < gpuShader.gpuStages.length; l++) {
@@ -1314,9 +1314,9 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     }
 
     if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
-        debug(`Shader '${gpuShader.name}' compilation succeeded.`);
+        debugID(16325, gpuShader.name);
     } else {
-        error(`Failed to link shader '${gpuShader.name}'.`);
+        errorID(16326, gpuShader.name);
         error(gl.getProgramInfoLog(gpuShader.glProgram));
         return;
     }
@@ -2810,7 +2810,7 @@ export function WebGLCmdFuncCopyTexImagesToTexture (
         break;
     }
     default: {
-        error('Unsupported GL texture type, copy buffer to texture failed.');
+        errorID(16327);
     }
     }
 
@@ -3016,7 +3016,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
         break;
     }
     default: {
-        error('Unsupported GL texture type, copy buffer to texture failed.');
+        errorID(16327);
     }
     }
 

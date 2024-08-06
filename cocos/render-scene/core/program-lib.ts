@@ -36,7 +36,7 @@ import {
 } from '../../gfx';
 import { genHandles, getActiveAttributes, getShaderInstanceName, getSize,
     getVariantKey, IMacroInfo, populateMacros, prepareDefines } from './program-utils';
-import { debug, cclegacy } from '../../core';
+import { debug, cclegacy, errorID, warnID } from '../../core';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -64,8 +64,11 @@ export interface IProgramInfo extends EffectAsset.IShaderInfo {
 }
 
 function insertBuiltinBindings (
-    tmpl: IProgramInfo, tmplInfo: ITemplateInfo, source: IDescriptorSetLayoutInfo,
-    type: 'locals' | 'globals', outBindings?: DescriptorSetLayoutBinding[],
+    tmpl: IProgramInfo,
+    tmplInfo: ITemplateInfo,
+    source: IDescriptorSetLayoutInfo,
+    type: 'locals' | 'globals',
+    outBindings?: DescriptorSetLayoutBinding[],
 ): void {
     const target = tmpl.builtins[type];
     const tempBlocks: UniformBlock[] = [];
@@ -74,7 +77,7 @@ function insertBuiltinBindings (
         const info = source.layouts[b.name] as UniformBlock | undefined;
         const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_BUFFER_TYPE)) {
-            console.warn(`builtin UBO '${b.name}' not available!`);
+            warnID(16348, b.name);
             continue;
         }
         tempBlocks.push(info);
@@ -87,7 +90,7 @@ function insertBuiltinBindings (
         const info = source.layouts[s.name] as UniformSamplerTexture;
         const binding = info && source.bindings.find((bd): boolean => bd.binding === info.binding);
         if (!info || !binding || !(binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE)) {
-            console.warn(`builtin samplerTexture '${s.name}' not available!`);
+            warnID(16349, s.name);
             continue;
         }
         tempSamplerTextures.push(info);
@@ -289,7 +292,7 @@ export function flattenShaderLocation (
 function processShaderInfo (
     tmpl: IProgramInfo,
     macroInfo: IMacroInfo[],
-    shaderInfo,
+    shaderInfo: ShaderInfo,
 ): void {
     // during configuring vertex state when make a pipelinestate
     // webgpu request max location of vertex attribute should not be greater than 15
@@ -360,58 +363,79 @@ export class ProgramLib {
             for (let i = 0; i < tmpl.blocks.length; i++) {
                 const block = tmpl.blocks[i];
                 tmplInfo.blockSizes.push(getSize(block.members));
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(block.binding,
-                    DescriptorType.UNIFORM_BUFFER, 1, block.stageFlags));
-                tmplInfo.shaderInfo.blocks.push(new UniformBlock(SetIndex.MATERIAL, block.binding, block.name,
-                    block.members.map((m): Uniform => new Uniform(m.name, m.type, m.count)), 1)); // effect compiler guarantees block count = 1
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(
+                    block.binding,
+                    DescriptorType.UNIFORM_BUFFER,
+                    1,
+                    block.stageFlags,
+                ));
+                tmplInfo.shaderInfo.blocks.push(new UniformBlock(
+                    SetIndex.MATERIAL,
+                    block.binding,
+                    block.name,
+                    block.members.map((m): Uniform => new Uniform(m.name, m.type, m.count)),
+                    1,
+                )); // effect compiler guarantees block count = 1
             }
             for (let i = 0; i < tmpl.samplerTextures.length; i++) {
                 const samplerTexture = tmpl.samplerTextures[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(samplerTexture.binding,
-                    DescriptorType.SAMPLER_TEXTURE, samplerTexture.count, samplerTexture.stageFlags));
-                tmplInfo.shaderInfo.samplerTextures.push(new UniformSamplerTexture(
-                    SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count,
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(
+                    samplerTexture.binding,
+                    DescriptorType.SAMPLER_TEXTURE,
+                    samplerTexture.count,
+                    samplerTexture.stageFlags,
                 ));
+                tmplInfo.shaderInfo.samplerTextures.push(new UniformSamplerTexture(SetIndex.MATERIAL, samplerTexture.binding, samplerTexture.name, samplerTexture.type, samplerTexture.count));
             }
             for (let i = 0; i < tmpl.samplers.length; i++) {
                 const sampler = tmpl.samplers[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(sampler.binding,
-                    DescriptorType.SAMPLER, sampler.count, sampler.stageFlags));
-                tmplInfo.shaderInfo.samplers.push(new UniformSampler(
-                    SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.count,
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(
+                    sampler.binding,
+                    DescriptorType.SAMPLER,
+                    sampler.count,
+                    sampler.stageFlags,
                 ));
+                tmplInfo.shaderInfo.samplers.push(new UniformSampler(SetIndex.MATERIAL, sampler.binding, sampler.name, sampler.count));
             }
             for (let i = 0; i < tmpl.textures.length; i++) {
                 const texture = tmpl.textures[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(texture.binding,
-                    DescriptorType.TEXTURE, texture.count, texture.stageFlags));
-                tmplInfo.shaderInfo.textures.push(new UniformTexture(
-                    SetIndex.MATERIAL, texture.binding, texture.name, texture.type, texture.count,
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(
+                    texture.binding,
+                    DescriptorType.TEXTURE,
+                    texture.count,
+                    texture.stageFlags,
                 ));
+                tmplInfo.shaderInfo.textures.push(new UniformTexture(SetIndex.MATERIAL, texture.binding, texture.name, texture.type, texture.count));
             }
             for (let i = 0; i < tmpl.buffers.length; i++) {
                 const buffer = tmpl.buffers[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(buffer.binding,
-                    DescriptorType.STORAGE_BUFFER, 1, buffer.stageFlags));
-                tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(
-                    SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess,
-                )); // effect compiler guarantees buffer count = 1
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(
+                    buffer.binding,
+                    DescriptorType.STORAGE_BUFFER,
+                    1,
+                    buffer.stageFlags,
+                ));
+                tmplInfo.shaderInfo.buffers.push(new UniformStorageBuffer(SetIndex.MATERIAL, buffer.binding, buffer.name, 1, buffer.memoryAccess)); // effect compiler guarantees buffer count = 1
             }
             for (let i = 0; i < tmpl.images.length; i++) {
                 const image = tmpl.images[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(image.binding,
-                    DescriptorType.STORAGE_IMAGE, image.count, image.stageFlags));
-                tmplInfo.shaderInfo.images.push(new UniformStorageImage(
-                    SetIndex.MATERIAL, image.binding, image.name, image.type, image.count, image.memoryAccess,
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(
+                    image.binding,
+                    DescriptorType.STORAGE_IMAGE,
+                    image.count,
+                    image.stageFlags,
                 ));
+                tmplInfo.shaderInfo.images.push(new UniformStorageImage(SetIndex.MATERIAL, image.binding, image.name, image.type, image.count, image.memoryAccess));
             }
             for (let i = 0; i < tmpl.subpassInputs.length; i++) {
                 const subpassInput = tmpl.subpassInputs[i];
-                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(subpassInput.binding,
-                    DescriptorType.INPUT_ATTACHMENT, subpassInput.count, subpassInput.stageFlags));
-                tmplInfo.shaderInfo.subpassInputs.push(new UniformInputAttachment(
-                    SetIndex.MATERIAL, subpassInput.binding, subpassInput.name, subpassInput.count,
+                tmplInfo.bindings.push(new DescriptorSetLayoutBinding(
+                    subpassInput.binding,
+                    DescriptorType.INPUT_ATTACHMENT,
+                    subpassInput.count,
+                    subpassInput.stageFlags,
                 ));
+                tmplInfo.shaderInfo.subpassInputs.push(new UniformInputAttachment(SetIndex.MATERIAL, subpassInput.binding, subpassInput.name, subpassInput.count));
             }
             tmplInfo.gfxAttributes = [];
             for (let i = 0; i < tmpl.attributes.length; i++) {
@@ -543,7 +567,7 @@ export class ProgramLib {
         if (deviceShaderVersion) {
             src = tmpl[deviceShaderVersion];
         } else {
-            console.error('Invalid GFX API!');
+            errorID(16346);
         }
         tmplInfo.shaderInfo.stages[0].source = prefix + src.vert;
         tmplInfo.shaderInfo.stages[1].source = prefix + src.frag;

@@ -23,7 +23,7 @@
 */
 
 import { js } from '../../../core';
-import { Label, LabelOutline } from '../../components';
+import { Label } from '../../components';
 import { bmfontUtils } from './bmfontUtils';
 import { shareLabelInfo, LetterAtlas, computeHash, LetterRenderTexture } from './font-utils';
 

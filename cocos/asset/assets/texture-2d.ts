@@ -26,7 +26,7 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { ccclass, type } from 'cc.decorator';
 import { TextureType, TextureInfo, TextureViewInfo } from '../../gfx';
-import { Filter, PixelFormat } from './asset-enum';
+import { PixelFormat } from './asset-enum';
 import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, PresumedGFXTextureViewInfo, SimpleTexture } from './simple-texture';
 import { js, cclegacy } from '../../core';
@@ -83,6 +83,10 @@ export interface ITexture2DCreateInfo {
  */
 @ccclass('cc.Texture2D')
 export class Texture2D extends SimpleTexture {
+    constructor () {
+        super();
+    }
+
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
      * When setup mipmap, the size of the texture and pixel format could be modified.

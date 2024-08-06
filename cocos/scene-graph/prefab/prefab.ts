@@ -112,17 +112,14 @@ export class Prefab extends Asset {
     public persistent = false;
 
     // Cache function to optimize instance creation.
-    private _createFunction: ((...arg: any[]) => Node) | null;
-    private _instantiatedTimes: number;
+    private _createFunction: ((...arg: any[]) => Node) | null = null;
+    private _instantiatedTimes: number = 0;
     constructor () {
         super();
-        this._createFunction = null;
-
-        this._instantiatedTimes = 0;
     }
 
     public createNode (cb: (err: Error | null, node: Node) => void): void {
-        const node = legacyCC.instantiate(this);
+        const node = legacyCC.instantiate(this) as Node;
         node.name = this.name;
         cb(null, node);
     }

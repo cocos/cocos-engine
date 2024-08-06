@@ -23,13 +23,14 @@
 */
 
 import { Material } from '../../asset/assets/material';
-import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../gfx';
+import { Texture, Sampler, InputAssembler, DescriptorSet, Shader, DepthStencilState } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Model } from '../../render-scene/scene/model';
 import { Layers } from '../../scene-graph/layers';
 import { cclegacy } from '../../core';
-import { Pass } from '../../render-scene/core/pass';
+import { IMacroPatch, Pass } from '../../render-scene/core/pass';
 import { IBatcher } from './i-batcher';
+import type { Root } from '../../root';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 export class DrawBatch2D {
@@ -102,7 +103,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, patches): void {
+    public fillPasses (mat: Material | null, dss: DepthStencilState | null, dssHash: number, patches: Readonly<IMacroPatch[] | null>): void {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
@@ -114,7 +115,7 @@ export class DrawBatch2D {
 
             for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
-                    this._passes[i] = new Pass(cclegacy.director.root);
+                    this._passes[i] = new Pass(cclegacy.director.root as Root);
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];

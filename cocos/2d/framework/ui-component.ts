@@ -44,6 +44,10 @@ import { Stage } from '../renderer/stencil-manager';
 export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
+    constructor () {
+        super();
+    }
+
     public __preload (): void {
         // TODO: UIComponent should not be assigned to UIMeshRenderer | UIRenderer @holycanvas
         // workaround: mark this as any

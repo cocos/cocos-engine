@@ -146,6 +146,10 @@ class ModelBakeSettings extends EventTarget {
     public probeBlendCubemap: TextureCube | null = null;
     public probePlanarmap: Texture | null = null;
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en Whether the model is static and bake-able with light map.
      * Notice: the model's vertex data must have the second UV attribute to enable light map baking.
@@ -304,7 +308,7 @@ export class MeshRenderer extends ModelRenderer {
     @editable
     @disallowAnimation
     @displayOrder(3)
-    public bakeSettings = new ModelBakeSettings(this);
+    public bakeSettings = new ModelBakeSettings();
 
     @serializable
     protected _mesh: Mesh | null = null;
@@ -527,7 +531,7 @@ export class MeshRenderer extends ModelRenderer {
         this._enabledGlobalStandardSkinObject = false;
     }
 
-    protected _modelType: typeof scene.Model;
+    protected _modelType: typeof scene.Model = scene.Model;
 
     protected _model: scene.Model | null = null;
 
@@ -538,7 +542,6 @@ export class MeshRenderer extends ModelRenderer {
 
     constructor () {
         super();
-        this._modelType = scene.Model;
 
         const highQualityMode = settings.querySettings(Settings.Category.RENDERING, 'highQualityMode');
         if (highQualityMode) {

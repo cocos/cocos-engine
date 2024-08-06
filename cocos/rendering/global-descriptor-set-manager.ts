@@ -46,12 +46,12 @@ const _samplerPointInfo = new SamplerInfo(
 );
 
 export class GlobalDSManager {
-    private _device: Device;
+    private declare _device: Device;
     private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
-    private _globalDescriptorSet: DescriptorSet;
-    private _descriptorSetLayout: DescriptorSetLayout;
-    private _linearSampler: Sampler;
-    private _pointSampler: Sampler;
+    private declare _globalDescriptorSet: DescriptorSet;
+    private declare _descriptorSetLayout: DescriptorSetLayout;
+    private declare _linearSampler: Sampler;
+    private declare _pointSampler: Sampler;
 
     get descriptorSetMap (): Map<Light, DescriptorSet> {
         return this._descriptorSetMap;

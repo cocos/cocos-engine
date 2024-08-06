@@ -28,9 +28,7 @@ import { CommandBuffer } from '../base/command-buffer';
 import {
     BufferUsageBit,
     CommandBufferType,
-    LoadOp,
     StencilFace,
-    StoreOp,
     BufferSource,
     DrawInfo,
     CommandBufferInfo,
@@ -56,14 +54,12 @@ import {
     WebGPUCmdPackage,
     WebGPUCmdUpdateBuffer,
 } from './webgpu-commands';
-import { WebGPUDevice } from './webgpu-device';
 import { WebGPUFramebuffer } from './webgpu-framebuffer';
 import {
     IWebGPUGPUInputAssembler,
     IWebGPUGPUDescriptorSet,
     IWebGPUGPUPipelineState,
     IWebGPUGPUPipelineLayout,
-    IWebGPUGPURenderPass,
 } from './webgpu-gpu-objects';
 import { WebGPUInputAssembler } from './webgpu-input-assembler';
 import { WebGPUPipelineState } from './webgpu-pipeline-state';
@@ -78,7 +74,7 @@ import { DescUpdateFrequency, WebGPUDeviceManager } from './define';
 import { WebGPUSwapchain } from './webgpu-swapchain';
 import { WebGPUPipelineLayout } from './webgpu-pipeline-layout';
 import { WebGPUDescriptorSetLayout } from './webgpu-descriptor-set-layout';
-import { error } from '../../core';
+import { error, errorID } from '../../core';
 
 export interface IWebGPUDepthBias {
     constantFactor: number;
@@ -445,7 +441,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
     public draw (inputAssembler: InputAssembler): void {
         const device = WebGPUDeviceManager.instance;
         if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass) {
-            error('Command \'draw\' must be recorded inside a render pass.');
+            errorID(16328);
             return;
         }
         if (this._isStateValid) {
@@ -522,7 +518,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public updateBuffer (buffer: Buffer, data: BufferSource, offset?: number, size?: number): void {
         if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass) {
-            error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            errorID(16329);
             return;
         }
         const gpuBuffer = (buffer as unknown as WebGPUBuffer).gpuBuffer;
@@ -552,7 +548,7 @@ export class WebGPUCommandBuffer extends CommandBuffer {
 
     public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void {
         if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass) {
-            error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            errorID(16330);
             return;
         }
         const gpuTexture = (texture as WebGPUTexture).gpuTexture;

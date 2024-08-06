@@ -31,6 +31,9 @@ export class WebGLPipelineLayout extends PipelineLayout {
     get gpuPipelineLayout (): IWebGLGPUPipelineLayout { return this._gpuPipelineLayout!; }
 
     private _gpuPipelineLayout: IWebGLGPUPipelineLayout | null = null;
+    constructor () {
+        super();
+    }
 
     public initialize (info: Readonly<PipelineLayoutInfo>): void {
         Array.prototype.push.apply(this._setLayouts, info.setLayouts);

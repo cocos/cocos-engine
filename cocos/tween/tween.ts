@@ -23,7 +23,7 @@
 */
 
 import { TweenSystem } from './tween-system';
-import { warn } from '../core';
+import { warnID } from '../core';
 import {
     ActionInterval, sequence, reverseTime, delayTime, spawn, Sequence,
     Spawn, repeat, repeatForever, RepeatForever, ActionCustomUpdate,
@@ -77,8 +77,6 @@ type OmitType<Base, Type> = KeyPartial<Base, AllowedNames<Base, Type>>;
 type ConstructorType<T> = OmitType<T, Function>;
 
 type TweenWithNodeTargetOrUnknown<T> = T extends Node ? Tween<T> : unknown;
-
-const notIntervalPrompt = 'the last action is not ActionInterval';
 
 export type TweenUpdateCallback<T extends object, Args extends any[]> = (target: T, ratio: number, ...args: Args) => void;
 export type TweenUpdateUntilCallback<T extends object, Args extends any[]> = (target: T, dt: number, ...args: Args) => boolean;
@@ -211,7 +209,7 @@ export class Tween<T extends object = any> {
 
     private reverseTween (): Tween<T> {
         if (this._actions.length === 0) {
-            warn('reverse: current tween could not be reversed, empty actions');
+            warnID(16388);
             return this.clone(this._target as T);
         }
         const action = this._union(false); // workerTarget will be updated in the following insertAction
@@ -237,7 +235,7 @@ export class Tween<T extends object = any> {
             reversedAction = action.reverse();
             reversedAction.workerTarget = t._target;
         } else {
-            warn(`reverse: could not find action id ${actionId}`);
+            warnID(16391, `${actionId}`);
         }
         return reversedAction;
     }
@@ -313,7 +311,7 @@ export class Tween<T extends object = any> {
      */
     start (time: number = 0): Tween<T> {
         if (!this._target) {
-            warn('Please set target to tween first');
+            warnID(16392);
             return this;
         }
         if (this._finalAction) {
@@ -328,7 +326,7 @@ export class Tween<T extends object = any> {
             final.setPaused(false); // If a tween was paused, starting the tween again should clear the 'paused' flag for the final action.
             TweenSystem.instance.ActionManager.addAction(final, this._target, false);
         } else {
-            warn(`start: no actions in Tween`);
+            warnID(16393);
         }
         return this;
     }
@@ -359,7 +357,7 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             this._finalAction.setPaused(true);
         } else {
-            warn(`pause: tween wasn't started, can't pause`);
+            warnID(16389);
         }
         return this;
     }
@@ -373,7 +371,7 @@ export class Tween<T extends object = any> {
         if (this._finalAction) {
             this._finalAction.setPaused(false);
         } else {
-            warn(`resume: tween wasn't started, can't resume`);
+            warnID(16390);
         }
         return this;
     }
@@ -682,7 +680,7 @@ export class Tween<T extends object = any> {
         } else if (action instanceof ActionInterval) {
             actions.push(repeatForever(action));
         } else {
-            warn(`repeatForever: ${notIntervalPrompt}`);
+            warnID(16394);
         }
         return this;
     }
@@ -710,7 +708,7 @@ export class Tween<T extends object = any> {
         if (action instanceof ActionInterval) {
             actions.push(reverseTime(action));
         } else {
-            warn(`reverseTime: ${notIntervalPrompt}`);
+            warnID(16395);
         }
         return this;
     }
@@ -913,7 +911,7 @@ legacyCC.tween = tween;
  * @deprecated please use `tween` instead.
  */
 export function tweenUtil<T extends object = any> (target?: T): Tween<T> {
-    warn('tweenUtil\' is deprecated, please use \'tween\' instead ');
+    warnID(16396);
     return new Tween<T>(target);
 }
 legacyCC.tweenUtil = tweenUtil;

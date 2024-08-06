@@ -53,6 +53,10 @@ export class WebGLPipelineState extends PipelineState {
 
     private _gpuPipelineState: IWebGLGPUPipelineState | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<PipelineStateInfo>): void {
         this._primitive = info.primitive;
         this._shader = info.shader;

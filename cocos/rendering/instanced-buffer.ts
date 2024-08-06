@@ -50,10 +50,10 @@ const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
     public instances: IInstancedItem[] = [];
-    public pass: Pass;
+    public declare pass: Pass;
     public hasPendingModels = false;
     public dynamicOffsets: number[] = [];
-    private _device: Device;
+    private declare _device: Device;
 
     constructor (pass: Pass) {
         this._device = pass.device;

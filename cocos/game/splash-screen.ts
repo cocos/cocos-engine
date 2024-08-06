@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR, TAOBAO } from 'internal:constants';
+import { EDITOR } from 'internal:constants';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
 import {

@@ -23,7 +23,7 @@
 */
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, cclegacy } from '../../core';
+import { error, cclegacy, errorID } from '../../core';
 import packManager from './pack-manager';
 import parser from './parser';
 import { Pipeline } from './pipeline';
@@ -183,7 +183,7 @@ function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => v
     if (asset.addRef) {
         asset.addRef();
     }
-    getDepends(uuid, asset, Object.create(null), depends, config!);
+    getDepends(uuid, asset, Object.create(null) as Record<string, any>, depends, config!);
     if (progress.canInvoke) {
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
     }
@@ -218,7 +218,7 @@ function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => v
                         onLoadedInvokedMap.add(asset);
                     }
                 } catch (e) {
-                    error(`The asset ${uuid} is invalid for some reason, detail message: ${(e as Error).message}, stack: ${(e as Error).stack!}`);
+                    errorID(16352, uuid, (e as Error).message, (e as Error).stack!);
                     if (EDITOR || PREVIEW) {
                         if (asset instanceof Asset) {
                             asset.initDefault();
@@ -235,7 +235,7 @@ function loadDepends (task: Task, asset: Asset, done: ((err?: Error | null) => v
                     error(`The asset ${uuid} is invalid for some reason and will be reverted to default asset, please check it out!`);
                     asset.initDefault();
                 }
-                cache(uuid, asset, cacheAsset);
+                cache(uuid, asset, cacheAsset as boolean);
                 subTask.recycle();
             }
 

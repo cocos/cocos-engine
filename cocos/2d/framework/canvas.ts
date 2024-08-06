@@ -31,7 +31,6 @@ import { Widget } from '../../ui/widget';
 import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
 import { view } from '../../ui/view';
 import { RenderRoot2D } from './render-root-2d';
-import { NodeEventType } from '../../scene-graph/node-event';
 
 const _worldPos = new Vec3();
 
@@ -122,9 +121,9 @@ export class Canvas extends RenderRoot2D {
     @serializable
     protected _alignCanvasWithScreen = true;
 
-    protected _thisOnCameraResized: () => void;
+    protected declare _thisOnCameraResized: () => void;
     // fit canvas node to design resolution
-    protected fitDesignResolution_EDITOR: (() => void) | undefined;
+    protected declare fitDesignResolution_EDITOR: (() => void) | undefined;
 
     private _pos = new Vec3();
     private _renderMode = RenderMode.OVERLAY;

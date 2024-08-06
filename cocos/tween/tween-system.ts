@@ -62,6 +62,10 @@ export class TweenSystem extends System {
 
     private readonly actionMgr = new ActionManager();
 
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * The update will auto execute after all components update.
