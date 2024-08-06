@@ -280,7 +280,7 @@ function cacheTraverse (comp: Skeleton): void {
 
     const nodeColor = comp.color;
     const opacity = comp.node._uiProps.opacity;
-    if (Math.abs(opacity - 1) > EPSILON || Color.toUint32(nodeColor) !== 0xffffffff ||  _premultipliedAlpha) {
+    if ((1 - opacity) > EPSILON || Color.toUint32(nodeColor) !== 0xffffffff ||  _premultipliedAlpha) {
         _nodeR = nodeColor.r / 255;
         _nodeG = nodeColor.g / 255;
         _nodeB = nodeColor.b / 255;
