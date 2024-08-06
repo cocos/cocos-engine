@@ -195,6 +195,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set dofMaterial(value: Material) {
         this._settings.depthOfField.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get dofMaterial(): Material {
         return this._settings.depthOfField.material!;
@@ -262,6 +265,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set bloomMaterial(value: Material) {
         this._settings.bloom.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get bloomMaterial(): Material {
         return this._settings.bloom.material!;
@@ -346,6 +352,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set colorGradingMaterial(value: Material) {
         this._settings.colorGrading.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMaterial(): Material {
         return this._settings.colorGrading.material!;
@@ -401,6 +410,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set fxaaMaterial(value: Material) {
         this._settings.fxaa.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fxaaMaterial(): Material {
         return this._settings.fxaa.material!;
@@ -427,6 +439,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set fsrMaterial(value: Material) {
         this._settings.fsr.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fsrMaterial(): Material {
         return this._settings.fsr.material!;
@@ -451,6 +466,9 @@ export class BuiltinPipelineSettings extends Component {
     })
     set toneMappingMaterial(value: Material) {
         this._settings.toneMapping.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get toneMappingMaterial(): Material {
         return this._settings.toneMapping.material!;
