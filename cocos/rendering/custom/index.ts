@@ -39,6 +39,8 @@ let _pipeline: WebPipeline | null = null;
 export const INVALID_ID = 0xFFFFFFFF;
 const defaultLayoutGraph = new LayoutGraphData();
 
+const HEADER_SIZE = 8;
+
 export * from './types';
 export * from './pipeline';
 export * from './archive';
@@ -74,11 +76,11 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 }
 
 export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
-    if (arrayBuffer && arrayBuffer.byteLength >= 8) {
+    if (arrayBuffer && arrayBuffer.byteLength >= HEADER_SIZE) {
         const header = new Uint32Array(arrayBuffer, 0, 2);
         if (header[0] === INVALID_ID) {
             // Data is compressed
-            const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer, 8));
+            const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer, HEADER_SIZE));
             const decompressed = inflator.decompress() as Uint8Array;
             const readBinaryData = new BinaryInputArchive(decompressed.buffer);
             loadLayoutGraphData(readBinaryData, defaultLayoutGraph);

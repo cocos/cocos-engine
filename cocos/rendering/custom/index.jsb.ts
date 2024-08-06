@@ -39,6 +39,8 @@ let _pipeline: Pipeline | null = null;
 export const INVALID_ID = 0xFFFFFFFF;
 export const enableEffectImport = true;
 
+const HEADER_SIZE = 8;
+
 let _renderModule: RenderingModule;
 
 export function createCustomPipeline (): Pipeline {
@@ -62,11 +64,11 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 }
 
 export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
-    if (arrayBuffer && arrayBuffer.byteLength >= 8) {
+    if (arrayBuffer && arrayBuffer.byteLength >= HEADER_SIZE) {
         const header = new Uint32Array(arrayBuffer, 0, 2);
         if (header[0] === INVALID_ID) {
             // Data is compressed
-            const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer, 8));
+            const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer, HEADER_SIZE));
             const decompressed = inflator.decompress() as Uint8Array;
             _renderModule = render.Factory.init(device, decompressed.buffer);
         } else {
