@@ -23,7 +23,7 @@
 ****************************************************************************/
 
 import { EffectAsset } from '../../asset/assets/effect-asset';
-import { errorID } from '../../core/platform/debug';
+import { errorID, warnID } from '../../core/platform/debug';
 import { Attribute, GetTypeSize, ShaderInfo, Uniform } from '../../gfx/base/define';
 import { UBOForwardLight, UBOSkinning } from '../../rendering/define';
 import { genHandle, MacroRecord } from './pass-utils';
@@ -41,7 +41,7 @@ function mapDefine (info: EffectAsset.IDefineInfo, def: number | string | boolea
     case 'string': return def !== undefined ? def as string : info.options![0];
     case 'number': return def !== undefined ? def.toString() : info.range![0].toString();
     default:
-        console.warn(`unknown define type '${info.type}'`);
+        warnID(16369);
         return '-1'; // should neven happen
     }
 }

@@ -23,13 +23,14 @@
 */
 
 import { EDITOR } from 'internal:constants';
+import { warnID } from '../cocos/core/platform/debug';
 
 /**
  * This method clones methods in minigame environment, sub as `wx`, `swan` etc. to a module called minigame.
  * @param targetObject Usually it's specified as the minigame module.
  * @param originObj Original minigame environment such as `wx`, `swan` etc.
  */
-export function cloneObject (targetObject: any, originObj: any): void {
+export function cloneObject<T extends object = any> (targetObject: T, originObj: T): void {
     Object.keys(originObj).forEach((key) => {
         if (typeof originObj[key] === 'function') {
             targetObject[key] = originObj[key].bind(originObj);
@@ -169,7 +170,7 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
 export function versionCompare (versionA: string, versionB: string): number {
     const versionRegExp = /\d+\.\d+\.\d+/;
     if (!(versionRegExp.test(versionA) && versionRegExp.test(versionB))) {
-        console.warn('wrong format of version when compare version');
+        warnID(16356);
         return 0;
     }
     const versionNumbersA = versionA.split('.').map((num: string) => Number.parseInt(num));

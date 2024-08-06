@@ -33,7 +33,7 @@ import {
 } from './webgl-commands';
 import { IWebGLGPUBuffer, IWebGLGPUBufferView, WebGLIndirectDrawInfos } from './webgl-gpu-objects';
 import { WebGLDeviceManager } from './webgl-define';
-import { warn } from '../../core';
+import { warnID } from '../../core';
 
 export class WebGLBuffer extends Buffer {
     get gpuBuffer (): IWebGLGPUBuffer {
@@ -117,7 +117,7 @@ export class WebGLBuffer extends Buffer {
 
     public resize (size: number): void {
         if (this._isBufferView) {
-            warn('cannot resize buffer views!');
+            warnID(16379);
             return;
         }
 
@@ -147,7 +147,7 @@ export class WebGLBuffer extends Buffer {
 
     public update (buffer: Readonly<BufferSource>, size?: number): void {
         if (this._isBufferView) {
-            warn('cannot update through buffer views!');
+            warnID(16380);
             return;
         }
 

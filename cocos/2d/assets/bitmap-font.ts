@@ -26,7 +26,7 @@
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
-import { cclegacy, js, warn } from '../../core';
+import { cclegacy, js, warnID } from '../../core';
 import { getSymbolCodeAt } from '../utils';
 import { IShareLabelInfo } from '../assembler/label/font-utils';
 import { TextureBase } from '../../asset/assets/texture-base';
@@ -148,7 +148,7 @@ export class BitmapFont extends Font {
 
         const fntConfig = this.fntConfig;
         if (!fntConfig) {
-            warn('The fnt config is not exists!');
+            warnID(16376);
             return;
         }
 

@@ -3660,3 +3660,175 @@ Can't find letter definition in texture atlas %s for letter:%s
 ### 16355
 
 Can't find letter definition in font family %s for letter: %s
+
+### 16356
+
+wrong format of version when compare version
+
+### 16357
+
+should use Vec3.multiply for vector * vector operation
+
+### 16358
+
+should use Vec3.scale for vector * scalar operation
+
+### 16359
+
+should use Vec2.multiply for vector * vector operation
+
+### 16360
+
+should use Vec2.scale for vector * scalar operation
+
+### 16361
+
+should use Vec4.multiply for vector * vector operation
+
+### 16362
+
+should use Vec4.scale for vector * scalar operation
+
+### 16363
+
+Unable to get device
+
+### 16364
+
+bitNum can't be undefined
+
+### 16365
+
+maximum layers reached.
+
+### 16366
+
+do not change buildin layers.
+
+### 16367
+
+name can't be undefined
+
+### 16368
+
+Unable to access unknown layer.
+
+### 16369
+
+unknown define type '%s'
+
+### 16370
+
+Shaders in material asset '%s' cannot be modified at runtime, please instantiate the material first.
+
+### 16371
+
+Pipeline states in material asset '%s' cannot be modified at runtime, please instantiate the material first.
+
+### 16372
+
+illegal pass index: %s.
+
+### 16373
+
+illegal property name: %s.
+
+### 16374
+
+Unexpected attribute!
+
+### 16375
+
+Unexpected: failed to create morph texture?
+
+### 16376
+
+The fnt config is not exists!
+
+### 16377
+
+SpriteAtlas is null.
+
+### 16378
+
+node '%s' doesn't have any renderable component
+
+### 16379
+
+cannot resize buffer views!
+
+### 16380
+
+cannot update through buffer views!
+
+### 16381
+
+Profiler._stats is deprecated, please use Profiler.stats instead.
+
+### 16382
+
+reverse: could not reverse a non-relative action
+
+### 16383
+
+Need 'clone' for custom prop '%s'
+
+### 16384
+
+Need 'add' for custom prop '%s'
+
+### 16385
+
+Need 'sub' for custom prop '%s' in reverse mode
+
+### 16386
+
+TweenAction: '%s' can't be converted to number
+
+### 16387
+
+Wrong return type for 'progress', number or string needed
+
+### 16388
+
+reverse: current tween could not be reversed, empty actions
+
+### 16389
+
+pause: tween wasn't started, can't pause
+
+### 16390
+
+resume: tween wasn't started, can't resume
+
+### 16391
+
+reverse: could not find action id %s
+
+### 16392
+
+Please set target to tween first
+
+### 16393
+
+start: no actions in Tween
+
+### 16394
+
+repeatForever: the last action is not ActionInterval
+
+### 16395
+
+reverseTime: the last action is not ActionInterval
+
+### 16396
+
+tweenUtil' is deprecated, please use 'tween' instead
+
+### 16397
+
+ProgressBar FILLED mode only works when barSprite's Type is FILLED!
+
+### 16398
+
+ProgressBar non-FILLED mode only works when barSprite's Type is non-FILLED!

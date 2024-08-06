@@ -29,7 +29,7 @@ import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like, IColorLike } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
-import { warn } from '../platform/debug';
+import { warnID } from '../platform/debug';
 
 /**
  * @en Representation of four-dimensional vectors.
@@ -775,7 +775,9 @@ export class Vec4 extends ValueType {
      * @param scalar scalar number
      */
     public multiplyScalar (scalar: number): Vec4 {
-        if (typeof scalar === 'object') { warn('should use Vec4.multiply for vector * vector operation'); }
+        if (typeof scalar === 'object') {
+            warnID(16361);
+        }
         this.x *= scalar;
         this.y *= scalar;
         this.z *= scalar;
@@ -789,7 +791,9 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public multiply (other: Vec4): Vec4 {
-        if (typeof other !== 'object') { warn('should use Vec4.scale for vector * scalar operation'); }
+        if (typeof other !== 'object') {
+            warnID(16362);
+        }
         this.x *= other.x;
         this.y *= other.y;
         this.z *= other.z;

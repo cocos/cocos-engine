@@ -31,7 +31,7 @@ import { ImageAsset } from '../../asset/assets/image-asset';
 import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
     UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../rendering/define';
 import { Morph, SubMeshMorph } from './morph';
-import { assertIsNonNullable, assertIsTrue, warn, bits, nextPow2, cclegacy } from '../../core';
+import { assertIsNonNullable, assertIsTrue, warn, bits, nextPow2, cclegacy, warnID } from '../../core';
 import { IMacroPatch } from '../../render-scene';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 
@@ -320,7 +320,7 @@ class GpuComputing implements SubMeshMorphRendering {
                     case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
                     case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
                     default:
-                        warn('Unexpected attribute!'); break;
+                        warnID(16374); break;
                     }
                     if (binding !== undefined) {
                         descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
@@ -459,7 +459,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
             case AttributeName.ATTR_NORMAL: binding = UNIFORM_NORMAL_MORPH_TEXTURE_BINDING; break;
             case AttributeName.ATTR_TANGENT: binding = UNIFORM_TANGENT_MORPH_TEXTURE_BINDING; break;
             default:
-                warn('Unexpected attribute!'); break;
+                warnID(16374); break;
             }
             if (binding !== undefined) {
                 descriptorSet.bindSampler(binding, attribute.morphTexture.sampler);
@@ -588,7 +588,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number): {
             textureAsset.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
             textureAsset.image = image;
             if (!textureAsset.getGFXTexture()) {
-                warn('Unexpected: failed to create morph texture?');
+                warnID(16375);
             }
             const sampler = gfxDevice.getSampler(textureAsset.getSamplerInfo());
             return {

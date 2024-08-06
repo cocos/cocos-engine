@@ -30,7 +30,7 @@ import { Size, Vec2, Vec3 } from '../core/math';
 import { Enum } from '../core/value-types';
 import { clamp01 } from '../core/math/utils';
 import { Sprite } from '../2d/components/sprite';
-import { warn } from '../core/platform/debug';
+import { warnID } from '../core/platform/debug';
 import { legacyCC } from '../core/global-exports';
 
 /**
@@ -326,7 +326,7 @@ export class ProgressBar extends Component {
             // handling filled mode
             if (this._mode === Mode.FILLED) {
                 if (this._barSprite.type !== Sprite.Type.FILLED) {
-                    warn('ProgressBar FILLED mode only works when barSprite\'s Type is FILLED!');
+                    warnID(16397);
                 } else {
                     if (this._reverse) {
                         actualLenth *= -1;
@@ -344,7 +344,7 @@ export class ProgressBar extends Component {
                 entTrans.setAnchorPoint(anchorPoint);
                 entTrans.setContentSize(finalContentSize);
             } else {
-                warn('ProgressBar non-FILLED mode only works when barSprite\'s Type is non-FILLED!');
+                warnID(16398);
             }
         }
     }

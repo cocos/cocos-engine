@@ -27,7 +27,7 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { Vec2, cclegacy, ccenum, clamp, warn } from '../../core';
+import { Vec2, cclegacy, ccenum, clamp, warnID } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';
@@ -530,7 +530,7 @@ export class Sprite extends UIRenderer {
      */
     public changeSpriteFrameFromAtlas (name: string): void {
         if (!this._atlas) {
-            warn('SpriteAtlas is null.');
+            warnID(16377);
             return;
         }
         const sprite = this._atlas.getSpriteFrame(name);
