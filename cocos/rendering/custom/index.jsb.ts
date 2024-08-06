@@ -62,10 +62,17 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 }
 
 export function init (device: Device, arrayBuffer: ArrayBuffer | null) {
-    if (arrayBuffer) {
-        const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer));
-        const decompressed = inflator.decompress() as Uint16Array;
-        _renderModule = render.Factory.init(device, decompressed.buffer);
+    if (arrayBuffer && arrayBuffer.byteLength >= 8) {
+        const header = new Uint32Array(arrayBuffer, 0, 2);
+        if (header[0] === 0xFFFFFFFF) {
+            // Data is compressed
+            const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer, 8));
+            const decompressed = inflator.decompress() as Uint16Array;
+            _renderModule = render.Factory.init(device, decompressed.buffer);
+        } else {
+            // Data is not compressed
+            _renderModule = render.Factory.init(device, arrayBuffer);
+        }
     } else {
         _renderModule = render.Factory.init(device, new ArrayBuffer(0));
     }

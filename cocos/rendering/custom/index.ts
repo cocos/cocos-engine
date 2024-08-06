@@ -74,11 +74,19 @@ export function getCustomPipeline (name: string): PipelineBuilder {
 }
 
 export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
-    if (arrayBuffer) {
-        const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer));
-        const decompressed = inflator.decompress() as Uint16Array;
-        const readBinaryData = new BinaryInputArchive(decompressed.buffer);
-        loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+    if (arrayBuffer && arrayBuffer.byteLength >= 8) {
+        const header = new Uint32Array(arrayBuffer, 0, 2);
+        if (header[0] === 0xFFFFFFFF) {
+            // Data is compressed
+            const inflator = new zlib.Inflate(new Uint8Array(arrayBuffer, 8));
+            const decompressed = inflator.decompress() as Uint16Array;
+            const readBinaryData = new BinaryInputArchive(decompressed.buffer);
+            loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+        } else {
+            // Data is not compressed
+            const readBinaryData = new BinaryInputArchive(arrayBuffer);
+            loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
+        }
     }
     initializeLayoutGraphData(device, defaultLayoutGraph);
 }
