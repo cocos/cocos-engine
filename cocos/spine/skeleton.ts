@@ -1665,7 +1665,7 @@ export class Skeleton extends UIRenderer {
         const r = this._color.r / 255.0;
         const g = this._color.g / 255.0;
         const b = this._color.b / 255.0;
-        this._instance!.setColor(r, g, b, a);
+        this._instance!.setColor(r, g, b, a * this._color.a / 255.0);
     }
 
     /**
