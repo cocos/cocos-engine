@@ -426,7 +426,7 @@ export function getDescBinding (descId, descData: DescriptorSetData): number {
 export function getDescBindingFromName (bindingName: string): number {
     const pipeline = cclegacy.director.root.pipeline as WebPipeline;
     const layoutGraph = pipeline.layoutGraph;
-    const vertIds = layoutGraph.vertices();
+    const vertIds = layoutGraph.v();
     const descId = layoutGraph.attributeIndex.get(bindingName);
     let currDesData: DescriptorSetData;
     for (const i of vertIds) {

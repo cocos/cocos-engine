@@ -429,7 +429,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData):
     // create descriptor sets
     _emptyDescriptorSetLayout = device.createDescriptorSetLayout(new DescriptorSetLayoutInfo());
     _emptyPipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo());
-    for (const v of lg.vertices()) {
+    for (const v of lg.v()) {
         const layoutData = lg.getLayout(v);
         for (const [_, set] of layoutData.descriptorSets) {
             if (set.descriptorSetLayout !== null) {
@@ -443,7 +443,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData):
         }
     }
     // create pipeline layouts
-    for (const v of lg.vertices()) {
+    for (const v of lg.v()) {
         if (!lg.h(LayoutGraphDataValue.RenderPhase, v)) {
             continue;
         }
@@ -463,7 +463,7 @@ export function initializeLayoutGraphData (device: Device, lg: LayoutGraphData):
 
 // terminate layout graph module
 export function terminateLayoutGraphData (lg: LayoutGraphData): void {
-    for (const v of lg.vertices()) {
+    for (const v of lg.v()) {
         const layoutData = lg.getLayout(v);
         for (const [_, set] of layoutData.descriptorSets) {
             if (set.descriptorSetLayout !== null) {

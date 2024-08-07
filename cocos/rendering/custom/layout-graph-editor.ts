@@ -800,7 +800,7 @@ export class LayoutGraphInfo {
         const lg = this.lg;
         const visMap = new Map<number, VisibilityDB>();
         // merge phase to pass
-        for (const v of lg.vertices()) {
+        for (const v of lg.v()) {
             if (lg.w(v) === LayoutGraphValue.RenderStage) {
                 // create visibility database
                 visMap.set(v, new VisibilityDB());
@@ -832,7 +832,7 @@ export class LayoutGraphInfo {
             }
         }
         // build phase decriptors
-        for (const v of lg.vertices()) {
+        for (const v of lg.v()) {
             if (lg.w(v) === LayoutGraphValue.RenderStage) {
                 continue;
             }
@@ -886,7 +886,7 @@ export class LayoutGraphInfo {
             }
         }
         // update pass
-        for (const passID of lg.vertices()) {
+        for (const passID of lg.v()) {
             // skip RenderPhase
             if (lg.w(passID) !== LayoutGraphValue.RenderStage) {
                 continue;
@@ -948,7 +948,7 @@ export class LayoutGraphInfo {
 
 // build LayoutGraphData
 function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder2): void {
-    for (const v of graph.vertices()) {
+    for (const v of graph.v()) {
         const db = graph.getDescriptors(v);
         let minLevel = UpdateFrequency.PER_INSTANCE;
         let maxLevel = UpdateFrequency.PER_PASS;

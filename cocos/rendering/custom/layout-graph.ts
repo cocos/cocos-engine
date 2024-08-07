@@ -177,7 +177,7 @@ export class LayoutGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
     numVertices (): number {
@@ -187,7 +187,7 @@ export class LayoutGraph implements BidirectionalGraph
     // EdgeListGraph
     numEdges (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
+        for (const v of this.v()) {
             numEdges += this.od(v);
         }
         return numEdges;
@@ -656,7 +656,7 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
     numVertices (): number {
@@ -666,7 +666,7 @@ export class LayoutGraphData implements BidirectionalGraph
     // EdgeListGraph
     numEdges (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
+        for (const v of this.v()) {
             numEdges += this.od(v);
         }
         return numEdges;
@@ -1048,7 +1048,7 @@ export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
     a.n(numEdges);
     let numStages = 0;
     let numPhases = 0;
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         switch (g.w(v)) {
         case LayoutGraphValue.RenderStage:
             numStages += 1;
@@ -1062,7 +1062,7 @@ export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
     }
     a.n(numStages);
     a.n(numPhases);
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         a.n(g.w(v));
         a.n(g.getParent(v));
         a.s(g.getName(v));
@@ -1417,7 +1417,7 @@ export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void
     a.n(numEdges);
     let numStages = 0;
     let numPhases = 0;
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         switch (g.w(v)) {
         case LayoutGraphDataValue.RenderStage:
             numStages += 1;
@@ -1431,7 +1431,7 @@ export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void
     }
     a.n(numStages);
     a.n(numPhases);
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         a.n(g.w(v));
         a.n(g.getParent(v));
         a.s(g.getName(v));

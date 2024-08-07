@@ -314,7 +314,8 @@ export interface AdjacencyGraph extends Graph {
 // VertexListGraph
 //--------------------------------------------------------------------------
 export interface VertexListGraph extends Graph {
-    vertices (): IterableIterator<vertex_descriptor>;
+    /** Return vertex iterator */
+    v (): IterableIterator<vertex_descriptor>;
     numVertices (): number;
 }
 
@@ -556,7 +557,7 @@ class NoTermination implements TerminatorFunc {
 }
 
 function getDefaultStartingVertex (g: IncidenceGraph & VertexListGraph): vertex_descriptor | null {
-    const iter = g.vertices();
+    const iter = g.v();
     const v = iter.next();
     if (v.done) {
         return g.N;
@@ -686,7 +687,7 @@ export function depthFirstSearch (
         return;
     }
     // initialize vertex and color map
-    for (const u of g.vertices()) {
+    for (const u of g.v()) {
         color.put(u, GraphColor.WHITE);
         visitor.initializeVertex(u, g);
     }
@@ -698,7 +699,7 @@ export function depthFirstSearch (
         depthFirstVisitImpl(g, startVertex, visitor, color, terminator);
     }
     // try starting from each vertex
-    for (const u of g.vertices()) {
+    for (const u of g.v()) {
         // if vertex is not visited, start DFS
         if (color.get(u) === GraphColor.WHITE) {
             visitor.startVertex(u, g);
@@ -774,8 +775,8 @@ implements IncidenceGraph, VertexListGraph {
     od (v: vertex_descriptor): number {
         return this.g.numChildren(v);
     }
-    vertices (): IterableIterator<vertex_descriptor> {
-        return this.g.vertices();
+    v (): IterableIterator<vertex_descriptor> {
+        return this.g.v();
     }
     numVertices (): number {
         return this.g.numVertices();

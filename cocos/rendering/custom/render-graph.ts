@@ -360,7 +360,7 @@ export class SubpassGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
     numVertices (): number {
@@ -370,7 +370,7 @@ export class SubpassGraph implements BidirectionalGraph
     // EdgeListGraph
     numEdges (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
+        for (const v of this.v()) {
             numEdges += this.od(v);
         }
         return numEdges;
@@ -706,7 +706,7 @@ export class ResourceGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
     numVertices (): number {
@@ -716,7 +716,7 @@ export class ResourceGraph implements BidirectionalGraph
     // EdgeListGraph
     numEdges (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
+        for (const v of this.v()) {
             numEdges += this.od(v);
         }
         return numEdges;
@@ -1286,7 +1286,7 @@ export class RenderGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
     numVertices (): number {
@@ -1296,7 +1296,7 @@ export class RenderGraph implements BidirectionalGraph
     // EdgeListGraph
     numEdges (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
+        for (const v of this.v()) {
             numEdges += this.od(v);
         }
         return numEdges;
