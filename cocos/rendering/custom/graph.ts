@@ -254,7 +254,8 @@ export interface BidirectionalGraph extends IncidenceGraph {
     ie (v: vertex_descriptor): in_edge_iterator;
     /** Return in degree of the vertex */
     id (v: vertex_descriptor): number;
-    degree (v: vertex_descriptor): number;
+    /** Return degree of the vertex */
+    d (v: vertex_descriptor): number;
 }
 
 //--------------------------------------------------------------------------

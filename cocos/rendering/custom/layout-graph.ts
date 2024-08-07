@@ -166,7 +166,7 @@ export class LayoutGraph implements BidirectionalGraph
     id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
+    d (v: number): number {
         return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
@@ -645,7 +645,7 @@ export class LayoutGraphData implements BidirectionalGraph
     id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
+    d (v: number): number {
         return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
