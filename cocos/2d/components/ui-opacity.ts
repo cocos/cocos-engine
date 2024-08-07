@@ -136,7 +136,7 @@ export class UIOpacity extends Component {
             return;
         }
 
-        // If the node has never been actived, then node._uiProps.uiComp won't be set.
+        // If the node has never been activated, then node._uiProps.uiComp won't be set.
         // We need to check if the UIRenderer exists or not.
         let render = node._uiProps.uiComp as UIRenderer | null;
         if (!render) {
