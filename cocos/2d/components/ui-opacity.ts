@@ -25,12 +25,10 @@
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { Component } from '../../scene-graph/component';
-import { CCObject, clamp } from '../../core';
+import { clamp } from '../../core';
 import { UIRenderer } from '../framework/ui-renderer';
 import { Node } from '../../scene-graph';
 import { NodeEventType } from '../../scene-graph/node-event';
-
-const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
 
 /**
  * @en
@@ -138,12 +136,10 @@ export class UIOpacity extends Component {
             return;
         }
 
-        // If the node has never been loaded, then node._uiProps.uiComp won't be set.
-        // It has to be obtained by getComponent at this time.
-        let render = null as UIRenderer | null;
-        if (node._objFlags & IsOnLoadCalled) {
-            render = node._uiProps.uiComp as UIRenderer;
-        } else {
+        // If the node has never been activated, then node._uiProps.uiComp won't be set.
+        // We need to check if the UIRenderer exists or not.
+        let render = node._uiProps.uiComp as UIRenderer | null;
+        if (!render) {
             render = node.getComponent(UIRenderer);
         }
 
