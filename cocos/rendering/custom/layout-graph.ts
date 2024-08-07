@@ -185,7 +185,7 @@ export class LayoutGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
         for (const v of this.v()) {
             numEdges += this.od(v);
@@ -664,7 +664,7 @@ export class LayoutGraphData implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
         for (const v of this.v()) {
             numEdges += this.od(v);
@@ -1043,7 +1043,7 @@ export function loadRenderPhase (a: InputArchive, v: RenderPhase): void {
 
 export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
     const numVertices = g.nv();
-    const numEdges = g.numEdges();
+    const numEdges = g.ne();
     a.n(numVertices);
     a.n(numEdges);
     let numStages = 0;
@@ -1412,7 +1412,7 @@ export function loadRenderPhaseData (a: InputArchive, v: RenderPhaseData): void 
 
 export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void {
     const numVertices = g.nv();
-    const numEdges = g.numEdges();
+    const numEdges = g.ne();
     a.n(numVertices);
     a.n(numEdges);
     let numStages = 0;

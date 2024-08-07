@@ -325,8 +325,9 @@ export interface VertexListGraph extends Graph {
 // EdgeListGraph
 //--------------------------------------------------------------------------
 export interface EdgeListGraph extends Graph {
-    edges (): IterableIterator<edge_descriptor>;
-    numEdges (): number;
+    // edges (): IterableIterator<edge_descriptor>;
+    /** Return number of edges */
+    ne (): number;
     source (e: edge_descriptor): vertex_descriptor;
     target (e: edge_descriptor): vertex_descriptor;
 }

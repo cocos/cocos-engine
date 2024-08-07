@@ -368,7 +368,7 @@ export class SubpassGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
         for (const v of this.v()) {
             numEdges += this.od(v);
@@ -714,7 +714,7 @@ export class ResourceGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
         for (const v of this.v()) {
             numEdges += this.od(v);
@@ -1294,7 +1294,7 @@ export class RenderGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
         for (const v of this.v()) {
             numEdges += this.od(v);
