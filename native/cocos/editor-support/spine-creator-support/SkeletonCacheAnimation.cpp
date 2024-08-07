@@ -238,7 +238,7 @@ void SkeletonCacheAnimation::render(float /*dt*/) {
     }
 
     auto handleColor = [&](SkeletonCache::ColorData *colorData) {
-        tempA = colorData->finalColor.a * _nodeColor.a * _entity->getOpacity();
+        tempA = colorData->finalColor.a * _entity->getOpacity();
         multiplier = _premultipliedAlpha ? tempA / 255 : 1;
         tempR = _nodeColor.r * multiplier;
         tempG = _nodeColor.g * multiplier;
