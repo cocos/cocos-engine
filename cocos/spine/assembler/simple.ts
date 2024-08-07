@@ -284,7 +284,7 @@ function cacheTraverse (comp: Skeleton): void {
         _nodeR = nodeColor.r / 255;
         _nodeG = nodeColor.g / 255;
         _nodeB = nodeColor.b / 255;
-        _nodeA = nodeColor.a * opacity / 255;
+        _nodeA = opacity;
         for (let i = 0; i < vc; i++) {
             const index = i * _byteStrideTwoColor + 5 * Float32Array.BYTES_PER_ELEMENT;
             const R = vUint8Buf[index];
