@@ -307,7 +307,7 @@ export type adjacency_iterator = AdjI | AdjPI;
 
 // AdjacencyGraph
 export interface AdjacencyGraph extends Graph {
-    adjacentVertices (v: vertex_descriptor): adjacency_iterator;
+    adj (v: vertex_descriptor): adjacency_iterator;
 }
 
 //--------------------------------------------------------------------------

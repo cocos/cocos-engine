@@ -355,7 +355,7 @@ export class SubpassGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
+    adj (v: number): AdjI {
         return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
@@ -701,7 +701,7 @@ export class ResourceGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
+    adj (v: number): AdjI {
         return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
@@ -1281,7 +1281,7 @@ export class RenderGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
+    adj (v: number): AdjI {
         return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------

@@ -172,7 +172,7 @@ export class LayoutGraph implements BidirectionalGraph
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
+    adj (v: number): AdjI {
         return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
@@ -651,7 +651,7 @@ export class LayoutGraphData implements BidirectionalGraph
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
+    adj (v: number): AdjI {
         return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
