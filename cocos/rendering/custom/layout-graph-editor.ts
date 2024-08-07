@@ -32,6 +32,10 @@ import { ENABLE_SUBPASS, getOrCreateDescriptorID, sortDescriptorBlocks } from '.
 import { UpdateFrequency, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 import { getUpdateFrequencyName, getDescriptorTypeOrderName } from './types-names';
 
+export function getLayoutGraphDataVersion (): number {
+    return 0;
+}
+
 // get name of gfx.Type
 function getGfxTypeName (type: Type): string {
     switch (type) {
