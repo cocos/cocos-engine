@@ -180,7 +180,7 @@ export class LayoutGraph implements BidirectionalGraph
     v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
@@ -659,7 +659,7 @@ export class LayoutGraphData implements BidirectionalGraph
     v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
@@ -1042,7 +1042,7 @@ export function loadRenderPhase (a: InputArchive, v: RenderPhase): void {
 }
 
 export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
-    const numVertices = g.numVertices();
+    const numVertices = g.nv();
     const numEdges = g.numEdges();
     a.n(numVertices);
     a.n(numEdges);
@@ -1411,7 +1411,7 @@ export function loadRenderPhaseData (a: InputArchive, v: RenderPhaseData): void 
 }
 
 export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void {
-    const numVertices = g.numVertices();
+    const numVertices = g.nv();
     const numEdges = g.numEdges();
     a.n(numVertices);
     a.n(numEdges);

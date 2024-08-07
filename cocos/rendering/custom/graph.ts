@@ -316,7 +316,8 @@ export interface AdjacencyGraph extends Graph {
 export interface VertexListGraph extends Graph {
     /** Return vertex iterator */
     v (): IterableIterator<vertex_descriptor>;
-    numVertices (): number;
+    /** Return number of vertices */
+    nv (): number;
 }
 
 //--------------------------------------------------------------------------
@@ -683,7 +684,7 @@ export function depthFirstSearch (
     // get start vertex
     startVertex = startVertex || getDefaultStartingVertex(g);
     // graph is empty, do nothing
-    if (startVertex === null || g.numVertices() === 0) {
+    if (startVertex === null || g.nv() === 0) {
         return;
     }
     // initialize vertex and color map
@@ -778,8 +779,8 @@ implements IncidenceGraph, VertexListGraph {
     v (): IterableIterator<vertex_descriptor> {
         return this.g.v();
     }
-    numVertices (): number {
-        return this.g.numVertices();
+    nv (): number {
+        return this.g.nv();
     }
     // readonly directed_category: directional;
     // readonly edge_parallel_category: parallel;

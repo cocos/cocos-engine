@@ -363,7 +363,7 @@ export class SubpassGraph implements BidirectionalGraph
     v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
@@ -709,7 +709,7 @@ export class ResourceGraph implements BidirectionalGraph
     v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
@@ -1289,7 +1289,7 @@ export class RenderGraph implements BidirectionalGraph
     v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------

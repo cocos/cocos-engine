@@ -344,7 +344,7 @@ class PassManagerVisitor extends DefaultVisitor {
 
     set resId (value: number) {
         this._resId = value;
-        this._colorMap.colors.length = context.renderGraph.numVertices();
+        this._colorMap.colors.length = context.renderGraph.nv();
     }
     get resId (): number {
         return this._resId;
@@ -354,7 +354,7 @@ class PassManagerVisitor extends DefaultVisitor {
         this._resId = resId;
         this._passVisitor = new PassVisitor(context);
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
-        this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
+        this._colorMap = new VectorGraphColorMap(context.renderGraph.nv());
     }
     get graphView (): ReferenceGraphView<RenderGraph> { return this._graphView; }
     get colorMap (): VectorGraphColorMap { return this._colorMap; }
@@ -460,7 +460,7 @@ export class Compiler {
     compile (rg: RenderGraph): void {
         context.set(this._pipeline, this._resourceGraph, rg, this._layoutGraph);
         context.pipeline.resourceUses.length = 0;
-        this._visitor.colorMap.colors.length = context.resourceGraph.numVertices();
+        this._visitor.colorMap.colors.length = context.resourceGraph.nv();
         depthFirstSearch(this._resourceGraph, this._visitor, this._visitor.colorMap);
 
         if (DEBUG) {
@@ -516,7 +516,7 @@ export class ResourceManagerVisitor extends DefaultVisitor {
     private _resVisitor: ResourceVisitor;
     constructor (context: CompilerContext) {
         super();
-        this._colorMap = new VectorGraphColorMap(context.resourceGraph.numVertices());
+        this._colorMap = new VectorGraphColorMap(context.resourceGraph.nv());
         this._resourceGraph = context.resourceGraph;
         this._resVisitor = new ResourceVisitor(context);
     }

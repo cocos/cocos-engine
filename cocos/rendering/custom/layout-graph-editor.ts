@@ -940,7 +940,7 @@ export class LayoutGraphInfo {
     }
     public print (): string {
         const print = new LayoutGraphPrintVisitor();
-        const colorMap = new VectorGraphColorMap(this.lg.numVertices());
+        const colorMap = new VectorGraphColorMap(this.lg.nv());
         depthFirstSearch(this.lg, print, colorMap);
         return print.oss;
     }
@@ -1172,7 +1172,7 @@ class LayoutGraphBuilder2 {
     print (): string {
         const g: LayoutGraphData = this.lg;
         const visitor = new PrintVisitor();
-        const colorMap = new VectorGraphColorMap(g.numVertices());
+        const colorMap = new VectorGraphColorMap(g.nv());
         depthFirstSearch(g, visitor, colorMap);
         return visitor.oss;
     }
@@ -1187,7 +1187,7 @@ export function buildLayoutGraphData (lg: LayoutGraph, lgData: LayoutGraphData):
 
 export function printLayoutGraphData (g: LayoutGraphData): string {
     const visitor = new PrintVisitor();
-    const colorMap = new VectorGraphColorMap(g.numVertices());
+    const colorMap = new VectorGraphColorMap(g.nv());
     depthFirstSearch(g, visitor, colorMap);
     return visitor.oss;
 }
