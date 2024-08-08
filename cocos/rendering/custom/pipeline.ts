@@ -28,23 +28,23 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Material } from '../../asset/assets';
-import { Camera } from '../../render-scene/scene/camera';
-import { DirectionalLight } from '../../render-scene/scene/directional-light';
-import { GeometryRenderer } from '../geometry-renderer';
-import { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, TextureType, Viewport } from '../../gfx';
-import { GlobalDSManager } from '../global-descriptor-set-manager';
-import { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
-import { MacroRecord } from '../../render-scene/core/pass-utils';
-import { PipelineSceneData } from '../pipeline-scene-data';
-import { PointLight } from '../../render-scene/scene/point-light';
-import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
-import { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
-import { RenderScene } from '../../render-scene/core/render-scene';
-import { RenderWindow } from '../../render-scene/core/render-window';
-import { Light, Model } from '../../render-scene/scene';
-import { SphereLight } from '../../render-scene/scene/sphere-light';
-import { SpotLight } from '../../render-scene/scene/spot-light';
+import type { Material } from '../../asset/assets';
+import type { Camera } from '../../render-scene/scene/camera';
+import type { DirectionalLight } from '../../render-scene/scene/directional-light';
+import type { GeometryRenderer } from '../geometry-renderer';
+import type { Buffer, BufferInfo, ClearFlagBit, Color, CommandBuffer, DescriptorSet, DescriptorSetLayout, Device, Format, LoadOp, ResolveMode, SampleCount, Sampler, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureInfo, TextureType, Viewport } from '../../gfx';
+import type { GlobalDSManager } from '../global-descriptor-set-manager';
+import type { Mat4, Quat, Vec2, Vec4 } from '../../core/math';
+import type { MacroRecord } from '../../render-scene/core/pass-utils';
+import type { PipelineSceneData } from '../pipeline-scene-data';
+import type { PointLight } from '../../render-scene/scene/point-light';
+import type { RangedDirectionalLight } from '../../render-scene/scene/ranged-directional-light';
+import type { AccessType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UpdateFrequency, UploadPair } from './types';
+import type { RenderScene } from '../../render-scene/core/render-scene';
+import type { RenderWindow } from '../../render-scene/core/render-window';
+import type { Light, Model } from '../../render-scene/scene';
+import type { SphereLight } from '../../render-scene/scene/sphere-light';
+import type { SpotLight } from '../../render-scene/scene/spot-light';
 
 /**
  * @engineInternal

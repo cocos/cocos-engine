@@ -28,10 +28,10 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { EffectAsset } from '../../asset/assets';
-import { DescriptorSetLayout, Device, PipelineLayout, PipelineState, Shader, ShaderInfo } from '../../gfx';
-import { MacroRecord } from '../../render-scene/core/pass-utils';
-import { IProgramInfo } from '../../render-scene/core/program-lib';
+import type { EffectAsset } from '../../asset/assets';
+import type { DescriptorSetLayout, Device, PipelineLayout, PipelineState, Shader, ShaderInfo } from '../../gfx';
+import type { MacroRecord } from '../../render-scene/core/pass-utils';
+import type { IProgramInfo } from '../../render-scene/core/program-lib';
 
 export interface ProgramProxy {
     readonly name: string;

@@ -29,13 +29,15 @@
  */
 /* eslint-disable max-len */
 import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph } from './graph';
-import { Material } from '../../asset/assets';
-import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
-import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair, RenderCommonObjectPool } from './types';
-import { RenderScene } from '../../render-scene/core/render-scene';
-import { RenderWindow } from '../../render-scene/core/render-window';
-import { Light } from '../../render-scene/scene';
+import type { Material } from '../../asset/assets';
+import type { Camera } from '../../render-scene/scene/camera';
+import type { Buffer, Framebuffer, RenderPass, Sampler, SamplerInfo, Swapchain, Texture } from '../../gfx';
+import { AccessFlagBit, ClearFlagBit, Color, Format, LoadOp, SampleCount, ShaderStageFlagBit, StoreOp, TextureFlagBit, TextureType, Viewport } from '../../gfx';
+import type { CopyPair, MovePair, ResolvePair, UploadPair } from './types';
+import { AccessType, AttachmentType, ClearValueType, LightInfo, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, RenderCommonObjectPool } from './types';
+import type { RenderScene } from '../../render-scene/core/render-scene';
+import type { RenderWindow } from '../../render-scene/core/render-window';
+import type { Light } from '../../render-scene/scene';
 import { RecyclePool } from '../../core/memop';
 
 export class ClearValue {

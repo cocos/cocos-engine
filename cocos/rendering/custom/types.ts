@@ -29,9 +29,9 @@
  */
 /* eslint-disable max-len */
 import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
-import { Light } from '../../render-scene/scene';
-import { OutputArchive, InputArchive } from './archive';
+import type { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
+import type { Light } from '../../render-scene/scene';
+import type { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
 import { RecyclePool } from '../../core/memop';
 
