@@ -51,6 +51,7 @@ import { TransformBit } from '../scene-graph/node-enum';
 import { Camera } from '../render-scene/scene';
 import { ParticleCuller } from './particle-culler';
 import { NoiseModule } from './animator/noise-module';
+import { director, DirectorEvent } from '../game/director';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -1083,7 +1084,7 @@ export class ParticleSystem extends ModelRenderer {
                 this._trailModule._detachFromScene();
             }
         }
-        cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
+        director.off(DirectorEvent.BEFORE_COMMIT, this.beforeRender, this);
         // this._system.remove(this);
         this.processor.onDestroy();
         if (this._trailModule) this._trailModule.destroy();
@@ -1096,7 +1097,7 @@ export class ParticleSystem extends ModelRenderer {
 
     protected onEnable (): void {
         super.onEnable();
-        cclegacy.director.on(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
+        director.on(DirectorEvent.BEFORE_COMMIT, this.beforeRender, this);
         if (this.playOnAwake && !EDITOR_NOT_IN_PREVIEW) {
             this.play();
         }
@@ -1104,7 +1105,7 @@ export class ParticleSystem extends ModelRenderer {
         if (this._trailModule) this._trailModule.onEnable();
     }
     protected onDisable (): void {
-        cclegacy.director.off(cclegacy.Director.EVENT_BEFORE_COMMIT, this.beforeRender, this);
+        director.off(DirectorEvent.BEFORE_COMMIT, this.beforeRender, this);
         this.processor.onDisable();
         if (this._trailModule) this._trailModule.onDisable();
         if (this._boundingBox) {

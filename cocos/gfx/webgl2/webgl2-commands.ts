@@ -47,12 +47,13 @@ import {
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
 import { CachedArray, error, errorID, cclegacy, assertID, debugID } from '../../core';
+import { WebGLConstants } from '../gl-constants';
 
 const WebGLWraps: GLenum[] = [
-    0x2901, // WebGLRenderingContext.REPEAT
-    0x8370, // WebGLRenderingContext.MIRRORED_REPEAT
-    0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
-    0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
+    WebGLConstants.REPEAT,
+    WebGLConstants.MIRRORED_REPEAT,
+    WebGLConstants.CLAMP_TO_EDGE,
+    WebGLConstants.CLAMP_TO_EDGE,
 ];
 
 const _f32v4 = new Float32Array(4);
@@ -64,95 +65,95 @@ function CmpF32NotEuqal (a: number, b: number): boolean {
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
-    case Format.R8: return gl.UNSIGNED_BYTE;
-    case Format.R8SN: return gl.BYTE;
-    case Format.R8UI: return gl.UNSIGNED_BYTE;
-    case Format.R8I: return gl.BYTE;
-    case Format.R16F: return gl.HALF_FLOAT;
-    case Format.R16UI: return gl.UNSIGNED_SHORT;
-    case Format.R16I: return gl.SHORT;
-    case Format.R32F: return gl.FLOAT;
-    case Format.R32UI: return gl.UNSIGNED_INT;
-    case Format.R32I: return gl.INT;
+    case Format.R8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.R8SN: return WebGLConstants.BYTE;
+    case Format.R8UI: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.R8I: return WebGLConstants.BYTE;
+    case Format.R16F: return WebGLConstants.HALF_FLOAT;
+    case Format.R16UI: return WebGLConstants.UNSIGNED_SHORT;
+    case Format.R16I: return WebGLConstants.SHORT;
+    case Format.R32F: return WebGLConstants.FLOAT;
+    case Format.R32UI: return WebGLConstants.UNSIGNED_INT;
+    case Format.R32I: return WebGLConstants.INT;
 
-    case Format.RG8: return gl.UNSIGNED_BYTE;
-    case Format.RG8SN: return gl.BYTE;
-    case Format.RG8UI: return gl.UNSIGNED_BYTE;
-    case Format.RG8I: return gl.BYTE;
-    case Format.RG16F: return gl.HALF_FLOAT;
-    case Format.RG16UI: return gl.UNSIGNED_SHORT;
-    case Format.RG16I: return gl.SHORT;
-    case Format.RG32F: return gl.FLOAT;
-    case Format.RG32UI: return gl.UNSIGNED_INT;
-    case Format.RG32I: return gl.INT;
+    case Format.RG8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.RG8SN: return WebGLConstants.BYTE;
+    case Format.RG8UI: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.RG8I: return WebGLConstants.BYTE;
+    case Format.RG16F: return WebGLConstants.HALF_FLOAT;
+    case Format.RG16UI: return WebGLConstants.UNSIGNED_SHORT;
+    case Format.RG16I: return WebGLConstants.SHORT;
+    case Format.RG32F: return WebGLConstants.FLOAT;
+    case Format.RG32UI: return WebGLConstants.UNSIGNED_INT;
+    case Format.RG32I: return WebGLConstants.INT;
 
-    case Format.RGB8: return gl.UNSIGNED_BYTE;
-    case Format.SRGB8: return gl.UNSIGNED_BYTE;
-    case Format.RGB8SN: return gl.BYTE;
-    case Format.RGB8UI: return gl.UNSIGNED_BYTE;
-    case Format.RGB8I: return gl.BYTE;
-    case Format.RGB16F: return gl.HALF_FLOAT;
-    case Format.RGB16UI: return gl.UNSIGNED_SHORT;
-    case Format.RGB16I: return gl.SHORT;
-    case Format.RGB32F: return gl.FLOAT;
-    case Format.RGB32UI: return gl.UNSIGNED_INT;
-    case Format.RGB32I: return gl.INT;
+    case Format.RGB8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.SRGB8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.RGB8SN: return WebGLConstants.BYTE;
+    case Format.RGB8UI: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.RGB8I: return WebGLConstants.BYTE;
+    case Format.RGB16F: return WebGLConstants.HALF_FLOAT;
+    case Format.RGB16UI: return WebGLConstants.UNSIGNED_SHORT;
+    case Format.RGB16I: return WebGLConstants.SHORT;
+    case Format.RGB32F: return WebGLConstants.FLOAT;
+    case Format.RGB32UI: return WebGLConstants.UNSIGNED_INT;
+    case Format.RGB32I: return WebGLConstants.INT;
 
-    case Format.BGRA8: return gl.UNSIGNED_BYTE;
-    case Format.RGBA8: return gl.UNSIGNED_BYTE;
-    case Format.SRGB8_A8: return gl.UNSIGNED_BYTE;
-    case Format.RGBA8SN: return gl.BYTE;
-    case Format.RGBA8UI: return gl.UNSIGNED_BYTE;
-    case Format.RGBA8I: return gl.BYTE;
-    case Format.RGBA16F: return gl.HALF_FLOAT;
-    case Format.RGBA16UI: return gl.UNSIGNED_SHORT;
-    case Format.RGBA16I: return gl.SHORT;
-    case Format.RGBA32F: return gl.FLOAT;
-    case Format.RGBA32UI: return gl.UNSIGNED_INT;
-    case Format.RGBA32I: return gl.INT;
+    case Format.BGRA8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.RGBA8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.SRGB8_A8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.RGBA8SN: return WebGLConstants.BYTE;
+    case Format.RGBA8UI: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.RGBA8I: return WebGLConstants.BYTE;
+    case Format.RGBA16F: return WebGLConstants.HALF_FLOAT;
+    case Format.RGBA16UI: return WebGLConstants.UNSIGNED_SHORT;
+    case Format.RGBA16I: return WebGLConstants.SHORT;
+    case Format.RGBA32F: return WebGLConstants.FLOAT;
+    case Format.RGBA32UI: return WebGLConstants.UNSIGNED_INT;
+    case Format.RGBA32I: return WebGLConstants.INT;
 
-    case Format.R5G6B5: return gl.UNSIGNED_SHORT_5_6_5;
-    case Format.R11G11B10F: return gl.UNSIGNED_INT_10F_11F_11F_REV;
-    case Format.RGB5A1: return gl.UNSIGNED_SHORT_5_5_5_1;
-    case Format.RGBA4: return gl.UNSIGNED_SHORT_4_4_4_4;
-    case Format.RGB10A2: return gl.UNSIGNED_INT_2_10_10_10_REV;
-    case Format.RGB10A2UI: return gl.UNSIGNED_INT_2_10_10_10_REV;
-    case Format.RGB9E5: return gl.FLOAT;
+    case Format.R5G6B5: return WebGLConstants.UNSIGNED_SHORT_5_6_5;
+    case Format.R11G11B10F: return WebGLConstants.UNSIGNED_INT_10F_11F_11F_REV;
+    case Format.RGB5A1: return WebGLConstants.UNSIGNED_SHORT_5_5_5_1;
+    case Format.RGBA4: return WebGLConstants.UNSIGNED_SHORT_4_4_4_4;
+    case Format.RGB10A2: return WebGLConstants.UNSIGNED_INT_2_10_10_10_REV;
+    case Format.RGB10A2UI: return WebGLConstants.UNSIGNED_INT_2_10_10_10_REV;
+    case Format.RGB9E5: return WebGLConstants.FLOAT;
 
-    case Format.DEPTH: return gl.FLOAT;
-    case Format.DEPTH_STENCIL: return gl.UNSIGNED_INT_24_8;
+    case Format.DEPTH: return WebGLConstants.FLOAT;
+    case Format.DEPTH_STENCIL: return WebGLConstants.UNSIGNED_INT_24_8;
 
-    case Format.BC1: return gl.UNSIGNED_BYTE;
-    case Format.BC1_SRGB: return gl.UNSIGNED_BYTE;
-    case Format.BC2: return gl.UNSIGNED_BYTE;
-    case Format.BC2_SRGB: return gl.UNSIGNED_BYTE;
-    case Format.BC3: return gl.UNSIGNED_BYTE;
-    case Format.BC3_SRGB: return gl.UNSIGNED_BYTE;
-    case Format.BC4: return gl.UNSIGNED_BYTE;
-    case Format.BC4_SNORM: return gl.BYTE;
-    case Format.BC5: return gl.UNSIGNED_BYTE;
-    case Format.BC5_SNORM: return gl.BYTE;
-    case Format.BC6H_SF16: return gl.FLOAT;
-    case Format.BC6H_UF16: return gl.FLOAT;
-    case Format.BC7: return gl.UNSIGNED_BYTE;
-    case Format.BC7_SRGB: return gl.UNSIGNED_BYTE;
+    case Format.BC1: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC1_SRGB: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC2: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC2_SRGB: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC3: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC3_SRGB: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC4: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC4_SNORM: return WebGLConstants.BYTE;
+    case Format.BC5: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC5_SNORM: return WebGLConstants.BYTE;
+    case Format.BC6H_SF16: return WebGLConstants.FLOAT;
+    case Format.BC6H_UF16: return WebGLConstants.FLOAT;
+    case Format.BC7: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.BC7_SRGB: return WebGLConstants.UNSIGNED_BYTE;
 
-    case Format.ETC_RGB8: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_RGB8: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_SRGB8: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_RGB8_A1: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_SRGB8_A1: return gl.UNSIGNED_BYTE;
-    case Format.EAC_R11: return gl.UNSIGNED_BYTE;
-    case Format.EAC_R11SN: return gl.BYTE;
-    case Format.EAC_RG11: return gl.UNSIGNED_BYTE;
-    case Format.EAC_RG11SN: return gl.BYTE;
+    case Format.ETC_RGB8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.ETC2_RGB8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.ETC2_SRGB8: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.ETC2_RGB8_A1: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.ETC2_SRGB8_A1: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.EAC_R11: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.EAC_R11SN: return WebGLConstants.BYTE;
+    case Format.EAC_RG11: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.EAC_RG11SN: return WebGLConstants.BYTE;
 
-    case Format.PVRTC_RGB2: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC_RGBA2: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC_RGB4: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC_RGBA4: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC2_2BPP: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC2_4BPP: return gl.UNSIGNED_BYTE;
+    case Format.PVRTC_RGB2: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.PVRTC_RGBA2: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.PVRTC_RGB4: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.PVRTC_RGBA4: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.PVRTC2_2BPP: return WebGLConstants.UNSIGNED_BYTE;
+    case Format.PVRTC2_4BPP: return WebGLConstants.UNSIGNED_BYTE;
 
     case Format.ASTC_RGBA_4X4:
     case Format.ASTC_RGBA_5X4:
@@ -182,70 +183,70 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGL2RenderingContext
     case Format.ASTC_SRGBA_10X10:
     case Format.ASTC_SRGBA_12X10:
     case Format.ASTC_SRGBA_12X12:
-        return gl.UNSIGNED_BYTE;
+        return WebGLConstants.UNSIGNED_BYTE;
 
     default: {
-        return gl.UNSIGNED_BYTE;
+        return WebGLConstants.UNSIGNED_BYTE;
     }
     }
 }
 
 export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
-    case Format.A8: return gl.ALPHA;
-    case Format.L8: return gl.LUMINANCE;
-    case Format.LA8: return gl.LUMINANCE_ALPHA;
-    case Format.R8: return gl.R8;
-    case Format.R8SN: return gl.R8_SNORM;
-    case Format.R8UI: return gl.R8UI;
-    case Format.R8I: return gl.R8I;
-    case Format.RG8: return gl.RG8;
-    case Format.RG8SN: return gl.RG8_SNORM;
-    case Format.RG8UI: return gl.RG8UI;
-    case Format.RG8I: return gl.RG8I;
-    case Format.RGB8: return gl.RGB8;
-    case Format.RGB8SN: return gl.RGB8_SNORM;
-    case Format.RGB8UI: return gl.RGB8UI;
-    case Format.RGB8I: return gl.RGB8I;
-    case Format.BGRA8: return gl.RGBA8;
-    case Format.RGBA8: return gl.RGBA8;
-    case Format.RGBA8SN: return gl.RGBA8_SNORM;
-    case Format.RGBA8UI: return gl.RGBA8UI;
-    case Format.RGBA8I: return gl.RGBA8I;
-    case Format.R16I: return gl.R16I;
-    case Format.R16UI: return gl.R16UI;
-    case Format.R16F: return gl.R16F;
-    case Format.RG16I: return gl.RG16I;
-    case Format.RG16UI: return gl.RG16UI;
-    case Format.RG16F: return gl.RG16F;
-    case Format.RGB16I: return gl.RGB16I;
-    case Format.RGB16UI: return gl.RGB16UI;
-    case Format.RGB16F: return gl.RGB16F;
-    case Format.RGBA16I: return gl.RGBA16I;
-    case Format.RGBA16UI: return gl.RGBA16UI;
-    case Format.RGBA16F: return gl.RGBA16F;
-    case Format.R32I: return gl.R32I;
-    case Format.R32UI: return gl.R32UI;
-    case Format.R32F: return gl.R32F;
-    case Format.RG32I: return gl.RG32I;
-    case Format.RG32UI: return gl.RG32UI;
-    case Format.RG32F: return gl.RG32F;
-    case Format.RGB32I: return gl.RGB32I;
-    case Format.RGB32UI: return gl.RGB32UI;
-    case Format.RGB32F: return gl.RGB32F;
-    case Format.RGBA32I: return gl.RGBA32I;
-    case Format.RGBA32UI: return gl.RGBA32UI;
-    case Format.RGBA32F: return gl.RGBA32F;
-    case Format.R5G6B5: return gl.RGB565;
-    case Format.RGB5A1: return gl.RGB5_A1;
-    case Format.RGBA4: return gl.RGBA4;
-    case Format.SRGB8: return gl.SRGB8;
-    case Format.SRGB8_A8: return gl.SRGB8_ALPHA8;
-    case Format.RGB10A2: return gl.RGB10_A2;
-    case Format.RGB10A2UI: return gl.RGB10_A2UI;
-    case Format.R11G11B10F: return gl.R11F_G11F_B10F;
-    case Format.DEPTH: return gl.DEPTH_COMPONENT32F;
-    case Format.DEPTH_STENCIL: return gl.DEPTH24_STENCIL8;
+    case Format.A8: return WebGLConstants.ALPHA;
+    case Format.L8: return WebGLConstants.LUMINANCE;
+    case Format.LA8: return WebGLConstants.LUMINANCE_ALPHA;
+    case Format.R8: return WebGLConstants.R8;
+    case Format.R8SN: return WebGLConstants.R8_SNORM;
+    case Format.R8UI: return WebGLConstants.R8UI;
+    case Format.R8I: return WebGLConstants.R8I;
+    case Format.RG8: return WebGLConstants.RG8;
+    case Format.RG8SN: return WebGLConstants.RG8_SNORM;
+    case Format.RG8UI: return WebGLConstants.RG8UI;
+    case Format.RG8I: return WebGLConstants.RG8I;
+    case Format.RGB8: return WebGLConstants.RGB8;
+    case Format.RGB8SN: return WebGLConstants.RGB8_SNORM;
+    case Format.RGB8UI: return WebGLConstants.RGB8UI;
+    case Format.RGB8I: return WebGLConstants.RGB8I;
+    case Format.BGRA8: return WebGLConstants.RGBA8;
+    case Format.RGBA8: return WebGLConstants.RGBA8;
+    case Format.RGBA8SN: return WebGLConstants.RGBA8_SNORM;
+    case Format.RGBA8UI: return WebGLConstants.RGBA8UI;
+    case Format.RGBA8I: return WebGLConstants.RGBA8I;
+    case Format.R16I: return WebGLConstants.R16I;
+    case Format.R16UI: return WebGLConstants.R16UI;
+    case Format.R16F: return WebGLConstants.R16F;
+    case Format.RG16I: return WebGLConstants.RG16I;
+    case Format.RG16UI: return WebGLConstants.RG16UI;
+    case Format.RG16F: return WebGLConstants.RG16F;
+    case Format.RGB16I: return WebGLConstants.RGB16I;
+    case Format.RGB16UI: return WebGLConstants.RGB16UI;
+    case Format.RGB16F: return WebGLConstants.RGB16F;
+    case Format.RGBA16I: return WebGLConstants.RGBA16I;
+    case Format.RGBA16UI: return WebGLConstants.RGBA16UI;
+    case Format.RGBA16F: return WebGLConstants.RGBA16F;
+    case Format.R32I: return WebGLConstants.R32I;
+    case Format.R32UI: return WebGLConstants.R32UI;
+    case Format.R32F: return WebGLConstants.R32F;
+    case Format.RG32I: return WebGLConstants.RG32I;
+    case Format.RG32UI: return WebGLConstants.RG32UI;
+    case Format.RG32F: return WebGLConstants.RG32F;
+    case Format.RGB32I: return WebGLConstants.RGB32I;
+    case Format.RGB32UI: return WebGLConstants.RGB32UI;
+    case Format.RGB32F: return WebGLConstants.RGB32F;
+    case Format.RGBA32I: return WebGLConstants.RGBA32I;
+    case Format.RGBA32UI: return WebGLConstants.RGBA32UI;
+    case Format.RGBA32F: return WebGLConstants.RGBA32F;
+    case Format.R5G6B5: return WebGLConstants.RGB565;
+    case Format.RGB5A1: return WebGLConstants.RGB5_A1;
+    case Format.RGBA4: return WebGLConstants.RGBA4;
+    case Format.SRGB8: return WebGLConstants.SRGB8;
+    case Format.SRGB8_A8: return WebGLConstants.SRGB8_ALPHA8;
+    case Format.RGB10A2: return WebGLConstants.RGB10_A2;
+    case Format.RGB10A2UI: return WebGLConstants.RGB10_A2UI;
+    case Format.R11G11B10F: return WebGLConstants.R11F_G11F_B10F;
+    case Format.DEPTH: return WebGLConstants.DEPTH_COMPONENT32F;
+    case Format.DEPTH_STENCIL: return WebGLConstants.DEPTH24_STENCIL8;
 
     case Format.BC1: return WebGL2EXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
     case Format.BC1_ALPHA: return WebGL2EXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -305,66 +306,66 @@ export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGL2Render
 
     default: {
         errorID(16309);
-        return gl.RGBA;
+        return WebGLConstants.RGBA;
     }
     }
 }
 
 export function GFXFormatToWebGLFormat (format: Format, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
-    case Format.A8: return gl.ALPHA;
-    case Format.L8: return gl.LUMINANCE;
-    case Format.LA8: return gl.LUMINANCE_ALPHA;
+    case Format.A8: return WebGLConstants.ALPHA;
+    case Format.L8: return WebGLConstants.LUMINANCE;
+    case Format.LA8: return WebGLConstants.LUMINANCE_ALPHA;
     case Format.R8:
-    case Format.R8SN: return gl.RED;
+    case Format.R8SN: return WebGLConstants.RED;
     case Format.R8UI:
-    case Format.R8I: return gl.RED;
+    case Format.R8I: return WebGLConstants.RED;
     case Format.RG8:
     case Format.RG8SN:
     case Format.RG8UI:
-    case Format.RG8I: return gl.RG;
+    case Format.RG8I: return WebGLConstants.RG;
     case Format.RGB8:
     case Format.RGB8SN:
     case Format.RGB8UI:
-    case Format.RGB8I: return gl.RGB;
+    case Format.RGB8I: return WebGLConstants.RGB;
     case Format.BGRA8:
     case Format.RGBA8:
     case Format.RGBA8SN:
     case Format.RGBA8UI:
-    case Format.RGBA8I: return gl.RGBA;
+    case Format.RGBA8I: return WebGLConstants.RGBA;
     case Format.R16UI:
     case Format.R16I:
-    case Format.R16F: return gl.RED;
+    case Format.R16F: return WebGLConstants.RED;
     case Format.RG16UI:
     case Format.RG16I:
-    case Format.RG16F: return gl.RG;
+    case Format.RG16F: return WebGLConstants.RG;
     case Format.RGB16UI:
     case Format.RGB16I:
-    case Format.RGB16F: return gl.RGB;
+    case Format.RGB16F: return WebGLConstants.RGB;
     case Format.RGBA16UI:
     case Format.RGBA16I:
-    case Format.RGBA16F: return gl.RGBA;
+    case Format.RGBA16F: return WebGLConstants.RGBA;
     case Format.R32UI:
     case Format.R32I:
-    case Format.R32F: return gl.RED;
+    case Format.R32F: return WebGLConstants.RED;
     case Format.RG32UI:
     case Format.RG32I:
-    case Format.RG32F: return gl.RG;
+    case Format.RG32F: return WebGLConstants.RG;
     case Format.RGB32UI:
     case Format.RGB32I:
-    case Format.RGB32F: return gl.RGB;
+    case Format.RGB32F: return WebGLConstants.RGB;
     case Format.RGBA32UI:
     case Format.RGBA32I:
-    case Format.RGBA32F: return gl.RGBA;
-    case Format.RGB10A2: return gl.RGBA;
-    case Format.R11G11B10F: return gl.RGB;
-    case Format.R5G6B5: return gl.RGB;
-    case Format.RGB5A1: return gl.RGBA;
-    case Format.RGBA4: return gl.RGBA;
-    case Format.SRGB8: return gl.RGB;
-    case Format.SRGB8_A8: return gl.RGBA;
-    case Format.DEPTH: return gl.DEPTH_COMPONENT;
-    case Format.DEPTH_STENCIL: return gl.DEPTH_STENCIL;
+    case Format.RGBA32F: return WebGLConstants.RGBA;
+    case Format.RGB10A2: return WebGLConstants.RGBA;
+    case Format.R11G11B10F: return WebGLConstants.RGB;
+    case Format.R5G6B5: return WebGLConstants.RGB;
+    case Format.RGB5A1: return WebGLConstants.RGBA;
+    case Format.RGBA4: return WebGLConstants.RGBA;
+    case Format.SRGB8: return WebGLConstants.RGB;
+    case Format.SRGB8_A8: return WebGLConstants.RGBA;
+    case Format.DEPTH: return WebGLConstants.DEPTH_COMPONENT;
+    case Format.DEPTH_STENCIL: return WebGLConstants.DEPTH_STENCIL;
 
     case Format.BC1: return WebGL2EXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
     case Format.BC1_ALPHA: return WebGL2EXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
@@ -424,39 +425,39 @@ export function GFXFormatToWebGLFormat (format: Format, gl: WebGL2RenderingConte
 
     default: {
         errorID(16310);
-        return gl.RGBA;
+        return WebGLConstants.RGBA;
     }
     }
 }
 
 function GFXTypeToWebGLType (type: Type, gl: WebGL2RenderingContext): GLenum {
     switch (type) {
-    case Type.BOOL: return gl.BOOL;
-    case Type.BOOL2: return gl.BOOL_VEC2;
-    case Type.BOOL3: return gl.BOOL_VEC3;
-    case Type.BOOL4: return gl.BOOL_VEC4;
-    case Type.INT: return gl.INT;
-    case Type.INT2: return gl.INT_VEC2;
-    case Type.INT3: return gl.INT_VEC3;
-    case Type.INT4: return gl.INT_VEC4;
-    case Type.UINT: return gl.UNSIGNED_INT;
-    case Type.FLOAT: return gl.FLOAT;
-    case Type.FLOAT2: return gl.FLOAT_VEC2;
-    case Type.FLOAT3: return gl.FLOAT_VEC3;
-    case Type.FLOAT4: return gl.FLOAT_VEC4;
-    case Type.MAT2: return gl.FLOAT_MAT2;
-    case Type.MAT2X3: return gl.FLOAT_MAT2x3;
-    case Type.MAT2X4: return gl.FLOAT_MAT2x4;
-    case Type.MAT3X2: return gl.FLOAT_MAT3x2;
-    case Type.MAT3: return gl.FLOAT_MAT3;
-    case Type.MAT3X4: return gl.FLOAT_MAT3x4;
-    case Type.MAT4X2: return gl.FLOAT_MAT4x2;
-    case Type.MAT4X3: return gl.FLOAT_MAT4x3;
-    case Type.MAT4: return gl.FLOAT_MAT4;
-    case Type.SAMPLER2D: return gl.SAMPLER_2D;
-    case Type.SAMPLER2D_ARRAY: return gl.SAMPLER_2D_ARRAY;
-    case Type.SAMPLER3D: return gl.SAMPLER_3D;
-    case Type.SAMPLER_CUBE: return gl.SAMPLER_CUBE;
+    case Type.BOOL: return WebGLConstants.BOOL;
+    case Type.BOOL2: return WebGLConstants.BOOL_VEC2;
+    case Type.BOOL3: return WebGLConstants.BOOL_VEC3;
+    case Type.BOOL4: return WebGLConstants.BOOL_VEC4;
+    case Type.INT: return WebGLConstants.INT;
+    case Type.INT2: return WebGLConstants.INT_VEC2;
+    case Type.INT3: return WebGLConstants.INT_VEC3;
+    case Type.INT4: return WebGLConstants.INT_VEC4;
+    case Type.UINT: return WebGLConstants.UNSIGNED_INT;
+    case Type.FLOAT: return WebGLConstants.FLOAT;
+    case Type.FLOAT2: return WebGLConstants.FLOAT_VEC2;
+    case Type.FLOAT3: return WebGLConstants.FLOAT_VEC3;
+    case Type.FLOAT4: return WebGLConstants.FLOAT_VEC4;
+    case Type.MAT2: return WebGLConstants.FLOAT_MAT2;
+    case Type.MAT2X3: return WebGLConstants.FLOAT_MAT2x3;
+    case Type.MAT2X4: return WebGLConstants.FLOAT_MAT2x4;
+    case Type.MAT3X2: return WebGLConstants.FLOAT_MAT3x2;
+    case Type.MAT3: return WebGLConstants.FLOAT_MAT3;
+    case Type.MAT3X4: return WebGLConstants.FLOAT_MAT3x4;
+    case Type.MAT4X2: return WebGLConstants.FLOAT_MAT4x2;
+    case Type.MAT4X3: return WebGLConstants.FLOAT_MAT4x3;
+    case Type.MAT4: return WebGLConstants.FLOAT_MAT4;
+    case Type.SAMPLER2D: return WebGLConstants.SAMPLER_2D;
+    case Type.SAMPLER2D_ARRAY: return WebGLConstants.SAMPLER_2D_ARRAY;
+    case Type.SAMPLER3D: return WebGLConstants.SAMPLER_3D;
+    case Type.SAMPLER_CUBE: return WebGLConstants.SAMPLER_CUBE;
     default: {
         errorID(16311);
         return Type.UNKNOWN;
@@ -466,35 +467,35 @@ function GFXTypeToWebGLType (type: Type, gl: WebGL2RenderingContext): GLenum {
 
 function WebGLTypeToGFXType (glType: GLenum, gl: WebGL2RenderingContext): Type {
     switch (glType) {
-    case gl.BOOL: return Type.BOOL;
-    case gl.BOOL_VEC2: return Type.BOOL2;
-    case gl.BOOL_VEC3: return Type.BOOL3;
-    case gl.BOOL_VEC4: return Type.BOOL4;
-    case gl.INT: return Type.INT;
-    case gl.INT_VEC2: return Type.INT2;
-    case gl.INT_VEC3: return Type.INT3;
-    case gl.INT_VEC4: return Type.INT4;
-    case gl.UNSIGNED_INT: return Type.UINT;
-    case gl.UNSIGNED_INT_VEC2: return Type.UINT2;
-    case gl.UNSIGNED_INT_VEC3: return Type.UINT3;
-    case gl.UNSIGNED_INT_VEC4: return Type.UINT4;
-    case gl.FLOAT: return Type.FLOAT;
-    case gl.FLOAT_VEC2: return Type.FLOAT2;
-    case gl.FLOAT_VEC3: return Type.FLOAT3;
-    case gl.FLOAT_VEC4: return Type.FLOAT4;
-    case gl.FLOAT_MAT2: return Type.MAT2;
-    case gl.FLOAT_MAT2x3: return Type.MAT2X3;
-    case gl.FLOAT_MAT2x4: return Type.MAT2X4;
-    case gl.FLOAT_MAT3x2: return Type.MAT3X2;
-    case gl.FLOAT_MAT3: return Type.MAT3;
-    case gl.FLOAT_MAT3x4: return Type.MAT3X4;
-    case gl.FLOAT_MAT4x2: return Type.MAT4X2;
-    case gl.FLOAT_MAT4x3: return Type.MAT4X3;
-    case gl.FLOAT_MAT4: return Type.MAT4;
-    case gl.SAMPLER_2D: return Type.SAMPLER2D;
-    case gl.SAMPLER_2D_ARRAY: return Type.SAMPLER2D_ARRAY;
-    case gl.SAMPLER_3D: return Type.SAMPLER3D;
-    case gl.SAMPLER_CUBE: return Type.SAMPLER_CUBE;
+    case WebGLConstants.BOOL: return Type.BOOL;
+    case WebGLConstants.BOOL_VEC2: return Type.BOOL2;
+    case WebGLConstants.BOOL_VEC3: return Type.BOOL3;
+    case WebGLConstants.BOOL_VEC4: return Type.BOOL4;
+    case WebGLConstants.INT: return Type.INT;
+    case WebGLConstants.INT_VEC2: return Type.INT2;
+    case WebGLConstants.INT_VEC3: return Type.INT3;
+    case WebGLConstants.INT_VEC4: return Type.INT4;
+    case WebGLConstants.UNSIGNED_INT: return Type.UINT;
+    case WebGLConstants.UNSIGNED_INT_VEC2: return Type.UINT2;
+    case WebGLConstants.UNSIGNED_INT_VEC3: return Type.UINT3;
+    case WebGLConstants.UNSIGNED_INT_VEC4: return Type.UINT4;
+    case WebGLConstants.FLOAT: return Type.FLOAT;
+    case WebGLConstants.FLOAT_VEC2: return Type.FLOAT2;
+    case WebGLConstants.FLOAT_VEC3: return Type.FLOAT3;
+    case WebGLConstants.FLOAT_VEC4: return Type.FLOAT4;
+    case WebGLConstants.FLOAT_MAT2: return Type.MAT2;
+    case WebGLConstants.FLOAT_MAT2x3: return Type.MAT2X3;
+    case WebGLConstants.FLOAT_MAT2x4: return Type.MAT2X4;
+    case WebGLConstants.FLOAT_MAT3x2: return Type.MAT3X2;
+    case WebGLConstants.FLOAT_MAT3: return Type.MAT3;
+    case WebGLConstants.FLOAT_MAT3x4: return Type.MAT3X4;
+    case WebGLConstants.FLOAT_MAT4x2: return Type.MAT4X2;
+    case WebGLConstants.FLOAT_MAT4x3: return Type.MAT4X3;
+    case WebGLConstants.FLOAT_MAT4: return Type.MAT4;
+    case WebGLConstants.SAMPLER_2D: return Type.SAMPLER2D;
+    case WebGLConstants.SAMPLER_2D_ARRAY: return Type.SAMPLER2D_ARRAY;
+    case WebGLConstants.SAMPLER_3D: return Type.SAMPLER3D;
+    case WebGLConstants.SAMPLER_CUBE: return Type.SAMPLER_CUBE;
     default: {
         errorID(16313);
         return Type.UNKNOWN;
@@ -504,44 +505,44 @@ function WebGLTypeToGFXType (glType: GLenum, gl: WebGL2RenderingContext): Type {
 
 function WebGLGetTypeSize (glType: GLenum, gl: WebGL2RenderingContext): number {
     switch (glType) {
-    case gl.BOOL: return 4;
-    case gl.BOOL_VEC2: return 8;
-    case gl.BOOL_VEC3: return 12;
-    case gl.BOOL_VEC4: return 16;
-    case gl.INT: return 4;
-    case gl.INT_VEC2: return 8;
-    case gl.INT_VEC3: return 12;
-    case gl.INT_VEC4: return 16;
-    case gl.UNSIGNED_INT: return 4;
-    case gl.UNSIGNED_INT_VEC2: return 8;
-    case gl.UNSIGNED_INT_VEC3: return 12;
-    case gl.UNSIGNED_INT_VEC4: return 16;
-    case gl.FLOAT: return 4;
-    case gl.FLOAT_VEC2: return 8;
-    case gl.FLOAT_VEC3: return 12;
-    case gl.FLOAT_VEC4: return 16;
-    case gl.FLOAT_MAT2: return 16;
-    case gl.FLOAT_MAT2x3: return 24;
-    case gl.FLOAT_MAT2x4: return 32;
-    case gl.FLOAT_MAT3x2: return 24;
-    case gl.FLOAT_MAT3: return 36;
-    case gl.FLOAT_MAT3x4: return 48;
-    case gl.FLOAT_MAT4x2: return 32;
-    case gl.FLOAT_MAT4x3: return 48;
-    case gl.FLOAT_MAT4: return 64;
-    case gl.SAMPLER_2D: return 4;
-    case gl.SAMPLER_2D_ARRAY: return 4;
-    case gl.SAMPLER_2D_ARRAY_SHADOW: return 4;
-    case gl.SAMPLER_3D: return 4;
-    case gl.SAMPLER_CUBE: return 4;
-    case gl.INT_SAMPLER_2D: return 4;
-    case gl.INT_SAMPLER_2D_ARRAY: return 4;
-    case gl.INT_SAMPLER_3D: return 4;
-    case gl.INT_SAMPLER_CUBE: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_2D: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_2D_ARRAY: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_3D: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_CUBE: return 4;
+    case WebGLConstants.BOOL: return 4;
+    case WebGLConstants.BOOL_VEC2: return 8;
+    case WebGLConstants.BOOL_VEC3: return 12;
+    case WebGLConstants.BOOL_VEC4: return 16;
+    case WebGLConstants.INT: return 4;
+    case WebGLConstants.INT_VEC2: return 8;
+    case WebGLConstants.INT_VEC3: return 12;
+    case WebGLConstants.INT_VEC4: return 16;
+    case WebGLConstants.UNSIGNED_INT: return 4;
+    case WebGLConstants.UNSIGNED_INT_VEC2: return 8;
+    case WebGLConstants.UNSIGNED_INT_VEC3: return 12;
+    case WebGLConstants.UNSIGNED_INT_VEC4: return 16;
+    case WebGLConstants.FLOAT: return 4;
+    case WebGLConstants.FLOAT_VEC2: return 8;
+    case WebGLConstants.FLOAT_VEC3: return 12;
+    case WebGLConstants.FLOAT_VEC4: return 16;
+    case WebGLConstants.FLOAT_MAT2: return 16;
+    case WebGLConstants.FLOAT_MAT2x3: return 24;
+    case WebGLConstants.FLOAT_MAT2x4: return 32;
+    case WebGLConstants.FLOAT_MAT3x2: return 24;
+    case WebGLConstants.FLOAT_MAT3: return 36;
+    case WebGLConstants.FLOAT_MAT3x4: return 48;
+    case WebGLConstants.FLOAT_MAT4x2: return 32;
+    case WebGLConstants.FLOAT_MAT4x3: return 48;
+    case WebGLConstants.FLOAT_MAT4: return 64;
+    case WebGLConstants.SAMPLER_2D: return 4;
+    case WebGLConstants.SAMPLER_2D_ARRAY: return 4;
+    case WebGLConstants.SAMPLER_2D_ARRAY_SHADOW: return 4;
+    case WebGLConstants.SAMPLER_3D: return 4;
+    case WebGLConstants.SAMPLER_CUBE: return 4;
+    case WebGLConstants.INT_SAMPLER_2D: return 4;
+    case WebGLConstants.INT_SAMPLER_2D_ARRAY: return 4;
+    case WebGLConstants.INT_SAMPLER_3D: return 4;
+    case WebGLConstants.INT_SAMPLER_CUBE: return 4;
+    case WebGLConstants.UNSIGNED_INT_SAMPLER_2D: return 4;
+    case WebGLConstants.UNSIGNED_INT_SAMPLER_2D_ARRAY: return 4;
+    case WebGLConstants.UNSIGNED_INT_SAMPLER_3D: return 4;
+    case WebGLConstants.UNSIGNED_INT_SAMPLER_CUBE: return 4;
     default: {
         errorID(16314);
         return 0;
@@ -551,15 +552,15 @@ function WebGLGetTypeSize (glType: GLenum, gl: WebGL2RenderingContext): number {
 
 function WebGLGetComponentCount (glType: GLenum, gl: WebGL2RenderingContext): Type {
     switch (glType) {
-    case gl.FLOAT_MAT2: return 2;
-    case gl.FLOAT_MAT2x3: return 2;
-    case gl.FLOAT_MAT2x4: return 2;
-    case gl.FLOAT_MAT3x2: return 3;
-    case gl.FLOAT_MAT3: return 3;
-    case gl.FLOAT_MAT3x4: return 3;
-    case gl.FLOAT_MAT4x2: return 4;
-    case gl.FLOAT_MAT4x3: return 4;
-    case gl.FLOAT_MAT4: return 4;
+    case WebGLConstants.FLOAT_MAT2: return 2;
+    case WebGLConstants.FLOAT_MAT2x3: return 2;
+    case WebGLConstants.FLOAT_MAT2x4: return 2;
+    case WebGLConstants.FLOAT_MAT3x2: return 3;
+    case WebGLConstants.FLOAT_MAT3: return 3;
+    case WebGLConstants.FLOAT_MAT3x4: return 3;
+    case WebGLConstants.FLOAT_MAT4x2: return 4;
+    case WebGLConstants.FLOAT_MAT4x3: return 4;
+    case WebGLConstants.FLOAT_MAT4: return 4;
     default: {
         return 1;
     }
@@ -567,51 +568,51 @@ function WebGLGetComponentCount (glType: GLenum, gl: WebGL2RenderingContext): Ty
 }
 
 const WebGLCmpFuncs: GLenum[] = [
-    0x0200, // WebGLRenderingContext.NEVER,
-    0x0201, // WebGLRenderingContext.LESS,
-    0x0202, // WebGLRenderingContext.EQUAL,
-    0x0203, // WebGLRenderingContext.LEQUAL,
-    0x0204, // WebGLRenderingContext.GREATER,
-    0x0205, // WebGLRenderingContext.NOTEQUAL,
-    0x0206, // WebGLRenderingContext.GEQUAL,
-    0x0207, // WebGLRenderingContext.ALWAYS,
+    WebGLConstants.NEVER,
+    WebGLConstants.LESS,
+    WebGLConstants.EQUAL,
+    WebGLConstants.LEQUAL,
+    WebGLConstants.GREATER,
+    WebGLConstants.NOTEQUAL,
+    WebGLConstants.GEQUAL,
+    WebGLConstants.ALWAYS,
 ];
 
 const WebGLStencilOps: GLenum[] = [
-    0x0000, // WebGLRenderingContext.ZERO,
-    0x1E00, // WebGLRenderingContext.KEEP,
-    0x1E01, // WebGLRenderingContext.REPLACE,
-    0x1E02, // WebGLRenderingContext.INCR,
-    0x1E03, // WebGLRenderingContext.DECR,
-    0x150A, // WebGLRenderingContext.INVERT,
-    0x8507, // WebGLRenderingContext.INCR_WRAP,
-    0x8508, // WebGLRenderingContext.DECR_WRAP,
+    WebGLConstants.ZERO,
+    WebGLConstants.KEEP,
+    WebGLConstants.REPLACE,
+    WebGLConstants.INCR,
+    WebGLConstants.DECR,
+    WebGLConstants.INVERT,
+    WebGLConstants.INCR_WRAP,
+    WebGLConstants.DECR_WRAP,
 ];
 
 const WebGLBlendOps: GLenum[] = [
-    0x8006, // WebGLRenderingContext.FUNC_ADD,
-    0x800A, // WebGLRenderingContext.FUNC_SUBTRACT,
-    0x800B, // WebGLRenderingContext.FUNC_REVERSE_SUBTRACT,
-    0x8007, // WebGL2RenderingContext.MIN,
-    0x8008, // WebGL2RenderingContext.MAX,
+    WebGLConstants.FUNC_ADD,
+    WebGLConstants.FUNC_SUBTRACT,
+    WebGLConstants.FUNC_REVERSE_SUBTRACT,
+    WebGLConstants.MIN,
+    WebGLConstants.MAX,
 ];
 
 const WebGLBlendFactors: GLenum[] = [
-    0x0000, // WebGLRenderingContext.ZERO,
-    0x0001, // WebGLRenderingContext.ONE,
-    0x0302, // WebGLRenderingContext.SRC_ALPHA,
-    0x0304, // WebGLRenderingContext.DST_ALPHA,
-    0x0303, // WebGLRenderingContext.ONE_MINUS_SRC_ALPHA,
-    0x0305, // WebGLRenderingContext.ONE_MINUS_DST_ALPHA,
-    0x0300, // WebGLRenderingContext.SRC_COLOR,
-    0x0306, // WebGLRenderingContext.DST_COLOR,
-    0x0301, // WebGLRenderingContext.ONE_MINUS_SRC_COLOR,
-    0x0307, // WebGLRenderingContext.ONE_MINUS_DST_COLOR,
-    0x0308, // WebGLRenderingContext.SRC_ALPHA_SATURATE,
-    0x8001, // WebGLRenderingContext.CONSTANT_COLOR,
-    0x8002, // WebGLRenderingContext.ONE_MINUS_CONSTANT_COLOR,
-    0x8003, // WebGLRenderingContext.CONSTANT_ALPHA,
-    0x8004, // WebGLRenderingContext.ONE_MINUS_CONSTANT_ALPHA,
+    WebGLConstants.ZERO,
+    WebGLConstants.ONE,
+    WebGLConstants.SRC_ALPHA,
+    WebGLConstants.DST_ALPHA,
+    WebGLConstants.ONE_MINUS_SRC_ALPHA,
+    WebGLConstants.ONE_MINUS_DST_ALPHA,
+    WebGLConstants.SRC_COLOR,
+    WebGLConstants.DST_COLOR,
+    WebGLConstants.ONE_MINUS_SRC_COLOR,
+    WebGLConstants.ONE_MINUS_DST_COLOR,
+    WebGLConstants.SRC_ALPHA_SATURATE,
+    WebGLConstants.CONSTANT_COLOR,
+    WebGLConstants.ONE_MINUS_CONSTANT_COLOR,
+    WebGLConstants.CONSTANT_ALPHA,
+    WebGLConstants.ONE_MINUS_CONSTANT_ALPHA,
 ];
 
 export enum WebGL2Cmd {
@@ -781,10 +782,10 @@ export class WebGL2CmdPackage {
 export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer): void {
     const { gl } = device;
     const cache = device.stateCache;
-    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
+    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? WebGLConstants.DYNAMIC_DRAW : WebGLConstants.STATIC_DRAW;
 
     if (gpuBuffer.usage & BufferUsageBit.VERTEX) {
-        gpuBuffer.glTarget = gl.ARRAY_BUFFER;
+        gpuBuffer.glTarget = WebGLConstants.ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
 
         if (glBuffer) {
@@ -799,18 +800,18 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 gfxStateCache.gpuInputAssembler = null;
 
                 if (device.stateCache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                    gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glArrayBuffer = gpuBuffer.glBuffer;
                 }
 
-                gl.bufferData(gl.ARRAY_BUFFER, gpuBuffer.size, glUsage);
+                gl.bufferData(WebGLConstants.ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
-                gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
                 device.stateCache.glArrayBuffer = null;
             }
         }
     } else if (gpuBuffer.usage & BufferUsageBit.INDEX) {
-        gpuBuffer.glTarget = gl.ELEMENT_ARRAY_BUFFER;
+        gpuBuffer.glTarget = WebGLConstants.ELEMENT_ARRAY_BUFFER;
         const glBuffer = gl.createBuffer();
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
@@ -824,40 +825,40 @@ export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWeb
                 gfxStateCache.gpuInputAssembler = null;
 
                 if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                     device.stateCache.glElementArrayBuffer = gpuBuffer.glBuffer;
                 }
 
-                gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
+                gl.bufferData(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
 
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
                 device.stateCache.glElementArrayBuffer = null;
             }
         }
     } else if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
-        gpuBuffer.glTarget = gl.UNIFORM_BUFFER;
+        gpuBuffer.glTarget = WebGLConstants.UNIFORM_BUFFER;
         const glBuffer = gl.createBuffer();
         if (glBuffer && gpuBuffer.size > 0) {
             gpuBuffer.glBuffer = glBuffer;
             if (device.stateCache.glUniformBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.UNIFORM_BUFFER, gpuBuffer.glBuffer);
+                gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.glBuffer);
                 device.stateCache.glUniformBuffer = gpuBuffer.glBuffer;
             }
 
-            gl.bufferData(gl.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
+            gl.bufferData(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
 
-            gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+            gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, null);
             device.stateCache.glUniformBuffer = null;
         }
     } else if (gpuBuffer.usage & BufferUsageBit.INDIRECT) {
-        gpuBuffer.glTarget = gl.NONE;
+        gpuBuffer.glTarget = WebGLConstants.NONE;
     } else if (gpuBuffer.usage & BufferUsageBit.TRANSFER_DST) {
-        gpuBuffer.glTarget = gl.NONE;
+        gpuBuffer.glTarget = WebGLConstants.NONE;
     } else if (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC) {
-        gpuBuffer.glTarget = gl.NONE;
+        gpuBuffer.glTarget = WebGLConstants.NONE;
     } else {
         errorID(16315);
-        gpuBuffer.glTarget = gl.NONE;
+        gpuBuffer.glTarget = WebGLConstants.NONE;
     }
 }
 
@@ -869,7 +870,7 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
         // Firefox 75+ implicitly unbind whatever buffer there was on the slot sometimes
         // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
         switch (gpuBuffer.glTarget) {
-        case gl.ARRAY_BUFFER:
+        case WebGLConstants.ARRAY_BUFFER:
             if (device.extensions.useVAO) {
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
@@ -878,10 +879,10 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
             }
             gfxStateCache.gpuInputAssembler = null;
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+            gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
             device.stateCache.glArrayBuffer = null;
             break;
-        case gl.ELEMENT_ARRAY_BUFFER:
+        case WebGLConstants.ELEMENT_ARRAY_BUFFER:
             if (device.extensions.useVAO) {
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
@@ -890,11 +891,11 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
             }
             gfxStateCache.gpuInputAssembler = null;
 
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+            gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
             device.stateCache.glElementArrayBuffer = null;
             break;
-        case gl.UNIFORM_BUFFER:
-            gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+        case WebGLConstants.UNIFORM_BUFFER:
+            gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, null);
             device.stateCache.glUniformBuffer = null;
             break;
         default:
@@ -908,7 +909,7 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
 export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer): void {
     const { gl } = device;
     const cache = device.stateCache;
-    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
+    const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? WebGLConstants.DYNAMIC_DRAW : WebGLConstants.STATIC_DRAW;
 
     if (gpuBuffer.usage & BufferUsageBit.VERTEX) {
         if (device.extensions.useVAO) {
@@ -920,15 +921,15 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
         gfxStateCache.gpuInputAssembler = null;
 
         if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
+            gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
         if (gpuBuffer.buffer) {
-            gl.bufferData(gl.ARRAY_BUFFER, gpuBuffer.buffer, glUsage);
+            gl.bufferData(WebGLConstants.ARRAY_BUFFER, gpuBuffer.buffer, glUsage);
         } else {
-            gl.bufferData(gl.ARRAY_BUFFER, gpuBuffer.size, glUsage);
+            gl.bufferData(WebGLConstants.ARRAY_BUFFER, gpuBuffer.size, glUsage);
         }
-        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
         cache.glArrayBuffer = null;
     } else if (gpuBuffer.usage & BufferUsageBit.INDEX) {
         if (device.extensions.useVAO) {
@@ -940,31 +941,31 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
         gfxStateCache.gpuInputAssembler = null;
 
         if (device.stateCache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+            gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
         }
 
         if (gpuBuffer.buffer) {
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.buffer, glUsage);
+            gl.bufferData(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.buffer, glUsage);
         } else {
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
+            gl.bufferData(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.size, glUsage);
         }
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
         device.stateCache.glElementArrayBuffer = null;
     } else if (gpuBuffer.usage & BufferUsageBit.UNIFORM) {
         if (device.stateCache.glUniformBuffer !== gpuBuffer.glBuffer) {
-            gl.bindBuffer(gl.UNIFORM_BUFFER, gpuBuffer.glBuffer);
+            gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.glBuffer);
         }
 
-        gl.bufferData(gl.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
-        gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+        gl.bufferData(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.size, glUsage);
+        gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, null);
         device.stateCache.glUniformBuffer = null;
     } else if ((gpuBuffer.usage & BufferUsageBit.INDIRECT)
             || (gpuBuffer.usage & BufferUsageBit.TRANSFER_DST)
             || (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC)) {
-        gpuBuffer.glTarget = gl.NONE;
+        gpuBuffer.glTarget = WebGLConstants.NONE;
     } else {
         errorID(16315);
-        gpuBuffer.glTarget = gl.NONE;
+        gpuBuffer.glTarget = WebGLConstants.NONE;
     }
 }
 
@@ -987,7 +988,7 @@ export function WebGL2CmdFuncUpdateBuffer (
         const cache = device.stateCache;
 
         switch (gpuBuffer.glTarget) {
-        case gl.ARRAY_BUFFER: {
+        case WebGLConstants.ARRAY_BUFFER: {
             if (device.extensions.useVAO) {
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
@@ -997,7 +998,7 @@ export function WebGL2CmdFuncUpdateBuffer (
             gfxStateCache.gpuInputAssembler = null;
 
             if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
+                gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, gpuBuffer.glBuffer);
                 cache.glArrayBuffer = gpuBuffer.glBuffer;
             }
 
@@ -1008,7 +1009,7 @@ export function WebGL2CmdFuncUpdateBuffer (
             }
             break;
         }
-        case gl.ELEMENT_ARRAY_BUFFER: {
+        case WebGLConstants.ELEMENT_ARRAY_BUFFER: {
             if (device.extensions.useVAO) {
                 if (cache.glVAO) {
                     gl.bindVertexArray(null);
@@ -1018,7 +1019,7 @@ export function WebGL2CmdFuncUpdateBuffer (
             gfxStateCache.gpuInputAssembler = null;
 
             if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                 cache.glElementArrayBuffer = gpuBuffer.glBuffer;
             }
 
@@ -1029,9 +1030,9 @@ export function WebGL2CmdFuncUpdateBuffer (
             }
             break;
         }
-        case gl.UNIFORM_BUFFER: {
+        case WebGLConstants.UNIFORM_BUFFER: {
             if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.UNIFORM_BUFFER, gpuBuffer.glBuffer);
+                gl.bindBuffer(WebGLConstants.UNIFORM_BUFFER, gpuBuffer.glBuffer);
                 cache.glUniformBuffer = gpuBuffer.glBuffer;
             }
 
@@ -1063,7 +1064,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
 
     switch (gpuTexture.type) {
     case TextureType.TEX2D: {
-        gpuTexture.glTarget = gl.TEXTURE_2D;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_2D;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
@@ -1076,7 +1077,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                 const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                    gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                    gl.bindTexture(WebGLConstants.TEXTURE_2D, gpuTexture.glTexture);
                     glTexUnit.glTexture = gpuTexture.glTexture;
                 }
 
@@ -1084,26 +1085,26 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                         const imgSize = FormatSize(gpuTexture.format, w, h, 1);
                         const view: Uint8Array = new Uint8Array(imgSize);
-                        gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                        gl.compressedTexImage2D(WebGLConstants.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
                     }
                 } else if (gpuTexture.flags & TextureFlagBit.MUTABLE_STORAGE) {
-                    gl.texImage2D(gl.TEXTURE_2D, 0, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                    gl.texImage2D(WebGLConstants.TEXTURE_2D, 0, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
                 } else {
-                    gl.texStorage2D(gl.TEXTURE_2D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
+                    gl.texStorage2D(WebGLConstants.TEXTURE_2D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
                 }
             }
         } else {
             gpuTexture.glRenderbuffer = gl.createRenderbuffer();
             if (gpuTexture.size > 0) {
                 if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
-                    gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                    gl.bindRenderbuffer(WebGLConstants.RENDERBUFFER, gpuTexture.glRenderbuffer);
                     device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                 }
 
                 gl.renderbufferStorageMultisample(
-                    gl.RENDERBUFFER,
+                    WebGLConstants.RENDERBUFFER,
                     gpuTexture.samples,
                     gpuTexture.glInternalFmt,
                     gpuTexture.width,
@@ -1114,7 +1115,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
         break;
     }
     case TextureType.TEX2D_ARRAY: {
-        gpuTexture.glTarget = gl.TEXTURE_2D_ARRAY;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_2D_ARRAY;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
@@ -1129,7 +1130,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_2D_ARRAY, gpuTexture.glTexture);
+                gl.bindTexture(WebGLConstants.TEXTURE_2D_ARRAY, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -1137,18 +1138,18 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                 for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                     const imgSize = FormatSize(gpuTexture.format, w, h, l);
                     const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage3D(gl.TEXTURE_2D_ARRAY, i, gpuTexture.glInternalFmt, w, h, l, 0, view);
+                    gl.compressedTexImage3D(WebGLConstants.TEXTURE_2D_ARRAY, i, gpuTexture.glInternalFmt, w, h, l, 0, view);
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
             } else {
-                gl.texStorage3D(gl.TEXTURE_2D_ARRAY, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, l);
+                gl.texStorage3D(WebGLConstants.TEXTURE_2D_ARRAY, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, l);
             }
         }
         break;
     }
     case TextureType.TEX3D: {
-        gpuTexture.glTarget = gl.TEXTURE_3D;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_3D;
 
         const maxSize = Math.max(Math.max(w, h), d);
         if (maxSize > device.capabilities.max3DTextureSize) {
@@ -1160,7 +1161,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_3D, gpuTexture.glTexture);
+                gl.bindTexture(WebGLConstants.TEXTURE_3D, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -1168,18 +1169,18 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                 for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                     const imgSize = FormatSize(gpuTexture.format, w, h, d);
                     const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage3D(gl.TEXTURE_3D, i, gpuTexture.glInternalFmt, w, h, d, 0, view);
+                    gl.compressedTexImage3D(WebGLConstants.TEXTURE_3D, i, gpuTexture.glInternalFmt, w, h, d, 0, view);
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
             } else {
-                gl.texStorage3D(gl.TEXTURE_3D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, d);
+                gl.texStorage3D(WebGLConstants.TEXTURE_3D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, d);
             }
         }
         break;
     }
     case TextureType.CUBE: {
-        gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_CUBE_MAP;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxCubeMapTextureSize) {
@@ -1191,7 +1192,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+                gl.bindTexture(WebGLConstants.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -1200,13 +1201,13 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     const imgSize = FormatSize(gpuTexture.format, w, h, 1);
                     const view: Uint8Array = new Uint8Array(imgSize);
                     for (let f = 0; f < 6; ++f) {
-                        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                        gl.compressedTexImage2D(WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
                     }
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
             } else {
-                gl.texStorage2D(gl.TEXTURE_CUBE_MAP, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
+                gl.texStorage2D(WebGLConstants.TEXTURE_CUBE_MAP, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
             }
         }
         break;
@@ -1214,7 +1215,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     default: {
         errorID(16317);
         gpuTexture.type = TextureType.TEX2D;
-        gpuTexture.glTarget = gl.TEXTURE_2D;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_2D;
     }
     }
 }
@@ -1227,7 +1228,7 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
         gl.deleteTexture(gpuTexture.glTexture);
         for (let i = 0; i < glTexUnits.length; ++i) {
             if (glTexUnits[i].glTexture === gpuTexture.glTexture) {
-                gl.activeTexture(gl.TEXTURE0 + i);
+                gl.activeTexture(WebGLConstants.TEXTURE0 + i);
                 texUnit = i;
                 gl.bindTexture(gpuTexture.glTarget, null);
                 glTexUnits[i].glTexture = null;
@@ -1241,7 +1242,7 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
         let glRenderbuffer = device.stateCache.glRenderbuffer;
         gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         if (glRenderbuffer === gpuTexture.glRenderbuffer) {
-            gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+            gl.bindRenderbuffer(WebGLConstants.RENDERBUFFER, null);
             glRenderbuffer = null;
         }
         gpuTexture.glRenderbuffer = null;
@@ -1260,7 +1261,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
 
     switch (gpuTexture.type) {
     case TextureType.TEX2D: {
-        gpuTexture.glTarget = gl.TEXTURE_2D;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_2D;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
@@ -1271,7 +1272,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                gl.bindTexture(WebGLConstants.TEXTURE_2D, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -1279,7 +1280,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                 for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                     const imgSize = FormatSize(gpuTexture.format, w, h, 1);
                     const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                    gl.compressedTexImage2D(WebGLConstants.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
@@ -1290,12 +1291,12 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
             }
         } else if (gpuTexture.glRenderbuffer) {
             if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
-                gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                gl.bindRenderbuffer(WebGLConstants.RENDERBUFFER, gpuTexture.glRenderbuffer);
                 device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
             }
 
             gl.renderbufferStorageMultisample(
-                gl.RENDERBUFFER,
+                WebGLConstants.RENDERBUFFER,
                 gpuTexture.samples,
                 gpuTexture.glInternalFmt,
                 gpuTexture.width,
@@ -1305,7 +1306,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
         break;
     }
     case TextureType.TEX2D_ARRAY: {
-        gpuTexture.glTarget = gl.TEXTURE_2D_ARRAY;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_2D_ARRAY;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
@@ -1320,7 +1321,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_2D_ARRAY, gpuTexture.glTexture);
+                gl.bindTexture(WebGLConstants.TEXTURE_2D_ARRAY, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -1328,18 +1329,18 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                 for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                     const imgSize = FormatSize(gpuTexture.format, w, h, l);
                     const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage3D(gl.TEXTURE_2D_ARRAY, i, gpuTexture.glInternalFmt, w, h, l, 0, view);
+                    gl.compressedTexImage3D(WebGLConstants.TEXTURE_2D_ARRAY, i, gpuTexture.glInternalFmt, w, h, l, 0, view);
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
             } else {
-                gl.texStorage3D(gl.TEXTURE_2D_ARRAY, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, l);
+                gl.texStorage3D(WebGLConstants.TEXTURE_2D_ARRAY, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, l);
             }
         }
         break;
     }
     case TextureType.TEX3D: {
-        gpuTexture.glTarget = gl.TEXTURE_3D;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_3D;
 
         const maxSize = Math.max(Math.max(w, h), d);
         if (maxSize > device.capabilities.max3DTextureSize) {
@@ -1351,7 +1352,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_3D, gpuTexture.glTexture);
+                gl.bindTexture(WebGLConstants.TEXTURE_3D, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
@@ -1359,19 +1360,19 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                 for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                     const imgSize = FormatSize(gpuTexture.format, w, h, d);
                     const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage3D(gl.TEXTURE_3D, i, gpuTexture.glInternalFmt, w, h, d, 0, view);
+                    gl.compressedTexImage3D(WebGLConstants.TEXTURE_3D, i, gpuTexture.glInternalFmt, w, h, d, 0, view);
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
             } else {
-                gl.texStorage3D(gl.TEXTURE_3D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, d);
+                gl.texStorage3D(WebGLConstants.TEXTURE_3D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h, d);
             }
         }
         break;
     }
     case TextureType.CUBE: {
         gpuTexture.type = TextureType.CUBE;
-        gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_CUBE_MAP;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxCubeMapTextureSize) {
@@ -1381,7 +1382,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
         const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
         if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-            gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
+            gl.bindTexture(WebGLConstants.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
             glTexUnit.glTexture = gpuTexture.glTexture;
         }
 
@@ -1392,7 +1393,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                 for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                     const imgSize = FormatSize(gpuTexture.format, w, h, 1);
                     const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                    gl.compressedTexImage2D(WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
                     w = Math.max(1, w >> 1);
                     h = Math.max(1, h >> 1);
                 }
@@ -1407,7 +1408,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     default: {
         errorID(16317);
         gpuTexture.type = TextureType.TEX2D;
-        gpuTexture.glTarget = gl.TEXTURE_2D;
+        gpuTexture.glTarget = WebGLConstants.TEXTURE_2D;
     }
     }
 }
@@ -1417,24 +1418,24 @@ export function WebGL2CmdFuncPrepareSamplerInfo (device: WebGL2Device, gpuSample
 
     if (gpuSampler.minFilter === Filter.LINEAR || gpuSampler.minFilter === Filter.ANISOTROPIC) {
         if (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) {
-            gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_LINEAR;
+            gpuSampler.glMinFilter = WebGLConstants.LINEAR_MIPMAP_LINEAR;
         } else if (gpuSampler.mipFilter === Filter.POINT) {
-            gpuSampler.glMinFilter = gl.LINEAR_MIPMAP_NEAREST;
+            gpuSampler.glMinFilter = WebGLConstants.LINEAR_MIPMAP_NEAREST;
         } else {
-            gpuSampler.glMinFilter = gl.LINEAR;
+            gpuSampler.glMinFilter = WebGLConstants.LINEAR;
         }
     } else if (gpuSampler.mipFilter === Filter.LINEAR || gpuSampler.mipFilter === Filter.ANISOTROPIC) {
-        gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_LINEAR;
+        gpuSampler.glMinFilter = WebGLConstants.NEAREST_MIPMAP_LINEAR;
     } else if (gpuSampler.mipFilter === Filter.POINT) {
-        gpuSampler.glMinFilter = gl.NEAREST_MIPMAP_NEAREST;
+        gpuSampler.glMinFilter = WebGLConstants.NEAREST_MIPMAP_NEAREST;
     } else {
-        gpuSampler.glMinFilter = gl.NEAREST;
+        gpuSampler.glMinFilter = WebGLConstants.NEAREST;
     }
 
     if (gpuSampler.magFilter === Filter.LINEAR || gpuSampler.magFilter === Filter.ANISOTROPIC) {
-        gpuSampler.glMagFilter = gl.LINEAR;
+        gpuSampler.glMagFilter = WebGLConstants.LINEAR;
     } else {
-        gpuSampler.glMagFilter = gl.NEAREST;
+        gpuSampler.glMagFilter = WebGLConstants.NEAREST;
     }
 
     gpuSampler.glWrapS = WebGLWraps[gpuSampler.addressU];
@@ -1479,7 +1480,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
         gpuFramebuffer.glFramebuffer = glFramebuffer;
 
         if (device.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+            gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
         }
 
         for (let i = 0; i < gpuFramebuffer.gpuColorViews.length; ++i) {
@@ -1488,22 +1489,22 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
             if (colorTexture) {
                 if (colorTexture.glTexture) {
                     gl.framebufferTexture2D(
-                        gl.FRAMEBUFFER,
-                        gl.COLOR_ATTACHMENT0 + i,
+                        WebGLConstants.FRAMEBUFFER,
+                        WebGLConstants.COLOR_ATTACHMENT0 + i,
                         colorTexture.glTarget,
                         colorTexture.glTexture,
                         colorTextureView.baseLevel,
                     );
                 } else {
                     gl.framebufferRenderbuffer(
-                        gl.FRAMEBUFFER,
-                        gl.COLOR_ATTACHMENT0 + i,
-                        gl.RENDERBUFFER,
+                        WebGLConstants.FRAMEBUFFER,
+                        WebGLConstants.COLOR_ATTACHMENT0 + i,
+                        WebGLConstants.RENDERBUFFER,
                         colorTexture.glRenderbuffer,
                     );
                 }
 
-                attachments.push(gl.COLOR_ATTACHMENT0 + i);
+                attachments.push(WebGLConstants.COLOR_ATTACHMENT0 + i);
                 gpuFramebuffer.width = Math.min(gpuFramebuffer.width, colorTexture.width >> colorTextureView.baseLevel);
                 gpuFramebuffer.height = Math.min(gpuFramebuffer.height, colorTexture.height >> colorTextureView.baseLevel);
             }
@@ -1512,10 +1513,10 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
         const dstView = gpuFramebuffer.gpuDepthStencilView;
         if (dstView) {
             const dst = dstView.gpuTexture;
-            const glAttachment = FormatInfos[dst.format].hasStencil ? gl.DEPTH_STENCIL_ATTACHMENT : gl.DEPTH_ATTACHMENT;
+            const glAttachment = FormatInfos[dst.format].hasStencil ? WebGLConstants.DEPTH_STENCIL_ATTACHMENT : WebGLConstants.DEPTH_ATTACHMENT;
             if (dst.glTexture) {
                 gl.framebufferTexture2D(
-                    gl.FRAMEBUFFER,
+                    WebGLConstants.FRAMEBUFFER,
                     glAttachment,
                     dst.glTarget,
                     dst.glTexture,
@@ -1523,9 +1524,9 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                 );
             } else {
                 gl.framebufferRenderbuffer(
-                    gl.FRAMEBUFFER,
+                    WebGLConstants.FRAMEBUFFER,
                     glAttachment,
-                    gl.RENDERBUFFER,
+                    WebGLConstants.RENDERBUFFER,
                     dst.glRenderbuffer,
                 );
             }
@@ -1535,22 +1536,22 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
 
         gl.drawBuffers(attachments);
 
-        const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-        if (status !== gl.FRAMEBUFFER_COMPLETE) {
+        const status = gl.checkFramebufferStatus(WebGLConstants.FRAMEBUFFER);
+        if (status !== WebGLConstants.FRAMEBUFFER_COMPLETE) {
             switch (status) {
-            case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
+            case WebGLConstants.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
                 errorID(16318);
                 break;
             }
-            case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
+            case WebGLConstants.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
                 errorID(16319);
                 break;
             }
-            case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
+            case WebGLConstants.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
                 errorID(16320);
                 break;
             }
-            case gl.FRAMEBUFFER_UNSUPPORTED: {
+            case WebGLConstants.FRAMEBUFFER_UNSUPPORTED: {
                 errorID(16321);
                 break;
             }
@@ -1559,7 +1560,7 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
         }
 
         if (device.stateCache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, device.stateCache.glFramebuffer);
+            gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, device.stateCache.glFramebuffer);
         }
     }
 }
@@ -1568,7 +1569,7 @@ export function WebGL2CmdFuncDestroyFramebuffer (device: WebGL2Device, gpuFrameb
     if (gpuFramebuffer.glFramebuffer) {
         device.gl.deleteFramebuffer(gpuFramebuffer.glFramebuffer);
         if (device.stateCache.glFramebuffer === gpuFramebuffer.glFramebuffer) {
-            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, null);
+            device.gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, null);
             device.stateCache.glFramebuffer = null;
         }
         gpuFramebuffer.glFramebuffer = null;
@@ -1588,12 +1589,12 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         switch (gpuStage.type) {
         case ShaderStageFlagBit.VERTEX: {
             shaderTypeStr = 'VertexShader';
-            glShaderType = gl.VERTEX_SHADER;
+            glShaderType = WebGLConstants.VERTEX_SHADER;
             break;
         }
         case ShaderStageFlagBit.FRAGMENT: {
             shaderTypeStr = 'FragmentShader';
-            glShaderType = gl.FRAGMENT_SHADER;
+            glShaderType = WebGLConstants.FRAGMENT_SHADER;
             break;
         }
         default: {
@@ -1608,7 +1609,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
             gl.shaderSource(gpuStage.glShader, `#version 300 es\n${gpuStage.source}`);
             gl.compileShader(gpuStage.glShader);
 
-            if (!gl.getShaderParameter(gpuStage.glShader, gl.COMPILE_STATUS)) {
+            if (!gl.getShaderParameter(gpuStage.glShader, WebGLConstants.COMPILE_STATUS)) {
                 errorID(16323, shaderTypeStr, gpuShader.name);
                 errorID(16324, gpuStage.source.replace(/^|\n/g, (): string => `\n${lineNumber++} `));
                 error(gl.getShaderInfoLog(gpuStage.glShader));
@@ -1652,7 +1653,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         }
     }
 
-    if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
+    if (gl.getProgramParameter(gpuShader.glProgram, WebGLConstants.LINK_STATUS)) {
         debugID(16325, gpuShader.name);
     } else {
         errorID(16326, gpuShader.name);
@@ -1661,7 +1662,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     }
 
     // parse inputs
-    const activeAttribCount: number = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_ATTRIBUTES);
+    const activeAttribCount: number = gl.getProgramParameter(gpuShader.glProgram, WebGLConstants.ACTIVE_ATTRIBUTES);
     gpuShader.glInputs = new Array<IWebGL2GPUInput>(activeAttribCount);
 
     for (let i = 0; i < activeAttribCount; ++i) {
@@ -1693,7 +1694,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     }
 
     // create uniform blocks
-    const activeBlockCount: number = gl.getProgramParameter(gpuShader.glProgram, gl.ACTIVE_UNIFORM_BLOCKS);
+    const activeBlockCount: number = gl.getProgramParameter(gpuShader.glProgram, WebGLConstants.ACTIVE_UNIFORM_BLOCKS);
     let blockName: string;
     let blockIdx: number;
     let blockSize: number;
@@ -1723,7 +1724,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
             } else {
                 // blockIdx = gl.getUniformBlockIndex(gpuShader.glProgram, blockName);
                 blockIdx = b;
-                blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, gl.UNIFORM_BLOCK_DATA_SIZE);
+                blockSize = gl.getActiveUniformBlockParameter(gpuShader.glProgram, blockIdx, WebGLConstants.UNIFORM_BLOCK_DATA_SIZE);
 
                 const glBinding = enableEffectImport
                     ? block.flattened
@@ -1964,7 +1965,7 @@ export function WebGL2CmdFuncBeginRenderPass (
 
     if (gpuFramebuffer && gpuRenderPass) {
         if (cache.glFramebuffer !== gpuFramebuffer.glFramebuffer) {
-            gl.bindFramebuffer(gl.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
+            gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, gpuFramebuffer.glFramebuffer);
             cache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
@@ -2009,19 +2010,19 @@ export function WebGL2CmdFuncBeginRenderPass (
                     if (gpuRenderPass.colorAttachments.length === 1) {
                         const clearColor = clearColors[0];
                         gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-                        clears |= gl.COLOR_BUFFER_BIT;
+                        clears |= WebGLConstants.COLOR_BUFFER_BIT;
                     } else {
                         _f32v4[0] = clearColors[j].x;
                         _f32v4[1] = clearColors[j].y;
                         _f32v4[2] = clearColors[j].z;
                         _f32v4[3] = clearColors[j].w;
-                        gl.clearBufferfv(gl.COLOR, j, _f32v4);
+                        gl.clearBufferfv(WebGLConstants.COLOR, j, _f32v4);
                     }
                     break;
                 }
                 case LoadOp.DISCARD: {
                     // invalidate the framebuffer
-                    gfxStateCache.invalidateAttachments.push(gl.COLOR_ATTACHMENT0 + j);
+                    gfxStateCache.invalidateAttachments.push(WebGLConstants.COLOR_ATTACHMENT0 + j);
                     break;
                 }
                 default:
@@ -2040,12 +2041,12 @@ export function WebGL2CmdFuncBeginRenderPass (
 
                     gl.clearDepth(clearDepth);
 
-                    clears |= gl.DEPTH_BUFFER_BIT;
+                    clears |= WebGLConstants.DEPTH_BUFFER_BIT;
                     break;
                 }
                 case LoadOp.DISCARD: {
                     // invalidate the framebuffer
-                    gfxStateCache.invalidateAttachments.push(gl.DEPTH_ATTACHMENT);
+                    gfxStateCache.invalidateAttachments.push(WebGLConstants.DEPTH_ATTACHMENT);
                     break;
                 }
                 default:
@@ -2056,20 +2057,20 @@ export function WebGL2CmdFuncBeginRenderPass (
                     case LoadOp.LOAD: break; // GL default behavior
                     case LoadOp.CLEAR: {
                         if (!cache.dss.stencilWriteMaskFront) {
-                            gl.stencilMaskSeparate(gl.FRONT, 0xffff);
+                            gl.stencilMaskSeparate(WebGLConstants.FRONT, 0xffff);
                         }
 
                         if (!cache.dss.stencilWriteMaskBack) {
-                            gl.stencilMaskSeparate(gl.BACK, 0xffff);
+                            gl.stencilMaskSeparate(WebGLConstants.BACK, 0xffff);
                         }
 
                         gl.clearStencil(clearStencil);
-                        clears |= gl.STENCIL_BUFFER_BIT;
+                        clears |= WebGLConstants.STENCIL_BUFFER_BIT;
                         break;
                     }
                     case LoadOp.DISCARD: {
                         // invalidate the framebuffer
-                        gfxStateCache.invalidateAttachments.push(gl.STENCIL_ATTACHMENT);
+                        gfxStateCache.invalidateAttachments.push(WebGLConstants.STENCIL_ATTACHMENT);
                         break;
                     }
                     default:
@@ -2079,7 +2080,7 @@ export function WebGL2CmdFuncBeginRenderPass (
         } // if (curGPURenderPass.depthStencilAttachment)
 
         if (gpuFramebuffer.glFramebuffer && gfxStateCache.invalidateAttachments.length) {
-            gl.invalidateFramebuffer(gl.FRAMEBUFFER, gfxStateCache.invalidateAttachments);
+            gl.invalidateFramebuffer(WebGLConstants.FRAMEBUFFER, gfxStateCache.invalidateAttachments);
         }
 
         if (clears) {
@@ -2087,7 +2088,7 @@ export function WebGL2CmdFuncBeginRenderPass (
         }
 
         // restore states
-        if (clears & gl.COLOR_BUFFER_BIT) {
+        if (clears & WebGLConstants.COLOR_BUFFER_BIT) {
             const colorMask = cache.bs.targets[0].blendColorMask;
             if (colorMask !== ColorMask.ALL) {
                 const r = (colorMask & ColorMask.R) !== ColorMask.NONE;
@@ -2098,18 +2099,18 @@ export function WebGL2CmdFuncBeginRenderPass (
             }
         }
 
-        if ((clears & gl.DEPTH_BUFFER_BIT)
+        if ((clears & WebGLConstants.DEPTH_BUFFER_BIT)
             && !cache.dss.depthWrite) {
             gl.depthMask(false);
         }
 
-        if (clears & gl.STENCIL_BUFFER_BIT) {
+        if (clears & WebGLConstants.STENCIL_BUFFER_BIT) {
             if (!cache.dss.stencilWriteMaskFront) {
-                gl.stencilMaskSeparate(gl.FRONT, 0);
+                gl.stencilMaskSeparate(WebGLConstants.FRONT, 0);
             }
 
             if (!cache.dss.stencilWriteMaskBack) {
-                gl.stencilMaskSeparate(gl.BACK, 0);
+                gl.stencilMaskSeparate(WebGLConstants.BACK, 0);
             }
         }
     } // if (gpuFramebuffer)
@@ -2149,17 +2150,17 @@ export function WebGL2CmdFuncBindStates (
             if (cache.rs.cullMode !== rs.cullMode) {
                 switch (rs.cullMode) {
                 case CullMode.NONE: {
-                    gl.disable(gl.CULL_FACE);
+                    gl.disable(WebGLConstants.CULL_FACE);
                     break;
                 }
                 case CullMode.FRONT: {
-                    gl.enable(gl.CULL_FACE);
-                    gl.cullFace(gl.FRONT);
+                    gl.enable(WebGLConstants.CULL_FACE);
+                    gl.cullFace(WebGLConstants.FRONT);
                     break;
                 }
                 case CullMode.BACK: {
-                    gl.enable(gl.CULL_FACE);
-                    gl.cullFace(gl.BACK);
+                    gl.enable(WebGLConstants.CULL_FACE);
+                    gl.cullFace(WebGLConstants.BACK);
                     break;
                 }
                 default:
@@ -2170,7 +2171,7 @@ export function WebGL2CmdFuncBindStates (
 
             const isFrontFaceCCW = rs.isFrontFaceCCW; // boolean XOR
             if (device.stateCache.rs.isFrontFaceCCW !== isFrontFaceCCW) {
-                gl.frontFace(isFrontFaceCCW ? gl.CCW : gl.CW);
+                gl.frontFace(isFrontFaceCCW ? WebGLConstants.CCW : WebGLConstants.CW);
                 device.stateCache.rs.isFrontFaceCCW = isFrontFaceCCW;
             }
 
@@ -2192,9 +2193,9 @@ export function WebGL2CmdFuncBindStates (
         if (dss) {
             if (cache.dss.depthTest !== dss.depthTest) {
                 if (dss.depthTest) {
-                    gl.enable(gl.DEPTH_TEST);
+                    gl.enable(WebGLConstants.DEPTH_TEST);
                 } else {
-                    gl.disable(gl.DEPTH_TEST);
+                    gl.disable(WebGLConstants.DEPTH_TEST);
                 }
                 cache.dss.depthTest = dss.depthTest;
             }
@@ -2213,9 +2214,9 @@ export function WebGL2CmdFuncBindStates (
             if ((cache.dss.stencilTestFront !== dss.stencilTestFront)
                 || (cache.dss.stencilTestBack !== dss.stencilTestBack)) {
                 if (dss.stencilTestFront || dss.stencilTestBack) {
-                    gl.enable(gl.STENCIL_TEST);
+                    gl.enable(WebGLConstants.STENCIL_TEST);
                 } else {
-                    gl.disable(gl.STENCIL_TEST);
+                    gl.disable(WebGLConstants.STENCIL_TEST);
                 }
                 cache.dss.stencilTestFront = dss.stencilTestFront;
                 cache.dss.stencilTestBack = dss.stencilTestBack;
@@ -2225,7 +2226,7 @@ export function WebGL2CmdFuncBindStates (
                 || (cache.dss.stencilRefFront !== dss.stencilRefFront)
                 || (cache.dss.stencilReadMaskFront !== dss.stencilReadMaskFront)) {
                 gl.stencilFuncSeparate(
-                    gl.FRONT,
+                    WebGLConstants.FRONT,
                     WebGLCmpFuncs[dss.stencilFuncFront],
                     dss.stencilRefFront,
                     dss.stencilReadMaskFront,
@@ -2240,7 +2241,7 @@ export function WebGL2CmdFuncBindStates (
                 || (cache.dss.stencilZFailOpFront !== dss.stencilZFailOpFront)
                 || (cache.dss.stencilPassOpFront !== dss.stencilPassOpFront)) {
                 gl.stencilOpSeparate(
-                    gl.FRONT,
+                    WebGLConstants.FRONT,
                     WebGLStencilOps[dss.stencilFailOpFront],
                     WebGLStencilOps[dss.stencilZFailOpFront],
                     WebGLStencilOps[dss.stencilPassOpFront],
@@ -2252,7 +2253,7 @@ export function WebGL2CmdFuncBindStates (
             }
 
             if (cache.dss.stencilWriteMaskFront !== dss.stencilWriteMaskFront) {
-                gl.stencilMaskSeparate(gl.FRONT, dss.stencilWriteMaskFront);
+                gl.stencilMaskSeparate(WebGLConstants.FRONT, dss.stencilWriteMaskFront);
                 cache.dss.stencilWriteMaskFront = dss.stencilWriteMaskFront;
             }
 
@@ -2261,7 +2262,7 @@ export function WebGL2CmdFuncBindStates (
                 || (cache.dss.stencilRefBack !== dss.stencilRefBack)
                 || (cache.dss.stencilReadMaskBack !== dss.stencilReadMaskBack)) {
                 gl.stencilFuncSeparate(
-                    gl.BACK,
+                    WebGLConstants.BACK,
                     WebGLCmpFuncs[dss.stencilFuncBack],
                     dss.stencilRefBack,
                     dss.stencilReadMaskBack,
@@ -2276,7 +2277,7 @@ export function WebGL2CmdFuncBindStates (
                 || (cache.dss.stencilZFailOpBack !== dss.stencilZFailOpBack)
                 || (cache.dss.stencilPassOpBack !== dss.stencilPassOpBack)) {
                 gl.stencilOpSeparate(
-                    gl.BACK,
+                    WebGLConstants.BACK,
                     WebGLStencilOps[dss.stencilFailOpBack],
                     WebGLStencilOps[dss.stencilZFailOpBack],
                     WebGLStencilOps[dss.stencilPassOpBack],
@@ -2288,7 +2289,7 @@ export function WebGL2CmdFuncBindStates (
             }
 
             if (cache.dss.stencilWriteMaskBack !== dss.stencilWriteMaskBack) {
-                gl.stencilMaskSeparate(gl.BACK, dss.stencilWriteMaskBack);
+                gl.stencilMaskSeparate(WebGLConstants.BACK, dss.stencilWriteMaskBack);
                 cache.dss.stencilWriteMaskBack = dss.stencilWriteMaskBack;
             }
         } // depth-stencil state
@@ -2298,9 +2299,9 @@ export function WebGL2CmdFuncBindStates (
         if (bs) {
             if (cache.bs.isA2C !== bs.isA2C) {
                 if (bs.isA2C) {
-                    gl.enable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+                    gl.enable(WebGLConstants.SAMPLE_ALPHA_TO_COVERAGE);
                 } else {
-                    gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
+                    gl.disable(WebGLConstants.SAMPLE_ALPHA_TO_COVERAGE);
                 }
                 cache.bs.isA2C = bs.isA2C;
             }
@@ -2322,9 +2323,9 @@ export function WebGL2CmdFuncBindStates (
 
             if (target0Cache.blend !== target0.blend) {
                 if (target0.blend) {
-                    gl.enable(gl.BLEND);
+                    gl.enable(WebGLConstants.BLEND);
                 } else {
-                    gl.disable(gl.BLEND);
+                    gl.disable(WebGLConstants.BLEND);
                 }
                 target0Cache.blend = target0.blend;
             }
@@ -2391,14 +2392,14 @@ export function WebGL2CmdFuncBindStates (
                 || cache.glBindUBOOffsets[glBlock.glBinding] !== offset) {
                 if (offset) {
                     gl.bindBufferRange(
-                        gl.UNIFORM_BUFFER,
+                        WebGLConstants.UNIFORM_BUFFER,
                         glBlock.glBinding,
                         gpuDescriptor.gpuBuffer.glBuffer,
                         offset,
                         gpuDescriptor.gpuBuffer.size,
                     );
                 } else {
-                    gl.bindBufferBase(gl.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer);
+                    gl.bindBufferBase(WebGLConstants.UNIFORM_BUFFER, glBlock.glBinding, gpuDescriptor.gpuBuffer.glBuffer);
                 }
                 cache.glUniformBuffer = cache.glBindUBOs[glBlock.glBinding] = gpuDescriptor.gpuBuffer.glBuffer;
                 cache.glBindUBOOffsets[glBlock.glBinding] = offset;
@@ -2430,7 +2431,7 @@ export function WebGL2CmdFuncBindStates (
                 if (gpuTexture.size > 0) {
                     if (glTexUnit.glTexture !== gpuTexture.glTexture) {
                         if (cache.texUnit !== texUnit) {
-                            gl.activeTexture(gl.TEXTURE0 + texUnit);
+                            gl.activeTexture(WebGLConstants.TEXTURE0 + texUnit);
                             cache.texUnit = texUnit;
                         }
                         if (gpuTexture.glTexture) {
@@ -2467,8 +2468,8 @@ export function WebGL2CmdFuncBindStates (
                 gpuInputAssembler.glVAOs.set(gpuShader.glProgram!, glVAO);
 
                 gl.bindVertexArray(glVAO);
-                gl.bindBuffer(gl.ARRAY_BUFFER, null);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
+                gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
                 cache.glArrayBuffer = null;
                 cache.glElementArrayBuffer = null;
 
@@ -2487,7 +2488,7 @@ export function WebGL2CmdFuncBindStates (
 
                     if (glAttrib) {
                         if (cache.glArrayBuffer !== glAttrib.glBuffer) {
-                            gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
+                            gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, glAttrib.glBuffer);
                             cache.glArrayBuffer = glAttrib.glBuffer;
                         }
 
@@ -2506,12 +2507,12 @@ export function WebGL2CmdFuncBindStates (
 
                 const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
                 if (gpuBuffer) {
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                 }
 
                 gl.bindVertexArray(null);
-                gl.bindBuffer(gl.ARRAY_BUFFER, null);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, null);
+                gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, null);
                 cache.glArrayBuffer = null;
                 cache.glElementArrayBuffer = null;
             }
@@ -2539,7 +2540,7 @@ export function WebGL2CmdFuncBindStates (
 
                 if (glAttrib) {
                     if (cache.glArrayBuffer !== glAttrib.glBuffer) {
-                        gl.bindBuffer(gl.ARRAY_BUFFER, glAttrib.glBuffer);
+                        gl.bindBuffer(WebGLConstants.ARRAY_BUFFER, glAttrib.glBuffer);
                         cache.glArrayBuffer = glAttrib.glBuffer;
                     }
 
@@ -2562,7 +2563,7 @@ export function WebGL2CmdFuncBindStates (
             const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
             if (gpuBuffer) {
                 if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    gl.bindBuffer(WebGLConstants.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
                     cache.glElementArrayBuffer = gpuBuffer.glBuffer;
                 }
             }
@@ -2613,11 +2614,11 @@ export function WebGL2CmdFuncBindStates (
                 const front = dynamicStates.stencilStatesFront;
                 const back = dynamicStates.stencilStatesBack;
                 if (cache.dss.stencilWriteMaskFront !== front.writeMask) {
-                    gl.stencilMaskSeparate(gl.FRONT, front.writeMask);
+                    gl.stencilMaskSeparate(WebGLConstants.FRONT, front.writeMask);
                     cache.dss.stencilWriteMaskFront = front.writeMask;
                 }
                 if (cache.dss.stencilWriteMaskBack !== back.writeMask) {
-                    gl.stencilMaskSeparate(gl.BACK, back.writeMask);
+                    gl.stencilMaskSeparate(WebGLConstants.BACK, back.writeMask);
                     cache.dss.stencilWriteMaskBack = back.writeMask;
                 }
                 break;
@@ -2627,13 +2628,13 @@ export function WebGL2CmdFuncBindStates (
                 const back = dynamicStates.stencilStatesBack;
                 if (cache.dss.stencilRefFront !== front.reference
                     || cache.dss.stencilReadMaskFront !== front.compareMask) {
-                    gl.stencilFuncSeparate(gl.FRONT, WebGLCmpFuncs[cache.dss.stencilFuncFront], front.reference, front.compareMask);
+                    gl.stencilFuncSeparate(WebGLConstants.FRONT, WebGLCmpFuncs[cache.dss.stencilFuncFront], front.reference, front.compareMask);
                     cache.dss.stencilRefFront = front.reference;
                     cache.dss.stencilReadMaskFront = front.compareMask;
                 }
                 if (cache.dss.stencilRefBack !== back.reference
                     || cache.dss.stencilReadMaskBack !== back.compareMask) {
-                    gl.stencilFuncSeparate(gl.BACK, WebGLCmpFuncs[cache.dss.stencilFuncBack], back.reference, back.compareMask);
+                    gl.stencilFuncSeparate(WebGLConstants.BACK, WebGLCmpFuncs[cache.dss.stencilFuncBack], back.reference, back.compareMask);
                     cache.dss.stencilRefBack = back.reference;
                     cache.dss.stencilReadMaskBack = back.compareMask;
                 }
@@ -2851,10 +2852,10 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     let f = 0;
 
     switch (gpuTexture.glTarget) {
-    case gl.TEXTURE_2D: {
+    case WebGLConstants.TEXTURE_2D: {
         if ((gpuTexture.flags & TextureFlagBit.MUTABLE_STORAGE) || toUseTexImage2D(texImages, regions)) {
             gl.texImage2D(
-                gl.TEXTURE_2D,
+                WebGLConstants.TEXTURE_2D,
                 regions[0].texSubres.mipLevel,
                 gpuTexture.glInternalFmt,
                 regions[0].texExtent.width,
@@ -2868,7 +2869,7 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
             for (let k = 0; k < regions.length; k++) {
                 const region = regions[k];
                 gl.texSubImage2D(
-                    gl.TEXTURE_2D,
+                    WebGLConstants.TEXTURE_2D,
                     region.texSubres.mipLevel,
                     region.texOffset.x,
                     region.texOffset.y,
@@ -2880,13 +2881,13 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
         }
         break;
     }
-    case gl.TEXTURE_CUBE_MAP: {
+    case WebGLConstants.TEXTURE_CUBE_MAP: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
             const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
             for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
                 gl.texSubImage2D(
-                    gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                    WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f,
                     region.texSubres.mipLevel,
                     region.texOffset.x,
                     region.texOffset.y,
@@ -2973,7 +2974,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     const stride: Extent = new Extent();
 
     switch (gpuTexture.glTarget) {
-    case gl.TEXTURE_2D: {
+    case WebGLConstants.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
             const mipLevel = region.texSubres.mipLevel;
@@ -3001,7 +3002,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 
             if (!isCompressed) {
                 gl.texSubImage2D(
-                    gl.TEXTURE_2D,
+                    WebGLConstants.TEXTURE_2D,
                     mipLevel,
                     offset.x,
                     offset.y,
@@ -3013,7 +3014,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 );
             } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL as number) {
                 gl.compressedTexSubImage2D(
-                    gl.TEXTURE_2D,
+                    WebGLConstants.TEXTURE_2D,
                     mipLevel,
                     offset.x,
                     offset.y,
@@ -3024,7 +3025,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 );
             } else { // WEBGL_compressed_texture_etc1
                 gl.compressedTexImage2D(
-                    gl.TEXTURE_2D,
+                    WebGLConstants.TEXTURE_2D,
                     mipLevel,
                     gpuTexture.glInternalFmt,
                     destWidth,
@@ -3036,7 +3037,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
         }
         break;
     }
-    case gl.TEXTURE_2D_ARRAY: {
+    case WebGLConstants.TEXTURE_2D_ARRAY: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
             const mipLevel = region.texSubres.mipLevel;
@@ -3069,7 +3070,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 
                 if (!isCompressed) {
                     gl.texSubImage3D(
-                        gl.TEXTURE_2D_ARRAY,
+                        WebGLConstants.TEXTURE_2D_ARRAY,
                         mipLevel,
                         offset.x,
                         offset.y,
@@ -3083,7 +3084,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                     );
                 } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL as number) {
                     gl.compressedTexSubImage3D(
-                        gl.TEXTURE_2D_ARRAY,
+                        WebGLConstants.TEXTURE_2D_ARRAY,
                         mipLevel,
                         offset.x,
                         offset.y,
@@ -3096,7 +3097,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                     );
                 } else { // WEBGL_compressed_texture_etc1
                     gl.compressedTexImage3D(
-                        gl.TEXTURE_2D_ARRAY,
+                        WebGLConstants.TEXTURE_2D_ARRAY,
                         mipLevel,
                         gpuTexture.glInternalFmt,
                         destWidth,
@@ -3110,7 +3111,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
         }
         break;
     }
-    case gl.TEXTURE_3D: {
+    case WebGLConstants.TEXTURE_3D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
             const mipLevel = region.texSubres.mipLevel;
@@ -3140,7 +3141,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 
             if (!isCompressed) {
                 gl.texSubImage3D(
-                    gl.TEXTURE_2D_ARRAY,
+                    WebGLConstants.TEXTURE_2D_ARRAY,
                     mipLevel,
                     offset.x,
                     offset.y,
@@ -3154,7 +3155,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 );
             } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL as number) {
                 gl.compressedTexSubImage3D(
-                    gl.TEXTURE_2D_ARRAY,
+                    WebGLConstants.TEXTURE_2D_ARRAY,
                     mipLevel,
                     offset.x,
                     offset.y,
@@ -3167,7 +3168,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                 );
             } else { // WEBGL_compressed_texture_etc1
                 gl.compressedTexImage3D(
-                    gl.TEXTURE_2D_ARRAY,
+                    WebGLConstants.TEXTURE_2D_ARRAY,
                     mipLevel,
                     gpuTexture.glInternalFmt,
                     destWidth,
@@ -3180,7 +3181,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
         }
         break;
     }
-    case gl.TEXTURE_CUBE_MAP: {
+    case WebGLConstants.TEXTURE_CUBE_MAP: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
             const mipLevel = region.texSubres.mipLevel;
@@ -3210,7 +3211,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
 
                 if (!isCompressed) {
                     gl.texSubImage2D(
-                        gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                        WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f,
                         mipLevel,
                         offset.x,
                         offset.y,
@@ -3222,7 +3223,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                     );
                 } else if (gpuTexture.glInternalFmt !== WebGL2EXT.COMPRESSED_RGB_ETC1_WEBGL as number) {
                     gl.compressedTexSubImage2D(
-                        gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                        WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f,
                         mipLevel,
                         offset.x,
                         offset.y,
@@ -3233,7 +3234,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
                     );
                 } else { // WEBGL_compressed_texture_etc1
                     gl.compressedTexImage2D(
-                        gl.TEXTURE_CUBE_MAP_POSITIVE_X + f,
+                        WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f,
                         mipLevel,
                         gpuTexture.glInternalFmt,
                         destWidth,
@@ -3266,17 +3267,17 @@ export function WebGL2CmdFuncCopyTextureToBuffers (
     const cache = device.stateCache;
 
     const framebuffer = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, framebuffer);
     let x = 0;
     let y = 0;
     let w = 1;
     let h = 1;
 
     switch (gpuTexture.glTarget) {
-    case gl.TEXTURE_2D: {
+    case WebGLConstants.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gpuTexture.glTarget, gpuTexture.glTexture, region.texSubres.mipLevel);
+            gl.framebufferTexture2D(WebGLConstants.FRAMEBUFFER, WebGLConstants.COLOR_ATTACHMENT0, gpuTexture.glTarget, gpuTexture.glTexture, region.texSubres.mipLevel);
             x = region.texOffset.x;
             y = region.texOffset.y;
             w = region.texExtent.width;
@@ -3289,7 +3290,7 @@ export function WebGL2CmdFuncCopyTextureToBuffers (
         error('Unsupported GL texture type, copy texture to buffers failed.');
     }
     }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, null);
     cache.glFramebuffer = null;
     gl.deleteFramebuffer(framebuffer);
 }
@@ -3305,28 +3306,28 @@ export function WebGL2CmdFuncBlitFramebuffer (
     const { gl } = device;
 
     if (device.stateCache.glReadFramebuffer !== src.glFramebuffer) {
-        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, src.glFramebuffer);
+        gl.bindFramebuffer(WebGLConstants.READ_FRAMEBUFFER, src.glFramebuffer);
         device.stateCache.glReadFramebuffer = src.glFramebuffer;
     }
 
     const rebindFBO = (dst.glFramebuffer !== device.stateCache.glFramebuffer);
     if (rebindFBO) {
-        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dst.glFramebuffer);
+        gl.bindFramebuffer(WebGLConstants.DRAW_FRAMEBUFFER, dst.glFramebuffer);
     }
 
     let mask = 0;
     if (src.gpuColorViews.length > 0) {
-        mask |= gl.COLOR_BUFFER_BIT;
+        mask |= WebGLConstants.COLOR_BUFFER_BIT;
     }
 
     if (src.gpuDepthStencilView) {
-        mask |= gl.DEPTH_BUFFER_BIT;
+        mask |= WebGLConstants.DEPTH_BUFFER_BIT;
         if (FormatInfos[src.gpuDepthStencilView.gpuTexture.format].hasStencil) {
-            mask |= gl.STENCIL_BUFFER_BIT;
+            mask |= WebGLConstants.STENCIL_BUFFER_BIT;
         }
     }
 
-    const glFilter = (filter === Filter.LINEAR || filter === Filter.ANISOTROPIC) ? gl.LINEAR : gl.NEAREST;
+    const glFilter = (filter === Filter.LINEAR || filter === Filter.ANISOTROPIC) ? WebGLConstants.LINEAR : WebGLConstants.NEAREST;
 
     gl.blitFramebuffer(
         srcRect.x,
@@ -3342,7 +3343,7 @@ export function WebGL2CmdFuncBlitFramebuffer (
     );
 
     if (rebindFBO) {
-        gl.bindFramebuffer(gl.FRAMEBUFFER, device.stateCache.glFramebuffer);
+        gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, device.stateCache.glFramebuffer);
     }
 }
 
@@ -3361,7 +3362,7 @@ export function WebGL2CmdFuncBlitTexture (
     }
 
     // logic different from native, because framebuffer-map is not implemented in webgl2
-    const glFilter = (filter === Filter.LINEAR || filter === Filter.ANISOTROPIC) ? gl.LINEAR : gl.NEAREST;
+    const glFilter = (filter === Filter.LINEAR || filter === Filter.ANISOTROPIC) ? WebGLConstants.LINEAR : WebGLConstants.NEAREST;
 
     const srcFramebuffer = blitManager.srcFramebuffer;
     const dstFramebuffer = blitManager.dstFramebuffer;
@@ -3373,23 +3374,23 @@ export function WebGL2CmdFuncBlitTexture (
 
     const blitInfo = (formatInfo: FormatInfo): { mask: number; attachment: number; } => {
         let mask = 0;
-        let attachment: number = gl.COLOR_ATTACHMENT0;
+        let attachment: number = WebGLConstants.COLOR_ATTACHMENT0;
 
         if (formatInfo.hasStencil) {
-            attachment = gl.DEPTH_STENCIL_ATTACHMENT;
+            attachment = WebGLConstants.DEPTH_STENCIL_ATTACHMENT;
         } else if (formatInfo.hasDepth) {
-            attachment = gl.DEPTH_ATTACHMENT;
+            attachment = WebGLConstants.DEPTH_ATTACHMENT;
         }
 
         if (formatInfo.hasDepth || formatInfo.hasStencil) {
             if (formatInfo.hasDepth) {
-                mask |= gl.DEPTH_BUFFER_BIT;
+                mask |= WebGLConstants.DEPTH_BUFFER_BIT;
             }
             if (formatInfo.hasStencil) {
-                mask |= gl.STENCIL_BUFFER_BIT;
+                mask |= WebGLConstants.STENCIL_BUFFER_BIT;
             }
         } else {
-            mask |= gl.COLOR_BUFFER_BIT;
+            mask |= WebGLConstants.COLOR_BUFFER_BIT;
         }
 
         return { mask, attachment };
@@ -3402,25 +3403,25 @@ export function WebGL2CmdFuncBlitTexture (
     const { mask: dstMask, attachment: dstAttachment } = blitInfo(FormatInfos[dst.format]);
 
     if (cache.glReadFramebuffer !== srcFramebuffer) {
-        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, srcFramebuffer);
+        gl.bindFramebuffer(WebGLConstants.READ_FRAMEBUFFER, srcFramebuffer);
         cache.glReadFramebuffer = srcFramebuffer;
     }
 
     if (cache.glFramebuffer !== dstFramebuffer) {
-        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, dstFramebuffer);
+        gl.bindFramebuffer(WebGLConstants.DRAW_FRAMEBUFFER, dstFramebuffer);
         cache.glFramebuffer = dstFramebuffer;
     }
 
     if (src.glTexture) {
-        gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+        gl.framebufferTexture2D(WebGLConstants.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
     } else {
-        gl.framebufferRenderbuffer(gl.READ_FRAMEBUFFER, srcAttachment, gl.RENDERBUFFER, src.glRenderbuffer);
+        gl.framebufferRenderbuffer(WebGLConstants.READ_FRAMEBUFFER, srcAttachment, WebGLConstants.RENDERBUFFER, src.glRenderbuffer);
     }
 
     if (dst.glTexture) {
-        gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+        gl.framebufferTexture2D(WebGLConstants.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
     } else {
-        gl.framebufferRenderbuffer(gl.DRAW_FRAMEBUFFER, dstAttachment, gl.RENDERBUFFER, dst.glRenderbuffer);
+        gl.framebufferRenderbuffer(WebGLConstants.DRAW_FRAMEBUFFER, dstAttachment, WebGLConstants.RENDERBUFFER, dst.glRenderbuffer);
     }
 
     for (let i = 0; i < regionIndices.length; i++) {
@@ -3428,12 +3429,12 @@ export function WebGL2CmdFuncBlitTexture (
 
         if (src.glTexture && srcMip !== region.srcSubres.mipLevel) {
             srcMip = region.srcSubres.mipLevel;
-            gl.framebufferTexture2D(gl.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
+            gl.framebufferTexture2D(WebGLConstants.READ_FRAMEBUFFER, srcAttachment, src.glTarget, src.glTexture, srcMip);
         }
 
         if (dst.glTexture && dstMip !== region.dstSubres.mipLevel) {
             dstMip = region.dstSubres.mipLevel;
-            gl.framebufferTexture2D(gl.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
+            gl.framebufferTexture2D(WebGLConstants.DRAW_FRAMEBUFFER, dstAttachment, dst.glTarget, dst.glTexture, dstMip);
         }
 
         gl.blitFramebuffer(
@@ -3452,11 +3453,11 @@ export function WebGL2CmdFuncBlitTexture (
 
     // restore fbo state
     if (cache.glReadFramebuffer !== origReadFBO) {
-        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, origReadFBO);
+        gl.bindFramebuffer(WebGLConstants.READ_FRAMEBUFFER, origReadFBO);
         cache.glReadFramebuffer = origReadFBO;
     }
     if (cache.glFramebuffer !== origDrawFBO) {
-        gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, origDrawFBO);
+        gl.bindFramebuffer(WebGLConstants.DRAW_FRAMEBUFFER, origDrawFBO);
         cache.glFramebuffer = origDrawFBO;
     }
 }

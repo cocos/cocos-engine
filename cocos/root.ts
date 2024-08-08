@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Pool, cclegacy, warnID, settings, Settings, macro, log, errorID } from './core';
+import { Pool, cclegacy, warnID, settings, macro, log, errorID, SettingsCategory } from './core';
 import { DebugView } from './rendering/debug-view';
 import { Camera, CameraType, Light, Model, TrackingType } from './render-scene/scene';
 import type { DataPoolManager } from './3d/skeletal-animation/data-pool-manager';
@@ -34,11 +34,11 @@ import { SpotLight } from './render-scene/scene/spot-light';
 import { PointLight } from './render-scene/scene/point-light';
 import { RangedDirectionalLight } from './render-scene/scene/ranged-directional-light';
 import { RenderWindow, IRenderWindowInfo } from './render-scene/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, Feature, deviceManager, LegacyRenderMode } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain, deviceManager, LegacyRenderMode } from './gfx';
 import { BasicPipeline, PipelineRuntime } from './rendering/custom/pipeline';
 import { Batcher2D } from './2d/renderer/batcher-2d';
 import { IPipelineEvent, PipelineEventProcessor } from './rendering/pipeline-event';
-import { localDescriptorSetLayout_ResizeMaxJoints, UBOCamera, UBOGlobal, UBOLocal, UBOShadow, UBOWorldBound } from './rendering/define';
+import { localDescriptorSetLayout_ResizeMaxJoints, UBOCameraEnum, UBOGlobalEnum, UBOLocalEnum, UBOShadowEnum, UBOWorldBound } from './rendering/define';
 import { XREye, XRPoseType } from './xr/xr-enums';
 import { ICustomJointTextureLayout } from './3d/skeletal-animation/skeletal-animation-utils';
 
@@ -312,7 +312,7 @@ export class Root {
         });
         this._curWindow = this._mainWindow;
         const customJointTextureLayouts = settings.querySettings(
-            Settings.Category.ANIMATION,
+            SettingsCategory.ANIMATION,
             'customJointTextureLayouts',
         ) as ICustomJointTextureLayout[] || [];
         this._dataPoolMgr?.jointTexturePool.registerCustomTextureLayouts(customJointTextureLayouts);
@@ -394,7 +394,7 @@ export class Root {
             this._usesCustomPipeline = false;
         }
 
-        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+        const renderMode = settings.querySettings(SettingsCategory.RENDERING, 'renderMode');
         if (renderMode !== LegacyRenderMode.HEADLESS || this._classicPipeline) {
             if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
                 if (isCreateDefaultPipeline) {
@@ -820,7 +820,7 @@ export class Root {
 
     private _resizeMaxJointForDS (): void {
         // TODO: usedUBOVectorCount should be estimated more carefully, the UBOs used could vary in different scenes.
-        const usedUBOVectorCount = Math.max((UBOGlobal.COUNT + UBOCamera.COUNT + UBOShadow.COUNT + UBOLocal.COUNT + UBOWorldBound.COUNT) / 4, 100);
+        const usedUBOVectorCount = Math.max((UBOGlobalEnum.COUNT + UBOCameraEnum.COUNT + UBOShadowEnum.COUNT + UBOLocalEnum.COUNT + UBOWorldBound.COUNT) / 4, 100);
         let maxJoints = Math.floor((deviceManager.gfxDevice.capabilities.maxVertexUniformVectors - usedUBOVectorCount) / 3);
         maxJoints = maxJoints < 256 ? maxJoints : 256;
         localDescriptorSetLayout_ResizeMaxJoints(maxJoints);

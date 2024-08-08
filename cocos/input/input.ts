@@ -79,24 +79,24 @@ export declare namespace Input {
 }
 
 interface InputEventMap {
-    [Input.EventType.MOUSE_DOWN]: (event: EventMouse) => void,
-    [Input.EventType.MOUSE_MOVE]: (event: EventMouse) => void,
-    [Input.EventType.MOUSE_UP]: (event: EventMouse) => void,
-    [Input.EventType.MOUSE_WHEEL]: (event: EventMouse) => void,
-    [Input.EventType.TOUCH_START]: (event: EventTouch) => void,
-    [Input.EventType.TOUCH_MOVE]: (event: EventTouch) => void,
-    [Input.EventType.TOUCH_END]: (event: EventTouch) => void,
-    [Input.EventType.TOUCH_CANCEL]: (event: EventTouch) => void,
-    [Input.EventType.KEY_DOWN]: (event: EventKeyboard) => void,
-    [Input.EventType.KEY_PRESSING]: (event: EventKeyboard) => void,
-    [Input.EventType.KEY_UP]: (event: EventKeyboard) => void,
-    [Input.EventType.DEVICEMOTION]: (event: EventAcceleration) => void,
-    [Input.EventType.GAMEPAD_CHANGE]: (event: EventGamepad) => void,
-    [Input.EventType.GAMEPAD_INPUT]: (event: EventGamepad) => void,
-    [Input.EventType.HANDLE_INPUT]: (event: EventHandle) => void,
-    [Input.EventType.HANDLE_POSE_INPUT]: (event: EventHandle) => void,
-    [Input.EventType.HMD_POSE_INPUT]: (event: EventHMD) => void,
-    [Input.EventType.HANDHELD_POSE_INPUT]: (event: EventHandheld) => void,
+    [InputEventType.MOUSE_DOWN]: (event: EventMouse) => void,
+    [InputEventType.MOUSE_MOVE]: (event: EventMouse) => void,
+    [InputEventType.MOUSE_UP]: (event: EventMouse) => void,
+    [InputEventType.MOUSE_WHEEL]: (event: EventMouse) => void,
+    [InputEventType.TOUCH_START]: (event: EventTouch) => void,
+    [InputEventType.TOUCH_MOVE]: (event: EventTouch) => void,
+    [InputEventType.TOUCH_END]: (event: EventTouch) => void,
+    [InputEventType.TOUCH_CANCEL]: (event: EventTouch) => void,
+    [InputEventType.KEY_DOWN]: (event: EventKeyboard) => void,
+    [InputEventType.KEY_PRESSING]: (event: EventKeyboard) => void,
+    [InputEventType.KEY_UP]: (event: EventKeyboard) => void,
+    [InputEventType.DEVICEMOTION]: (event: EventAcceleration) => void,
+    [InputEventType.GAMEPAD_CHANGE]: (event: EventGamepad) => void,
+    [InputEventType.GAMEPAD_INPUT]: (event: EventGamepad) => void,
+    [InputEventType.HANDLE_INPUT]: (event: EventHandle) => void,
+    [InputEventType.HANDLE_POSE_INPUT]: (event: EventHandle) => void,
+    [InputEventType.HMD_POSE_INPUT]: (event: EventHMD) => void,
+    [InputEventType.HANDHELD_POSE_INPUT]: (event: EventHandheld) => void,
 }
 
 /**
@@ -110,8 +110,8 @@ interface InputEventMap {
  *
  * @example
  * ```
- * input.on(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
- * input.off(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.on(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.off(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
  * ```
  */
 export class Input {
@@ -569,8 +569,8 @@ export class Input {
  *
  * @example
  * ```
- * input.on(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
- * input.off(Input.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.on(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+ * input.off(InputEventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
  * ```
  */
 export const input = new Input();

@@ -26,7 +26,7 @@
 import { ccclass, help, disallowMultiple, executeInEditMode,
     executionOrder, menu, tooltip, type, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Camera } from '../../misc/camera-component';
+import { Camera, CameraEvent } from '../../misc/camera-component';
 import { Widget } from '../../ui/widget';
 import { Vec3, screen, Enum, cclegacy, visibleRect } from '../../core';
 import { view } from '../../ui/view';
@@ -182,7 +182,7 @@ export class Canvas extends RenderRoot2D {
         if (!EDITOR) {
             if (this._cameraComponent) {
                 this._cameraComponent._createCamera();
-                this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+                this._cameraComponent.node.on(CameraEvent.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
             }
         }
 
@@ -202,14 +202,14 @@ export class Canvas extends RenderRoot2D {
     public onEnable (): void {
         super.onEnable();
         if (!EDITOR && this._cameraComponent) {
-            this._cameraComponent.node.on(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+            this._cameraComponent.node.on(CameraEvent.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 
     public onDisable (): void {
         super.onDisable();
         if (this._cameraComponent) {
-            this._cameraComponent.node.off(Camera.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
+            this._cameraComponent.node.off(CameraEvent.TARGET_TEXTURE_CHANGE, this._thisOnCameraResized);
         }
     }
 

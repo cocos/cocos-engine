@@ -23,7 +23,7 @@
 */
 
 import { Mat4, Quat, Vec3 } from '../math';
-import enums from './enums';
+import { ShapeType } from './enums';
 import { AABB } from './aabb';
 
 const _v3_tmp = new Vec3();
@@ -154,15 +154,15 @@ export class Sphere {
 
     /**
      * @en
-     * Gets the type of the shape, always returns `enums.SHAPE_SPHERE`.
+     * Gets the type of the shape, always returns `ShapeType.SHAPE_SPHERE`.
      * @zh
-     * 获取球的类型，固定返回 `enums.SHAPE_SPHERE`。
+     * 获取球的类型，固定返回 `ShapeType.SHAPE_SPHERE`。
      */
     get type (): number {
         return this._type;
     }
 
-    protected readonly _type: number = enums.SHAPE_SPHERE;
+    protected readonly _type: number = ShapeType.SHAPE_SPHERE;
 
     /**
      * @en

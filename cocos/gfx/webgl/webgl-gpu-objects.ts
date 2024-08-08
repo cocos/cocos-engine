@@ -37,6 +37,7 @@ import { WebGLCmdFuncBindStates, WebGLCmdFuncCreateBuffer, WebGLCmdFuncCreateInp
     WebGLCmdFuncDestroyShader, WebGLCmdFuncDraw, WebGLCmdFuncUpdateBuffer,
 } from './webgl-commands';
 import { WebGLDeviceManager } from './webgl-define';
+import { WebGLConstants } from '../gl-constants';
 
 export class WebGLIndirectDrawInfos {
     public declare counts: Int32Array;
@@ -417,7 +418,7 @@ export class IWebGLBlitManager {
         };
 
         this._gpuPipelineState = {
-            glPrimitive: gl.TRIANGLE_STRIP,
+            glPrimitive: WebGLConstants.TRIANGLE_STRIP,
             gpuShader: this._gpuShader,
             gpuPipelineLayout: this._gpuPipelineLayout,
             rs: null!,
@@ -542,26 +543,26 @@ export class IWebGLBlitManager {
         descriptor.gpuSampler = filter === Filter.POINT ? this._gpuPointSampler : this._gpuLinearSampler;
 
         const formatInfo = FormatInfos[gpuTextureDst.format];
-        let attachment: number = gl.COLOR_ATTACHMENT0;
+        let attachment: number = WebGLConstants.COLOR_ATTACHMENT0;
         if (formatInfo.hasStencil) {
-            attachment = gl.DEPTH_STENCIL_ATTACHMENT;
+            attachment = WebGLConstants.DEPTH_STENCIL_ATTACHMENT;
         } else if (formatInfo.hasDepth) {
-            attachment = gl.DEPTH_ATTACHMENT;
+            attachment = WebGLConstants.DEPTH_ATTACHMENT;
         }
 
         const regionIndices = regions.map((_, i): number => i);
         regionIndices.sort((a, b): number => regions[a].srcSubres.mipLevel - regions[b].srcSubres.mipLevel);
 
         if (stateCache.glFramebuffer !== this._glFramebuffer) {
-            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, this._glFramebuffer);
+            gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, this._glFramebuffer);
             stateCache.glFramebuffer = this._glFramebuffer;
         }
 
         let mipLevel = regions[0].dstSubres.mipLevel;
         if (gpuTextureDst.glTexture) {
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
+            gl.framebufferTexture2D(WebGLConstants.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
         } else {
-            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachment, gl.RENDERBUFFER, gpuTextureDst.glRenderbuffer);
+            gl.framebufferRenderbuffer(WebGLConstants.FRAMEBUFFER, attachment, WebGLConstants.RENDERBUFFER, gpuTextureDst.glRenderbuffer);
         }
 
         for (let i = 0; i < regionIndices.length; ++i) {
@@ -569,7 +570,7 @@ export class IWebGLBlitManager {
 
             if (gpuTextureSrc.glTexture && mipLevel !== region.srcSubres.mipLevel) {
                 mipLevel = region.srcSubres.mipLevel;
-                gl.framebufferTexture2D(gl.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
+                gl.framebufferTexture2D(WebGLConstants.FRAMEBUFFER, attachment, gpuTextureDst.glTarget, gpuTextureDst.glTexture, mipLevel);
             }
 
             const srcWidth = gpuTextureSrc.width;
@@ -599,7 +600,7 @@ export class IWebGLBlitManager {
 
         // restore fbo
         if (stateCache.glFramebuffer !== origFramebuffer) {
-            device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, origFramebuffer);
+            gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, origFramebuffer);
             stateCache.glFramebuffer = origFramebuffer;
         }
         // restore viewport

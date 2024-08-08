@@ -78,10 +78,10 @@ export enum EJoint2DType {
 }
 Enum(EJoint2DType);
 
-export enum PhysicsGroup {
+export enum PhysicsGroup2D {
     DEFAULT = 1,
 }
-Enum(PhysicsGroup);
+Enum(PhysicsGroup2D);
 
 /**
  * @en Enum for ERaycast2DType.

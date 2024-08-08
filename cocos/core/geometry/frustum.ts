@@ -22,24 +22,24 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Vec3 } from '../math';
-import enums from './enums';
+import { Mat4, v3, Vec3 } from '../math';
+import { ShapeType } from './enums';
 import { Plane } from './plane';
 import { AABB } from './aabb';
 
-const _v = new Array(8);
-_v[0] = new Vec3(1, 1, 1);
-_v[1] = new Vec3(-1, 1, 1);
-_v[2] = new Vec3(-1, -1, 1);
-_v[3] = new Vec3(1, -1, 1);
-_v[4] = new Vec3(1, 1, -1);
-_v[5] = new Vec3(-1, 1, -1);
-_v[6] = new Vec3(-1, -1, -1);
-_v[7] = new Vec3(1, -1, -1);
+const _v = new Array<Vec3>(8);
+_v[0] = v3(1, 1, 1);
+_v[1] = v3(-1, 1, 1);
+_v[2] = v3(-1, -1, 1);
+_v[3] = v3(1, -1, 1);
+_v[4] = v3(1, 1, -1);
+_v[5] = v3(-1, 1, -1);
+_v[6] = v3(-1, -1, -1);
+_v[7] = v3(1, -1, -1);
 
-const _nearTemp = new Vec3();
-const _farTemp = new Vec3();
-const _temp_v3 = new Vec3();
+const _nearTemp = v3();
+const _farTemp = v3();
+const _temp_v3 = v3();
 
 /**
  * @en
@@ -234,14 +234,14 @@ export class Frustum {
      * @deprecated since v3.8.0 no need to set accurate flag since it doesn't affect the calculation at all.
      */
     set accurate (b: boolean) {
-        this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
+        this._type = b ? ShapeType.SHAPE_FRUSTUM_ACCURATE : ShapeType.SHAPE_FRUSTUM;
     }
 
     /**
      * @en
-     * Gets the type of the shape. The value may be `enums.SHAPE_FRUSTUM_ACCURATE` or `enums.SHAPE_FRUSTUM`.
+     * Gets the type of the shape. The value may be `ShapeType.SHAPE_FRUSTUM_ACCURATE` or `ShapeType.SHAPE_FRUSTUM`.
      * @zh
-     * 获取形状的类型。值可能为 `enums.SHAPE_FRUSTUM_ACCURATE` 或 `enums.SHAPE_FRUSTUM`。
+     * 获取形状的类型。值可能为 `ShapeType.SHAPE_FRUSTUM_ACCURATE` 或 `ShapeType.SHAPE_FRUSTUM`。
      * @readonly
      */
     get type (): number {
@@ -267,7 +267,7 @@ export class Frustum {
     protected _type: number;
 
     constructor () {
-        this._type = enums.SHAPE_FRUSTUM;
+        this._type = ShapeType.SHAPE_FRUSTUM;
         this.planes = new Array(6);
         for (let i = 0; i < 6; ++i) {
             this.planes[i] = Plane.create(0, 0, 0, 0);

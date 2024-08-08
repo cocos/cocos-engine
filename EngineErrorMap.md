@@ -655,7 +655,15 @@ should set resolutionPolicy
 
 ### 2300
 
-The touches is more than MAX_TOUCHES, nUnusedIndex = %s
+The touches is more than MAX_TOUCHES.
+
+### 2301
+
+Cannot create the same touch object.
+
+### 2302
+
+The touches is more than MAX_TOUCHES, release touch id %s.
 
 ### 2400
 
@@ -3832,3 +3840,4 @@ ProgressBar FILLED mode only works when barSprite's Type is FILLED!
 ### 16398
 
 ProgressBar non-FILLED mode only works when barSprite's Type is non-FILLED!
+

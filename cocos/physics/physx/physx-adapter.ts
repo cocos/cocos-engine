@@ -32,19 +32,17 @@
 
 import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
-import { BYTEDANCE, DEBUG, EDITOR, TEST, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, Settings, settings, sys, Color, error, IVec3 } from '../../core';
+import { BYTEDANCE, EDITOR, TEST, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
+import { IQuatLike, IVec3Like, Quat, RecyclePool, Vec3, cclegacy, geometry, settings, sys, Color, error, IVec3, SettingsCategory } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem, CharacterControllerContact } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXInstance } from './physx-instance';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 import { Node } from '../../scene-graph';
-import { Director, director, game } from '../../game';
-import { degreesToRadians } from '../../core/utils/misc';
-import { PhysXCharacterController } from './character-controllers/physx-character-controller';
+import { director, DirectorEvent, game } from '../../game';
 
 export let PX = {} as any;
 const globalThis = cclegacy._global;
@@ -962,7 +960,7 @@ interface IPhysicsConfigEXT extends IPhysicsConfig {
 }
 
 function initConfigForByteDance (): void {
-    const physX = settings.querySettings(Settings.Category.PHYSICS, 'physX');
+    const physX = settings.querySettings(SettingsCategory.PHYSICS, 'physX');
     if (physX) {
         const { epsilon, multiThread, subThreadCount } = physX;
         PX.EPSILON = epsilon;
@@ -981,7 +979,7 @@ function hackForMultiThread (): void {
                 return;
             }
             if (sys._autoSimulation) {
-                director.emit(Director.EVENT_BEFORE_PHYSICS);
+                director.emit(DirectorEvent.BEFORE_PHYSICS);
                 sys._accumulator += deltaTime;
                 sys._subStepCount = 1;
                 sys.physicsWorld.syncSceneToPhysics();
@@ -1002,11 +1000,11 @@ function hackForMultiThread (): void {
                 if (cclegacy.profiler && cclegacy.profiler._stats) {
                     cclegacy.profiler._stats.physics.counter._time += yieldTime;
                 }
-                director.emit(Director.EVENT_AFTER_PHYSICS);
+                director.emit(DirectorEvent.AFTER_PHYSICS);
             }
         }
 
-        director.on(Director.EVENT_END_FRAME, (): void => {
+        director.on(DirectorEvent.END_FRAME, (): void => {
             if (!director.isPaused()) {
                 lastUpdate(PhysicsSystem.instance);
             }

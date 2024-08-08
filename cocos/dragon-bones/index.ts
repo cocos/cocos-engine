@@ -41,7 +41,7 @@ export enum ExtensionType {
  * @en Event type in dragonbones animation.
  * @zh 龙骨动画中的事件类型。
  */
-export enum EventType {
+export enum DragonBonesEventType {
     /**
      * @en Event about animation frame.
      * @zh 动画帧相关的事件。

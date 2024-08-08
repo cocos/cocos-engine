@@ -68,6 +68,7 @@ import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2BindingMapping, IWebGL2BlitManager } from './webgl2-gpu-objects';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import type { WebGL2StateCache } from './webgl2-state-cache';
+import { WebGLConstants } from '../gl-constants';
 
 export class WebGL2Device extends Device {
     get gl (): WebGL2RenderingContext {
@@ -147,8 +148,8 @@ export class WebGL2Device extends Device {
         this._queue = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
         this._cmdBuff = this.createCommandBuffer(new CommandBufferInfo(this._queue));
 
-        this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-        this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        this._caps.maxVertexAttributes = gl.getParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
+        this._caps.maxVertexUniformVectors = gl.getParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
         // Implementation of WebGL2 in WECHAT browser and Safari in IOS exist bugs.
         // It seems to be related to Safari's experimental features 'WebGL via Metal'.
         // So limit using vertex uniform vectors no more than 256 in wechat browser,
@@ -161,16 +162,16 @@ export class WebGL2Device extends Device {
                 this._caps.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
             }
         }
-        this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-        this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._caps.maxUniformBufferBindings = gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS);
-        this._caps.maxUniformBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
-        this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-        this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-        this._caps.maxArrayTextureLayers = gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS);
-        this._caps.max3DTextureSize = gl.getParameter(gl.MAX_3D_TEXTURE_SIZE);
-        this._caps.uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+        this._caps.maxFragmentUniformVectors = gl.getParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps.maxTextureUnits = gl.getParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxVertexTextureUnits = gl.getParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxUniformBufferBindings = gl.getParameter(WebGLConstants.MAX_UNIFORM_BUFFER_BINDINGS);
+        this._caps.maxUniformBlockSize = gl.getParameter(WebGLConstants.MAX_UNIFORM_BLOCK_SIZE);
+        this._caps.maxTextureSize = gl.getParameter(WebGLConstants.MAX_TEXTURE_SIZE);
+        this._caps.maxCubeMapTextureSize = gl.getParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._caps.maxArrayTextureLayers = gl.getParameter(WebGLConstants.MAX_ARRAY_TEXTURE_LAYERS);
+        this._caps.max3DTextureSize = gl.getParameter(WebGLConstants.MAX_3D_TEXTURE_SIZE);
+        this._caps.uboOffsetAlignment = gl.getParameter(WebGLConstants.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         const extensions = gl.getSupportedExtensions();
         let extStr = '';
@@ -186,11 +187,11 @@ export class WebGL2Device extends Device {
             this._renderer = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
             this._vendor = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer = gl.getParameter(gl.RENDERER);
-            this._vendor = gl.getParameter(gl.VENDOR);
+            this._renderer = gl.getParameter(WebGLConstants.RENDERER);
+            this._vendor = gl.getParameter(WebGLConstants.VENDOR);
         }
 
-        const version: string = gl.getParameter(gl.VERSION);
+        const version: string = gl.getParameter(WebGLConstants.VERSION);
 
         this._features.fill(false);
 

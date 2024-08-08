@@ -25,7 +25,7 @@
 
 import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
-import { error, sys, Settings, settings, path, cclegacy, EventTarget } from '../../core';
+import { error, settings, path, cclegacy, EventTarget, SettingsCategory } from '../../core';
 import Bundle from './bundle';
 import Cache, { ICache } from './cache';
 import CacheManager from './cache-manager';
@@ -412,10 +412,10 @@ export class AssetManager {
      * @internal
      */
     public init (options: IAssetManagerOptions = {}): void {
-        const server = options.server || settings.querySettings(Settings.Category.ASSETS, 'server') || '';
-        const bundleVers = options.bundleVers || settings.querySettings(Settings.Category.ASSETS, 'bundleVers') || {};
-        const remoteBundles = options.remoteBundles || settings.querySettings(Settings.Category.ASSETS, 'remoteBundles') || [];
-        const downloadMaxConcurrency = options.downloadMaxConcurrency || settings.querySettings(Settings.Category.ASSETS, 'downloadMaxConcurrency');
+        const server = options.server || settings.querySettings(SettingsCategory.ASSETS, 'server') || '';
+        const bundleVers = options.bundleVers || settings.querySettings(SettingsCategory.ASSETS, 'bundleVers') || {};
+        const remoteBundles = options.remoteBundles || settings.querySettings(SettingsCategory.ASSETS, 'remoteBundles') || [];
+        const downloadMaxConcurrency = options.downloadMaxConcurrency || settings.querySettings(SettingsCategory.ASSETS, 'downloadMaxConcurrency');
         if (downloadMaxConcurrency && downloadMaxConcurrency > 0) {
             this.downloader.maxConcurrency = downloadMaxConcurrency;
         }
@@ -429,18 +429,18 @@ export class AssetManager {
         this.downloader.init(server, bundleVers, remoteBundles);
         this.parser.init();
         this.dependUtil.init();
-        let importBase = options.importBase || settings.querySettings(Settings.Category.ASSETS, 'importBase') || '';
+        let importBase = options.importBase || settings.querySettings(SettingsCategory.ASSETS, 'importBase') || '';
         if (importBase && importBase.endsWith('/')) {
             importBase = importBase.substr(0, importBase.length - 1);
         }
-        let nativeBase = options.nativeBase || settings.querySettings(Settings.Category.ASSETS, 'nativeBase') || '';
+        let nativeBase = options.nativeBase || settings.querySettings(SettingsCategory.ASSETS, 'nativeBase') || '';
         if (nativeBase && nativeBase.endsWith('/')) {
             nativeBase = nativeBase.substr(0, nativeBase.length - 1);
         }
         this.generalImportBase = importBase;
         this.generalNativeBase = nativeBase;
-        this._projectBundles = settings.querySettings(Settings.Category.ASSETS, 'projectBundles') || [];
-        const assetsOverride = settings.querySettings(Settings.Category.ASSETS, 'assetsOverrides') || {};
+        this._projectBundles = settings.querySettings(SettingsCategory.ASSETS, 'projectBundles') || [];
+        const assetsOverride = settings.querySettings(SettingsCategory.ASSETS, 'assetsOverrides') || {};
         for (const key in assetsOverride) {
             this.assetsOverrideMap.set(key, assetsOverride[key] as string);
         }

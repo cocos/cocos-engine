@@ -26,7 +26,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable, visible } from 'cc.decorator';
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
-import { SpriteFrame } from '../assets/sprite-frame';
+import { SpriteFrame, SpriteFrameEvent } from '../assets/sprite-frame';
 import { Vec2, cclegacy, ccenum, clamp, warnID } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
@@ -151,7 +151,7 @@ enum SizeMode {
 }
 ccenum(SizeMode);
 
-enum EventType {
+export enum SpriteEventType {
     SPRITE_FRAME_CHANGED = 'spriteframe-changed',
 }
 
@@ -214,7 +214,7 @@ export class Sprite extends UIRenderer {
         this.markForUpdateRenderData();
         this._applySpriteFrame(lastSprite);
         if (EDITOR) {
-            this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
+            this.node.emit(SpriteEventType.SPRITE_FRAME_CHANGED, this);
         }
     }
 
@@ -458,7 +458,7 @@ export class Sprite extends UIRenderer {
      * @en Event types for sprite.
      * @zh sprite 的事件类型。
      */
-    public static EventType = EventType;
+    public static EventType = SpriteEventType;
 
     @serializable
     protected _spriteFrame: SpriteFrame | null = null;
@@ -500,7 +500,7 @@ export class Sprite extends UIRenderer {
         if (spriteFrame) {
             this._updateUVs();
             if (this._type === SpriteType.SLICED) {
-                spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+                spriteFrame.on(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
             }
         }
     }
@@ -508,7 +508,7 @@ export class Sprite extends UIRenderer {
     public onDisable (): void {
         super.onDisable();
         if (this._spriteFrame && this._type === SpriteType.SLICED) {
-            this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            this._spriteFrame.off(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
         }
     }
 
@@ -616,9 +616,9 @@ export class Sprite extends UIRenderer {
         // Only Sliced type need update uv when sprite frame insets changed
         if (this._spriteFrame) {
             if (this._type === SpriteType.SLICED) {
-                this._spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+                this._spriteFrame.on(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
             } else {
-                this._spriteFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+                this._spriteFrame.off(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
             }
         }
     }
@@ -686,7 +686,7 @@ export class Sprite extends UIRenderer {
         const spriteFrame = this._spriteFrame;
 
         if (oldFrame && this._type === SpriteType.SLICED) {
-            oldFrame.off(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+            oldFrame.off(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
         }
 
         let textureChanged = false;
@@ -706,7 +706,7 @@ export class Sprite extends UIRenderer {
             }
             this._applySpriteSize();
             if (this._type === SpriteType.SLICED) {
-                spriteFrame.on(SpriteFrame.EVENT_UV_UPDATED, this._updateUVs, this);
+                spriteFrame.on(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
             }
         }
     }

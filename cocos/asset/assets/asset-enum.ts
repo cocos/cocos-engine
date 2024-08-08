@@ -22,10 +22,12 @@
  THE SOFTWARE.
 */
 
-import { Address, Filter as GFXFilter, Format } from '../../gfx';
+import { Address, Filter, Format } from '../../gfx';
 
 // define a specified number for the pixel format which gfx do not have a standard definition.
-const CUSTOM_PIXEL_FORMAT = 1024;
+enum CustomPixelFormat {
+    VALUE = 1024,
+}
 
 /**
  * @en
@@ -132,7 +134,7 @@ export enum PixelFormat {
      * @zh 包含 RGBA 通道的 PVR 2BPP 压缩纹理格式
      * 这种压缩纹理格式贴图的高度是普通 RGB_PVRTC_2BPPV1 贴图高度的两倍，使用上半部分作为原始 RGB 通道数据，下半部分用来存储透明通道数据。
      */
-    RGB_A_PVRTC_2BPPV1 = CUSTOM_PIXEL_FORMAT,
+    RGB_A_PVRTC_2BPPV1 = CustomPixelFormat.VALUE,
     /**
      * @en A pixel format containing red, green, and blue channels that is PVR 4bpp compressed.
      * @zh 包含 RGB 通道的 PVR 4BPP 压缩纹理格式
@@ -150,7 +152,7 @@ export enum PixelFormat {
      * @zh 包含 RGBA 通道的 PVR 4BPP 压缩纹理格式
     * 这种压缩纹理格式贴图的高度是普通 RGB_PVRTC_4BPPV1 贴图高度的两倍，使用上半部分作为原始 RGB 通道数据，下半部分用来存储透明通道数据。
      */
-    RGB_A_PVRTC_4BPPV1 = CUSTOM_PIXEL_FORMAT + 1,
+    RGB_A_PVRTC_4BPPV1 = CustomPixelFormat.VALUE + 1,
     /**
      * @en A pixel format containing red, green, and blue channels that is ETC1 compressed.
      * @zh 包含 RGB 通道的 ETC1 压缩纹理格式
@@ -160,7 +162,7 @@ export enum PixelFormat {
      * @en A pixel format containing red, green, blue, and alpha channels that is ETC1 compressed.
      * @zh 包含 RGBA 通道的 ETC1 压缩纹理格式
      */
-    RGBA_ETC1 = CUSTOM_PIXEL_FORMAT + 2,
+    RGBA_ETC1 = CustomPixelFormat.VALUE + 2,
     /**
      * @en A pixel format containing red, green, and blue channels that is ETC2 compressed.
      * @zh 包含 RGB 通道的 ETC2 压缩纹理格式
@@ -287,20 +289,22 @@ export enum WrapMode {
  * @zh
  * 纹理过滤模式。
  */
-export enum Filter {
-    NONE = GFXFilter.NONE,
+enum TextureFilter {
+    NONE = Filter.NONE,
     /**
      * @en
      * Specifies linear filtering.
      * @zh
      * 线性过滤模式。
      */
-    LINEAR = GFXFilter.LINEAR,
+    LINEAR = Filter.LINEAR,
     /**
      * @en
      * Specifies nearest filtering.
      * @zh
      * 临近过滤模式。
      */
-    NEAREST = GFXFilter.POINT,
+    NEAREST = Filter.POINT,
 }
+
+export { TextureFilter as Filter };

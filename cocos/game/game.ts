@@ -29,14 +29,16 @@ import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
 import { ConfigOrientation } from 'pal/screen-adapter';
 import assetManager, { IAssetManagerOptions } from '../asset/asset-manager/asset-manager';
-import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, Settings, settings,
-    assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID } from '../core';
+import { EventTarget, AsyncDelegate, sys, macro, VERSION, cclegacy, screen, settings,
+    assert, garbageCollectionManager, DebugMode, warn, log, _resetDebugSetting, errorID, logID,
+    SettingsCategory,
+    Settings } from '../core';
 import { input } from '../input';
 import { deviceManager, LegacyRenderMode } from '../gfx';
 import { SplashScreen } from './splash-screen';
 import { Layers, Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager/builtin-res-mgr';
-import { Director, director } from './director';
+import { director, DirectorEvent } from './director';
 import { bindingMappingInfo } from '../rendering/define';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
@@ -88,7 +90,7 @@ export interface IGameConfig {
      * 当 showFPS 为 true 的时候界面的左下角将显示 fps 的信息，否则被隐藏。
      * @en
      * Left bottom corner fps information will show when "showFPS" equals true, otherwise it will be hide.
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.PROFILING: { "showFPS": true }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.PROFILING: { "showFPS": true }}``` to set this.
      */
     showFPS?: boolean;
 
@@ -97,7 +99,7 @@ export interface IGameConfig {
      * 设置想要的帧率你的游戏，但真正的FPS取决于你的游戏实现和运行环境。
      * @en
      * Set the wanted frame rate for your game, but the real fps depends on your game implementation and the running environment.
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { "frameRate": 60 }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.SCREEN: { "frameRate": 60 }}``` to set this.
      */
     frameRate?: number;
 
@@ -117,7 +119,7 @@ export interface IGameConfig {
      * - 2 - Forced to use WebGL renderer, but this will be ignored on mobile browsers.
      * - 3 - Use Headless Renderer, which is useful in test or server env, only for internal use by cocos team for now
      * - 4 - Force WebGPU rendering, but this option will be ignored in some browsers.
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.RENDERING: { "renderMode": 0 }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.RENDERING: { "renderMode": 0 }}``` to set this.
      */
     renderMode?: 0 | 1 | 2 | 3 | 4;
 
@@ -126,7 +128,7 @@ export interface IGameConfig {
      * Render pipeline resources
      * @zh
      * Render pipeline 资源
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.RENDERING: { "renderPipeline": '' }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.RENDERING: { "renderPipeline": '' }}``` to set this.
      */
     renderPipeline?: string;
 
@@ -135,7 +137,7 @@ export interface IGameConfig {
      * Asset Manager initialization options
      * @zh
      * 资源管理器初始化设置
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.ASSETS: {}}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.ASSETS: {}}``` to set this.
      */
     assetOptions?: IAssetManagerOptions;
 
@@ -144,7 +146,7 @@ export interface IGameConfig {
      * GPU instancing options
      * @zh
      * GPU instancing 选项
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.ANIMATION: { customJointTextureLayouts: [] }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.ANIMATION: { customJointTextureLayouts: [] }}``` to set this.
      */
     customJointTextureLayouts?: ICustomJointTextureLayout[];
 
@@ -153,7 +155,7 @@ export interface IGameConfig {
      * Physics system config
      * @zh
      * 物理系统设置
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.PHYSICS: {}}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.PHYSICS: {}}``` to set this.
      */
     physics?: IPhysicsConfig;
 
@@ -163,7 +165,7 @@ export interface IGameConfig {
      * Available value can be 'auto', 'landscape', 'portrait'.
      * @zh
      * 屏幕旋转方向，可选 “自动”，“横屏”，“竖屏”
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'orientation': 'auto' }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.SCREEN: { 'orientation': 'auto' }}``` to set this.
      */
     orientation?: ConfigOrientation;
 
@@ -173,7 +175,7 @@ export interface IGameConfig {
      * Now it only works on Web platform.
      * @zh
      * 是否让游戏外框对齐到屏幕上，目前只在 web 平台生效
-     * @deprecated Since v3.6, Please use ```overrideSettings: { Settings.Category.SCREEN: { 'exactFitScreen': true }}``` to set this.
+     * @deprecated Since v3.6, Please use ```overrideSettings: { SettingsCategory.SCREEN: { 'exactFitScreen': true }}``` to set this.
      */
     exactFitScreen?: boolean,
 }
@@ -616,7 +618,7 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart (): Promise<void> {
-        const endFramePromise = new Promise<void>((resolve): void => { director.once(Director.EVENT_END_FRAME, (): void => resolve()); });
+        const endFramePromise = new Promise<void>((resolve): void => { director.once(DirectorEvent.END_FRAME, (): void => resolve()); });
         return endFramePromise.then((): void => {
             director.reset();
             cclegacy.Object._deferredDestroy();
@@ -774,7 +776,7 @@ export class Game extends EventTarget {
             })
             .then(() => {
                 const usesCustomPipeline = settings.querySettings(
-                    Settings.Category.RENDERING,
+                    SettingsCategory.RENDERING,
                     'customPipeline',
                 );
                 if (usesCustomPipeline) {
@@ -809,13 +811,13 @@ export class Game extends EventTarget {
                 this.emit(Game.EVENT_PRE_SUBSYSTEM_INIT);
                 return this.onPreSubsystemInitDelegate.dispatch();
             })
-            .then((): Promise<void> => effectSettings.init(settings.querySettings(Settings.Category.RENDERING, 'effectSettingsPath') as string))
+            .then((): Promise<void> => effectSettings.init(settings.querySettings(SettingsCategory.RENDERING, 'effectSettingsPath') as string))
             .then((): void => {
                 // initialize custom render pipeline
                 if (!cclegacy.rendering || !cclegacy.rendering.enableEffectImport) {
                     return;
                 }
-                const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode');
+                const renderMode = settings.querySettings(SettingsCategory.RENDERING, 'renderMode');
                 if (renderMode === LegacyRenderMode.HEADLESS) {
                     cclegacy.rendering.init(deviceManager.gfxDevice, null);
                     return;
@@ -828,7 +830,7 @@ export class Game extends EventTarget {
                 cclegacy.rendering.init(deviceManager.gfxDevice, data);
             })
             .then((): Promise<any[]> => {
-                const scriptPackages = settings.querySettings<string[]>(Settings.Category.SCRIPTING, 'scriptPackages');
+                const scriptPackages = settings.querySettings<string[]>(SettingsCategory.SCRIPTING, 'scriptPackages');
                 if (scriptPackages) {
                     return Promise.all(scriptPackages.map((pack): Promise<any> => import(pack)));
                 }
@@ -866,7 +868,7 @@ export class Game extends EventTarget {
                     // eslint-disable-next-line no-console
                     console.time('Init Project');
                 }
-                const jsList = settings.querySettings<string[]>(Settings.Category.PLUGINS, 'jsList');
+                const jsList = settings.querySettings<string[]>(SettingsCategory.PLUGINS, 'jsList');
                 let promise = Promise.resolve();
                 if (jsList) {
                     jsList.forEach((jsListFile): void => {
@@ -903,14 +905,14 @@ export class Game extends EventTarget {
             globalThis.__globalXR = {};
         }
         const globalXR = globalThis.__globalXR;
-        globalXR.webxrCompatible = settings.querySettings(Settings.Category.XR, 'webxrCompatible') ?? false;
+        globalXR.webxrCompatible = settings.querySettings(SettingsCategory.XR, 'webxrCompatible') ?? false;
 
         if (sys.isXR) {
             // XrEntry must not be destroyed
             xr.entry = xr.XrEntry.getInstance();
 
-            const xrMSAA = settings.querySettings(Settings.Category.RENDERING, 'msaa') ?? 1;
-            const xrRenderingScale = settings.querySettings(Settings.Category.RENDERING, 'renderingScale') ?? 1.0;
+            const xrMSAA = settings.querySettings(SettingsCategory.RENDERING, 'msaa') ?? 1;
+            const xrRenderingScale = settings.querySettings(SettingsCategory.RENDERING, 'renderingScale') ?? 1.0;
             xr.entry.setMultisamplesRTT(xrMSAA);
             xr.entry.setRenderingScale(xrRenderingScale);
         }
@@ -957,7 +959,7 @@ export class Game extends EventTarget {
     }
 
     private _loadPreloadAssets (): Promise<any[]> {
-        const preloadAssets = settings.querySettings<string[]>(Settings.Category.ASSETS, 'preloadAssets');
+        const preloadAssets = settings.querySettings<string[]>(SettingsCategory.ASSETS, 'preloadAssets');
         if (!preloadAssets) return Promise.resolve([]);
         return Promise.all(preloadAssets.map((uuid): Promise<void> => new Promise<void>((resolve, reject): void => {
             assetManager.loadAny(uuid, (err): void => {
@@ -989,7 +991,7 @@ export class Game extends EventTarget {
      * @internal only for game-view
      */
     public _loadProjectBundles (): Promise<void[]> {
-        const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(Settings.Category.ASSETS, 'preloadBundles');
+        const preloadBundles = settings.querySettings<{ bundle: string, version: string }[]>(SettingsCategory.ASSETS, 'preloadBundles');
         if (!preloadBundles) return Promise.resolve([]);
         return Promise.all(preloadBundles.map(({ bundle, version }): Promise<void> => new Promise<void>((resolve, reject): void => {
             const opts: Record<string, any> = {};
@@ -1044,7 +1046,7 @@ export class Game extends EventTarget {
             SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
-            const launchScene = settings.querySettings(Settings.Category.LAUNCH, 'launchScene') as string;
+            const launchScene = settings.querySettings(SettingsCategory.LAUNCH, 'launchScene') as string;
             if (launchScene) {
                 // load scene
                 director.loadScene(launchScene, (): void => {
@@ -1064,7 +1066,7 @@ export class Game extends EventTarget {
     }
 
     private initPacer (): void {
-        const frameRate = settings.querySettings(Settings.Category.SCREEN, 'frameRate') ?? 60;
+        const frameRate = settings.querySettings(SettingsCategory.SCREEN, 'frameRate') ?? 60;
         assert(typeof frameRate === 'number');
         this._pacer = new Pacer();
         this._pacer.onTick = this._updateCallback.bind(this);
@@ -1130,7 +1132,7 @@ export class Game extends EventTarget {
 
     private _setupRenderPipeline (): void | Promise<void> {
         const usesCustomPipeline = settings.querySettings(
-            Settings.Category.RENDERING,
+            SettingsCategory.RENDERING,
             'customPipeline',
         );
 

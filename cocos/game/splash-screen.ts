@@ -24,7 +24,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Material } from '../asset/assets/material';
-import { clamp01, Mat4, Vec2, Settings, settings, sys, cclegacy, easing, preTransforms } from '../core';
+import { clamp01, Mat4, Vec2, settings, sys, cclegacy, easing, preTransforms, SettingsCategory } from '../core';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, CommandBuffer, BufferUsageBit, Format,
@@ -128,19 +128,19 @@ export class SplashScreen {
     public init (): Promise<void[]> {
         let policy: number = ResolutionPolicy.SHOW_ALL;
         if (!EDITOR) {
-            const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
+            const designResolution = settings.querySettings(SettingsCategory.SCREEN, 'designResolution');
             if (designResolution !== null) {
                 policy = designResolution.policy as number;
             }
         }
         this.settings = {
             policy: (policy) ?? ResolutionPolicy.SHOW_ALL,
-            displayRatio: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
-            totalTime: settings.querySettings<number>(Settings.Category.SPLASH_SCREEN, 'totalTime') ?? 3000,
-            watermarkLocation: settings.querySettings<WatermarkLocationType>(Settings.Category.SPLASH_SCREEN, 'watermarkLocation') ?? 'default',
-            autoFit: settings.querySettings<boolean>(Settings.Category.SPLASH_SCREEN, 'autoFit') ?? true,
-            logo: settings.querySettings<SplashLogo>(Settings.Category.SPLASH_SCREEN, 'logo') ?? undefined,
-            background: settings.querySettings<SplashBackground>(Settings.Category.SPLASH_SCREEN, 'background') ?? undefined,
+            displayRatio: settings.querySettings<number>(SettingsCategory.SPLASH_SCREEN, 'displayRatio') ?? 0.4,
+            totalTime: settings.querySettings<number>(SettingsCategory.SPLASH_SCREEN, 'totalTime') ?? 3000,
+            watermarkLocation: settings.querySettings<WatermarkLocationType>(SettingsCategory.SPLASH_SCREEN, 'watermarkLocation') ?? 'default',
+            autoFit: settings.querySettings<boolean>(SettingsCategory.SPLASH_SCREEN, 'autoFit') ?? true,
+            logo: settings.querySettings<SplashLogo>(SettingsCategory.SPLASH_SCREEN, 'logo') ?? undefined,
+            background: settings.querySettings<SplashBackground>(SettingsCategory.SPLASH_SCREEN, 'background') ?? undefined,
         };
         this._curTime = 0;
 

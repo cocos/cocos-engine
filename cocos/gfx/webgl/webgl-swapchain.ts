@@ -34,45 +34,46 @@ import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { macro, warnID, warn, debug } from '../../core';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { IWebGLBlitManager } from './webgl-gpu-objects';
+import { WebGLConstants } from '../gl-constants';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
 function initStates (gl: WebGLRenderingContext): void {
-    gl.activeTexture(gl.TEXTURE0);
-    gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.activeTexture(WebGLConstants.TEXTURE0);
+    gl.pixelStorei(WebGLConstants.PACK_ALIGNMENT, 1);
+    gl.pixelStorei(WebGLConstants.UNPACK_ALIGNMENT, 1);
+    gl.pixelStorei(WebGLConstants.UNPACK_FLIP_Y_WEBGL, false);
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, null);
 
     // rasterizer state
-    gl.enable(gl.SCISSOR_TEST);
-    gl.enable(gl.CULL_FACE);
-    gl.cullFace(gl.BACK);
-    gl.frontFace(gl.CCW);
-    gl.disable(gl.POLYGON_OFFSET_FILL);
+    gl.enable(WebGLConstants.SCISSOR_TEST);
+    gl.enable(WebGLConstants.CULL_FACE);
+    gl.cullFace(WebGLConstants.BACK);
+    gl.frontFace(WebGLConstants.CCW);
+    gl.disable(WebGLConstants.POLYGON_OFFSET_FILL);
     gl.polygonOffset(0.0, 0.0);
 
     // depth stencil state
-    gl.enable(gl.DEPTH_TEST);
+    gl.enable(WebGLConstants.DEPTH_TEST);
     gl.depthMask(true);
-    gl.depthFunc(gl.LESS);
+    gl.depthFunc(WebGLConstants.LESS);
     gl.depthRange(0.0, 1.0);
 
-    gl.stencilFuncSeparate(gl.FRONT, gl.ALWAYS, 1, 0xffff);
-    gl.stencilOpSeparate(gl.FRONT, gl.KEEP, gl.KEEP, gl.KEEP);
-    gl.stencilMaskSeparate(gl.FRONT, 0xffff);
-    gl.stencilFuncSeparate(gl.BACK, gl.ALWAYS, 1, 0xffff);
-    gl.stencilOpSeparate(gl.BACK, gl.KEEP, gl.KEEP, gl.KEEP);
-    gl.stencilMaskSeparate(gl.BACK, 0xffff);
+    gl.stencilFuncSeparate(WebGLConstants.FRONT, WebGLConstants.ALWAYS, 1, 0xffff);
+    gl.stencilOpSeparate(WebGLConstants.FRONT, WebGLConstants.KEEP, WebGLConstants.KEEP, WebGLConstants.KEEP);
+    gl.stencilMaskSeparate(WebGLConstants.FRONT, 0xffff);
+    gl.stencilFuncSeparate(WebGLConstants.BACK, WebGLConstants.ALWAYS, 1, 0xffff);
+    gl.stencilOpSeparate(WebGLConstants.BACK, WebGLConstants.KEEP, WebGLConstants.KEEP, WebGLConstants.KEEP);
+    gl.stencilMaskSeparate(WebGLConstants.BACK, 0xffff);
 
-    gl.disable(gl.STENCIL_TEST);
+    gl.disable(WebGLConstants.STENCIL_TEST);
 
     // blend state
-    gl.disable(gl.SAMPLE_ALPHA_TO_COVERAGE);
-    gl.disable(gl.BLEND);
-    gl.blendEquationSeparate(gl.FUNC_ADD, gl.FUNC_ADD);
-    gl.blendFuncSeparate(gl.ONE, gl.ZERO, gl.ONE, gl.ZERO);
+    gl.disable(WebGLConstants.SAMPLE_ALPHA_TO_COVERAGE);
+    gl.disable(WebGLConstants.BLEND);
+    gl.blendEquationSeparate(WebGLConstants.FUNC_ADD, WebGLConstants.FUNC_ADD);
+    gl.blendFuncSeparate(WebGLConstants.ONE, WebGLConstants.ZERO, WebGLConstants.ONE, WebGLConstants.ZERO);
     gl.colorMask(true, true, true, true);
     gl.blendColor(0.0, 0.0, 0.0, 0.0);
 }
@@ -258,8 +259,8 @@ export class WebGLSwapchain extends Swapchain {
         const colorFmt = Format.RGBA8;
         let depthStencilFmt = Format.DEPTH_STENCIL;
 
-        let depthBits = gl.getParameter(gl.DEPTH_BITS);
-        const stencilBits = gl.getParameter(gl.STENCIL_BITS);
+        let depthBits = gl.getParameter(WebGLConstants.DEPTH_BITS);
+        const stencilBits = gl.getParameter(WebGLConstants.STENCIL_BITS);
 
         if (ALIPAY) {
             depthBits = 24;

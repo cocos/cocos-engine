@@ -390,7 +390,11 @@ const v_a = new Vec3();
 const v_b = new Vec3();
 const _tempMat1 = new Mat4();
 
-export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
+export enum SkyBoxFlagValue {
+    VALUE = ClearFlagBit.STENCIL << 1,
+}
+
+export const SKYBOX_FLAG = SkyBoxFlagValue.VALUE;
 
 const correctionMatrices: Mat4[] = [];
 

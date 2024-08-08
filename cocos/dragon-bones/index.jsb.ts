@@ -40,7 +40,7 @@ export enum ExtensionType {
  * @engineInternal Since v3.7.2, this is an engine private enum type.
  * @deprecated Since v3.7.2, will be removed in the future.
  */
-export enum EventType {
+export enum DragonBonesEventType {
     Frame = 0,
     Sound = 1
 }

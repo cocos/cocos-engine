@@ -77,6 +77,12 @@ export interface IFlatBuffer {
     buffer: Uint8Array;
 }
 
+const EMPTY_GEOMETRIC_INFO: IGeometricInfo = {
+    positions: new Float32Array(),
+    indices: new Uint8Array(),
+    boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO },
+};
+
 /**
  * @en Sub mesh for rendering which contains all geometry data, it can be used to create [[gfx.InputAssembler]].
  * @zh 包含所有顶点数据的渲染子网格，可以用来创建 [[gfx.InputAssembler]]。
@@ -124,11 +130,7 @@ export class RenderingSubMesh {
 
     private _drawInfo?: DrawInfo | null = null;
 
-    private static EMPTY_GEOMETRIC_INFO: IGeometricInfo = {
-        positions: new Float32Array(),
-        indices: new Uint8Array(),
-        boundingBox: { min: Vec3.ZERO, max: Vec3.ZERO },
-    };
+    private static EMPTY_GEOMETRIC_INFO = EMPTY_GEOMETRIC_INFO;
 
     /**
      * @en
@@ -197,16 +199,16 @@ export class RenderingSubMesh {
             return this._geometricInfo;
         }
         if (this.mesh === undefined) {
-            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            return EMPTY_GEOMETRIC_INFO;
         }
         if (this.subMeshIdx === undefined) {
-            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            return EMPTY_GEOMETRIC_INFO;
         }
         const { mesh } = this; const index = this.subMeshIdx;
         const pAttri = this.attributes.find((element) => element.name === (AttributeName.ATTR_POSITION as string));
 
         if (!pAttri) {
-            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            return EMPTY_GEOMETRIC_INFO;
         }
 
         let positions: Float32Array | undefined;
@@ -216,7 +218,7 @@ export class RenderingSubMesh {
         {
             positions = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
             if (!positions) {
-                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+                return EMPTY_GEOMETRIC_INFO;
             }
             break;
         }
@@ -224,7 +226,7 @@ export class RenderingSubMesh {
         {
             const data = mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Float32Array;
             if (!data) {
-                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+                return EMPTY_GEOMETRIC_INFO;
             }
             const count = data.length / 4;
             positions = new Float32Array(count * 3);
@@ -242,7 +244,7 @@ export class RenderingSubMesh {
         {
             const data =  mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Uint16Array;
             if (!data) {
-                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+                return EMPTY_GEOMETRIC_INFO;
             }
             positions = new Float32Array(data.length);
             for (let i = 0; i < data.length; ++i) {
@@ -254,7 +256,7 @@ export class RenderingSubMesh {
         {
             const data =  mesh.readAttribute(index, AttributeName.ATTR_POSITION) as unknown as Uint16Array;
             if (!data) {
-                return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+                return EMPTY_GEOMETRIC_INFO;
             }
             const count = data.length / 4;
             positions = new Float32Array(count * 3);
@@ -268,7 +270,7 @@ export class RenderingSubMesh {
             break;
         }
         default:
-            return RenderingSubMesh.EMPTY_GEOMETRIC_INFO;
+            return EMPTY_GEOMETRIC_INFO;
         }
 
         const indices = mesh.readIndices(index) || undefined;

@@ -66,6 +66,7 @@ import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
 import { IWebGLBindingMapping, IWebGLBlitManager } from './webgl-gpu-objects';
 import type { WebGLStateCache } from './webgl-state-cache';
+import { WebGLConstants } from '../gl-constants';
 
 export class WebGLDevice extends Device {
     constructor () {
@@ -149,13 +150,13 @@ export class WebGLDevice extends Device {
         this._queue = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
         this._cmdBuff = this.createCommandBuffer(new CommandBufferInfo(this._queue));
 
-        this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-        this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-        this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-        this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-        this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._caps.maxVertexAttributes = gl.getParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
+        this._caps.maxVertexUniformVectors = gl.getParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
+        this._caps.maxFragmentUniformVectors = gl.getParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps.maxTextureUnits = gl.getParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxVertexTextureUnits = gl.getParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxTextureSize = gl.getParameter(WebGLConstants.MAX_TEXTURE_SIZE);
+        this._caps.maxCubeMapTextureSize = gl.getParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._caps.maxArrayTextureLayers = 0;
         this._caps.max3DTextureSize = 0;
         // WebGL doesn't support UBOs at all, so here we return
@@ -176,11 +177,11 @@ export class WebGLDevice extends Device {
             this._renderer = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
             this._vendor = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer = gl.getParameter(gl.RENDERER);
-            this._vendor = gl.getParameter(gl.VENDOR);
+            this._renderer = gl.getParameter(WebGLConstants.RENDERER);
+            this._vendor = gl.getParameter(WebGLConstants.VENDOR);
         }
 
-        const version: string = gl.getParameter(gl.VERSION);
+        const version: string = gl.getParameter(WebGLConstants.VERSION);
 
         this._features.fill(false);
 

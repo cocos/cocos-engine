@@ -24,7 +24,7 @@
 
 import { ccclass } from 'cc.decorator';
 import { System, errorID, cclegacy, js } from '../core';
-import { director, Director } from '../game/director';
+import { director, Director, DirectorEvent } from '../game/director';
 import { Node } from '../scene-graph';
 import { LegacyBlendStateBuffer } from '../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
@@ -160,7 +160,7 @@ export class AnimationManager extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, (): void => {
+director.on(DirectorEvent.INIT, (): void => {
     const animationManager = new AnimationManager();
     director.registerSystem(AnimationManager.ID, animationManager, System.Priority.HIGH);
 });

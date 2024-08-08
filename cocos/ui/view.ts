@@ -33,7 +33,7 @@ import { rect, Rect, size, Size, Vec2 } from '../core/math';
 import { visibleRect, cclegacy, errorID, screen, macro, System, assert } from '../core';
 import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
-import { Settings, settings } from '../core/settings';
+import { settings, SettingsCategory } from '../core/settings';
 
 /**
  * @en View represents the game window.<br/>
@@ -117,7 +117,7 @@ export class View extends Eventify(System) {
 
         if (!EDITOR) {
             this.resizeWithBrowserSize(true);
-            const designResolution = settings.querySettings(Settings.Category.SCREEN, 'designResolution');
+            const designResolution = settings.querySettings(SettingsCategory.SCREEN, 'designResolution');
             if (designResolution) {
                 this.setDesignResolutionSize(
                     Number(designResolution.width),

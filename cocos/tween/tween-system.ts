@@ -25,7 +25,7 @@
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { System } from '../core';
 import { ActionManager } from './actions/action-manager';
-import { Director, director } from '../game';
+import { director, DirectorEvent } from '../game';
 
 /**
  * @en
@@ -80,7 +80,7 @@ export class TweenSystem extends System {
     }
 }
 
-director.on(Director.EVENT_INIT, () => {
+director.on(DirectorEvent.INIT, () => {
     const sys = new TweenSystem();
     (TweenSystem as any).instance = sys;
     director.registerSystem(TweenSystem.ID, sys, System.Priority.MEDIUM);

@@ -34,7 +34,7 @@ declare const require: (path: string) =>  Promise<void>;
  * @en
  * The default grouping in Settings, which usually corresponds to the module.
  */
-enum Category {
+export enum SettingsCategory {
     PATH = 'path',
     ENGINE = 'engine',
     ASSETS = 'assets',
@@ -59,7 +59,7 @@ enum Category {
  * You can access this single instance of the module via [settings].
  */
 export class Settings {
-    static Category = Category;
+    static Category = SettingsCategory;
 
     /**
      * Initialization
@@ -115,7 +115,7 @@ export class Settings {
                 xhr.open('GET', path);
                 xhr.responseType = 'text';
                 xhr.onload = (): void => {
-                    this._settings = JSON.parse(xhr.response);
+                    this._settings = JSON.parse(xhr.response as string);
                     resolve();
                 };
                 xhr.onerror = (): void => {
@@ -139,12 +139,12 @@ export class Settings {
      *
      * @example
      * ```ts
-     * console.log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print https://www.cocos.com
-     * settings.overrideSettings(Settings.Category.ASSETS, 'server', 'http://www.test.com');
-     * console.log(settings.querySettings(Settings.Category.ASSETS, 'server')); // print http://www.test.com
+     * console.log(settings.querySettings(SettingsCategory.ASSETS, 'server')); // print https://www.cocos.com
+     * settings.overrideSettings(SettingsCategory.ASSETS, 'server', 'http://www.test.com');
+     * console.log(settings.querySettings(SettingsCategory.ASSETS, 'server')); // print http://www.test.com
      * ```
      */
-    overrideSettings<T = any> (category: Category | string, name: string, value: T): void {
+    overrideSettings<T = any> (category: SettingsCategory | string, name: string, value: T): void {
         if (!(category in this._override)) {
             this._override[category] = {};
         }
@@ -164,10 +164,10 @@ export class Settings {
      *
      * @example
      * ```ts
-     * console.log(settings.querySettings(Settings.Category.ENGINE, 'debug')); // print false
+     * console.log(settings.querySettings(SettingsCategory.ENGINE, 'debug')); // print false
      * ```
      */
-    querySettings<T = any> (category: Category | string, name: string): T | null {
+    querySettings<T = any> (category: SettingsCategory | string, name: string): T | null {
         if (category in this._override) {
             const categorySettings = this._override[category];
             if (categorySettings && name in categorySettings) {
@@ -188,7 +188,7 @@ export class Settings {
 }
 
 export declare namespace Settings {
-    export type Category = typeof Category;
+    export type Category = typeof SettingsCategory;
 }
 
 /**

@@ -25,7 +25,7 @@
 import { assertIsTrue } from '../data/utils/asserts';
 import { clamp, Vec3 } from '../math';
 import { warnID } from '../platform/debug';
-import enums from './enums';
+import { ShapeType } from './enums';
 
 export enum SplineMode {
     /**
@@ -94,7 +94,7 @@ export class Spline {
     private _knots: Vec3[] = [];
 
     private constructor (mode: SplineMode = SplineMode.CATMULL_ROM, knots: Readonly<Vec3[]> = []) {
-        this._type = enums.SHAPE_SPLINE;
+        this._type = ShapeType.SHAPE_SPLINE;
         this._mode = mode;
 
         for (let i = 0; i < knots.length; i++) {
@@ -151,9 +151,9 @@ export class Spline {
 
     /**
      * @en
-     * Gets the type of this Spline instance, always returns `enums.SHAPE_SPLINE`.
+     * Gets the type of this Spline instance, always returns `ShapeType.SHAPE_SPLINE`.
      * @zh
-     * 获取此 Spline 的类型，固定返回 `enums.SHAPE_SPLINE`
+     * 获取此 Spline 的类型，固定返回 `ShapeType.SHAPE_SPLINE`
      */
     get type (): number {
         return this._type;
@@ -362,6 +362,7 @@ export class Spline {
         return points;
     }
 
+    // eslint-disable-next-line consistent-return
     private getSegments (): number {
         const count = this._knots.length;
         switch (this._mode) {
@@ -374,7 +375,7 @@ export class Spline {
 
             return count - 1;
         case SplineMode.BEZIER:
-            if (count < 4 || count % 4 != 0) {
+            if (count < 4 || count % 4 !== 0) {
                 warnID(14301);
                 return 0;
             }

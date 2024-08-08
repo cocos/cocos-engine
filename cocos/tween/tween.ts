@@ -30,7 +30,7 @@ import {
 } from './actions/action-interval';
 import { removeSelf, show, hide, callFunc, CallFuncCallback } from './actions/action-instant';
 import { ActionUnknownDuration } from './actions/action-unknown-duration';
-import { Action, FiniteTimeAction } from './actions/action';
+import { Action, ActionEnum, FiniteTimeAction } from './actions/action';
 import { ITweenOption } from './export-api';
 import { IInternalTweenOption, TweenAction } from './tween-action';
 import { SetAction } from './set-action';
@@ -99,7 +99,7 @@ export class Tween<T extends object = any> {
     private _actions: FiniteTimeAction[] = [];
     private _finalAction: ActionInterval | null = null;
     private _target: T | null = null;
-    private _tag = Action.TAG_INVALID;
+    private _tag = ActionEnum.TAG_INVALID;
     private _timeScale = 1;
 
     constructor (target?: T | null) {

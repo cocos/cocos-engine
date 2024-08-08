@@ -31,7 +31,7 @@ import { v2, v3, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
-import { ScrollView, EventType as ScrollEventType } from './scroll-view';
+import { ScrollView, ScrollViewEventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
 import { warnID, logID } from '../core/platform/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
@@ -85,7 +85,7 @@ ccenum(Direction);
  *
  * @zh 滚动视图事件类型。
  */
-enum EventType {
+enum PageViewEventType {
     PAGE_TURNING = 'page-turning',
 }
 
@@ -232,7 +232,7 @@ export class PageView extends ScrollView {
      * @en Enum for Page View event.
      * @zh 页面视图事件枚举
      */
-    public static EventType = extendsEnum(EventType, ScrollEventType);
+    public static EventType = extendsEnum(PageViewEventType, ScrollEventType);
 
     /**
      * @en
@@ -694,8 +694,8 @@ export class PageView extends ScrollView {
     protected _dispatchPageTurningEvent (): void {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
-        ComponentEventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
-        this.node.emit(EventType.PAGE_TURNING, this);
+        ComponentEventHandler.emitEvents(this.pageEvents, this, PageViewEventType.PAGE_TURNING);
+        this.node.emit(PageViewEventType.PAGE_TURNING, this);
     }
 
     // 快速滑动

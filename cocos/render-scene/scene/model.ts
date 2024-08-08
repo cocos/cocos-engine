@@ -37,7 +37,8 @@ import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
 import {
-    UBOLocal, UBOSH, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
+    UBOLocal,
+    UBOLocalEnum, UBOSH, UBOSHEnum, UBOWorldBound, UNIFORM_LIGHTMAP_TEXTURE_BINDING, UNIFORM_REFLECTION_PROBE_BLEND_CUBEMAP_BINDING,
     UNIFORM_REFLECTION_PROBE_CUBEMAP_BINDING, UNIFORM_REFLECTION_PROBE_DATA_MAP_BINDING,
     UNIFORM_REFLECTION_PROBE_TEXTURE_BINDING,
 } from '../../rendering/define';
@@ -470,7 +471,7 @@ export class Model {
      * @en Local ubo data
      * @zh 本地 ubo 数据
      */
-    protected _localData = new Float32Array(UBOLocal.COUNT);
+    protected _localData = new Float32Array(UBOLocalEnum.COUNT);
 
     /**
      * @en Local ubo buffer
@@ -729,12 +730,12 @@ export class Model {
             }
         }
         if ((hasNonInstancingPass || forceUpdateUBO) && this._localBuffer) {
-            Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.toArray(this._localData, worldMatrix, UBOLocalEnum.MAT_WORLD_OFFSET);
 
             Mat4.invert(m4_1, worldMatrix);
             Mat4.transpose(m4_1, m4_1);
 
-            Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            Mat4.toArray(this._localData, m4_1, UBOLocalEnum.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);
         }
     }
@@ -800,7 +801,7 @@ export class Model {
             return;
         }
 
-        for (let i = 0; i < UBOSH.COUNT; i++) {
+        for (let i = 0; i < UBOSHEnum.COUNT; i++) {
             this._localSHData[i] = 0.0;
         }
 
@@ -837,7 +838,7 @@ export class Model {
         }
 
         cclegacy.internal.SH.reduceRinging(coefficients, lightProbes.reduceRinging);
-        cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSH.SH_LINEAR_CONST_R_OFFSET, coefficients);
+        cclegacy.internal.SH.updateUBOData(this._localSHData, UBOSHEnum.SH_LINEAR_CONST_R_OFFSET, coefficients);
         this.updateSHBuffer();
     }
 
@@ -949,7 +950,7 @@ export class Model {
      * @param uvParam uv coordinate
      */
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4): void {
-        Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
+        Vec4.toArray(this._localData, uvParam, UBOLocalEnum.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
@@ -1094,8 +1095,8 @@ export class Model {
      */
     public updateLocalShadowBias (): void {
         const sv = this._localData;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 0] = this._shadowBias;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 1] = this._shadowNormalBias;
         this._localDataUpdated = true;
     }
 
@@ -1105,8 +1106,8 @@ export class Model {
      */
     public updateReflectionProbeId  (): void {
         const sv = this._localData;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
-        sv[UBOLocal.LOCAL_SHADOW_BIAS + 3] = this._reflectionProbeBlendId;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 2] = this._reflectionProbeId;
+        sv[UBOLocalEnum.LOCAL_SHADOW_BIAS + 3] = this._reflectionProbeBlendId;
         let probe: ReflectionProbe | null = null;
         let blendProbe: ReflectionProbe | null = null;
         if (cclegacy.internal.reflectionProbeManager) {
@@ -1115,45 +1116,45 @@ export class Model {
         }
         if (probe) {
             if (probe.probeType === ProbeType.PLANAR) {
-                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.up.x;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.up.y;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.up.z;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 1.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1] = probe.node.up.x;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 1] = probe.node.up.y;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 2] = probe.node.up.z;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 3] = 1.0;
 
-                sv[UBOLocal.REFLECTION_PROBE_DATA2] = 1.0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = 0.0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = 0.0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = 1.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2] = 1.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 1] = 0.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 2] = 0.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 3] = 1.0;
             } else {
-                sv[UBOLocal.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
-                sv[UBOLocal.REFLECTION_PROBE_DATA1 + 3] = 0.0;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1] = probe.node.worldPosition.x;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 1] = probe.node.worldPosition.y;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 2] = probe.node.worldPosition.z;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA1 + 3] = 0.0;
 
-                sv[UBOLocal.REFLECTION_PROBE_DATA2] = probe.size.x;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2] = probe.size.x;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 1] = probe.size.y;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 2] = probe.size.z;
                 const mipAndUseRGBE = probe.isRGBE() ? 1000 : 0;
-                sv[UBOLocal.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
+                sv[UBOLocalEnum.REFLECTION_PROBE_DATA2 + 3] = probe.cubemap ? probe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
             }
             // eslint-disable-next-line max-len
             if (this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES
                 || this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
                 if (blendProbe) {
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1] = blendProbe.node.worldPosition.x;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 1] = blendProbe.node.worldPosition.y;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 2] = blendProbe.node.worldPosition.z;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1] = blendProbe.node.worldPosition.x;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 1] = blendProbe.node.worldPosition.y;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 2] = blendProbe.node.worldPosition.z;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
 
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2] = blendProbe.size.x;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 1] = blendProbe.size.y;
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 2] = blendProbe.size.z;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2] = blendProbe.size.x;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2 + 1] = blendProbe.size.y;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2 + 2] = blendProbe.size.z;
                     const mipAndUseRGBE = blendProbe.isRGBE() ? 1000 : 0;
                     // eslint-disable-next-line max-len
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 3] = blendProbe.cubemap ? blendProbe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2 + 3] = blendProbe.cubemap ? blendProbe.cubemap.mipmapLevel + mipAndUseRGBE : 1.0 + mipAndUseRGBE;
                 } else if (this._reflectionProbeType === ReflectionProbeType.BLEND_PROBES_AND_SKYBOX) {
                     //blend with skybox
-                    sv[UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
+                    sv[UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1 + 3] = this.reflectionProbeBlendWeight;
                 }
             }
         }
@@ -1237,8 +1238,8 @@ export class Model {
             this._localBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
-                UBOLocal.SIZE,
-                UBOLocal.SIZE,
+                UBOLocalEnum.SIZE,
+                UBOLocalEnum.SIZE,
             ));
         }
     }
@@ -1249,15 +1250,15 @@ export class Model {
         }
 
         if (!this._localSHData) {
-            this._localSHData = new Float32Array(UBOSH.COUNT);
+            this._localSHData = new Float32Array(UBOSHEnum.COUNT);
         }
 
         if (!this._localSHBuffer) {
             this._localSHBuffer = this._device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.DEVICE,
-                UBOSH.SIZE,
-                UBOSH.SIZE,
+                UBOSHEnum.SIZE,
+                UBOSHEnum.SIZE,
             ));
         }
     }

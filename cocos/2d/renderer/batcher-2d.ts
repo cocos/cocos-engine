@@ -35,7 +35,7 @@ import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D } from './draw-batch';
-import { ModelLocalBindings, UBOLocal } from '../../rendering/define';
+import { ModelLocalBindings, UBOLocal, UBOLocalEnum } from '../../rendering/define';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { IBatcher } from './i-batcher';
@@ -44,7 +44,7 @@ import { getAttributeStride, vfmt, vfmtPosUvColor } from './vertex-format';
 import { updateOpacity } from '../assembler/utils';
 import { BaseRenderData, MeshRenderData } from './render-data';
 import { UIMeshRenderer } from '../components/ui-mesh-renderer';
-import { NativeBatcher2d, NativeUIMeshBuffer } from './native-2d';
+import { NativeBatcher2d } from './native-2d';
 import { MeshBuffer } from './mesh-buffer';
 import { scene } from '../../render-scene';
 import { builtinResMgr } from '../../asset/asset-manager';
@@ -973,12 +973,12 @@ class LocalDescriptorSet  {
 
     constructor () {
         const device = deviceManager.gfxDevice;
-        this._localData = new Float32Array(UBOLocal.COUNT);
+        this._localData = new Float32Array(UBOLocalEnum.COUNT);
         this._localBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            UBOLocal.SIZE,
-            UBOLocal.SIZE,
+            UBOLocalEnum.SIZE,
+            UBOLocalEnum.SIZE,
         ));
     }
 
@@ -1040,7 +1040,7 @@ class LocalDescriptorSet  {
         }
         if (this._transformUpdate) {
             const worldMatrix = node.worldMatrix;
-            Mat4.toArray(this._localData!, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
+            Mat4.toArray(this._localData!, worldMatrix, UBOLocalEnum.MAT_WORLD_OFFSET);
 
             Mat4.invert(m4_1, worldMatrix);
             Mat4.transpose(m4_1, m4_1);
@@ -1052,7 +1052,7 @@ class LocalDescriptorSet  {
                 const factor = 1.0 / Math.sqrt(det);
                 Mat4.multiplyScalar(m4_1, m4_1, factor);
             }
-            Mat4.toArray(this._localData!, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
+            Mat4.toArray(this._localData!, m4_1, UBOLocalEnum.MAT_WORLD_IT_OFFSET);
             this._localBuffer!.update(this._localData!);
             this._transformUpdate = false;
         }

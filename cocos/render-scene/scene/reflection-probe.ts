@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { EDITOR } from 'internal:constants';
-import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SKYBOX_FLAG, TrackingType } from './camera';
+import { Camera, CameraAperture, CameraFOVAxis, CameraISO, CameraProjection, CameraShutter, CameraType, SkyBoxFlagValue, TrackingType } from './camera';
 import { Node } from '../../scene-graph/node';
 import { Color, Quat, Rect, toRadian, Vec2, Vec3, geometry, cclegacy, Vec4, Size } from '../../core';
 import { CAMERA_DEFAULT_MASK } from '../../rendering/define';
@@ -31,7 +31,7 @@ import { TextureCube } from '../../asset/assets/texture-cube';
 import { RenderTexture } from '../../asset/assets/render-texture';
 
 export enum ProbeClearFlag {
-    SKYBOX = SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    SKYBOX = SkyBoxFlagValue.VALUE | ClearFlagBit.DEPTH_STENCIL,
     SOLID_COLOR = ClearFlagBit.ALL,
 }
 

@@ -24,7 +24,7 @@ import { EDITOR } from 'internal:constants';
 import { director } from '../game/director';
 import { Game, game } from '../game';
 import { errorID } from '../core/platform/debug';
-import { Settings, settings } from '../core/settings';
+import { settings, SettingsCategory } from '../core/settings';
 import { Enum } from '../core/value-types';
 
 interface SortingItem {
@@ -146,7 +146,7 @@ export class SortingLayers {
      * @engineInternal
      */
     public static init (): void {
-        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(Settings.Category.ENGINE, 'sortingLayers');
+        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(SettingsCategory.ENGINE, 'sortingLayers');
         if (!sortingLayers || sortingLayers.length === 0) {
             sortingLayers = this.getBuiltinLayers();
         }

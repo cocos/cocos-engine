@@ -28,7 +28,7 @@ import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset, getSymbolCodeAt } from '../../utils/text-utils';
-import { director, Director } from '../../../game/director';
+import { director, Director, DirectorEvent } from '../../../game/director';
 import { ccwindow } from '../../../core/global-exports';
 
 export interface ISharedLabelData {
@@ -278,7 +278,7 @@ export class LetterAtlas {
         this._halfBleed = bleed / 2;
         this._width = width;
         this._height = height;
-        director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
+        director.on(DirectorEvent.BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
     }
 
     public insertLetterTexture (letterTexture: LetterTexture): FontLetterDefinition | null {

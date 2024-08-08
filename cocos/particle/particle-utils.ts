@@ -24,7 +24,7 @@
 
 import { instantiate } from '../serialization';
 import { CCObject, Pool } from '../core';
-import { Director, director } from '../game/director';
+import { director, DirectorEvent } from '../game/director';
 import { Node } from '../scene-graph';
 import { ParticleSystem } from './particle-system';
 
@@ -39,7 +39,7 @@ export class ParticleUtils {
      */
     public static instantiate (prefab: any): CCObject {
         if (!this.registeredSceneEvent) {
-            director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, this.onSceneUnload, this);
+            director.on(DirectorEvent.BEFORE_SCENE_LAUNCH, this.onSceneUnload, this);
             this.registeredSceneEvent = true;
         }
         const uuid = prefab._uuid as string;
