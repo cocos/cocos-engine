@@ -444,6 +444,10 @@ export class PipelineStatistics {
     numInstancingUniformBlocks = 0;
 }
 
+function createPool<T> (Constructor: new() => T): RecyclePool<T> {
+    return new RecyclePool<T>(() => new Constructor(), 16);
+}
+
 export class RenderCommonObjectPool {
     constructor () {
     }
@@ -556,16 +560,16 @@ export class RenderCommonObjectPool {
         v.reset();
         return v;
     }
-    private readonly _lightInfo: RecyclePool<LightInfo> = new RecyclePool<LightInfo>(() => new LightInfo(), 16);
-    private readonly _descriptor: RecyclePool<Descriptor> = new RecyclePool<Descriptor>(() => new Descriptor(), 16);
-    private readonly _descriptorBlock: RecyclePool<DescriptorBlock> = new RecyclePool<DescriptorBlock>(() => new DescriptorBlock(), 16);
-    private readonly _descriptorBlockFlattened: RecyclePool<DescriptorBlockFlattened> = new RecyclePool<DescriptorBlockFlattened>(() => new DescriptorBlockFlattened(), 16);
-    private readonly _descriptorBlockIndex: RecyclePool<DescriptorBlockIndex> = new RecyclePool<DescriptorBlockIndex>(() => new DescriptorBlockIndex(), 16);
-    private readonly _resolvePair: RecyclePool<ResolvePair> = new RecyclePool<ResolvePair>(() => new ResolvePair(), 16);
-    private readonly _copyPair: RecyclePool<CopyPair> = new RecyclePool<CopyPair>(() => new CopyPair(), 16);
-    private readonly _uploadPair: RecyclePool<UploadPair> = new RecyclePool<UploadPair>(() => new UploadPair(), 16);
-    private readonly _movePair: RecyclePool<MovePair> = new RecyclePool<MovePair>(() => new MovePair(), 16);
-    private readonly _pipelineStatistics: RecyclePool<PipelineStatistics> = new RecyclePool<PipelineStatistics>(() => new PipelineStatistics(), 16);
+    private readonly _lightInfo: RecyclePool<LightInfo> = createPool(LightInfo);
+    private readonly _descriptor: RecyclePool<Descriptor> = createPool(Descriptor);
+    private readonly _descriptorBlock: RecyclePool<DescriptorBlock> = createPool(DescriptorBlock);
+    private readonly _descriptorBlockFlattened: RecyclePool<DescriptorBlockFlattened> = createPool(DescriptorBlockFlattened);
+    private readonly _descriptorBlockIndex: RecyclePool<DescriptorBlockIndex> = createPool(DescriptorBlockIndex);
+    private readonly _resolvePair: RecyclePool<ResolvePair> = createPool(ResolvePair);
+    private readonly _copyPair: RecyclePool<CopyPair> = createPool(CopyPair);
+    private readonly _uploadPair: RecyclePool<UploadPair> = createPool(UploadPair);
+    private readonly _movePair: RecyclePool<MovePair> = createPool(MovePair);
+    private readonly _pipelineStatistics: RecyclePool<PipelineStatistics> = createPool(PipelineStatistics);
 }
 
 export function saveLightInfo (a: OutputArchive, v: LightInfo): void {

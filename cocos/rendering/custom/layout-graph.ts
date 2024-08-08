@@ -853,6 +853,10 @@ export class LayoutGraphData implements BidirectionalGraph
     constantMacros = '';
 }
 
+function createPool<T> (Constructor: new() => T): RecyclePool<T> {
+    return new RecyclePool<T>(() => new Constructor(), 16);
+}
+
 export class LayoutGraphObjectPool {
     constructor (renderCommon: RenderCommonObjectPool) {
         this.renderCommon = renderCommon;
@@ -986,24 +990,24 @@ export class LayoutGraphObjectPool {
         return v;
     }
     public readonly renderCommon: RenderCommonObjectPool;
-    private readonly _descriptorDB: RecyclePool<DescriptorDB> = new RecyclePool<DescriptorDB>(() => new DescriptorDB(), 16);
-    private readonly _renderPhase: RecyclePool<RenderPhase> = new RecyclePool<RenderPhase>(() => new RenderPhase(), 16);
-    private readonly _layoutGraph: RecyclePool<LayoutGraph> = new RecyclePool<LayoutGraph>(() => new LayoutGraph(), 16);
-    private readonly _uniformData: RecyclePool<UniformData> = new RecyclePool<UniformData>(() => new UniformData(), 16);
-    private readonly _uniformBlockData: RecyclePool<UniformBlockData> = new RecyclePool<UniformBlockData>(() => new UniformBlockData(), 16);
-    private readonly _descriptorData: RecyclePool<DescriptorData> = new RecyclePool<DescriptorData>(() => new DescriptorData(), 16);
-    private readonly _descriptorBlockData: RecyclePool<DescriptorBlockData> = new RecyclePool<DescriptorBlockData>(() => new DescriptorBlockData(), 16);
-    private readonly _descriptorSetLayoutData: RecyclePool<DescriptorSetLayoutData> = new RecyclePool<DescriptorSetLayoutData>(() => new DescriptorSetLayoutData(), 16);
-    private readonly _descriptorSetData: RecyclePool<DescriptorSetData> = new RecyclePool<DescriptorSetData>(() => new DescriptorSetData(), 16);
-    private readonly _pipelineLayoutData: RecyclePool<PipelineLayoutData> = new RecyclePool<PipelineLayoutData>(() => new PipelineLayoutData(), 16);
-    private readonly _shaderBindingData: RecyclePool<ShaderBindingData> = new RecyclePool<ShaderBindingData>(() => new ShaderBindingData(), 16);
-    private readonly _shaderLayoutData: RecyclePool<ShaderLayoutData> = new RecyclePool<ShaderLayoutData>(() => new ShaderLayoutData(), 16);
-    private readonly _techniqueData: RecyclePool<TechniqueData> = new RecyclePool<TechniqueData>(() => new TechniqueData(), 16);
-    private readonly _effectData: RecyclePool<EffectData> = new RecyclePool<EffectData>(() => new EffectData(), 16);
-    private readonly _shaderProgramData: RecyclePool<ShaderProgramData> = new RecyclePool<ShaderProgramData>(() => new ShaderProgramData(), 16);
-    private readonly _renderStageData: RecyclePool<RenderStageData> = new RecyclePool<RenderStageData>(() => new RenderStageData(), 16);
-    private readonly _renderPhaseData: RecyclePool<RenderPhaseData> = new RecyclePool<RenderPhaseData>(() => new RenderPhaseData(), 16);
-    private readonly _layoutGraphData: RecyclePool<LayoutGraphData> = new RecyclePool<LayoutGraphData>(() => new LayoutGraphData(), 16);
+    private readonly _descriptorDB: RecyclePool<DescriptorDB> = createPool(DescriptorDB);
+    private readonly _renderPhase: RecyclePool<RenderPhase> = createPool(RenderPhase);
+    private readonly _layoutGraph: RecyclePool<LayoutGraph> = createPool(LayoutGraph);
+    private readonly _uniformData: RecyclePool<UniformData> = createPool(UniformData);
+    private readonly _uniformBlockData: RecyclePool<UniformBlockData> = createPool(UniformBlockData);
+    private readonly _descriptorData: RecyclePool<DescriptorData> = createPool(DescriptorData);
+    private readonly _descriptorBlockData: RecyclePool<DescriptorBlockData> = createPool(DescriptorBlockData);
+    private readonly _descriptorSetLayoutData: RecyclePool<DescriptorSetLayoutData> = createPool(DescriptorSetLayoutData);
+    private readonly _descriptorSetData: RecyclePool<DescriptorSetData> = createPool(DescriptorSetData);
+    private readonly _pipelineLayoutData: RecyclePool<PipelineLayoutData> = createPool(PipelineLayoutData);
+    private readonly _shaderBindingData: RecyclePool<ShaderBindingData> = createPool(ShaderBindingData);
+    private readonly _shaderLayoutData: RecyclePool<ShaderLayoutData> = createPool(ShaderLayoutData);
+    private readonly _techniqueData: RecyclePool<TechniqueData> = createPool(TechniqueData);
+    private readonly _effectData: RecyclePool<EffectData> = createPool(EffectData);
+    private readonly _shaderProgramData: RecyclePool<ShaderProgramData> = createPool(ShaderProgramData);
+    private readonly _renderStageData: RecyclePool<RenderStageData> = createPool(RenderStageData);
+    private readonly _renderPhaseData: RecyclePool<RenderPhaseData> = createPool(RenderPhaseData);
+    private readonly _layoutGraphData: RecyclePool<LayoutGraphData> = createPool(LayoutGraphData);
 }
 
 export function saveDescriptorDB (a: OutputArchive, v: DescriptorDB): void {
