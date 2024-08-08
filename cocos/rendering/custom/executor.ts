@@ -134,7 +134,7 @@ import {
     updateGlobalDescBinding,
 } from './define';
 import { LightResource, SceneCulling } from './scene-culling';
-import { Pass, RenderScene } from '../../render-scene';
+import { Pass, RenderScene, scene } from '../../render-scene';
 import { WebProgramLibrary } from './web-program-library';
 
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -1222,7 +1222,7 @@ class DeviceComputePass implements RecordingInterface {
             queue.record();
         }
         const renderData = context.renderGraph.getData(this._computeInfo.id);
-        updateGlobalDescBinding(renderData, context.renderGraph.getLayout(this._computeInfo.id));
+        updateGlobalDescBinding(renderData, -1, context.renderGraph.getLayout(this._computeInfo.id));
     }
 
     resetResource (id: number, pass: ComputePass): void {
@@ -1378,9 +1378,9 @@ class DeviceRenderScene implements RecordingInterface {
         }
     }
 
-    protected _updateGlobal (data: RenderData): void {
+    protected _updateGlobal (data: RenderData, sceneId: number): void {
         const devicePass = this._currentQueue.devicePass;
-        updateGlobalDescBinding(data, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
+        updateGlobalDescBinding(data, sceneId, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
     }
 
     protected _updateRenderData (): void {
@@ -1388,15 +1388,15 @@ class DeviceRenderScene implements RecordingInterface {
         const devicePass = this._currentQueue.devicePass;
         const rasterId = devicePass.rasterPassInfo.id;
         const passRenderData = context.renderGraph.getData(rasterId);
+        const sceneId = this.graphScene.sceneID;
         // CCGlobal
-        this._updateGlobal(passRenderData);
+        this._updateGlobal(passRenderData, sceneId);
         // CCCamera, CCShadow, CCCSM
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(queueRenderData);
-        const sceneId = this.graphScene.sceneID;
+        this._updateGlobal(queueRenderData, sceneId);
         const sceneRenderData = context.renderGraph.getData(sceneId)!;
-        if (sceneRenderData) this._updateGlobal(sceneRenderData);
+        if (sceneRenderData) this._updateGlobal(sceneRenderData, sceneId);
         this._currentQueue.isUpdateUBO = true;
     }
 
