@@ -862,12 +862,12 @@ export class LayoutGraphObjectPool {
         this.renderCommon = renderCommon;
     }
     reset (): void {
-        this.ddb.reset(); // DescriptorDB
+        this.dd.reset(); // DescriptorDB
         this.rp.reset(); // RenderPhase
         this.lg.reset(); // LayoutGraph
         this.ud.reset(); // UniformData
         this.ubd.reset(); // UniformBlockData
-        this.dd.reset(); // DescriptorData
+        this.dd1.reset(); // DescriptorData
         this.dbd.reset(); // DescriptorBlockData
         this.dsld.reset(); // DescriptorSetLayoutData
         this.dsd.reset(); // DescriptorSetData
@@ -882,7 +882,7 @@ export class LayoutGraphObjectPool {
         this.lgd.reset(); // LayoutGraphData
     }
     createDescriptorDB (): DescriptorDB {
-        const v = this.ddb.add(); // DescriptorDB
+        const v = this.dd.add(); // DescriptorDB
         v.reset();
         return v;
     }
@@ -915,7 +915,7 @@ export class LayoutGraphObjectPool {
         type: Type = Type.UNKNOWN,
         count = 1,
     ): DescriptorData {
-        const v = this.dd.add(); // DescriptorData
+        const v = this.dd1.add(); // DescriptorData
         v.reset(descriptorID, type, count);
         return v;
     }
@@ -990,12 +990,12 @@ export class LayoutGraphObjectPool {
         return v;
     }
     public readonly renderCommon: RenderCommonObjectPool;
-    private readonly ddb: RecyclePool<DescriptorDB> = createPool(DescriptorDB);
+    private readonly dd: RecyclePool<DescriptorDB> = createPool(DescriptorDB);
     private readonly rp: RecyclePool<RenderPhase> = createPool(RenderPhase);
     private readonly lg: RecyclePool<LayoutGraph> = createPool(LayoutGraph);
     private readonly ud: RecyclePool<UniformData> = createPool(UniformData);
     private readonly ubd: RecyclePool<UniformBlockData> = createPool(UniformBlockData);
-    private readonly dd: RecyclePool<DescriptorData> = createPool(DescriptorData);
+    private readonly dd1: RecyclePool<DescriptorData> = createPool(DescriptorData);
     private readonly dbd: RecyclePool<DescriptorBlockData> = createPool(DescriptorBlockData);
     private readonly dsld: RecyclePool<DescriptorSetLayoutData> = createPool(DescriptorSetLayoutData);
     private readonly dsd: RecyclePool<DescriptorSetData> = createPool(DescriptorSetData);
