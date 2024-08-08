@@ -862,37 +862,37 @@ export class LayoutGraphObjectPool {
         this.renderCommon = renderCommon;
     }
     reset (): void {
-        this._descriptorDB.reset();
-        this._renderPhase.reset();
-        this._layoutGraph.reset();
-        this._uniformData.reset();
-        this._uniformBlockData.reset();
-        this._descriptorData.reset();
-        this._descriptorBlockData.reset();
-        this._descriptorSetLayoutData.reset();
-        this._descriptorSetData.reset();
-        this._pipelineLayoutData.reset();
-        this._shaderBindingData.reset();
-        this._shaderLayoutData.reset();
-        this._techniqueData.reset();
-        this._effectData.reset();
-        this._shaderProgramData.reset();
-        this._renderStageData.reset();
-        this._renderPhaseData.reset();
-        this._layoutGraphData.reset();
+        this.dd.reset(); // DescriptorDB
+        this.rp.reset(); // RenderPhase
+        this.lg.reset(); // LayoutGraph
+        this.ud.reset(); // UniformData
+        this.ubd.reset(); // UniformBlockData
+        this.dd1.reset(); // DescriptorData
+        this.dbd.reset(); // DescriptorBlockData
+        this.dsld.reset(); // DescriptorSetLayoutData
+        this.dsd.reset(); // DescriptorSetData
+        this.pld.reset(); // PipelineLayoutData
+        this.sbd.reset(); // ShaderBindingData
+        this.sld.reset(); // ShaderLayoutData
+        this.td.reset(); // TechniqueData
+        this.ed.reset(); // EffectData
+        this.spd.reset(); // ShaderProgramData
+        this.rsd.reset(); // RenderStageData
+        this.rpd.reset(); // RenderPhaseData
+        this.lgd.reset(); // LayoutGraphData
     }
     createDescriptorDB (): DescriptorDB {
-        const v = this._descriptorDB.add();
+        const v = this.dd.add(); // DescriptorDB
         v.reset();
         return v;
     }
     createRenderPhase (): RenderPhase {
-        const v = this._renderPhase.add();
+        const v = this.rp.add(); // RenderPhase
         v.reset();
         return v;
     }
     createLayoutGraph (): LayoutGraph {
-        const v = this._layoutGraph.add();
+        const v = this.lg.add(); // LayoutGraph
         v.clear();
         return v;
     }
@@ -901,12 +901,12 @@ export class LayoutGraphObjectPool {
         uniformType: Type = Type.UNKNOWN,
         offset = 0,
     ): UniformData {
-        const v = this._uniformData.add();
+        const v = this.ud.add(); // UniformData
         v.reset(uniformID, uniformType, offset);
         return v;
     }
     createUniformBlockData (): UniformBlockData {
-        const v = this._uniformBlockData.add();
+        const v = this.ubd.add(); // UniformBlockData
         v.reset();
         return v;
     }
@@ -915,7 +915,7 @@ export class LayoutGraphObjectPool {
         type: Type = Type.UNKNOWN,
         count = 1,
     ): DescriptorData {
-        const v = this._descriptorData.add();
+        const v = this.dd1.add(); // DescriptorData
         v.reset(descriptorID, type, count);
         return v;
     }
@@ -924,7 +924,7 @@ export class LayoutGraphObjectPool {
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
         capacity = 0,
     ): DescriptorBlockData {
-        const v = this._descriptorBlockData.add();
+        const v = this.dbd.add(); // DescriptorBlockData
         v.reset(type, visibility, capacity);
         return v;
     }
@@ -932,7 +932,7 @@ export class LayoutGraphObjectPool {
         slot = 0xFFFFFFFF,
         capacity = 0,
     ): DescriptorSetLayoutData {
-        const v = this._descriptorSetLayoutData.add();
+        const v = this.dsld.add(); // DescriptorSetLayoutData
         v.reset(slot, capacity);
         return v;
     }
@@ -940,74 +940,74 @@ export class LayoutGraphObjectPool {
         descriptorSetLayout: DescriptorSetLayout | null = null,
         descriptorSet: DescriptorSet | null = null,
     ): DescriptorSetData {
-        const v = this._descriptorSetData.add();
+        const v = this.dsd.add(); // DescriptorSetData
         v.reset(descriptorSetLayout, descriptorSet);
         return v;
     }
     createPipelineLayoutData (): PipelineLayoutData {
-        const v = this._pipelineLayoutData.add();
+        const v = this.pld.add(); // PipelineLayoutData
         v.reset();
         return v;
     }
     createShaderBindingData (): ShaderBindingData {
-        const v = this._shaderBindingData.add();
+        const v = this.sbd.add(); // ShaderBindingData
         v.reset();
         return v;
     }
     createShaderLayoutData (): ShaderLayoutData {
-        const v = this._shaderLayoutData.add();
+        const v = this.sld.add(); // ShaderLayoutData
         v.reset();
         return v;
     }
     createTechniqueData (): TechniqueData {
-        const v = this._techniqueData.add();
+        const v = this.td.add(); // TechniqueData
         v.reset();
         return v;
     }
     createEffectData (): EffectData {
-        const v = this._effectData.add();
+        const v = this.ed.add(); // EffectData
         v.reset();
         return v;
     }
     createShaderProgramData (): ShaderProgramData {
-        const v = this._shaderProgramData.add();
+        const v = this.spd.add(); // ShaderProgramData
         v.reset();
         return v;
     }
     createRenderStageData (): RenderStageData {
-        const v = this._renderStageData.add();
+        const v = this.rsd.add(); // RenderStageData
         v.reset();
         return v;
     }
     createRenderPhaseData (): RenderPhaseData {
-        const v = this._renderPhaseData.add();
+        const v = this.rpd.add(); // RenderPhaseData
         v.reset();
         return v;
     }
     createLayoutGraphData (): LayoutGraphData {
-        const v = this._layoutGraphData.add();
+        const v = this.lgd.add(); // LayoutGraphData
         v.clear();
         return v;
     }
     public readonly renderCommon: RenderCommonObjectPool;
-    private readonly _descriptorDB: RecyclePool<DescriptorDB> = createPool(DescriptorDB);
-    private readonly _renderPhase: RecyclePool<RenderPhase> = createPool(RenderPhase);
-    private readonly _layoutGraph: RecyclePool<LayoutGraph> = createPool(LayoutGraph);
-    private readonly _uniformData: RecyclePool<UniformData> = createPool(UniformData);
-    private readonly _uniformBlockData: RecyclePool<UniformBlockData> = createPool(UniformBlockData);
-    private readonly _descriptorData: RecyclePool<DescriptorData> = createPool(DescriptorData);
-    private readonly _descriptorBlockData: RecyclePool<DescriptorBlockData> = createPool(DescriptorBlockData);
-    private readonly _descriptorSetLayoutData: RecyclePool<DescriptorSetLayoutData> = createPool(DescriptorSetLayoutData);
-    private readonly _descriptorSetData: RecyclePool<DescriptorSetData> = createPool(DescriptorSetData);
-    private readonly _pipelineLayoutData: RecyclePool<PipelineLayoutData> = createPool(PipelineLayoutData);
-    private readonly _shaderBindingData: RecyclePool<ShaderBindingData> = createPool(ShaderBindingData);
-    private readonly _shaderLayoutData: RecyclePool<ShaderLayoutData> = createPool(ShaderLayoutData);
-    private readonly _techniqueData: RecyclePool<TechniqueData> = createPool(TechniqueData);
-    private readonly _effectData: RecyclePool<EffectData> = createPool(EffectData);
-    private readonly _shaderProgramData: RecyclePool<ShaderProgramData> = createPool(ShaderProgramData);
-    private readonly _renderStageData: RecyclePool<RenderStageData> = createPool(RenderStageData);
-    private readonly _renderPhaseData: RecyclePool<RenderPhaseData> = createPool(RenderPhaseData);
-    private readonly _layoutGraphData: RecyclePool<LayoutGraphData> = createPool(LayoutGraphData);
+    private readonly dd: RecyclePool<DescriptorDB> = createPool(DescriptorDB);
+    private readonly rp: RecyclePool<RenderPhase> = createPool(RenderPhase);
+    private readonly lg: RecyclePool<LayoutGraph> = createPool(LayoutGraph);
+    private readonly ud: RecyclePool<UniformData> = createPool(UniformData);
+    private readonly ubd: RecyclePool<UniformBlockData> = createPool(UniformBlockData);
+    private readonly dd1: RecyclePool<DescriptorData> = createPool(DescriptorData);
+    private readonly dbd: RecyclePool<DescriptorBlockData> = createPool(DescriptorBlockData);
+    private readonly dsld: RecyclePool<DescriptorSetLayoutData> = createPool(DescriptorSetLayoutData);
+    private readonly dsd: RecyclePool<DescriptorSetData> = createPool(DescriptorSetData);
+    private readonly pld: RecyclePool<PipelineLayoutData> = createPool(PipelineLayoutData);
+    private readonly sbd: RecyclePool<ShaderBindingData> = createPool(ShaderBindingData);
+    private readonly sld: RecyclePool<ShaderLayoutData> = createPool(ShaderLayoutData);
+    private readonly td: RecyclePool<TechniqueData> = createPool(TechniqueData);
+    private readonly ed: RecyclePool<EffectData> = createPool(EffectData);
+    private readonly spd: RecyclePool<ShaderProgramData> = createPool(ShaderProgramData);
+    private readonly rsd: RecyclePool<RenderStageData> = createPool(RenderStageData);
+    private readonly rpd: RecyclePool<RenderPhaseData> = createPool(RenderPhaseData);
+    private readonly lgd: RecyclePool<LayoutGraphData> = createPool(LayoutGraphData);
 }
 
 export function saveDescriptorDB (a: OutputArchive, v: DescriptorDB): void {
