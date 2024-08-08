@@ -1485,6 +1485,10 @@ export class RenderGraph implements BidirectionalGraph
     readonly sortedVertices: number[] = [];
 }
 
+function createPool<T> (Constructor: new() => T): RecyclePool<T> {
+    return new RecyclePool<T>(() => new Constructor(), 16);
+}
+
 export class RenderGraphObjectPool {
     constructor (renderCommon: RenderCommonObjectPool) {
         this.renderCommon = renderCommon;
@@ -1755,37 +1759,37 @@ export class RenderGraphObjectPool {
         return v;
     }
     public readonly renderCommon: RenderCommonObjectPool;
-    private readonly _clearValue: RecyclePool<ClearValue> = new RecyclePool<ClearValue>(() => new ClearValue(), 16);
-    private readonly _rasterView: RecyclePool<RasterView> = new RecyclePool<RasterView>(() => new RasterView(), 16);
-    private readonly _computeView: RecyclePool<ComputeView> = new RecyclePool<ComputeView>(() => new ComputeView(), 16);
-    private readonly _resourceDesc: RecyclePool<ResourceDesc> = new RecyclePool<ResourceDesc>(() => new ResourceDesc(), 16);
-    private readonly _resourceTraits: RecyclePool<ResourceTraits> = new RecyclePool<ResourceTraits>(() => new ResourceTraits(), 16);
-    private readonly _renderSwapchain: RecyclePool<RenderSwapchain> = new RecyclePool<RenderSwapchain>(() => new RenderSwapchain(), 16);
-    private readonly _resourceStates: RecyclePool<ResourceStates> = new RecyclePool<ResourceStates>(() => new ResourceStates(), 16);
-    private readonly _managedBuffer: RecyclePool<ManagedBuffer> = new RecyclePool<ManagedBuffer>(() => new ManagedBuffer(), 16);
-    private readonly _persistentBuffer: RecyclePool<PersistentBuffer> = new RecyclePool<PersistentBuffer>(() => new PersistentBuffer(), 16);
-    private readonly _managedTexture: RecyclePool<ManagedTexture> = new RecyclePool<ManagedTexture>(() => new ManagedTexture(), 16);
-    private readonly _persistentTexture: RecyclePool<PersistentTexture> = new RecyclePool<PersistentTexture>(() => new PersistentTexture(), 16);
-    private readonly _managedResource: RecyclePool<ManagedResource> = new RecyclePool<ManagedResource>(() => new ManagedResource(), 16);
-    private readonly _subpass: RecyclePool<Subpass> = new RecyclePool<Subpass>(() => new Subpass(), 16);
-    private readonly _subpassGraph: RecyclePool<SubpassGraph> = new RecyclePool<SubpassGraph>(() => new SubpassGraph(), 16);
-    private readonly _rasterSubpass: RecyclePool<RasterSubpass> = new RecyclePool<RasterSubpass>(() => new RasterSubpass(), 16);
-    private readonly _computeSubpass: RecyclePool<ComputeSubpass> = new RecyclePool<ComputeSubpass>(() => new ComputeSubpass(), 16);
-    private readonly _rasterPass: RecyclePool<RasterPass> = new RecyclePool<RasterPass>(() => new RasterPass(), 16);
-    private readonly _persistentRenderPassAndFramebuffer: RecyclePool<PersistentRenderPassAndFramebuffer> = new RecyclePool<PersistentRenderPassAndFramebuffer>(() => new PersistentRenderPassAndFramebuffer(), 16);
-    private readonly _formatView: RecyclePool<FormatView> = new RecyclePool<FormatView>(() => new FormatView(), 16);
-    private readonly _subresourceView: RecyclePool<SubresourceView> = new RecyclePool<SubresourceView>(() => new SubresourceView(), 16);
-    private readonly _resourceGraph: RecyclePool<ResourceGraph> = new RecyclePool<ResourceGraph>(() => new ResourceGraph(), 16);
-    private readonly _computePass: RecyclePool<ComputePass> = new RecyclePool<ComputePass>(() => new ComputePass(), 16);
-    private readonly _resolvePass: RecyclePool<ResolvePass> = new RecyclePool<ResolvePass>(() => new ResolvePass(), 16);
-    private readonly _copyPass: RecyclePool<CopyPass> = new RecyclePool<CopyPass>(() => new CopyPass(), 16);
-    private readonly _movePass: RecyclePool<MovePass> = new RecyclePool<MovePass>(() => new MovePass(), 16);
-    private readonly _raytracePass: RecyclePool<RaytracePass> = new RecyclePool<RaytracePass>(() => new RaytracePass(), 16);
-    private readonly _clearView: RecyclePool<ClearView> = new RecyclePool<ClearView>(() => new ClearView(), 16);
-    private readonly _renderQueue: RecyclePool<RenderQueue> = new RecyclePool<RenderQueue>(() => new RenderQueue(), 16);
-    private readonly _sceneData: RecyclePool<SceneData> = new RecyclePool<SceneData>(() => new SceneData(), 16);
-    private readonly _dispatch: RecyclePool<Dispatch> = new RecyclePool<Dispatch>(() => new Dispatch(), 16);
-    private readonly _blit: RecyclePool<Blit> = new RecyclePool<Blit>(() => new Blit(), 16);
-    private readonly _renderData: RecyclePool<RenderData> = new RecyclePool<RenderData>(() => new RenderData(), 16);
-    private readonly _renderGraph: RecyclePool<RenderGraph> = new RecyclePool<RenderGraph>(() => new RenderGraph(), 16);
+    private readonly _clearValue: RecyclePool<ClearValue> = createPool(ClearValue);
+    private readonly _rasterView: RecyclePool<RasterView> = createPool(RasterView);
+    private readonly _computeView: RecyclePool<ComputeView> = createPool(ComputeView);
+    private readonly _resourceDesc: RecyclePool<ResourceDesc> = createPool(ResourceDesc);
+    private readonly _resourceTraits: RecyclePool<ResourceTraits> = createPool(ResourceTraits);
+    private readonly _renderSwapchain: RecyclePool<RenderSwapchain> = createPool(RenderSwapchain);
+    private readonly _resourceStates: RecyclePool<ResourceStates> = createPool(ResourceStates);
+    private readonly _managedBuffer: RecyclePool<ManagedBuffer> = createPool(ManagedBuffer);
+    private readonly _persistentBuffer: RecyclePool<PersistentBuffer> = createPool(PersistentBuffer);
+    private readonly _managedTexture: RecyclePool<ManagedTexture> = createPool(ManagedTexture);
+    private readonly _persistentTexture: RecyclePool<PersistentTexture> = createPool(PersistentTexture);
+    private readonly _managedResource: RecyclePool<ManagedResource> = createPool(ManagedResource);
+    private readonly _subpass: RecyclePool<Subpass> = createPool(Subpass);
+    private readonly _subpassGraph: RecyclePool<SubpassGraph> = createPool(SubpassGraph);
+    private readonly _rasterSubpass: RecyclePool<RasterSubpass> = createPool(RasterSubpass);
+    private readonly _computeSubpass: RecyclePool<ComputeSubpass> = createPool(ComputeSubpass);
+    private readonly _rasterPass: RecyclePool<RasterPass> = createPool(RasterPass);
+    private readonly _persistentRenderPassAndFramebuffer: RecyclePool<PersistentRenderPassAndFramebuffer> = createPool(PersistentRenderPassAndFramebuffer);
+    private readonly _formatView: RecyclePool<FormatView> = createPool(FormatView);
+    private readonly _subresourceView: RecyclePool<SubresourceView> = createPool(SubresourceView);
+    private readonly _resourceGraph: RecyclePool<ResourceGraph> = createPool(ResourceGraph);
+    private readonly _computePass: RecyclePool<ComputePass> = createPool(ComputePass);
+    private readonly _resolvePass: RecyclePool<ResolvePass> = createPool(ResolvePass);
+    private readonly _copyPass: RecyclePool<CopyPass> = createPool(CopyPass);
+    private readonly _movePass: RecyclePool<MovePass> = createPool(MovePass);
+    private readonly _raytracePass: RecyclePool<RaytracePass> = createPool(RaytracePass);
+    private readonly _clearView: RecyclePool<ClearView> = createPool(ClearView);
+    private readonly _renderQueue: RecyclePool<RenderQueue> = createPool(RenderQueue);
+    private readonly _sceneData: RecyclePool<SceneData> = createPool(SceneData);
+    private readonly _dispatch: RecyclePool<Dispatch> = createPool(Dispatch);
+    private readonly _blit: RecyclePool<Blit> = createPool(Blit);
+    private readonly _renderData: RecyclePool<RenderData> = createPool(RenderData);
+    private readonly _renderGraph: RecyclePool<RenderGraph> = createPool(RenderGraph);
 }
