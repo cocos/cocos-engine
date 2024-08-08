@@ -448,6 +448,14 @@ export function getDescBindingFromName (bindingName: string): number {
 }
 
 const uniformMap: Map<string, Float32Array> = new Map();
+const buffHashMap: Map<Buffer, number> = new Map();
+function numsHash (arr: number[]): number {
+    let hash = 0;
+    for (let i = 0; i < arr.length; i++) {
+        hash = hashCombineNum(arr[i], hash);
+    }
+    return hash;
+}
 
 function updateGlobalDescBuffer (blockId: number, vals: number[], layout: string, setData: DescriptorSetData): void {
     const descriptorSet = setData.descriptorSet!;
@@ -458,6 +466,7 @@ function updateGlobalDescBuffer (blockId: number, vals: number[], layout: string
     const uniformKey = `${layout}${bindId}`;
     let buffer = descriptorSet.getBuffer(bindId);
     let haveBuff = true;
+    const currHash = numsHash(vals);
     if (!buffer) {
         buffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
@@ -466,15 +475,20 @@ function updateGlobalDescBuffer (blockId: number, vals: number[], layout: string
             vals.length * 4,
         ));
         haveBuff = false;
+        buffHashMap.set(buffer, currHash);
     }
-    let currUniform = uniformMap.get(uniformKey);
-    if (!currUniform) {
-        uniformMap.set(uniformKey, new Float32Array(vals));
-        currUniform = uniformMap.get(uniformKey)!;
+    const destHash = buffHashMap.get(buffer);
+    if (destHash !== currHash || !haveBuff) {
+        let currUniform = uniformMap.get(uniformKey);
+        if (!currUniform) {
+            uniformMap.set(uniformKey, new Float32Array(vals));
+            currUniform = uniformMap.get(uniformKey)!;
+        }
+        currUniform.set(vals);
+        buffer.update(currUniform);
+        if (!haveBuff) bindGlobalDesc(descriptorSet, bindId, buffer);
+        buffHashMap.set(buffer, currHash);
     }
-    currUniform.set(vals);
-    buffer.update(currUniform);
-    if (!haveBuff) bindGlobalDesc(descriptorSet, bindId, buffer);
 }
 
 const layouts: Map<string, DescriptorSetData> = new Map();
