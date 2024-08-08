@@ -334,44 +334,44 @@ export class SubpassGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -680,44 +680,44 @@ export class ResourceGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -1260,44 +1260,44 @@ export class RenderGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }

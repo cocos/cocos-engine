@@ -449,7 +449,7 @@ export class SceneCulling {
     }
 
     private collectCullingQueries (rg: RenderGraph, lg: LayoutGraphData): void {
-        for (const v of rg.vertices()) {
+        for (const v of rg.v()) {
             if (!rg.h(RenderGraphValue.Scene, v) || !rg.getValid(v)) {
                 continue;
             }

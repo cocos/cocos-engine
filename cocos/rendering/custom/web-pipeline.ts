@@ -586,7 +586,7 @@ export class WebRenderPassBuilder extends WebSetter implements BasicMultisampleR
     }
     addRenderSubpass (layoutName = ''): RenderSubpassBuilder {
         const name = 'Raster';
-        const subpassID = this._pass.subpassGraph.numVertices();
+        const subpassID = this._pass.subpassGraph.nv();
         this._pass.subpassGraph.addVertex(name, renderGraphPool.createSubpass());
         const subpass = renderGraphPool.createRasterSubpass(subpassID, 1, 0);
         const data = renderGraphPool.createRenderData();
