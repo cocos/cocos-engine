@@ -2080,7 +2080,7 @@ export class RenderVisitor extends DefaultVisitor {
         this._preVisitor = new PreRenderVisitor();
         this._postVisitor = new PostRenderVisitor();
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
-        this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
+        this._colorMap = new VectorGraphColorMap(context.renderGraph.nv());
     }
 
     get graphView (): ReferenceGraphView<RenderGraph> { return this._graphView; }

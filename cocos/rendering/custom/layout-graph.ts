@@ -29,9 +29,10 @@
  */
 /* eslint-disable max-len */
 import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, VertexListGraph, findRelative, getPath } from './graph';
-import { DescriptorSet, DescriptorSetLayout, DescriptorSetLayoutInfo, PipelineLayout, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
+import type { DescriptorSet, DescriptorSetLayout, PipelineLayout } from '../../gfx';
+import { DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
-import { OutputArchive, InputArchive } from './archive';
+import type { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
 import { RecyclePool } from '../../core/memop';
 
@@ -151,44 +152,44 @@ export class LayoutGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -630,44 +631,44 @@ export class LayoutGraphData implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -1042,13 +1043,13 @@ export function loadRenderPhase (a: InputArchive, v: RenderPhase): void {
 }
 
 export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
-    const numVertices = g.numVertices();
-    const numEdges = g.numEdges();
+    const numVertices = g.nv();
+    const numEdges = g.ne();
     a.n(numVertices);
     a.n(numEdges);
     let numStages = 0;
     let numPhases = 0;
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         switch (g.w(v)) {
         case LayoutGraphValue.RenderStage:
             numStages += 1;
@@ -1062,7 +1063,7 @@ export function saveLayoutGraph (a: OutputArchive, g: LayoutGraph): void {
     }
     a.n(numStages);
     a.n(numPhases);
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         a.n(g.w(v));
         a.n(g.getParent(v));
         a.s(g.getName(v));
@@ -1411,13 +1412,13 @@ export function loadRenderPhaseData (a: InputArchive, v: RenderPhaseData): void 
 }
 
 export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void {
-    const numVertices = g.numVertices();
-    const numEdges = g.numEdges();
+    const numVertices = g.nv();
+    const numEdges = g.ne();
     a.n(numVertices);
     a.n(numEdges);
     let numStages = 0;
     let numPhases = 0;
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         switch (g.w(v)) {
         case LayoutGraphDataValue.RenderStage:
             numStages += 1;
@@ -1431,7 +1432,7 @@ export function saveLayoutGraphData (a: OutputArchive, g: LayoutGraphData): void
     }
     a.n(numStages);
     a.n(numPhases);
-    for (const v of g.vertices()) {
+    for (const v of g.v()) {
         a.n(g.w(v));
         a.n(g.getParent(v));
         a.s(g.getName(v));

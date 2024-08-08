@@ -28,9 +28,9 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { Attribute, ShaderInfo } from '../../gfx';
-import { ProgramProxy } from './private';
-import { IProgramInfo } from '../../render-scene/core/program-lib';
+import type { Attribute, ShaderInfo } from '../../gfx';
+import type { ProgramProxy } from './private';
+import type { IProgramInfo } from '../../render-scene/core/program-lib';
 
 export class ProgramInfo {
     constructor (

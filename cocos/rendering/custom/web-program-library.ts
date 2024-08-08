@@ -884,7 +884,7 @@ export function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): num
 export class WebProgramLibrary implements ProgramLibrary {
     constructor (lg: LayoutGraphData) {
         this.layoutGraph = lg;
-        for (const v of lg.vertices()) {
+        for (const v of lg.v()) {
             if (lg.h(LayoutGraphDataValue.RenderPhase, v)) {
                 this.phases.set(v, new ProgramGroup());
             }
@@ -906,7 +906,7 @@ export class WebProgramLibrary implements ProgramLibrary {
 
         // init layout graph
         const lg = this.layoutGraph;
-        for (const v of lg.vertices()) {
+        for (const v of lg.v()) {
             const layout: PipelineLayoutData = lg.getLayout(v);
             for (const [update, set] of layout.descriptorSets) {
                 initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData, set.descriptorSetLayoutInfo);
@@ -917,7 +917,7 @@ export class WebProgramLibrary implements ProgramLibrary {
             }
         }
 
-        for (const v of lg.vertices()) {
+        for (const v of lg.v()) {
             if (!lg.h(LayoutGraphDataValue.RenderPhase, v)) {
                 continue;
             }
