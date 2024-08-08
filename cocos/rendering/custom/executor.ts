@@ -1314,11 +1314,11 @@ class DeviceRenderScene implements RecordingInterface {
         const rasterId = devicePass.rasterPassInfo.id;
         const passRenderData = context.renderGraph.getData(rasterId);
         // RasterPass first
-        this._updateGlobal(passRenderData);
+        this._updateGlobal(passRenderData, this.graphScene.sceneID);
         // then Queue
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(queueRenderData);
+        this._updateGlobal(queueRenderData, this.graphScene.sceneID);
 
         this._currentQueue.isUpdateUBO = true;
 
