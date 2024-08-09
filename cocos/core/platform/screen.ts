@@ -25,7 +25,7 @@
  THE SOFTWARE.
 */
 
-import { IScreenOptions, screenAdapter } from 'pal/screen-adapter';
+import { screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Size } from '../math';
 import { settings, SettingsCategory } from '../settings';

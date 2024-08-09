@@ -103,10 +103,10 @@ ccenum(DefaultSkinsEnum);
 /**
  * @engineInternal
  */
-export enum DefaultAnimsEnum {
+export enum SpineDefaultAnimsEnum {
     '<None>' = 0
 }
-ccenum(DefaultAnimsEnum);
+ccenum(SpineDefaultAnimsEnum);
 
 /**
  * @engineInternal
@@ -419,7 +419,7 @@ export class Skeleton extends UIRenderer {
      * @engineInternal
      */
     @displayName('Animation')
-    @type(DefaultAnimsEnum)
+    @type(SpineDefaultAnimsEnum)
     @tooltip('i18n:COMPONENT.skeleton.animation')
     get _animationIndex (): number {
         const animationName = EDITOR_NOT_IN_PREVIEW ? this.defaultAnimation : this.animation;
@@ -1249,7 +1249,7 @@ export class Skeleton extends UIRenderer {
         if (this.skeletonData) {
             animEnum = this.skeletonData.getAnimsEnum();
         } else {
-            animEnum = DefaultAnimsEnum;
+            animEnum = SpineDefaultAnimsEnum;
         }
 
         // reset enum type
