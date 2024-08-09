@@ -129,6 +129,7 @@ export class SplashScreen {
     }
 
     public init (): Promise<void[]> {
+        // The WeChat mini-game's splash screen is using the implementation in first-screen.
         if (WECHAT) {
             return Promise.resolve([]);
         }
