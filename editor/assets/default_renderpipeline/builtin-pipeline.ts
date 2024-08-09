@@ -680,6 +680,12 @@ if (rendering) {
             }
 
             pass.setViewport(this._viewport);
+
+            // The opaque queue is used for Reflection probe preview
+            pass.addQueue(QueueHint.OPAQUE)
+                .addScene(camera, SceneFlags.OPAQUE);
+
+            // The blend queue is used for UI and Gizmos
             pass.addQueue(QueueHint.BLEND)
                 .addScene(camera, SceneFlags.BLEND | SceneFlags.UI);
         }
