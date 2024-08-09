@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_BUILD_TYPE "MinSizeRel")
 
 set(APP_NAME "spine" CACHE STRING "Project Name")
 project(${APP_NAME}_wasm)

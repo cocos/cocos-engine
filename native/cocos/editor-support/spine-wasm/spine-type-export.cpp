@@ -71,6 +71,9 @@ using SPVectorVectorInt = Vector<Vector<int>>;
 using SPVectorSize_t = Vector<size_t>;
 using SPVectorBonePtr = Vector<Bone*>;
 using SPVectorBoneDataPtr = Vector<BoneData*>;
+using SPVectorSlotDataPtr = Vector<SlotData*>;
+using SPVectorTransformConstraintDataPtr = Vector<TransformConstraintData*>;
+using SPVectorPathConstraintDataPtr = Vector<PathConstraintData*>;
 using SPVectorUnsignedShort = Vector<unsigned short>;
 using SPVectorConstraintDataPtr = Vector<ConstraintData*>;
 using SPVectorSlotPtr = Vector<Slot*>;
@@ -185,50 +188,37 @@ EMSCRIPTEN_BINDINGS(spine) {
             obj[index] = value;
         }), allow_raw_pointer<BoneData*>());
 
+    class_<SPVectorSlotDataPtr>("SPVectorSlotDataPtr")
+        .function("size", &SPVectorSlotDataPtr::size)
+        .function("get", &SPVectorSlotDataPtr::operator[], allow_raw_pointers());
+
+    class_<SPVectorTransformConstraintDataPtr>("SPVectorTransformConstraintDataPtr")
+        .function("size", &SPVectorTransformConstraintDataPtr::size)
+        .function("get", &SPVectorTransformConstraintDataPtr::operator[], allow_raw_pointers());
+
+    class_<SPVectorPathConstraintDataPtr>("SPVectorPathConstraintDataPtr")
+        .function("size", &SPVectorPathConstraintDataPtr::size)
+        .function("get", &SPVectorPathConstraintDataPtr::operator[], allow_raw_pointers());    
+
     class_<SPVectorConstraintDataPtr>("SPVectorConstraintDataPtr")
-        .constructor<>()
-        .function("resize", &SPVectorConstraintDataPtr::setSize)
         .function("size", &SPVectorConstraintDataPtr::size)
-        .function("get", &SPVectorConstraintDataPtr::operator[], allow_raw_pointers())
-        .function("set",optional_override([](SPVectorConstraintDataPtr &obj, int index, ConstraintData *value) {
-            obj[index] = value;
-        }), allow_raw_pointer<ConstraintData*>());
+        .function("get", &SPVectorConstraintDataPtr::operator[], allow_raw_pointers());
 
     class_<SPVectorSlotPtr>("SPVectorSlotPtr")
-        .constructor<>()
-        .function("resize", &SPVectorSlotPtr::setSize)
         .function("size", &SPVectorSlotPtr::size)
-        .function("get", &SPVectorSlotPtr::operator[], allow_raw_pointers())
-        .function("set",optional_override([](SPVectorSlotPtr &obj, int index, Slot *value) {
-            obj[index] = value;
-        }), allow_raw_pointer<Slot*>());
+        .function("get", &SPVectorSlotPtr::operator[], allow_raw_pointers());
 
     class_<SPVectorSkinPtr>("SPVectorSkinPtr")
-        .constructor<>()
-        .function("resize", &SPVectorSkinPtr::setSize)
         .function("size", &SPVectorSkinPtr::size)
-        .function("get", &SPVectorSkinPtr::operator[], allow_raw_pointers())
-        .function("set",optional_override([](SPVectorSkinPtr &obj, int index, Skin *value) {
-            obj[index] = value;
-        }), allow_raw_pointer<Skin*>());
+        .function("get", &SPVectorSkinPtr::operator[], allow_raw_pointers());
     
     class_<SPVectorEventDataPtr>("SPVectorEventDataPtr")
-        .constructor<>()
-        .function("resize", &SPVectorEventDataPtr::setSize)
         .function("size", &SPVectorEventDataPtr::size)
-        .function("get", &SPVectorEventDataPtr::operator[], allow_raw_pointers())
-        .function("set",optional_override([](SPVectorEventDataPtr &obj, int index, EventData *value) {
-            obj[index] = value;
-        }), allow_raw_pointer<EventData*>());
+        .function("get", &SPVectorEventDataPtr::operator[], allow_raw_pointers());
 
     class_<SPVectorAnimationPtr>("SPVectorAnimationPtr")
-        .constructor<>()
-        .function("resize", &SPVectorAnimationPtr::setSize)
         .function("size", &SPVectorAnimationPtr::size)
-        .function("get", &SPVectorAnimationPtr::operator[], allow_raw_pointers())
-        .function("set",optional_override([](SPVectorAnimationPtr &obj, int index, Animation *value) {
-            obj[index] = value;
-        }), allow_raw_pointer<Animation*>());
+        .function("get", &SPVectorAnimationPtr::operator[], allow_raw_pointers());
     
     class_<SPVectorIkConstraintPtr>("SPVectorIkConstraintPtr")
         .constructor<>()
@@ -1046,7 +1036,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getBones", optional_override([](SkeletonData &obj) {
             return &obj.getBones(); }), allow_raw_pointer<SPVectorBoneDataPtr>())
         .function("getSlots", optional_override([](SkeletonData &obj) {
-            return &obj.getSlots(); }), allow_raw_pointer<SPVectorSlotPtr>())
+            return &obj.getSlots(); }), allow_raw_pointer<SPVectorSlotDataPtr>())
         .function("getSkins", optional_override([](SkeletonData &obj) {
             return &obj.getSkins(); }), allow_raw_pointer<SPVectorSkinPtr>())
         .function("getDefaultSkin", &SkeletonData::getDefaultSkin, allow_raw_pointers())
@@ -1058,9 +1048,9 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getIkConstraints", optional_override([](SkeletonData &obj) {
             return &obj.getIkConstraints(); }), allow_raw_pointer<SPVectorIkConstraintDataPtr>())
         .function("getTransformConstraints", optional_override([](SkeletonData &obj) {
-            return &obj.getTransformConstraints(); }), allow_raw_pointer<SPVectorTransformConstraintPtr>())
+            return &obj.getTransformConstraints(); }), allow_raw_pointer<SPVectorTransformConstraintDataPtr>())
         .function("getPathConstraints", optional_override([](SkeletonData &obj) {
-            return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintPtr>())
+            return &obj.getPathConstraints(); }), allow_raw_pointer<SPVectorPathConstraintDataPtr>())
         .function("getX", &SkeletonData::getX)
         .function("setX", &SkeletonData::setX)
         .function("getY", &SkeletonData::getY)
