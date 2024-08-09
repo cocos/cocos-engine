@@ -111,9 +111,9 @@ export class WebGL2Device extends Device {
 
     public initialize (info: Readonly<DeviceInfo>): boolean {
         WebGL2DeviceManager.setInstance(this);
-        this._gfxAPI = API.WEBGL2;
+        this._gfxAPI$ = API.WEBGL2;
 
-        const mapping = this._bindingMappingInfo = info.bindingMappingInfo;
+        const mapping = this._bindingMappingInfo$ = info.bindingMappingInfo;
         const blockOffsets: number[] = [];
         const samplerTextureOffsets: number[] = [];
         const firstSet = mapping.setIndices[0];
@@ -145,33 +145,33 @@ export class WebGL2Device extends Device {
         }
 
         // create queue
-        this._queue = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
-        this._cmdBuff = this.createCommandBuffer(new CommandBufferInfo(this._queue));
+        this._queue$ = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
+        this._cmdBuff$ = this.createCommandBuffer(new CommandBufferInfo(this._queue$));
 
-        this._caps.maxVertexAttributes = gl.getParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
-        this._caps.maxVertexUniformVectors = gl.getParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
+        this._caps$.maxVertexAttributes = gl.getParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
+        this._caps$.maxVertexUniformVectors = gl.getParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
         // Implementation of WebGL2 in WECHAT browser and Safari in IOS exist bugs.
         // It seems to be related to Safari's experimental features 'WebGL via Metal'.
         // So limit using vertex uniform vectors no more than 256 in wechat browser,
         // and using vertex uniform vectors no more than 512 in safari.
         if (systemInfo.os === OS.IOS) {
-            const maxVertexUniformVectors = this._caps.maxVertexUniformVectors;
+            const maxVertexUniformVectors = this._caps$.maxVertexUniformVectors;
             if (sys.browserType === BrowserType.WECHAT) {
-                this._caps.maxVertexUniformVectors = maxVertexUniformVectors < 256 ? maxVertexUniformVectors : 256;
+                this._caps$.maxVertexUniformVectors = maxVertexUniformVectors < 256 ? maxVertexUniformVectors : 256;
             } else if (sys.browserType === BrowserType.SAFARI) {
-                this._caps.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
+                this._caps$.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
             }
         }
-        this._caps.maxFragmentUniformVectors = gl.getParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._caps.maxTextureUnits = gl.getParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
-        this._caps.maxVertexTextureUnits = gl.getParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._caps.maxUniformBufferBindings = gl.getParameter(WebGLConstants.MAX_UNIFORM_BUFFER_BINDINGS);
-        this._caps.maxUniformBlockSize = gl.getParameter(WebGLConstants.MAX_UNIFORM_BLOCK_SIZE);
-        this._caps.maxTextureSize = gl.getParameter(WebGLConstants.MAX_TEXTURE_SIZE);
-        this._caps.maxCubeMapTextureSize = gl.getParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
-        this._caps.maxArrayTextureLayers = gl.getParameter(WebGLConstants.MAX_ARRAY_TEXTURE_LAYERS);
-        this._caps.max3DTextureSize = gl.getParameter(WebGLConstants.MAX_3D_TEXTURE_SIZE);
-        this._caps.uboOffsetAlignment = gl.getParameter(WebGLConstants.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+        this._caps$.maxFragmentUniformVectors = gl.getParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps$.maxTextureUnits = gl.getParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps$.maxVertexTextureUnits = gl.getParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps$.maxUniformBufferBindings = gl.getParameter(WebGLConstants.MAX_UNIFORM_BUFFER_BINDINGS);
+        this._caps$.maxUniformBlockSize = gl.getParameter(WebGLConstants.MAX_UNIFORM_BLOCK_SIZE);
+        this._caps$.maxTextureSize = gl.getParameter(WebGLConstants.MAX_TEXTURE_SIZE);
+        this._caps$.maxCubeMapTextureSize = gl.getParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._caps$.maxArrayTextureLayers = gl.getParameter(WebGLConstants.MAX_ARRAY_TEXTURE_LAYERS);
+        this._caps$.max3DTextureSize = gl.getParameter(WebGLConstants.MAX_3D_TEXTURE_SIZE);
+        this._caps$.uboOffsetAlignment = gl.getParameter(WebGLConstants.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         const extensions = gl.getSupportedExtensions();
         let extStr = '';
@@ -184,23 +184,23 @@ export class WebGL2Device extends Device {
         const exts = getExtensions(gl);
 
         if (exts.WEBGL_debug_renderer_info) {
-            this._renderer = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
-            this._vendor = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
+            this._renderer$ = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
+            this._vendor$ = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer = gl.getParameter(WebGLConstants.RENDERER);
-            this._vendor = gl.getParameter(WebGLConstants.VENDOR);
+            this._renderer$ = gl.getParameter(WebGLConstants.RENDERER);
+            this._vendor$ = gl.getParameter(WebGLConstants.VENDOR);
         }
 
         const version: string = gl.getParameter(WebGLConstants.VERSION);
 
-        this._features.fill(false);
+        this._features$.fill(false);
 
         this.initFormatFeatures(exts);
 
-        this._features[Feature.ELEMENT_INDEX_UINT] = true;
-        this._features[Feature.INSTANCED_ARRAYS] = true;
-        this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
-        this._features[Feature.BLEND_MINMAX] = true;
+        this._features$[Feature.ELEMENT_INDEX_UINT] = true;
+        this._features$[Feature.INSTANCED_ARRAYS] = true;
+        this._features$[Feature.MULTIPLE_RENDER_TARGETS] = true;
+        this._features$[Feature.BLEND_MINMAX] = true;
 
         let compressedFormat = '';
 
@@ -225,8 +225,8 @@ export class WebGL2Device extends Device {
         }
 
         debug('WebGL2 device initialized.');
-        debug(`RENDERER: ${this._renderer}`);
-        debug(`VENDOR: ${this._vendor}`);
+        debug(`RENDERER: ${this._renderer$}`);
+        debug(`VENDOR: ${this._vendor$}`);
         debug(`VERSION: ${version}`);
         debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
         debug(`EXTENSIONS: ${extStr}`);
@@ -235,17 +235,17 @@ export class WebGL2Device extends Device {
     }
 
     public destroy (): void {
-        if (this._queue) {
-            this._queue.destroy();
-            this._queue = null;
+        if (this._queue$) {
+            this._queue$.destroy();
+            this._queue$ = null;
         }
 
-        if (this._cmdBuff) {
-            this._cmdBuff.destroy();
-            this._cmdBuff = null;
+        if (this._cmdBuff$) {
+            this._cmdBuff$.destroy();
+            this._cmdBuff$ = null;
         }
 
-        const it = this._samplers.values();
+        const it = this._samplers$.values();
         let res = it.next();
         while (!res.done) {
             (res.value as WebGL2Sampler).destroy();
@@ -264,98 +264,98 @@ export class WebGL2Device extends Device {
     }
 
     public present (): void {
-        const queue = (this._queue as WebGL2Queue);
-        this._numDrawCalls = queue.numDrawCalls;
-        this._numInstances = queue.numInstances;
-        this._numTris = queue.numTris;
+        const queue = (this._queue$ as WebGL2Queue);
+        this._numDrawCalls$ = queue.numDrawCalls;
+        this._numInstances$ = queue.numInstances;
+        this._numTris$ = queue.numTris;
         queue.clear();
     }
 
     protected initFormatFeatures (exts: IWebGL2Extensions): void {
-        this._formatFeatures.fill(FormatFeatureBit.NONE);
+        this._formatFeatures$.fill(FormatFeatureBit.NONE);
 
         this._textureExclusive.fill(true);
 
         let tempFeature: FormatFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
             | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
-        this._formatFeatures[Format.R8] = tempFeature;
-        this._formatFeatures[Format.RG8] = tempFeature;
-        this._formatFeatures[Format.RGB8] = tempFeature;
-        this._formatFeatures[Format.RGBA8] = tempFeature;
+        this._formatFeatures$[Format.R8] = tempFeature;
+        this._formatFeatures$[Format.RG8] = tempFeature;
+        this._formatFeatures$[Format.RGB8] = tempFeature;
+        this._formatFeatures$[Format.RGBA8] = tempFeature;
 
         tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
             | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
-        this._formatFeatures[Format.R8SN] = tempFeature;
-        this._formatFeatures[Format.RG8SN] = tempFeature;
-        this._formatFeatures[Format.RGB8SN] = tempFeature;
-        this._formatFeatures[Format.RGBA8SN] = tempFeature;
-        this._formatFeatures[Format.R5G6B5] = tempFeature;
-        this._formatFeatures[Format.RGBA4] = tempFeature;
-        this._formatFeatures[Format.RGB5A1] = tempFeature;
-        this._formatFeatures[Format.RGB10A2] = tempFeature;
+        this._formatFeatures$[Format.R8SN] = tempFeature;
+        this._formatFeatures$[Format.RG8SN] = tempFeature;
+        this._formatFeatures$[Format.RGB8SN] = tempFeature;
+        this._formatFeatures$[Format.RGBA8SN] = tempFeature;
+        this._formatFeatures$[Format.R5G6B5] = tempFeature;
+        this._formatFeatures$[Format.RGBA4] = tempFeature;
+        this._formatFeatures$[Format.RGB5A1] = tempFeature;
+        this._formatFeatures$[Format.RGB10A2] = tempFeature;
 
-        this._formatFeatures[Format.SRGB8] = tempFeature;
-        this._formatFeatures[Format.SRGB8_A8] = tempFeature;
+        this._formatFeatures$[Format.SRGB8] = tempFeature;
+        this._formatFeatures$[Format.SRGB8_A8] = tempFeature;
 
-        this._formatFeatures[Format.R11G11B10F] = tempFeature;
-        this._formatFeatures[Format.RGB9E5] = tempFeature;
+        this._formatFeatures$[Format.R11G11B10F] = tempFeature;
+        this._formatFeatures$[Format.RGB9E5] = tempFeature;
 
-        this._formatFeatures[Format.DEPTH] = tempFeature;
-        this._formatFeatures[Format.DEPTH_STENCIL] = tempFeature;
+        this._formatFeatures$[Format.DEPTH] = tempFeature;
+        this._formatFeatures$[Format.DEPTH_STENCIL] = tempFeature;
 
-        this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
+        this._formatFeatures$[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
             | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.SAMPLED_TEXTURE
             | FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
-        this._formatFeatures[Format.R16F] = tempFeature;
-        this._formatFeatures[Format.RG16F] = tempFeature;
-        this._formatFeatures[Format.RGB16F] = tempFeature;
-        this._formatFeatures[Format.RGBA16F] = tempFeature;
+        this._formatFeatures$[Format.R16F] = tempFeature;
+        this._formatFeatures$[Format.RG16F] = tempFeature;
+        this._formatFeatures$[Format.RGB16F] = tempFeature;
+        this._formatFeatures$[Format.RGBA16F] = tempFeature;
 
         tempFeature = FormatFeatureBit.STORAGE_TEXTURE | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
-        this._formatFeatures[Format.R32F] = tempFeature;
-        this._formatFeatures[Format.RG32F] = tempFeature;
-        this._formatFeatures[Format.RGB32F] = tempFeature;
-        this._formatFeatures[Format.RGBA32F] = tempFeature;
+        this._formatFeatures$[Format.R32F] = tempFeature;
+        this._formatFeatures$[Format.RG32F] = tempFeature;
+        this._formatFeatures$[Format.RGB32F] = tempFeature;
+        this._formatFeatures$[Format.RGBA32F] = tempFeature;
 
-        this._formatFeatures[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
+        this._formatFeatures$[Format.RGB10A2UI] = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
             | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         tempFeature = FormatFeatureBit.RENDER_TARGET | FormatFeatureBit.STORAGE_TEXTURE
             | FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER | FormatFeatureBit.VERTEX_ATTRIBUTE;
 
-        this._formatFeatures[Format.R8I] = tempFeature;
-        this._formatFeatures[Format.R8UI] = tempFeature;
-        this._formatFeatures[Format.R16I] = tempFeature;
-        this._formatFeatures[Format.R16UI] = tempFeature;
-        this._formatFeatures[Format.R32I] = tempFeature;
-        this._formatFeatures[Format.R32UI] = tempFeature;
+        this._formatFeatures$[Format.R8I] = tempFeature;
+        this._formatFeatures$[Format.R8UI] = tempFeature;
+        this._formatFeatures$[Format.R16I] = tempFeature;
+        this._formatFeatures$[Format.R16UI] = tempFeature;
+        this._formatFeatures$[Format.R32I] = tempFeature;
+        this._formatFeatures$[Format.R32UI] = tempFeature;
 
-        this._formatFeatures[Format.RG8I] = tempFeature;
-        this._formatFeatures[Format.RG8UI] = tempFeature;
-        this._formatFeatures[Format.RG16I] = tempFeature;
-        this._formatFeatures[Format.RG16UI] = tempFeature;
-        this._formatFeatures[Format.RG32I] = tempFeature;
-        this._formatFeatures[Format.RG32UI] = tempFeature;
+        this._formatFeatures$[Format.RG8I] = tempFeature;
+        this._formatFeatures$[Format.RG8UI] = tempFeature;
+        this._formatFeatures$[Format.RG16I] = tempFeature;
+        this._formatFeatures$[Format.RG16UI] = tempFeature;
+        this._formatFeatures$[Format.RG32I] = tempFeature;
+        this._formatFeatures$[Format.RG32UI] = tempFeature;
 
-        this._formatFeatures[Format.RGB8I] = tempFeature;
-        this._formatFeatures[Format.RGB8UI] = tempFeature;
-        this._formatFeatures[Format.RGB16I] = tempFeature;
-        this._formatFeatures[Format.RGB16UI] = tempFeature;
-        this._formatFeatures[Format.RGB32I] = tempFeature;
-        this._formatFeatures[Format.RGB32UI] = tempFeature;
+        this._formatFeatures$[Format.RGB8I] = tempFeature;
+        this._formatFeatures$[Format.RGB8UI] = tempFeature;
+        this._formatFeatures$[Format.RGB16I] = tempFeature;
+        this._formatFeatures$[Format.RGB16UI] = tempFeature;
+        this._formatFeatures$[Format.RGB32I] = tempFeature;
+        this._formatFeatures$[Format.RGB32UI] = tempFeature;
 
-        this._formatFeatures[Format.RGBA8I] = tempFeature;
-        this._formatFeatures[Format.RGBA8UI] = tempFeature;
-        this._formatFeatures[Format.RGBA16I] = tempFeature;
-        this._formatFeatures[Format.RGBA16UI] = tempFeature;
-        this._formatFeatures[Format.RGBA32I] = tempFeature;
-        this._formatFeatures[Format.RGBA32UI] = tempFeature;
+        this._formatFeatures$[Format.RGBA8I] = tempFeature;
+        this._formatFeatures$[Format.RGBA8UI] = tempFeature;
+        this._formatFeatures$[Format.RGBA16I] = tempFeature;
+        this._formatFeatures$[Format.RGBA16UI] = tempFeature;
+        this._formatFeatures$[Format.RGBA32I] = tempFeature;
+        this._formatFeatures$[Format.RGBA32UI] = tempFeature;
 
         this._textureExclusive[Format.R8] = false;
         this._textureExclusive[Format.RG8] = false;
@@ -394,9 +394,9 @@ export class WebGL2Device extends Device {
         this._textureExclusive[Format.DEPTH_STENCIL] = false;
 
         if (exts.EXT_color_buffer_float) {
-            this._formatFeatures[Format.R32F] |= FormatFeatureBit.RENDER_TARGET;
-            this._formatFeatures[Format.RG32F] |= FormatFeatureBit.RENDER_TARGET;
-            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures$[Format.R32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures$[Format.RG32F] |= FormatFeatureBit.RENDER_TARGET;
+            this._formatFeatures$[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET;
 
             this._textureExclusive[Format.R32F] = false;
             this._textureExclusive[Format.RG32F] = false;
@@ -410,82 +410,82 @@ export class WebGL2Device extends Device {
         }
 
         if (exts.OES_texture_float_linear) {
-            this._formatFeatures[Format.RGB32F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RGBA32F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.R32F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RG32F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.RGB32F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.RGBA32F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.R32F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.RG32F] |= FormatFeatureBit.LINEAR_FILTER;
         }
 
         if (exts.OES_texture_half_float_linear) {
-            this._formatFeatures[Format.RGB16F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RGBA16F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.R16F] |= FormatFeatureBit.LINEAR_FILTER;
-            this._formatFeatures[Format.RG16F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.RGB16F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.RGBA16F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.R16F] |= FormatFeatureBit.LINEAR_FILTER;
+            this._formatFeatures$[Format.RG16F] |= FormatFeatureBit.LINEAR_FILTER;
         }
 
         const compressedFeature: FormatFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
         if (exts.WEBGL_compressed_texture_etc1) {
-            this._formatFeatures[Format.ETC_RGB8] = compressedFeature;
+            this._formatFeatures$[Format.ETC_RGB8] = compressedFeature;
         }
 
         if (exts.WEBGL_compressed_texture_etc) {
-            this._formatFeatures[Format.ETC2_RGB8] = compressedFeature;
-            this._formatFeatures[Format.ETC2_RGBA8] = compressedFeature;
-            this._formatFeatures[Format.ETC2_SRGB8] = compressedFeature;
-            this._formatFeatures[Format.ETC2_SRGB8_A8] = compressedFeature;
-            this._formatFeatures[Format.ETC2_RGB8_A1] = compressedFeature;
-            this._formatFeatures[Format.ETC2_SRGB8_A1] = compressedFeature;
+            this._formatFeatures$[Format.ETC2_RGB8] = compressedFeature;
+            this._formatFeatures$[Format.ETC2_RGBA8] = compressedFeature;
+            this._formatFeatures$[Format.ETC2_SRGB8] = compressedFeature;
+            this._formatFeatures$[Format.ETC2_SRGB8_A8] = compressedFeature;
+            this._formatFeatures$[Format.ETC2_RGB8_A1] = compressedFeature;
+            this._formatFeatures$[Format.ETC2_SRGB8_A1] = compressedFeature;
         }
 
         if (exts.WEBGL_compressed_texture_s3tc) {
-            this._formatFeatures[Format.BC1] = compressedFeature;
-            this._formatFeatures[Format.BC1_ALPHA] = compressedFeature;
-            this._formatFeatures[Format.BC1_SRGB] = compressedFeature;
-            this._formatFeatures[Format.BC1_SRGB_ALPHA] = compressedFeature;
-            this._formatFeatures[Format.BC2] = compressedFeature;
-            this._formatFeatures[Format.BC2_SRGB] = compressedFeature;
-            this._formatFeatures[Format.BC3] = compressedFeature;
-            this._formatFeatures[Format.BC3_SRGB] = compressedFeature;
+            this._formatFeatures$[Format.BC1] = compressedFeature;
+            this._formatFeatures$[Format.BC1_ALPHA] = compressedFeature;
+            this._formatFeatures$[Format.BC1_SRGB] = compressedFeature;
+            this._formatFeatures$[Format.BC1_SRGB_ALPHA] = compressedFeature;
+            this._formatFeatures$[Format.BC2] = compressedFeature;
+            this._formatFeatures$[Format.BC2_SRGB] = compressedFeature;
+            this._formatFeatures$[Format.BC3] = compressedFeature;
+            this._formatFeatures$[Format.BC3_SRGB] = compressedFeature;
         }
 
         if (exts.WEBGL_compressed_texture_pvrtc) {
-            this._formatFeatures[Format.PVRTC_RGB2] = compressedFeature;
-            this._formatFeatures[Format.PVRTC_RGBA2] = compressedFeature;
-            this._formatFeatures[Format.PVRTC_RGB4] = compressedFeature;
-            this._formatFeatures[Format.PVRTC_RGBA4] = compressedFeature;
+            this._formatFeatures$[Format.PVRTC_RGB2] = compressedFeature;
+            this._formatFeatures$[Format.PVRTC_RGBA2] = compressedFeature;
+            this._formatFeatures$[Format.PVRTC_RGB4] = compressedFeature;
+            this._formatFeatures$[Format.PVRTC_RGBA4] = compressedFeature;
         }
 
         if (exts.WEBGL_compressed_texture_astc) {
-            this._formatFeatures[Format.ASTC_RGBA_4X4] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_5X4] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_5X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_6X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_6X6] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_8X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_8X6] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_8X8] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X6] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X8] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_10X10] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_12X10] = compressedFeature;
-            this._formatFeatures[Format.ASTC_RGBA_12X12] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_4X4] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_5X4] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_5X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_6X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_6X6] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_8X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_8X6] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_8X8] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_10X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_10X6] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_10X8] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_10X10] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_12X10] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_RGBA_12X12] = compressedFeature;
 
-            this._formatFeatures[Format.ASTC_SRGBA_4X4] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_5X4] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_5X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_6X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_6X6] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_8X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_8X6] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_8X8] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X5] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X6] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X8] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_10X10] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_12X10] = compressedFeature;
-            this._formatFeatures[Format.ASTC_SRGBA_12X12] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_4X4] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_5X4] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_5X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_6X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_6X6] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_8X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_8X6] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_8X8] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_10X5] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_10X6] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_10X8] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_10X10] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_12X10] = compressedFeature;
+            this._formatFeatures$[Format.ASTC_SRGBA_12X12] = compressedFeature;
         }
     }
 
@@ -572,10 +572,10 @@ export class WebGL2Device extends Device {
 
     public getSampler (info: Readonly<SamplerInfo>): Sampler {
         const hash = Sampler.computeHash(info);
-        if (!this._samplers.has(hash)) {
-            this._samplers.set(hash, new WebGL2Sampler(info, hash));
+        if (!this._samplers$.has(hash)) {
+            this._samplers$.set(hash, new WebGL2Sampler(info, hash));
         }
-        return this._samplers.get(hash)!;
+        return this._samplers$.get(hash)!;
     }
 
     public getSwapchains (): Readonly<Swapchain[]> {
@@ -584,26 +584,26 @@ export class WebGL2Device extends Device {
 
     public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier {
         const hash = GeneralBarrier.computeHash(info);
-        if (!this._generalBarrierss.has(hash)) {
-            this._generalBarrierss.set(hash, new GeneralBarrier(info, hash));
+        if (!this._generalBarrierss$.has(hash)) {
+            this._generalBarrierss$.set(hash, new GeneralBarrier(info, hash));
         }
-        return this._generalBarrierss.get(hash)!;
+        return this._generalBarrierss$.get(hash)!;
     }
 
     public getTextureBarrier (info: Readonly<TextureBarrierInfo>): TextureBarrier {
         const hash = TextureBarrier.computeHash(info);
-        if (!this._textureBarriers.has(hash)) {
-            this._textureBarriers.set(hash, new TextureBarrier(info, hash));
+        if (!this._textureBarriers$.has(hash)) {
+            this._textureBarriers$.set(hash, new TextureBarrier(info, hash));
         }
-        return this._textureBarriers.get(hash)!;
+        return this._textureBarriers$.get(hash)!;
     }
 
     public getBufferBarrier (info: Readonly<BufferBarrierInfo>): BufferBarrier {
         const hash = BufferBarrier.computeHash(info);
-        if (!this._bufferBarriers.has(hash)) {
-            this._bufferBarriers.set(hash, new BufferBarrier(info, hash));
+        if (!this._bufferBarriers$.has(hash)) {
+            this._bufferBarriers$.set(hash, new BufferBarrier(info, hash));
         }
-        return this._bufferBarriers.get(hash)!;
+        return this._bufferBarriers$.get(hash)!;
     }
 
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {

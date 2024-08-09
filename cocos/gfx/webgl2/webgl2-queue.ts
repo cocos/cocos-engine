@@ -33,7 +33,7 @@ export class WebGL2Queue extends Queue {
     public numTris = 0;
 
     public initialize (info: Readonly<QueueInfo>): void {
-        this._type = info.type;
+        this._type$ = info.type;
     }
 
     public destroy (): void {

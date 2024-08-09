@@ -55,9 +55,9 @@ export class WebGL2Framebuffer extends Framebuffer {
     }
 
     public initialize (info: Readonly<FramebufferInfo>): void {
-        this._renderPass = info.renderPass;
-        this._colorTextures = info.colorTextures || [];
-        this._depthStencilTexture = info.depthStencilTexture || null;
+        this._renderPass$ = info.renderPass;
+        this._colorTextures$ = info.colorTextures || [];
+        this._depthStencilTexture$ = info.depthStencilTexture || null;
 
         const gpuColorViews: IWebGL2GPUTextureView[] = [];
         for (let i = 0; i < info.colorTextures.length; i++) {
@@ -107,8 +107,8 @@ export class WebGL2Framebuffer extends Framebuffer {
         WebGL2CmdFuncCreateFramebuffer(WebGL2DeviceManager.instance, this._gpuFramebuffer);
         this.gpuFramebuffer.gpuColorViews.forEach((tex) => this._gpuColorViews.push(tex.gpuTexture.glTexture));
         this._gpuDepthStencilView = this.gpuFramebuffer.gpuDepthStencilView?.gpuTexture.glTexture;
-        this._width = this._gpuFramebuffer.width;
-        this._height = this._gpuFramebuffer.height;
+        this._width$ = this._gpuFramebuffer.width;
+        this._height$ = this._gpuFramebuffer.height;
     }
 
     public destroy (): void {

@@ -202,16 +202,16 @@ export class WebGL2Swapchain extends Swapchain {
         if (depthBits && stencilBits) depthStencilFmt = Format.DEPTH_STENCIL;
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
-        this._colorTexture = new WebGL2Texture();
-        this._colorTexture.initAsSwapchainTexture({
+        this._colorTexture$ = new WebGL2Texture();
+        this._colorTexture$.initAsSwapchainTexture({
             swapchain: this,
             format: colorFmt,
             width: info.width,
             height: info.height,
         });
 
-        this._depthStencilTexture = new WebGL2Texture();
-        this._depthStencilTexture.initAsSwapchainTexture({
+        this._depthStencilTexture$ = new WebGL2Texture();
+        this._depthStencilTexture$.initAsSwapchainTexture({
             swapchain: this,
             format: depthStencilFmt,
             width: info.width,
@@ -282,12 +282,12 @@ export class WebGL2Swapchain extends Swapchain {
     }
 
     public resize (width: number, height: number, surfaceTransform: SurfaceTransform): void {
-        if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
+        if (this._colorTexture$.width !== width || this._colorTexture$.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
-            this._colorTexture.resize(width, height);
-            this._depthStencilTexture.resize(width, height);
+            this._colorTexture$.resize(width, height);
+            this._depthStencilTexture$.resize(width, height);
         }
     }
 

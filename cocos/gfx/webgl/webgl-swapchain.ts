@@ -217,41 +217,41 @@ export function getContext (canvas: HTMLCanvasElement): WebGLRenderingContext | 
 
 export class WebGLSwapchain extends Swapchain {
     get extensions (): IWebGLExtensions {
-        return this._extensions as IWebGLExtensions;
+        return this._extensions$ as IWebGLExtensions;
     }
 
     get blitManager (): IWebGLBlitManager {
-        return this._blitManager!;
+        return this._blitManager$!;
     }
 
-    public stateCache: WebGLStateCache = new WebGLStateCache();
-    public cmdAllocator: WebGLCommandAllocator = new WebGLCommandAllocator();
-    public nullTex2D: WebGLTexture = null!;
-    public nullTexCube: WebGLTexture = null!;
+    public stateCache$: WebGLStateCache = new WebGLStateCache();
+    public cmdAllocator$: WebGLCommandAllocator = new WebGLCommandAllocator();
+    public nullTex2D$: WebGLTexture = null!;
+    public nullTexCube$: WebGLTexture = null!;
 
-    private _canvas: HTMLCanvasElement | null = null;
-    private _webGLContextLostHandler: ((event: Event) => void) | null = null;
-    private _extensions: IWebGLExtensions | null = null;
-    private _blitManager: IWebGLBlitManager | null = null;
+    private _canvas$: HTMLCanvasElement | null = null;
+    private _webGLContextLostHandler$: ((event: Event) => void) | null = null;
+    private _extensions$: IWebGLExtensions | null = null;
+    private _blitManager$: IWebGLBlitManager | null = null;
 
     constructor () {
         super();
     }
 
     public initialize (info: Readonly<SwapchainInfo>): void {
-        this._canvas = info.windowHandle;
+        this._canvas$ = info.windowHandle;
 
-        this._webGLContextLostHandler = this._onWebGLContextLost.bind(this);
-        this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
+        this._webGLContextLostHandler$ = this._onWebGLContextLost.bind(this);
+        this._canvas$.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
 
         const gl = WebGLDeviceManager.instance.gl;
 
-        this.stateCache.initialize(
+        this.stateCache$.initialize(
             WebGLDeviceManager.instance.capabilities.maxTextureUnits,
             WebGLDeviceManager.instance.capabilities.maxVertexAttributes,
         );
 
-        this._extensions = getExtensions(gl);
+        this._extensions$ = getExtensions(gl);
 
         // init states
         initStates(gl);
@@ -269,16 +269,16 @@ export class WebGLSwapchain extends Swapchain {
         if (depthBits && stencilBits) depthStencilFmt = Format.DEPTH_STENCIL;
         else if (depthBits) depthStencilFmt = Format.DEPTH;
 
-        this._colorTexture = new WebGLTexture();
-        this._colorTexture.initAsSwapchainTexture({
+        this._colorTexture$ = new WebGLTexture();
+        this._colorTexture$.initAsSwapchainTexture({
             swapchain: this,
             format: colorFmt,
             width: info.width,
             height: info.height,
         });
 
-        this._depthStencilTexture = new WebGLTexture();
-        this._depthStencilTexture.initAsSwapchainTexture({
+        this._depthStencilTexture$ = new WebGLTexture();
+        this._depthStencilTexture$.initAsSwapchainTexture({
             swapchain: this,
             format: depthStencilFmt,
             width: info.width,
@@ -286,7 +286,7 @@ export class WebGLSwapchain extends Swapchain {
         });
 
         // create default null texture
-        this.nullTex2D = WebGLDeviceManager.instance.createTexture(new TextureInfo(
+        this.nullTex2D$ = WebGLDeviceManager.instance.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -295,7 +295,7 @@ export class WebGLSwapchain extends Swapchain {
             TextureFlagBit.GEN_MIPMAP,
         )) as WebGLTexture;
 
-        this.nullTexCube = WebGLDeviceManager.instance.createTexture(new TextureInfo(
+        this.nullTexCube$ = WebGLDeviceManager.instance.createTexture(new TextureInfo(
             TextureType.CUBE,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -309,51 +309,51 @@ export class WebGLSwapchain extends Swapchain {
         nullTexRegion.texExtent.width = 2;
         nullTexRegion.texExtent.height = 2;
 
-        const nullTexBuff = new Uint8Array(this.nullTex2D.size);
+        const nullTexBuff = new Uint8Array(this.nullTex2D$.size);
         nullTexBuff.fill(0);
-        WebGLDeviceManager.instance.copyBuffersToTexture([nullTexBuff], this.nullTex2D, [nullTexRegion]);
+        WebGLDeviceManager.instance.copyBuffersToTexture([nullTexBuff], this.nullTex2D$, [nullTexRegion]);
 
         nullTexRegion.texSubres.layerCount = 6;
         WebGLDeviceManager.instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube,
+            this.nullTexCube$,
             [nullTexRegion],
         );
-        this._blitManager = new IWebGLBlitManager();
+        this._blitManager$ = new IWebGLBlitManager();
     }
 
     public destroy (): void {
-        if (this._canvas && this._webGLContextLostHandler) {
-            this._canvas.removeEventListener(eventWebGLContextLost, this._webGLContextLostHandler);
-            this._webGLContextLostHandler = null;
+        if (this._canvas$ && this._webGLContextLostHandler$) {
+            this._canvas$.removeEventListener(eventWebGLContextLost, this._webGLContextLostHandler$);
+            this._webGLContextLostHandler$ = null;
         }
 
-        if (this.nullTex2D) {
-            this.nullTex2D.destroy();
-            this.nullTex2D = null!;
+        if (this.nullTex2D$) {
+            this.nullTex2D$.destroy();
+            this.nullTex2D$ = null!;
         }
 
-        if (this.nullTexCube) {
-            this.nullTexCube.destroy();
-            this.nullTexCube = null!;
+        if (this.nullTexCube$) {
+            this.nullTexCube$.destroy();
+            this.nullTexCube$ = null!;
         }
 
-        if (this._blitManager) {
-            this._blitManager.destroy();
-            this._blitManager = null!;
+        if (this._blitManager$) {
+            this._blitManager$.destroy();
+            this._blitManager$ = null!;
         }
 
-        this._extensions = null;
-        this._canvas = null;
+        this._extensions$ = null;
+        this._canvas$ = null;
     }
 
     public resize (width: number, height: number, surfaceTransform: SurfaceTransform): void {
-        if (this._colorTexture.width !== width || this._colorTexture.height !== height) {
+        if (this._colorTexture$.width !== width || this._colorTexture$.height !== height) {
             debug(`Resizing swapchain: ${width}x${height}`);
-            this._canvas!.width = width;
-            this._canvas!.height = height;
-            this._colorTexture.resize(width, height);
-            this._depthStencilTexture.resize(width, height);
+            this._canvas$!.width = width;
+            this._canvas$!.height = height;
+            this._colorTexture$.resize(width, height);
+            this._depthStencilTexture$.resize(width, height);
         }
     }
 

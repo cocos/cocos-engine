@@ -33,15 +33,15 @@ export class WebGL2PipelineLayout extends PipelineLayout {
     private _gpuPipelineLayout: IWebGL2GPUPipelineLayout | null = null;
 
     public initialize (info: Readonly<PipelineLayoutInfo>): void {
-        Array.prototype.push.apply(this._setLayouts, info.setLayouts);
+        Array.prototype.push.apply(this._setLayouts$, info.setLayouts);
 
         const dynamicOffsetIndices: number[][] = [];
 
         const gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[] = [];
         let dynamicOffsetCount = 0;
         const dynamicOffsetOffsets: number[] = [];
-        for (let i = 0; i < this._setLayouts.length; i++) {
-            const setLayout = this._setLayouts[i] as WebGL2DescriptorSetLayout;
+        for (let i = 0; i < this._setLayouts$.length; i++) {
+            const setLayout = this._setLayouts$[i] as WebGL2DescriptorSetLayout;
             const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings;
             const indices = Array(setLayout.bindingIndices.length).fill(-1);
             for (let j = 0; j < dynamicBindings.length; j++) {
@@ -64,6 +64,6 @@ export class WebGL2PipelineLayout extends PipelineLayout {
     }
 
     public destroy (): void {
-        this._setLayouts.length = 0;
+        this._setLayouts$.length = 0;
     }
 }

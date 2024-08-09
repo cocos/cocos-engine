@@ -42,12 +42,12 @@ export class WebGL2Sampler extends Sampler {
 
         this._gpuSampler = {
             glSamplers: new Map<number, WebGL2Sampler>(),
-            minFilter: this._info.minFilter,
-            magFilter: this._info.magFilter,
-            mipFilter: this._info.mipFilter,
-            addressU: this._info.addressU,
-            addressV: this._info.addressV,
-            addressW: this._info.addressW,
+            minFilter: this._info$.minFilter,
+            magFilter: this._info$.magFilter,
+            mipFilter: this._info$.mipFilter,
+            addressU: this._info$.addressU,
+            addressV: this._info$.addressV,
+            addressW: this._info$.addressW,
 
             glMinFilter: 0,
             glMagFilter: 0,

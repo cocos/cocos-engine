@@ -3287,7 +3287,7 @@ export function WebGL2CmdFuncCopyTextureToBuffers (
         break;
     }
     default: {
-        error('Unsupported GL texture type, copy texture to buffers failed.');
+        errorID(16399);
     }
     }
     gl.bindFramebuffer(WebGLConstants.FRAMEBUFFER, null);

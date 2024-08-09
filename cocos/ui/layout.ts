@@ -30,7 +30,7 @@ import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
 import { director, DirectorEvent } from '../game/director';
 import { TransformBit } from '../scene-graph/node-enum';
-import { warn } from '../core';
+import { warnID } from '../core';
 import { NodeEventType } from '../scene-graph/node-event';
 import { legacyCC } from '../core/global-exports';
 import { Node } from '../scene-graph/node';
@@ -588,7 +588,7 @@ export class Layout extends Component {
         }
 
         if (value <= 0) {
-            warn('Limit values to be greater than 0');
+            warnID(16400);
         }
 
         this._constraintNum = value;

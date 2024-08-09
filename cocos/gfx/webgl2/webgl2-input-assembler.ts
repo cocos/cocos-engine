@@ -43,24 +43,24 @@ export class WebGL2InputAssembler extends InputAssembler {
             return;
         }
 
-        this._attributes = info.attributes;
-        this._attributesHash = this.computeAttributesHash();
-        this._vertexBuffers = info.vertexBuffers;
+        this._attributes$ = info.attributes;
+        this._attributesHash$ = this.computeAttributesHash();
+        this._vertexBuffers$ = info.vertexBuffers;
 
         if (info.indexBuffer) {
-            this._indexBuffer = info.indexBuffer;
-            this._drawInfo.indexCount = this._indexBuffer.size / this._indexBuffer.stride;
-            this._drawInfo.firstIndex = 0;
+            this._indexBuffer$ = info.indexBuffer;
+            this._drawInfo$.indexCount = this._indexBuffer$.size / this._indexBuffer$.stride;
+            this._drawInfo$.firstIndex = 0;
         } else {
-            const vertBuff = this._vertexBuffers[0];
-            this._drawInfo.vertexCount = vertBuff.size / vertBuff.stride;
-            this._drawInfo.firstVertex = 0;
-            this._drawInfo.vertexOffset = 0;
+            const vertBuff = this._vertexBuffers$[0];
+            this._drawInfo$.vertexCount = vertBuff.size / vertBuff.stride;
+            this._drawInfo$.firstVertex = 0;
+            this._drawInfo$.vertexOffset = 0;
         }
-        this._drawInfo.instanceCount = 0;
-        this._drawInfo.firstInstance = 0;
+        this._drawInfo$.instanceCount = 0;
+        this._drawInfo$.firstInstance = 0;
 
-        this._indirectBuffer = info.indirectBuffer || null;
+        this._indirectBuffer$ = info.indirectBuffer || null;
 
         const gpuVertexBuffers: IWebGL2GPUBuffer[] = new Array<IWebGL2GPUBuffer>(info.vertexBuffers.length);
         for (let i = 0; i < info.vertexBuffers.length; ++i) {

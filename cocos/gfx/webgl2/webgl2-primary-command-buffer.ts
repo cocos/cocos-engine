@@ -71,19 +71,19 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
 
             WebGL2CmdFuncDraw(WebGL2DeviceManager.instance, info as DrawInfo);
 
-            ++this._numDrawCalls;
-            this._numInstances += info.instanceCount;
+            ++this._numDrawCalls$;
+            this._numInstances$ += info.instanceCount;
             const indexCount = info.indexCount || info.vertexCount;
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
                 case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                    this._numTris += indexCount / 3 * Math.max(info.instanceCount, 1);
+                    this._numTris$ += indexCount / 3 * Math.max(info.instanceCount, 1);
                     break;
                 }
                 case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
                 case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                    this._numTris += (indexCount - 2) * Math.max(info.instanceCount, 1);
+                    this._numTris$ += (indexCount - 2) * Math.max(info.instanceCount, 1);
                     break;
                 }
                 default:
@@ -162,9 +162,9 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
             // actually they are secondary buffers, the cast here is only for type checking
             const webGL2CmdBuff = cmdBuffs[i] as WebGL2PrimaryCommandBuffer;
             WebGL2CmdFuncExecuteCmds(WebGL2DeviceManager.instance, webGL2CmdBuff.cmdPackage);
-            this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
-            this._numInstances += webGL2CmdBuff._numInstances;
-            this._numTris += webGL2CmdBuff._numTris;
+            this._numDrawCalls$ += webGL2CmdBuff._numDrawCalls$;
+            this._numInstances$ += webGL2CmdBuff._numInstances$;
+            this._numTris$ += webGL2CmdBuff._numTris$;
         }
     }
 
