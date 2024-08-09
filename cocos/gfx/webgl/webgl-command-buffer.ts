@@ -47,7 +47,7 @@ import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGLDeviceManager } from './webgl-define';
-import { errorID } from '../../core';
+import { errorID } from '../../core/platform/debug';
 
 export class WebGLCommandBuffer extends CommandBuffer {
     public cmdPackage$: WebGLCmdPackage = new WebGLCmdPackage();

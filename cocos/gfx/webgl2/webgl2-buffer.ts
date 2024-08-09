@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { warnID } from '../../core';
+import { warnID } from '../../core/platform/debug';
 import { Buffer } from '../base/buffer';
 import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
 import {

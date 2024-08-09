@@ -32,7 +32,7 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 
 import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
-import { GCObject } from '../../core';
+import { GCObject } from '../../core/data/gc-object';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
 
@@ -2161,6 +2161,10 @@ export function IsPowerOf2 (x: number): boolean {
     return x > 0 && (x & (x - 1)) === 0;
 }
 
+function ceil (x: number): number {
+    return Math.ceil(x);
+}
+
 /**
   * @en Get memory size of the specified fomat.
   * @zh 获取指定格式对应的内存大小。
@@ -2178,7 +2182,7 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.BC1_ALPHA:
         case Format.BC1_SRGB:
         case Format.BC1_SRGB_ALPHA:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
         case Format.BC2:
         case Format.BC2_SRGB:
         case Format.BC3:
@@ -2189,10 +2193,10 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.BC6H_UF16:
         case Format.BC7:
         case Format.BC7_SRGB:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
         case Format.BC5:
         case Format.BC5_SNORM:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 32 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 32 * depth;
 
         case Format.ETC_RGB8:
         case Format.ETC2_RGB8:
@@ -2200,65 +2204,65 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.ETC2_RGB8_A1:
         case Format.EAC_R11:
         case Format.EAC_R11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
         case Format.ETC2_RGBA8:
         case Format.ETC2_SRGB8_A1:
         case Format.EAC_RG11:
         case Format.EAC_RG11SN:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
 
         case Format.PVRTC_RGB2:
         case Format.PVRTC_RGBA2:
         case Format.PVRTC2_2BPP:
-            return Math.ceil(width / 8) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 8) * ceil(height / 4) * 8 * depth;
 
         case Format.PVRTC_RGB4:
         case Format.PVRTC_RGBA4:
         case Format.PVRTC2_4BPP:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 8 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 8 * depth;
 
         case Format.ASTC_RGBA_4X4:
         case Format.ASTC_SRGBA_4X4:
-            return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 4) * ceil(height / 4) * 16 * depth;
         case Format.ASTC_RGBA_5X4:
         case Format.ASTC_SRGBA_5X4:
-            return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
+            return ceil(width / 5) * ceil(height / 4) * 16 * depth;
         case Format.ASTC_RGBA_5X5:
         case Format.ASTC_SRGBA_5X5:
-            return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 5) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_6X5:
         case Format.ASTC_SRGBA_6X5:
-            return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 6) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_6X6:
         case Format.ASTC_SRGBA_6X6:
-            return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 6) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_8X5:
         case Format.ASTC_SRGBA_8X5:
-            return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_8X6:
         case Format.ASTC_SRGBA_8X6:
-            return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_8X8:
         case Format.ASTC_SRGBA_8X8:
-            return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
+            return ceil(width / 8) * ceil(height / 8) * 16 * depth;
         case Format.ASTC_RGBA_10X5:
         case Format.ASTC_SRGBA_10X5:
-            return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 5) * 16 * depth;
         case Format.ASTC_RGBA_10X6:
         case Format.ASTC_SRGBA_10X6:
-            return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 6) * 16 * depth;
         case Format.ASTC_RGBA_10X8:
         case Format.ASTC_SRGBA_10X8:
-            return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 8) * 16 * depth;
         case Format.ASTC_RGBA_10X10:
         case Format.ASTC_SRGBA_10X10:
-            return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
+            return ceil(width / 10) * ceil(height / 10) * 16 * depth;
         case Format.ASTC_RGBA_12X10:
         case Format.ASTC_SRGBA_12X10:
-            return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
+            return ceil(width / 12) * ceil(height / 10) * 16 * depth;
         case Format.ASTC_RGBA_12X12:
         case Format.ASTC_SRGBA_12X12:
-            return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
+            return ceil(width / 12) * ceil(height / 12) * 16 * depth;
 
         default: {
             return 0;
@@ -2469,7 +2473,7 @@ export function formatAlignment (format: Format): FormatAlignment {
 }
 
 export function alignTo (size: number, alignment: number): number {
-    return Math.ceil(size / alignment) * alignment;
+    return ceil(size / alignment) * alignment;
 }
 
 declare interface GPUTexture {}

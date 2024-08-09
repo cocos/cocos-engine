@@ -39,6 +39,11 @@ export const legacyCC: Record<string, any> & {
     _global,
 };
 
+/**
+ * @deprecated
+ */
+export const cclegacy = legacyCC;
+
 // For internal usage
 legacyCC.internal = {};
 

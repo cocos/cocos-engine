@@ -33,7 +33,7 @@ import {
 } from './webgl-commands';
 import { IWebGLGPUBuffer, IWebGLGPUBufferView, WebGLIndirectDrawInfos } from './webgl-gpu-objects';
 import { WebGLDeviceManager } from './webgl-define';
-import { warnID } from '../../core';
+import { warnID } from '../../core/platform/debug';
 
 export class WebGLBuffer extends Buffer {
     get gpuBuffer (): IWebGLGPUBuffer {

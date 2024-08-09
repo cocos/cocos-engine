@@ -20,7 +20,7 @@
  THE SOFTWARE.
 */
 import { EDITOR } from 'internal:constants';
-import { GCObject } from './gc-object';
+import type { GCObject } from './gc-object';
 
 declare class FinalizationRegistry {
     constructor (callback: (heldObj: any) => void);

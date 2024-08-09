@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { CachedArray } from '../../core';
+import { CachedArray } from '../../core/memop/cached-array';
 import {
     WebGLCmdBeginRenderPass,
     WebGLCmdBindStates,

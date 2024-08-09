@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { murmurhash2_32_gc } from '../../core';
+import { murmurhash2_32_gc } from '../../core/algorithm/murmurhash2_gc';
 import { Buffer } from './buffer';
 import { Attribute, GFXObject, ObjectType, InputAssemblerInfo, DrawInfo } from './define';
 

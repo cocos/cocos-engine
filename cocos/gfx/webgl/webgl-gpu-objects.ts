@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { nextPow2 } from '../../core';
 import {
     DescriptorType, BufferUsage, Format, MemoryUsage, SampleCount, DynamicStateFlagBit,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type,
@@ -38,6 +37,11 @@ import { WebGLCmdFuncBindStates, WebGLCmdFuncCreateBuffer, WebGLCmdFuncCreateInp
 } from './webgl-commands';
 import { WebGLDeviceManager } from './webgl-define';
 import { WebGLConstants } from '../gl-constants';
+import { nextPow2 } from '../../core/math/bits';
+
+function createInt32Array (capacity: number): Int32Array {
+    return new Int32Array(capacity);
+}
 
 export class WebGLIndirectDrawInfos {
     public declare counts$: Int32Array;
@@ -53,13 +57,13 @@ export class WebGLIndirectDrawInfos {
     private _capacity$ = 4;
 
     constructor () {
-        this.counts$ = new Int32Array(this._capacity$);
-        this.offsets$ = new Int32Array(this._capacity$);
-        this.instances$  = new Int32Array(this._capacity$);
-        this.byteOffsets$ = new Int32Array(this._capacity$);
+        this.counts$ = createInt32Array(this._capacity$);
+        this.offsets$ = createInt32Array(this._capacity$);
+        this.instances$  = createInt32Array(this._capacity$);
+        this.byteOffsets$ = createInt32Array(this._capacity$);
     }
 
-    public clearDraws (): void {
+    public clearDraws$ (): void {
         this.drawCount$ = 0;
         this.drawByIndex$ = false;
         this.instancedDraw$ = false;
@@ -85,10 +89,10 @@ export class WebGLIndirectDrawInfos {
         if (this._capacity$ > target) return;
         this._capacity$ = nextPow2(target);
 
-        const counts = new Int32Array(this._capacity$);
-        const offsets = new Int32Array(this._capacity$);
-        const instances = new Int32Array(this._capacity$);
-        this.byteOffsets$ = new Int32Array(this._capacity$);
+        const counts = createInt32Array(this._capacity$);
+        const offsets = createInt32Array(this._capacity$);
+        const instances = createInt32Array(this._capacity$);
+        this.byteOffsets$ = createInt32Array(this._capacity$);
 
         counts.set(this.counts$);
         offsets.set(this.offsets$);
@@ -358,32 +362,26 @@ export class IWebGLBlitManager {
                 {
                     type$: ShaderStageFlagBit.VERTEX,
                     source$: `
-                    precision mediump float;
-
-                    attribute vec2 a_position;
-                    attribute vec2 a_texCoord;
-            
-                    uniform vec4 tilingOffsetSrc;
-                    uniform vec4 tilingOffsetDst;
-            
-                    varying vec2 v_texCoord;
-            
-                    void main() {
-                        v_texCoord = a_texCoord * tilingOffsetSrc.xy + tilingOffsetSrc.zw;
-                        gl_Position = vec4((a_position + 1.0) * tilingOffsetDst.xy - 1.0 + tilingOffsetDst.zw * 2.0, 0, 1);
-                    }`,
+precision mediump float;
+attribute vec2 a_position;
+attribute vec2 a_texCoord;
+uniform vec4 tilingOffsetSrc;
+uniform vec4 tilingOffsetDst;
+varying vec2 v_texCoord;
+void main() {
+    v_texCoord = a_texCoord * tilingOffsetSrc.xy + tilingOffsetSrc.zw;
+    gl_Position = vec4((a_position + 1.0) * tilingOffsetDst.xy - 1.0 + tilingOffsetDst.zw * 2.0, 0, 1);
+}`,
                     glShader$: null },
                 {
                     type$: ShaderStageFlagBit.FRAGMENT,
                     source$: `
-                    precision mediump float;
-                    uniform sampler2D textureSrc;
-
-                    varying vec2 v_texCoord;
-                    
-                    void main() {
-                        gl_FragColor = texture2D(textureSrc, v_texCoord);
-                    }`,
+precision mediump float;
+uniform sampler2D textureSrc;
+varying vec2 v_texCoord;
+void main() {
+    gl_FragColor = texture2D(textureSrc, v_texCoord);
+}`,
                     glShader$: null },
 
             ],

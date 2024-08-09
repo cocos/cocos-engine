@@ -31,10 +31,11 @@ import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit,
     BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions, WebGLDeviceManager } from './webgl-define';
-import { macro, warnID, warn, debug } from '../../core';
 import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import { IWebGLBlitManager } from './webgl-gpu-objects';
 import { WebGLConstants } from '../gl-constants';
+import { macro } from '../../core/platform/macro';
+import { debug, warn, warnID } from '../../core/platform/debug';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -91,37 +92,37 @@ function getExtension (gl: WebGLRenderingContext, ext: string): any {
 
 export function getExtensions (gl: WebGLRenderingContext): IWebGLExtensions {
     const res: IWebGLExtensions = {
-        EXT_texture_filter_anisotropic: getExtension(gl, 'EXT_texture_filter_anisotropic'),
-        EXT_blend_minmax: getExtension(gl, 'EXT_blend_minmax'),
-        EXT_frag_depth: getExtension(gl, 'EXT_frag_depth'),
-        EXT_shader_texture_lod: getExtension(gl, 'EXT_shader_texture_lod'),
-        EXT_sRGB: getExtension(gl, 'EXT_sRGB'),
-        OES_vertex_array_object: getExtension(gl, 'OES_vertex_array_object'),
-        EXT_color_buffer_half_float: getExtension(gl, 'EXT_color_buffer_half_float'),
-        WEBGL_color_buffer_float: getExtension(gl, 'WEBGL_color_buffer_float'),
-        WEBGL_compressed_texture_etc1: getExtension(gl, 'WEBGL_compressed_texture_etc1'),
-        WEBGL_compressed_texture_etc: getExtension(gl, 'WEBGL_compressed_texture_etc'),
-        WEBGL_compressed_texture_pvrtc: getExtension(gl, 'WEBGL_compressed_texture_pvrtc'),
-        WEBGL_compressed_texture_s3tc: getExtension(gl, 'WEBGL_compressed_texture_s3tc'),
-        WEBGL_compressed_texture_s3tc_srgb: getExtension(gl, 'WEBGL_compressed_texture_s3tc_srgb'),
-        WEBGL_debug_shaders: getExtension(gl, 'WEBGL_debug_shaders'),
-        WEBGL_draw_buffers: getExtension(gl, 'WEBGL_draw_buffers'),
-        WEBGL_lose_context: getExtension(gl, 'WEBGL_lose_context'),
-        WEBGL_depth_texture: getExtension(gl, 'WEBGL_depth_texture'),
-        OES_texture_half_float: getExtension(gl, 'OES_texture_half_float'),
-        OES_texture_half_float_linear: getExtension(gl, 'OES_texture_half_float_linear'),
-        OES_texture_float: getExtension(gl, 'OES_texture_float'),
-        OES_texture_float_linear: getExtension(gl, 'OES_texture_float_linear'),
-        OES_standard_derivatives: getExtension(gl, 'OES_standard_derivatives'),
-        OES_element_index_uint: getExtension(gl, 'OES_element_index_uint'),
-        ANGLE_instanced_arrays: getExtension(gl, 'ANGLE_instanced_arrays'),
-        WEBGL_debug_renderer_info: getExtension(gl, 'WEBGL_debug_renderer_info'),
-        WEBGL_multi_draw: null,
-        WEBGL_compressed_texture_astc: null,
-        destroyShadersImmediately: true,
-        noCompressedTexSubImage2D: false,
-        isLocationActive: (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc,
-        useVAO: false,
+        EXT_texture_filter_anisotropic$: getExtension(gl, 'EXT_texture_filter_anisotropic'),
+        EXT_blend_minmax$: getExtension(gl, 'EXT_blend_minmax'),
+        EXT_frag_depth$: getExtension(gl, 'EXT_frag_depth'),
+        EXT_shader_texture_lod$: getExtension(gl, 'EXT_shader_texture_lod'),
+        EXT_sRGB$: getExtension(gl, 'EXT_sRGB'),
+        OES_vertex_array_object$: getExtension(gl, 'OES_vertex_array_object'),
+        EXT_color_buffer_half_float$: getExtension(gl, 'EXT_color_buffer_half_float'),
+        WEBGL_color_buffer_float$: getExtension(gl, 'WEBGL_color_buffer_float'),
+        WEBGL_compressed_texture_etc1$: getExtension(gl, 'WEBGL_compressed_texture_etc1'),
+        WEBGL_compressed_texture_etc$: getExtension(gl, 'WEBGL_compressed_texture_etc'),
+        WEBGL_compressed_texture_pvrtc$: getExtension(gl, 'WEBGL_compressed_texture_pvrtc'),
+        WEBGL_compressed_texture_s3tc$: getExtension(gl, 'WEBGL_compressed_texture_s3tc'),
+        WEBGL_compressed_texture_s3tc_srgb$: getExtension(gl, 'WEBGL_compressed_texture_s3tc_srgb'),
+        WEBGL_debug_shaders$: getExtension(gl, 'WEBGL_debug_shaders'),
+        WEBGL_draw_buffers$: getExtension(gl, 'WEBGL_draw_buffers'),
+        WEBGL_lose_context$: getExtension(gl, 'WEBGL_lose_context'),
+        WEBGL_depth_texture$: getExtension(gl, 'WEBGL_depth_texture'),
+        OES_texture_half_float$: getExtension(gl, 'OES_texture_half_float'),
+        OES_texture_half_float_linear$: getExtension(gl, 'OES_texture_half_float_linear'),
+        OES_texture_float$: getExtension(gl, 'OES_texture_float'),
+        OES_texture_float_linear$: getExtension(gl, 'OES_texture_float_linear'),
+        OES_standard_derivatives$: getExtension(gl, 'OES_standard_derivatives'),
+        OES_element_index_uint$: getExtension(gl, 'OES_element_index_uint'),
+        ANGLE_instanced_arrays$: getExtension(gl, 'ANGLE_instanced_arrays'),
+        WEBGL_debug_renderer_info$: getExtension(gl, 'WEBGL_debug_renderer_info'),
+        WEBGL_multi_draw$: null,
+        WEBGL_compressed_texture_astc$: null,
+        destroyShadersImmediately$: true,
+        noCompressedTexSubImage2D$: false,
+        isLocationActive$: (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc,
+        useVAO$: false,
     };
 
     // platform-specific extension hacks
@@ -241,15 +242,13 @@ export class WebGLSwapchain extends Swapchain {
     public initialize (info: Readonly<SwapchainInfo>): void {
         this._canvas$ = info.windowHandle;
 
-        this._webGLContextLostHandler$ = this._onWebGLContextLost.bind(this);
-        this._canvas$.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
+        this._webGLContextLostHandler$ = this._onWebGLContextLost$.bind(this);
+        this._canvas$.addEventListener(eventWebGLContextLost, this._webGLContextLostHandler$);
 
-        const gl = WebGLDeviceManager.instance.gl;
+        const { instance } = WebGLDeviceManager;
+        const { gl, capabilities } = instance;
 
-        this.stateCache$.initialize(
-            WebGLDeviceManager.instance.capabilities.maxTextureUnits,
-            WebGLDeviceManager.instance.capabilities.maxVertexAttributes,
-        );
+        this.stateCache$.initialize(capabilities.maxTextureUnits, capabilities.maxVertexAttributes);
 
         this._extensions$ = getExtensions(gl);
 
@@ -286,7 +285,7 @@ export class WebGLSwapchain extends Swapchain {
         });
 
         // create default null texture
-        this.nullTex2D$ = WebGLDeviceManager.instance.createTexture(new TextureInfo(
+        this.nullTex2D$ = instance.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -295,7 +294,7 @@ export class WebGLSwapchain extends Swapchain {
             TextureFlagBit.GEN_MIPMAP,
         )) as WebGLTexture;
 
-        this.nullTexCube$ = WebGLDeviceManager.instance.createTexture(new TextureInfo(
+        this.nullTexCube$ = instance.createTexture(new TextureInfo(
             TextureType.CUBE,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
@@ -311,10 +310,10 @@ export class WebGLSwapchain extends Swapchain {
 
         const nullTexBuff = new Uint8Array(this.nullTex2D$.size);
         nullTexBuff.fill(0);
-        WebGLDeviceManager.instance.copyBuffersToTexture([nullTexBuff], this.nullTex2D$, [nullTexRegion]);
+        instance.copyBuffersToTexture([nullTexBuff], this.nullTex2D$, [nullTexRegion]);
 
         nullTexRegion.texSubres.layerCount = 6;
-        WebGLDeviceManager.instance.copyBuffersToTexture(
+        instance.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
             this.nullTexCube$,
             [nullTexRegion],
@@ -357,7 +356,7 @@ export class WebGLSwapchain extends Swapchain {
         }
     }
 
-    private _onWebGLContextLost (event: Event): void {
+    private _onWebGLContextLost$ (event: Event): void {
         warnID(11000);
         warn(event);
         // 2020.9.3: `preventDefault` is not available on some platforms
