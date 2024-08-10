@@ -24,7 +24,6 @@
 
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR, VIVO, TAOBAO, TAOBAO_MINIGAME, WECHAT_MINI_PROGRAM } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
-import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit,
@@ -130,65 +129,65 @@ export function getExtensions (gl: WebGLRenderingContext): IWebGLExtensions {
     {
         // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
         if (systemInfo.os !== OS.IOS || systemInfo.osMainVersion !== 14 || !systemInfo.isBrowser) {
-            res.WEBGL_compressed_texture_astc = getExtension(gl, 'WEBGL_compressed_texture_astc');
+            res.WEBGL_compressed_texture_astc$ = getExtension(gl, 'WEBGL_compressed_texture_astc');
         }
 
         // Mobile implementation seems to have performance issues
         if (systemInfo.os !== OS.ANDROID && systemInfo.os !== OS.IOS) {
-            res.WEBGL_multi_draw = getExtension(gl, 'WEBGL_multi_draw');
+            res.WEBGL_multi_draw$ = getExtension(gl, 'WEBGL_multi_draw');
         }
 
         // UC browser instancing implementation doesn't work
         if (systemInfo.browserType === BrowserType.UC) {
-            res.ANGLE_instanced_arrays = null;
+            res.ANGLE_instanced_arrays$ = null;
         }
 
         // bytedance ios depth texture implementation doesn't work
         if (BYTEDANCE && systemInfo.os === OS.IOS) {
-            res.WEBGL_depth_texture = null;
+            res.WEBGL_depth_texture$ = null;
         }
 
         if (RUNTIME_BASED) {
             // VAO implementations doesn't work well on some runtime platforms
             if (LINKSURE || QTT || COCOSPLAY || HUAWEI) {
-                res.OES_vertex_array_object = null;
+                res.OES_vertex_array_object$ = null;
             }
         }
 
         // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
         if ((systemInfo.os === OS.IOS && systemInfo.osMainVersion <= 10)
             || ((WECHAT || WECHAT_MINI_PROGRAM) && systemInfo.os === OS.ANDROID)) {
-            res.destroyShadersImmediately = false;
+            res.destroyShadersImmediately$ = false;
         }
 
         // getUniformLocation has always been problematic because the
         // paradigm differs from GLES, and many platforms get it wrong [eyerolling]
         if (WECHAT || WECHAT_MINI_PROGRAM) {
             // wEcHaT just returns { id: -1 } for inactive names
-            res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && (glLoc as { id: number }).id !== -1;
+            res.isLocationActive$ = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && (glLoc as { id: number }).id !== -1;
         }
         if (ALIPAY) {
             // aLiPaY just returns the location number directly on actual devices, and WebGLUniformLocation objects in simulators
-            res.isLocationActive = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && glLoc !== -1 || glLoc === 0;
+            res.isLocationActive$ = (glLoc: unknown): glLoc is WebGLUniformLocation => !!glLoc && glLoc !== -1 || glLoc === 0;
         }
 
         // compressedTexSubImage2D too
         if (WECHAT || WECHAT_MINI_PROGRAM) {
-            res.noCompressedTexSubImage2D = true;
+            res.noCompressedTexSubImage2D$ = true;
         }
 
         // HACK: on Taobao Android, some devices can't query texture float extension correctly, especially Huawei devices
         // the query interface returns null.
         if ((TAOBAO || TAOBAO_MINIGAME) && systemInfo.os === OS.ANDROID) {
-            res.OES_texture_half_float = { HALF_FLOAT_OES: 36193 };
-            res.OES_texture_half_float_linear = {};
-            res.OES_texture_float = {};
-            res.OES_texture_float_linear = {};
+            res.OES_texture_half_float$ = { HALF_FLOAT_OES: 36193 };
+            res.OES_texture_half_float_linear$ = {};
+            res.OES_texture_float$ = {};
+            res.OES_texture_float_linear$ = {};
         }
     }
 
-    if (res.OES_vertex_array_object) {
-        res.useVAO = true;
+    if (res.OES_vertex_array_object$) {
+        res.useVAO$ = true;
     }
 
     return res;
@@ -226,7 +225,6 @@ export class WebGLSwapchain extends Swapchain {
     }
 
     public stateCache$: WebGLStateCache = new WebGLStateCache();
-    public cmdAllocator$: WebGLCommandAllocator = new WebGLCommandAllocator();
     public nullTex2D$: WebGLTexture = null!;
     public nullTexCube$: WebGLTexture = null!;
 
