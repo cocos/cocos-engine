@@ -32,13 +32,13 @@ import { WebGLBuffer } from './webgl-buffer';
 import { WebGLCommandBuffer } from './webgl-command-buffer';
 import {
     WebGLCmdFuncBeginRenderPass, WebGLCmdFuncBindStates, WebGLCmdFuncBlitTexture, WebGLCmdFuncCopyBuffersToTexture,
-    WebGLCmdFuncDraw, WebGLCmdFuncExecuteCmds, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
+    WebGLCmdFuncDraw, WebGLCmdFuncUpdateBuffer } from './webgl-commands';
 import { WebGLFramebuffer } from './webgl-framebuffer';
 import { WebGLTexture } from './webgl-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLDeviceManager } from './webgl-define';
-import { errorID } from '../../core/platform/debug';
+import { error, errorID } from '../../core/platform/debug';
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     public beginRenderPass (
@@ -158,14 +158,7 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     }
 
     public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
-        for (let i = 0; i < count; ++i) {
-            // actually they are secondary buffers, the cast here is only for type checking
-            const webGLCmdBuff = cmdBuffs[i] as WebGLPrimaryCommandBuffer;
-            WebGLCmdFuncExecuteCmds(WebGLDeviceManager.instance, webGLCmdBuff.cmdPackage$);
-            this._numDrawCalls$ += webGLCmdBuff._numDrawCalls$;
-            this._numInstances$ += webGLCmdBuff._numInstances$;
-            this._numTris$ += webGLCmdBuff._numTris$;
-        }
+        errorID(16402);
     }
 
     protected bindStates (): void {

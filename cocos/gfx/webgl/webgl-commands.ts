@@ -22,7 +22,6 @@
  THE SOFTWARE.
 */
 
-import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
 import {
@@ -30,7 +29,7 @@ import {
     IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSamplerTexture, IWebGLGPURenderPass,
 } from './webgl-gpu-objects';
 import {
-    BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
+    BufferUsageBit, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, ShaderStageFlagBit, UniformSamplerTexture,
     TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo,
     IndirectBuffer, DynamicStates, Extent, getTypedArrayConstructor, formatAlignment, Offset, alignTo,
@@ -39,7 +38,6 @@ import {
 
 import { WebGLConstants } from '../gl-constants';
 import { assertID, debugID, error, errorID } from '../../core/platform/debug';
-import { CachedArray } from '../../core/memop/cached-array';
 import { cclegacy } from '../../core/global-exports';
 
 function max (a: number, b: number): number {
@@ -440,169 +438,6 @@ const WebGLBlendFactors: GLenum[] = [
     0x8003, // WebGLRenderingContext.CONSTANT_ALPHA,
     0x8004, // WebGLRenderingContext.ONE_MINUS_CONSTANT_ALPHA,
 ];
-
-export enum WebGLCmd {
-    BEGIN_RENDER_PASS,
-    END_RENDER_PASS,
-    BIND_STATES,
-    DRAW,
-    UPDATE_BUFFER,
-    COPY_BUFFER_TO_TEXTURE,
-    BLIT_TEXTURE,
-    COUNT,
-}
-
-export abstract class WebGLCmdObject {
-    public declare cmdType$: WebGLCmd;
-    public refCount$ = 0;
-
-    constructor (type: WebGLCmd) {
-        this.cmdType$ = type;
-    }
-
-    public abstract clear$ (): void;
-}
-
-export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
-    public gpuRenderPass$: IWebGLGPURenderPass | null = null;
-    public gpuFramebuffer$: IWebGLGPUFramebuffer | null = null;
-    public renderArea$ = new Rect();
-    public clearFlag$: ClearFlags = ClearFlagBit.NONE;
-    public clearColors$: Color[] = [];
-    public clearDepth$ = 1.0;
-    public clearStencil$ = 0;
-
-    constructor () {
-        super(WebGLCmd.BEGIN_RENDER_PASS);
-    }
-
-    public clear$ (): void {
-        this.gpuFramebuffer$ = null;
-        this.clearColors$.length = 0;
-    }
-}
-
-export class WebGLCmdBindStates extends WebGLCmdObject {
-    public gpuPipelineState$: IWebGLGPUPipelineState | null = null;
-    public gpuInputAssembler$: IWebGLGPUInputAssembler | null = null;
-    public gpuDescriptorSets$: IWebGLGPUDescriptorSet[] = [];
-    public dynamicOffsets$: number[] = [];
-    public dynamicStates$: DynamicStates = new DynamicStates();
-
-    constructor () {
-        super(WebGLCmd.BIND_STATES);
-    }
-
-    public clear$ (): void {
-        this.gpuPipelineState$ = null;
-        this.gpuDescriptorSets$.length = 0;
-        this.gpuInputAssembler$ = null;
-        this.dynamicOffsets$.length = 0;
-    }
-}
-
-export class WebGLCmdDraw extends WebGLCmdObject {
-    public drawInfo$ = new DrawInfo();
-
-    constructor () {
-        super(WebGLCmd.DRAW);
-    }
-
-    public clear$ (): void {}
-}
-
-export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
-    public gpuBuffer$: IWebGLGPUBuffer | null = null;
-    public buffer$: BufferSource | null = null;
-    public offset$ = 0;
-    public size$ = 0;
-
-    constructor () {
-        super(WebGLCmd.UPDATE_BUFFER);
-    }
-
-    public clear$ (): void {
-        this.gpuBuffer$ = null;
-        this.buffer$ = null;
-    }
-}
-
-export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
-    public gpuTexture$: IWebGLGPUTexture | null = null;
-    public buffers$: ArrayBufferView[] = [];
-    public regions$: BufferTextureCopy[] = [];
-
-    constructor () {
-        super(WebGLCmd.COPY_BUFFER_TO_TEXTURE);
-    }
-
-    public clear$ (): void {
-        this.gpuTexture$ = null;
-        this.buffers$.length = 0;
-        this.regions$.length = 0;
-    }
-}
-
-export class WebGLCmdBlitTexture extends WebGLCmdObject {
-    public srcTexture$: IWebGLGPUTexture | null = null;
-    public dstTexture$: IWebGLGPUTexture | null = null;
-    public regions$: TextureBlit[] = [];
-    public filter$: Filter = Filter.LINEAR;
-
-    constructor () {
-        super(WebGLCmd.BLIT_TEXTURE);
-    }
-
-    public clear$ (): void {
-        this.srcTexture$ = null;
-        this.dstTexture$ = null;
-        this.regions$.length = 0;
-    }
-}
-
-export class WebGLCmdPackage {
-    public cmds$: CachedArray<WebGLCmd> = new CachedArray(1);
-    public beginRenderPassCmds$: CachedArray<WebGLCmdBeginRenderPass> = new CachedArray(1);
-    public bindStatesCmds$: CachedArray<WebGLCmdBindStates> = new CachedArray(1);
-    public drawCmds$: CachedArray<WebGLCmdDraw> = new CachedArray(1);
-    public updateBufferCmds$: CachedArray<WebGLCmdUpdateBuffer> = new CachedArray(1);
-    public copyBufferToTextureCmds$: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
-    public blitTextureCmds$: CachedArray<WebGLCmdBlitTexture> = new CachedArray(1);
-
-    public clearCmds$ (allocator: WebGLCommandAllocator): void {
-        if (this.beginRenderPassCmds$.length) {
-            allocator.beginRenderPassCmdPool$.freeCmds$(this.beginRenderPassCmds$);
-            this.beginRenderPassCmds$.clear();
-        }
-
-        if (this.bindStatesCmds$.length) {
-            allocator.bindStatesCmdPool$.freeCmds$(this.bindStatesCmds$);
-            this.bindStatesCmds$.clear();
-        }
-
-        if (this.drawCmds$.length) {
-            allocator.drawCmdPool$.freeCmds$(this.drawCmds$);
-            this.drawCmds$.clear();
-        }
-
-        if (this.updateBufferCmds$.length) {
-            allocator.updateBufferCmdPool$.freeCmds$(this.updateBufferCmds$);
-            this.updateBufferCmds$.clear();
-        }
-
-        if (this.copyBufferToTextureCmds$.length) {
-            allocator.copyBufferToTextureCmdPool$.freeCmds$(this.copyBufferToTextureCmds$);
-            this.copyBufferToTextureCmds$.clear();
-        }
-
-        if (this.blitTextureCmds$.length) {
-            allocator.blitTextureCmdPool$.freeCmds$(this.blitTextureCmds$);
-            this.blitTextureCmds$.clear();
-        }
-
-        this.cmds$.clear();
-    }
-}
 
 export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGLGPUBuffer): void {
     const { gl, stateCache } = device;
@@ -2695,72 +2530,6 @@ export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: Readonly<DrawIn
             gl.drawArrays(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount);
         }
     }
-}
-
-const cmdIds = new Array<number>(WebGLCmd.COUNT);
-export function WebGLCmdFuncExecuteCmds (device: WebGLDevice, cmdPackage: WebGLCmdPackage): void {
-    cmdIds.fill(0);
-
-    for (let i = 0; i < cmdPackage.cmds$.length; ++i) {
-        const cmd = cmdPackage.cmds$.array[i];
-        const cmdId = cmdIds[cmd]++;
-
-        switch (cmd) {
-        case WebGLCmd.BEGIN_RENDER_PASS: {
-            const cmd0 = cmdPackage.beginRenderPassCmds$.array[cmdId];
-            WebGLCmdFuncBeginRenderPass(
-                device,
-                cmd0.gpuRenderPass$,
-                cmd0.gpuFramebuffer$,
-                cmd0.renderArea$,
-                cmd0.clearColors$,
-                cmd0.clearDepth$,
-                cmd0.clearStencil$,
-            );
-            break;
-        }
-        /*
-            case WebGLCmd.END_RENDER_PASS: {
-                // WebGL 1.0 doesn't support store operation of attachments.
-                // StoreOp.Store is the default GL behavior.
-                break;
-            }
-            */
-        case WebGLCmd.BIND_STATES: {
-            const cmd2 = cmdPackage.bindStatesCmds$.array[cmdId];
-            WebGLCmdFuncBindStates(
-                device,
-                cmd2.gpuPipelineState$,
-                cmd2.gpuInputAssembler$,
-                cmd2.gpuDescriptorSets$,
-                cmd2.dynamicOffsets$,
-                cmd2.dynamicStates$,
-            );
-            break;
-        }
-        case WebGLCmd.DRAW: {
-            const cmd3 = cmdPackage.drawCmds$.array[cmdId];
-            WebGLCmdFuncDraw(device, cmd3.drawInfo$);
-            break;
-        }
-        case WebGLCmd.UPDATE_BUFFER: {
-            const cmd4 = cmdPackage.updateBufferCmds$.array[cmdId];
-            WebGLCmdFuncUpdateBuffer(device, cmd4.gpuBuffer$ as IWebGLGPUBuffer, cmd4.buffer$ as BufferSource, cmd4.offset$, cmd4.size$);
-            break;
-        }
-        case WebGLCmd.COPY_BUFFER_TO_TEXTURE: {
-            const cmd5 = cmdPackage.copyBufferToTextureCmds$.array[cmdId];
-            WebGLCmdFuncCopyBuffersToTexture(device, cmd5.buffers$, cmd5.gpuTexture$ as IWebGLGPUTexture, cmd5.regions$);
-            break;
-        }
-        case WebGLCmd.BLIT_TEXTURE: {
-            const cmd6 = cmdPackage.blitTextureCmds$.array[cmdId];
-            WebGLCmdFuncBlitTexture(device, cmd6.srcTexture$ as IWebGLGPUTexture, cmd6.dstTexture$ as IWebGLGPUTexture, cmd6.regions$, cmd6.filter$);
-            break;
-        }
-        default:
-        } // switch
-    } // for
 }
 
 export function WebGLCmdFuncCopyTexImagesToTexture (

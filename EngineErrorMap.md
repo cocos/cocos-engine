@@ -3848,3 +3848,11 @@ Unsupported GL texture type, copy texture to buffers failed.
 ### 16400
 
 Limit values to be greater than 0
+
+### 16401
+
+Only PrimaryCommandBuffer supports this
+
+### 16402
+
+execute is not supported
