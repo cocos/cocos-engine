@@ -2161,9 +2161,7 @@ export function IsPowerOf2 (x: number): boolean {
     return x > 0 && (x & (x - 1)) === 0;
 }
 
-function ceil (x: number): number {
-    return Math.ceil(x);
-}
+const ceil = Math.ceil;
 
 /**
   * @en Get memory size of the specified fomat.

@@ -41,9 +41,7 @@ import { WebGLConstants } from '../gl-constants';
 import { assertID, debugID, error, errorID } from '../../core/platform/debug';
 import { cclegacy } from '../../core/global-exports';
 
-function max (a: number, b: number): number {
-    return Math.max(a, b);
-}
+const max = Math.max;
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
