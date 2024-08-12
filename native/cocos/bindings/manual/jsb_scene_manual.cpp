@@ -135,7 +135,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
 
     // NOTE: Async tasks must be executed after present, otherwise it will cause render issues on VK backend.
     // Refer to https://github.com/cocos/3d-tasks/issues/18423
-    cobj->on<cc::Root::AfterPresent>([](cc::Root *rootObj){
+    cobj->on<cc::Root::AfterPresent>([](cc::Root */*rootObj*/){
         CC_CURRENT_APPLICATION()->getEngine()->getScheduler()->runFunctionsToBePerformedInCocosThread();
     });
 
