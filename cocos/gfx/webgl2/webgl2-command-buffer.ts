@@ -75,8 +75,8 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     protected _isStateInvalied = false;
 
     public initialize (info: Readonly<CommandBufferInfo>): void {
-        this._type = info.type;
-        this._queue = info.queue;
+        this._type$ = info.type;
+        this._queue$ = info.queue;
 
         const setCount = WebGL2DeviceManager.instance.bindingMappings.blockOffsets.length;
         for (let i = 0; i < setCount; i++) {
@@ -93,9 +93,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
         this._curGPUDescriptorSets.length = 0;
-        this._numDrawCalls = 0;
-        this._numInstances = 0;
-        this._numTris = 0;
+        this._numDrawCalls$ = 0;
+        this._numInstances$ = 0;
+        this._numTris$ = 0;
     }
 
     public end (): void {
@@ -276,8 +276,8 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void {
-        if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
-            || this._type === CommandBufferType.SECONDARY) {
+        if (this._type$ === CommandBufferType.PRIMARY && this._isInRenderPass
+            || this._type$ === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
@@ -289,19 +289,19 @@ export class WebGL2CommandBuffer extends CommandBuffer {
 
             this.cmdPackage.cmds.push(WebGL2Cmd.DRAW);
 
-            ++this._numDrawCalls;
-            this._numInstances += info.instanceCount;
+            ++this._numDrawCalls$;
+            this._numInstances$ += info.instanceCount;
             const indexCount = info.indexCount || info.vertexCount;
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
                 case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                    this._numTris += indexCount / 3 * Math.max(info.instanceCount, 1);
+                    this._numTris$ += indexCount / 3 * Math.max(info.instanceCount, 1);
                     break;
                 }
                 case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
                 case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                    this._numTris += (indexCount - 2) * Math.max(info.instanceCount, 1);
+                    this._numTris$ += (indexCount - 2) * Math.max(info.instanceCount, 1);
                     break;
                 }
                 default:
@@ -313,8 +313,8 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
-        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
-            || this._type === CommandBufferType.SECONDARY) {
+        if (this._type$ === CommandBufferType.PRIMARY && !this._isInRenderPass
+            || this._type$ === CommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 const cmd = this._cmdAllocator.updateBufferCmdPool.alloc(WebGL2CmdUpdateBuffer);
@@ -348,8 +348,8 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
-        if (this._type === CommandBufferType.PRIMARY && !this._isInRenderPass
-            || this._type === CommandBufferType.SECONDARY) {
+        if (this._type$ === CommandBufferType.PRIMARY && !this._isInRenderPass
+            || this._type$ === CommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 const cmd = this._cmdAllocator.copyBufferToTextureCmdPool.alloc(WebGL2CmdCopyBufferToTexture);
@@ -409,9 +409,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
 
             this.cmdPackage.cmds.concat(webGL2CmdBuff.cmdPackage.cmds.array);
 
-            this._numDrawCalls += webGL2CmdBuff._numDrawCalls;
-            this._numInstances += webGL2CmdBuff._numInstances;
-            this._numTris += webGL2CmdBuff._numTris;
+            this._numDrawCalls$ += webGL2CmdBuff._numDrawCalls$;
+            this._numInstances$ += webGL2CmdBuff._numInstances$;
+            this._numTris$ += webGL2CmdBuff._numTris$;
         }
     }
 
@@ -444,7 +444,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         blitTextureCmd.regions = regions as TextureBlit[];
         blitTextureCmd.filter = filter;
 
-        ++this._numDrawCalls;
+        ++this._numDrawCalls$;
 
         this.cmdPackage.blitTextureCmds.push(blitTextureCmd);
         this.cmdPackage.cmds.push(WebGL2Cmd.BLIT_TEXTURE);

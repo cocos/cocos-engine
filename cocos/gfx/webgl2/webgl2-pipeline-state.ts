@@ -54,10 +54,10 @@ export class WebGL2PipelineState extends PipelineState {
     private _gpuPipelineState: IWebGL2GPUPipelineState | null = null;
 
     public initialize (info: Readonly<PipelineStateInfo>): void {
-        this._primitive = info.primitive;
-        this._shader = info.shader;
-        this._pipelineLayout = info.pipelineLayout;
-        const bs = this._bs;
+        this._primitive$ = info.primitive;
+        this._shader$ = info.shader;
+        this._pipelineLayout$ = info.pipelineLayout;
+        const bs = this._bs$;
         if (info.blendState) {
             const bsInfo = info.blendState;
             const { targets } = bsInfo;
@@ -71,15 +71,15 @@ export class WebGL2PipelineState extends PipelineState {
             if (bsInfo.isIndepend !== undefined) { bs.isIndepend = bsInfo.isIndepend; }
             if (bsInfo.blendColor !== undefined) { bs.blendColor = bsInfo.blendColor; }
         }
-        Object.assign(this._rs, info.rasterizerState);
-        Object.assign(this._dss, info.depthStencilState);
-        this._is = info.inputState;
-        this._renderPass = info.renderPass;
-        this._dynamicStates = info.dynamicStates;
+        Object.assign(this._rs$, info.rasterizerState);
+        Object.assign(this._dss$, info.depthStencilState);
+        this._is$ = info.inputState;
+        this._renderPass$ = info.renderPass;
+        this._dynamicStates$ = info.dynamicStates;
 
         const dynamicStates: DynamicStateFlagBit[] = [];
         for (let i = 0; i < 31; i++) {
-            if (this._dynamicStates & (1 << i)) {
+            if (this._dynamicStates$ & (1 << i)) {
                 dynamicStates.push(1 << i);
             }
         }

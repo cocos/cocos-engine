@@ -39,11 +39,11 @@ export class WebGL2Shader extends Shader {
     private _gpuShader: IWebGL2GPUShader | null = null;
 
     public initialize (info: Readonly<ShaderInfo>): void {
-        this._name = info.name;
-        this._stages = info.stages;
-        this._attributes = info.attributes;
-        this._blocks = info.blocks;
-        this._samplers = info.samplers;
+        this._name$ = info.name;
+        this._stages$ = info.stages;
+        this._attributes$ = info.attributes;
+        this._blocks$ = info.blocks;
+        this._samplers$ = info.samplers;
 
         this._gpuShader = {
             name: info.name,
