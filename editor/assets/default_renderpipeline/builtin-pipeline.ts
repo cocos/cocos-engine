@@ -648,8 +648,10 @@ if (rendering) {
 
             this._viewport.left = Math.floor(camera.viewport.x * width);
             this._viewport.top = Math.floor(camera.viewport.y * height);
-            this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
-            this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
+            // Here we must use camera.viewport.width instead of camera.viewport.z, which
+            // is undefined on native platform. The same as camera.viewport.height.
+            this._viewport.width = Math.max(Math.floor(camera.viewport.width * width), 1);
+            this._viewport.height = Math.max(Math.floor(camera.viewport.height * height), 1);
 
             this._clearColor.x = camera.clearColor.x;
             this._clearColor.y = camera.clearColor.y;
@@ -1285,8 +1287,10 @@ if (rendering) {
             // Prepare camera viewport
             this._viewport.left = Math.floor(camera.viewport.x * width);
             this._viewport.top = Math.floor(camera.viewport.y * height);
-            this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
-            this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
+            // Here we must use camera.viewport.width instead of camera.viewport.z, which
+            // is undefined on native platform. The same as camera.viewport.height.
+            this._viewport.width = Math.max(Math.floor(camera.viewport.width * width), 1);
+            this._viewport.height = Math.max(Math.floor(camera.viewport.height * height), 1);
 
             // MSAA
             const enableMSAA = !disableMSAA && this._cameraConfigs.enableMSAA;
