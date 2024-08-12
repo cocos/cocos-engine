@@ -426,7 +426,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             vp.height = pass.height;
         }
         // scissor
-        gfx::Rect scissor{0, 0, vp.width, vp.height};
+        gfx::Rect scissor{vp.left, vp.top, vp.width, vp.height};
 
         // render pass
         {
