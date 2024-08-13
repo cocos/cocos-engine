@@ -24,7 +24,7 @@
 */
 
 import { EDITOR, JSB } from 'internal:constants';
-import { cclegacy, getError, sys, screen, settings, errorID, SettingsCategory } from '../core';
+import { cclegacy, getError, sys, screen, settings, errorID, Settings } from '../core';
 import { BindingMappingInfo, DeviceInfo, SwapchainInfo } from './base/define';
 import { Device } from './base/device';
 import { Swapchain } from './base/swapchain';
@@ -140,7 +140,7 @@ export class DeviceManager {
     public init (canvas: HTMLCanvasElement | null, bindingMappingInfo: BindingMappingInfo): boolean | Promise<boolean> {
         // Avoid setup to be called twice.
         if (this.initialized) { return true; }
-        const renderMode = settings.querySettings(SettingsCategory.RENDERING, 'renderMode') as LegacyRenderMode;
+        const renderMode = settings.querySettings(Settings.Category.RENDERING, 'renderMode') as LegacyRenderMode;
         this._canvas = canvas;
         if (this._canvas) { this._canvas.oncontextmenu = (): boolean => false; }
         this._renderType = this._determineRenderType(renderMode);
