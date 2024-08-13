@@ -27,7 +27,7 @@ import { CCObject } from '../core/data/object';
 import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { legacyCC } from '../core/global-exports';
-import { error, assert } from '../core/platform/debug';
+import { warn, assert } from '../core/platform/debug';
 import type { Component } from './component';
 
 const fastRemoveAt = js.array.fastRemoveAt;
@@ -183,7 +183,7 @@ class ReusableInvoker extends LifeCycleInvoker {
             if (i < 0) {
                 array.splice(~i, 0, comp);
             } else if (DEV) {
-                error('component already added');
+                warn('component already added:', comp.name);
             }
         }
     }
