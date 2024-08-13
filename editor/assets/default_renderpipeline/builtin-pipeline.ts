@@ -1257,7 +1257,7 @@ if (rendering) {
         }
 
         private _addUIQueue(camera: renderer.scene.Camera, pass: rendering.BasicRenderPassBuilder): void {
-            let flags = SceneFlags.UI | SceneFlags.GEOMETRY;
+            let flags = SceneFlags.UI;
             if (this._cameraConfigs.enableProfiler) {
                 flags |= SceneFlags.PROFILER;
                 pass.showStatistics = true;
@@ -1323,9 +1323,15 @@ if (rendering) {
             // Forward Lighting (Blend)
             // ----------------------------------------------------------------
             // Add transparent queue
+
+            const sceneFlags = SceneFlags.BLEND |
+                (camera.geometryRenderer
+                    ? SceneFlags.GEOMETRY
+                    : SceneFlags.NONE);
+
             pass
                 .addQueue(QueueHint.BLEND)
-                .addScene(camera, SceneFlags.BLEND, mainLight || undefined);
+                .addScene(camera, sceneFlags, mainLight || undefined);
 
             return pass;
         }

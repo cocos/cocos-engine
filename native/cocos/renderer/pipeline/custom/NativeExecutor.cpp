@@ -46,6 +46,10 @@
 #include "details/GslUtils.h"
 #include "details/Range.h"
 
+#ifdef CC_USE_GEOMETRY_RENDERER
+    #include "cocos/renderer/pipeline/GeometryRenderer.h"
+#endif
+
 namespace cc {
 
 namespace render {
@@ -667,6 +671,14 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
 
         queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0);
+
+#ifdef CC_USE_GEOMETRY_RENDERER
+        if (any(sceneData.flags & SceneFlags::GEOMETRY) &&
+            camera && camera->getGeometryRenderer()) {
+            camera->getGeometryRenderer()->render(
+                ctx.currentPass, ctx.cmdBuff, ctx.ppl->getPipelineSceneData());
+        }
+#endif
 
         if (any(sceneData.flags & SceneFlags::REFLECTION_PROBE)) {
             queue.probeQueue.removeMacro();
