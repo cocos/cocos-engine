@@ -46,7 +46,7 @@
 #include "details/GslUtils.h"
 #include "details/Range.h"
 
-#ifdef CC_USE_GEOMETRY_RENDERER
+#if CC_USE_GEOMETRY_RENDERER
     #include "cocos/renderer/pipeline/GeometryRenderer.h"
 #endif
 
@@ -672,7 +672,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
 
         queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0);
 
-#ifdef CC_USE_GEOMETRY_RENDERER
+#if CC_USE_GEOMETRY_RENDERER
         if (any(sceneData.flags & SceneFlags::GEOMETRY) &&
             camera && camera->getGeometryRenderer()) {
             camera->getGeometryRenderer()->render(
