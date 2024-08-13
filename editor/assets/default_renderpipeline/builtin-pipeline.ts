@@ -688,8 +688,13 @@ if (rendering) {
                 .addScene(camera, SceneFlags.OPAQUE);
 
             // The blend queue is used for UI and Gizmos
+            let flags = SceneFlags.BLEND | SceneFlags.UI;
+            if (this._cameraConfigs.enableProfiler) {
+                flags |= SceneFlags.PROFILER;
+                pass.showStatistics = true;
+            }
             pass.addQueue(QueueHint.BLEND)
-                .addScene(camera, SceneFlags.BLEND | SceneFlags.UI);
+                .addScene(camera, flags);
         }
 
         private _buildForwardPipeline(
