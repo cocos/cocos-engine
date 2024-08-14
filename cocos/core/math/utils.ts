@@ -26,6 +26,7 @@
 import * as bits from './bits';
 import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
+import { Vec2 } from './vec2';
 
 const _d2r = Math.PI / 180.0;
 
@@ -364,4 +365,59 @@ export function floatToHalf (val: number) {
 
 export function halfToFloat (val: number) {
     return fromHalf(val);
+}
+
+export function wrap  (value: number, min: number, max: number): number {
+    const range = max - min;
+
+    return (min + ((((value - min) % range) + range) % range));
+}
+
+export function edgeOfView (rect: {width: number, height: number}, deg: number): Vec2 {
+    const twoPI = Math.PI * 2;
+    let theta = deg * Math.PI / 180;
+
+    while (theta < -Math.PI) {
+        theta += twoPI;
+    }
+
+    while (theta > Math.PI) {
+        theta -= twoPI;
+    }
+
+    const rectAtan = Math.atan2(rect.height, rect.width);
+    const tanTheta = Math.tan(theta);
+    let region;
+
+    if ((theta > -rectAtan) && (theta <= rectAtan)) {
+        region = 1;
+    } else if ((theta > rectAtan) && (theta <= (Math.PI - rectAtan))) {
+        region = 2;
+    } else if ((theta > (Math.PI - rectAtan)) || (theta <= -(Math.PI - rectAtan))) {
+        region = 3;
+    } else {
+        region = 4;
+    }
+
+    const edgePoint = new Vec2(rect.width / 2,  rect.height / 2);
+    let xFactor = 1;
+    let yFactor = 1;
+
+    switch (region) {
+    case 1: yFactor = -1; break;
+    case 2: yFactor = -1; break;
+    case 3: xFactor = -1; break;
+    case 4: xFactor = -1; break;
+    default: xFactor = -1; break;
+    }
+
+    if ((region === 1) || (region === 3)) {
+        edgePoint.x += xFactor * (rect.width / 2.0);
+        edgePoint.y += yFactor * (rect.width / 2.0) * tanTheta;
+    } else {
+        edgePoint.x += xFactor * (rect.height / (2.0 * tanTheta));
+        edgePoint.y += yFactor * (rect.height /  2.0);
+    }
+
+    return edgePoint;
 }

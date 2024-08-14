@@ -90,6 +90,15 @@ export const ttfUtils =  {
             style.hasShadow = false;
         }
 
+        //gradient
+        style.isGradient = comp.isGradient;
+        if (style.isGradient) {
+            style.isLinearGradient = comp.isLinearGradient;
+            style.linearGradientRotation = comp.linearGradientRotation;
+            style.linearGradientScale = comp.linearGradientScale;
+            style.linearGradientColors = comp.linearGradientColors;
+        }
+
         // render info
         style.color.set(comp.color);// may opacity bug // render Only
         outputRenderData.texture = comp.spriteFrame; // render Only

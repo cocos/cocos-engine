@@ -36,7 +36,7 @@ import { InstanceMaterialType, UIRenderer } from '../framework/ui-renderer';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { PixelFormat } from '../../asset/assets/asset-enum';
 import { BlendFactor } from '../../gfx';
-import { TextStyle } from '../assembler/label/text-style';
+import { ILinearGradient, TextStyle } from '../assembler/label/text-style';
 import { TextLayout } from '../assembler/label/text-layout';
 import { TextOutputLayoutData, TextOutputRenderData } from '../assembler/label/text-output-data';
 
@@ -834,6 +834,12 @@ export class Label extends UIRenderer {
     @serializable
     protected _shadowBlur = 2;
 
+    public isGradient = false;
+    public isLinearGradient = false;
+    public linearGradientRotation = 0;
+    public linearGradientScale = 1;
+    public linearGradientColors: ILinearGradient[] = [];
+
     // don't need serialize
     // 这个保存了旧项目的 file 数据
     protected _N$file: Font | null = null;
@@ -923,6 +929,19 @@ export class Label extends UIRenderer {
         this._letterTexture = null;
 
         super.onDestroy();
+    }
+
+    public setLinearGradient (rotation: number, scale: number, colors: ILinearGradient[]): void {
+        this.isGradient = true;
+        this.isLinearGradient = true;
+        this.linearGradientRotation = rotation;
+        this.linearGradientScale = scale;
+        this.linearGradientColors = colors;
+    }
+
+    public clearGradient (): void {
+        this.isGradient = false;
+        this.isLinearGradient = false;
     }
 
     /**

@@ -26,6 +26,11 @@ import { Color } from '../../../core';
 import { IConfig } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
+export interface ILinearGradient {
+    offset: number
+    color: Color
+}
+
 export class TextStyle {
     // ---------------ttf extra part-----------------
     // bold // style
@@ -45,6 +50,15 @@ export class TextStyle {
     public shadowBlur = 2; // ttf
     public shadowOffsetX = 0; // ttf
     public shadowOffsetY = 0; // ttf
+
+    // gradient
+    public isGradient = false;
+
+    // linear gradient style
+    public isLinearGradient = false;
+    public linearGradientRotation = 0;
+    public linearGradientScale = 1;
+    public linearGradientColors: ILinearGradient[] = [];
 
     public color = Color.WHITE.clone(); // both
 
