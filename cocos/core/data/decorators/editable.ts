@@ -232,7 +232,7 @@ export const range: (values: [number, number, number] | [number, number]) => Leg
  * 设置该属性在编辑器中允许的最小值。
  * @param value 最小值。
  */
-export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV
+export const rangeMin: (value: number | (() => number)) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
     : setPropertyStashVar1WithImplicitVisible('min');
 
@@ -243,7 +243,7 @@ export const rangeMin: (value: number) => LegacyPropertyDecorator = !DEV
  * 设置该属性在编辑器中允许的最大值。
  * @param value 最大值。
  */
-export const rangeMax: (value: number) => LegacyPropertyDecorator = !DEV
+export const rangeMax: (value: number | (() => number)) => LegacyPropertyDecorator = !DEV
     ? emptyDecoratorFn
     : setPropertyStashVar1WithImplicitVisible('max');
 

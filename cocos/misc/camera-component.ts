@@ -393,7 +393,9 @@ export class Camera extends Component {
      * @zh 相机的远裁剪距离，应在可接受范围内尽量取最小。
      */
     @displayOrder(11)
-    @rangeMin(0)
+    @rangeMin(function (this: Camera): number {
+        return this._near + 0.001;
+    })
     @tooltip('i18n:camera.far')
     get far (): number {
         return this._far;
