@@ -87,6 +87,7 @@ interface BtCache {
 
 // eslint-disable-next-line import/no-mutable-exports
 export let bt = {} as Bullet.instance;
+globalThis.Bullet = bt as any;
 export const btCache = {} as BtCache;
 btCache.BODY_CACHE_NAME = 'body';
 btCache.CCT_CACHE_NAME = 'cct';
