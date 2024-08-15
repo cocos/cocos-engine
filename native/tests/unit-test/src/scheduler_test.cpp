@@ -36,7 +36,7 @@ TEST(schedulerTest, performInCocosThreadOrder) {
     std::vector<int> orderResult;
     
     for (int i = 0; i < 10; ++i) {
-        auto task = [&orderResult, i, &scheduler](){
+        auto task = [&orderResult, i, scheduler](){
             orderResult.emplace_back(i);
             
             if (i == 5) {
