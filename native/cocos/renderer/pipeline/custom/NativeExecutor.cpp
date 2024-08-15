@@ -718,7 +718,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                             : locate(LayoutGraphData::null_vertex(),
                                      get(RenderGraph::LayoutTag{}, ctx.g, subpassID),
                                      ctx.lg);
-                    CC_ENSURES(passLayoutID != LayoutGraphData::null_vertex());
+                    CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
                     const auto phaseLayoutID = locate(subpassLayoutID, "default", ctx.lg);
                     if (phaseLayoutID != LayoutGraphData::null_vertex()) {
                         submitUICommands(ctx.currentPass, phaseLayoutID, camera, ctx.cmdBuff);
