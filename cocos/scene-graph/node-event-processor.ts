@@ -593,12 +593,12 @@ export class NodeEventProcessor {
             this.previousMouseIn = false;
             _currentHovered = null;
         }
-        return true;
+        return false;
     }
 
     private _handleMouseEnter (event: EventMouse): boolean {
         this._isMouseLeaveWindow = false;
-        return true;
+        return false;
     }
 
     // #endregion handle mouse event
