@@ -87,7 +87,6 @@ interface BtCache {
 
 // eslint-disable-next-line import/no-mutable-exports
 export let bt = {} as Bullet.instance;
-globalThis.Bullet = bt as any;
 export const btCache = {} as BtCache;
 btCache.BODY_CACHE_NAME = 'body';
 btCache.CCT_CACHE_NAME = 'cct';
@@ -108,6 +107,7 @@ function initWASM (wasmFactory, wasmUrl: string): Promise<void> {
         }).then((instance: any) => {
             log('[bullet]:bullet wasm lib loaded.');
             bt = instance as Bullet.instance;
+            globalThis.Bullet = bt as any;
         }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }
