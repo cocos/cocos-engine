@@ -22,6 +22,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 #include <vector>
+#include <chrono>
+#include <thread>
 
 #include "base/Scheduler.h"
 #include "utils.h"
@@ -50,7 +52,7 @@ TEST(schedulerTest, performInCocosThreadOrder) {
                     orderResult.emplace_back(12);
                 });
                 
-                usleep(100 * 1000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
         };
         scheduler->performFunctionInCocosThread(task);
