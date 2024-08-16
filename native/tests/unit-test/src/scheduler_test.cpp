@@ -31,7 +31,7 @@
 using namespace cc;
 
 TEST(schedulerTest, performInCocosThreadOrder) {
-    auto *scheduler = new Scheduler();
+    auto scheduler = std::make_shared<Scheduler>();
     
     std::vector<int> orderResult;
     
@@ -62,8 +62,5 @@ TEST(schedulerTest, performInCocosThreadOrder) {
     scheduler->runFunctionsToBePerformedInCocosThread();
     
     const std::vector<int> expectedResult{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-    EXPECT_TRUE(orderResult == expectedResult);
-    
-    delete scheduler;
-    scheduler = nullptr;
+    EXPECT_EQ(orderResult, expectedResult);
 }
