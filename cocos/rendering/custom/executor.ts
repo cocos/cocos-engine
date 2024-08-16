@@ -1042,7 +1042,9 @@ class DeviceRenderPass implements RecordingInterface {
         this._deviceQueues.clear();
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
-        let depTexture = this._framebuffer ? this._framebuffer.depthStencilTexture : null;
+        const currFramebuffer = this._framebuffer;
+        const currFBDepthTex = currFramebuffer.depthStencilTexture;
+        let depTexture = currFramebuffer ? currFBDepthTex : null;
         for (const cv of this._rasterInfo.pass.computeViews) {
             this._applyRenderLayout(cv);
         }
@@ -1052,8 +1054,8 @@ class DeviceRenderPass implements RecordingInterface {
         }
 
         const resGraph = context.resourceGraph;
-        const currentWidth = this._framebuffer ? this._framebuffer.width : 0;
-        const currentHeight = this._framebuffer ? this._framebuffer.height : 0;
+        const currentWidth = currFramebuffer ? currFramebuffer.width : 0;
+        const currentHeight = currFramebuffer ? currFramebuffer.height : 0;
 
         let width = 0;
         let height = 0;
@@ -1067,8 +1069,18 @@ class DeviceRenderPass implements RecordingInterface {
             height = resDesc.height;
             break;
         }
-        const needRebuild = (width !== currentWidth) || (height !== currentHeight) || this.framebuffer.needRebuild;
-
+        // The texture inside the fbo was destroyed？
+        let isInsideTexDestroy = false;
+        for (const colTex of currFramebuffer.colorTextures) {
+            if (colTex?.getTextureHandle() === 0) {
+                isInsideTexDestroy = true;
+                break;
+            }
+        }
+        if (currFBDepthTex && !isInsideTexDestroy) {
+            isInsideTexDestroy = currFBDepthTex.getTextureHandle() === 0;
+        }
+        const needRebuild = (width !== currentWidth) || (height !== currentHeight) || currFramebuffer.needRebuild || isInsideTexDestroy;
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
             let deviceTex = context.deviceTextures.get(resName)!;
             const currTex = deviceTex;
