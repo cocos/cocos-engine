@@ -42,6 +42,9 @@ jobs:
         shell: bash
         run: |
           cpus=$(sysctl hw.ncpu | awk '{print $2}')
+          echo "cpus: ${cpus}"
+          which cmake
+          cmake --version
           cmake -B tests/unit-test/build -S tests/unit-test
           cmake --build tests/unit-test/build --config Release -j${cpus}
           ./tests/unit-test/build/src/Release/CocosTest
@@ -84,8 +87,7 @@ jobs:
           cp cfg.cmake proj/
           GW="${GITHUB_WORKSPACE//\\/\/}"
           cmake -B proj -S win64 -DRES_DIR="${GW}/native/tests/sebind-tests" -DCOCOS_X_PATH="${GW}/native" -DAPP_NAME=sebind
-          cpus=$(sysctl hw.ncpu | awk '{print $2}')
-          cmake --build proj -j${cpus}
+          cmake --build proj -j2
           # cd proj/Debug
           ## can not boot on this machine
           # ./sebind.exe || true
