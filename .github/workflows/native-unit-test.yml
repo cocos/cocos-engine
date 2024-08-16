@@ -33,7 +33,7 @@ jobs:
         run: |
           cmake -B tests/unit-test/build -S tests/unit-test
           cmake --build tests/unit-test/build --config Release
-          ./tests/unit-test/build/src/Release/CocosTest.exe
+          ./tests/unit-test/build/src/Release/CocosTest
 
       #### TODO(PatriceJiang): model split
       # - name: Run Module Tests
