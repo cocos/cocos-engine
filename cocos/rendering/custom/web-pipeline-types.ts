@@ -230,11 +230,12 @@ export class ProbeHelperQueue {
             let patches: IMacroPatch[] = [];
             patches = patches.concat(subModel.patches!);
             if (!patches.length) continue;
-            for (let j = 0; j < patches.length; j++) {
+            for (let j = 0; j < patches.length;) {
                 const patch = patches[j];
                 if (patch.name === CC_USE_RGBE_OUTPUT) {
                     patches.splice(j, 1);
-                    break;
+                } else {
+                    ++j;
                 }
             }
             subModel.onMacroPatchesStateChanged(patches);
