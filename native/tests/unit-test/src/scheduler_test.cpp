@@ -33,22 +33,22 @@ using namespace cc;
 TEST(schedulerTest, performInCocosThreadOrder) {
     auto *scheduler = new Scheduler();
     
-    std::vector<int> orderResult;
+    static std::vector<int> orderResult;
     
     for (int i = 0; i < 10; ++i) {
-        auto task = [&orderResult, i, scheduler](){
+        auto task = [i, scheduler](){
             orderResult.emplace_back(i);
             
             if (i == 5) {
-                scheduler->performFunctionInCocosThread([&orderResult](){
+                scheduler->performFunctionInCocosThread([](){
                     orderResult.emplace_back(10);
                 });
                 
-                scheduler->performFunctionInCocosThread([&orderResult](){
+                scheduler->performFunctionInCocosThread([](){
                     orderResult.emplace_back(11);
                 });
                 
-                scheduler->performFunctionInCocosThread([&orderResult](){
+                scheduler->performFunctionInCocosThread([](){
                     orderResult.emplace_back(12);
                 });
                 
@@ -66,4 +66,5 @@ TEST(schedulerTest, performInCocosThreadOrder) {
     
     delete scheduler;
     scheduler = nullptr;
+    orderResult.clear();
 }
