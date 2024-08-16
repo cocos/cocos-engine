@@ -13,10 +13,10 @@ concurrency:
 
 jobs:
   unit-test-with-cmake:
-    name: "Run on windows"
+    name: "Run on macOS"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: windows-latest
+    runs-on: macos-latest
     defaults:
       run:
         working-directory: ${{github.workspace}}/native
