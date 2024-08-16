@@ -252,7 +252,7 @@ void updateGlobal(
 
 void submitUICommands(
     gfx::RenderPass* renderPass,
-    uint32_t subpassOrPassLayoutID,
+    uint32_t phaseLayoutID,
     const scene::Camera* camera,
     gfx::CommandBuffer* cmdBuff) {
     const auto cameraVisFlags = camera->getVisibility();
@@ -264,7 +264,7 @@ void submitUICommands(
         const auto& passes = batch->getPasses();
         for (size_t i = 0; i < batch->getShaders().size(); ++i) {
             const scene::Pass* pass = passes[i];
-            if (pass->getSubpassOrPassID() != subpassOrPassLayoutID) {
+            if (pass->getPhaseID() != phaseLayoutID) {
                 continue;
             }
             auto* shader = batch->getShaders()[i];
@@ -687,8 +687,13 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             const auto queueID = parent(sceneID, ctx.g);
             const auto& queueData = get(QueueTag{}, queueID, ctx.g);
             const auto passOrSubpassID = parent(queueID, ctx.g);
+            // To render UI, the phase layout of the material Pass
+            // must be PassLayout/'default'
             if (queueData.passLayoutID != LayoutGraphData::null_vertex()) {
-                submitUICommands(ctx.currentPass, queueData.passLayoutID, camera, ctx.cmdBuff);
+                const auto phaseLayoutID = locate(queueData.passLayoutID, "default", ctx.lg);
+                if (phaseLayoutID != LayoutGraphData::null_vertex()) {
+                    submitUICommands(ctx.currentPass, phaseLayoutID, camera, ctx.cmdBuff);
+                }
             } else {
                 const auto passID = parent(passOrSubpassID, ctx.g);
                 if (passID == RenderGraph::null_vertex()) { // Pass
@@ -696,7 +701,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                         locate(LayoutGraphData::null_vertex(),
                                get(RenderGraph::LayoutTag{}, ctx.g, passOrSubpassID),
                                ctx.lg);
-                    submitUICommands(ctx.currentPass, passLayoutID, camera, ctx.cmdBuff);
+                    CC_ENSURES(passLayoutID != LayoutGraphData::null_vertex());
+                    const auto phaseLayoutID = locate(passLayoutID, "default", ctx.lg);
+                    if (phaseLayoutID != LayoutGraphData::null_vertex()) {
+                        submitUICommands(ctx.currentPass, phaseLayoutID, camera, ctx.cmdBuff);
+                    }
                 } else { // Subpass
                     const auto subpassID = passOrSubpassID;
                     const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passID);
@@ -709,7 +718,11 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                             : locate(LayoutGraphData::null_vertex(),
                                      get(RenderGraph::LayoutTag{}, ctx.g, subpassID),
                                      ctx.lg);
-                    submitUICommands(ctx.currentPass, subpassLayoutID, camera, ctx.cmdBuff);
+                    CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
+                    const auto phaseLayoutID = locate(subpassLayoutID, "default", ctx.lg);
+                    if (phaseLayoutID != LayoutGraphData::null_vertex()) {
+                        submitUICommands(ctx.currentPass, phaseLayoutID, camera, ctx.cmdBuff);
+                    }
                 }
             }
         }
