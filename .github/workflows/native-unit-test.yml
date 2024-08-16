@@ -22,6 +22,12 @@ jobs:
         working-directory: ${{github.workspace}}/native
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check cmake version
+        run: |
+          echo "CMake version: "
+          cmake --version
+
       - name: Download external libraries
         shell: bash
         run: |
