@@ -227,18 +227,15 @@ export class ProbeHelperQueue {
 
     removeMacro (): void {
         for (const subModel of this.probeMap) {
-            let patches: IMacroPatch[] = [];
-            patches = patches.concat(subModel.patches!);
-            if (!patches.length) continue;
-            for (let j = 0; j < patches.length;) {
-                const patch = patches[j];
-                if (patch.name === CC_USE_RGBE_OUTPUT) {
-                    patches.splice(j, 1);
-                } else {
-                    ++j;
-                }
+            if (!subModel.patches) continue;
+            const patches = subModel.patches.filter(
+                (patch) => patch.name !== CC_USE_RGBE_OUTPUT,
+            );
+            if (patches.length === 0) {
+                subModel.onMacroPatchesStateChanged(null);
+            } else {
+                subModel.onMacroPatchesStateChanged(patches);
             }
-            subModel.onMacroPatchesStateChanged(patches);
         }
     }
     applyMacro (model: Model, probeLayoutId: number): void {
