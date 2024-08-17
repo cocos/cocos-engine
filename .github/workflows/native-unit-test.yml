@@ -45,9 +45,10 @@ jobs:
           echo "cpus: ${cpus}"
           which cmake
           cmake --version
-          cmake -B tests/unit-test/build -S tests/unit-test
+          cmake -B tests/unit-test/build -S tests/unit-test -GXcode
           cd tests/unit-test/build
           # cmake --build tests/unit-test/build --config Release -j${cpus}
+          ls -l
           xcodebuild -project CocosTest.xcodeproj -scheme "CocosTest" -jobs ${cpus} -arch arm64 -configuration Release build CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
           ./src/Release/CocosTest
 
