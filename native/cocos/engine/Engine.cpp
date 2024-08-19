@@ -307,6 +307,10 @@ void Engine::tick() {
 
         cc::DeferredReleasePool::clear();
         if (_xr) _xr->endRenderFrame();
+        
+        // Executing async tasks at the end of the current frame to make the callback invoked as soon as possible.
+        _scheduler->runFunctionsToBePerformedInCocosThread();
+        
         now = std::chrono::steady_clock::now();
         dtNS = dtNS * 0.1 + 0.9 * static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(now - prevTime).count());
         dt = static_cast<float>(dtNS) / NANOSECONDS_PER_SECOND;
