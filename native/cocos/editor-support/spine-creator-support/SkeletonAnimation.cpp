@@ -146,6 +146,9 @@ void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
 }
 
 void SkeletonAnimation::setMix(const std::string &fromAnimation, const std::string &toAnimation, float duration) {
+    auto *fromAni = findAnimation(fromAnimation);
+    auto *toAni = findAnimation(toAnimation);
+    if (!fromAni || !toAni) return;
     if (_state) {
         _state->getData()->setMix(fromAnimation.c_str(), toAnimation.c_str(), duration);
     }
