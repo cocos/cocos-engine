@@ -675,17 +675,9 @@ class RenderPassLayoutInfo {
     protected _layoutID = 0;
     protected _vertID = -1;
     protected _stage: RenderStageData | null = null;
-    protected _layout: PipelineLayoutData | null = null;
+    protected _layout!: PipelineLayoutData;
     protected _inputName!: string;
     protected _descriptorSet: DescriptorSet | null = null;
-    reset (): void {
-        this._layoutID = 0;
-        this._vertID = -1;
-        this._stage = null;
-        this._layout = null;
-        this._inputName = '';
-        this._descriptorSet = null;
-    }
     init (layoutId: number, vertId: number, input: [string, ComputeView[]]): void {
         this._inputName = input[0];
         this._layoutID = layoutId;
