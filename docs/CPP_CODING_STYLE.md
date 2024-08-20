@@ -381,7 +381,7 @@ Global and static variables that use dynamic initialization or have non-trivial 
 
 **Decision:**
 
-### Decision on destrcution:
+### Decision on destruction:
 
 When destructors are trivial, their execution is not subject to ordering at all (they are effectively not "run"); otherwise we are exposed to the risk of accessing objects after the end of their lifetime. Therefore, we only allow objects with static storage duration if they are trivially destructible. Fundamental types (like pointers and int) are trivially destructible, as are arrays of trivially destructible types. Note that variables marked with constexpr are trivially destructible.
 
