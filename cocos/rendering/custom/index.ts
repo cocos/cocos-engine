@@ -75,19 +75,21 @@ export function getCustomPipeline (name: string): PipelineBuilder {
     return builder;
 }
 
-export function init (device: Device, arrayBufferLike: ArrayBuffer | null): void {
-    if (arrayBufferLike && arrayBufferLike.byteLength >= LAYOUT_HEADER_SIZE) {
-        const uint8Array = new Uint8Array(arrayBufferLike);
-        const header = new DataView(uint8Array.buffer, 0, LAYOUT_HEADER_SIZE);
+export function init (device: Device, arrayBuffer: ArrayBuffer | null): void {
+    if (arrayBuffer && arrayBuffer.byteLength >= LAYOUT_HEADER_SIZE) {
+        // On bytedance emulator, arrayBuffer might be Uint8Array
+        // Here we use uint8Array to erase the difference.
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const header = new DataView(uint8Array.buffer, uint8Array.byteOffset, LAYOUT_HEADER_SIZE);
         if (header.getUint32(0) === INVALID_ID) {
             // Data is compressed
-            const inflator = new zlib.Inflate(new Uint8Array(uint8Array, LAYOUT_HEADER_SIZE));
+            const inflator = new zlib.Inflate(new Uint8Array(uint8Array.buffer, uint8Array.byteOffset + LAYOUT_HEADER_SIZE));
             const decompressed = inflator.decompress() as Uint8Array;
-            const readBinaryData = new BinaryInputArchive(decompressed.buffer);
+            const readBinaryData = new BinaryInputArchive(decompressed.buffer, decompressed.byteOffset);
             loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
         } else {
             // Data is not compressed
-            const readBinaryData = new BinaryInputArchive(uint8Array.buffer);
+            const readBinaryData = new BinaryInputArchive(uint8Array.buffer, uint8Array.byteOffset);
             loadLayoutGraphData(readBinaryData, defaultLayoutGraph);
         }
     }
