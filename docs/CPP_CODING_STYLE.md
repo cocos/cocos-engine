@@ -20,7 +20,7 @@ _Forked from [Google's C++ coding style](https://google.github.io/styleguide/cpp
   - [Nonmember, Static Member, and Global Functions](#nonmember-static-member-and-global-functions)
   - [Local Variables](#local-variables)
   - [Static and Global Variables](#static-and-global-variables)
-    - [Decision on destrcution:](#decision-on-destrcution)
+    - [Decision on destruction:](#decision-on-destrcution)
     - [Decision on initialization](#decision-on-initialization)
     - [Common patterns](#common-patterns)
   - [thread_local variables](#thread_local-variables)
