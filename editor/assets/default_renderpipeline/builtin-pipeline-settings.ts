@@ -75,7 +75,10 @@ export class BuiltinPipelineSettings extends Component {
     }
 
     // Editor Preview
-    @property(CCBoolean)
+    @property({
+        displayName: 'Editor Preview (Experimental)',
+        type: CCBoolean,
+    })
     protected _editorPreview = false;
 
     @property(CCBoolean)
