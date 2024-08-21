@@ -675,10 +675,10 @@ class RenderPassLayoutInfo {
     protected _layoutID = 0;
     protected _vertID = -1;
     protected _stage: RenderStageData | null = null;
-    protected _layout!: PipelineLayoutData;
-    protected _inputName!: string;
+    protected _layout: PipelineLayoutData;
+    protected _inputName: string;
     protected _descriptorSet: DescriptorSet | null = null;
-    init (layoutId: number, vertId: number, input: [string, ComputeView[]]): void {
+    constructor (layoutId: number, vertId: number, input: [string, ComputeView[]]) {
         this._inputName = input[0];
         this._layoutID = layoutId;
         this._vertID = vertId;
@@ -820,6 +820,13 @@ class DeviceRenderPass implements RecordingInterface {
         let depthTex: Texture | null = null;
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
+        for (const cv of passInfo.pass.computeViews) {
+            this._applyRenderLayout(cv);
+        }
+        // update the layout descriptorSet
+        if (this.renderLayout && this.renderLayout.descriptorSet) {
+            this.renderLayout.descriptorSet.update();
+        }
         for (const [resName, rasterV] of passInfo.pass.rasterViews) {
             let resTex = context.deviceTextures.get(resName);
             if (!resTex) {
@@ -913,15 +920,6 @@ class DeviceRenderPass implements RecordingInterface {
     get deviceQueues (): Map<number, DeviceRenderQueue> { return this._deviceQueues; }
     get rasterPassInfo (): RasterPassInfo { return this._rasterInfo; }
     get viewport (): Viewport | null { return this._viewport; }
-    setRenderLayoutView (): void {
-        for (const cv of this.rasterPassInfo.pass.computeViews) {
-            this._applyRenderLayout(cv);
-        }
-        // update the layout descriptorSet
-        if (this.renderLayout && this.renderLayout.descriptorSet) {
-            this.renderLayout.descriptorSet.update();
-        }
-    }
     visitResource (resName: string): void {
         const resourceGraph = context.resourceGraph;
         const vertId = resourceGraph.vertex(resName);
@@ -940,8 +938,7 @@ class DeviceRenderPass implements RecordingInterface {
             const layoutGraph = context.layoutGraph;
             const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._layout = context.pools.addRenderPassLayout();
-                this._layout.init(stageId, this.rasterPassInfo.id, input);
+                this._layout = new RenderPassLayoutInfo(stageId, this.rasterPassInfo.id, input);
             }
         }
     }
@@ -1048,6 +1045,14 @@ class DeviceRenderPass implements RecordingInterface {
         const currFramebuffer = this._framebuffer;
         const currFBDepthTex = currFramebuffer.depthStencilTexture;
         let depTexture = currFramebuffer ? currFBDepthTex : null;
+        for (const cv of this._rasterInfo.pass.computeViews) {
+            this._applyRenderLayout(cv);
+        }
+        // update the layout descriptorSet
+        if (this.renderLayout && this.renderLayout.descriptorSet) {
+            this.renderLayout.descriptorSet.update();
+        }
+
         const resGraph = context.resourceGraph;
         const currentWidth = currFramebuffer ? currFramebuffer.width : 0;
         const currentHeight = currFramebuffer ? currFramebuffer.height : 0;
@@ -1203,8 +1208,7 @@ class DeviceComputePass implements RecordingInterface {
             const layoutGraph = context.layoutGraph;
             const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
-                this._layout = context.pools.addRenderPassLayout();
-                this._layout.init(stageId, this._computeInfo.id, input);
+                this._layout = new RenderPassLayoutInfo(stageId, this._computeInfo.id, input);
             }
         }
     }
@@ -1327,7 +1331,7 @@ class DeviceRenderScene implements RecordingInterface {
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
         this._updateGlobal(queueRenderData, this.graphScene.sceneID);
-        devicePass.setRenderLayoutView();
+
         this._currentQueue.isUpdateUBO = true;
 
         const batches = this.camera!.scene!.batches;
@@ -1405,7 +1409,6 @@ class DeviceRenderScene implements RecordingInterface {
         this._updateGlobal(queueRenderData, sceneId);
         const sceneRenderData = context.renderGraph.getData(sceneId)!;
         if (sceneRenderData) this._updateGlobal(sceneRenderData, sceneId);
-        devicePass.setRenderLayoutView();
         this._currentQueue.isUpdateUBO = true;
     }
 
@@ -1464,7 +1467,6 @@ class ExecutorPools {
         this.deviceScenePool = new RecyclePool<DeviceRenderScene>((): DeviceRenderScene => new DeviceRenderScene(), 16);
         this.computeQueuePool = new RecyclePool<DeviceComputeQueue>((): DeviceComputeQueue => new DeviceComputeQueue(), 16);
         this.graphScenePool = new RecyclePool<GraphScene>((): GraphScene => new GraphScene(), 16);
-        this.renderPassLayoutPool = new RecyclePool<RenderPassLayoutInfo>((): RenderPassLayoutInfo => new RenderPassLayoutInfo(), 16);
         this.rasterPassInfoPool = new RecyclePool<RasterPassInfo>((): RasterPassInfo => new RasterPassInfo(), 16);
         this.computePassInfoPool = new RecyclePool<ComputePassInfo>((): ComputePassInfo => new ComputePassInfo(), 16);
         this.passPool = new RecyclePool<IRenderPass>((): { priority: number; hash: number; depth: number; shaderId: number; subModel: any; passIdx: number; } => ({
@@ -1475,9 +1477,6 @@ class ExecutorPools {
             subModel: null!,
             passIdx: 0,
         }), 64);
-    }
-    addRenderPassLayout (): RenderPassLayoutInfo {
-        return this.renderPassLayoutPool.add();
     }
     addDeviceQueue (): DeviceRenderQueue {
         return this.deviceQueuePool.add();
@@ -1503,7 +1502,6 @@ class ExecutorPools {
         this.graphScenePool.reset();
         this.computePassInfoPool.reset();
         this.deviceScenePool.reset();
-        this.renderPassLayoutPool.reset();
     }
     readonly deviceQueuePool: RecyclePool<DeviceRenderQueue>;
     readonly computeQueuePool: RecyclePool<DeviceComputeQueue>;
@@ -1512,7 +1510,6 @@ class ExecutorPools {
     readonly rasterPassInfoPool: RecyclePool<RasterPassInfo>;
     readonly computePassInfoPool: RecyclePool<ComputePassInfo>;
     readonly deviceScenePool: RecyclePool<DeviceRenderScene>;
-    readonly renderPassLayoutPool: RecyclePool<RenderPassLayoutInfo>;
 }
 
 const vbData = new Float32Array(4 * 4);
