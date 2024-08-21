@@ -644,7 +644,7 @@ export function updatePerPassUBO (layout: string, sceneId: number, user: RenderD
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
         const tex = descriptorSet.getTexture(bindId);
-        if (!tex || value !== webPip.defaultShadowTexture
+        if (tex !== value
         // @ts-ignore
         || (!tex.gpuTexture && !(tex.gpuTextureView && tex.gpuTextureView.gpuTexture))) {
             bindGlobalDesc(descriptorSet, bindId, value);
@@ -654,7 +654,7 @@ export function updatePerPassUBO (layout: string, sceneId: number, user: RenderD
         const bindId = getDescBinding(key, descriptorSetData);
         if (bindId === -1) { continue; }
         const sampler = descriptorSet.getSampler(bindId);
-        if (!sampler || value !== webPip.defaultSampler) {
+        if (sampler !== value) {
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
