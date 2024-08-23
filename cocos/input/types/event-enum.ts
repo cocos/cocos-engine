@@ -343,14 +343,14 @@ export enum InputEventType {
      * trigger this event.
      * @zh 当鼠标离开窗口或者 canvas 时发出该消息。只有 Windows、macOS 或者 PC web 会触发该事件。
      */
-    MOUSE_LEAVE = 'mouse-leave',
+    MOUSE_LEAVE = 'mouse-leave-window',
 
     /**
      * @en The event type indicates mouse enters the window or canvas. Only Windows, macOS or web PC can
      * trigger this event.
      * @zh 当鼠标进入窗口或者 canvas 时发出该消息。只有 Windows、macOS 或者 PC web 会触发该事件。
      */
-    MOUSE_ENTER = 'mouse-enter',
+    MOUSE_ENTER = 'mouse-enter-window',
 
     /**
      * @en
