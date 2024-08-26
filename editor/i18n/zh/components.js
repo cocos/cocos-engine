@@ -44,5 +44,9 @@ module.exports = {
         },
 
         blockInputEventsTip: '该组件将拦截所有输入事件，防止输入穿透到屏幕下方的其它节点，一般用于屏幕上层 UI 的背景。',
+
+        builtin_pipeline_settings: {
+            depend_component_warn: '该组件只能添加到包含 {dependent} 组件的节点中。',
+        },
     },
 };

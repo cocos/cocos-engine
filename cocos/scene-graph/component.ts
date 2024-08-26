@@ -768,6 +768,9 @@ value(Component, '_registerEditorProps', (cls, props): void => {
                 cls._executeInEditMode = !!val;
                 break;
 
+            case 'checkDepComponentInEditor':
+                cls._checkComponentInEditor = val;
+                break;
             case 'playOnFocus':
                 if (val) {
                     const willExecuteInEditMode = ('executeInEditMode' in props) ? props.executeInEditMode : cls._executeInEditMode;

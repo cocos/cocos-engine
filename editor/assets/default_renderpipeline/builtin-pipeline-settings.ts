@@ -42,11 +42,12 @@ import {
     fillRequiredPipelineSettings,
 } from './builtin-pipeline-types';
 
-const { ccclass, disallowMultiple, executeInEditMode, menu, property, requireComponent, type } = _decorator;
+const { ccclass, disallowMultiple, executeInEditMode, menu, property, checkDepComponentInEditor, requireComponent, type } = _decorator;
 
 @ccclass('BuiltinPipelineSettings')
 @menu('Rendering/BuiltinPipelineSettings')
 @requireComponent(Camera)
+@checkDepComponentInEditor('cc.Camera')
 @disallowMultiple
 @executeInEditMode
 export class BuiltinPipelineSettings extends Component {

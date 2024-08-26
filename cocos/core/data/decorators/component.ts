@@ -23,8 +23,12 @@
 */
 
 import { DEV } from 'internal:constants';
-import { CCClass } from '../class';
-import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartClassDecorator } from './utils';
+import {
+    makeEditorClassDecoratorFn,
+    makeSmartEditorClassDecorator,
+    emptySmartClassDecorator,
+    emptyDecoratorFn,
+} from './utils';
 
 /**
  * @en Declare that the current component relies on another type of component.
@@ -44,6 +48,22 @@ import { makeEditorClassDecoratorFn, makeSmartEditorClassDecorator, emptySmartCl
  * ```
  */
 export const requireComponent: (requiredComponent: Function | Function[]) => ClassDecorator = makeEditorClassDecoratorFn('requireComponent');
+
+/**
+ * @en Checks for dependent components before adding a component declared as CCClass. If the dependent component does not exist, prompt for it
+ * @zh 为声明为 CCClass 的组件进行添加前检查依赖组件。如果依赖的组件不存在，进行提示
+ * @param checkDepComponentInEditor
+ * @example
+ * ```ts
+ * import { _decorator, Sprite, Component } from cc;
+ * import { ccclass, checkDepComponentInEditor } from _decorator;
+ *
+ * @ccclass
+ * @checkDepComponentInEditor('cc.Sprite')
+ * class SpriteCtrl extends Component {}
+ * ```
+ */
+export const checkDepComponentInEditor: (component: string | string[]) => ClassDecorator =    DEV ? makeEditorClassDecoratorFn('checkDepComponentInEditor') : emptyDecoratorFn;
 
 /**
  * @en Set the component priority, it decides at which order the life cycle functions of components will be invoked. Smaller priority gets invoked before larger priority.

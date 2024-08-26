@@ -48,5 +48,9 @@ module.exports = {
         },
 
         blockInputEventsTip: 'This component will block all input events, preventing the input from penetrating to other nodes below the screen, typically for the background of the top-level UI of the screen.',
+
+        builtin_pipeline_settings: {
+            depend_component_warn: 'This component can only be added to a node that contains {dependent} component.',
+        },
     },
 };
