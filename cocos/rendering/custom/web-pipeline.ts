@@ -53,6 +53,7 @@ import { Director } from '../../game';
 import { ReflectionProbeManager } from '../../3d';
 import { legacyCC } from '../../core/global-exports';
 import { WebSetter, setCameraUBOValues, setShadowUBOLightView, setShadowUBOView, setTextureUBOView } from './web-pipeline-types';
+import { AABB } from '../../core/geometry/aabb';
 
 const _uboVec = new Vec4();
 const _samplerPointInfo = new SamplerInfo(
@@ -220,6 +221,10 @@ export class WebSceneBuilder extends WebSetter implements SceneBuilder {
         const passId = this._renderGraph.getParent(queueId);
         const layoutName = this._renderGraph.getLayout(passId);
         setShadowUBOLightView(this, this._scene.camera, light, csmLevel, layoutName);
+    }
+    setCullingWorldBounds (aabb: AABB): void {
+        this._scene.cullingFlags |= CullingFlags.WORLD_BOUNDS;
+        this._scene.worldBounds = aabb;
     }
     private _renderGraph: RenderGraph;
     private _scene: SceneData;

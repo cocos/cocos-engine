@@ -878,6 +878,7 @@ enum class CullingFlags : uint32_t {
     CAMERA_FRUSTUM = 0x1,
     LIGHT_FRUSTUM = 0x2,
     LIGHT_BOUNDS = 0x4,
+    WORLD_BOUNDS = 0x8,
 };
 
 constexpr CullingFlags operator|(const CullingFlags lhs, const CullingFlags rhs) noexcept {
@@ -910,13 +911,14 @@ constexpr bool any(CullingFlags e) noexcept {
 
 struct SceneData {
     SceneData() = default;
-    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn, IntrusivePtr<scene::Light> shadingLightIn) noexcept
+    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn, IntrusivePtr<scene::Light> shadingLightIn, geometry::AABB worldBoundsIn) noexcept
     : scene(sceneIn),
       camera(cameraIn),
       light(std::move(lightIn)),
       flags(flagsIn),
       cullingFlags(cullingFlagsIn),
-      shadingLight(std::move(shadingLightIn)) {}
+      shadingLight(std::move(shadingLightIn)),
+      worldBounds(worldBoundsIn) {}
 
     const scene::RenderScene* scene{nullptr};
     const scene::Camera* camera{nullptr};
@@ -924,6 +926,7 @@ struct SceneData {
     SceneFlags flags{SceneFlags::NONE};
     CullingFlags cullingFlags{CullingFlags::CAMERA_FRUSTUM};
     IntrusivePtr<scene::Light> shadingLight;
+    geometry::AABB worldBounds;
 };
 
 struct Dispatch {

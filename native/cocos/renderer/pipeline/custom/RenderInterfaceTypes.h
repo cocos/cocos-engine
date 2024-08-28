@@ -569,6 +569,7 @@ public:
      * @param optCamera @en Additional scene culling camera. @zh 额外的场景裁切相机
      */
     virtual void useLightFrustum(IntrusivePtr<scene::Light> light, uint32_t csmLevel, const scene::Camera *optCamera) = 0;
+    virtual void setCullingWorldBounds(const geometry::AABB &aabb) = 0;
     void useLightFrustum(IntrusivePtr<scene::Light> light) {
         useLightFrustum(std::move(light), 0, nullptr);
     }

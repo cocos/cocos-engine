@@ -28,6 +28,7 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
+import type { AABB } from '../../core/geometry/aabb';
 import type { Material } from '../../asset/assets';
 import type { Camera } from '../../render-scene/scene/camera';
 import type { DirectionalLight } from '../../render-scene/scene/directional-light';
@@ -480,6 +481,7 @@ export interface SceneBuilder extends Setter {
         light: Light,
         csmLevel?: number,
         optCamera?: Camera): void;
+    setCullingWorldBounds (aabb: AABB): void;
 }
 
 /**

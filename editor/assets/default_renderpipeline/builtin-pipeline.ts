@@ -1440,7 +1440,8 @@ if (rendering) {
             colorName: string,
             depthStencilName: string,
             mainLight: renderer.scene.DirectionalLight | null,
-            scene: renderer.RenderScene | null = null,
+            scene: renderer.RenderScene | null,
+            probe?: renderer.scene.ReflectionProbe,
         ): void {
             // set viewport
             const colorStoreOp = this._cameraConfigs.enableMSAA ? StoreOp.DISCARD : StoreOp.STORE;
@@ -1482,11 +1483,14 @@ if (rendering) {
             // TODO(zhouzhenglong): Separate OPAQUE and MASK queue
 
             // add opaque and mask queue
-            pass.addQueue(QueueHint.NONE, 'reflect-map') // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
+            const builder = pass.addQueue(QueueHint.NONE, 'reflect-map') // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
                 .addScene(camera,
                     SceneFlags.OPAQUE | SceneFlags.MASK | SceneFlags.REFLECTION_PROBE,
                     mainLight || undefined,
                     scene ? scene : undefined);
+            if (probe) {
+                builder.setCullingWorldBounds(probe.boundingBox);
+            }
         }
 
         private _tryAddReflectionProbePasses(ppl: rendering.BasicPipeline, id: number,
@@ -1542,7 +1546,7 @@ if (rendering) {
                         const probePass = ppl.addRenderPass(width, height, 'default');
                         probePass.name = `CubeProbe${probeID}${faceIdx}`;
                         this._buildReflectionProbePass(probePass, id, probe.camera,
-                            colorName, depthStencilName, mainLight, scene);
+                            colorName, depthStencilName, mainLight, scene, probe);
                     }
                     probe.needRender = false;
                 }

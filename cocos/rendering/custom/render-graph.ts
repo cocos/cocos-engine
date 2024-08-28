@@ -29,6 +29,7 @@
  */
 /* eslint-disable max-len */
 import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph } from './graph';
+import type { AABB } from '../../core/geometry/aabb';
 import type { Material } from '../../asset/assets';
 import type { Camera } from '../../render-scene/scene/camera';
 import type { Buffer, Framebuffer, RenderPass, Sampler, SamplerInfo, Swapchain, Texture } from '../../gfx';
@@ -990,6 +991,7 @@ export const enum CullingFlags {
     CAMERA_FRUSTUM = 0x1,
     LIGHT_FRUSTUM = 0x2,
     LIGHT_BOUNDS = 0x4,
+    WORLD_BOUNDS = 0x8,
 }
 
 export class SceneData {
@@ -1000,6 +1002,7 @@ export class SceneData {
         light: LightInfo = new LightInfo(),
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
         shadingLight: Light | null = null,
+        worldBounds: AABB | null = null,
     ) {
         this.scene = scene;
         this.camera = camera;
@@ -1007,6 +1010,7 @@ export class SceneData {
         this.flags = flags;
         this.cullingFlags = cullingFlags;
         this.shadingLight = shadingLight;
+        this.worldBounds = worldBounds;
     }
     reset (
         scene: RenderScene | null,
@@ -1014,6 +1018,7 @@ export class SceneData {
         flags: SceneFlags,
         cullingFlags: CullingFlags,
         shadingLight: Light | null,
+        worldBounds: AABB | null,
     ): void {
         this.scene = scene;
         this.camera = camera;
@@ -1021,6 +1026,7 @@ export class SceneData {
         this.flags = flags;
         this.cullingFlags = cullingFlags;
         this.shadingLight = shadingLight;
+        this.worldBounds = worldBounds;
     }
     declare /*pointer*/ scene: RenderScene | null;
     declare /*pointer*/ camera: Camera | null;
@@ -1028,6 +1034,7 @@ export class SceneData {
     declare flags: SceneFlags;
     declare cullingFlags: CullingFlags;
     declare /*refcount*/ shadingLight: Light | null;
+    declare worldBounds: AABB | null;
 }
 
 export class Dispatch {
@@ -1722,9 +1729,10 @@ export class RenderGraphObjectPool {
         flags: SceneFlags = SceneFlags.NONE,
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
         shadingLight: Light | null = null,
+        worldBounds: AABB | null = null,
     ): SceneData {
         const v = this.sd.add(); // SceneData
-        v.reset(scene, camera, flags, cullingFlags, shadingLight);
+        v.reset(scene, camera, flags, cullingFlags, shadingLight, worldBounds);
         return v;
     }
     createDispatch (

@@ -319,6 +319,7 @@ export class BuiltinPipelineSettings extends Component {
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
         type: CCFloat,
         min: 0,
+        step: 0.01,
     })
     set bloomThreshold(value: number) {
         this._settings.bloom.threshold = value;
@@ -332,6 +333,7 @@ export class BuiltinPipelineSettings extends Component {
         group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
         type: CCFloat,
         min: 0,
+        visible: false,
     })
     set bloomIntensity(value: number) {
         this._settings.bloom.intensity = value;

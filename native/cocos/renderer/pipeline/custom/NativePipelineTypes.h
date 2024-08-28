@@ -196,6 +196,7 @@ public:
     }
 
     void useLightFrustum(IntrusivePtr<scene::Light> light, uint32_t csmLevel, const scene::Camera *optCamera) override;
+    void setCullingWorldBounds(const geometry::AABB &aabb) override;
 };
 
 class NativeRenderSubpassBuilderImpl : public NativeSetter {

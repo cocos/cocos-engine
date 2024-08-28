@@ -4,7 +4,7 @@ import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageB
 import { BatchingSchemes, Pass, RenderScene } from '../../render-scene';
 import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, PointLight, ProbeType,
     RangedDirectionalLight,
-    ReflectionProbe, SKYBOX_FLAG, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
+    SKYBOX_FLAG, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
 import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { hashCombineStr, getSubpassOrPassID, bool, AlignUp, SetLightUBO } from './define';
@@ -40,7 +40,8 @@ function computeCullingKey (
     const light = sceneData.light.light;
     const lightLevel = sceneData.light.level;
     const culledByLight = sceneData.light.culledByLight;
-    const reflectProbe = sceneData.light.probe;
+    const reflectProbe: boolean = !!(sceneData.flags & SceneFlags.REFLECTION_PROBE);
+    const worldBounds: boolean = !!(sceneData.cullingFlags & CullingFlags.WORLD_BOUNDS);
     const shadeLight = sceneData.shadingLight;
     if (camera) {
         // camera
@@ -83,8 +84,9 @@ function computeCullingKey (
     hashCode = hashCombineStr(`cast${castShadows}`, hashCode);
     hashCode = hashCombineStr(`level${lightLevel}`, hashCode);
     if (reflectProbe) {
-        hashCode = hashCombineStr(`probe${reflectProbe.getProbeId()}`, hashCode);
+        hashCode = hashCombineStr(`probe${reflectProbe}`, hashCode);
     }
+    hashCode = hashCombineStr(`wb${worldBounds}`, hashCode);
     hashCode = hashCombineStr(`refId${refId}`, hashCode);
     return hashCode;
 }
@@ -162,7 +164,7 @@ function isReflectProbeMask (model: Model): boolean {
 }
 
 const transWorldBounds = new AABB();
-function isFrustumVisible (model: Model, frustum: Readonly<Frustum>, castShadow: boolean): boolean {
+function isFrustumCulled (model: Model, frustum: Readonly<Frustum>, castShadow: boolean): boolean {
     const modelWorldBounds = model.worldBounds;
     if (!modelWorldBounds) {
         return false;
@@ -175,7 +177,7 @@ function isFrustumVisible (model: Model, frustum: Readonly<Frustum>, castShadow:
     return !intersect.aabbFrustum(transWorldBounds, frustum);
 }
 
-function isIntersectAABB (lAABB: AABB, rAABB: AABB): boolean {
+function isAABBCulled (lAABB: AABB, rAABB: AABB): boolean {
     return !intersect.aabbWithAABB(lAABB, rAABB);
 }
 
@@ -184,12 +186,13 @@ function sceneCulling (
     camera: Camera,
     camOrLightFrustum: Readonly<Frustum>,
     castShadow: boolean,
-    probe: ReflectionProbe | null,
+    probePass: boolean,
     models: Array<Model>,
+    worldBounds: AABB | null,
 ): void {
     const skybox = pSceneData.skybox;
     const skyboxModel = skybox.model;
-    const visibility = camera.visibility;
+    const visibility = probePass ? REFLECTION_PROBE_DEFAULT_MASK : camera.visibility;
     const camSkyboxFlag = camera.clearFlag & SKYBOX_FLAG;
     if (!castShadow && skybox && skybox.enabled && skyboxModel && camSkyboxFlag) {
         models.push(skyboxModel);
@@ -203,21 +206,33 @@ function sceneCulling (
         if (scene && scene.isCulledByLod(camera, model)) {
             continue;
         }
-        if (!probe || (probe && probe.probeType === ProbeType.CUBE)) {
-            if (isNodeVisible(model.node, visibility)
-                || isModelVisible(model, visibility)) {
-                const wBounds = model.worldBounds;
-                // frustum culling
-                if (wBounds && ((!probe && isFrustumVisible(model, camOrLightFrustum, castShadow))
-                    || (probe && isIntersectAABB(wBounds, probe.boundingBox!)))) {
+        if (!isNodeVisible(model.node, visibility) && !isModelVisible(model, visibility)) {
+            continue;
+        }
+        const wBounds = model.worldBounds;
+        if (!wBounds) {
+            continue;
+        }
+        if (probePass) {
+            if (!model.bakeToReflectionProbe) {
+                continue;
+            }
+            if (worldBounds) {
+                if (isAABBCulled(wBounds, worldBounds)) {
                     continue;
                 }
-
-                models.push(model);
+            } else if (isFrustumCulled(model, camOrLightFrustum, castShadow)) {
+                continue;
             }
-        } else if (isReflectProbeMask(model)) {
-            models.push(model);
+        } else {
+            if (isFrustumCulled(model, camOrLightFrustum, castShadow)) {
+                continue;
+            }
+            if (worldBounds && isAABBCulled(wBounds, worldBounds)) {
+                continue;
+            }
         }
+        models.push(model);
     }
 }
 
@@ -518,28 +533,24 @@ export class SceneCulling {
                 const light = sceneData.light.light;
                 const level = sceneData.light.level;
                 const castShadow = cullingKey.castShadows;
-                const probe = sceneData.light.probe;
-                const camera = probe ? probe.camera : sceneData.camera;
+                const probePass = !!(sceneData.flags & SceneFlags.REFLECTION_PROBE);
+                const camera = sceneData.camera;
                 assert(frustomCulledResultID < this.frustumCullingResults.length);
                 const models = this.frustumCullingResults[frustomCulledResultID];
-                if (probe) {
-                    sceneCulling(scene, camera, camera.frustum, castShadow, probe, models);
-                    continue;
-                }
                 if (light) {
                     switch (light.type) {
                     case LightType.SPOT:
-                        sceneCulling(scene, camera, (light as SpotLight).frustum, castShadow, null, models);
+                        sceneCulling(scene, camera, (light as SpotLight).frustum, castShadow, probePass, models, sceneData.worldBounds);
                         break;
                     case LightType.DIRECTIONAL: {
                         const frustum = this.getBuiltinShadowFrustum(pplSceneData, camera, light as DirectionalLight, level);
-                        sceneCulling(scene, camera, frustum, castShadow, null, models);
+                        sceneCulling(scene, camera, frustum, castShadow, probePass, models, sceneData.worldBounds);
                     }
                         break;
                     default:
                     }
                 } else {
-                    sceneCulling(scene, camera, camera.frustum, castShadow, null, models);
+                    sceneCulling(scene, camera, camera.frustum, castShadow, probePass, models, sceneData.worldBounds);
                 }
             }
         }
