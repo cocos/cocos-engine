@@ -1995,7 +1995,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         if (!this.rg.getValid(this.sceneID)) return;
         const renderQueue = this.currQueue as DeviceRenderQueue;
         const graphScene = context.pools.addGraphScene();
-        graphScene.init(null, value, -1);
+        graphScene.init(null, value, this.sceneID);
         const renderScene = renderQueue.addScene(graphScene);
         renderScene.preRecord();
     }
