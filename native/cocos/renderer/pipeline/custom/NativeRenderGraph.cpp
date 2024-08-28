@@ -725,7 +725,8 @@ CullingFlags makeCullingFlags(const LightInfo &light) {
 void NativeRenderQueueBuilder::addSceneOfCamera(
     scene::Camera *camera, LightInfo light, SceneFlags sceneFlags) {
     const auto *pLight = light.light.get();
-    SceneData scene(camera->getScene(), camera, sceneFlags, light, makeCullingFlags(light), light.light);
+    SceneData scene(camera->getScene(), camera, sceneFlags, light,
+        makeCullingFlags(light), light.light, geometry::AABB{});
     auto sceneID = addVertex2(
         SceneTag{},
         std::forward_as_tuple("Camera"),
@@ -809,6 +810,12 @@ void NativeSceneBuilder::useLightFrustum(
     }
 }
 
+void NativeSceneBuilder::setCullingWorldBounds(const geometry::AABB& aabb) {
+    auto &sceneData = get(SceneTag{}, nodeID, *renderGraph);
+    sceneData.cullingFlags |= CullingFlags::WORLD_BOUNDS;
+    sceneData.worldBounds = aabb;
+}
+
 SceneBuilder *NativeRenderQueueBuilder::addScene(
     const scene::Camera *camera, SceneFlags sceneFlags,
     scene::Light *light, scene::RenderScene *scene) {
@@ -826,7 +833,8 @@ SceneBuilder *NativeRenderQueueBuilder::addScene(
             // Objects are projected to camera by default and are culled further if light is available.
             light ? CullingFlags::CAMERA_FRUSTUM | CullingFlags::LIGHT_BOUNDS
                   : CullingFlags::CAMERA_FRUSTUM,
-            light),
+            light,
+            geometry::AABB{}),
         *renderGraph, nodeID);
     CC_ENSURES(sceneID != RenderGraph::null_vertex());
 
