@@ -225,6 +225,17 @@ export class ProbeHelperQueue {
         this.probeMap.length = 0;
     }
 
+    applyMacro (): void {
+        for (const subModel of this.probeMap) {
+            let patches: IMacroPatch[] = [
+                { name: CC_USE_RGBE_OUTPUT, value: true },
+            ];
+            if (subModel.patches) {
+                patches = patches.concat(subModel.patches);
+            }
+            subModel.onMacroPatchesStateChanged(patches);
+        }
+    }
     removeMacro (): void {
         for (const subModel of this.probeMap) {
             if (!subModel.patches) continue;
@@ -238,7 +249,7 @@ export class ProbeHelperQueue {
             }
         }
     }
-    applyMacro (model: Model, probeLayoutId: number): void {
+    addToProbeQueue (model: Model, probeLayoutId: number): void {
         const subModels = model.subModels;
         for (let j = 0; j < subModels.length; j++) {
             const subModel: SubModel = subModels[j];
@@ -258,13 +269,6 @@ export class ProbeHelperQueue {
             }
             if (passIdx < 0) { continue; }
             if (!bUseReflectPass) {
-                let patches: IMacroPatch[] = [];
-                patches = patches.concat(subModel.patches!);
-                const useRGBEPatchs: IMacroPatch[] = [
-                    { name: CC_USE_RGBE_OUTPUT, value: true },
-                ];
-                patches = patches.concat(useRGBEPatchs);
-                subModel.onMacroPatchesStateChanged(patches);
                 this.probeMap.push(subModel);
             }
         }
