@@ -448,16 +448,7 @@ export function getDescBindingFromName (bindingName: string): number {
     return -1;
 }
 
-const uniformMap: Map<string, Float32Array> = new Map();
-const buffHashMap: Map<Buffer, number> = new Map();
-function numsHash (arr: number[]): number {
-    let hash = 0;
-    for (let i = 0; i < arr.length; i++) {
-        hash = hashCombineNum(arr[i], hash);
-    }
-    return hash;
-}
-
+const uniformMap: Map<Buffer, Float32Array> = new Map();
 class DescBuffManager {
     private buffers: Buffer[] = [];
     private currBuffIdx: number = 0;
@@ -484,20 +475,14 @@ class DescBuffManager {
     updateBuffer (bindId: number, vals: number[], layout: string, setData: DescriptorSetData): void {
         const descriptorSet = setData.descriptorSet!;
         const buffer = this.getCurrentBuffer();
-        const uniformKey = `${layout}${bindId}${this.currBuffIdx}`;
-        let currUniform = uniformMap.get(uniformKey);
-        const currHash = numsHash(vals);
+        let currUniform = uniformMap.get(buffer);
         if (!currUniform) {
             currUniform = new Float32Array(vals);
-            uniformMap.set(uniformKey, currUniform);
+            uniformMap.set(buffer, currUniform);
         }
-        const destHash = buffHashMap.get(buffer);
-        if (destHash !== currHash) {
-            currUniform.set(vals);
-            buffer.update(currUniform);
-            bindGlobalDesc(descriptorSet, bindId, buffer);
-            buffHashMap.set(buffer, currHash);
-        }
+        currUniform.set(vals);
+        buffer.update(currUniform);
+        bindGlobalDesc(descriptorSet, bindId, buffer);
     }
 }
 
