@@ -1446,6 +1446,7 @@ class DeviceRenderScene implements RecordingInterface {
         const renderQueueDesc = sceneCulling.renderQueueIndex.get(this.graphScene.sceneID)!;
         const renderQueue = sceneCulling.renderQueues[renderQueueDesc.renderQueueTarget];
         const graphSceneData = this.graphScene.scene!;
+        if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.applyMacro();
         renderQueue.recordCommands(context.commandBuffer, this._renderPass);
         if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.removeMacro();
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {

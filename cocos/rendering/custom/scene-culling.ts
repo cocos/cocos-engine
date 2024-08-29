@@ -254,7 +254,7 @@ function addRenderObject (
 ): void {
     const probeQueue = queue.probeQueue;
     if (isDrawProbe) {
-        probeQueue.applyMacro(model, phaseLayoutId);
+        probeQueue.addToProbeQueue(model, phaseLayoutId);
     }
     const subModels = model.subModels;
     const subModelCount = subModels.length;
