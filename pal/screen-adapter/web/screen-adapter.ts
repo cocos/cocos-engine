@@ -31,6 +31,7 @@ import { Size } from '../../../cocos/core/math';
 import { Orientation } from '../enum-type';
 import legacyCC from '../../../predefine';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
+import { canvasId } from '../../utils';
 
 interface ICachedStyle {
     width: string;
@@ -289,7 +290,7 @@ class ScreenAdapter extends EventTarget {
         // TODO: need to access frame from 'pal/launcher' module
         this._gameFrame = document.getElementById('GameDiv') as HTMLDivElement;
         this._gameContainer = document.getElementById('Cocos3dGameContainer') as HTMLDivElement;
-        this._gameCanvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+        this._gameCanvas = document.getElementById(`${canvasId}`) as HTMLCanvasElement;
         // Compability with old preview or build template in Editor.
         if (!TEST && !EDITOR) {
             if (!this._gameFrame) {

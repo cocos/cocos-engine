@@ -24,6 +24,8 @@
 
 import { EDITOR } from 'internal:constants';
 
+export const canvasId = window.__CC_CANVAS__ || 'GameCanvas';
+
 /**
  * This method clones methods in minigame environment, sub as `wx`, `swan` etc. to a module called minigame.
  * @param targetObject Usually it's specified as the minigame module.

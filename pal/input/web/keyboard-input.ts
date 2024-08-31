@@ -27,6 +27,7 @@ import { KeyCode, EventKeyboard } from '../../../cocos/input/types';
 import { EventTarget } from '../../../cocos/core/event';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { code2KeyCode } from '../keycodes';
+import { canvasId } from '../../utils';
 
 function getKeyCode (code: string): KeyCode {
     return code2KeyCode[code] || KeyCode.NONE;
@@ -47,7 +48,7 @@ export class KeyboardInputSource {
     }
 
     private _registerEvent (): void {
-        const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+        const canvas = document.getElementById(`${canvasId}`) as HTMLCanvasElement;
         canvas?.addEventListener('keydown', this._handleKeyboardDown.bind(this));
         canvas?.addEventListener('keyup', this._handleKeyboardUp.bind(this));
     }

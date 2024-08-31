@@ -23,11 +23,12 @@
 */
 
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
+import { canvasId } from '../../utils';
 
 export function findCanvas (): { frame: HTMLDivElement, container: HTMLDivElement, canvas: HTMLCanvasElement } {
     const frame = document.querySelector('#GameDiv') as HTMLDivElement;
     const container = document.querySelector('#Cocos3dGameContainer') as HTMLDivElement;
-    const canvas = document.querySelector('#GameCanvas') as HTMLCanvasElement;
+    const canvas = document.querySelector(`#${canvasId}`) as HTMLCanvasElement;
 
     return { frame, container, canvas };
 }

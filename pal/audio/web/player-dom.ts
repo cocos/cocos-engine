@@ -29,6 +29,7 @@ import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { BrowserType, OS } from '../../system-info/enum-type';
 import { Game, game } from '../../../cocos/game';
+import { canvasId } from '../../utils';
 
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     return new Promise((resolve) => {
@@ -45,7 +46,7 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
                 }).catch((e) => {});
                 resolve();
             };
-            const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            const canvas = document.getElementById(`${canvasId}`) as HTMLCanvasElement;
             canvas?.addEventListener('touchend', onGesture, { capture: true });
             canvas?.addEventListener('mouseup', onGesture, { capture: true });
         });

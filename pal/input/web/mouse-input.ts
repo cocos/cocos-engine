@@ -31,6 +31,7 @@ import { EventTarget } from '../../../cocos/core/event';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
+import { canvasId } from '../../utils';
 
 export class MouseInputSource {
     private _canvas?: HTMLCanvasElement;
@@ -45,7 +46,7 @@ export class MouseInputSource {
 
     constructor () {
         if (systemInfo.hasFeature(Feature.EVENT_MOUSE)) {
-            this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            this._canvas = document.getElementById(`${canvasId}`) as HTMLCanvasElement;
             if (!this._canvas && !TEST && !EDITOR) {
                 console.warn('failed to access canvas');
             }

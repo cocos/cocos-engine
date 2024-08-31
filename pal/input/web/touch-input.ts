@@ -34,6 +34,7 @@ import { macro } from '../../../cocos/core/platform/macro';
 import { InputEventType } from '../../../cocos/input/types/event-enum';
 import { Feature } from '../../system-info/enum-type';
 import { warn } from '../../../cocos/core/platform/debug';
+import { canvasId } from '../../utils';
 
 export class TouchInputSource {
     private _canvas?: HTMLCanvasElement;
@@ -41,7 +42,7 @@ export class TouchInputSource {
 
     constructor () {
         if (systemInfo.hasFeature(Feature.INPUT_TOUCH)) {
-            this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            this._canvas = document.getElementById(`${canvasId}`) as HTMLCanvasElement;
             if (!this._canvas && !TEST && !EDITOR) {
                 warn('failed to access canvas');
             }

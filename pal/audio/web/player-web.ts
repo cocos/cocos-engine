@@ -31,6 +31,7 @@ import { enqueueOperation, OperationInfo, OperationQueueable } from '../operatio
 import AudioTimer from '../audio-timer';
 import { audioBufferManager } from '../audio-buffer-manager';
 import { Game, game } from '../../../cocos/game';
+import { canvasId } from '../../utils';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
@@ -101,7 +102,7 @@ export class AudioContextAgent {
                 return;
             }
             // Force running audio context if state is not 'running', may be 'suspended' or 'interrupted'.
-            const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            const canvas = document.getElementById(`${canvasId}`) as HTMLCanvasElement;
             // HACK NOTE: if the user slide after touch start, the context cannot be resumed correctly.
             const onGesture = (): void => {
                 context.resume().then(() => {
