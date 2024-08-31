@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { Vec2, Color, js, misc, random, IColorLike, Vec4, clamp } from '../core';
+import { Vec2, Color, js, random, IColorLike, Vec4, clamp, toRadian, toDegree } from '../core';
 import { vfmtPosUvColor, getComponentPerVertex } from '../2d/renderer/vertex-format';
 import { PositionType, EmitterMode, START_SIZE_EQUAL_TO_END_SIZE, START_RADIUS_EQUAL_TO_END_RADIUS } from './define';
 import { ParticleSystem2D } from './particle-system-2d';
@@ -203,7 +203,7 @@ export class Simulator {
         particle.aspectRatio = psys.aspectRatio || 1;
 
         // direction
-        const a = misc.degreesToRadians(psys.angle + this._worldRotation + psys.angleVar * (random() - 0.5) * 2);
+        const a = toRadian(psys.angle + this._worldRotation + psys.angleVar * (random() - 0.5) * 2);
         // Mode Gravity: A
         if (psys.emitterMode === EmitterMode.GRAVITY) {
             const s = psys.speed + psys.speedVar * (random() - 0.5) * 2;
@@ -217,7 +217,7 @@ export class Simulator {
             particle.tangentialAccel = psys.tangentialAccel + psys.tangentialAccelVar * (random() - 0.5) * 2;
             // rotation is dir
             if (psys.rotationIsDir) {
-                particle.rotation = -misc.radiansToDegrees(Math.atan2(particle.dir.y, particle.dir.x));
+                particle.rotation = -toDegree(Math.atan2(particle.dir.y, particle.dir.x));
             }
         } else {
             // Mode Radius: B
@@ -227,7 +227,7 @@ export class Simulator {
             particle.radius = startRadius;
             particle.deltaRadius = (psys.endRadius === START_RADIUS_EQUAL_TO_END_RADIUS) ? 0 : (endRadius - startRadius) / timeToLive;
             particle.angle = a;
-            particle.degreesPerSecond = misc.degreesToRadians(psys.rotatePerS + psys.rotatePerSVar * (random() - 0.5) * 2);
+            particle.degreesPerSecond = toRadian(psys.rotatePerS + psys.rotatePerSVar * (random() - 0.5) * 2);
         }
     }
 
@@ -276,7 +276,7 @@ export class Simulator {
             const y1 = -halfHeight;
             const x2 = halfWidth;
             const y2 = halfHeight;
-            const rad = -misc.degreesToRadians(particle.rotation as number);
+            const rad = -toRadian(particle.rotation as number);
             const cr = Math.cos(rad);
             const sr = Math.sin(rad);
             // bl
