@@ -453,8 +453,9 @@ class DescBuffManager {
     private currBuffIdx: number = 0;
     private device: Device;
     public currUniform: Float32Array;
+    private _root;
     constructor (bufferSize: number, numBuffers: number = 2) {
-        const root = cclegacy.director.root;
+        const root = this._root = cclegacy.director.root;
         const device = root.device;
         this.device = device;
         this.currUniform = new Float32Array(bufferSize / 4);
@@ -469,11 +470,7 @@ class DescBuffManager {
         }
     }
     getCurrentBuffer (): Buffer {
-        if (this.buffers.length === 1) {
-            return this.buffers[0];
-        }
-        const root = cclegacy.director.root;
-        this.currBuffIdx = root.frameCount % this.buffers.length;
+        this.currBuffIdx = this._root.frameCount % this.buffers.length;
         return this.buffers[this.currBuffIdx];
     }
     updateData (vals: number[]): void {
@@ -496,7 +493,7 @@ function updateGlobalDescBuffer (blockId: number, sceneId: number, idxRD: number
     currBindBuffs.set(descKey, bindId);
     let currDescBuff = buffsMap.get(descKey);
     if (!currDescBuff) {
-        buffsMap.set(descKey, new DescBuffManager(vals.length * 4, 1));
+        buffsMap.set(descKey, new DescBuffManager(vals.length * 4, 2));
         currDescBuff = buffsMap.get(descKey);
     }
     currDescBuff!.updateData(vals);
