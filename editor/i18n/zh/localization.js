@@ -1088,7 +1088,7 @@ module.exports = link(mixin({
             description: "此选项用于兼容旧项目(Custom管线)，新项目请使用 Builtin 自带的后处理流程。",
         },
         legacy_pipeline: {
-            label: "废弃渲染管线 (Deprecated)",
+            label: "原渲染管线",
             description: "原有的渲染管线，在后续的版本中会被移除。",
         },
         websocket: {

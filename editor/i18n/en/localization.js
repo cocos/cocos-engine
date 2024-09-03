@@ -1113,7 +1113,7 @@ module.exports = link(mixin({
             description: "The render pipeline used in previous versions. This pipeline will be deprecated in future versions.",
         },
         legacy_pipeline: {
-            label: "Legacy Render Pipeline (Deprecated)",
+            label: "Render Pipeline (Legacy)",
             description: "Enable legacy render pipeline",
         },
         websocket: {
