@@ -1080,16 +1080,16 @@ module.exports = link(mixin({
             description: "启用 XR 功能系统。",
         },
         custom_pipeline: {
-            label: "自定义渲染管线 (Beta)",
-            description: "启用自定义渲染管线。",
+            label: "新渲染管线",
+            description: "面向数据的Render Graph渲染管线，可以自由构建跨平台的渲染算法，并针对目标平台优化。",
         },
         custom_pipeline_post_process: {
-            label: "自定义渲染管线的后处理模块 (Deprecated)",
-            description: "启用自定义渲染管线的后处理模块",
+            label: "后处理模块（已废弃）",
+            description: "此选项用于兼容旧项目(Custom管线)，新项目请使用 Builtin 自带的后处理流程。",
         },
         legacy_pipeline: {
             label: "废弃渲染管线 (Deprecated)",
-            description: "启用废弃渲染管线。",
+            description: "原有的渲染管线，在后续的版本中会被移除。",
         },
         websocket: {
             label: "WebSocket",
