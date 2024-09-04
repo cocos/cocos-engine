@@ -21,9 +21,9 @@ jobs:
           node-version: latest
           cache: 'npm'
       - run: |
-          npm install
           npm install -g gulp
           cd native
+          npm install
           gulp init
       # - name: Zip artifact
       #   run: |
