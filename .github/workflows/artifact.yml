@@ -38,8 +38,8 @@ jobs:
               --repo="${{ github.repository }}" \
               --title=""${{ github.repository }}" v1.0.${{ github.run_number }}.${{ github.run_attempt }}" \
               --generate-notes
-      - name: Upload Artifact
-        run: |
-          gh release upload v1.0.${{ github.run_number }}.${{ github.run_attempt }} artifact.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      # - name: Upload Artifact
+      #   run: |
+      #     gh release upload v1.0.${{ github.run_number }}.${{ github.run_attempt }} artifact.zip
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
