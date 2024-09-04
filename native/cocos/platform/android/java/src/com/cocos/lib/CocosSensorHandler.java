@@ -58,6 +58,11 @@ public class CocosSensorHandler implements SensorEventListener {
         mSensorHandler = this;
     }
 
+    public static void resetStaticVariables() {
+        mSensorHandler = null;
+        mEnableSensor = false;
+    }
+
     // ===========================================================
     // Getter & Setter
     // ===========================================================

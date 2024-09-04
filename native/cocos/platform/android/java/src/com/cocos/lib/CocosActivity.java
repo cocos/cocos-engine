@@ -137,7 +137,22 @@ public class CocosActivity extends GameActivity {
         CocosHelper.unregisterBatteryLevelReceiver(this);
         CocosAudioFocusManager.unregisterAudioFocusListener(this);
         CanvasRenderingContext2DImpl.destroy();
+        CocosHelper.destroy();
         GlobalObject.destroy();
+        CocosWebViewHelper.resetStaticVariables();
+        CocosSensorHandler.resetStaticVariables();
+
+        mVideoHelper.destroy();
+        mSurfaceView.setOnTouchListener(null);
+        mSurfaceView.getHolder().removeCallback(this);
+
+        mRootLayout.removeAllViews();
+        mRootLayout = null;
+
+        mSensorHandler = null;
+        mWebViewHelper = null;
+        mVideoHelper = null;
+        mSurfaceView = null;
     }
 
     @Override

@@ -78,7 +78,7 @@ public class CocosHelper {
     // ===========================================================
 
     private static Vibrator sVibrateService;
-    private static BatteryReceiver sBatteryReceiver = new BatteryReceiver();
+    private static BatteryReceiver sBatteryReceiver = null;
 
     public static final int NETWORK_TYPE_NONE = 0;
     public static final int NETWORK_TYPE_LAN = 1;
@@ -98,6 +98,13 @@ public class CocosHelper {
                 sTaskQ.add(runnable);
             }
         }
+
+        public void clearTasks() {
+            synchronized (readMtx) {
+                sTaskQ.clear();
+            }
+        }
+
         public void runTasks(){
             Queue<Runnable> tmp;
             synchronized (readMtx) {
@@ -135,12 +142,18 @@ public class CocosHelper {
     }
 
     static void registerBatteryLevelReceiver(Context context) {
+        if (sBatteryReceiver == null) {
+            sBatteryReceiver = new BatteryReceiver();
+        }
         Intent intent = context.registerReceiver(sBatteryReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         sBatteryReceiver.setBatteryLevelByIntent(intent);
     }
 
     static void unregisterBatteryLevelReceiver(Context context) {
-        context.unregisterReceiver(sBatteryReceiver);
+        if (sBatteryReceiver != null) {
+            context.unregisterReceiver(sBatteryReceiver);
+            sBatteryReceiver = null;
+        }
     }
 
     //Run on game thread forever, no matter foreground or background
@@ -195,6 +208,13 @@ public class CocosHelper {
 
             sInited = true;
         }
+    }
+
+    public static void destroy() {
+        sVibrateService = null;
+        sInited = false;
+        sTaskQOnGameThread.clearTasks();
+        sForegroundTaskQOnGameThread.clearTasks();
     }
 
     public static float getBatteryLevel() {
