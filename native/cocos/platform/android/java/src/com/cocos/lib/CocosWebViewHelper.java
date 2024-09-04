@@ -56,6 +56,15 @@ public class CocosWebViewHelper {
         CocosWebViewHelper.webViews = new SparseArray<CocosWebView>();
     }
 
+    public static void resetStaticVariables() {
+        sLayout = null;
+        if (sHandler != null) {
+            sHandler.removeCallbacksAndMessages(null);
+            sHandler = null;
+        }
+        webViews = null;
+    }
+
     private static native boolean shouldStartLoading(int index, String message);
     private static native void didFinishLoading(int index, String message);
     private static native void didFailLoading(int index, String message);
