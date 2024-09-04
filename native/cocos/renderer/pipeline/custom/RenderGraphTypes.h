@@ -918,7 +918,7 @@ struct SceneData {
       flags(flagsIn),
       cullingFlags(cullingFlagsIn),
       shadingLight(std::move(shadingLightIn)),
-      worldBounds(worldBoundsIn) {}
+      worldBounds(std::move(worldBoundsIn)) {}
 
     const scene::RenderScene* scene{nullptr};
     const scene::Camera* camera{nullptr};
