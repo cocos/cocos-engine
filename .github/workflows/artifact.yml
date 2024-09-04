@@ -6,81 +6,25 @@ on:
       - 'revenge'
   workflow_dispatch:
 
-defaults:
-  run:
-    shell: powershell
 
-jobs:
-  publish-dev:
-    name: Build and copy to AWS S3
-    runs-on: win-arm64
-
+jobs:    
+  build_and_publish:
+    name: Build and push docker image
+    runs-on: ubuntu-latest
     steps:
-      - name: cache git
-        uses: actions/cache@v4 
-        with: 
-          path: C:\git
-          key: git
-          restore-keys: git
-      - name: Download and Install Git (if needed)
-        run: |
-          if ( ! (Test-Path "C:\git\cmd\git.exe") ) {
-            $progressPreference = 'SilentlyContinue'
-            $gitUrl = "https://github.com/git-for-windows/git/releases/download/v2.46.0.windows.1/MinGit-2.46.0-64-bit.zip"
-            $gitZip = "git.zip"
-            $gitPath = "C:\git"
-            
-            Invoke-WebRequest -Uri $gitUrl -OutFile $gitZip
-            Expand-Archive -Path $gitZip -DestinationPath $gitPath
-            [Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\git\cmd", [EnvironmentVariableTarget]::Machine)
-          }
-
-      - name: Download 7-Zip installer
-        run: |
-          $progressPreference = 'SilentlyContinue'
-          curl -o "C:\7zip.exe" https://www.7-zip.org/a/7z2408-arm64.exe
-          Start-Process -FilePath C:\7zip.exe -Args "/S /D=C:\7zip" -Verb RunAs -Wait
-          Write-Host "Installed 7zip"
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        env:
-          PATH: ${{ env.PATH }};C:\git\cmd
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
         with:
-          token: ${{ secrets.RG_GAME_BUILDER }}
-          submodules: true
+          version: latest
       - uses: actions/setup-node@v4
         with:
           node-version: latest
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        run: echo "dir=$(npm config get cache)" >> ${env:GITHUB_OUTPUT}
-      - uses: actions/cache@v4
-        id: npm-cache
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      - name: Install dependencies
-        run: |
-          $hasPackageLock = Test-Path -Path "package-lock.json"
-          $hasPackage = Test-Path -Path "package.json"
-          if ($hasPackageLock) {
-              npm ci
-          } elseif ($hasPackage) {
-              npm install
-          }
-          npm install -g gulp
-
-      - name: Build Gulp
-        run: |
-          cd native
+      - run: |
           npm install
+          npm install -g gulp
+          cd native
           gulp init
-      
       # - name: Zip artifact
       #   run: |
       #     zip -r artifact.zip cocos-engine -x "*/.git/*"
