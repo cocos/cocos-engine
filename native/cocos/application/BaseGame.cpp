@@ -37,7 +37,7 @@ namespace cc {
 
 BaseGame::~BaseGame() {
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID) && CC_SUPPORT_ADPF
-    ADPFManager::getInstance().Destroy();
+    ADPFManager::getInstance().destroy();
 #endif
 }
 

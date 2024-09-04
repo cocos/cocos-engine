@@ -87,6 +87,12 @@ void ADPFManager::initialize() {
     }
 }
 
+void ADPFManager::destroy() {
+    JNIEnv *env = cc::JniHelper::getEnv();
+    env->DeleteGlobalRef(obj_power_service_);
+    obj_power_service_ = nullptr;
+}
+
 // Initialize JNI calls for the powermanager.
 bool ADPFManager::initializePowerManager() {
     #if __ANDROID_API__ >= 31

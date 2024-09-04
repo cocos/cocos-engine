@@ -115,6 +115,7 @@ public:
     AThermalManager *getThermalManager() { return thermal_manager_; }
 
     void initialize();
+	void destroy();
 
 private:
     // Update thermal headroom each sec.
