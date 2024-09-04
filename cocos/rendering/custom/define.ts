@@ -486,18 +486,6 @@ class DescBuffManager {
 
 const buffsMap: Map<string, DescBuffManager> = new Map();
 const currBindBuffs: Map<string, number> = new Map();
-function updateGlobalDescBuffer (blockId: number, sceneId: number, idxRD: number, vals: number[], setData: DescriptorSetData): void {
-    const bindId = getDescBinding(blockId, setData);
-    if (bindId === -1) { return; }
-    const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
-    currBindBuffs.set(descKey, bindId);
-    let currDescBuff = buffsMap.get(descKey);
-    if (!currDescBuff) {
-        buffsMap.set(descKey, new DescBuffManager(vals.length * 4, 2));
-        currDescBuff = buffsMap.get(descKey);
-    }
-    currDescBuff!.updateData(vals);
-}
 
 const layouts: Map<string, DescriptorSetData> = new Map();
 export function getDescriptorSetDataFromLayout (layoutName: string): DescriptorSetData | undefined {
@@ -591,6 +579,43 @@ function addConstantBuffer (block: string, layout: string): number[] | null {
     uniformBlockMap.set(block, buffers);
     return buffers;
 }
+
+function updateGlobalDescBuffer (descKey: string, vals: number[]): void {
+    let currDescBuff = buffsMap.get(descKey);
+    if (!currDescBuff) {
+        buffsMap.set(descKey, new DescBuffManager(vals.length * 4, 2));
+        currDescBuff = buffsMap.get(descKey);
+    }
+    currDescBuff!.updateData(vals);
+}
+
+function updateConstantBlock (
+    constantBuff: ConstantBlockInfo,
+    data: number[],
+    descriptorSetData: DescriptorSetData,
+    sceneId: number,
+    idxRD: number,
+): void {
+    const blockId = constantBuff.blockId;
+    const buffer = constantBuff.buffer;
+    const isImparity = copyToConstantBuffer(buffer, data, constantBuff.offset);
+    const bindId = getDescBinding(blockId, descriptorSetData);
+    const desc = descriptorSetData.descriptorSet!;
+    if (isImparity || !desc.getBuffer(bindId) && bindId !== -1) {
+        const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
+        currBindBuffs.set(descKey, bindId);
+        updateGlobalDescBuffer(descKey, buffer);
+    }
+}
+
+function updateDefaultConstantBlock (blockId: number, sceneId: number, idxRD: number, vals: number[], setData: DescriptorSetData): void {
+    const bindId = getDescBinding(blockId, setData);
+    if (bindId === -1) { return; }
+    const descKey = `${blockId}${bindId}${idxRD}${sceneId}`;
+    currBindBuffs.set(descKey, bindId);
+    updateGlobalDescBuffer(descKey, vals);
+}
+
 export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number, user: RenderData): void {
     const constantMap = user.constants;
     const samplers = user.samplers;
@@ -612,7 +637,7 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
                 if (offset === -1) {
                     // Although the current uniformMem does not belong to the current uniform block,
                     // it does not mean that it should not be bound to the corresponding descriptor.
-                    updateGlobalDescBuffer(blockId, sceneId, idxRD, constantBuff, descriptorSetData);
+                    updateDefaultConstantBlock(blockId, sceneId, idxRD, constantBuff, descriptorSetData);
                     continue;
                 }
                 constantBlockMap.set(key, new ConstantBlockInfo());
@@ -620,12 +645,10 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
                 constantBlock.buffer = constantBuff;
                 constantBlock.blockId = blockId;
                 constantBlock.offset = offset;
-                const isImparity = copyToConstantBuffer(constantBuff, data, offset);
-                if (isImparity) updateGlobalDescBuffer(blockId, sceneId, idxRD, constantBuff, descriptorSetData);
+                updateConstantBlock(constantBlock, data, descriptorSetData, sceneId, idxRD);
             }
         } else {
-            const isImparity = copyToConstantBuffer(constantBlock.buffer, data, constantBlock.offset);
-            if (isImparity) updateGlobalDescBuffer(constantBlock.blockId, sceneId, idxRD, constantBlock.buffer, descriptorSetData);
+            updateConstantBlock(constantBlock, data, descriptorSetData, sceneId, idxRD);
         }
     }
 
