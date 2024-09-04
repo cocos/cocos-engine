@@ -8,7 +8,7 @@ on:
 
 
 jobs:    
-  build_and_publish:
+  publish_artifact:
     name: Build and push docker image
     runs-on: ubuntu-latest
     steps:
@@ -25,11 +25,21 @@ jobs:
           cd native
           npm install
           gulp init
-      # - name: Zip artifact
-      #   run: |
-      #     zip -r artifact.zip cocos-engine -x "*/.git/*"
-      # - name: Upload environment variables
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: artifact
-      #     path: artifact
+      - name: Zip artifact
+        run: |
+          zip -r artifact.zip * -x "*/.git/*" -x "*/node_modules/*"
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          gh release create v1.0.${{ github.run_number }}.${{ github.run_attempt }} artifact.zip  \
+              --repo="${{ github.repository }}" \
+              --title=""${{ github.repository }}" v1.0.${{ github.run_number }}.${{ github.run_attempt }}" \
+              --generate-notes
+      - name: Upload Artifact
+        run: |
+          gh release upload v1.0.${{ github.run_number }}.${{ github.run_attempt }} artifact.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
