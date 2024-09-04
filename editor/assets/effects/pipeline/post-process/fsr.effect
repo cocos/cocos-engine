@@ -11,6 +11,11 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: zero
     - vert: vs
       frag: fs-rcas
       pass: post-process
@@ -19,6 +24,11 @@ CCEffect %{
       depthStencilState:
         depthTest: false
         depthWrite: false
+      blendState:
+        targets:
+        - blend: true
+          blendSrc: one
+          blendDst: zero
 }%
 
 

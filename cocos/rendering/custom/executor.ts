@@ -808,6 +808,7 @@ class DeviceRenderPass implements RecordingInterface {
     protected _viewport: Viewport | null = null;
     private _rasterInfo: RasterPassInfo;
     private _layout: RenderPassLayoutInfo | null = null;
+    private _idxOfRenderData: number = 0;
     constructor (passInfo: RasterPassInfo) {
         this._rasterInfo = passInfo;
         const device = context.device;
@@ -909,6 +910,7 @@ class DeviceRenderPass implements RecordingInterface {
             swapchain ? swapchain.depthStencilTexture : depthTex,
         ));
     }
+    get indexOfRD (): number { return this._idxOfRenderData; }
     get layoutName (): string { return this._layoutName; }
     get passID (): number { return this._passID; }
     get renderLayout (): RenderPassLayoutInfo | null { return this._layout; }
@@ -920,6 +922,9 @@ class DeviceRenderPass implements RecordingInterface {
     get deviceQueues (): Map<number, DeviceRenderQueue> { return this._deviceQueues; }
     get rasterPassInfo (): RasterPassInfo { return this._rasterInfo; }
     get viewport (): Viewport | null { return this._viewport; }
+    addIdxOfRD (): void {
+        this._idxOfRenderData++;
+    }
     visitResource (resName: string): void {
         const resourceGraph = context.resourceGraph;
         const vertId = resourceGraph.vertex(resName);
@@ -1040,6 +1045,7 @@ class DeviceRenderPass implements RecordingInterface {
         this._layoutName = context.renderGraph.getLayout(id);
         this._passID = cclegacy.rendering.getPassID(this._layoutName);
         this._deviceQueues.clear();
+        this._idxOfRenderData = 0;
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
         const currFramebuffer = this._framebuffer;
@@ -1234,7 +1240,7 @@ class DeviceComputePass implements RecordingInterface {
             queue.record();
         }
         const renderData = context.renderGraph.getData(this._computeInfo.id);
-        updateGlobalDescBinding(renderData, -1, context.renderGraph.getLayout(this._computeInfo.id));
+        updateGlobalDescBinding(renderData, -1, 0, context.renderGraph.getLayout(this._computeInfo.id));
     }
 
     resetResource (id: number, pass: ComputePass): void {
@@ -1392,7 +1398,8 @@ class DeviceRenderScene implements RecordingInterface {
 
     protected _updateGlobal (data: RenderData, sceneId: number): void {
         const devicePass = this._currentQueue.devicePass;
-        updateGlobalDescBinding(data, sceneId, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
+        devicePass.addIdxOfRD();
+        updateGlobalDescBinding(data, sceneId, devicePass.indexOfRD, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
     }
 
     protected _updateRenderData (): void {
@@ -1996,7 +2003,7 @@ class PreRenderVisitor extends BaseRenderVisitor implements RenderGraphVisitor {
         if (!this.rg.getValid(this.sceneID)) return;
         const renderQueue = this.currQueue as DeviceRenderQueue;
         const graphScene = context.pools.addGraphScene();
-        graphScene.init(null, value, -1);
+        graphScene.init(null, value, this.sceneID);
         const renderScene = renderQueue.addScene(graphScene);
         renderScene.preRecord();
     }

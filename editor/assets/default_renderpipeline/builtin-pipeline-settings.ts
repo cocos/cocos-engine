@@ -328,13 +328,6 @@ export class BuiltinPipelineSettings extends Component {
         return this._settings.bloom.threshold;
     }
 
-    @property({
-        tooltip: 'i18n:bloom.intensity',
-        group: { id: 'Bloom', name: 'Bloom (PostProcessing)', style: 'section' },
-        type: CCFloat,
-        min: 0,
-        visible: false,
-    })
     set bloomIntensity(value: number) {
         this._settings.bloom.intensity = value;
     }
