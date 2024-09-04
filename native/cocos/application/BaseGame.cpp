@@ -35,7 +35,7 @@ extern "C" void cc_load_all_plugins(); // NOLINT
 
 namespace cc {
 
-BaseGame::~BaseGame() {
+BaseGame::~BaseGame() { // NOLINT
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID) && CC_SUPPORT_ADPF
     ADPFManager::getInstance().destroy();
 #endif
