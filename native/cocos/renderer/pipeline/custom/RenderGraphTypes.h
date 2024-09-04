@@ -85,8 +85,8 @@ struct RasterView {
     }
 
     RasterView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
-    RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     RasterView(RasterView&& rhs, const allocator_type& alloc);
     RasterView(RasterView const& rhs, const allocator_type& alloc);
 
@@ -843,7 +843,7 @@ struct ClearView {
     }
 
     ClearView(const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept; // NOLINT
-    ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
+    ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, const allocator_type& alloc = boost::container::pmr::get_default_resource()) noexcept;
     ClearView(ClearView&& rhs, const allocator_type& alloc);
     ClearView(ClearView const& rhs, const allocator_type& alloc);
 
@@ -911,14 +911,14 @@ constexpr bool any(CullingFlags e) noexcept {
 
 struct SceneData {
     SceneData() = default;
-    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn, IntrusivePtr<scene::Light> shadingLightIn, geometry::AABB worldBoundsIn) noexcept
+    SceneData(const scene::RenderScene* sceneIn, const scene::Camera* cameraIn, SceneFlags flagsIn, LightInfo lightIn, CullingFlags cullingFlagsIn, IntrusivePtr<scene::Light> shadingLightIn, const geometry::AABB& worldBoundsIn) noexcept
     : scene(sceneIn),
       camera(cameraIn),
       light(std::move(lightIn)),
       flags(flagsIn),
       cullingFlags(cullingFlagsIn),
       shadingLight(std::move(shadingLightIn)),
-      worldBounds(std::move(worldBoundsIn)) {}
+      worldBounds(worldBoundsIn) {}
 
     const scene::RenderScene* scene{nullptr};
     const scene::Camera* camera{nullptr};
