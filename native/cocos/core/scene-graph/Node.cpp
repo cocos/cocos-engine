@@ -617,7 +617,7 @@ void Node::setWorldScale(float x, float y, float z) {
         Mat3 localRS;
         Mat3 localRotInv;
         Mat4 worldMatrixTmp = _worldMatrix;
-        Vec3 rescaleFactor = _worldScale / oldWorldScale;
+        Vec3 rescaleFactor = oldWorldScale == Vec3::ZERO ? Vec3::ZERO : _worldScale / oldWorldScale;
         // apply new world scale to temp world matrix
         worldMatrixTmp.scale(rescaleFactor); // need opt
         // get temp local matrix

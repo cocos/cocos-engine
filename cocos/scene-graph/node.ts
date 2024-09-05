@@ -2566,9 +2566,12 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             Vec3.copy(worldScale, v3_a);
         }
         if (parent) {
-            v3_a.x = worldScale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
-            v3_a.y = worldScale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
-            v3_a.z = worldScale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
+            const xScale = Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
+            const yScale = Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
+            const zScale = Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
+            v3_a.x = xScale !== 0 ? worldScale.x / xScale : 0;
+            v3_a.y = yScale !== 0 ? worldScale.y / yScale : 0;
+            v3_a.z = zScale !== 0 ?  worldScale.z / zScale : 0;
             Mat4.scale(m4_1, this._mat, v3_a);
             Mat4.multiply(m4_2, Mat4.invert(m4_2, parent._mat), m4_1);
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._lrot));

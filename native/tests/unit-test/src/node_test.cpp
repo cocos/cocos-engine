@@ -22,11 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-/*
-#include "core/Director.h"
+
+//#include "core/Director.h"
 #include "core/Root.h"
-#include "core/platform/event-manager/Events.h"
-#include "core/scene-graph/SceneGraphModuleHeader.h"
+#include "core/scene-graph/Node.h"
+//#include "core/platform/event-manager/Events.h"
+//#include "core/scene-graph/SceneGraphModuleHeader.h"
 #include "gtest/gtest.h"
 #include "renderer/GFXDeviceManager.h"
 #include "renderer/gfx-base/GFXDef.h"
@@ -37,6 +38,8 @@ using namespace cc::event;
 using namespace cc::gfx;
 
 namespace {
+
+/*
 
 class MyCallbackTarget {
 public:
@@ -97,5 +100,27 @@ TEST(NodeTest, activeInHierarchyChanged) {
     // xwx FIXME: gfx-validator Assert
     destroyCocos();
 }
-} // namespace
+
 */
+
+TEST(NodeTest, setWorldScale000) {
+    cc::IntrusivePtr<cc::Node> parent(new Node());
+
+    parent->setScale(2, 2, 2);
+
+    cc::IntrusivePtr<cc::Node> son(new Node());
+    son->setParent(parent);
+    son->setWorldScale(0, 0, 0);
+    son->updateWorldTransform();
+    son->setWorldScale(1, 1, 1);
+    son->updateWorldTransform();
+    son->setWorldScale(0, 0, 0);
+    son->updateWorldTransform();
+    
+    EXPECT_TRUE(son->getScale() == Vec3::ZERO);
+    EXPECT_TRUE(son->getWorldScale() == Vec3::ZERO);
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)));
+}
+
+} // namespace
+

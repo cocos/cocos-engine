@@ -523,6 +523,26 @@ describe(`Node`, () => {
         expect(son.getScale()).toEqual(new Vec3(1/2, 1/3, 1/4));
     });
 
+    test ('setWorldScale(0, 0, 0)', ()=> {
+        let parent = new Node();
+
+        parent.setScale(2, 2, 2);
+
+        let son = new Node();
+        son.parent = parent;
+        son.setWorldScale(0, 0, 0);
+        son.updateWorldTransform();
+        son.setWorldScale(1, 1, 1);
+        son.updateWorldTransform();
+        son.setWorldScale(0, 0, 0);
+        son.updateWorldTransform();
+
+        expect(son.scale).toEqual(new Vec3(0, 0, 0));
+        expect(son.worldScale).toEqual(new Vec3(0, 0, 0));
+        expect(son.worldMatrix).toEqual(new Mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1));
+
+    });
+
     test ('angle', ()=> {
         let node = new Node();
 
