@@ -75,8 +75,8 @@ const Elements = {
 
             Editor.Message.addBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
-            Elements.panel.i18nChangeBind = Elements.panel.i18nChange.bind(panel);
-            Editor.Message.addBroadcastListener('i18n:change', Elements.panel.i18nChangeBind);
+            panel.i18nChangeBind = Elements.panel.i18nChange.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', panel.i18nChangeBind);
 
             panel.history = new History();
         },
@@ -164,6 +164,7 @@ const Elements = {
                 panel.__assetChangedHandle__ = undefined;
             }
 
+            Editor.Message.removeBroadcastListener('i18n:change', panel.i18nChangeBind);
             Editor.Message.removeBroadcastListener('asset-db:asset-change', panel.__assetChanged__);
 
             delete panel.history;
