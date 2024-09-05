@@ -9,7 +9,7 @@ on:
 
 jobs:    
   publish_artifact:
-    name: Build and push docker image
+    name: Build and publish release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
           gulp init
       - name: Zip artifact
         run: |
-          zip -r artifact.zip * -x "*/.git/*" -x "*/node_modules/*"
+          zip -r artifact.zip * -x "*/.git/*"
       - name: Install GitHub CLI
         run: sudo apt-get install gh
       - name: Create release
