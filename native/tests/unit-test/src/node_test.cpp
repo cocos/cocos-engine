@@ -103,23 +103,126 @@ TEST(NodeTest, activeInHierarchyChanged) {
 
 */
 
-TEST(NodeTest, setWorldScale000) {
+TEST(NodeTest, setWorldScale000_and_rotation) {
     cc::IntrusivePtr<cc::Node> parent(new Node());
 
     parent->setScale(2, 2, 2);
 
     cc::IntrusivePtr<cc::Node> son(new Node());
+    son->setRotationFromEuler(10, 0, 0);
     son->setParent(parent);
+    son->updateWorldTransform();
+    EXPECT_TRUE(son->getScale() == Vec3::ONE);
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3(2.f, 2.f, 2.f)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        2, 0, 0, 0,
+        0, 1.969615506024416, 0.34729635533386066, 0,
+        0, -0.34729635533386066, 1.969615506024416, 0,
+        0, 0, 0, 1
+    )));
+
     son->setWorldScale(0, 0, 0);
-    son->updateWorldTransform();
-    son->setWorldScale(1, 1, 1);
-    son->updateWorldTransform();
-    son->setWorldScale(0, 0, 0);
-    son->updateWorldTransform();
-    
     EXPECT_TRUE(son->getScale() == Vec3::ZERO);
     EXPECT_TRUE(son->getWorldScale() == Vec3::ZERO);
-    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1
+    )));
+    
+    son->setWorldScale(2, 2, 2);
+    EXPECT_TRUE(son->getScale().approxEquals(Vec3::ONE));
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3(2.f, 2.f, 2.f)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        2, 0, 0, 0,
+        0, 1.969615506024416, 0.34729635533386066, 0,
+        0, -0.34729635533386066, 1.969615506024416, 0,
+        0, 0, 0, 1
+    )));
+
+    son->setWorldScale(1, 1, 1);
+    EXPECT_TRUE(son->getScale().approxEquals(Vec3(0.5f, 0.5f, 0.5f)));
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3::ONE));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        1, 0, 0, 0,
+        0, 0.984807753012208, 0.17364817766693033, 0,
+        0, -0.17364817766693033, 0.984807753012208, 0,
+        0, 0, 0, 1
+    )));
+}
+
+TEST(NodeTest, setWorldScale0yz_and_rotation) {
+    cc::IntrusivePtr<cc::Node> parent(new Node());
+    
+    parent->setScale(2, 2, 2);
+    
+    cc::IntrusivePtr<cc::Node> son(new Node());
+    son->setRotationFromEuler(10, 10, 10);
+    son->setParent(parent);
+    son->updateWorldTransform();
+    EXPECT_TRUE(son->getScale().approxEquals(Vec3::ONE));
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3(2, 2, 2)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        1.9396926207859084, 0.3472963553338607, -0.3420201433256687, 0,
+        -0.2765167096193736, 1.9396926207859084, 0.40141131793955337, 0,
+        0.40141131793955337, -0.3420201433256687, 1.9292203542855129, 0,
+        0, 0, 0, 1
+    )));
+    
+    son->setWorldScale(0, 2, 2);
+    EXPECT_TRUE(son->getScale().approxEquals(Vec3(0, 1, 1)));
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3(0, 2, 2)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        0, 0, 0, 0,
+        -0.2765167096193736, 1.9396926207859084, 0.40141131793955337, 0,
+        0.40141131793955337, -0.3420201433256687, 1.9292203542855129, 0,
+        0, 0, 0, 1
+    )));
+    
+    EXPECT_TRUE(son->getRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));
+    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));
+    
+    son->setRotationFromEuler(20, 20, 20);
+    EXPECT_TRUE(son->getRotation().approxEquals(Quaternion(0.1981076317236749, 0.1981076317236749, 0.1387164571097902, 0.9498760324550678)));
+    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0, 0, 0, 1))); // Could not decompose rotation in Mat4.toSRT since there is a axis is zero, so the rotation will be reset to unit quaternion.
+    
+    son->setRotationFromEuler(10, 10, 10);
+    EXPECT_TRUE(son->getRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));
+    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0, 0, 0, 1)));
+    
+    son->setWorldScale(1, 1, 1);
+    EXPECT_TRUE(son->getScale().approxEquals(Vec3(0.5, 0.5, 0.5)));
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3(1, 1, 1)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        0.9698463103929542, 0.17364817766693036, -0.17101007166283436, 0,
+        -0.1382583548096868, 0.9698463103929542, 0.20070565896977668, 0,
+        0.20070565896977668, -0.17101007166283436, 0.9646101771427564, 0,
+        0, 0, 0, 1
+    )));
+    
+    EXPECT_TRUE(son->getRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));
+    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));
+    
+    son->setWorldScale(2, 0, 0);
+    EXPECT_TRUE(son->getScale().approxEquals(Vec3(1, 0, 0)));
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3(2, 0, 0)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        1.9396926207859084, 0.3472963553338607, -0.3420201433256687, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 0,
+        0, 0, 0, 1
+    )));
+    
+    son->setWorldScale(2, 2, 2);
+    EXPECT_TRUE(son->getScale().approxEquals(Vec3(1, 1, 1)));
+    EXPECT_TRUE(son->getWorldScale().approxEquals(Vec3(2, 2, 2)));
+    EXPECT_TRUE(son->getWorldMatrix().approxEquals(Mat4(
+        1.9396926207859084, 0.3472963553338607, -0.3420201433256687, 0,
+        -0.2765167096193736, 1.9396926207859084, 0.40141131793955337, 0,
+        0.40141131793955337, -0.3420201433256687, 1.9292203542855129, 0,
+        0, 0, 0, 1
+    )));
 }
 
 } // namespace

@@ -610,6 +610,7 @@ void Node::setWorldScale(float x, float y, float z) {
         return;
     }
 
+    TransformBit rotationFlag = TransformBit::NONE;
     if (_parent != nullptr) {
         updateWorldTransform(); // ensure reentryability
         Vec3 oldWorldScale = _worldScale;
@@ -617,7 +618,28 @@ void Node::setWorldScale(float x, float y, float z) {
         Mat3 localRS;
         Mat3 localRotInv;
         Mat4 worldMatrixTmp = _worldMatrix;
-        Vec3 rescaleFactor = oldWorldScale == Vec3::ZERO ? Vec3::ZERO : _worldScale / oldWorldScale;
+        Vec3 rescaleFactor;
+        
+        if (oldWorldScale.x == 0) {
+            oldWorldScale.x = 1;
+            worldMatrixTmp.m[0] = 1.F;
+            rotationFlag = TransformBit::ROTATION;
+        }
+        
+        if (oldWorldScale.y == 0) {
+            oldWorldScale.y = 1;
+            worldMatrixTmp.m[5] = 1.F;
+            rotationFlag = TransformBit::ROTATION;
+        }
+        
+        if (oldWorldScale.z == 0) {
+            oldWorldScale.z = 1;
+            worldMatrixTmp.m[10] = 1.F;
+            rotationFlag = TransformBit::ROTATION;
+        }
+        
+        rescaleFactor = _worldScale / oldWorldScale;
+        
         // apply new world scale to temp world matrix
         worldMatrixTmp.scale(rescaleFactor); // need opt
         // get temp local matrix
@@ -639,9 +661,9 @@ void Node::setWorldScale(float x, float y, float z) {
 
     notifyLocalScaleUpdated();
 
-    invalidateChildren(TransformBit::SCALE);
+    invalidateChildren(TransformBit::SCALE | rotationFlag);
     if (_eventMask & TRANSFORM_ON) {
-        emit<TransformChanged>(TransformBit::SCALE);
+        emit<TransformChanged>(TransformBit::SCALE | rotationFlag);
     }
 }
 

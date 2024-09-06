@@ -2092,11 +2092,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                     child._mat.m14 = child._pos.z;
                 }
                 if (dirtyBits & TransformBit.RS) {
-                    Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
+                    Mat4.fromSRT(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
 
                     const rotTmp = dirtyBits & TransformBit.ROTATION ? child._rot : null;
-                    Mat4.toRTS(child._mat, rotTmp, null, child._scale);
+                    Mat4.toSRT(child._mat, rotTmp, null, child._scale);
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
@@ -2565,13 +2565,36 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
             Vec3.copy(worldScale, v3_a);
         }
+
+        let rotationFlag = TransformBit.NONE;
         if (parent) {
             const xScale = Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
             const yScale = Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
             const zScale = Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
-            v3_a.x = xScale !== 0 ? worldScale.x / xScale : 0;
-            v3_a.y = yScale !== 0 ? worldScale.y / yScale : 0;
-            v3_a.z = zScale !== 0 ? worldScale.z / zScale : 0;
+            if (xScale === 0) {
+                v3_a.x = worldScale.x;
+                this._mat.m00 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.x = worldScale.x / xScale;
+            }
+
+            if (yScale === 0) {
+                v3_a.y = worldScale.y;
+                this._mat.m05 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.y = worldScale.y / yScale;
+            }
+
+            if (zScale === 0) {
+                v3_a.z = worldScale.z;
+                this._mat.m10 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.z = worldScale.z / zScale;
+            }
+
             Mat4.scale(m4_1, this._mat, v3_a);
             Mat4.multiply(m4_2, Mat4.invert(m4_2, parent._mat), m4_1);
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._lrot));
@@ -2583,9 +2606,9 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             Vec3.copy(this._lscale, worldScale);
         }
 
-        this.invalidateChildren(TransformBit.SCALE);
+        this.invalidateChildren(TransformBit.SCALE | rotationFlag);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE | rotationFlag);
         }
     }
 
