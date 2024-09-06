@@ -633,11 +633,11 @@ describe(`Node`, () => {
         ))).toBeTruthy();
 
         expect(son.rotation.equals(new Quat(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627))).toBeTruthy();
-        expect(son.worldRotation.equals(new Quat(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627))).toBeTruthy();
+        expect(son.worldRotation.equals(new Quat(0, 0, 0, 1))).toBeTruthy(); // Could not decompose rotation in Mat4.toSRT since there is a axis is zero, so the rotation will be reset to unit quaternion.
 
         son.setRotationFromEuler(20, 20, 20);
         expect(son.rotation.equals(new Quat(0.1981076317236749, 0.1981076317236749, 0.1387164571097902, 0.9498760324550678))).toBeTruthy();
-        expect(son.worldRotation.equals(new Quat(0, 0, 0, 1))).toBeTruthy(); // Could not decompose rotation in Mat4.toSRT since there is a axis is zero, so the rotation will be reset to unit quaternion.
+        expect(son.worldRotation.equals(new Quat(0, 0, 0, 1))).toBeTruthy();
 
         son.setRotationFromEuler(10, 10, 10);
         expect(son.rotation.equals(new Quat(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627))).toBeTruthy();

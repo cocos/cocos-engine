@@ -654,6 +654,10 @@ void Node::setWorldScale(float x, float y, float z) {
         _localScale.x = Vec3{localRS.m[0], localRS.m[1], localRS.m[2]}.length();
         _localScale.y = Vec3{localRS.m[3], localRS.m[4], localRS.m[5]}.length();
         _localScale.z = Vec3{localRS.m[6], localRS.m[7], localRS.m[8]}.length();
+        
+        if (_localScale.x == 0 || _localScale.y == 0 || _localScale.z == 0) {
+            rotationFlag = TransformBit::ROTATION;
+        }
     } else {
         _worldScale.set(x, y, z);
         _localScale = _worldScale;

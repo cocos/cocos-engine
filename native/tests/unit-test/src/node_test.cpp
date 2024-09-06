@@ -181,11 +181,11 @@ TEST(NodeTest, setWorldScale0yz_and_rotation) {
     )));
     
     EXPECT_TRUE(son->getRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));
-    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));
+    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0, 0, 0, 1))); // Could not decompose rotation in Mat4.toSRT since there is a axis is zero, so the rotation will be reset to unit quaternion.
     
     son->setRotationFromEuler(20, 20, 20);
     EXPECT_TRUE(son->getRotation().approxEquals(Quaternion(0.1981076317236749, 0.1981076317236749, 0.1387164571097902, 0.9498760324550678)));
-    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0, 0, 0, 1))); // Could not decompose rotation in Mat4.toSRT since there is a axis is zero, so the rotation will be reset to unit quaternion.
+    EXPECT_TRUE(son->getWorldRotation().approxEquals(Quaternion(0, 0, 0, 1)));
     
     son->setRotationFromEuler(10, 10, 10);
     EXPECT_TRUE(son->getRotation().approxEquals(Quaternion(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627)));

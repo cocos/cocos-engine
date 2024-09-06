@@ -2599,9 +2599,14 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             Mat4.multiply(m4_2, Mat4.invert(m4_2, parent._mat), m4_1);
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._lrot));
             Mat3.multiplyMat4(m3_1, m3_1, m4_2);
-            this._lscale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
-            this._lscale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
-            this._lscale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
+
+            const localScale = this._lscale;
+            localScale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
+            localScale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
+            localScale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
+            if (localScale.x === 0 || localScale.y === 0 || localScale.z === 0) {
+                rotationFlag = TransformBit.ROTATION;
+            }
         } else {
             Vec3.copy(this._lscale, worldScale);
         }
