@@ -1,4 +1,4 @@
-import { Vec3, assert, RecyclePool } from '../../core';
+import { Vec3, RecyclePool } from '../../core';
 import { Frustum, intersect, AABB } from '../../core/geometry';
 import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageBit, BufferUsageBit } from '../../gfx';
 import { BatchingSchemes, Pass, RenderScene } from '../../render-scene';
@@ -7,7 +7,7 @@ import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, PointLight
     ReflectionProbe, SKYBOX_FLAG, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
 import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { hashCombineStr, getSubpassOrPassID, bool, AlignUp, SetLightUBO } from './define';
+import { hashCombineStr, getSubpassOrPassID, bool, AlignUp, SetLightUBO, hashCombineNum } from './define';
 import { LayoutGraphData } from './layout-graph';
 import { CullingFlags, RenderGraph, RenderGraphValue, SceneData, RenderQueue as RenderQueue0 } from './render-graph';
 import { SceneFlags } from './types';
@@ -29,64 +29,32 @@ class CullingPools {
 const REFLECTION_PROBE_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.UI_3D,
     Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
-
+const objIdMap: WeakMap<object, number> = new WeakMap();
+let cullingKeys: string = '';
+let objectCount: number = 0;
+function objectID (claze: object): number {
+    if (!objIdMap.has(claze)) objIdMap.set(claze, ++objectCount);
+    return objIdMap.get(claze)!;
+}
 function computeCullingKey (
     sceneData: SceneData,
     castShadows: boolean,
     refId: number = -1,
-): number {
-    let hashCode = 0;
-    const camera = sceneData.camera;
-    const light = sceneData.light.light;
+): string {
+    cullingKeys = '';
+    const camera = sceneData.camera!;
+    const light = sceneData.light.light!;
     const lightLevel = sceneData.light.level;
-    const culledByLight = sceneData.light.culledByLight;
-    const reflectProbe = sceneData.light.probe;
+    const reflectProbe = sceneData.light.probe!;
     const shadeLight = sceneData.shadingLight;
-    if (camera) {
-        // camera
-        hashCode = hashCombineStr(`u${camera.node.uuid}`, hashCode);
-        hashCode = hashCombineStr(`p${camera.priority}`, hashCode);
-        hashCode = hashCombineStr(`v${camera.visibility}`, hashCode);
-        hashCode = hashCombineStr(`f${camera.clearFlag}`, hashCode);
-        hashCode = hashCombineStr(`cx${camera.clearColor.x}cy${camera.clearColor.y}cz${camera.clearColor.z}cw${camera.clearColor.w}`, hashCode);
-        hashCode = hashCombineStr(`cd${camera.clearDepth}cs${camera.clearStencil}`, hashCode);
-        hashCode = hashCombineStr(`pj${camera.projectionType}`, hashCode);
-        hashCode = hashCombineStr(`fa${camera.fovAxis}`, hashCode);
-        hashCode = hashCombineStr(`fov${camera.fov}`, hashCode);
-        hashCode = hashCombineStr(`n${camera.nearClip}`, hashCode);
-        hashCode = hashCombineStr(`far${camera.farClip}`, hashCode);
-        hashCode = hashCombineStr(`apt${camera.aperture}`, hashCode);
-        hashCode = hashCombineStr(`sht${camera.shutter}`, hashCode);
-        hashCode = hashCombineStr(`iso${camera.iso}`, hashCode);
-        hashCode = hashCombineStr(`rx${camera.viewport.x}ry${camera.viewport.y}rw${camera.viewport.width}rh${camera.viewport.height}`, hashCode);
-        hashCode = hashCombineStr(`upp${camera.usePostProcess}`, hashCode);
-    }
-    // light
-    if (light) {
-        hashCode = hashCombineStr(`u${light.node!.uuid}`, hashCode);
-        // hashCode = hashCombineStr(`cx${light.finalColor.x}cy${light.finalColor.y}cz${light.finalColor.z}`, hashCode);
-        // hashCode = hashCombineStr(`ct${light.useColorTemperature}`, hashCode);
-        // hashCode = hashCombineStr(`ctv${light.colorTemperature}`, hashCode);
-        // hashCode = hashCombineStr(`vis${light.visibility}`, hashCode);
-        // hashCode = hashCombineStr(`tp${light.type}`, hashCode);
-        // switch (light.type) {
-        // case LightType.DIRECTIONAL:
-        //     hashCode = hashCombineStr(`${(light as DirectionalLight).illuminance}`, hashCode);
-        //     break;
-        // default:
-        // }
-    }
-    if (shadeLight) {
-        hashCode = hashCombineStr(`shadeLight${shadeLight.node!.uuid}`, hashCode);
-    }
-    hashCode = hashCombineStr(`culledByLight${culledByLight}`, hashCode);
-    hashCode = hashCombineStr(`cast${castShadows}`, hashCode);
-    hashCode = hashCombineStr(`level${lightLevel}`, hashCode);
-    if (reflectProbe) {
-        hashCode = hashCombineStr(`probe${reflectProbe.getProbeId()}`, hashCode);
-    }
-    hashCode = hashCombineStr(`refId${refId}`, hashCode);
-    return hashCode;
+    cullingKeys += camera ? objectID(camera) : 0;
+    cullingKeys += reflectProbe ? objectID(reflectProbe) : 0;
+    cullingKeys += (refId === -1 && light) ? objectID(light) : 0;
+    cullingKeys += (refId !== -1 && shadeLight) ? objectID(shadeLight) : 0;
+    cullingKeys += refId === -1 ? lightLevel : 0;
+    cullingKeys += castShadows ? 1 : 0;
+    cullingKeys += refId;
+    return cullingKeys;
 }
 
 class FrustumCullingKey {
@@ -116,8 +84,8 @@ class LightBoundsCullingKey {
 }
 
 class LightBoundsCulling {
-    resultKeyIndex: Map<number, LightBoundsCullingKey> = new Map<number, LightBoundsCullingKey>();
-    resultIndex: Map<number, LightBoundsCullingID> = new Map<number, LightBoundsCullingID>();
+    resultKeyIndex: Map<string, LightBoundsCullingKey> = new Map<string, LightBoundsCullingKey>();
+    resultIndex: Map<string, LightBoundsCullingID> = new Map<string, LightBoundsCullingID>();
     update (): void {
         this.resultIndex.clear();
         this.resultKeyIndex.clear();
@@ -141,8 +109,8 @@ let pSceneData: PipelineSceneData;
 
 class FrustumCulling {
     // key: hash val
-    resultIndex: Map<number, FrustumCullingID> = new Map<number, FrustumCullingID>();
-    resultKeyIndex: Map<number, FrustumCullingKey> = new Map<number, FrustumCullingKey>();
+    resultIndex: Map<string, FrustumCullingID> = new Map<string, FrustumCullingID>();
+    resultKeyIndex: Map<string, FrustumCullingKey> = new Map<string, FrustumCullingKey>();
     update (): void {
         this.resultIndex.clear();
         this.resultKeyIndex.clear();
@@ -196,7 +164,6 @@ function sceneCulling (
     }
 
     for (const model of scene.models) {
-        assert(!!model);
         if (!model.enabled || !model.node || (castShadow && !model.castShadow)) {
             continue;
         }
@@ -368,9 +335,7 @@ export class SceneCulling {
         if (!this.enableLightCulling) {
             return 0xFFFFFFFF; // Return an empty ID.
         }
-        assert(!!sceneData.shadingLight, 'shadingLight is expected but not found.');
-        const scene = sceneData.scene;
-        assert(!!scene, 'scene is expected but not found.');
+        const scene = sceneData.scene!;
 
         let queries = this.lightBoundsCullings.get(scene);
         if (!queries) {
@@ -386,7 +351,6 @@ export class SceneCulling {
         }
         const lightBoundsCullingID: LightBoundsCullingID = this.numLightBoundsCulling++;
         if (this.numLightBoundsCulling >  this.lightBoundsCullingResults.length) {
-            assert(this.numLightBoundsCulling === (this.lightBoundsCullingResults.length + 1));
             this.lightBoundsCullingResults.push(this.cullingPools.lightBoundsCullingResultRecycle.add().update());
         }
         queries.resultIndex.set(key, lightBoundsCullingID);
@@ -417,7 +381,6 @@ export class SceneCulling {
         }
         const frustumCulledResultID: FrustumCullingID = this.numFrustumCulling++;
         if (this.numFrustumCulling >  this.frustumCullingResults.length) {
-            assert(this.numFrustumCulling === (this.frustumCullingResults.length + 1));
             this.frustumCullingResults.push([]);
         }
         queries.resultIndex.set(key, frustumCulledResultID);
@@ -433,16 +396,11 @@ export class SceneCulling {
     private createRenderQueue (sceneFlags: SceneFlags, subpassOrPassLayoutID: number): number {
         const targetID = this.numRenderQueues++;
         if (this.numRenderQueues > this.renderQueues.length) {
-            assert(this.numRenderQueues === (this.renderQueues.length + 1));
             const renderQueue = this.cullingPools.renderQueueRecycle.add();
             renderQueue.update();
             this.renderQueues.push(renderQueue);
         }
-        assert(targetID < this.renderQueues.length);
         const rq = this.renderQueues[targetID];
-        assert(rq.empty());
-        assert(rq.sceneFlags === SceneFlags.NONE);
-        assert(rq.subpassOrPassLayoutID === 0xFFFFFFFF);
         rq.sceneFlags = sceneFlags;
         rq.subpassOrPassLayoutID = subpassOrPassLayoutID;
         return targetID;
@@ -455,7 +413,6 @@ export class SceneCulling {
             }
             const sceneData = rg.j<SceneData>(v);
             if (!sceneData.scene) {
-                assert(!!sceneData.scene);
                 continue;
             }
             const frustumCulledResultID = this.getOrCreateFrustumCulling(v);
@@ -473,7 +430,6 @@ export class SceneCulling {
 
     uploadInstancing (cmdBuffer: CommandBuffer): void {
         for (let queueID = 0; queueID !== this.numRenderQueues; ++queueID) {
-            assert(this.numRenderQueues <= this.renderQueues.length);
             const queue = this.renderQueues[queueID];
             queue.opaqueInstancingQueue.uploadBuffers(cmdBuffer);
             queue.transparentInstancingQueue.uploadBuffers(cmdBuffer);
@@ -483,7 +439,6 @@ export class SceneCulling {
     private _getPhaseIdFromScene (scene: number): number {
         const rg: RenderGraph = this.renderGraph;
         const renderQueueId = rg.getParent(scene);
-        assert(rg.h(RenderGraphValue.Queue, renderQueueId));
         const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
         return graphRenderQueue.phaseID;
     }
@@ -509,37 +464,33 @@ export class SceneCulling {
 
     private batchFrustumCulling (pplSceneData: PipelineSceneData): void {
         for (const [scene, queries] of this.frustumCullings) {
-            assert(!!scene);
             for (const [key, frustomCulledResultID] of queries.resultIndex) {
                 const cullingKey = queries.resultKeyIndex.get(key)!;
                 const sceneData = cullingKey.sceneData!;
-                assert(!!sceneData.camera);
-                assert(!sceneData.camera.scene || sceneData.camera.scene === scene);
                 const light = sceneData.light.light;
                 const level = sceneData.light.level;
                 const castShadow = cullingKey.castShadows;
                 const probe = sceneData.light.probe;
                 const camera = probe ? probe.camera : sceneData.camera;
-                assert(frustomCulledResultID < this.frustumCullingResults.length);
                 const models = this.frustumCullingResults[frustomCulledResultID];
                 if (probe) {
-                    sceneCulling(scene, camera, camera.frustum, castShadow, probe, models);
+                    sceneCulling(scene, camera!, camera!.frustum, castShadow, probe, models);
                     continue;
                 }
                 if (light) {
                     switch (light.type) {
                     case LightType.SPOT:
-                        sceneCulling(scene, camera, (light as SpotLight).frustum, castShadow, null, models);
+                        sceneCulling(scene, camera!, (light as SpotLight).frustum, castShadow, null, models);
                         break;
                     case LightType.DIRECTIONAL: {
-                        const frustum = this.getBuiltinShadowFrustum(pplSceneData, camera, light as DirectionalLight, level);
-                        sceneCulling(scene, camera, frustum, castShadow, null, models);
+                        const frustum = this.getBuiltinShadowFrustum(pplSceneData, camera!, light as DirectionalLight, level);
+                        sceneCulling(scene, camera!, frustum, castShadow, null, models);
                     }
                         break;
                     default:
                     }
                 } else {
-                    sceneCulling(scene, camera, camera.frustum, castShadow, null, models);
+                    sceneCulling(scene, camera!, camera!.frustum, castShadow, null, models);
                 }
             }
         }
@@ -548,7 +499,6 @@ export class SceneCulling {
     private executeSphereLightCulling (light: SphereLight, frustumCullingResult: Array<Model>, lightBoundsCullingResult: Array<Model>): void {
         const lightAABB = light.aabb;
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || intersect.aabbWithAABB(modelBounds, lightAABB)) {
                 lightBoundsCullingResult.push(model);
@@ -560,7 +510,6 @@ export class SceneCulling {
         const lightAABB = light.aabb;
         const lightFrustum: Frustum = light.frustum;
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || (intersect.aabbWithAABB(lightAABB, modelBounds) && intersect.aabbFrustum(modelBounds, lightFrustum))) {
                 lightBoundsCullingResult.push(model);
@@ -571,7 +520,6 @@ export class SceneCulling {
     private executePointLightCulling (light: PointLight, frustumCullingResult: Array<Model>, lightBoundsCullingResult: Array<Model>): void {
         const lightAABB = light.aabb;
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || intersect.aabbWithAABB(lightAABB, modelBounds)) {
                 lightBoundsCullingResult.push(model);
@@ -586,7 +534,6 @@ export class SceneCulling {
     ): void {
         rangedDirLightBoundingBox.transform(light.node!.worldMatrix, null, null, null, lightAABB);
         for (const model of frustumCullingResult) {
-            assert(!!model);
             const modelBounds = model.worldBounds;
             if (!modelBounds || intersect.aabbWithAABB(lightAABB, modelBounds)) {
                 lightBoundsCullingResult.push(model);
@@ -596,19 +543,13 @@ export class SceneCulling {
 
     private batchLightBoundsCulling (): void {
         for (const [scene, queries] of this.lightBoundsCullings) {
-            assert(!!scene);
             for (const [key, cullingID] of queries.resultIndex) {
                 const cullingKey = queries.resultKeyIndex.get(key)!;
                 const sceneData = cullingKey.sceneData!;
                 const frustumCullingID = cullingKey.frustumCullingID;
                 const frustumCullingResult = this.frustumCullingResults[frustumCullingID];
-                assert(!!sceneData.camera);
-                assert(!!sceneData.shadingLight);
-                assert(!sceneData.camera.scene || sceneData.camera.scene === scene);
-                assert(cullingID < this.frustumCullingResults.length);
                 const lightBoundsCullingResult = this.lightBoundsCullingResults[cullingID];
-                assert(lightBoundsCullingResult.instances.length === 0);
-                switch (sceneData.shadingLight.type) {
+                switch (sceneData.shadingLight!.type) {
                 case LightType.SPHERE:
                     {
                         const light = sceneData.shadingLight as SphereLight;
@@ -643,7 +584,6 @@ export class SceneCulling {
 
     private fillRenderQueues (rg: RenderGraph, pplSceneData: PipelineSceneData): void {
         for (const [sceneId, desc] of this.renderQueueIndex) {
-            assert(rg.h(RenderGraphValue.Scene, sceneId));
             const frustomCulledResultID = desc.frustumCulledResultID;
             const lightBoundsCullingID = desc.lightBoundsCulledResultID;
             const targetId = desc.renderQueueTarget;
@@ -657,13 +597,10 @@ export class SceneCulling {
             }
             // render queue info
             const renderQueueId = rg.getParent(sceneId);
-            assert(rg.h(RenderGraphValue.Queue, renderQueueId));
             const graphRenderQueue = rg.j<RenderQueue0>(renderQueueId);
             const phaseLayoutId = graphRenderQueue.phaseID;
-            assert(phaseLayoutId !== this.layoutGraph.N);
 
             // culling source
-            assert(frustomCulledResultID < this.frustumCullingResults.length);
             const sourceModels = ((): Array<Model> => {
                 // is culled by light bounds
                 if (lightBoundsCullingID !== 0xFFFFFFFF) {
@@ -682,13 +619,10 @@ export class SceneCulling {
             })();
 
             // queue target
-            assert(targetId < this.renderQueues.length);
             const renderQueue = this.renderQueues[targetId];
-            assert(renderQueue.empty());
 
             // skybox
             const camera = sceneData.camera;
-            assert(!!camera);
             // fill render queue
             for (const model of sourceModels) {
                 addRenderObject(
@@ -696,7 +630,7 @@ export class SceneCulling {
                     isDrawOpaqueOrMask,
                     isDrawBlend,
                     isDrawProbe,
-                    camera,
+                    camera!,
                     model,
                     renderQueue,
                 );
@@ -721,8 +655,6 @@ export class LightResource {
     private readonly lightIndex = new Map<Light, number>();
 
     init (programLib: WebProgramLibrary, deviceIn: Device, maxNumLights: number): void {
-        assert(!this.device);
-
         this.device = deviceIn;
         this.programLibrary = programLib;
 
@@ -752,8 +684,6 @@ export class LightResource {
         ));
 
         this.cpuBuffer = new Float32Array(bufferSize / Float32Array.BYTES_PER_ELEMENT);
-
-        assert(!!(this.elementSize && this.maxNumLights));
         this.resized = true;
     }
 
@@ -846,8 +776,6 @@ export class LightResource {
             this.cpuBuffer = new Float32Array(bufferSize / Float32Array.BYTES_PER_ELEMENT);
             this.cpuBuffer.set(prevCpuBuffer);
         }
-
-        assert(this.lights.length < this.maxNumLights);
 
         // Add light
         const lightID = this.lights.length;

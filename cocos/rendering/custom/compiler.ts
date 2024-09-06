@@ -23,7 +23,6 @@
 ****************************************************************************/
 import { DEBUG } from 'internal:constants';
 import { Buffer, Framebuffer, LoadOp, StoreOp, Texture, Viewport } from '../../gfx';
-import { assert } from '../../core';
 import { VectorGraphColorMap } from './effect';
 import { DefaultVisitor, depthFirstSearch, ReferenceGraphView } from './graph';
 import { LayoutGraphData } from './layout-graph';
@@ -150,13 +149,6 @@ class PassVisitor implements RenderGraphVisitor {
             for (const [passId, currRaster] of rasters) {
                 if (passId > this.passID) {
                     isPreRaster = true;
-                    // TODO: Shadow map is rather special, as it will be merged into one pass later, and then this determination can be removed.
-                    if (!this._isShadowMap(this.sceneID)) {
-                        assert(
-                            currRaster.loadOp === LoadOp.LOAD,
-                            `The resource with name ${input} is being used, and the pass that uses this resource must have loadOp set to 'load'`,
-                        );
-                    }
                 }
             }
             for (const [passId] of computes) {
@@ -165,16 +157,12 @@ class PassVisitor implements RenderGraphVisitor {
                     break;
                 }
             }
-            if (isPreRaster) {
-                assert(raster.storeOp === StoreOp.STORE, `The resource ${input} is being used, so storeOp needs to be set to 'store'`);
-            }
             rasters.set(this.passID, raster);
         } else {
             const resId = resGraph.vertex(input);
             const trait = resGraph.getTraits(resId);
             switch (trait.residency) {
             case ResourceResidency.PERSISTENT:
-                assert(raster.storeOp === StoreOp.STORE, `Persistent resources must have storeOp set to 'store'.`);
                 break;
             default:
             }
@@ -462,51 +450,6 @@ export class Compiler {
         context.pipeline.resourceUses.length = 0;
         this._visitor.colorMap.colors.length = context.resourceGraph.nv();
         depthFirstSearch(this._resourceGraph, this._visitor, this._visitor.colorMap);
-
-        if (DEBUG) {
-            const useContext = context.resourceContext;
-            for (const [name, use] of useContext) {
-                const resId = this._resourceGraph.vertex(name);
-                const trait = this._resourceGraph.getTraits(resId);
-                const rasterArr: number[] = Array.from(use.rasters.keys());
-                if (!rasterArr.length) {
-                    continue;
-                }
-
-                const min = rasterArr.reduce((prev, current): number => (prev < current ? prev : current));
-                const firstRaster = use.rasters.get(min)!;
-                switch (trait.residency) {
-                case ResourceResidency.PERSISTENT:
-                    assert(
-                        firstRaster.loadOp !== LoadOp.DISCARD,
-                        `The loadOp for persistent resources in the top-level pass cannot be set to 'discard'.`,
-                    );
-                    break;
-                case ResourceResidency.MANAGED:
-                    assert(firstRaster.loadOp === LoadOp.CLEAR, `The loadOp for Managed resources in the top-level pass can only be set to 'clear'.`);
-                    break;
-                default:
-                    break;
-                }
-                const computeArr: number[] = Array.from(use.computes.keys());
-                const max = rasterArr.reduce((prev, current): number => (prev > current ? prev : current));
-                let maxCompute = -1;
-                if (computeArr.length) {
-                    maxCompute = computeArr.reduce((prev, current): number => (prev > current ? prev : current));
-                }
-                if (max > maxCompute) {
-                    const lastRaster = use.rasters.get(max)!;
-                    switch (trait.residency) {
-                    case ResourceResidency.MANAGED:
-                        // TODO
-                        // assert(lastRaster.storeOp === StoreOp.DISCARD, `MANAGED resources that are not being used must be set to 'discard'.`);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }
-        }
     }
 }
 const context = new CompilerContext();
