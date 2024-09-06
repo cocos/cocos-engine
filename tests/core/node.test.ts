@@ -511,7 +511,6 @@ describe(`Node`, () => {
     test ('setWorldScale', ()=> {
         let parent = new Node();
 
-        // rotate 30 degrees around x axis
         parent.setScale(2, 3, 4);
 
         let son = new Node();
