@@ -43,7 +43,7 @@ import {
     AttachmentType, LightInfo,
     QueueHint, ResourceResidency, SceneFlags, UpdateFrequency,
 } from './types';
-import { Vec4, geometry, toRadian, cclegacy, assert } from '../../core';
+import { Vec4, geometry, toRadian, cclegacy } from '../../core';
 import { RenderWindow } from '../../render-scene/core/render-window';
 import { RenderData, RenderGraph } from './render-graph';
 import { WebPipeline } from './web-pipeline';
@@ -495,7 +495,6 @@ export function getDescriptorSetDataFromLayout (layoutName: string): DescriptorS
     }
     const webPip = cclegacy.director.root.pipeline as WebPipeline;
     const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.N, layoutName);
-    assert(stageId !== 0xFFFFFFFF);
     const layout = webPip.layoutGraph.getLayout(stageId);
     const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
     layouts.set(layoutName, layoutData!);
@@ -849,31 +848,24 @@ export function SetLightUBO (
 
 export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: LayoutGraphData): number {
     const queueId = rg.getParent(sceneId);
-    assert(queueId !== 0xFFFFFFFF);
     const subpassOrPassID = rg.getParent(queueId);
-    assert(subpassOrPassID !== 0xFFFFFFFF);
     const passId = rg.getParent(subpassOrPassID);
     let layoutId = lg.N;
     // single render pass
     if (passId === rg.N) {
         const layoutName: string = rg.getLayout(subpassOrPassID);
-        assert(!!layoutName);
         layoutId = lg.locateChild(lg.N, layoutName);
     } else {
         const passLayoutName: string = rg.getLayout(passId);
-        assert(!!passLayoutName);
         const passLayoutId = lg.locateChild(lg.N, passLayoutName);
-        assert(passLayoutId !== lg.N);
 
         const subpassLayoutName: string = rg.getLayout(subpassOrPassID);
         if (subpassLayoutName.length === 0) {
             layoutId = passLayoutId;
         } else {
             const subpassLayoutId = lg.locateChild(passLayoutId, subpassLayoutName);
-            assert(subpassLayoutId !== lg.N);
             layoutId = subpassLayoutId;
         }
     }
-    assert(layoutId !== lg.N);
     return layoutId;
 }

@@ -916,19 +916,14 @@ export class RenderInstancingQueue {
         if (iter === undefined) {
             const instanceBufferID = this.passInstances.size;
             if (instanceBufferID >= this.instanceBuffers.length) {
-                assert(instanceBufferID === this.instanceBuffers.length);
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 this.instanceBuffers.push(new InstancedBuffer(new Pass(cclegacy.director.root)));
             }
             this.passInstances.set(pass, instanceBufferID);
 
-            assert(instanceBufferID < this.instanceBuffers.length);
             const instanceBuffer = this.instanceBuffers[instanceBufferID];
             instanceBuffer.pass = pass;
             const instances = instanceBuffer.instances;
-            for (const item of instances) {
-                assert(item.count === 0);
-            }
         }
 
         const instancedBuffer = this.instanceBuffers[this.passInstances.get(pass)!];
