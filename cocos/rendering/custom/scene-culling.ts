@@ -47,13 +47,13 @@ function computeCullingKey (
     const lightLevel = sceneData.light.level;
     const reflectProbe = sceneData.light.probe!;
     const shadeLight = sceneData.shadingLight;
-    cullingKeys += camera ? objectID(camera) : 0;
-    cullingKeys += reflectProbe ? objectID(reflectProbe) : 0;
-    cullingKeys += (refId === -1 && light) ? objectID(light) : 0;
-    cullingKeys += (refId !== -1 && shadeLight) ? objectID(shadeLight) : 0;
-    cullingKeys += refId === -1 ? lightLevel : 0;
-    cullingKeys += castShadows ? 1 : 0;
-    cullingKeys += refId;
+    cullingKeys += `${camera ? objectID(camera) : 0}-`;
+    cullingKeys += `${reflectProbe ? objectID(reflectProbe) : 0}-`;
+    cullingKeys += `${(refId === -1 && light) ? objectID(light) : 0}-`;
+    cullingKeys += `${(refId !== -1 && shadeLight) ? objectID(shadeLight) : 0}-`;
+    cullingKeys += `${refId === -1 ? lightLevel : 0}-`;
+    cullingKeys += `${castShadows ? 1 : 0}-`;
+    cullingKeys += `${refId}`;
     return cullingKeys;
 }
 
@@ -582,6 +582,23 @@ export class SceneCulling {
         }
     }
 
+    private _getModelsByCullingResults (lightBoundsCullingID, frustomCulledResultID): Array<Model> {
+        // is culled by light bounds
+        if (lightBoundsCullingID !== 0xFFFFFFFF) {
+            if (lightBoundsCullingID < this.lightBoundsCullingResults.length) {
+                return this.lightBoundsCullingResults[lightBoundsCullingID].instances;
+            } else {
+                return [];
+            }
+        }
+        // not culled by light bounds
+        if (frustomCulledResultID < this.frustumCullingResults.length) {
+            return this.frustumCullingResults[frustomCulledResultID];
+        } else {
+            return [];
+        }
+    }
+
     private fillRenderQueues (rg: RenderGraph, pplSceneData: PipelineSceneData): void {
         for (const [sceneId, desc] of this.renderQueueIndex) {
             const frustomCulledResultID = desc.frustumCulledResultID;
@@ -601,22 +618,7 @@ export class SceneCulling {
             const phaseLayoutId = graphRenderQueue.phaseID;
 
             // culling source
-            const sourceModels = ((): Array<Model> => {
-                // is culled by light bounds
-                if (lightBoundsCullingID !== 0xFFFFFFFF) {
-                    if (lightBoundsCullingID < this.lightBoundsCullingResults.length) {
-                        return this.lightBoundsCullingResults[lightBoundsCullingID].instances;
-                    } else {
-                        return [];
-                    }
-                }
-                // not culled by light bounds
-                if (frustomCulledResultID < this.frustumCullingResults.length) {
-                    return this.frustumCullingResults[frustomCulledResultID];
-                } else {
-                    return [];
-                }
-            })();
+            const sourceModels = this._getModelsByCullingResults(lightBoundsCullingID, frustomCulledResultID);
 
             // queue target
             const renderQueue = this.renderQueues[targetId];
