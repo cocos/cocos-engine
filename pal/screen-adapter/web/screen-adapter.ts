@@ -86,6 +86,7 @@ interface IScreenFunctionName {
 class ScreenAdapter extends EventTarget {
     public isFrameRotated = false;
     public handleResizeEvent = true;
+    private _devicePixelRatio = Math.min(window.devicePixelRatio ?? 1, 2);
 
     public get supportFullScreen (): boolean {
         return this._supportFullScreen;
@@ -99,7 +100,13 @@ class ScreenAdapter extends EventTarget {
 
     public get devicePixelRatio (): number {
         // TODO: remove the down sampling operation in DPR after supporting resolutionScale
-        return Math.min(window.devicePixelRatio ?? 1, 2);
+        return this._devicePixelRatio;
+    }
+
+    public set devicePixelRatio (value: number) {
+        if (this._devicePixelRatio === value) return;
+        this._devicePixelRatio = value;
+        this.emit('window-resize', this.windowSize.width, this.windowSize.height);
     }
 
     public get windowSize (): Size {

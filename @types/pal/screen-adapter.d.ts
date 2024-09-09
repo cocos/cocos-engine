@@ -63,6 +63,7 @@ declare module 'pal/screen-adapter' {
          * the size of one CSS pixel to the size of one physical pixel.
          */
         public get devicePixelRatio (): number;
+        public set devicePixelRatio (value: number);
         /**
          * Get the size of current window in physical pixels.
          */

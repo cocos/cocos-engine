@@ -64,6 +64,10 @@ export class Screen {
         return screenAdapter.devicePixelRatio;
     }
 
+    public set devicePixelRatio (value: number) {
+        screenAdapter.devicePixelRatio = value;
+    }
+
     /**
      * @en Get and set the size of current window in physical pixels.
      * NOTE:
