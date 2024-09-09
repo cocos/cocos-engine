@@ -9,7 +9,7 @@ on:
 
 jobs:    
   publish_artifact:
-    name: Build and publish release
+    name: Build and publish release 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,6 +25,8 @@ jobs:
           cd native
           npm install
           gulp init
+      - name: Install npm
+        run: npm install
       - name: Zip artifact
         run: |
           zip -r artifact.zip * -x "*/.git/*"
@@ -38,8 +40,3 @@ jobs:
               --repo="${{ github.repository }}" \
               --title=""${{ github.repository }}" v1.0.${{ github.run_number }}.${{ github.run_attempt }}" \
               --generate-notes
-      # - name: Upload Artifact
-      #   run: |
-      #     gh release upload v1.0.${{ github.run_number }}.${{ github.run_attempt }} artifact.zip
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
