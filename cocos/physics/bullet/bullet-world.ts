@@ -135,6 +135,7 @@ export class BulletWorld implements IPhysicsWorld {
     readonly ccts: BulletCharacterController[] = [];
     readonly constraints: BulletConstraint[] = [];
     readonly triggerArrayMat = new ArrayCollisionMatrix();
+    readonly characterControllerArrayMat = new ArrayCollisionMatrix();
     readonly collisionArrayMat = new ArrayCollisionMatrix();
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
@@ -180,6 +181,7 @@ export class BulletWorld implements IPhysicsWorld {
         (this as any).ccts = null;
         (this as any).constraints = null;
         (this as any).triggerArrayMat = null;
+        (this as any).characterControllerArrayMat = null;
         (this as any).collisionArrayMat = null;
         (this as any).contactsDic = null;
         (this as any).oldContactsDic = null;
@@ -682,11 +684,11 @@ export class BulletWorld implements IPhysicsWorld {
             if (collider && characterController) {
                 const isTrigger = collider.isTrigger;
                 if (isTrigger) {
-                    if (this.triggerArrayMat.get(shape.id, cct.id)) {
+                    if (this.characterControllerArrayMat.get(shape.id, cct.id)) {
                         CharacterTriggerEventObject.type = 'onControllerTriggerStay';
                     } else {
                         CharacterTriggerEventObject.type = 'onControllerTriggerEnter';
-                        this.triggerArrayMat.set(shape.id, cct.id, true);
+                        this.characterControllerArrayMat.set(shape.id, cct.id, true);
                     }
                     CharacterTriggerEventObject.impl = data.impl; //btPersistentManifold
                     CharacterTriggerEventObject.collider = collider;
@@ -718,7 +720,7 @@ export class BulletWorld implements IPhysicsWorld {
                 const isTrigger = collider.isTrigger;
                 if (this.cctContactsDic.getDataByKey(key) == null) {
                     if (isTrigger) {
-                        if (this.triggerArrayMat.get(shape.id, cct.id)) {
+                        if (this.characterControllerArrayMat.get(shape.id, cct.id)) {
                             CharacterTriggerEventObject.type = 'onControllerTriggerExit';
                             CharacterTriggerEventObject.collider = collider;
                             CharacterTriggerEventObject.characterController = characterController;
@@ -728,7 +730,7 @@ export class BulletWorld implements IPhysicsWorld {
                             CharacterTriggerEventObject.characterController = characterController;
                             characterController.emit(CharacterTriggerEventObject.type, CharacterTriggerEventObject);
 
-                            this.triggerArrayMat.set(shape.id, cct.id, false);
+                            this.characterControllerArrayMat.set(shape.id, cct.id, false);
                             this.cctOldContactsDic.set(shape.id, cct.id, null);
                             this._needSyncAfterEvents = true;
                         }
