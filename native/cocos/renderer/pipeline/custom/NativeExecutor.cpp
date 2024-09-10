@@ -667,10 +667,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             tryBindLeafOverwritePerPassDescriptorSet(sceneID);
         }
         const auto* scene = camera->getScene();
-        const auto& queueDesc = ctx.context.sceneCulling.renderQueueIndex.at(sceneID);
+        const auto& queueDesc = ctx.context.sceneCulling.renderQueueQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
 
-        queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0);
+        queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0, sceneData.flags);
 
 #if CC_USE_GEOMETRY_RENDERER
         if (any(sceneData.flags & SceneFlags::GEOMETRY) &&

@@ -2,7 +2,7 @@
 #include "cocos/renderer/pipeline/custom/LayoutGraphUtils.h"
 #include "cocos/renderer/pipeline/custom/NativeBuiltinUtils.h"
 #include "cocos/renderer/pipeline/custom/NativePipelineTypes.h"
-#include "cocos/renderer/pipeline/custom/NativeRenderGraphUtils.h"
+#include "cocos/renderer/pipeline/custom/RenderGraphGraphs.h"
 #include "cocos/renderer/pipeline/custom/details/GslUtils.h"
 #include "cocos/renderer/pipeline/custom/details/Range.h"
 #include "cocos/scene/Octree.h"
@@ -31,8 +31,9 @@ void NativeRenderQueue::clear() noexcept {
     transparentQueue.instances.clear();
     opaqueInstancingQueue.clear();
     transparentInstancingQueue.clear();
+    camera = nullptr;
     sceneFlags = SceneFlags::NONE;
-    subpassOrPassLayoutID = 0xFFFFFFFF;
+    lightByteOffset = 0xFFFFFFFF;
 }
 
 bool NativeRenderQueue::empty() const noexcept {
@@ -127,25 +128,47 @@ LightBoundsCullingID SceneCulling::getOrCreateLightBoundsCulling(
     return iter->second;
 }
 
-NativeRenderQueueID SceneCulling::createRenderQueue(
-    SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID) {
+NativeRenderQueueID SceneCulling::getOrCreateRenderQueue(
+    const NativeRenderQueueKey& renderQueueKey, SceneFlags sceneFlags, const scene::Camera* camera) {
+    constexpr auto categoryMask = SceneFlags::SHADOW_CASTER | SceneFlags::REFLECTION_PROBE;
+    constexpr auto drawMask = SceneFlags::OPAQUE | SceneFlags::MASK | SceneFlags::BLEND;
+    constexpr auto allMask = categoryMask | drawMask;
+
+    auto iter = renderQueueIndex.find(renderQueueKey);
+    if (iter != renderQueueIndex.end()) {
+        auto& rq = renderQueues[iter->second.value];
+        CC_EXPECTS(rq.camera == camera);
+        CC_EXPECTS((sceneFlags & categoryMask) == (rq.sceneFlags & categoryMask));
+        // merge scene flags
+        rq.sceneFlags |= sceneFlags & drawMask;
+        return iter->second;
+    }
+
     const auto targetID = numRenderQueues++;
+
+    // renderQueues are not cleared, so we can reuse the space
+    // this->renderQueues.size() is more like a capacity
     if (numRenderQueues > renderQueues.size()) {
         CC_EXPECTS(numRenderQueues == renderQueues.size() + 1);
         renderQueues.emplace_back();
     }
+
+    // Update render queue index
+    auto res = renderQueueIndex.emplace(renderQueueKey, NativeRenderQueueID{targetID});
+    CC_ENSURES(res.second);
+
     CC_ENSURES(targetID < renderQueues.size());
     auto& rq = renderQueues[targetID];
     CC_EXPECTS(rq.empty());
+    CC_EXPECTS(rq.camera == nullptr);
     CC_EXPECTS(rq.sceneFlags == SceneFlags::NONE);
-    CC_EXPECTS(rq.subpassOrPassLayoutID == 0xFFFFFFFF);
-    rq.sceneFlags = sceneFlags;
-    rq.subpassOrPassLayoutID = subpassOrPassLayoutID;
+
+    rq.camera = camera;
+    rq.sceneFlags = sceneFlags & allMask;
     return NativeRenderQueueID{targetID};
 }
 
-void SceneCulling::collectCullingQueries(
-    const RenderGraph& rg, const LayoutGraphData& lg) {
+void SceneCulling::collectCullingQueries(const RenderGraph& rg) {
     for (const auto vertID : makeRange(vertices(rg))) {
         if (!holds<SceneTag>(vertID, rg)) {
             continue;
@@ -157,21 +180,33 @@ void SceneCulling::collectCullingQueries(
         }
         const auto frustomCulledResultID = getOrCreateFrustumCulling(sceneData);
         const auto lightBoundsCullingID = getOrCreateLightBoundsCulling(sceneData, frustomCulledResultID);
-        const auto layoutID = getSubpassOrPassID(vertID, rg, lg);
-        const auto targetID = createRenderQueue(sceneData.flags, layoutID);
-        const auto lightType = sceneData.light.light
-                                   ? sceneData.light.light->getType()
-                                   : scene::LightType::UNKNOWN;
 
-        // add render queue to query source
-        renderQueueIndex.emplace(
+        // Get render queue phaseLayoutID
+        const auto queueID = parent(vertID, rg);
+        CC_ENSURES(queueID != RenderGraph::null_vertex());
+        CC_EXPECTS(holds<QueueTag>(queueID, rg));
+        const auto& renderQueue = get(QueueTag{}, queueID, rg);
+        const auto phaseLayoutID = renderQueue.phaseID;
+        CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
+
+        // Make render queue key
+        NativeRenderQueueKey renderQueueKey{
+            frustomCulledResultID,
+            lightBoundsCullingID,
+            phaseLayoutID,
+        };
+
+        // Get or create render queue
+        const auto renderQueueID = getOrCreateRenderQueue(renderQueueKey, sceneData.flags, sceneData.camera);
+
+        // add render queue query
+        auto res = renderQueueQueryIndex.emplace(
             vertID,
-            NativeRenderQueueDesc{
+            NativeRenderQueueQuery{
                 frustomCulledResultID,
                 lightBoundsCullingID,
-                targetID,
-                lightType,
-            });
+                renderQueueID});
+        CC_ENSURES(res.second);
     }
 }
 
@@ -582,31 +617,29 @@ void addRenderObject(
 
 } // namespace
 
-void SceneCulling::fillRenderQueues(
-    const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData) {
+void SceneCulling::fillRenderQueues(const pipeline::PipelineSceneData& pplSceneData) {
     const auto* const skybox = pplSceneData.getSkybox();
-    for (auto&& [sceneID, desc] : renderQueueIndex) {
-        CC_EXPECTS(holds<SceneTag>(sceneID, rg));
-        const auto frustomCulledResultID = desc.frustumCulledResultID;
-        const auto lightBoundsCullingID = desc.lightBoundsCulledResultID;
-        const auto targetID = desc.renderQueueTarget;
-        const auto& sceneData = get(SceneTag{}, sceneID, rg);
+    for (const auto& [key, targetID] : renderQueueIndex) {
+        // native queue target
+        CC_EXPECTS(targetID.value < renderQueues.size());
+        auto& nativeQueue = renderQueues[targetID.value];
+        CC_EXPECTS(nativeQueue.empty());
+
+        const auto frustomCulledResultID = key.frustumCulledResultID;
+        const auto lightBoundsCullingID = key.lightBoundsCulledResultID;
 
         // check scene flags
-        const bool bDrawBlend = any(sceneData.flags & SceneFlags::TRANSPARENT_OBJECT);
-        const bool bDrawOpaqueOrMask = any(sceneData.flags & (SceneFlags::OPAQUE_OBJECT | SceneFlags::CUTOUT_OBJECT));
-        const bool bDrawShadowCaster = any(sceneData.flags & SceneFlags::SHADOW_CASTER);
-        const bool bDrawProbe = any(sceneData.flags & SceneFlags::REFLECTION_PROBE);
+        const bool bDrawBlend = any(nativeQueue.sceneFlags & SceneFlags::BLEND);
+        const bool bDrawOpaqueOrMask = any(nativeQueue.sceneFlags & (SceneFlags::OPAQUE | SceneFlags::MASK));
+        const bool bDrawShadowCaster = any(nativeQueue.sceneFlags & SceneFlags::SHADOW_CASTER);
+        const bool bDrawProbe = any(nativeQueue.sceneFlags & SceneFlags::REFLECTION_PROBE);
         if (!bDrawShadowCaster && !bDrawBlend && !bDrawOpaqueOrMask && !bDrawProbe) {
             // nothing to draw
             continue;
         }
 
         // render queue info
-        const auto renderQueueID = parent(sceneID, rg);
-        CC_EXPECTS(holds<QueueTag>(renderQueueID, rg));
-        const auto& renderQueue = get(QueueTag{}, renderQueueID, rg);
-        const auto phaseLayoutID = renderQueue.phaseID;
+        const auto phaseLayoutID = key.queueLayoutID;
         CC_EXPECTS(phaseLayoutID != LayoutGraphData::null_vertex());
 
         // culling source
@@ -621,20 +654,15 @@ void SceneCulling::fillRenderQueues(
             return frustumCullingResults.at(frustomCulledResultID.value);
         }();
 
-        // native queue target
-        CC_EXPECTS(targetID.value < renderQueues.size());
-        auto& nativeQueue = renderQueues[targetID.value];
-        CC_EXPECTS(nativeQueue.empty());
-
         // skybox
-        const auto* camera = sceneData.camera;
+        const auto* camera = nativeQueue.camera;
         CC_EXPECTS(camera);
 
         // fill native queue
         for (const auto* const model : sourceModels) {
             addRenderObject(
                 phaseLayoutID, bDrawOpaqueOrMask, bDrawBlend,
-                bDrawProbe, *sceneData.camera, *model, nativeQueue);
+                bDrawProbe, *camera, *model, nativeQueue);
         }
 
         // post-processing
@@ -647,10 +675,10 @@ void SceneCulling::buildRenderQueues(
     const NativePipeline& ppl) {
     kPipelineSceneData = ppl.pipelineSceneData;
     kLayoutGraph = &lg;
-    collectCullingQueries(rg, lg);
+    collectCullingQueries(rg);
     batchFrustumCulling(ppl);
     batchLightBoundsCulling(); // cull frustum-culling's results by light bounds
-    fillRenderQueues(rg, *ppl.pipelineSceneData);
+    fillRenderQueues(*ppl.pipelineSceneData);
 }
 
 void SceneCulling::clear() noexcept {
@@ -670,9 +698,12 @@ void SceneCulling::clear() noexcept {
         q.clear();
     }
 
-    // clear render graph scene vertex query index
+    // clear render queue index
     renderQueueIndex.clear();
     // do not clear this->renderQueues, it is reused to avoid memory allocation
+
+    // clear render graph scene vertex query index
+    renderQueueQueryIndex.clear();
 
     // reset all counters
     numFrustumCulling = 0;
@@ -780,12 +811,12 @@ void LightResource::buildLights(
     }
 
     // assign light byte offset to each queue
-    for (const auto& [sceneID, desc] : sceneCulling.renderQueueIndex) {
+    for (const auto& [sceneID, desc] : sceneCulling.renderQueueQueryIndex) {
         if (desc.lightBoundsCulledResultID.value == 0xFFFFFFFF) {
             continue;
         }
-        const auto lightByteOffset = sceneCulling.lightBoundsCullingResults.at(
-                                                                               desc.lightBoundsCulledResultID.value)
+        const auto lightByteOffset = sceneCulling.lightBoundsCullingResults
+                                         .at(desc.lightBoundsCulledResultID.value)
                                          .lightByteOffset;
 
         sceneCulling.renderQueues.at(desc.renderQueueTarget.value).lightByteOffset = lightByteOffset;
