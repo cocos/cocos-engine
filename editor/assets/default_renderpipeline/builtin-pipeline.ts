@@ -688,12 +688,8 @@ if (rendering) {
 
             pass.setViewport(this._viewport);
 
-            // The opaque queue is used for Reflection probe preview
-            pass.addQueue(QueueHint.OPAQUE)
-                .addScene(camera, SceneFlags.OPAQUE);
-
             // The blend queue is used for UI and Gizmos
-            let flags = SceneFlags.BLEND | SceneFlags.UI;
+            let flags = SceneFlags.BLEND | SceneFlags.UI | SceneFlags.OPAQUE;
             if (this._cameraConfigs.enableProfiler) {
                 flags |= SceneFlags.PROFILER;
                 pass.showStatistics = true;
@@ -1006,12 +1002,16 @@ if (rendering) {
                 pass.addTexture(`ShadowMap${id}`, 'cc_shadowMap');
             }
 
+            const sceneFlags = SceneFlags.BLEND | SceneFlags.OPAQUE | SceneFlags.MASK |
+                (camera.geometryRenderer
+                    ? SceneFlags.GEOMETRY
+                    : SceneFlags.NONE);
             // TODO(zhouzhenglong): Separate OPAQUE and MASK queue
 
             // add opaque and mask queue
             pass.addQueue(QueueHint.NONE) // Currently we put OPAQUE and MASK into one queue, so QueueHint is NONE
                 .addScene(camera,
-                    SceneFlags.OPAQUE | SceneFlags.MASK,
+                    sceneFlags,
                     mainLight || undefined,
                     scene ? scene : undefined);
         }
@@ -1321,20 +1321,6 @@ if (rendering) {
             if (this._cameraConfigs.enableMainLightPlanarShadowMap) {
                 this.addPlanarShadowQueue(camera, mainLight, pass);
             }
-
-            // ----------------------------------------------------------------
-            // Forward Lighting (Blend)
-            // ----------------------------------------------------------------
-            // Add transparent queue
-
-            const sceneFlags = SceneFlags.BLEND |
-                (camera.geometryRenderer
-                    ? SceneFlags.GEOMETRY
-                    : SceneFlags.NONE);
-
-            pass
-                .addQueue(QueueHint.BLEND)
-                .addScene(camera, sceneFlags, mainLight || undefined);
 
             return pass;
         }
