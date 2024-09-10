@@ -167,7 +167,7 @@ function sceneCulling (
         if (!model.enabled || !model.node || (castShadow && !model.castShadow)) {
             continue;
         }
-        if (scene && scene.isCulledByLod(camera, model)) {
+        if (scene.isCulledByLod(camera, model)) {
             continue;
         }
         if (!probe || (probe && probe.probeType === ProbeType.CUBE)) {
@@ -197,15 +197,12 @@ function isBlend (pass: Pass): boolean {
     }
     return bBlend;
 }
-
+const _tempVec3 = new Vec3();
 function computeSortingDepth (camera: Camera, model: Model): number {
     let depth = 0;
     if (model.node) {
-        const  node = model.transform;
-        const tempVec3 = vec3Pool.acquire();
-        const position = Vec3.subtract(tempVec3, node.worldPosition, camera.position);
-        depth = position.dot(camera.forward);
-        vec3Pool.release(tempVec3);
+        Vec3.subtract(_tempVec3, model.worldBounds ? model.worldBounds.center : model.node.worldPosition, camera.position);
+        depth = Vec3.dot(_tempVec3, camera.forward);
     }
     return depth;
 }
@@ -226,6 +223,7 @@ function addRenderObject (
     const subModels = model.subModels;
     const subModelCount = subModels.length;
     const skyboxModel = pSceneData.skybox.model;
+    const depth = computeSortingDepth(camera, model);
     for (let subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
         const subModel = subModels[subModelIdx];
         const passes = subModel.passes;
@@ -234,7 +232,7 @@ function addRenderObject (
         if (probePhase) phaseLayoutId = probeQueue.defaultId;
         for (let passIdx = 0; passIdx < passCount; ++passIdx) {
             if (model === skyboxModel && !subModelIdx && !passIdx && isDrawOpaqueOrMask) {
-                queue.opaqueQueue.add(model, computeSortingDepth(camera, model), subModelIdx, passIdx);
+                queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
                 continue;
             }
             const pass = passes[passIdx];
@@ -244,7 +242,7 @@ function addRenderObject (
                 continue;
             }
             // check scene flags
-            const is_blend = isBlend(pass);
+            const is_blend = pass.blendState.targets[0].blend;
             const isOpaqueOrMask = !is_blend;
             if (!isDrawBlend && is_blend) {
                 // skip transparent object
@@ -262,13 +260,10 @@ function addRenderObject (
                 } else {
                     queue.opaqueInstancingQueue.add(pass, subModel, passIdx);
                 }
+            } else if (is_blend) {
+                queue.transparentQueue.add(model, depth, subModelIdx, passIdx);
             } else {
-                const depth = computeSortingDepth(camera, model);
-                if (is_blend) {
-                    queue.transparentQueue.add(model, depth, subModelIdx, passIdx);
-                } else {
-                    queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
-                }
+                queue.opaqueQueue.add(model, depth, subModelIdx, passIdx);
             }
         }
     }
