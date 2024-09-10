@@ -125,6 +125,10 @@ function isModelVisible (model: Model, visibility: number): boolean {
     return !!(visibility & model.visFlags);
 }
 
+function isVisible (model: Model, visibility: number): boolean {
+    return isNodeVisible(model.node, visibility) || isModelVisible(model, visibility);
+}
+
 function isReflectProbeMask (model: Model): boolean {
     return bool((model.node.layer & REFLECTION_PROBE_DEFAULT_MASK) === model.node.layer || (REFLECTION_PROBE_DEFAULT_MASK & model.visFlags));
 }
@@ -167,33 +171,30 @@ function sceneCulling (
         if (scene.isCulledByLod(camera, model)) {
             continue;
         }
-        if (!probe || (probe && probe.probeType === ProbeType.CUBE)) {
-            if (isNodeVisible(model.node, visibility)
-                || isModelVisible(model, visibility)) {
-                const wBounds = model.worldBounds;
-                // frustum culling
-                if (wBounds && ((!probe && isFrustumVisible(model, camOrLightFrustum, castShadow))
-                    || (probe && isIntersectAABB(wBounds, probe.boundingBox!)))) {
-                    continue;
-                }
-
-                models.push(model);
+        const wBounds = model.worldBounds;
+        if (!probe) {
+            if (!isVisible(model, visibility)) {
+                continue;
             }
+            // frustum culling
+            if (wBounds && isFrustumVisible(model, camOrLightFrustum, castShadow)) {
+                continue;
+            }
+            models.push(model);
+        } else if (probe.probeType === ProbeType.CUBE) {
+            if (!isVisible(model, visibility)) {
+                continue;
+            }
+            if (wBounds && isIntersectAABB(wBounds, probe.boundingBox!)) {
+                continue;
+            }
+            models.push(model);
         } else if (isReflectProbeMask(model)) {
             models.push(model);
         }
     }
 }
 
-function isBlend (pass: Pass): boolean {
-    let bBlend = false;
-    for (const target of pass.blendState.targets) {
-        if (target.blend) {
-            bBlend = true;
-        }
-    }
-    return bBlend;
-}
 const _tempVec3 = new Vec3();
 function computeSortingDepth (camera: Camera, model: Model): number {
     let depth = 0;
