@@ -131,16 +131,13 @@ function isReflectProbeMask (model: Model): boolean {
 
 const transWorldBounds = new AABB();
 function isFrustumVisible (model: Model, frustum: Readonly<Frustum>, castShadow: boolean): boolean {
-    const modelWorldBounds = model.worldBounds;
-    if (!modelWorldBounds) {
-        return false;
-    }
-    transWorldBounds.copy(modelWorldBounds);
+    const modelWorldBounds = model.worldBounds!;
     const shadows = pSceneData.shadows;
-    if (shadows.type === ShadowType.Planar && castShadow) {
+    if (castShadow && shadows.type === ShadowType.Planar) {
         AABB.transform(transWorldBounds, modelWorldBounds, shadows.matLight);
+        return !intersect.aabbFrustum(transWorldBounds, frustum);
     }
-    return !intersect.aabbFrustum(transWorldBounds, frustum);
+    return !intersect.aabbFrustum(modelWorldBounds, frustum);
 }
 
 function isIntersectAABB (lAABB: AABB, rAABB: AABB): boolean {
