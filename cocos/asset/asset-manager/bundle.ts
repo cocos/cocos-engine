@@ -522,11 +522,11 @@ export default class Bundle {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters<((err?: Error | null) => void)>(options, onProgress, onComplete);
 
         opts.bundle = this.name;
-        cclegacy.assetManager.preloadAny({ scene: sceneName }, opts, onProg, (err): void => {
+        cclegacy.assetManager.preloadAny({ scene: sceneName }, opts, onProg, (err, data): void => {
             if (err) {
                 errorID(1210, sceneName, err.message);
             }
-            if (onComp) { onComp(err); }
+            if (onComp) { onComp(err, data); }
         });
     }
 
