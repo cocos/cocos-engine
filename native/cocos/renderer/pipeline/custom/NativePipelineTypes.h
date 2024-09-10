@@ -1432,7 +1432,7 @@ private:
     void collectCullingQueries(const RenderGraph& rg);
     void batchFrustumCulling(const NativePipeline& ppl);
     void batchLightBoundsCulling();
-    void fillRenderQueues(const pipeline::PipelineSceneData& pplSceneData);
+    void fillRenderQueues();
 public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, FrustumCulling> frustumCullings;
     ccstd::pmr::vector<ccstd::vector<const scene::Model*>> frustumCullingResults;

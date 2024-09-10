@@ -617,8 +617,7 @@ void addRenderObject(
 
 } // namespace
 
-void SceneCulling::fillRenderQueues(const pipeline::PipelineSceneData& pplSceneData) {
-    const auto* const skybox = pplSceneData.getSkybox();
+void SceneCulling::fillRenderQueues() {
     for (const auto& [key, targetID] : renderQueueIndex) {
         // native queue target
         CC_EXPECTS(targetID.value < renderQueues.size());
@@ -678,7 +677,7 @@ void SceneCulling::buildRenderQueues(
     collectCullingQueries(rg);
     batchFrustumCulling(ppl);
     batchLightBoundsCulling(); // cull frustum-culling's results by light bounds
-    fillRenderQueues(*ppl.pipelineSceneData);
+    fillRenderQueues();
 }
 
 void SceneCulling::clear() noexcept {
