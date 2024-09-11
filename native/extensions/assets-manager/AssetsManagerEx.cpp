@@ -57,6 +57,8 @@ NS_CC_EXT_BEGIN
 const std::string AssetsManagerEx::VERSION_ID = "@version";
 const std::string AssetsManagerEx::MANIFEST_ID = "@manifest";
 
+AssetsManagerEx* AssetsManagerEx::_assetsManager = nullptr;
+
 // Implementation of AssetsManagerEx
 
 AssetsManagerEx::AssetsManagerEx(const std::string &manifestUrl, const std::string &storagePath) {
@@ -69,6 +71,8 @@ AssetsManagerEx::AssetsManagerEx(const std::string &manifestUrl, const std::stri
 }
 
 void AssetsManagerEx::init(const std::string &manifestUrl, const std::string &storagePath) {
+    _assetsManager = this;
+
     // Init variables
     std::string pointer = StringUtils::format("%p", this);
     _eventName = "__cc_assets_manager_" + pointer;
@@ -110,6 +114,7 @@ AssetsManagerEx::~AssetsManagerEx() {
         CC_SAFE_RELEASE(_tempManifest);
     }
     CC_SAFE_RELEASE(_remoteManifest);
+    _assetsManager = nullptr;
 }
 
 AssetsManagerEx *AssetsManagerEx::create(const std::string &manifestUrl, const std::string &storagePath) {
@@ -421,8 +426,8 @@ bool AssetsManagerEx::decompress(const std::string &filename) {
         // Check if this entry is a directory or a file.
         const size_t filenameLength = strlen(fileName);
         if (fileName[filenameLength - 1] == '/') {
-            //There are not directory entry in some case.
-            //So we need to create directory when decompressing file entry
+            // There are not directory entry in some case.
+            // So we need to create directory when decompressing file entry
             if (!_fileUtils->createDirectory(basename(fullPath))) {
                 // Failed to create directory
                 CC_LOG_DEBUG("AssetsManagerEx : can not create directory %s\n", fullPath.c_str());
@@ -552,7 +557,8 @@ void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, 
             break;
     }
 
-    if (_eventCallback != nullptr) {
+    // If more than one instance is spawned, then the event callback will fail, so a judgment call needs to be made.
+    if (_eventCallback != nullptr && _assetsManager == this) {
         auto *event = ccnew EventAssetsManagerEx(_eventName, this, code, assetId, message, curleCode, curlmCode);
         event->addRef();
         _eventCallback(event);
@@ -648,20 +654,27 @@ void AssetsManagerEx::parseManifest() {
 
             if (_updateEntry == UpdateEntry::DO_UPDATE) {
                 startUpdate();
+                dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
             } else if (_updateEntry == UpdateEntry::CHECK_UPDATE) {
-                prepareUpdate();
+                auto cb = [this]() {
+                    dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
+                };
+                prepareUpdateAsync(cb);
             }
-
-            dispatchUpdateEvent(EventAssetsManagerEx::EventCode::NEW_VERSION_FOUND);
         }
     }
 }
 
 void AssetsManagerEx::prepareUpdate() {
-    if (_updateState != State::NEED_UPDATE) {
+    prepareUpdateAsync();
+}
+
+void AssetsManagerEx::prepareUpdateAsync(const PrepareUpdateFinishedCallback &cb) {
+    // Avoiding multiple function calls.
+    if (_updateState != State::NEED_UPDATE || _updateState == State::PARPER_UPDATING) {
         return;
     }
-
+    _updateState = State::PARPER_UPDATING;
     // Clean up before update
     _failedUnits.clear();
     _downloadUnits.clear();
@@ -673,83 +686,99 @@ void AssetsManagerEx::prepareUpdate() {
     _downloadResumed = false;
     _downloadedSize.clear();
     _totalEnabled = false;
+    std::function<void(void *)> prepareFinished = [this, cb](void *) {
+        _updateState = State::READY_TO_UPDATE;
+        if (cb) {
+            cb();
+        }
+        this->release();
+    };
+    this->addRef();
+    // If there are many diffMap, it will lead to a very time-consuming run. So here it needs to be executed in a thread.
+    AsyncTaskPool::getInstance()->enqueue(AsyncTaskPool::TaskType::TASK_OTHER, prepareFinished, nullptr, [this]() {
+        // Temporary manifest exists, previously updating and equals to the remote version, resuming previous download
+        if (_tempManifest && _tempManifest->isLoaded() && _tempManifest->isUpdating() && _tempManifest->versionEquals(_remoteManifest)) {
+            _tempManifest->saveToFile(_tempManifestPath);
+            _tempManifest->genResumeAssetsList(&_downloadUnits);
+            _totalWaitToDownload = _totalToDownload = static_cast<int>(_downloadUnits.size());
+            _downloadResumed = true;
 
-    // Temporary manifest exists, previously updating and equals to the remote version, resuming previous download
-    if (_tempManifest && _tempManifest->isLoaded() && _tempManifest->isUpdating() && _tempManifest->versionEquals(_remoteManifest)) {
-        _tempManifest->saveToFile(_tempManifestPath);
-        _tempManifest->genResumeAssetsList(&_downloadUnits);
-        _totalWaitToDownload = _totalToDownload = static_cast<int>(_downloadUnits.size());
-        _downloadResumed = true;
-
-        // Collect total size
-        for (const auto &iter : _downloadUnits) {
-            const DownloadUnit &unit = iter.second;
-            if (unit.size > 0) {
-                _totalSize += unit.size;
+            // Collect total size
+            for (const auto &iter : _downloadUnits) {
+                const DownloadUnit &unit = iter.second;
+                if (unit.size > 0) {
+                    _totalSize += unit.size;
+                }
             }
-        }
-    } else {
-        // Temporary manifest exists, but can't be parsed or version doesn't equals remote manifest (out of date)
-        if (_tempManifest) {
-            // Remove all temp files
-            _fileUtils->removeDirectory(_tempStoragePath);
-            CC_SAFE_RELEASE(_tempManifest);
-            // Recreate temp storage path and save remote manifest
-            _fileUtils->createDirectory(_tempStoragePath);
-            _remoteManifest->saveToFile(_tempManifestPath);
-        }
-
-        // Temporary manifest will be used to register the download states of each asset,
-        // in this case, it equals remote manifest.
-        _tempManifest = _remoteManifest;
-
-        // Check difference between local manifest and remote manifest
-        std::unordered_map<std::string, Manifest::AssetDiff> diffMap = _localManifest->genDiff(_remoteManifest);
-        if (diffMap.empty()) {
-            updateSucceed();
-            return;
-        } // Generate download units for all assets that need to be updated or added
-        std::string packageUrl = _remoteManifest->getPackageUrl();
-        // Preprocessing local files in previous version and creating download folders
-        for (auto &it : diffMap) {
-            Manifest::AssetDiff diff = it.second;
-            if (diff.type != Manifest::DiffType::DELETED) {
-                std::string path = diff.asset.path;
-                DownloadUnit unit;
-                unit.customId = it.first;
-                unit.srcUrl = packageUrl + path + "?md5=" + diff.asset.md5;
-                unit.storagePath = _tempStoragePath + path;
-                unit.size = diff.asset.size;
-                _downloadUnits.emplace(unit.customId, unit);
-                _tempManifest->setAssetDownloadState(it.first, Manifest::DownloadState::UNSTARTED);
-                _totalSize += unit.size;
+        } else {
+            //  Temporary manifest exists, but can't be parsed or version doesn't equals remote manifest (out of date)
+            if (_tempManifest) {
+                // Remove all temp files
+                _fileUtils->removeDirectory(_tempStoragePath);
+                CC_SAFE_RELEASE(_tempManifest);
+                // Recreate temp storage path and save remote manifest
+                _fileUtils->createDirectory(_tempStoragePath);
+                _remoteManifest->saveToFile(_tempManifestPath);
             }
-        }
-        // Start updating the temp manifest
-        _tempManifest->setUpdating(true);
-        // Save current download manifest information for resuming
-        _tempManifest->saveToFile(_tempManifestPath);
 
-        _totalWaitToDownload = _totalToDownload = static_cast<int>(_downloadUnits.size());
-    }
-    _updateState = State::READY_TO_UPDATE;
+            // Temporary manifest will be used to register the download states of each asset,
+            // in this case, it equals remote manifest.
+            _tempManifest = _remoteManifest;
+
+            // Check difference between local manifest and remote manifest
+            std::unordered_map<std::string, Manifest::AssetDiff> diffMap = _localManifest->genDiff(_remoteManifest);
+            if (diffMap.empty()) {
+                updateSucceed();
+                return;
+            } // Generate download units for all assets that need to be updated or added
+            std::string packageUrl = _remoteManifest->getPackageUrl();
+            // Preprocessing local files in previous version and creating download folders
+            auto prevTime = std::chrono::steady_clock::now();
+            DownloadUnit unit;
+            for (auto &it : diffMap) {
+                Manifest::AssetDiff diff = it.second;
+                if (diff.type != Manifest::DiffType::DELETED) {
+                    const std::string &path = diff.asset.path;
+                    unit.customId = it.first;
+                    unit.srcUrl = packageUrl + path + "?md5=" + diff.asset.md5;
+                    unit.storagePath = _tempStoragePath + path;
+                    unit.size = diff.asset.size;
+                    _downloadUnits.emplace(unit.customId, unit);
+                    _tempManifest->setAssetDownloadState(it.first, Manifest::DownloadState::UNSTARTED);
+                    _totalSize += unit.size;
+                }
+            }
+            // Start updating the temp manifest
+            _tempManifest->setUpdating(true);
+            // Save current download manifest information for resuming
+            _tempManifest->saveToFile(_tempManifestPath);
+
+            _totalWaitToDownload = _totalToDownload = static_cast<int>(_downloadUnits.size());
+        }
+    });
 }
 
 void AssetsManagerEx::startUpdate() {
-    if (_updateState == State::NEED_UPDATE) {
-        prepareUpdate();
-    }
-    if (_updateState == State::READY_TO_UPDATE) {
-        _totalSize = 0;
-        _updateState = State::UPDATING;
-        std::string msg;
-        if (_downloadResumed) {
-            msg = StringUtils::format("Resuming from previous unfinished update, %d files remains to be finished.", _totalToDownload);
-        } else {
-            msg = StringUtils::format("Start to update %d files from remote package.", _totalToDownload);
+    auto cb = [this]() {
+        if (_updateState == State::READY_TO_UPDATE) {
+            _totalSize = 0;
+            _updateState = State::UPDATING;
+            std::string msg;
+            if (_downloadResumed) {
+                msg = StringUtils::format("Resuming from previous unfinished update, %d files remains to be finished.", _totalToDownload);
+            } else {
+                msg = StringUtils::format("Start to update %d files from remote package.", _totalToDownload);
+            }
+            if (this == _assetsManager) {
+                dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
+                batchDownload();
+            }
         }
-        dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
-        batchDownload();
+    };
+    if (_updateState == State::NEED_UPDATE) {
+        prepareUpdateAsync(cb);
+    } else {
+        cb();
     }
 }
 
