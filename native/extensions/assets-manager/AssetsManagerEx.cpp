@@ -686,7 +686,7 @@ void AssetsManagerEx::prepareUpdateAsync(const PrepareUpdateFinishedCallback &cb
     _downloadResumed = false;
     _downloadedSize.clear();
     _totalEnabled = false;
-    std::function<void(void *)> prepareFinished = [this, cb](void *) {
+    std::function<void(void *)> prepareFinished = [this, cb](void * param) {
         _updateState = State::READY_TO_UPDATE;
         if (cb) {
             cb();

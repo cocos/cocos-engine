@@ -414,7 +414,7 @@ private:
     //! Callback function to dispatch events
     EventCallback _eventCallback = nullptr;
 
-    static AssetsManagerEx *_assetsManager;
+    static AssetsManagerEx *assetsManager;
     //! Marker for whether the assets manager is inited
     bool _inited = false;
 };
