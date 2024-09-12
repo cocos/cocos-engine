@@ -58,7 +58,7 @@ public:
         DOWNLOADING_MANIFEST,
         MANIFEST_LOADED,
         NEED_UPDATE,
-        PARPER_UPDATING,
+        PREPARE_UPDATING,
         READY_TO_UPDATE,
         UPDATING,
         UNZIPPING,

@@ -672,6 +672,7 @@ void AssetsManagerEx::prepareUpdate() {
 void AssetsManagerEx::prepareUpdateAsync(const PrepareUpdateFinishedCallback &cb) {
     // Avoiding multiple function calls.
     if (_updateState != State::NEED_UPDATE || _updateState == State::PREPARE_UPDATING) {
+        CC_LOG_WARNING("The current state does not need to be updated or is being executed.");
         return;
     }
     _updateState = State::PREPARE_UPDATING;
