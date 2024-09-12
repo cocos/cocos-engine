@@ -630,7 +630,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             return;
         }
         const siblings = this._parent._children;
-        index = index !== -1 ? index : siblings.length - 1;
+        index = index >= 0 ? index : siblings.length + index;
         const oldIndex = siblings.indexOf(this);
         if (index !== oldIndex) {
             siblings.splice(oldIndex, 1);

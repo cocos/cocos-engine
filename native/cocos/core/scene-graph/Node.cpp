@@ -353,7 +353,8 @@ void Node::setSiblingIndex(index_t index) {
         return;
     }
     ccstd::vector<IntrusivePtr<Node>> &siblings = _parent->_children;
-    index = index != -1 ? index : static_cast<index_t>(siblings.size()) - 1;
+    index = index >= 0 ? index : static_cast<index_t>(siblings.size()) + index;
+    index = index >= 0 ? index : 0;
     index_t oldIdx = getIdxOfChild(siblings, this);
     if (index != oldIdx) {
         if (oldIdx != CC_INVALID_INDEX) {
