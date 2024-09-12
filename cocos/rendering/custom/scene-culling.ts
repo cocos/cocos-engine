@@ -7,7 +7,7 @@ import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, PointLight
     ReflectionProbe, SKYBOX_FLAG, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
 import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { getSubpassOrPassID, bool, AlignUp, SetLightUBO } from './define';
+import { getSubpassOrPassID, bool, AlignUp, SetLightUBO, hashCombineKey } from './define';
 import { LayoutGraphData } from './layout-graph';
 import { CullingFlags, RenderGraph, RenderGraphValue, SceneData, RenderQueue as RenderQueue0 } from './render-graph';
 import { SceneFlags } from './types';
@@ -47,13 +47,13 @@ function computeCullingKey (
     const lightLevel = sceneData.light.level;
     const reflectProbe = sceneData.light.probe!;
     const shadeLight = sceneData.shadingLight;
-    cullingKeys += `${camera ? objectID(camera) : 0}-`;
-    cullingKeys += `${reflectProbe ? objectID(reflectProbe) : 0}-`;
-    cullingKeys += `${(refId === -1 && light) ? objectID(light) : 0}-`;
-    cullingKeys += `${(refId !== -1 && shadeLight) ? objectID(shadeLight) : 0}-`;
-    cullingKeys += `${refId === -1 ? lightLevel : 0}-`;
-    cullingKeys += `${castShadows ? 1 : 0}-`;
-    cullingKeys += `${refId}`;
+    cullingKeys += hashCombineKey(camera ? objectID(camera) : 0);
+    cullingKeys += hashCombineKey(reflectProbe ? objectID(reflectProbe) : 0);
+    cullingKeys += hashCombineKey((refId === -1 && light) ? objectID(light) : 0);
+    cullingKeys += hashCombineKey((refId !== -1 && shadeLight) ? objectID(shadeLight) : 0);
+    cullingKeys += hashCombineKey(refId === -1 ? lightLevel : 0);
+    cullingKeys += hashCombineKey(castShadows ? 1 : 0);
+    cullingKeys += hashCombineKey(refId);
     return cullingKeys;
 }
 
