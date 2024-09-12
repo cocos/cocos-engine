@@ -57,7 +57,7 @@ NS_CC_EXT_BEGIN
 const std::string AssetsManagerEx::VERSION_ID = "@version";
 const std::string AssetsManagerEx::MANIFEST_ID = "@manifest";
 
-AssetsManagerEx* AssetsManagerEx::_assetsManager = nullptr;
+AssetsManagerEx* AssetsManagerEx::assetsManager = nullptr;
 
 // Implementation of AssetsManagerEx
 
@@ -71,7 +71,7 @@ AssetsManagerEx::AssetsManagerEx(const std::string &manifestUrl, const std::stri
 }
 
 void AssetsManagerEx::init(const std::string &manifestUrl, const std::string &storagePath) {
-    _assetsManager = this;
+    assetsManager = this;
 
     // Init variables
     std::string pointer = StringUtils::format("%p", this);
@@ -114,7 +114,7 @@ AssetsManagerEx::~AssetsManagerEx() {
         CC_SAFE_RELEASE(_tempManifest);
     }
     CC_SAFE_RELEASE(_remoteManifest);
-    _assetsManager = nullptr;
+    assetsManager = nullptr;
 }
 
 AssetsManagerEx *AssetsManagerEx::create(const std::string &manifestUrl, const std::string &storagePath) {
@@ -558,7 +558,7 @@ void AssetsManagerEx::dispatchUpdateEvent(EventAssetsManagerEx::EventCode code, 
     }
 
     // If more than one instance is spawned, then the event callback will fail, so a judgment call needs to be made.
-    if (_eventCallback != nullptr && _assetsManager == this) {
+    if (_eventCallback != nullptr && assetsManager == this) {
         auto *event = ccnew EventAssetsManagerEx(_eventName, this, code, assetId, message, curleCode, curlmCode);
         event->addRef();
         _eventCallback(event);
@@ -769,7 +769,7 @@ void AssetsManagerEx::startUpdate() {
             } else {
                 msg = StringUtils::format("Start to update %d files from remote package.", _totalToDownload);
             }
-            if (this == _assetsManager) {
+            if (this == assetsManager) {
                 dispatchUpdateEvent(EventAssetsManagerEx::EventCode::UPDATE_PROGRESSION, "", msg);
                 batchDownload();
             }
