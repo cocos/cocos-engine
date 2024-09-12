@@ -1006,33 +1006,28 @@ export class RenderInstancingQueue {
     }
 }
 
-export class RenderQueueDesc {
+export class RenderQueueQuery {
     frustumCulledResultID: number;
     lightBoundsCulledResultID: number;
     renderQueueTarget: number;
-    lightType: LightType;
 
     constructor (
         frustumCulledResultID = 0xFFFFFFFF,
         lightBoundsCulledResultID = 0xFFFFFFFF,
         renderQueueTargetIn = 0xFFFFFFFF,
-        lightTypeIn: LightType = LightType.UNKNOWN,
     ) {
         this.frustumCulledResultID = frustumCulledResultID;
         this.lightBoundsCulledResultID = lightBoundsCulledResultID;
         this.renderQueueTarget = renderQueueTargetIn;
-        this.lightType = lightTypeIn;
     }
     update (
         culledSourceIn = 0xFFFFFFFF,
         lightBoundsCulledResultID = 0xFFFFFFFF,
         renderQueueTargetIn = 0xFFFFFFFF,
-        lightTypeIn: LightType = LightType.UNKNOWN,
     ): void {
         this.frustumCulledResultID = culledSourceIn;
         this.lightBoundsCulledResultID = lightBoundsCulledResultID;
         this.renderQueueTarget = renderQueueTargetIn;
-        this.lightType = lightTypeIn;
     }
 }
 
@@ -1042,8 +1037,8 @@ export class RenderQueue {
     transparentQueue: RenderDrawQueue = new RenderDrawQueue();
     opaqueInstancingQueue: RenderInstancingQueue = new RenderInstancingQueue();
     transparentInstancingQueue: RenderInstancingQueue = new RenderInstancingQueue();
+    camera: Camera | null = null;
     sceneFlags: SceneFlags = SceneFlags.NONE;
-    subpassOrPassLayoutID = 0xFFFFFFFF;
     lightByteOffset = 0xFFFFFFFF;
     sort (): void {
         this.opaqueQueue.sortOpaqueOrCutout();
@@ -1058,8 +1053,9 @@ export class RenderQueue {
         this.transparentQueue.clear();
         this.opaqueInstancingQueue.clear();
         this.transparentInstancingQueue.clear();
+        this.camera = null;
         this.sceneFlags = SceneFlags.NONE;
-        this.subpassOrPassLayoutID = 0xFFFFFFFF;
+        this.lightByteOffset = 0xFFFFFFFF;
     }
 
     empty (): boolean {
@@ -1069,12 +1065,15 @@ export class RenderQueue {
         && this.transparentInstancingQueue.empty();
     }
 
-    recordCommands (cmdBuffer: CommandBuffer, renderPass: RenderPass): void {
+    recordCommands (cmdBuffer: CommandBuffer, renderPass: RenderPass, sceneFlags: SceneFlags): void {
         const offsets = this.lightByteOffset === 0xFFFFFFFF ? null : [this.lightByteOffset];
-        this.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
-        this.opaqueInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
-
-        this.transparentInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
-        this.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
+        if (sceneFlags & (SceneFlags.OPAQUE | SceneFlags.MASK)) {
+            this.opaqueQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
+            this.opaqueInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
+        }
+        if (sceneFlags & SceneFlags.BLEND) {
+            this.transparentInstancingQueue.recordCommandBuffer(renderPass, cmdBuffer, null, 0, offsets);
+            this.transparentQueue.recordCommandBuffer(deviceManager.gfxDevice, renderPass, cmdBuffer, null, 0, offsets);
+        }
     }
 }
