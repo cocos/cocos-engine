@@ -34,53 +34,51 @@ import {
     RenderGraphValue,
 } from './render-graph';
 import { AccessType, ResourceResidency, SceneFlags } from './types';
-import { hashCombineNum, hashCombineStr } from './define';
+import { hashCombineKey, hashCombineStr } from './define';
 
 function genHashValue (pass: RasterPass): void {
-    let hashCode = 0;
+    let hashCode = '';
     for (const [name, raster] of pass.rasterViews) {
-        hashCode = hashCombineStr('raster', hashCode);
-        hashCode = hashCombineStr(name, hashCode);
-        hashCode = hashCombineStr(raster.slotName, hashCode);
-        hashCode = hashCombineNum(raster.accessType, hashCode);
-        hashCode = hashCombineNum(raster.attachmentType, hashCode);
-        hashCode = hashCombineNum(raster.loadOp, hashCode);
-        hashCode = hashCombineNum(raster.storeOp, hashCode);
-        hashCode = hashCombineNum(raster.clearFlags, hashCode);
-        hashCode = hashCombineNum(raster.clearColor.x, hashCode);
-        hashCode = hashCombineNum(raster.clearColor.y, hashCode);
-        hashCode = hashCombineNum(raster.clearColor.z, hashCode);
-        hashCode = hashCombineNum(raster.clearColor.w, hashCode);
-        hashCode = hashCombineNum(raster.slotID, hashCode);
-        hashCode = hashCombineNum(raster.shaderStageFlags, hashCode);
+        hashCode += hashCombineKey(name);
+        hashCode += hashCombineKey(raster.slotName);
+        hashCode += hashCombineKey(raster.accessType);
+        hashCode += hashCombineKey(raster.attachmentType);
+        hashCode += hashCombineKey(raster.loadOp);
+        hashCode += hashCombineKey(raster.storeOp);
+        hashCode += hashCombineKey(raster.clearFlags);
+        hashCode += hashCombineKey(raster.clearColor.x);
+        hashCode += hashCombineKey(raster.clearColor.y);
+        hashCode += hashCombineKey(raster.clearColor.z);
+        hashCode += hashCombineKey(raster.clearColor.w);
+        hashCode += hashCombineKey(raster.slotID);
+        hashCode += hashCombineKey(raster.shaderStageFlags);
     }
     for (const [name, computes] of pass.computeViews) {
-        hashCode = hashCombineStr(name, hashCode);
+        hashCode += hashCombineKey(name);
         for (const compute of computes) {
-            hashCode = hashCombineStr('compute', hashCode);
-            hashCode = hashCombineStr(compute.name, hashCode);
-            hashCode = hashCombineNum(compute.accessType, hashCode);
-            hashCode = hashCombineNum(compute.clearFlags, hashCode);
-            hashCode = hashCombineNum(compute.clearValueType, hashCode);
-            hashCode = hashCombineNum(compute.clearValue.x, hashCode);
-            hashCode = hashCombineNum(compute.clearValue.y, hashCode);
-            hashCode = hashCombineNum(compute.clearValue.z, hashCode);
-            hashCode = hashCombineNum(compute.clearValue.w, hashCode);
-            hashCode = hashCombineNum(compute.shaderStageFlags, hashCode);
+            hashCode += hashCombineKey(compute.name);
+            hashCode += hashCombineKey(compute.accessType);
+            hashCode += hashCombineKey(compute.clearFlags);
+            hashCode += hashCombineKey(compute.clearValueType);
+            hashCode += hashCombineKey(compute.clearValue.x);
+            hashCode += hashCombineKey(compute.clearValue.y);
+            hashCode += hashCombineKey(compute.clearValue.z);
+            hashCode += hashCombineKey(compute.clearValue.w);
+            hashCode += hashCombineKey(compute.shaderStageFlags);
         }
     }
-    hashCode = hashCombineNum(pass.width, hashCode);
-    hashCode = hashCombineNum(pass.height, hashCode);
-    hashCode = hashCombineNum(pass.viewport.left, hashCode);
-    hashCode = hashCombineNum(pass.viewport.top, hashCode);
-    hashCode = hashCombineNum(pass.viewport.width, hashCode);
-    hashCode = hashCombineNum(pass.viewport.height, hashCode);
-    hashCode = hashCombineNum(pass.viewport.minDepth, hashCode);
-    hashCode = hashCombineNum(pass.viewport.maxDepth, hashCode);
-    hashCode = hashCombineNum(pass.showStatistics ? 1 : 0, hashCode);
-    pass.hashValue = hashCode;
+    hashCode += hashCombineKey(pass.width);
+    hashCode += hashCombineKey(pass.height);
+    hashCode += hashCombineKey(pass.viewport.left);
+    hashCode += hashCombineKey(pass.viewport.top);
+    hashCode += hashCombineKey(pass.viewport.width);
+    hashCode += hashCombineKey(pass.viewport.height);
+    hashCode += hashCombineKey(pass.viewport.minDepth);
+    hashCode += hashCombineKey(pass.viewport.maxDepth);
+    hashCode += hashCombineKey(pass.showStatistics ? 1 : 0);
+    pass.hashValue = hashCombineStr(hashCode);
 }
-
+const readViews: Map<string, RasterView> = new Map();
 class PassVisitor implements RenderGraphVisitor {
     public queueID = 0xFFFFFFFF;
     public sceneID = 0xFFFFFFFF;
@@ -182,7 +180,7 @@ class PassVisitor implements RenderGraphVisitor {
         }
         const outputId = this.resID;
         const outputName = this.context.resourceGraph.vertexName(outputId);
-        const readViews: Map<string, RasterView> = new Map();
+        readViews.clear();
         const pass = this._currPass! as RasterPass;
         const validPass = rg.getValid(this.passID);
         for (const [readName, raster] of pass.rasterViews) {

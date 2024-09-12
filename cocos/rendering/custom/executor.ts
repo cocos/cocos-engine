@@ -795,7 +795,6 @@ class DeviceRenderPass implements RecordingInterface {
             }
             if (!swapchain) swapchain = resTex.swapchain;
             if (!framebuffer) framebuffer = resTex.framebuffer;
-            const clearFlag = rasterV.clearFlags & 0xffffffff;
             switch (rasterV.attachmentType) {
             case AttachmentType.RENDER_TARGET:
                 {
@@ -809,7 +808,9 @@ class DeviceRenderPass implements RecordingInterface {
                         rasterV.loadOp === LoadOp.LOAD ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                         rasterV.storeOp === StoreOp.STORE ? AccessFlagBit.COLOR_ATTACHMENT_WRITE : AccessFlagBit.NONE,
                     ));
-                    this._clearColor.push(rasterV.clearColor);
+                    const currCol = new Color();
+                    currCol.copy(rasterV.clearColor);
+                    this._clearColor.push(currCol);
                     colors.push(colorAttachment);
                 }
                 break;
@@ -1033,7 +1034,7 @@ class DeviceRenderPass implements RecordingInterface {
         if (currFBDepthTex && !isInsideTexDestroy) {
             isInsideTexDestroy = currFBDepthTex.getTextureHandle() === 0;
         }
-        const needRebuild = (width !== currentWidth) || (height !== currentHeight) || currFramebuffer.needRebuild || isInsideTexDestroy;
+        const needRebuild = width !== currentWidth || height !== currentHeight || currFramebuffer.needRebuild || isInsideTexDestroy;
         for (const [resName, rasterV] of pass.rasterViews) {
             let deviceTex = context.deviceTextures.get(resName)!;
             const currTex = deviceTex;
