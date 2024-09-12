@@ -417,6 +417,7 @@ export class SceneCulling {
                 assert((rq.sceneFlags & this.kFilterMask) === (sceneFlags & this.kFilterMask));
             }
             rq.sceneFlags |= sceneFlags & this.kDrawMask;
+            return renderQueueID;
         }
 
         const targetID = this.numRenderQueues++;
@@ -439,6 +440,7 @@ export class SceneCulling {
             assert(rq.camera === null);
             assert(rq.sceneFlags === SceneFlags.NONE);
             assert(camera !== null);
+            assert(this.renderQueueIndex.size === this.numRenderQueues);
         }
         rq.camera = camera;
         rq.sceneFlags = sceneFlags & this.kAllMask;
