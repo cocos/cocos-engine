@@ -78,7 +78,7 @@ function genHashValue (pass: RasterPass): void {
     hashCode += hashCombineKey(pass.showStatistics ? 1 : 0);
     pass.hashValue = hashCombineStr(hashCode);
 }
-
+const readViews: Map<string, RasterView> = new Map();
 class PassVisitor implements RenderGraphVisitor {
     public queueID = 0xFFFFFFFF;
     public sceneID = 0xFFFFFFFF;
@@ -180,7 +180,7 @@ class PassVisitor implements RenderGraphVisitor {
         }
         const outputId = this.resID;
         const outputName = this.context.resourceGraph.vertexName(outputId);
-        const readViews: Map<string, RasterView> = new Map();
+        readViews.clear();
         const pass = this._currPass! as RasterPass;
         const validPass = rg.getValid(this.passID);
         for (const [readName, raster] of pass.rasterViews) {
