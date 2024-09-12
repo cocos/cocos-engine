@@ -671,10 +671,10 @@ void AssetsManagerEx::prepareUpdate() {
 
 void AssetsManagerEx::prepareUpdateAsync(const PrepareUpdateFinishedCallback &cb) {
     // Avoiding multiple function calls.
-    if (_updateState != State::NEED_UPDATE || _updateState == State::PARPER_UPDATING) {
+    if (_updateState != State::NEED_UPDATE || _updateState == State::PREPARE_UPDATING) {
         return;
     }
-    _updateState = State::PARPER_UPDATING;
+    _updateState = State::PREPARE_UPDATING;
     // Clean up before update
     _failedUnits.clear();
     _downloadUnits.clear();
@@ -687,6 +687,7 @@ void AssetsManagerEx::prepareUpdateAsync(const PrepareUpdateFinishedCallback &cb
     _downloadedSize.clear();
     _totalEnabled = false;
     std::function<void(void *)> prepareFinished = [this, cb](void * param) {
+        CC_UNUSED_PARAM(param);
         _updateState = State::READY_TO_UPDATE;
         if (cb) {
             cb();
