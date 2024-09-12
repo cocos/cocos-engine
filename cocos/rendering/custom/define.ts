@@ -685,22 +685,18 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
     descriptorSet.update();
 }
 
-function hashCombine (hash, currHash: number): number {
-    return currHash ^= (hash >>> 0) + 0x9e3779b9 + (currHash << 6) + (currHash >> 2);
+export function hashCombineKey (val): string {
+    return `${val}-`;
 }
 
-export function hashCombineNum (val: number, currHash: number): number {
-    const hash = 5381;
-    return hashCombine((hash * 33) ^ val, currHash);
-}
-
-export function hashCombineStr (str: string, currHash: number): number {
+export function hashCombineStr (str: string): number {
     // DJB2 HASH
-    let hash = 5381;
+    let hash = 0;
     for (let i = 0; i < str.length; i++) {
-        hash = (hash * 33) ^ str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;// Convert to 32bit integer
     }
-    return hashCombine(hash, currHash);
+    return hash;
 }
 
 export function bool (val): boolean {

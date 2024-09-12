@@ -7,7 +7,7 @@ import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, PointLight
     ReflectionProbe, SKYBOX_FLAG, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
 import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
-import { hashCombineStr, getSubpassOrPassID, bool, AlignUp, SetLightUBO, hashCombineNum } from './define';
+import { getSubpassOrPassID, bool, AlignUp, SetLightUBO } from './define';
 import { LayoutGraphData } from './layout-graph';
 import { CullingFlags, RenderGraph, RenderGraphValue, SceneData, RenderQueue as RenderQueue0 } from './render-graph';
 import { SceneFlags } from './types';
