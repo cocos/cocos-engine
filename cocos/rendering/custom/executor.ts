@@ -1339,11 +1339,11 @@ class DeviceRenderScene implements RecordingInterface {
             this._recordBlit();
             return;
         }
-        const renderQueueDesc = sceneCulling.renderQueueIndex.get(this.sceneID)!;
-        const renderQueue = sceneCulling.renderQueues[renderQueueDesc.renderQueueTarget];
+        const renderQueueQuery = sceneCulling.renderQueueQueryIndex.get(this.sceneID)!;
+        const renderQueue = sceneCulling.renderQueues[renderQueueQuery.renderQueueTarget];
         const graphSceneData = this.sceneData!;
         if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.applyMacro();
-        renderQueue.recordCommands(context.commandBuffer, this._renderPass);
+        renderQueue.recordCommands(context.commandBuffer, this._renderPass, graphSceneData.flags);
         if (bool(graphSceneData.flags & SceneFlags.REFLECTION_PROBE)) renderQueue.probeQueue.removeMacro();
         if (graphSceneData.flags & SceneFlags.GEOMETRY) {
             this.camera!.geometryRenderer?.render(
