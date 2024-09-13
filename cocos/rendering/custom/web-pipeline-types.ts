@@ -903,56 +903,37 @@ export class RenderDrawQueue {
 }
 
 export class RenderInstancingQueue {
-    passInstances: Map<Pass, number> = new Map<Pass, number>();
-    instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
-    sortedBatches: Array<InstancedBuffer> = new Array<InstancedBuffer>();
-
+    /**
+     * @en A set of instanced buffer
+     * @zh Instance 合批缓存集合。
+     */
+    public queue = new Set<InstancedBuffer>();
     empty (): boolean {
-        return this.passInstances.size === 0;
+        return this.queue.size === 0;
     }
 
     add (pass: Pass, subModel: SubModel, passID: number): void {
-        const iter = this.passInstances.get(pass);
-        if (iter === undefined) {
-            const instanceBufferID = this.passInstances.size;
-            if (instanceBufferID >= this.instanceBuffers.length) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this.instanceBuffers.push(new InstancedBuffer(new Pass(cclegacy.director.root)));
-            }
-            this.passInstances.set(pass, instanceBufferID);
-
-            const instanceBuffer = this.instanceBuffers[instanceBufferID];
-            instanceBuffer.pass = pass;
-            const instances = instanceBuffer.instances;
-        }
-
-        const instancedBuffer = this.instanceBuffers[this.passInstances.get(pass)!];
+        const instancedBuffer = pass.getInstancedBuffer();
         instancedBuffer.merge(subModel, passID);
+        this.queue.add(instancedBuffer);
     }
 
     clear (): void {
-        this.sortedBatches.length = 0;
-        this.passInstances.clear();
-        const instanceBuffers = this.instanceBuffers;
-        instanceBuffers.forEach((instance) => {
-            instance.clear();
-        });
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            res.value.clear();
+            res = it.next();
+        }
+        this.queue.clear();
     }
 
-    sort (): void {
-        this.sortedBatches.length = this.passInstances.size;
-        let index = 0;
-        for (const [pass, bufferID] of this.passInstances.entries()) {
-            this.sortedBatches[index++] = this.instanceBuffers[bufferID];
-        }
-    }
+    sort (): void {}
 
     uploadBuffers (cmdBuffer: CommandBuffer): void {
-        for (const [pass, bufferID] of this.passInstances.entries()) {
-            const instanceBuffer = this.instanceBuffers[bufferID];
-            if (instanceBuffer.hasPendingModels) {
-                instanceBuffer.uploadBuffers(cmdBuffer);
-            }
+        const it = this.queue.values(); let res = it.next();
+        while (!res.done) {
+            if (res.value.hasPendingModels) res.value.uploadBuffers(cmdBuffer);
+            res = it.next();
         }
     }
 
@@ -963,7 +944,7 @@ export class RenderInstancingQueue {
         offset = 0,
         dynamicOffsets: number[] | null = null,
     ): void {
-        const renderQueue = this.sortedBatches;
+        const renderQueue = this.queue;
         for (const instanceBuffer of renderQueue) {
             if (!instanceBuffer.hasPendingModels) {
                 continue;
