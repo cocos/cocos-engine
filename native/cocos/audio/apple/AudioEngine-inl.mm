@@ -46,6 +46,7 @@ using namespace cc;
 static ALCdevice *s_ALDevice = nullptr;
 static ALCcontext *s_ALContext = nullptr;
 static AudioEngineImpl *s_instance = nullptr;
+static bool s_hasAudioContext = true;
 
 typedef ALvoid (*alSourceNotificationProc)(ALuint sid, ALuint notificationID, ALvoid *userData);
 typedef ALenum (*alSourceAddNotificationProcPtr)(ALuint sid, ALuint notificationID, alSourceNotificationProc notifyProc, ALvoid *userData);
@@ -105,7 +106,9 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
         [[AVAudioSession sharedInstance] setActive:YES error:&error];
         if (!alcMakeContextCurrent(s_ALContext)) {
             ALOGE("audio context is invalid, need to recreate!");
+            return;
         }
+        s_hasAudioContext = true;
     }
 }
 
@@ -119,6 +122,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
         NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
         if (reason == AVAudioSessionInterruptionTypeBegan) {
             alcMakeContextCurrent(nullptr);
+            s_hasAudioContext = false;
         } else if (reason == AVAudioSessionInterruptionTypeEnded) {
             // When the application goes to background, invoke alcMakeContextCurrent may fail. So a flag is set here to delay the execution
             self.needReactiveContext = true;
@@ -308,7 +312,7 @@ AudioCache *AudioEngineImpl::preload(const ccstd::string &filePath, std::functio
 }
 
 int AudioEngineImpl::play2d(const ccstd::string &filePath, bool loop, float volume) {
-    if (s_ALDevice == nullptr) {
+    if (s_ALDevice == nullptr || !s_hasAudioContext) {
         return AudioEngine::INVALID_AUDIO_ID;
     }
 
