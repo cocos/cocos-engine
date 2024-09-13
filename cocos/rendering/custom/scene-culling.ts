@@ -16,6 +16,8 @@ import { RenderQueue, RenderQueueQuery, instancePool } from './web-pipeline-type
 import { ObjectPool } from './utils';
 import { getUniformBlockSize } from './layout-graph-utils';
 import { WebProgramLibrary } from './web-program-library';
+import { legacyCC } from '../../core/global-exports';
+import type { Director } from '../../game/director';
 
 const vec3Pool = new ObjectPool(() => new Vec3());
 class CullingPools {
@@ -408,7 +410,12 @@ export class SceneCulling {
         return frustumCulledResultID;
     }
 
-    private getOrCreateRenderQueue (renderQueueKey: string, sceneFlags: SceneFlags, camera: Camera | null): number {
+    private getOrCreateRenderQueue (
+        currentFrameContextID: number,
+        renderQueueKey: string,
+        sceneFlags: SceneFlags,
+        camera: Camera | null,
+    ): number {
         const renderQueueID = this.renderQueueIndex.get(renderQueueKey);
         if (renderQueueID !== undefined) {
             const rq = this.renderQueues[renderQueueID];
@@ -430,6 +437,8 @@ export class SceneCulling {
             this.renderQueues.push(renderQueue);
         }
         const rq = this.renderQueues[targetID];
+        // update render queue frame id
+        rq.setCurrentFrameContextID(currentFrameContextID);
 
         // Update render queue index
         this.renderQueueIndex.set(renderQueueKey, targetID);
@@ -449,6 +458,7 @@ export class SceneCulling {
     }
 
     private collectCullingQueries (rg: RenderGraph): void {
+        const frameContextID: number = (legacyCC.director as Director).getTotalFrames();
         for (const v of rg.v()) {
             if (!rg.h(RenderGraphValue.Scene, v) || !rg.getValid(v)) {
                 continue;
@@ -477,7 +487,12 @@ export class SceneCulling {
             );
 
             // Get or create render queue
-            const renderQueueID = this.getOrCreateRenderQueue(renderQueueKey, sceneData.flags, sceneData.camera);
+            const renderQueueID = this.getOrCreateRenderQueue(
+                frameContextID,
+                renderQueueKey,
+                sceneData.flags,
+                sceneData.camera,
+            );
 
             // add render queue query
             const renderQueueQuery = this.cullingPools.renderQueueQueryRecycle.add();

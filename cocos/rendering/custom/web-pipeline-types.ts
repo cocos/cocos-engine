@@ -1,3 +1,4 @@
+import { DEBUG } from 'internal:constants';
 import { Mat4, RecyclePool, IVec4Like, IMat4Like, IVec2Like,
     Color as CoreColor, assert, cclegacy, Quat, Vec4, Vec2, Vec3, toRadian } from '../../core';
 import { Color, CommandBuffer, DescriptorSet, Buffer, Device, PipelineState, RenderPass, Sampler, Texture, deviceManager } from '../../gfx';
@@ -903,9 +904,24 @@ export class RenderDrawQueue {
 }
 
 export class RenderInstancingQueue {
-    passInstances: Map<Pass, number> = new Map<Pass, number>();
-    instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
-    sortedBatches: Array<InstancedBuffer> = new Array<InstancedBuffer>();
+    readonly passInstances: Map<Pass, number> = new Map<Pass, number>();
+    readonly sortedBatches: Array<InstancedBuffer> = new Array<InstancedBuffer>();
+    readonly instanceBuffersArray: Array<Array<InstancedBuffer>> = new Array<Array<InstancedBuffer>>();
+    instanceBuffers: Array<InstancedBuffer>;
+
+    constructor () {
+        for (let i = 0; i < 2; ++i) {
+            this.instanceBuffersArray.push(new Array<InstancedBuffer>());
+        }
+        this.instanceBuffers = this.instanceBuffersArray[0];
+    }
+
+    setCurrentFrameContextID (idx: number): void {
+        if (DEBUG) {
+            assert(idx < this.instanceBuffersArray.length, 'index out of range');
+        }
+        this.instanceBuffers = this.instanceBuffersArray[idx];
+    }
 
     empty (): boolean {
         return this.passInstances.size === 0;
@@ -923,7 +939,11 @@ export class RenderInstancingQueue {
 
             const instanceBuffer = this.instanceBuffers[instanceBufferID];
             instanceBuffer.pass = pass;
-            const instances = instanceBuffer.instances;
+            if (DEBUG) {
+                for (const item of instanceBuffer.instances) {
+                    assert(item.count === 0);
+                }
+            }
         }
 
         const instancedBuffer = this.instanceBuffers[this.passInstances.get(pass)!];
@@ -933,6 +953,7 @@ export class RenderInstancingQueue {
     clear (): void {
         this.sortedBatches.length = 0;
         this.passInstances.clear();
+        // InstanceBuffers can be cleared, since only objects on the cpu side are cleared.
         const instanceBuffers = this.instanceBuffers;
         instanceBuffers.forEach((instance) => {
             instance.clear();
@@ -1063,6 +1084,11 @@ export class RenderQueue {
         && this.transparentQueue.empty()
         && this.opaqueInstancingQueue.empty()
         && this.transparentInstancingQueue.empty();
+    }
+
+    setCurrentFrameContextID (idx: number): void {
+        this.opaqueInstancingQueue.setCurrentFrameContextID(idx);
+        this.transparentInstancingQueue.setCurrentFrameContextID(idx);
     }
 
     recordCommands (cmdBuffer: CommandBuffer, renderPass: RenderPass, sceneFlags: SceneFlags): void {
