@@ -13,3 +13,5 @@ export type { EmbeddedPlayable } from '../../cocos/animation/embedded-player/emb
 export { EmbeddedParticleSystemPlayable } from '../../cocos/animation/embedded-player/embedded-particle-system-player';
 
 export { EmbeddedAnimationClipPlayable } from '../../cocos/animation/embedded-player/embedded-animation-clip-player';
+
+export { EmbeddedEFKComponentPlayable } from '../../cocos/animation/embedded-player/embedded-efkcomponent-player';
