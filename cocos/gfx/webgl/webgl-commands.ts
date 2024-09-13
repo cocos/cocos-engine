@@ -693,8 +693,8 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
         // TODO: The system bug in the TikTok mini-game; once they fix it, a rollback will be necessary.
-        if (!device.textureExclusive[gpuTexture.format]
-            && ((!device.extensions.WEBGL_depth_texture || BYTEDANCE) && FormatInfos[gpuTexture.format].hasDepth)) {
+        if (!device.textureExclusive[gpuTexture.format$]
+            && ((!device.extensions.WEBGL_depth_texture$ || BYTEDANCE) && FormatInfos[gpuTexture.format$].hasDepth)) {
             gpuTexture.glInternalFmt$ = GFXFormatToWebGLInternalFormat(gpuTexture.format$, gl);
             gpuTexture.glRenderbuffer$ = gl.createRenderbuffer();
             if (gpuTexture.size$ > 0) {
