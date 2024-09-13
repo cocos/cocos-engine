@@ -325,7 +325,12 @@ export class SceneCulling {
         this.lightBoundsCullings.clear();
         this.lightBoundsCullingResults.length = 0;
         this.renderQueueIndex.clear();
-        this.renderQueues.length = 0;
+        // update render queue frame id
+        const frameContextID: number = (legacyCC.director as Director).getTotalFrames() % 2;
+        for (const rq of this.renderQueues) {
+            rq.setCurrentFrameContextID(frameContextID);
+            rq.update();
+        }
         this.renderQueueQueryIndex.clear();
         this.numLightBoundsCulling = 0;
         this.numFrustumCulling = 0;
@@ -411,7 +416,6 @@ export class SceneCulling {
     }
 
     private getOrCreateRenderQueue (
-        currentFrameContextID: number,
         renderQueueKey: string,
         sceneFlags: SceneFlags,
         camera: Camera | null,
@@ -420,8 +424,8 @@ export class SceneCulling {
         if (renderQueueID !== undefined) {
             const rq = this.renderQueues[renderQueueID];
             if (DEBUG) {
-                assert(rq.camera === camera);
-                assert((rq.sceneFlags & this.kFilterMask) === (sceneFlags & this.kFilterMask));
+                assert(rq.camera === camera, 'RenderQueue camera mismatch');
+                assert((rq.sceneFlags & this.kFilterMask) === (sceneFlags & this.kFilterMask), 'RenderQueue sceneFlags mismatch');
             }
             rq.sceneFlags |= sceneFlags & this.kDrawMask;
             return renderQueueID;
@@ -432,24 +436,20 @@ export class SceneCulling {
         // renderQueues are not cleared, so we can reuse the space
         // this->renderQueues.size() is more like a capacity
         if (this.numRenderQueues > this.renderQueues.length) {
-            const renderQueue = this.cullingPools.renderQueueRecycle.add();
-            renderQueue.update();
-            this.renderQueues.push(renderQueue);
+            this.renderQueues.push(new RenderQueue());
         }
         const rq = this.renderQueues[targetID];
-        // update render queue frame id
-        rq.setCurrentFrameContextID(currentFrameContextID);
 
         // Update render queue index
         this.renderQueueIndex.set(renderQueueKey, targetID);
 
         // Update render queue
         if (DEBUG) {
-            assert(rq.empty());
-            assert(rq.camera === null);
-            assert(rq.sceneFlags === SceneFlags.NONE);
-            assert(camera !== null);
-            assert(this.renderQueueIndex.size === this.numRenderQueues);
+            assert(rq.empty(), 'RenderQueue is not empty');
+            assert(rq.camera === null, 'RenderQueue camera is not null');
+            assert(rq.sceneFlags === SceneFlags.NONE, 'RenderQueue sceneFlags is not 0');
+            assert(camera !== null, 'Camera is not null');
+            assert(this.renderQueueIndex.size === this.numRenderQueues, 'RenderQueueIndex size mismatch');
         }
         rq.camera = camera;
         rq.sceneFlags = sceneFlags & this.kAllMask;
@@ -458,7 +458,6 @@ export class SceneCulling {
     }
 
     private collectCullingQueries (rg: RenderGraph): void {
-        const frameContextID: number = (legacyCC.director as Director).getTotalFrames();
         for (const v of rg.v()) {
             if (!rg.h(RenderGraphValue.Scene, v) || !rg.getValid(v)) {
                 continue;
@@ -487,12 +486,7 @@ export class SceneCulling {
             );
 
             // Get or create render queue
-            const renderQueueID = this.getOrCreateRenderQueue(
-                frameContextID,
-                renderQueueKey,
-                sceneData.flags,
-                sceneData.camera,
-            );
+            const renderQueueID = this.getOrCreateRenderQueue(renderQueueKey, sceneData.flags, sceneData.camera);
 
             // add render queue query
             const renderQueueQuery = this.cullingPools.renderQueueQueryRecycle.add();
@@ -679,8 +673,8 @@ export class SceneCulling {
             // render queue target
             const renderQueue = this.renderQueues[targetID];
             if (DEBUG) {
-                assert(targetID < this.renderQueues.length);
-                assert(renderQueue.empty());
+                assert(targetID < this.renderQueues.length, `RenderQueue targetID(${targetID}) out of range`);
+                assert(renderQueue.empty(), 'RenderQueue is not empty');
             }
 
             const [frustomCulledResultID, lightBoundsCullingID, phaseLayoutID] = extractRenderQueueKey(key);

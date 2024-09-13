@@ -941,7 +941,7 @@ export class RenderInstancingQueue {
             instanceBuffer.pass = pass;
             if (DEBUG) {
                 for (const item of instanceBuffer.instances) {
-                    assert(item.count === 0);
+                    assert(item.count === 0, `InstancedBuffer is not cleared.`);
                 }
             }
         }
