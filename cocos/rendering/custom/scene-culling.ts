@@ -415,11 +415,7 @@ export class SceneCulling {
         return frustumCulledResultID;
     }
 
-    private getOrCreateRenderQueue (
-        renderQueueKey: string,
-        sceneFlags: SceneFlags,
-        camera: Camera | null,
-    ): number {
+    private getOrCreateRenderQueue (renderQueueKey: string, sceneFlags: SceneFlags, camera: Camera | null): number {
         const renderQueueID = this.renderQueueIndex.get(renderQueueKey);
         if (renderQueueID !== undefined) {
             const rq = this.renderQueues[renderQueueID];
