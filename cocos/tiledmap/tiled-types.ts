@@ -28,7 +28,7 @@ import { ccenum } from '../core/value-types/enum';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 import { Texture2D } from '../asset/assets';
 
-export type PropertiesInfo = { [key: string]: number | string };
+export interface PropertiesInfo { [key: string]: number | string }
 export type TiledAnimationType = Map<GID, TiledAnimation>;
 
 export interface TiledAnimation {
@@ -378,7 +378,7 @@ export class TMXTilesetInfo {
 
     collection = false;
 
-    rectForGID (gid_: MixedGID | GID, result?: TiledGrid): Rect | TiledGrid {
+    rectForGID (gid_: number, result?: TiledGrid): Rect | TiledGrid {
         const rect = result || new Rect(0, 0, 0, 0);
         rect.width = this._tileSize.width;
         rect.height = this._tileSize.height;

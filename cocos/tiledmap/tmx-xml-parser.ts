@@ -204,7 +204,13 @@ export class TMXMapInfo {
 
     protected _imageLayerSPF: { [key: string]: SpriteFrame } | null = null;
 
-    constructor (tmxFile: string, tsxContentMap: { [key: string]: string }, spfTexturesMap: { [key: string]: SpriteFrame }, textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }) {
+    constructor (
+        tmxFile: string,
+        tsxContentMap: { [key: string]: string },
+        spfTexturesMap: { [key: string]: SpriteFrame },
+        textureSizes: { [key: string]: Size },
+        imageLayerTextures: { [key: string]: SpriteFrame },
+    ) {
         this.initWithXML(tmxFile, tsxContentMap, spfTexturesMap, textureSizes, imageLayerTextures);
     }
 
@@ -495,8 +501,13 @@ export class TMXMapInfo {
      * @param {Object} spfTextureMap
      * @return {Boolean}
      */
-    initWithXML (tmxString: string, tsxMap: { [key: string]: string }, spfTextureMap: { [key: string]: SpriteFrame },
-        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }): HTMLElement {
+    initWithXML (
+        tmxString: string,
+        tsxMap: { [key: string]: string },
+        spfTextureMap: { [key: string]: SpriteFrame },
+        textureSizes: { [key: string]: Size },
+        imageLayerTextures: { [key: string]: SpriteFrame },
+    ): HTMLElement {
         this._tilesets.length = 0;
         this._layers.length = 0;
         this._imageLayers.length = 0;
@@ -674,9 +685,9 @@ export class TMXMapInfo {
                                     tileset.imageName = shortName;
                                     tileset.sourceImage = this._spriteFrameMap![shortName];
                                     if (!tileset.sourceImage) {
-                                        console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
+                                        // console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
                                         errorID(7221, curImageName);
-                                        console.warn(`Please try asset type of ${curImageName} to 'sprite-frame'`);
+                                        // console.warn(`Please try asset type of ${curImageName} to 'sprite-frame'`);
                                     }
                                 }
                             }
@@ -729,7 +740,7 @@ export class TMXMapInfo {
                                 tileset.sourceImage = this._spriteFrameMap![shortName];
                                 if (!tileset.sourceImage) {
                                     errorID(7221, imageName);
-                                    console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                    // console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
                                 }
                             }
                         }
@@ -817,7 +828,7 @@ export class TMXMapInfo {
 
         if (!imageLayer.sourceImage) {
             errorID(7221, source!);
-            console.warn(`Please try asset type of ${source} to 'sprite-frame'`);
+            // console.warn(`Please try asset type of ${source} to 'sprite-frame'`);
             return null;
         }
         return imageLayer;
@@ -865,7 +876,7 @@ export class TMXMapInfo {
             break;
         case 'zlib': {
             const inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
-            tiles = uint8ArrayToUint32Array(inflator.decompress());
+            tiles = uint8ArrayToUint32Array(inflator.decompress() as Uint8Array);
             break;
         }
         case null:
@@ -888,7 +899,7 @@ export class TMXMapInfo {
             break;
         }
         if (tiles) {
-            layer.tiles = new Uint32Array(tiles);
+            layer.tiles = new Uint32Array(tiles as Iterable<number>);
         }
 
         // The parent element is the last layer
