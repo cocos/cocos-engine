@@ -102,7 +102,6 @@ export class AudioContextAgent {
                 }
             } catch (err) {
                 console.error('runContext error:', err);
-                // 这里可以添加错误处理逻辑，比如提示用户或者重试操作
             }
             if (context.state === 'running') {
                 resolve();
