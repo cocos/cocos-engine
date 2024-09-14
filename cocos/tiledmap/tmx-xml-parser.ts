@@ -105,13 +105,13 @@ function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
 
         let value = element.getAttribute('value');
         if (type === 'int') {
-            value = parseInt(value);
+            value = parseInt(value as string);
         } else if (type === 'float') {
-            value = parseFloat(value);
+            value = parseFloat(value as string);
         } else if (type === 'bool') {
             value = value === 'true';
         } else if (type === 'color') {
-            value = strToColor(value);
+            value = strToColor(value as string);
         }
 
         map![name] = value;
@@ -204,8 +204,12 @@ export class TMXMapInfo {
 
     protected _imageLayerSPF: { [key: string]: SpriteFrame } | null = null;
 
-    constructor (tmxFile: string, tsxContentMap: { [key: string]: string }, spfTexturesMap: { [key: string]: SpriteFrame },
-        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }) {
+    constructor (
+        tmxFile: string,
+        tsxContentMap: { [key: string]: string },
+        spfTexturesMap: { [key: string]: SpriteFrame },
+        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }
+    ) {
         this.initWithXML(tmxFile, tsxContentMap, spfTexturesMap, textureSizes, imageLayerTextures);
     }
 
