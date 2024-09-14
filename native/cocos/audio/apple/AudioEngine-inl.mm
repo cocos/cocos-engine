@@ -46,7 +46,7 @@ using namespace cc;
 static ALCdevice *s_ALDevice = nullptr;
 static ALCcontext *s_ALContext = nullptr;
 static AudioEngineImpl *s_instance = nullptr;
-static bool s_hasAudioContext = true;
+static bool s_isAudioContextValid = true;
 
 typedef ALvoid (*alSourceNotificationProc)(ALuint sid, ALuint notificationID, ALvoid *userData);
 typedef ALenum (*alSourceAddNotificationProcPtr)(ALuint sid, ALuint notificationID, alSourceNotificationProc notifyProc, ALvoid *userData);
@@ -108,7 +108,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
             ALOGE("audio context is invalid, need to recreate!");
             return;
         }
-        s_hasAudioContext = true;
+        s_isAudioContextValid = true;
     }
 }
 
@@ -122,7 +122,7 @@ static ALenum alSourceAddNotificationExt(ALuint sid, ALuint notificationID, alSo
         NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
         if (reason == AVAudioSessionInterruptionTypeBegan) {
             alcMakeContextCurrent(nullptr);
-            s_hasAudioContext = false;
+            s_isAudioContextValid = false;
         } else if (reason == AVAudioSessionInterruptionTypeEnded) {
             // When the application goes to background, invoke alcMakeContextCurrent may fail. So a flag is set here to delay the execution
             self.needReactiveContext = true;
