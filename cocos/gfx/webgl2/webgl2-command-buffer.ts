@@ -38,7 +38,7 @@ import { PipelineState } from '../base/pipeline-state';
 import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
-import { WebGL2CommandAllocator } from './webgl2-command-allocator';
+
 import {
     WebGL2Cmd,
     WebGL2CmdBeginRenderPass,
@@ -46,7 +46,6 @@ import {
     WebGL2CmdBlitTexture,
     WebGL2CmdCopyBufferToTexture,
     WebGL2CmdDraw,
-    WebGL2CmdPackage,
     WebGL2CmdUpdateBuffer,
 } from './webgl2-commands';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
@@ -63,9 +62,6 @@ import { WebGL2DeviceManager } from './webgl2-define';
 import { error, errorID } from '../../core';
 
 export class WebGL2CommandBuffer extends CommandBuffer {
-    public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
-
-    protected _cmdAllocator: WebGL2CommandAllocator = new WebGL2CommandAllocator();
     protected _isInRenderPass = false;
     protected _curGPUPipelineState: IWebGL2GPUPipelineState | null = null;
     protected _curGPUDescriptorSets: IWebGL2GPUDescriptorSet[] = [];
@@ -85,11 +81,10 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public destroy (): void {
-        this._cmdAllocator.clearCmds(this.cmdPackage);
+
     }
 
     public begin (renderPass?: RenderPass, subpass?: number, frameBuffer?: Framebuffer): void {
-        this._cmdAllocator.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
         this._curGPUDescriptorSets.length = 0;

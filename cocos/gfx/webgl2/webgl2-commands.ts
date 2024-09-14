@@ -735,50 +735,6 @@ export class WebGL2CmdBlitTexture extends WebGL2CmdObject {
     }
 }
 
-export class WebGL2CmdPackage {
-    public cmds: CachedArray<WebGL2Cmd> = new CachedArray(1);
-    public beginRenderPassCmds: CachedArray<WebGL2CmdBeginRenderPass> = new CachedArray(1);
-    public bindStatesCmds: CachedArray<WebGL2CmdBindStates> = new CachedArray(1);
-    public drawCmds: CachedArray<WebGL2CmdDraw> = new CachedArray(1);
-    public updateBufferCmds: CachedArray<WebGL2CmdUpdateBuffer> = new CachedArray(1);
-    public copyBufferToTextureCmds: CachedArray<WebGL2CmdCopyBufferToTexture> = new CachedArray(1);
-    public blitTextureCmds: CachedArray<WebGL2CmdBlitTexture> = new CachedArray(1);
-
-    public clearCmds (allocator: WebGL2CommandAllocator): void {
-        if (this.beginRenderPassCmds.length) {
-            allocator.beginRenderPassCmdPool.freeCmds(this.beginRenderPassCmds);
-            this.beginRenderPassCmds.clear();
-        }
-
-        if (this.bindStatesCmds.length) {
-            allocator.bindStatesCmdPool.freeCmds(this.bindStatesCmds);
-            this.bindStatesCmds.clear();
-        }
-
-        if (this.drawCmds.length) {
-            allocator.drawCmdPool.freeCmds(this.drawCmds);
-            this.drawCmds.clear();
-        }
-
-        if (this.updateBufferCmds.length) {
-            allocator.updateBufferCmdPool.freeCmds(this.updateBufferCmds);
-            this.updateBufferCmds.clear();
-        }
-
-        if (this.copyBufferToTextureCmds.length) {
-            allocator.copyBufferToTextureCmdPool.freeCmds(this.copyBufferToTextureCmds);
-            this.copyBufferToTextureCmds.clear();
-        }
-
-        if (this.blitTextureCmds.length) {
-            allocator.blitTextureCmdPool.freeCmds(this.blitTextureCmds);
-            this.blitTextureCmds.clear();
-        }
-
-        this.cmds.clear();
-    }
-}
-
 export function WebGL2CmdFuncCreateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer): void {
     const { gl } = device;
     const cache = device.stateCache;

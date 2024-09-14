@@ -32,15 +32,15 @@ import { IWebGL2GPUSampler } from '../webgl2-gpu-objects';
 
 export class WebGL2Sampler extends Sampler {
     public get gpuSampler (): IWebGL2GPUSampler {
-        return  this._gpuSampler!;
+        return  this._gpuSampler$!;
     }
 
-    private _gpuSampler: IWebGL2GPUSampler | null = null;
+    private _gpuSampler$: IWebGL2GPUSampler | null = null;
 
     constructor (info: Readonly<SamplerInfo>, hash: number) {
         super(info, hash);
 
-        this._gpuSampler = {
+        this._gpuSampler$ = {
             glSamplers: new Map<number, WebGL2Sampler>(),
             minFilter: this._info$.minFilter,
             magFilter: this._info$.magFilter,
@@ -76,13 +76,13 @@ export class WebGL2Sampler extends Sampler {
             },
         };
 
-        WebGL2CmdFuncPrepareSamplerInfo(WebGL2DeviceManager.instance, this._gpuSampler);
+        WebGL2CmdFuncPrepareSamplerInfo(WebGL2DeviceManager.instance, this._gpuSampler$);
     }
 
     destroy (): void {
-        if (this._gpuSampler) {
-            WebGL2CmdFuncDestroySampler(WebGL2DeviceManager.instance, this._gpuSampler);
-            this._gpuSampler = null;
+        if (this._gpuSampler$) {
+            WebGL2CmdFuncDestroySampler(WebGL2DeviceManager.instance, this._gpuSampler$);
+            this._gpuSampler$ = null;
         }
     }
 }
