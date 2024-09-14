@@ -944,7 +944,7 @@ export class TMXMapInfo {
 
                 objectProp.rotation = parseFloat(selObj.getAttribute('rotation')!) || 0;
 
-                getPropertyList(selObj, objectProp as any);
+                objectProp.properties = getPropertyList(selObj);
 
                 // visible
                 const visibleAttr = selObj.getAttribute('visible');

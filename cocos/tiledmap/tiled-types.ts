@@ -441,6 +441,7 @@ export class TMXObjectGroupInfo {
 }
 
 export interface TMXObject {
+    properties: PropertiesInfo;
     id: number | string;
     name: string;
     width: number;
