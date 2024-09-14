@@ -95,7 +95,15 @@ export class AudioContextAgent {
                 resolve();
                 return;
             }
-            context.resume().catch((e) => { debug.warn('runContext error', e); });
+            try {
+                // only state is suspended can involve resume function
+                if (context.state === 'suspended') {
+                    context.resume();
+                }
+            } catch (err) {
+                console.error('runContext error:', err);
+                // 这里可以添加错误处理逻辑，比如提示用户或者重试操作
+            }
             if (context.state === 'running') {
                 resolve();
                 return;
