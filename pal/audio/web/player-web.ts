@@ -95,13 +95,9 @@ export class AudioContextAgent {
                 resolve();
                 return;
             }
-            try {
-                // only state is suspended can involve resume function
-                if (context.state === 'suspended') {
-                    context.resume();
-                }
-            } catch (err) {
-                console.error('runContext error:', err);
+            // only state is suspended can involve resume function
+            if (context.state === 'suspended') {
+                context.resume().catch((e) => { debug.warn('runContext error', e); });
             }
             if (context.state === 'running') {
                 resolve();
