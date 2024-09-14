@@ -511,7 +511,6 @@ describe(`Node`, () => {
     test ('setWorldScale', ()=> {
         let parent = new Node();
 
-        // rotate 30 degrees around x axis
         parent.setScale(2, 3, 4);
 
         let son = new Node();
@@ -521,6 +520,159 @@ describe(`Node`, () => {
         son.setWorldScale(1, 1, 1);
 
         expect(son.getScale()).toEqual(new Vec3(1/2, 1/3, 1/4));
+    });
+
+    test ('setWorldScale(0, 0, 0)', ()=> {
+        let parent = new Node();
+
+        parent.setScale(2, 2, 2);
+
+        let son = new Node();
+        son.parent = parent;
+        son.updateWorldTransform();
+
+        son.setWorldScale(0, 0, 0);
+        expect(son.scale).toEqual(new Vec3(0, 0, 0));
+        expect(son.worldScale).toEqual(new Vec3(0, 0, 0));
+        expect(son.worldMatrix).toEqual(new Mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1));
+
+        son.setWorldScale(1, 1, 1);
+        expect(son.scale).toEqual(new Vec3(0.5, 0.5, 0.5));
+        expect(son.worldScale).toEqual(new Vec3(1, 1, 1));
+        expect(son.worldMatrix).toEqual(new Mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1));
+
+        son.setWorldScale(2, 2, 2);
+        expect(son.scale).toEqual(new Vec3(1, 1, 1));
+        expect(son.worldScale).toEqual(new Vec3(2, 2, 2));
+        expect(son.worldMatrix).toEqual(new Mat4(2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1));
+
+        son.setWorldScale(0, 0, 0);
+        expect(son.scale).toEqual(new Vec3(0, 0, 0));
+        expect(son.worldScale).toEqual(new Vec3(0, 0, 0));
+        expect(son.worldMatrix).toEqual(new Mat4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1));
+
+    });
+
+    test ('setWorldScale(0, 0, 0) and rotation', ()=> {
+        let parent = new Node();
+
+        parent.setScale(2, 2, 2);
+
+        let son = new Node();
+        son.setRotationFromEuler(10, 0, 0);
+        son.parent = parent;
+        son.updateWorldTransform();
+        expect(son.scale.equals(new Vec3(1, 1, 1))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(2, 2, 2))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            2, 0, 0, 0,
+            0, 1.969615506024416, 0.34729635533386066, 0,
+            0, -0.34729635533386066, 1.969615506024416, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+
+        son.setWorldScale(0, 0, 0);
+        expect(son.scale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(0, 0, 0))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+
+        son.setWorldScale(2, 2, 2);
+        expect(son.scale.equals(new Vec3(1, 1, 1))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(2, 2, 2))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            2, 0, 0, 0,
+            0, 1.969615506024416, 0.34729635533386066, 0,
+            0, -0.34729635533386066, 1.969615506024416, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+
+        son.setWorldScale(1, 1, 1);
+        expect(son.scale.equals(new Vec3(0.5, 0.5, 0.5))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(1, 1, 1))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            1, 0, 0, 0,
+            0, 0.984807753012208, 0.17364817766693033, 0,
+            0, -0.17364817766693033, 0.984807753012208, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+
+    });
+
+    test ('setWorldScale(0, y, z) and rotation', ()=> {
+        let parent = new Node();
+
+        parent.setScale(2, 2, 2);
+
+        let son = new Node();
+        son.setRotationFromEuler(10, 10, 10);
+        son.parent = parent;
+        son.updateWorldTransform();
+        expect(son.scale.equals(new Vec3(1, 1, 1))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(2, 2, 2))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            1.9396926207859084, 0.3472963553338607, -0.3420201433256687, 0,
+            -0.2765167096193736, 1.9396926207859084, 0.40141131793955337, 0,
+            0.40141131793955337, -0.3420201433256687, 1.9292203542855129, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+
+        son.setWorldScale(0, 2, 2);
+        expect(son.scale.equals(new Vec3(0, 1, 1))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(0, 2, 2))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            0, 0, 0, 0,
+            -0.2765167096193736, 1.9396926207859084, 0.40141131793955337, 0,
+            0.40141131793955337, -0.3420201433256687, 1.9292203542855129, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+
+        expect(son.rotation.equals(new Quat(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627))).toBeTruthy();
+        expect(son.worldRotation.equals(new Quat(0, 0, 0, 1))).toBeTruthy(); // Could not decompose rotation in Mat4.toSRT since there is a axis is zero, so the rotation will be reset to unit quaternion.
+
+        son.setRotationFromEuler(20, 20, 20);
+        expect(son.rotation.equals(new Quat(0.1981076317236749, 0.1981076317236749, 0.1387164571097902, 0.9498760324550678))).toBeTruthy();
+        expect(son.worldRotation.equals(new Quat(0, 0, 0, 1))).toBeTruthy();
+
+        son.setRotationFromEuler(10, 10, 10);
+        expect(son.rotation.equals(new Quat(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627))).toBeTruthy();
+        expect(son.worldRotation.equals(new Quat(0, 0, 0, 1))).toBeTruthy();
+
+        son.setWorldScale(1, 1, 1);
+        expect(son.scale.equals(new Vec3(0.5, 0.5, 0.5))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(1, 1, 1))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            0.9698463103929542, 0.17364817766693036, -0.17101007166283436, 0,
+            -0.1382583548096868, 0.9698463103929542, 0.20070565896977668, 0,
+            0.20070565896977668, -0.17101007166283436, 0.9646101771427564, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+        expect(son.rotation.equals(new Quat(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627))).toBeTruthy();
+        expect(son.worldRotation.equals(new Quat(0.09406091491321403, 0.09406091491321403, 0.07892647901187543, 0.9879654343559627))).toBeTruthy();
+
+        son.setWorldScale(2, 0, 0);
+        expect(son.scale.equals(new Vec3(1, 0, 0))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(2, 0, 0))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            1.9396926207859084, 0.3472963553338607, -0.3420201433256687, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
+
+        son.setWorldScale(2, 2, 2);
+        expect(son.scale.equals(new Vec3(1, 1, 1))).toBeTruthy();
+        expect(son.worldScale.equals(new Vec3(2, 2, 2))).toBeTruthy();
+        expect(son.worldMatrix.equals(new Mat4(
+            1.9396926207859084, 0.3472963553338607, -0.3420201433256687, 0,
+            -0.2765167096193736, 1.9396926207859084, 0.40141131793955337, 0,
+            0.40141131793955337, -0.3420201433256687, 1.9292203542855129, 0,
+            0, 0, 0, 1
+        ))).toBeTruthy();
     });
 
     test ('angle', ()=> {

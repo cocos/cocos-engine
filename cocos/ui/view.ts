@@ -29,7 +29,7 @@ import '../core/data/class';
 import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Eventify } from '../core/event';
-import { Rect, Size, Vec2 } from '../core/math';
+import { rect, Rect, size, Size, Vec2 } from '../core/math';
 import { visibleRect, cclegacy, errorID, screen, macro, System, assert } from '../core';
 import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
@@ -52,7 +52,7 @@ import { Settings, settings } from '../core/settings';
  * 引擎会自动初始化它的单例对象 [[view]]，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
  */
 
-const localWinSize = new Size();
+const localWinSize = size();
 
 const orientationMap = {
     [macro.ORIENTATION_AUTO]: Orientation.AUTO,
@@ -65,42 +65,28 @@ export class View extends Eventify(System) {
     /**
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
-    public _designResolutionSize: Size;
+    public _designResolutionSize: Size = size(0, 0); // resolution size, it is the size appropriate for the app resources.
 
-    private _scaleX: number;
-    private _scaleY: number;
-    private _viewportRect: Rect;
-    private _visibleRect: Rect;
-    private _autoFullScreen: boolean;
-    private _retinaEnabled: boolean;
-    private _resizeCallback: (() => void) | null;
-    private _resolutionPolicy: ResolutionPolicy;
-    private _rpExactFit: ResolutionPolicy;
-    private _rpShowAll: ResolutionPolicy;
-    private _rpNoBorder: ResolutionPolicy;
-    private _rpFixedHeight: ResolutionPolicy;
-    private _rpFixedWidth: ResolutionPolicy;
+    private _scaleX: number = 1;
+    private _scaleY: number = 1;
+    private _viewportRect: Rect = rect(); // Viewport is the container's rect related to content's coordinates in pixel
+    private _visibleRect: Rect = rect(); // The visible rect in content's coordinate in point
+    private _autoFullScreen: boolean = false; // Auto full screen disabled by default
+    private _retinaEnabled: boolean = false; // Retina disabled by default
+    private _resizeCallback: (() => void) | null = null; // Custom callback for resize event
+    private declare _resolutionPolicy: ResolutionPolicy;
+
+    private declare _rpExactFit: ResolutionPolicy;
+    private declare _rpShowAll: ResolutionPolicy;
+    private declare _rpNoBorder: ResolutionPolicy;
+    private declare _rpFixedHeight: ResolutionPolicy;
+    private declare _rpFixedWidth: ResolutionPolicy;
 
     constructor () {
         super();
 
         const _strategyer = ContainerStrategy;
         const _strategy = ContentStrategy;
-
-        // resolution size, it is the size appropriate for the app resources.
-        this._designResolutionSize = new Size(0, 0);
-        this._scaleX = 1;
-        this._scaleY = 1;
-        // Viewport is the container's rect related to content's coordinates in pixel
-        this._viewportRect = new Rect(0, 0, 0, 0);
-        // The visible rect in content's coordinate in point
-        this._visibleRect = new Rect(0, 0, 0, 0);
-        // Auto full screen disabled by default
-        this._autoFullScreen = false;
-        // Retina disabled by default
-        this._retinaEnabled = false;
-        // Custom callback for resize event
-        this._resizeCallback = null;
 
         // Setup system default resolution policies
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
@@ -697,15 +683,18 @@ class ContainerStrategy {
  * @class ContentStrategy
  */
 class ContentStrategy {
-    public static EXACT_FIT: ExactFit;
-    public static SHOW_ALL: ShowAll;
-    public static NO_BORDER: NoBorder;
-    public static FIXED_HEIGHT: FixedHeight;
-    public static FIXED_WIDTH: FixedWidth;
+    public declare static EXACT_FIT: ExactFit;
+    public declare static SHOW_ALL: ShowAll;
+    public declare static NO_BORDER: NoBorder;
+    public declare static FIXED_HEIGHT: FixedHeight;
+    public declare static FIXED_WIDTH: FixedWidth;
 
     public name = 'ContentStrategy';
 
-    private _result: AdaptResult;
+    private _result: AdaptResult = {
+        scale: [1, 1],
+        viewport: null,
+    };
     protected _strategy = ResolutionPolicy.UNKNOWN;
 
     get strategy (): number {
@@ -713,10 +702,6 @@ class ContentStrategy {
     }
 
     constructor () {
-        this._result = {
-            scale: [1, 1],
-            viewport: null,
-        };
     }
 
     /**
@@ -781,6 +766,11 @@ class ContentStrategy {
  */
 class EqualToFrame extends ContainerStrategy {
     public name = 'EqualToFrame';
+
+    constructor () {
+        super();
+    }
+
     public apply (_view, designedResolution): void {
         screenAdapter.isProportionalToFrame = false;
         this._setupCanvas();
@@ -793,6 +783,10 @@ class EqualToFrame extends ContainerStrategy {
      */
 class ProportionalToFrame extends ContainerStrategy {
     public name = 'ProportionalToFrame';
+    constructor () {
+        super();
+    }
+
     public apply (_view, designedResolution): void {
         screenAdapter.isProportionalToFrame = true;
         this._setupCanvas();
@@ -996,8 +990,8 @@ export class ResolutionPolicy {
 
     public name = 'ResolutionPolicy';
 
-    private _containerStrategy: ContainerStrategy;
-    private _contentStrategy: ContentStrategy;
+    private declare _containerStrategy: ContainerStrategy;
+    private declare _contentStrategy: ContentStrategy;
 
     /**
      * Constructor of ResolutionPolicy

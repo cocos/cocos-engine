@@ -38,6 +38,7 @@ import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 import { WebGL2DeviceManager } from './webgl2-define';
+import { errorID } from '../../core/platform/debug';
 
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     public beginRenderPass (
@@ -52,7 +53,10 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
             WebGL2DeviceManager.instance,
             (renderPass as WebGL2RenderPass).gpuRenderPass,
             (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
-            renderArea, clearColors, clearDepth, clearStencil,
+            renderArea,
+            clearColors,
+            clearDepth,
+            clearStencil,
         );
         this._isInRenderPass = true;
     }
@@ -86,7 +90,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 }
             }
         } else {
-            console.error('Command \'draw\' must be recorded inside a render pass.');
+            errorID(16328);
         }
     }
 
@@ -138,7 +142,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 WebGL2CmdFuncUpdateBuffer(WebGL2DeviceManager.instance, gpuBuffer, data as ArrayBuffer, 0, buffSize);
             }
         } else {
-            console.error('Command \'updateBuffer\' must be recorded outside a render pass.');
+            errorID(16329);
         }
     }
 
@@ -149,7 +153,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
                 WebGL2CmdFuncCopyBuffersToTexture(WebGL2DeviceManager.instance, buffers, gpuTexture, regions);
             }
         } else {
-            console.error('Command \'copyBufferToTexture\' must be recorded outside a render pass.');
+            errorID(16330);
         }
     }
 
@@ -165,8 +169,14 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     protected bindStates (): void {
-        WebGL2CmdFuncBindStates(WebGL2DeviceManager.instance, this._curGPUPipelineState, this._curGPUInputAssembler,
-            this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
+        WebGL2CmdFuncBindStates(
+            WebGL2DeviceManager.instance,
+            this._curGPUPipelineState,
+            this._curGPUInputAssembler,
+            this._curGPUDescriptorSets,
+            this._curDynamicOffsets,
+            this._curDynamicStates,
+        );
         this._isStateInvalied = false;
     }
 

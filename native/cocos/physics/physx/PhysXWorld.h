@@ -156,7 +156,7 @@ private:
     physx::PxDefaultCpuDispatcher *_mDispatcher;
     physx::PxScene *_mScene;
     PhysXEventManager *_mEventMgr;
-    uint32_t _mCollisionMatrix[31];
+    uint32_t _mCollisionMatrix[31] = {0};
     ccstd::vector<PhysXSharedBody *> _mSharedBodies;
     ccstd::vector<PhysXCharacterController *> _mCCTs;
 

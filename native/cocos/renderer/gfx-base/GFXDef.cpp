@@ -248,6 +248,16 @@ bool operator==(const BufferBarrierInfo &lhs, const BufferBarrierInfo &rhs) {
     return !memcmp(&lhs, &rhs, sizeof(BufferBarrierInfo));
 }
 
+template <>
+ccstd::hash_t Hasher<Color>::operator()(const Color &info) const {
+    ccstd::hash_t seed = 0;
+    ccstd::hash_combine(seed, info.x);
+    ccstd::hash_combine(seed, info.y);
+    ccstd::hash_combine(seed, info.z);
+    ccstd::hash_combine(seed, info.w);
+    return seed;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 bool operator==(const Viewport &lhs, const Viewport &rhs) {

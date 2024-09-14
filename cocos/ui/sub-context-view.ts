@@ -106,25 +106,20 @@ export class SubContextView extends Component {
 
     @serializable
     private _fps = 60;
-    private _sprite: Sprite | null;
-    private _imageAsset: ImageAsset;
-    private _texture: Texture2D;
+    private _sprite: Sprite | null = null;
+    private _imageAsset: ImageAsset = new ImageAsset();
+    private _texture: Texture2D = new Texture2D();
     private _updatedTime = 0;
     private _updateInterval = 0;
-    private _openDataContext: any;
-    private _content: Node;
+    private _openDataContext: any = null;
+    private _content: Node = new Node('content');
     @serializable
     private _designResolutionSize: Size = new Size(640, 960);
 
     constructor () {
         super();
-        this._content = new Node('content');
         this._content.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
-        this._sprite = null;
-        this._imageAsset = new ImageAsset();
-        this._openDataContext = null;
         this._updatedTime = performance.now();
-        this._texture = new Texture2D();
     }
 
     public onLoad (): void {

@@ -31,6 +31,10 @@ export class WebGLDescriptorSetLayout extends DescriptorSetLayout {
 
     private _gpuDescriptorSetLayout: IWebGLGPUDescriptorSetLayout | null = null;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<DescriptorSetLayoutInfo>): void {
         Array.prototype.push.apply(this._bindings, info.bindings);
 

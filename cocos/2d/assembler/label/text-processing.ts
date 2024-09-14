@@ -24,8 +24,8 @@
 import { ANDROID, JSB } from 'internal:constants';
 import { Texture2D } from '../../../asset/assets';
 import { WrapMode } from '../../../asset/assets/asset-enum';
-import { cclegacy, Color, Pool, Rect, Vec2 } from '../../../core';
-import { log, logID, warn } from '../../../core/platform';
+import { cclegacy, Color, Rect, Vec2 } from '../../../core';
+import { logID, warnID } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
@@ -447,9 +447,9 @@ export class TextProcessing {
 
     private _calculateFillTextStartPosition (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData): void {
         let labelX = 0;
-        if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT) {
+        if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT as number) {
             labelX = outputLayoutData.canvasSize.width - outputLayoutData.canvasPadding.width;
-        } else if (layout.horizontalAlign === HorizontalTextAlignment.CENTER) {
+        } else if (layout.horizontalAlign === HorizontalTextAlignment.CENTER as number) {
             labelX = (outputLayoutData.canvasSize.width - outputLayoutData.canvasPadding.width) / 2;
         }
 
@@ -457,10 +457,10 @@ export class TextProcessing {
         const drawStartY = lineHeight * (outputLayoutData.parsedString.length - 1);
         // TOP
         let firstLinelabelY = style.actualFontSize * (1 - BASELINE_RATIO / 2);
-        if (layout.verticalAlign !== VerticalTextAlignment.TOP) {
+        if (layout.verticalAlign !== VerticalTextAlignment.TOP as number) {
             // free space in vertical direction
             let blank = drawStartY + outputLayoutData.canvasPadding.height + style.actualFontSize - outputLayoutData.canvasSize.height;
-            if (layout.verticalAlign === VerticalTextAlignment.BOTTOM) {
+            if (layout.verticalAlign === VerticalTextAlignment.BOTTOM as number) {
                 // Unlike BMFont, needs to reserve space below.
                 blank += BASELINE_RATIO / 2 * style.actualFontSize;
                 // BOTTOM
@@ -618,9 +618,9 @@ export class TextProcessing {
             if (style.isUnderline) {
                 const _drawUnderlineWidth = measureText(outputLayoutData.parsedString[i]);
                 const _drawUnderlinePos = new Vec2();
-                if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT) {
+                if (layout.horizontalAlign === HorizontalTextAlignment.RIGHT as number) {
                     _drawUnderlinePos.x = startPosition.x - _drawUnderlineWidth;
-                } else if (layout.horizontalAlign === HorizontalTextAlignment.CENTER) {
+                } else if (layout.horizontalAlign === HorizontalTextAlignment.CENTER as number) {
                     _drawUnderlinePos.x = startPosition.x - (_drawUnderlineWidth / 2);
                 } else {
                     _drawUnderlinePos.x = startPosition.x;
@@ -697,11 +697,11 @@ export class TextProcessing {
         let newWidth = outputLayoutData.nodeContentSize.width;
         let newHeight = outputLayoutData.nodeContentSize.height;
 
-        if (layout.overFlow === Overflow.RESIZE_HEIGHT) {
+        if (layout.overFlow === Overflow.RESIZE_HEIGHT as number) {
             newHeight = 0;
         }
 
-        if (layout.overFlow === Overflow.NONE) {
+        if (layout.overFlow === Overflow.NONE as number) {
             newWidth = 0;
             newHeight = 0;
         }
@@ -746,7 +746,7 @@ export class TextProcessing {
         this._multilineTextWrap(style, layout, outputLayoutData, inputString, this._getFirstWordLen);
 
         // shrink
-        if (layout.overFlow === Overflow.SHRINK) {
+        if (layout.overFlow === Overflow.SHRINK as number) {
             if (style.fontSize > 0 && this._isVerticalClamp(style, layout, outputLayoutData, inputString, this)) {
                 this._shrinkLabelToContentSize(style, layout, outputLayoutData, inputString, this._isVerticalClamp);
             }
@@ -832,9 +832,9 @@ export class TextProcessing {
                 if (!letterDef) {
                     this._recordPlaceholderInfo(letterIndex, character);
                     if (style.fntConfig != null) {
-                        log(`Can't find letter definition in texture atlas ${style.fntConfig.atlasName} for letter:${character}`);
+                        logID(16354, style.fntConfig.atlasName as string, character);
                     } else {
-                        log(`Can't find letter definition in font family ${style.fontFamily} for letter:${character}`);
+                        logID(16355, style.fontFamily, character);
                     }
                     continue;
                 }
@@ -1019,10 +1019,10 @@ export class TextProcessing {
 
         // TOP
         layout.letterOffsetY = outputLayoutData.nodeContentSize.height;
-        if (layout.verticalAlign !== VerticalTextAlignment.TOP) {
+        if (layout.verticalAlign !== VerticalTextAlignment.TOP as number) {
             const blank = outputLayoutData.nodeContentSize.height - layout.textDesiredHeight
             + layout.lineHeight * this._getFontScale(style, layout) - style.originFontSize * this._fontScale * style.bmfontScale;
-            if (layout.verticalAlign === VerticalTextAlignment.BOTTOM) {
+            if (layout.verticalAlign === VerticalTextAlignment.BOTTOM as number) {
                 // BOTTOM
                 layout.letterOffsetY -= blank;
             } else {
@@ -1033,7 +1033,7 @@ export class TextProcessing {
     }
 
     private _getFontScale (style: TextStyle, layout: TextLayout): number {
-        return layout.overFlow === Overflow.SHRINK ? style.bmfontScale : 1;
+        return layout.overFlow === (Overflow.SHRINK as number) ? style.bmfontScale : 1;
     }
 
     private _isVerticalClamp (
@@ -1178,7 +1178,7 @@ export class TextProcessing {
             if (!letterInfo.valid) { continue; }
             const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);
             if (!letterDef) {
-                warn('Can\'t find letter in this bitmap-font');
+                warnID(16353);
                 continue;
             }
 
@@ -1197,7 +1197,7 @@ export class TextProcessing {
                     py -= clipTop;
                 }
 
-                if ((py - this._tmpRect.height * style.bmfontScale < layout.tailoredBottomY) && layout.overFlow === Overflow.CLAMP) {
+                if ((py - this._tmpRect.height * style.bmfontScale < layout.tailoredBottomY) && layout.overFlow === Overflow.CLAMP as number) {
                     this._tmpRect.height = (py < layout.tailoredBottomY) ? 0 : (py - layout.tailoredBottomY) / style.bmfontScale;
                 }
             }
@@ -1207,7 +1207,7 @@ export class TextProcessing {
 
             if (layout.textWidthTemp > 0) {
                 if (this._isHorizontalClamped(layout, outputLayoutData, px, lineIndex)) {
-                    if (layout.overFlow === Overflow.CLAMP) {
+                    if (layout.overFlow === Overflow.CLAMP as number) {
                         this._tmpRect.width = 0;
                     }
                 }

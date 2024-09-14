@@ -53,18 +53,18 @@ export class HMDInputDevice {
 
     private _eventTarget: EventTarget = new EventTarget();
 
-    private _viewLeftPosition!: InputSourcePosition;
-    private _viewLeftOrientation!: InputSourceOrientation;
-    private _viewRightPosition!: InputSourcePosition;
-    private _viewRightOrientation!: InputSourceOrientation;
-    private _headMiddlePosition!: InputSourcePosition;
-    private _headMiddleOrientation!: InputSourceOrientation;
+    private declare _viewLeftPosition: InputSourcePosition;
+    private declare _viewLeftOrientation: InputSourceOrientation;
+    private declare _viewRightPosition: InputSourcePosition;
+    private declare _viewRightOrientation: InputSourceOrientation;
+    private declare _headMiddlePosition: InputSourcePosition;
+    private declare _headMiddleOrientation: InputSourceOrientation;
 
     private _nativePoseState: NativePoseState = {
         [Pose.VIEW_LEFT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.VIEW_RIGHT]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
         [Pose.HEAD_MIDDLE]: { position: Vec3.ZERO, orientation: Quat.IDENTITY },
-    }
+    };
 
     constructor () {
         this._initInputSource();
@@ -90,17 +90,17 @@ export class HMDInputDevice {
 
     private _updateNativePoseState (info: jsb.PoseInfo): void {
         switch (info.code) {
-            case 0:
-                this._nativePoseState[Pose.VIEW_LEFT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
-                break;
-            case 3:
-                this._nativePoseState[Pose.VIEW_RIGHT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
-                break;
-            case 6:
-                this._nativePoseState[Pose.HEAD_MIDDLE] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
-                break;
-            default:
-                break;
+        case 0:
+            this._nativePoseState[Pose.VIEW_LEFT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
+            break;
+        case 3:
+            this._nativePoseState[Pose.VIEW_RIGHT] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
+            break;
+        case 6:
+            this._nativePoseState[Pose.HEAD_MIDDLE] = { position: new Vec3(info.x, info.y, info.z), orientation: new Quat(info.quaternionX, info.quaternionY, info.quaternionZ, info.quaternionW) };
+            break;
+        default:
+            break;
         }
     }
 

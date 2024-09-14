@@ -78,7 +78,10 @@ export class BuiltinPipelineSettings extends Component {
     @property(CCBoolean)
     protected _editorPreview = false;
 
-    @property(CCBoolean)
+    @property({
+        displayName: 'Editor Preview (Experimental)',
+        type: CCBoolean,
+    })
     get editorPreview(): boolean {
         return this._editorPreview;
     }
@@ -194,7 +197,13 @@ export class BuiltinPipelineSettings extends Component {
         visible: false,
     })
     set dofMaterial(value: Material) {
+        if (this._settings.depthOfField.material === value) {
+            return;
+        }
         this._settings.depthOfField.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get dofMaterial(): Material {
         return this._settings.depthOfField.material!;
@@ -261,7 +270,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set bloomMaterial(value: Material) {
+        if (this._settings.bloom.material === value) {
+            return;
+        }
         this._settings.bloom.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get bloomMaterial(): Material {
         return this._settings.bloom.material!;
@@ -345,7 +360,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set colorGradingMaterial(value: Material) {
+        if (this._settings.colorGrading.material === value) {
+            return;
+        }
         this._settings.colorGrading.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get colorGradingMaterial(): Material {
         return this._settings.colorGrading.material!;
@@ -400,7 +421,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set fxaaMaterial(value: Material) {
+        if (this._settings.fxaa.material === value) {
+            return;
+        }
         this._settings.fxaa.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fxaaMaterial(): Material {
         return this._settings.fxaa.material!;
@@ -426,7 +453,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set fsrMaterial(value: Material) {
+        if (this._settings.fsr.material === value) {
+            return;
+        }
         this._settings.fsr.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get fsrMaterial(): Material {
         return this._settings.fsr.material!;
@@ -450,7 +483,13 @@ export class BuiltinPipelineSettings extends Component {
         type: Material,
     })
     set toneMappingMaterial(value: Material) {
+        if (this._settings.toneMapping.material === value) {
+            return;
+        }
         this._settings.toneMapping.material = value;
+        if (EDITOR) {
+            this._tryEnableEditorPreview();
+        }
     }
     get toneMappingMaterial(): Material {
         return this._settings.toneMapping.material!;

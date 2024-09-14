@@ -134,7 +134,7 @@ import {
     updateGlobalDescBinding,
 } from './define';
 import { LightResource, SceneCulling } from './scene-culling';
-import { Pass, RenderScene } from '../../render-scene';
+import { Pass, RenderScene, scene } from '../../render-scene';
 import { WebProgramLibrary } from './web-program-library';
 
 class ResourceVisitor implements ResourceGraphVisitor {
@@ -540,7 +540,7 @@ class DeviceComputeQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
+        this._renderPhase = layoutGraph.h(LayoutGraphDataValue.RenderPhase, value)
             ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
@@ -593,7 +593,7 @@ class DeviceRenderQueue implements RecordingInterface {
     set layoutID (value: number) {
         this._layoutID = value;
         const layoutGraph = context.layoutGraph;
-        this._renderPhase = layoutGraph.holds(LayoutGraphDataValue.RenderPhase, value)
+        this._renderPhase = layoutGraph.h(LayoutGraphDataValue.RenderPhase, value)
             ? layoutGraph.j<RenderPhaseData>(value)
             : null;
         const layout = layoutGraph.getLayout(value);
@@ -936,14 +936,14 @@ class DeviceRenderPass implements RecordingInterface {
         const stageName = context.renderGraph.getLayout(this.rasterPassInfo.id);
         if (stageName) {
             const layoutGraph = context.layoutGraph;
-            const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
+            const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
                 this._layout = new RenderPassLayoutInfo(stageId, this.rasterPassInfo.id, input);
             }
         }
     }
     getGlobalDescData (): DescriptorSetData {
-        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         assert(stageId !== 0xFFFFFFFF);
         const layout = context.layoutGraph.getLayout(stageId);
         const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
@@ -1042,7 +1042,9 @@ class DeviceRenderPass implements RecordingInterface {
         this._deviceQueues.clear();
         let framebuffer: Framebuffer | null = null;
         const colTextures: Texture[] = [];
-        let depTexture = this._framebuffer ? this._framebuffer.depthStencilTexture : null;
+        const currFramebuffer = this._framebuffer;
+        const currFBDepthTex = currFramebuffer.depthStencilTexture;
+        let depTexture = currFramebuffer ? currFBDepthTex : null;
         for (const cv of this._rasterInfo.pass.computeViews) {
             this._applyRenderLayout(cv);
         }
@@ -1052,8 +1054,8 @@ class DeviceRenderPass implements RecordingInterface {
         }
 
         const resGraph = context.resourceGraph;
-        const currentWidth = this._framebuffer ? this._framebuffer.width : 0;
-        const currentHeight = this._framebuffer ? this._framebuffer.height : 0;
+        const currentWidth = currFramebuffer ? currFramebuffer.width : 0;
+        const currentHeight = currFramebuffer ? currFramebuffer.height : 0;
 
         let width = 0;
         let height = 0;
@@ -1067,8 +1069,18 @@ class DeviceRenderPass implements RecordingInterface {
             height = resDesc.height;
             break;
         }
-        const needRebuild = (width !== currentWidth) || (height !== currentHeight) || this.framebuffer.needRebuild;
-
+        // The texture inside the fbo was destroyed？
+        let isInsideTexDestroy = false;
+        for (const colTex of currFramebuffer.colorTextures) {
+            if (colTex?.getTextureHandle() === 0) {
+                isInsideTexDestroy = true;
+                break;
+            }
+        }
+        if (currFBDepthTex && !isInsideTexDestroy) {
+            isInsideTexDestroy = currFBDepthTex.getTextureHandle() === 0;
+        }
+        const needRebuild = (width !== currentWidth) || (height !== currentHeight) || currFramebuffer.needRebuild || isInsideTexDestroy;
         for (const [resName, rasterV] of this._rasterInfo.pass.rasterViews) {
             let deviceTex = context.deviceTextures.get(resName)!;
             const currTex = deviceTex;
@@ -1194,14 +1206,14 @@ class DeviceComputePass implements RecordingInterface {
         const stageName = context.renderGraph.getLayout(this._computeInfo.id);
         if (stageName) {
             const layoutGraph = context.layoutGraph;
-            const stageId = layoutGraph.locateChild(layoutGraph.nullVertex(), stageName);
+            const stageId = layoutGraph.locateChild(layoutGraph.N, stageName);
             if (stageId !== 0xFFFFFFFF) {
                 this._layout = new RenderPassLayoutInfo(stageId, this._computeInfo.id, input);
             }
         }
     }
     getGlobalDescData (): DescriptorSetData {
-        const stageId = context.layoutGraph.locateChild(context.layoutGraph.nullVertex(), 'default');
+        const stageId = context.layoutGraph.locateChild(context.layoutGraph.N, 'default');
         assert(stageId !== 0xFFFFFFFF);
         const layout = context.layoutGraph.getLayout(stageId);
         const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS)!;
@@ -1222,7 +1234,7 @@ class DeviceComputePass implements RecordingInterface {
             queue.record();
         }
         const renderData = context.renderGraph.getData(this._computeInfo.id);
-        updateGlobalDescBinding(renderData, context.renderGraph.getLayout(this._computeInfo.id));
+        updateGlobalDescBinding(renderData, -1, context.renderGraph.getLayout(this._computeInfo.id));
     }
 
     resetResource (id: number, pass: ComputePass): void {
@@ -1314,11 +1326,11 @@ class DeviceRenderScene implements RecordingInterface {
         const rasterId = devicePass.rasterPassInfo.id;
         const passRenderData = context.renderGraph.getData(rasterId);
         // RasterPass first
-        this._updateGlobal(passRenderData);
+        this._updateGlobal(passRenderData, this.graphScene.sceneID);
         // then Queue
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(queueRenderData);
+        this._updateGlobal(queueRenderData, this.graphScene.sceneID);
 
         this._currentQueue.isUpdateUBO = true;
 
@@ -1378,9 +1390,9 @@ class DeviceRenderScene implements RecordingInterface {
         }
     }
 
-    protected _updateGlobal (data: RenderData): void {
+    protected _updateGlobal (data: RenderData, sceneId: number): void {
         const devicePass = this._currentQueue.devicePass;
-        updateGlobalDescBinding(data, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
+        updateGlobalDescBinding(data, sceneId, context.renderGraph.getLayout(devicePass.rasterPassInfo.id));
     }
 
     protected _updateRenderData (): void {
@@ -1388,15 +1400,15 @@ class DeviceRenderScene implements RecordingInterface {
         const devicePass = this._currentQueue.devicePass;
         const rasterId = devicePass.rasterPassInfo.id;
         const passRenderData = context.renderGraph.getData(rasterId);
+        const sceneId = this.graphScene.sceneID;
         // CCGlobal
-        this._updateGlobal(passRenderData);
+        this._updateGlobal(passRenderData, sceneId);
         // CCCamera, CCShadow, CCCSM
         const queueId = this._currentQueue.queueId;
         const queueRenderData = context.renderGraph.getData(queueId)!;
-        this._updateGlobal(queueRenderData);
-        const sceneId = this.graphScene.sceneID;
+        this._updateGlobal(queueRenderData, sceneId);
         const sceneRenderData = context.renderGraph.getData(sceneId)!;
-        if (sceneRenderData) this._updateGlobal(sceneRenderData);
+        if (sceneRenderData) this._updateGlobal(sceneRenderData, sceneId);
         this._currentQueue.isUpdateUBO = true;
     }
 
@@ -1852,22 +1864,22 @@ class BaseRenderVisitor {
         this.rg = context.renderGraph;
     }
     protected _isRasterPass (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.RasterPass, u);
+        return context.renderGraph.h(RenderGraphValue.RasterPass, u);
     }
     protected isComputePass (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Compute, u);
+        return context.renderGraph.h(RenderGraphValue.Compute, u);
     }
     protected isDispatch (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Dispatch, u);
+        return context.renderGraph.h(RenderGraphValue.Dispatch, u);
     }
     protected _isQueue (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Queue, u);
+        return context.renderGraph.h(RenderGraphValue.Queue, u);
     }
     protected _isScene (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Scene, u);
+        return context.renderGraph.h(RenderGraphValue.Scene, u);
     }
     protected _isBlit (u: number): boolean {
-        return context.renderGraph.holds(RenderGraphValue.Blit, u);
+        return context.renderGraph.h(RenderGraphValue.Blit, u);
     }
     applyID (id: number): void {
         if (this._isRasterPass(id)) {
@@ -2080,7 +2092,7 @@ export class RenderVisitor extends DefaultVisitor {
         this._preVisitor = new PreRenderVisitor();
         this._postVisitor = new PostRenderVisitor();
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
-        this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
+        this._colorMap = new VectorGraphColorMap(context.renderGraph.nv());
     }
 
     get graphView (): ReferenceGraphView<RenderGraph> { return this._graphView; }

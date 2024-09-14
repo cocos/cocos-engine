@@ -32,6 +32,10 @@ import { ENABLE_SUBPASS, getOrCreateDescriptorID, sortDescriptorBlocks } from '.
 import { UpdateFrequency, Descriptor, DescriptorBlock, DescriptorBlockFlattened, DescriptorBlockIndex, DescriptorTypeOrder, ParameterType } from './types';
 import { getUpdateFrequencyName, getDescriptorTypeOrderName } from './types-names';
 
+export function getLayoutGraphDataVersion (): number {
+    return 0;
+}
+
 // get name of gfx.Type
 function getGfxTypeName (type: Type): string {
     switch (type) {
@@ -147,7 +151,7 @@ export class PrintVisitor extends DefaultVisitor {
         const name: string = g._names[u];
         const freq: UpdateFrequency = g._updateFrequencies[u];
         this.oss += `${this.space}"${name}": `;
-        if (g.holds(LayoutGraphDataValue.RenderStage, u)) {
+        if (g.h(LayoutGraphDataValue.RenderStage, u)) {
             this.oss += `RenderStage {\n`;
         } else {
             this.oss += `RenderPhase {\n`;
@@ -285,7 +289,7 @@ class LayoutGraphPrintVisitor extends DefaultVisitor {
         const name = g.getName(v);
 
         this.oss += `${this.space}"${name}": `;
-        switch (g.id(v)) {
+        switch (g.w(v)) {
         case LayoutGraphValue.RenderStage:
             this.oss += `RenderStage {\n`;
             break;
@@ -515,23 +519,23 @@ export class LayoutGraphInfo {
     readonly enableDebug = false;
     private getPassID (passName: string, type: RenderPassType): number {
         const lg = this.lg;
-        let passID = lg.locateChild(lg.nullVertex(), passName);
-        if (passID === lg.nullVertex()) {
+        let passID = lg.locateChild(lg.N, passName);
+        if (passID === lg.N) {
             passID = lg.addVertex<LayoutGraphValue.RenderStage>(
                 LayoutGraphValue.RenderStage,
                 type,
                 passName,
                 new DescriptorDB(),
-                lg.nullVertex(),
+                lg.N,
             );
         }
-        assert(passID !== lg.nullVertex());
+        assert(passID !== lg.N);
         return passID;
     }
     private getSubpassID (subpassName: string, passID: number): number {
         const lg = this.lg;
         let subpassID = lg.locateChild(passID, subpassName);
-        if (subpassID === lg.nullVertex()) {
+        if (subpassID === lg.N) {
             subpassID = lg.addVertex<LayoutGraphValue.RenderStage>(
                 LayoutGraphValue.RenderStage,
                 RenderPassType.RENDER_SUBPASS,
@@ -540,13 +544,13 @@ export class LayoutGraphInfo {
                 passID,
             );
         }
-        assert(subpassID !== lg.nullVertex());
+        assert(subpassID !== lg.N);
         return subpassID;
     }
     private getPhaseID (phaseName: string, subpassOrPassID: number): number {
         const lg = this.lg;
         let phaseID = lg.locateChild(subpassOrPassID, phaseName);
-        if (phaseID === lg.nullVertex()) {
+        if (phaseID === lg.N) {
             phaseID = lg.addVertex<LayoutGraphValue.RenderPhase>(
                 LayoutGraphValue.RenderPhase,
                 new RenderPhase(),
@@ -555,7 +559,7 @@ export class LayoutGraphInfo {
                 subpassOrPassID,
             );
         }
-        assert(phaseID !== lg.nullVertex());
+        assert(phaseID !== lg.N);
         return phaseID;
     }
     private getDescriptorBlock (key: string, descriptorDB: DescriptorDB): DescriptorBlock {
@@ -800,15 +804,15 @@ export class LayoutGraphInfo {
         const lg = this.lg;
         const visMap = new Map<number, VisibilityDB>();
         // merge phase to pass
-        for (const v of lg.vertices()) {
-            if (lg.id(v) === LayoutGraphValue.RenderStage) {
+        for (const v of lg.v()) {
+            if (lg.w(v) === LayoutGraphValue.RenderStage) {
                 // create visibility database
                 visMap.set(v, new VisibilityDB());
                 continue;
             }
             const phaseID = v;
             const parentID = lg.getParent(phaseID);
-            if (lg.id(parentID) !== LayoutGraphValue.RenderStage) {
+            if (lg.w(parentID) !== LayoutGraphValue.RenderStage) {
                 error(`phase: ${lg.getName(phaseID)} has no parent stage`);
                 return 1;
             }
@@ -832,13 +836,13 @@ export class LayoutGraphInfo {
             }
         }
         // build phase decriptors
-        for (const v of lg.vertices()) {
-            if (lg.id(v) === LayoutGraphValue.RenderStage) {
+        for (const v of lg.v()) {
+            if (lg.w(v) === LayoutGraphValue.RenderStage) {
                 continue;
             }
             const phaseID = v;
             const parentID = lg.getParent(phaseID);
-            if (lg.id(parentID) !== LayoutGraphValue.RenderStage) {
+            if (lg.w(parentID) !== LayoutGraphValue.RenderStage) {
                 error(`phase: ${lg.getName(phaseID)} has no parent stage`);
                 return 1;
             }
@@ -886,9 +890,9 @@ export class LayoutGraphInfo {
             }
         }
         // update pass
-        for (const passID of lg.vertices()) {
+        for (const passID of lg.v()) {
             // skip RenderPhase
-            if (lg.id(passID) !== LayoutGraphValue.RenderStage) {
+            if (lg.w(passID) !== LayoutGraphValue.RenderStage) {
                 continue;
             }
             // skip RENDER_PASS
@@ -902,7 +906,7 @@ export class LayoutGraphInfo {
             // update children phases
             for (const e of lg.children(passID)) {
                 const phaseID = lg.child(e);
-                if (lg.id(phaseID) !== LayoutGraphValue.RenderPhase) {
+                if (lg.w(phaseID) !== LayoutGraphValue.RenderPhase) {
                     error(`pass: ${lg.getName(passID)} is not single_render_pass or render_subpass`);
                     return 1;
                 }
@@ -940,7 +944,7 @@ export class LayoutGraphInfo {
     }
     public print (): string {
         const print = new LayoutGraphPrintVisitor();
-        const colorMap = new VectorGraphColorMap(this.lg.numVertices());
+        const colorMap = new VectorGraphColorMap(this.lg.nv());
         depthFirstSearch(this.lg, print, colorMap);
         return print.oss;
     }
@@ -948,19 +952,19 @@ export class LayoutGraphInfo {
 
 // build LayoutGraphData
 function buildLayoutGraphDataImpl (graph: LayoutGraph, builder: LayoutGraphBuilder2): void {
-    for (const v of graph.vertices()) {
+    for (const v of graph.v()) {
         const db = graph.getDescriptors(v);
         let minLevel = UpdateFrequency.PER_INSTANCE;
         let maxLevel = UpdateFrequency.PER_PASS;
         let isRenderPass = false;
-        switch (graph.id(v)) {
+        switch (graph.w(v)) {
         case LayoutGraphValue.RenderStage: {
             const type = graph.j<RenderPassType>(v);
             const parentID = graph.getParent(v);
             if (type === RenderPassType.RENDER_SUBPASS) {
-                assert(parentID !== graph.nullVertex());
+                assert(parentID !== graph.N);
             } else {
-                assert(parentID === graph.nullVertex());
+                assert(parentID === graph.N);
             }
             if (type === RenderPassType.RENDER_PASS) {
                 isRenderPass = true;
@@ -1172,7 +1176,7 @@ class LayoutGraphBuilder2 {
     print (): string {
         const g: LayoutGraphData = this.lg;
         const visitor = new PrintVisitor();
-        const colorMap = new VectorGraphColorMap(g.numVertices());
+        const colorMap = new VectorGraphColorMap(g.nv());
         depthFirstSearch(g, visitor, colorMap);
         return visitor.oss;
     }
@@ -1187,7 +1191,7 @@ export function buildLayoutGraphData (lg: LayoutGraph, lgData: LayoutGraphData):
 
 export function printLayoutGraphData (g: LayoutGraphData): string {
     const visitor = new PrintVisitor();
-    const colorMap = new VectorGraphColorMap(g.numVertices());
+    const colorMap = new VectorGraphColorMap(g.nv());
     depthFirstSearch(g, visitor, colorMap);
     return visitor.oss;
 }

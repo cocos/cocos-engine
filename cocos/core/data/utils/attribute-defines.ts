@@ -87,12 +87,12 @@ export interface IExposedAttributes {
     /**
      * 当该属性为数值类型时，指定了该属性允许的最小值。
      */
-    min?: number;
+    min?: number | (() => number);
 
     /**
      * 当该属性为数值类型时，指定了该属性允许的最大值。
      */
-    max?: number;
+    max?: number | (() => number);
 
     /**
      * 当该属性为数值类型时并在编辑器中提供了滑动条时，指定了滑动条的步长。

@@ -27,7 +27,7 @@ import { CCObject } from '../core/data/object';
 import { js } from '../core';
 import { tryCatchFunctor_EDITOR } from '../core/utils/misc';
 import { legacyCC } from '../core/global-exports';
-import { error, assert } from '../core/platform/debug';
+import { warn, assert } from '../core/platform/debug';
 import type { Component } from './component';
 
 const fastRemoveAt = js.array.fastRemoveAt;
@@ -110,12 +110,12 @@ export class LifeCycleInvoker {
         return this._pos;
     }
     // components which priority === 0 (default)
-    protected _zero: js.array.MutableForwardIterator<any>;
+    protected declare _zero: js.array.MutableForwardIterator<any>;
     // components which priority < 0
-    protected _neg: js.array.MutableForwardIterator<any>;
+    protected declare _neg: js.array.MutableForwardIterator<any>;
     // components which priority > 0
-    protected _pos: js.array.MutableForwardIterator<any>;
-    protected _invoke: InvokeFunc;
+    protected declare _pos: js.array.MutableForwardIterator<any>;
+    protected declare _invoke: InvokeFunc;
     constructor (invokeFunc: InvokeFunc) {
         const Iterator = js.array.MutableForwardIterator;
         this._zero = new Iterator([]);
@@ -183,7 +183,7 @@ class ReusableInvoker extends LifeCycleInvoker {
             if (i < 0) {
                 array.splice(~i, 0, comp);
             } else if (DEV) {
-                error('component already added');
+                warn('component already added:', comp.name);
             }
         }
     }
@@ -349,20 +349,20 @@ export class ComponentScheduler {
      * @en The invoker of `start` callback
      * @zh `start` 回调的调度器
      */
-    public startInvoker!: OneOffInvoker;
+    public declare startInvoker: OneOffInvoker;
     /**
      * @en The invoker of `update` callback
      * @zh `update` 回调的调度器
      */
-    public updateInvoker!: ReusableInvoker;
+    public declare updateInvoker: ReusableInvoker;
     /**
      * @en The invoker of `lateUpdate` callback
      * @zh `lateUpdate` 回调的调度器
      */
-    public lateUpdateInvoker!: ReusableInvoker;
+    public declare lateUpdateInvoker: ReusableInvoker;
     // components deferred to schedule
     private _deferredComps: any[] = [];
-    private _updating!: boolean;
+    private declare _updating: boolean;
 
     constructor () {
         this.unscheduleAll();

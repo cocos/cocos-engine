@@ -126,6 +126,8 @@ rules:
     '@typescript-eslint/no-unsafe-call': off
     '@typescript-eslint/no-unsafe-member-access': off
 
+    '@typescript-eslint/no-unsafe-enum-comparison': off
+
     '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
     '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
 

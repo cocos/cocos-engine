@@ -22,7 +22,7 @@ const _uboVec3 = new Vec3();
 const _uboCol = new Color();
 const _matView = new Mat4();
 const _mulMatView = new Mat4();
-export function setTextureUBOView (setter: WebSetter, camera: Camera | null, cfg: Readonly<PipelineSceneData>, layout = 'default'): void {
+export function setTextureUBOView (setter: WebSetter, cfg: Readonly<PipelineSceneData>, layout = 'default'): void {
     const skybox = cfg.skybox;
     const director = cclegacy.director;
     const root = director.root;
@@ -227,17 +227,15 @@ export class ProbeHelperQueue {
 
     removeMacro (): void {
         for (const subModel of this.probeMap) {
-            let patches: IMacroPatch[] = [];
-            patches = patches.concat(subModel.patches!);
-            if (!patches.length) continue;
-            for (let j = 0; j < patches.length; j++) {
-                const patch = patches[j];
-                if (patch.name === CC_USE_RGBE_OUTPUT) {
-                    patches.splice(j, 1);
-                    break;
-                }
+            if (!subModel.patches) continue;
+            const patches = subModel.patches.filter(
+                (patch) => patch.name !== CC_USE_RGBE_OUTPUT,
+            );
+            if (patches.length === 0) {
+                subModel.onMacroPatchesStateChanged(null);
+            } else {
+                subModel.onMacroPatchesStateChanged(patches);
             }
-            subModel.onMacroPatchesStateChanged(patches);
         }
     }
     applyMacro (model: Model, probeLayoutId: number): void {
@@ -480,7 +478,7 @@ export function setShadowUBOView (setter: WebSetter, camera: Camera | null, layo
                     }
                     _uboVec.set(mainLight.csmTransitionRange, 0, 0, 0);
                     setter.setVec4('cc_csmSplitsInfo', _uboVec);
-                    _uboVec.set(0, 0, 0, 1.0 - mainLight.shadowSaturation);
+                    _uboVec.set(0.1, mainLight.shadowDistance, 0, 1.0 - mainLight.shadowSaturation);
                     setter.setVec4('cc_shadowNFLSInfo', _uboVec);
                     _uboVec.set(LightType.DIRECTIONAL, packing, mainLight.shadowNormalBias, mainLight.csmLevel);
                     setter.setVec4('cc_shadowLPNNInfo', _uboVec);

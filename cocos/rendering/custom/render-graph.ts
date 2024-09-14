@@ -28,14 +28,16 @@
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
 /* eslint-disable max-len */
-import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph, directional, parallel, traversal } from './graph';
-import { Material } from '../../asset/assets';
-import { Camera } from '../../render-scene/scene/camera';
-import { AccessFlagBit, Buffer, ClearFlagBit, Color, Format, Framebuffer, LoadOp, RenderPass, SampleCount, Sampler, SamplerInfo, ShaderStageFlagBit, StoreOp, Swapchain, Texture, TextureFlagBit, TextureType, Viewport } from '../../gfx';
-import { AccessType, AttachmentType, ClearValueType, CopyPair, LightInfo, MovePair, QueueHint, ResolvePair, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, UploadPair, RenderCommonObjectPool } from './types';
-import { RenderScene } from '../../render-scene/core/render-scene';
-import { RenderWindow } from '../../render-scene/core/render-window';
-import { Light } from '../../render-scene/scene';
+import { AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGraph, ED, InEI, MutableGraph, MutableReferenceGraph, NamedGraph, OutE, OutEI, PolymorphicGraph, PropertyGraph, ReferenceGraph, UuidGraph, VertexListGraph } from './graph';
+import type { Material } from '../../asset/assets';
+import type { Camera } from '../../render-scene/scene/camera';
+import type { Buffer, Framebuffer, RenderPass, Sampler, SamplerInfo, Swapchain, Texture } from '../../gfx';
+import { AccessFlagBit, ClearFlagBit, Color, Format, LoadOp, SampleCount, ShaderStageFlagBit, StoreOp, TextureFlagBit, TextureType, Viewport } from '../../gfx';
+import type { CopyPair, MovePair, ResolvePair, UploadPair } from './types';
+import { AccessType, AttachmentType, ClearValueType, LightInfo, QueueHint, ResourceDimension, ResourceFlags, ResourceResidency, SceneFlags, RenderCommonObjectPool } from './types';
+import type { RenderScene } from '../../render-scene/core/render-scene';
+import type { RenderWindow } from '../../render-scene/core/render-window';
+import type { Light } from '../../render-scene/scene';
 import { RecyclePool } from '../../core/memop';
 
 export class ClearValue {
@@ -313,15 +315,9 @@ export class SubpassGraph implements BidirectionalGraph
 , ComponentGraph {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
@@ -340,44 +336,44 @@ export class SubpassGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -414,16 +410,6 @@ export class SubpassGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends SubpassGraphComponent> (id: T, v: number): SubpassGraphComponentType[T] {
-        switch (id) {
-        case SubpassGraphComponent.Name:
-            return this._names[v] as SubpassGraphComponentType[T];
-        case SubpassGraphComponent.Subpass:
-            return this._subpasses[v] as SubpassGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     getName (v: number): string {
         return this._names[v];
     }
@@ -675,15 +661,9 @@ export class ResourceGraph implements BidirectionalGraph
 , UuidGraph<string> {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
@@ -702,44 +682,44 @@ export class ResourceGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -802,22 +782,6 @@ export class ResourceGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends ResourceGraphComponent> (id: T, v: number): ResourceGraphComponentType[T] {
-        switch (id) {
-        case ResourceGraphComponent.Name:
-            return this._names[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.Desc:
-            return this._descs[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.Traits:
-            return this._traits[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.States:
-            return this._states[v] as ResourceGraphComponentType[T];
-        case ResourceGraphComponent.Sampler:
-            return this._samplerInfo[v] as ResourceGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     getName (v: number): string {
         return this._names[v];
     }
@@ -838,10 +802,10 @@ export class ResourceGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
-    holds (id: ResourceGraphValue, v: number): boolean {
+    h (id: ResourceGraphValue, v: number): boolean {
         return this.x[v].t === id;
     }
-    id (v: number): ResourceGraphValue {
+    w (v: number): ResourceGraphValue {
         return this.x[v].t;
     }
     object (v: number): ResourceGraphObject {
@@ -1277,15 +1241,9 @@ export class RenderGraph implements BidirectionalGraph
 , MutableReferenceGraph {
     //-----------------------------------------------------------------
     // Graph
-    // type vertex_descriptor = number;
-    nullVertex (): number { return 0xFFFFFFFF; }
+    /** null vertex descriptor */
+    readonly N = 0xFFFFFFFF;
     // type edge_descriptor = ED;
-    readonly directed_category: directional = directional.bidirectional;
-    readonly edge_parallel_category: parallel = parallel.allow;
-    readonly traversal_category: traversal = traversal.incidence
-        | traversal.bidirectional
-        | traversal.adjacency
-        | traversal.vertex_list;
     //-----------------------------------------------------------------
     // IncidenceGraph
     // type out_edge_iterator = OutEI;
@@ -1304,44 +1262,44 @@ export class RenderGraph implements BidirectionalGraph
     target (e: ED): number {
         return e.target as number;
     }
-    outEdges (v: number): OutEI {
+    oe (v: number): OutEI {
         return new OutEI(this.x[v].o.values(), v);
     }
-    outDegree (v: number): number {
+    od (v: number): number {
         return this.x[v].o.length;
     }
     //-----------------------------------------------------------------
     // BidirectionalGraph
     // type in_edge_iterator = InEI;
-    inEdges (v: number): InEI {
+    ie (v: number): InEI {
         return new InEI(this.x[v].i.values(), v);
     }
-    inDegree (v: number): number {
+    id (v: number): number {
         return this.x[v].i.length;
     }
-    degree (v: number): number {
-        return this.outDegree(v) + this.inDegree(v);
+    d (v: number): number {
+        return this.od(v) + this.id(v);
     }
     //-----------------------------------------------------------------
     // AdjacencyGraph
     // type adjacency_iterator = AdjI;
-    adjacentVertices (v: number): AdjI {
-        return new AdjI(this, this.outEdges(v));
+    adj (v: number): AdjI {
+        return new AdjI(this, this.oe(v));
     }
     //-----------------------------------------------------------------
     // VertexListGraph
-    vertices (): IterableIterator<number> {
+    v (): IterableIterator<number> {
         return this.x.keys();
     }
-    numVertices (): number {
+    nv (): number {
         return this.x.length;
     }
     //-----------------------------------------------------------------
     // EdgeListGraph
-    numEdges (): number {
+    ne (): number {
         let numEdges = 0;
-        for (const v of this.vertices()) {
-            numEdges += this.outDegree(v);
+        for (const v of this.v()) {
+            numEdges += this.od(v);
         }
         return numEdges;
     }
@@ -1397,20 +1355,6 @@ export class RenderGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // ComponentGraph
-    component<T extends RenderGraphComponent> (id: T, v: number): RenderGraphComponentType[T] {
-        switch (id) {
-        case RenderGraphComponent.Name:
-            return this._names[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.Layout:
-            return this._layoutNodes[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.Data:
-            return this._data[v] as RenderGraphComponentType[T];
-        case RenderGraphComponent.Valid:
-            return this._valid[v] as RenderGraphComponentType[T];
-        default:
-            throw Error('component not found');
-        }
-    }
     getName (v: number): string {
         return this._names[v];
     }
@@ -1434,10 +1378,10 @@ export class RenderGraph implements BidirectionalGraph
     }
     //-----------------------------------------------------------------
     // PolymorphicGraph
-    holds (id: RenderGraphValue, v: number): boolean {
+    h (id: RenderGraphValue, v: number): boolean {
         return this.x[v].t === id;
     }
-    id (v: number): RenderGraphValue {
+    w (v: number): RenderGraphValue {
         return this.x[v].t;
     }
     object (v: number): RenderGraphObject {
@@ -1541,44 +1485,48 @@ export class RenderGraph implements BidirectionalGraph
     readonly sortedVertices: number[] = [];
 }
 
+function createPool<T> (Constructor: new() => T): RecyclePool<T> {
+    return new RecyclePool<T>(() => new Constructor(), 16);
+}
+
 export class RenderGraphObjectPool {
     constructor (renderCommon: RenderCommonObjectPool) {
         this.renderCommon = renderCommon;
     }
     reset (): void {
-        this._clearValue.reset();
-        this._rasterView.reset();
-        this._computeView.reset();
-        this._resourceDesc.reset();
-        this._resourceTraits.reset();
-        this._renderSwapchain.reset();
-        this._resourceStates.reset();
-        this._managedBuffer.reset();
-        this._persistentBuffer.reset();
-        this._managedTexture.reset();
-        this._persistentTexture.reset();
-        this._managedResource.reset();
-        this._subpass.reset();
-        this._subpassGraph.reset();
-        this._rasterSubpass.reset();
-        this._computeSubpass.reset();
-        this._rasterPass.reset();
-        this._persistentRenderPassAndFramebuffer.reset();
-        this._formatView.reset();
-        this._subresourceView.reset();
-        this._resourceGraph.reset();
-        this._computePass.reset();
-        this._resolvePass.reset();
-        this._copyPass.reset();
-        this._movePass.reset();
-        this._raytracePass.reset();
-        this._clearView.reset();
-        this._renderQueue.reset();
-        this._sceneData.reset();
-        this._dispatch.reset();
-        this._blit.reset();
-        this._renderData.reset();
-        this._renderGraph.reset();
+        this.cv.reset(); // ClearValue
+        this.rv.reset(); // RasterView
+        this.cv1.reset(); // ComputeView
+        this.rd.reset(); // ResourceDesc
+        this.rt.reset(); // ResourceTraits
+        this.rs.reset(); // RenderSwapchain
+        this.rs1.reset(); // ResourceStates
+        this.mb.reset(); // ManagedBuffer
+        this.pb.reset(); // PersistentBuffer
+        this.mt.reset(); // ManagedTexture
+        this.pt.reset(); // PersistentTexture
+        this.mr.reset(); // ManagedResource
+        this.s.reset(); // Subpass
+        this.sg.reset(); // SubpassGraph
+        this.rs2.reset(); // RasterSubpass
+        this.cs.reset(); // ComputeSubpass
+        this.rp.reset(); // RasterPass
+        this.prpaf.reset(); // PersistentRenderPassAndFramebuffer
+        this.fv.reset(); // FormatView
+        this.sv.reset(); // SubresourceView
+        this.rg.reset(); // ResourceGraph
+        this.cp.reset(); // ComputePass
+        this.rp1.reset(); // ResolvePass
+        this.cp1.reset(); // CopyPass
+        this.mp.reset(); // MovePass
+        this.rp2.reset(); // RaytracePass
+        this.cv2.reset(); // ClearView
+        this.rq.reset(); // RenderQueue
+        this.sd.reset(); // SceneData
+        this.d.reset(); // Dispatch
+        this.b.reset(); // Blit
+        this.rd1.reset(); // RenderData
+        this.rg1.reset(); // RenderGraph
     }
     createClearValue (
         x = 0,
@@ -1586,7 +1534,7 @@ export class RenderGraphObjectPool {
         z = 0,
         w = 0,
     ): ClearValue {
-        const v = this._clearValue.add();
+        const v = this.cv.add(); // ClearValue
         v.reset(x, y, z, w);
         return v;
     }
@@ -1599,7 +1547,7 @@ export class RenderGraphObjectPool {
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ): RasterView {
-        const v = this._rasterView.add();
+        const v = this.rv.add(); // RasterView
         v.reset(slotName, accessType, attachmentType, loadOp, storeOp, clearFlags, shaderStageFlags);
         return v;
     }
@@ -1610,19 +1558,19 @@ export class RenderGraphObjectPool {
         clearValueType: ClearValueType = ClearValueType.NONE,
         shaderStageFlags: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ): ComputeView {
-        const v = this._computeView.add();
+        const v = this.cv1.add(); // ComputeView
         v.reset(name, accessType, clearFlags, clearValueType, shaderStageFlags);
         return v;
     }
     createResourceDesc (): ResourceDesc {
-        const v = this._resourceDesc.add();
+        const v = this.rd.add(); // ResourceDesc
         v.reset();
         return v;
     }
     createResourceTraits (
         residency: ResourceResidency = ResourceResidency.MANAGED,
     ): ResourceTraits {
-        const v = this._resourceTraits.add();
+        const v = this.rt.add(); // ResourceTraits
         v.reset(residency);
         return v;
     }
@@ -1630,55 +1578,55 @@ export class RenderGraphObjectPool {
         swapchain: Swapchain | null = null,
         isDepthStencil = false,
     ): RenderSwapchain {
-        const v = this._renderSwapchain.add();
+        const v = this.rs.add(); // RenderSwapchain
         v.reset(swapchain, isDepthStencil);
         return v;
     }
     createResourceStates (): ResourceStates {
-        const v = this._resourceStates.add();
+        const v = this.rs1.add(); // ResourceStates
         v.reset();
         return v;
     }
     createManagedBuffer (
         buffer: Buffer | null = null,
     ): ManagedBuffer {
-        const v = this._managedBuffer.add();
+        const v = this.mb.add(); // ManagedBuffer
         v.reset(buffer);
         return v;
     }
     createPersistentBuffer (
         buffer: Buffer | null = null,
     ): PersistentBuffer {
-        const v = this._persistentBuffer.add();
+        const v = this.pb.add(); // PersistentBuffer
         v.reset(buffer);
         return v;
     }
     createManagedTexture (
         texture: Texture | null = null,
     ): ManagedTexture {
-        const v = this._managedTexture.add();
+        const v = this.mt.add(); // ManagedTexture
         v.reset(texture);
         return v;
     }
     createPersistentTexture (
         texture: Texture | null = null,
     ): PersistentTexture {
-        const v = this._persistentTexture.add();
+        const v = this.pt.add(); // PersistentTexture
         v.reset(texture);
         return v;
     }
     createManagedResource (): ManagedResource {
-        const v = this._managedResource.add();
+        const v = this.mr.add(); // ManagedResource
         v.reset();
         return v;
     }
     createSubpass (): Subpass {
-        const v = this._subpass.add();
+        const v = this.s.add(); // Subpass
         v.reset();
         return v;
     }
     createSubpassGraph (): SubpassGraph {
-        const v = this._subpassGraph.add();
+        const v = this.sg.add(); // SubpassGraph
         v.clear();
         return v;
     }
@@ -1687,19 +1635,19 @@ export class RenderGraphObjectPool {
         count = 1,
         quality = 0,
     ): RasterSubpass {
-        const v = this._rasterSubpass.add();
+        const v = this.rs2.add(); // RasterSubpass
         v.reset(subpassID, count, quality);
         return v;
     }
     createComputeSubpass (
         subpassID = 0xFFFFFFFF,
     ): ComputeSubpass {
-        const v = this._computeSubpass.add();
+        const v = this.cs.add(); // ComputeSubpass
         v.reset(subpassID);
         return v;
     }
     createRasterPass (): RasterPass {
-        const v = this._rasterPass.add();
+        const v = this.rp.add(); // RasterPass
         v.reset();
         return v;
     }
@@ -1707,47 +1655,47 @@ export class RenderGraphObjectPool {
         renderPass: RenderPass | null = null,
         framebuffer: Framebuffer | null = null,
     ): PersistentRenderPassAndFramebuffer {
-        const v = this._persistentRenderPassAndFramebuffer.add();
+        const v = this.prpaf.add(); // PersistentRenderPassAndFramebuffer
         v.reset(renderPass, framebuffer);
         return v;
     }
     createFormatView (): FormatView {
-        const v = this._formatView.add();
+        const v = this.fv.add(); // FormatView
         v.reset();
         return v;
     }
     createSubresourceView (): SubresourceView {
-        const v = this._subresourceView.add();
+        const v = this.sv.add(); // SubresourceView
         v.reset();
         return v;
     }
     createResourceGraph (): ResourceGraph {
-        const v = this._resourceGraph.add();
+        const v = this.rg.add(); // ResourceGraph
         v.clear();
         return v;
     }
     createComputePass (): ComputePass {
-        const v = this._computePass.add();
+        const v = this.cp.add(); // ComputePass
         v.reset();
         return v;
     }
     createResolvePass (): ResolvePass {
-        const v = this._resolvePass.add();
+        const v = this.rp1.add(); // ResolvePass
         v.reset();
         return v;
     }
     createCopyPass (): CopyPass {
-        const v = this._copyPass.add();
+        const v = this.cp1.add(); // CopyPass
         v.reset();
         return v;
     }
     createMovePass (): MovePass {
-        const v = this._movePass.add();
+        const v = this.mp.add(); // MovePass
         v.reset();
         return v;
     }
     createRaytracePass (): RaytracePass {
-        const v = this._raytracePass.add();
+        const v = this.rp2.add(); // RaytracePass
         v.reset();
         return v;
     }
@@ -1755,7 +1703,7 @@ export class RenderGraphObjectPool {
         slotName = '',
         clearFlags: ClearFlagBit = ClearFlagBit.ALL,
     ): ClearView {
-        const v = this._clearView.add();
+        const v = this.cv2.add(); // ClearView
         v.reset(slotName, clearFlags);
         return v;
     }
@@ -1764,7 +1712,7 @@ export class RenderGraphObjectPool {
         phaseID = 0xFFFFFFFF,
         passLayoutID = 0xFFFFFFFF,
     ): RenderQueue {
-        const v = this._renderQueue.add();
+        const v = this.rq.add(); // RenderQueue
         v.reset(hint, phaseID, passLayoutID);
         return v;
     }
@@ -1775,7 +1723,7 @@ export class RenderGraphObjectPool {
         cullingFlags: CullingFlags = CullingFlags.CAMERA_FRUSTUM,
         shadingLight: Light | null = null,
     ): SceneData {
-        const v = this._sceneData.add();
+        const v = this.sd.add(); // SceneData
         v.reset(scene, camera, flags, cullingFlags, shadingLight);
         return v;
     }
@@ -1786,7 +1734,7 @@ export class RenderGraphObjectPool {
         threadGroupCountY = 0,
         threadGroupCountZ = 0,
     ): Dispatch {
-        const v = this._dispatch.add();
+        const v = this.d.add(); // Dispatch
         v.reset(material, passID, threadGroupCountX, threadGroupCountY, threadGroupCountZ);
         return v;
     }
@@ -1796,52 +1744,52 @@ export class RenderGraphObjectPool {
         sceneFlags: SceneFlags = SceneFlags.NONE,
         camera: Camera | null = null,
     ): Blit {
-        const v = this._blit.add();
+        const v = this.b.add(); // Blit
         v.reset(material, passID, sceneFlags, camera);
         return v;
     }
     createRenderData (): RenderData {
-        const v = this._renderData.add();
+        const v = this.rd1.add(); // RenderData
         v.reset();
         return v;
     }
     createRenderGraph (): RenderGraph {
-        const v = this._renderGraph.add();
+        const v = this.rg1.add(); // RenderGraph
         v.clear();
         return v;
     }
     public readonly renderCommon: RenderCommonObjectPool;
-    private readonly _clearValue: RecyclePool<ClearValue> = new RecyclePool<ClearValue>(() => new ClearValue(), 16);
-    private readonly _rasterView: RecyclePool<RasterView> = new RecyclePool<RasterView>(() => new RasterView(), 16);
-    private readonly _computeView: RecyclePool<ComputeView> = new RecyclePool<ComputeView>(() => new ComputeView(), 16);
-    private readonly _resourceDesc: RecyclePool<ResourceDesc> = new RecyclePool<ResourceDesc>(() => new ResourceDesc(), 16);
-    private readonly _resourceTraits: RecyclePool<ResourceTraits> = new RecyclePool<ResourceTraits>(() => new ResourceTraits(), 16);
-    private readonly _renderSwapchain: RecyclePool<RenderSwapchain> = new RecyclePool<RenderSwapchain>(() => new RenderSwapchain(), 16);
-    private readonly _resourceStates: RecyclePool<ResourceStates> = new RecyclePool<ResourceStates>(() => new ResourceStates(), 16);
-    private readonly _managedBuffer: RecyclePool<ManagedBuffer> = new RecyclePool<ManagedBuffer>(() => new ManagedBuffer(), 16);
-    private readonly _persistentBuffer: RecyclePool<PersistentBuffer> = new RecyclePool<PersistentBuffer>(() => new PersistentBuffer(), 16);
-    private readonly _managedTexture: RecyclePool<ManagedTexture> = new RecyclePool<ManagedTexture>(() => new ManagedTexture(), 16);
-    private readonly _persistentTexture: RecyclePool<PersistentTexture> = new RecyclePool<PersistentTexture>(() => new PersistentTexture(), 16);
-    private readonly _managedResource: RecyclePool<ManagedResource> = new RecyclePool<ManagedResource>(() => new ManagedResource(), 16);
-    private readonly _subpass: RecyclePool<Subpass> = new RecyclePool<Subpass>(() => new Subpass(), 16);
-    private readonly _subpassGraph: RecyclePool<SubpassGraph> = new RecyclePool<SubpassGraph>(() => new SubpassGraph(), 16);
-    private readonly _rasterSubpass: RecyclePool<RasterSubpass> = new RecyclePool<RasterSubpass>(() => new RasterSubpass(), 16);
-    private readonly _computeSubpass: RecyclePool<ComputeSubpass> = new RecyclePool<ComputeSubpass>(() => new ComputeSubpass(), 16);
-    private readonly _rasterPass: RecyclePool<RasterPass> = new RecyclePool<RasterPass>(() => new RasterPass(), 16);
-    private readonly _persistentRenderPassAndFramebuffer: RecyclePool<PersistentRenderPassAndFramebuffer> = new RecyclePool<PersistentRenderPassAndFramebuffer>(() => new PersistentRenderPassAndFramebuffer(), 16);
-    private readonly _formatView: RecyclePool<FormatView> = new RecyclePool<FormatView>(() => new FormatView(), 16);
-    private readonly _subresourceView: RecyclePool<SubresourceView> = new RecyclePool<SubresourceView>(() => new SubresourceView(), 16);
-    private readonly _resourceGraph: RecyclePool<ResourceGraph> = new RecyclePool<ResourceGraph>(() => new ResourceGraph(), 16);
-    private readonly _computePass: RecyclePool<ComputePass> = new RecyclePool<ComputePass>(() => new ComputePass(), 16);
-    private readonly _resolvePass: RecyclePool<ResolvePass> = new RecyclePool<ResolvePass>(() => new ResolvePass(), 16);
-    private readonly _copyPass: RecyclePool<CopyPass> = new RecyclePool<CopyPass>(() => new CopyPass(), 16);
-    private readonly _movePass: RecyclePool<MovePass> = new RecyclePool<MovePass>(() => new MovePass(), 16);
-    private readonly _raytracePass: RecyclePool<RaytracePass> = new RecyclePool<RaytracePass>(() => new RaytracePass(), 16);
-    private readonly _clearView: RecyclePool<ClearView> = new RecyclePool<ClearView>(() => new ClearView(), 16);
-    private readonly _renderQueue: RecyclePool<RenderQueue> = new RecyclePool<RenderQueue>(() => new RenderQueue(), 16);
-    private readonly _sceneData: RecyclePool<SceneData> = new RecyclePool<SceneData>(() => new SceneData(), 16);
-    private readonly _dispatch: RecyclePool<Dispatch> = new RecyclePool<Dispatch>(() => new Dispatch(), 16);
-    private readonly _blit: RecyclePool<Blit> = new RecyclePool<Blit>(() => new Blit(), 16);
-    private readonly _renderData: RecyclePool<RenderData> = new RecyclePool<RenderData>(() => new RenderData(), 16);
-    private readonly _renderGraph: RecyclePool<RenderGraph> = new RecyclePool<RenderGraph>(() => new RenderGraph(), 16);
+    private readonly cv: RecyclePool<ClearValue> = createPool(ClearValue);
+    private readonly rv: RecyclePool<RasterView> = createPool(RasterView);
+    private readonly cv1: RecyclePool<ComputeView> = createPool(ComputeView);
+    private readonly rd: RecyclePool<ResourceDesc> = createPool(ResourceDesc);
+    private readonly rt: RecyclePool<ResourceTraits> = createPool(ResourceTraits);
+    private readonly rs: RecyclePool<RenderSwapchain> = createPool(RenderSwapchain);
+    private readonly rs1: RecyclePool<ResourceStates> = createPool(ResourceStates);
+    private readonly mb: RecyclePool<ManagedBuffer> = createPool(ManagedBuffer);
+    private readonly pb: RecyclePool<PersistentBuffer> = createPool(PersistentBuffer);
+    private readonly mt: RecyclePool<ManagedTexture> = createPool(ManagedTexture);
+    private readonly pt: RecyclePool<PersistentTexture> = createPool(PersistentTexture);
+    private readonly mr: RecyclePool<ManagedResource> = createPool(ManagedResource);
+    private readonly s: RecyclePool<Subpass> = createPool(Subpass);
+    private readonly sg: RecyclePool<SubpassGraph> = createPool(SubpassGraph);
+    private readonly rs2: RecyclePool<RasterSubpass> = createPool(RasterSubpass);
+    private readonly cs: RecyclePool<ComputeSubpass> = createPool(ComputeSubpass);
+    private readonly rp: RecyclePool<RasterPass> = createPool(RasterPass);
+    private readonly prpaf: RecyclePool<PersistentRenderPassAndFramebuffer> = createPool(PersistentRenderPassAndFramebuffer);
+    private readonly fv: RecyclePool<FormatView> = createPool(FormatView);
+    private readonly sv: RecyclePool<SubresourceView> = createPool(SubresourceView);
+    private readonly rg: RecyclePool<ResourceGraph> = createPool(ResourceGraph);
+    private readonly cp: RecyclePool<ComputePass> = createPool(ComputePass);
+    private readonly rp1: RecyclePool<ResolvePass> = createPool(ResolvePass);
+    private readonly cp1: RecyclePool<CopyPass> = createPool(CopyPass);
+    private readonly mp: RecyclePool<MovePass> = createPool(MovePass);
+    private readonly rp2: RecyclePool<RaytracePass> = createPool(RaytracePass);
+    private readonly cv2: RecyclePool<ClearView> = createPool(ClearView);
+    private readonly rq: RecyclePool<RenderQueue> = createPool(RenderQueue);
+    private readonly sd: RecyclePool<SceneData> = createPool(SceneData);
+    private readonly d: RecyclePool<Dispatch> = createPool(Dispatch);
+    private readonly b: RecyclePool<Blit> = createPool(Blit);
+    private readonly rd1: RecyclePool<RenderData> = createPool(RenderData);
+    private readonly rg1: RecyclePool<RenderGraph> = createPool(RenderGraph);
 }

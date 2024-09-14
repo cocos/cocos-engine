@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { TEST, EDITOR } from 'internal:constants';
+import { TEST } from 'internal:constants';
 import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { createMesh } from '../3d/misc';
 import { Material } from '../asset/assets/material';
@@ -33,9 +33,8 @@ import { Node } from '../scene-graph/node';
 import { ICounterOption } from './counter';
 import { PerfCounter } from './perf-counter';
 import { Pass } from '../render-scene';
-import { preTransforms, System, sys, cclegacy, Settings, settings, warn } from '../core';
+import { preTransforms, System, sys, cclegacy, Settings, settings, warnID } from '../core';
 import { Root } from '../root';
-import { PipelineRuntime } from '../rendering/custom/pipeline';
 import { director } from '../game';
 import { ccwindow } from '../core/global-exports';
 
@@ -144,7 +143,7 @@ export class Profiler extends System {
      * @deprecated We have removed this private interface in version 3.8, please use the public interface get stats instead.
      */
     public get _stats (): IProfilerState | null {
-        warn('Profiler._stats is deprecated, please use Profiler.stats instead.');
+        warnID(16381);
         return this._profilerStats;
     }
 
@@ -254,7 +253,7 @@ export class Profiler extends System {
         this._ctx.textAlign = 'left';
         let i = 0;
         for (const id in _profileInfo) {
-            const element = _profileInfo[id];
+            const element = _profileInfo[id] as ICounterOption;
             this._ctx.fillText(element.desc, 0, i * this._lineHeight);
             element.counter = new PerfCounter(id, element, now);
             i++;

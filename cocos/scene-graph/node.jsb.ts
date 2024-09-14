@@ -1351,6 +1351,7 @@ nodeProto._onSiblingIndexChanged = function (index) {
         } else {
             siblings.push(this);
         }
+        this._eventProcessor.onUpdatingSiblingIndex();
     }
 }
 

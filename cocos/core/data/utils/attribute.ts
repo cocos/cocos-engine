@@ -95,9 +95,9 @@ export function setClassAttr (ctor, propName, key, value): void {
 }
 
 export class PrimitiveType<T> {
-    public name: string;
+    public declare name: string;
 
-    public default: T;
+    public declare default: T;
 
     constructor (name: string, defaultValue: T) {
         this.name = name;
@@ -264,8 +264,12 @@ export function getObjTypeChecker_ET (typeCtor) {
         const defaultVal = legacyCC.Class.getDefault(defaultDef);
         if (!Array.isArray(defaultVal) && isChildClassOf(typeCtor, legacyCC.ValueType)) {
             const typename = getClassName(typeCtor);
-            const info = formatStr('No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
-                getClassName(classCtor), mainPropName, typename);
+            const info = formatStr(
+                'No need to specify the "type" of "%s.%s" because %s is a child class of ValueType.',
+                getClassName(classCtor),
+                mainPropName,
+                typename,
+            );
             if (defaultDef) {
                 log(info);
             } else {

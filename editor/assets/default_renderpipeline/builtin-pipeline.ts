@@ -646,15 +646,19 @@ if (rendering) {
             const colorName = this._cameraConfigs.colorName;
             const depthStencilName = this._cameraConfigs.depthStencilName;
 
-            this._viewport.left = Math.floor(camera.viewport.x * width);
-            this._viewport.top = Math.floor(camera.viewport.y * height);
-            this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
-            this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
+            const viewport = camera.viewport;  // Reduce C++/TS interop
+            this._viewport.left = Math.round(viewport.x * width);
+            this._viewport.top = Math.round(viewport.y * height);
+            // Here we must use camera.viewport.width instead of camera.viewport.z, which
+            // is undefined on native platform. The same as camera.viewport.height.
+            this._viewport.width = Math.max(Math.round(viewport.width * width), 1);
+            this._viewport.height = Math.max(Math.round(viewport.height * height), 1);
 
-            this._clearColor.x = camera.clearColor.x;
-            this._clearColor.y = camera.clearColor.y;
-            this._clearColor.z = camera.clearColor.z;
-            this._clearColor.w = camera.clearColor.w;
+            const clearColor = camera.clearColor;  // Reduce C++/TS interop
+            this._clearColor.x = clearColor.x;
+            this._clearColor.y = clearColor.y;
+            this._clearColor.z = clearColor.z;
+            this._clearColor.w = clearColor.w;
 
             const pass = ppl.addRenderPass(width, height, 'default');
 
@@ -680,8 +684,19 @@ if (rendering) {
             }
 
             pass.setViewport(this._viewport);
+
+            // The opaque queue is used for Reflection probe preview
+            pass.addQueue(QueueHint.OPAQUE)
+                .addScene(camera, SceneFlags.OPAQUE);
+
+            // The blend queue is used for UI and Gizmos
+            let flags = SceneFlags.BLEND | SceneFlags.UI;
+            if (this._cameraConfigs.enableProfiler) {
+                flags |= SceneFlags.PROFILER;
+                pass.showStatistics = true;
+            }
             pass.addQueue(QueueHint.BLEND)
-                .addScene(camera, SceneFlags.BLEND | SceneFlags.UI);
+                .addScene(camera, flags);
         }
 
         private _buildForwardPipeline(
@@ -1242,7 +1257,7 @@ if (rendering) {
         }
 
         private _addUIQueue(camera: renderer.scene.Camera, pass: rendering.BasicRenderPassBuilder): void {
-            let flags = SceneFlags.UI | SceneFlags.GEOMETRY;
+            let flags = SceneFlags.UI;
             if (this._cameraConfigs.enableProfiler) {
                 flags |= SceneFlags.PROFILER;
                 pass.showStatistics = true;
@@ -1271,16 +1286,20 @@ if (rendering) {
             // Dynamic states
             // ----------------------------------------------------------------
             // Prepare camera clear color
-            this._clearColor.x = camera.clearColor.x;
-            this._clearColor.y = camera.clearColor.y;
-            this._clearColor.z = camera.clearColor.z;
-            this._clearColor.w = camera.clearColor.w;
+            const clearColor = camera.clearColor; // Reduce C++/TS interop
+            this._clearColor.x = clearColor.x;
+            this._clearColor.y = clearColor.y;
+            this._clearColor.z = clearColor.z;
+            this._clearColor.w = clearColor.w;
 
             // Prepare camera viewport
-            this._viewport.left = Math.floor(camera.viewport.x * width);
-            this._viewport.top = Math.floor(camera.viewport.y * height);
-            this._viewport.width = Math.max(Math.floor(camera.viewport.z * width), 1);
-            this._viewport.height = Math.max(Math.floor(camera.viewport.w * height), 1);
+            const viewport = camera.viewport; // Reduce C++/TS interop
+            this._viewport.left = Math.round(viewport.x * width);
+            this._viewport.top = Math.round(viewport.y * height);
+            // Here we must use camera.viewport.width instead of camera.viewport.z, which
+            // is undefined on native platform. The same as camera.viewport.height.
+            this._viewport.width = Math.max(Math.round(viewport.width * width), 1);
+            this._viewport.height = Math.max(Math.round(viewport.height * height), 1);
 
             // MSAA
             const enableMSAA = !disableMSAA && this._cameraConfigs.enableMSAA;
@@ -1304,9 +1323,15 @@ if (rendering) {
             // Forward Lighting (Blend)
             // ----------------------------------------------------------------
             // Add transparent queue
+
+            const sceneFlags = SceneFlags.BLEND |
+                (camera.geometryRenderer
+                    ? SceneFlags.GEOMETRY
+                    : SceneFlags.NONE);
+
             pass
                 .addQueue(QueueHint.BLEND)
-                .addScene(camera, SceneFlags.BLEND, mainLight || undefined);
+                .addScene(camera, sceneFlags, mainLight || undefined);
 
             return pass;
         }
@@ -1465,7 +1490,10 @@ if (rendering) {
             mainLight: renderer.scene.DirectionalLight | null,
             scene: renderer.RenderScene | null,
         ): void {
-            const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager;
+            const reflectionProbeManager = cclegacy.internal.reflectionProbeManager as ReflectionProbeManager | undefined;
+            if (!reflectionProbeManager) {
+                return;
+            }
             const probes = reflectionProbeManager.getProbes();
             const maxProbeCount = 4;
             let probeID = 0;

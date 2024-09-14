@@ -66,6 +66,9 @@ const REAL_KEYFRAME_VALUE_DEFAULT_FLAGS = (RealInterpolationMode.LINEAR << REAL_
  * 注意，该视图可能因关键帧的添加、改变、移除而失效。
  */
 class RealKeyframeValue extends EditorExtendable {
+    constructor () {
+        super();
+    }
     /**
      * @en
      * When perform interpolation, the interpolation method should be taken
@@ -164,7 +167,8 @@ class RealKeyframeValue extends EditorExtendable {
 
 CCClass.fastDefine(
     'cc.RealKeyframeValue',
-    RealKeyframeValue, {
+    RealKeyframeValue,
+    {
         interpolationMode: RealInterpolationMode.LINEAR,
         tangentWeightMode: TangentWeightMode.NONE,
         value: 0.0,
@@ -314,6 +318,10 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters): RealKeyf
  * 无意义意味着这些值可能不会被存储或序列化。
  */
 export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Gets or sets the pre-extrapolation-mode of this curve.
@@ -556,8 +564,10 @@ export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
         const nKeyframes = dataView.getUint32(currentOffset, true); currentOffset += FRAME_COUNT_BYTES;
 
         // Times
-        const times = Array.from({ length: nKeyframes },
-            (_, index) => dataView.getFloat32(currentOffset + TIME_BYTES * index, true));
+        const times = Array.from(
+            { length: nKeyframes },
+            (_, index) => dataView.getFloat32(currentOffset + TIME_BYTES * index, true),
+        );
         currentOffset += TIME_BYTES * nKeyframes;
 
         // Frame values

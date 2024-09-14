@@ -18,6 +18,11 @@ export class PostProcess extends Component {
 
     @serializable
     protected _shadingScale = 1;
+
+    constructor () {
+        super();
+    }
+
     @tooltip('i18n:postprocess.shadingScale')
     @slide
     @range([0.01, 4, 0.01])

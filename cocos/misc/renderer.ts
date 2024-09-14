@@ -55,6 +55,10 @@ const { ccclass, serializable, disallowMultiple, type, displayOrder, displayName
 @ccclass('cc.Renderer')
 @disallowMultiple
 export class Renderer extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en Get the default shared material
      * @zh 获取默认的共享材质

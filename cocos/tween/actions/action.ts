@@ -244,6 +244,10 @@ export abstract class Action {
 export abstract class FiniteTimeAction extends Action {
     protected _duration = 0;
 
+    constructor () {
+        super();
+    }
+
     getDurationScaled (): number {
         return this._duration;
     }

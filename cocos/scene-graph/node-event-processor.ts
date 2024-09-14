@@ -133,7 +133,7 @@ export class NodeEventProcessor {
     // Whether dispatch cancel event when node is destroyed.
     private _dispatchingTouch: Touch | null = null;
     private _isEnabled = false;
-    private _node: Node;
+    private declare _node: Node;
     // Indicate whether the mouse leaves window(only support one window). If it is
     // true, then will not continue dispatching mouse events, such as mouse move events.
     // Tested on macOS, mouse move events will be triggered once even mouse leaves the window.
@@ -593,12 +593,12 @@ export class NodeEventProcessor {
             this.previousMouseIn = false;
             _currentHovered = null;
         }
-        return true;
+        return false;
     }
 
     private _handleMouseEnter (event: EventMouse): boolean {
         this._isMouseLeaveWindow = false;
-        return true;
+        return false;
     }
 
     // #endregion handle mouse event

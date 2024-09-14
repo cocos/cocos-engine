@@ -130,7 +130,7 @@ function _componentCorrupted (node: Node, comp: Component, index: number): void 
  */
 export default class NodeActivator {
     public declare resetComp?: ((comp: Component, didResetToDefault: boolean) => void);
-    protected _activatingStack!: ActivateTask[];
+    protected declare _activatingStack: ActivateTask[];
 
     constructor () {
         this.reset();

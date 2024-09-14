@@ -28,7 +28,8 @@ import type { UIStaticBatch } from '../components/ui-static-batch';
 import { Material } from '../../asset/assets/material';
 import { RenderRoot2D, UIRenderer } from '../framework';
 import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer,
-    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode } from '../../gfx';
+    BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet, InputAssembler, deviceManager, PrimitiveMode,
+    DepthStencilState } from '../../gfx';
 import { CachedArray, Pool, Mat4, cclegacy, assertIsTrue, assert, approx, EPSILON } from '../../core';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
@@ -82,13 +83,13 @@ export class Batcher2D implements IBatcher {
         this._currIsStatic = value;
     }
 
-    public device: Device;
+    public declare device: Device;
     private _screens: RenderRoot2D[] = [];
     private _staticVBBuffer: StaticVBAccessor | null = null;
     private _bufferAccessors: Map<number, StaticVBAccessor> = new Map();
 
-    private _drawBatchPool: Pool<DrawBatch2D>;
-    private _batches: CachedArray<DrawBatch2D>;
+    private declare _drawBatchPool: Pool<DrawBatch2D>;
+    private declare _batches: CachedArray<DrawBatch2D>;
     private _currBID = -1;
     private _indexStart = 0;
 
@@ -457,7 +458,7 @@ export class Batcher2D implements IBatcher {
             this.autoMergeBatches(this._currComponent!);
             this.resetRenderStates();
         }
-        let depthStencil;
+        let depthStencil: DepthStencilState | null = null;
         let dssHash = 0;
         if (renderComp) {
             renderComp.stencilStage = StencilManager.sharedManager!.stage;
@@ -557,7 +558,7 @@ export class Batcher2D implements IBatcher {
             this.resetRenderStates();
         }
 
-        let depthStencil;
+        let depthStencil: DepthStencilState | null = null;
         let dssHash = 0;
         if (mat) {
             // Notice: A little hack, if it is for mask, not need update here, while control by stencilManger
@@ -672,7 +673,7 @@ export class Batcher2D implements IBatcher {
             return;
         }
 
-        let depthStencil;
+        let depthStencil: DepthStencilState | null = null;
         let dssHash = 0;
         if (renderComp) {
             if (renderComp.customMaterial !== null) {
@@ -697,7 +698,7 @@ export class Batcher2D implements IBatcher {
     }
 
     private mergeBatchesForMiddleware (renderComp: UIRenderer): void {
-        let depthStencil;
+        let depthStencil: DepthStencilState | null = null;
         let dssHash = 0;
         renderComp.stencilStage = StencilManager.sharedManager!.stage;
         if (renderComp.customMaterial !== null) {
@@ -915,7 +916,7 @@ export class Batcher2D implements IBatcher {
         _stencilManager.pushMask(1);//not need object，only use length
         const stage =  _stencilManager.clear(comp); //invert
 
-        let depthStencil;
+        let depthStencil: DepthStencilState | null = null;
         let dssHash = 0;
         const mat = this._maskClearMtl;
         if (mat) {
@@ -1062,7 +1063,7 @@ class DescriptorSetCache {
     private _descriptorSetCache = new Map<number, DescriptorSet>();
     private _dsCacheHashByTexture = new Map<number, number>();
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
-    private _localCachePool: Pool<LocalDescriptorSet>;
+    private declare _localCachePool: Pool<LocalDescriptorSet>;
 
     constructor () {
         this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16, (obj) => obj.destroy());

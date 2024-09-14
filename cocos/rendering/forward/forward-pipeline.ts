@@ -57,6 +57,10 @@ export class ForwardPipeline extends RenderPipeline {
 
     protected _postRenderPass: RenderPass | null = null;
 
+    constructor () {
+        super();
+    }
+
     public get postRenderPass (): RenderPass | null {
         return this._postRenderPass;
     }

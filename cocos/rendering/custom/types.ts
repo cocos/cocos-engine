@@ -29,9 +29,9 @@
  */
 /* eslint-disable max-len */
 import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
-import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
-import { Light } from '../../render-scene/scene';
-import { OutputArchive, InputArchive } from './archive';
+import type { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
+import type { Light } from '../../render-scene/scene';
+import type { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
 import { RecyclePool } from '../../core/memop';
 
@@ -444,20 +444,24 @@ export class PipelineStatistics {
     numInstancingUniformBlocks = 0;
 }
 
+function createPool<T> (Constructor: new() => T): RecyclePool<T> {
+    return new RecyclePool<T>(() => new Constructor(), 16);
+}
+
 export class RenderCommonObjectPool {
     constructor () {
     }
     reset (): void {
-        this._lightInfo.reset();
-        this._descriptor.reset();
-        this._descriptorBlock.reset();
-        this._descriptorBlockFlattened.reset();
-        this._descriptorBlockIndex.reset();
-        this._resolvePair.reset();
-        this._copyPair.reset();
-        this._uploadPair.reset();
-        this._movePair.reset();
-        this._pipelineStatistics.reset();
+        this.li.reset(); // LightInfo
+        this.d.reset(); // Descriptor
+        this.db.reset(); // DescriptorBlock
+        this.dbf.reset(); // DescriptorBlockFlattened
+        this.dbi.reset(); // DescriptorBlockIndex
+        this.rp.reset(); // ResolvePair
+        this.cp.reset(); // CopyPair
+        this.up.reset(); // UploadPair
+        this.mp.reset(); // MovePair
+        this.ps.reset(); // PipelineStatistics
     }
     createLightInfo (
         light: Light | null = null,
@@ -465,24 +469,24 @@ export class RenderCommonObjectPool {
         culledByLight = false,
         probe: ReflectionProbe | null = null,
     ): LightInfo {
-        const v = this._lightInfo.add();
+        const v = this.li.add(); // LightInfo
         v.reset(light, level, culledByLight, probe);
         return v;
     }
     createDescriptor (
         type: Type = Type.UNKNOWN,
     ): Descriptor {
-        const v = this._descriptor.add();
+        const v = this.d.add(); // Descriptor
         v.reset(type);
         return v;
     }
     createDescriptorBlock (): DescriptorBlock {
-        const v = this._descriptorBlock.add();
+        const v = this.db.add(); // DescriptorBlock
         v.reset();
         return v;
     }
     createDescriptorBlockFlattened (): DescriptorBlockFlattened {
-        const v = this._descriptorBlockFlattened.add();
+        const v = this.dbf.add(); // DescriptorBlockFlattened
         v.reset();
         return v;
     }
@@ -492,7 +496,7 @@ export class RenderCommonObjectPool {
         descriptorType: DescriptorTypeOrder = DescriptorTypeOrder.UNIFORM_BUFFER,
         visibility: ShaderStageFlagBit = ShaderStageFlagBit.NONE,
     ): DescriptorBlockIndex {
-        const v = this._descriptorBlockIndex.add();
+        const v = this.dbi.add(); // DescriptorBlockIndex
         v.updateFrequency = updateFrequency;
         v.parameterType = parameterType;
         v.descriptorType = descriptorType;
@@ -506,7 +510,7 @@ export class RenderCommonObjectPool {
         mode: ResolveMode = ResolveMode.SAMPLE_ZERO,
         mode1: ResolveMode = ResolveMode.SAMPLE_ZERO,
     ): ResolvePair {
-        const v = this._resolvePair.add();
+        const v = this.rp.add(); // ResolvePair
         v.reset(source, target, resolveFlags, mode, mode1);
         return v;
     }
@@ -522,7 +526,7 @@ export class RenderCommonObjectPool {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ): CopyPair {
-        const v = this._copyPair.add();
+        const v = this.cp.add(); // CopyPair
         v.reset(source, target, mipLevels, numSlices, sourceMostDetailedMip, sourceFirstSlice, sourcePlaneSlice, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
@@ -534,7 +538,7 @@ export class RenderCommonObjectPool {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ): UploadPair {
-        const v = this._uploadPair.add();
+        const v = this.up.add(); // UploadPair
         v.reset(target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
@@ -547,25 +551,25 @@ export class RenderCommonObjectPool {
         targetFirstSlice = 0,
         targetPlaneSlice = 0,
     ): MovePair {
-        const v = this._movePair.add();
+        const v = this.mp.add(); // MovePair
         v.reset(source, target, mipLevels, numSlices, targetMostDetailedMip, targetFirstSlice, targetPlaneSlice);
         return v;
     }
     createPipelineStatistics (): PipelineStatistics {
-        const v = this._pipelineStatistics.add();
+        const v = this.ps.add(); // PipelineStatistics
         v.reset();
         return v;
     }
-    private readonly _lightInfo: RecyclePool<LightInfo> = new RecyclePool<LightInfo>(() => new LightInfo(), 16);
-    private readonly _descriptor: RecyclePool<Descriptor> = new RecyclePool<Descriptor>(() => new Descriptor(), 16);
-    private readonly _descriptorBlock: RecyclePool<DescriptorBlock> = new RecyclePool<DescriptorBlock>(() => new DescriptorBlock(), 16);
-    private readonly _descriptorBlockFlattened: RecyclePool<DescriptorBlockFlattened> = new RecyclePool<DescriptorBlockFlattened>(() => new DescriptorBlockFlattened(), 16);
-    private readonly _descriptorBlockIndex: RecyclePool<DescriptorBlockIndex> = new RecyclePool<DescriptorBlockIndex>(() => new DescriptorBlockIndex(), 16);
-    private readonly _resolvePair: RecyclePool<ResolvePair> = new RecyclePool<ResolvePair>(() => new ResolvePair(), 16);
-    private readonly _copyPair: RecyclePool<CopyPair> = new RecyclePool<CopyPair>(() => new CopyPair(), 16);
-    private readonly _uploadPair: RecyclePool<UploadPair> = new RecyclePool<UploadPair>(() => new UploadPair(), 16);
-    private readonly _movePair: RecyclePool<MovePair> = new RecyclePool<MovePair>(() => new MovePair(), 16);
-    private readonly _pipelineStatistics: RecyclePool<PipelineStatistics> = new RecyclePool<PipelineStatistics>(() => new PipelineStatistics(), 16);
+    private readonly li: RecyclePool<LightInfo> = createPool(LightInfo);
+    private readonly d: RecyclePool<Descriptor> = createPool(Descriptor);
+    private readonly db: RecyclePool<DescriptorBlock> = createPool(DescriptorBlock);
+    private readonly dbf: RecyclePool<DescriptorBlockFlattened> = createPool(DescriptorBlockFlattened);
+    private readonly dbi: RecyclePool<DescriptorBlockIndex> = createPool(DescriptorBlockIndex);
+    private readonly rp: RecyclePool<ResolvePair> = createPool(ResolvePair);
+    private readonly cp: RecyclePool<CopyPair> = createPool(CopyPair);
+    private readonly up: RecyclePool<UploadPair> = createPool(UploadPair);
+    private readonly mp: RecyclePool<MovePair> = createPool(MovePair);
+    private readonly ps: RecyclePool<PipelineStatistics> = createPool(PipelineStatistics);
 }
 
 export function saveLightInfo (a: OutputArchive, v: LightInfo): void {

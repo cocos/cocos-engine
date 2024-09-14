@@ -42,6 +42,7 @@ class PhysXRigidBody;
 class PhysXSharedBody final {
 public:
     static PhysXSharedBody *getSharedBody(const Node *node, PhysXWorld *world, PhysXRigidBody *body);
+    static void clearCache();
     PhysXSharedBody() = delete;
     PhysXSharedBody(const PhysXSharedBody &other) = delete;
     PhysXSharedBody(PhysXSharedBody &&other) = delete;

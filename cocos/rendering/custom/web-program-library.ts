@@ -34,7 +34,7 @@ import { ProgramLibrary, ProgramProxy } from './private';
 import { DescriptorTypeOrder, UpdateFrequency } from './types';
 import { ProgramGroup, ProgramInfo } from './web-types';
 import { getCustomPassID, getCustomPhaseID, getOrCreateDescriptorSetLayout, getEmptyDescriptorSetLayout, getEmptyPipelineLayout, initializeDescriptorSetLayoutInfo, makeDescriptorSetLayoutData, getDescriptorSetLayout, getOrCreateDescriptorID, getDescriptorTypeOrder, getProgramID, getDescriptorNameID, getDescriptorName, INVALID_ID, ENABLE_SUBPASS, getCustomSubpassID, generateConstantMacros, populatePipelineLayoutInfo } from './layout-graph-utils';
-import { assert, error } from '../../core/platform/debug';
+import { assert, error, errorID } from '../../core/platform/debug';
 import { IDescriptorSetLayoutInfo, UBOSkinning, localDescriptorSetLayout } from '../define';
 import { PipelineRuntime } from './pipeline';
 
@@ -884,8 +884,8 @@ export function validateShaderInfo (srcShaderInfo: EffectAsset.IShaderInfo): num
 export class WebProgramLibrary implements ProgramLibrary {
     constructor (lg: LayoutGraphData) {
         this.layoutGraph = lg;
-        for (const v of lg.vertices()) {
-            if (lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+        for (const v of lg.v()) {
+            if (lg.h(LayoutGraphDataValue.RenderPhase, v)) {
                 this.phases.set(v, new ProgramGroup());
             }
         }
@@ -906,7 +906,7 @@ export class WebProgramLibrary implements ProgramLibrary {
 
         // init layout graph
         const lg = this.layoutGraph;
-        for (const v of lg.vertices()) {
+        for (const v of lg.v()) {
             const layout: PipelineLayoutData = lg.getLayout(v);
             for (const [update, set] of layout.descriptorSets) {
                 initializeDescriptorSetLayoutInfo(set.descriptorSetLayoutData, set.descriptorSetLayoutInfo);
@@ -917,8 +917,8 @@ export class WebProgramLibrary implements ProgramLibrary {
             }
         }
 
-        for (const v of lg.vertices()) {
-            if (!lg.holds(LayoutGraphDataValue.RenderPhase, v)) {
+        for (const v of lg.v()) {
+            if (!lg.h(LayoutGraphDataValue.RenderPhase, v)) {
                 continue;
             }
             const phaseID = v;
@@ -1113,7 +1113,7 @@ export class WebProgramLibrary implements ProgramLibrary {
         if (deviceShaderVersion) {
             src = programInfo[deviceShaderVersion];
         } else {
-            error('Invalid GFX API!');
+            errorID(16346);
         }
 
         // prepare shader info

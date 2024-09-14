@@ -28,6 +28,7 @@ import { DrawBatch2D } from './draw-batch';
 import { markAsWarning, replaceProperty, removeProperty, warnID } from '../../core';
 import { MeshBuffer } from './mesh-buffer';
 import { MeshRenderData } from './render-data';
+import { Attribute } from '../../gfx/base/define';
 
 export { VertexFormat as UIVertexFormat };
 
@@ -42,7 +43,9 @@ export { UIDrawBatch };
 class UIDrawBatch extends DrawBatch2D {
 }
 
-markAsWarning(MeshBuffer.prototype, 'MeshBuffer',
+markAsWarning(
+    MeshBuffer.prototype,
+    'MeshBuffer',
     [
         'byteStart',
         'vertexStart',
@@ -51,7 +54,8 @@ markAsWarning(MeshBuffer.prototype, 'MeshBuffer',
     ].map((item) => ({
         name: item,
         suggest: `please use meshBuffer.accessor.${item} instead`,
-    })));
+    })),
+);
 
 replaceProperty(MeshBuffer.prototype, 'MeshBuffer', [
     {
@@ -100,7 +104,7 @@ replaceProperty(MeshRenderData.prototype, 'MeshRenderData', [
 ]);
 
 export class QuadRenderData extends MeshRenderData {
-    constructor (vertexFormat) {
+    constructor (vertexFormat: Attribute[]) {
         super(vertexFormat);
         warnID(9006);
     }

@@ -26,6 +26,7 @@
 import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet, LoadOp,
     Format, Rect, Sampler, StoreOp, Texture, Viewport, MemoryUsageBit,
     UniformBlock,
+    Device,
 } from '../../gfx';
 import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
@@ -426,7 +427,7 @@ export function getDescBinding (descId, descData: DescriptorSetData): number {
 export function getDescBindingFromName (bindingName: string): number {
     const pipeline = cclegacy.director.root.pipeline as WebPipeline;
     const layoutGraph = pipeline.layoutGraph;
-    const vertIds = layoutGraph.vertices();
+    const vertIds = layoutGraph.v();
     const descId = layoutGraph.attributeIndex.get(bindingName);
     let currDesData: DescriptorSetData;
     for (const i of vertIds) {
@@ -448,33 +449,70 @@ export function getDescBindingFromName (bindingName: string): number {
 }
 
 const uniformMap: Map<string, Float32Array> = new Map();
+const buffHashMap: Map<Buffer, number> = new Map();
+function numsHash (arr: number[]): number {
+    let hash = 0;
+    for (let i = 0; i < arr.length; i++) {
+        hash = hashCombineNum(arr[i], hash);
+    }
+    return hash;
+}
 
-function updateGlobalDescBuffer (blockId: number, vals: number[], layout: string, setData: DescriptorSetData): void {
-    const descriptorSet = setData.descriptorSet!;
+class DescBuffManager {
+    private buffers: Buffer[] = [];
+    private currBuffIdx: number = 0;
+    private device: Device;
+    constructor (bufferSize: number, numBuffers: number = 2) {
+        const root = cclegacy.director.root;
+        const device = root.device;
+        this.device = device;
+        for (let i = 0; i < numBuffers; i++) {
+            const bufferInfo: BufferInfo = new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                bufferSize,
+                bufferSize,
+            );
+            this.buffers.push(this.device.createBuffer(bufferInfo));
+        }
+    }
+    getCurrentBuffer (): Buffer {
+        const root = cclegacy.director.root;
+        this.currBuffIdx = root.frameCount % this.buffers.length;
+        return this.buffers[this.currBuffIdx];
+    }
+    updateBuffer (bindId: number, vals: number[], layout: string, setData: DescriptorSetData): void {
+        const descriptorSet = setData.descriptorSet!;
+        const buffer = this.getCurrentBuffer();
+        const uniformKey = `${layout}${bindId}${this.currBuffIdx}`;
+        let currUniform = uniformMap.get(uniformKey);
+        const currHash = numsHash(vals);
+        if (!currUniform) {
+            currUniform = new Float32Array(vals);
+            uniformMap.set(uniformKey, currUniform);
+        }
+        const destHash = buffHashMap.get(buffer);
+        if (destHash !== currHash) {
+            currUniform.set(vals);
+            buffer.update(currUniform);
+            bindGlobalDesc(descriptorSet, bindId, buffer);
+            buffHashMap.set(buffer, currHash);
+        }
+    }
+}
+
+const buffsMap: Map<string, DescBuffManager> = new Map();
+
+function updateGlobalDescBuffer (blockId: number, sceneId: number, vals: number[], layout: string, setData: DescriptorSetData): void {
     const bindId = getDescBinding(blockId, setData);
-    const root = cclegacy.director.root;
-    const device = root.device;
     if (bindId === -1) { return; }
-    const uniformKey = `${layout}${bindId}`;
-    let buffer = descriptorSet.getBuffer(bindId);
-    let haveBuff = true;
-    if (!buffer) {
-        buffer = device.createBuffer(new BufferInfo(
-            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            vals.length * 4,
-            vals.length * 4,
-        ));
-        haveBuff = false;
+    const descKey = `${blockId}${bindId}${sceneId}`;
+    let currDescBuff = buffsMap.get(descKey);
+    if (!currDescBuff) {
+        buffsMap.set(descKey, new DescBuffManager(vals.length * 4));
+        currDescBuff = buffsMap.get(descKey);
     }
-    let currUniform = uniformMap.get(uniformKey);
-    if (!currUniform) {
-        uniformMap.set(uniformKey, new Float32Array(vals));
-        currUniform = uniformMap.get(uniformKey)!;
-    }
-    currUniform.set(vals);
-    buffer.update(currUniform);
-    if (!haveBuff) bindGlobalDesc(descriptorSet, bindId, buffer);
+    currDescBuff!.updateBuffer(bindId, vals, layout, setData);
 }
 
 const layouts: Map<string, DescriptorSetData> = new Map();
@@ -484,7 +522,7 @@ export function getDescriptorSetDataFromLayout (layoutName: string): DescriptorS
         return descLayout;
     }
     const webPip = cclegacy.director.root.pipeline as WebPipeline;
-    const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.nullVertex(), layoutName);
+    const stageId = webPip.layoutGraph.locateChild(webPip.layoutGraph.N, layoutName);
     assert(stageId !== 0xFFFFFFFF);
     const layout = webPip.layoutGraph.getLayout(stageId);
     const layoutData = layout.descriptorSets.get(UpdateFrequency.PER_PASS);
@@ -499,8 +537,8 @@ export function getDescriptorSetDataFromLayoutId (id: number): DescriptorSetData
     return layoutData;
 }
 
-export function updateGlobalDescBinding (data: RenderData, layoutName = 'default'): void {
-    updatePerPassUBO(layoutName, data);
+export function updateGlobalDescBinding (data: RenderData, sceneId: number, layoutName = 'default'): void {
+    updatePerPassUBO(layoutName, sceneId, data);
 }
 
 function getUniformBlock (block: string, layoutName: string): UniformBlock | undefined {
@@ -564,7 +602,7 @@ function addConstantBuffer (block: string, layout: string): number[] | null {
     uniformBlockMap.set(block, buffers);
     return buffers;
 }
-export function updatePerPassUBO (layout: string, user: RenderData): void {
+export function updatePerPassUBO (layout: string, sceneId: number, user: RenderData): void {
     const constantMap = user.constants;
     const samplers = user.samplers;
     const textures = user.textures;
@@ -584,7 +622,7 @@ export function updatePerPassUBO (layout: string, user: RenderData): void {
                 if (offset === -1) {
                     // Although the current uniformMem does not belong to the current uniform block,
                     // it does not mean that it should not be bound to the corresponding descriptor.
-                    updateGlobalDescBuffer(blockId, constantBuff, layout, descriptorSetData);
+                    updateGlobalDescBuffer(blockId, sceneId, constantBuff, layout, descriptorSetData);
                     continue;
                 }
                 constantBlockMap.set(key, new ConstantBlockInfo());
@@ -593,11 +631,11 @@ export function updatePerPassUBO (layout: string, user: RenderData): void {
                 constantBlock.blockId = blockId;
                 constantBlock.offset = offset;
                 copyToConstantBuffer(constantBuff, data, offset);
-                updateGlobalDescBuffer(blockId, constantBuff, layout, descriptorSetData);
+                updateGlobalDescBuffer(blockId, sceneId, constantBuff, layout, descriptorSetData);
             }
         } else {
             copyToConstantBuffer(constantBlock.buffer, data, constantBlock.offset);
-            updateGlobalDescBuffer(constantBlock.blockId, constantBlock.buffer, layout, descriptorSetData);
+            updateGlobalDescBuffer(constantBlock.blockId, sceneId, constantBlock.buffer, layout, descriptorSetData);
         }
     }
 
@@ -798,27 +836,27 @@ export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: Layout
     const subpassOrPassID = rg.getParent(queueId);
     assert(subpassOrPassID !== 0xFFFFFFFF);
     const passId = rg.getParent(subpassOrPassID);
-    let layoutId = lg.nullVertex();
+    let layoutId = lg.N;
     // single render pass
-    if (passId === rg.nullVertex()) {
+    if (passId === rg.N) {
         const layoutName: string = rg.getLayout(subpassOrPassID);
         assert(!!layoutName);
-        layoutId = lg.locateChild(lg.nullVertex(), layoutName);
+        layoutId = lg.locateChild(lg.N, layoutName);
     } else {
         const passLayoutName: string = rg.getLayout(passId);
         assert(!!passLayoutName);
-        const passLayoutId = lg.locateChild(lg.nullVertex(), passLayoutName);
-        assert(passLayoutId !== lg.nullVertex());
+        const passLayoutId = lg.locateChild(lg.N, passLayoutName);
+        assert(passLayoutId !== lg.N);
 
         const subpassLayoutName: string = rg.getLayout(subpassOrPassID);
         if (subpassLayoutName.length === 0) {
             layoutId = passLayoutId;
         } else {
             const subpassLayoutId = lg.locateChild(passLayoutId, subpassLayoutName);
-            assert(subpassLayoutId !== lg.nullVertex());
+            assert(subpassLayoutId !== lg.N);
             layoutId = subpassLayoutId;
         }
     }
-    assert(layoutId !== lg.nullVertex());
+    assert(layoutId !== lg.N);
     return layoutId;
 }

@@ -226,11 +226,11 @@ export type in_edge_iterator = InEI | InEPI;
 // Graph
 //--------------------------------------------------------------------------
 export interface Graph {
-    readonly directed_category: directional;
-    readonly edge_parallel_category: parallel;
-    readonly traversal_category: traversal;
+    // readonly directed_category: directional;
+    // readonly edge_parallel_category: parallel;
+    // readonly traversal_category: traversal;
 
-    nullVertex (): vertex_descriptor | null;
+    readonly N: number | null; // nullVertex (): vertex_descriptor | null;
 }
 
 //--------------------------------------------------------------------------
@@ -240,17 +240,22 @@ export interface IncidenceGraph extends Graph {
     edge (u: vertex_descriptor, v: vertex_descriptor): boolean;
     source (e: edge_descriptor): vertex_descriptor;
     target (e: edge_descriptor): vertex_descriptor;
-    outEdges (v: vertex_descriptor): out_edge_iterator;
-    outDegree (v: vertex_descriptor): number;
+    /** Return out edge iterator of the vertex */
+    oe (v: vertex_descriptor): out_edge_iterator;
+    /** Return out degree of the vertex */
+    od (v: vertex_descriptor): number;
 }
 
 //--------------------------------------------------------------------------
 // BidirectionalGraph
 //--------------------------------------------------------------------------
 export interface BidirectionalGraph extends IncidenceGraph {
-    inEdges (v: vertex_descriptor): in_edge_iterator;
-    inDegree (v: vertex_descriptor): number;
-    degree (v: vertex_descriptor): number;
+    /** Return in edge iterator of the vertex */
+    ie (v: vertex_descriptor): in_edge_iterator;
+    /** Return in degree of the vertex */
+    id (v: vertex_descriptor): number;
+    /** Return degree of the vertex */
+    d (v: vertex_descriptor): number;
 }
 
 //--------------------------------------------------------------------------
@@ -302,23 +307,27 @@ export type adjacency_iterator = AdjI | AdjPI;
 
 // AdjacencyGraph
 export interface AdjacencyGraph extends Graph {
-    adjacentVertices (v: vertex_descriptor): adjacency_iterator;
+    /** Return adjacenct vertex iterator */
+    adj (v: vertex_descriptor): adjacency_iterator;
 }
 
 //--------------------------------------------------------------------------
 // VertexListGraph
 //--------------------------------------------------------------------------
 export interface VertexListGraph extends Graph {
-    vertices (): IterableIterator<vertex_descriptor>;
-    numVertices (): number;
+    /** Return vertex iterator */
+    v (): IterableIterator<vertex_descriptor>;
+    /** Return number of vertices */
+    nv (): number;
 }
 
 //--------------------------------------------------------------------------
 // EdgeListGraph
 //--------------------------------------------------------------------------
 export interface EdgeListGraph extends Graph {
-    edges (): IterableIterator<edge_descriptor>;
-    numEdges (): number;
+    // edges (): IterableIterator<edge_descriptor>;
+    /** Return number of edges */
+    ne (): number;
     source (e: edge_descriptor): vertex_descriptor;
     target (e: edge_descriptor): vertex_descriptor;
 }
@@ -366,7 +375,7 @@ export interface NamedGraph extends Graph {
 //--------------------------------------------------------------------------
 export interface ComponentGraph extends Graph {
     // readonly components: string[];
-    component (id: number, v: vertex_descriptor): unknown;
+    // m (id: number, v: vertex_descriptor): unknown;
     // componentMap (id: number): unknown; // should be PropertyMap
 }
 
@@ -374,8 +383,10 @@ export interface ComponentGraph extends Graph {
 // PolymorphicGraph
 //--------------------------------------------------------------------------
 export interface PolymorphicGraph extends Graph {
-    holds (id: number, v: vertex_descriptor): boolean;
-    id (v: vertex_descriptor): number;
+    /** Checks if a vertex currently holds a given type */
+    h (id: number, v: vertex_descriptor): boolean;
+    /** Returns the zero-based index of the alternative held by the vertex */
+    w (v: vertex_descriptor): number;
     object (v: vertex_descriptor): unknown;
     value (id: number, v: vertex_descriptor): unknown;
     // tryValue(id: number, v: vertex_descriptor): unknown;
@@ -467,11 +478,11 @@ export function removeAllEdgesFromList (edges: Set<Edge>, el: OutEP[], v: vertex
 }
 
 export function getPath (g: ReferenceGraph & NamedGraph, v: vertex_descriptor | null): string {
-    if (v === g.nullVertex()) {
+    if (v === g.N) {
         return '';
     }
     const paths: string[] = [];
-    for (; v !== g.nullVertex(); v = g.getParent(v as vertex_descriptor)) {
+    for (; v !== g.N; v = g.getParent(v as vertex_descriptor)) {
         paths.push(g.vertexName(v as vertex_descriptor));
     }
     let path = '';
@@ -483,7 +494,7 @@ export function getPath (g: ReferenceGraph & NamedGraph, v: vertex_descriptor | 
 }
 
 export function findRelative (g: ParentGraph, v: vertex_descriptor | null, path: string): vertex_descriptor | null {
-    const pseudo = g.nullVertex();
+    const pseudo = g.N;
     const names = path.split('/');
 
     if (names.length === 0) { // empty string
@@ -549,10 +560,10 @@ class NoTermination implements TerminatorFunc {
 }
 
 function getDefaultStartingVertex (g: IncidenceGraph & VertexListGraph): vertex_descriptor | null {
-    const iter = g.vertices();
+    const iter = g.v();
     const v = iter.next();
     if (v.done) {
-        return g.nullVertex();
+        return g.N;
     } else {
         return v.value;
     }
@@ -616,7 +627,7 @@ function depthFirstVisitImpl (
     color.put(u, GraphColor.GRAY);
     visitor.discoverVertex(u, g);
 
-    ei = g.outEdges(u);
+    ei = g.oe(u);
     if (func.terminate(u, g)) {
         // If this vertex terminates the search, we push empty range
         stack.push(new VertexInfo(u, null, null));
@@ -647,7 +658,7 @@ function depthFirstVisitImpl (
                     u = v;
                     color.put(u, GraphColor.GRAY);
                     visitor.discoverVertex(u, g);
-                    ei = g.outEdges(u);
+                    ei = g.oe(u);
                     if (func.terminate(u, g)) {
                         break;
                     }
@@ -675,11 +686,11 @@ export function depthFirstSearch (
     // get start vertex
     startVertex = startVertex || getDefaultStartingVertex(g);
     // graph is empty, do nothing
-    if (startVertex === null || g.numVertices() === 0) {
+    if (startVertex === null || g.nv() === 0) {
         return;
     }
     // initialize vertex and color map
-    for (const u of g.vertices()) {
+    for (const u of g.v()) {
         color.put(u, GraphColor.WHITE);
         visitor.initializeVertex(u, g);
     }
@@ -691,7 +702,7 @@ export function depthFirstSearch (
         depthFirstVisitImpl(g, startVertex, visitor, color, terminator);
     }
     // try starting from each vertex
-    for (const u of g.vertices()) {
+    for (const u of g.v()) {
         // if vertex is not visited, start DFS
         if (color.get(u) === GraphColor.WHITE) {
             visitor.startVertex(u, g);
@@ -745,13 +756,13 @@ export class ReferenceGraphView <BaseGraph extends ReferenceGraph & VertexListGr
 implements IncidenceGraph, VertexListGraph {
     constructor (g: BaseGraph) {
         this.g = g;
-        this.directed_category = directional.directed;
-        this.edge_parallel_category = parallel.allow;
-        this.traversal_category = traversal.incidence | traversal.vertex_list;
+        this.N = g.N;
+        // this.directed_category = directional.directed;
+        // this.edge_parallel_category = parallel.allow;
+        // this.traversal_category = traversal.incidence | traversal.vertex_list;
     }
-    nullVertex (): vertex_descriptor | null {
-        return this.g.nullVertex();
-    }
+    declare readonly N: number | null;
+
     edge (u: vertex_descriptor, v: vertex_descriptor): boolean {
         return this.g.reference(u, v);
     }
@@ -761,20 +772,20 @@ implements IncidenceGraph, VertexListGraph {
     target (e: edge_descriptor): vertex_descriptor {
         return this.g.child(e);
     }
-    outEdges (v: vertex_descriptor): out_edge_iterator {
+    oe (v: vertex_descriptor): out_edge_iterator {
         return this.g.children(v);
     }
-    outDegree (v: vertex_descriptor): number {
+    od (v: vertex_descriptor): number {
         return this.g.numChildren(v);
     }
-    vertices (): IterableIterator<vertex_descriptor> {
-        return this.g.vertices();
+    v (): IterableIterator<vertex_descriptor> {
+        return this.g.v();
     }
-    numVertices (): number {
-        return this.g.numVertices();
+    nv (): number {
+        return this.g.nv();
     }
-    readonly directed_category: directional;
-    readonly edge_parallel_category: parallel;
-    readonly traversal_category: traversal;
+    // readonly directed_category: directional;
+    // readonly edge_parallel_category: parallel;
+    // readonly traversal_category: traversal;
     g: BaseGraph;
 }

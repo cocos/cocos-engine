@@ -38,6 +38,10 @@ export class Point extends Vec2 {
     public flags = 0;
     public len = 0;
 
+    constructor (x: number, y: number) {
+        super(x, y);
+    }
+
     public reset (): void {
         this.dx = 0;
         this.dy = 0;
@@ -86,7 +90,7 @@ export class Impl {
     private _points: Point[] = [];
     private _renderDataList: MeshRenderData[] = [];
     private _curPath: Path | null = null;
-    private _comp: Graphics;
+    private declare _comp: Graphics;
 
     constructor (comp: Graphics) {
         this._comp = comp;

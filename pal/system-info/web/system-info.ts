@@ -27,25 +27,26 @@ import { IFeatureMap } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event';
 import { checkPalIntegrity, withImpl } from '../../integrity-check';
 import { BrowserType, NetworkType, OS, Platform, Language, Feature } from '../enum-type';
+import { warn } from '../../../cocos/core/platform/debug';
 
 class SystemInfo extends EventTarget {
-    public readonly networkType: NetworkType;
-    public readonly isNative: boolean;
-    public readonly isBrowser: boolean;
-    public readonly isMobile: boolean;
-    public readonly isLittleEndian: boolean;
-    public readonly platform: Platform;
-    public readonly language: Language;
-    public readonly nativeLanguage: string;
-    public readonly os: OS;
-    public readonly osVersion: string;
-    public readonly osMainVersion: number;
-    public readonly browserType: BrowserType;
-    public readonly browserVersion: string;
-    public readonly isXR: boolean;
-    private _battery?: any;
-    private _featureMap: IFeatureMap;
-    private _initPromise: Promise<void>[];
+    public declare readonly networkType: NetworkType;
+    public declare readonly isNative: boolean;
+    public declare readonly isBrowser: boolean;
+    public declare readonly isMobile: boolean;
+    public declare readonly isLittleEndian: boolean;
+    public declare readonly platform: Platform;
+    public declare readonly language: Language;
+    public declare readonly nativeLanguage: string;
+    public declare readonly os: OS;
+    public declare readonly osVersion: string;
+    public declare readonly osMainVersion: number;
+    public declare readonly browserType: BrowserType;
+    public declare readonly browserVersion: string;
+    public declare readonly isXR: boolean;
+    private _battery: any = null;
+    private declare _featureMap: IFeatureMap;
+    private _initPromise: Promise<void>[] = [];
 
     constructor () {
         super();
@@ -251,7 +252,6 @@ class SystemInfo extends EventTarget {
             [Feature.WASM]: supportWasm,
         };
 
-        this._initPromise = [];
         this._initPromise.push(this._supportsImageBitmapPromise());
 
         this._registerEvent();
@@ -268,7 +268,7 @@ class SystemInfo extends EventTarget {
                     imageBitmap?.close();
                 });
             } else if (DEBUG) {
-                console.warn('The return value of createImageBitmap is not Promise.');
+                warn('The return value of createImageBitmap is not Promise.');
             }
         }
         return Promise.resolve();
@@ -359,14 +359,14 @@ class SystemInfo extends EventTarget {
             return this._battery.level as number;
         } else {
             if (DEBUG) {
-                console.warn('getBatteryLevel is not supported');
+                warn('getBatteryLevel is not supported');
             }
             return 1;
         }
     }
     public triggerGC (): void {
         if (DEBUG) {
-            console.warn('triggerGC is not supported.');
+            warn('triggerGC is not supported.');
         }
     }
     public openURL (url: string): void {
@@ -381,7 +381,7 @@ class SystemInfo extends EventTarget {
     }
     public restartJSVM (): void {
         if (DEBUG) {
-            console.warn('restartJSVM is not supported.');
+            warn('restartJSVM is not supported.');
         }
     }
 

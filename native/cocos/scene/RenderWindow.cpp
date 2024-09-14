@@ -56,7 +56,17 @@ RenderWindow::RenderWindow()
   _colorName("Color" + std::to_string(_renderWindowId)),
   _depthStencilName("DepthStencil" + std::to_string(_renderWindowId)) {}
 
-RenderWindow::~RenderWindow() = default;
+RenderWindow::~RenderWindow() {
+    // NOTE: destroy needs to be invoked in the destructor of RenderWindow to avoid wild pointer issues in gfx backend code.
+    // RenderWindow owns `_frameBuffer` and `_colorTextures`, `_frameBuffer` should be released before `_colorTextures`
+    // since gfx::Framebuffer keeps a weak pointer of `_colorTextures` and there is code :
+    // GLES3Device::getInstance()->framebufferHub()->disengage(colorTexture->gpuTexture(), _gpuFBO);
+    // in the GLES3Framebuffer::doDestroy.
+    // Invoking `destroy` here will make sure that `_frameBuffer` is destructed before `_colorTextures`,
+    // otherwise, the `colorTexture` in `disengage(colorTexture->gpuTexture(), _gpuFBO);` will be a wild pointer and
+    // colorTexture->gpuTexture() will be an invalid memory read operation.
+    destroy();
+}
 
 bool RenderWindow::initialize(gfx::Device *device, IRenderWindowInfo &info) {
     if (info.title.has_value() && !info.title.value().empty()) {

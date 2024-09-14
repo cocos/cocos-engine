@@ -105,6 +105,7 @@ PhysXWorld::~PhysXWorld() {
     // clear material cache
     materialMap.clear();
     delete _mEventMgr;
+    PhysXSharedBody::clearCache();
     PhysXJoint::releaseTempRigidActor();
     PX_RELEASE(_mControllerManager);
     PX_RELEASE(_mScene);
@@ -119,6 +120,7 @@ PhysXWorld::~PhysXWorld() {
     PX_RELEASE(_mCooking);
     PxCloseExtensions();
     PX_RELEASE(_mFoundation);
+    instance = nullptr;
 }
 
 void PhysXWorld::step(float fixedTimeStep) {

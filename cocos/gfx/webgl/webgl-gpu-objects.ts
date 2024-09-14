@@ -39,15 +39,15 @@ import { WebGLCmdFuncBindStates, WebGLCmdFuncCreateBuffer, WebGLCmdFuncCreateInp
 import { WebGLDeviceManager } from './webgl-define';
 
 export class WebGLIndirectDrawInfos {
-    public counts: Int32Array;
-    public offsets: Int32Array;
-    public instances: Int32Array;
+    public declare counts: Int32Array;
+    public declare offsets: Int32Array;
+    public declare instances: Int32Array;
     public drawCount = 0;
     public drawByIndex = false;
     public instancedDraw = false;
 
     // staging buffer
-    public byteOffsets: Int32Array;
+    public declare byteOffsets: Int32Array;
 
     private _capacity = 4;
 

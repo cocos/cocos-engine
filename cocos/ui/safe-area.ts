@@ -71,6 +71,10 @@ export class SafeArea extends Component {
     @serializable
     private _symmetric: boolean = true;
 
+    constructor () {
+        super();
+    }
+
     public onEnable (): void {
         this.updateArea();
         // IDEA: need to delay the callback on Native platform ?

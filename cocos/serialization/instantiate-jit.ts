@@ -51,8 +51,8 @@ const escapeForJS = CCClass.escapeForJS;
 // ('foo', 'bar')
 // -> 'var foo = bar;'
 class Declaration {
-    public varName: any;
-    public expression: any;
+    public declare varName: any;
+    public declare expression: any;
 
     constructor (varName, expression) {
         this.varName = varName;
@@ -102,8 +102,8 @@ function writeAssignment (codeArray, statement, expression): void {
 class Assignments {
     public static pool: js.Pool<{}>;
 
-    private _exps: any[];
-    private _targetExp: any;
+    private declare _exps: any[];
+    private declare _targetExp: any;
 
     constructor (targetExpression?) {
         this._exps = [];
@@ -157,16 +157,25 @@ function getPropAccessor (key): string {
  * {Object} o - current creating object
  */
 class Parser {
-    public parent: any;
-    public objsToClear_iN$t: any[];
-    public codeArray: any[];
-    public objs: any[];
-    public funcs: any[];
-    public funcModuleCache: any;
-    public globalVariables: any[];
-    public globalVariableId: number;
-    public localVariableId: number;
-    public result: any;
+    public declare parent: any;
+    public objsToClear_iN$t: any[] = []; // used to reset _iN$t variable
+    public codeArray: any[] = [];
+    // datas for generated code
+    public objs: any[] = [];
+    public funcs: any[] = [];
+    //
+    public declare funcModuleCache: any;
+
+    // {String[]} - variable names for circular references,
+    //              not really global, just local variables shared between sub functions
+    public globalVariables: any[] = [];
+
+    // incremental id for new global variables
+    public globalVariableId: number = 0;
+
+    // incremental id for new local variables
+    public localVariableId: number = 0;
+    public declare result: any;
     /*
     * @method constructor
     * @param {Object} obj - the object to parse
@@ -175,35 +184,22 @@ class Parser {
     constructor (obj, parent) {
         this.parent = parent;
 
-        this.objsToClear_iN$t = [];   // used to reset _iN$t variable
-        this.codeArray = [];
-
-        // datas for generated code
-        this.objs = [];
-        this.funcs = [];
-
         this.funcModuleCache = js.createMap();
-        js.mixin(this.funcModuleCache, DEFAULT_MODULE_CACHE);
-
-        // {String[]} - variable names for circular references,
-        //              not really global, just local variables shared between sub functions
-        this.globalVariables = [];
-        // incremental id for new global variables
-        this.globalVariableId = 0;
-        // incremental id for new local variables
-        this.localVariableId = 0;
+        js.mixin(this.funcModuleCache as Record<string | number, any>, DEFAULT_MODULE_CACHE);
 
         // generate codeArray
         // if (Array.isArray(obj)) {
         //    this.codeArray.push(this.instantiateArray(obj));
         // }
         // else {
-        this.codeArray.push(`${VAR + LOCAL_OBJ},${LOCAL_TEMP_OBJ};`,
+        this.codeArray.push(
+            `${VAR + LOCAL_OBJ},${LOCAL_TEMP_OBJ};`,
             'if(R){',
             `${LOCAL_OBJ}=R;`,
             '}else{',
             `${LOCAL_OBJ}=R=new ${this.getFuncModule(obj.constructor, true)}();`,
-            '}');
+            '}',
+        );
         obj._iN$t = { globalVar: 'R' };
         this.objsToClear_iN$t.push(obj);
         this.enumerateObject(this.codeArray, obj);

@@ -22,12 +22,13 @@
  THE SOFTWARE.
 */
 
+import { errorID } from '../core';
 import { Attribute, Buffer, BufferInfo, Device, InputAssemblerInfo, AttributeName, BufferUsageBit, Format, MemoryUsageBit, InputAssembler } from '../gfx';
 import { IGeometry } from '../primitive/define';
 
 export function createIA (device: Device, data: IGeometry): InputAssembler | null {
     if (!data.positions) {
-        console.error('The data must have positions field');
+        errorID(16306);
         return null;
     }
 

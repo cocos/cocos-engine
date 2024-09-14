@@ -26,8 +26,10 @@
 import { ccclass, type, serializable, editable } from 'cc.decorator';
 import { Font } from './font';
 import { SpriteFrame } from './sprite-frame';
-import { cclegacy, js, warn } from '../../core';
+import { cclegacy, js, warnID } from '../../core';
 import { getSymbolCodeAt } from '../utils';
+import { IShareLabelInfo } from '../assembler/label/font-utils';
+import { TextureBase } from '../../asset/assets/texture-base';
 
 export interface IConfig {
     [key: string]: any;
@@ -40,7 +42,6 @@ export class FontLetterDefinition {
     public h = 0;
     public offsetX = 0;
     public offsetY = 0;
-    public textureID = 0;
     public valid = false;
     public xAdvance = 0;
 }
@@ -50,15 +51,14 @@ export interface ILetterDefinition {
 }
 
 export class FontAtlas {
-    public declare letterDefinitions;
-    public declare texture;
+    public letterDefinitions: ILetterDefinition = {};
+    public declare texture: TextureBase | null;
 
-    constructor (texture) {
-        this.letterDefinitions = {};
+    constructor (texture: TextureBase | null) {
         this.texture = texture;
     }
 
-    public addLetterDefinitions (letter, letterDefinition): void {
+    public addLetterDefinitions (letter: string, letterDefinition: FontLetterDefinition): void {
         this.letterDefinitions[letter] = letterDefinition;
     }
 
@@ -72,22 +72,20 @@ export class FontAtlas {
         return copyLetterDefinitions;
     }
 
-    public getTexture (): any {
+    public getTexture (): TextureBase | null {
         return this.texture;
     }
 
-    public getLetter (key): any {
+    public getLetter (key: string): FontLetterDefinition {
         return this.letterDefinitions[key];
     }
 
-    public getLetterDefinitionForChar (char, labelInfo?): any {
-        const key = getSymbolCodeAt(char as string, 0);
-        const hasKey = this.letterDefinitions.hasOwnProperty(key);
-        let letter;
+    public getLetterDefinitionForChar (char: string, labelInfo?: IShareLabelInfo): FontLetterDefinition | null {
+        const key = getSymbolCodeAt(char, 0);
+        const hasKey = Object.prototype.hasOwnProperty.call(this.letterDefinitions, key);
+        let letter: FontLetterDefinition | null = null;
         if (hasKey) {
             letter = this.letterDefinitions[key];
-        } else {
-            letter = null;
         }
         return letter;
     }
@@ -138,6 +136,10 @@ export class BitmapFont extends Font {
      */
     public declare fontDefDictionary: FontAtlas;
 
+    constructor () {
+        super();
+    }
+
     onLoaded (): void {
         const spriteFrame = this.spriteFrame;
         if (!this.fontDefDictionary && spriteFrame) {
@@ -146,24 +148,23 @@ export class BitmapFont extends Font {
 
         const fntConfig = this.fntConfig;
         if (!fntConfig) {
-            warn('The fnt config is not exists!');
+            warnID(16376);
             return;
         }
 
         const fontDict = fntConfig.fontDefDictionary;
         for (const fontDef in fontDict) {
+            const info = fontDict[fontDef];
             const letter = new FontLetterDefinition();
-            const rect = fontDict[fontDef].rect;
-            letter.offsetX = fontDict[fontDef].xOffset;
-            letter.offsetY = fontDict[fontDef].yOffset;
+            const rect = info.rect;
+            letter.offsetX = info.xOffset;
+            letter.offsetY = info.yOffset;
             letter.w = rect.width;
             letter.h = rect.height;
             letter.u = rect.x;
             letter.v = rect.y;
-            // FIXME: only one texture supported for now
-            letter.textureID = 0;
             letter.valid = true;
-            letter.xAdvance = fontDict[fontDef].xAdvance;
+            letter.xAdvance = info.xAdvance;
 
             this.fontDefDictionary.addLetterDefinitions(fontDef, letter);
         }

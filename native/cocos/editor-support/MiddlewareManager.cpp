@@ -74,7 +74,8 @@ void MiddlewareManager::update(float dt) {
         attachBuffer->writeUint32(0);
     }
 
-    for (auto *editor : _updateList) {
+    for (size_t i = 0, len = _updateList.size(); i < len; ++i) {
+        auto *editor = _updateList[i];
         if (!_removeList.empty()) {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
             if (removeIt == _removeList.end()) {
@@ -104,7 +105,8 @@ void MiddlewareManager::render(float dt) {
 
     isRendering = true;
 
-    for (auto *editor : _updateList) {
+    for (size_t i = 0, len = _updateList.size(); i < len; ++i) {
+        auto *editor = _updateList[i];
         if (!_removeList.empty()) {
             auto removeIt = std::find(_removeList.begin(), _removeList.end(), editor);
             if (removeIt == _removeList.end()) {

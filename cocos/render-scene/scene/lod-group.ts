@@ -65,7 +65,7 @@ export class LODGroup {
 
     public node: Node = null!;
 
-    protected _device: Device;
+    protected declare _device: Device;
 
     public enabled = true;
 

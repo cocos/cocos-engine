@@ -167,7 +167,7 @@ export class Plane {
      * @zh
      * 法线向量。
      */
-    public n: Vec3;
+    public declare n: Vec3;
 
     /**
      * @en

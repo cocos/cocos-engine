@@ -262,7 +262,7 @@ export class UIRenderer extends Renderer {
     protected _renderDataFlag = true;
     protected _renderFlag = true;
 
-    protected _renderEntity: RenderEntity;
+    protected declare _renderEntity: RenderEntity;
 
     protected _instanceMaterialType = -1;
     protected _srcBlendFactorCache = BlendFactor.SRC_ALPHA;

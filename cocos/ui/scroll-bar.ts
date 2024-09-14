@@ -84,6 +84,10 @@ ccenum(Direction);
 @menu('UI/ScrollBar')
 @requireComponent(UITransform)
 export class ScrollBar extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * The "handle" part of the ScrollBar.
@@ -342,7 +346,7 @@ export class ScrollBar extends Component {
         }
     }
 
-    protected update (dt): void {
+    protected update (dt: number): void {
         this._processAutoHide(dt);
     }
 

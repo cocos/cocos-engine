@@ -53,6 +53,10 @@ const _rect = new Rect();
 @disallowMultiple
 @executeInEditMode
 export class UITransform extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * Size of the UI node.

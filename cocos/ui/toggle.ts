@@ -133,6 +133,10 @@ export class Toggle extends Button {
     @serializable
     protected _checkMark: Sprite | null = null;
 
+    constructor () {
+        super();
+    }
+
     protected _internalToggle (): void {
         this.isChecked = !this.isChecked;
     }

@@ -24,7 +24,7 @@
 
 import { ALIPAY, BYTEDANCE, TAOBAO_MINIGAME, VIVO } from 'internal:constants';
 import { minigame } from 'pal/minigame';
-import { ConfigOrientation, IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
+import { IScreenOptions, SafeAreaEdge } from 'pal/screen-adapter';
 import { systemInfo } from 'pal/system-info';
 import { warnID } from '../../../cocos/core/platform/debug';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -44,6 +44,7 @@ try {
             // TODO: use pal/fs
             // issue: https://github.com/cocos/cocos-engine/issues/14647
             const fs = my.getFileSystemManager();
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             const screenOrientation = JSON.parse(fs.readFileSync({
                 filePath: 'game.json',
                 encoding: 'utf8',
@@ -52,6 +53,7 @@ try {
         }
     }
 } catch (e) {
+    // eslint-disable-next-line no-console
     console.error(e);
 }
 
@@ -116,7 +118,7 @@ class ScreenAdapter extends EventTarget {
         return minigame.orientation;
     }
     public set orientation (value: Orientation) {
-        console.warn('Setting orientation is not supported yet.');
+        warnID(1221);
     }
 
     public get safeAreaEdge (): SafeAreaEdge {

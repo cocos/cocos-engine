@@ -193,8 +193,8 @@ class CCObject implements EditorExtendableObject {
     /**
      * @internal
      */
-    public _objFlags: number;
-    protected _name: string;
+    public _objFlags: number = 0;
+    protected declare _name: string;
 
     constructor (name = '') {
         /**
@@ -202,12 +202,6 @@ class CCObject implements EditorExtendableObject {
          * @private
          */
         this._name = name;
-
-        /**
-         * @default 0
-         * @private
-         */
-        this._objFlags = 0;
 
         if (EDITOR) {
             // See cocos/cocos-engine#15392

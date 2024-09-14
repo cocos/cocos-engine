@@ -360,9 +360,7 @@ void Scheduler::runFunctionsToBePerformedInCocosThread() {
         }
         
         std::lock_guard<std::mutex> lk(_performMutex);
-        for (; iter != temp.end(); ++iter) {
-            _functionsToPerform.emplace_back(std::move(*iter));
-        }
+        _functionsToPerform.insert(_functionsToPerform.begin(), std::make_move_iterator(iter), std::make_move_iterator(temp.end()));
     }
 }
 

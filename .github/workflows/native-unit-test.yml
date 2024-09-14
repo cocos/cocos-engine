@@ -13,15 +13,25 @@ concurrency:
 
 jobs:
   unit-test-with-cmake:
-    name: "Run on windows"
+    name: "Run on macOS"
     if: 
       (! contains(github.event.pull_request.body, '[X] does not change any runtime related code or build configuration'))
-    runs-on: windows-latest
+    runs-on: macos-latest
     defaults:
       run:
         working-directory: ${{github.workspace}}/native
     steps:
       - uses: actions/checkout@v4
+
+      - uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: 3.28.3
+
+      - name: Check cmake version
+        run: |
+          echo "CMake version: "
+          cmake --version
+
       - name: Download external libraries
         shell: bash
         run: |
@@ -31,9 +41,16 @@ jobs:
       - name: Run Unit Tests
         shell: bash
         run: |
-          cmake -B tests/unit-test/build -S tests/unit-test
-          cmake --build tests/unit-test/build --config Release
-          ./tests/unit-test/build/src/Release/CocosTest.exe
+          cpus=$(sysctl hw.ncpu | awk '{print $2}')
+          echo "cpus: ${cpus}"
+          which cmake
+          cmake --version
+          cmake -B tests/unit-test/build -S tests/unit-test -GXcode
+          cd tests/unit-test/build
+          # cmake --build tests/unit-test/build --config Release -j${cpus}
+          ls -l
+          xcodebuild -project CocosTest.xcodeproj -scheme "CocosTest" -jobs ${cpus} -arch arm64 -configuration Release build CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          ./src/Release/CocosTest
 
       #### TODO(PatriceJiang): model split
       # - name: Run Module Tests
@@ -73,7 +90,7 @@ jobs:
           cp cfg.cmake proj/
           GW="${GITHUB_WORKSPACE//\\/\/}"
           cmake -B proj -S win64 -DRES_DIR="${GW}/native/tests/sebind-tests" -DCOCOS_X_PATH="${GW}/native" -DAPP_NAME=sebind
-          cmake --build proj
+          cmake --build proj -j2
           # cd proj/Debug
           ## can not boot on this machine
           # ./sebind.exe || true

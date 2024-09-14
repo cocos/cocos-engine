@@ -139,7 +139,7 @@ export class TextureBase extends Asset {
      */
     protected _height = 1;
 
-    private _id: string;
+    private declare _id: string;
     private _samplerInfo = new SamplerInfo();
     private _gfxSampler: Sampler | null = null;
     private _gfxDevice: Device | null = null;

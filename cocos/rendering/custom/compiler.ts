@@ -97,19 +97,19 @@ class PassVisitor implements RenderGraphVisitor {
         this._resVisitor = new ResourceVisitor(this.context);
     }
     protected _isRasterPass (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.RasterPass, u);
+        return this.context.renderGraph.h(RenderGraphValue.RasterPass, u);
     }
     protected _isCopyPass (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Copy, u);
+        return this.context.renderGraph.h(RenderGraphValue.Copy, u);
     }
     protected _isCompute (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Compute, u);
+        return this.context.renderGraph.h(RenderGraphValue.Compute, u);
     }
     protected _isDispatch (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Dispatch, u);
+        return this.context.renderGraph.h(RenderGraphValue.Dispatch, u);
     }
     protected _isQueue (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Queue, u);
+        return this.context.renderGraph.h(RenderGraphValue.Queue, u);
     }
     protected _isShadowMap (u: number): boolean {
         const sceneData = this._getSceneData(u);
@@ -119,16 +119,16 @@ class PassVisitor implements RenderGraphVisitor {
         return false;
     }
     protected _getSceneData (u: number): SceneData | null {
-        if (!this.context.renderGraph.holds(RenderGraphValue.Scene, u)) {
+        if (!this.context.renderGraph.h(RenderGraphValue.Scene, u)) {
             return null;
         }
         return this.context.renderGraph.j<SceneData>(u);
     }
     protected _isScene (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Scene, u);
+        return this.context.renderGraph.h(RenderGraphValue.Scene, u);
     }
     protected _isBlit (u: number): boolean {
-        return this.context.renderGraph.holds(RenderGraphValue.Blit, u);
+        return this.context.renderGraph.h(RenderGraphValue.Blit, u);
     }
 
     private _useResourceInfo (input: string, raster: RasterView): void {
@@ -344,7 +344,7 @@ class PassManagerVisitor extends DefaultVisitor {
 
     set resId (value: number) {
         this._resId = value;
-        this._colorMap.colors.length = context.renderGraph.numVertices();
+        this._colorMap.colors.length = context.renderGraph.nv();
     }
     get resId (): number {
         return this._resId;
@@ -354,7 +354,7 @@ class PassManagerVisitor extends DefaultVisitor {
         this._resId = resId;
         this._passVisitor = new PassVisitor(context);
         this._graphView = new ReferenceGraphView<RenderGraph>(context.renderGraph);
-        this._colorMap = new VectorGraphColorMap(context.renderGraph.numVertices());
+        this._colorMap = new VectorGraphColorMap(context.renderGraph.nv());
     }
     get graphView (): ReferenceGraphView<RenderGraph> { return this._graphView; }
     get colorMap (): VectorGraphColorMap { return this._colorMap; }
@@ -460,7 +460,7 @@ export class Compiler {
     compile (rg: RenderGraph): void {
         context.set(this._pipeline, this._resourceGraph, rg, this._layoutGraph);
         context.pipeline.resourceUses.length = 0;
-        this._visitor.colorMap.colors.length = context.resourceGraph.numVertices();
+        this._visitor.colorMap.colors.length = context.resourceGraph.nv();
         depthFirstSearch(this._resourceGraph, this._visitor, this._visitor.colorMap);
 
         if (DEBUG) {
@@ -516,7 +516,7 @@ export class ResourceManagerVisitor extends DefaultVisitor {
     private _resVisitor: ResourceVisitor;
     constructor (context: CompilerContext) {
         super();
-        this._colorMap = new VectorGraphColorMap(context.resourceGraph.numVertices());
+        this._colorMap = new VectorGraphColorMap(context.resourceGraph.nv());
         this._resourceGraph = context.resourceGraph;
         this._resVisitor = new ResourceVisitor(context);
     }

@@ -112,7 +112,7 @@ export class StencilManager {
         zFailOp: StencilOp;
         passOp: StencilOp;
         ref: number;
-    } {
+        } {
         return this._stencilPattern;
     }
 
@@ -236,13 +236,13 @@ export class StencilManager {
             let depthWriteValue = 0;
             if (dss.depthTest) depthTestValue = 1;
             if (dss.depthWrite) depthWriteValue = 1;
-            key = (depthTestValue) | (depthWriteValue << 1) | (dss.depthFunc << 2)  | (stage << 6) | (this._maskStack.length << 9);
+            key = (depthTestValue) | (depthWriteValue << 1) | ((dss.depthFunc as number) << 2) | ((stage as number) << 6) | (this._maskStack.length << 9);
             depthTest = dss.depthTest;
             depthWrite = dss.depthWrite;
             depthFunc = dss.depthFunc;
             cacheMap = this.stencilStateMapWithDepth;
         } else {
-            key = (stage << 16) | this._maskStack.length;
+            key = ((stage as number) << 16) | this._maskStack.length;
         }
         if (cacheMap && cacheMap.has(key)) {
             return cacheMap.get(key) as DepthStencilState;

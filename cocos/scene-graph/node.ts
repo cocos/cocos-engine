@@ -29,7 +29,7 @@ import { NodeUIProperties } from './node-ui-properties';
 import { legacyCC } from '../core/global-exports';
 import { nodePolyfill } from './node-dev';
 import { ISchedulable } from '../core/scheduler';
-import { approx, EPSILON, Mat3, Mat4, Quat, Vec3 } from '../core/math';
+import { approx, EPSILON, Mat3, mat4, Mat4, quat, Quat, v3, Vec3 } from '../core/math';
 import { MobilityMode, NodeSpace, TransformBit } from './node-enum';
 import { CustomSerializable, editorExtrasTag, SerializationContext, SerializationOutput, serializeTag } from '../core/data';
 import { errorID, warnID, error, log, getError } from '../core/platform/debug';
@@ -63,16 +63,15 @@ function getConstructor<T> (typeOrClassName: string | Constructor<T> | Abstracte
     return typeOrClassName;
 }
 
-const v3_a = new Vec3();
-const v3_b = new Vec3();
-const q_a = new Quat();
-const q_b = new Quat();
-const qt_1 = new Quat();
+const v3_a = v3();
+const v3_b = v3();
+const q_a = quat();
+const q_b = quat();
+const qt_1 = quat();
 const m3_1 = new Mat3();
-const m3_scaling = new Mat3();
-const m4_1 = new Mat4();
-const m4_2 = new Mat4();
-const dirtyNodes: any[] = [];
+const m4_1 = mat4();
+const m4_2 = mat4();
+const dirtyNodes: Node[] = [];
 
 const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
 let globalFlagChangeVersion = 0;
@@ -383,8 +382,6 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     public set id (v: string) { this._id = v; }
     protected _id: string = idGenerator.getNewId();
 
-    protected _name: string;
-
     protected _eventProcessor: NodeEventProcessor = new (legacyCC.NodeEventProcessor as typeof NodeEventProcessor)(this);
     protected _eventMask = 0;
 
@@ -414,7 +411,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
      */
     protected _updateScene (): void {
         if (this._parent == null) {
-            error('Node %s(%s) has not attached to a scene.', this.name, this.uuid);
+            errorID(1640, this.name, this.uuid);
         } else {
             this._scene = this._parent._scene;
         }
@@ -633,7 +630,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
             return;
         }
         const siblings = this._parent._children;
-        index = index !== -1 ? index : siblings.length - 1;
+        index = index >= 0 ? index : siblings.length + index;
         const oldIndex = siblings.indexOf(this);
         if (index !== oldIndex) {
             siblings.splice(oldIndex, 1);
@@ -1549,8 +1546,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
     protected _hasChangedFlags = 0;
 
     constructor (name?: string) {
+        if (name === undefined) name = 'New Node';
         super(name);
-        this._name = name !== undefined ? name : 'New Node';
 
         this._pos = new Vec3();
         this._rot = new Quat();
@@ -2042,8 +2039,8 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         let i = 0;
         let j = 0;
         let l = 0;
-        let cur: this;
-        let children: this[];
+        let cur: Node;
+        let children: Node[];
         let hasChangedFlags = 0;
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
 
@@ -2074,14 +2071,15 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         if (!this._transformFlags) { return; }
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur: this | null = this;
+        let cur: Node | null = this;
         let i = 0;
         while (cur && cur._transformFlags) {
             // top level node
             dirtyNodes[i++] = cur;
             cur = cur._parent;
         }
-        let child: this; let dirtyBits = 0;
+        let child: Node;
+        let dirtyBits = 0;
 
         while (i) {
             child = dirtyNodes[--i];
@@ -2094,11 +2092,11 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
                     child._mat.m14 = child._pos.z;
                 }
                 if (dirtyBits & TransformBit.RS) {
-                    Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
+                    Mat4.fromSRT(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
 
                     const rotTmp = dirtyBits & TransformBit.ROTATION ? child._rot : null;
-                    Mat4.toRTS(child._mat, rotTmp, null, child._scale);
+                    Mat4.toSRT(child._mat, rotTmp, null, child._scale);
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
@@ -2353,7 +2351,7 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
         Vec3.copy(out, p);
         // we need to recursively iterate this
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        let cur = this;
+        let cur: Node = this;
         let i = 0;
         while (cur._parent) {
             dirtyNodes[i++] = cur;
@@ -2567,24 +2565,55 @@ export class Node extends CCObject implements ISchedulable, CustomSerializable {
 
             Vec3.copy(worldScale, v3_a);
         }
+
+        let rotationFlag = TransformBit.NONE;
         if (parent) {
-            v3_a.x = worldScale.x / Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
-            v3_a.y = worldScale.y / Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
-            v3_a.z = worldScale.z / Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
+            const xScale = Vec3.set(v3_b, this._mat.m00, this._mat.m01, this._mat.m02).length();
+            const yScale = Vec3.set(v3_b, this._mat.m04, this._mat.m05, this._mat.m06).length();
+            const zScale = Vec3.set(v3_b, this._mat.m08, this._mat.m09, this._mat.m10).length();
+            if (xScale === 0) {
+                v3_a.x = worldScale.x;
+                this._mat.m00 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.x = worldScale.x / xScale;
+            }
+
+            if (yScale === 0) {
+                v3_a.y = worldScale.y;
+                this._mat.m05 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.y = worldScale.y / yScale;
+            }
+
+            if (zScale === 0) {
+                v3_a.z = worldScale.z;
+                this._mat.m10 = 1;
+                rotationFlag = TransformBit.ROTATION;
+            } else {
+                v3_a.z = worldScale.z / zScale;
+            }
+
             Mat4.scale(m4_1, this._mat, v3_a);
             Mat4.multiply(m4_2, Mat4.invert(m4_2, parent._mat), m4_1);
             Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, this._lrot));
             Mat3.multiplyMat4(m3_1, m3_1, m4_2);
-            this._lscale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
-            this._lscale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
-            this._lscale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
+
+            const localScale = this._lscale;
+            localScale.x = Vec3.set(v3_a, m3_1.m00, m3_1.m01, m3_1.m02).length();
+            localScale.y = Vec3.set(v3_a, m3_1.m03, m3_1.m04, m3_1.m05).length();
+            localScale.z = Vec3.set(v3_a, m3_1.m06, m3_1.m07, m3_1.m08).length();
+            if (localScale.x === 0 || localScale.y === 0 || localScale.z === 0) {
+                rotationFlag = TransformBit.ROTATION;
+            }
         } else {
             Vec3.copy(this._lscale, worldScale);
         }
 
-        this.invalidateChildren(TransformBit.SCALE);
+        this.invalidateChildren(TransformBit.SCALE | rotationFlag);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE | rotationFlag);
         }
     }
 

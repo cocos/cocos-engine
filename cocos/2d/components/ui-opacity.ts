@@ -25,7 +25,7 @@
 import { ccclass, disallowMultiple, editable, executeInEditMode, executionOrder, help, menu, serializable, tooltip } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { Component } from '../../scene-graph/component';
-import { misc } from '../../core';
+import { clamp } from '../../core';
 import { UIRenderer } from '../framework/ui-renderer';
 import { Node } from '../../scene-graph';
 import { NodeEventType } from '../../scene-graph/node-event';
@@ -46,6 +46,10 @@ import { NodeEventType } from '../../scene-graph/node-event';
 @executeInEditMode
 @disallowMultiple
 export class UIOpacity extends Component {
+    constructor () {
+        super();
+    }
+
     /**
      * @en
      * The parent node's opacity.
@@ -72,7 +76,7 @@ export class UIOpacity extends Component {
         if (this._opacity === value) {
             return;
         }
-        value = misc.clampf(value, 0, 255);
+        value = clamp(value, 0, 255);
         this._opacity = value;
         this.node._uiProps.localOpacity = value / 255;
 
@@ -125,35 +129,45 @@ export class UIOpacity extends Component {
             return;
         }
 
-        const render = node._uiProps.uiComp as UIRenderer;
-        const uiOp = node.getComponent<UIOpacity>(UIOpacity);
-
+        const uiOp = node.getComponent(UIOpacity);
         if (uiOp && stopRecursiveIfHasOpacity) {
             // Because it's possible that UiOpacity components are handled by themselves (at onEnable or onDisable)
             uiOp._parentOpacity = parentOpacity;
             return;
         }
+
+        // If the node has never been activated, then node._uiProps.uiComp won't be set.
+        // We need to check if the UIRenderer exists or not.
+        let render = node._uiProps.uiComp as UIRenderer | null;
+        if (!render) {
+            render = node.getComponent(UIRenderer);
+        }
+
         if (render && render.color) { // exclude UIMeshRenderer which has not color
             render.renderEntity.colorDirty = dirty;
             if (uiOp) {
                 uiOp._parentOpacity = parentOpacity;
-                render.renderEntity.localOpacity = uiOp._parentOpacity * uiOp.opacity / 255;
+                render.renderEntity.localOpacity = parentOpacity * uiOp.opacity / 255;
             } else {
                 // there is a just UIRenderer but no UIOpacity on the node, we should just transport the parentOpacity to the node.
                 render.renderEntity.localOpacity = parentOpacity;
             }
+            render.node._uiProps.localOpacity = render.renderEntity.localOpacity;
             //No need for recursion here. Because it doesn't affect the capacity of the child nodes.
             return;
-        } else if (uiOp) {
+        }
+
+        if (uiOp) {
             // there is a just UIOpacity but no UIRenderer on the node.
             // we should transport the interrupt opacity downward
             uiOp._parentOpacity = parentOpacity;
-            parentOpacity = uiOp._parentOpacity * uiOp.opacity / 255;
+            parentOpacity = parentOpacity * uiOp.opacity / 255;
         }
 
-        for (let i = 0; i < node.children.length; i++) {
+        const children = node.children;
+        for (let i = 0, len = children.length; i < len; ++i) {
             UIOpacity.setEntityLocalOpacityDirtyRecursively(
-                node.children[i],
+                children[i],
                 dirty || (parentOpacity < 1),
                 parentOpacity,
                 stopRecursiveIfHasOpacity,
@@ -169,10 +183,11 @@ export class UIOpacity extends Component {
             return 1;
         }
         const render = node._uiProps.uiComp as UIRenderer;
-        const uiOp = node.getComponent<UIOpacity>(UIOpacity);
+        const uiOp = node.getComponent(UIOpacity);
         if (render && render.color) {
             return 1;
-        } else if (uiOp) {
+        }
+        if (uiOp) {
             return uiOp._parentOpacity * (uiOp._opacity / 255);
         }
         return this._getParentOpacity(node.getParent()!);
@@ -197,12 +212,12 @@ export class UIOpacity extends Component {
         if (render && render.color) { // exclude UIMeshRenderer which has not color
             render.renderEntity.colorDirty = true;
             render.renderEntity.localOpacity = opacity;
-            render.node._uiProps.localOpacity = render.renderEntity.localOpacity;
+            render.node._uiProps.localOpacity = opacity;
             return;
         }
         // The current node is not recursive, only the child nodes are recursive.
-        for (let i = 0; i < this.node.children.length; i++) {
-            UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node.children[i], true, opacity, true);
+        for (const child of this.node.children) {
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(child, true, opacity, true);
         }
     }
 
