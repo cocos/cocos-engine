@@ -204,12 +204,7 @@ export class TMXMapInfo {
 
     protected _imageLayerSPF: { [key: string]: SpriteFrame } | null = null;
 
-    constructor (
-        tmxFile: string,
-        tsxContentMap: { [key: string]: string },
-        spfTexturesMap: { [key: string]: SpriteFrame },
-        textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }
-    ) {
+    constructor (tmxFile: string, tsxContentMap: { [key: string]: string }, spfTexturesMap: { [key: string]: SpriteFrame }, textureSizes: { [key: string]: Size }, imageLayerTextures: { [key: string]: SpriteFrame }) {
         this.initWithXML(tmxFile, tsxContentMap, spfTexturesMap, textureSizes, imageLayerTextures);
     }
 
