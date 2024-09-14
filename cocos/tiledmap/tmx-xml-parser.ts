@@ -89,7 +89,7 @@ function strToColor (value: string): Color {
 
 function getPropertyList (node: Element, map?: PropertiesInfo): PropertiesInfo {
     const res: any[] = [];
-    const properties = Array.from(node.getElementsByTagName('properties')).filter(element=> element.parentNode === node)
+    const properties = Array.from(node.getElementsByTagName('properties')).filter(element => element.parentNode === node);
     for (let i = 0; i < properties.length; ++i) {
         const property = properties[i].getElementsByTagName('property');
         for (let j = 0; j < property.length; ++j) {
@@ -945,7 +945,7 @@ export class TMXMapInfo {
 
                 objectProp.rotation = parseFloat(selObj.getAttribute('rotation')!) || 0;
 
-                objectProp.properties = getPropertyList(selObj)
+                objectProp.properties = getPropertyList(selObj);
 
                 // visible
                 const visibleAttr = selObj.getAttribute('visible');
