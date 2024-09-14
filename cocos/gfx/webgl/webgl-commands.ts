@@ -830,7 +830,9 @@ export function WebGLCmdFuncUpdateBuffer (
         }
         }
 
-        if (size === buff.byteLength) {
+        if ((gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+            gl.bufferData(gpuBuffer.glTarget, buff, gl.DYNAMIC_DRAW);
+        } else if (size === buff.byteLength) {
             gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
         } else {
             gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
