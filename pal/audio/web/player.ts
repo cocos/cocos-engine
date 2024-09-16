@@ -64,16 +64,16 @@ export class AudioPlayer {
     }
 
     static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (opts?.audioLoadMode === AudioType.DOM_AUDIO || !AudioContextAgent.support) {
                 if (!AudioContextAgent.support) { warnID(5201); }
                 AudioPlayerDOM.load(url).then((domPlayer) => {
                     resolve(new AudioPlayer(domPlayer));
-                }).catch((e) => {});
+                }).catch(reject);
             } else {
                 AudioPlayerWeb.load(url).then((webPlayer) => {
                     resolve(new AudioPlayer(webPlayer));
-                }).catch((e) => {});
+                }).catch(reject);
             }
         });
     }

@@ -21,10 +21,15 @@
     #include <android/api-level.h>
     #include <android/log.h>
     #include <android/thermal.h>
+#if __ANDROID_API__ >= 33
+    #include <ctime>
+    #include <android/performance_hint.h>
+#endif
     #include <jni.h>
 
     #include <chrono>
     #include <memory>
+    #include <thread>
     #include "3d/models/SkinningModel.h"
     #include "engine/EngineEvents.h"
     #include "platform/java/jni/JniHelper.h"
@@ -62,6 +67,12 @@ public:
                 AThermal_releaseManager(thermal_manager_);
             }
         }
+
+        // clean all hint sessions
+        for ( const auto& kv : map_hint_sessions ) {
+            jobject global_hint_session = kv.second;
+            env->DeleteGlobalRef(global_hint_session);
+        }
     }
 
     // Delete copy constructor since the class is used as a singleton.
@@ -71,36 +82,39 @@ public:
 
     // Invoke the method periodically (once a frame) to monitor
     // the device's thermal throttling status.
-    void Monitor();
+    void monitor();
 
     // Invoke the API first to set the android_app instance.
 
     // Method to set thermal status. Need to be public since the method
     // is called from C native listener.
-    void SetThermalStatus(int32_t i);
+    void setThermalStatus(int32_t i);
 
     // Get current thermal status and headroom.
-    int32_t GetThermalStatus() { return thermal_status_; }
-    float GetThermalStatusNormalized() const;
+    int32_t getThermalStatus() { return thermal_status_; }
+    float getThermalStatusNormalized() const;
 
-    float GetFrameTimeMS() const { return frame_time_ns_ / 1000000.0F; }
+    float getFrameTimeMS() const { return frame_time_ns_ / 1000000.0F; }
 
-    float GetThermalHeadroom() { return thermal_headroom_; }
+    float getThermalHeadroom() { return thermal_headroom_; }
 
-    void SetThermalListener(thermalStateChangeListener listener);
+    void setThermalListener(thermalStateChangeListener listener);
 
     // Indicates the start and end of the performance intensive task.
     // The methods call performance hint API to tell the performance
     // hint to the system.
-    void BeginPerfHintSession();
+    void beginPerfHintSession();
 
-    void EndPerfHintSession(jlong target_duration_ns);
+    void endPerfHintSession(jlong target_duration_ns);
+
+    void addThreadIdToHintSession(int32_t tid);
+    void removeThreadIdFromHintSession(int32_t tid);
 
     // Method to retrieve thermal manager. The API is used to register/unregister
     // callbacks from C API.
-    AThermalManager *GetThermalManager() { return thermal_manager_; }
+    AThermalManager *getThermalManager() { return thermal_manager_; }
 
-    void Initialize();
+    void initialize();
 
 private:
     // Update thermal headroom each sec.
@@ -122,15 +136,16 @@ private:
       update_target_work_duration_(0),
       preferred_update_rate_(0) {
         last_clock_ = std::chrono::high_resolution_clock::now();
-        perfhintsession_start_ = std::chrono::high_resolution_clock::now();
     }
 
     // Functions to initialize ADPF API's calls.
-    bool InitializePowerManager();
+    bool initializePowerManager();
 
-    float UpdateThermalStatusHeadRoom();
+    float updateThermalStatusHeadRoom();
 
-    bool InitializePerformanceHintManager();
+    bool initializePerformanceHintManager();
+
+    void registerThreadIdsToHintSession();
 
     AThermalManager *thermal_manager_ = nullptr;
     int32_t thermal_status_;
@@ -140,8 +155,12 @@ private:
     jobject obj_power_service_;
     jmethodID get_thermal_headroom_;
 
+    std::unordered_map<std::string, jobject> map_hint_sessions;
+
     jobject obj_perfhint_service_;
     jobject obj_perfhint_session_;
+    jmethodID create_hint_session_;
+    jmethodID set_threads_;
     jmethodID report_actual_work_duration_;
     jmethodID update_target_work_duration_;
     jlong preferred_update_rate_;
@@ -149,8 +168,16 @@ private:
     cc::events::BeforeTick::Listener beforeTick;
     cc::events::AfterTick::Listener afterTick;
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> perfhintsession_start_;
     int64_t frame_time_ns_{0};
+
+    std::vector<int32_t> thread_ids_;
+    std::chrono::time_point<std::chrono::steady_clock> perf_start_;
+
+#if __ANDROID_API__ >= 33
+    APerformanceHintManager *hint_manager_ = nullptr;
+    APerformanceHintSession *hint_session_ = nullptr;
+    int64_t last_target_ = 16666666;
+#endif
 };
 
     #define CC_SUPPORT_ADPF 1 // NOLINT

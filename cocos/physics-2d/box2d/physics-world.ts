@@ -303,7 +303,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         const linearVelocity = compPrivate._linearVelocity as Vec2;
         bodyDef.linearVelocity.Set(linearVelocity.x, linearVelocity.y);
 
-        bodyDef.angularVelocity = toRadian(compPrivate._angularVelocity as number);
+        bodyDef.angularVelocity = compPrivate._angularVelocity;
 
         const b2Body = this._world.CreateBody(bodyDef);
         b2Body.m_userData = body;

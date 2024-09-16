@@ -117,13 +117,16 @@ export const bmfontUtils = {
             // TextProcessing
             processing.processingString(true, style, layout, outputLayoutData, comp.string);
             // generateVertex
-            this.resetRenderData(comp);
             outputRenderData.quadCount = 0;
             processing.generateRenderInfo(true, style, layout, outputLayoutData, outputRenderData,
                 comp.string, this.generateVertexData);
-
-            renderData.dataLength = outputRenderData.quadCount;
-            renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
+            let isResized = false;
+            if (renderData.dataLength !== outputRenderData.quadCount) {
+                this.resetRenderData(comp);
+                renderData.dataLength = outputRenderData.quadCount;
+                renderData.resize(renderData.dataLength, renderData.dataLength / 2 * 3);
+                isResized = true;
+            }
             const datalist = renderData.data;
             for (let i = 0, l = outputRenderData.quadCount; i < l; i++) {
                 datalist[i] = outputRenderData.vertexBuffer[i];
@@ -136,7 +139,14 @@ export const bmfontUtils = {
             _comp.actualFontSize = style.actualFontSize;
             _uiTrans.setContentSize(outputLayoutData.nodeContentSize);
             this.updateUVs(comp);// dirty need
-            this.updateColor(comp); // dirty need
+            // It is reasonable that the '_comp.node._uiProps.colorDirty' interface should be used.
+            // But this function is not called when just modifying the opacity.
+            // So the value of '_comp.node._uiProps.colorDirty' does not change.
+            // And _uiProps.colorDirty is synchronized with renderEntity.colorDirty.
+            if (_comp.renderEntity.colorDirty || isResized) {
+                this.updateColor(comp); // dirty need
+                _comp.node._uiProps.colorDirty = false;
+            }
 
             renderData.vertDirty = false;
             _comp = null;

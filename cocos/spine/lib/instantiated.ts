@@ -23,10 +23,10 @@
 */
 
 import { instantiateWasm, fetchBuffer, ensureWasmModuleReady } from 'pal/wasm';
-import { JSB, WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE } from 'internal:constants';
+import { JSB, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 import { game } from '../../game';
 import { getError, error, sys } from '../../core';
-import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 import { overrideSpineDefine } from './spine-define';
 
 const PAGESIZE = 65536; // 64KiB
@@ -42,14 +42,16 @@ let wasmInstance: SpineWasm.instance = null!;
 const registerList: any[] = [];
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-function initWasm (wasmFactory, wasmUrl): Promise<void> {
+function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         const errorMessage = (err: any): string => `[Spine]: Spine wasm load failed: ${err}`;
         wasmFactory({
-            instantiateWasm (importObject: WebAssembly.Imports,
-                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void) {
+            instantiateWasm (
+                importObject: WebAssembly.Imports,
+                receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
+            ) {
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
-                instantiateWasm(wasmUrl, importObject).then((result: any) => {
+                instantiateWasm(wasmUrl, importObject).then((result) => {
                     receiveInstance(result.instance, result.module);
                 }).catch((err) => reject(errorMessage(err)));
             },
@@ -62,12 +64,8 @@ function initWasm (wasmFactory, wasmUrl): Promise<void> {
     });
 }
 
-function initAsmJS (asmFactory, asmJsMemUrl): Promise<void> {
+function initAsmJS (asmFactory, asmJsMemUrl: string): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        if (CULL_ASM_JS_MODULE) {
-            reject(getError(4601));
-            return;
-        }
         fetchBuffer(asmJsMemUrl).then((arrayBuffer) => {
             const wasmMemory: any = {};
             wasmMemory.buffer = new ArrayBuffer(MEMORYSIZE);
@@ -90,9 +88,9 @@ function initAsmJS (asmFactory, asmJsMemUrl): Promise<void> {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT) {
+    if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.BOTH as number)) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.WASM as number)) {
         return true;
     } else {
         return false;
@@ -101,23 +99,25 @@ function shouldUseWasmModule (): boolean {
 
 export function waitForSpineWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
-    return ensureWasmModuleReady().then(() => Promise.all([
-        import('external:emscripten/spine/spine.asm.js'),
-        import('external:emscripten/spine/spine.js.mem'),
-        import('external:emscripten/spine/spine.wasm.js'),
-        import('external:emscripten/spine/spine.wasm'),
-    ]).then(([
-        { default: asmFactory },
-        { default: asmJsMemUrl },
-        { default: wasmFactory },
-        { default: spineWasmUrl },
-    ]) => {
+    return ensureWasmModuleReady().then(() => {
         if (shouldUseWasmModule()) {
-            return initWasm(wasmFactory, spineWasmUrl);
+            return Promise.all([
+                import('external:emscripten/spine/spine.wasm.js'),
+                import('external:emscripten/spine/spine.wasm'),
+            ]).then(([
+                { default: wasmFactory },
+                { default: spineWasmUrl },
+            ]) => initWasm(wasmFactory, spineWasmUrl));
         } else {
-            return initAsmJS(asmFactory, asmJsMemUrl);
+            return Promise.all([
+                import('external:emscripten/spine/spine.asm.js'),
+                import('external:emscripten/spine/spine.js.mem'),
+            ]).then(([
+                { default: asmFactory },
+                { default: asmJsMemUrl },
+            ]) => initAsmJS(asmFactory, asmJsMemUrl));
         }
-    })).catch(errorReport);
+    }).catch(errorReport);
 }
 
 if (!JSB) {

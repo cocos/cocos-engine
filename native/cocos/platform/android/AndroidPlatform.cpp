@@ -51,6 +51,8 @@
 #include "base/StringUtil.h"
 #include "engine/EngineEvents.h"
 #include "paddleboat.h"
+#include "platform/java/jni/JniImp.h"
+#include "platform/interfaces/modules/Device.h"
 
 #define ABORT_GAME                          \
     {                                       \
@@ -531,6 +533,7 @@ public:
                 if (!_launched) {
                     _launched = true;
 
+                    _androidPlatform->_rotation = getDeviceRotationJNI();
                     ISystemWindowInfo info;
                     info.width = ANativeWindow_getWidth(nativeWindow);
                     info.height = ANativeWindow_getHeight(nativeWindow);
@@ -626,13 +629,35 @@ public:
                 events::WindowEvent::broadcast(ev);
                 break;
             }
-            case APP_CMD_CONFIG_CHANGED:
+            case APP_CMD_CONFIG_CHANGED: {
                 CC_LOG_INFO("AndroidPlatform: APP_CMD_CONFIG_CHANGED");
+                int rotation = getDeviceRotationJNI();
+                if (_androidPlatform->_rotation != rotation) {
+                    CC_LOG_INFO("AndroidPlatform: orientation-change");
+                    _androidPlatform->_rotation = rotation;
+                    int orientation = static_cast<int>(Device::Orientation::PORTRAIT);
+                    switch (rotation) {
+                        case 0: // ROTATION_0
+                            orientation = static_cast<int>(Device::Orientation::PORTRAIT);
+                            break;
+                        case 1: // ROTATION_90
+                            orientation = static_cast<int>(cc::Device::Orientation::LANDSCAPE_RIGHT);
+                            break;
+                        case 2: // ROTATION_180
+                            orientation = static_cast<int>(cc::Device::Orientation::PORTRAIT_UPSIDE_DOWN);
+                            break;
+                        case 3: // ROTATION_270
+                            orientation = static_cast<int>(cc::Device::Orientation::LANDSCAPE_LEFT);
+                            break;
+                    }
+                    cc::events::Orientation::broadcast(orientation);
+                }
                 // Window was resized or some other configuration changed.
                 // Note: we don't handle this event because we check the surface dimensions
                 // every frame, so that's how we know it was resized. If you are NOT doing that,
                 // then you need to handle this event!
                 break;
+            }
             case APP_CMD_LOW_MEMORY: {
                 // system told us we have low memory. So if we are not visible, let's
                 // cooperate by deallocating all of our graphic resources.

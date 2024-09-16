@@ -21,13 +21,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { CULL_MESHOPT, WASM_SUPPORT_MODE } from 'internal:constants';
+import { CULL_MESHOPT, NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 import { ensureWasmModuleReady, instantiateWasm } from 'pal/wasm';
 
-import { sys, logID } from '../../core';
+import { sys, logID, error } from '../../core';
 
 import { game } from '../../game';
-import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 
 export const MeshoptDecoder = {} as any;
 
@@ -63,9 +63,9 @@ function initDecoderWASM (wasm_factory: any, wasm_url: string): Promise<void> {
 }
 
 function shouldUseWasmModule (): boolean {
-    if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.MAYBE_SUPPORT as number)) {
+    if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.BOTH as number)) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (WASM_SUPPORT_MODE === (WebAssemblySupportMode.SUPPORT as number)) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.WASM as number)) {
         return true;
     } else {
         return false;
@@ -73,21 +73,22 @@ function shouldUseWasmModule (): boolean {
 }
 
 export function InitDecoder (): Promise<void> {
-    return ensureWasmModuleReady().then(() => Promise.all([
-        import('external:emscripten/meshopt/meshopt_decoder.asm.js'),
-        import('external:emscripten/meshopt/meshopt_decoder.wasm.js'),
-        import('external:emscripten/meshopt/meshopt_decoder.wasm.wasm'),
-    ]).then(([
-        { default: meshopt_asm_factory },
-        { default: meshopt_wasm_factory },
-        { default: meshopt_wasm_url },
-    ]) => {
+    const errorReport = (msg: any): void => { error(msg); };
+    return ensureWasmModuleReady().then(() => {
         if (shouldUseWasmModule()) {
-            return initDecoderWASM(meshopt_wasm_factory, meshopt_wasm_url);
+            return Promise.all([
+                import('external:emscripten/meshopt/meshopt_decoder.wasm.js'),
+                import('external:emscripten/meshopt/meshopt_decoder.wasm.wasm'),
+            ]).then(([
+                { default: meshopt_wasm_factory },
+                { default: meshopt_wasm_url },
+            ]) => initDecoderWASM(meshopt_wasm_factory, meshopt_wasm_url));
         } else {
-            return initDecoderASM(meshopt_asm_factory);
+            return import('external:emscripten/meshopt/meshopt_decoder.asm.js').then(
+                ({ default: meshopt_asm_factory }) => initDecoderASM(meshopt_asm_factory),
+            );
         }
-    }));
+    }).catch(errorReport);
 }
 
 if (!CULL_MESHOPT) {

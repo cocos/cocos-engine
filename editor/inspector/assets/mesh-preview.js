@@ -80,6 +80,19 @@ const Elements = {
         ready() {
             const panel = this;
 
+            let _isPreviewDataDirty = false;
+            Object.defineProperty(panel, 'isPreviewDataDirty', {
+                get() {
+                    return _isPreviewDataDirty;
+                },
+                set(value) {
+                    if (value !== _isPreviewDataDirty) {
+                        _isPreviewDataDirty = value;
+                        value && panel.refreshPreview();
+                    }
+                },
+            });
+
             panel.$.previewType.innerHTML = Object.values(previewSelectType).map(v => `<option value="${v}">${v}</option>`).join('');
             panel.$.previewType.value = previewSelectType.shaded;
 
@@ -92,11 +105,9 @@ const Elements = {
                     panel.$.previewChannel.classList.remove('show');
                 }
                 panel.isPreviewDataDirty = true;
-                panel.refreshPreview();
             });
             panel.$.previewChannel.addEventListener('confirm', () => {
                 panel.isPreviewDataDirty = true;
-                panel.refreshPreview();
             });
 
             panel.$.canvas.addEventListener('mousedown', async (event) => {
@@ -177,7 +188,7 @@ const Elements = {
             }
 
             panel.infoUpdate(info);
-            panel.refreshPreview();
+            panel.isPreviewDataDirty = true;
         },
         close() {
             const panel = this;
@@ -229,9 +240,7 @@ exports.methods = {
             return;
         }
 
-        if (panel.isPreviewDataDirty) {
-            panel.isPreviewDataDirty = false;
-
+        const doDraw = async function() {
             try {
                 const canvas = panel.$.canvas;
                 const { clientWidth: width, clientHeight: height } = panel.$.image;
@@ -258,11 +267,12 @@ exports.methods = {
             } catch (e) {
                 console.warn(e);
             }
-        }
+        };
 
-        cancelAnimationFrame(panel.animationId);
-        panel.animationId = requestAnimationFrame(() => {
-            panel.refreshPreview();
+        requestAnimationFrame(async () => {
+            await doDraw();
+            panel.isPreviewDataDirty = false;
+
         });
     },
 };

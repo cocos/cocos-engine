@@ -553,6 +553,13 @@ export class RenderAdditiveLightQueue {
                     _vec4Array[3] = (light as SpotLight).luminance;
                 }
                 this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+
+                // cc_lightBoundingSizeVS, light angle attenuation strength
+                _vec4Array[0] = 0;
+                _vec4Array[1] = 0;
+                _vec4Array[2] = 0;
+                _vec4Array[3] = (light as SpotLight).angleAttenuationStrength;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET);
                 break;
             case LightType.POINT:
                 // UBOForwardLight

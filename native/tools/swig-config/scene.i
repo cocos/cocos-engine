@@ -387,6 +387,7 @@ using namespace cc;
 %attribute(cc::scene::SpotLight, float, shadowBias, getShadowBias, setShadowBias);
 %attribute(cc::scene::SpotLight, float, shadowNormalBias, getShadowNormalBias, setShadowNormalBias);
 %attribute(cc::scene::SpotLight, float, size, getSize, setSize);
+%attribute(cc::scene::SpotLight, float, angleAttenuationStrength, getAngleAttenuationStrength, setAngleAttenuationStrength);
 
 %attribute(cc::scene::SphereLight, cc::Vec3&, position, getPosition, setPosition);
 %attribute(cc::scene::SphereLight, float, size, getSize, setSize);

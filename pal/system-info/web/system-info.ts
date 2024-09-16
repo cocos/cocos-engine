@@ -185,7 +185,18 @@ class SystemInfo extends EventTarget {
         } catch (e) {
             supportWebp  = false;
         }
-        if (this.browserType === BrowserType.SAFARI) {
+        if (this.os === OS.IOS) {
+            // if we're on iOS all major browsers will identify as BrowserType.SAFARI but Chrome and Firefox DO NOT have the
+            // version in the browser identifier, using "applewebkit" solves this issue for all browsers on iOS
+            const result = / applewebkit\/(\d+)/.exec(ua)?.[1];
+            if (typeof result === 'string') {
+                if (Number.parseInt(result) >= 604) {
+                    // safari 14+ support webp, but canvas.toDataURL is not supported by default
+                    supportWebp = true;
+                }
+            }
+        } else if (this.browserType === BrowserType.SAFARI) {
+            //non-ios safari (desktop)
             const result = / version\/(\d+)/.exec(ua)?.[1];
             if (typeof result === 'string') {
                 if (Number.parseInt(result) >= 14) {

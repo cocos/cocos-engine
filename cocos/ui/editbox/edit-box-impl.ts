@@ -102,7 +102,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     private _placeholderLineHeight = null;
     private _placeholderStyleSheet: HTMLStyleElement | null = null;
     private _domId = `EditBoxId_${++_domCount}`;
-
+    private _forceUpdate: boolean = false;
     public init (delegate: EditBox): void {
         if (!delegate) {
             return;
@@ -121,9 +121,12 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._registerEventListeners();
         this._addDomToGameContainer();
         View.instance.on('canvas-resize', this._resize, this);
+        screenAdapter.on('window-resize', this._resize, this);
     }
 
     public clear (): void {
+        View.instance.off('canvas-resize', this._resize, this);
+        screenAdapter.off('window-resize', this._resize, this);
         this._removeEventListeners();
         this._removeDomFromGameContainer();
 
@@ -138,14 +141,18 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _resize (): void {
-        this._delegate!.node.hasChangedFlags = 1;
+        this._forceUpdate = true;
     }
 
-    public update (): void {
+    // The beforeDraw function should be used here.
+    // Because many attributes are modified after the update is executed,
+    // this can lead to problems with incorrect coordinates.
+    public beforeDraw (): void {
         const node = this._delegate!.node;
-        if (!node.hasChangedFlags) {
+        if (!node.hasChangedFlags && !this._forceUpdate) {
             return;
         }
+        this._forceUpdate = false;
         this._updateMatrix();
     }
 

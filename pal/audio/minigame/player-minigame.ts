@@ -242,11 +242,10 @@ export class AudioPlayerMinigame implements OperationQueueable {
         return AudioType.MINIGAME_AUDIO;
     }
     static load (url: string): Promise<AudioPlayerMinigame> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
                 resolve(new AudioPlayerMinigame(innerAudioContext as InnerAudioContext));
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            }).catch((e) => {});
+            }).catch(reject);
         });
     }
     static loadNative (url: string): Promise<unknown> {

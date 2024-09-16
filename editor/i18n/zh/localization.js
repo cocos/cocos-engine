@@ -162,7 +162,7 @@ module.exports = link(mixin({
             Sorting: `${url}/${version}/manual/zh/engine/rendering/sorting.html`,
         },
         assets: {
-            javascript: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
+            javascript: `${url}/${version}/manual/zh/concepts/scripting/plugin-scripts.html`,
             texture: `${url}/${version}/manual/zh/asset/texture.html`,
             'texture-cube': `${url}/${version}/manual/zh/asset/texture-cube.html`,
             typescript: `${url}/${version}/manual/zh/scripting/setup.html`,
@@ -286,6 +286,8 @@ module.exports = link(mixin({
         term: '当前使用的光度学计量单位',
         size: '光源大小',
         range: '光源范围',
+        spotAngle: '聚光灯光照区域的锥角',
+        angleAttenuationStrength: '角度衰减强度。值越大，边缘越柔和，值越小，边缘越硬',
         shadowEnabled: '是否开启实时阴影',
         shadowPcf: '开启软阴影，目前支持 HARD（硬采样）、SOFT（4 倍采样）、SOFT_2X（9 倍采样）、SOFT_4X（16 倍采样）类型',
         shadowBias: '增加深度偏移值（世界空间单位）可以有效消除阴影摩尔纹，但是过大的值可能造成漏光现象',

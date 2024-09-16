@@ -166,8 +166,8 @@ namespace cc { namespace gfx {
 // DescriptorSet
 %attribute(cc::gfx::DescriptorSet, cc::gfx::DescriptorSetLayout*, layout, getLayout);
 
-
-%attribute(cc::gfx::DescriptorSetLayout, cc::gfx::DescriptorSetLayoutBindingList, bindings, getBindings);
+// DescriptorSetLayout
+%attribute(cc::gfx::DescriptorSetLayout, cc::gfx::DescriptorSetLayoutBindingList&, bindings, getBindings);
 
 // PipelineState
 %attribute(cc::gfx::PipelineState, cc::gfx::Shader*, shader, getShader);

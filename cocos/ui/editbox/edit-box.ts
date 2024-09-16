@@ -40,6 +40,7 @@ import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
+import { director, Director } from '../../game/director';
 
 const LEFT_PADDING = 2;
 
@@ -422,9 +423,9 @@ export class EditBox extends Component {
         }
     }
 
-    public update (): void {
+    private _beforeDraw (): void {
         if (this._impl) {
-            this._impl.update();
+            this._impl.beforeDraw();
         }
     }
 
@@ -439,6 +440,7 @@ export class EditBox extends Component {
     }
 
     public onDestroy (): void {
+        director.off(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
         if (this._impl) {
             this._impl.clear();
         }
@@ -567,6 +569,7 @@ export class EditBox extends Component {
         this._updateTextLabel();
         this._isLabelVisible = true;
         this.node.on(NodeEventType.SIZE_CHANGED, this._resizeChildNodes, this);
+        director.on(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
 
         const impl = this._impl = new EditBox._EditBoxImpl();
         impl.init(this);

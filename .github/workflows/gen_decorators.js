@@ -22,14 +22,14 @@ const BUILD_CONFIG = {
     options: {
         engine: engineDir,
         platform: 'HTML5',
-        moduleFormat: 2,
+        moduleFormat: 'system',
         compress: false,
         split: false,
-        ammoJsWasm: 'fallback',
+        nativeCodeBundleMode: 'both',
         assetURLFormat: 'runtime-resolved',
         noDeprecatedFeatures: false,
         engineName: 'cocos-js',
-        sourceMaps: false,
+        sourceMap: false,
         features: [
             '2d', '3d',
             'animation', 'audio',
@@ -89,9 +89,9 @@ const BUILD_CONFIG = {
 
 process.env.ENGINE_PATH = engineDir;
 
-const buildEngine = require(`${engineDir}/scripts/build-engine/dist/index.js`);
+const { buildEngine } = require('@cocos/ccbuild');
 
-buildEngine.build(BUILD_CONFIG.options).then((result) => {
+buildEngine(BUILD_CONFIG.options).then((result) => {
     console.log('done!!!');
 
     console.log(result);

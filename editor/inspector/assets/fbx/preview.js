@@ -353,6 +353,19 @@ const Elements = {
     preview: {
         ready() {
             const panel = this;
+
+            let _isPreviewDataDirty = false;
+            Object.defineProperty(panel, 'isPreviewDataDirty', {
+                get() {
+                    return _isPreviewDataDirty;
+                },
+                set(value) {
+                    if (value !== _isPreviewDataDirty) {
+                        _isPreviewDataDirty = value;
+                        value && panel.refreshPreview();
+                    }
+                },
+            });
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await callModelPreviewFunction('onMouseDown', { x: event.x, y: event.y, button: event.button });
 
@@ -402,14 +415,16 @@ const Elements = {
             }
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
-            if (panel.asset.redirect) {
-                const info = await callModelPreviewFunction('setModel', panel.asset.redirect.uuid);
+
+            const prefabAsset = Object.values(panel.asset.subAssets).find((asset) => asset.type === 'cc.Prefab');
+            if (prefabAsset) {
+                const info = await callModelPreviewFunction('setModel', prefabAsset.uuid);
                 panel.infoUpdate(info);
             } else {
                 this.updatePanelHidden(false);
             }
 
-            panel.refreshPreview();
+            panel.isPreviewDataDirty = true;
         },
     },
     modelInfo: {
@@ -470,8 +485,7 @@ exports.methods = {
         if (!panel.$.canvas) {
             return;
         }
-
-        if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
+        const doDraw = async () => {
             try {
                 const canvas = panel.$.canvas;
                 const image = panel.$.image;
@@ -495,14 +509,14 @@ exports.methods = {
             } catch (e) {
                 console.warn(e);
             }
+        };
 
-            panel.isPreviewDataDirty = false;
+        if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
+            requestAnimationFrame(async () => {
+                await doDraw();
+                panel.isPreviewDataDirty = false;
+            });
         }
-
-        cancelAnimationFrame(panel.animationId);
-        panel.animationId = requestAnimationFrame(() => {
-            panel.refreshPreview();
-        });
     },
     async onTabChanged(activeTab) {
         if (typeof activeTab === 'string') {
@@ -643,6 +657,7 @@ exports.methods = {
     setCurPlayState(state) {
         this.curPlayState = state;
         let buttonIconName = '';
+
         switch (state) {
             case PLAY_STATE.STOP:
                 buttonIconName = 'play';
@@ -660,6 +675,7 @@ exports.methods = {
         if (this.$.playButtonIcon) {
             this.$.playButtonIcon.value = buttonIconName;
         }
+        this.isPreviewDataDirty = true;
     },
     async setCurEditClipInfo(clipInfo) {
         this.curEditClipInfo = clipInfo;
@@ -793,7 +809,6 @@ exports.update = async function(assetList, metaList) {
     this.eventEditorVm.show = false;
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
-    this.refreshPreview();
 };
 
 exports.close = function() {

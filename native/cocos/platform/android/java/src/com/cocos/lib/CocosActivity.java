@@ -24,6 +24,7 @@
 
 package com.cocos.lib;
 
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -45,12 +46,15 @@ import java.util.List;
 
 public class CocosActivity extends GameActivity {
     private static final String TAG = "CocosActivity";
+    private static final int INITIAL_ROTATION = -1;
     private CocosWebViewHelper mWebViewHelper = null;
     private CocosVideoHelper mVideoHelper = null;
 
     private CocosSensorHandler mSensorHandler;
     private List<CocosSurfaceView> mSurfaceViewArray;
     private FrameLayout mRootLayout;
+
+    private int mRotation = INITIAL_ROTATION;
 
 
 
@@ -171,6 +175,18 @@ public class CocosActivity extends GameActivity {
             for (CocosSurfaceView surfaceView : mSurfaceViewArray) {
                 surfaceView.setVisibility(View.VISIBLE);
             }
+        }
+        if (mRotation == INITIAL_ROTATION
+            && getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE) {
+            //onConfigurationChange can be triggered at the mode of 'sensor or fullSensor'. Here only handles the sensorLandscape mode.
+            mRotation = CocosHelper.getDeviceRotation();
+            mSurfaceView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                int rotation = CocosHelper.getDeviceRotation();
+                if (mRotation != rotation) {
+                    mRotation = rotation;
+                    this.onConfigurationChangedNative(this.getGameActivityNativeHandle());
+                }
+            });
         }
     }
 

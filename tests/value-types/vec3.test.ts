@@ -1,6 +1,7 @@
 import { lerp, toRadian } from '../../cocos/core/math/utils';
-import { Vec3 } from '../../cocos/core/math/vec3';
+import { v3, Vec3 } from '../../cocos/core/math/vec3';
 import { clampf } from '../../cocos/core/utils/misc';
+import '../utils/matchers/value-type-asymmetric-matchers';
 
 test('basic test', function () {
     const vec3 = new Vec3(1, 2, 3);

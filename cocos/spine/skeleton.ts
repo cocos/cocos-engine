@@ -26,7 +26,7 @@ import { ccclass, executeInEditMode, help, menu, serializable, type, displayName
 import { Material, Texture2D } from '../asset/assets';
 import { error, logID, warn } from '../core/platform/debug';
 import { Enum, EnumType, ccenum } from '../core/value-types/enum';
-import { Node } from '../scene-graph';
+import { Node, NodeEventType } from '../scene-graph';
 import { CCObject, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
 import { Graphics, UIRenderer } from '../2d';
@@ -1027,8 +1027,9 @@ export class Skeleton extends UIRenderer {
         this.markForUpdateRenderData();
         if (EDITOR_NOT_IN_PREVIEW) return;
         if (this.paused) return;
-        dt *= this._timeScale * timeScale;
         if (this.isAnimationCached()) {
+            // On realTime mode, dt is multiplied at native side.
+            dt *= this._timeScale * timeScale;
             if (this._isAniComplete) {
                 if (this._animationQueue.length === 0 && !this._headAniInfo) {
                     const frameCache = this._animCache;
@@ -1599,13 +1600,15 @@ export class Skeleton extends UIRenderer {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
                 const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.layer = this.node.layer;
                 debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
-                debugDraw.lineWidth = 1;
+                debugDraw.lineWidth = 5;
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);
 
                 this._debugRenderer = debugDraw;
                 debugDrawNode.parent = this.node;
+                this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
             }
             if (this.isAnimationCached()) {
                 warn('Debug bones or slots is invalid in cached mode');
@@ -1613,6 +1616,7 @@ export class Skeleton extends UIRenderer {
                 this._instance!.setDebugMode(true);
             }
         } else if (this._debugRenderer) {
+            this.node.off(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
             this._debugRenderer.node.destroy();
             this._debugRenderer = null;
             if (!this.isAnimationCached()) {
@@ -1875,6 +1879,12 @@ export class Skeleton extends UIRenderer {
         if (skeletonCache && this._skeletonInfo) {
             skeletonCache.destroySkeleton(this._skeletonInfo.assetUUID);
             this._skeletonInfo = null;
+        }
+    }
+
+    protected _applyLayer (): void {
+        if (this._debugRenderer) {
+            this._debugRenderer.node.layer = this.node.layer;
         }
     }
 }

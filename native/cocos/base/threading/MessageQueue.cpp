@@ -25,6 +25,12 @@
 #include "MessageQueue.h"
 #include "AutoReleasePool.h"
 #include "base/Utils.h"
+#include "base/Log.h"
+
+#if CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include <unistd.h>
+    #include "platform/android/adpf_manager.h"
+#endif
 
 namespace cc {
 
@@ -272,6 +278,11 @@ MessageQueue::~MessageQueue() {
 }
 
 void MessageQueue::consumerThreadLoop() noexcept {
+#if CC_PLATFORM == CC_PLATFORM_ANDROID && CC_SUPPORT_ADPF == 1
+    // add tid to PerformanceHintManager
+    int32_t tid = gettid();
+    ADPFManager::getInstance().addThreadIdToHintSession(tid);
+#endif
     while (!_reader.terminateConsumerThread) {
         AutoReleasePool autoReleasePool;
         flushMessages();

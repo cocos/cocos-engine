@@ -150,6 +150,10 @@ export const tiled: IAssembler = {
         const node = sprite.node;
         const renderData: RenderData = sprite.renderData!;
         const chunk = renderData.chunk;
+        if (chunk === null) {
+            // If too many vertices are requested, this will result in a chunk of null.
+            return;
+        }
         if (sprite._flagChangedVersion !== node.flagChangedVersion || renderData.vertDirty) {
             this.updateWorldVertexAndUVData(sprite, chunk);
             renderData.vertDirty = false;

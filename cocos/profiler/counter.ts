@@ -68,11 +68,16 @@ export class Counter {
         return isInteger ? Math.round(v) : Math.round(v * 100) / 100;
     }
 
-    public alarm (): boolean | number | undefined {
-        return (
-            (this._opts.below && this._value < this._opts.below)
-            || (this._opts.over && this._value > this._opts.over)
-        );
+    public alarm (): boolean {
+        if (this._opts.below !== undefined && this._value < this._opts.below) {
+            return true;
+        }
+
+        if (this._opts.over !== undefined && this._value > this._opts.over) {
+            return true;
+        }
+
+        return false;
     }
 
     protected _average (v: number, now = 0): void {

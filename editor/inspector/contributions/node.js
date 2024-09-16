@@ -38,9 +38,9 @@ async function performLock() {
 /**
  * 替换之前的snapshotLock,由于UI层的事件是同步的，
  * 而新的beginRecording是异步的，所以需要使用队列来保证顺序
- * @param {*} lock 
- * @param {*} uuids 
- * @param {*} cancel 
+ * @param {*} lock
+ * @param {*} uuids
+ * @param {*} cancel
  */
 function snapshotLock(panel, lock, uuids, cancel = false) {
     // 保存当前状态，放到队列中
@@ -250,7 +250,7 @@ exports.listeners = {
 
         /**
          * Some assets don`t need to preview, like:
-         * cc.AnimationClip 
+         * cc.AnimationClip
          */
         const notNeedToPreview = [
             'cc.AnimationClip',
@@ -319,9 +319,14 @@ exports.template = /* html*/`
             <ui-button role="edit" tooltip="i18n:ENGINE.prefab.edit">
                 <ui-icon value="edit"></ui-icon>
             </ui-button>
-            <ui-button role="unlink" tooltip="i18n:ENGINE.prefab.unlink">
-                <ui-icon value="unlink"></ui-icon>
-            </ui-button>
+            <div class="unlink-btns">
+                <ui-button role="unlink" tooltip="i18n:ENGINE.prefab.unlink_tip">
+                    <ui-icon value="unlink"></ui-icon>
+                </ui-button>
+                <ui-button role="show-more">
+                    <ui-icon value="arrow-triangle"></ui-icon>
+                </ui-button>
+            </div>
             <ui-button role="local" tooltip="i18n:ENGINE.prefab.local">
                 <ui-icon value="location"></ui-icon>
             </ui-button>
@@ -429,7 +434,8 @@ exports.$ = {
     body: '.container > .body',
 
     prefab: '.container > .header > .prefab',
-    prefabUnlink: '.container > .header > .prefab > [role="unlink"]',
+    prefabUnlink: '.container > .header > .prefab [role="unlink"]',
+    prefabMore: '.container > .header > .prefab [role="show-more"]',
     prefabLocal: '.container > .header > .prefab > [role="local"]',
     prefabReset: '.container > .header > .prefab > [role="reset"]',
     prefabSave: '.container > .header > .prefab > [role="save"]',
@@ -692,6 +698,25 @@ const Elements = {
                             await Editor.Message.request(messageProtocol.scene, 'apply-prefab', prefab.rootUuid);
                             break;
                         }
+                        case 'show-more': {
+                            Editor.Menu.popup({
+                                menu: [
+                                    {
+                                        label: Editor.I18n.t('ENGINE.prefab.unlink'),
+                                        async click() {
+                                            await Editor.Message.request(messageProtocol.scene, 'unlink-prefab', prefab.rootUuid, false);
+                                        },
+                                    },
+                                    {
+                                        label: Editor.I18n.t('ENGINE.prefab.unlink_recursively'),
+                                        async click() {
+                                            await Editor.Message.send('hierarchy', 'unlink-prefab-recursively');
+                                        },
+                                    },
+                                ],
+                            });
+                            break;
+                        }
                     }
                 }
             });
@@ -720,8 +745,10 @@ const Elements = {
             });
             if (canUnlink) {
                 panel.$.prefabUnlink.removeAttribute('disabled');
+                panel.$.prefabMore.removeAttribute('disabled');
             } else {
                 panel.$.prefabUnlink.setAttribute('disabled', '');
+                panel.$.prefabMore.setAttribute('disabled', '');
             }
 
             const assetInfo = await Editor.Message.request('asset-db', 'query-asset-info', prefab.uuid);

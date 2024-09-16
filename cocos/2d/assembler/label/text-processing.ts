@@ -29,11 +29,21 @@ import { log, logID, warn } from '../../../core/platform';
 import { SpriteFrame } from '../../assets';
 import { FontLetterDefinition } from '../../assets/bitmap-font';
 import { HorizontalTextAlignment, Overflow, VerticalTextAlignment } from '../../components/label';
-import { BASELINE_RATIO, fragmentText, getBaselineOffset, isUnicodeCJK, isUnicodeSpace, safeMeasureText } from '../../utils/text-utils';
 import { CanvasPool, ISharedLabelData, shareLabelInfo } from './font-utils';
 import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
 import { TextStyle } from './text-style';
 import { TextLayout } from './text-layout';
+import {
+    BASELINE_RATIO,
+    fragmentText,
+    getBaselineOffset,
+    getSymbolAt,
+    getSymbolCodeAt,
+    getSymbolLength,
+    isUnicodeCJK,
+    isUnicodeSpace,
+    safeMeasureText,
+} from '../../utils/text-utils';
 
 const Alignment = [
     'left', // macro.TextAlignment.LEFT
@@ -97,7 +107,8 @@ export class TextProcessing {
                 if (loopTime > MAX_CALCULATION_NUM) {
                     this._fontScale = 1;
                 } else {
-                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height); // Current Canvas Size max dimension
+                    // Current Canvas Size max dimension
+                    const maxValue = Math.max(outputLayoutData.canvasSize.width, outputLayoutData.canvasSize.height);
                     const canvasScaleToMaxSizeRatio = MAX_SIZE / maxValue;
                     this._fontScale *=  canvasScaleToMaxSizeRatio;
                     this._fontScale = Math.max(1, this._fontScale);
@@ -372,7 +383,7 @@ export class TextProcessing {
         style.fontDesc = _fontDesc;
     }
 
-    private _measureText (ctx: CanvasRenderingContext2D, fontDesc): (str: string) => number {
+    private _measureText (ctx: CanvasRenderingContext2D, fontDesc: string): (str: string) => number {
         return (str: string): number => safeMeasureText(ctx, str, fontDesc);
     }
 
@@ -465,7 +476,12 @@ export class TextProcessing {
         outputLayoutData.startPosition.set(labelX + outputLayoutData.canvasPadding.x, firstLinelabelY + outputLayoutData.canvasPadding.y);
     }
 
-    private _updateTexture (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData, outputRenderData: TextOutputRenderData): void {
+    private _updateTexture (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        outputRenderData: TextOutputRenderData,
+    ): void {
         if (!this._context || !this._canvas) {
             return;
         }
@@ -499,10 +515,20 @@ export class TextProcessing {
         // draw text and outline
         for (let i = 0; i < outputLayoutData.parsedString.length; ++i) {
             drawTextPosY = tempPos.y + i * lineHeight;
+            //draw shadow
+            if (style.hasShadow) {
+                this._setupShadow(style);
+                this._context.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+            }
+            //draw outline
             if (style.isOutlined) {
+                this._setupOutline(style);
                 this._context.strokeText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
             }
-            this._context.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+            //draw text
+            if (!style.hasShadow || style.isOutlined) {
+                this._context.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+            }
         }
 
         if (style.hasShadow) {
@@ -546,7 +572,13 @@ export class TextProcessing {
         }
     }
 
-    private _drawTextEffect (startPosition: Vec2, lineHeight: number, style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData): void {
+    private _drawTextEffect (
+        startPosition: Vec2,
+        lineHeight: number,
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+    ): void {
         if (!style.hasShadow && !style.isOutlined && !style.isUnderline) return;
 
         const isMultiple = outputLayoutData.parsedString.length > 1 && style.hasShadow;
@@ -554,25 +586,27 @@ export class TextProcessing {
         let drawTextPosX = 0;
         let drawTextPosY = 0;
 
-        // only one set shadow and outline
-        if (style.hasShadow) {
-            this._setupShadow(style);
-        }
-
-        if (style.isOutlined) {
-            this._setupOutline(style);
-        }
-
         // draw shadow and (outline or text)
         for (let i = 0; i < outputLayoutData.parsedString.length; ++i) {
             drawTextPosX = startPosition.x;
             drawTextPosY = startPosition.y + i * lineHeight;
             // multiple lines need to be drawn outline and fill text
             if (isMultiple) {
+                //draw shadow
+                if (style.hasShadow) {
+                    this._setupShadow(style);
+                    this._context!.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+                }
+                // draw outline
                 if (style.isOutlined) {
+                    this._setupOutline(style);
                     this._context!.strokeText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
                 }
-                this._context!.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+
+                //draw text
+                if (!style.hasShadow || style.isOutlined) {
+                    this._context!.fillText(outputLayoutData.parsedString[i], drawTextPosX, drawTextPosY);
+                }
             }
 
             // draw underline
@@ -597,6 +631,10 @@ export class TextProcessing {
     }
 
     private _setupOutline (style: TextStyle): void {
+        // draw outline need clear shadow
+        this._context!.shadowBlur = 0;
+        this._context!.shadowOffsetX = 0;
+        this._context!.shadowOffsetY = 0;
         this._context!.strokeStyle = `rgba(${style.outlineColor.r}, ${style.outlineColor.g}, ${style.outlineColor.b}, ${style.outlineColor.a / 255})`;
         this._context!.lineWidth = style.outlineWidth * 2 * this._fontScale;
     }
@@ -746,8 +784,8 @@ export class TextProcessing {
     private _parsedString (outputLayoutData: TextOutputLayoutData, inputString: string): void {
         let _splitStrings: string[] = [];
         let textFragment = '';
-
-        for (let i = 0, line = 0, l = inputString.length; i < l; ++i) {
+        const length = getSymbolLength(inputString);
+        for (let i = 0, line = 0, l = length; i < l; ++i) {
             const letterInfo = this._lettersInfo[i];
             if (!letterInfo.valid) { continue; }
             if (line === letterInfo.line) {
@@ -787,7 +825,7 @@ export class TextProcessing {
         const _lineSpacing = 0; // use less?
 
         for (let index = 0; index < textLen;) {
-            let character = _string.charAt(index);
+            let character = getSymbolAt(_string, index);
             if (character === '\n') {
                 layout.linesWidth.push(letterRight);
                 letterRight = 0;
@@ -809,7 +847,7 @@ export class TextProcessing {
 
             for (let tmp = 0; tmp < tokenLen; ++tmp) {
                 const letterIndex = index + tmp;
-                character = _string.charAt(letterIndex);
+                character = getSymbolAt(_string, letterIndex);
                 if (character === '\r') {
                     this._recordPlaceholderInfo(letterIndex, character);
                     continue;
@@ -917,7 +955,7 @@ export class TextProcessing {
         }
 
         this._lettersInfo[letterIndex].char = char;
-        this._lettersInfo[letterIndex].hash = `${char.charCodeAt(0)}${shareLabelInfo.hash}`;
+        this._lettersInfo[letterIndex].hash = `${getSymbolCodeAt(char, 0)}${shareLabelInfo.hash}`;
         this._lettersInfo[letterIndex].valid = false;
     }
 
@@ -927,7 +965,7 @@ export class TextProcessing {
             this._lettersInfo.push(tmpInfo);
         }
 
-        const char = character.charCodeAt(0);
+        const char = getSymbolCodeAt(character, 0);
         const key = `${char}${shareLabelInfo.hash}`;
 
         this._lettersInfo[letterIndex].line = lineIndex;
@@ -939,7 +977,7 @@ export class TextProcessing {
     }
 
     private _getFirstWordLen (style: TextStyle, layout: TextLayout, text: string, startIndex: number, textLen: number): number {
-        let character = text.charAt(startIndex);
+        let character = getSymbolAt(text, startIndex);
         if (isUnicodeCJK(character)
             || character === '\n'
             || isUnicodeSpace(character)) {
@@ -954,7 +992,7 @@ export class TextProcessing {
         let nextLetterX = letterDef.xAdvance * style.bmfontScale + layout.spacingX;
         let letterX = 0;
         for (let index = startIndex + 1; index < textLen; ++index) {
-            character = text.charAt(index);
+            character = getSymbolAt(text, index);
 
             letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(character, shareLabelInfo);
             if (!letterDef) {
@@ -1045,7 +1083,8 @@ export class TextProcessing {
     ): boolean {
         let letterClamp = false;
         const _string = inputString;
-        for (let ctr = 0, l = _string.length; ctr < l; ++ctr) {
+        const _length = getSymbolLength(_string);
+        for (let ctr = 0, l = _length; ctr < l; ++ctr) {
             const letterInfo = process._lettersInfo[ctr];
             if (letterInfo.valid) {
                 const letterDef = shareLabelInfo.fontAtlas!.getLetterDefinitionForChar(letterInfo.char, shareLabelInfo);
@@ -1123,7 +1162,13 @@ export class TextProcessing {
         }
     }
 
-    private _scaleFontSizeDown (style: TextStyle, layout: TextLayout, outputLayoutData: TextOutputLayoutData, inputString: string, fontSize: number): void {
+    private _scaleFontSizeDown (
+        style: TextStyle,
+        layout: TextLayout,
+        outputLayoutData: TextOutputLayoutData,
+        inputString: string,
+        fontSize: number,
+    ): void {
         let shouldUpdateContent = true;
         if (!fontSize) {
             fontSize = 0.1;
@@ -1151,7 +1196,8 @@ export class TextProcessing {
         const appY = outputRenderData.uiTransAnchorY * outputLayoutData.nodeContentSize.height;
 
         const ret = true;
-        for (let ctr = 0, l = inputString.length; ctr < l; ++ctr) {
+        const _length = getSymbolLength(inputString);
+        for (let ctr = 0, l = _length; ctr < l; ++ctr) {
             const letterInfo = this._lettersInfo[ctr];
             if (!letterInfo.valid) { continue; }
             const letterDef = shareLabelInfo.fontAtlas!.getLetter(letterInfo.hash);

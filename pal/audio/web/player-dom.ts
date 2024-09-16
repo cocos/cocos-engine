@@ -128,10 +128,10 @@ export class AudioPlayerDOM implements OperationQueueable {
         this._domAudio = null as any;
     }
     static load (url: string): Promise<AudioPlayerDOM> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             AudioPlayerDOM.loadNative(url).then((domAudio) => {
                 resolve(new AudioPlayerDOM(domAudio));
-            }).catch((e) => {});
+            }).catch(reject);
         });
     }
     static loadNative (url: string): Promise<HTMLAudioElement> {
@@ -165,7 +165,7 @@ export class AudioPlayerDOM implements OperationQueueable {
             const failure = (): void => {
                 clearEvent();
                 const message = `load audio failure - ${url}`;
-                reject(message);
+                reject(new Error(message));
             };
             domAudio.addEventListener(loadedEvent, success, false);
             domAudio.addEventListener('error', failure, false);

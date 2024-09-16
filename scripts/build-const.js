@@ -1,4 +1,4 @@
-const { StatsQuery } = require('@cocos/build-engine');
+const { StatsQuery } = require('@cocos/ccbuild');
 const { join } = require('path');
 const { outputFileSync } = require('fs-extra');
 const { magenta, green } = require('chalk');

@@ -110,20 +110,21 @@ export class Pacer {
         this._frameCount = 0;
     }
 
-    _handleRAF = (): void => {
-        const elapseTime = performance.now() - this._startTime;
+    _handleRAF = (stamp: number): void => {
+        const currTime = performance.now();
+        const elapseTime = currTime - this._startTime;
         const elapseFrame = Math.floor(elapseTime / this._frameTime);
+        if (elapseFrame < 0) {
+            this._startTime = currTime;
+            this._frameCount = 0;
+        }
         if (elapseFrame < this._frameCount) {
-            this._rAF.call(window, this._handleRAF);
+            this._stHandle = this._rAF.call(window, this._handleRAF);
         } else {
-            this._frameCount++;
+            this._frameCount = elapseFrame + 1;
             if (this._callback) {
                 this._callback();
             }
-        }
-        if (performance.now() - this._startTime > FRAME_RESET_TIME) {
-            this._startTime = performance.now();
-            this._frameCount = 0;
         }
     };
 

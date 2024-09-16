@@ -10,5 +10,5 @@
 <script src="<%= importMapFile%>" type="systemjs-importmap" charset="utf-8"> </script>
 
 <script>
-    System.import('./<%= indexJsName %>').catch(function(err) { console.error(err); })
+    System.import('<%= indexJsName %>').catch(function(err) { console.error(err); })
 </script>

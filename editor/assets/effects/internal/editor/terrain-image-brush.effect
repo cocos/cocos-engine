@@ -17,9 +17,10 @@ CCEffect %{
           blendDst: one_minus_src_alpha
           blendDstAlpha: one_minus_src_alpha
       properties:
-        BrushPos:       { value: [0, 0, 0, 1] }
-        BrushParams:    { value: [2.5, 2.5, 0, 0] }
-        BrushImage:     { value: grey         }
+        BrushPos:         { value: [0, 0, 0, 1] }
+        BrushParams:      { value: [2.5, 2.5, 0, 0] }
+        BrushImage:       { value: grey         }
+        BrushDepthOffset: { value: 0.05 }
 }%
 
 CCProgram terrain-brush-vs %{
@@ -31,12 +32,16 @@ CCProgram terrain-brush-vs %{
 
   out vec4 wposition;
 
+  uniform Constant {
+      float BrushDepthOffset;
+  };
+
   vec4 vert () {
     vec3 worldPos;
     worldPos.x = cc_matWorld[3][0] + a_position.x;
     worldPos.y = cc_matWorld[3][1] + a_position.y;
     worldPos.z = cc_matWorld[3][2] + a_position.z;
-    worldPos.y += 0.01; // offset
+    worldPos.y += BrushDepthOffset; // depth increment for terrain brushes
 
     vec4 pos = vec4(worldPos, 1);
     pos = cc_matViewProj * pos;

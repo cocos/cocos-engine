@@ -29,17 +29,10 @@
     border-bottom: none;
 }
 
-:host > .container > .header > .icon {
-    width: 16px;
-    font-size: 12px;
-    cursor: pointer;
-    margin-left: 4px;
-    margin-right: 4px;
-}
-
-:host > .container > .header > .image {
+:host > .container > .header > .asset-thumbnail {
     width: 16px;
     height: 16px;
+    font-size: 12px;
     cursor: pointer;
     margin-left: 4px;
     margin-right: 4px;

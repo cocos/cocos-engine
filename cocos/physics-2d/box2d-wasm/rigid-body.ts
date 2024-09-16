@@ -37,7 +37,7 @@ import { B2Joint } from './joints/joint-2d';
 
 const tempVec3 = new Vec3();
 const tempVec2_1 = { x: 0, y: 0 };//new B2.Vec2(0, 0);
-let tempVec2_2 = { x: 0, y: 0 };
+const tempVec2_2 = { x: 0, y: 0 };
 export class B2RigidBody2D implements IRigidBody2D {
     get impl (): B2.Body | null {
         return this._body;
@@ -182,19 +182,10 @@ export class B2RigidBody2D implements IRigidBody2D {
         if (!b2body) return;
 
         const pos = this._rigidBody.node.worldPosition;
-
-        //the belowing code seems useless?
-        const bodyType = this._rigidBody.type;
-        if (bodyType === ERigidBody2DType.Animated) {
-            tempVec2_2 = b2body.GetLinearVelocity();
-        } else {
-            tempVec2_2 = b2body.GetPosition();
-        }
-
         tempVec2_2.x = pos.x / PHYSICS_2D_PTM_RATIO;
         tempVec2_2.y = pos.y / PHYSICS_2D_PTM_RATIO;
 
-        if (bodyType === ERigidBody2DType.Animated && enableAnimated) {
+        if (this._rigidBody.type === ERigidBody2DType.Animated && enableAnimated) {
             this._animatedPos.set(tempVec2_2.x, tempVec2_2.y);
         } else {
             b2body.SetTransform(tempVec2_2, b2body.GetAngle());
@@ -291,7 +282,7 @@ export class B2RigidBody2D implements IRigidBody2D {
         this._body!.SetAngularVelocity(v);
     }
     getAngularVelocity (): number {
-        return toDegree(this._body!.GetAngularVelocity());
+        return this._body!.GetAngularVelocity();
     }
 
     getLocalVector<Out extends IVec2Like> (worldVector: IVec2Like, out: Out): Out {

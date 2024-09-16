@@ -64,6 +64,21 @@
     margin-left: 4px;
 }
 
+.container > .header > .prefab .unlink-btns {
+    margin-left: 4px;
+    background-color: #3d3d3d;
+    display: flex;
+}
+
+.container > .header > .prefab .unlink-btns > ui-button:last-child {
+    width: 16px;
+    padding: 0;
+}
+
+.container > .header > .prefab .unlink-btns > ui-button:last-child > ui-icon {
+    margin-left: -1px;
+}
+
 .container > .header > .prefab[missing] > ui-label {
     color: var(--color-danger-fill);
 }

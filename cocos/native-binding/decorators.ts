@@ -1184,6 +1184,7 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
   const sizeDescriptor = Object.getOwnPropertyDescriptor(SpotLight.prototype, 'size');
   const rangeDescriptor = Object.getOwnPropertyDescriptor(SpotLight.prototype, 'range');
   const spotAngleDescriptor = Object.getOwnPropertyDescriptor(SpotLight.prototype, 'spotAngle');
+  const angleAttenuationStrengthDescriptor = Object.getOwnPropertyDescriptor(SpotLight.prototype, 'angleAttenuationStrength');
   const shadowEnabledDescriptor = Object.getOwnPropertyDescriptor(SpotLight.prototype, 'shadowEnabled');
   const shadowPcfDescriptor = Object.getOwnPropertyDescriptor(SpotLight.prototype, 'shadowPcf');
   const shadowBiasDescriptor = Object.getOwnPropertyDescriptor(SpotLight.prototype, 'shadowBias');
@@ -1195,6 +1196,7 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
   apply(() => { $.serializable(SpotLight.prototype, '_term',  () => { return PhotometricTerm.LUMINOUS_FLUX; }); }, 'serializable', '_term');
   apply(() => { $.serializable(SpotLight.prototype, '_range',  () => { return 1; }); }, 'serializable', '_range');
   apply(() => { $.serializable(SpotLight.prototype, '_spotAngle',  () => { return 60; }); }, 'serializable', '_spotAngle');
+  apply(() => { $.serializable(SpotLight.prototype, '_angleAttenuationStrength',  () => { return 0; }); }, 'serializable', '_angleAttenuationStrength');
   apply(() => { $.serializable(SpotLight.prototype, '_shadowEnabled',  () => { return false; }); }, 'serializable', '_shadowEnabled');
   apply(() => { $.serializable(SpotLight.prototype, '_shadowPcf',  () => { return PCFType.HARD; }); }, 'serializable', '_shadowPcf');
   apply(() => { $.serializable(SpotLight.prototype, '_shadowBias',  () => { return 0.00001; }); }, 'serializable', '_shadowBias');
@@ -1214,9 +1216,12 @@ export function patch_cc_SpotLight(ctx: cc_SpotLight_Context_Args, apply = defau
   apply(() => { $.editable(SpotLight.prototype, 'size',  sizeDescriptor); }, 'editable', 'size');
   apply(() => { $.tooltip('i18n:lights.size')(SpotLight.prototype, 'size',  sizeDescriptor); }, 'tooltip', 'size');
   apply(() => { $.tooltip('i18n:lights.range')(SpotLight.prototype, 'range',  rangeDescriptor); }, 'tooltip', 'range');
-  apply(() => { $.tooltip('The spot light cone angle')(SpotLight.prototype, 'spotAngle',  spotAngleDescriptor); }, 'tooltip', 'spotAngle');
+  apply(() => { $.tooltip('i18n:lights.spotAngle')(SpotLight.prototype, 'spotAngle',  spotAngleDescriptor); }, 'tooltip', 'spotAngle');
   apply(() => { $.range([2, 180, 1])(SpotLight.prototype, 'spotAngle',  spotAngleDescriptor); }, 'range', 'spotAngle');
   apply(() => { $.slide(SpotLight.prototype, 'spotAngle',  spotAngleDescriptor); }, 'slide', 'spotAngle');
+  apply(() => { $.tooltip('i18n:lights.angleAttenuationStrength')(SpotLight.prototype, 'angleAttenuationStrength',  angleAttenuationStrengthDescriptor); }, 'tooltip', 'angleAttenuationStrength');
+  apply(() => { $.range([0, 1, 0.001])(SpotLight.prototype, 'angleAttenuationStrength',  angleAttenuationStrengthDescriptor); }, 'range', 'angleAttenuationStrength');
+  apply(() => { $.slide(SpotLight.prototype, 'angleAttenuationStrength',  angleAttenuationStrengthDescriptor); }, 'slide', 'angleAttenuationStrength');
   apply(() => { $.type(CCBoolean)(SpotLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'type', 'shadowEnabled');
   apply(() => { $.editable(SpotLight.prototype, 'shadowEnabled',  shadowEnabledDescriptor); }, 'editable', 'shadowEnabled');
   apply(() => { $.property({

@@ -162,7 +162,7 @@ module.exports = link(mixin({
             Sorting: `${url}/${version}/manual/en/engine/rendering/sorting.html`,
         },
         assets: {
-            javascript: `${url}/${version}/manual/en/concepts/scene/node-component.html`,
+            javascript: `${url}/${version}/manual/en/concepts/scripting/plugin-scripts.html`,
             texture: `${url}/${version}/manual/en/asset/texture.html`,
             'texture-cube': `${url}/${version}/manual/en/asset/texture-cube.html`,
             typescript: `${url}/${version}/manual/en/scripting/setup.html`,
@@ -296,6 +296,8 @@ module.exports = link(mixin({
         term: 'The photometric term currently being used',
         size: 'Size of the light',
         range: 'Range of the light',
+        spotAngle: 'Cone angle of the spotlight',
+        angleAttenuationStrength: 'The angle attenuation strength of the light. The larger the value, the softer the edge, and the smaller the value, the harder the edge.',
         shadowEnabled: 'Enable or disable real time shadows',
         shadowPcf: 'Enable soft shadows',
         shadowBias: 'Bias value (world space unit) that can avoid moire artifacts with shadows. <br>The more the value, the more the light leakage',

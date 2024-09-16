@@ -59,7 +59,7 @@ static bool jsb_adpf_onThermalStatusChanged_set(se::State &state) { // NOLINT
 
     vmCallback.cbFn = new se::Value(fn.toObject(), true);
     // NOLINTNEXTLINE
-    ADPFManager::getInstance().SetThermalListener(+[](int prevStatus, int currentStatus) {
+    ADPFManager::getInstance().setThermalListener(+[](int prevStatus, int currentStatus) {
         CC_CURRENT_ENGINE()->getScheduler()->performFunctionInCocosThread([=]() {
             se::AutoHandleScope scope;
             se::ValueArray args;
@@ -88,7 +88,7 @@ static bool jsb_adpf_onThermalStatusChanged_get(se::State &state) { // NOLINT
 SE_BIND_PROP_GET(jsb_adpf_onThermalStatusChanged_get)
 
 static bool jsb_adpf_getThermalStatus(se::State &state) { // NOLINT
-    int statusInt = ADPFManager::getInstance().GetThermalStatus();
+    int statusInt = ADPFManager::getInstance().getThermalStatus();
     state.rval().setUint32(statusInt);
     return true;
 }
@@ -106,14 +106,13 @@ static bool jsb_adpf_getThermalStatusMax(se::State &state) { // NOLINT
 SE_BIND_PROP_GET(jsb_adpf_getThermalStatusMax)
 
 static bool jsb_adpf_getThermalStatusNormalized(se::State &state) { // NOLINT
-    float statusNormalized = ADPFManager::getInstance().GetThermalStatusNormalized();
+    float statusNormalized = ADPFManager::getInstance().getThermalStatusNormalized();
     state.rval().setFloat(statusNormalized);
     return true;
 }
 SE_BIND_PROP_GET(jsb_adpf_getThermalStatusNormalized)
-
 static bool jsb_adpf_getThermalHeadroom(se::State &state) { // NOLINT
-    float headroom = ADPFManager::getInstance().GetThermalHeadroom();
+    float headroom = ADPFManager::getInstance().getThermalHeadroom();
     state.rval().setFloat(headroom);
     return true;
 }

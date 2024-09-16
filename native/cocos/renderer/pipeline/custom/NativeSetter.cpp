@@ -248,6 +248,10 @@ void NativeSetter::setBuiltinSpotLightConstants(const scene::SpotLight *light, c
                     : 0.0F));
 
         setVec4Impl(
+            data, *layoutGraph, "cc_lightBoundingSizeVS",
+            Vec4(0, 0, 0, light->getAngleAttenuationStrength()));
+
+        setVec4Impl(
             data, *layoutGraph, "cc_lightDir",
             toVec4(light->getDirection()));
     }

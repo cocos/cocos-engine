@@ -21,44 +21,18 @@ exports.template = /* html */`
          ></ui-checkbox>
     </ui-prop>
     <div class="detail">
-        <div class="dependencies">
-            <ui-prop>
-                <ui-label slot="label"
-                    tooltip="i18n:ENGINE.assets.javascript.dependenciesTip"
-                    value="i18n:ENGINE.assets.javascript.dependencies"
-                ></ui-label>
-                <ui-num-input class="content" 
-                    step="1" 
-                    min="0" 
-                    max="10"
-                    slot="content"
-                    id="dependencies-input"
-                ></ui-num-input>
-            </ui-prop>
-            <ui-prop>
-                <ui-label slot="label"></ui-label>
-                <div class="assets content"
-                    slot="content"
-                    id="dependencies-content"
-                ></div>
-            </ui-prop>
-        </div>
-        <ui-prop >
-            <ui-label 
-                slot="label"
-                tooltip="i18n:ENGINE.assets.javascript.executionScopeTip"
-                value="i18n:ENGINE.assets.javascript.executionScope"
-            ></ui-label>
-            <ui-select slot="content"
-                id="executionScope"
-            ></ui-select>
+        <ui-prop id="executionScope">
+            <ui-label slot="label" value="i18n:ENGINE.assets.javascript.globalThisAlias"></ui-label>
+            <ui-checkbox slot="content"
+                id="simulateGlobalsCheckBox"
+            ></ui-checkbox>
         </ui-prop>
-        <ui-prop id="executionScopeEnclosedProp">
+        <ui-prop id="simulateGlobals">
             <ui-label slot="label"></ui-label>
             <ui-input slot="content"
-                id="executionScopeEnclosedInput"
+                id="simulateGlobalsInput"
                 placeholder="self;window;global;globalThis"
-                tooltip="i18n:ENGINE.assets.javascript.executionScopeEnclosed"
+                tooltip="i18n:ENGINE.assets.javascript.globalThisAliasTip"
             ></ui-input>
         </ui-prop>
         <ui-prop>
@@ -77,6 +51,15 @@ exports.template = /* html */`
             ></ui-label>
             <ui-checkbox slot="content"
                 id="load-plugin-in-native"
+            ></ui-checkbox>
+        </ui-prop>
+        <ui-prop>
+            <ui-label slot="label"
+                tooltip="i18n:ENGINE.assets.javascript.loadPluginInMiniGameTip"
+                value="i18n:ENGINE.assets.javascript.loadPluginInMiniGame"
+            ></ui-label>
+            <ui-checkbox slot="content"
+                id="load-plugin-in-mini-game"
             ></ui-checkbox>
         </ui-prop>
         <ui-prop >
@@ -124,12 +107,11 @@ exports.$ = {
     loadPluginInEditorCheckBox: '#load-plugin-in-editor',
     loadPluginInWebCheckBox: '#load-plugin-in-web',
     loadPluginInNativeCheckBox: '#load-plugin-in-native',
-    dependencies: '.dependencies',
-    dependenciesInput: '#dependencies-input',
-    dependenciesContent: '#dependencies-content',
+    loadPluginInMiniGameCheckBox: '#load-plugin-in-mini-game',
+    simulateGlobals: '#simulateGlobals',
+    simulateGlobalsInput: '#simulateGlobalsInput',
+    simulateGlobalsCheckBox: '#simulateGlobalsCheckBox',
     executionScope: '#executionScope',
-    executionScopeEnclosedProp: '#executionScopeEnclosedProp',
-    executionScopeEnclosedInput: '#executionScopeEnclosedInput',
     code: '#code',
 };
 
@@ -138,6 +120,17 @@ const Elements = {
         ready() {
             this.$.isPluginCheckBox.addEventListener('confirm', (event) => {
                 this.change('isPlugin', event);
+                if (event.target.value) {
+                    this.metaList.forEach((meta) => {
+                        const defaultConfig = {
+                            loadPluginInEditor: false,
+                            loadPluginInWeb: true,
+                            loadPluginInNative: true,
+                            loadPluginInMiniGame: true,
+                        };
+                        meta.userData = Object.assign(defaultConfig, meta.userData);
+                    })
+                }
                 Elements.detail.update.call(this);
             });
         },
@@ -157,105 +150,24 @@ const Elements = {
             this.$.detail.style.display = display;
         },
     },
-    dependencies: {
-        ready() {
-            this.$.dependenciesInput.addEventListener('confirm', (event) => {
-                let length = event.target.value;
-
-                if (length < 0) {
-                    length = 0;
-                }
-
-                if (length > 10) {
-                    length = 10;
-                }
-
-                if (!Array.isArray(this.meta.userData.dependencies)) {
-                    this.meta.userData.dependencies = [];
-                }
-
-                while (this.meta.userData.dependencies.length < length) {
-                    this.meta.userData.dependencies.push('');
-                }
-
-                while (this.meta.userData.dependencies.length > length) {
-                    this.meta.userData.dependencies.pop();
-                }
-
-                if (!this.meta.userData.dependencies.length) {
-                    this.meta.userData.dependencies = undefined;
-                }
-
-                this.dispatch('change');
-
-                Elements.dependencies.update.call(this);
-
-                this.dispatch('snapshot');
-            });
-        },
-        update() {
-            let display = 'none';
-            if (this.metaList.length === 1) {
-                display = 'block';
-            }
-            this.$.dependencies.style.display = display;
-
-            if (display === 'none') {
-                return;
-            }
-
-            updateElementReadonly.call(this, this.$.dependenciesInput);
-
-            this.$.dependenciesContent.innerText = '';
-
-            if (!Array.isArray(this.meta.userData.dependencies)) {
-                this.$.dependenciesInput.value = 0;
-                return;
-            }
-
-
-            const length = this.meta.userData.dependencies.length;
-            this.$.dependenciesInput.value = length;
-
-            for (let i = 0; i < length; i++) {
-                const child = document.createElement('ui-asset');
-                this.$.dependenciesContent.appendChild(child);
-
-                child.setAttribute('value', this.meta.userData.dependencies[i]);
-                child.setAttribute('droppable', 'cc.Script');
-                updateElementReadonly.call(this, child);
-                child.addEventListener('confirm', (event) => {
-                    this.meta.userData.dependencies[i] = event.target.value;
-                    this.dispatch('change');
-                    this.dispatch('snapshot');
-                });
-            }
-        },
-    },
     executionScope: {
         ready() {
-            const options = ['enclosed', 'global'];
-            for (const key of options) {
-                const option = document.createElement('option');
-                option.value = key;
-                option.innerText = this.t(key);
-                this.$.executionScope.appendChild(option);
-            }
-
-            this.$.executionScope.addEventListener('confirm', (event) => {
-                this.change('executionScope', event);
-                Elements.executionScopeEnclosed.update.call(this);
+            this.$.simulateGlobalsCheckBox.addEventListener('confirm', (event) => {
+                const value = event.target.value ? 'enclosed' : 'global';
+                this.changeUserData('executionScope', value);
+                Elements.executionScope.update.call(this);
+                Elements.simulateGlobals.update.call(this);
             });
         },
         update() {
-            this.$.executionScope.value = this.meta.userData.executionScope !== 'global' ? 'enclosed' : 'global';
+            this.$.simulateGlobalsCheckBox.value = (this.meta.userData.executionScope === 'enclosed');
             updateElementInvalid.call(this, this.$.executionScope, 'executionScope');
             updateElementReadonly.call(this, this.$.executionScope);
         },
     },
-    executionScopeEnclosed: {
+    simulateGlobals: {
         ready() {
-            this.$.executionScopeEnclosedInput.addEventListener('confirm', (event) => {
+            this.$.simulateGlobalsInput.addEventListener('confirm', (event) => {
                 const value = event.target.value;
                 if (typeof value === 'string') {
                     let globalNames = [];
@@ -273,29 +185,32 @@ const Elements = {
         },
         update() {
             let display = 'none';
-            if (this.meta.userData.executionScope !== 'global') {
+            if (this.meta.userData.executionScope === 'enclosed') {
                 display = 'block';
             }
 
-            this.$.executionScopeEnclosedProp.style.display = display;
+            this.$.simulateGlobals.style.display = display;
 
             if (display === 'none') {
                 return;
             }
 
-            updateElementReadonly.call(this, this.$.executionScopeEnclosedInput);
+            updateElementReadonly.call(this, this.$.simulateGlobalsInput);
 
-            this.$.executionScopeEnclosedInput.value = Array.isArray(this.meta.userData.simulateGlobals)
+            this.$.simulateGlobalsInput.value = Array.isArray(this.meta.userData.simulateGlobals)
                 ? this.meta.userData.simulateGlobals.join(';')
                 : '';
         },
     },
     loadPluginInWebCheckBox: {
         ready() {
-            this.$.loadPluginInWebCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInWeb'));
+            this.$.loadPluginInWebCheckBox.addEventListener('confirm', (event) => {
+                this.change('loadPluginInWeb', event);
+                Elements.loadPluginInEditorCheckBox.update.call(this);
+            });
         },
         update() {
-            this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb;
+            this.$.loadPluginInWebCheckBox.value = this.meta.userData.loadPluginInWeb ?? true;
             updateElementInvalid.call(this, this.$.loadPluginInWebCheckBox, 'loadPluginInWeb');
             updateElementReadonly.call(this, this.$.loadPluginInWebCheckBox);
         },
@@ -305,9 +220,19 @@ const Elements = {
             this.$.loadPluginInNativeCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInNative'));
         },
         update() {
-            this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative;
+            this.$.loadPluginInNativeCheckBox.value = this.meta.userData.loadPluginInNative ?? true;
             updateElementInvalid.call(this, this.$.loadPluginInNativeCheckBox, 'loadPluginInNative');
             updateElementReadonly.call(this, this.$.loadPluginInNativeCheckBox);
+        },
+    },
+    loadPluginInMiniGameCheckBox: {
+        ready() {
+            this.$.loadPluginInMiniGameCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInMiniGame'));
+        },
+        update() {
+            this.$.loadPluginInMiniGameCheckBox.value = this.meta.userData.loadPluginInMiniGame ?? true;
+            updateElementInvalid.call(this, this.$.loadPluginInMiniGameCheckBox, 'loadPluginInMiniGame');
+            updateElementReadonly.call(this, this.$.loadPluginInMiniGameCheckBox);
         },
     },
     loadPluginInEditorCheckBox: {
@@ -315,7 +240,9 @@ const Elements = {
             this.$.loadPluginInEditorCheckBox.addEventListener('confirm', this.change.bind(this, 'loadPluginInEditor'));
         },
         update() {
-            this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInEditor;
+            
+            this.$.loadPluginInEditorCheckBox.value = this.meta.userData.loadPluginInWeb ? this.meta.userData.loadPluginInEditor : false;
+            this.$.loadPluginInEditorCheckBox.disabled = this.meta.userData.loadPluginInWeb ? false : true;
             updateElementInvalid.call(this, this.$.loadPluginInEditorCheckBox, 'loadPluginInEditor');
             updateElementReadonly.call(this, this.$.loadPluginInEditorCheckBox);
         },
@@ -382,13 +309,16 @@ exports.methods = {
         return Editor.I18n.t(`ENGINE.assets.javascript.${key}`);
     },
     change(key, event) {
+        this.changeUserData(key, event.target.value);
+    },
+    changeUserData(key, value) {
         this.metaList.forEach((meta) => {
-            meta.userData[key] = event.target.value;
+            meta.userData[key] = value;
         });
 
         this.dispatch('change');
         this.dispatch('snapshot');
-    },
+    }
 };
 
 exports.ready = function() {

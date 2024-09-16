@@ -22,12 +22,12 @@
  THE SOFTWARE.
 */
 
-import { instantiateWasm, fetchBuffer, ensureWasmModuleReady } from 'pal/wasm';
-import { WASM_SUPPORT_MODE, CULL_ASM_JS_MODULE, EDITOR, TEST } from 'internal:constants';
+import { instantiateWasm, ensureWasmModuleReady } from 'pal/wasm';
+import { NATIVE_CODE_BUNDLE_MODE } from 'internal:constants';
 
 import { game } from '../../game';
-import { error, sys, debug, IVec2Like, getError, log } from '../../core';
-import { WebAssemblySupportMode } from '../../misc/webassembly-support';
+import { error, sys, IVec2Like, log } from '../../core';
+import { NativeCodeBundleMode } from '../../misc/webassembly-support';
 
 // eslint-disable-next-line import/no-mutable-exports
 export let B2 = {} as any;
@@ -143,8 +143,8 @@ function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
                 receiveInstance: (instance: WebAssembly.Instance, module: WebAssembly.Module) => void,
             ) {
                 // NOTE: the Promise return by instantiateWasm hook can't be caught.
-                instantiateWasm(wasmUrl, importObject).then((result: any) => {
-                    receiveInstance(result.instance as WebAssembly.Instance, result.module as WebAssembly.Module);
+                instantiateWasm(wasmUrl, importObject).then((result) => {
+                    receiveInstance(result.instance, result.module);
                 }).catch((err) => reject(errorMessage(err)));
             },
         }).then((Instance: any) => {
@@ -156,21 +156,18 @@ function initWasm (wasmFactory, wasmUrl: string): Promise<void> {
 
 function initAsm (asmFactory): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        if (CULL_ASM_JS_MODULE) {
-            reject(getError(4601));
-            return;
-        }
+        const errorMessage = (err: any): string => `[box2d]: box2d asm lib load failed: ${err}`;
         asmFactory().then((instance: any) => {
             log('[box2d]:box2d asm lib loaded.');
             B2 = instance;
-        });
+        }).then(resolve).catch((err: any) => reject(errorMessage(err)));
     });
 }
 
 function shouldUseWasmModule (): boolean {
-    if (WASM_SUPPORT_MODE === WebAssemblySupportMode.MAYBE_SUPPORT as number) {
+    if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.BOTH as number)) {
         return sys.hasFeature(sys.Feature.WASM);
-    } else if (WASM_SUPPORT_MODE === WebAssemblySupportMode.SUPPORT as number) {
+    } else if (NATIVE_CODE_BUNDLE_MODE === (NativeCodeBundleMode.WASM as number)) {
         return true;
     } else {
         return false;
@@ -179,21 +176,21 @@ function shouldUseWasmModule (): boolean {
 
 export function waitForBox2dWasmInstantiation (): Promise<void> {
     const errorReport = (msg: any): void => { error(msg); };
-    return ensureWasmModuleReady().then(() => Promise.all([
-        import('external:emscripten/box2d/box2d.release.wasm.js'),
-        import('external:emscripten/box2d/box2d.release.wasm.wasm'),
-        import('external:emscripten/box2d/box2d.release.asm.js'),
-    ]).then(([
-        { default: wasmFactory },
-        { default: wasmUrl },
-        { default: asmFactory },
-    ]) => {
+    return ensureWasmModuleReady().then(() => {
         if (shouldUseWasmModule()) {
-            return initWasm(wasmFactory, wasmUrl);
+            return Promise.all([
+                import('external:emscripten/box2d/box2d.release.wasm.js'),
+                import('external:emscripten/box2d/box2d.release.wasm.wasm'),
+            ]).then(([
+                { default: wasmFactory },
+                { default: wasmUrl },
+            ]) => initWasm(wasmFactory, wasmUrl));
         } else {
-            return initAsm(asmFactory);
+            return import('external:emscripten/box2d/box2d.release.asm.js').then(
+                ({ default: asmFactory }) => initAsm(asmFactory),
+            );
         }
-    })).catch(errorReport);
+    }).catch(errorReport);
 }
 
 game.onPostInfrastructureInitDelegate.add(waitForBox2dWasmInstantiation);

@@ -1,12 +1,9 @@
 {
-  "ver": "1.0.1",
-  "importer": "*",
+  "ver": "1.2.0",
+  "importer": "directory",
   "imported": true,
-  "uuid": "d9956a56-5622-44a1-8b50-42449f24ecdd",
-  "files": [
-    "",
-    ".json"
-  ],
+  "uuid": "ade4f075-dc54-4ded-8f19-e94a092b6abc",
+  "files": [],
   "subMetas": {},
   "userData": {}
 }

@@ -495,22 +495,41 @@ export class Color extends ValueType {
     }
 
     /**
-     * @en Read hex string and store color data into the current color object, the hex string must be formatted as rgba or rgb.
-     * @zh 从十六进制颜色字符串中读入当前颜色。<br/>
-     * 十六进制颜色字符串应该以可选的 "#" 开头，紧跟最多 8 个代表十六进制数字的字符；<br/>
-     * 每两个连续字符代表的数值依次作为 Red、Green、Blue 和 Alpha 通道；<br/>
-     * 缺省的颜色通道将视为 0；缺省的透明通道将视为 255。<br/>
-     * @param hexString the hex string
+     * @en Converts the hexadecimal formal color into rgb formal and save the results to current color object.
+     *   the argument `hex` could be hex-string or hex-number (8-digit or 6-digit).
+     *   the hex-string should be like : '#12345678' '#123456', '123456', '12345678'.
+     *   the hex-number should be like : 0x12345678, 0x123456 .
+     * @zh 从十六进制颜色字符串中读入颜色到 当前color对象中
+     *   参数 hex 支持 16进制字符串 或者 16进制数值 (8位数字 或者 6位数字).
+     *   16进制字符串的格式应该类似: '#12345678' '#123456', '123456', '12345678'.
+     *   16进制数值的格式应该类似:  0x12345678, 0x123456 .
+     * @param hex the hex-string or hex-number
      * @returns `this`
      */
-    public fromHEX (hexString: string): Color {
-        hexString = (hexString.indexOf('#') === 0) ? hexString.substring(1) : hexString;
-        const r = parseInt(hexString.substr(0, 2), 16) || 0;
-        const g = parseInt(hexString.substr(2, 2), 16) || 0;
-        const b = parseInt(hexString.substr(4, 2), 16) || 0;
-        let a = parseInt(hexString.substr(6, 2), 16);
-        a = !Number.isNaN(a) ? a : 255;
-        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + (r | 0);
+    fromHEX (hex: string | number): Color {
+        let hexNumber: number;
+        if (typeof hex === 'string') {
+            hex = hex[0] === '#' ? hex.substring(1) : hex;
+            if (hex.length === 6) {
+                hex += 'FF';
+            } else if (hex.length === 3) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + 'FF';
+            } else if (hex.length === 4) {
+                hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+            }
+            hexNumber = Number('0x' + hex);
+        } else {
+            if (hex < 0x1000000) {
+                hex = (hex << 8) + 0xff;
+            }
+            hexNumber = hex;
+        }
+        const r = hexNumber >>> 24;
+        const g = (hexNumber & 0x00ff0000) >>> 16;
+        const b = (hexNumber & 0x0000ff00) >>> 8;
+        const a = hexNumber & 0x000000ff;
+        this._val = ((a << 24) >>> 0) + (b << 16) + (g << 8) + r;
+
         return this;
     }
 

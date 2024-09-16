@@ -1413,6 +1413,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/LayoutGraphFwd.h
                  cocos/renderer/pipeline/custom/LayoutGraphGraphs.h
                  cocos/renderer/pipeline/custom/LayoutGraphNames.h
+                 cocos/renderer/pipeline/custom/LayoutGraphSerialization.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphSerialization.h
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.cpp
                  cocos/renderer/pipeline/custom/LayoutGraphTypes.h
@@ -1449,6 +1450,7 @@ cocos_source_files(
                  cocos/renderer/pipeline/custom/RenderCommonJsb.cpp
                  cocos/renderer/pipeline/custom/RenderCommonJsb.h
                  cocos/renderer/pipeline/custom/RenderCommonNames.h
+                 cocos/renderer/pipeline/custom/RenderCommonSerialization.cpp
                  cocos/renderer/pipeline/custom/RenderCommonSerialization.h
                  cocos/renderer/pipeline/custom/RenderCommonTypes.cpp
                  cocos/renderer/pipeline/custom/RenderCommonTypes.h
@@ -1520,6 +1522,12 @@ cocos_source_files(
                  cocos/scene/Pass.cpp
                  cocos/scene/RenderScene.h
                  cocos/scene/RenderScene.cpp
+                 cocos/scene/raytracing/RayTracing.h
+                 cocos/scene/raytracing/RayTracing.cpp
+                 cocos/scene/raytracing/Def.h
+                 cocos/scene/raytracing/Def.cpp
+                 cocos/scene/raytracing/Description.h
+                 cocos/scene/raytracing/Description.cpp
                  cocos/scene/RenderWindow.cpp
                  cocos/scene/RenderWindow.h
                  cocos/scene/Skybox.h

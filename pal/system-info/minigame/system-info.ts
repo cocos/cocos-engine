@@ -61,6 +61,40 @@ if (WECHAT) {
     currentPlatform = Platform.QTT_MINI_GAME;
 }
 
+let isVersionGreaterOrEqualTo;
+if (BYTEDANCE) {
+    isVersionGreaterOrEqualTo = function isVersionGreaterOrEqualTo (versionA: string, versionB: string): boolean {
+        if (!versionA || !versionB) {
+            return false;
+        }
+        // Split the version number string into an array of integers
+        function parseVersion (version: string): number[] {
+            return version.split('.').map((part: string) => parseInt(part, 10));
+        }
+
+        // Parse the version number strings into arrays
+        const versionArrayA = parseVersion(versionA);
+        const versionArrayB = parseVersion(versionB);
+
+        if (versionArrayA.length !== versionArrayB.length) {
+            return false;
+        }
+
+        // Compare versions level by level
+        for (let i = 0; i < versionArrayA.length; i++) {
+            if (versionArrayA[i] > versionArrayB[i]) {
+                // versionA > versionB
+                return true;
+            } else if (versionArrayA[i] < versionArrayB[i]) {
+                // versionA < versionB
+                return false;
+            }
+        }
+
+        // versionA === versionB
+        return true;
+    };
+}
 class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
@@ -129,6 +163,29 @@ class SystemInfo extends EventTarget {
         this.isXR = false;
 
         const isPCWechat = WECHAT && this.os === OS.WINDOWS && !minigame.isDevTool;
+
+        const supportWasm = ((): boolean => {
+            if (WECHAT) {
+                return true;
+            }
+
+            if (BYTEDANCE) {
+                let minSDKVersionSupportWasm = '';
+                if (this.os === OS.ANDROID) {
+                    minSDKVersionSupportWasm = '3.9.0';
+                } else if (this.os === OS.IOS) {
+                    minSDKVersionSupportWasm = '3.8.0';
+                }
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-expect-error TTWebAssembly is defined if bytedance client supports wasm.
+                if (isVersionGreaterOrEqualTo(minigameSysInfo.SDKVersion, minSDKVersionSupportWasm) && typeof TTWebAssembly === 'object') {
+                    return true;
+                }
+            }
+
+            return false;
+        })();
+
         this._featureMap = {
             [Feature.WEBP]: false,      // Initialize in Promise,
             [Feature.IMAGE_BITMAP]: false,
@@ -146,7 +203,7 @@ class SystemInfo extends EventTarget {
             [Feature.EVENT_HANDLE]: this.isXR,
             [Feature.EVENT_HMD]: this.isXR,
             [Feature.EVENT_HANDHELD]: false,
-            [Feature.WASM]: WECHAT,
+            [Feature.WASM]: supportWasm,
         };
 
         this._initPromise = [];

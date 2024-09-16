@@ -30,7 +30,7 @@ import { MINIGAME, JSB, RUNTIME_BASED, EDITOR } from 'internal:constants';
 import { screenAdapter } from 'pal/screen-adapter';
 import { Eventify } from '../core/event';
 import { Rect, Size, Vec2 } from '../core/math';
-import { visibleRect, cclegacy, errorID, screen, macro, System } from '../core';
+import { visibleRect, cclegacy, errorID, screen, macro, System, assert } from '../core';
 import { Orientation } from '../../pal/screen-adapter/enum-type';
 import { director } from '../game/director';
 import { Settings, settings } from '../core/settings';
@@ -140,7 +140,6 @@ export class View extends Eventify(System) {
 
         // For now, the engine UI is adapted to resolution size, instead of window size.
         screen.on('window-resize', this._updateAdaptResult, this);
-        screen.on('orientation-change', this._updateAdaptResult, this);
         screen.on('fullscreen-change', this._updateAdaptResult, this);
     }
 
@@ -596,8 +595,10 @@ export class View extends Eventify(System) {
         const w = this._designResolutionSize.width;
         const h = this._designResolutionSize.height;
 
-        if (width > 0) {
+        if (width > 0 && height > 0) {
             this.setDesignResolutionSize(w, h, this._resolutionPolicy);
+        } else {
+            assert(false, '_updateAdaptResult Invalid size.');
         }
 
         this.emit('canvas-resize');

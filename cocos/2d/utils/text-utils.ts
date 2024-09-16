@@ -26,6 +26,7 @@
 import { RUNTIME_BASED } from 'internal:constants';
 import { minigame } from 'pal/minigame';
 import { js } from '../../core';
+import { forEach } from '../../asset/asset-manager/utilities';
 
 export const BASELINE_RATIO = 0.26;
 let _BASELINE_OFFSET = 0;
@@ -214,37 +215,190 @@ export function safeMeasureText (ctx: CanvasRenderingContext2D, string: string, 
     return width;
 }
 
+export function getSymbolLength (str: string): number {
+    const length = str.length;
+    let len = 0;
+    let count = 0;
+    let start = 0;
+    let charCode = 0;
+    for (let i = 0; i < length; i++) {
+        charCode = str.charCodeAt(i);
+        if (charCode === 0x200d) {
+            len++;
+            continue;
+        }
+        if (charCode >= 0xd800 && charCode <= 0xdbff) {
+            len++;
+            charCode = str.charCodeAt(i + 1);
+            if (charCode >= 0xdc00 && charCode <= 0xdfff) {
+                len++;
+                if (i + 2 >= length || str.charCodeAt(i + 2) !== 0x200d) {
+                    start += len;
+                    count++;
+                    len = 0;
+                }
+                i++;
+                continue;
+            }
+        }
+        start = i + 1;
+        count++;
+        len = 0;
+    }
+    return count;
+}
+
+export function getSymbolAt (str: string, index: number): string  {
+    const length = str.length;
+    let len = 0;
+    let count = 0;
+    let start = 0;
+    let charCode = 0;
+    for (let i = 0; i < length; i++) {
+        charCode = str.charCodeAt(i);
+        if (charCode === 0x200d) {
+            len++;
+            continue;
+        }
+        if (charCode >= 0xd800 && charCode <= 0xdbff) {
+            len++;
+            charCode = str.charCodeAt(i + 1);
+            if (charCode >= 0xdc00 && charCode <= 0xdfff) {
+                len++;
+                if (i + 2 >= length || str.charCodeAt(i + 2) !== 0x200d) {
+                    if (index === count) {
+                        return str.slice(start, start + len);
+                    }
+                    start += len;
+                    count++;
+                    len = 0;
+                }
+                i++;
+                continue;
+            }
+        }
+        if (index === count) {
+            return str.charAt(i);
+        }
+        start = i + 1;
+        count++;
+        len = 0;
+    }
+    return '';
+}
+
+export function getSymbolCodeAt (str: string, index: number): string  {
+    const char = getSymbolAt(str, index);
+    if (char.length === 1) {
+        return `${char.charCodeAt(0)}`;
+    }
+    let charCodes: string = '';
+    for (let j = 0; j < char.length; j++) {
+        charCodes += `${char.charCodeAt(j)}`;
+    }
+    return `${charCodes}`;
+}
+
+function getSymbolStartIndex (targetString, index): number {
+    if (index >= targetString.length) {
+        return targetString.length;
+    }
+    let startCheckIndex = index;
+    let startChar = targetString[startCheckIndex];
+    while (startCheckIndex >= 0) {
+        if (startChar === '\u200d') {
+            startCheckIndex--;
+            startChar = targetString[startCheckIndex];
+        }
+        if (startChar >= '\uDC00' && startChar <= '\uDFFF') {
+            // lowSurrogateRex
+            if (startCheckIndex - 1 >= 0) {
+                startCheckIndex--;
+                startChar = targetString[startCheckIndex];
+            }
+        }
+        if (startChar >= '\uD800' && startChar <= '\uDBFF') {
+            // highSurrogateRex
+            if (startCheckIndex - 1 >= 0 && targetString[startCheckIndex - 1] === '\u200d') {
+                startCheckIndex--;
+                startChar = targetString[startCheckIndex];
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    return startCheckIndex;
+}
+
+function getSymbolEndIndex (targetString, index): number {
+    let newEndIndex = index;
+    let endCheckIndex = index;
+    let endChar = targetString[endCheckIndex];
+    while (endCheckIndex < targetString.length) {
+        if (endChar === '\u200d') {
+            endCheckIndex++;
+            newEndIndex++;
+            endChar = targetString[endCheckIndex];
+            if (endChar >= '\uD800' && endChar <= '\uDBFF') {
+                // highSurrogateRex
+                endCheckIndex++;
+                newEndIndex++;
+                endChar = targetString[endCheckIndex];
+            }
+        }
+        if (endChar >= '\uD800' && endChar <= '\uDBFF') {
+            // highSurrogateRex
+            endCheckIndex++;
+            newEndIndex++;
+            endChar = targetString[endCheckIndex];
+        } else if (endChar >= '\uDC00' && endChar <= '\uDFFF') {
+            // lowSurrogateRex
+            endCheckIndex++;
+            endChar = targetString[endCheckIndex];
+            if (endCheckIndex < targetString.length && targetString[endCheckIndex] === '\u200d') {
+                newEndIndex++;
+                endChar = targetString[endCheckIndex];
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    return newEndIndex;
+}
+
 // in case truncate a character on the Supplementary Multilingual Plane
 // test case: a = '😉🚗'
-// _safeSubstring(a, 1) === '😉🚗'
+// _safeSubstring(a, 1) === '🚗'
 // _safeSubstring(a, 0, 1) === '😉'
 // _safeSubstring(a, 0, 2) === '😉'
-// _safeSubstring(a, 0, 3) === '😉'
+// _safeSubstring(a, 0, 3) === '😉🚗'
 // _safeSubstring(a, 0, 4) === '😉🚗'
-// _safeSubstring(a, 1, 2) === _safeSubstring(a, 1, 3) === '😉'
+// _safeSubstring(a, 0, 1) === _safeSubstring(a, 0, 2) === '😉'
 // _safeSubstring(a, 2, 3) === _safeSubstring(a, 2, 4) === '🚗'
 function _safeSubstring (targetString, startIndex, endIndex?): string {
-    let newStartIndex = startIndex;
-    let newEndIndex = endIndex;
-    const startChar = targetString[startIndex];
-    // lowSurrogateRex
-    if (startChar >= '\uDC00' && startChar <= '\uDFFF') {
-        newStartIndex--;
+    let newStartIndex = getSymbolStartIndex(targetString, startIndex);
+    if (newStartIndex < startIndex) {
+        newStartIndex = getSymbolEndIndex(targetString, startIndex) + 1;
     }
+    let newEndIndex = endIndex;
+
     if (endIndex !== undefined) {
-        if (endIndex - 1 !== startIndex) {
-            const endChar = targetString[endIndex - 1];
-            // highSurrogateRex
-            if (endChar >= '\uD800' && endChar <= '\uDBFF') {
-                newEndIndex--;
-            }
-        } else if (startChar >= '\uD800' && startChar <= '\uDBFF') {
-            // highSurrogateRex
-            newEndIndex++;
+        endIndex = Math.max(0, endIndex - 1);
+        newEndIndex = getSymbolEndIndex(targetString, endIndex);
+        const newStartEndIndex = getSymbolStartIndex(targetString, endIndex);
+        if (newStartEndIndex < newStartIndex || (newStartEndIndex === newStartIndex && startIndex > newStartIndex)) {
+            newEndIndex = newStartIndex;
+        } else {
+            newEndIndex += 1;
         }
     }
     return targetString.substring(newStartIndex, newEndIndex) as string;
 }
+
 /**
 * @engineInternal
 */

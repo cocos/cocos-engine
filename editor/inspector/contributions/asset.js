@@ -4,7 +4,6 @@ const path = require('path');
 const { injectionStyle } = require('../utils/prop');
 const History = require('./asset-history/index');
 
-const showImage = ['image', 'texture', 'sprite-frame', 'gltf-mesh'];
 exports.listeners = {};
 
 exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
@@ -12,8 +11,7 @@ exports.style = fs.readFileSync(path.join(__dirname, './asset.css'), 'utf8');
 exports.template = `
 <div class="container">
     <header class="header">
-        <ui-icon class="icon" color tooltip="i18n:ENGINE.assets.locate_asset"></ui-icon>
-        <ui-image class="image" tooltip="i18n:ENGINE.assets.locate_asset"></ui-image>
+        <ui-asset-image class="asset-thumbnail" size="small" tooltip="i18n:ENGINE.assets.locate_asset"></ui-asset-image>
         <ui-label class="name"></ui-label>
         <ui-button class="save tiny green" tooltip="i18n:ENGINE.assets.save">
             <ui-icon value="check"></ui-icon>
@@ -49,8 +47,7 @@ exports.$ = {
     content: '.content',
     location: '.location',
     copy: '.copy',
-    icon: '.icon',
-    image: '.image',
+    assetThumbnail: '.asset-thumbnail',
     name: '.name',
     help: '.help',
     save: '.save',
@@ -233,7 +230,7 @@ const Elements = {
                 }
             });
 
-            panel.$.icon.addEventListener('click', (event) => {
+            panel.$.assetThumbnail.addEventListener('click', (event) => {
                 event.stopPropagation();
                 panel.uuidList.forEach((uuid) => {
                     Editor.Message.request('assets', 'ui-kit:touch-asset', uuid);
@@ -271,19 +268,7 @@ const Elements = {
                 panel.$.copy.style.display = 'none';
             }
 
-            const isImage = showImage.includes(panel.asset.importer);
-
-            if (isImage) {
-                panel.$.image.value = panel.asset.uuid;
-                panel.$.header.prepend(panel.$.image);
-                panel.$.icon.remove();
-            } else {
-                panel.$.icon.value = panel.asset.importer === '*' ? 'file' : panel.asset.importer;
-                panel.$.header.prepend(panel.$.icon);
-
-                panel.$.image.value = ''; // 清空，避免缓存
-                panel.$.image.remove();
-            }
+            panel.$.assetThumbnail.value = panel.asset.uuid;
         },
         async isDirty() {
             const panel = this;
