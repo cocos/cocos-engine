@@ -30,7 +30,7 @@ import {
     GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType,
     TileFlag, TMXImageLayerInfo, TMXLayerInfo, TMXObject, TMXObjectGroupInfo, TMXObjectType, TMXTilesetInfo,
 } from './tiled-types';
-import { Color, errorID, logID, Size, Vec2 } from '../core';
+import { Color, error, errorID, logID, Size, Vec2, warn } from '../core';
 import { SpriteFrame } from '../2d/assets';
 
 function uint8ArrayToUint32Array (uint8Arr: Uint8Array): null | Uint32Array | number[] {
@@ -685,9 +685,9 @@ export class TMXMapInfo {
                                     tileset.imageName = shortName;
                                     tileset.sourceImage = this._spriteFrameMap![shortName];
                                     if (!tileset.sourceImage) {
-                                        // console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
+                                        error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
                                         errorID(7221, curImageName);
-                                        // console.warn(`Please try asset type of ${curImageName} to 'sprite-frame'`);
+                                        warn(`Please try asset type of ${curImageName} to 'sprite-frame'`);
                                     }
                                 }
                             }
@@ -740,7 +740,7 @@ export class TMXMapInfo {
                                 tileset.sourceImage = this._spriteFrameMap![shortName];
                                 if (!tileset.sourceImage) {
                                     errorID(7221, imageName);
-                                    // console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                    warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
                                 }
                             }
                         }
@@ -828,7 +828,7 @@ export class TMXMapInfo {
 
         if (!imageLayer.sourceImage) {
             errorID(7221, source!);
-            // console.warn(`Please try asset type of ${source} to 'sprite-frame'`);
+            warn(`Please try asset type of ${source} to 'sprite-frame'`);
             return null;
         }
         return imageLayer;
