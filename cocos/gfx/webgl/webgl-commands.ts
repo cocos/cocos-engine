@@ -23,6 +23,7 @@
 */
 
 import { BYTEDANCE } from 'internal:constants';
+import { systemInfo } from 'pal/system-info';
 import { debugID, error, errorID, CachedArray, cclegacy, assertID } from '../../core';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
@@ -39,6 +40,7 @@ import {
     TextureBlit, Filter,
 } from '../base/define';
 import { WebGLStateCache } from './webgl-state-cache';
+import { OS } from '../../../pal/system-info/enum-type';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -830,7 +832,7 @@ export function WebGLCmdFuncUpdateBuffer (
         }
         }
 
-        if ((gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+        if (systemInfo.os === OS.IOS  && (gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
             // Fix performance issue on iOS.
             // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
             // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).

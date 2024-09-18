@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { systemInfo } from 'pal/system-info';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
@@ -47,6 +48,7 @@ import {
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
 import { CachedArray, error, errorID, cclegacy, assertID, debugID } from '../../core';
+import { OS } from '../../../pal/system-info/enum-type';
 
 const WebGLWraps: GLenum[] = [
     0x2901, // WebGLRenderingContext.REPEAT
@@ -1001,7 +1003,7 @@ export function WebGL2CmdFuncUpdateBuffer (
                 cache.glArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            if ((gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
                 // Fix performance issue on iOS.
                 // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
                 // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
@@ -1028,7 +1030,7 @@ export function WebGL2CmdFuncUpdateBuffer (
                 cache.glElementArrayBuffer = gpuBuffer.glBuffer;
             }
 
-            if ((gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
                 // Fix performance issue on iOS.
                 // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
                 // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
@@ -1047,7 +1049,7 @@ export function WebGL2CmdFuncUpdateBuffer (
                 cache.glUniformBuffer = gpuBuffer.glBuffer;
             }
 
-            if ((gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
                 // Fix performance issue on iOS.
                 // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
                 // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
