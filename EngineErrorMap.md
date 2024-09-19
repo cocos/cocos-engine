@@ -3848,3 +3848,11 @@ execute is not supported.
 ### 16403
 
 GPU memory alias is not supported
+
+### 16404
+
+Block '%s' does not bound
+
+### 16405
+
+This device does not support WebGL2

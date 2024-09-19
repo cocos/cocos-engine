@@ -48,7 +48,7 @@ export class WebGLInputAssembler extends InputAssembler {
         }
 
         this._attributes$ = info.attributes;
-        this._attributesHash$ = this.computeAttributesHash();
+        this._attributesHash$ = this.computeAttributesHash$();
         this._vertexBuffers$ = info.vertexBuffers;
 
         if (info.indexBuffer) {

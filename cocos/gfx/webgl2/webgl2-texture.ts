@@ -36,6 +36,10 @@ export class WebGL2Texture extends Texture {
     private _gpuTexture$: IWebGL2GPUTexture | null = null;
     private _gpuTextureView$: IWebGL2GPUTextureView | null = null;
 
+    constructor () {
+        super();
+    }
+
     get gpuTexture (): IWebGL2GPUTexture {
         return this._gpuTexture$!;
     }

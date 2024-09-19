@@ -390,11 +390,12 @@ export class DefaultResource {
     private _texture2DArray$: Texture | null = null;
 
     constructor (device: Device) {
+        const capabilities = device.capabilities;
         const bufferSize = 64;
         // create a new buffer and fill it with a white pixel
         const buffer = new Uint8Array(bufferSize);
         buffer.fill(255);
-        if (device.capabilities.maxTextureSize >= 2) {
+        if (capabilities.maxTextureSize >= 2) {
             this._texture2D$ = device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
@@ -406,7 +407,7 @@ export class DefaultResource {
             const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 1));
             device.copyBuffersToTexture([buffer], this._texture2D$, [copyRegion]);
         }
-        if (device.capabilities.maxTextureSize >= 2) {
+        if (capabilities.maxTextureSize >= 2) {
             this._textureCube$ = device.createTexture(new TextureInfo(
                 TextureType.CUBE,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
@@ -429,7 +430,7 @@ export class DefaultResource {
             copyRegion.texSubres.baseArrayLayer = 5;
             device.copyBuffersToTexture([buffer], this._textureCube$, [copyRegion]);
         }
-        if (device.capabilities.max3DTextureSize >= 2) {
+        if (capabilities.max3DTextureSize >= 2) {
             this._texture3D$ = device.createTexture(new TextureInfo(
                 TextureType.TEX3D,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,
@@ -445,7 +446,7 @@ export class DefaultResource {
             const copyRegion = new BufferTextureCopy(0, 0, 0, new Offset(0, 0, 0), new Extent(2, 2, 2), new TextureSubresLayers(0, 0, 1));
             device.copyBuffersToTexture([buffer], this._texture3D$, [copyRegion]);
         }
-        if (device.capabilities.maxArrayTextureLayers >= 2) {
+        if (capabilities.maxArrayTextureLayers >= 2) {
             this._texture2DArray$ = device.createTexture(new TextureInfo(
                 TextureType.TEX2D_ARRAY,
                 TextureUsageBit.STORAGE | TextureUsageBit.SAMPLED,

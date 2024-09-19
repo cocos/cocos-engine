@@ -158,6 +158,10 @@ export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext |
 }
 
 export class WebGL2Swapchain extends Swapchain {
+    constructor () {
+        super();
+    }
+
     get extensions (): IWebGL2Extensions {
         return this._extensions$ as IWebGL2Extensions;
     }

@@ -392,14 +392,14 @@ function WebGLGetComponentCount (glType: GLenum, gl: WebGLRenderingContext): num
 }
 
 const WebGLCmpFuncs: GLenum[] = [
-    0x0200, // WebGLRenderingContext.NEVER,
-    0x0201, // WebGLRenderingContext.LESS,
-    0x0202, // WebGLRenderingContext.EQUAL,
-    0x0203, // WebGLRenderingContext.LEQUAL,
-    0x0204, // WebGLRenderingContext.GREATER,
-    0x0205, // WebGLRenderingContext.NOTEQUAL,
-    0x0206, // WebGLRenderingContext.GEQUAL,
-    0x0207, // WebGLRenderingContext.ALWAYS,
+    WebGLConstants.NEVER,
+    WebGLConstants.LESS,
+    WebGLConstants.EQUAL,
+    WebGLConstants.LEQUAL,
+    WebGLConstants.GREATER,
+    WebGLConstants.NOTEQUAL,
+    WebGLConstants.GEQUAL,
+    WebGLConstants.ALWAYS,
 ];
 
 const WebGLStencilOps: GLenum[] = [

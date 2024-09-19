@@ -31,6 +31,10 @@ import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 import { DescriptorSetInfo, DESCRIPTOR_BUFFER_TYPE, DESCRIPTOR_SAMPLER_TYPE } from '../base/define';
 
 export class WebGL2DescriptorSet extends DescriptorSet {
+    constructor () {
+        super();
+    }
+
     get gpuDescriptorSet (): IWebGL2GPUDescriptorSet {
         return this._gpuDescriptorSet$ as IWebGL2GPUDescriptorSet;
     }
@@ -39,7 +43,11 @@ export class WebGL2DescriptorSet extends DescriptorSet {
 
     public initialize (info: Readonly<DescriptorSetInfo>): void {
         this._layout$ = info.layout;
-        const { bindings$: bindings, descriptorIndices$: descriptorIndices, descriptorCount$: descriptorCount } = (info.layout as WebGL2DescriptorSetLayout).gpuDescriptorSetLayout;
+        const {
+            bindings$: bindings,
+            descriptorIndices$: descriptorIndices,
+            descriptorCount$: descriptorCount,
+        } = (info.layout as WebGL2DescriptorSetLayout).getGpuDescriptorSetLayout$();
 
         this._buffers$ = Array(descriptorCount).fill(null);
         this._textures$ = Array(descriptorCount).fill(null);
@@ -72,7 +80,7 @@ export class WebGL2DescriptorSet extends DescriptorSet {
             for (let i = 0; i < descriptors.length; ++i) {
                 if (descriptors[i].type$ & DESCRIPTOR_BUFFER_TYPE) {
                     if (this._buffers$[i]) {
-                        descriptors[i].gpuBuffer$ = (this._buffers$[i] as WebGL2Buffer).gpuBuffer;
+                        descriptors[i].gpuBuffer$ = (this._buffers$[i] as WebGL2Buffer).getGpuBuffer$();
                     }
                 } else if (descriptors[i].type$ & DESCRIPTOR_SAMPLER_TYPE) {
                     if (this._textures$[i]) {

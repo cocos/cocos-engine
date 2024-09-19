@@ -32,6 +32,10 @@ export class WebGL2Queue extends Queue {
     public numInstances$ = 0;
     public numTris$ = 0;
 
+    constructor () {
+        super();
+    }
+
     public initialize (info: Readonly<QueueInfo>): void {
         this._type$ = info.type;
     }
