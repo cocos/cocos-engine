@@ -130,9 +130,7 @@ static bool js_root_registerListeners(se::State &s) // NOLINT(readability-identi
 
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeCommit, _onDirectorBeforeCommit, {});
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::BeforeRender, _onDirectorBeforeRender, {});
-    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender, {
-        CC_CURRENT_APPLICATION()->getEngine()->getScheduler()->runFunctionsToBePerformedInCocosThread();
-    });
+    DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::AfterRender, _onDirectorAfterRender, {});
     DISPATCH_EVENT_TO_JS_ARGS_0(cc::Root::PipelineChanged, _onDirectorPipelineChanged, {});
 
     return true;

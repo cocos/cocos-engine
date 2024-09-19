@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, WECHAT } from 'internal:constants';
 import { Material } from '../asset/assets/material';
 import { clamp01, Mat4, Vec2, settings, sys, cclegacy, easing, preTransforms, SettingsCategory } from '../core';
 import {
@@ -114,6 +114,9 @@ export class SplashScreen {
     private scaleSize = 1;
 
     public get isFinished (): boolean {
+        if (WECHAT) {
+            return true;
+        }
         return this._curTime >= this.settings.totalTime;
     }
 
@@ -126,6 +129,10 @@ export class SplashScreen {
     }
 
     public init (): Promise<void[]> {
+        // The WeChat mini-game's splash screen is using the implementation in first-screen.
+        if (WECHAT) {
+            return Promise.resolve([]);
+        }
         let policy: number = ResolutionPolicy.SHOW_ALL;
         if (!EDITOR) {
             const designResolution = settings.querySettings(SettingsCategory.SCREEN, 'designResolution');
@@ -190,6 +197,9 @@ export class SplashScreen {
     }
 
     private preInit (): void {
+        if (WECHAT) {
+            return;
+        }
         const clearColor = this.settings.background?.color;
         this.clearColors = clearColor ? [new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w)] : [new Color(0, 0, 0, 1)];
         const { device, swapchain } = this;
@@ -246,6 +256,9 @@ export class SplashScreen {
     }
 
     private initLayout (): void {
+        if (WECHAT) {
+            return;
+        }
         if (this.isMobile) {
             this.bgWidth = 812;
             this.bgHeight = 375;
@@ -275,6 +288,9 @@ export class SplashScreen {
     }
 
     private initScale (): void {
+        if (WECHAT) {
+            return;
+        }
         const dw = this.swapchain.width; const dh = this.swapchain.height;
         let desiredWidth = this.isMobile ? 375 : 1080;
         let desiredHeight = this.isMobile ? 812 : 1920;
@@ -291,6 +307,9 @@ export class SplashScreen {
     }
 
     public update (deltaTime: number): void {
+        if (WECHAT) {
+            return;
+        }
         const settings = this.settings;
         const { device, swapchain } = this;
         Mat4.ortho(
@@ -382,6 +401,9 @@ export class SplashScreen {
     }
 
     private initBG (): void {
+        if (WECHAT) {
+            return;
+        }
         const device = this.device;
 
         this.bgMat = new Material();
@@ -416,6 +438,9 @@ export class SplashScreen {
     }
 
     private initLogo (): void {
+        if (WECHAT) {
+            return;
+        }
         const device = this.device;
 
         this.logoMat = new Material();
@@ -459,6 +484,9 @@ export class SplashScreen {
     }
 
     private initWaterMark (): void {
+        if (WECHAT) {
+            return;
+        }
         // create texture from image
         const watermarkImg = ccwindow.document.createElement('canvas');
         watermarkImg.height = this.textHeight * this.scaleSize;
@@ -494,6 +522,9 @@ export class SplashScreen {
     }
 
     private frame (): void {
+        if (WECHAT) {
+            return;
+        }
         const { device, swapchain } = this;
 
         if (!sys.isXR || xr.entry.isRenderAllowable()) {
@@ -620,6 +651,9 @@ export class SplashScreen {
     }
 
     private destroy (): void {
+        if (WECHAT) {
+            return;
+        }
         this.device = null!;
         this.swapchain = null!;
         this.clearColors = null!;

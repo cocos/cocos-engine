@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { logID } from '../../core/platform/debug';
 import {
     FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
     FormatInfos, TextureUsageBit,
@@ -32,15 +33,15 @@ import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUTexture, IWebGL2GPUTextureView } from './webgl2-gpu-objects';
 
 export class WebGL2Texture extends Texture {
-    private _gpuTexture: IWebGL2GPUTexture | null = null;
-    private _gpuTextureView: IWebGL2GPUTextureView | null = null;
+    private _gpuTexture$: IWebGL2GPUTexture | null = null;
+    private _gpuTextureView$: IWebGL2GPUTextureView | null = null;
 
-    get gpuTexture (): IWebGL2GPUTexture {
-        return this._gpuTexture!;
+    get gpuTexture$ (): IWebGL2GPUTexture {
+        return this._gpuTexture$!;
     }
 
-    get gpuTextureView (): IWebGL2GPUTextureView {
-        return this._gpuTextureView!;
+    get gpuTextureView$ (): IWebGL2GPUTextureView {
+        return this._gpuTextureView$!;
     }
 
     public initialize (info: Readonly<TextureInfo> | Readonly<TextureViewInfo>, isSwapchainTexture?: boolean): void {
@@ -64,37 +65,37 @@ export class WebGL2Texture extends Texture {
         ) * this._info$.layerCount;
 
         if (!this._isTextureView$) {
-            this._gpuTexture = {
-                type: texInfo.type,
-                format: texInfo.format,
-                usage: texInfo.usage,
-                width: texInfo.width,
-                height: texInfo.height,
-                depth: texInfo.depth,
-                size: this._size$,
-                arrayLayer: texInfo.layerCount,
-                mipLevel: texInfo.levelCount,
-                samples: texInfo.samples,
-                flags: texInfo.flags,
-                isPowerOf2: this._isPowerOf2$,
+            this._gpuTexture$ = {
+                type$: texInfo.type,
+                format$: texInfo.format,
+                usage$: texInfo.usage,
+                width$: texInfo.width,
+                height$: texInfo.height,
+                depth$: texInfo.depth,
+                size$: this._size$,
+                arrayLayer$: texInfo.layerCount,
+                mipLevel$: texInfo.levelCount,
+                samples$: texInfo.samples,
+                flags$: texInfo.flags,
+                isPowerOf2$: this._isPowerOf2$,
 
-                glTarget: 0,
-                glInternalFmt: 0,
-                glFormat: 0,
-                glType: 0,
-                glUsage: 0,
-                glTexture: null,
-                glRenderbuffer: null,
-                glWrapS: 0,
-                glWrapT: 0,
-                glMinFilter: 0,
-                glMagFilter: 0,
+                glTarget$: 0,
+                glInternalFmt$: 0,
+                glFormat$: 0,
+                glType$: 0,
+                glUsage$: 0,
+                glTexture$: null,
+                glRenderbuffer$: null,
+                glWrapS$: 0,
+                glWrapT$: 0,
+                glMinFilter$: 0,
+                glMagFilter$: 0,
 
-                isSwapchainTexture: isSwapchainTexture || false,
+                isSwapchainTexture$: isSwapchainTexture || false,
             };
 
-            if (!this._gpuTexture.isSwapchainTexture && this._gpuTexture) {
-                WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+            if (!this._gpuTexture$.isSwapchainTexture$ && this._gpuTexture$) {
+                WebGL2CmdFuncCreateTexture(WebGL2DeviceManager.instance, this._gpuTexture$);
                 WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size$;
             }
 
@@ -106,50 +107,50 @@ export class WebGL2Texture extends Texture {
             this._viewInfo$.baseLayer = 0;
             this._viewInfo$.layerCount = info.layerCount;
 
-            this._gpuTextureView = {
-                gpuTexture: this._gpuTexture,
-                type: this._viewInfo$.type,
-                format: this._viewInfo$.format,
-                baseLevel: this._viewInfo$.baseLevel,
-                levelCount: this._viewInfo$.levelCount,
+            this._gpuTextureView$ = {
+                gpuTexture$: this._gpuTexture$,
+                type$: this._viewInfo$.type,
+                format$: this._viewInfo$.format,
+                baseLevel$: this._viewInfo$.baseLevel,
+                levelCount$: this._viewInfo$.levelCount,
             };
         } else {
             this._viewInfo$.copy(viewInfo);
-            this._gpuTexture = (viewInfo.texture as WebGL2Texture)._gpuTexture;
+            this._gpuTexture$ = (viewInfo.texture as WebGL2Texture)._gpuTexture$;
 
-            if (this._gpuTexture?.format !== texInfo.format) {
-                console.log('GPU memory alias is not supported');
+            if (this._gpuTexture$?.format$ !== texInfo.format) {
+                logID(16403);
                 return;
             }
 
-            this._gpuTextureView = {
-                gpuTexture: this._gpuTexture,
-                type: viewInfo.type,
-                format: viewInfo.format,
-                baseLevel: viewInfo.baseLevel,
-                levelCount: viewInfo.levelCount,
+            this._gpuTextureView$ = {
+                gpuTexture$: this._gpuTexture$,
+                type$: viewInfo.type,
+                format$: viewInfo.format,
+                baseLevel$: viewInfo.baseLevel,
+                levelCount$: viewInfo.levelCount,
             };
         }
     }
 
     public destroy (): void {
-        if (!this._isTextureView$ && this._gpuTexture) {
-            WebGL2CmdFuncDestroyTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+        if (!this._isTextureView$ && this._gpuTexture$) {
+            WebGL2CmdFuncDestroyTexture(WebGL2DeviceManager.instance, this._gpuTexture$);
             WebGL2DeviceManager.instance.memoryStatus.textureSize -= this._size$;
-            this._gpuTexture = null;
+            this._gpuTexture$ = null;
         }
     }
 
     public getTextureHandle (): number {
-        const gpuTexture = this._gpuTexture;
+        const gpuTexture = this._gpuTexture$;
         if (!gpuTexture) {
             return 0;
         }
 
-        if (gpuTexture.glTexture) {
-            return gpuTexture.glTexture as number;
-        } else if (gpuTexture.glRenderbuffer) {
-            return gpuTexture.glRenderbuffer as number;
+        if (gpuTexture.glTexture$) {
+            return gpuTexture.glTexture$ as number;
+        } else if (gpuTexture.glRenderbuffer$) {
+            return gpuTexture.glRenderbuffer$ as number;
         }
 
         return 0;
@@ -177,12 +178,12 @@ export class WebGL2Texture extends Texture {
             this._info$.levelCount,
         ) * this._info$.layerCount;
 
-        if (!this._isTextureView$ && this._gpuTexture) {
-            this._gpuTexture.width = width;
-            this._gpuTexture.height = height;
-            this._gpuTexture.size = this._size$;
-            if (!this._gpuTexture.isSwapchainTexture) {
-                WebGL2CmdFuncResizeTexture(WebGL2DeviceManager.instance, this._gpuTexture);
+        if (!this._isTextureView$ && this._gpuTexture$) {
+            this._gpuTexture$.width$ = width;
+            this._gpuTexture$.height$ = height;
+            this._gpuTexture$.size$ = this._size$;
+            if (!this._gpuTexture$.isSwapchainTexture$) {
+                WebGL2CmdFuncResizeTexture(WebGL2DeviceManager.instance, this._gpuTexture$);
                 WebGL2DeviceManager.instance.memoryStatus.textureSize -= oldSize;
                 WebGL2DeviceManager.instance.memoryStatus.textureSize += this._size$;
             }

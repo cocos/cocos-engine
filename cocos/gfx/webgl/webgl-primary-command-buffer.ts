@@ -39,6 +39,7 @@ import { RenderPass } from '../base/render-pass';
 import { WebGLRenderPass } from './webgl-render-pass';
 import { WebGLDeviceManager } from './webgl-define';
 import { error, errorID } from '../../core/platform/debug';
+import { WebGLConstants } from '../gl-constants';
 
 export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
     public beginRenderPass (
@@ -77,12 +78,12 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
             if (this._curGPUPipelineState$) {
                 const glPrimitive = this._curGPUPipelineState$.glPrimitive$;
                 switch (glPrimitive) {
-                case 0x0004: { // WebGLRenderingContext.TRIANGLES
+                case WebGLConstants.TRIANGLES: {
                     this._numTris$ += indexCount / 3 * Math.max(info.instanceCount, 1);
                     break;
                 }
-                case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
-                case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
+                case WebGLConstants.TRIANGLE_STRIP:
+                case WebGLConstants.TRIANGLE_FAN: {
                     this._numTris$ += (indexCount - 2) * Math.max(info.instanceCount, 1);
                     break;
                 }

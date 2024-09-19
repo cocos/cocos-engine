@@ -31,11 +31,11 @@ import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUInputAssembler, IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
 export class WebGL2InputAssembler extends InputAssembler {
-    public get gpuInputAssembler (): IWebGL2GPUInputAssembler {
-        return  this._gpuInputAssembler!;
+    public get gpuInputAssembler$ (): IWebGL2GPUInputAssembler {
+        return  this._gpuInputAssembler$!;
     }
 
-    private _gpuInputAssembler: IWebGL2GPUInputAssembler | null = null;
+    private _gpuInputAssembler$: IWebGL2GPUInputAssembler | null = null;
 
     public initialize (info: Readonly<InputAssemblerInfo>): void {
         if (info.vertexBuffers.length === 0) {
@@ -75,7 +75,7 @@ export class WebGL2InputAssembler extends InputAssembler {
         if (info.indexBuffer) {
             gpuIndexBuffer = (info.indexBuffer as WebGL2Buffer).gpuBuffer;
             if (gpuIndexBuffer) {
-                switch (gpuIndexBuffer.stride) {
+                switch (gpuIndexBuffer.stride$) {
                 case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
                 case 2: glIndexType = 0x1403; break; // WebGLRenderingContext.UNSIGNED_SHORT
                 case 4: glIndexType = 0x1405; break; // WebGLRenderingContext.UNSIGNED_INT
@@ -91,25 +91,25 @@ export class WebGL2InputAssembler extends InputAssembler {
             gpuIndirectBuffer = (info.indirectBuffer as WebGL2Buffer).gpuBuffer;
         }
 
-        this._gpuInputAssembler = {
-            attributes: info.attributes,
-            gpuVertexBuffers,
-            gpuIndexBuffer,
-            gpuIndirectBuffer,
+        this._gpuInputAssembler$ = {
+            attributes$: info.attributes,
+            gpuVertexBuffers$: gpuVertexBuffers,
+            gpuIndexBuffer$: gpuIndexBuffer,
+            gpuIndirectBuffer$: gpuIndirectBuffer,
 
-            glAttribs: [],
-            glIndexType,
-            glVAOs: new Map<WebGLProgram, WebGLVertexArrayObject>(),
+            glAttribs$: [],
+            glIndexType$: glIndexType,
+            glVAOs$: new Map<WebGLProgram, WebGLVertexArrayObject>(),
         };
 
-        WebGL2CmdFuncCreateInputAssember(WebGL2DeviceManager.instance, this._gpuInputAssembler);
+        WebGL2CmdFuncCreateInputAssember(WebGL2DeviceManager.instance, this._gpuInputAssembler$);
     }
 
     public destroy (): void {
         const device = WebGL2DeviceManager.instance;
-        if (this._gpuInputAssembler && device.extensions.useVAO) {
-            WebGL2CmdFuncDestroyInputAssembler(device, this._gpuInputAssembler);
+        if (this._gpuInputAssembler$ && device.extensions.useVAO$) {
+            WebGL2CmdFuncDestroyInputAssembler(device, this._gpuInputAssembler$);
         }
-        this._gpuInputAssembler = null;
+        this._gpuInputAssembler$ = null;
     }
 }

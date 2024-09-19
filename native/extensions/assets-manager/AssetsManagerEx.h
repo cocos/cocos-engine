@@ -58,6 +58,7 @@ public:
         DOWNLOADING_MANIFEST,
         MANIFEST_LOADED,
         NEED_UPDATE,
+        PREPARE_UPDATING,
         READY_TO_UPDATE,
         UPDATING,
         UNZIPPING,
@@ -292,6 +293,14 @@ protected:
      */
     virtual void onSuccess(const std::string &srcUrl, const std::string &storagePath, const std::string &customId);
 
+    /** @brief  prepareUpdate may take a long time to execute, so we need to do it asynchronously.
+     @param cb     Function that are called at the end of the prepareUpdate execution and are running callbacks in the main thread.
+    * @js NA
+    * @lua NA
+    */
+    using PrepareUpdateFinishedCallback = std::function<void()>;
+    void prepareUpdateAsync(const PrepareUpdateFinishedCallback &cb = PrepareUpdateFinishedCallback());
+
 private:
     void batchDownload();
 
@@ -405,6 +414,7 @@ private:
     //! Callback function to dispatch events
     EventCallback _eventCallback = nullptr;
 
+    static AssetsManagerEx *assetsManager;
     //! Marker for whether the assets manager is inited
     bool _inited = false;
 };

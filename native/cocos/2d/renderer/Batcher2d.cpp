@@ -208,7 +208,7 @@ CC_FORCE_INLINE void Batcher2d::handleComponentDraw(RenderEntity* entity, Render
     }
 
     if (!drawInfo->getIsMeshBuffer()) {
-        if (node->getChangedFlags() || drawInfo->getVertDirty()) {
+        if (node->getChangedFlags() || node->isTransformDirty() || drawInfo->getVertDirty()) {
             fillVertexBuffers(entity, drawInfo);
             drawInfo->setVertDirty(false);
         }

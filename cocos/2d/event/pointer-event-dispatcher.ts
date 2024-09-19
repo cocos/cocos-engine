@@ -157,8 +157,10 @@ class PointerEventDispatcher implements IEventDispatcher {
                         pointerEventProcessor._handleEventTouch(eventTouch);
                         if (eventTouch.type === (InputEventType.TOUCH_END as string) || eventTouch.type === (InputEventType.TOUCH_CANCEL as string)) {
                             js.array.removeAt(pointerEventProcessor.claimedTouchIdList, index);
-                            // The event is handled, so should remove other EventProcessor's claimedTouchIdList.
-                            this._removeClaimedTouch(i + 1, index);
+                            // The event is handled, and the event can be swallowed, so should remove other EventProcessor's claimedTouchIdList.
+                            if (!eventTouch.preventSwallow) {
+                                this._removeClaimedTouch(i + 1, touch.getID());
+                            }
                         }
                         dispatchToNextEventDispatcher = false;
                         if (!eventTouch.preventSwallow) {

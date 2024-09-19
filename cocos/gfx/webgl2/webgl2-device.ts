@@ -72,23 +72,23 @@ import { WebGLConstants } from '../gl-constants';
 
 export class WebGL2Device extends Device {
     get gl (): WebGL2RenderingContext {
-        return this._context!;
+        return this._context$!;
     }
 
     get extensions (): IWebGL2Extensions {
-        return this._swapchain!.extensions;
+        return this._swapchain$!.extensions$;
     }
 
     get stateCache (): WebGL2StateCache {
-        return this._swapchain!.stateCache;
+        return this._swapchain$!.stateCache$;
     }
 
     get nullTex2D (): WebGL2Texture {
-        return this._swapchain!.nullTex2D;
+        return this._swapchain$!.nullTex2D$;
     }
 
     get nullTexCube (): WebGL2Texture {
-        return this._swapchain!.nullTexCube;
+        return this._swapchain$!.nullTexCube$;
     }
 
     get textureExclusive (): boolean[] {
@@ -96,16 +96,16 @@ export class WebGL2Device extends Device {
     }
 
     get bindingMappings (): IWebGL2BindingMapping {
-        return this._bindingMappings!;
+        return this._bindingMappings$!;
     }
 
     get blitManager (): IWebGL2BlitManager | null {
-        return this._swapchain!.blitManager;
+        return this._swapchain$!.blitManager$;
     }
 
-    private _swapchain: WebGL2Swapchain | null = null;
-    private _context: WebGL2RenderingContext | null = null;
-    private _bindingMappings: IWebGL2BindingMapping | null = null;
+    private _swapchain$: WebGL2Swapchain | null = null;
+    private _context$: WebGL2RenderingContext | null = null;
+    private _bindingMappings$: IWebGL2BindingMapping | null = null;
 
     protected _textureExclusive = new Array<boolean>(Format.COUNT);
 
@@ -131,13 +131,13 @@ export class WebGL2Device extends Device {
             // textures always come after UBOs
             samplerTextureOffsets[curSet] -= mapping.maxBlockCounts[curSet];
         }
-        this._bindingMappings = {
-            blockOffsets,
-            samplerTextureOffsets,
-            flexibleSet: mapping.setIndices[mapping.setIndices.length - 1],
+        this._bindingMappings$ = {
+            blockOffsets$: blockOffsets,
+            samplerTextureOffsets$: samplerTextureOffsets,
+            flexibleSet$: mapping.setIndices[mapping.setIndices.length - 1],
         };
 
-        const gl = this._context = getContext(Device.canvas);
+        const gl = this._context$ = getContext(Device.canvas);
 
         if (!gl) {
             error('This device does not support WebGL2.');
@@ -148,8 +148,10 @@ export class WebGL2Device extends Device {
         this._queue$ = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
         this._cmdBuff$ = this.createCommandBuffer(new CommandBufferInfo(this._queue$));
 
-        this._caps$.maxVertexAttributes = gl.getParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
-        this._caps$.maxVertexUniformVectors = gl.getParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
+        const glGetParameter = gl.getParameter.bind(gl);
+
+        this._caps$.maxVertexAttributes = glGetParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
+        this._caps$.maxVertexUniformVectors = glGetParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
         // Implementation of WebGL2 in WECHAT browser and Safari in IOS exist bugs.
         // It seems to be related to Safari's experimental features 'WebGL via Metal'.
         // So limit using vertex uniform vectors no more than 256 in wechat browser,
@@ -162,16 +164,16 @@ export class WebGL2Device extends Device {
                 this._caps$.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
             }
         }
-        this._caps$.maxFragmentUniformVectors = gl.getParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._caps$.maxTextureUnits = gl.getParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
-        this._caps$.maxVertexTextureUnits = gl.getParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._caps$.maxUniformBufferBindings = gl.getParameter(WebGLConstants.MAX_UNIFORM_BUFFER_BINDINGS);
-        this._caps$.maxUniformBlockSize = gl.getParameter(WebGLConstants.MAX_UNIFORM_BLOCK_SIZE);
-        this._caps$.maxTextureSize = gl.getParameter(WebGLConstants.MAX_TEXTURE_SIZE);
-        this._caps$.maxCubeMapTextureSize = gl.getParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
-        this._caps$.maxArrayTextureLayers = gl.getParameter(WebGLConstants.MAX_ARRAY_TEXTURE_LAYERS);
-        this._caps$.max3DTextureSize = gl.getParameter(WebGLConstants.MAX_3D_TEXTURE_SIZE);
-        this._caps$.uboOffsetAlignment = gl.getParameter(WebGLConstants.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+        this._caps$.maxFragmentUniformVectors = glGetParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps$.maxTextureUnits = glGetParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps$.maxVertexTextureUnits = glGetParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps$.maxUniformBufferBindings = glGetParameter(WebGLConstants.MAX_UNIFORM_BUFFER_BINDINGS);
+        this._caps$.maxUniformBlockSize = glGetParameter(WebGLConstants.MAX_UNIFORM_BLOCK_SIZE);
+        this._caps$.maxTextureSize = glGetParameter(WebGLConstants.MAX_TEXTURE_SIZE);
+        this._caps$.maxCubeMapTextureSize = glGetParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._caps$.maxArrayTextureLayers = glGetParameter(WebGLConstants.MAX_ARRAY_TEXTURE_LAYERS);
+        this._caps$.max3DTextureSize = glGetParameter(WebGLConstants.MAX_3D_TEXTURE_SIZE);
+        this._caps$.uboOffsetAlignment = glGetParameter(WebGLConstants.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         const extensions = gl.getSupportedExtensions();
         let extStr = '';
@@ -183,15 +185,15 @@ export class WebGL2Device extends Device {
 
         const exts = getExtensions(gl);
 
-        if (exts.WEBGL_debug_renderer_info) {
-            this._renderer$ = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_RENDERER_WEBGL);
-            this._vendor$ = gl.getParameter(exts.WEBGL_debug_renderer_info.UNMASKED_VENDOR_WEBGL);
+        if (exts.WEBGL_debug_renderer_info$) {
+            this._renderer$ = glGetParameter(exts.WEBGL_debug_renderer_info$.UNMASKED_RENDERER_WEBGL);
+            this._vendor$ = glGetParameter(exts.WEBGL_debug_renderer_info$.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer$ = gl.getParameter(WebGLConstants.RENDERER);
-            this._vendor$ = gl.getParameter(WebGLConstants.VENDOR);
+            this._renderer$ = glGetParameter(WebGLConstants.RENDERER);
+            this._vendor$ = glGetParameter(WebGLConstants.VENDOR);
         }
 
-        const version: string = gl.getParameter(WebGLConstants.VERSION);
+        const version: string = glGetParameter(WebGLConstants.VERSION);
 
         this._features$.fill(false);
 
@@ -252,7 +254,7 @@ export class WebGL2Device extends Device {
             res = it.next();
         }
 
-        this._swapchain = null;
+        this._swapchain$ = null;
     }
 
     public flushCommands (cmdBuffs: Readonly<CommandBuffer[]>): void {
@@ -265,9 +267,9 @@ export class WebGL2Device extends Device {
 
     public present (): void {
         const queue = (this._queue$ as WebGL2Queue);
-        this._numDrawCalls$ = queue.numDrawCalls;
-        this._numInstances$ = queue.numInstances;
-        this._numTris$ = queue.numTris;
+        this._numDrawCalls$ = queue.numDrawCalls$;
+        this._numInstances$ = queue.numInstances$;
+        this._numTris$ = queue.numTris$;
         queue.clear();
     }
 
@@ -393,7 +395,7 @@ export class WebGL2Device extends Device {
         this._textureExclusive[Format.DEPTH] = false;
         this._textureExclusive[Format.DEPTH_STENCIL] = false;
 
-        if (exts.EXT_color_buffer_float) {
+        if (exts.EXT_color_buffer_float$) {
             this._formatFeatures$[Format.R32F] |= FormatFeatureBit.RENDER_TARGET;
             this._formatFeatures$[Format.RG32F] |= FormatFeatureBit.RENDER_TARGET;
             this._formatFeatures$[Format.RGBA32F] |= FormatFeatureBit.RENDER_TARGET;
@@ -403,20 +405,20 @@ export class WebGL2Device extends Device {
             this._textureExclusive[Format.RGBA32F] = false;
         }
 
-        if (exts.EXT_color_buffer_half_float) {
+        if (exts.EXT_color_buffer_half_float$) {
             this._textureExclusive[Format.R16F] = false;
             this._textureExclusive[Format.RG16F] = false;
             this._textureExclusive[Format.RGBA16F] = false;
         }
 
-        if (exts.OES_texture_float_linear) {
+        if (exts.OES_texture_float_linear$) {
             this._formatFeatures$[Format.RGB32F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures$[Format.RGBA32F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures$[Format.R32F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures$[Format.RG32F] |= FormatFeatureBit.LINEAR_FILTER;
         }
 
-        if (exts.OES_texture_half_float_linear) {
+        if (exts.OES_texture_half_float_linear$) {
             this._formatFeatures$[Format.RGB16F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures$[Format.RGBA16F] |= FormatFeatureBit.LINEAR_FILTER;
             this._formatFeatures$[Format.R16F] |= FormatFeatureBit.LINEAR_FILTER;
@@ -425,11 +427,11 @@ export class WebGL2Device extends Device {
 
         const compressedFeature: FormatFeature = FormatFeatureBit.SAMPLED_TEXTURE | FormatFeatureBit.LINEAR_FILTER;
 
-        if (exts.WEBGL_compressed_texture_etc1) {
+        if (exts.WEBGL_compressed_texture_etc1$) {
             this._formatFeatures$[Format.ETC_RGB8] = compressedFeature;
         }
 
-        if (exts.WEBGL_compressed_texture_etc) {
+        if (exts.WEBGL_compressed_texture_etc$) {
             this._formatFeatures$[Format.ETC2_RGB8] = compressedFeature;
             this._formatFeatures$[Format.ETC2_RGBA8] = compressedFeature;
             this._formatFeatures$[Format.ETC2_SRGB8] = compressedFeature;
@@ -438,7 +440,7 @@ export class WebGL2Device extends Device {
             this._formatFeatures$[Format.ETC2_SRGB8_A1] = compressedFeature;
         }
 
-        if (exts.WEBGL_compressed_texture_s3tc) {
+        if (exts.WEBGL_compressed_texture_s3tc$) {
             this._formatFeatures$[Format.BC1] = compressedFeature;
             this._formatFeatures$[Format.BC1_ALPHA] = compressedFeature;
             this._formatFeatures$[Format.BC1_SRGB] = compressedFeature;
@@ -449,14 +451,14 @@ export class WebGL2Device extends Device {
             this._formatFeatures$[Format.BC3_SRGB] = compressedFeature;
         }
 
-        if (exts.WEBGL_compressed_texture_pvrtc) {
+        if (exts.WEBGL_compressed_texture_pvrtc$) {
             this._formatFeatures$[Format.PVRTC_RGB2] = compressedFeature;
             this._formatFeatures$[Format.PVRTC_RGBA2] = compressedFeature;
             this._formatFeatures$[Format.PVRTC_RGB4] = compressedFeature;
             this._formatFeatures$[Format.PVRTC_RGBA4] = compressedFeature;
         }
 
-        if (exts.WEBGL_compressed_texture_astc) {
+        if (exts.WEBGL_compressed_texture_astc$) {
             this._formatFeatures$[Format.ASTC_RGBA_4X4] = compressedFeature;
             this._formatFeatures$[Format.ASTC_RGBA_5X4] = compressedFeature;
             this._formatFeatures$[Format.ASTC_RGBA_5X5] = compressedFeature;
@@ -499,7 +501,7 @@ export class WebGL2Device extends Device {
 
     public createSwapchain (info: Readonly<SwapchainInfo>): Swapchain {
         const swapchain = new WebGL2Swapchain();
-        this._swapchain = swapchain;
+        this._swapchain$ = swapchain;
         swapchain.initialize(info);
         return swapchain;
     }
@@ -579,7 +581,7 @@ export class WebGL2Device extends Device {
     }
 
     public getSwapchains (): Readonly<Swapchain[]> {
-        return [this._swapchain as Swapchain];
+        return [this._swapchain$ as Swapchain];
     }
 
     public getGeneralBarrier (info: Readonly<GeneralBarrierInfo>): GeneralBarrier {
@@ -610,7 +612,7 @@ export class WebGL2Device extends Device {
         WebGL2CmdFuncCopyBuffersToTexture(
             this,
             buffers,
-            (texture as WebGL2Texture).gpuTexture,
+            (texture as WebGL2Texture).gpuTexture$,
             regions,
         );
     }
@@ -618,7 +620,7 @@ export class WebGL2Device extends Device {
     public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {
         WebGL2CmdFuncCopyTextureToBuffers(
             this,
-            (texture as WebGL2Texture).gpuTexture,
+            (texture as WebGL2Texture).gpuTexture$,
             buffers,
             regions,
         );
@@ -632,7 +634,7 @@ export class WebGL2Device extends Device {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,
             texImages,
-            (texture as WebGL2Texture).gpuTexture,
+            (texture as WebGL2Texture).gpuTexture$,
             regions,
         );
     }

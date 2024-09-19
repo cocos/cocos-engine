@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { BYTEDANCE } from 'internal:constants';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
 import {
@@ -40,9 +41,7 @@ import { WebGLConstants } from '../gl-constants';
 import { assertID, debugID, error, errorID } from '../../core/platform/debug';
 import { cclegacy } from '../../core/global-exports';
 
-function max (a: number, b: number): number {
-    return Math.max(a, b);
-}
+const max = Math.max;
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -693,8 +692,9 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
         if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
-
-        if (!device.textureExclusive[gpuTexture.format$] && (!device.extensions.WEBGL_depth_texture$ && FormatInfos[gpuTexture.format$].hasDepth)) {
+        // TODO: The system bug in the TikTok mini-game; once they fix it, a rollback will be necessary.
+        if (!device.textureExclusive[gpuTexture.format$]
+            && ((!device.extensions.WEBGL_depth_texture$ || BYTEDANCE) && FormatInfos[gpuTexture.format$].hasDepth)) {
             gpuTexture.glInternalFmt$ = GFXFormatToWebGLInternalFormat(gpuTexture.format$, gl);
             gpuTexture.glRenderbuffer$ = gl.createRenderbuffer();
             if (gpuTexture.size$ > 0) {
@@ -2835,7 +2835,13 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     case WebGLConstants.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
-            gl.framebufferTexture2D(WebGLConstants.FRAMEBUFFER, WebGLConstants.COLOR_ATTACHMENT0, gpuTexture.glTarget$, gpuTexture.glTexture$, region.texSubres.mipLevel);
+            gl.framebufferTexture2D(
+                WebGLConstants.FRAMEBUFFER,
+                WebGLConstants.COLOR_ATTACHMENT0,
+                gpuTexture.glTarget$,
+                gpuTexture.glTexture$,
+                region.texSubres.mipLevel,
+            );
             x = region.texOffset.x;
             y = region.texOffset.y;
             w = region.texExtent.width;

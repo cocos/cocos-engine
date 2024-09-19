@@ -3851,8 +3851,12 @@ Limit values to be greater than 0
 
 ### 16401
 
-Only PrimaryCommandBuffer supports this
+beginRenderPass: Only primary command buffer is supported.
 
 ### 16402
 
-execute is not supported
+execute is not supported.
+
+### 16403
+
+GPU memory alias is not supported

@@ -196,6 +196,7 @@ export class Canvas extends RenderRoot2D {
         } else {
             // In Editor dont need resized camera when scene window resize
             view.on('canvas-resize', this._thisOnCameraResized, this);
+            view.on('design-resolution-changed', this._thisOnCameraResized, this);
         }
     }
 
@@ -216,6 +217,7 @@ export class Canvas extends RenderRoot2D {
     public onDestroy (): void {
         super.onDestroy();
         view.off('canvas-resize', this._thisOnCameraResized, this);
+        view.off('design-resolution-changed', this._thisOnCameraResized, this);
     }
 
     protected _onResizeCamera (): void {

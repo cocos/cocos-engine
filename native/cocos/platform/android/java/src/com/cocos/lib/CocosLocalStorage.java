@@ -53,8 +53,10 @@ public class CocosLocalStorage {
     }
 
     public static void destroy() {
+        mDatabaseOpenHelper = null;
         if (mDatabase != null) {
             mDatabase.close();
+            mDatabase = null;
         }
     }
 

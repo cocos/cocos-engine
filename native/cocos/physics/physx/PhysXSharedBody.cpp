@@ -70,6 +70,7 @@ PhysXSharedBody *PhysXSharedBody::getSharedBody(const Node *node, PhysXWorld *co
     PhysXSharedBody *newSB;
     if (iter != sharedBodesMap.end()) {
         newSB = iter->second;
+        CC_ASSERT_EQ(newSB->_mWrappedWorld, world);
     } else {
         newSB = ccnew PhysXSharedBody(const_cast<Node *>(node), world, body);
         newSB->_mFilterData.word0 = 1;
@@ -82,6 +83,16 @@ PhysXSharedBody *PhysXSharedBody::getSharedBody(const Node *node, PhysXWorld *co
         newSB->_mFilterData.word1 = world->getMaskByIndex(static_cast<uint32_t>(log2(g)));
     }
     return newSB;
+}
+
+void PhysXSharedBody::clearCache() {
+    // Move the map to avoid erase operation in the following for loop since 'delete' will trigger ~PhysxSharedBody.
+    // clearCache is invoked only in the destructor of PhysXWorld.
+    auto tmpMap = std::move(sharedBodesMap);
+    for (auto &e : tmpMap) {
+        delete e.second;
+    }
+    sharedBodesMap.clear();
 }
 
 PhysXSharedBody::~PhysXSharedBody() {

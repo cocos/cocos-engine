@@ -54,15 +54,15 @@ export class WebGL2Buffer extends Buffer {
             this._flags$ = buffer.flags;
 
             this._gpuBuffer = {
-                usage: this._usage$,
-                memUsage: this._memUsage$,
-                size: this._size$,
-                stride: this._stride$,
-                buffer: null,
-                indirects: buffer.gpuBuffer.indirects,
-                glTarget: buffer.gpuBuffer.glTarget,
-                glBuffer: buffer.gpuBuffer.glBuffer,
-                glOffset: info.offset,
+                usage$: this._usage$,
+                memUsage$: this._memUsage$,
+                size$: this._size$,
+                stride$: this._stride$,
+                buffer$: null,
+                indirects$: buffer.gpuBuffer.indirects$,
+                glTarget$: buffer.gpuBuffer.glTarget$,
+                glBuffer$: buffer.gpuBuffer.glBuffer$,
+                glOffset$: info.offset,
             };
         } else { // native buffer
             this._usage$ = info.usage;
@@ -73,15 +73,15 @@ export class WebGL2Buffer extends Buffer {
             this._flags$ = info.flags;
 
             this._gpuBuffer = {
-                usage: this._usage$,
-                memUsage: this._memUsage$,
-                size: this._size$,
-                stride: this._stride$,
-                buffer: null,
-                indirects: new WebGL2IndirectDrawInfos(),
-                glTarget: 0,
-                glBuffer: null,
-                glOffset: 0,
+                usage$: this._usage$,
+                memUsage$: this._memUsage$,
+                size$: this._size$,
+                stride$: this._stride$,
+                buffer$: null,
+                indirects$: new WebGL2IndirectDrawInfos(),
+                glTarget$: 0,
+                glBuffer$: null,
+                glOffset$: 0,
             };
 
             WebGL2CmdFuncCreateBuffer(WebGL2DeviceManager.instance, this._gpuBuffer);
@@ -113,7 +113,7 @@ export class WebGL2Buffer extends Buffer {
         this._count$ = this._size$ / this._stride$;
 
         if (this._gpuBuffer) {
-            this._gpuBuffer.size = size;
+            this._gpuBuffer.size$ = size;
             if (size > 0) {
                 WebGL2CmdFuncResizeBuffer(WebGL2DeviceManager.instance, this._gpuBuffer);
                 WebGL2DeviceManager.instance.memoryStatus.bufferSize -= oldSize;

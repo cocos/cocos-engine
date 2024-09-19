@@ -150,13 +150,15 @@ export class WebGLDevice extends Device {
         this._queue$ = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
         this._cmdBuff$ = this.createCommandBuffer(new CommandBufferInfo(this._queue$));
 
-        this._caps$.maxVertexAttributes = gl.getParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
-        this._caps$.maxVertexUniformVectors = gl.getParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
-        this._caps$.maxFragmentUniformVectors = gl.getParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._caps$.maxTextureUnits = gl.getParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
-        this._caps$.maxVertexTextureUnits = gl.getParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._caps$.maxTextureSize = gl.getParameter(WebGLConstants.MAX_TEXTURE_SIZE);
-        this._caps$.maxCubeMapTextureSize = gl.getParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
+        const glGetParameter = gl.getParameter.bind(gl);
+
+        this._caps$.maxVertexAttributes = glGetParameter(WebGLConstants.MAX_VERTEX_ATTRIBS);
+        this._caps$.maxVertexUniformVectors = glGetParameter(WebGLConstants.MAX_VERTEX_UNIFORM_VECTORS);
+        this._caps$.maxFragmentUniformVectors = glGetParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps$.maxTextureUnits = glGetParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps$.maxVertexTextureUnits = glGetParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps$.maxTextureSize = glGetParameter(WebGLConstants.MAX_TEXTURE_SIZE);
+        this._caps$.maxCubeMapTextureSize = glGetParameter(WebGLConstants.MAX_CUBE_MAP_TEXTURE_SIZE);
         this._caps$.maxArrayTextureLayers = 0;
         this._caps$.max3DTextureSize = 0;
         // WebGL doesn't support UBOs at all, so here we return
@@ -174,14 +176,14 @@ export class WebGLDevice extends Device {
         const exts = getExtensions(gl);
 
         if (exts.WEBGL_debug_renderer_info$) {
-            this._renderer$ = gl.getParameter(exts.WEBGL_debug_renderer_info$.UNMASKED_RENDERER_WEBGL);
-            this._vendor$ = gl.getParameter(exts.WEBGL_debug_renderer_info$.UNMASKED_VENDOR_WEBGL);
+            this._renderer$ = glGetParameter(exts.WEBGL_debug_renderer_info$.UNMASKED_RENDERER_WEBGL);
+            this._vendor$ = glGetParameter(exts.WEBGL_debug_renderer_info$.UNMASKED_VENDOR_WEBGL);
         } else {
-            this._renderer$ = gl.getParameter(WebGLConstants.RENDERER);
-            this._vendor$ = gl.getParameter(WebGLConstants.VENDOR);
+            this._renderer$ = glGetParameter(WebGLConstants.RENDERER);
+            this._vendor$ = glGetParameter(WebGLConstants.VENDOR);
         }
 
-        const version: string = gl.getParameter(WebGLConstants.VERSION);
+        const version: string = glGetParameter(WebGLConstants.VERSION);
 
         this._features$.fill(false);
 

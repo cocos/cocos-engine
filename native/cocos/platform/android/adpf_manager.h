@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef ADPF_MANAGER_H_
-#define ADPF_MANAGER_H_
+#pragma once
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID && __ANDROID_API__ >= 30
     #include <android/api-level.h>
@@ -115,6 +114,7 @@ public:
     AThermalManager *getThermalManager() { return thermal_manager_; }
 
     void initialize();
+	void destroy();
 
 private:
     // Update thermal headroom each sec.
@@ -185,4 +185,3 @@ private:
     #define CC_SUPPORT_ADPF 0 // NOLINT
 #endif                        // ADPF_MANAGER_H_
 
-#endif

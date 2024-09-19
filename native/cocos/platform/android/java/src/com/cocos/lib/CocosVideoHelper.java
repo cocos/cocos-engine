@@ -48,7 +48,6 @@ public class CocosVideoHelper {
     private Activity mActivity = null;
     private static SparseArray<CocosVideoView> sVideoViews = null;
     static VideoHandler mVideoHandler = null;
-    private static Handler sHandler = null;
 
     CocosVideoHelper(Activity activity, FrameLayout layout)
     {
@@ -57,7 +56,16 @@ public class CocosVideoHelper {
 
         mVideoHandler = new VideoHandler(this);
         sVideoViews = new SparseArray<CocosVideoView>();
-        sHandler = new Handler(Looper.myLooper());
+    }
+	
+	public void destroy() {
+        if (mVideoHandler != null) {
+            mVideoHandler.removeCallbacksAndMessages(null);
+            mVideoHandler = null;
+        }
+        videoEventListener = null;
+        mLayout = null;
+        mActivity = null;
     }
 
     private static int videoTag = 0;

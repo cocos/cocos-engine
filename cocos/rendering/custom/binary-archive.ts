@@ -75,8 +75,8 @@ export class BinaryOutputArchive implements OutputArchive {
 }
 
 export class BinaryInputArchive implements InputArchive {
-    constructor (data: ArrayBuffer) {
-        this.dataView = new DataView(data);
+    constructor (data: ArrayBuffer, byteOffset?: number) {
+        this.dataView = new DataView(data, byteOffset);
     }
     b (): boolean {
         return this.dataView.getUint8(this.offset++) !== 0;

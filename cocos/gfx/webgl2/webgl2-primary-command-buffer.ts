@@ -32,7 +32,7 @@ import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
     WebGL2CmdFuncBeginRenderPass, WebGL2CmdFuncBindStates, WebGL2CmdFuncBlitTexture, WebGL2CmdFuncCopyBuffersToTexture,
-    WebGL2CmdFuncDraw, WebGL2CmdFuncExecuteCmds, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
+    WebGL2CmdFuncDraw, WebGL2CmdFuncUpdateBuffer } from './webgl2-commands';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
@@ -51,19 +51,19 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     ): void {
         WebGL2CmdFuncBeginRenderPass(
             WebGL2DeviceManager.instance,
-            (renderPass as WebGL2RenderPass).gpuRenderPass,
-            (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
+            (renderPass as WebGL2RenderPass).gpuRenderPass$,
+            (framebuffer as WebGL2Framebuffer).gpuFramebuffer$,
             renderArea,
             clearColors,
             clearDepth,
             clearStencil,
         );
-        this._isInRenderPass = true;
+        this._isInRenderPass$ = true;
     }
 
     public draw (infoOrAssembler: Readonly<DrawInfo> | Readonly<InputAssembler>): void {
-        if (this._isInRenderPass) {
-            if (this._isStateInvalied) {
+        if (this._isInRenderPass$) {
+            if (this._isStateInvalid$) {
                 this.bindStates();
             }
 
@@ -74,8 +74,8 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
             ++this._numDrawCalls$;
             this._numInstances$ += info.instanceCount;
             const indexCount = info.indexCount || info.vertexCount;
-            if (this._curGPUPipelineState) {
-                const glPrimitive = this._curGPUPipelineState.glPrimitive;
+            if (this._curGPUPipelineState$) {
+                const glPrimitive = this._curGPUPipelineState$.glPrimitive$;
                 switch (glPrimitive) {
                 case 0x0004: { // WebGLRenderingContext.TRIANGLES
                     this._numTris$ += indexCount / 3 * Math.max(info.instanceCount, 1);
@@ -97,37 +97,37 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     public setViewport (viewport: Readonly<Viewport>): void {
         const { stateCache: cache, gl } = WebGL2DeviceManager.instance;
 
-        if (cache.viewport.left !== viewport.left
-            || cache.viewport.top !== viewport.top
-            || cache.viewport.width !== viewport.width
-            || cache.viewport.height !== viewport.height) {
+        if (cache.viewport$.left !== viewport.left
+            || cache.viewport$.top !== viewport.top
+            || cache.viewport$.width !== viewport.width
+            || cache.viewport$.height !== viewport.height) {
             gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
 
-            cache.viewport.left = viewport.left;
-            cache.viewport.top = viewport.top;
-            cache.viewport.width = viewport.width;
-            cache.viewport.height = viewport.height;
+            cache.viewport$.left = viewport.left;
+            cache.viewport$.top = viewport.top;
+            cache.viewport$.width = viewport.width;
+            cache.viewport$.height = viewport.height;
         }
     }
 
     public setScissor (scissor: Readonly<Rect>): void {
         const { stateCache: cache, gl } = WebGL2DeviceManager.instance;
 
-        if (cache.scissorRect.x !== scissor.x
-            || cache.scissorRect.y !== scissor.y
-            || cache.scissorRect.width !== scissor.width
-            || cache.scissorRect.height !== scissor.height) {
+        if (cache.scissorRect$.x !== scissor.x
+            || cache.scissorRect$.y !== scissor.y
+            || cache.scissorRect$.width !== scissor.width
+            || cache.scissorRect$.height !== scissor.height) {
             gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
 
-            cache.scissorRect.x = scissor.x;
-            cache.scissorRect.y = scissor.y;
-            cache.scissorRect.width = scissor.width;
-            cache.scissorRect.height = scissor.height;
+            cache.scissorRect$.x = scissor.x;
+            cache.scissorRect$.y = scissor.y;
+            cache.scissorRect$.width = scissor.width;
+            cache.scissorRect$.height = scissor.height;
         }
     }
 
     public updateBuffer (buffer: Buffer, data: Readonly<BufferSource>, size?: number): void {
-        if (!this._isInRenderPass) {
+        if (!this._isInRenderPass$) {
             const gpuBuffer = (buffer as WebGL2Buffer).gpuBuffer;
             if (gpuBuffer) {
                 let buffSize: number;
@@ -147,8 +147,8 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
-        if (!this._isInRenderPass) {
-            const gpuTexture = (texture as WebGL2Texture).gpuTexture;
+        if (!this._isInRenderPass$) {
+            const gpuTexture = (texture as WebGL2Texture).gpuTexture$;
             if (gpuTexture) {
                 WebGL2CmdFuncCopyBuffersToTexture(WebGL2DeviceManager.instance, buffers, gpuTexture, regions);
             }
@@ -158,31 +158,24 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     public execute (cmdBuffs: Readonly<CommandBuffer[]>, count: number): void {
-        for (let i = 0; i < count; ++i) {
-            // actually they are secondary buffers, the cast here is only for type checking
-            const webGL2CmdBuff = cmdBuffs[i] as WebGL2PrimaryCommandBuffer;
-            WebGL2CmdFuncExecuteCmds(WebGL2DeviceManager.instance, webGL2CmdBuff.cmdPackage);
-            this._numDrawCalls$ += webGL2CmdBuff._numDrawCalls$;
-            this._numInstances$ += webGL2CmdBuff._numInstances$;
-            this._numTris$ += webGL2CmdBuff._numTris$;
-        }
+        errorID(16402);
     }
 
     protected bindStates (): void {
         WebGL2CmdFuncBindStates(
             WebGL2DeviceManager.instance,
-            this._curGPUPipelineState,
-            this._curGPUInputAssembler,
-            this._curGPUDescriptorSets,
-            this._curDynamicOffsets,
-            this._curDynamicStates,
+            this._curGPUPipelineState$,
+            this._curGPUInputAssembler$,
+            this._curGPUDescriptorSets$,
+            this._curDynamicOffsets$,
+            this._curDynamicStates$,
         );
-        this._isStateInvalied = false;
+        this._isStateInvalid$ = false;
     }
 
     public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
-        const gpuTextureSrc = (srcTexture as WebGL2Texture).gpuTexture;
-        const gpuTextureDst = (dstTexture as WebGL2Texture).gpuTexture;
+        const gpuTextureSrc = (srcTexture as WebGL2Texture).gpuTexture$;
+        const gpuTextureDst = (dstTexture as WebGL2Texture).gpuTexture$;
         WebGL2CmdFuncBlitTexture(WebGL2DeviceManager.instance, gpuTextureSrc, gpuTextureDst, regions, filter);
     }
 }
