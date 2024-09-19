@@ -28,7 +28,7 @@ import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 import { PipelineLayoutInfo } from '../base/define';
 
 export class WebGL2PipelineLayout extends PipelineLayout {
-    get gpuPipelineLayout$ (): IWebGL2GPUPipelineLayout { return this._gpuPipelineLayout$!; }
+    get gpuPipelineLayout (): IWebGL2GPUPipelineLayout { return this._gpuPipelineLayout$!; }
 
     private _gpuPipelineLayout$: IWebGL2GPUPipelineLayout | null = null;
 

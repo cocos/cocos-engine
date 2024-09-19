@@ -51,8 +51,8 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     ): void {
         WebGL2CmdFuncBeginRenderPass(
             WebGL2DeviceManager.instance,
-            (renderPass as WebGL2RenderPass).gpuRenderPass$,
-            (framebuffer as WebGL2Framebuffer).gpuFramebuffer$,
+            (renderPass as WebGL2RenderPass).gpuRenderPass,
+            (framebuffer as WebGL2Framebuffer).gpuFramebuffer,
             renderArea,
             clearColors,
             clearDepth,
@@ -148,7 +148,7 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
 
     public copyBuffersToTexture (buffers: Readonly<ArrayBufferView[]>, texture: Texture, regions: Readonly<BufferTextureCopy[]>): void {
         if (!this._isInRenderPass$) {
-            const gpuTexture = (texture as WebGL2Texture).gpuTexture$;
+            const gpuTexture = (texture as WebGL2Texture).gpuTexture;
             if (gpuTexture) {
                 WebGL2CmdFuncCopyBuffersToTexture(WebGL2DeviceManager.instance, buffers, gpuTexture, regions);
             }
@@ -174,8 +174,8 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     public blitTexture (srcTexture: Readonly<Texture>, dstTexture: Texture, regions: Readonly<TextureBlit []>, filter: Filter): void {
-        const gpuTextureSrc = (srcTexture as WebGL2Texture).gpuTexture$;
-        const gpuTextureDst = (dstTexture as WebGL2Texture).gpuTexture$;
+        const gpuTextureSrc = (srcTexture as WebGL2Texture).gpuTexture;
+        const gpuTextureDst = (dstTexture as WebGL2Texture).gpuTexture;
         WebGL2CmdFuncBlitTexture(WebGL2DeviceManager.instance, gpuTextureSrc, gpuTextureDst, regions, filter);
     }
 }

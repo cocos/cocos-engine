@@ -42,6 +42,7 @@ import { assertID, debugID, error, errorID } from '../../core/platform/debug';
 import { cclegacy } from '../../core/global-exports';
 
 const max = Math.max;
+const min = Math.min;
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
     switch (format) {
@@ -1003,8 +1004,8 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
                 }
 
                 attachments.push(WebGLConstants.COLOR_ATTACHMENT0 + i);
-                gpuFramebuffer.width$ = Math.min(gpuFramebuffer.width$, gpuTexture.width$);
-                gpuFramebuffer.height$ = Math.min(gpuFramebuffer.height$, gpuTexture.height$);
+                gpuFramebuffer.width = min(gpuFramebuffer.width, gpuTexture.width$);
+                gpuFramebuffer.height = min(gpuFramebuffer.height, gpuTexture.height$);
             }
         }
 
@@ -1027,8 +1028,8 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
                     dst.glRenderbuffer$,
                 );
             }
-            gpuFramebuffer.width$ = Math.min(gpuFramebuffer.width$, dst.width$);
-            gpuFramebuffer.height$ = Math.min(gpuFramebuffer.height$, dst.height$);
+            gpuFramebuffer.width = min(gpuFramebuffer.width, dst.width$);
+            gpuFramebuffer.height = min(gpuFramebuffer.height, dst.height$);
         }
 
         if (device.extensions.WEBGL_draw_buffers$) {

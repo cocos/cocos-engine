@@ -23,9 +23,8 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { systemInfo } from 'pal/system-info';
-import { warnID, warn, debug, macro } from '../../core';
 // import { systemInfo } from 'pal/system-info';
+import { warnID, warn, debug } from '../../core/platform/debug';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType,
@@ -35,6 +34,7 @@ import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 // import { OS } from '../../../pal/system-info/enum-type';
 import { IWebGL2BlitManager } from './webgl2-gpu-objects';
 import { WebGLConstants } from '../gl-constants';
+// import { macro } from '../../core/platform/macro';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -158,11 +158,11 @@ export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext |
 }
 
 export class WebGL2Swapchain extends Swapchain {
-    get extensions$ (): IWebGL2Extensions {
+    get extensions (): IWebGL2Extensions {
         return this._extensions$ as IWebGL2Extensions;
     }
 
-    get blitManager$ (): IWebGL2BlitManager | null {
+    get blitManager (): IWebGL2BlitManager | null {
         return this._blitManager$;
     }
 

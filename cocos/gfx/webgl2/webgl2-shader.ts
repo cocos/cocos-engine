@@ -29,7 +29,7 @@ import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUShader, IWebGL2GPUShaderStage } from './webgl2-gpu-objects';
 
 export class WebGL2Shader extends Shader {
-    get gpuShader$ (): IWebGL2GPUShader {
+    get gpuShader (): IWebGL2GPUShader {
         if (this._gpuShader$!.glProgram$ === null) {
             WebGL2CmdFuncCreateShader(WebGL2DeviceManager.instance, this._gpuShader$!);
         }

@@ -77,7 +77,7 @@ export class WebGL2Device extends Device {
     }
 
     get extensions (): IWebGL2Extensions {
-        return this._swapchain$!.extensions$;
+        return this._swapchain$!.extensions;
     }
 
     get stateCache (): WebGL2StateCache {
@@ -101,7 +101,7 @@ export class WebGL2Device extends Device {
     }
 
     get blitManager (): IWebGL2BlitManager | null {
-        return this._swapchain$!.blitManager$;
+        return this._swapchain$!.blitManager;
     }
 
     private _swapchain$: WebGL2Swapchain | null = null;
@@ -613,7 +613,7 @@ export class WebGL2Device extends Device {
         WebGL2CmdFuncCopyBuffersToTexture(
             this,
             buffers,
-            (texture as WebGL2Texture).gpuTexture$,
+            (texture as WebGL2Texture).gpuTexture,
             regions,
         );
     }
@@ -621,7 +621,7 @@ export class WebGL2Device extends Device {
     public copyTextureToBuffers (texture: Readonly<Texture>, buffers: ArrayBufferView[], regions: Readonly<BufferTextureCopy[]>): void {
         WebGL2CmdFuncCopyTextureToBuffers(
             this,
-            (texture as WebGL2Texture).gpuTexture$,
+            (texture as WebGL2Texture).gpuTexture,
             buffers,
             regions,
         );
@@ -635,7 +635,7 @@ export class WebGL2Device extends Device {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,
             texImages,
-            (texture as WebGL2Texture).gpuTexture$,
+            (texture as WebGL2Texture).gpuTexture,
             regions,
         );
     }
