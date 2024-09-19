@@ -43,9 +43,9 @@ export default class WebSocket {
 
     my.connectSocket({
       url,
-      fail: function fail(res) {
+      fail: (res) => {
         this._triggerEvent('error', res)
-      }.bind(this)
+      }
     })
 
     this._onOpen = (res) => {
@@ -113,9 +113,9 @@ export default class WebSocket {
       my.sendSocketMessage({
           data,
           isBuffer,
-          fail: function (res) {
+          fail: (res) => {
             this._triggerEvent('error', res)
-          }.bind(this)
+          }
       });
     }
   }
