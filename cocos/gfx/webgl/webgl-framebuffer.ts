@@ -89,7 +89,7 @@ export class WebGLFramebuffer extends Framebuffer {
             gpuDepthStencilTexture$: gpuDepthStencilTexture,
             glFramebuffer$: null,
             isOffscreen$: true,
-            get width$ (): number {
+            get width (): number {
                 if (this.gpuColorTextures$.length > 0) {
                     return this.gpuColorTextures$[0].width$;
                 } else if (this.gpuDepthStencilTexture$) {
@@ -97,10 +97,10 @@ export class WebGLFramebuffer extends Framebuffer {
                 }
                 return width;
             },
-            set width$ (val) {
+            set width (val) {
                 width = val;
             },
-            get height$ (): number {
+            get height (): number {
                 if (this.gpuColorTextures$.length > 0) {
                     return this.gpuColorTextures$[0].height$;
                 } else if (this.gpuDepthStencilTexture$) {
@@ -108,7 +108,7 @@ export class WebGLFramebuffer extends Framebuffer {
                 }
                 return height;
             },
-            set height$ (val) {
+            set height (val) {
                 height = val;
             },
             lodLevel$: lodLevel,
@@ -117,8 +117,8 @@ export class WebGLFramebuffer extends Framebuffer {
         WebGLCmdFuncCreateFramebuffer(WebGLDeviceManager.instance, this._gpuFramebuffer$);
         this.gpuFramebuffer.gpuColorTextures$.forEach((tex) => this._gpuColorTextures$.push(tex.glTexture$));
         this._gpuDepthStencilTexture$ = this.gpuFramebuffer.gpuDepthStencilTexture$?.glTexture$;
-        this._width$ = this._gpuFramebuffer$.width$;
-        this._height$ = this._gpuFramebuffer$.height$;
+        this._width$ = this._gpuFramebuffer$.width;
+        this._height$ = this._gpuFramebuffer$.height;
     }
 
     public destroy (): void {

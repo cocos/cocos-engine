@@ -31,7 +31,7 @@ import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUInputAssembler, IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
 export class WebGL2InputAssembler extends InputAssembler {
-    public get gpuInputAssembler$ (): IWebGL2GPUInputAssembler {
+    public get gpuInputAssembler (): IWebGL2GPUInputAssembler {
         return  this._gpuInputAssembler$!;
     }
 

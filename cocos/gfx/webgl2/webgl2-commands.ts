@@ -45,8 +45,9 @@ import {
     IWebGL2GPUUniformSamplerTexture,
     IWebGL2GPURenderPass,
 } from './webgl2-gpu-objects';
-import { CachedArray, error, errorID, cclegacy, assertID, debugID } from '../../core';
+import { error, errorID, assertID, debugID } from '../../core/platform/debug';
 import { WebGLConstants } from '../gl-constants';
+import { cclegacy } from '../../core/global-exports';
 
 const WebGLWraps: GLenum[] = [
     WebGLConstants.REPEAT,
@@ -56,6 +57,8 @@ const WebGLWraps: GLenum[] = [
 ];
 
 const _f32v4 = new Float32Array(4);
+const max = Math.max;
+const min = Math.min;
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
     const c = a - b;
@@ -901,7 +904,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX2D: {
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_2D;
 
-        const maxSize = Math.max(w, h);
+        const maxSize = max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
@@ -921,8 +924,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                         const imgSize = FormatSize(gpuTexture.format$, w, h, 1);
                         const view: Uint8Array = new Uint8Array(imgSize);
                         gl.compressedTexImage2D(WebGLConstants.TEXTURE_2D, i, gpuTexture.glInternalFmt$, w, h, 0, view);
-                        w = Math.max(1, w >> 1);
-                        h = Math.max(1, h >> 1);
+                        w = max(1, w >> 1);
+                        h = max(1, h >> 1);
                     }
                 } else if (gpuTexture.flags$ & TextureFlagBit.MUTABLE_STORAGE) {
                     gl.texImage2D(WebGLConstants.TEXTURE_2D, 0, gpuTexture.glInternalFmt$, w, h, 0, gpuTexture.glFormat$, gpuTexture.glType$, null);
@@ -952,7 +955,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX2D_ARRAY: {
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_2D_ARRAY;
 
-        const maxSize = Math.max(w, h);
+        const maxSize = max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
@@ -974,8 +977,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     const imgSize = FormatSize(gpuTexture.format$, w, h, l);
                     const view: Uint8Array = new Uint8Array(imgSize);
                     gl.compressedTexImage3D(WebGLConstants.TEXTURE_2D_ARRAY, i, gpuTexture.glInternalFmt$, w, h, l, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                    w = max(1, w >> 1);
+                    h = max(1, h >> 1);
                 }
             } else {
                 gl.texStorage3D(WebGLConstants.TEXTURE_2D_ARRAY, gpuTexture.mipLevel$, gpuTexture.glInternalFmt$, w, h, l);
@@ -986,7 +989,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX3D: {
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_3D;
 
-        const maxSize = Math.max(Math.max(w, h), d);
+        const maxSize = max(max(w, h), d);
         if (maxSize > device.capabilities.max3DTextureSize) {
             errorID(9100, maxSize, device.capabilities.max3DTextureSize);
         }
@@ -1005,8 +1008,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     const imgSize = FormatSize(gpuTexture.format$, w, h, d);
                     const view: Uint8Array = new Uint8Array(imgSize);
                     gl.compressedTexImage3D(WebGLConstants.TEXTURE_3D, i, gpuTexture.glInternalFmt$, w, h, d, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                    w = max(1, w >> 1);
+                    h = max(1, h >> 1);
                 }
             } else {
                 gl.texStorage3D(WebGLConstants.TEXTURE_3D, gpuTexture.mipLevel$, gpuTexture.glInternalFmt$, w, h, d);
@@ -1017,7 +1020,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.CUBE: {
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_CUBE_MAP;
 
-        const maxSize = Math.max(w, h);
+        const maxSize = max(w, h);
         if (maxSize > device.capabilities.maxCubeMapTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
@@ -1038,8 +1041,8 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     for (let f = 0; f < 6; ++f) {
                         gl.compressedTexImage2D(WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt$, w, h, 0, view);
                     }
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                    w = max(1, w >> 1);
+                    h = max(1, h >> 1);
                 }
             } else {
                 gl.texStorage2D(WebGLConstants.TEXTURE_CUBE_MAP, gpuTexture.mipLevel$, gpuTexture.glInternalFmt$, w, h);
@@ -1098,7 +1101,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX2D: {
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_2D;
 
-        const maxSize = Math.max(w, h);
+        const maxSize = max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
@@ -1116,8 +1119,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                     const imgSize = FormatSize(gpuTexture.format$, w, h, 1);
                     const view: Uint8Array = new Uint8Array(imgSize);
                     gl.compressedTexImage2D(WebGLConstants.TEXTURE_2D, i, gpuTexture.glInternalFmt$, w, h, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                    w = max(1, w >> 1);
+                    h = max(1, h >> 1);
                 }
             } else {
                 // immutable by default
@@ -1143,7 +1146,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX2D_ARRAY: {
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_2D_ARRAY;
 
-        const maxSize = Math.max(w, h);
+        const maxSize = max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
@@ -1165,8 +1168,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                     const imgSize = FormatSize(gpuTexture.format$, w, h, l);
                     const view: Uint8Array = new Uint8Array(imgSize);
                     gl.compressedTexImage3D(WebGLConstants.TEXTURE_2D_ARRAY, i, gpuTexture.glInternalFmt$, w, h, l, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                    w = max(1, w >> 1);
+                    h = max(1, h >> 1);
                 }
             } else {
                 gl.texStorage3D(WebGLConstants.TEXTURE_2D_ARRAY, gpuTexture.mipLevel$, gpuTexture.glInternalFmt$, w, h, l);
@@ -1177,7 +1180,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     case TextureType.TEX3D: {
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_3D;
 
-        const maxSize = Math.max(Math.max(w, h), d);
+        const maxSize = max(max(w, h), d);
         if (maxSize > device.capabilities.max3DTextureSize) {
             errorID(9100, maxSize, device.capabilities.max3DTextureSize);
         }
@@ -1196,8 +1199,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                     const imgSize = FormatSize(gpuTexture.format$, w, h, d);
                     const view: Uint8Array = new Uint8Array(imgSize);
                     gl.compressedTexImage3D(WebGLConstants.TEXTURE_3D, i, gpuTexture.glInternalFmt$, w, h, d, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                    w = max(1, w >> 1);
+                    h = max(1, h >> 1);
                 }
             } else {
                 gl.texStorage3D(WebGLConstants.TEXTURE_3D, gpuTexture.mipLevel$, gpuTexture.glInternalFmt$, w, h, d);
@@ -1209,7 +1212,7 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
         gpuTexture.type$ = TextureType.CUBE;
         gpuTexture.glTarget$ = WebGLConstants.TEXTURE_CUBE_MAP;
 
-        const maxSize = Math.max(w, h);
+        const maxSize = max(w, h);
         if (maxSize > device.capabilities.maxCubeMapTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
@@ -1229,8 +1232,8 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                     const imgSize = FormatSize(gpuTexture.format$, w, h, 1);
                     const view: Uint8Array = new Uint8Array(imgSize);
                     gl.compressedTexImage2D(WebGLConstants.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt$, w, h, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                    w = max(1, w >> 1);
+                    h = max(1, h >> 1);
                 }
             }
         } else {
@@ -1340,8 +1343,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                 }
 
                 attachments.push(WebGLConstants.COLOR_ATTACHMENT0 + i);
-                gpuFramebuffer.width$ = Math.min(gpuFramebuffer.width$, colorTexture.width$ >> colorTextureView.baseLevel$);
-                gpuFramebuffer.height$ = Math.min(gpuFramebuffer.height$, colorTexture.height$ >> colorTextureView.baseLevel$);
+                gpuFramebuffer.width = min(gpuFramebuffer.width, colorTexture.width$ >> colorTextureView.baseLevel$);
+                gpuFramebuffer.height = min(gpuFramebuffer.height, colorTexture.height$ >> colorTextureView.baseLevel$);
             }
         }
 
@@ -1365,8 +1368,8 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                     dst.glRenderbuffer$,
                 );
             }
-            gpuFramebuffer.width$ = Math.min(gpuFramebuffer.width$, dst.width$ >> dstView.baseLevel$);
-            gpuFramebuffer.height$ = Math.min(gpuFramebuffer.height$, dst.height$ >> dstView.baseLevel$);
+            gpuFramebuffer.width = min(gpuFramebuffer.width, dst.width$ >> dstView.baseLevel$);
+            gpuFramebuffer.height = min(gpuFramebuffer.height, dst.height$ >> dstView.baseLevel$);
         }
 
         gl.drawBuffers(attachments);
@@ -1961,6 +1964,10 @@ export function WebGL2CmdFuncBindStates (
 ): void {
     const { gl } = device;
     const cache = device.stateCache;
+    const cacheRs = cache.rs$;
+    const cacheDss = cache.dss$;
+    const cacheBs = cache.bs$;
+    const cacheBlendColor = cacheBs.blendColor;
     const gpuShader = gpuPipelineState && gpuPipelineState.gpuShader$;
 
     let isShaderChanged = false;
@@ -1982,7 +1989,7 @@ export function WebGL2CmdFuncBindStates (
         // rasterizer state
         const { rs$: rs } = gpuPipelineState;
         if (rs) {
-            if (cache.rs$.cullMode !== rs.cullMode) {
+            if (cacheRs.cullMode !== rs.cullMode) {
                 switch (rs.cullMode) {
                 case CullMode.NONE: {
                     gl.disable(WebGLConstants.CULL_FACE);
@@ -2001,65 +2008,65 @@ export function WebGL2CmdFuncBindStates (
                 default:
                 }
 
-                device.stateCache.rs$.cullMode = rs.cullMode;
+                cacheRs.cullMode = rs.cullMode;
             }
 
             const isFrontFaceCCW = rs.isFrontFaceCCW; // boolean XOR
-            if (device.stateCache.rs$.isFrontFaceCCW !== isFrontFaceCCW) {
+            if (cacheRs.isFrontFaceCCW !== isFrontFaceCCW) {
                 gl.frontFace(isFrontFaceCCW ? WebGLConstants.CCW : WebGLConstants.CW);
-                device.stateCache.rs$.isFrontFaceCCW = isFrontFaceCCW;
+                cacheRs.isFrontFaceCCW = isFrontFaceCCW;
             }
 
-            if ((device.stateCache.rs$.depthBias !== rs.depthBias)
-                || (device.stateCache.rs$.depthBiasSlop !== rs.depthBiasSlop)) {
+            if ((cacheRs.depthBias !== rs.depthBias)
+                || (cacheRs.depthBiasSlop !== rs.depthBiasSlop)) {
                 gl.polygonOffset(rs.depthBias, rs.depthBiasSlop);
-                device.stateCache.rs$.depthBias = rs.depthBias;
-                device.stateCache.rs$.depthBiasSlop = rs.depthBiasSlop;
+                cacheRs.depthBias = rs.depthBias;
+                cacheRs.depthBiasSlop = rs.depthBiasSlop;
             }
 
-            if (device.stateCache.rs$.lineWidth !== rs.lineWidth) {
+            if (cacheRs.lineWidth !== rs.lineWidth) {
                 gl.lineWidth(rs.lineWidth);
-                device.stateCache.rs$.lineWidth = rs.lineWidth;
+                cacheRs.lineWidth = rs.lineWidth;
             }
         } // rasterizater state
 
         // depth-stencil state
         const { dss$: dss } = gpuPipelineState;
         if (dss) {
-            if (cache.dss$.depthTest !== dss.depthTest) {
+            if (cacheDss.depthTest !== dss.depthTest) {
                 if (dss.depthTest) {
                     gl.enable(WebGLConstants.DEPTH_TEST);
                 } else {
                     gl.disable(WebGLConstants.DEPTH_TEST);
                 }
-                cache.dss$.depthTest = dss.depthTest;
+                cacheDss.depthTest = dss.depthTest;
             }
 
-            if (cache.dss$.depthWrite !== dss.depthWrite) {
+            if (cacheDss.depthWrite !== dss.depthWrite) {
                 gl.depthMask(dss.depthWrite);
-                cache.dss$.depthWrite = dss.depthWrite;
+                cacheDss.depthWrite = dss.depthWrite;
             }
 
-            if (cache.dss$.depthFunc !== dss.depthFunc) {
+            if (cacheDss.depthFunc !== dss.depthFunc) {
                 gl.depthFunc(WebGLCmpFuncs[dss.depthFunc]);
-                cache.dss$.depthFunc = dss.depthFunc;
+                cacheDss.depthFunc = dss.depthFunc;
             }
 
             // front
-            if ((cache.dss$.stencilTestFront !== dss.stencilTestFront)
-                || (cache.dss$.stencilTestBack !== dss.stencilTestBack)) {
+            if ((cacheDss.stencilTestFront !== dss.stencilTestFront)
+                || (cacheDss.stencilTestBack !== dss.stencilTestBack)) {
                 if (dss.stencilTestFront || dss.stencilTestBack) {
                     gl.enable(WebGLConstants.STENCIL_TEST);
                 } else {
                     gl.disable(WebGLConstants.STENCIL_TEST);
                 }
-                cache.dss$.stencilTestFront = dss.stencilTestFront;
-                cache.dss$.stencilTestBack = dss.stencilTestBack;
+                cacheDss.stencilTestFront = dss.stencilTestFront;
+                cacheDss.stencilTestBack = dss.stencilTestBack;
             }
 
-            if ((cache.dss$.stencilFuncFront !== dss.stencilFuncFront)
-                || (cache.dss$.stencilRefFront !== dss.stencilRefFront)
-                || (cache.dss$.stencilReadMaskFront !== dss.stencilReadMaskFront)) {
+            if ((cacheDss.stencilFuncFront !== dss.stencilFuncFront)
+                || (cacheDss.stencilRefFront !== dss.stencilRefFront)
+                || (cacheDss.stencilReadMaskFront !== dss.stencilReadMaskFront)) {
                 gl.stencilFuncSeparate(
                     WebGLConstants.FRONT,
                     WebGLCmpFuncs[dss.stencilFuncFront],
@@ -2067,14 +2074,14 @@ export function WebGL2CmdFuncBindStates (
                     dss.stencilReadMaskFront,
                 );
 
-                cache.dss$.stencilFuncFront = dss.stencilFuncFront;
-                cache.dss$.stencilRefFront = dss.stencilRefFront;
-                cache.dss$.stencilReadMaskFront = dss.stencilReadMaskFront;
+                cacheDss.stencilFuncFront = dss.stencilFuncFront;
+                cacheDss.stencilRefFront = dss.stencilRefFront;
+                cacheDss.stencilReadMaskFront = dss.stencilReadMaskFront;
             }
 
-            if ((cache.dss$.stencilFailOpFront !== dss.stencilFailOpFront)
-                || (cache.dss$.stencilZFailOpFront !== dss.stencilZFailOpFront)
-                || (cache.dss$.stencilPassOpFront !== dss.stencilPassOpFront)) {
+            if ((cacheDss.stencilFailOpFront !== dss.stencilFailOpFront)
+                || (cacheDss.stencilZFailOpFront !== dss.stencilZFailOpFront)
+                || (cacheDss.stencilPassOpFront !== dss.stencilPassOpFront)) {
                 gl.stencilOpSeparate(
                     WebGLConstants.FRONT,
                     WebGLStencilOps[dss.stencilFailOpFront],
@@ -2082,20 +2089,20 @@ export function WebGL2CmdFuncBindStates (
                     WebGLStencilOps[dss.stencilPassOpFront],
                 );
 
-                cache.dss$.stencilFailOpFront = dss.stencilFailOpFront;
-                cache.dss$.stencilZFailOpFront = dss.stencilZFailOpFront;
-                cache.dss$.stencilPassOpFront = dss.stencilPassOpFront;
+                cacheDss.stencilFailOpFront = dss.stencilFailOpFront;
+                cacheDss.stencilZFailOpFront = dss.stencilZFailOpFront;
+                cacheDss.stencilPassOpFront = dss.stencilPassOpFront;
             }
 
-            if (cache.dss$.stencilWriteMaskFront !== dss.stencilWriteMaskFront) {
+            if (cacheDss.stencilWriteMaskFront !== dss.stencilWriteMaskFront) {
                 gl.stencilMaskSeparate(WebGLConstants.FRONT, dss.stencilWriteMaskFront);
-                cache.dss$.stencilWriteMaskFront = dss.stencilWriteMaskFront;
+                cacheDss.stencilWriteMaskFront = dss.stencilWriteMaskFront;
             }
 
             // back
-            if ((cache.dss$.stencilFuncBack !== dss.stencilFuncBack)
-                || (cache.dss$.stencilRefBack !== dss.stencilRefBack)
-                || (cache.dss$.stencilReadMaskBack !== dss.stencilReadMaskBack)) {
+            if ((cacheDss.stencilFuncBack !== dss.stencilFuncBack)
+                || (cacheDss.stencilRefBack !== dss.stencilRefBack)
+                || (cacheDss.stencilReadMaskBack !== dss.stencilReadMaskBack)) {
                 gl.stencilFuncSeparate(
                     WebGLConstants.BACK,
                     WebGLCmpFuncs[dss.stencilFuncBack],
@@ -2103,14 +2110,14 @@ export function WebGL2CmdFuncBindStates (
                     dss.stencilReadMaskBack,
                 );
 
-                cache.dss$.stencilFuncBack = dss.stencilFuncBack;
-                cache.dss$.stencilRefBack = dss.stencilRefBack;
-                cache.dss$.stencilReadMaskBack = dss.stencilReadMaskBack;
+                cacheDss.stencilFuncBack = dss.stencilFuncBack;
+                cacheDss.stencilRefBack = dss.stencilRefBack;
+                cacheDss.stencilReadMaskBack = dss.stencilReadMaskBack;
             }
 
-            if ((cache.dss$.stencilFailOpBack !== dss.stencilFailOpBack)
-                || (cache.dss$.stencilZFailOpBack !== dss.stencilZFailOpBack)
-                || (cache.dss$.stencilPassOpBack !== dss.stencilPassOpBack)) {
+            if ((cacheDss.stencilFailOpBack !== dss.stencilFailOpBack)
+                || (cacheDss.stencilZFailOpBack !== dss.stencilZFailOpBack)
+                || (cacheDss.stencilPassOpBack !== dss.stencilPassOpBack)) {
                 gl.stencilOpSeparate(
                     WebGLConstants.BACK,
                     WebGLStencilOps[dss.stencilFailOpBack],
@@ -2118,39 +2125,41 @@ export function WebGL2CmdFuncBindStates (
                     WebGLStencilOps[dss.stencilPassOpBack],
                 );
 
-                cache.dss$.stencilFailOpBack = dss.stencilFailOpBack;
-                cache.dss$.stencilZFailOpBack = dss.stencilZFailOpBack;
-                cache.dss$.stencilPassOpBack = dss.stencilPassOpBack;
+                cacheDss.stencilFailOpBack = dss.stencilFailOpBack;
+                cacheDss.stencilZFailOpBack = dss.stencilZFailOpBack;
+                cacheDss.stencilPassOpBack = dss.stencilPassOpBack;
             }
 
-            if (cache.dss$.stencilWriteMaskBack !== dss.stencilWriteMaskBack) {
+            if (cacheDss.stencilWriteMaskBack !== dss.stencilWriteMaskBack) {
                 gl.stencilMaskSeparate(WebGLConstants.BACK, dss.stencilWriteMaskBack);
-                cache.dss$.stencilWriteMaskBack = dss.stencilWriteMaskBack;
+                cacheDss.stencilWriteMaskBack = dss.stencilWriteMaskBack;
             }
         } // depth-stencil state
 
         // blend state
         const { bs$: bs } = gpuPipelineState;
         if (bs) {
-            if (cache.bs$.isA2C !== bs.isA2C) {
+            if (cacheBs.isA2C !== bs.isA2C) {
                 if (bs.isA2C) {
                     gl.enable(WebGLConstants.SAMPLE_ALPHA_TO_COVERAGE);
                 } else {
                     gl.disable(WebGLConstants.SAMPLE_ALPHA_TO_COVERAGE);
                 }
-                cache.bs$.isA2C = bs.isA2C;
+                cacheBs.isA2C = bs.isA2C;
             }
 
-            if ((cache.bs$.blendColor.x !== bs.blendColor.x)
-                || (cache.bs$.blendColor.y !== bs.blendColor.y)
-                || (cache.bs$.blendColor.z !== bs.blendColor.z)
-                || (cache.bs$.blendColor.w !== bs.blendColor.w)) {
-                gl.blendColor(bs.blendColor.x, bs.blendColor.y, bs.blendColor.z, bs.blendColor.w);
+            const blendColor = bs.blendColor;
 
-                cache.bs$.blendColor.x = bs.blendColor.x;
-                cache.bs$.blendColor.y = bs.blendColor.y;
-                cache.bs$.blendColor.z = bs.blendColor.z;
-                cache.bs$.blendColor.w = bs.blendColor.w;
+            if ((cacheBlendColor.x !== blendColor.x)
+                || (cacheBlendColor.y !== blendColor.y)
+                || (cacheBlendColor.z !== blendColor.z)
+                || (cacheBlendColor.w !== blendColor.w)) {
+                gl.blendColor(blendColor.x, blendColor.y, blendColor.z, blendColor.w);
+
+                cacheBlendColor.x = blendColor.x;
+                cacheBlendColor.y = blendColor.y;
+                cacheBlendColor.z = blendColor.z;
+                cacheBlendColor.w = blendColor.w;
             }
 
             const target0 = bs.targets[0];
@@ -2272,7 +2281,7 @@ export function WebGL2CmdFuncBindStates (
                         if (gpuTexture.glTexture$) {
                             gl.bindTexture(gpuTexture.glTarget$, gpuTexture.glTexture$);
                         } else {
-                            gl.bindTexture(gpuTexture.glTarget$, device.nullTex2D.gpuTexture$.glTexture$);
+                            gl.bindTexture(gpuTexture.glTarget$, device.nullTex2D.gpuTexture.glTexture$);
                         }
                         glTexUnit.glTexture$ = gpuTexture.glTexture$;
                     }
@@ -2419,59 +2428,59 @@ export function WebGL2CmdFuncBindStates (
             const dynamicState = gpuPipelineState.dynamicStates$[k];
             switch (dynamicState) {
             case DynamicStateFlagBit.LINE_WIDTH: {
-                if (cache.rs$.lineWidth !== dynamicStates.lineWidth) {
+                if (cacheRs.lineWidth !== dynamicStates.lineWidth) {
                     gl.lineWidth(dynamicStates.lineWidth);
-                    cache.rs$.lineWidth = dynamicStates.lineWidth;
+                    cacheRs.lineWidth = dynamicStates.lineWidth;
                 }
                 break;
             }
             case DynamicStateFlagBit.DEPTH_BIAS: {
-                if (cache.rs$.depthBias !== dynamicStates.depthBiasConstant
+                if (cacheRs.depthBias !== dynamicStates.depthBiasConstant
                     || cache.rs$.depthBiasSlop !== dynamicStates.depthBiasSlope) {
                     gl.polygonOffset(dynamicStates.depthBiasConstant, dynamicStates.depthBiasSlope);
-                    cache.rs$.depthBias = dynamicStates.depthBiasConstant;
-                    cache.rs$.depthBiasSlop = dynamicStates.depthBiasSlope;
+                    cacheRs.depthBias = dynamicStates.depthBiasConstant;
+                    cacheRs.depthBiasSlop = dynamicStates.depthBiasSlope;
                 }
                 break;
             }
             case DynamicStateFlagBit.BLEND_CONSTANTS: {
                 const blendConstant = dynamicStates.blendConstant;
-                if ((cache.bs$.blendColor.x !== blendConstant.x)
-                    || (cache.bs$.blendColor.y !== blendConstant.y)
-                    || (cache.bs$.blendColor.z !== blendConstant.z)
-                    || (cache.bs$.blendColor.w !== blendConstant.w)) {
+                if ((cacheBlendColor.x !== blendConstant.x)
+                    || (cacheBlendColor.y !== blendConstant.y)
+                    || (cacheBlendColor.z !== blendConstant.z)
+                    || (cacheBlendColor.w !== blendConstant.w)) {
                     gl.blendColor(blendConstant.x, blendConstant.y, blendConstant.z, blendConstant.w);
-                    cache.bs$.blendColor.copy(blendConstant);
+                    cacheBlendColor.copy(blendConstant);
                 }
                 break;
             }
             case DynamicStateFlagBit.STENCIL_WRITE_MASK: {
                 const front = dynamicStates.stencilStatesFront;
                 const back = dynamicStates.stencilStatesBack;
-                if (cache.dss$.stencilWriteMaskFront !== front.writeMask) {
+                if (cacheDss.stencilWriteMaskFront !== front.writeMask) {
                     gl.stencilMaskSeparate(WebGLConstants.FRONT, front.writeMask);
-                    cache.dss$.stencilWriteMaskFront = front.writeMask;
+                    cacheDss.stencilWriteMaskFront = front.writeMask;
                 }
-                if (cache.dss$.stencilWriteMaskBack !== back.writeMask) {
+                if (cacheDss.stencilWriteMaskBack !== back.writeMask) {
                     gl.stencilMaskSeparate(WebGLConstants.BACK, back.writeMask);
-                    cache.dss$.stencilWriteMaskBack = back.writeMask;
+                    cacheDss.stencilWriteMaskBack = back.writeMask;
                 }
                 break;
             }
             case DynamicStateFlagBit.STENCIL_COMPARE_MASK: {
                 const front = dynamicStates.stencilStatesFront;
                 const back = dynamicStates.stencilStatesBack;
-                if (cache.dss$.stencilRefFront !== front.reference
-                    || cache.dss$.stencilReadMaskFront !== front.compareMask) {
-                    gl.stencilFuncSeparate(WebGLConstants.FRONT, WebGLCmpFuncs[cache.dss$.stencilFuncFront], front.reference, front.compareMask);
-                    cache.dss$.stencilRefFront = front.reference;
-                    cache.dss$.stencilReadMaskFront = front.compareMask;
+                if (cacheDss.stencilRefFront !== front.reference
+                    || cacheDss.stencilReadMaskFront !== front.compareMask) {
+                    gl.stencilFuncSeparate(WebGLConstants.FRONT, WebGLCmpFuncs[cacheDss.stencilFuncFront], front.reference, front.compareMask);
+                    cacheDss.stencilRefFront = front.reference;
+                    cacheDss.stencilReadMaskFront = front.compareMask;
                 }
-                if (cache.dss$.stencilRefBack !== back.reference
-                    || cache.dss$.stencilReadMaskBack !== back.compareMask) {
-                    gl.stencilFuncSeparate(WebGLConstants.BACK, WebGLCmpFuncs[cache.dss$.stencilFuncBack], back.reference, back.compareMask);
-                    cache.dss$.stencilRefBack = back.reference;
-                    cache.dss$.stencilReadMaskBack = back.compareMask;
+                if (cacheDss.stencilRefBack !== back.reference
+                    || cacheDss.stencilReadMaskBack !== back.compareMask) {
+                    gl.stencilFuncSeparate(WebGLConstants.BACK, WebGLCmpFuncs[cacheDss.stencilFuncBack], back.reference, back.compareMask);
+                    cacheDss.stencilRefBack = back.reference;
+                    cacheDss.stencilReadMaskBack = back.compareMask;
                 }
                 break;
             }
@@ -3139,8 +3148,8 @@ export function WebGL2CmdFuncBlitTexture (
     // logic different from native, because framebuffer-map is not implemented in webgl2
     const glFilter = (filter === Filter.LINEAR || filter === Filter.ANISOTROPIC) ? WebGLConstants.LINEAR : WebGLConstants.NEAREST;
 
-    const srcFramebuffer = blitManager.srcFramebuffer$;
-    const dstFramebuffer = blitManager.dstFramebuffer$;
+    const srcFramebuffer = blitManager.srcFramebuffer;
+    const dstFramebuffer = blitManager.dstFramebuffer;
     const origReadFBO = cache.glReadFramebuffer$;
     const origDrawFBO = cache.glFramebuffer$;
 

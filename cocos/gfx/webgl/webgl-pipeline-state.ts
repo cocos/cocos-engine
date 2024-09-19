@@ -91,7 +91,7 @@ export class WebGLPipelineState extends PipelineState {
         this._gpuPipelineState$ = {
             glPrimitive$: WebGLPrimitives[info.primitive],
             gpuShader$: (info.shader as WebGLShader).gpuShader,
-            gpuPipelineLayout$: (info.pipelineLayout as WebGLPipelineLayout).gpuPipelineLayout$,
+            gpuPipelineLayout$: (info.pipelineLayout as WebGLPipelineLayout).gpuPipelineLayout,
             rs$: info.rasterizerState,
             dss$: info.depthStencilState,
             bs$: info.blendState,

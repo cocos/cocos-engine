@@ -44,7 +44,7 @@ import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
 import { WebGL2DeviceManager } from './webgl2-define';
-import { errorID } from '../../core';
+import { errorID } from '../../core/platform/debug';
 
 export class WebGL2CommandBuffer extends CommandBuffer {
     protected _isInRenderPass$ = false;
@@ -103,7 +103,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public bindPipelineState (pipelineState: PipelineState): void {
-        const gpuPipelineState = (pipelineState as WebGL2PipelineState).gpuPipelineState$;
+        const gpuPipelineState = (pipelineState as WebGL2PipelineState).gpuPipelineState;
         if (gpuPipelineState !== this._curGPUPipelineState$) {
             this._curGPUPipelineState$ = gpuPipelineState;
             this._isStateInvalid$ = true;
@@ -128,7 +128,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     }
 
     public bindInputAssembler (inputAssembler: InputAssembler): void {
-        const gpuInputAssembler = (inputAssembler as WebGL2InputAssembler).gpuInputAssembler$;
+        const gpuInputAssembler = (inputAssembler as WebGL2InputAssembler).gpuInputAssembler;
         this._curGPUInputAssembler$ = gpuInputAssembler;
         this._isStateInvalid$ = true;
     }

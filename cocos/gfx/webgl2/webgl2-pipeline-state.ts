@@ -48,7 +48,7 @@ const WebGLPrimitives: GLenum[] = [
 ];
 
 export class WebGL2PipelineState extends PipelineState {
-    get gpuPipelineState$ (): IWebGL2GPUPipelineState {
+    get gpuPipelineState (): IWebGL2GPUPipelineState {
         return  this._gpuPipelineState$!;
     }
 
@@ -87,12 +87,12 @@ export class WebGL2PipelineState extends PipelineState {
 
         this._gpuPipelineState$ = {
             glPrimitive$: WebGLPrimitives[info.primitive],
-            gpuShader$: (info.shader as WebGL2Shader).gpuShader$,
-            gpuPipelineLayout$: (info.pipelineLayout as WebGL2PipelineLayout).gpuPipelineLayout$,
+            gpuShader$: (info.shader as WebGL2Shader).gpuShader,
+            gpuPipelineLayout$: (info.pipelineLayout as WebGL2PipelineLayout).gpuPipelineLayout,
             rs$: info.rasterizerState,
             dss$: info.depthStencilState,
             bs$: info.blendState,
-            gpuRenderPass$: (info.renderPass as WebGL2RenderPass).gpuRenderPass$,
+            gpuRenderPass$: (info.renderPass as WebGL2RenderPass).gpuRenderPass,
             dynamicStates$: dynamicStates,
         };
     }

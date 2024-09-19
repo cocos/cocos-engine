@@ -170,8 +170,8 @@ export interface IWebGL2GPUFramebuffer {
     gpuDepthStencilView$: IWebGL2GPUTextureView | null;
     glFramebuffer$: WebGLFramebuffer | null;
     isOffscreen$: boolean;
-    width$: number;
-    height$: number;
+    width: number;
+    height: number;
 }
 
 export interface IWebGL2GPUSampler {
@@ -326,11 +326,11 @@ export class IWebGL2BlitManager {
     private _srcFramebuffer$: WebGLFramebuffer | null;
     private _dstFramebuffer$: WebGLFramebuffer | null;
 
-    get srcFramebuffer$ (): WebGLFramebuffer | null {
+    get srcFramebuffer (): WebGLFramebuffer | null {
         return this._srcFramebuffer$;
     }
 
-    get dstFramebuffer$ (): WebGLFramebuffer | null {
+    get dstFramebuffer (): WebGLFramebuffer | null {
         return this._dstFramebuffer$;
     }
 

@@ -179,8 +179,8 @@ export interface IWebGLGPUFramebuffer {
     gpuDepthStencilTexture$: IWebGLGPUTexture | null;
     glFramebuffer$: WebGLFramebuffer | null;
     isOffscreen$: boolean;
-    width$: number;
-    height$: number;
+    width: number;
+    height: number;
     lodLevel$: number;
 }
 
