@@ -470,7 +470,8 @@ class DescBuffManager {
         }
     }
     getCurrentBuffer (): Buffer {
-        this.currBuffIdx = this._root.frameCount % this.buffers.length;
+        const { director } = cclegacy;
+        this.currBuffIdx = director.getTotalFrames() % this.buffers.length;
         return this.buffers[this.currBuffIdx];
     }
     updateData (vals: number[]): void {
