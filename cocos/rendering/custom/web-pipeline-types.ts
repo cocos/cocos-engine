@@ -905,7 +905,6 @@ export class RenderDrawQueue {
 export class RenderInstancingQueue {
     passInstances: Map<Pass, number> = new Map<Pass, number>();
     instanceBuffers: Array<InstancedBuffer> = new Array<InstancedBuffer>();
-    sortedBatches: Array<InstancedBuffer> = new Array<InstancedBuffer>();
 
     empty (): boolean {
         return this.passInstances.size === 0;
@@ -917,7 +916,7 @@ export class RenderInstancingQueue {
             const instanceBufferID = this.passInstances.size;
             if (instanceBufferID >= this.instanceBuffers.length) {
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                this.instanceBuffers.push(new InstancedBuffer(new Pass(cclegacy.director.root)));
+                this.instanceBuffers.push(new InstancedBuffer(pass));
             }
             this.passInstances.set(pass, instanceBufferID);
 
@@ -931,7 +930,6 @@ export class RenderInstancingQueue {
     }
 
     clear (): void {
-        this.sortedBatches.length = 0;
         this.passInstances.clear();
         const instanceBuffers = this.instanceBuffers;
         instanceBuffers.forEach((instance) => {
@@ -939,13 +937,7 @@ export class RenderInstancingQueue {
         });
     }
 
-    sort (): void {
-        this.sortedBatches.length = this.passInstances.size;
-        let index = 0;
-        for (const [pass, bufferID] of this.passInstances.entries()) {
-            this.sortedBatches[index++] = this.instanceBuffers[bufferID];
-        }
-    }
+    sort (): void {}
 
     uploadBuffers (cmdBuffer: CommandBuffer): void {
         for (const [pass, bufferID] of this.passInstances.entries()) {
@@ -963,7 +955,7 @@ export class RenderInstancingQueue {
         offset = 0,
         dynamicOffsets: number[] | null = null,
     ): void {
-        const renderQueue = this.sortedBatches;
+        const renderQueue = this.instanceBuffers;
         for (const instanceBuffer of renderQueue) {
             if (!instanceBuffer.hasPendingModels) {
                 continue;

@@ -945,8 +945,7 @@ class DeviceRenderPass implements RecordingInterface {
         cmdBuff.draw(ia);
     }
 
-    // record common buffer
-    record (): void {
+    beginPass (): void {
         const tex = this.framebuffer.colorTextures[0]!;
         this._applyViewport(tex);
         const cmdBuff = context.commandBuffer;
@@ -974,14 +973,22 @@ class DeviceRenderPass implements RecordingInterface {
                 context.passDescriptorSet,
             );
         }
+    }
 
+    endPass (): void {
+        const cmdBuff = context.commandBuffer;
+        cmdBuff.endRenderPass();
+    }
+    // record common buffer
+    record (): void {
+        this.beginPass();
         for (const queue of this._deviceQueues.values()) {
             queue.record();
         }
         if (this._rasterPass.showStatistics) {
             this._showProfiler(renderPassArea);
         }
-        cmdBuff.endRenderPass();
+        this.endPass();
     }
 
     postRecord (): void {
@@ -1707,9 +1714,9 @@ export class Executor {
         const culling = context.culling;
         culling.buildRenderQueues(rg, context.layoutGraph, context.pipelineSceneData);
         context.lightResource.buildLights(culling, context.pipelineSceneData.isHDR, context.pipelineSceneData.shadows);
-        culling.uploadInstancing(cmdBuff);
         this._removeDeviceResource();
         cmdBuff.begin();
+        culling.uploadInstancing(cmdBuff);
         if (!this._visitor) this._visitor = new RenderVisitor();
         depthFirstSearch(this._visitor.graphView, this._visitor, this._visitor.colorMap);
         cmdBuff.end();
