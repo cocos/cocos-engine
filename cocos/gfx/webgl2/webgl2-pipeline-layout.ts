@@ -28,7 +28,11 @@ import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
 import { PipelineLayoutInfo } from '../base/define';
 
 export class WebGL2PipelineLayout extends PipelineLayout {
-    get gpuPipelineLayout (): IWebGL2GPUPipelineLayout { return this._gpuPipelineLayout$!; }
+    constructor () {
+        super();
+    }
+
+    getGpuPipelineLayout$ (): IWebGL2GPUPipelineLayout { return this._gpuPipelineLayout$!; }
 
     private _gpuPipelineLayout$: IWebGL2GPUPipelineLayout | null = null;
 
@@ -42,14 +46,15 @@ export class WebGL2PipelineLayout extends PipelineLayout {
         const dynamicOffsetOffsets: number[] = [];
         for (let i = 0; i < this._setLayouts$.length; i++) {
             const setLayout = this._setLayouts$[i] as WebGL2DescriptorSetLayout;
-            const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings$;
+            const gpuDescriptorSetLayout = setLayout.getGpuDescriptorSetLayout$();
+            const dynamicBindings = gpuDescriptorSetLayout.dynamicBindings$;
             const indices = Array<number>(setLayout.bindingIndices.length).fill(-1);
             for (let j = 0; j < dynamicBindings.length; j++) {
                 const binding = dynamicBindings[j];
                 if (indices[binding] < 0) indices[binding] = dynamicOffsetCount + j;
             }
 
-            gpuSetLayouts.push(setLayout.gpuDescriptorSetLayout);
+            gpuSetLayouts.push(gpuDescriptorSetLayout);
             dynamicOffsetIndices.push(indices);
             dynamicOffsetOffsets.push(dynamicOffsetCount);
             dynamicOffsetCount += dynamicBindings.length;

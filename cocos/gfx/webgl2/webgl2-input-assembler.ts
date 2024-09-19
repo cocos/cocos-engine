@@ -25,12 +25,17 @@
 import { errorID } from '../../core/platform/debug';
 import { InputAssemblerInfo } from '../base/define';
 import { InputAssembler } from '../base/input-assembler';
+import { WebGLConstants } from '../gl-constants';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
 import { WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2GPUInputAssembler, IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
 export class WebGL2InputAssembler extends InputAssembler {
+    constructor () {
+        super();
+    }
+
     public get gpuInputAssembler (): IWebGL2GPUInputAssembler {
         return  this._gpuInputAssembler$!;
     }
@@ -44,7 +49,7 @@ export class WebGL2InputAssembler extends InputAssembler {
         }
 
         this._attributes$ = info.attributes;
-        this._attributesHash$ = this.computeAttributesHash();
+        this._attributesHash$ = this.computeAttributesHash$();
         this._vertexBuffers$ = info.vertexBuffers;
 
         if (info.indexBuffer) {
@@ -65,20 +70,20 @@ export class WebGL2InputAssembler extends InputAssembler {
         const gpuVertexBuffers: IWebGL2GPUBuffer[] = new Array<IWebGL2GPUBuffer>(info.vertexBuffers.length);
         for (let i = 0; i < info.vertexBuffers.length; ++i) {
             const vb = info.vertexBuffers[i] as WebGL2Buffer;
-            if (vb.gpuBuffer) {
-                gpuVertexBuffers[i] = vb.gpuBuffer;
+            if (vb.getGpuBuffer$()) {
+                gpuVertexBuffers[i] = vb.getGpuBuffer$();
             }
         }
 
         let gpuIndexBuffer: IWebGL2GPUBuffer | null = null;
         let glIndexType = 0;
         if (info.indexBuffer) {
-            gpuIndexBuffer = (info.indexBuffer as WebGL2Buffer).gpuBuffer;
+            gpuIndexBuffer = (info.indexBuffer as WebGL2Buffer).getGpuBuffer$();
             if (gpuIndexBuffer) {
                 switch (gpuIndexBuffer.stride$) {
-                case 1: glIndexType = 0x1401; break; // WebGLRenderingContext.UNSIGNED_BYTE
-                case 2: glIndexType = 0x1403; break; // WebGLRenderingContext.UNSIGNED_SHORT
-                case 4: glIndexType = 0x1405; break; // WebGLRenderingContext.UNSIGNED_INT
+                case 1: glIndexType = WebGLConstants.UNSIGNED_BYTE; break;
+                case 2: glIndexType = WebGLConstants.UNSIGNED_SHORT; break;
+                case 4: glIndexType = WebGLConstants.UNSIGNED_INT; break;
                 default: {
                     errorID(16332);
                 }
@@ -88,7 +93,7 @@ export class WebGL2InputAssembler extends InputAssembler {
 
         let gpuIndirectBuffer: IWebGL2GPUBuffer | null = null;
         if (info.indirectBuffer) {
-            gpuIndirectBuffer = (info.indirectBuffer as WebGL2Buffer).gpuBuffer;
+            gpuIndirectBuffer = (info.indirectBuffer as WebGL2Buffer).getGpuBuffer$();
         }
 
         this._gpuInputAssembler$ = {
