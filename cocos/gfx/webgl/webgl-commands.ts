@@ -1008,11 +1008,11 @@ export function WebGLCmdFuncDestroyTexture (device: WebGLDevice, gpuTexture: IWe
     }
 
     if (gpuTexture.glRenderbuffer) {
-        let glRenderbuffer = device.stateCache.glRenderbuffer;
+        const glRenderbuffer = device.stateCache.glRenderbuffer;
         gl.deleteRenderbuffer(gpuTexture.glRenderbuffer);
         if (glRenderbuffer === gpuTexture.glRenderbuffer) {
             gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-            glRenderbuffer = null;
+            device.stateCache.glRenderbuffer = null;
         }
         gpuTexture.glRenderbuffer = null;
     }
