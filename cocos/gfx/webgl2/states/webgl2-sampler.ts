@@ -41,37 +41,37 @@ export class WebGL2Sampler extends Sampler {
         super(info, hash);
 
         this._gpuSampler$ = {
-            glSamplers: new Map<number, WebGL2Sampler>(),
-            minFilter: this._info$.minFilter,
-            magFilter: this._info$.magFilter,
-            mipFilter: this._info$.mipFilter,
-            addressU: this._info$.addressU,
-            addressV: this._info$.addressV,
-            addressW: this._info$.addressW,
+            glSamplers$: new Map<number, WebGL2Sampler>(),
+            minFilter$: this._info$.minFilter,
+            magFilter$: this._info$.magFilter,
+            mipFilter$: this._info$.mipFilter,
+            addressU$: this._info$.addressU,
+            addressV$: this._info$.addressV,
+            addressW$: this._info$.addressW,
 
-            glMinFilter: 0,
-            glMagFilter: 0,
-            glWrapS: 0,
-            glWrapT: 0,
-            glWrapR: 0,
+            glMinFilter$: 0,
+            glMagFilter$: 0,
+            glWrapS$: 0,
+            glWrapT$: 0,
+            glWrapR$: 0,
 
-            getGLSampler (device: WebGL2Device, minLod: number, maxLod: number): WebGLSampler {
+            getGLSampler$ (device: WebGL2Device, minLod: number, maxLod: number): WebGLSampler {
                 const { gl } = device;
                 const samplerHash = minLod << 16 | maxLod;
-                if (!this.glSamplers.has(samplerHash)) {
+                if (!this.glSamplers$.has(samplerHash)) {
                     const glSampler = gl.createSampler();
                     if (glSampler) {
-                        this.glSamplers.set(samplerHash, glSampler);
-                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_MIN_FILTER, this.glMinFilter);
-                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_MAG_FILTER, this.glMagFilter);
-                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_WRAP_S, this.glWrapS);
-                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_WRAP_T, this.glWrapT);
-                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_WRAP_R, this.glWrapR);
+                        this.glSamplers$.set(samplerHash, glSampler);
+                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_MIN_FILTER, this.glMinFilter$);
+                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_MAG_FILTER, this.glMagFilter$);
+                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_WRAP_S, this.glWrapS$);
+                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_WRAP_T, this.glWrapT$);
+                        gl.samplerParameteri(glSampler, WebGLConstants.TEXTURE_WRAP_R, this.glWrapR$);
                         gl.samplerParameterf(glSampler, WebGLConstants.TEXTURE_MIN_LOD, minLod);
                         gl.samplerParameterf(glSampler, WebGLConstants.TEXTURE_MAX_LOD, maxLod);
                     }
                 }
-                const sampler = this.glSamplers.get(samplerHash)!;
+                const sampler = this.glSamplers$.get(samplerHash)!;
                 return sampler;
             },
         };

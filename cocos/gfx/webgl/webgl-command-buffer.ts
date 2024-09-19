@@ -264,7 +264,9 @@ export class WebGLCommandBuffer extends CommandBuffer {
         buffers?: Readonly<Buffer[]>,
         textureBarriers?: Readonly<TextureBarrier[]>,
         textures?: Readonly<Texture[]>,
-    ): void {}
+    ): void {
+
+    }
 
     protected bindStates (): void {
         errorID(16401);

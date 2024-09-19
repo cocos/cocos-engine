@@ -2835,7 +2835,13 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     case WebGLConstants.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
             const region = regions[k];
-            gl.framebufferTexture2D(WebGLConstants.FRAMEBUFFER, WebGLConstants.COLOR_ATTACHMENT0, gpuTexture.glTarget$, gpuTexture.glTexture$, region.texSubres.mipLevel);
+            gl.framebufferTexture2D(
+                WebGLConstants.FRAMEBUFFER,
+                WebGLConstants.COLOR_ATTACHMENT0,
+                gpuTexture.glTarget$,
+                gpuTexture.glTexture$,
+                region.texSubres.mipLevel,
+            );
             x = region.texOffset.x;
             y = region.texOffset.y;
             w = region.texExtent.width;
