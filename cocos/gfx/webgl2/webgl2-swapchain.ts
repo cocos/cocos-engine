@@ -25,13 +25,14 @@
 import { EDITOR } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { warnID, warn, debug, macro } from '../../core';
+// import { systemInfo } from 'pal/system-info';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
 import { Format, TextureInfo, TextureFlagBit, TextureType,
     TextureUsageBit, BufferTextureCopy, SwapchainInfo, SurfaceTransform } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
-import { OS } from '../../../pal/system-info/enum-type';
+// import { OS } from '../../../pal/system-info/enum-type';
 import { IWebGL2BlitManager } from './webgl2-gpu-objects';
 import { WebGLConstants } from '../gl-constants';
 
@@ -110,9 +111,9 @@ export function getExtensions (gl: WebGL2RenderingContext): IWebGL2Extensions {
     // eslint-disable-next-line no-lone-blocks
     {
         // Mobile implementation seems to have performance issues
-        if (systemInfo.os !== OS.ANDROID && systemInfo.os !== OS.IOS) {
-            res.WEBGL_multi_draw$ = getExtension(gl, 'WEBGL_multi_draw');
-        }
+        // if (systemInfo.os !== OS.ANDROID && systemInfo.os !== OS.IOS) {
+        //     res.WEBGL_multi_draw$ = getExtension(gl, 'WEBGL_multi_draw');
+        // }
     }
 
     return res;
@@ -123,8 +124,8 @@ export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext |
     try {
         if (globalThis.__globalXR?.webxrCompatible) {
             const glAttribs = {
-                alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                alpha: false, //macro.ENABLE_TRANSPARENT_CANVAS,
+                antialias: true, //EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 depth: true,
                 stencil: true,
                 premultipliedAlpha: false,
@@ -138,8 +139,8 @@ export function getContext (canvas: HTMLCanvasElement): WebGL2RenderingContext |
         }
 
         const webGLCtxAttribs: WebGLContextAttributes = {
-            alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-            antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+            alpha: false, //macro.ENABLE_TRANSPARENT_CANVAS,
+            antialias: true, //EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
             depth: true,
             stencil: true,
             premultipliedAlpha: false,

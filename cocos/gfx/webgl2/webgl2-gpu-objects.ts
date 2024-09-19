@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { nextPow2 } from '../../core';
+// import { nextPow2 } from '../../core/math/utils';
 import {
     Address, DescriptorType, BufferUsage, Filter, Format, MemoryUsage, SampleCount, UniformInputAttachment,
     ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type, DynamicStateFlagBit, DrawInfo, Attribute,
@@ -76,7 +76,7 @@ export class WebGL2IndirectDrawInfos {
 
     private _ensureCapacity$ (target: number): void {
         if (this._capacity$ > target) return;
-        this._capacity$ = nextPow2(target);
+        //cjh this._capacity$ = nextPow2(target);
 
         const counts = new Int32Array(this._capacity$);
         const offsets = new Int32Array(this._capacity$);

@@ -32,7 +32,7 @@ import { DescriptorSetLayout } from './descriptor-set-layout';
 
 import { Sampler } from './states/sampler';
 import { GeneralBarrier } from './states/general-barrier';
-import { GCObject } from '../../core/data/gc-object';
+// import { GCObject } from '../../core/data/gc-object';
 
 interface ICopyable { copy (info: ICopyable): ICopyable; }
 
@@ -1955,7 +1955,7 @@ export class DynamicStates {
   * @en GFX base object.
   * @zh GFX 基类对象。
   */
-export class GFXObject extends GCObject {
+export class GFXObject/* extends GCObject*/ {
     public get objectType (): ObjectType {
         return this._objectType$;
     }
@@ -1975,7 +1975,7 @@ export class GFXObject extends GCObject {
     private static _idTable = Array(ObjectType.COUNT).fill(1 << 16);
 
     constructor (objectType: ObjectType) {
-        super();
+        // super();
         this._objectType$ = objectType;
         this._objectID$ = GFXObject._idTable[ObjectType.UNKNOWN]++;
         this._typedID$ = GFXObject._idTable[objectType]++;

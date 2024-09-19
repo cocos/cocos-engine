@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import { systemInfo } from 'pal/system-info';
+// import { systemInfo } from 'pal/system-info';
 import { DescriptorSet } from '../base/descriptor-set';
 import { DescriptorSetLayout } from '../base/descriptor-set-layout';
 import { PipelineLayout } from '../base/pipeline-layout';
@@ -62,11 +62,12 @@ import { WebGL2CmdFuncCopyTextureToBuffers, WebGL2CmdFuncCopyBuffersToTexture, W
 import { GeneralBarrier } from '../base/states/general-barrier';
 import { TextureBarrier } from '../base/states/texture-barrier';
 import { BufferBarrier } from '../base/states/buffer-barrier';
-import { debug, error, sys } from '../../core';
+import { debug, error } from '../../core/platform/debug';
+// import { sys } from '../../core/platform/sys';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions, WebGL2DeviceManager } from './webgl2-define';
 import { IWebGL2BindingMapping, IWebGL2BlitManager } from './webgl2-gpu-objects';
-import { BrowserType, OS } from '../../../pal/system-info/enum-type';
+// import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 import type { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGLConstants } from '../gl-constants';
 
@@ -156,14 +157,14 @@ export class WebGL2Device extends Device {
         // It seems to be related to Safari's experimental features 'WebGL via Metal'.
         // So limit using vertex uniform vectors no more than 256 in wechat browser,
         // and using vertex uniform vectors no more than 512 in safari.
-        if (systemInfo.os === OS.IOS) {
-            const maxVertexUniformVectors = this._caps$.maxVertexUniformVectors;
-            if (sys.browserType === BrowserType.WECHAT) {
-                this._caps$.maxVertexUniformVectors = maxVertexUniformVectors < 256 ? maxVertexUniformVectors : 256;
-            } else if (sys.browserType === BrowserType.SAFARI) {
-                this._caps$.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
-            }
-        }
+        // if (systemInfo.os === OS.IOS) {
+        // const maxVertexUniformVectors = this._caps$.maxVertexUniformVectors;
+        // if (sys.browserType === BrowserType.WECHAT) {
+        //     this._caps$.maxVertexUniformVectors = maxVertexUniformVectors < 256 ? maxVertexUniformVectors : 256;
+        // } else if (sys.browserType === BrowserType.SAFARI) {
+        //     this._caps$.maxVertexUniformVectors = maxVertexUniformVectors < 512 ? maxVertexUniformVectors : 512;
+        // }
+        // }
         this._caps$.maxFragmentUniformVectors = glGetParameter(WebGLConstants.MAX_FRAGMENT_UNIFORM_VECTORS);
         this._caps$.maxTextureUnits = glGetParameter(WebGLConstants.MAX_TEXTURE_IMAGE_UNITS);
         this._caps$.maxVertexTextureUnits = glGetParameter(WebGLConstants.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
