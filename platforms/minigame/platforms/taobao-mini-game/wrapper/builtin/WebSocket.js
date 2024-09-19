@@ -45,7 +45,7 @@ export default class WebSocket {
       url,
       fail: function fail(res) {
         this._triggerEvent('error', res)
-      }
+      }.bind(this)
     })
 
     this._onOpen = (res) => {
@@ -115,7 +115,7 @@ export default class WebSocket {
           isBuffer,
           fail: function (res) {
             this._triggerEvent('error', res)
-          }
+          }.bind(this)
       });
     }
   }
