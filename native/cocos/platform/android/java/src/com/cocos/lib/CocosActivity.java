@@ -24,10 +24,13 @@
 
 package com.cocos.lib;
 
+import android.content.ClipData;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -249,5 +252,31 @@ public class CocosActivity extends GameActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        if (requestCode >= CocosWebViewHelper.WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE) {
+            Uri[] files = null;
+            if (intent != null) {
+                String dataString = intent.getDataString();
+                ClipData clipData = intent.getClipData();
+                if (clipData != null) {
+                    files = new Uri[clipData.getItemCount()];
+                    for (int i = 0; i < clipData.getItemCount(); i++) {
+                        ClipData.Item item = clipData.getItemAt(i);
+                        files[i] = item.getUri();
+                    }
+                }
+                if (dataString != null) {
+                    files = new Uri[]{Uri.parse(dataString)};
+                }
+            }
+            if(files != null) {
+                CocosWebViewHelper.onChooseFileResult(requestCode, files);
+            }
+        }
+
     }
 }

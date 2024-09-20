@@ -27,12 +27,14 @@ package com.cocos.lib;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
-
+import android.webkit.ValueCallback;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.concurrent.CountDownLatch;
@@ -62,6 +64,9 @@ import java.util.concurrent.CountDownLatch;
 
      private int mViewTag;
      private String mJSScheme;
+     private ValueCallback<Uri> mValueCallback;
+     private ValueCallback<Uri[]> mFilePathCallback;
+
 
      public CocosWebView(Context context) {
          this(context, -1);
@@ -90,7 +95,42 @@ import java.util.concurrent.CountDownLatch;
          }
 
          this.setWebViewClient(new Cocos2dxWebViewClient());
-         this.setWebChromeClient(new WebChromeClient());
+         this.setWebChromeClient(new WebChromeClient() {
+            // For Android < 3.0
+            public void openFileChooser(ValueCallback<Uri> valueCallback) {
+                mValueCallback = valueCallback;
+                openImageChooserActivity();
+            }
+
+            // For Android  >= 3.0
+            public void openFileChooser(ValueCallback valueCallback, String acceptType) {
+                mValueCallback = valueCallback;
+                openImageChooserActivity();
+            }
+
+            // For Android  >= 4.1
+            public void openFileChooser(ValueCallback<Uri> valueCallback, String acceptType, String capture) {
+                mValueCallback = valueCallback;
+                openImageChooserActivity();
+            }
+
+            // For Android >= 5.0
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                mFilePathCallback = filePathCallback;
+                openImageChooserActivity();
+                return true;
+            }
+         });
+     }
+
+     private void openImageChooserActivity() {
+         Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+         i.addCategory(Intent.CATEGORY_OPENABLE);
+         i.setType("image/*");
+         // requestCode = WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE + this.mViewTag
+         // Because webview may have multiple instances.
+         GlobalObject.getActivity().startActivityForResult(Intent.createChooser(i, "Image Chooser"), CocosWebViewHelper.WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE + this.mViewTag);
      }
 
      public void setJavascriptInterfaceScheme(String scheme) {
@@ -169,5 +209,15 @@ import java.util.concurrent.CountDownLatch;
          layoutParams.width = maxWidth;
          layoutParams.height = maxHeight;
          this.setLayoutParams(layoutParams);
+     }
+
+     public void onChooseFileResult(final Uri[] files) {
+         if (mFilePathCallback != null) {
+             mFilePathCallback.onReceiveValue(files);
+             mFilePathCallback = null;
+         } else if (mValueCallback != null && files.length > 0) {
+             mValueCallback.onReceiveValue(files[0]);
+             mValueCallback = null;
+         }
      }
  }

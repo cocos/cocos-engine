@@ -26,6 +26,7 @@
 package com.cocos.lib;
 
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.SparseArray;
@@ -47,6 +48,7 @@ public class CocosWebViewHelper {
 
     private static SparseArray<CocosWebView> webViews;
     private static int viewTag = 0;
+    public final static int WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE = 1000000;
 
     public CocosWebViewHelper(FrameLayout layout) {
 
@@ -312,6 +314,18 @@ public class CocosWebViewHelper {
                 CocosWebView webView = webViews.get(index);
                 if (webView != null) {
                     webView.setScalesPageToFit(scalesPageToFit);
+                }
+            }
+        });
+    }
+    public static void onChooseFileResult(final int requestCode, final Uri[] files) {
+        GlobalObject.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // requestCode = WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE + webviewTag
+                CocosWebView webView = webViews.get(requestCode - WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE);
+                if (webView != null) {
+                    webView.onChooseFileResult(files);
                 }
             }
         });
