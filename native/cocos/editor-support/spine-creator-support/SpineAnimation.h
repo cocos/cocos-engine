@@ -14,6 +14,7 @@ public:
 
 private:
     std::vector<std::shared_ptr<Timeline>> _vecTimelines;
+    spine::Vector<Timeline*> _spineVecTimelines;
 };
 
 } // namespace spine
