@@ -258,6 +258,11 @@ public class CocosActivity extends GameActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         if (requestCode >= CocosWebViewHelper.WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE) {
+            if(resultCode != RESULT_OK) {
+                // If we do not select a picture.
+                CocosWebViewHelper.onChooseFileResult(requestCode, null);
+                return;
+            }
             Uri[] files = null;
             if (intent != null) {
                 String dataString = intent.getDataString();
@@ -273,9 +278,7 @@ public class CocosActivity extends GameActivity {
                     files = new Uri[]{Uri.parse(dataString)};
                 }
             }
-            if(files != null) {
-                CocosWebViewHelper.onChooseFileResult(requestCode, files);
-            }
+            CocosWebViewHelper.onChooseFileResult(requestCode, files);
         }
 
     }

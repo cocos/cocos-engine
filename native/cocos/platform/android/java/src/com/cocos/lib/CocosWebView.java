@@ -215,8 +215,12 @@ import java.util.concurrent.CountDownLatch;
          if (mFilePathCallback != null) {
              mFilePathCallback.onReceiveValue(files);
              mFilePathCallback = null;
-         } else if (mValueCallback != null && files.length > 0) {
-             mValueCallback.onReceiveValue(files[0]);
+         } else if (mValueCallback != null) {
+             if(files != null && files.length > 0) {
+                 mValueCallback.onReceiveValue(files[0]);
+             } else {
+                 mValueCallback.onReceiveValue(null);
+             }
              mValueCallback = null;
          }
      }
