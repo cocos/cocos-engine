@@ -290,7 +290,7 @@ export class NodeEventProcessor {
             this.bubblingTarget.emit(event.type, event);
         }
 
-        if (!event.propagationStopped && event.bubbles) {
+        if (!event.propagationStopped && !event.propagationImmediateStopped && event.bubbles) {
             // Event.BUBBLING_PHASE
             cachedArray.length = 0;
             this.getBubblingTargets(event.type, cachedArray);
