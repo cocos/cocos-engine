@@ -127,7 +127,7 @@ import java.util.concurrent.CountDownLatch;
      private void openImageChooserActivity() {
          Intent i = new Intent(Intent.ACTION_GET_CONTENT);
          i.addCategory(Intent.CATEGORY_OPENABLE);
-         i.setType("image/*");
+         i.setType("*/*");
          // requestCode = WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE + this.mViewTag
          // Because webview may have multiple instances.
          GlobalObject.getActivity().startActivityForResult(Intent.createChooser(i, "Image Chooser"), CocosWebViewHelper.WEBVIEW_IMAGE_CHOOSER_REQUEST_CODE + this.mViewTag);
