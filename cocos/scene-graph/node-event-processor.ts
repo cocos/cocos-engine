@@ -302,11 +302,6 @@ export class NodeEventProcessor {
                     event.currentTarget = target;
                     // fire event
                     target.eventProcessor.bubblingTarget.emit(event.type, event);
-                    // check if propagation stopped
-                    if (event.propagationStopped) {
-                        _arrayPool.free(cachedArray);
-                        return;
-                    }
                 }
             }
         }
