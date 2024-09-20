@@ -13,7 +13,7 @@ spine::Vector<Timeline*> convertAndUseVector(const std::vector<std::shared_ptr<T
     return spineVec;
 }
 
-SpineAnimation::SpineAnimation(const String& name, std::vector<std::shared_ptr<Timeline>> timelines, float duration) : Animation(name, convertAndUseVector(timelines), duration) {
+SpineAnimation::SpineAnimation(const String& name, std::vector<std::shared_ptr<Timeline>> timelines, float duration) : Animation(name, std::move(convertAndUseVector(timelines)), duration) {
     _vecTimelines = timelines;
 }
 
