@@ -30,7 +30,8 @@ const cacheManager = require('./jsb-cache-manager');
     if (cc.internal.SpineSkeletonData === undefined) return;
     const spine = globalThis.spine;
     const middleware = globalThis.middleware;
-
+    spine.AnimationState = spine.SpineAnimationState;
+    spine.Animation = spine.SpineAnimation;
     middleware.generateGetSet(spine);
 
     // spine global time scale

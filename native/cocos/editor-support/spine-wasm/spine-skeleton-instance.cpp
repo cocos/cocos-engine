@@ -5,6 +5,7 @@
 #include "spine-mesh-data.h"
 #include "spine-wasm.h"
 #include "util-function.h"
+#include "../spine-creator-support/SpineAnimationState.h"
 
 SlotMesh globalMesh(nullptr, nullptr, 0, 0);
 
@@ -57,7 +58,7 @@ Skeleton *SpineSkeletonInstance::initSkeleton(SkeletonData *data) {
     _skeletonData = data;
     _skeleton = new Skeleton(_skeletonData);
     _animStateData = new AnimationStateData(_skeletonData);
-    _animState = new AnimationState(_animStateData);
+    _animState = new SpineAnimationState(_animStateData);
     _clipper = new SkeletonClipping();
     _skeleton->setToSetupPose();
     _skeleton->updateWorldTransform();

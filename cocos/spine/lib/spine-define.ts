@@ -121,6 +121,7 @@ function overrideClass (wasm): void {
     spine.Event = wasm.Event;
     spine.EventData = wasm.EventData;
     spine.Attachment = wasm.Attachment;
+    spine.SpineAnimationState = wasm.SpineAnimationState;
     spine.VertexAttachment = wasm.VertexAttachment;
     spine.BoundingBoxAttachment = wasm.BoundingBoxAttachment;
     spine.ClippingAttachment = wasm.ClippingAttachment;

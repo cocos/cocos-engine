@@ -6,6 +6,7 @@
 #include "spine-skeleton-instance.h"
 #include "spine-wasm.h"
 #include "Vector2.h"
+#include "SpineAnimationState.h"
 
 using namespace emscripten;
 using namespace spine;
@@ -62,6 +63,20 @@ void VECTOR_STD_COPY_SP(std::vector<T> &stdVector, Vector<T> &spVector) {
 
 String* constructorSpineString(emscripten::val name, bool own) {
     return new String(name.as<std::string>().c_str(), own);
+}
+
+Animation* constructorSpineAnimation(emscripten::val name, emscripten::val value, float duration) {
+    std::vector<Timeline*> stdVecTimeline;
+    unsigned count = value["length"].as<unsigned>();
+
+    Vector<Timeline *> vecTimeline = Vector<Timeline *>();
+    vecTimeline.setSize(count, nullptr);
+    for (int i = 0; i < count; i++) {
+        vecTimeline[i] = value[i].as<val>().as<Timeline*>(allow_raw_pointer<spine::Timeline*>());
+    }
+
+    String strName(name.as<std::string>().c_str(), true);
+    return new Animation(strName, vecTimeline, duration);
 }
 
 using SPVectorFloat = Vector<float>;
@@ -1097,7 +1112,7 @@ EMSCRIPTEN_BINDINGS(spine) {
             return obj.findPathConstraintIndex(STRING_STD2SP(name)); }));
 
     class_<Animation>("Animation")
-        .constructor<const String &, Vector<Timeline *> &, float>()
+        .constructor(constructorSpineAnimation, allow_raw_pointer<std::vector<Timeline*>>())
         .function("apply", optional_override([](Animation &obj, Skeleton &skeleton,
         float lastTime, float time, bool loop, std::vector<Event *> &stdPEvents, float alpha,
         MixBlend blend, MixDirection direction) {
@@ -1121,12 +1136,6 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getPropertyId", &Timeline::getPropertyId, pure_virtual());
 
     class_<CurveTimeline, base<Timeline>>("CurveTimeline")
-        .function("apply", optional_override([](CurveTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), pure_virtual())
         .function("getPropertyId", &CurveTimeline::getPropertyId, pure_virtual())
         .function("getFrameCount", &CurveTimeline::getFrameCount)
         .function("setLinear", &CurveTimeline::setLinear)
@@ -1139,33 +1148,16 @@ EMSCRIPTEN_BINDINGS(spine) {
         .constructor<int>()
         .class_property("ENTRIES", &TranslateTimeline::ENTRIES)
         .function("getPropertyId", &TranslateTimeline::getPropertyId)
-        .function("setFrame", &TranslateTimeline::setFrame)
-        .function("apply", optional_override([](TranslateTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setBoneIndex", &TranslateTimeline::setBoneIndex)
+        .function("setFrame", &TranslateTimeline::setFrame);
 
     class_<ScaleTimeline, base<TranslateTimeline>>("ScaleTimeline")
         .constructor<int>()
-        .function("getPropertyId", &ScaleTimeline::getPropertyId)
-        .function("apply", optional_override([](ScaleTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("getPropertyId", &ScaleTimeline::getPropertyId);
 
     class_<ShearTimeline, base<TranslateTimeline>>("ShearTimeline")
         .constructor<int>()
-        .function("getPropertyId", &ShearTimeline::getPropertyId)
-        .function("apply", optional_override([](ShearTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("getPropertyId", &ShearTimeline::getPropertyId);
 
     class_<RotateTimeline, base<CurveTimeline>>("RotateTimeline")
         .constructor<int>()
@@ -1175,13 +1167,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getFrames", optional_override([](RotateTimeline &obj) {
             return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &RotateTimeline::getPropertyId)
-        .function("setFrame", &RotateTimeline::setFrame)
-        .function("apply", optional_override([](RotateTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &RotateTimeline::setFrame);
 
     class_<ColorTimeline, base<CurveTimeline>>("ColorTimeline")
         .constructor<int>()
@@ -1191,13 +1177,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getFrames", optional_override([](ColorTimeline &obj) {
             return &obj.getFrames(); }), allow_raw_pointer<SPVectorFloat>())
         .function("getPropertyId", &ColorTimeline::getPropertyId)
-        .function("setFrame", &ColorTimeline::setFrame)
-        .function("apply", optional_override([](ColorTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &ColorTimeline::setFrame);
 
     class_<TwoColorTimeline, base<CurveTimeline>>("TwoColorTimeline")
         .constructor<int>()
@@ -1205,13 +1185,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getSlotIndex", &TwoColorTimeline::getSlotIndex)
         .function("setSlotIndex", &TwoColorTimeline::setSlotIndex)
         .function("getPropertyId", &TwoColorTimeline::getPropertyId)
-        .function("setFrame", &TwoColorTimeline::setFrame)
-        .function("apply", optional_override([](TwoColorTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &TwoColorTimeline::setFrame);
 
     class_<AttachmentTimeline, base<Timeline>>("AttachmentTimeline")
         .constructor<int>()
@@ -1227,12 +1201,6 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setFrame", optional_override([](AttachmentTimeline &obj, int frameIndex, float time, const std::string &attachmentName){
             const String attachmentNameSP = STRING_STD2SP(attachmentName);
             obj.setFrame(frameIndex, time, attachmentNameSP);
-        }), allow_raw_pointers())
-        .function("apply", optional_override([](AttachmentTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
         }), allow_raw_pointers());
 
     class_<DeformTimeline, base<CurveTimeline>>("DeformTimeline")
@@ -1246,15 +1214,14 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getFrameVertices", optional_override([](DeformTimeline &obj) {
             return &obj.getVertices(); }), allow_raw_pointer<SPVectorVectorFloat>())
         .function("getPropertyId", &DeformTimeline::getPropertyId)
-        .function("setFrame", optional_override([](DeformTimeline &obj, int frameIndex, float time, std::vector<float> &vertices){
-            Vector<float> sp_vertices = VECTOR_STD2SP(vertices);
+        .function("setFrame", optional_override([](DeformTimeline &obj, int frameIndex, float time, emscripten::val jsArray){
+            unsigned count = jsArray["length"].as<unsigned>();
+            Vector<float> sp_vertices = Vector<float>();
+            sp_vertices.setSize(count, 0);
+            for (int i = 0; i < count; i++) {
+                sp_vertices[i] = jsArray[i].as<float>();
+            }
             obj.setFrame(frameIndex, time, sp_vertices);
-        }), allow_raw_pointers())
-        .function("apply", optional_override([](DeformTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
         }), allow_raw_pointers());
 
     class_<EventTimeline, base<Timeline>>("EventTimeline")
@@ -1265,13 +1232,7 @@ EMSCRIPTEN_BINDINGS(spine) {
             return &obj.getEvents(); }), allow_raw_pointer<SPVectorEventDataPtr>())
         .function("getPropertyId", &EventTimeline::getPropertyId)
         .function("getFrameCount", &EventTimeline::getFrameCount)
-        .function("setFrame", &EventTimeline::setFrame, allow_raw_pointers())
-        .function("apply", optional_override([](EventTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &EventTimeline::setFrame, allow_raw_pointers());
 
     class_<DrawOrderTimeline, base<Timeline>>("DrawOrderTimeline")
         .constructor<int>()
@@ -1281,60 +1242,30 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("getFrameCount", &DrawOrderTimeline::getFrameCount)
         .function("getDrawOrders", optional_override([](DrawOrderTimeline &obj) { 
             return &obj.getDrawOrders(); }), allow_raw_pointer<SPVectorVectorInt>())
-        .function("setFrame", &DrawOrderTimeline::setFrame, allow_raw_pointers())
-        .function("apply", optional_override([](DrawOrderTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &DrawOrderTimeline::setFrame, allow_raw_pointers());
 
     class_<IkConstraintTimeline, base<CurveTimeline>>("IkConstraintTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &IkConstraintTimeline::ENTRIES)
         .function("getPropertyId", &IkConstraintTimeline::getPropertyId)
-        .function("setFrame", &IkConstraintTimeline::setFrame)
-        .function("apply", optional_override([](IkConstraintTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &IkConstraintTimeline::setFrame);
 
     class_<TransformConstraintTimeline, base<CurveTimeline>>("TransformConstraintTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &TransformConstraintTimeline::ENTRIES)
         .function("getPropertyId", &TransformConstraintTimeline::getPropertyId)
-        .function("setFrame", &TransformConstraintTimeline::setFrame)
-        .function("apply", optional_override([](TransformConstraintTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &TransformConstraintTimeline::setFrame);
 
     class_<PathConstraintPositionTimeline, base<CurveTimeline>>("PathConstraintPositionTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &TransformConstraintTimeline::ENTRIES)
         .function("getPropertyId", &PathConstraintPositionTimeline::getPropertyId)
-        .function("setFrame", &PathConstraintPositionTimeline::setFrame)
-        .function("apply", optional_override([](PathConstraintPositionTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("setFrame", &PathConstraintPositionTimeline::setFrame);
 
     class_<PathConstraintMixTimeline, base<CurveTimeline>>("PathConstraintMixTimeline")
         .constructor<int>()
         .class_property("ENTRIES", &PathConstraintMixTimeline::ENTRIES)
-        .function("getPropertyId", &PathConstraintMixTimeline::getPropertyId)
-        .function("apply", optional_override([](PathConstraintMixTimeline &obj, Skeleton &skeleton,
-        float lastTime, float time, std::vector<Event *> &stdPEvents, float alpha,
-        MixBlend blend, MixDirection direction) {
-            auto pEvents = VECTOR_STD2SP_POINTER(stdPEvents);
-            obj.apply(skeleton, lastTime, time, &pEvents, alpha, blend, direction);
-        }), allow_raw_pointers());
+        .function("getPropertyId", &PathConstraintMixTimeline::getPropertyId);
 
     class_<TrackEntry>("TrackEntry")
         .constructor<>()
@@ -1425,9 +1356,9 @@ EMSCRIPTEN_BINDINGS(spine) {
             obj.setListener(inValue); }),allow_raw_pointers())
         .function("disableQueue", &AnimationState::disableQueue)
         .function("enableQueue", &AnimationState::enableQueue);
-        //.function("addListener", &AnimationState::addListener)
-        //.function("removeListener", &AnimationState::removeListener)
-        //.function("clearListeners", &AnimationState::clearListeners) // no have clearListeners
+    
+    class_<SpineAnimationState, base<AnimationState>>("SpineAnimationState")
+        .function("addAnimationWith", optional_override([](SpineAnimationState &obj, uint32_t trackIndex, Animation *animation, bool loop, float delay) { return obj.addAnimation(trackIndex, animation, loop, delay); }), allow_raw_pointers());
 
     //private
     // class_<EventQueue>("EventQueue")
@@ -1597,7 +1528,7 @@ EMSCRIPTEN_BINDINGS(spine) {
         .function("setJitterEffect", &SpineSkeletonInstance::setJitterEffect, allow_raw_pointer<JitterVertexEffect *>())
         .function("setSwirlEffect", &SpineSkeletonInstance::setSwirlEffect, allow_raw_pointer<SwirlVertexEffect *>())
         .function("clearEffect", &SpineSkeletonInstance::clearEffect)
-        .function("getAnimationState", &SpineSkeletonInstance::getAnimationState, allow_raw_pointer<AnimationState>())
+        .function("getAnimationState", &SpineSkeletonInstance::getAnimationState, allow_raw_pointer<SpineAnimationState>())
         .function("setMix", &SpineSkeletonInstance::setMix)
         .function("setListener", &SpineSkeletonInstance::setListener)
         .function("setTrackEntryListener", &SpineSkeletonInstance::setTrackEntryListener, allow_raw_pointer<TrackEntry *>())

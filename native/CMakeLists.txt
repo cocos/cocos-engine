@@ -2389,6 +2389,10 @@ if(USE_MIDDLEWARE)
                                      cocos/editor-support/spine-creator-support/SkeletonDataMgr.h
             NO_WERROR   NO_UBUILD    cocos/editor-support/spine-creator-support/SkeletonRenderer.cpp
                                      cocos/editor-support/spine-creator-support/SkeletonRenderer.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/SpineAnimation.cpp
+                                     cocos/editor-support/spine-creator-support/SpineAnimation.h
+            NO_WERROR                cocos/editor-support/spine-creator-support/SpineAnimationState.cpp
+                                     cocos/editor-support/spine-creator-support/SpineAnimationState.h
             NO_WERROR                cocos/editor-support/spine-creator-support/spine-cocos2dx.cpp
                                      cocos/editor-support/spine-creator-support/spine-cocos2dx.h
             NO_WERROR                cocos/editor-support/spine-creator-support/VertexEffectDelegate.cpp

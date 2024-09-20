@@ -1134,6 +1134,9 @@ bool sevalue_to_native(const se::Value &from, cc::IBArray *to, se::Object * /*ct
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 bool sevalue_to_native(const se::Value &val, spine::String *obj, se::Object * /*unused*/) {
+    if (!val.isString()) {
+        return false;
+    }
     *obj = val.toString().data();
     return true;
 }

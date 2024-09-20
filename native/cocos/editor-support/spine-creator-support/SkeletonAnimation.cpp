@@ -28,6 +28,8 @@
  *****************************************************************************/
 
 #include "spine-creator-support/SkeletonAnimation.h"
+#include "SpineAnimationState.h"
+
 #include <algorithm>
 #include "base/DeferredReleasePool.h"
 #include "base/Log.h"
@@ -99,7 +101,7 @@ void SkeletonAnimation::initialize() {
     super::initialize();
 
     _ownsAnimationStateData = true;
-    _state = new (__FILE__, __LINE__) AnimationState(new (__FILE__, __LINE__) AnimationStateData(_skeleton->getData()));
+    _state = new (__FILE__, __LINE__) SpineAnimationState(new (__FILE__, __LINE__) AnimationStateData(_skeleton->getData()));
     _state->setRendererObject(this);
     _state->setListener(animationCallback);
 }
@@ -140,7 +142,7 @@ void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
     }
 
     _ownsAnimationStateData = false;
-    _state = new (__FILE__, __LINE__) AnimationState(stateData);
+    _state = new (__FILE__, __LINE__) SpineAnimationState(stateData);
     _state->setRendererObject(this);
     _state->setListener(animationCallback);
 }

@@ -27,29 +27,27 @@
  * THE SPINE RUNTIMES, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#include "SkeletonCacheMgr.h"
-#include "base/DeferredReleasePool.h"
+#pragma once
+
+#include <spine/AnimationState.h>
+#include "spine/Animation.h"
+#include<vector>
+#include<memory>
 
 namespace spine {
-SkeletonCacheMgr *SkeletonCacheMgr::instance = nullptr;
-SkeletonCache *SkeletonCacheMgr::buildSkeletonCache(const std::string &uuid) {
-    SkeletonCache *animation = _caches.at(uuid);
-    if (!animation) {
-        animation = new SkeletonCache();
-        animation->addRef();
-        animation->initWithUUID(uuid);
-        _caches.insert(uuid, animation);
-        cc::DeferredReleasePool::add(animation);
-    }
-    return animation;
-}
 
-void SkeletonCacheMgr::removeSkeletonCache(const std::string &uuid) {
-    auto it = _caches.find(uuid);
-    if (it != _caches.end()) {
-        auto *item = it->second;
-        delete item;
-        _caches.erase(it);
-    }
-}
+
+class SP_API SpineAnimationState : public AnimationState {
+
+public:
+    explicit SpineAnimationState(AnimationStateData* data);
+
+    ~SpineAnimationState();
+
+    TrackEntry* addAnimation(size_t trackIndex, std::shared_ptr<Animation> animation, bool loop, float delay);
+
+private:
+    std::vector<std::shared_ptr<Animation>> _vecAnimations;
+};
 } // namespace spine
+
