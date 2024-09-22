@@ -39,6 +39,7 @@ import { Format, PrimitiveMode, Attribute, Device, BufferUsageBit, BufferInfo, M
 import { vfmtPosColor, getAttributeStride, getComponentPerVertex } from '../renderer/vertex-format';
 import { NativeUIModelProxy } from '../renderer/native-2d';
 import { RenderEntity, RenderEntityType } from '../renderer/render-entity';
+import { GraphicsAssembler } from '../assembler/graphics/webgl/graphics-assembler';
 
 const attributes = vfmtPosColor.concat([
     new Attribute('a_dist', Format.R32F),
@@ -589,7 +590,7 @@ export class Graphics extends UIRenderer {
 
         this._isDrawing = true;
         this._isNeedUploadData = true;
-        (this._assembler as IAssembler).stroke!(this);
+        (this._assembler as GraphicsAssembler).stroke(this);
     }
 
     /**
@@ -606,7 +607,7 @@ export class Graphics extends UIRenderer {
 
         this._isDrawing = true;
         this._isNeedUploadData = true;
-        (this._assembler as IAssembler).fill!(this);
+        (this._assembler as GraphicsAssembler).fill(this);
     }
 
     private _updateMtlForGraphics (): void {

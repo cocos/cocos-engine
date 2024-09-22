@@ -29,7 +29,7 @@ import { Enum, EnumType, ccenum } from '../core/value-types/enum';
 import { Node, NodeEventType } from '../scene-graph';
 import { CCObject, Color, RecyclePool, js } from '../core';
 import { SkeletonData } from './skeleton-data';
-import { Graphics, UIRenderer } from '../2d';
+import { Graphics, RenderData, UIRenderer } from '../2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { BlendFactor, BlendOp } from '../gfx';
 import { MaterialInstance } from '../render-scene';
@@ -1130,7 +1130,7 @@ export class Skeleton extends UIRenderer {
             this._assembler = assembler;
         }
         if (this._skeleton && this._assembler) {
-            this._renderData = this._assembler.createData(this);
+            this._renderData = this._assembler.createData(this) as RenderData;
             this.markForUpdateRenderData();
             this._updateColor();
         }
@@ -1588,7 +1588,7 @@ export class Skeleton extends UIRenderer {
             }
         }
         if (this._assembler && this._skeleton) {
-            this._renderData = this._assembler.createData(this);
+            this._renderData = this._assembler.createData(this) as RenderData;
             this.markForUpdateRenderData();
         }
     }

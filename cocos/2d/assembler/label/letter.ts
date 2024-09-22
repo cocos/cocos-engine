@@ -23,12 +23,14 @@
 */
 
 import { JSB } from 'internal:constants';
-import { js, Color } from '../../../core';
+import { Color } from '../../../core';
 import { IBatcher } from '../../renderer/i-batcher';
 import { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
-import { letterFont } from './letter-font';
+import { LetterFont } from './letter-font';
 import type { RenderData } from '../../renderer/render-data';
+import { IAssembler } from '../../renderer/base';
+import { UIRenderer } from '../../framework';
 
 const tempColor = new Color(255, 255, 255, 255);
 
@@ -36,12 +38,12 @@ const tempColor = new Color(255, 255, 255, 255);
  * letter 组装器
  * 可通过 `UI.letter` 获取该组装器。
  */
-export const letter = {
+class Letter extends LetterFont implements IAssembler {
     createData (comp: Label): RenderData {
         const renderData = comp.requestRenderData();
         renderData.resize(0, 0);
         return renderData;
-    },
+    }
 
     fillBuffers (comp: Label, renderer: IBatcher): void {
         if (!comp.renderData) {
@@ -52,7 +54,7 @@ export const letter = {
         tempColor.a = node._uiProps.opacity * 255;
         // Fill All
         fillMeshVertices3D(node, renderer, comp.renderData, tempColor);
-    },
+    }
 
     updateColor (label: Label): void {
         if (JSB) {
@@ -70,7 +72,7 @@ export const letter = {
                 colorOffset += stride;
             }
         }
-    },
-};
+    }
+}
 
-js.addon(letter, letterFont);
+export const letter = new Letter();
