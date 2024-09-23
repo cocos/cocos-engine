@@ -135,7 +135,9 @@ export class Prefab extends Asset {
      * 但是您可以在脚本中修改原始预制数据后重新调用以刷新创建功能。
      */
     public compileCreateFunction (): void {
-        this._createFunction = compile(this.data);
+        if (SUPPORT_JIT) {
+            this._createFunction = compile(this.data);
+        }
     }
 
     // just instantiate, will not initialize the Node, this will be called during Node's initialization.
