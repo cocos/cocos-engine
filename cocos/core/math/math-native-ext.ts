@@ -29,19 +29,6 @@ import { Vec4 } from './vec4';
 import { Quat } from './quat';
 import { Color } from './color';
 
-const defineAttr = (proto: any, name: string, offset: number): void => {
-    Object.defineProperty(proto, name, {
-        configurable: true,
-        enumerable: true,
-        get (): any {
-            return this._data()[offset];
-        },
-        set (v: number): void {
-            this._data()[offset] = v;
-        },
-    });
-};
-
 export enum MathType {
     VEC2 = 0,
     VEC3,
@@ -54,32 +41,45 @@ export enum MathType {
     COLOR,
 }
 
-function extendType (proto: any, parentProto: any, typ: MathType): void {
-    proto._data = function _data (): Float32Array {
-        if (!this.__data) {
-            this.__data = new Float32Array(this.underlyingData() as ArrayBuffer); // underlyingData is a JSB method.
-        }
-        return this.__data as Float32Array;
-    };
-    Object.setPrototypeOf(proto, parentProto as object);
-    Object.defineProperty(proto, 'type', { configurable: true, enumerable: true, writable: false, value: typ });
-}
-
-function inheritCCClass (ctor: Constructor, parentCtor: Constructor): void {
-    for (const attrName of ['__cid__', '__classname__']) {
-        Object.defineProperty(ctor.prototype, attrName, {
-            value: parentCtor.prototype[attrName],
-            writable: false,
-            enumerable: false,
-            configurable: true,
-        });
-    }
-    for (const staticKey of ['__attrs__', '__props__', '__values__']) {
-        ctor[staticKey] = parentCtor[staticKey];
-    }
-}
-
 if (NATIVE) {
+    const defineAttr = (proto: any, name: string, offset: number): void => {
+        Object.defineProperty(proto, name, {
+            configurable: true,
+            enumerable: true,
+            get (): any {
+                return this._data()[offset];
+            },
+            set (v: number): void {
+                this._data()[offset] = v;
+            },
+        });
+    };
+
+    const extendType = (proto: any, parentProto: any, typ: MathType): void => {
+        proto._data = function _data (): Float32Array {
+            if (!this.__data) {
+                this.__data = new Float32Array(this.underlyingData() as ArrayBuffer); // underlyingData is a JSB method.
+            }
+            return this.__data as Float32Array;
+        };
+        Object.setPrototypeOf(proto, parentProto as object);
+        Object.defineProperty(proto, 'type', { configurable: true, enumerable: true, writable: false, value: typ });
+    };
+
+    const inheritCCClass = (ctor: Constructor, parentCtor: Constructor): void => {
+        for (const attrName of ['__cid__', '__classname__']) {
+            Object.defineProperty(ctor.prototype, attrName, {
+                value: parentCtor.prototype[attrName],
+                writable: false,
+                enumerable: false,
+                configurable: true,
+            });
+        }
+        for (const staticKey of ['__attrs__', '__props__', '__values__']) {
+            ctor[staticKey] = parentCtor[staticKey];
+        }
+    };
+
     extendType(jsb.Mat4.prototype, Mat4.prototype, MathType.MAT4);
 
     for (let i = 0; i < 16; i++) {
