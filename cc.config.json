@@ -609,6 +609,15 @@
             "ccGlobal": true,
             "internal": false
         },
+
+        "ONLY_2D": {
+            "comment": "Pure 2D Project without 3D features.",
+            "type": "boolean",
+            "value": true,
+            "ccGlobal": true,
+            "internal": false
+        },
+
         "SERVER_MODE": {
             "comment": "Running in the server mode.",
             "type": "boolean",
