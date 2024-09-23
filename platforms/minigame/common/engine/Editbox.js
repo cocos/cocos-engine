@@ -24,8 +24,9 @@
                 return 'go';
             case KeyboardReturnType.NEXT:
                 return 'next';
+            default:
+                return 'done';
         }
-        return 'done';
     }
 
     function MiniGameEditBoxImpl () {

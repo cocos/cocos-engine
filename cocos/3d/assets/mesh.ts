@@ -787,7 +787,7 @@ export class Mesh extends Asset {
         const rotate = worldMatrix && new Quat();
         const boundingBox = worldMatrix && new geometry.AABB();
         if (rotate) {
-            worldMatrix!.getRotation(rotate);
+            worldMatrix.getRotation(rotate);
         }
         if (!this._initialized) {
             const struct = JSON.parse(JSON.stringify(mesh._struct)) as Mesh.IStruct;
