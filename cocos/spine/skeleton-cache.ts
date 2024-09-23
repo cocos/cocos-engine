@@ -25,7 +25,7 @@
 import { TrackEntryListeners } from './track-entry-listeners';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../2d/renderer/vertex-format';
 
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 import { SkeletonData } from './skeleton-data';
 import { warn } from '../core/platform/debug';
 
@@ -170,7 +170,7 @@ export class AnimationCache {
         const vUint8Buf = new Uint8Array(Float32Array.BYTES_PER_ELEMENT * floatStride * vc);
         const iUint16Buf = new Uint16Array(ic);
 
-        const HEAPU8 = spine.wasmUtil.wasm.HEAPU8;
+        const HEAPU8: Uint8Array = spine.wasmUtil.wasm.HEAPU8;
         const vPtr = model.vPtr;
         const vLength = vc * Float32Array.BYTES_PER_ELEMENT * floatStride;
         // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
