@@ -23,7 +23,7 @@
  THE SOFTWARE.
 */
 
-import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
+import { DEBUG, EDITOR, NATIVE, PREVIEW, TEST, EDITOR_NOT_IN_PREVIEW, WECHAT } from 'internal:constants';
 import { systemInfo } from 'pal/system-info';
 import { findCanvas, loadJsFile } from 'pal/env';
 import { Pacer } from 'pal/pacer';
@@ -618,14 +618,18 @@ export class Game extends EventTarget {
      * @zh 重新开始游戏
      */
     public restart (): Promise<void> {
-        const endFramePromise = new Promise<void>((resolve): void => { director.once(DirectorEvent.END_FRAME, (): void => resolve()); });
+        const endFramePromise = new Promise<void>((resolve): void => {
+            director.once(DirectorEvent.END_FRAME, (): void => resolve());
+        });
         return endFramePromise.then((): void => {
             director.reset();
             cclegacy.Object._deferredDestroy();
             this.pause();
             this.resume();
             this._shouldLoadLaunchScene = true;
-            SplashScreen.instance.curTime = 0;
+            if (!WECHAT) {
+                SplashScreen.instance.curTime = 0;
+            }
             this._safeEmit(Game.EVENT_RESTART);
         });
     }
@@ -883,6 +887,9 @@ export class Game extends EventTarget {
             .then((): Promise<any[]> => this._loadPreloadAssets())
             .then((): Promise<void[]> => {
                 builtinResMgr.compileBuiltinMaterial();
+                if (WECHAT) {
+                    return Promise.resolve([]);
+                }
                 return SplashScreen.instance.init();
             })
             .then((): Promise<void[]> => {
@@ -1042,7 +1049,7 @@ export class Game extends EventTarget {
 
     private _updateCallback (): void {
         if (!this._inited) return;
-        if (!SplashScreen.instance.isFinished) {
+        if (!WECHAT && !SplashScreen.instance.isFinished) {
             SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene) {
             this._shouldLoadLaunchScene = false;
