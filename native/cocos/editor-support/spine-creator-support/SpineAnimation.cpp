@@ -24,23 +24,25 @@
 
 #include "SpineAnimation.h"
 
-using namespace spine;
+namespace spine {
 
-spine::Vector<Timeline*>& convertAndUseVector(const std::vector<std::shared_ptr<Timeline>>& stdVec, spine::Vector<Timeline*>& _spineVecTimelines) {
+spine::Vector<Timeline*>& convertAndUseVector(const std::vector<std::shared_ptr<Timeline>>& stdVec) {
+    static spine::Vector<Timeline*> spineVecTimelines;
+    spineVecTimelines.clear();
     for (const auto& element : stdVec) {
-        _spineVecTimelines.add(element.get());
+        spineVecTimelines.add(element.get());
     }
 
-    return _spineVecTimelines;
+    return spineVecTimelines;
 }
 
-SpineAnimation::SpineAnimation(const String& name, std::vector<std::shared_ptr<Timeline>> timelines, float duration) : Animation(name, convertAndUseVector(timelines, _spineVecTimelines), duration) {
+SpineAnimation::SpineAnimation(const String& name, const std::vector<std::shared_ptr<Timeline>>& timelines, float duration) : Animation(name, convertAndUseVector(timelines), duration) {
     _vecTimelines = timelines;
 }
 
 SpineAnimation::~SpineAnimation() {
     _vecTimelines.clear();
-    _spineVecTimelines.clear();
     auto& timelines = getTimelines();
     timelines.clear();
 }
+} // namespace spine

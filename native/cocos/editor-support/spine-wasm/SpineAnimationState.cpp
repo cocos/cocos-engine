@@ -24,8 +24,7 @@
 
 #include "SpineAnimationState.h"
 
-using namespace spine;
-
+namespace spine {
 SpineAnimationState::SpineAnimationState(AnimationStateData* data) : AnimationState(data) {
 }
 
@@ -39,3 +38,4 @@ TrackEntry* SpineAnimationState::addAnimation(size_t trackIndex, Animation* anim
     }
     return AnimationState::addAnimation(trackIndex, animation, loop, delay);
 }
+} // namespace spine
