@@ -111,8 +111,8 @@ class SystemInfo extends EventTarget {
     public declare readonly browserType: BrowserType;
     public declare readonly browserVersion: string;
     public declare readonly isXR: boolean;
-    private declare _featureMap: IFeatureMap;
-    private _initPromise: Promise<void>[] = [];
+    private declare _featureMap$: IFeatureMap;
+    private _initPromise$: Promise<void>[] = [];
 
     constructor () {
         super();
@@ -196,7 +196,7 @@ class SystemInfo extends EventTarget {
             return false;
         })();
 
-        this._featureMap = {
+        this._featureMap$ = {
             [Feature.WEBP]: false,      // Initialize in Promise,
             [Feature.IMAGE_BITMAP]: false,
             [Feature.WEB_VIEW]: false,
@@ -216,21 +216,21 @@ class SystemInfo extends EventTarget {
             [Feature.WASM]: supportWasm,
         };
 
-        this._initPromise.push(this._supportsWebpPromise());
+        this._initPromise$.push(this._supportsWebpPromise$());
 
-        this._registerEvent();
+        this._registerEvent$();
     }
 
-    private _supportsWebpPromise (): Promise<void> {
+    private _supportsWebpPromise$ (): Promise<void> {
         if (!TEST) {
-            return this._supportsWebp().then((isSupport) => {
-                this._setFeature(Feature.WEBP, isSupport);
+            return this._supportsWebp$().then((isSupport) => {
+                this._setFeature$(Feature.WEBP, isSupport);
             });
         }
         return Promise.resolve();
     }
 
-    private _supportsWebp (): Promise<boolean> {
+    private _supportsWebp$ (): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             if (WECHAT_MINI_PROGRAM) {
                 resolve(true);
@@ -266,7 +266,7 @@ class SystemInfo extends EventTarget {
         });
     }
 
-    private _registerEvent (): void {
+    private _registerEvent$ (): void {
         minigame.onHide((): void => {
             this.emit('hide');
         });
@@ -275,16 +275,16 @@ class SystemInfo extends EventTarget {
         });
     }
 
-    private _setFeature (feature: Feature, value: boolean): boolean {
-        return this._featureMap[feature] = value;
+    private _setFeature$ (feature: Feature, value: boolean): boolean {
+        return this._featureMap$[feature] = value;
     }
 
     public init (): Promise<void[]> {
-        return Promise.all(this._initPromise);
+        return Promise.all(this._initPromise$);
     }
 
     public hasFeature (feature: Feature): boolean {
-        return this._featureMap[feature];
+        return this._featureMap$[feature];
     }
 
     public getBatteryLevel (): number {
