@@ -1469,7 +1469,7 @@ export class LightProbeInfo {
             probes[i].coefficients.length = 0;
         }
 
-        this.clearAllSHUBOs();
+        this.clearAllSHUBOs$();
     }
 
     public isUniqueNode (): boolean {
@@ -1547,7 +1547,7 @@ export class LightProbeInfo {
 
         const pointCount = points.length;
         if (pointCount < 4) {
-            this.resetAllTetraIndices();
+            this.resetAllTetraIndices$();
             this._data!.reset();
             return;
         }
@@ -1555,12 +1555,12 @@ export class LightProbeInfo {
         this._data!.updateProbes(points);
 
         if (updateTet) {
-            this.resetAllTetraIndices();
+            this.resetAllTetraIndices$();
             this._data!.updateTetrahedrons();
         }
     }
 
-    private clearAllSHUBOs (): void {
+    private clearAllSHUBOs$ (): void {
         if (!this._scene) {
             return;
         }
@@ -1576,7 +1576,7 @@ export class LightProbeInfo {
         }
     }
 
-    private resetAllTetraIndices (): void {
+    private resetAllTetraIndices$ (): void {
         if (!this._scene) {
             return;
         }
