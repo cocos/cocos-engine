@@ -75,7 +75,7 @@ Animation* constructorSpineAnimation(emscripten::val name, emscripten::val value
         vecTimeline[i] = value[i].as<val>().as<Timeline*>(allow_raw_pointer<spine::Timeline*>());
     }
 
-    String strName(name.as<std::string>().c_str(), true);
+    String strName(name.as<std::string>().c_str(), false);
     return new Animation(strName, vecTimeline, duration);
 }
 
