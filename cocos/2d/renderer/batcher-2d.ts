@@ -639,7 +639,7 @@ export class Batcher2D implements IBatcher {
         if (!mat) {
             return;
         }
-        let ia;
+        let ia: InputAssembler | undefined;
         const rd = this._currRenderData as MeshRenderData;
         const accessor = this._staticVBBuffer;
         // Previous batch using mesh buffer
