@@ -168,8 +168,6 @@ declare namespace spine {
         frameVertices: Array<ArrayLike<number>>;
         constructor(frameCount: number);
         getPropertyId(): number;
-        setSlotIndex(index: number);
-        setAttachment(attachment: Attachment);
         setFrame(frameIndex: number, time: number, vertices: []): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
