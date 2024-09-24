@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-duplicate-enum-values */
-export enum WebGLConstants {
+export const enum WebGLConstants {
     READ_BUFFER = 0x0C02,
     UNPACK_ROW_LENGTH = 0x0CF2,
     UNPACK_SKIP_ROWS = 0x0CF3,
