@@ -1438,15 +1438,15 @@ export class LightProbeInfo {
     }
 
     public onProbeBakeFinished (): void {
-        this.onProbeBakingChanged(this._scene);
+        this.onProbeBakingChanged$(this._scene);
     }
 
     public onProbeBakeCleared (): void {
         this.clearSHCoefficients();
-        this.onProbeBakingChanged(this._scene);
+        this.onProbeBakingChanged$(this._scene);
     }
 
-    private onProbeBakingChanged (node: Node | null): void {
+    private onProbeBakingChanged$ (node: Node | null): void {
         if (!node) {
             return;
         }
@@ -1455,7 +1455,7 @@ export class LightProbeInfo {
 
         for (let i = 0; i < node.children.length; i++) {
             const child = node.children[i];
-            this.onProbeBakingChanged(child);
+            this.onProbeBakingChanged$(child);
         }
     }
 
