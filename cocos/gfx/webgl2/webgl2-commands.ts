@@ -1081,11 +1081,11 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
     }
 
     if (gpuTexture.glRenderbuffer$) {
-        let glRenderbuffer = cache.glRenderbuffer$;
+        const glRenderbuffer = cache.glRenderbuffer$;
         gl.deleteRenderbuffer(gpuTexture.glRenderbuffer$);
         if (glRenderbuffer === gpuTexture.glRenderbuffer$) {
             gl.bindRenderbuffer(WebGLConstants.RENDERBUFFER, null);
-            glRenderbuffer = null;
+            cache.glRenderbuffer$ = null;
         }
         gpuTexture.glRenderbuffer$ = null;
     }
