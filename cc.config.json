@@ -601,7 +601,6 @@
             "dynamic": true
         },
 
-
         "DEBUG": {
             "comment": "Running debug mode.",
             "type": "boolean",
@@ -714,6 +713,13 @@
             "executeInEditMode", "menu", "playOnFocus", "inspector", "icon", "help", "editable", "visible",
             "readOnly", "displayName", "tooltip", "group", "range", "rangeMin", "rangeMax", "rangeStep", "slide",
             "displayOrder", "unit", "radian", "multiline", "disallowAnimation"
+        ]
+    },
+
+    "treeShake": {
+        "noSideEffectFiles": [
+            "cocos/serialization/instantiate-jit.ts",
+            "cocos/game/splash-screen.ts"
         ]
     }
 }
