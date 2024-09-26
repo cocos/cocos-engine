@@ -314,14 +314,14 @@ inline bool operator<(const NameLocalID& lhs, const NameLocalID& rhs) noexcept {
 
 struct DescriptorData {
     DescriptorData() = default;
-    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn, uint32_t countIn) noexcept
+    DescriptorData(const NameLocalID& descriptorIDIn, gfx::Type typeIn, uint32_t countIn) noexcept
     : descriptorID(descriptorIDIn),
       type(typeIn),
       count(countIn) {}
-    DescriptorData(NameLocalID descriptorIDIn, gfx::Type typeIn) noexcept
+    DescriptorData(const NameLocalID& descriptorIDIn, gfx::Type typeIn) noexcept
     : descriptorID(descriptorIDIn),
       type(typeIn) {}
-    DescriptorData(NameLocalID descriptorIDIn) noexcept // NOLINT
+    DescriptorData(const NameLocalID& descriptorIDIn) noexcept // NOLINT
     : descriptorID(descriptorIDIn) {}
 
     NameLocalID descriptorID;

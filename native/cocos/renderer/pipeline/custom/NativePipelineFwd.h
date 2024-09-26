@@ -93,7 +93,8 @@ struct LightBoundsCullingID;
 struct LightBoundsCullingKey;
 struct LightBoundsCulling;
 struct NativeRenderQueueID;
-struct NativeRenderQueueDesc;
+struct NativeRenderQueueKey;
+struct NativeRenderQueueQuery;
 struct LightBoundsCullingResult;
 struct SceneCulling;
 struct LightResource;
@@ -124,8 +125,18 @@ struct hash<cc::render::FrustumCullingID> {
 };
 
 template <>
+struct hash<cc::render::LightBoundsCullingID> {
+    hash_t operator()(const cc::render::LightBoundsCullingID& val) const noexcept;
+};
+
+template <>
 struct hash<cc::render::LightBoundsCullingKey> {
     hash_t operator()(const cc::render::LightBoundsCullingKey& val) const noexcept;
+};
+
+template <>
+struct hash<cc::render::NativeRenderQueueKey> {
+    hash_t operator()(const cc::render::NativeRenderQueueKey& val) const noexcept;
 };
 
 } // namespace ccstd

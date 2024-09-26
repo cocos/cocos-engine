@@ -20,7 +20,7 @@ _Forked from [Google's C++ coding style](https://google.github.io/styleguide/cpp
   - [Nonmember, Static Member, and Global Functions](#nonmember-static-member-and-global-functions)
   - [Local Variables](#local-variables)
   - [Static and Global Variables](#static-and-global-variables)
-    - [Decision on destrcution:](#decision-on-destrcution)
+    - [Decision on destruction:](#decision-on-destrcution)
     - [Decision on initialization](#decision-on-initialization)
     - [Common patterns](#common-patterns)
   - [thread_local variables](#thread_local-variables)
@@ -381,7 +381,7 @@ Global and static variables that use dynamic initialization or have non-trivial 
 
 **Decision:**
 
-### Decision on destrcution:
+### Decision on destruction:
 
 When destructors are trivial, their execution is not subject to ordering at all (they are effectively not "run"); otherwise we are exposed to the risk of accessing objects after the end of their lifetime. Therefore, we only allow objects with static storage duration if they are trivially destructible. Fundamental types (like pointers and int) are trivially destructible, as are arrays of trivially destructible types. Note that variables marked with constexpr are trivially destructible.
 
