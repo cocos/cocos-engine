@@ -192,12 +192,17 @@ struct RenderSwapchain {
     : swapchain(swapchainIn),
       isDepthStencil(isDepthStencilIn) {}
 
+    static gfx::Texture* getColorTexture(gfx::Swapchain* swapchain) noexcept;
+    static gfx::Texture* getColorTexture(scene::RenderWindow* renderWindow) noexcept;
+    static gfx::Texture* getDepthStencilTexture(gfx::Swapchain* swapchain) noexcept;
+
     gfx::Swapchain* swapchain{nullptr};
     scene::RenderWindow* renderWindow{nullptr};
     uint32_t currentID{0};
     uint32_t numBackBuffers{0};
     uint32_t generation{0xFFFFFFFF};
     bool isDepthStencil{false};
+    gfx::Texture* texture{nullptr};
 };
 
 struct ResourceStates {
