@@ -289,6 +289,8 @@ uint32_t addDepthStencilImpl(
     if (swapchain) {
         CC_EXPECTS(residency == ResourceResidency::BACKBUFFER);
         CC_EXPECTS(ppl.defaultFramebufferHasDepthStencil);
+        RenderSwapchain sc{swapchain, true};
+        sc.texture = RenderSwapchain::getDepthStencilTexture(swapchain);
         resID = addVertex(
             SwapchainTag{},
             std::forward_as_tuple(name.c_str()),
@@ -296,7 +298,7 @@ uint32_t addDepthStencilImpl(
             std::forward_as_tuple(ResourceTraits{residency}),
             std::forward_as_tuple(),
             std::forward_as_tuple(samplerInfo),
-            std::forward_as_tuple(RenderSwapchain{swapchain, true}),
+            std::forward_as_tuple(sc),
             ppl.resourceGraph);
     } else {
         CC_EXPECTS(residency == ResourceResidency::MANAGED || residency == ResourceResidency::MEMORYLESS);
@@ -378,6 +380,9 @@ uint32_t NativePipeline::addRenderWindow(
         sc.renderWindow = renderWindow;
         CC_ENSURES(!sc.isDepthStencil);
 
+        sc.texture = RenderSwapchain::getColorTexture(renderWindow);
+        CC_ENSURES(sc.texture);
+
         CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
         return addVertex(
             SwapchainTag{},
@@ -396,6 +401,10 @@ uint32_t NativePipeline::addRenderWindow(
     desc.format = renderWindow->getFramebuffer()->getColorTextures()[0]->getFormat();
     CC_ENSURES(desc.format != gfx::Format::UNKNOWN);
 
+    RenderSwapchain sc{renderWindow->getSwapchain(), false};
+    sc.texture = RenderSwapchain::getColorTexture(renderWindow->getSwapchain());
+    CC_ENSURES(sc.texture);
+
     return addVertex(
         SwapchainTag{},
         std::forward_as_tuple(name.c_str()),
@@ -403,7 +412,7 @@ uint32_t NativePipeline::addRenderWindow(
         std::forward_as_tuple(ResourceTraits{ResourceResidency::BACKBUFFER}),
         std::forward_as_tuple(),
         std::forward_as_tuple(),
-        std::forward_as_tuple(RenderSwapchain{renderWindow->getSwapchain(), false}),
+        std::forward_as_tuple(sc),
         resourceGraph);
 }
 
