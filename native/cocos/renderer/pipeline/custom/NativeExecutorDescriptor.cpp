@@ -79,7 +79,7 @@ void updateCpuUniformBuffer(
                     CC_EXPECTS(sizeof(Mat4) == typeSize);
                     const Mat4 id{};
                     for (uint32_t i = 0; i != value.count; ++i) {
-                        memcpy(buffer.data() + offset + i * typeSize, id.m, typeSize);
+                        memcpy(buffer.data() + offset + (i * typeSize), id.m, typeSize);
                     }
                 }
             }
@@ -418,7 +418,6 @@ gfx::DescriptorSet* updatePerPassDescriptorSet(
                         CC_ENSURES(prevBuffer);
                         newSet->bindBuffer(bindID, prevBuffer);
                     }
-                    auto name = lg.valueNames[d.descriptorID.value];
                     bindID += d.count;
                 }
                 break;
@@ -486,7 +485,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
         const auto queueID = parent(leafNodeID, ctx.g);
         const auto passOrSubpassID = parent(queueID, ctx.g);
         const auto passID = parent(passOrSubpassID, ctx.g);
-
+        LayoutGraphData::vertex_descriptor parentPassLayoutID = LayoutGraphData::null_vertex();
         if (passID == RenderGraph::null_vertex()) {
             const auto& passLayoutName = get(RenderGraph::LayoutTag{}, ctx.g, passOrSubpassID);
             const auto passLayoutID = locate(
@@ -495,6 +494,7 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 passLayoutID, ctx, leafNodeID);
             if (perPassSet) {
                 get<0>(ctx.renderGraphDescriptorSet[leafNodeID]) = perPassSet;
+                parentPassLayoutID = passLayoutID;
             }
         } else {
             const auto subpassID = passOrSubpassID;
@@ -512,6 +512,21 @@ struct RenderGraphUploadVisitor : boost::dfs_visitor<> {
                 subpassLayoutID, ctx, leafNodeID);
             if (perPassSet) {
                 get<0>(ctx.renderGraphDescriptorSet[leafNodeID]) = perPassSet;
+                parentPassLayoutID = subpassLayoutID;
+            }
+        }
+        if (holds<SceneTag>(leafNodeID, ctx.g)) {
+            const auto& sceneData = get(SceneTag{}, leafNodeID, ctx.g);
+            if (any(sceneData.flags & SceneFlags::UI)) {
+                const auto passLayoutID = locate(LayoutGraphData::null_vertex(), "default", ctx.lg);
+                CC_EXPECTS(passLayoutID != LayoutGraphData::null_vertex());
+                if (passLayoutID != parentPassLayoutID) {
+                    auto* perPassSet = updateCameraUniformBufferAndDescriptorSet(
+                        passLayoutID, ctx, leafNodeID);
+                    if (perPassSet) {
+                        ctx.uiDescriptorSet[leafNodeID] = perPassSet;
+                    }
+                }
             }
         }
     }

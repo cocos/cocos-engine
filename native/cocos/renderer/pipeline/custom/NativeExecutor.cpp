@@ -412,6 +412,15 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                 get<0>(iter->second));
         }
     }
+    void tryBindUIOverwritePerPassDescriptorSet(RenderGraph::vertex_descriptor sceneID) const {
+        auto iter = ctx.uiDescriptorSet.find(sceneID);
+        if (iter != ctx.uiDescriptorSet.end()) {
+            CC_EXPECTS(iter->second);
+            ctx.cmdBuff->bindDescriptorSet(
+                static_cast<uint32_t>(pipeline::SetIndex::GLOBAL),
+                iter->second);
+        }
+    }
     void begin(const RasterPass& pass, RenderGraph::vertex_descriptor vertID) const {
         const auto& renderData = get(RenderGraph::DataTag{}, ctx.g, vertID);
         if (!renderData.custom.empty()) {
@@ -667,10 +676,10 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             tryBindLeafOverwritePerPassDescriptorSet(sceneID);
         }
         const auto* scene = camera->getScene();
-        const auto& queueDesc = ctx.context.sceneCulling.renderQueueIndex.at(sceneID);
+        const auto& queueDesc = ctx.context.sceneCulling.renderQueueQueryIndex.at(sceneID);
         const auto& queue = ctx.context.sceneCulling.renderQueues[queueDesc.renderQueueTarget.value];
 
-        queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0);
+        queue.recordCommands(ctx.cmdBuff, ctx.currentPass, 0, sceneData.flags);
 
 #if CC_USE_GEOMETRY_RENDERER
         if (any(sceneData.flags & SceneFlags::GEOMETRY) &&
@@ -692,6 +701,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
             if (queueData.passLayoutID != LayoutGraphData::null_vertex()) {
                 const auto phaseLayoutID = locate(queueData.passLayoutID, "default", ctx.lg);
                 if (phaseLayoutID != LayoutGraphData::null_vertex()) {
+                    tryBindUIOverwritePerPassDescriptorSet(sceneID);
                     submitUICommands(ctx.currentPass, phaseLayoutID, camera, ctx.cmdBuff);
                 }
             } else {
@@ -704,6 +714,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                     CC_ENSURES(passLayoutID != LayoutGraphData::null_vertex());
                     const auto phaseLayoutID = locate(passLayoutID, "default", ctx.lg);
                     if (phaseLayoutID != LayoutGraphData::null_vertex()) {
+                        tryBindUIOverwritePerPassDescriptorSet(sceneID);
                         submitUICommands(ctx.currentPass, phaseLayoutID, camera, ctx.cmdBuff);
                     }
                 } else { // Subpass
@@ -721,6 +732,7 @@ struct RenderGraphVisitor : boost::dfs_visitor<> {
                     CC_ENSURES(subpassLayoutID != LayoutGraphData::null_vertex());
                     const auto phaseLayoutID = locate(subpassLayoutID, "default", ctx.lg);
                     if (phaseLayoutID != LayoutGraphData::null_vertex()) {
+                        tryBindUIOverwritePerPassDescriptorSet(sceneID);
                         submitUICommands(ctx.currentPass, phaseLayoutID, camera, ctx.cmdBuff);
                     }
                 }
@@ -1321,6 +1333,10 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             renderGraphDescriptorSet(scratch);
 
         ccstd::pmr::unordered_map<
+            RenderGraph::vertex_descriptor, gfx::DescriptorSet*>
+            uiDescriptorSet(scratch);
+
+        ccstd::pmr::unordered_map<
             RenderGraph::vertex_descriptor,
             gfx::DescriptorSet*>
             profilerPerPassDescriptorSets(scratch);
@@ -1340,6 +1356,7 @@ void NativePipeline::executeRenderGraph(const RenderGraph& rg) {
             &ppl,
             perPassResourceIndex,
             renderGraphDescriptorSet,
+            uiDescriptorSet,
             profilerPerPassDescriptorSets,
             perInstanceDescriptorSets,
             programLibrary,

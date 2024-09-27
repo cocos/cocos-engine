@@ -38,7 +38,7 @@ RasterView::RasterView(const allocator_type& alloc) noexcept
 : slotName(alloc),
   slotName1(alloc) {}
 
-RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
+RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
 : slotName(std::move(slotNameIn), alloc),
   slotName1(alloc),
   accessType(accessTypeIn),
@@ -49,7 +49,7 @@ RasterView::RasterView(ccstd::pmr::string slotNameIn, AccessType accessTypeIn, A
   clearColor(clearColorIn),
   shaderStageFlags(shaderStageFlagsIn) {}
 
-RasterView::RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
+RasterView::RasterView(ccstd::pmr::string slotNameIn, ccstd::pmr::string slotName1In, AccessType accessTypeIn, AttachmentType attachmentTypeIn, gfx::LoadOp loadOpIn, gfx::StoreOp storeOpIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, gfx::ShaderStageFlagBit shaderStageFlagsIn, const allocator_type& alloc) noexcept // NOLINT
 : slotName(std::move(slotNameIn), alloc),
   slotName1(std::move(slotName1In), alloc),
   accessType(accessTypeIn),
@@ -378,7 +378,7 @@ RaytracePass::RaytracePass(RaytracePass const& rhs, const allocator_type& alloc)
 ClearView::ClearView(const allocator_type& alloc) noexcept
 : slotName(alloc) {}
 
-ClearView::ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, gfx::Color clearColorIn, const allocator_type& alloc) noexcept
+ClearView::ClearView(ccstd::pmr::string slotNameIn, gfx::ClearFlagBit clearFlagsIn, const gfx::Color& clearColorIn, const allocator_type& alloc) noexcept
 : slotName(std::move(slotNameIn), alloc),
   clearFlags(clearFlagsIn),
   clearColor(clearColorIn) {}

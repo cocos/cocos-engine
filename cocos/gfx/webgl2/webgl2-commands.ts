@@ -22,6 +22,7 @@
  THE SOFTWARE.
 */
 
+import { systemInfo } from 'pal/system-info';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
@@ -48,6 +49,7 @@ import {
 import { error, errorID, assertID, debugID } from '../../core/platform/debug';
 import { WebGLConstants } from '../gl-constants';
 import { cclegacy } from '../../core/global-exports';
+import { OS } from '../../../pal/system-info/enum-type';
 
 const WebGLWraps: GLenum[] = [
     WebGLConstants.REPEAT,
@@ -841,7 +843,13 @@ export function WebGL2CmdFuncUpdateBuffer (
                 cache.glArrayBuffer$ = gpuBuffer.glBuffer$;
             }
 
-            if (size === buff.byteLength) {
+            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage$ & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+                // Fix performance issue on iOS.
+                // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
+                // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
+                // Before that, we will use glBufferData instead of glBufferSubData.
+                gl.bufferData(gpuBuffer.glTarget$, buff, gl.DYNAMIC_DRAW);
+            } else if (size === buff.byteLength) {
                 gl.bufferSubData(gpuBuffer.glTarget$, offset, buff);
             } else {
                 gl.bufferSubData(gpuBuffer.glTarget$, offset, buff.slice(0, size));
@@ -862,7 +870,13 @@ export function WebGL2CmdFuncUpdateBuffer (
                 cache.glElementArrayBuffer$ = gpuBuffer.glBuffer$;
             }
 
-            if (size === buff.byteLength) {
+            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage$ & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+                // Fix performance issue on iOS.
+                // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
+                // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
+                // Before that, we will use glBufferData instead of glBufferSubData.
+                gl.bufferData(gpuBuffer.glTarget$, buff, gl.DYNAMIC_DRAW);
+            } else if (size === buff.byteLength) {
                 gl.bufferSubData(gpuBuffer.glTarget$, offset, buff);
             } else {
                 gl.bufferSubData(gpuBuffer.glTarget$, offset, buff.slice(0, size));
@@ -875,7 +889,13 @@ export function WebGL2CmdFuncUpdateBuffer (
                 cache.glUniformBuffer$ = gpuBuffer.glBuffer$;
             }
 
-            if (size === buff.byteLength) {
+            if (systemInfo.os === OS.IOS && (gpuBuffer.memUsage$ & MemoryUsageBit.HOST) && offset === 0 && size === buff.byteLength) {
+                // Fix performance issue on iOS.
+                // TODO(zhouzhenglong): glBufferSubData is faster than glBufferData in most cases.
+                // We should use multiple buffers to avoid stall (cpu write conflicts with gpu read).
+                // Before that, we will use glBufferData instead of glBufferSubData.
+                gl.bufferData(gpuBuffer.glTarget$, buff, gl.DYNAMIC_DRAW);
+            } else if (size === buff.byteLength) {
                 gl.bufferSubData(gpuBuffer.glTarget$, offset, buff);
             } else {
                 gl.bufferSubData(gpuBuffer.glTarget$, offset, new Float32Array(buff, 0, size / 4));

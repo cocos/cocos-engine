@@ -154,6 +154,7 @@ class CameraConfigs {
     enableFXAA = false;
     enableFSR = false;
     enableHDR = false;
+    enablePlanarReflectionProbe = false;
     useFullPipeline = false;
     singleForwardRadiancePass = false;
     radianceFormat = gfx.Format.RGBA8;
@@ -211,6 +212,8 @@ function setupCameraConfigs(
         && !!camera.scene
         && !!camera.scene.mainLight
         && camera.scene.mainLight.shadowEnabled;
+
+    cameraConfigs.enablePlanarReflectionProbe = isMainGameWindow || camera.cameraUsage === CameraUsage.SCENE_VIEW;
 
     cameraConfigs.enableProfiler = DEBUG && isMainGameWindow;
 
@@ -1506,6 +1509,9 @@ if (rendering) {
                 const height = Math.max(Math.floor(area.y), 1);
 
                 if (probe.probeType === renderer.scene.ProbeType.PLANAR) {
+                    if (!this._cameraConfigs.enablePlanarReflectionProbe) {
+                        continue;
+                    }
                     const window: renderer.RenderWindow = probe.realtimePlanarTexture!.window!;
                     const colorName = `PlanarProbeRT${probeID}`;
                     const depthStencilName = `PlanarProbeDS${probeID}`;

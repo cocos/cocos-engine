@@ -250,8 +250,7 @@ export function getClassName (objOrCtor: any): string {
         //  for browsers which have name property in the constructor of the object, such as chrome
         if (objOrCtor.name) {
             ret = objOrCtor.name;
-        }
-        if (objOrCtor.toString) {
+        } else if (objOrCtor.toString) {
             let arr;
             const str = objOrCtor.toString();
             if (str.charAt(0) === '[') {
@@ -261,7 +260,7 @@ export function getClassName (objOrCtor: any): string {
             } else {
                 // str is function objectClass () {} for IE Firefox
                 // eslint-disable-next-line @typescript-eslint/prefer-regexp-exec
-                arr = /function\s*(\w+)/.exec(str);
+                arr = /^function\s*(\w+)/.exec(str);
             }
             if (arr && arr.length === 2) {
                 ret = arr[1];
