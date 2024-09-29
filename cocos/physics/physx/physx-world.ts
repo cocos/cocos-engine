@@ -32,12 +32,12 @@ import { IBaseConstraint } from '../spec/i-physics-constraint';
 import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest, sweepClosest,
-    gatherEvents, getWrapShape, PX, getContactDataOrByteOffset, sweepAll, getColorPXColor,
+    getWrapShape, PX, getContactDataOrByteOffset, sweepAll, getColorPXColor,
 } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 import { PhysXContactEquation } from './physx-contact-equation';
-import { CollisionEventObject, TriggerEventObject, CharacterTriggerEventObject, VEC3_0 } from '../utils/util';
+import { CollisionEventObject, TriggerEventObject, CharacterTriggerEventObject } from '../utils/util';
 import { PhysXShape } from './shapes/physx-shape';
 import { EFilterDataWord3 } from './physx-enum';
 import { PhysXInstance } from './physx-instance';
@@ -398,7 +398,6 @@ export class PhysXWorld extends PhysXInstance implements IPhysicsWorld {
     }
 
     emitEvents (): void {
-        gatherEvents(this);
         PhysXCallback.emitTriggerEvent();
         PhysXCallback.emitCollisionEvent();
         PhysXCallback.emitCCTCollisionEvent();

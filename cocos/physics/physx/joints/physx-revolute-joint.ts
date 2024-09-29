@@ -23,7 +23,7 @@
 */
 
 import { IVec3Like, Mat4, Quat, Vec3 } from '../../../core';
-import { HingeConstraint, PhysicsSystem } from '../../framework';
+import { HingeConstraint } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
 import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
