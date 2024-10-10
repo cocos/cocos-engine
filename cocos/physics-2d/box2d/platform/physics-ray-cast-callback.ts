@@ -44,7 +44,7 @@ export class PhysicsRayCastCallback extends b2.RayCastCallback {
         this._fractions.length = 0;
     }
 
-    ReportFixture (fixture: b2.Fixture, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
+    ReportFixture (fixture: b2.Fixture, point: B2.Vec2, normal: B2.Vec2, fraction: number): number {
         if ((fixture.GetFilterData().categoryBits & this._mask) === 0) {
             return -1;
         }
