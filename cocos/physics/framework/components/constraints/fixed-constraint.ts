@@ -33,7 +33,7 @@ import {
 } from 'cc.decorator';
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { Constraint } from './constraint';
-import { CCFloat, IVec3Like, Vec3 } from '../../../../core';
+import { CCFloat } from '../../../../core';
 import { EConstraintType } from '../../physics-enum';
 import { IFixedConstraint } from '../../../spec/i-physics-constraint';
 

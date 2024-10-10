@@ -22,9 +22,6 @@
  THE SOFTWARE.
 */
 
-import { B2 } from '../instantiated';
-import { js, warn } from '../../../core';
-
 export class PhysicsContactListener {
     static _BeginContact: Function | null = null;
     static _EndContact: Function | null = null;

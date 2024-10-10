@@ -23,7 +23,6 @@
 */
 
 import CANNON from '@cocos/cannon';
-import { IVec3Like, Vec3 } from '../../../core';
 import { FixedConstraint } from '../../framework';
 import { IFixedConstraint } from '../../spec/i-physics-constraint';
 import { CannonConstraint } from './cannon-constraint';

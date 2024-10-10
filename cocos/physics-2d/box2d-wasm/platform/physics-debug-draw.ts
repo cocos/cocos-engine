@@ -23,7 +23,7 @@
 */
 
 import { B2, b2Mul } from '../instantiated';
-import { Color, warn } from '../../../core';
+import { Color } from '../../../core';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework';
 import { Graphics } from '../../../2d';
 
