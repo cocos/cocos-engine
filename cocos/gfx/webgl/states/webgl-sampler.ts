@@ -24,6 +24,7 @@
 
 import { Filter, SamplerInfo } from '../../base/define';
 import { Sampler } from '../../base/states/sampler';
+import { WebGLConstants } from '../../gl-constants';
 import { IWebGLGPUSampler } from '../webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
@@ -35,10 +36,10 @@ const WebGLWraps: GLenum[] = [
 
 export class WebGLSampler extends Sampler {
     public get gpuSampler (): IWebGLGPUSampler {
-        return  this._gpuSampler!;
+        return  this._gpuSampler$!;
     }
 
-    private _gpuSampler: IWebGLGPUSampler | null = null;
+    private _gpuSampler$: IWebGLGPUSampler | null = null;
 
     constructor (info: Readonly<SamplerInfo>, hash: number) {
         super(info, hash);
@@ -46,42 +47,42 @@ export class WebGLSampler extends Sampler {
         let glMinFilter = 0;
         let glMagFilter = 0;
 
-        const minFilter = this._info.minFilter;
-        const magFilter = this._info.magFilter;
-        const mipFilter = this._info.mipFilter;
+        const minFilter = this._info$.minFilter;
+        const magFilter = this._info$.magFilter;
+        const mipFilter = this._info$.mipFilter;
 
         if (minFilter === Filter.LINEAR || minFilter === Filter.ANISOTROPIC) {
             if (mipFilter === Filter.LINEAR || mipFilter === Filter.ANISOTROPIC) {
-                glMinFilter = 0x2703; // WebGLRenderingContext.LINEAR_MIPMAP_LINEAR;
+                glMinFilter = WebGLConstants.LINEAR_MIPMAP_LINEAR;
             } else if (mipFilter === Filter.POINT) {
-                glMinFilter = 0x2701; // WebGLRenderingContext.LINEAR_MIPMAP_NEAREST;
+                glMinFilter = WebGLConstants.LINEAR_MIPMAP_NEAREST;
             } else {
-                glMinFilter = 0x2601; // WebGLRenderingContext.LINEAR;
+                glMinFilter = WebGLConstants.LINEAR;
             }
         } else if (mipFilter === Filter.LINEAR || mipFilter === Filter.ANISOTROPIC) {
-            glMinFilter = 0x2702; // WebGLRenderingContext.NEAREST_MIPMAP_LINEAR;
+            glMinFilter = WebGLConstants.NEAREST_MIPMAP_LINEAR;
         } else if (mipFilter === Filter.POINT) {
-            glMinFilter = 0x2700; // WebGLRenderingContext.NEAREST_MIPMAP_NEAREST;
+            glMinFilter = WebGLConstants.NEAREST_MIPMAP_NEAREST;
         } else {
-            glMinFilter = 0x2600; // WebGLRenderingContext.NEAREST;
+            glMinFilter = WebGLConstants.NEAREST;
         }
 
         if (magFilter === Filter.LINEAR || magFilter === Filter.ANISOTROPIC) {
-            glMagFilter = 0x2601; // WebGLRenderingContext.LINEAR;
+            glMagFilter = WebGLConstants.LINEAR;
         } else {
-            glMagFilter = 0x2600; // WebGLRenderingContext.NEAREST;
+            glMagFilter = WebGLConstants.NEAREST;
         }
 
-        const glWrapS = WebGLWraps[this._info.addressU];
-        const glWrapT = WebGLWraps[this._info.addressV];
-        const glWrapR = WebGLWraps[this._info.addressW];
+        const glWrapS = WebGLWraps[this._info$.addressU];
+        const glWrapT = WebGLWraps[this._info$.addressV];
+        const glWrapR = WebGLWraps[this._info$.addressW];
 
-        this._gpuSampler = {
-            glMinFilter,
-            glMagFilter,
-            glWrapS,
-            glWrapT,
-            glWrapR,
+        this._gpuSampler$ = {
+            glMinFilter$: glMinFilter,
+            glMagFilter$: glMagFilter,
+            glWrapS$: glWrapS,
+            glWrapT$: glWrapT,
+            glWrapR$: glWrapR,
         };
     }
 }
