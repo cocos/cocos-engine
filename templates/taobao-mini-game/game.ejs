@@ -1,3 +1,6 @@
+globalThis.window = globalThis;
+globalThis.self = $global;
+
 globalThis.__taobaoRequire = (urlNoSchema) => {
     if (urlNoSchema.startsWith('./')) {
         urlNoSchema = urlNoSchema.replace('./', '');
@@ -38,11 +41,10 @@ function loadCC() {
         canvas.height = _h;
     }
 
-    // Adjust initial canvas size
-    if (canvas && window.devicePixelRatio >= 2) {canvas.width *= 2; canvas.height *= 2;}
-
+    let System = $global.System;
+    globalThis.System = System;
     const importMap = require("<%= importMapFile%>").default;
-    $global.System.warmup({
+    System.warmup({
         importMap,
         importMapUrl: '<%= importMapFile%>',
         defaultHandler: (urlNoSchema) => {
@@ -59,7 +61,7 @@ function loadCC() {
         },
     });
 
-    $global.System.import('<%= applicationJs %>').then(({ Application }) => {
+    System.import('<%= applicationJs %>').then(({ Application }) => {
         return new Application();
     }).then((application) => {
         return onApplicationCreated(application);
@@ -68,7 +70,8 @@ function loadCC() {
     });
 
     function onApplicationCreated(application) {
-        return $global.System.import('cc').then((cc) => {
+        return System.import('cc').then((cc) => {
+            globalThis.cc = cc;
             require('./engine-adapter');
             return application.init(cc);
         }).then(() => { return application.start(); });
