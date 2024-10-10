@@ -560,6 +560,13 @@
             "ccGlobal": true,
             "internal": false
         },
+        "MIGU": {
+            "comment": "Running in the migu's quick game.",
+            "type": "boolean",
+            "value": false,
+            "ccGlobal": true,
+            "internal": false
+        },
 
         "EDITOR": {
             "comment": "Running in the editor.",
