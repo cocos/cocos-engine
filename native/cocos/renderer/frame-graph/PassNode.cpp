@@ -30,11 +30,11 @@
 namespace cc {
 namespace framegraph {
 
-PassNode::PassNode(const PassInsertPoint inserPoint, const StringHandle name, const ID &id, Executable *pass)
+PassNode::PassNode(const PassInsertPoint insertPoint, const StringHandle name, const ID &id, Executable *pass)
 : _pass(pass),
   _name(name),
   _id(id),
-  _insertPoint(inserPoint) {
+  _insertPoint(insertPoint) {
     CC_ASSERT(_name.isValid());
 }
 
