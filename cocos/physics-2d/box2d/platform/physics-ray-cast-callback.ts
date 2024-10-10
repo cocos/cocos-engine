@@ -44,15 +44,15 @@ export class PhysicsRayCastCallback extends b2.RayCastCallback {
         this._fractions.length = 0;
     }
 
-    ReportFixture (fixture: b2.Fixture, point, normal, fraction): any {
+    ReportFixture (fixture: b2.Fixture, point: B2.Vec2, normal: B2.Vec2, fraction: number): any {
         if ((fixture.GetFilterData().categoryBits & this._mask) === 0) {
-            return 0;
+            return -1;
         }
 
         if (this._type === ERaycast2DType.Closest) {
             this._fixtures[0] = fixture;
-            this._points[0] = point;
-            this._normals[0] = normal;
+            this._points[0] = point as Vec2;
+            this._normals[0] = normal as Vec2;
             this._fractions[0] = fraction;
             return fraction;
         }
