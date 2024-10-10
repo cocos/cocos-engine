@@ -586,6 +586,12 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16396, "tweenUtil' is deprecated, please use 'tween' instead" },
 { 16397, "ProgressBar FILLED mode only works when barSprite's Type is FILLED!" },
 { 16398, "ProgressBar non-FILLED mode only works when barSprite's Type is non-FILLED!" },
+{ 16399, "CopyTextureToBuffers: not supported texture target." },
+{ 16401, "beginRenderPass: Only primary command buffer is supported." },
+{ 16402, "execute is not supported." },
+{ 16403, "GPU memory alias is not supported" },
+{ 16404, "Block '%s' does not bound" },
+{ 16405, "This device does not support WebGL2" },
 
 };
 }//namespace cc
