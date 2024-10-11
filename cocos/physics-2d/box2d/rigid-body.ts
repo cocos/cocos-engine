@@ -28,7 +28,7 @@ import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI, error } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI, warn } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
@@ -232,7 +232,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         if (!this._body!.m_world.IsLocked()) {
             this._body!.SetActive(v);
         } else if (DEBUG) {
-            error('Can not active RigidBody in contract listener.');
+            warn('Can not active RigidBody in contract listener.');
         }
     }
     wakeUp (): void {
