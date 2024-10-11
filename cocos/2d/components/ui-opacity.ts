@@ -59,6 +59,8 @@ export class UIOpacity extends Component {
      */
     private _parentOpacity: number = 1.0;
 
+    private _parentOpacityResetFlag: boolean = true;
+
     /**
      * @en
      * The transparency value of the impact.
@@ -97,7 +99,7 @@ export class UIOpacity extends Component {
             // }
             // UIRenderer.setEntityColorDirtyRecursively(this.node, dirty);
 
-            UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, dirty, 1, false);
+            UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, dirty, this._parentOpacity, false);
         }
     }
 
@@ -205,6 +207,9 @@ export class UIOpacity extends Component {
             this._parentOpacity = this._getParentOpacity(parent);
             opacity = this._parentOpacity;
         }
+        else {
+            this._parentOpacityResetFlag = true;
+        }
         UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, true, opacity, false);
     }
 
@@ -227,6 +232,10 @@ export class UIOpacity extends Component {
     }
 
     public onEnable (): void {
+        if (this._parentOpacityResetFlag) {
+            this._parentChanged();
+            this._parentOpacityResetFlag = false;
+        }
         this.node.on(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
         this.node._uiProps.localOpacity = this._parentOpacity * this._opacity / 255;
         this._setEntityLocalOpacityRecursively(this.node._uiProps.localOpacity);
