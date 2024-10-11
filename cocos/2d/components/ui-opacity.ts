@@ -196,6 +196,9 @@ export class UIOpacity extends Component {
     }
 
     protected _parentChanged (): void {
+        if (!JSB) {
+            return;
+        }
         const parent = this.node.getParent();
         let opacity = 1;
         if (parent) {
