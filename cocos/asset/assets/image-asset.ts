@@ -625,7 +625,8 @@ export class ImageAsset extends Asset {
 
     private _nativeData$: ImageSource;
 
-    private _exportedExts$: string[] | null | undefined = undefined;
+    //NOTE: _exportedExts is used by editor, should not rename or mangle it.
+    private _exportedExts: string[] | null | undefined = undefined;
 
     private _format$: PixelFormat = PixelFormat.RGBA8888;
 
@@ -646,7 +647,7 @@ export class ImageAsset extends Asset {
         };
 
         if (EDITOR) {
-            this._exportedExts$ = null;
+            this._exportedExts = null;
         }
 
         if (nativeAsset !== undefined) {
@@ -698,7 +699,7 @@ export class ImageAsset extends Asset {
         h: number;
     } | undefined {
         if (EDITOR || TEST) {
-            let targetExtensions = this._exportedExts$;
+            let targetExtensions = this._exportedExts;
             if (!targetExtensions && this._native) {
                 targetExtensions = [this._native];
             }
