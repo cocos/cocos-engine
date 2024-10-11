@@ -663,10 +663,12 @@ export class SplashScreen {
 
     private static _ins: SplashScreen | null = null;
 
-    public static get instance (): SplashScreen {
-        if (!SplashScreen._ins) {
-            SplashScreen._ins = new SplashScreen();
-        }
+    public static get instance (): SplashScreen | null {
+        return SplashScreen._ins;
+    }
+
+    public static createInstance (): SplashScreen {
+        SplashScreen._ins = new SplashScreen();
         return SplashScreen._ins;
     }
 

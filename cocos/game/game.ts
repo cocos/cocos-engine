@@ -546,7 +546,7 @@ export class Game extends EventTarget {
      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step (): void {
-        director.tick(this._calculateDT$(true));
+        director.tick(this._calculateDT(true));
     }
 
     /**
@@ -628,7 +628,7 @@ export class Game extends EventTarget {
             this.resume();
             this._shouldLoadLaunchScene$ = true;
             if (!WECHAT) {
-                SplashScreen.instance.curTime = 0;
+                SplashScreen.releaseInstance();
             }
             this._safeEmit$(Game.EVENT_RESTART);
         });
@@ -890,7 +890,7 @@ export class Game extends EventTarget {
                 if (WECHAT) {
                     return Promise.resolve([]);
                 }
-                return SplashScreen.instance.init();
+                return SplashScreen.createInstance().init();
             })
             .then((): Promise<void[]> => {
                 if (DEBUG) {
@@ -1030,7 +1030,7 @@ export class Game extends EventTarget {
 
     // @Methods
 
-    private _calculateDT$ (useFixedDeltaTime: boolean): number {
+    private _calculateDT (useFixedDeltaTime: boolean): number {
         this._useFixedDeltaTime$ = useFixedDeltaTime;
 
         if (useFixedDeltaTime) {
@@ -1049,8 +1049,8 @@ export class Game extends EventTarget {
 
     private _updateCallback$ (): void {
         if (!this._inited$) return;
-        if (!WECHAT && !SplashScreen.instance.isFinished) {
-            SplashScreen.instance.update(this._calculateDT$(false));
+        if (!WECHAT && SplashScreen.instance && !SplashScreen.instance.isFinished) {
+            SplashScreen.instance.update(this._calculateDT(false));
         } else if (this._shouldLoadLaunchScene$) {
             if (!WECHAT) {
                 SplashScreen.releaseInstance();
@@ -1071,7 +1071,7 @@ export class Game extends EventTarget {
                 this.onStart?.();
             }
         } else {
-            director.tick(this._calculateDT$(false));
+            director.tick(this._calculateDT(false));
         }
     }
 

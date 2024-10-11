@@ -577,7 +577,7 @@ export class View extends Eventify(System) {
     }
 
     // Convert location in Cocos screen coordinate to location in UI space
-    private _convertToUISpace$ (point): void {
+    private _convertToUISpace (point): void {
         const viewport = this._viewportRect$;
         point.x = (point.x - viewport.x) / this._scaleX$;
         point.y = (point.y - viewport.y) / this._scaleY$;
