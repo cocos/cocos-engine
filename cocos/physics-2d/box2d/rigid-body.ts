@@ -228,7 +228,7 @@ export class b2RigidBody2D implements IRigidBody2D {
         return this._body!.IsActive();
     }
     setActive (v: boolean): void {
-        this._body!.SetActive(v);
+        if (!this._body!.m_world.IsLocked()) this._body!.SetActive(v);
     }
     wakeUp (): void {
         this._body!.SetAwake(true);
