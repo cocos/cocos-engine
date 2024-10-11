@@ -1160,8 +1160,8 @@ const Elements = {
                 event.stopPropagation();
             });
 
-            Elements.node.i18nChangeBind = Elements.node.i18nChange.bind(panel);
-            Editor.Message.addBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
+            panel.i18nChangeBind = Elements.node.i18nChange.bind(panel);
+            Editor.Message.addBroadcastListener('i18n:change', panel.i18nChangeBind);
         },
         async update() {
             const panel = this;
@@ -1404,7 +1404,9 @@ const Elements = {
             }
         },
         close() {
-            Editor.Message.removeBroadcastListener('i18n:change', Elements.node.i18nChangeBind);
+            const panel = this;
+
+            Editor.Message.removeBroadcastListener('i18n:change', panel.i18nChangeBind);
         },
         i18nChange() {
             const panel = this;

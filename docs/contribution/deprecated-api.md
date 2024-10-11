@@ -46,7 +46,7 @@ interface IReplacement {
     customFunction?: Function;
     /** Setter of custom replacement properties */
     customSetter?: (v: any) => void;
-     /** Getter for custom replacement propertys */
+     /** Getter for custom replacement properties */
     customGetter?: () => any;
 }
 

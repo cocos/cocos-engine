@@ -1105,16 +1105,16 @@ module.exports = link(mixin({
             description: "Enable the XR function system",
         },
         custom_pipeline: {
-            label: "Custom Render Pipeline (Beta)",
-            description: "Enable custom render pipeline",
+            label: "Render Pipeline (New)",
+            description: "The new render pipeline is based on data-oriented render graph. Users can write cross platform render pipelines and optimize for the specific platform.",
         },
         custom_pipeline_post_process: {
-            label: "Custom Render Pipeline Post Process (Deprecated)",
-            description: "Enable custom render pipeline post process",
+            label: "Post Process Module (Deprecated)",
+            description: "The render pipeline used in previous versions. This pipeline will be deprecated in future versions.",
         },
         legacy_pipeline: {
-            label: "Legacy Render Pipeline (Deprecated)",
-            description: "Enable legacy render pipeline",
+            label: "Render Pipeline (Legacy)",
+            description: "The render pipeline used in previous versions. This pipeline will be deprecated in future versions.",
         },
         websocket: {
             label: "WebSocket",

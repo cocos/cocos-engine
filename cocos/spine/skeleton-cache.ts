@@ -358,6 +358,9 @@ class SkeletonCache {
             }
         }
 
+        const skeletonInfo = this._skeletonCache[assetUuid];
+        if (!skeletonInfo) return;
+
         const sharedOperate = (aniKey: string, animationCache: AnimationCache): void => {
             this._animationPool[`${assetUuid}#${aniKey}`] = animationCache;
             animationCache.clear();
@@ -366,9 +369,6 @@ class SkeletonCache {
             animationCache.destroy();
         };
         const operate = this._privateMode ? privateOperate : sharedOperate;
-
-        const skeletonInfo = this._skeletonCache[assetUuid];
-        if (!skeletonInfo) return;
         const animationsCache = skeletonInfo.animationsCache;
         for (const aniKey in animationsCache) {
             // Clear cache texture, and put cache into pool.
@@ -465,6 +465,14 @@ class SkeletonCache {
                     animationPool[key].destroy();
                     delete animationPool[key];
                 }
+            }
+            let skeletonInfo = this._skeletonCache[uuid];
+            const skeleton = skeletonInfo && skeletonInfo.skeleton;
+            if (skeleton) {
+                spine.wasmUtil.destroySpineSkeleton(skeleton);
+            }
+            if (skeletonInfo) {
+                delete this._skeletonCache[uuid];
             }
         } else {
             const animationPool = this._animationPool;

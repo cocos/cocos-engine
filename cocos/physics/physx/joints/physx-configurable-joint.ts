@@ -24,7 +24,7 @@ Copyright (c) 2023 Xiamen Yaji Software Co., Ltd.
 
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
-import { IVec3Like, Vec3, Quat, Mat4, error, math, toRadian } from '../../../core';
+import { IVec3Like, Vec3, Quat, Mat4, toRadian } from '../../../core';
 import { ConfigurableConstraint, EConstraintMode, EDriverMode } from '../../framework';
 import { IConfigurableConstraint } from '../../spec/i-physics-constraint';
 import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';

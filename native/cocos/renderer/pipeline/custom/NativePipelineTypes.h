@@ -1083,7 +1083,6 @@ struct NativeRenderQueue {
     }
 
     NativeRenderQueue(const allocator_type& alloc) noexcept; // NOLINT
-    NativeRenderQueue(SceneFlags sceneFlagsIn, uint32_t subpassOrPassLayoutIDIn, const allocator_type& alloc) noexcept;
     NativeRenderQueue(NativeRenderQueue&& rhs, const allocator_type& alloc);
 
     NativeRenderQueue(NativeRenderQueue&& rhs) noexcept = default;
@@ -1095,15 +1094,15 @@ struct NativeRenderQueue {
     void clear() noexcept;
     bool empty() const noexcept;
     void recordCommands(
-        gfx::CommandBuffer *cmdBuffer, gfx::RenderPass *renderPass, uint32_t subpassIndex) const;
+        gfx::CommandBuffer *cmdBuffer, gfx::RenderPass *renderPass, uint32_t subpassIndex, SceneFlags sceneFlags) const;
 
     RenderDrawQueue opaqueQueue;
     RenderDrawQueue transparentQueue;
     ProbeHelperQueue probeQueue;
     RenderInstancingQueue opaqueInstancingQueue;
     RenderInstancingQueue transparentInstancingQueue;
+    const scene::Camera* camera{nullptr};
     SceneFlags sceneFlags{SceneFlags::NONE};
-    uint32_t subpassOrPassLayoutID{0xFFFFFFFF};
     uint32_t lightByteOffset{0xFFFFFFFF};
 };
 
@@ -1332,6 +1331,15 @@ struct LightBoundsCullingID {
     uint32_t value{0xFFFFFFFF};
 };
 
+inline bool operator==(const LightBoundsCullingID& lhs, const LightBoundsCullingID& rhs) noexcept {
+    return std::forward_as_tuple(lhs.value) ==
+           std::forward_as_tuple(rhs.value);
+}
+
+inline bool operator!=(const LightBoundsCullingID& lhs, const LightBoundsCullingID& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
 struct LightBoundsCullingKey {
     FrustumCullingID frustumCullingID;
     const scene::Camera* camera{nullptr};
@@ -1374,11 +1382,25 @@ struct NativeRenderQueueID {
     uint32_t value{0xFFFFFFFF};
 };
 
-struct NativeRenderQueueDesc {
+struct NativeRenderQueueKey {
+    FrustumCullingID frustumCulledResultID;
+    LightBoundsCullingID lightBoundsCulledResultID;
+    uint32_t queueLayoutID{0xFFFFFFFF};
+};
+
+inline bool operator==(const NativeRenderQueueKey& lhs, const NativeRenderQueueKey& rhs) noexcept {
+    return std::forward_as_tuple(lhs.frustumCulledResultID, lhs.lightBoundsCulledResultID, lhs.queueLayoutID) ==
+           std::forward_as_tuple(rhs.frustumCulledResultID, rhs.lightBoundsCulledResultID, rhs.queueLayoutID);
+}
+
+inline bool operator!=(const NativeRenderQueueKey& lhs, const NativeRenderQueueKey& rhs) noexcept {
+    return !(lhs == rhs);
+}
+
+struct NativeRenderQueueQuery {
     FrustumCullingID frustumCulledResultID;
     LightBoundsCullingID lightBoundsCulledResultID;
     NativeRenderQueueID renderQueueTarget;
-    scene::LightType lightType{scene::LightType::UNKNOWN};
 };
 
 struct LightBoundsCullingResult {
@@ -1405,18 +1427,20 @@ struct SceneCulling {
 private:
     FrustumCullingID getOrCreateFrustumCulling(const SceneData& sceneData);
     LightBoundsCullingID getOrCreateLightBoundsCulling(const SceneData& sceneData, FrustumCullingID frustumCullingID);
-    NativeRenderQueueID createRenderQueue(SceneFlags sceneFlags, LayoutGraphData::vertex_descriptor subpassOrPassLayoutID);
-    void collectCullingQueries(const RenderGraph& rg, const LayoutGraphData& lg);
+    NativeRenderQueueID getOrCreateRenderQueue(
+        const NativeRenderQueueKey& renderQueueKey, SceneFlags sceneFlags, const scene::Camera* camera);
+    void collectCullingQueries(const RenderGraph& rg);
     void batchFrustumCulling(const NativePipeline& ppl);
     void batchLightBoundsCulling();
-    void fillRenderQueues(const RenderGraph& rg, const pipeline::PipelineSceneData& pplSceneData);
+    void fillRenderQueues();
 public:
     ccstd::pmr::unordered_map<const scene::RenderScene*, FrustumCulling> frustumCullings;
     ccstd::pmr::vector<ccstd::vector<const scene::Model*>> frustumCullingResults;
     ccstd::pmr::unordered_map<const scene::RenderScene*, LightBoundsCulling> lightBoundsCullings;
     ccstd::pmr::vector<LightBoundsCullingResult> lightBoundsCullingResults;
+    ccstd::pmr::unordered_map<NativeRenderQueueKey, NativeRenderQueueID> renderQueueIndex;
     ccstd::pmr::vector<NativeRenderQueue> renderQueues;
-    PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueDesc> renderQueueIndex;
+    PmrFlatMap<RenderGraph::vertex_descriptor, NativeRenderQueueQuery> renderQueueQueryIndex;
     uint32_t numFrustumCulling{0};
     uint32_t numLightBoundsCulling{0};
     uint32_t numRenderQueues{0};
@@ -1754,12 +1778,26 @@ inline hash_t hash<cc::render::FrustumCullingID>::operator()(const cc::render::F
     return seed;
 }
 
+inline hash_t hash<cc::render::LightBoundsCullingID>::operator()(const cc::render::LightBoundsCullingID& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.value);
+    return seed;
+}
+
 inline hash_t hash<cc::render::LightBoundsCullingKey>::operator()(const cc::render::LightBoundsCullingKey& val) const noexcept {
     hash_t seed = 0;
     hash_combine(seed, val.frustumCullingID);
     hash_combine(seed, val.camera);
     hash_combine(seed, val.probe);
     hash_combine(seed, val.cullingLight);
+    return seed;
+}
+
+inline hash_t hash<cc::render::NativeRenderQueueKey>::operator()(const cc::render::NativeRenderQueueKey& val) const noexcept {
+    hash_t seed = 0;
+    hash_combine(seed, val.frustumCulledResultID);
+    hash_combine(seed, val.lightBoundsCulledResultID);
+    hash_combine(seed, val.queueLayoutID);
     return seed;
 }
 

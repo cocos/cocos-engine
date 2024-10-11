@@ -3843,7 +3843,7 @@ ProgressBar non-FILLED mode only works when barSprite's Type is non-FILLED!
 
 ### 16399
 
-Unsupported GL texture type, copy texture to buffers failed.
+CopyTextureToBuffers: not supported texture target.
 
 ### 16400
 
