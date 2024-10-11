@@ -362,7 +362,7 @@ NO_WERROR   cocos/audio/common/utils/primitives.cpp
                 cocos/audio/android/UrlAudioPlayer.cpp
                 cocos/audio/android/UrlAudioPlayer.h
             )
-        elseif(OPENHARMONY) 
+        elseif(OPENHARMONY)
             cocos_source_files(
                 cocos/audio/openharmony/PcmAudioService.cpp
                 cocos/audio/openharmony/PcmAudioService.h
@@ -1643,10 +1643,14 @@ cocos_source_files(
 if(CC_USE_GLES2 OR CC_USE_GLES3)
     cocos_source_files(
         cocos/renderer/gfx-gles-common/GLESCommandPool.h
-        cocos/renderer/gfx-gles-common/eglw.cpp
-        cocos/renderer/gfx-gles-common/gles2w.cpp
     )
-    if(CC_USE_GLES3)
+    if(NOT OPENHARMONY)
+        cocos_source_files(
+            cocos/renderer/gfx-gles-common/eglw.cpp
+            cocos/renderer/gfx-gles-common/gles2w.cpp
+        )
+    endif()
+    if(CC_USE_GLES3 AND NOT OPENHARMONY)
         cocos_source_files(
             cocos/renderer/gfx-gles-common/gles3w.cpp
         )
@@ -3197,7 +3201,7 @@ target_compile_definitions(${ENGINE_NAME}
         ${CC_EXTERNAL_PRIVATE_DEFINITIONS}
 )
 
-if(NOT APPLE)
+if(NOT APPLE AND NOT OPENHARMONY)
     target_include_directories(${ENGINE_NAME} PUBLIC
         ${CWD}/external/sources/EGL
     )
@@ -3282,7 +3286,7 @@ if(OPENHARMONY)
                 libace_ndk.z )
 
     target_link_libraries(${ENGINE_NAME} PUBLIC
-        ${EGL-lib} ${GLESv3-lib} ${hilog-lib} libace_napi.z.so libace_ndk.z.so libz.so 
+        ${EGL-lib} ${GLESv3-lib} ${hilog-lib} libace_napi.z.so libace_ndk.z.so libz.so
         libuv.so libnative_drawing.so librawfile.z.so libOpenSLES.so libohaudio.so libavplayer.so
         ${CC_EXTERNAL_LIBS}
     )
@@ -3375,7 +3379,7 @@ set(COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${COCOS_SOURCE_LIST})
 set(COCOS_GENERATED_LIST)
 foreach(src IN LISTS COCOS_SOURCE_LIST_EXCLUDE_GENRATED)
     get_source_file_property(IS_GENERATED ${src} GENERATED)
-    if(IS_GENERATED) 
+    if(IS_GENERATED)
         list(REMOVE_ITEM COCOS_SOURCE_LIST_EXCLUDE_GENRATED ${src})
         list(APPEND COCOS_GENERATED_LIST ${src})
     endif()

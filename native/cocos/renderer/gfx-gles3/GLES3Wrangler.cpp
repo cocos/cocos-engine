@@ -113,6 +113,8 @@ bool gles3wOpen() {
 
 bool gles3wClose() {
     bool ret = true;
+
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
     if (libegl) {
         ret &= dlclose(libegl) == 0;
         libegl = nullptr;
@@ -122,14 +124,17 @@ bool gles3wClose() {
         ret &= dlclose(libgles) == 0;
         libgles = nullptr;
     }
+#endif
 
     return ret;
 }
 
 void *gles3wLoad(const char *proc) {
     void *res = nullptr;
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
     if (eglGetProcAddress) res = reinterpret_cast<void *>(eglGetProcAddress(proc));
     if (!res) res = dlsym(libegl, proc);
+#endif
     return res;
 }
 #endif
@@ -139,6 +144,7 @@ PFNGLES3WLOADPROC pfnGLES3wLoadProc() {
 }
 
 bool gles3wInit() {
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
     if (!gles3wOpen()) {
         return false;
     }
@@ -147,6 +153,7 @@ bool gles3wInit() {
     gles3wLoadProcs(gles3wLoad);
 
     pfnGles3wLoad = gles3wLoad;
+#endif
     return true;
 }
 

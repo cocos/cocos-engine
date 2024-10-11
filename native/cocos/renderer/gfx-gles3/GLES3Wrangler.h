@@ -24,9 +24,21 @@
 
 #pragma once
 
+#if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
 #include "../gfx-gles-common/eglw.h"
 #include "../gfx-gles-common/gles2w.h"
 #include "../gfx-gles-common/gles3w.h"
+#else
+    #define EGL_EGL_PROTOTYPES 1
+    #define GL_GLEXT_PROTOTYPES 1
+    #include <EGL/egl.h>
+    #include <EGL/eglext.h>
+    #include <EGL/eglplatform.h>
+    #include <GLES2/gl2.h>
+    #include <GLES2/gl2ext.h>
+    #include <GLES3/gl32.h>
+    using PFNGLES3WLOADPROC = void *(*)(const char *);
+#endif
 
 PFNGLES3WLOADPROC pfnGLES3wLoadProc();
 bool gles3wInit();

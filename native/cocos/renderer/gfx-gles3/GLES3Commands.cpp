@@ -814,7 +814,10 @@ static void renderBufferStorage(GLES3Device *device, GLES3GPUTexture *gpuTexture
         glRenderbuffer = gpuTexture->glRenderbuffer;
     }
     if (gpuTexture->glSamples > 1) {
+        #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
+        // Can't use the GL_EXT_multisampled_render_to_texture macro to determine this, because GL_EXT_multisampled_render_to_texture is defined, but the link will fail.
         GL_CHECK(glRenderbufferStorageMultisampleEXT(GL_RENDERBUFFER, gpuTexture->glSamples, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
+        #endif
     } else {
         GL_CHECK(glRenderbufferStorage(GL_RENDERBUFFER, gpuTexture->glInternalFmt, gpuTexture->width, gpuTexture->height));
     }
@@ -2573,19 +2576,28 @@ void cmdFuncGLES3MemoryBarrier(GLES3Device * /*device*/, GLbitfield barriers, GL
 
 void cmdFuncGLES3InsertMarker(GLES3Device *device, GLsizei length, const char *marker) {
     if (device->constantRegistry()->debugMarker) {
+        #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
+        // Can't use the GL_EXT_debug_marker macro to determine this, because GL_EXT_debug_marker is defined, but the link will fail.
         glInsertEventMarkerEXT(length, marker);
+        #endif
     }
 }
 
 void cmdFuncGLES3PushGroupMarker(GLES3Device *device, GLsizei length, const char *marker) {
     if (device->constantRegistry()->debugMarker) {
+        #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
+        // Can't use the GL_EXT_debug_marker macro to determine this, because GL_EXT_debug_marker is defined, but the link will fail.
         glPushGroupMarkerEXT(length, marker);
+        #endif
     }
 }
 
 void cmdFuncGLES3PopGroupMarker(GLES3Device *device) {
     if (device->constantRegistry()->debugMarker) {
+        #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
+        // Can't use the GL_EXT_debug_marker macro to determine this, because GL_EXT_debug_marker is defined, but the link will fail.
         glPopGroupMarkerEXT();
+        #endif
     }
 }
 
@@ -3163,12 +3175,14 @@ void GLES3GPUFramebufferObject::finalize(GLES3GPUStateCache *cache) {
         auto *texture = view->gpuTexture;
         if (samples > 1) {
             CC_ASSERT(view->gpuTexture->glTexture != 0);
+            #if CC_PLATFORM != CC_PLATFORM_OPENHARMONY
             GL_CHECK(glFramebufferTexture2DMultisampleEXT(GL_FRAMEBUFFER,
                                                           attachment,
                                                           GL_TEXTURE_2D,
                                                           texture->glTexture,
                                                           view->baseLevel,
                                                           static_cast<GLsizei>(samples)));
+            #endif
             return;
         }
 
