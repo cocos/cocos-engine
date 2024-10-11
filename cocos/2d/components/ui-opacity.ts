@@ -206,8 +206,7 @@ export class UIOpacity extends Component {
         if (parent) {
             this._parentOpacity = this._getParentOpacity(parent);
             opacity = this._parentOpacity;
-        }
-        else {
+        } else {
             this._parentOpacityResetFlag = true;
         }
         UIOpacity.setEntityLocalOpacityDirtyRecursively(this.node, true, opacity, false);
