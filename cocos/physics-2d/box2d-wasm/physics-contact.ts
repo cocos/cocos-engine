@@ -206,24 +206,6 @@ export class PhysicsContact implements IPhysics2DContact {
     }
 
     emit (contactType: string): void {
-        let func = '';
-        switch (contactType) {
-        case Contact2DType.BEGIN_CONTACT:
-            func = 'onBeginContact';
-            break;
-        case Contact2DType.END_CONTACT:
-            func = 'onEndContact';
-            break;
-        case Contact2DType.PRE_SOLVE:
-            func = 'onPreSolve';
-            break;
-        case Contact2DType.POST_SOLVE:
-            func = 'onPostSolve';
-            break;
-        default:
-            break;
-        }
-
         const colliderA = this.colliderA;
         const colliderB = this.colliderB;
 
