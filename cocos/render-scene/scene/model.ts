@@ -33,7 +33,7 @@ import { RenderScene } from '../core/render-scene';
 import { Texture2D } from '../../asset/assets/texture-2d';
 import { SubModel } from './submodel';
 import { IMacroPatch } from '../core/pass';
-import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON, v3 } from '../../core';
+import { Mat4, Vec3, Vec4, geometry, cclegacy, EPSILON, v3, v4 } from '../../core';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo,
     BufferUsageBit, MemoryUsageBit, Filter, Address, SamplerInfo, deviceManager, Texture } from '../../gfx';
 import {
@@ -492,6 +492,7 @@ export class Model {
     protected _localSHBuffer: Buffer | null = null;
 
     private _lightmap$: Texture2D | null = null;
+    private _lightmapUVParam$: Vec4 = v4();
 
     /**
      * @en located tetrahedron index
@@ -939,7 +940,7 @@ export class Model {
      */
     public initLightingmap (texture: Texture2D | null, uvParam: Vec4): void {
         this._lightmap$ = texture;
-        this._lightmapUVParam = uvParam;
+        this._lightmapUVParam$ = uvParam;
     }
 
     /**
@@ -952,7 +953,7 @@ export class Model {
         Vec4.toArray(this._localData, uvParam, UBOLocalEnum.LIGHTINGMAP_UVPARAM);
         this._localDataUpdated = true;
         this._lightmap$ = texture;
-        this._lightmapUVParam = uvParam;
+        this._lightmapUVParam$ = uvParam;
 
         this.onMacroPatchesStateChanged();
 
