@@ -28,7 +28,7 @@ import * as PolygonPartition from '../../framework/utils/polygon-partition';
 import { PolygonCollider2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
 import { IPolygonShape } from '../../spec/i-physics-shape';
-import { Vec2, IVec2Like, warn } from '../../../core';
+import { Vec2, warn } from '../../../core';
 
 export class B2PolygonShape extends B2Shape2D implements IPolygonShape {
     _worldPoints: Vec2[] = [];

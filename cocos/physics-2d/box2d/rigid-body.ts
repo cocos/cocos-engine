@@ -27,12 +27,11 @@ import { IRigidBody2D } from '../spec/i-rigid-body';
 import { RigidBody2D } from '../framework/components/rigid-body-2d';
 import { PhysicsSystem2D } from '../framework/physics-system';
 import { b2PhysicsWorld } from './physics-world';
-import { Vec2, toRadian, Vec3, Quat, IVec2Like, toDegree, TWO_PI, HALF_PI } from '../../core';
+import { Vec2, toRadian, Vec3, Quat, IVec2Like, TWO_PI, HALF_PI } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-types';
 
 import { Node } from '../../scene-graph/node';
 import { Collider2D } from '../framework';
-import { NodeEventType } from '../../scene-graph/node-event';
 
 const tempVec3 = new Vec3();
 

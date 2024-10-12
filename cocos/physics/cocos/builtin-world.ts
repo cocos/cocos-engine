@@ -35,7 +35,6 @@ import { BuiltinRigidBody } from './builtin-rigid-body';
 import { Node } from '../../scene-graph';
 import { GeometryRenderer } from '../../rendering/geometry-renderer';
 import { director } from '../../game';
-import { VEC3_0 } from '../utils/util';
 
 const hitPoint = new Vec3();
 const TriggerEventObject = {

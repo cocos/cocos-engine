@@ -29,7 +29,7 @@ import { Vec2, IVec2Like, toDegree, _decorator, CCFloat, CCBoolean } from '../..
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
 const tempVec2 = new Vec2();
-const { ccclass, menu, property } = _decorator;
+const { ccclass, menu } = _decorator;
 
 @ccclass('cc.SliderJoint2D')
 @help('i18n:cc.Joint2D')
