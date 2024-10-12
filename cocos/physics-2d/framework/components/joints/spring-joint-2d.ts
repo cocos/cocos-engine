@@ -28,7 +28,7 @@ import { EJoint2DType } from '../../physics-types';
 import { CCBoolean, CCFloat, Vec3, _decorator } from '../../../../core';
 import { help, serializable, tooltip, type } from '../../../../core/data/decorators';
 
-const { ccclass, property, menu } = _decorator;
+const { ccclass, menu } = _decorator;
 
 @ccclass('cc.SpringJoint2D')
 @help('i18n:cc.Joint2D')

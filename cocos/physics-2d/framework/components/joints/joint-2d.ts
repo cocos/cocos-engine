@@ -30,7 +30,7 @@ import { EJoint2DType } from '../../physics-types';
 import { createJoint } from '../../physics-selector';
 import { Component } from '../../../../scene-graph';
 
-const { ccclass, type, property } = _decorator;
+const { ccclass, type } = _decorator;
 
 @ccclass('cc.Joint2D')
 export class Joint2D extends Component {

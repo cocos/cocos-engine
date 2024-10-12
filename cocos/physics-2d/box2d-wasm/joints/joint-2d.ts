@@ -26,7 +26,7 @@ import { B2, B2ObjectType, addImplPtrReference, addImplPtrReferenceWASM, getImpl
 import { IJoint2D } from '../../spec/i-physics-joint';
 import { Joint2D, PhysicsSystem2D, RigidBody2D } from '../../framework';
 import { B2PhysicsWorld } from '../physics-world';
-import { Vec2, warn } from '../../../core';
+import { warn } from '../../../core';
 
 export class B2Joint implements IJoint2D {
     get impl (): B2.Joint | null {

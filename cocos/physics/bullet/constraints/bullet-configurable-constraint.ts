@@ -26,7 +26,7 @@
 import { BulletConstraint } from './bullet-constraint';
 import { IConfigurableConstraint } from '../../spec/i-physics-constraint';
 import { error, IVec3Like, Mat4, Quat, Vec3, toRadian } from '../../../core';
-import { ConfigurableConstraint, EConstraintMode, EConstraintType, EDriverMode, PhysicsSystem } from '../../framework';
+import { ConfigurableConstraint, EConstraintMode, EDriverMode, PhysicsSystem } from '../../framework';
 import { bt } from '../instantiated';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_QUAT_0, CC_QUAT_1, CC_V3_0, CC_MAT4_0, CC_V3_1 } from '../bullet-cache';

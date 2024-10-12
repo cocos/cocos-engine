@@ -33,7 +33,6 @@ import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
 import { assetManager, builtinResMgr } from '../../asset/asset-manager';
-import { Collider } from './components/colliders/collider';
 
 cclegacy.internal.PhysicsGroup = PhysicsGroup;
 

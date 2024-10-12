@@ -26,7 +26,7 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { B2, getImplPtr, addImplPtrReference, addImplPtrReferenceWASM,
     getTSObjectFromWASMObjectPtr, removeImplPtrReference, removeImplPtrReferenceWASM, B2ObjectType } from './instantiated';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, CCObject, js } from '../../core';
+import { IVec2Like, Vec3, Quat, Vec2, toDegree, Rect, CCObject, js } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 import { Canvas } from '../../2d/framework';
 import { Graphics } from '../../2d/components';
@@ -45,7 +45,6 @@ import { director } from '../../game';
 const tempVec3 = new Vec3();
 const tempVec2_1 = new Vec2();
 const tempVec2_2 = new Vec2();
-const tempB2Vec2_1 = { x: 0, y: 0 };
 
 // const tempB2AABB = null;//new B2.AABB();
 

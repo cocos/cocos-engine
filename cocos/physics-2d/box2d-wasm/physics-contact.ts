@@ -28,7 +28,6 @@ import { PHYSICS_2D_PTM_RATIO } from '../framework/physics-types';
 import { Collider2D, Contact2DType, PhysicsSystem2D } from '../framework';
 import { B2Shape2D } from './shapes/shape-2d';
 import { IPhysics2DContact, IPhysics2DImpulse, IPhysics2DManifoldPoint, IPhysics2DWorldManifold } from '../spec/i-physics-contact';
-import { B2PhysicsWorld } from './physics-world';
 
 const pools: PhysicsContact[] = [];
 

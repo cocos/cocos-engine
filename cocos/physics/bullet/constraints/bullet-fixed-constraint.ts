@@ -25,8 +25,8 @@
 /* eslint-disable new-cap */
 import { BulletConstraint } from './bullet-constraint';
 import { IFixedConstraint } from '../../spec/i-physics-constraint';
-import { Quat, Vec3, Mat4 } from '../../../core';
-import { FixedConstraint, PhysicsSystem } from '../../framework';
+import { Mat4 } from '../../../core';
+import { FixedConstraint } from '../../framework';
 import { BulletRigidBody } from '../bullet-rigid-body';
 import { BulletCache, CC_MAT4_0, CC_QUAT_0, CC_V3_0 } from '../bullet-cache';
 import { bt } from '../instantiated';

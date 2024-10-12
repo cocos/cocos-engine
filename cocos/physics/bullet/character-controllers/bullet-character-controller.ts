@@ -23,7 +23,7 @@
 */
 
 import { error, IVec3Like, Vec3 } from '../../../core';
-import { CharacterControllerContact, PhysicsSystem  } from '../../framework';
+import { PhysicsSystem  } from '../../framework';
 import { CharacterController } from '../../framework/components/character-controllers/character-controller';
 import { IBaseCharacterController } from '../../spec/i-character-controller';
 import { BulletCache } from '../bullet-cache';
