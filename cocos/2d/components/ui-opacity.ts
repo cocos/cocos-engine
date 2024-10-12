@@ -229,13 +229,14 @@ export class UIOpacity extends Component {
     }
 
     public onEnable (): void {
+        this.node.on(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
+        this.node._uiProps.localOpacity = this._parentOpacity * this._opacity / 255;
         if (this._parentOpacityResetFlag) {
             this._parentChanged();
             this._parentOpacityResetFlag = false;
+        } else {
+            this._setEntityLocalOpacityRecursively(this.node._uiProps.localOpacity);
         }
-        this.node.on(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
-        this.node._uiProps.localOpacity = this._parentOpacity * this._opacity / 255;
-        this._setEntityLocalOpacityRecursively(this.node._uiProps.localOpacity);
     }
 
     public onDisable (): void {
