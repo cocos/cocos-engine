@@ -627,9 +627,7 @@ export class Game extends EventTarget {
             this.pause();
             this.resume();
             this._shouldLoadLaunchScene$ = true;
-            if (!WECHAT) {
-                SplashScreen.releaseInstance();
-            }
+        }).then((): Promise<void[]> => SplashScreen.createInstance().init()).then((): void => {
             this._safeEmit$(Game.EVENT_RESTART);
         });
     }
