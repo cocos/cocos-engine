@@ -26,7 +26,7 @@
 */
 
 import { errorID, logID } from '../../core/platform/debug';
-import { Action } from './action';
+import { Action, ActionEnum } from './action';
 import { isCCObject } from '../../core/data/object';
 import { Node, NodeEventType } from '../../scene-graph';
 
@@ -267,7 +267,7 @@ export class ActionManager {
      * @param {T} target
      */
     removeActionByTag<T> (tag: number, target?: T): void {
-        if (tag === Action.TAG_INVALID) logID(1002);
+        if (tag === ActionEnum.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
         if (target) {
@@ -290,7 +290,7 @@ export class ActionManager {
      * @param {T} target
      */
     removeAllActionsByTag<T> (tag: number, target?: T): void {
-        if (tag === Action.TAG_INVALID) logID(1002);
+        if (tag === ActionEnum.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
         if (target) {
@@ -314,7 +314,7 @@ export class ActionManager {
      * @return {Action|null}  return the Action with the given tag on success
      */
     getActionByTag<T> (tag: number, target: T): Action | null {
-        if (tag === Action.TAG_INVALID) logID(1004);
+        if (tag === ActionEnum.TAG_INVALID) logID(1004);
 
         const element = this._hashTargets.get(target);
         if (element) {

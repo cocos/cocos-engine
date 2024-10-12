@@ -207,9 +207,6 @@ export class Root {
     public set fixedFPS (fps: number) {
         if (fps > 0) {
             this._fixedFPS$ = fps;
-            this._fixedFPSFrameTime = 1000.0 / fps;
-        } else {
-            this._fixedFPSFrameTime = 0;
         }
     }
 
@@ -468,17 +465,6 @@ export class Root {
      */
     public frameMove (deltaTime: number): void {
         this._frameTime$ = deltaTime;
-
-        /*
-        if (this._fixedFPSFrameTime > 0) {
-
-            const elapsed = this._frameTime * 1000.0;
-            if (this._fixedFPSFrameTime > elapsed) {
-
-                setTimeout(function () {}, this._fixedFPSFrameTime - elapsed);
-            }
-        }
-        */
 
         ++this._frameCount$;
         this._cumulativeTime$ += deltaTime;
