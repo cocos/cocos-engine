@@ -32,14 +32,14 @@ import { legacyCC } from '../global-exports';
 function empty(): void {}
 
 class CallbackInfo {
-    callback: Function = empty;
+    callback: AnyFunction = empty;
     target: unknown = null;
     once = false;
 
     valid = false;// 是否有效
     next: CallbackInfo | null = null;// 链表下一个节点
 
-    set (callback: Function, target?: unknown, once?: boolean) {
+    set (callback: AnyFunction, target?: unknown, once?: boolean) {
         this.callback = callback;
         this.target = target;
         this.once = !!once;
@@ -82,7 +82,7 @@ class CallbackList {
 
     head: CallbackInfo | null = null;// 链表头节点
 
-    find (callback: Function, target?: unknown) {
+    find (callback: AnyFunction, target?: unknown) {
         let info = this.head;
         while (info) {
             if (info.callback === callback && info.target === target) {
@@ -93,7 +93,7 @@ class CallbackList {
         return null;
     }
 
-    add (callback: Function, target?: unknown, once?: boolean) {
+    add (callback: AnyFunction, target?: unknown, once?: boolean) {
         let tail: CallbackInfo | null = null;
         let info = this.head;
         while (info) {
@@ -112,7 +112,7 @@ class CallbackList {
         return callback;
     }
 
-    remove (callback: Function, target?: unknown) {
+    remove (callback: AnyFunction, target?: unknown) {
         let tail: CallbackInfo | null = null;
         let info = this.head;
         while (info) {
@@ -162,7 +162,7 @@ class CallbackList {
         this.containCanceled = true;
     }
 
-    cancelByCallback (callback: Function, target?: unknown) {
+    cancelByCallback (callback: AnyFunction, target?: unknown) {
         let info = this.head;
         while (info) {
             if (info.callback === callback && info.target === target) {
@@ -250,7 +250,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
      * 
      * @returns callback
      */
-    on (key: EventTypeClass, callback: Function, target?: unknown, once?: boolean): typeof callback {
+    on (key: EventTypeClass, callback: AnyFunction, target?: unknown, once?: boolean): typeof callback {
         let list = this._callbackTable[key];
         if (!list) {
             list = callbackListPool.alloc();
@@ -269,7 +269,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
      * 
      * @returns callback
      */
-    once (key: EventTypeClass, callback: Function, target?: unknown) {
+    once (key: EventTypeClass, callback: AnyFunction, target?: unknown) {
         return this.on(key, callback, target, true);
     }
 
@@ -280,7 +280,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
      * @param callback - The callback function of the event listener, if absent all event listeners for the given type will be removed
      * @param target - The callback callee of the event listener
      */
-    off (key: EventTypeClass, callback: Function, target?: unknown): void {
+    off (key: EventTypeClass, callback: AnyFunction, target?: unknown): void {
         const list = this._callbackTable[key];
         if (list) {
             if (!list.isInvoking) {
@@ -352,7 +352,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
      * @param callback - Callback function when event triggered
      * @param target - Callback callee
      */
-    hasEventListener (key: EventTypeClass, callback?: Function, target?: unknown): boolean {
+    hasEventListener (key: EventTypeClass, callback?: AnyFunction, target?: unknown): boolean {
         const list = this._callbackTable[key];
         if (!list) {
             return false;
@@ -392,7 +392,7 @@ export class CallbacksInvoker<EventTypeClass extends EventType = EventType> {
         }
         const rootInvoker = !list.isInvoking;
         list.isInvoking = true;
-        let callback: Function, target: unknown;
+        let callback: AnyFunction, target: unknown;
         let info = list.head;
         while (info) {
             if (!info.check()) {
