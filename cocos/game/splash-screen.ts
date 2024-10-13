@@ -623,37 +623,64 @@ export class SplashScreen {
         this.device$ = null!;
         this.swapchain$ = null!;
         this.clearColors$ = null!;
-        if (this.settings$.background!.type === 'custom') {
+
+        if (this.bgImage$) {
             if ((this.bgImage$ as any).destroy) (this.bgImage$ as any).destroy();
             this.bgImage$ = null!;
+        }
+
+        if (this.bgMat$) {
             this.bgMat$.destroy();
             this.bgMat$ = null!;
+        }
+
+        if (this.bgTexture$) {
             this.bgTexture$.destroy();
             this.bgTexture$ = null!;
         }
-        if (this.settings$.logo!.type !== 'none') {
+
+        if (this.logoImage$) {
             if ((this.logoImage$ as any).destroy) (this.logoImage$ as any).destroy();
             this.logoImage$ = null!;
+        }
+
+        if (this.logoMat$) {
             this.logoMat$.destroy();
             this.logoMat$ = null!;
+        }
+
+        if (this.logoTexture$) {
             this.logoTexture$.destroy();
             this.logoTexture$ = null!;
         }
+
         this.renderArea$ = null!;
         this.cmdBuff$ = null!;
         this.shader$ = null!;
-        this.quadAssmebler$.destroy();
-        this.quadAssmebler$ = null!;
-        this.vertexBuffers$.destroy();
-        this.vertexBuffers$ = null!;
-        this.indicesBuffers$.destroy();
-        this.indicesBuffers$ = null!;
+
+        if (this.quadAssmebler$) {
+            this.quadAssmebler$.destroy();
+            this.quadAssmebler$ = null!;
+        }
+
+        if (this.vertexBuffers$) {
+            this.vertexBuffers$.destroy();
+            this.vertexBuffers$ = null!;
+        }
+
+        if (this.indicesBuffers$) {
+            this.indicesBuffers$.destroy();
+            this.indicesBuffers$ = null!;
+        }
         this.sampler$ = null!;
 
         /** text */
-        if (this.settings$.logo!.type === 'default' && this.watermarkTexture$) {
+        if (this.watermarkMat$) {
             this.watermarkMat$.destroy();
             this.watermarkMat$ = null!;
+        }
+
+        if (this.watermarkTexture$) {
             this.watermarkTexture$.destroy();
             this.watermarkTexture$ = null!;
         }
