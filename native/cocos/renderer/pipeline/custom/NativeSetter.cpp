@@ -79,16 +79,6 @@ void NativeSetter::setTexture(const ccstd::string &name, gfx::Texture *texture) 
     setTextureImpl(data, *layoutGraph, name, texture);
 }
 
-void NativeSetter::setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-    setReadWriteBufferImpl(data, *layoutGraph, name, buffer);
-}
-
-void NativeSetter::setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) {
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-    setReadWriteTextureImpl(data, *layoutGraph, name, texture);
-}
-
 void NativeSetter::setSampler(const ccstd::string &name, gfx::Sampler *sampler) {
     auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
     setSamplerImpl(data, *layoutGraph, name, sampler);
@@ -147,15 +137,6 @@ void NativeSetter::setBuiltinSpotLightFrustumConstants(const scene::SpotLight *l
     setShadowUBOLightView(device, *layoutGraph, sceneData, nullptr, *light, 0, data);
 }
 
-void NativeSetter::setBuiltinShadowMapConstants(
-    const scene::DirectionalLight *light) {
-    CC_EXPECTS(light);
-    auto *device = pipelineRuntime->getDevice();
-    const auto &sceneData = *pipelineRuntime->getPipelineSceneData();
-    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
-    setShadowUBOView(*device, *layoutGraph, sceneData, *light, data);
-}
-
 namespace {
 
 constexpr float LIGHT_METER_SCALE = 10000.0F;
@@ -165,7 +146,11 @@ constexpr bool ENABLE_NEW_MULTI_LIGHT = false;
 
 void NativeSetter::setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) {
     std::ignore = camera;
-    setBuiltinShadowMapConstants(light);
+    CC_EXPECTS(light);
+    auto *device = pipelineRuntime->getDevice();
+    const auto &sceneData = *pipelineRuntime->getPipelineSceneData();
+    auto &data = get(RenderGraph::DataTag{}, *renderGraph, nodeID);
+    setShadowUBOView(*device, *layoutGraph, sceneData, *light, data);
 }
 
 void NativeSetter::setBuiltinSphereLightConstants(

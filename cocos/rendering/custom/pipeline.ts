@@ -360,14 +360,6 @@ export interface Setter extends RenderNode {
      */
     setTexture (name: string, texture: Texture): void;
     /**
-     * @deprecated Method will be removed in the future
-     */
-    setReadWriteBuffer (name: string, buffer: Buffer): void;
-    /**
-     * @deprecated Method will be removed in the future
-     */
-    setReadWriteTexture (name: string, texture: Texture): void;
-    /**
      * @en Set sampler descriptor.
      * Type of the sampler should match the one in shader.
      * @zh 设置采样器描述符。类型需要与着色器中的一致。
@@ -383,13 +375,6 @@ export interface Setter extends RenderNode {
      * @param camera @en The camera instance to be set. @zh 当前相机
      */
     setBuiltinCameraConstants (camera: Camera): void;
-    /**
-     * @deprecated Method will be removed in the future
-     * @en Same as setBuiltinDirectionalLightConstants
-     * @zh 同setBuiltinDirectionalLightConstants
-     * @param light @en The main light. @zh 主光
-     */
-    setBuiltinShadowMapConstants (light: DirectionalLight): void;
     /**
      * @en Set builtin directional light and shadow constants.
      * For list of constants, please check CCShadow in cc-shadow.chunk and CCCamera in cc-global.chunk.
@@ -1656,19 +1641,6 @@ export interface Pipeline extends BasicPipeline {
      * @param movePairs @en Array of move source and target @zh 移动来源与目标的数组
      */
     addMovePass (movePairs: MovePair[]): void;
-    /**
-     * @experimental
-     * @engineInternal
-     */
-    addBuiltinGpuCullingPass (
-        camera: Camera,
-        hzbName?: string,
-        light?: Light): void;
-    /**
-     * @experimental
-     * @engineInternal
-     */
-    addBuiltinHzbGenerationPass (sourceDepthStencilName: string, targetHzbName: string): void;
     /**
      * @experimental
      */
