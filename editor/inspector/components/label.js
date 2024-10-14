@@ -184,7 +184,7 @@ exports.ready = function() {
                 const prop = document.createElement('ui-prop');
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
-                label.value = 'FontStyle';
+                label.value = 'i18n:ENGINE.components.label.font_style';
                 label.setAttribute('tooltip', 'i18n:ENGINE.components.label.font_style_tooltip');
                 prop.appendChild(label);
                 const content = document.createElement('div');
