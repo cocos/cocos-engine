@@ -288,7 +288,7 @@ struct SubpassGraph {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -339,29 +339,29 @@ struct SubpassGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -553,7 +553,7 @@ struct ResourceGraph {
         return {_vertices.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -601,29 +601,29 @@ struct ResourceGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -649,17 +649,17 @@ struct ResourceGraph {
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
@@ -988,7 +988,7 @@ struct RenderGraph {
         return {objects.get_allocator().resource()};
     }
 
-    inline boost::container::pmr::memory_resource* resource() const noexcept {
+    boost::container::pmr::memory_resource* resource() const noexcept {
         return get_allocator().resource();
     }
 
@@ -1038,29 +1038,29 @@ struct RenderGraph {
     using vertices_size_type = uint32_t;
 
     // VertexList help functions
-    inline ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].outEdges;
     }
-    inline const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<OutEdge>& getOutEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].outEdges;
     }
 
-    inline ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) noexcept {
         return _vertices[v].inEdges;
     }
-    inline const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<InEdge>& getInEdgeList(vertex_descriptor v) const noexcept {
         return _vertices[v].inEdges;
     }
 
-    inline boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
+    boost::integer_range<vertex_descriptor> getVertexList() const noexcept {
         return {0, static_cast<vertices_size_type>(_vertices.size())};
     }
 
-    inline vertex_descriptor getCurrentID() const noexcept {
+    vertex_descriptor getCurrentID() const noexcept {
         return static_cast<vertex_descriptor>(_vertices.size());
     }
 
-    inline ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
+    ccstd::pmr::vector<boost::default_color_type> colors(boost::container::pmr::memory_resource* mr) const {
         return ccstd::pmr::vector<boost::default_color_type>(_vertices.size(), mr);
     }
 
@@ -1086,17 +1086,17 @@ struct RenderGraph {
     using ownerships_size_type = edges_size_type;
 
     // AddressableGraph help functions
-    inline ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) noexcept {
         return objects[v].children;
     }
-    inline const ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<ChildEdge>& getChildrenList(vertex_descriptor v) const noexcept {
         return objects[v].children;
     }
 
-    inline ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) noexcept {
+    ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) noexcept {
         return objects[v].parents;
     }
-    inline const ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) const noexcept {
+    const ccstd::pmr::vector<ParentEdge>& getParentsList(vertex_descriptor v) const noexcept {
         return objects[v].parents;
     }
 

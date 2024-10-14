@@ -215,7 +215,7 @@ inline void remove_vertex(ResourceAccessGraph::vertex_descriptor u, ResourceAcce
             }
         }
     }
-    impl::removeVectorVertex(const_cast<ResourceAccessGraph&>(g), u, ResourceAccessGraph::directed_category{});
+    impl::removeVectorVertex(g, u, ResourceAccessGraph::directed_category{});
 
     // remove components
     g.passID.erase(g.passID.begin() + static_cast<std::ptrdiff_t>(u));
@@ -463,7 +463,7 @@ inline void remove_vertex(RelationGraph::vertex_descriptor u, RelationGraph& g) 
             }
         }
     }
-    impl::removeVectorVertex(const_cast<RelationGraph&>(g), u, RelationGraph::directed_category{});
+    impl::removeVectorVertex(g, u, RelationGraph::directed_category{});
 
     // remove components
     g.descID.erase(g.descID.begin() + static_cast<std::ptrdiff_t>(u));

@@ -53,10 +53,10 @@ struct VectorVertexBundlePropertyMap
     VectorVertexBundlePropertyMap(Graph &g) noexcept // NOLINT(google-explicit-constructor)
     : graph(&g) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return graph->mVertices[v].property;
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -75,11 +75,11 @@ struct PointerVertexBundlePropertyMap
     PointerVertexBundlePropertyMap(Graph &g) noexcept // NOLINT(google-explicit-constructor)
     : graph(&g) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         auto *sv = static_cast<typename Graph::vertex_type *>(v);
         return sv->property;
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -98,10 +98,10 @@ struct VectorVertexBundleMemberPropertyMap
     VectorVertexBundleMemberPropertyMap(Graph &g, MemberPointer ptr) noexcept
     : graph(&g), memberPointer(ptr) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return graph->mVertices[v].property.*memberPointer;
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -121,11 +121,11 @@ struct PointerVertexBundleMemberPropertyMap
     PointerVertexBundleMemberPropertyMap(Graph &g, MemberPointer ptr) noexcept
     : graph(&g), memberPointer(ptr) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         auto *sv = static_cast<typename Graph::vertex_type *>(v);
         return sv->property.*memberPointer;
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -145,10 +145,10 @@ struct VectorVertexComponentPropertyMap
     VectorVertexComponentPropertyMap(Container &c) noexcept // NOLINT(google-explicit-constructor)
     : container(&c) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return (*container)[v];
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -167,10 +167,10 @@ struct VectorVertexComponentMemberPropertyMap
     VectorVertexComponentMemberPropertyMap(Container &c, MemberPointer ptr) noexcept
     : container(&c), memberPointer(ptr) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return (*container)[v].*memberPointer;
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -190,10 +190,10 @@ struct VectorVertexIteratorComponentPropertyMap
     VectorVertexIteratorComponentPropertyMap(Graph &g, ComponentPointer component) noexcept
     : graph(&g), componentPointer(component) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return *(graph->mVertices[v].*componentPointer);
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -213,10 +213,10 @@ struct VectorVertexIteratorComponentMemberPropertyMap
     VectorVertexIteratorComponentMemberPropertyMap(Graph &g, ComponentPointer component, MemberPointer ptr) noexcept
     : graph(&g), componentPointer(component), memberPointer(ptr) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return (*(graph->mVertices[v].*componentPointer)).*memberPointer;
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -237,10 +237,10 @@ struct VectorPathPropertyMap
     VectorPathPropertyMap(Container &c) noexcept // NOLINT(google-explicit-constructor)
     : container(&c) {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return (*container)[v].mPathIterator->first;
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
@@ -259,10 +259,10 @@ struct EdgeBundlePropertyMap
     EdgeBundlePropertyMap(Graph &g) noexcept // NOLINT(google-explicit-constructor)
     : graph(&g) {}
 
-    inline reference operator[](const key_type &e) const noexcept {
+    reference operator[](const key_type &e) const noexcept {
         return *static_cast<typename Graph::edge_property_type *>(e.get_property());
     }
-    inline reference operator()(const key_type &e) const noexcept {
+    reference operator()(const key_type &e) const noexcept {
         return operator[](e);
     }
 
@@ -281,11 +281,11 @@ struct EdgeBundleMemberPropertyMap
     EdgeBundleMemberPropertyMap(Graph &g, MemberPointer ptr) noexcept
     : graph(&g), memberPointer(ptr) {}
 
-    inline reference operator[](const key_type &e) const noexcept {
+    reference operator[](const key_type &e) const noexcept {
         auto &p = *static_cast<typename Graph::edge_property_type *>(e.get_property());
         return p.*memberPointer;
     }
-    inline reference operator()(const key_type &e) const noexcept {
+    reference operator()(const key_type &e) const noexcept {
         return operator[](e);
     }
 
@@ -650,10 +650,10 @@ struct ColorMap : public boost::put_get_helper<boost::default_color_type &, Colo
     ColorMap(ccstd::pmr::vector<boost::default_color_type> &vec) noexcept // NOLINT(google-explicit-constructor)
     : container{&vec} {}
 
-    inline reference operator[](const key_type &v) const noexcept {
+    reference operator[](const key_type &v) const noexcept {
         return (*container)[v];
     }
-    inline reference operator()(const key_type &v) const noexcept {
+    reference operator()(const key_type &v) const noexcept {
         return operator[](v);
     }
 
