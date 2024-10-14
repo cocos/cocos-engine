@@ -23,7 +23,7 @@ module.exports = {
         },
         label: {
             font_style: '文本样式',
-            font_style_tooltip: '文本的样式，分别对应引擎的 isBold、isItalic、isUnderline',
+            font_style_tooltip: '文本的样式，分别对应引擎的 isBold，isItalic，isUnderline',
         },
         layer: {
             confirm_message: '是否连同修改子节点的 Layer？',
