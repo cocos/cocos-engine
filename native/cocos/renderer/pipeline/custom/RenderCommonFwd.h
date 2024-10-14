@@ -27,10 +27,9 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-// clang-format off
 #pragma once
+// clang-format off
 #include "cocos/base/std/hash/hash.h"
-#include "cocos/base/std/variant.h"
 
 namespace cc {
 
