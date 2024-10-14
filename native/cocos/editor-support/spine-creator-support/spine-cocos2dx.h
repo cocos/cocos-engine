@@ -35,6 +35,8 @@
 #include "spine-creator-support/SkeletonCacheMgr.h"
 #include "spine-creator-support/SkeletonDataMgr.h"
 #include "spine-creator-support/SkeletonRenderer.h"
+#include "spine-creator-support/SpineAnimation.h"
+#include "spine-creator-support/SpineAnimationState.h"
 #include "spine/spine.h"
 
 namespace spine {

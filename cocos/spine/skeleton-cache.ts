@@ -114,6 +114,7 @@ export class AnimationCache {
     }
 
     public setSkin (skinName: string): void {
+        if (!skinName || skinName.length === 0) return;
         if (this._skeleton) this._skeleton.setSkinByName(skinName);
         this._instance!.setSkin(skinName);
     }
@@ -449,7 +450,6 @@ class SkeletonCache {
                 animationCache = new AnimationCache(spData);
                 animationCache._privateMode = this._privateMode;
             }
-            animationCache.init(skeletonInfo, animationName);
             animationsCache[animationName] = animationCache;
         }
         animationCache.init(skeletonInfo, animationName);

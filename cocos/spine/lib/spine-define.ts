@@ -28,10 +28,21 @@ import spine from './spine-core.js';
 import { js } from '../../core';
 
 function resizeArray (array, newSize): Array<any> {
-    if (!array) return new Array(newSize);
-    if (newSize === array.length) return array;
-    if (newSize < array.length) return array.slice(0, newSize);
-    else return new Array(newSize);
+    if (!array) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return new Array(newSize);
+    }
+    if (newSize === array.length) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return array;
+    }
+    if (newSize < array.length) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return array.slice(0, newSize);
+    } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return new Array(newSize);
+    }
 }
 
 function overrideDefineArrayProp (prototype: any, getPropVector: any, name: string): void {
@@ -44,6 +55,7 @@ function overrideDefineArrayProp (prototype: any, getPropVector: any, name: stri
             array = resizeArray(array, count);
             for (let i = 0; i < count; i++) array[i] = vectors.get(i);
             this[_name] = array;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return array;
         },
     });
@@ -82,6 +94,7 @@ function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: 
             array = resizeArray(array, count);
             for (let i = 0; i < count; i++) array[i] = vectors.get(i);
             this[_name] = array;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return array;
         },
     });

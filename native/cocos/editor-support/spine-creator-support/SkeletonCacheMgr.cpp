@@ -47,6 +47,8 @@ SkeletonCache *SkeletonCacheMgr::buildSkeletonCache(const std::string &uuid) {
 void SkeletonCacheMgr::removeSkeletonCache(const std::string &uuid) {
     auto it = _caches.find(uuid);
     if (it != _caches.end()) {
+        auto *item = it->second;
+        item->release();
         _caches.erase(it);
     }
 }

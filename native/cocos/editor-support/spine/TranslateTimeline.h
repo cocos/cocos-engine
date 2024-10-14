@@ -53,6 +53,7 @@ public:
     virtual void apply(Skeleton& skeleton, float lastTime, float time, Vector<Event*>* pEvents, float alpha, MixBlend blend, MixDirection direction);
 
     virtual int getPropertyId();
+    inline void setBoneIndex(int inValue) {_boneIndex = inValue;}
 
     /// Sets the time and value of the specified keyframe.
     void setFrame(int frameIndex, float time, float x, float y);

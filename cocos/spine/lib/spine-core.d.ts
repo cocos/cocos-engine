@@ -168,7 +168,7 @@ declare namespace spine {
         frameVertices: Array<ArrayLike<number>>;
         constructor(frameCount: number);
         getPropertyId(): number;
-        setFrame(frameIndex: number, time: number, vertices: ArrayLike<number>): void;
+        setFrame(frameIndex: number, time: number, vertices: []): void;
         apply(skeleton: Skeleton, lastTime: number, time: number, firedEvents: Array<Event>, alpha: number, blend: MixBlend, direction: MixDirection): void;
     }
     class EventTimeline implements Timeline {

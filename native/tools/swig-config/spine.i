@@ -176,6 +176,8 @@ using namespace spine;
 %rename(events) spine::AnimationState::_events;
 %rename(queue) spine::AnimationState::_queue;
 %rename(animationsChanged) spine::AnimationState::_animationsChanged;
+%rename(addAnimationWith) spine::AnimationState::addAnimation(size_t trackIndex, Animation* animation, bool loop, float delay);
+%rename(addAnimationWith) spine::SpineAnimationState::addAnimation(size_t trackIndex, std::shared_ptr<Animation> animation, bool loop, float delay);
 %rename(trackEntryPool) spine::AnimationState::_trackEntryPool;
 %rename(listener) spine::TrackEntry::_listener;
 %rename(nextAnimationLast) spine::TrackEntry::_nextAnimationLast;
@@ -619,6 +621,8 @@ using namespace spine;
 %include "editor-support/spine-creator-support/SkeletonDataMgr.h"
 %include "editor-support/spine-creator-support/SkeletonCacheAnimation.h"
 %include "editor-support/spine-creator-support/SkeletonCacheMgr.h"
+%include "editor-support/spine-creator-support/SpineAnimation.h"
+%include "editor-support/spine-creator-support/SpineAnimationState.h"
 
 %extend spine::IkConstraint {
     void apply1(Bone *bone, float targetX, float targetY, bool compress, bool stretch, bool uniform, float alpha) {
