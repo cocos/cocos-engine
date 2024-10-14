@@ -25,10 +25,16 @@ module.exports = {
                     'horizontalAlign': {
                         displayName: 'Horizontal Alignment',
                         tooltip: 'Horizontal alignment mode.',
+                        tooltip_left: 'Align Left',
+                        tooltip_right: 'Align Right',
+                        tooltip_center: 'Align Center',
                     },
                     'verticalAlign': {
                         displayName: 'Vertical Alignment',
                         tooltip: 'Vertical alignment mode.',
+                        tooltip_top: 'Align Top',
+                        tooltip_bottom: 'Align Bottom',
+                        tooltip_center: 'Align Center',
                     },
                     'fontSize': {
                         displayName: 'Font Size',
