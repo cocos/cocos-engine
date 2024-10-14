@@ -48,6 +48,8 @@ namespace cc {
 
 namespace render {
 
+namespace {
+
 template <gfx::Format>
 void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg);
 
@@ -97,6 +99,8 @@ void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descri
         resg,
         v);
 }
+
+} // namespace
 
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
