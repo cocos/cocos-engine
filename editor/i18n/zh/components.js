@@ -22,7 +22,8 @@ module.exports = {
                 '此组件用于保存在旧 Prefab 系统中这个节点关联的 Prefab 资源，等新的 Prefab 系统完善，会自动迁移到新的 Prefab 系统上。',
         },
         label: {
-            font_style_tooltip: "文本的样式，分别对应引擎的 isBold,isItalic,isUnderline",
+            font_style: '文本样式',
+            font_style_tooltip: '文本的样式，分别对应引擎的 isBold，isItalic，isUnderline',
         },
         layer: {
             confirm_message: '是否连同修改子节点的 Layer？',
