@@ -28,7 +28,7 @@ import { ImageAsset, Texture2D } from '../../../asset/assets';
 import { PixelFormat } from '../../../asset/assets/asset-enum';
 import { BufferTextureCopy } from '../../../gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset, getSymbolCodeAt } from '../../utils/text-utils';
-import { director, Director, DirectorEvent } from '../../../game/director';
+import { director, DirectorEvent } from '../../../game/director';
 import { ccwindow } from '../../../core/global-exports';
 
 export interface ISharedLabelData {

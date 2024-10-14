@@ -250,8 +250,7 @@ export class Mat4 extends ValueType {
         let det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
         if (det === 0) {
-            Mat4.zero(out);
-            return out;
+            return Mat4.zero(out);
         }
         det = 1.0 / det;
 
