@@ -29,7 +29,6 @@
  */
 // clang-format off
 #pragma once
-#include "cocos/base/std/container/string.h"
 #include "cocos/renderer/pipeline/custom/CustomFwd.h"
 #include "cocos/renderer/pipeline/custom/RenderGraphTypes.h"
 
