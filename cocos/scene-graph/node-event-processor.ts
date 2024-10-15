@@ -157,7 +157,7 @@ export class NodeEventProcessor {
         const node = this.node;
         const children = node.children;
         if (value) {
-            this._attachMask();
+            this._attachMask$();
         }
         NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.MARK_LIST_DIRTY);
         if (recursive && children.length > 0) {
@@ -196,26 +196,26 @@ export class NodeEventProcessor {
     }
 
     public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean): AnyFunction {
-        this._tryEmittingAddEvent(type);
+        this._tryEmittingAddEvent$(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= this._newCallbacksInvoker();
+            invoker = this.capturingTarget ??= this._newCallbacksInvoker$();
         } else {
-            invoker = this.bubblingTarget ??= this._newCallbacksInvoker();
+            invoker = this.bubblingTarget ??= this._newCallbacksInvoker$();
         }
         invoker.on(type, callback, target);
         return callback;
     }
 
     public once (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean): AnyFunction {
-        this._tryEmittingAddEvent(type);
+        this._tryEmittingAddEvent$(type);
         useCapture = !!useCapture;
         let invoker: CallbacksInvoker<SystemEventTypeUnion>;
         if (useCapture) {
-            invoker = this.capturingTarget ??= this._newCallbacksInvoker();
+            invoker = this.capturingTarget ??= this._newCallbacksInvoker$();
         } else {
-            invoker = this.bubblingTarget ??= this._newCallbacksInvoker();
+            invoker = this.bubblingTarget ??= this._newCallbacksInvoker$();
         }
 
         invoker.on(type, callback, target, true);
@@ -238,13 +238,13 @@ export class NodeEventProcessor {
         this.bubblingTarget?.removeAll(target);
 
         // emit event
-        if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
+        if (this.shouldHandleEventTouch && !this._hasTouchListeners$()) {
             this.shouldHandleEventTouch = false;
         }
-        if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
+        if (this.shouldHandleEventMouse && !this._hasMouseListeners$()) {
             this.shouldHandleEventMouse = false;
         }
-        if (!this._hasPointerListeners()) {
+        if (!this._hasPointerListeners$()) {
             NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
         }
     }
@@ -394,21 +394,21 @@ export class NodeEventProcessor {
         return null;
     }
 
-    private _attachMask (): void {
+    private _attachMask$ (): void {
         this.maskList = this._searchComponentsInParent(NodeEventProcessor._maskComp);
     }
 
-    private _isTouchEvent (type: NodeEventType): boolean {
+    private _isTouchEvent$ (type: NodeEventType): boolean {
         const index = _touchEvents.indexOf(type);
         return index !== -1;
     }
 
-    private _isMouseEvent (type: NodeEventType): boolean {
+    private _isMouseEvent$ (type: NodeEventType): boolean {
         const index = _mouseEvents.indexOf(type);
         return index !== -1;
     }
 
-    private _hasTouchListeners (): boolean {
+    private _hasTouchListeners$ (): boolean {
         for (let i = 0; i < _touchEvents.length; ++i) {
             const eventType = _touchEvents[i];
             if (this.hasEventListener(eventType)) {
@@ -418,7 +418,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _hasMouseListeners (): boolean {
+    private _hasMouseListeners$ (): boolean {
         for (let i = 0; i < _mouseEvents.length; ++i) {
             const eventType = _mouseEvents[i];
             if (this.hasEventListener(eventType)) {
@@ -428,23 +428,23 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _hasPointerListeners (): boolean {
-        const has = this._hasTouchListeners();
+    private _hasPointerListeners$ (): boolean {
+        const has = this._hasTouchListeners$();
         if (has) {
             return true;
         }
-        return this._hasMouseListeners();
+        return this._hasMouseListeners$();
     }
 
-    private _tryEmittingAddEvent (typeToAdd: NodeEventType): void {
-        const isTouchEvent = this._isTouchEvent(typeToAdd);
-        const isMouseEvent = this._isMouseEvent(typeToAdd);
+    private _tryEmittingAddEvent$ (typeToAdd: NodeEventType): void {
+        const isTouchEvent = this._isTouchEvent$(typeToAdd);
+        const isMouseEvent = this._isMouseEvent$(typeToAdd);
         if (isTouchEvent) {
             this.shouldHandleEventTouch = true;
         } else if (isMouseEvent) {
             this.shouldHandleEventMouse = true;
         }
-        if ((isTouchEvent || isMouseEvent) && !this._hasPointerListeners()) {
+        if ((isTouchEvent || isMouseEvent) && !this._hasPointerListeners$()) {
             NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.ADD_POINTER_EVENT_PROCESSOR, this);
         }
     }
@@ -454,16 +454,16 @@ export class NodeEventProcessor {
      * We need to inject some nodeEventProcessor's logic into the `callbacksInvoker.off` method.
      * @returns {CallbacksInvoker<SystemEventTypeUnion>} decorated callbacks invoker
      */
-    private _newCallbacksInvoker (): CallbacksInvoker<SystemEventTypeUnion> {
+    private _newCallbacksInvoker$ (): CallbacksInvoker<SystemEventTypeUnion> {
         const callbacksInvoker = new CallbacksInvoker<SystemEventTypeUnion>();
         callbacksInvoker._registerOffCallback(() => {
-            if (this.shouldHandleEventTouch && !this._hasTouchListeners()) {
+            if (this.shouldHandleEventTouch && !this._hasTouchListeners$()) {
                 this.shouldHandleEventTouch = false;
             }
-            if (this.shouldHandleEventMouse && !this._hasMouseListeners()) {
+            if (this.shouldHandleEventMouse && !this._hasMouseListeners$()) {
                 this.shouldHandleEventMouse = false;
             }
-            if (!this._hasPointerListeners()) {
+            if (!this._hasPointerListeners$()) {
                 NodeEventProcessor.callbacksInvoker.emit(DispatcherEventType.REMOVE_POINTER_EVENT_PROCESSOR, this);
             }
         });
@@ -478,23 +478,23 @@ export class NodeEventProcessor {
     public _handleEventMouse (eventMouse: EventMouse): boolean {
         switch (eventMouse.type) {
         case InputEventType.MOUSE_DOWN:
-            return this._handleMouseDown(eventMouse);
+            return this._handleMouseDown$(eventMouse);
         case InputEventType.MOUSE_MOVE:
-            return this._handleMouseMove(eventMouse);
+            return this._handleMouseMove$(eventMouse);
         case InputEventType.MOUSE_UP:
-            return this._handleMouseUp(eventMouse);
+            return this._handleMouseUp$(eventMouse);
         case InputEventType.MOUSE_WHEEL:
-            return this._handleMouseWheel(eventMouse);
+            return this._handleMouseWheel$(eventMouse);
         case InputEventType.MOUSE_LEAVE:
-            return this._handleMouseLeave(eventMouse);
+            return this._handleMouseLeave$(eventMouse);
         case InputEventType.MOUSE_ENTER:
-            return this._handleMouseEnter(eventMouse);
+            return this._handleMouseEnter$(eventMouse);
         default:
             return false;
         }
     }
 
-    private _handleMouseDown (event: EventMouse): boolean {
+    private _handleMouseDown$ (event: EventMouse): boolean {
         const node = this._node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -512,7 +512,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleMouseMove (event: EventMouse): boolean {
+    private _handleMouseMove$ (event: EventMouse): boolean {
         const node = this._node;
         if (!node || !node._uiProps.uiTransformComp || this._isMouseLeaveWindow) {
             return false;
@@ -548,7 +548,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleMouseUp (event: EventMouse): boolean {
+    private _handleMouseUp$ (event: EventMouse): boolean {
         const node = this._node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -566,7 +566,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleMouseWheel (event: EventMouse): boolean {
+    private _handleMouseWheel$ (event: EventMouse): boolean {
         const node = this._node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -585,7 +585,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleMouseLeave (event: EventMouse): boolean {
+    private _handleMouseLeave$ (event: EventMouse): boolean {
         this._isMouseLeaveWindow = true;
         if (this.previousMouseIn) {
             event.type = NodeEventType.MOUSE_LEAVE;
@@ -596,7 +596,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleMouseEnter (event: EventMouse): boolean {
+    private _handleMouseEnter$ (event: EventMouse): boolean {
         this._isMouseLeaveWindow = false;
         return false;
     }
@@ -612,13 +612,13 @@ export class NodeEventProcessor {
         try {
             switch (eventTouch.type) {
             case InputEventType.TOUCH_START:
-                return this._handleTouchStart(eventTouch);
+                return this._handleTouchStart$(eventTouch);
             case InputEventType.TOUCH_MOVE:
-                return this._handleTouchMove(eventTouch);
+                return this._handleTouchMove$(eventTouch);
             case InputEventType.TOUCH_END:
-                return this._handleTouchEnd(eventTouch);
+                return this._handleTouchEnd$(eventTouch);
             case InputEventType.TOUCH_CANCEL:
-                return this._handleTouchCancel(eventTouch);
+                return this._handleTouchCancel$(eventTouch);
             default:
                 return false;
             }
@@ -628,7 +628,7 @@ export class NodeEventProcessor {
         }
     }
 
-    private _handleTouchStart (event: EventTouch): boolean {
+    private _handleTouchStart$ (event: EventTouch): boolean {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -647,7 +647,7 @@ export class NodeEventProcessor {
         return false;
     }
 
-    private _handleTouchMove (event: EventTouch): boolean {
+    private _handleTouchMove$ (event: EventTouch): boolean {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return false;
@@ -660,7 +660,7 @@ export class NodeEventProcessor {
         return true;
     }
 
-    private _handleTouchEnd (event: EventTouch): void {
+    private _handleTouchEnd$ (event: EventTouch): void {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return;
@@ -678,7 +678,7 @@ export class NodeEventProcessor {
         this._dispatchingTouch = null;
     }
 
-    private _handleTouchCancel (event: EventTouch): void {
+    private _handleTouchCancel$ (event: EventTouch): void {
         const node = this.node;
         if (!node || !node._uiProps.uiTransformComp) {
             return;

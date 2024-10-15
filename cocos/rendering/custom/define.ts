@@ -29,7 +29,7 @@ import { BufferInfo, Buffer, BufferUsageBit, ClearFlagBit, Color, DescriptorSet,
     Device,
 } from '../../gfx';
 import { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
-import { Camera, SKYBOX_FLAG } from '../../render-scene/scene/camera';
+import { Camera, SkyBoxFlagValue } from '../../render-scene/scene/camera';
 import { CSMLevel, ShadowType, Shadows } from '../../render-scene/scene/shadows';
 import { Light, LightType } from '../../render-scene/scene/light';
 import { DirectionalLight } from '../../render-scene/scene/directional-light';
@@ -37,7 +37,7 @@ import { RangedDirectionalLight } from '../../render-scene/scene/ranged-directio
 import { PointLight } from '../../render-scene/scene/point-light';
 import { SphereLight } from '../../render-scene/scene/sphere-light';
 import { SpotLight } from '../../render-scene/scene/spot-light';
-import { UBOForwardLight, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
+import { UBOForwardLightEnum, supportsR32FloatTexture, supportsRGBA16HalfFloatTexture } from '../define';
 import { BasicPipeline } from './pipeline';
 import {
     AttachmentType, LightInfo,
@@ -133,7 +133,7 @@ export function getLoadOpOfClearFlag (clearFlag: ClearFlagBit, attachment: Attac
     let loadOp = LoadOp.CLEAR;
     if (!(clearFlag & ClearFlagBit.COLOR)
         && attachment === AttachmentType.RENDER_TARGET) {
-        if (clearFlag & SKYBOX_FLAG) {
+        if (clearFlag & SkyBoxFlagValue.VALUE) {
             loadOp = LoadOp.CLEAR;
         } else {
             loadOp = LoadOp.LOAD;
@@ -765,14 +765,14 @@ export function SetLightUBO (
         luminanceLDR = rangedDirLight.illuminanceLDR;
     }
 
-    let index = offset + UBOForwardLight.LIGHT_POS_OFFSET;
+    let index = offset + UBOForwardLightEnum.LIGHT_POS_OFFSET;
     buffer.set(vec4Array, index);
 
-    index = offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET;
+    index = offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET;
     vec4Array.set([size, range, 0, 0]);
     buffer.set(vec4Array, index);
 
-    index = offset + UBOForwardLight.LIGHT_COLOR_OFFSET;
+    index = offset + UBOForwardLightEnum.LIGHT_COLOR_OFFSET;
     const color = light ? light.color : new Color();
     if (light && light.useColorTemperature) {
         const tempRGB = light.colorTemperatureRGB;
@@ -793,50 +793,50 @@ export function SetLightUBO (
 
     switch (light ? light.type : LightType.UNKNOWN) {
     case LightType.SPHERE:
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
         break;
     case LightType.SPOT: {
         const spotLight = light as SpotLight;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight.spotAngle;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] =                (shadowInfo && shadowInfo.enabled
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight.spotAngle;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] =                (shadowInfo && shadowInfo.enabled
                  && spotLight.shadowEnabled
                  && shadowInfo.type === ShadowType.ShadowMap) ? 1.0 : 0.0;
 
-        index = offset + UBOForwardLight.LIGHT_DIR_OFFSET;
+        index = offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET;
         const direction = spotLight.direction;
         buffer[index++] = direction.x;
         buffer[index++] = direction.y;
         buffer[index] = direction.z;
 
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = spotLight.angleAttenuationStrength;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = spotLight.angleAttenuationStrength;
     } break;
     case LightType.POINT:
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
         break;
     case LightType.RANGED_DIRECTIONAL: {
         const rangedDirLight = light as RangedDirectionalLight;
         const right = rangedDirLight.right;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
-        buffer[offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 0] = right.x;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 1] = right.y;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = right.z;
+        buffer[offset + UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET + 3] = 0;
 
         const direction = rangedDirLight.direction;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 0] = direction.x;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 1] = direction.y;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 2] = direction.z;
-        buffer[offset + UBOForwardLight.LIGHT_DIR_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 0] = direction.x;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 1] = direction.y;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 2] = direction.z;
+        buffer[offset + UBOForwardLightEnum.LIGHT_DIR_OFFSET + 3] = 0;
 
         const scale = rangedDirLight.scale;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5;
-        buffer[offset + UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 0] = scale.x * 0.5;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 1] = scale.y * 0.5;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 2] = scale.z * 0.5;
+        buffer[offset + UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET + 3] = 0;
     } break;
     default:
         break;

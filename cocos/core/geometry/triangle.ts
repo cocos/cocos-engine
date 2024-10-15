@@ -23,7 +23,7 @@
 */
 
 import { Vec3 } from '../math';
-import enums from './enums';
+import { ShapeType } from './enums';
 
 /**
  * @en
@@ -190,15 +190,15 @@ export class Triangle {
 
     /**
      * @en
-     * Gets the type of the triangle, always returns `enums.SHAPE_TRIANGLE`.
+     * Gets the type of the triangle, always returns `ShapeType.SHAPE_TRIANGLE`.
      * @zh
-     * 获取此三角形的类型，固定返回 `enums.SHAPE_TRIANGLE`。
+     * 获取此三角形的类型，固定返回 `ShapeType.SHAPE_TRIANGLE`。
      */
     get type (): number {
         return this._type;
     }
 
-    protected readonly _type: number = enums.SHAPE_TRIANGLE;
+    protected readonly _type: number = ShapeType.SHAPE_TRIANGLE;
 
     /**
      * @en

@@ -34,7 +34,7 @@ import { TiledObjectGroup } from './tiled-object-group';
 import { TiledMapAsset } from './tiled-map-asset';
 import { Sprite } from '../2d/components/sprite';
 import { fillTextureGrids } from './tiled-utils';
-import { Size, Vec2, logID, Color, sys } from '../core';
+import { Size, Vec2, logID, Color, sys, warnID } from '../core';
 import { SpriteFrame } from '../2d/assets';
 import { NodeEventType } from '../scene-graph/node-event';
 import { Node } from '../scene-graph';
@@ -455,7 +455,7 @@ export class TiledMap extends Component {
             const tilesetInfo = tilesets[i];
             if (!tilesetInfo) continue;
             if (!tilesetInfo.sourceImage) {
-                console.warn(`Can't find the spriteFrame of tilesets ${i}`);
+                warnID(16406, i);
                 continue;
             }
             fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);

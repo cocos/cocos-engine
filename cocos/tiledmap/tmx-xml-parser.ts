@@ -23,8 +23,8 @@
 */
 
 import { Label, HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
-import codec from '../../external/compression/ZipUtils.js';
-import zlib from '../../external/compression/zlib.min.js';
+import codec from '../../external/compression/ZipUtils';
+import zlib from '../../external/compression/zlib.min';
 import { SAXParser } from '../asset/asset-manager/plist-parser';
 import {
     GID, MixedGID, Orientation, PropertiesInfo, RenderOrder, StaggerAxis, StaggerIndex, TiledAnimation, TiledAnimationType,

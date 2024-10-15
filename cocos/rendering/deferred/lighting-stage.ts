@@ -30,7 +30,7 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { Camera } from '../../render-scene/scene/camera';
 import { LightType } from '../../render-scene/scene/light';
-import { UBODeferredLight, SetIndex, UBOForwardLight, UBOLocal } from '../define';
+import { UBODeferredLight, SetIndex, UBOForwardLight, UBOLocal, UBOLocalEnum } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet,
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
@@ -286,8 +286,8 @@ export class LightingStage extends RenderStage {
         const _localUBO = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            UBOLocal.SIZE,
-            UBOLocal.SIZE,
+            UBOLocalEnum.SIZE,
+            UBOLocalEnum.SIZE,
         ));
         this._descriptorSet.bindBuffer(UBOLocal.BINDING, _localUBO);
     }

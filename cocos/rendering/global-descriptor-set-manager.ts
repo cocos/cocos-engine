@@ -25,7 +25,7 @@
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
     DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout, SamplerInfo } from '../gfx';
 import { Light } from '../render-scene/scene/light';
-import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
+import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings, UBOShadowEnum } from './define';
 
 const _samplerLinearInfo = new SamplerInfo(
     Filter.LINEAR,
@@ -190,8 +190,8 @@ export class GlobalDSManager {
             const shadowUBO = device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                UBOShadow.SIZE,
-                UBOShadow.SIZE,
+                UBOShadowEnum.SIZE,
+                UBOShadowEnum.SIZE,
             ));
             descriptorSet.bindBuffer(UBOShadow.BINDING, shadowUBO);
 

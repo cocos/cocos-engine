@@ -25,7 +25,7 @@
 
 import { Light } from './light-component';
 import { scene } from '../../render-scene';
-import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, Settings, CCInteger } from '../../core';
+import { cclegacy, clamp, warnID, CCBoolean, CCFloat, _decorator, settings, CCInteger, SettingsCategory } from '../../core';
 import { Camera, PCFType, Shadows, ShadowType, CSMOptimizationMode, CSMLevel } from '../../render-scene/scene';
 import { Root } from '../../root';
 import { MeshRenderer } from '../framework/mesh-renderer';
@@ -520,7 +520,7 @@ export class DirectionalLight extends Light {
         super();
         this._lightType = scene.DirectionalLight;
 
-        const highQualityMode = settings.querySettings(Settings.Category.RENDERING, 'highQualityMode');
+        const highQualityMode = settings.querySettings(SettingsCategory.RENDERING, 'highQualityMode');
 
         if (highQualityMode) {
             this._shadowPcf = PCFType.SOFT_2X;

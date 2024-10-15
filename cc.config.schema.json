@@ -56,6 +56,10 @@
         "optimizeDecorators": {
           "$ref": "#/definitions/IOptimizeDecorators",
           "description": "The decorators to be optimize when build engine."
+        },
+        "treeShake": {
+          "$ref": "#/definitions/ITreeShakeConfig",
+          "description": "The TreeShake config"
         }
       },
       "required": [
@@ -190,6 +194,21 @@
       "required": [
         "fieldDecorators",
         "editorDecorators"
+      ],
+      "type": "object"
+    },
+    "ITreeShakeConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "noSideEffectFiles": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "noSideEffectFiles"
       ],
       "type": "object"
     },

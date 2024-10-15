@@ -24,7 +24,7 @@
 
 import { DEBUG } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
-import enums from './enums';
+import { ShapeType } from './enums';
 import { IVec3, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
 import { Frustum } from './frustum';
@@ -239,7 +239,7 @@ export class AABB {
 
     protected readonly _type: number;
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
-        this._type = enums.SHAPE_AABB;
+        this._type = ShapeType.SHAPE_AABB;
 
         this.center = new Vec3(px, py, pz);
         this.halfExtents = new Vec3(hw, hh, hl);

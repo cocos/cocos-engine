@@ -25,7 +25,7 @@
 import { legacyCC } from '../core/global-exports';
 import { UITransform } from '../2d/framework';
 import { VideoPlayer } from './video-player';
-import { EventType } from './video-player-enums';
+import { VideoPlayerEventType } from './video-player-enums';
 import { error } from '../core/platform';
 import { director } from '../game/director';
 import { Node } from '../scene-graph';
@@ -33,7 +33,7 @@ import type { Camera } from '../render-scene/scene';
 
 export abstract class VideoPlayerImpl {
     protected _componentEventList: Map<string, () => void> = new Map();
-    protected _state = EventType.NONE;
+    protected _state = VideoPlayerEventType.NONE;
     protected _video: HTMLVideoElement | null = null;
 
     protected _onInterruptedBegin: () => void;
@@ -76,7 +76,7 @@ export abstract class VideoPlayerImpl {
         this._node = component.node;
         this._uiTrans = component.node.getComponent(UITransform);
         this._onInterruptedBegin = (): void => {
-            if (!this.video || this._state !== EventType.PLAYING) { return; }
+            if (!this.video || this._state !== VideoPlayerEventType.PLAYING) { return; }
             this.video.pause();
             this._interrupted = true;
         };
@@ -124,7 +124,7 @@ export abstract class VideoPlayerImpl {
     public get loaded (): boolean { return this._loaded; }
     public get componentEventList (): Map<string, () => void> { return this._componentEventList; }
     public get video (): HTMLVideoElement | null { return this._video; }
-    public get state (): EventType { return this._state; }
+    public get state (): VideoPlayerEventType { return this._state; }
     public get isPlaying (): boolean { return this._playing; }
     get UICamera (): Camera | null {
         return director.root!.batcher2D.getFirstRenderCamera(this._node!);
@@ -139,7 +139,7 @@ export abstract class VideoPlayerImpl {
         } else {
             this.disable();
         }
-        this.dispatchEvent(EventType.META_LOADED);
+        this.dispatchEvent(VideoPlayerEventType.META_LOADED);
         const video = e.target as HTMLVideoElement;
         if (this._keepAspectRatio && video) {
             this.syncUITransform(video.videoWidth, video.videoHeight);
@@ -150,16 +150,16 @@ export abstract class VideoPlayerImpl {
 
     public onCanPlay (e: Event): void {
         this._loaded = true;
-        this.dispatchEvent(EventType.READY_TO_PLAY);
+        this.dispatchEvent(VideoPlayerEventType.READY_TO_PLAY);
     }
 
     public onPlay (e: Event): void {
         this._playing = true;
-        this.dispatchEvent(EventType.PLAYING);
+        this.dispatchEvent(VideoPlayerEventType.PLAYING);
     }
 
     public onPlaying (e: Event): void {
-        this.dispatchEvent(EventType.PLAYING);
+        this.dispatchEvent(VideoPlayerEventType.PLAYING);
     }
 
     public onPause (e: Event): void {
@@ -168,26 +168,26 @@ export abstract class VideoPlayerImpl {
             this._ignorePause = false;
             return;
         }
-        this.dispatchEvent(EventType.PAUSED);
+        this.dispatchEvent(VideoPlayerEventType.PAUSED);
     }
 
     public onStoped (e: Event): void {
         this._playing = false;
         this._ignorePause = false;
-        this.dispatchEvent(EventType.STOPPED);
+        this.dispatchEvent(VideoPlayerEventType.STOPPED);
     }
 
     public onEnded (e: Event): void {
         this._playing = false;
-        this.dispatchEvent(EventType.COMPLETED);
+        this.dispatchEvent(VideoPlayerEventType.COMPLETED);
     }
 
     public onClick (e: Event): void {
-        this.dispatchEvent(EventType.CLICKED);
+        this.dispatchEvent(VideoPlayerEventType.CLICKED);
     }
 
     public onError (e: Event): void {
-        this.dispatchEvent(EventType.ERROR);
+        this.dispatchEvent(VideoPlayerEventType.ERROR);
         const video = e.target as HTMLVideoElement;
         if (video && video.error) {
             error(`Error ${video.error.code}; details: ${video.error.message}`);

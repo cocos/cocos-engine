@@ -112,8 +112,8 @@ export class Prefab extends Asset {
     public persistent = false;
 
     // Cache function to optimize instance creation.
-    private _createFunction: ((...arg: any[]) => Node) | null = null;
-    private _instantiatedTimes: number = 0;
+    private _createFunction$: ((...arg: any[]) => Node) | null = null;
+    private _instantiatedTimes$: number = 0;
     constructor () {
         super();
     }
@@ -135,7 +135,9 @@ export class Prefab extends Asset {
      * 但是您可以在脚本中修改原始预制数据后重新调用以刷新创建功能。
      */
     public compileCreateFunction (): void {
-        this._createFunction = compile(this.data);
+        if (SUPPORT_JIT) {
+            this._createFunction$ = compile(this.data);
+        }
     }
 
     // just instantiate, will not initialize the Node, this will be called during Node's initialization.
@@ -149,10 +151,10 @@ export class Prefab extends Asset {
             // temp guard code
             warnID(3700);
         }
-        if (!this._createFunction) {
+        if (!this._createFunction$) {
             this.compileCreateFunction();
         }
-        return this._createFunction!(rootToRedirect);  // this.data._instantiate();
+        return this._createFunction$!(rootToRedirect);  // this.data._instantiate();
     }
 
     private _instantiate (): Node {
@@ -165,7 +167,7 @@ export class Prefab extends Asset {
                 useJit = true;
             } else {
                 // auto
-                useJit = (this._instantiatedTimes + 1) >= Prefab.OptimizationPolicyThreshold;
+                useJit = (this._instantiatedTimes$ + 1) >= Prefab.OptimizationPolicyThreshold;
             }
         }
         if (useJit) {
@@ -177,7 +179,7 @@ export class Prefab extends Asset {
             // instantiate node
             node = this.data._instantiate();
         }
-        ++this._instantiatedTimes;
+        ++this._instantiatedTimes$;
 
         return node;
     }

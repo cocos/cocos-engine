@@ -26,7 +26,7 @@ export default function (parent: Node, _steps = 0) {
     nodeCollider2.worldPosition = initPos2;
     const body2 = nodeCollider2.addComponent(physics2d.RigidBody2D) as physics2d.RigidBody2D;
     const collider2 = nodeCollider2.addComponent(physics2d.BoxCollider2D) as physics2d.Collider2D;
-    collider2.group = physics2d.PhysicsGroup.DEFAULT;
+    collider2.group = physics2d.PhysicsGroup2D.DEFAULT;
 
     //test raycast cloest
     {
@@ -65,7 +65,7 @@ export default function (parent: Node, _steps = 0) {
         const p0 = new Vec2(0, 0);
         const p1 = new Vec2(20, 0);
         const type = physics2d.ERaycast2DType.All;
-        const mask = physics2d.PhysicsGroup.DEFAULT;
+        const mask = physics2d.PhysicsGroup2D.DEFAULT;
         let result = physics2d.PhysicsSystem2D.instance.raycast(p0, p1, type, mask);
         expect(result.length).toBe(1);
         expect(result[0].collider.uuid).toBe(collider2.uuid);

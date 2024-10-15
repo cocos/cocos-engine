@@ -24,15 +24,15 @@
 
 import { legacyCC } from '../core/global-exports';
 import { WebView } from './web-view';
-import { EventType } from './web-view-enums';
+import { WebViewEventType } from './web-view-enums';
 import { UITransform } from '../2d/framework';
 import { director } from '../game/director';
 import { Node } from '../scene-graph';
 import type { Camera } from '../render-scene/scene';
 
 export abstract class WebViewImpl {
-    protected _componentEventList: Map<EventType, (...args: any[any]) => void> = new Map();
-    protected _state = EventType.NONE;
+    protected _componentEventList: Map<WebViewEventType, (...args: any[any]) => void> = new Map();
+    protected _state = WebViewEventType.NONE;
     protected _wrapper: any; // Fix iframe display problem in ios.
     protected _webview: HTMLIFrameElement | null = null;
 
@@ -72,7 +72,7 @@ export abstract class WebViewImpl {
         this._m05 = 0;
         this._m12 = 0;
         this._m13 = 0;
-        this._state = EventType.NONE;
+        this._state = WebViewEventType.NONE;
         this._forceUpdate = false;
     }
 
@@ -88,14 +88,14 @@ export abstract class WebViewImpl {
     public abstract setJavascriptInterfaceScheme(scheme: string): void;
 
     get loaded (): boolean { return this._loaded; }
-    get componentEventList (): Map<EventType, (...args: any) => void> { return this._componentEventList; }
+    get componentEventList (): Map<WebViewEventType, (...args: any) => void> { return this._componentEventList; }
     get webview (): HTMLIFrameElement | null { return this._webview; }
-    get state (): EventType { return this._state; }
+    get state (): WebViewEventType { return this._state; }
     get UICamera (): Camera | null {
         return director.root!.batcher2D.getFirstRenderCamera(this._node!);
     }
 
-    protected dispatchEvent (key: EventType, ...args: any[any]): void {
+    protected dispatchEvent (key: WebViewEventType, ...args: any[any]): void {
         const callback = this._componentEventList.get(key);
         if (callback) {
             this._state = key;

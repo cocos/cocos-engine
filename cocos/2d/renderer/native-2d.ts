@@ -23,7 +23,7 @@
 */
 
 import { Material } from '../../asset/assets';
-import { Attribute, Device, Sampler, Texture } from '../../gfx';
+import { Attribute, Sampler, Texture } from '../../gfx';
 import { Node } from '../../scene-graph';
 import { Model } from '../../render-scene/scene';
 

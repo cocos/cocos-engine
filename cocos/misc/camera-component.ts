@@ -31,7 +31,7 @@ import { Component } from '../scene-graph';
 import { Color, Rect, toRadian, Vec3, cclegacy, geometry, Enum } from '../core';
 import { CAMERA_DEFAULT_MASK } from '../rendering/define';
 import { scene } from '../render-scene';
-import { SKYBOX_FLAG, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
+import { SkyBoxFlagValue, CameraProjection, CameraFOVAxis, CameraAperture, CameraISO, CameraShutter,
     CameraType, TrackingType } from '../render-scene/scene/camera';
 import { Node } from '../scene-graph/node';
 import { Layers } from '../scene-graph/layers';
@@ -59,7 +59,7 @@ export const ClearFlag = Enum({
      * @en Clear the screen with [[SceneGlobals.skybox]], will clear the depth and stencil buffer at the same time.
      * @zh 使用指定天空盒 [[SceneGlobals.skybox]] 清屏，会同时清理深度和蒙版缓冲。
      */
-    SKYBOX: SKYBOX_FLAG | ClearFlagBit.DEPTH_STENCIL,
+    SKYBOX: SkyBoxFlagValue.VALUE | ClearFlagBit.DEPTH_STENCIL,
     /**
      * @en Clear the screen with the given [[Camera.clearColor]], will clear the depth and stencil buffer at the same time.
      * @zh 使用指定的相机清屏颜色 [[Camera.clearColor]] 来清屏，会同时清理将深度和蒙版缓冲。
@@ -87,6 +87,10 @@ export declare namespace Camera {
     export type Aperture = EnumAlias<typeof Aperture>;
     export type Shutter = EnumAlias<typeof Shutter>;
     export type ISO = EnumAlias<typeof ISO>;
+}
+
+export enum CameraEvent {
+    TARGET_TEXTURE_CHANGE = 'tex-change',
 }
 
 /**
@@ -132,7 +136,7 @@ export class Camera extends Component {
      * @en The event for target texture changing.
      * @zh 目标贴图修改的事件。
      */
-    public static TARGET_TEXTURE_CHANGE = 'tex-change';
+    public static TARGET_TEXTURE_CHANGE = CameraEvent.TARGET_TEXTURE_CHANGE;
 
     @serializable
     protected _projection = ProjectionType.PERSPECTIVE;
@@ -494,7 +498,7 @@ export class Camera extends Component {
             this._camera.changeTargetWindow(EDITOR ? cclegacy.director.root.tempWindow : null);
             this._camera.isWindowSize = true;
         }
-        this.node.emit(Camera.TARGET_TEXTURE_CHANGE, this);
+        this.node.emit(CameraEvent.TARGET_TEXTURE_CHANGE, this);
     }
 
     @tooltip('i18n:camera.use_postprocess')

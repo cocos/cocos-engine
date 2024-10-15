@@ -27,7 +27,7 @@ import { mat4, visibleRect } from '../core';
 import { sys, screen, warn } from '../core/platform';
 import { game } from '../game';
 import { contains } from '../core/utils/misc';
-import { EventType, READY_STATE } from './video-player-enums';
+import { VideoPlayerEventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../gfx';
 import { BrowserType, OS } from '../../pal/system-info/enum-type';
@@ -103,7 +103,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             this._cachedCurrentTime = 0;
             setTimeout(() => {
                 this._ignorePause = false;
-                this.dispatchEvent(EventType.STOPPED);
+                this.dispatchEvent(VideoPlayerEventType.STOPPED);
             }, 0);
         }
     }

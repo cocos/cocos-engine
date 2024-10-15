@@ -29,7 +29,7 @@ import { Component } from '../scene-graph/component';
 import { Color, Size } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Node } from '../scene-graph';
-import { Layout } from './layout';
+import { Layout, LayoutResizeMode, LayoutType } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { UIRenderer } from '../2d/framework/ui-renderer';
@@ -195,13 +195,13 @@ export class PageViewIndicator extends Component {
 
         const layout = this._layout!;
         if (this.direction === Direction.HORIZONTAL) {
-            layout.type = Layout.Type.HORIZONTAL;
+            layout.type = LayoutType.HORIZONTAL;
             layout.spacingX = this.spacing;
         } else if (this.direction === Direction.VERTICAL) {
-            layout.type = Layout.Type.VERTICAL;
+            layout.type = LayoutType.VERTICAL;
             layout.spacingY = this.spacing;
         }
-        layout.resizeMode = Layout.ResizeMode.CONTAINER;
+        layout.resizeMode = LayoutResizeMode.CONTAINER;
     }
 
     /**

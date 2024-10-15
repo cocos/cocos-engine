@@ -30,7 +30,7 @@ import { macro } from '../../core/platform/macro';
 import { legacyCC } from '../../core/global-exports';
 
 // Anti-aliasing type, other types will be gradually added in the future
-export enum AntiAliasing {
+export enum DeferredAntiAliasing {
     NONE,
     FXAA,
 }
@@ -39,12 +39,12 @@ export const BLOOM_DOWNSAMPLEPASS_INDEX = 1;
 export const BLOOM_UPSAMPLEPASS_INDEX = BLOOM_DOWNSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 export const BLOOM_COMBINEPASS_INDEX = BLOOM_UPSAMPLEPASS_INDEX + MAX_BLOOM_FILTER_PASS_NUM;
 export class DeferredPipelineSceneData extends PipelineSceneData {
-    protected _antiAliasing: AntiAliasing = AntiAliasing.NONE;
+    protected _antiAliasing: DeferredAntiAliasing = DeferredAntiAliasing.NONE;
 
     constructor () {
         super();
     }
-    set antiAliasing (value: AntiAliasing) {
+    set antiAliasing (value: DeferredAntiAliasing) {
         this._antiAliasing = value;
         if (this._postprocessMaterial) {
             const defines = this._postprocessMaterial.passes[0].defines;
@@ -61,7 +61,7 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         }
     }
 
-    get antiAliasing (): AntiAliasing {
+    get antiAliasing (): DeferredAntiAliasing {
         return this._antiAliasing;
     }
 

@@ -5,7 +5,7 @@ import { CommandBuffer, Device, Buffer, BufferInfo, BufferViewInfo, MemoryUsageB
 import { BatchingSchemes, RenderScene } from '../../render-scene';
 import { CSMLevel, Camera, DirectionalLight, Light, LightType, Model, PointLight, ProbeType,
     RangedDirectionalLight,
-    ReflectionProbe, SKYBOX_FLAG, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
+    ReflectionProbe, SkyBoxFlagValue, ShadowType, Shadows, SphereLight, SpotLight } from '../../render-scene/scene';
 import { Layers, Node } from '../../scene-graph';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { bool, AlignUp, SetLightUBO, hashCombineKey } from './define';
@@ -174,7 +174,7 @@ function sceneCulling (
     const skybox = pSceneData.skybox;
     const skyboxModel = skybox.model;
     const visibility = camera.visibility;
-    const camSkyboxFlag = camera.clearFlag & SKYBOX_FLAG;
+    const camSkyboxFlag = camera.clearFlag & SkyBoxFlagValue.VALUE;
     if (!castShadow && skybox && skybox.enabled && skyboxModel && camSkyboxFlag) {
         models.push(skyboxModel);
     }
@@ -512,7 +512,7 @@ export class SceneCulling {
             return camera.frustum;
         }
         if (shadows.enabled && shadows.type === ShadowType.ShadowMap && mainLight && mainLight.node) {
-            // pplSceneData.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
+            // pplSceneData.updateShadowUBORange(UBOShadowEnum.SHADOW_COLOR_OFFSET, shadows.shadowColor);
             csmLayers.update(pplSceneData, camera);
         }
 

@@ -29,6 +29,7 @@ function buildDebugInfos () {
 
     const writeContent = JSON.stringify(debugInfos, null, 4);
     writeFileSync('DebugInfos.json', writeContent);
+    console.log(magenta(`${prefix} DONE! ${prefix}`));
 }
 
 buildDebugInfos();

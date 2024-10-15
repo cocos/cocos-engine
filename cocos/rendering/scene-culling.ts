@@ -22,10 +22,10 @@
  THE SOFTWARE.
 */
 import { Model } from '../render-scene/scene/model';
-import { Camera, CameraUsage, SKYBOX_FLAG } from '../render-scene/scene/camera';
+import { Camera, CameraUsage, SkyBoxFlagValue } from '../render-scene/scene/camera';
 import { Vec3, Pool, geometry, cclegacy } from '../core';
 import { PipelineUBO } from './pipeline-ubo';
-import { IRenderObject, UBOShadow } from './define';
+import { IRenderObject, UBOShadowEnum } from './define';
 import { ShadowType, CSMOptimizationMode } from '../render-scene/scene/shadows';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { ShadowLayerVolume } from './shadow/csm-layers';
@@ -162,7 +162,7 @@ export function sceneCulling (sceneData: PipelineSceneData, pipelineUBO: Pipelin
     csmLayerObjects.clear();
 
     if (shadows.enabled) {
-        pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
+        pipelineUBO.updateShadowUBORange(UBOShadowEnum.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
             // update CSM layers
             if (mainLight && mainLight.node) {
@@ -171,7 +171,7 @@ export function sceneCulling (sceneData: PipelineSceneData, pipelineUBO: Pipelin
         }
     }
 
-    if ((camera.clearFlag & SKYBOX_FLAG)) {
+    if ((camera.clearFlag & SkyBoxFlagValue.VALUE)) {
         if (skybox.enabled && skybox.model) {
             renderObjects.push(getRenderObject(skybox.model, camera));
         } else if (camera.cameraUsage !== CameraUsage.EDITOR && camera.cameraUsage !== CameraUsage.SCENE_VIEW) {

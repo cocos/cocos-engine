@@ -45,7 +45,7 @@ export const ResourceType = Enum({
     LOCAL: 1,
 });
 
-export enum EventType {
+export enum VideoPlayerEventType {
     /**
      * @en None.
      * @zh 无。

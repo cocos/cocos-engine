@@ -24,7 +24,8 @@
 
 import { RenderingSubMesh } from '../../asset/assets/rendering-sub-mesh';
 import { RenderPriority, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_STORAGE_BINDING,
-    INST_MAT_WORLD, INST_SH, UBOSH, isEnableEffect } from '../../rendering/define';
+    INST_MAT_WORLD, INST_SH, isEnableEffect,
+    UBOSHEnum } from '../../rendering/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, Texture, TextureType, TextureUsageBit, TextureInfo,
     Format, Sampler, Filter, Address, Shader, SamplerInfo, deviceManager,
@@ -324,7 +325,6 @@ export class SubModel {
      * @zh 管线更新回调
      */
     public onPipelineStateChanged (): void {
-
         const passes = this._passes;
         if (!passes) { return; }
 
@@ -439,7 +439,7 @@ export class SubModel {
      */
     public updateInstancedSH (data: Float32Array, idx: number): void {
         const attrs = this.instancedAttributeBlock.views;
-        const count = (UBOSH.SH_QUADRATIC_R_OFFSET - UBOSH.SH_LINEAR_CONST_R_OFFSET) / 4;
+        const count = (UBOSHEnum.SH_QUADRATIC_R_OFFSET - UBOSHEnum.SH_LINEAR_CONST_R_OFFSET) / 4;
         let offset = 0;
 
         for (let i = idx; i < idx + count; i++) {

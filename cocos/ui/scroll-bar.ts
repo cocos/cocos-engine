@@ -49,7 +49,7 @@ const _tempVec2 = new Vec2();
  * @zh
  * 滚动条方向。
  */
-enum Direction {
+enum ScrollBarDirection {
     /**
      * @en
      * Horizontal scroll.
@@ -69,7 +69,7 @@ enum Direction {
     VERTICAL = 1,
 }
 
-ccenum(Direction);
+ccenum(ScrollBarDirection);
 
 /**
  * @en
@@ -117,10 +117,10 @@ export class ScrollBar extends Component {
      * @zh
      * ScrollBar 的滚动方向。
      */
-    @type(Direction)
+    @type(ScrollBarDirection)
     @displayOrder(1)
     @tooltip('i18n:scrollbar.direction')
-    get direction (): Direction {
+    get direction (): ScrollBarDirection {
         return this._direction;
     }
 
@@ -180,13 +180,13 @@ export class ScrollBar extends Component {
         this._autoHideTime = value;
     }
 
-    public static Direction = Direction;
+    public static Direction = ScrollBarDirection;
     @serializable
     protected _scrollView: ScrollView | null = null;
     @serializable
     protected _handle: Sprite | null = null;
     @serializable
-    protected _direction = Direction.HORIZONTAL;
+    protected _direction = ScrollBarDirection.HORIZONTAL;
     @serializable
     protected _enableAutoHide = false;
     @serializable
@@ -262,7 +262,7 @@ export class ScrollBar extends Component {
         const outOfContentPosition = _tempVec2;
         outOfContentPosition.set(0, 0);
 
-        if (this._direction === Direction.HORIZONTAL) {
+        if (this._direction === ScrollBarDirection.HORIZONTAL) {
             contentMeasure = contentSize.width;
             scrollViewMeasure = scrollViewSize.width;
             handleNodeMeasure = barSize.width;
@@ -270,7 +270,7 @@ export class ScrollBar extends Component {
 
             this._convertToScrollViewSpace(outOfContentPosition, content);
             contentPosition = -outOfContentPosition.x;
-        } else if (this._direction === Direction.VERTICAL) {
+        } else if (this._direction === ScrollBarDirection.VERTICAL) {
             contentMeasure = contentSize.height;
             scrollViewMeasure = scrollViewSize.height;
             handleNodeMeasure = barSize.height;
@@ -407,9 +407,9 @@ export class ScrollBar extends Component {
         fixupPosition.set(0, 0, 0);
         handleParent._uiProps.uiTransformComp!.convertToNodeSpaceAR(leftBottomWorldPosition, fixupPosition);
 
-        if (this.direction === Direction.HORIZONTAL) {
+        if (this.direction === ScrollBarDirection.HORIZONTAL) {
             fixupPosition.set(fixupPosition.x, fixupPosition.y + (barSize.height - handleSize.height) / 2, fixupPosition.z);
-        } else if (this.direction === Direction.VERTICAL) {
+        } else if (this.direction === ScrollBarDirection.VERTICAL) {
             fixupPosition.set(fixupPosition.x + (barSize.width - handleSize.width) / 2, fixupPosition.y, fixupPosition.z);
         }
 
@@ -417,11 +417,11 @@ export class ScrollBar extends Component {
     }
 
     protected _conditionalDisableScrollBar (contentSize: Size, scrollViewSize: Size): boolean {
-        if (contentSize.width <= scrollViewSize.width && this._direction === Direction.HORIZONTAL) {
+        if (contentSize.width <= scrollViewSize.width && this._direction === ScrollBarDirection.HORIZONTAL) {
             return true;
         }
 
-        if (contentSize.height <= scrollViewSize.height && this._direction === Direction.VERTICAL) {
+        if (contentSize.height <= scrollViewSize.height && this._direction === ScrollBarDirection.VERTICAL) {
             return true;
         }
         return false;
@@ -458,7 +458,7 @@ export class ScrollBar extends Component {
         }
 
         const position = (handleNodeMeasure - actualLenth) * positionRatio;
-        if (this._direction === Direction.VERTICAL) {
+        if (this._direction === ScrollBarDirection.VERTICAL) {
             out.set(0, position);
         } else {
             out.set(position, 0);
@@ -475,7 +475,7 @@ export class ScrollBar extends Component {
                 handleTrans.setAnchorPoint(defaultAnchor);
             }
 
-            if (this._direction === Direction.HORIZONTAL) {
+            if (this._direction === ScrollBarDirection.HORIZONTAL) {
                 handleTrans.setContentSize(length, handleNodeSize.height);
             } else {
                 handleTrans.setContentSize(handleNodeSize.width, length);

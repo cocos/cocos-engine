@@ -27,7 +27,7 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UITransform } from '../2d/framework';
 import { Component, EventHandler as ComponentEventHandler } from '../scene-graph';
 import { WebViewImplManager } from './web-view-impl-manager';
-import { EventType } from './web-view-enums';
+import { WebViewEventType } from './web-view-enums';
 import { legacyCC } from '../core/global-exports';
 import type { WebViewImpl  } from './web-view-impl';
 
@@ -55,7 +55,7 @@ export class WebView extends Component {
      * @en WebView event type.
      * @zh 网页视图事件类型。
      */
-    public static EventType = EventType;
+    public static EventType = WebViewEventType;
 
     /**
      * @en
@@ -102,8 +102,8 @@ export class WebView extends Component {
      * @zh
      * 获取当前网页视图状态。
      */
-    get state (): EventType {
-        if (!this._impl) { return EventType.NONE; }
+    get state (): WebViewEventType {
+        if (!this._impl) { return WebViewEventType.NONE; }
         return this._impl.state;
     }
 
@@ -167,25 +167,25 @@ export class WebView extends Component {
         }
         this._impl = WebViewImplManager.getImpl(this);
         // must be register the event listener
-        this._impl.componentEventList.set(EventType.LOADING, this.onLoading.bind(this));
-        this._impl.componentEventList.set(EventType.LOADED, this.onLoaded.bind(this));
-        this._impl.componentEventList.set(EventType.ERROR, this.onError.bind(this));
+        this._impl.componentEventList.set(WebViewEventType.LOADING, this.onLoading.bind(this));
+        this._impl.componentEventList.set(WebViewEventType.LOADED, this.onLoaded.bind(this));
+        this._impl.componentEventList.set(WebViewEventType.ERROR, this.onError.bind(this));
         this._impl.loadURL(this._url);
     }
 
     onLoading (): void {
-        ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADING);
-        this.node.emit(EventType.LOADING, this);
+        ComponentEventHandler.emitEvents(this.webviewEvents, this, WebViewEventType.LOADING);
+        this.node.emit(WebViewEventType.LOADING, this);
     }
 
     onLoaded (): void {
-        ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.LOADED);
-        this.node.emit(EventType.LOADED, this);
+        ComponentEventHandler.emitEvents(this.webviewEvents, this, WebViewEventType.LOADED);
+        this.node.emit(WebViewEventType.LOADED, this);
     }
 
     onError (...args: any[any]): void {
-        ComponentEventHandler.emitEvents(this.webviewEvents, this, EventType.ERROR, args);
-        this.node.emit(EventType.ERROR, this, args);
+        ComponentEventHandler.emitEvents(this.webviewEvents, this, WebViewEventType.ERROR, args);
+        this.node.emit(WebViewEventType.ERROR, this, args);
     }
 
     public onEnable (): void {

@@ -30,10 +30,10 @@ import { UITransform } from '../2d/framework';
 import { Sprite } from '../2d/components/sprite';
 import { ToggleContainer } from './toggle-container';
 import { extendsEnum } from '../core/data/utils/extends-enum';
-import { EventType as ButtonEventType, Button } from './button';
+import { ButtonEventType, Button } from './button';
 import { legacyCC } from '../core/global-exports';
 
-enum EventType {
+enum ToggleEventType {
     TOGGLE = 'toggle',
 }
 
@@ -115,7 +115,7 @@ export class Toggle extends Button {
      * @en Enum for toggle event.
      * @zh toggle 事件枚举。
      */
-    public static EventType = extendsEnum(EventType, ButtonEventType);
+    public static EventType = extendsEnum(ToggleEventType, ButtonEventType);
 
     /**
      * @en

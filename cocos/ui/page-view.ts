@@ -31,7 +31,7 @@ import { v2, v3, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { Layout } from './layout';
 import { PageViewIndicator } from './page-view-indicator';
-import { ScrollView, EventType as ScrollEventType } from './scroll-view';
+import { ScrollView, ScrollViewEventType as ScrollEventType } from './scroll-view';
 import { ScrollBar } from './scroll-bar';
 import { warnID, logID } from '../core/platform/debug';
 import { extendsEnum } from '../core/data/utils/extends-enum';
@@ -65,27 +65,27 @@ ccenum(SizeMode);
  *
  * @zh 页面视图滚动类型。
  */
-enum Direction {
+enum PageViewDirection {
     /**
      * @en Horizontal scroll.
      * @zh 水平滚动。
      */
-    Horizontal = 0,
+    HORIZONTAL = 0,
     /**
      * @en Vertical scroll.
      * @zh 垂直滚动。
      */
-    Vertical = 1,
+    VERTICAL = 1,
 }
 
-ccenum(Direction);
+ccenum(PageViewDirection);
 
 /**
  * @en Enum for ScrollView event type.
  *
  * @zh 滚动视图事件类型。
  */
-enum EventType {
+enum PageViewEventType {
     PAGE_TURNING = 'page-turning',
 }
 
@@ -130,9 +130,9 @@ export class PageView extends ScrollView {
      * @zh
      * 页面视图滚动类型。
      */
-    @type(Direction)
+    @type(PageViewDirection)
     @tooltip('i18n:pageview.direction')
-    get direction (): Direction {
+    get direction (): PageViewDirection {
         return this._direction;
     }
 
@@ -227,12 +227,12 @@ export class PageView extends ScrollView {
      * @en Enum for Page View Direction.
      * @zh 页面视图滚动类型。
      */
-    public static Direction = Direction;
+    public static Direction = PageViewDirection;
     /**
      * @en Enum for Page View event.
      * @zh 页面视图事件枚举
      */
-    public static EventType = extendsEnum(EventType, ScrollEventType);
+    public static EventType = extendsEnum(PageViewEventType, ScrollEventType);
 
     /**
      * @en
@@ -351,7 +351,7 @@ export class PageView extends ScrollView {
     @serializable
     protected _sizeMode = SizeMode.Unified;
     @serializable
-    protected _direction = Direction.Horizontal;
+    protected _direction = PageViewDirection.HORIZONTAL;
     @serializable
     protected _scrollThreshold = 0.5;
     @serializable
@@ -587,7 +587,7 @@ export class PageView extends ScrollView {
             const page = this._pages[i];
             // page.setSiblingIndex(i);
             const pos = page.position;
-            if (this.direction === Direction.Horizontal) {
+            if (this.direction === PageViewDirection.HORIZONTAL) {
                 this._scrollCenterOffsetX[i] = Math.abs(contentPos.x + pos.x);
             } else {
                 this._scrollCenterOffsetY[i] = Math.abs(contentPos.y + pos.y);
@@ -652,8 +652,8 @@ export class PageView extends ScrollView {
     protected _onMouseWheel (): void { }
 
     protected _syncScrollDirection (): void {
-        this.horizontal = this.direction === Direction.Horizontal;
-        this.vertical = this.direction === Direction.Vertical;
+        this.horizontal = this.direction === PageViewDirection.HORIZONTAL;
+        this.vertical = this.direction === PageViewDirection.VERTICAL;
     }
 
     protected _syncSizeMode (): void {
@@ -664,10 +664,10 @@ export class PageView extends ScrollView {
             if (this._sizeMode === SizeMode.Free && this._pages.length > 0) {
                 const firstPageTrans = this._pages[0]._uiProps.uiTransformComp!;
                 const lastPageTrans = this._pages[this._pages.length - 1]._uiProps.uiTransformComp!;
-                if (this.direction === Direction.Horizontal) {
+                if (this.direction === PageViewDirection.HORIZONTAL) {
                     layout.paddingLeft = (viewTrans.width - firstPageTrans.width) / 2;
                     layout.paddingRight = (viewTrans.width - lastPageTrans.width) / 2;
-                } else if (this.direction === Direction.Vertical) {
+                } else if (this.direction === PageViewDirection.VERTICAL) {
                     layout.paddingTop = (viewTrans.height - firstPageTrans.height) / 2;
                     layout.paddingBottom = (viewTrans.height - lastPageTrans.height) / 2;
                 }
@@ -694,17 +694,17 @@ export class PageView extends ScrollView {
     protected _dispatchPageTurningEvent (): void {
         if (this._lastPageIdx === this._curPageIdx) { return; }
         this._lastPageIdx = this._curPageIdx;
-        ComponentEventHandler.emitEvents(this.pageEvents, this, EventType.PAGE_TURNING);
-        this.node.emit(EventType.PAGE_TURNING, this);
+        ComponentEventHandler.emitEvents(this.pageEvents, this, PageViewEventType.PAGE_TURNING);
+        this.node.emit(PageViewEventType.PAGE_TURNING, this);
     }
 
     // 快速滑动
     protected _isQuicklyScrollable (touchMoveVelocity: Vec3): boolean {
-        if (this.direction === Direction.Horizontal) {
+        if (this.direction === PageViewDirection.HORIZONTAL) {
             if (Math.abs(touchMoveVelocity.x) > this.autoPageTurningThreshold) {
                 return true;
             }
-        } else if (this.direction === Direction.Vertical) {
+        } else if (this.direction === PageViewDirection.VERTICAL) {
             if (Math.abs(touchMoveVelocity.y) > this.autoPageTurningThreshold) {
                 return true;
             }
@@ -716,9 +716,9 @@ export class PageView extends ScrollView {
     protected _moveOffsetValue (idx: number): Vec2 {
         const offset = new Vec2();
         if (this._sizeMode === SizeMode.Free) {
-            if (this.direction === Direction.Horizontal) {
+            if (this.direction === PageViewDirection.HORIZONTAL) {
                 offset.x = this._scrollCenterOffsetX[idx];
-            } else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === PageViewDirection.VERTICAL) {
                 offset.y = this._scrollCenterOffsetY[idx];
             }
         } else {
@@ -726,9 +726,9 @@ export class PageView extends ScrollView {
             if (!viewTrans) {
                 return offset;
             }
-            if (this.direction === Direction.Horizontal) {
+            if (this.direction === PageViewDirection.HORIZONTAL) {
                 offset.x = idx * viewTrans.width;
-            } else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === PageViewDirection.VERTICAL) {
                 offset.y = idx * viewTrans.height;
             }
         }
@@ -736,7 +736,7 @@ export class PageView extends ScrollView {
     }
 
     protected _getDragDirection (moveOffset: Vec2): number {
-        if (this._direction === Direction.Horizontal) {
+        if (this._direction === PageViewDirection.HORIZONTAL) {
             if (moveOffset.x === 0) {
                 return 0;
             }
@@ -757,11 +757,11 @@ export class PageView extends ScrollView {
         if (this._sizeMode === SizeMode.Free) {
             let curPageCenter = 0;
             let nextPageCenter = 0;
-            if (this.direction === Direction.Horizontal) {
+            if (this.direction === PageViewDirection.HORIZONTAL) {
                 curPageCenter = this._scrollCenterOffsetX[index];
                 nextPageCenter = this._scrollCenterOffsetX[nextIndex];
                 return Math.abs(offset.x) >= Math.abs(curPageCenter - nextPageCenter) * this.scrollThreshold;
-            } else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === PageViewDirection.VERTICAL) {
                 curPageCenter = this._scrollCenterOffsetY[index];
                 nextPageCenter = this._scrollCenterOffsetY[nextIndex];
                 return Math.abs(offset.y) >= Math.abs(curPageCenter - nextPageCenter) * this.scrollThreshold;
@@ -771,9 +771,9 @@ export class PageView extends ScrollView {
             if (!viewTrans) {
                 return false;
             }
-            if (this.direction === Direction.Horizontal) {
+            if (this.direction === PageViewDirection.HORIZONTAL) {
                 return Math.abs(offset.x) >= viewTrans.width * this.scrollThreshold;
-            } else if (this.direction === Direction.Vertical) {
+            } else if (this.direction === PageViewDirection.VERTICAL) {
                 return Math.abs(offset.y) >= viewTrans.height * this.scrollThreshold;
             }
         }

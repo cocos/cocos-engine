@@ -24,7 +24,7 @@ import { EDITOR } from 'internal:constants';
 import { director } from '../game/director';
 import { Game, game } from '../game';
 import { errorID } from '../core/platform/debug';
-import { Settings, settings } from '../core/settings';
+import { settings, SettingsCategory } from '../core/settings';
 import { Enum } from '../core/value-types';
 
 interface SortingItem {
@@ -48,7 +48,7 @@ game.on(Game.EVENT_POST_SUBSYSTEM_INIT, () => {
  * In the sorting component, layer has higher sorting priority than sortingOrder.
  * */
 export class SortingLayers {
-    private static nameMap = new Map<number, string>();
+    private static nameMap$ = new Map<number, string>();
     private static indexMap = new Map<number, number>();
 
     /**
@@ -94,8 +94,8 @@ export class SortingLayers {
      */
     public static getLayerName (layer = 0): string {
         let name = '';
-        if (this.nameMap.has(layer)) {
-            name = this.nameMap.get(layer)!;
+        if (this.nameMap$.has(layer)) {
+            name = this.nameMap$.get(layer)!;
         } else {
             errorID(2105);
         }
@@ -107,12 +107,12 @@ export class SortingLayers {
      * @en Get Layer id by name
      */
     public static getLayerByName (name: string): number {
-        const count = this.nameMap.size;
-        const keyIterator = this.nameMap.keys();
+        const count = this.nameMap$.size;
+        const keyIterator = this.nameMap$.keys();
         let key = 0;
         for (let i = 0; i < count; i++) {
             key = keyIterator.next().value;
-            if (this.nameMap.get(key) === name) return key;
+            if (this.nameMap$.get(key) === name) return key;
         }
         errorID(2106);
         return 0;
@@ -146,7 +146,7 @@ export class SortingLayers {
      * @engineInternal
      */
     public static init (): void {
-        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(Settings.Category.ENGINE, 'sortingLayers');
+        let sortingLayers = settings.querySettings<ReadonlyArray<SortingItem>>(SettingsCategory.ENGINE, 'sortingLayers');
         if (!sortingLayers || sortingLayers.length === 0) {
             sortingLayers = this.getBuiltinLayers();
         }
@@ -178,8 +178,8 @@ export class SortingLayers {
     /**
      * @engineInternal
      */
-    public static setLayer (layer, layerName, layerIndex): void {
-        this.nameMap.set(layer, layerName);
+    public static setLayer (layer: number, layerName: string, layerIndex: number): void {
+        this.nameMap$.set(layer, layerName);
         this.indexMap.set(layer, layerIndex);
     }
 
@@ -193,6 +193,6 @@ export class SortingLayers {
             delete SortingLayers.Enum[oldItem[i]];
         }
         SortingLayers.indexMap.clear();
-        SortingLayers.nameMap.clear();
+        SortingLayers.nameMap$.clear();
     }
 }

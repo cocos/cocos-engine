@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 import { EDITOR, NATIVE, PREVIEW, TEST } from 'internal:constants';
-import { assert, Settings, settings } from '../../core';
+import { assert, settings, SettingsCategory } from '../../core';
 import { fetchPipeline, pipeline } from './shared';
 import Task from './task';
 
@@ -87,7 +87,7 @@ if ((EDITOR || PREVIEW) && !TEST) {
             } else {
                 let previewServer = '';
                 if (NATIVE) {
-                    previewServer = settings.querySettings<string>(Settings.Category.PATH, 'previewServer') || '';
+                    previewServer = settings.querySettings<string>(SettingsCategory.PATH, 'previewServer') || '';
                     assert(Boolean(previewServer));
                 }
                 text = await fetchText(`${previewServer}/query-extname/${uuid}`) as string;
