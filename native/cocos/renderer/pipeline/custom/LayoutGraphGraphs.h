@@ -739,32 +739,34 @@ tag(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
         g._vertices[u].handle);
 }
 
-inline LayoutGraph::VertexValue
-value(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraph::vertex_descriptor v, const LayoutGraph&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    const auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
-inline LayoutGraph::VertexConstValue
-value(LayoutGraph::vertex_descriptor u, const LayoutGraph& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraph::vertex_descriptor v, LayoutGraph&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraph::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexConstValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraph::VertexConstValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
 template <class Tag>
@@ -1439,32 +1441,34 @@ tag(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
         g._vertices[u].handle);
 }
 
-inline LayoutGraphData::VertexValue
-value(LayoutGraphData::vertex_descriptor u, LayoutGraphData& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraphData::vertex_descriptor v, const LayoutGraphData&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    const auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
-inline LayoutGraphData::VertexConstValue
-value(LayoutGraphData::vertex_descriptor u, const LayoutGraphData& g) noexcept {
+template <class... Ts>
+auto visitObject(LayoutGraphData::vertex_descriptor v, LayoutGraphData&g, Ts&&... args) {
     using vertex_descriptor = LayoutGraphData::vertex_descriptor;
-    return ccstd::visit(
-        overload(
-            [&](const impl::ValueHandle<RenderStageTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexConstValue{&g.stages[h.value]};
-            },
-            [&](const impl::ValueHandle<RenderPhaseTag, vertex_descriptor>& h) {
-                return LayoutGraphData::VertexConstValue{&g.phases[h.value]};
-            }),
-        g._vertices[u].handle);
+    auto visitor = Overloaded{ std::forward<Ts>(args)... };
+    auto& var = g._vertices[v].handle;
+    switch (var.index()) {
+    case 0:
+        return visitor(g.stages[ccstd::get<impl::ValueHandle<RenderStageTag, vertex_descriptor>>(var).value]);
+    case 1:
+        return visitor(g.phases[ccstd::get<impl::ValueHandle<RenderPhaseTag, vertex_descriptor>>(var).value]);
+    default:
+        std::terminate();
+    }
 }
 
 template <class Tag>

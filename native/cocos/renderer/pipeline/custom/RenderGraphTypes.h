@@ -38,7 +38,6 @@
 #include "cocos/base/std/container/vector.h"
 #include "cocos/base/std/hash/hash.h"
 #include "cocos/core/assets/Material.h"
-#include "cocos/math/Geometry.h"
 #include "cocos/renderer/gfx-base/GFXBuffer.h"
 #include "cocos/renderer/gfx-base/GFXFramebuffer.h"
 #include "cocos/renderer/gfx-base/GFXRenderPass.h"
