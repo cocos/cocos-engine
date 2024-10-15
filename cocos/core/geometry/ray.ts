@@ -23,7 +23,7 @@
 */
 
 import { Vec3 } from '../math';
-import enums from './enums';
+import { ShapeType } from './enums';
 import { IVec3Like } from '../math/type-define';
 
 /**
@@ -145,15 +145,15 @@ export class Ray {
 
     /**
      * @en
-     * Gets the type of the ray, its value is `enums.SHAPE_RAY`.
+     * Gets the type of the ray, its value is `ShapeType.SHAPE_RAY`.
      * @zh
-     * 获取形状的类型，其值为`enums.SHAPE_RAY`。
+     * 获取形状的类型，其值为`ShapeType.SHAPE_RAY`。
      */
     get type (): number {
         return this._type;
     }
 
-    protected readonly _type: number = enums.SHAPE_RAY;
+    protected readonly _type: number = ShapeType.SHAPE_RAY;
 
     /**
      * @en

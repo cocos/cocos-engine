@@ -179,20 +179,32 @@ export const bindingMappingInfo = new BindingMappingInfo(
     [0, 2, 1, 3],                                      // Set Order Indices
 );
 
+export enum UBOGlobalEnum {
+    TIME_OFFSET = 0,
+    SCREEN_SIZE_OFFSET = TIME_OFFSET + 4,
+    NATIVE_SIZE_OFFSET = SCREEN_SIZE_OFFSET + 4,
+    PROBE_INFO_OFFSET = NATIVE_SIZE_OFFSET + 4,
+
+    DEBUG_VIEW_MODE_OFFSET = PROBE_INFO_OFFSET + 4,
+
+    COUNT = DEBUG_VIEW_MODE_OFFSET + 4,
+    SIZE = COUNT * 4,
+}
+
 /**
  * @en The global uniform buffer object
  * @zh 全局 UBO。
  */
 export class UBOGlobal {
-    public static readonly TIME_OFFSET = 0;
-    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
-    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static readonly PROBE_INFO_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly TIME_OFFSET = UBOGlobalEnum.TIME_OFFSET;
+    public static readonly SCREEN_SIZE_OFFSET = UBOGlobalEnum.SCREEN_SIZE_OFFSET;
+    public static readonly NATIVE_SIZE_OFFSET = UBOGlobalEnum.NATIVE_SIZE_OFFSET;
+    public static readonly PROBE_INFO_OFFSET = UBOGlobalEnum.PROBE_INFO_OFFSET;
 
-    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobal.PROBE_INFO_OFFSET + 4;
+    public static readonly DEBUG_VIEW_MODE_OFFSET = UBOGlobalEnum.DEBUG_VIEW_MODE_OFFSET;
 
-    public static readonly COUNT = UBOGlobal.DEBUG_VIEW_MODE_OFFSET + 4;
-    public static readonly SIZE = UBOGlobal.COUNT * 4;
+    public static readonly COUNT = UBOGlobalEnum.COUNT;
+    public static readonly SIZE = UBOGlobalEnum.SIZE;
 
     public static readonly NAME = 'CCGlobal';
     public static readonly BINDING = PipelineGlobalBindings.UBO_GLOBAL;
@@ -209,32 +221,56 @@ export class UBOGlobal {
 globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
 
+export enum UBOCameraEnum {
+    MAT_VIEW_OFFSET = 0,
+    MAT_VIEW_INV_OFFSET = MAT_VIEW_OFFSET + 16,
+    MAT_PROJ_OFFSET = MAT_VIEW_INV_OFFSET + 16,
+    MAT_PROJ_INV_OFFSET = MAT_PROJ_OFFSET + 16,
+    MAT_VIEW_PROJ_OFFSET = MAT_PROJ_INV_OFFSET + 16,
+    MAT_VIEW_PROJ_INV_OFFSET = MAT_VIEW_PROJ_OFFSET + 16,
+    CAMERA_POS_OFFSET = MAT_VIEW_PROJ_INV_OFFSET + 16,
+    SURFACE_TRANSFORM_OFFSET = CAMERA_POS_OFFSET + 4,
+    SCREEN_SCALE_OFFSET = SURFACE_TRANSFORM_OFFSET + 4,
+    EXPOSURE_OFFSET = SCREEN_SCALE_OFFSET + 4,
+    MAIN_LIT_DIR_OFFSET = EXPOSURE_OFFSET + 4,
+    MAIN_LIT_COLOR_OFFSET = MAIN_LIT_DIR_OFFSET + 4,
+    AMBIENT_SKY_OFFSET = MAIN_LIT_COLOR_OFFSET + 4,
+    AMBIENT_GROUND_OFFSET = AMBIENT_SKY_OFFSET + 4,
+    GLOBAL_FOG_COLOR_OFFSET = AMBIENT_GROUND_OFFSET + 4,
+    GLOBAL_FOG_BASE_OFFSET = GLOBAL_FOG_COLOR_OFFSET + 4,
+    GLOBAL_FOG_ADD_OFFSET = GLOBAL_FOG_BASE_OFFSET + 4,
+    NEAR_FAR_OFFSET = GLOBAL_FOG_ADD_OFFSET + 4,
+    VIEW_PORT_OFFSET = NEAR_FAR_OFFSET + 4,
+    COUNT = VIEW_PORT_OFFSET + 4,
+    SIZE = COUNT * 4,
+}
+
 /**
  * @en The global camera uniform buffer object
  * @zh 全局相机 UBO。
  */
 export class UBOCamera {
-    public static readonly MAT_VIEW_OFFSET = 0;
-    public static readonly MAT_VIEW_INV_OFFSET = UBOCamera.MAT_VIEW_OFFSET + 16;
-    public static readonly MAT_PROJ_OFFSET = UBOCamera.MAT_VIEW_INV_OFFSET + 16;
-    public static readonly MAT_PROJ_INV_OFFSET = UBOCamera.MAT_PROJ_OFFSET + 16;
-    public static readonly MAT_VIEW_PROJ_OFFSET = UBOCamera.MAT_PROJ_INV_OFFSET + 16;
-    public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCamera.MAT_VIEW_PROJ_OFFSET + 16;
-    public static readonly CAMERA_POS_OFFSET = UBOCamera.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static readonly SURFACE_TRANSFORM_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
-    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.SURFACE_TRANSFORM_OFFSET + 4;
-    public static readonly EXPOSURE_OFFSET = UBOCamera.SCREEN_SCALE_OFFSET + 4;
-    public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
-    public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
-    public static readonly AMBIENT_SKY_OFFSET = UBOCamera.MAIN_LIT_COLOR_OFFSET + 4;
-    public static readonly AMBIENT_GROUND_OFFSET = UBOCamera.AMBIENT_SKY_OFFSET + 4;
-    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
-    public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
-    public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static readonly NEAR_FAR_OFFSET = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
-    public static readonly VIEW_PORT_OFFSET = UBOCamera.NEAR_FAR_OFFSET + 4;
-    public static readonly COUNT = UBOCamera.VIEW_PORT_OFFSET + 4;
-    public static readonly SIZE = UBOCamera.COUNT * 4;
+    public static readonly MAT_VIEW_OFFSET = UBOCameraEnum.MAT_VIEW_OFFSET;
+    public static readonly MAT_VIEW_INV_OFFSET = UBOCameraEnum.MAT_VIEW_INV_OFFSET;
+    public static readonly MAT_PROJ_OFFSET = UBOCameraEnum.MAT_PROJ_OFFSET;
+    public static readonly MAT_PROJ_INV_OFFSET = UBOCameraEnum.MAT_PROJ_INV_OFFSET;
+    public static readonly MAT_VIEW_PROJ_OFFSET = UBOCameraEnum.MAT_VIEW_PROJ_OFFSET;
+    public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCameraEnum.MAT_VIEW_PROJ_INV_OFFSET;
+    public static readonly CAMERA_POS_OFFSET = UBOCameraEnum.CAMERA_POS_OFFSET;
+    public static readonly SURFACE_TRANSFORM_OFFSET = UBOCameraEnum.SURFACE_TRANSFORM_OFFSET;
+    public static readonly SCREEN_SCALE_OFFSET = UBOCameraEnum.SCREEN_SCALE_OFFSET;
+    public static readonly EXPOSURE_OFFSET = UBOCameraEnum.EXPOSURE_OFFSET;
+    public static readonly MAIN_LIT_DIR_OFFSET = UBOCameraEnum.MAIN_LIT_DIR_OFFSET;
+    public static readonly MAIN_LIT_COLOR_OFFSET = UBOCameraEnum.MAIN_LIT_COLOR_OFFSET;
+    public static readonly AMBIENT_SKY_OFFSET = UBOCameraEnum.AMBIENT_SKY_OFFSET;
+    public static readonly AMBIENT_GROUND_OFFSET = UBOCameraEnum.AMBIENT_GROUND_OFFSET;
+    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCameraEnum.GLOBAL_FOG_COLOR_OFFSET;
+    public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCameraEnum.GLOBAL_FOG_BASE_OFFSET;
+    public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCameraEnum.GLOBAL_FOG_ADD_OFFSET;
+    public static readonly NEAR_FAR_OFFSET = UBOCameraEnum.NEAR_FAR_OFFSET;
+    public static readonly VIEW_PORT_OFFSET = UBOCameraEnum.VIEW_PORT_OFFSET;
+    public static readonly COUNT = UBOCameraEnum.COUNT;
+    public static readonly SIZE = UBOCameraEnum.SIZE;
 
     public static readonly NAME = 'CCCamera';
     public static readonly BINDING = PipelineGlobalBindings.UBO_CAMERA;
@@ -264,23 +300,39 @@ export class UBOCamera {
 globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
 
+export enum UBOShadowEnum {
+    MAT_LIGHT_VIEW_OFFSET = 0,
+    MAT_LIGHT_VIEW_PROJ_OFFSET = MAT_LIGHT_VIEW_OFFSET + 16,
+    SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = MAT_LIGHT_VIEW_PROJ_OFFSET + 16,
+    SHADOW_PROJ_DEPTH_INFO_OFFSET = SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4,
+    SHADOW_PROJ_INFO_OFFSET = SHADOW_PROJ_DEPTH_INFO_OFFSET + 4,
+    SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = SHADOW_PROJ_INFO_OFFSET + 4,
+    SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET = SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4,
+    SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4,
+    SHADOW_COLOR_OFFSET = SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4,
+    PLANAR_NORMAL_DISTANCE_INFO_OFFSET = SHADOW_COLOR_OFFSET + 4,
+    COUNT = PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4,
+    SIZE = COUNT * 4,
+}
+
 /**
  * @en The uniform buffer object for 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow'
  * @zh 这个 UBO 仅仅只给 'cast shadow(fixed || csm)' && 'dir fixed area shadow' && 'spot shadow' && 'sphere shadow' && 'planar shadow' 使用
  */
 export class UBOShadow {
-    public static readonly MAT_LIGHT_VIEW_OFFSET = 0;
-    public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
-    public static readonly SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static readonly SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadow.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET + 4;
-    public static readonly SHADOW_PROJ_INFO_OFFSET = UBOShadow.SHADOW_PROJ_DEPTH_INFO_OFFSET + 4;
-    public static readonly SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadow.SHADOW_PROJ_INFO_OFFSET + 4;
-    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 4;
-    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
-    public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
-    public static readonly PLANAR_NORMAL_DISTANCE_INFO_OFFSET = UBOShadow.SHADOW_COLOR_OFFSET + 4;
-    public static readonly COUNT: number = UBOShadow.PLANAR_NORMAL_DISTANCE_INFO_OFFSET + 4;
-    public static readonly SIZE = UBOShadow.COUNT * 4;
+    public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadowEnum.MAT_LIGHT_VIEW_OFFSET;
+    public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadowEnum.MAT_LIGHT_VIEW_PROJ_OFFSET;
+    public static readonly SHADOW_INV_PROJ_DEPTH_INFO_OFFSET = UBOShadowEnum.SHADOW_INV_PROJ_DEPTH_INFO_OFFSET;
+    public static readonly SHADOW_PROJ_DEPTH_INFO_OFFSET = UBOShadowEnum.SHADOW_PROJ_DEPTH_INFO_OFFSET;
+    public static readonly SHADOW_PROJ_INFO_OFFSET = UBOShadowEnum.SHADOW_PROJ_INFO_OFFSET;
+    public static readonly SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET = UBOShadowEnum.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET;
+    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET = UBOShadowEnum.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET;
+    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET = UBOShadowEnum.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET;
+    public static readonly SHADOW_COLOR_OFFSET = UBOShadowEnum.SHADOW_COLOR_OFFSET;
+    public static readonly PLANAR_NORMAL_DISTANCE_INFO_OFFSET = UBOShadowEnum.PLANAR_NORMAL_DISTANCE_INFO_OFFSET;
+    public static readonly COUNT = UBOShadowEnum.COUNT;
+    public static readonly SIZE = UBOShadowEnum.SIZE;
+
     public static readonly NAME = 'CCShadow';
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOShadow.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
@@ -300,22 +352,36 @@ export class UBOShadow {
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
 globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
+export enum UBOCSMEnum {
+    CSM_LEVEL_COUNT = 4,
+    CSM_VIEW_DIR_0_OFFSET = 0,
+    CSM_VIEW_DIR_1_OFFSET = CSM_VIEW_DIR_0_OFFSET + 4 * CSM_LEVEL_COUNT,
+    CSM_VIEW_DIR_2_OFFSET = CSM_VIEW_DIR_1_OFFSET + 4 * CSM_LEVEL_COUNT,
+    CSM_ATLAS_OFFSET = CSM_VIEW_DIR_2_OFFSET + 4 * CSM_LEVEL_COUNT,
+    MAT_CSM_VIEW_PROJ_OFFSET = CSM_ATLAS_OFFSET + 4 * CSM_LEVEL_COUNT,
+    CSM_PROJ_DEPTH_INFO_OFFSET = MAT_CSM_VIEW_PROJ_OFFSET + 16 * CSM_LEVEL_COUNT,
+    CSM_PROJ_INFO_OFFSET = CSM_PROJ_DEPTH_INFO_OFFSET + 4 * CSM_LEVEL_COUNT,
+    CSM_SPLITS_INFO_OFFSET = CSM_PROJ_INFO_OFFSET + 4 * CSM_LEVEL_COUNT,
+    COUNT = CSM_SPLITS_INFO_OFFSET + 4,
+    SIZE = COUNT * 4,
+}
+
 /**
  * @en The uniform buffer object only for dir csm shadow(level: 1 ~ 4)
  * @zh 级联阴影使用的UBO
  */
 export class UBOCSM {
-    public static readonly CSM_LEVEL_COUNT = 4;
-    public static readonly CSM_VIEW_DIR_0_OFFSET = 0;
-    public static readonly CSM_VIEW_DIR_1_OFFSET = UBOCSM.CSM_VIEW_DIR_0_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_VIEW_DIR_2_OFFSET = UBOCSM.CSM_VIEW_DIR_1_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_ATLAS_OFFSET = UBOCSM.CSM_VIEW_DIR_2_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly MAT_CSM_VIEW_PROJ_OFFSET = UBOCSM.CSM_ATLAS_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_PROJ_DEPTH_INFO_OFFSET = UBOCSM.MAT_CSM_VIEW_PROJ_OFFSET + 16 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_PROJ_INFO_OFFSET = UBOCSM.CSM_PROJ_DEPTH_INFO_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly CSM_SPLITS_INFO_OFFSET = UBOCSM.CSM_PROJ_INFO_OFFSET + 4 * UBOCSM.CSM_LEVEL_COUNT;
-    public static readonly COUNT: number = UBOCSM.CSM_SPLITS_INFO_OFFSET + 4;
-    public static readonly SIZE = UBOCSM.COUNT * 4;
+    public static readonly CSM_LEVEL_COUNT = UBOCSMEnum.CSM_LEVEL_COUNT;
+    public static readonly CSM_VIEW_DIR_0_OFFSET = UBOCSMEnum.CSM_VIEW_DIR_0_OFFSET;
+    public static readonly CSM_VIEW_DIR_1_OFFSET = UBOCSMEnum.CSM_VIEW_DIR_1_OFFSET;
+    public static readonly CSM_VIEW_DIR_2_OFFSET = UBOCSMEnum.CSM_VIEW_DIR_2_OFFSET;
+    public static readonly CSM_ATLAS_OFFSET = UBOCSMEnum.CSM_ATLAS_OFFSET;
+    public static readonly MAT_CSM_VIEW_PROJ_OFFSET = UBOCSMEnum.MAT_CSM_VIEW_PROJ_OFFSET;
+    public static readonly CSM_PROJ_DEPTH_INFO_OFFSET = UBOCSMEnum.CSM_PROJ_DEPTH_INFO_OFFSET;
+    public static readonly CSM_PROJ_INFO_OFFSET = UBOCSMEnum.CSM_PROJ_INFO_OFFSET;
+    public static readonly CSM_SPLITS_INFO_OFFSET = UBOCSMEnum.CSM_SPLITS_INFO_OFFSET;
+    public static readonly COUNT: number = UBOCSMEnum.COUNT;
+    public static readonly SIZE = UBOCSMEnum.SIZE;
 
     public static readonly NAME = 'CCCSM';
     public static readonly BINDING = PipelineGlobalBindings.UBO_CSM;
@@ -372,21 +438,34 @@ const UNIFORM_SPOT_SHADOW_MAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetInde
 globalDescriptorSetLayout.layouts[UNIFORM_SPOT_SHADOW_MAP_TEXTURE_NAME] = UNIFORM_SPOT_SHADOW_MAP_TEXTURE_LAYOUT;
 globalDescriptorSetLayout.bindings[UNIFORM_SPOT_SHADOW_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_SHADOW_MAP_TEXTURE_DESCRIPTOR;
 
+export enum UBOLocalEnum {
+    MAT_WORLD_OFFSET = 0,
+    MAT_WORLD_IT_OFFSET = MAT_WORLD_OFFSET + 16,
+    LIGHTINGMAP_UVPARAM = MAT_WORLD_IT_OFFSET + 16,
+    LOCAL_SHADOW_BIAS = LIGHTINGMAP_UVPARAM + 4,
+    REFLECTION_PROBE_DATA1 = LOCAL_SHADOW_BIAS + 4,
+    REFLECTION_PROBE_DATA2 = REFLECTION_PROBE_DATA1 + 4,
+    REFLECTION_PROBE_BLEND_DATA1 = REFLECTION_PROBE_DATA2 + 4,
+    REFLECTION_PROBE_BLEND_DATA2 = REFLECTION_PROBE_BLEND_DATA1 + 4,
+    COUNT = REFLECTION_PROBE_BLEND_DATA2 + 4,
+    SIZE = COUNT * 4,
+}
+
 /**
  * @en The local uniform buffer object
  * @zh 本地 UBO。
  */
 export class UBOLocal {
-    public static readonly MAT_WORLD_OFFSET = 0;
-    public static readonly MAT_WORLD_IT_OFFSET = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static readonly LIGHTINGMAP_UVPARAM = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
-    public static readonly LOCAL_SHADOW_BIAS = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
-    public static readonly REFLECTION_PROBE_DATA1 = UBOLocal.LOCAL_SHADOW_BIAS + 4;
-    public static readonly REFLECTION_PROBE_DATA2 = UBOLocal.REFLECTION_PROBE_DATA1 + 4;
-    public static readonly REFLECTION_PROBE_BLEND_DATA1 = UBOLocal.REFLECTION_PROBE_DATA2 + 4;
-    public static readonly REFLECTION_PROBE_BLEND_DATA2 = UBOLocal.REFLECTION_PROBE_BLEND_DATA1 + 4;
-    public static readonly COUNT = UBOLocal.REFLECTION_PROBE_BLEND_DATA2 + 4;
-    public static readonly SIZE = UBOLocal.COUNT * 4;
+    public static readonly MAT_WORLD_OFFSET = UBOLocalEnum.MAT_WORLD_OFFSET;
+    public static readonly MAT_WORLD_IT_OFFSET = UBOLocalEnum.MAT_WORLD_IT_OFFSET;
+    public static readonly LIGHTINGMAP_UVPARAM = UBOLocalEnum.LIGHTINGMAP_UVPARAM;
+    public static readonly LOCAL_SHADOW_BIAS = UBOLocalEnum.LOCAL_SHADOW_BIAS;
+    public static readonly REFLECTION_PROBE_DATA1 = UBOLocalEnum.REFLECTION_PROBE_DATA1;
+    public static readonly REFLECTION_PROBE_DATA2 = UBOLocalEnum.REFLECTION_PROBE_DATA2;
+    public static readonly REFLECTION_PROBE_BLEND_DATA1 = UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA1;
+    public static readonly REFLECTION_PROBE_BLEND_DATA2 = UBOLocalEnum.REFLECTION_PROBE_BLEND_DATA2;
+    public static readonly COUNT = UBOLocalEnum.COUNT;
+    public static readonly SIZE = UBOLocalEnum.SIZE;
 
     public static readonly NAME = 'CCLocal';
     public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
@@ -445,30 +524,41 @@ export class UBOLocalBatched {
 localDescriptorSetLayout.layouts[UBOLocalBatched.NAME] = UBOLocalBatched.LAYOUT;
 localDescriptorSetLayout.bindings[UBOLocalBatched.BINDING] = UBOLocalBatched.DESCRIPTOR;
 
+export enum UBOForwardLightEnum {
+    LIGHTS_PER_PASS = 1,
+    LIGHT_POS_OFFSET = 0,
+    LIGHT_COLOR_OFFSET = LIGHT_POS_OFFSET + LIGHTS_PER_PASS * 4,
+    LIGHT_SIZE_RANGE_ANGLE_OFFSET = LIGHT_COLOR_OFFSET + LIGHTS_PER_PASS * 4,
+    LIGHT_DIR_OFFSET = LIGHT_SIZE_RANGE_ANGLE_OFFSET + LIGHTS_PER_PASS * 4,
+    LIGHT_BOUNDING_SIZE_VS_OFFSET = LIGHT_DIR_OFFSET + LIGHTS_PER_PASS * 4,
+    COUNT = LIGHT_BOUNDING_SIZE_VS_OFFSET + LIGHTS_PER_PASS * 4,
+    SIZE = COUNT * 4,
+}
+
 /**
  * @en The uniform buffer object for forward lighting
  * @zh 前向灯光 UBO。
  */
 export class UBOForwardLight {
-    public static readonly LIGHTS_PER_PASS = 1;
+    public static readonly LIGHTS_PER_PASS = UBOForwardLightEnum.LIGHTS_PER_PASS;
 
-    public static readonly LIGHT_POS_OFFSET = 0;
-    public static readonly LIGHT_COLOR_OFFSET = UBOForwardLight.LIGHT_POS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight.LIGHT_COLOR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly LIGHT_DIR_OFFSET = UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly COUNT = UBOForwardLight.LIGHT_BOUNDING_SIZE_VS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static readonly SIZE = UBOForwardLight.COUNT * 4;
+    public static readonly LIGHT_POS_OFFSET = UBOForwardLightEnum.LIGHT_POS_OFFSET;
+    public static readonly LIGHT_COLOR_OFFSET = UBOForwardLightEnum.LIGHT_COLOR_OFFSET;
+    public static readonly LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLightEnum.LIGHT_SIZE_RANGE_ANGLE_OFFSET;
+    public static readonly LIGHT_DIR_OFFSET = UBOForwardLightEnum.LIGHT_DIR_OFFSET;
+    public static readonly LIGHT_BOUNDING_SIZE_VS_OFFSET = UBOForwardLightEnum.LIGHT_BOUNDING_SIZE_VS_OFFSET;
+    public static readonly COUNT = UBOForwardLightEnum.COUNT;
+    public static readonly SIZE = UBOForwardLightEnum.SIZE;
 
     public static readonly NAME = 'CCForwardLight';
     public static readonly BINDING = ModelLocalBindings.UBO_FORWARD_LIGHTS;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOForwardLight.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.FRAGMENT);
     public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOForwardLight.BINDING, UBOForwardLight.NAME, [
-        new Uniform('cc_lightPos', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightColor', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightDir', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
-        new Uniform('cc_lightBoundingSizeVS', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+        new Uniform('cc_lightPos', Type.FLOAT4, UBOForwardLightEnum.LIGHTS_PER_PASS),
+        new Uniform('cc_lightColor', Type.FLOAT4, UBOForwardLightEnum.LIGHTS_PER_PASS),
+        new Uniform('cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLightEnum.LIGHTS_PER_PASS),
+        new Uniform('cc_lightDir', Type.FLOAT4, UBOForwardLightEnum.LIGHTS_PER_PASS),
+        new Uniform('cc_lightBoundingSizeVS', Type.FLOAT4, UBOForwardLightEnum.LIGHTS_PER_PASS),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;
@@ -550,24 +640,34 @@ export function localDescriptorSetLayout_ResizeMaxJoints (maxCount: number): voi
     localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
 }
 
+export enum UBOMorphEnum {
+    MAX_MORPH_TARGET_COUNT = 60,
+    OFFSET_OF_WEIGHTS = 0,
+    OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = 4 * MAX_MORPH_TARGET_COUNT,
+    OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH + 4,
+    OFFSET_OF_VERTICES_COUNT = OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT + 4,
+    COUNT_BASE_4_BYTES = 4 * (MAX_MORPH_TARGET_COUNT / 4) + 4,
+    SIZE = COUNT_BASE_4_BYTES * 4,
+}
+
 /**
  * @en The uniform buffer object for morph setting
  * @zh 形变配置的 UBO
  */
 export class UBOMorph {
-    public static readonly MAX_MORPH_TARGET_COUNT = 60;
-    public static readonly OFFSET_OF_WEIGHTS = 0;
-    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = 4 * UBOMorph.MAX_MORPH_TARGET_COUNT;
-    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH + 4;
-    public static readonly OFFSET_OF_VERTICES_COUNT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT + 4;
-    public static readonly COUNT_BASE_4_BYTES = 4 * Math.ceil(UBOMorph.MAX_MORPH_TARGET_COUNT / 4) + 4;
-    public static readonly SIZE = UBOMorph.COUNT_BASE_4_BYTES * 4;
+    public static readonly MAX_MORPH_TARGET_COUNT = UBOMorphEnum.MAX_MORPH_TARGET_COUNT;
+    public static readonly OFFSET_OF_WEIGHTS = UBOMorphEnum.OFFSET_OF_WEIGHTS;
+    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = UBOMorphEnum.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH;
+    public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = UBOMorphEnum.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT;
+    public static readonly OFFSET_OF_VERTICES_COUNT = UBOMorphEnum.OFFSET_OF_VERTICES_COUNT;
+    public static readonly COUNT_BASE_4_BYTES = UBOMorphEnum.COUNT_BASE_4_BYTES;
+    public static readonly SIZE = UBOMorphEnum.SIZE;
 
     public static readonly NAME = 'CCMorph';
     public static readonly BINDING = ModelLocalBindings.UBO_MORPH;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOMorph.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOMorph.BINDING, UBOMorph.NAME, [
-        new Uniform('cc_displacementWeights', Type.FLOAT4, UBOMorph.MAX_MORPH_TARGET_COUNT / 4),
+        new Uniform('cc_displacementWeights', Type.FLOAT4, UBOMorphEnum.MAX_MORPH_TARGET_COUNT / 4),
         new Uniform('cc_displacementTextureInfo', Type.FLOAT4, 1),
     ], 1);
 }
@@ -586,20 +686,32 @@ export class UBOUILocal { // pre one vec4
 localDescriptorSetLayout.layouts[UBOUILocal.NAME] = UBOUILocal.LAYOUT;
 localDescriptorSetLayout.bindings[UBOUILocal.BINDING] = UBOUILocal.DESCRIPTOR;
 
+export enum UBOSHEnum {
+    SH_LINEAR_CONST_R_OFFSET = 0,
+    SH_LINEAR_CONST_G_OFFSET = SH_LINEAR_CONST_R_OFFSET + 4,
+    SH_LINEAR_CONST_B_OFFSET = SH_LINEAR_CONST_G_OFFSET + 4,
+    SH_QUADRATIC_R_OFFSET = SH_LINEAR_CONST_B_OFFSET + 4,
+    SH_QUADRATIC_G_OFFSET = SH_QUADRATIC_R_OFFSET + 4,
+    SH_QUADRATIC_B_OFFSET = SH_QUADRATIC_G_OFFSET + 4,
+    SH_QUADRATIC_A_OFFSET = SH_QUADRATIC_B_OFFSET + 4,
+    COUNT = SH_QUADRATIC_A_OFFSET + 4,
+    SIZE = COUNT * 4,
+}
+
 /**
  * @en The SH uniform buffer object
  * @zh 球谐 UBO。
  */
 export class UBOSH {
-    public static readonly SH_LINEAR_CONST_R_OFFSET = 0;
-    public static readonly SH_LINEAR_CONST_G_OFFSET = UBOSH.SH_LINEAR_CONST_R_OFFSET + 4;
-    public static readonly SH_LINEAR_CONST_B_OFFSET = UBOSH.SH_LINEAR_CONST_G_OFFSET + 4;
-    public static readonly SH_QUADRATIC_R_OFFSET = UBOSH.SH_LINEAR_CONST_B_OFFSET + 4;
-    public static readonly SH_QUADRATIC_G_OFFSET = UBOSH.SH_QUADRATIC_R_OFFSET + 4;
-    public static readonly SH_QUADRATIC_B_OFFSET = UBOSH.SH_QUADRATIC_G_OFFSET + 4;
-    public static readonly SH_QUADRATIC_A_OFFSET = UBOSH.SH_QUADRATIC_B_OFFSET + 4;
-    public static readonly COUNT = UBOSH.SH_QUADRATIC_A_OFFSET + 4;
-    public static readonly SIZE = UBOSH.COUNT * 4;
+    public static readonly SH_LINEAR_CONST_R_OFFSET = UBOSHEnum.SH_LINEAR_CONST_R_OFFSET;
+    public static readonly SH_LINEAR_CONST_G_OFFSET = UBOSHEnum.SH_LINEAR_CONST_G_OFFSET;
+    public static readonly SH_LINEAR_CONST_B_OFFSET = UBOSHEnum.SH_LINEAR_CONST_B_OFFSET;
+    public static readonly SH_QUADRATIC_R_OFFSET = UBOSHEnum.SH_QUADRATIC_R_OFFSET;
+    public static readonly SH_QUADRATIC_G_OFFSET = UBOSHEnum.SH_QUADRATIC_G_OFFSET;
+    public static readonly SH_QUADRATIC_B_OFFSET = UBOSHEnum.SH_QUADRATIC_B_OFFSET;
+    public static readonly SH_QUADRATIC_A_OFFSET = UBOSHEnum.SH_QUADRATIC_A_OFFSET;
+    public static readonly COUNT = UBOSHEnum.COUNT;
+    public static readonly SIZE = UBOSHEnum.SIZE;
 
     public static readonly NAME = 'CCSH';
     public static readonly BINDING = ModelLocalBindings.UBO_SH;

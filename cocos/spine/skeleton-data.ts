@@ -26,7 +26,7 @@ import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { CCString, Enum, error } from '../core';
 import SkeletonCache from './skeleton-cache';
 import { Skeleton } from './skeleton';
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { legacyCC } from '../core/global-exports';
 import { Texture2D, Asset } from '../asset/assets';

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /*
  Copyright (c) 2018-2023 Xiamen Yaji Software Co., Ltd.
 
@@ -32,6 +33,18 @@ import { IQuatLike, IVec3Like } from './type-define';
 import { EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+
+const abs = Math.abs;
+const max = Math.max;
+const min = Math.min;
+const PI = Math.PI;
+const acos = Math.acos;
+const sin = Math.sin;
+const cos = Math.cos;
+const sqrt = Math.sqrt;
+const atan2 = Math.atan2;
+const asin = Math.asin;
+const sign = Math.sign;
 
 /**
  * @en quaternion
@@ -96,7 +109,7 @@ export class Quat extends ValueType {
                 Vec3.cross(v3_1, Vec3.UNIT_Y, a);
             }
             Vec3.normalize(v3_1, v3_1);
-            Quat.fromAxisAngle(out, v3_1, Math.PI);
+            Quat.fromAxisAngle(out, v3_1, PI);
             return out;
         } else if (dot > 0.999999) {
             out.x = 0;
@@ -122,8 +135,8 @@ export class Quat extends ValueType {
      * @return radian of rotation
      */
     public static getAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out): number {
-        const rad = Math.acos(q.w) * 2.0;
-        const s = Math.sin(rad / 2.0);
+        const rad = acos(q.w) * 2.0;
+        const s = sin(rad / 2.0);
         if (s !== 0.0) {
             outAxis.x = q.x / s;
             outAxis.y = q.y / s;
@@ -189,8 +202,8 @@ export class Quat extends ValueType {
     public static rotateX<Out extends IQuatLike> (out: Out, a: Out, rad: number): Out {
         rad *= 0.5;
 
-        const bx = Math.sin(rad);
-        const bw = Math.cos(rad);
+        const bx = sin(rad);
+        const bw = cos(rad);
         const { x, y, z, w } = a;
 
         out.x = x * bw + w * bx;
@@ -208,8 +221,8 @@ export class Quat extends ValueType {
     public static rotateY<Out extends IQuatLike> (out: Out, a: Out, rad: number): Out {
         rad *= 0.5;
 
-        const by = Math.sin(rad);
-        const bw = Math.cos(rad);
+        const by = sin(rad);
+        const bw = cos(rad);
         const { x, y, z, w } = a;
 
         out.x = x * bw - z * by;
@@ -227,8 +240,8 @@ export class Quat extends ValueType {
     public static rotateZ<Out extends IQuatLike> (out: Out, a: Out, rad: number): Out {
         rad *= 0.5;
 
-        const bz = Math.sin(rad);
-        const bw = Math.cos(rad);
+        const bz = sin(rad);
+        const bw = cos(rad);
         const { x, y, z, w } = a;
 
         out.x = x * bw + y * bz;
@@ -274,7 +287,7 @@ export class Quat extends ValueType {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
-        out.w = Math.sqrt(Math.abs(1.0 - a.x * a.x - a.y * a.y - a.z * a.z));
+        out.w = sqrt(abs(1.0 - a.x * a.x - a.y * a.y - a.z * a.z));
         return out;
     }
 
@@ -327,10 +340,10 @@ export class Quat extends ValueType {
         // calculate coefficients
         if ((1.0 - cosom) > 0.000001) {
             // standard case (slerp)
-            const omega = Math.acos(cosom);
-            const sinom = Math.sin(omega);
-            scale0 = Math.sin((1.0 - t) * omega) / sinom;
-            scale1 = Math.sin(t * omega) / sinom;
+            const omega = acos(cosom);
+            const sinom = sin(omega);
+            scale0 = sin((1.0 - t) * omega) / sinom;
+            scale1 = sin(t * omega) / sinom;
         } else {
             // "from" and "to" quaternions are very close
             //  ... so we can do a linear interpolation
@@ -398,7 +411,7 @@ export class Quat extends ValueType {
      * @zh 求四元数长度
      */
     public static len<Out extends IQuatLike> (a: Out): number {
-        return Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
+        return sqrt(a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w);
     }
 
     /**
@@ -416,7 +429,7 @@ export class Quat extends ValueType {
     public static normalize<Out extends IQuatLike> (out: Out, a: Out): Out {
         let len = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         if (len > 0) {
-            len = 1 / Math.sqrt(len);
+            len = 1 / sqrt(len);
             out.x = a.x * len;
             out.y = a.y * len;
             out.z = a.z * len;
@@ -461,11 +474,11 @@ export class Quat extends ValueType {
      */
     public static fromAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, axis: VecLike, rad: number): Out {
         rad *= 0.5;
-        const s = Math.sin(rad);
+        const s = sin(rad);
         out.x = s * axis.x;
         out.y = s * axis.y;
         out.z = s * axis.z;
-        out.w = Math.cos(rad);
+        out.w = cos(rad);
         return out;
     }
 
@@ -500,7 +513,7 @@ export class Quat extends ValueType {
             biggestIndex = 3;
         }
 
-        const biggestVal = Math.sqrt(fourBiggestSquaredMinus1 + 1) * 0.5;
+        const biggestVal = sqrt(fourBiggestSquaredMinus1 + 1) * 0.5;
         const mult = 0.25 / biggestVal;
         switch (biggestIndex) {
         case 0:
@@ -546,12 +559,12 @@ export class Quat extends ValueType {
         y *= halfToRad;
         z *= halfToRad;
 
-        const sx = Math.sin(x);
-        const cx = Math.cos(x);
-        const sy = Math.sin(y);
-        const cy = Math.cos(y);
-        const sz = Math.sin(z);
-        const cz = Math.cos(z);
+        const sx = sin(x);
+        const cx = cos(x);
+        const sy = sin(y);
+        const cy = cos(y);
+        const sz = sin(z);
+        const cz = cos(z);
 
         out.x = sx * cy * cz + cx * sy * sz;
         out.y = cx * sy * cz + sx * cy * sz;
@@ -571,8 +584,8 @@ export class Quat extends ValueType {
     public static fromAngleZ<Out extends IQuatLike> (out: Out, z: number): Out {
         z *= halfToRad;
         out.x = out.y = 0;
-        out.z = Math.sin(z);
-        out.w = Math.cos(z);
+        out.z = sin(z);
+        out.w = cos(z);
         return out;
     }
 
@@ -634,23 +647,23 @@ export class Quat extends ValueType {
         const test = x * y + z * w;
         if (test > 0.499999) {
             bank = 0; // default to zero
-            heading = toDegree(2 * Math.atan2(x, w));
+            heading = toDegree(2 * atan2(x, w));
             attitude = 90;
         } else if (test < -0.499999) {
             bank = 0; // default to zero
-            heading = -toDegree(2 * Math.atan2(x, w));
+            heading = -toDegree(2 * atan2(x, w));
             attitude = -90;
         } else {
             const sqx = x * x;
             const sqy = y * y;
             const sqz = z * z;
-            bank = toDegree(Math.atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz));
-            heading = toDegree(Math.atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz));
-            attitude = toDegree(Math.asin(2 * test));
+            bank = toDegree(atan2(2 * x * w - 2 * y * z, 1 - 2 * sqx - 2 * sqz));
+            heading = toDegree(atan2(2 * y * w - 2 * x * z, 1 - 2 * sqy - 2 * sqz));
+            attitude = toDegree(asin(2 * test));
             if (outerZ) {
-                bank = -180 * Math.sign(bank + 1e-6) + bank;
-                heading = -180 * Math.sign(heading + 1e-6) + heading;
-                attitude = 180 * Math.sign(attitude + 1e-6) - attitude;
+                bank = -180 * sign(bank + 1e-6) + bank;
+                heading = -180 * sign(heading + 1e-6) + heading;
+                attitude = 180 * sign(attitude + 1e-6) - attitude;
             }
         }
         out.x = bank; out.y = heading; out.z = attitude;
@@ -709,10 +722,10 @@ export class Quat extends ValueType {
      * @zh 排除浮点数误差的四元数近似等价判断
      */
     public static equals (a: IQuatLike, b: IQuatLike, epsilon = EPSILON): boolean {
-        return (Math.abs(a.x - b.x) <= epsilon * Math.max(1.0, Math.abs(a.x), Math.abs(b.x))
-            && Math.abs(a.y - b.y) <= epsilon * Math.max(1.0, Math.abs(a.y), Math.abs(b.y))
-            && Math.abs(a.z - b.z) <= epsilon * Math.max(1.0, Math.abs(a.z), Math.abs(b.z))
-            && Math.abs(a.w - b.w) <= epsilon * Math.max(1.0, Math.abs(a.w), Math.abs(b.w)));
+        return (abs(a.x - b.x) <= epsilon * max(1.0, abs(a.x), abs(b.x))
+            && abs(a.y - b.y) <= epsilon * max(1.0, abs(a.y), abs(b.y))
+            && abs(a.z - b.z) <= epsilon * max(1.0, abs(a.z), abs(b.z))
+            && abs(a.w - b.w) <= epsilon * max(1.0, abs(a.w), abs(b.w)));
     }
 
     /**
@@ -723,8 +736,8 @@ export class Quat extends ValueType {
      * @returns Angle between the two quaternions in radians
      */
     public static angle (a: IQuatLike, b: IQuatLike): number {
-        const dot = Math.min(Math.abs(Quat.dot(a, b)), 1.0);
-        return Math.acos(dot) * 2.0;
+        const dot = min(abs(Quat.dot(a, b)), 1.0);
+        return acos(dot) * 2.0;
     }
 
     /**
@@ -745,7 +758,7 @@ export class Quat extends ValueType {
             return out;
         }
 
-        const t = Math.min(maxStep / toDegree(angle), 1.0);
+        const t = min(maxStep / toDegree(angle), 1.0);
         return Quat.slerp(out, from, to, t);
     }
 
@@ -838,10 +851,7 @@ export class Quat extends ValueType {
      * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
     public equals (other: Quat, epsilon = EPSILON): boolean {
-        return (Math.abs(this.x - other.x) <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
-            && Math.abs(this.y - other.y) <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
-            && Math.abs(this.z - other.z) <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
-            && Math.abs(this.w - other.w) <= epsilon * Math.max(1.0, Math.abs(this.w), Math.abs(other.w)));
+        return Quat.equals(this, other, epsilon);
     }
 
     /**
@@ -870,11 +880,12 @@ export class Quat extends ValueType {
      * @param ratio The interpolation coefficient. The range is [0,1].
      */
     public lerp (to: Quat, ratio: number): Quat {
-        this.x += ratio * (to.x - this.x);
-        this.y += ratio * (to.y - this.y);
-        this.z += ratio * (to.z - this.z);
-        this.w += ratio * (to.w - this.w);
-        return this;
+        const self = this;
+        self.x += ratio * (to.x - self.x);
+        self.y += ratio * (to.y - self.y);
+        self.z += ratio * (to.z - self.z);
+        self.w += ratio * (to.w - self.w);
+        return self;
     }
 
     /**
@@ -892,7 +903,9 @@ export class Quat extends ValueType {
      * @zh 求四元数长度
      */
     public length (): number {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
+        const self = this;
+        const { x, y, z, w } = self;
+        return sqrt(x * x + y * y + z * z + w * w);
     }
 
     /**
@@ -900,7 +913,9 @@ export class Quat extends ValueType {
      * @zh 求四元数长度平方
      */
     public lengthSqr (): number {
-        return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
+        const self = this;
+        const { x, y, z, w } = self;
+        return x * x + y * y + z * z + w * w;
     }
 }
 
@@ -908,7 +923,7 @@ const qt_1 = new Quat();
 const qt_2 = new Quat();
 const v3_1 = new Vec3();
 const m3_1 = new Mat3();
-const halfToRad = 0.5 * Math.PI / 180.0;
+const halfToRad = 0.5 * PI / 180.0;
 
 CCClass.fastDefine('cc.Quat', Quat, { x: 0, y: 0, z: 0, w: 1 });
 legacyCC.Quat = Quat;

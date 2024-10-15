@@ -73,7 +73,18 @@ interface TiledSubNodeData {
     subNodes: (null | TiledUserNodeData)[];
 }
 
- type TiledDataArray = (TiledRenderData | TiledSubNodeData)[];
+type TiledDataArray = (TiledRenderData | TiledSubNodeData)[];
+
+export interface ITiledLayerCullingRect {
+    leftDown: {
+        row: number;
+        col: number;
+    };
+    rightTop: {
+        row: number;
+        col: number;
+    };
+}
 
 /**
   * @en Render the TMX layer.
@@ -97,27 +108,20 @@ export class TiledLayer extends UIRenderer {
     // _tilesetIndexToArrIndex: { [key: number]: number } = {};
 
     protected _viewPort = { x: -1, y: -1, width: -1, height: -1 };
-    protected _cullingRect = {
+    protected _cullingRect: ITiledLayerCullingRect = {
         leftDown: { row: -1, col: -1 },
         rightTop: { row: -1, col: -1 },
     };
-    get cullingRect (): {
-        leftDown: {
-            row: number;
-            col: number;
-        };
-        rightTop: {
-            row: number;
-            col: number;
-        };
-    } { return this._cullingRect; }
+    get cullingRect (): ITiledLayerCullingRect {
+        return this._cullingRect;
+    }
 
     protected _cullingDirty = true;
     protected _rightTop = { row: -1, col: -1 };
     get rightTop (): {
         row: number;
         col: number;
-    } { return this._rightTop; }
+        } { return this._rightTop; }
 
     protected _layerInfo: TMXLayerInfo | null = null;
     protected _mapInfo: TMXMapInfo | null = null;
@@ -370,7 +374,7 @@ export class TiledLayer extends UIRenderer {
         const rowData = this._userNodeGrid[row];
         const colData = rowData && rowData[col];
         if (colData) {
-            rowData!.count--;
+            rowData.count--;
             colData.count--;
             colData.list[index] = null;
             if (colData.count <= 0) {
@@ -525,7 +529,7 @@ export class TiledLayer extends UIRenderer {
       * cc.log("Pos: " + pos);
       */
     public getPositionAt (pos: IVec2Like | number, y?: number): Vec2 | null {
-        let x;
+        let x: number;
         if (y !== undefined) {
             x = Math.floor(pos as number);
             y = Math.floor(y);

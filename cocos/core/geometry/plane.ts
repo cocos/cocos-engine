@@ -22,14 +22,13 @@
  THE SOFTWARE.
 */
 
-import { Mat4, Vec3, Vec4 } from '../math';
-import enums from './enums';
-import { legacyCC } from '../global-exports';
+import { mat4, Mat4, v4, Vec3, Vec4 } from '../math';
+import { ShapeType } from './enums';
 
 const v1 = new Vec3(0, 0, 0);
 const v2 = new Vec3(0, 0, 0);
-const temp_mat = legacyCC.mat4();
-const temp_vec4 = legacyCC.v4();
+const temp_mat = mat4();
+const temp_vec4 = v4();
 
 /**
  * @en
@@ -179,9 +178,9 @@ export class Plane {
 
     /**
      * @en
-     * Gets the type of the Plane, its value is `enums.SHAPE_PLANE`.
+     * Gets the type of the Plane, its value is `ShapeType.SHAPE_PLANE`.
      * @zh
-     * 获取形状的类型，值为 `enums.SHAPE_PLANE`。
+     * 获取形状的类型，值为 `ShapeType.SHAPE_PLANE`。
      */
     get type (): number {
         return this._type;
@@ -210,7 +209,7 @@ export class Plane {
      * @param d @en The distance between normal vector and the origin. @zh 与原点的距离。
      */
     constructor (nx = 0, ny = 1, nz = 0, d = 0) {
-        this._type = enums.SHAPE_PLANE;
+        this._type = ShapeType.SHAPE_PLANE;
         this.n = new Vec3(nx, ny, nz);
         this.d = d;
     }

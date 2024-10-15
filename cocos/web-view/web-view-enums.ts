@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-export enum EventType {
+export enum WebViewEventType {
     /**
      * @en None.
      * @zh 无。

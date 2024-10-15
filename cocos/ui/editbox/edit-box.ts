@@ -33,14 +33,14 @@ import { Size } from '../../core/math';
 import { EventTouch } from '../../input/types';
 import { Node } from '../../scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
-import { Sprite } from '../../2d/components/sprite';
+import { Sprite, SpriteEventType } from '../../2d/components/sprite';
 import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { legacyCC } from '../../core/global-exports';
 import { NodeEventType } from '../../scene-graph/node-event';
 import { XrKeyboardEventType, XrUIPressEventType } from '../../xr/event/xr-event-handle';
-import { director, Director } from '../../game/director';
+import { director, DirectorEvent } from '../../game/director';
 
 const LEFT_PADDING = 2;
 
@@ -52,7 +52,7 @@ function capitalizeFirstLetter (str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-enum EventType {
+enum EditBoxEventType {
     EDITING_DID_BEGAN = 'editing-did-began',
     EDITING_DID_ENDED = 'editing-did-ended',
     TEXT_CHANGED = 'text-changed',
@@ -326,7 +326,7 @@ export class EditBox extends Component {
      * @en Keyboard event enumeration.
      * @zh 键盘的事件枚举。
      */
-    public static EventType = EventType;
+    public static EventType = EditBoxEventType;
     /**
      * @en
      * The event handler to be called when EditBox began to edit text.
@@ -444,7 +444,7 @@ export class EditBox extends Component {
     }
 
     public onDestroy (): void {
-        director.off(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
+        director.off(DirectorEvent.BEFORE_DRAW, this._beforeDraw, this);
         if (this._impl) {
             this._impl.clear();
         }
@@ -497,7 +497,7 @@ export class EditBox extends Component {
      */
     public _editBoxEditingDidBegan (): void {
         ComponentEventHandler.emitEvents(this.editingDidBegan, this);
-        this.node.emit(EventType.EDITING_DID_BEGAN, this);
+        this.node.emit(EditBoxEventType.EDITING_DID_BEGAN, this);
     }
 
     /**
@@ -508,7 +508,7 @@ export class EditBox extends Component {
      */
     public _editBoxEditingDidEnded (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingDidEnded, this);
-        this.node.emit(EventType.EDITING_DID_ENDED, this, text);
+        this.node.emit(EditBoxEventType.EDITING_DID_ENDED, this, text);
     }
 
     /**
@@ -518,7 +518,7 @@ export class EditBox extends Component {
         text = this._updateLabelStringStyle(text, true);
         this.string = text;
         ComponentEventHandler.emitEvents(this.textChanged, text, this);
-        this.node.emit(EventType.TEXT_CHANGED, this);
+        this.node.emit(EditBoxEventType.TEXT_CHANGED, this);
     }
 
     /**
@@ -529,7 +529,7 @@ export class EditBox extends Component {
      */
     public _editBoxEditingReturn (text?: string): void {
         ComponentEventHandler.emitEvents(this.editingReturn, this);
-        this.node.emit(EventType.EDITING_RETURN, this, text);
+        this.node.emit(EditBoxEventType.EDITING_RETURN, this, text);
     }
 
     /**
@@ -573,7 +573,7 @@ export class EditBox extends Component {
         this._updateTextLabel();
         this._isLabelVisible = true;
         this.node.on(NodeEventType.SIZE_CHANGED, this._resizeChildNodes, this);
-        director.on(Director.EVENT_BEFORE_DRAW, this._beforeDraw, this);
+        director.on(DirectorEvent.BEFORE_DRAW, this._beforeDraw, this);
 
         const impl = this._impl = new EditBox._EditBoxImpl();
         impl.init(this);
@@ -740,12 +740,12 @@ export class EditBox extends Component {
 
     private _registerBackgroundEvent (): void {
         const node = this._background && this._background.node;
-        node?.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        node?.on(SpriteEventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     private _unregisterBackgroundEvent (): void {
         const node = this._background && this._background.node;
-        node?.off(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
+        node?.off(SpriteEventType.SPRITE_FRAME_CHANGED, this._onBackgroundSpriteFrameChanged, this);
     }
 
     protected _updateLabelPosition (size: Size): void {
@@ -792,7 +792,7 @@ export class EditBox extends Component {
     }
 
     protected _xrUnClick (): void {
-        this.node.emit(EventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
+        this.node.emit(EditBoxEventType.XR_EDITING_DID_BEGAN, this._maxLength, this.string);
     }
 
     protected _xrKeyBoardInput (str: string): void {

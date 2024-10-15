@@ -142,6 +142,7 @@ const replaceConstants = (() => {
     const strMap = {
         nullptr: 'null!',
         '::': '.',
+        'INVALID_SHADER_HASH': '0xFFFFFFFF'
     };
     const constexprRE = /constexpr\s+\w+\s+(\w+)\s*=\s*(.*);/g;
     let constexprCap = constexprRE.exec(header);
@@ -185,6 +186,7 @@ while (structCap) {
             type = type.replace(/(\b)(?:bool)(\b)/, '$1boolean$2');
             type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
             type = type.replace(/(\b)(?:ccstd::string)(\b)/, '$1string$2');
+            type = type.replace(/(\b)(?:ccstd::hash_t)(\b)/, '$1number$2');
             if (memberCap[1]) {readonly = true;}
             const isArray = type.endsWith('[]');
             const decayedType = isArray ? type.slice(0, -2) : type;
@@ -286,7 +288,7 @@ for (const name of Object.keys(structMap)) {
     output += `    ) {}\n`;
 
     if (!Object.keys(struct.member).some((k) => struct.member[k].readonly)) {
-        output += `\n    public copy (info: Readonly<${name}>) {\n`;
+        output += `\n    public copy (info: Readonly<${name}>): ${name} {\n`;
         for (const key in struct.member) {
             const {decayedType, isArray} = struct.member[key];
             if (isArray) {

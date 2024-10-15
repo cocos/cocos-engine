@@ -26,7 +26,7 @@ import { EPSILON, Mat3, Vec3 } from '../math';
 import { AABB } from './aabb';
 import { Capsule } from './capsule';
 import * as distance from './distance';
-import enums from './enums';
+import { ShapeType } from './enums';
 import { Frustum } from './frustum';
 import { Line } from './line';
 import { OBB } from './obb';
@@ -579,8 +579,9 @@ function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Ve
     );
 }
 
-function getInterval (vertices: any[] | Vec3[], axis: Vec3): number[] {
-    let min = Vec3.dot(axis, vertices[0]); let max = min;
+function getInterval (vertices: IVec3Like[], axis: Vec3): number[] {
+    let min = Vec3.dot(axis, vertices[0]);
+    let max = min;
     for (let i = 1; i < 8; ++i) {
         const projection = Vec3.dot(axis, vertices[i]);
         min = (projection < min) ? projection : min;
@@ -599,12 +600,12 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3): number[] {
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const aabbWithOBB = (function (): (aabb: AABB, obb: OBB) => number {
-    const test = new Array(15);
+    const test = new Array<Vec3>(15);
     for (let i = 0; i < 15; i++) {
         test[i] = new Vec3(0, 0, 0);
     }
-    const vertices = new Array(8);
-    const vertices2 = new Array(8);
+    const vertices = new Array<Vec3>(8);
+    const vertices2 = new Array<Vec3>(8);
     for (let i = 0; i < 8; i++) {
         vertices[i] = new Vec3(0, 0, 0);
         vertices2[i] = new Vec3(0, 0, 0);
@@ -822,7 +823,7 @@ const obbFrustum = function (obb: OBB, frustum: Frustum): number {
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const obbFrustumAccurate = (function (): (obb: OBB, frustum: Frustum) => number {
-    const tmp = new Array(8);
+    const tmp = new Array<Vec3>(8);
     let dist = 0; let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
         tmp[i] = new Vec3(0, 0, 0);
@@ -877,13 +878,13 @@ const obbFrustumAccurate = (function (): (obb: OBB, frustum: Frustum) => number 
  * @returns @zh 如果没有相交，返回 0 ，否则返回非 0。 @en zero if no intersection, otherwise returns a non-zero value.no intersection
  */
 const obbWithOBB = (function (): (obb1: OBB, obb2: OBB) => number {
-    const test = new Array(15);
+    const test = new Array<Vec3>(15);
     for (let i = 0; i < 15; i++) {
         test[i] = new Vec3(0, 0, 0);
     }
 
-    const vertices = new Array(8);
-    const vertices2 = new Array(8);
+    const vertices = new Array<Vec3>(8);
+    const vertices2 = new Array<Vec3>(8);
     for (let i = 0; i < 8; i++) {
         vertices[i] = new Vec3(0, 0, 0);
         vertices2[i] = new Vec3(0, 0, 0);
@@ -1290,39 +1291,39 @@ const intersect = {
     },
 };
 
-intersect[enums.SHAPE_RAY | enums.SHAPE_SPHERE] = raySphere;
-intersect[enums.SHAPE_RAY | enums.SHAPE_AABB] = rayAABB;
-intersect[enums.SHAPE_RAY | enums.SHAPE_OBB] = rayOBB;
-intersect[enums.SHAPE_RAY | enums.SHAPE_PLANE] = rayPlane;
-intersect[enums.SHAPE_RAY | enums.SHAPE_TRIANGLE] = rayTriangle;
-intersect[enums.SHAPE_RAY | enums.SHAPE_CAPSULE] = rayCapsule;
+intersect[ShapeType.SHAPE_RAY | ShapeType.SHAPE_SPHERE] = raySphere;
+intersect[ShapeType.SHAPE_RAY | ShapeType.SHAPE_AABB] = rayAABB;
+intersect[ShapeType.SHAPE_RAY | ShapeType.SHAPE_OBB] = rayOBB;
+intersect[ShapeType.SHAPE_RAY | ShapeType.SHAPE_PLANE] = rayPlane;
+intersect[ShapeType.SHAPE_RAY | ShapeType.SHAPE_TRIANGLE] = rayTriangle;
+intersect[ShapeType.SHAPE_RAY | ShapeType.SHAPE_CAPSULE] = rayCapsule;
 
-intersect[enums.SHAPE_LINE | enums.SHAPE_SPHERE] = lineSphere;
-intersect[enums.SHAPE_LINE | enums.SHAPE_AABB] = lineAABB;
-intersect[enums.SHAPE_LINE | enums.SHAPE_OBB] = lineOBB;
-intersect[enums.SHAPE_LINE | enums.SHAPE_PLANE] = linePlane;
-intersect[enums.SHAPE_LINE | enums.SHAPE_TRIANGLE] = lineTriangle;
+intersect[ShapeType.SHAPE_LINE | ShapeType.SHAPE_SPHERE] = lineSphere;
+intersect[ShapeType.SHAPE_LINE | ShapeType.SHAPE_AABB] = lineAABB;
+intersect[ShapeType.SHAPE_LINE | ShapeType.SHAPE_OBB] = lineOBB;
+intersect[ShapeType.SHAPE_LINE | ShapeType.SHAPE_PLANE] = linePlane;
+intersect[ShapeType.SHAPE_LINE | ShapeType.SHAPE_TRIANGLE] = lineTriangle;
 
-intersect[enums.SHAPE_SPHERE] = sphereWithSphere;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_AABB] = sphereAABB;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_OBB] = sphereOBB;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_PLANE] = spherePlane;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM] = sphereFrustum;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM_ACCURATE] = sphereFrustumAccurate;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_CAPSULE] = sphereCapsule;
+intersect[ShapeType.SHAPE_SPHERE] = sphereWithSphere;
+intersect[ShapeType.SHAPE_SPHERE | ShapeType.SHAPE_AABB] = sphereAABB;
+intersect[ShapeType.SHAPE_SPHERE | ShapeType.SHAPE_OBB] = sphereOBB;
+intersect[ShapeType.SHAPE_SPHERE | ShapeType.SHAPE_PLANE] = spherePlane;
+intersect[ShapeType.SHAPE_SPHERE | ShapeType.SHAPE_FRUSTUM] = sphereFrustum;
+intersect[ShapeType.SHAPE_SPHERE | ShapeType.SHAPE_FRUSTUM_ACCURATE] = sphereFrustumAccurate;
+intersect[ShapeType.SHAPE_SPHERE | ShapeType.SHAPE_CAPSULE] = sphereCapsule;
 
-intersect[enums.SHAPE_AABB] = aabbWithAABB;
-intersect[enums.SHAPE_AABB | enums.SHAPE_OBB] = aabbWithOBB;
-intersect[enums.SHAPE_AABB | enums.SHAPE_PLANE] = aabbPlane;
-intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM] = aabbFrustum;
-intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM_ACCURATE] = aabbFrustumAccurate;
+intersect[ShapeType.SHAPE_AABB] = aabbWithAABB;
+intersect[ShapeType.SHAPE_AABB | ShapeType.SHAPE_OBB] = aabbWithOBB;
+intersect[ShapeType.SHAPE_AABB | ShapeType.SHAPE_PLANE] = aabbPlane;
+intersect[ShapeType.SHAPE_AABB | ShapeType.SHAPE_FRUSTUM] = aabbFrustum;
+intersect[ShapeType.SHAPE_AABB | ShapeType.SHAPE_FRUSTUM_ACCURATE] = aabbFrustumAccurate;
 
-intersect[enums.SHAPE_OBB] = obbWithOBB;
-intersect[enums.SHAPE_OBB | enums.SHAPE_PLANE] = obbPlane;
-intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM] = obbFrustum;
-intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM_ACCURATE] = obbFrustumAccurate;
-intersect[enums.SHAPE_OBB | enums.SHAPE_CAPSULE] = obbCapsule;
+intersect[ShapeType.SHAPE_OBB] = obbWithOBB;
+intersect[ShapeType.SHAPE_OBB | ShapeType.SHAPE_PLANE] = obbPlane;
+intersect[ShapeType.SHAPE_OBB | ShapeType.SHAPE_FRUSTUM] = obbFrustum;
+intersect[ShapeType.SHAPE_OBB | ShapeType.SHAPE_FRUSTUM_ACCURATE] = obbFrustumAccurate;
+intersect[ShapeType.SHAPE_OBB | ShapeType.SHAPE_CAPSULE] = obbCapsule;
 
-intersect[enums.SHAPE_CAPSULE] = capsuleWithCapsule;
+intersect[ShapeType.SHAPE_CAPSULE] = capsuleWithCapsule;
 
 export default intersect;

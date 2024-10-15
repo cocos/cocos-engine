@@ -32,7 +32,7 @@ import { SceneAsset } from '../asset/assets/scene-asset';
 import { System, EventTarget, Scheduler, js, errorID, error, assertID, warnID, macro, CCObject, cclegacy, isValid } from '../core';
 import { input } from '../input';
 import { Root } from '../root';
-import { Node, Scene } from '../scene-graph';
+import { Node, NodeEventType, Scene } from '../scene-graph';
 import { ComponentScheduler } from '../scene-graph/component-scheduler';
 import NodeActivator from '../scene-graph/node-activator';
 import { scalableContainerManager } from '../core/memop/scalable-container';
@@ -42,6 +42,120 @@ import { deviceManager } from '../gfx';
 import { releaseManager } from '../asset/asset-manager/release-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
+
+export enum DirectorEvent {
+    /**
+     * @en The event which will be triggered when the singleton of Director initialized.
+     * @zh Director 单例初始化时触发的事件
+     * @event INIT
+     */
+    INIT = 'director_init',
+
+    /**
+     * @en The event which will be triggered when the singleton of Director reset.
+     * @zh Director 单例重置时触发的事件
+     * @event RESET
+     */
+    RESET = 'director_reset',
+
+    /**
+     * @en The event which will be triggered before loading a new scene.
+     * @zh 加载新场景之前所触发的事件。
+     * @event BEFORE_SCENE_LOADING
+     */
+    BEFORE_SCENE_LOADING = 'director_before_scene_loading',
+
+    /**
+     * @en The event which will be triggered before launching a new scene.
+     * @zh 运行新场景之前所触发的事件。
+     * @event BEFORE_SCENE_LAUNCH
+     */
+    BEFORE_SCENE_LAUNCH = 'director_before_scene_launch',
+
+    /**
+     * @en The event which will be triggered after launching a new scene.
+     * @zh 运行新场景之后所触发的事件。
+     * @event AFTER_SCENE_LAUNCH
+     */
+    AFTER_SCENE_LAUNCH = 'director_after_scene_launch',
+
+    /**
+     * @en The event which will be triggered at the beginning of every frame.
+     * @zh 每个帧的开始时所触发的事件。
+     * @event BEFORE_UPDATE
+     */
+    BEFORE_UPDATE = 'director_before_update',
+
+    /**
+     * @en The event which will be triggered after engine and components update logic.
+     * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
+     * @event AFTER_UPDATE
+     */
+    AFTER_UPDATE = 'director_after_update',
+
+    /**
+     * @en The event which will be triggered before the rendering process.
+     * @zh 渲染过程之前所触发的事件。
+     * @event BEFORE_DRAW
+     */
+    BEFORE_DRAW = 'director_before_draw',
+
+    /**
+     * @en The event which will be triggered after the rendering process.
+     * @zh 渲染过程之后所触发的事件。
+     * @event AFTER_DRAW
+     */
+    AFTER_DRAW = 'director_after_draw',
+
+    /**
+     * @en The event which will be triggered before the pipeline render commit.
+     * @zh 当前渲染帧提交前所触发的事件。
+     * @event BEFORE_COMMIT
+     */
+    BEFORE_COMMIT = 'director_before_commit',
+
+    /**
+     * @en The event which will be triggered before the render pipeline processes the render scene.
+     * @zh 当前帧将渲染场景提交到渲染管线之前所触发的事件。
+     * @event BEFORE_RENDER
+     */
+    BEFORE_RENDER = 'director_before_render',
+
+    /**
+     * @en The event which will be triggered after the render pipeline finishes the rendering process on CPU.
+     * @zh 当前帧渲染管线渲染流程完成后所触发的事件。
+     * @event AFTER_RENDER
+     */
+    AFTER_RENDER = 'director_after_render',
+
+    /**
+     * @en The event which will be triggered before the physics process.<br/>
+     * @zh 物理过程之前所触发的事件。
+     * @event BEFORE_PHYSICS
+     */
+    BEFORE_PHYSICS = 'director_before_physics',
+
+    /**
+     * @en The event which will be triggered after the physics process.<br/>
+     * @zh 物理过程之后所触发的事件。
+     * @event AFTER_PHYSICS
+     */
+    AFTER_PHYSICS = 'director_after_physics',
+
+    /**
+     * @en The event which will be triggered at the frame begin.<br/>
+     * @zh 一帧开始时所触发的事件。
+     * @event BEGIN_FRAME
+     */
+    BEGIN_FRAME = 'director_begin_frame',
+
+    /**
+     * @en The event which will be triggered at the frame end.<br/>
+     * @zh 一帧结束之后所触发的事件。
+     * @event END_FRAME
+     */
+    END_FRAME = 'director_end_frame',
+}
 
 /**
  * @en
@@ -66,112 +180,112 @@ export class Director extends EventTarget {
      * @zh Director 单例初始化时触发的事件
      * @event Director.EVENT_INIT
      */
-    public static readonly EVENT_INIT = 'director_init';
+    public static readonly EVENT_INIT = DirectorEvent.INIT;
 
     /**
      * @en The event which will be triggered when the singleton of Director reset.
      * @zh Director 单例重置时触发的事件
      * @event Director.EVENT_RESET
      */
-    public static readonly EVENT_RESET = 'director_reset';
+    public static readonly EVENT_RESET = DirectorEvent.RESET;
 
     /**
      * @en The event which will be triggered before loading a new scene.
      * @zh 加载新场景之前所触发的事件。
      * @event Director.EVENT_BEFORE_SCENE_LOADING
      */
-    public static readonly EVENT_BEFORE_SCENE_LOADING = 'director_before_scene_loading';
+    public static readonly EVENT_BEFORE_SCENE_LOADING = DirectorEvent.BEFORE_SCENE_LOADING;
 
     /**
      * @en The event which will be triggered before launching a new scene.
      * @zh 运行新场景之前所触发的事件。
      * @event Director.EVENT_BEFORE_SCENE_LAUNCH
      */
-    public static readonly EVENT_BEFORE_SCENE_LAUNCH = 'director_before_scene_launch';
+    public static readonly EVENT_BEFORE_SCENE_LAUNCH = DirectorEvent.BEFORE_SCENE_LAUNCH;
 
     /**
      * @en The event which will be triggered after launching a new scene.
      * @zh 运行新场景之后所触发的事件。
      * @event Director.EVENT_AFTER_SCENE_LAUNCH
      */
-    public static readonly EVENT_AFTER_SCENE_LAUNCH = 'director_after_scene_launch';
+    public static readonly EVENT_AFTER_SCENE_LAUNCH = DirectorEvent.AFTER_SCENE_LAUNCH;
 
     /**
      * @en The event which will be triggered at the beginning of every frame.
      * @zh 每个帧的开始时所触发的事件。
      * @event Director.EVENT_BEFORE_UPDATE
      */
-    public static readonly EVENT_BEFORE_UPDATE = 'director_before_update';
+    public static readonly EVENT_BEFORE_UPDATE = DirectorEvent.BEFORE_UPDATE;
 
     /**
      * @en The event which will be triggered after engine and components update logic.
      * @zh 将在引擎和组件 “update” 逻辑之后所触发的事件。
      * @event Director.EVENT_AFTER_UPDATE
      */
-    public static readonly EVENT_AFTER_UPDATE = 'director_after_update';
+    public static readonly EVENT_AFTER_UPDATE = DirectorEvent.AFTER_UPDATE;
 
     /**
      * @en The event which will be triggered before the rendering process.
      * @zh 渲染过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_DRAW
      */
-    public static readonly EVENT_BEFORE_DRAW = 'director_before_draw';
+    public static readonly EVENT_BEFORE_DRAW = DirectorEvent.BEFORE_DRAW;
 
     /**
      * @en The event which will be triggered after the rendering process.
      * @zh 渲染过程之后所触发的事件。
      * @event Director.EVENT_AFTER_DRAW
      */
-    public static readonly EVENT_AFTER_DRAW = 'director_after_draw';
+    public static readonly EVENT_AFTER_DRAW = DirectorEvent.AFTER_DRAW;
 
     /**
      * @en The event which will be triggered before the pipeline render commit.
      * @zh 当前渲染帧提交前所触发的事件。
      * @event Director.EVENT_BEFORE_COMMIT
      */
-    public static readonly EVENT_BEFORE_COMMIT = 'director_before_commit';
+    public static readonly EVENT_BEFORE_COMMIT = DirectorEvent.BEFORE_COMMIT;
 
     /**
      * @en The event which will be triggered before the render pipeline processes the render scene.
      * @zh 当前帧将渲染场景提交到渲染管线之前所触发的事件。
      * @event Director.EVENT_BEFORE_RENDER
      */
-    public static readonly EVENT_BEFORE_RENDER = 'director_before_render';
+    public static readonly EVENT_BEFORE_RENDER = DirectorEvent.BEFORE_RENDER;
 
     /**
      * @en The event which will be triggered after the render pipeline finishes the rendering process on CPU.
      * @zh 当前帧渲染管线渲染流程完成后所触发的事件。
      * @event Director.EVENT_AFTER_RENDER
      */
-    public static readonly EVENT_AFTER_RENDER = 'director_after_render';
+    public static readonly EVENT_AFTER_RENDER = DirectorEvent.AFTER_RENDER;
 
     /**
      * @en The event which will be triggered before the physics process.<br/>
      * @zh 物理过程之前所触发的事件。
      * @event Director.EVENT_BEFORE_PHYSICS
      */
-    public static readonly EVENT_BEFORE_PHYSICS = 'director_before_physics';
+    public static readonly EVENT_BEFORE_PHYSICS = DirectorEvent.BEFORE_PHYSICS;
 
     /**
      * @en The event which will be triggered after the physics process.<br/>
      * @zh 物理过程之后所触发的事件。
      * @event Director.EVENT_AFTER_PHYSICS
      */
-    public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
+    public static readonly EVENT_AFTER_PHYSICS = DirectorEvent.AFTER_PHYSICS;
 
     /**
      * @en The event which will be triggered at the frame begin.<br/>
      * @zh 一帧开始时所触发的事件。
      * @event Director.EVENT_BEGIN_FRAME
      */
-    public static readonly EVENT_BEGIN_FRAME = 'director_begin_frame';
+    public static readonly EVENT_BEGIN_FRAME = DirectorEvent.BEGIN_FRAME;
 
     /**
      * @en The event which will be triggered at the frame end.<br/>
      * @zh 一帧结束之后所触发的事件。
      * @event Director.EVENT_END_FRAME
      */
-    public static readonly EVENT_END_FRAME = 'director_end_frame';
+    public static readonly EVENT_END_FRAME = DirectorEvent.END_FRAME;
 
     public static instance: Director;
 
@@ -183,15 +297,15 @@ export class Director extends EventTarget {
      * @deprecated since v3.5.0, this is an engine private interface that will be removed in the future.
      */
     public _nodeActivator: NodeActivator = new NodeActivator();
-    private _invalid: boolean = false;
-    private _paused: boolean = false;
-    private _root: Root | null = null;
-    private _loadingScene: string = '';
-    private _scene: Scene | null = null;
-    private _totalFrames: number = 0; // FPS
-    private _scheduler: Scheduler = new Scheduler(); // Scheduler for user registration update
-    private _systems: System[] = [];
-    private _persistRootNodes: Record<string, Node> = {};
+    private _invalid$: boolean = false;
+    private _paused$: boolean = false;
+    private _root$: Root | null = null;
+    private _loadingScene$: string = '';
+    private _scene$: Scene | null = null;
+    private _totalFrames$: number = 0; // FPS
+    private _scheduler$: Scheduler = new Scheduler(); // Scheduler for user registration update
+    private _systems$: System[] = [];
+    private _persistRootNodes$: Record<string, Node> = {};
 
     constructor () {
         super();
@@ -202,7 +316,7 @@ export class Director extends EventTarget {
      * @zh 执行完当前帧后停止 director 的执行
      */
     public end (): void {
-        this.once(Director.EVENT_END_FRAME, (): void => {
+        this.once(DirectorEvent.END_FRAME, (): void => {
             this.purgeDirector();
         });
     }
@@ -216,7 +330,7 @@ export class Director extends EventTarget {
      * 如果想要更彻底得暂停游戏，包含渲染，音频和事件，请使用 `game.pause` 。
      */
     public pause (): void {
-        this._paused = true;
+        this._paused$ = true;
     }
 
     /**
@@ -227,16 +341,16 @@ export class Director extends EventTarget {
      */
     public purgeDirector (): void {
         // cleanup scheduler
-        this._scheduler.unscheduleAll();
+        this._scheduler$.unscheduleAll();
         this._compScheduler.unscheduleAll();
 
         this._nodeActivator.reset();
 
         if (!EDITOR) {
-            if (isValid(this._scene)) {
-                this._scene!.destroy();
+            if (isValid(this._scene$)) {
+                this._scene$!.destroy();
             }
-            this._scene = null;
+            this._scene$ = null;
         }
 
         this.stopAnimation();
@@ -252,14 +366,14 @@ export class Director extends EventTarget {
     public reset (): void {
         this.purgeDirector();
 
-        for (const id in this._persistRootNodes) {
-            this.removePersistRootNode(this._persistRootNodes[id]);
+        for (const id in this._persistRootNodes$) {
+            this.removePersistRootNode(this._persistRootNodes$[id]);
         }
 
         // Clear scene
         this.getScene()?.destroy();
 
-        this.emit(Director.EVENT_RESET);
+        this.emit(DirectorEvent.RESET);
 
         this.startAnimation();
     }
@@ -295,10 +409,10 @@ export class Director extends EventTarget {
             // eslint-disable-next-line no-console
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(this._persistRootNodes).map((x): Node => this._persistRootNodes[x]);
+        const persistNodeList = Object.keys(this._persistRootNodes$).map((x): Node => this._persistRootNodes$[x]);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
-            node.emit(Node.EventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
+            node.emit(NodeEventType.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
             const existNode = scene.uuid === node._originalSceneId && scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
@@ -317,7 +431,7 @@ export class Director extends EventTarget {
             // eslint-disable-next-line no-console
             console.timeEnd('AttachPersist');
         }
-        const oldScene = this._scene;
+        const oldScene = this._scene$;
 
         // unload scene
         if (BUILD && DEBUG) {
@@ -333,14 +447,14 @@ export class Director extends EventTarget {
                 // eslint-disable-next-line no-console
                 console.time('AutoRelease');
             }
-            releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes);
+            releaseManager._autoRelease(oldScene!, scene, this._persistRootNodes$);
             if (BUILD && DEBUG) {
                 // eslint-disable-next-line no-console
                 console.timeEnd('AutoRelease');
             }
         }
 
-        this._scene = null;
+        this._scene$ = null;
 
         // purge destroyed nodes belongs to old scene
         CCObject._deferredDestroy();
@@ -350,10 +464,10 @@ export class Director extends EventTarget {
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
         }
-        this.emit(Director.EVENT_BEFORE_SCENE_LAUNCH, scene);
+        this.emit(DirectorEvent.BEFORE_SCENE_LAUNCH, scene);
 
         // Run an Entity Scene
-        this._scene = scene;
+        this._scene$ = scene;
 
         if (BUILD && DEBUG) {
             // eslint-disable-next-line no-console
@@ -365,14 +479,14 @@ export class Director extends EventTarget {
             console.timeEnd('Activate');
         }
         // start scene
-        if (this._root) {
-            this._root.resetCumulativeTime();
+        if (this._root$) {
+            this._root$.resetCumulativeTime();
         }
         this.startAnimation();
         if (onLaunched) {
             onLaunched(null, scene);
         }
-        this.emit(Director.EVENT_AFTER_SCENE_LAUNCH, scene);
+        this.emit(DirectorEvent.AFTER_SCENE_LAUNCH, scene);
     }
 
     /**
@@ -391,7 +505,7 @@ export class Director extends EventTarget {
         assertID(scene instanceof Scene, 1216);
 
         // Delay run / replace scene to the end of the frame
-        this.once(Director.EVENT_END_FRAME, (): void => {
+        this.once(DirectorEvent.END_FRAME, (): void => {
             this.runSceneImmediate(scene, onBeforeLoadScene, onLaunched);
         });
     }
@@ -405,20 +519,20 @@ export class Director extends EventTarget {
      * @return if error, return false
      */
     public loadScene (sceneName: string, onLaunched?: Director.OnSceneLaunched, onUnloaded?: Director.OnUnload): boolean {
-        if (this._loadingScene) {
-            warnID(1208, sceneName, this._loadingScene);
+        if (this._loadingScene$) {
+            warnID(1208, sceneName, this._loadingScene$);
             return false;
         }
         const bundle = assetManager.bundles.find((bundle): boolean => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
-            this.emit(Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
-            this._loadingScene = sceneName;
+            this.emit(DirectorEvent.BEFORE_SCENE_LOADING, sceneName);
+            this._loadingScene$ = sceneName;
             // eslint-disable-next-line no-console
             console.time(`LoadScene ${sceneName}`);
             bundle.loadScene(sceneName, (err, scene): void => {
                 // eslint-disable-next-line no-console
                 console.timeEnd(`LoadScene ${sceneName}`);
-                this._loadingScene = '';
+                this._loadingScene$ = '';
                 if (err) {
                     error(err);
                     if (onLaunched) {
@@ -492,11 +606,11 @@ export class Director extends EventTarget {
      * @zh 恢复暂停场景的游戏逻辑，如果当前场景没有暂停将没任何事情发生。
      */
     public resume (): void {
-        this._paused = false;
+        this._paused$ = false;
     }
 
     get root (): Root | null {
-        return this._root;
+        return this._root$;
     }
 
     /**
@@ -510,7 +624,7 @@ export class Director extends EventTarget {
      * ```
      */
     public getScene (): Scene | null {
-        return this._scene;
+        return this._scene$;
     }
 
     /**
@@ -545,7 +659,7 @@ export class Director extends EventTarget {
      * @zh 获取 director 启动以来游戏运行的总帧数。
      */
     public getTotalFrames (): number {
-        return this._totalFrames;
+        return this._totalFrames$;
     }
 
     /**
@@ -553,7 +667,7 @@ export class Director extends EventTarget {
      * @zh 是否处于暂停状态。
      */
     public isPaused (): boolean {
-        return this._paused;
+        return this._paused$;
     }
 
     /**
@@ -561,7 +675,7 @@ export class Director extends EventTarget {
      * @zh 获取和 director 相关联的调度器。
      */
     public getScheduler (): Scheduler {
-        return this._scheduler;
+        return this._scheduler$;
     }
 
     /**
@@ -569,9 +683,9 @@ export class Director extends EventTarget {
      * @zh 设置和 director 相关联的调度器。
      */
     public setScheduler (scheduler: Scheduler): void {
-        if (this._scheduler !== scheduler) {
-            this.unregisterSystem(this._scheduler);
-            this._scheduler = scheduler;
+        if (this._scheduler$ !== scheduler) {
+            this.unregisterSystem(this._scheduler$);
+            this._scheduler$ = scheduler;
             this.registerSystem(Scheduler.ID, scheduler, 200);
         }
     }
@@ -583,13 +697,13 @@ export class Director extends EventTarget {
     public registerSystem (name: string, sys: System, priority: number): void {
         sys.id = name;
         sys.priority = priority;
-        this._systems.push(sys);
-        this._systems.sort(System.sortByPriority);
+        this._systems$.push(sys);
+        this._systems$.sort(System.sortByPriority);
     }
 
     public unregisterSystem (sys: System): void {
-        js.array.fastRemove(this._systems, sys);
-        this._systems.sort(System.sortByPriority);
+        js.array.fastRemove(this._systems$, sys);
+        this._systems$.sort(System.sortByPriority);
     }
 
     /**
@@ -597,7 +711,7 @@ export class Director extends EventTarget {
      * @zh 获取一个 system。
      */
     public getSystem (name: string): System | undefined {
-        return this._systems.find((sys): boolean => sys.id === name);
+        return this._systems$.find((sys): boolean => sys.id === name);
     }
 
     /**
@@ -615,7 +729,7 @@ export class Director extends EventTarget {
      * @zh 开始执行游戏逻辑
      */
     public startAnimation (): void {
-        this._invalid = false;
+        this._invalid$ = false;
     }
 
     /**
@@ -623,7 +737,7 @@ export class Director extends EventTarget {
      * @zh 停止执行游戏逻辑，每帧渲染会继续执行
      */
     public stopAnimation (): void {
-        this._invalid = true;
+        this._invalid$ = true;
     }
 
     /**
@@ -647,46 +761,46 @@ export class Director extends EventTarget {
      * @param dt Delta time in seconds
      */
     public tick (dt: number): void {
-        if (!this._invalid) {
-            this.emit(Director.EVENT_BEGIN_FRAME);
+        if (!this._invalid$) {
+            this.emit(DirectorEvent.BEGIN_FRAME);
             if (!EDITOR_NOT_IN_PREVIEW) {
                 input._frameDispatchEvents();
             }
 
             // Update
-            if (!this._paused) {
-                this.emit(Director.EVENT_BEFORE_UPDATE);
+            if (!this._paused$) {
+                this.emit(DirectorEvent.BEFORE_UPDATE);
                 // Call start for new added components
                 this._compScheduler.startPhase();
                 // Update for components
                 this._compScheduler.updatePhase(dt);
                 // Update systems
-                for (let i = 0; i < this._systems.length; ++i) {
-                    this._systems[i].update(dt);
+                for (let i = 0; i < this._systems$.length; ++i) {
+                    this._systems$[i].update(dt);
                 }
                 // Late update for components
                 this._compScheduler.lateUpdatePhase(dt);
                 // User can use this event to do things after update
-                this.emit(Director.EVENT_AFTER_UPDATE);
+                this.emit(DirectorEvent.AFTER_UPDATE);
                 // Destroy entities that have been removed recently
                 CCObject._deferredDestroy();
 
                 // Post update systems
-                for (let i = 0; i < this._systems.length; ++i) {
-                    this._systems[i].postUpdate(dt);
+                for (let i = 0; i < this._systems$.length; ++i) {
+                    this._systems$[i].postUpdate(dt);
                 }
             }
 
-            this.emit(Director.EVENT_BEFORE_DRAW);
+            this.emit(DirectorEvent.BEFORE_DRAW);
             uiRendererManager.updateAllDirtyRenderers();
-            this._root!.frameMove(dt);
-            this.emit(Director.EVENT_AFTER_DRAW);
+            this._root$!.frameMove(dt);
+            this.emit(DirectorEvent.AFTER_DRAW);
 
             Node.resetHasChangedFlags();
             Node.clearNodeArray();
             scalableContainerManager.update(dt);
-            this.emit(Director.EVENT_END_FRAME);
-            this._totalFrames++;
+            this.emit(DirectorEvent.END_FRAME);
+            this._totalFrames$++;
         }
     }
 
@@ -695,12 +809,12 @@ export class Director extends EventTarget {
      * @zh 构建自定义渲染管线
      */
     private buildRenderPipeline (): void {
-        if (!this._root) {
+        if (!this._root$) {
             return;
         }
         // Here we should build the render pipeline.
-        const ppl = this._root.customPipeline;
-        const cameras = this._root.cameraList;
+        const ppl = this._root$.customPipeline;
+        const cameras = this._root$.cameraList;
 
         ppl.beginSetup();
         const builder = cclegacy.rendering.getCustomPipeline(macro.CUSTOM_PIPELINE_NAME);
@@ -715,14 +829,14 @@ export class Director extends EventTarget {
         //    (in CocosCreator/Project/Project Settings/Engine Manager/Macro Configuration/CUSTOM_PIPELINE_NAME)
         // 2. cclegacy.rendering is available
         // 3. The root node is created and uses custom pipeline
-        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root && this._root.usesCustomPipeline) {
+        if (macro.CUSTOM_PIPELINE_NAME !== '' && cclegacy.rendering && this._root$ && this._root$.usesCustomPipeline) {
             this.on(
-                Director.EVENT_BEFORE_RENDER,
+                DirectorEvent.BEFORE_RENDER,
                 this.buildRenderPipeline,
                 this,
             );
             this.on(
-                Director.EVENT_BEFORE_SCENE_LAUNCH,
+                DirectorEvent.BEFORE_SCENE_LAUNCH,
                 cclegacy.rendering.forceResizeAllWindows,
                 cclegacy.rendering,
             );
@@ -733,22 +847,22 @@ export class Director extends EventTarget {
      * @internal
      */
     public init (): void {
-        this._totalFrames = 0;
-        this._paused = false;
+        this._totalFrames$ = 0;
+        this._paused$ = false;
         // Scheduler
         // TODO: have a solid organization of priority and expose to user
-        this.registerSystem(Scheduler.ID, this._scheduler, 200);
-        this._root = new Root(deviceManager.gfxDevice);
+        this.registerSystem(Scheduler.ID, this._scheduler$, 200);
+        this._root$ = new Root(deviceManager.gfxDevice);
         const rootInfo = {};
-        this._root.initialize(rootInfo);
+        this._root$.initialize(rootInfo);
 
         this.setupRenderPipelineBuilder();
 
-        for (let i = 0; i < this._systems.length; i++) {
-            this._systems[i].init();
+        for (let i = 0; i < this._systems$.length; i++) {
+            this._systems$[i].init();
         }
 
-        this.emit(Director.EVENT_INIT);
+        this.emit(DirectorEvent.INIT);
     }
 
     //  @ Persist root node section
@@ -767,8 +881,8 @@ export class Director extends EventTarget {
             return;
         }
         const id = node.uuid;
-        if (!this._persistRootNodes[id]) {
-            const scene = this._scene as any;
+        if (!this._persistRootNodes$[id]) {
+            const scene = this._scene$ as any;
             if (isValid(scene)) {
                 if (!node.parent) {
                     node.parent = scene;
@@ -783,7 +897,7 @@ export class Director extends EventTarget {
                     node._originalSceneId = scene.uuid;
                 }
             }
-            this._persistRootNodes[id] = node;
+            this._persistRootNodes$[id] = node;
             node._persistNode = true;
             releaseManager._addPersistNodeRef(node);
         }
@@ -796,8 +910,8 @@ export class Director extends EventTarget {
      */
     public removePersistRootNode (node: Node): void {
         const id = node.uuid || '';
-        if (node === this._persistRootNodes[id]) {
-            delete this._persistRootNodes[id];
+        if (node === this._persistRootNodes$[id]) {
+            delete this._persistRootNodes$[id];
             node._persistNode = false;
             node._originalSceneId = '';
             releaseManager._removePersistNodeRef(node);

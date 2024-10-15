@@ -36,6 +36,7 @@ import { ImageAsset } from '../../../asset/assets/image-asset';
 import { DebugViewCompositeType, DebugViewSingleType } from '../../debug-view';
 import { ClearFlagBit, Format } from '../../../gfx';
 import { Scene } from '../../../scene-graph/scene';
+import { Filter, PixelFormat, WrapMode } from '../../../asset/assets/asset-enum';
 
 const vec2 = new Vec2();
 
@@ -118,7 +119,7 @@ class HBAOParams {
     private _init (): void {
         const width = 4;
         const height = 4;
-        const pixelFormat = Texture2D.PixelFormat.RGBA8888;
+        const pixelFormat = PixelFormat.RGBA8888;
         const arrayBuffer = new Uint8Array(width * height * 4);
         for (let i = 0; i < this._randomDirAndJitter.length; i++) {
             arrayBuffer[i] = this._randomDirAndJitter[i];
@@ -131,9 +132,9 @@ class HBAOParams {
             format: pixelFormat,
         });
         this.randomTexture = new Texture2D();
-        this.randomTexture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-        this.randomTexture.setMipFilter(Texture2D.Filter.NONE);
-        this.randomTexture.setWrapMode(Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT, Texture2D.WrapMode.REPEAT);
+        this.randomTexture.setFilters(Filter.NEAREST, Filter.NEAREST);
+        this.randomTexture.setMipFilter(Filter.NONE);
+        this.randomTexture.setWrapMode(WrapMode.REPEAT, WrapMode.REPEAT, WrapMode.REPEAT);
         this.randomTexture.image = image;
     }
 

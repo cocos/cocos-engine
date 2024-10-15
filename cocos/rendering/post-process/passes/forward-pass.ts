@@ -1,7 +1,7 @@
 import { Vec4 } from '../../../core';
 
 import { ClearFlagBit, Format } from '../../../gfx';
-import { Camera, ShadowType, SKYBOX_FLAG } from '../../../render-scene/scene';
+import { Camera, ShadowType, SkyBoxFlagValue } from '../../../render-scene/scene';
 import { LightInfo, QueueHint, SceneFlags } from '../../custom/types';
 import { getCameraUniqueID } from '../../custom/define';
 import { Pipeline } from '../../custom/pipeline';
@@ -38,7 +38,7 @@ export class ForwardPass extends BasePass {
     }
 
     public render (camera: Camera, ppl: Pipeline): void {
-        passContext.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) | (camera.clearFlag & SKYBOX_FLAG);
+        passContext.clearFlag = ClearFlagBit.COLOR | (camera.clearFlag & ClearFlagBit.DEPTH_STENCIL) | (camera.clearFlag & SkyBoxFlagValue.VALUE);
         Vec4.set(passContext.clearColor, 0, 0, 0, 0);
         Vec4.set(passContext.clearDepthColor, camera.clearDepth, camera.clearStencil, 0, 0);
 

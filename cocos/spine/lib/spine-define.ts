@@ -24,10 +24,10 @@
 /* eslint @typescript-eslint/no-explicit-any: "off" */
 /* eslint @typescript-eslint/no-unsafe-argument: "off" */
 
-import spine from './spine-core.js';
+import spine from './spine-core';
 import { js } from '../../core';
 
-function resizeArray (array, newSize): Array<any> {
+function resizeArray (array: any[], newSize: number): any[] {
     if (!array) return new Array(newSize);
     if (newSize === array.length) return array;
     if (newSize < array.length) return array.slice(0, newSize);
@@ -40,7 +40,7 @@ function overrideDefineArrayProp (prototype: any, getPropVector: any, name: stri
         get (): any[] {
             const vectors = getPropVector.call(this);
             const count = vectors.size();
-            let array = this[_name];
+            let array = this[_name] as any[];
             array = resizeArray(array, count);
             for (let i = 0; i < count; i++) array[i] = vectors.get(i);
             this[_name] = array;
@@ -75,10 +75,10 @@ function overrideDefineArrayArrayProp (prototype: any, getPropVector: any, name:
 function overrideDefineArrayFunction (prototype: any, getPropVector: any, name: string): void {
     const _name = `_${name}`;
     Object.defineProperty(prototype, name, {
-        value () {
+        value (): any[] {
             const vectors = getPropVector.call(this);
             const count = vectors.size();
-            let array = this[_name];
+            let array = this[_name] as any[];
             array = resizeArray(array, count);
             for (let i = 0; i < count; i++) array[i] = vectors.get(i);
             this[_name] = array;

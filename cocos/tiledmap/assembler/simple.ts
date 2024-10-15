@@ -28,7 +28,7 @@ import { IAssembler } from '../../2d/renderer/base';
 import { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledRenderData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
-import { director, Director } from '../../game';
+import { director, DirectorEvent } from '../../game';
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { RenderData } from '../../2d/renderer/render-data';
@@ -56,8 +56,8 @@ let _moveX = 0;
 let _moveY = 0;
 
 let _fillCount = 0;
-let _curTexture : Texture2D | null = null;
-let _tempBuffers : Float32Array;
+let _curTexture: Texture2D | null = null;
+let _tempBuffers: Float32Array;
 let _curLayer: TiledLayer;
 
 let flipTexture: (grid: TiledGrid, gid: MixedGID) => void;
@@ -74,7 +74,7 @@ export const simple: IAssembler = {
             const batcher = director.root!.batcher2D;
             _accessor = new StaticVBAccessor(device, vfmtPosUvColor, this.vCount);
             //batcher.registerBufferAccessor(Number.parseInt('TILED-MAP', 36), _accessor);
-            director.on(Director.EVENT_BEFORE_DRAW, () => {
+            director.on(DirectorEvent.BEFORE_DRAW, () => {
                 _accessor.reset();
             });
         }
@@ -325,8 +325,13 @@ function packRenderData (): void {
 
 // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
 // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
-function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col: number, row: number },
-    rowMoveDir: number, colMoveDir: number, comp: TiledLayer): void {
+function traverseGrids (
+    leftDown: { col: number, row: number },
+    rightTop: { col: number, row: number },
+    rowMoveDir: number,
+    colMoveDir: number,
+    comp: TiledLayer,
+): void {
     // show nothing
     if (rightTop.row < 0 || rightTop.col < 0) return;
 
@@ -535,8 +540,16 @@ function traverseGrids (leftDown: { col: number, row: number }, rightTop: { col:
     packRenderData();
 }
 
-function fillByTiledNode (tiledNode: Node, color: Float32Array, vbuf: Float32Array,
-    left: number, right: number, top: number, bottom: number, diamondTile: boolean): void {
+function fillByTiledNode (
+    tiledNode: Node,
+    color: Float32Array,
+    vbuf: Float32Array,
+    left: number,
+    right: number,
+    top: number,
+    bottom: number,
+    diamondTile: boolean,
+): void {
     const vertStep = 9;
     const vertStep2 = vertStep * 2;
     const vertStep3 = vertStep * 3;

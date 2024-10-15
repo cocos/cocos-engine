@@ -77,7 +77,7 @@ import { Vec4 } from '../../core/math/vec4';
 import { Camera } from '../../render-scene/scene/camera';
 import { ShadowType } from '../../render-scene/scene/shadows';
 import { Root } from '../../root';
-import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal } from '../define';
+import { IRenderPass, SetIndex, UBODeferredLight, UBOForwardLight, UBOLocal, UBOLocalEnum } from '../define';
 import { PipelineSceneData } from '../pipeline-scene-data';
 import { PipelineInputAssemblerData } from '../render-types';
 import { DescriptorSetData, LayoutGraphData, LayoutGraphDataValue, PipelineLayoutData, RenderPhaseData, RenderStageData } from './layout-graph';
@@ -1443,8 +1443,8 @@ class BlitInfo {
         this._localUBO = context.device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.DEVICE,
-            UBOLocal.SIZE,
-            UBOLocal.SIZE,
+            UBOLocalEnum.SIZE,
+            UBOLocalEnum.SIZE,
         ));
     }
 

@@ -22,7 +22,7 @@
  THE SOFTWARE.
 */
 
-import spine from './lib/spine-core.js';
+import spine from './lib/spine-core';
 import { warn } from '../core';
 
 let _listener_ID = 0;
@@ -138,7 +138,7 @@ export class TrackEntryListeners {
         return id;
     }
 
-    static removeListener(id: number): void {
+    static removeListener (id: number): void {
         TrackEntryListeners._listenerSet.delete(id);
     }
 

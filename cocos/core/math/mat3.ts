@@ -33,6 +33,9 @@ import { EPSILON, HALF_PI } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
+const abs = Math.abs;
+const max = Math.max;
+
 /**
  * @en Mathematical 3x3 matrix.
  * @zh 表示三维（3x3）矩阵。
@@ -151,9 +154,7 @@ export class Mat3 extends ValueType {
         let det = a00 * b01 + a01 * b11 + a02 * b21;
 
         if (det === 0) {
-            out.m00 = 0; out.m01 = 0; out.m02 = 0;
-            out.m03 = 0; out.m04 = 0; out.m05 = 0;
-            out.m06 = 0; out.m07 = 0; out.m08 = 0;
+            Mat3.set(out, 0, 0, 0, 0, 0, 0, 0, 0, 0);
             return out;
         }
         det = 1.0 / det;
@@ -628,15 +629,15 @@ export class Mat3 extends ValueType {
      */
     public static equals <Out extends IMat3Like> (a: Out, b: Out, epsilon = EPSILON): boolean {
         return (
-            Math.abs(a.m00 - b.m00) <= epsilon * Math.max(1.0, Math.abs(a.m00), Math.abs(b.m00))
-            && Math.abs(a.m01 - b.m01) <= epsilon * Math.max(1.0, Math.abs(a.m01), Math.abs(b.m01))
-            && Math.abs(a.m02 - b.m02) <= epsilon * Math.max(1.0, Math.abs(a.m02), Math.abs(b.m02))
-            && Math.abs(a.m03 - b.m03) <= epsilon * Math.max(1.0, Math.abs(a.m03), Math.abs(b.m03))
-            && Math.abs(a.m04 - b.m04) <= epsilon * Math.max(1.0, Math.abs(a.m04), Math.abs(b.m04))
-            && Math.abs(a.m05 - b.m05) <= epsilon * Math.max(1.0, Math.abs(a.m05), Math.abs(b.m05))
-            && Math.abs(a.m06 - b.m06) <= epsilon * Math.max(1.0, Math.abs(a.m06), Math.abs(b.m06))
-            && Math.abs(a.m07 - b.m07) <= epsilon * Math.max(1.0, Math.abs(a.m07), Math.abs(b.m07))
-            && Math.abs(a.m08 - b.m08) <= epsilon * Math.max(1.0, Math.abs(a.m08), Math.abs(b.m08))
+            abs(a.m00 - b.m00) <= epsilon * max(1.0, abs(a.m00), abs(b.m00))
+            && abs(a.m01 - b.m01) <= epsilon * max(1.0, abs(a.m01), abs(b.m01))
+            && abs(a.m02 - b.m02) <= epsilon * max(1.0, abs(a.m02), abs(b.m02))
+            && abs(a.m03 - b.m03) <= epsilon * max(1.0, abs(a.m03), abs(b.m03))
+            && abs(a.m04 - b.m04) <= epsilon * max(1.0, abs(a.m04), abs(b.m04))
+            && abs(a.m05 - b.m05) <= epsilon * max(1.0, abs(a.m05), abs(b.m05))
+            && abs(a.m06 - b.m06) <= epsilon * max(1.0, abs(a.m06), abs(b.m06))
+            && abs(a.m07 - b.m07) <= epsilon * max(1.0, abs(a.m07), abs(b.m07))
+            && abs(a.m08 - b.m08) <= epsilon * max(1.0, abs(a.m08), abs(b.m08))
         );
     }
 
@@ -749,14 +750,15 @@ export class Mat3 extends ValueType {
         m06 = 0, m07 = 0, m08 = 1,
     ) {
         super();
+        const self = this;
         if (typeof m00 === 'object') {
-            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
-            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
-            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+            self.m00 = m00.m00; self.m01 = m00.m01; self.m02 = m00.m02;
+            self.m03 = m00.m03; self.m04 = m00.m04; self.m05 = m00.m05;
+            self.m06 = m00.m06; self.m07 = m00.m07; self.m08 = m00.m08;
         } else {
-            this.m00 = m00; this.m01 = m01; this.m02 = m02;
-            this.m03 = m03; this.m04 = m04; this.m05 = m05;
-            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            self.m00 = m00; self.m01 = m01; self.m02 = m02;
+            self.m03 = m03; self.m04 = m04; self.m05 = m05;
+            self.m06 = m06; self.m07 = m07; self.m08 = m08;
         }
     }
 
@@ -765,12 +767,7 @@ export class Mat3 extends ValueType {
      * @zh 克隆当前矩阵。
      */
     public clone (): Mat3 {
-        const t = this;
-        return new Mat3(
-            t.m00, t.m01, t.m02,
-            t.m03, t.m04, t.m05,
-            t.m06, t.m07, t.m08,
-        );
+        return new Mat3(this);
     }
 
     /**
@@ -793,16 +790,17 @@ export class Mat3 extends ValueType {
     public set (m00: number | Mat3 = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1): Mat3 {
+        const self = this;
         if (typeof m00 === 'object') {
-            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
-            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
-            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+            self.m00 = m00.m00; self.m01 = m00.m01; self.m02 = m00.m02;
+            self.m03 = m00.m03; self.m04 = m00.m04; self.m05 = m00.m05;
+            self.m06 = m00.m06; self.m07 = m00.m07; self.m08 = m00.m08;
         } else {
-            this.m00 = m00; this.m01 = m01; this.m02 = m02;
-            this.m03 = m03; this.m04 = m04; this.m05 = m05;
-            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            self.m00 = m00; self.m01 = m01; self.m02 = m02;
+            self.m03 = m03; self.m04 = m04; self.m05 = m05;
+            self.m06 = m06; self.m07 = m07; self.m08 = m08;
         }
-        return this;
+        return self;
     }
 
     /**
@@ -813,17 +811,7 @@ export class Mat3 extends ValueType {
      * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public equals (other: Mat3, epsilon = EPSILON): boolean {
-        return (
-            Math.abs(this.m00 - other.m00) <= epsilon * Math.max(1.0, Math.abs(this.m00), Math.abs(other.m00))
-            && Math.abs(this.m01 - other.m01) <= epsilon * Math.max(1.0, Math.abs(this.m01), Math.abs(other.m01))
-            && Math.abs(this.m02 - other.m02) <= epsilon * Math.max(1.0, Math.abs(this.m02), Math.abs(other.m02))
-            && Math.abs(this.m03 - other.m03) <= epsilon * Math.max(1.0, Math.abs(this.m03), Math.abs(other.m03))
-            && Math.abs(this.m04 - other.m04) <= epsilon * Math.max(1.0, Math.abs(this.m04), Math.abs(other.m04))
-            && Math.abs(this.m05 - other.m05) <= epsilon * Math.max(1.0, Math.abs(this.m05), Math.abs(other.m05))
-            && Math.abs(this.m06 - other.m06) <= epsilon * Math.max(1.0, Math.abs(this.m06), Math.abs(other.m06))
-            && Math.abs(this.m07 - other.m07) <= epsilon * Math.max(1.0, Math.abs(this.m07), Math.abs(other.m07))
-            && Math.abs(this.m08 - other.m08) <= epsilon * Math.max(1.0, Math.abs(this.m08), Math.abs(other.m08))
-        );
+        return Mat3.equals(this, other, epsilon);
     }
 
     /**
@@ -833,9 +821,7 @@ export class Mat3 extends ValueType {
      * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public strictEquals (other: Mat3): boolean {
-        return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02
-            && this.m03 === other.m03 && this.m04 === other.m04 && this.m05 === other.m05
-            && this.m06 === other.m06 && this.m07 === other.m07 && this.m08 === other.m08;
+        return Mat3.strictEquals(this, other);
     }
 
     /**
@@ -858,16 +844,7 @@ export class Mat3 extends ValueType {
      * @return `this`
      */
     public identity (): Mat3 {
-        this.m00 = 1;
-        this.m01 = 0;
-        this.m02 = 0;
-        this.m03 = 0;
-        this.m04 = 1;
-        this.m05 = 0;
-        this.m06 = 0;
-        this.m07 = 0;
-        this.m08 = 1;
-        return this;
+        return Mat3.identity(this);
     }
 
     /**
@@ -875,14 +852,15 @@ export class Mat3 extends ValueType {
      * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose (): Mat3 {
-        const a01 = this.m01; const a02 = this.m02; const a12 = this.m05;
-        this.m01 = this.m03;
-        this.m02 = this.m06;
-        this.m03 = a01;
-        this.m05 = this.m07;
-        this.m06 = a02;
-        this.m07 = a12;
-        return this;
+        const self = this;
+        const a01 = self.m01; const a02 = self.m02; const a12 = self.m05;
+        self.m01 = self.m03;
+        self.m02 = self.m06;
+        self.m03 = a01;
+        self.m05 = self.m07;
+        self.m06 = a02;
+        self.m07 = a12;
+        return self;
     }
 
     /**
@@ -890,33 +868,7 @@ export class Mat3 extends ValueType {
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert (): Mat3 {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
-
-        const b01 = a22 * a11 - a12 * a21;
-        const b11 = -a22 * a10 + a12 * a20;
-        const b21 = a21 * a10 - a11 * a20;
-
-        // Calculate the determinant
-        let det = a00 * b01 + a01 * b11 + a02 * b21;
-
-        if (det === 0) {
-            this.set(0, 0, 0, 0, 0, 0, 0, 0, 0);
-            return this;
-        }
-        det = 1.0 / det;
-
-        this.m00 = b01 * det;
-        this.m01 = (-a22 * a01 + a02 * a21) * det;
-        this.m02 = (a12 * a01 - a02 * a11) * det;
-        this.m03 = b11 * det;
-        this.m04 = (a22 * a00 - a02 * a20) * det;
-        this.m05 = (-a12 * a00 + a02 * a10) * det;
-        this.m06 = b21 * det;
-        this.m07 = (-a21 * a00 + a01 * a20) * det;
-        this.m08 = (a11 * a00 - a01 * a10) * det;
-        return this;
+        return Mat3.invert(this, this);
     }
 
     /**
@@ -925,11 +877,7 @@ export class Mat3 extends ValueType {
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
-
-        return a00 * (a22 * a11 - a12 * a21) + a01 * (-a22 * a10 + a12 * a20) + a02 * (a21 * a10 - a11 * a20);
+        return Mat3.determinant(this);
     }
 
     /**
@@ -938,16 +886,17 @@ export class Mat3 extends ValueType {
      * @param mat the second operand
      */
     public add (mat: Mat3): Mat3 {
-        this.m00 += mat.m00;
-        this.m01 += mat.m01;
-        this.m02 += mat.m02;
-        this.m03 += mat.m03;
-        this.m04 += mat.m04;
-        this.m05 += mat.m05;
-        this.m06 += mat.m06;
-        this.m07 += mat.m07;
-        this.m08 += mat.m08;
-        return this;
+        const self = this;
+        self.m00 += mat.m00;
+        self.m01 += mat.m01;
+        self.m02 += mat.m02;
+        self.m03 += mat.m03;
+        self.m04 += mat.m04;
+        self.m05 += mat.m05;
+        self.m06 += mat.m06;
+        self.m07 += mat.m07;
+        self.m08 += mat.m08;
+        return self;
     }
 
     /**
@@ -956,16 +905,17 @@ export class Mat3 extends ValueType {
      * @param mat the second operand
      */
     public subtract (mat: Mat3): Mat3 {
-        this.m00 -= mat.m00;
-        this.m01 -= mat.m01;
-        this.m02 -= mat.m02;
-        this.m03 -= mat.m03;
-        this.m04 -= mat.m04;
-        this.m05 -= mat.m05;
-        this.m06 -= mat.m06;
-        this.m07 -= mat.m07;
-        this.m08 -= mat.m08;
-        return this;
+        const self = this;
+        self.m00 -= mat.m00;
+        self.m01 -= mat.m01;
+        self.m02 -= mat.m02;
+        self.m03 -= mat.m03;
+        self.m04 -= mat.m04;
+        self.m05 -= mat.m05;
+        self.m06 -= mat.m06;
+        self.m07 -= mat.m07;
+        self.m08 -= mat.m08;
+        return self;
     }
 
     /**
@@ -974,26 +924,7 @@ export class Mat3 extends ValueType {
      * @param mat the second operand
      */
     public multiply (mat: Mat3): Mat3 {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
-
-        const b00 = mat.m00; const b01 = mat.m01; const b02 = mat.m02;
-        const b10 = mat.m03; const b11 = mat.m04; const b12 = mat.m05;
-        const b20 = mat.m06; const b21 = mat.m07; const b22 = mat.m08;
-
-        this.m00 = b00 * a00 + b01 * a10 + b02 * a20;
-        this.m01 = b00 * a01 + b01 * a11 + b02 * a21;
-        this.m02 = b00 * a02 + b01 * a12 + b02 * a22;
-
-        this.m03 = b10 * a00 + b11 * a10 + b12 * a20;
-        this.m04 = b10 * a01 + b11 * a11 + b12 * a21;
-        this.m05 = b10 * a02 + b11 * a12 + b12 * a22;
-
-        this.m06 = b20 * a00 + b21 * a10 + b22 * a20;
-        this.m07 = b20 * a01 + b21 * a11 + b22 * a21;
-        this.m08 = b20 * a02 + b21 * a12 + b22 * a22;
-        return this;
+        return Mat3.multiply(this, this, mat);
     }
 
     /**
@@ -1002,16 +933,17 @@ export class Mat3 extends ValueType {
      * @param scalar amount to scale the matrix's elements by
      */
     public multiplyScalar (scalar: number): Mat3 {
-        this.m00 *= scalar;
-        this.m01 *= scalar;
-        this.m02 *= scalar;
-        this.m03 *= scalar;
-        this.m04 *= scalar;
-        this.m05 *= scalar;
-        this.m06 *= scalar;
-        this.m07 *= scalar;
-        this.m08 *= scalar;
-        return this;
+        const self = this;
+        self.m00 *= scalar;
+        self.m01 *= scalar;
+        self.m02 *= scalar;
+        self.m03 *= scalar;
+        self.m04 *= scalar;
+        self.m05 *= scalar;
+        self.m06 *= scalar;
+        self.m07 *= scalar;
+        self.m08 *= scalar;
+        return self;
     }
 
     /**
@@ -1022,16 +954,17 @@ export class Mat3 extends ValueType {
     public scale (vec: Vec3): Mat3 {
         const x = vec.x;
         const y = vec.y;
+        const self = this;
 
-        this.m00 *= x;
-        this.m01 *= x;
-        this.m02 *= x;
+        self.m00 *= x;
+        self.m01 *= x;
+        self.m02 *= x;
 
-        this.m03 *= y;
-        this.m04 *= y;
-        this.m05 *= y;
+        self.m03 *= y;
+        self.m04 *= y;
+        self.m05 *= y;
 
-        return this;
+        return self;
     }
 
     /**
@@ -1040,25 +973,26 @@ export class Mat3 extends ValueType {
      * @param rad radian of rotation
      */
     public rotate (rad: number): Mat3 {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const self = this;
+        const a00 = self.m00; const a01 = self.m01; const a02 = self.m02;
+        const a10 = self.m03; const a11 = self.m04; const a12 = self.m05;
+        const a20 = self.m06; const a21 = self.m07; const a22 = self.m08;
 
         const s = Math.sin(rad);
         const c = Math.cos(rad);
 
-        this.m00 = c * a00 + s * a10;
-        this.m01 = c * a01 + s * a11;
-        this.m02 = c * a02 + s * a12;
+        self.m00 = c * a00 + s * a10;
+        self.m01 = c * a01 + s * a11;
+        self.m02 = c * a02 + s * a12;
 
-        this.m03 = c * a10 - s * a00;
-        this.m04 = c * a11 - s * a01;
-        this.m05 = c * a12 - s * a02;
+        self.m03 = c * a10 - s * a00;
+        self.m04 = c * a11 - s * a01;
+        self.m05 = c * a12 - s * a02;
 
-        this.m06 = a20;
-        this.m07 = a21;
-        this.m08 = a22;
-        return this;
+        self.m06 = a20;
+        self.m07 = a21;
+        self.m08 = a22;
+        return self;
     }
 
     /**
@@ -1083,18 +1017,20 @@ export class Mat3 extends ValueType {
         const wy = w * y2;
         const wz = w * z2;
 
-        this.m00 = 1 - yy - zz;
-        this.m03 = yx - wz;
-        this.m06 = zx + wy;
+        const self = this;
 
-        this.m01 = yx + wz;
-        this.m04 = 1 - xx - zz;
-        this.m07 = zy - wx;
+        self.m00 = 1 - yy - zz;
+        self.m03 = yx - wz;
+        self.m06 = zx + wy;
 
-        this.m02 = zx - wy;
-        this.m05 = zy + wx;
-        this.m08 = 1 - xx - yy;
-        return this;
+        self.m01 = yx + wz;
+        self.m04 = 1 - xx - zz;
+        self.m07 = zy - wx;
+
+        self.m02 = zx - wy;
+        self.m05 = zy + wx;
+        self.m08 = 1 - xx - yy;
+        return self;
     }
 }
 

@@ -36,7 +36,7 @@ import { MorphModel } from './morph-model';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../animation/skeletal-animation-utils';
 import { IMacroPatch, BatchingSchemes, Pass } from '../../render-scene';
 import { director } from '../../game';
-import { PixelFormat } from '../../asset/assets/asset-enum';
+import { Filter, PixelFormat, WrapMode } from '../../asset/assets/asset-enum';
 import { Texture2D, ImageAsset } from '../../asset/assets';
 import { SubModel } from '../../render-scene/scene';
 
@@ -126,7 +126,7 @@ export class SkinningModel extends MorphModel {
      * @en Abstract function for [[BakedSkinningModel]], empty implementation.
      * @zh 由 [[BakedSkinningModel]] 继承的空函数。
      */
-    public uploadAnimation () : void {}
+    public uploadAnimation (): void {}
 
     /**
      * @en Bind the skeleton with its skinning root node and the mesh data.
@@ -332,9 +332,9 @@ export class SkinningModel extends MorphModel {
                 format: pixelFormat,
             });
             const texture = new Texture2D();
-            texture.setFilters(Texture2D.Filter.NEAREST, Texture2D.Filter.NEAREST);
-            texture.setMipFilter(Texture2D.Filter.NONE);
-            texture.setWrapMode(Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE, Texture2D.WrapMode.CLAMP_TO_EDGE);
+            texture.setFilters(Filter.NEAREST, Filter.NEAREST);
+            texture.setMipFilter(Filter.NONE);
+            texture.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
             texture.image = image;
             textures[i] = texture;
         }

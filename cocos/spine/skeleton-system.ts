@@ -22,12 +22,10 @@
  THE SOFTWARE.
 */
 
-import { EDITOR_NOT_IN_PREVIEW, JSB } from 'internal:constants';
 import { director } from '../game/director';
 import { System } from '../core';
 import { Skeleton } from './skeleton';
 import { legacyCC } from '../core/global-exports';
-import spine from './lib/spine-core.js';
 
 export class SkeletonSystem extends System {
     /**
