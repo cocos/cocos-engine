@@ -1796,8 +1796,13 @@ export class DescriptorSetInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public readonly layout: DescriptorSetLayout = null!,
+        public layout: DescriptorSetLayout = null!,
     ) {}
+
+    public copy (info: Readonly<DescriptorSetInfo>): DescriptorSetInfo {
+        this.layout = info.layout;
+        return this;
+    }
 }
 
 export class PipelineLayoutInfo {

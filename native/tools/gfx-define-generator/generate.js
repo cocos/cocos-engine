@@ -171,7 +171,9 @@ while (structCap) {
     // structRE can not reliably extract the correct member declaration range
     let memberList = getMemberList(header, structCap.index + structCap[1].length);
     // discard pointer signs
-    memberList = memberList.replace(/\*/g, '');
+    const memberList2 = memberList.replace(/\*/g, '');
+    const hasPointer = memberList2 !== memberList;
+    memberList = memberList2;
 
     let memberCap = structMemberRE.exec(memberList);
     while (memberCap) {
@@ -187,7 +189,7 @@ while (structCap) {
             type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
             type = type.replace(/(\b)(?:ccstd::string)(\b)/, '$1string$2');
             type = type.replace(/(\b)(?:ccstd::hash_t)(\b)/, '$1number$2');
-            if (memberCap[1]) {readonly = true;}
+            if (memberCap[1] && !hasPointer) {readonly = true;}
             const isArray = type.endsWith('[]');
             const decayedType = isArray ? type.slice(0, -2) : type;
 
