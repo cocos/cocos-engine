@@ -1181,6 +1181,8 @@ cocos_source_files(
 
                  cocos/renderer/gfx-base/SPIRVUtils.h
                  cocos/renderer/gfx-base/SPIRVUtils.cpp
+                 cocos/renderer/gfx-base/GFXAccelerationStructure.h
+                 cocos/renderer/gfx-base/GFXAccelerationStructure.cpp
                  cocos/renderer/gfx-base/GFXObject.h
                  cocos/renderer/gfx-base/GFXObject.cpp
                  cocos/renderer/gfx-base/GFXBarrier.cpp
@@ -1261,6 +1263,8 @@ cocos_source_files(
                  cocos/renderer/gfx-agent/TextureAgent.h
                  cocos/renderer/gfx-agent/TextureAgent.cpp
 
+                 cocos/renderer/gfx-validator/AccelerationStructureValidator.h
+                 cocos/renderer/gfx-validator/AccelerationStructureValidator.cpp
                  cocos/renderer/gfx-validator/BufferValidator.h
                  cocos/renderer/gfx-validator/BufferValidator.cpp
                  cocos/renderer/gfx-validator/CommandBufferValidator.h
@@ -1324,6 +1328,8 @@ cocos_source_files(
                  cocos/renderer/gfx-empty/EmptySwapchain.cpp
                  cocos/renderer/gfx-empty/EmptyTexture.h
                  cocos/renderer/gfx-empty/EmptyTexture.cpp
+                 cocos/renderer/gfx-empty/EmptyAccelerationStructure.h
+                 cocos/renderer/gfx-empty/EmptyAccelerationStructure.cpp
 
                  cocos/renderer/pipeline/ClusterLightCulling.cpp
                  cocos/renderer/pipeline/ClusterLightCulling.h
@@ -1556,6 +1562,11 @@ cocos_source_files(
                  cocos/scene/Skin.cpp
                  cocos/scene/PostSettings.h
                  cocos/scene/PostSettings.cpp
+                 cocos/scene/RayTracingSceneTypes.h
+                 cocos/scene/RayTracingScene.cpp
+                 cocos/scene/RayTracingScene.h
+                 cocos/scene/AccelerationStructureManager.cpp
+                 cocos/scene/AccelerationStructureManager.h
 )
 
 ##### primitive
@@ -1644,6 +1655,8 @@ endif()
 
 if(CC_USE_GLES2)
     cocos_source_files(
+                     cocos/renderer/gfx-gles2/GLES2AccelerationStructure.cpp
+                     cocos/renderer/gfx-gles2/GLES2AccelerationStructure.h
                      cocos/renderer/gfx-gles2/GLES2Buffer.cpp
                      cocos/renderer/gfx-gles2/GLES2Buffer.h
                      cocos/renderer/gfx-gles2/GLES2CommandBuffer.cpp
@@ -1690,6 +1703,8 @@ endif()
 
 if(CC_USE_GLES3)
     cocos_source_files(
+                     cocos/renderer/gfx-gles3/GLES3AccelerationStructure.cpp
+                     cocos/renderer/gfx-gles3/GLES3AccelerationStructure.h
                      cocos/renderer/gfx-gles3/GLES3Buffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Buffer.h
                      cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp
@@ -1740,6 +1755,8 @@ endif()
 
 if(CC_USE_METAL)
     cocos_source_files(
+                             cocos/renderer/gfx-metal/MTLAccelerationStructure.h
+                             cocos/renderer/gfx-metal/MTLAccelerationStructure.mm
                              cocos/renderer/gfx-metal/MTLBuffer.h
                              cocos/renderer/gfx-metal/MTLBuffer.mm
                              cocos/renderer/gfx-metal/MTLCommandBuffer.h
@@ -1787,6 +1804,8 @@ if(CC_USE_VULKAN)
 
     cocos_source_files(
                      cocos/renderer/gfx-vulkan/vk_mem_alloc.h
+                     cocos/renderer/gfx-vulkan/VKAccelerationStructure.cpp
+                     cocos/renderer/gfx-vulkan/VKAccelerationStructure.h
                      cocos/renderer/gfx-vulkan/VKBuffer.cpp
                      cocos/renderer/gfx-vulkan/VKBuffer.h
                      cocos/renderer/gfx-vulkan/VKCommandBuffer.cpp
