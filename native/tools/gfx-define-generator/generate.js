@@ -289,6 +289,17 @@ for (const name of Object.keys(structMap)) {
 
     output += `    ) {}\n`;
 
+    if (name === 'Color') {
+        output += `\n`;
+        output += `    public set (x: number, y: number, z: number, w: number): Color {\n`;
+        output += `        this.x = x;\n`;
+        output += `        this.y = y;\n`;
+        output += `        this.z = z;\n`;
+        output += `        this.w = w;\n`;
+        output += `        return this;\n`;
+        output += `    }\n`;
+    }
+
     if (!Object.keys(struct.member).some((k) => struct.member[k].readonly)) {
         output += `\n    public copy (info: Readonly<${name}>): ${name} {\n`;
         for (const key in struct.member) {
