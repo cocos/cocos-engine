@@ -99,7 +99,9 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 2104, "Layer collision. The name of layer (%s) is collided with the name or value of some layer" },
 { 2200, "Design resolution not valid" },
 { 2201, "should set resolutionPolicy" },
-{ 2300, "The touches is more than MAX_TOUCHES, nUnusedIndex = %s" },
+{ 2300, "The touches is more than MAX_TOUCHES." },
+{ 2301, "Cannot create the same touch object." },
+{ 2302, "The touches is more than MAX_TOUCHES, release touch id %s." },
 { 2402, "Forward pipeline startup failed!" },
 { 3103, "cc.Texture.addImage(): path should be non-null" },
 { 3119, "Lazy init texture with image element failed due to image loading failure: %s" },
@@ -587,11 +589,13 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 16397, "ProgressBar FILLED mode only works when barSprite's Type is FILLED!" },
 { 16398, "ProgressBar non-FILLED mode only works when barSprite's Type is non-FILLED!" },
 { 16399, "CopyTextureToBuffers: not supported texture target." },
+{ 16400, "Limit values to be greater than 0" },
 { 16401, "beginRenderPass: Only primary command buffer is supported." },
 { 16402, "execute is not supported." },
 { 16403, "GPU memory alias is not supported" },
 { 16404, "Block '%s' does not bound" },
 { 16405, "This device does not support WebGL2" },
+{ 16406, "Can't find the spriteFrame of tilesets %s" },
 
 };
 }//namespace cc
