@@ -69,7 +69,7 @@ if (NATIVE) {
                 this.eventMap.set(eventName, []);
             }
             const arr = this.eventMap.get(eventName);
-            if (!arr.find(listener)) {
+            if (!arr.includes(listener)) {
                 arr.push(listener);
             }
         },
