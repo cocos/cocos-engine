@@ -204,7 +204,7 @@ inline void clear_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noe
 }
 
 inline void remove_vertex(SubpassGraph::vertex_descriptor u, SubpassGraph& g) noexcept { // NOLINT
-    impl::removeVectorVertex(const_cast<SubpassGraph&>(g), u, SubpassGraph::directed_category{});
+    impl::removeVectorVertex(g, u, SubpassGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
@@ -2391,7 +2391,7 @@ inline void remove_vertex(ResourceGraph::vertex_descriptor u, ResourceGraph& g) 
             }
         }
     }
-    impl::removeVectorVertex(const_cast<ResourceGraph&>(g), u, ResourceGraph::directed_category{});
+    impl::removeVectorVertex(g, u, ResourceGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
@@ -4354,7 +4354,7 @@ inline void remove_vertex(RenderGraph::vertex_descriptor u, RenderGraph& g) noex
     // preserve vertex' iterators
     auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
-    impl::removeVectorVertex(const_cast<RenderGraph&>(g), u, RenderGraph::directed_category{});
+    impl::removeVectorVertex(g, u, RenderGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));

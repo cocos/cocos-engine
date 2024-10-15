@@ -27,11 +27,12 @@
  * The following section is auto-generated.
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  */
-// clang-format off
 #pragma once
-#include "cocos/base/std/hash/hash.h"
-#include "cocos/base/std/variant.h"
+// clang-format off
+// IWYU pragma: begin_exports
 #include "cocos/renderer/pipeline/custom/RenderCommonFwd.h"
+// IWYU pragma: end_exports
+#include "cocos/base/std/hash/hash.h"
 
 namespace cc {
 

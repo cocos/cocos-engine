@@ -1221,7 +1221,7 @@ inline void remove_vertex(LayoutGraph::vertex_descriptor u, LayoutGraph& g) noex
     // preserve vertex' iterators
     auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
-    impl::removeVectorVertex(const_cast<LayoutGraph&>(g), u, LayoutGraph::directed_category{});
+    impl::removeVectorVertex(g, u, LayoutGraph::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));
@@ -1921,7 +1921,7 @@ inline void remove_vertex(LayoutGraphData::vertex_descriptor u, LayoutGraphData&
     // preserve vertex' iterators
     auto& vert = g._vertices[u];
     remove_vertex_value_impl(vert.handle, g);
-    impl::removeVectorVertex(const_cast<LayoutGraphData&>(g), u, LayoutGraphData::directed_category{});
+    impl::removeVectorVertex(g, u, LayoutGraphData::directed_category{});
 
     // remove components
     g.names.erase(g.names.begin() + static_cast<std::ptrdiff_t>(u));

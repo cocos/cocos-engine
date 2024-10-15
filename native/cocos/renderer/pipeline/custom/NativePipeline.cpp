@@ -48,6 +48,8 @@ namespace cc {
 
 namespace render {
 
+namespace {
+
 template <gfx::Format>
 void addSubresourceNode(ResourceGraph::vertex_descriptor v, const ccstd::string &name, ResourceGraph &resg);
 
@@ -97,6 +99,8 @@ void addSubresourceNode<gfx::Format::DEPTH_STENCIL>(ResourceGraph::vertex_descri
         resg,
         v);
 }
+
+} // namespace
 
 NativePipeline::NativePipeline(const allocator_type &alloc) noexcept
 : device(gfx::Device::getInstance()),
@@ -1225,96 +1229,6 @@ void setupGpuDrivenResources(
 }
 
 } // namespace
-
-void NativePipeline::addBuiltinGpuCullingPass(
-    const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) {
-    std::ignore = camera;
-    const uint32_t cullingID = ++nativeContext.sceneCulling.gpuCullingPassID;
-    setupGpuDrivenResources(*this, cullingID, resourceGraph, hzbName);
-
-    if (light) {
-        // build light culling pass
-        return;
-    }
-
-    const std::string objectBuffer = "CCObjectBuffer" + std::to_string(cullingID);
-    const std::string instanceBuffer = "CCInstanceBuffer" + std::to_string(cullingID);
-    const std::string drawIndirectBuffer = "CCDrawIndirectBuffer" + std::to_string(cullingID);
-    const std::string drawInstanceBuffer = "CCDrawInstanceBuffer" + std::to_string(cullingID);
-    const std::string visibilityBuffer = "CCVisibilityBuffer" + std::to_string(cullingID);
-
-    // init indirected buffers
-    {
-        CopyPass copyPass{renderGraph.get_allocator()};
-        {
-            CopyPair copyPair{renderGraph.get_allocator()};
-            copyPair.source = "xxx";
-            copyPair.target = drawIndirectBuffer;
-            copyPair.mipLevels = 1;
-            copyPair.numSlices = 1;
-            copyPass.copyPairs.emplace_back(std::move(copyPair));
-        }
-
-        auto copyID = addVertex2(
-            CopyTag{},
-            std::forward_as_tuple("CopyInitialIndirectBuffer"),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(std::move(copyPass)),
-            renderGraph);
-        CC_ENSURES(copyID != RenderGraph::null_vertex());
-    }
-    // run compute cullling pass
-    {
-        ComputePass computePass{renderGraph.get_allocator()};
-        {
-            auto res = computePass.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(drawIndirectBuffer),
-                std::forward_as_tuple());
-            auto &view = res.first->second.emplace_back();
-            view.name = "CCDrawIndirectBuffer";
-            view.accessType = AccessType::WRITE;
-            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
-        }
-        {
-            auto res = computePass.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(drawInstanceBuffer),
-                std::forward_as_tuple());
-            auto &view = res.first->second.emplace_back();
-            view.name = "CCDrawInstanceBuffer";
-            view.accessType = AccessType::WRITE;
-            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
-        }
-        {
-            auto res = computePass.computeViews.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(visibilityBuffer),
-                std::forward_as_tuple());
-            auto &view = res.first->second.emplace_back();
-            view.name = "CCVisibilityBuffer";
-            view.accessType = AccessType::WRITE;
-            view.shaderStageFlags = gfx::ShaderStageFlagBit::COMPUTE;
-        }
-
-        auto computePassID = addVertex2(
-            ComputeTag{},
-            std::forward_as_tuple("Scene"),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(),
-            std::forward_as_tuple(std::move(computePass)),
-            renderGraph);
-        CC_ENSURES(computePassID != RenderGraph::null_vertex());
-    }
-}
-
-void NativePipeline::addBuiltinHzbGenerationPass(
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-    const std::string &sourceDepthStencilName, const std::string &targetHzbName) {
-}
 
 void NativePipeline::addCopyPass(const ccstd::vector<CopyPair> &copyPairs) {
     CopyPass pass(renderGraph.get_allocator());

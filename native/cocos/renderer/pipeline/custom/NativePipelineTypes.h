@@ -93,11 +93,8 @@ public:
     void setArrayBuffer(const ccstd::string &name, const ArrayBuffer *arrayBuffer) /*implements*/;
     void setBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
     void setTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) /*implements*/;
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) /*implements*/;
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) /*implements*/;
     void setBuiltinCameraConstants(const scene::Camera *camera) /*implements*/;
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) /*implements*/;
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) /*implements*/;
     void setBuiltinSphereLightConstants(const scene::SphereLight *light, const scene::Camera *camera) /*implements*/;
     void setBuiltinSpotLightConstants(const scene::SpotLight *light, const scene::Camera *camera) /*implements*/;
@@ -158,20 +155,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -257,20 +245,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -345,20 +324,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -456,20 +426,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -570,20 +531,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -657,20 +609,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -756,20 +699,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -854,20 +788,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -936,20 +861,11 @@ public:
     void setTexture(const ccstd::string &name, gfx::Texture *texture) override {
         NativeSetter::setTexture(name, texture);
     }
-    void setReadWriteBuffer(const ccstd::string &name, gfx::Buffer *buffer) override {
-        NativeSetter::setReadWriteBuffer(name, buffer);
-    }
-    void setReadWriteTexture(const ccstd::string &name, gfx::Texture *texture) override {
-        NativeSetter::setReadWriteTexture(name, texture);
-    }
     void setSampler(const ccstd::string &name, gfx::Sampler *sampler) override {
         NativeSetter::setSampler(name, sampler);
     }
     void setBuiltinCameraConstants(const scene::Camera *camera) override {
         NativeSetter::setBuiltinCameraConstants(camera);
-    }
-    void setBuiltinShadowMapConstants(const scene::DirectionalLight *light) override {
-        NativeSetter::setBuiltinShadowMapConstants(light);
     }
     void setBuiltinDirectionalLightConstants(const scene::DirectionalLight *light, const scene::Camera *camera) override {
         NativeSetter::setBuiltinDirectionalLightConstants(light, camera);
@@ -1037,7 +953,7 @@ struct ProbeHelperQueue {
 
     static LayoutGraphData::vertex_descriptor getDefaultId(const LayoutGraphData &lg);
 
-    inline void clear() noexcept {
+    void clear() noexcept {
         probeMap.clear();
     }
 
@@ -1683,8 +1599,6 @@ public:
     ComputePassBuilder *addComputePass(const ccstd::string &passName) override;
     void addUploadPass(ccstd::vector<UploadPair> &uploadPairs) override;
     void addMovePass(const ccstd::vector<MovePair> &movePairs) override;
-    void addBuiltinGpuCullingPass(const scene::Camera *camera, const std::string &hzbName, const scene::Light *light) override;
-    void addBuiltinHzbGenerationPass(const std::string &sourceDepthStencilName, const std::string &targetHzbName) override;
     uint32_t addCustomBuffer(const ccstd::string &name, const gfx::BufferInfo &info, const std::string &type) override;
     uint32_t addCustomTexture(const ccstd::string &name, const gfx::TextureInfo &info, const std::string &type) override;
 

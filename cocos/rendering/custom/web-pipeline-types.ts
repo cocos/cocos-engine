@@ -653,9 +653,6 @@ export class WebSetter implements Setter {
         const layoutName = this.getParentLayout();
         setCameraUBOValues(this, camera, pipeline.pipelineSceneData as PipelineSceneData, camera.scene, layoutName);
     }
-    public setBuiltinShadowMapConstants (light: Light, numLevels?: number): void {
-        setShadowUBOView(this, null, this.getParentLayout());
-    }
     public setBuiltinDirectionalLightFrustumConstants (camera: Camera, light: DirectionalLight, csmLevel = 0): void {
         setShadowUBOLightView(this, camera, light, csmLevel);
     }
@@ -663,7 +660,7 @@ export class WebSetter implements Setter {
         setShadowUBOLightView(this, null, light, 0);
     }
     public setBuiltinDirectionalLightConstants (light: DirectionalLight, camera: Camera): void {
-        this.setBuiltinShadowMapConstants(light);
+        setShadowUBOView(this, null, this.getParentLayout());
     }
     public setBuiltinSphereLightConstants (light: SphereLight, camera: Camera): void {
         const director = cclegacy.director;
