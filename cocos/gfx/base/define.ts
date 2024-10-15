@@ -987,19 +987,19 @@ export class Color {
         public w: number = 0,
     ) {}
 
-    public set (x: number, y: number, z: number, w: number): Color {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
-        return this;
-    }
-
     public copy (info: Readonly<Color>): Color {
         this.x = info.x;
         this.y = info.y;
         this.z = info.z;
         this.w = info.w;
+        return this;
+    }
+
+    public set (x: number, y: number, z: number, w: number): Color {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.w = w;
         return this;
     }
 }
