@@ -40,6 +40,22 @@ import type { RenderWindow } from '../../render-scene/core/render-window';
 import type { Light } from '../../render-scene/scene';
 import { RecyclePool } from '../../core/memop';
 
+function resetColor (v: Color): void {
+    v.x = 0;
+    v.y = 0;
+    v.z = 0;
+    v.w = 0;
+}
+
+function resetViewport (v: Viewport): void {
+    v.left = 0;
+    v.top = 0;
+    v.width = 0;
+    v.height = 0;
+    v.minDepth = 0;
+    v.maxDepth = 1;
+}
+
 export class ClearValue {
     constructor (x = 0, y = 0, z = 0, w = 0) {
         this.x = x;
@@ -95,7 +111,7 @@ export class RasterView {
         this.loadOp = loadOp;
         this.storeOp = storeOp;
         this.clearFlags = clearFlags;
-        this.clearColor.reset();
+        resetColor(this.clearColor);
         this.slotID = 0;
         this.shaderStageFlags = shaderStageFlags;
     }
@@ -434,7 +450,7 @@ export class RasterSubpass {
         this.rasterViews.clear();
         this.computeViews.clear();
         this.resolvePairs.length = 0;
-        this.viewport.reset();
+        resetViewport(this.viewport);
         this.subpassID = subpassID;
         this.count = count;
         this.quality = quality;
@@ -475,7 +491,7 @@ export class RasterPass {
         this.height = 0;
         this.count = 1;
         this.quality = 0;
-        this.viewport.reset();
+        resetViewport(this.viewport);
         this.versionName = '';
         this.version = 0;
         this.hashValue = 0;
@@ -960,7 +976,7 @@ export class ClearView {
     reset (slotName: string, clearFlags: ClearFlagBit): void {
         this.slotName = slotName;
         this.clearFlags = clearFlags;
-        this.clearColor.reset();
+        resetColor(this.clearColor);
     }
     declare slotName: string;
     declare clearFlags: ClearFlagBit;

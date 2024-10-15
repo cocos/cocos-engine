@@ -110,25 +110,13 @@ export enum Feature {
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
     COMPUTE_SHADER,
-    // This flag indicates whether the device can benefit from subpass-style usages.
-    // Specifically, this only differs on the GLES backends: the Framebuffer Fetch
-    // extension is used to simulate input attachments, so the flag is not set when
-    // the extension is not supported, and you should switch to the fallback branch
-    // (without the extension requirement) in GLSL shader sources accordingly.
-    // Everything else can remain the same.
-    //
-    // Another caveat when using the Framebuffer Fetch extensions in shaders is that
-    // for subpasses with exactly 4 inout attachments the output is automatically set
-    // to the last attachment (taking advantage of 'inout' property), and a separate
-    // blit operation (if needed) will be added for you afterwards to transfer the
-    // rendering result to the correct subpass output texture. This is to ameliorate
-    // the max number of attachment limit(4) situation for many devices, and shader
-    // sources inside this kind of subpass must match this behavior.
-    INPUT_ATTACHMENT_BENEFIT,
+
+    INPUT_ATTACHMENT_BENEFIT, // @deprecated
     SUBPASS_COLOR_INPUT,
     SUBPASS_DEPTH_STENCIL_INPUT,
-    RASTERIZATION_ORDER_COHERENT,
-    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,
+    RASTERIZATION_ORDER_NOCOHERENT,
+
+    MULTI_SAMPLE_RESOLVE_DEPTH_STENCIL,   // resolve depth stencil
     COUNT,
 }
 
@@ -364,6 +352,7 @@ export enum BufferUsageBit {
 
 export enum BufferFlagBit {
     NONE = 0,
+    ENABLE_STAGING_WRITE = 0x01,
 }
 
 export enum MemoryAccessBit {
@@ -397,17 +386,18 @@ export enum TextureUsageBit {
     COLOR_ATTACHMENT = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
     INPUT_ATTACHMENT = 0x40,
+    SHADING_RATE = 0x80,
 }
 
 export enum TextureFlagBit {
     NONE = 0,
-    GEN_MIPMAP = 0x1,     // Generate mipmaps using bilinear filter
-    GENERAL_LAYOUT = 0x2, // For inout framebuffer attachments
-    EXTERNAL_OES = 0x4, // External oes texture
-    EXTERNAL_NORMAL = 0x8, // External normal texture
-    LAZILY_ALLOCATED = 0x10, // Try lazily allocated mode.
+    GEN_MIPMAP = 0x1,           // Generate mipmaps using bilinear filter
+    GENERAL_LAYOUT = 0x2,       // @deprecated, For inout framebuffer attachments
+    EXTERNAL_OES = 0x4,         // External oes texture
+    EXTERNAL_NORMAL = 0x8,      // External normal texture
+    LAZILY_ALLOCATED = 0x10,    // Try lazily allocated mode.
     MUTABLE_VIEW_FORMAT = 0x40, // texture view as different format
-    MUTABLE_STORAGE = 0x80, // mutable storage for gl
+    MUTABLE_STORAGE = 0x80,     // mutable storage for gl image
 }
 
 export enum FormatFeatureBit {
@@ -417,6 +407,7 @@ export enum FormatFeatureBit {
     LINEAR_FILTER = 0x4,     // Allow linear filtering when sampling in shaders or blitting
     STORAGE_TEXTURE = 0x8,   // Allow storage reads & writes in shaders
     VERTEX_ATTRIBUTE = 0x10, // Allow usages as vertex input attributes
+    SHADING_RATE = 0x20,     // Allow usages as shading rate
 }
 
 export enum SampleCount {
@@ -579,6 +570,8 @@ export enum AccessFlagBit {
     TRANSFER_WRITE = 1 << 24,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED = 1 << 25,            // Data pre-filled by host before device access starts
     HOST_WRITE = 1 << 26,                     // Written on the host
+
+    SHADING_RATE = 1 << 27, // Read as a shading rate image
 }
 
 export enum ResolveMode {
@@ -754,6 +747,8 @@ export class DeviceCaps {
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
         public supportQuery: boolean = false,
+        public supportVariableRateShading: boolean = false,
+        public supportSubPassShading: boolean = false,
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
         public clipSpaceSignY: number = 1,
@@ -781,6 +776,8 @@ export class DeviceCaps {
         this.maxComputeWorkGroupSize.copy(info.maxComputeWorkGroupSize);
         this.maxComputeWorkGroupCount.copy(info.maxComputeWorkGroupCount);
         this.supportQuery = info.supportQuery;
+        this.supportVariableRateShading = info.supportVariableRateShading;
+        this.supportSubPassShading = info.supportSubPassShading;
         this.clipSpaceMinZ = info.clipSpaceMinZ;
         this.screenSpaceSignY = info.screenSpaceSignY;
         this.clipSpaceSignY = info.clipSpaceSignY;
@@ -978,15 +975,6 @@ export class Viewport {
         this.maxDepth = info.maxDepth;
         return this;
     }
-
-    public reset (): void {
-        this.left = 0;
-        this.top = 0;
-        this.width = 0;
-        this.height = 0;
-        this.minDepth = 0;
-        this.maxDepth = 1;
-    }
 }
 
 export class Color {
@@ -1006,20 +994,20 @@ export class Color {
         this.w = info.w;
         return this;
     }
+}
 
-    public set (x: number, y: number, z: number, w: number): Color {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
+export class MarkerInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public name: string = '',
+        public color: Color = new Color(),
+    ) {}
+
+    public copy (info: Readonly<MarkerInfo>): MarkerInfo {
+        this.name = info.name;
+        this.color.copy(info.color);
         return this;
-    }
-
-    public reset (): void {
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
-        this.w = 0;
     }
 }
 
@@ -1225,6 +1213,8 @@ export class TextureViewInfo {
         public levelCount: number = 1,
         public baseLayer: number = 0,
         public layerCount: number = 1,
+        public basePlane: number = 0,
+        public planeCount: number = 1,
     ) {}
 
     public copy (info: Readonly<TextureViewInfo>): TextureViewInfo {
@@ -1235,6 +1225,8 @@ export class TextureViewInfo {
         this.levelCount = info.levelCount;
         this.baseLayer = info.baseLayer;
         this.layerCount = info.layerCount;
+        this.basePlane = info.basePlane;
+        this.planeCount = info.planeCount;
         return this;
     }
 }
@@ -1494,6 +1486,7 @@ export class ShaderInfo {
         public textures: UniformTexture[] = [],
         public images: UniformStorageImage[] = [],
         public subpassInputs: UniformInputAttachment[] = [],
+        public hash: number = 0xFFFFFFFF,
     ) {}
 
     public copy (info: Readonly<ShaderInfo>): ShaderInfo {
@@ -1507,6 +1500,7 @@ export class ShaderInfo {
         deepCopy(this.textures, info.textures, UniformTexture);
         deepCopy(this.images, info.images, UniformStorageImage);
         deepCopy(this.subpassInputs, info.subpassInputs, UniformInputAttachment);
+        this.hash = info.hash;
         return this;
     }
 }
@@ -1586,6 +1580,7 @@ export class SubpassInfo {
         public preserves: number[] = [],
         public depthStencil: number = -1,
         public depthStencilResolve: number = -1,
+        public shadingRate: number = -1,
         public depthResolveMode: ResolveMode = ResolveMode.NONE,
         public stencilResolveMode: ResolveMode = ResolveMode.NONE,
     ) {}
@@ -1597,6 +1592,7 @@ export class SubpassInfo {
         this.preserves = info.preserves.slice();
         this.depthStencil = info.depthStencil;
         this.depthStencilResolve = info.depthStencilResolve;
+        this.shadingRate = info.shadingRate;
         this.depthResolveMode = info.depthResolveMode;
         this.stencilResolveMode = info.stencilResolveMode;
         return this;
@@ -1610,16 +1606,16 @@ export class SubpassDependency {
         public srcSubpass: number = 0,
         public dstSubpass: number = 0,
         public generalBarrier: GeneralBarrier = null!,
-        public prevAccesses: AccessFlags[] = [AccessFlagBit.NONE],
-        public nextAccesses: AccessFlags[] = [AccessFlagBit.NONE],
+        public prevAccesses: AccessFlags = AccessFlagBit.NONE,
+        public nextAccesses: AccessFlags = AccessFlagBit.NONE,
     ) {}
 
     public copy (info: Readonly<SubpassDependency>): SubpassDependency {
         this.srcSubpass = info.srcSubpass;
         this.dstSubpass = info.dstSubpass;
         this.generalBarrier = info.generalBarrier;
-        this.prevAccesses = info.prevAccesses.slice();
-        this.nextAccesses = info.nextAccesses.slice();
+        this.prevAccesses = info.prevAccesses;
+        this.nextAccesses = info.nextAccesses;
         return this;
     }
 }
@@ -1629,20 +1625,47 @@ export class RenderPassInfo {
 
     constructor (
         public colorAttachments: ColorAttachment[] = [],
-        public depthStencilAttachment: DepthStencilAttachment | null = null,
-        public depthStencilResolveAttachment: DepthStencilAttachment | null = null,
+        public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
+        public depthStencilResolveAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
         public subpasses: SubpassInfo[] = [],
         public dependencies: SubpassDependency[] = [],
     ) {}
 
     public copy (info: Readonly<RenderPassInfo>): RenderPassInfo {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
-        if (info.depthStencilAttachment && this.depthStencilAttachment) this.depthStencilAttachment.copy(info.depthStencilAttachment);
-        if (info.depthStencilResolveAttachment && this.depthStencilResolveAttachment) {
-            this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
-        }
+        this.depthStencilAttachment.copy(info.depthStencilAttachment);
+        this.depthStencilResolveAttachment.copy(info.depthStencilResolveAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
         deepCopy(this.dependencies, info.dependencies, SubpassDependency);
+        return this;
+    }
+}
+
+export class ResourceRange {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public width: number = 0,
+        public height: number = 0,
+        public depthOrArraySize: number = 0,
+        public firstSlice: number = 0,
+        public numSlices: number = 0,
+        public mipLevel: number = 0,
+        public levelCount: number = 0,
+        public basePlane: number = 0,
+        public planeCount: number = 0,
+    ) {}
+
+    public copy (info: Readonly<ResourceRange>): ResourceRange {
+        this.width = info.width;
+        this.height = info.height;
+        this.depthOrArraySize = info.depthOrArraySize;
+        this.firstSlice = info.firstSlice;
+        this.numSlices = info.numSlices;
+        this.mipLevel = info.mipLevel;
+        this.levelCount = info.levelCount;
+        this.basePlane = info.basePlane;
+        this.planeCount = info.planeCount;
         return this;
     }
 }
@@ -1671,10 +1694,7 @@ export class TextureBarrierInfo {
         public prevAccesses: AccessFlags = AccessFlagBit.NONE,
         public nextAccesses: AccessFlags = AccessFlagBit.NONE,
         public type: BarrierType = BarrierType.FULL,
-        public baseMipLevel: number = 0,
-        public levelCount: number = 1,
-        public baseSlice: number = 0,
-        public sliceCount: number = 1,
+        public range: ResourceRange = new ResourceRange(),
         public discardContents: boolean = false,
         public srcQueue: Queue | null = null,
         public dstQueue: Queue | null = null,
@@ -1684,10 +1704,7 @@ export class TextureBarrierInfo {
         this.prevAccesses = info.prevAccesses;
         this.nextAccesses = info.nextAccesses;
         this.type = info.type;
-        this.baseMipLevel = info.baseMipLevel;
-        this.levelCount = info.levelCount;
-        this.baseSlice = info.baseSlice;
-        this.sliceCount = info.sliceCount;
+        this.range.copy(info.range);
         this.discardContents = info.discardContents;
         this.srcQueue = info.srcQueue;
         this.dstQueue = info.dstQueue;
@@ -1773,23 +1790,14 @@ export class DescriptorSetLayoutInfo {
         deepCopy(this.bindings, info.bindings, DescriptorSetLayoutBinding);
         return this;
     }
-
-    reset (): void {
-        this.bindings.length = 0;
-    }
 }
 
 export class DescriptorSetInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public layout: DescriptorSetLayout = null!,
+        public readonly layout: DescriptorSetLayout = null!,
     ) {}
-
-    public copy (info: Readonly<DescriptorSetInfo>): DescriptorSetInfo {
-        this.layout = info.layout;
-        return this;
-    }
 }
 
 export class PipelineLayoutInfo {
@@ -1867,15 +1875,27 @@ export class FormatInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
     constructor (
-        public readonly name: string = '',
-        public readonly size: number = 0,
-        public readonly count: number = 0,
-        public readonly type: FormatType = FormatType.NONE,
-        public readonly hasAlpha: boolean = false,
-        public readonly hasDepth: boolean = false,
-        public readonly hasStencil: boolean = false,
-        public readonly isCompressed: boolean = false,
+        public name: string = '',
+        public size: number = 0,
+        public count: number = 0,
+        public type: FormatType = FormatType.NONE,
+        public hasAlpha: boolean = false,
+        public hasDepth: boolean = false,
+        public hasStencil: boolean = false,
+        public isCompressed: boolean = false,
     ) {}
+
+    public copy (info: Readonly<FormatInfo>): FormatInfo {
+        this.name = info.name;
+        this.size = info.size;
+        this.count = info.count;
+        this.type = info.type;
+        this.hasAlpha = info.hasAlpha;
+        this.hasDepth = info.hasDepth;
+        this.hasStencil = info.hasStencil;
+        this.isCompressed = info.isCompressed;
+        return this;
+    }
 }
 
 export class MemoryStatus {
