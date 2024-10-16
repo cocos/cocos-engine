@@ -23,6 +23,7 @@
 ****************************************************************************/
 
 #include "GFXSampler.h"
+#include "../GFXSamplerUtils.h"
 
 namespace cc {
 namespace gfx {
@@ -38,17 +39,59 @@ ccstd::hash_t Sampler::computeHash(const SamplerInfo &info) {
 }
 
 SamplerInfo Sampler::unpackFromHash(ccstd::hash_t hash) {
-    SamplerInfo info;
-    info.minFilter = static_cast<Filter>((hash & ((1 << 2) - 1)) >> 0);
-    info.magFilter = static_cast<Filter>((hash & ((1 << 2) - 1)) >> 2);
-    info.mipFilter = static_cast<Filter>((hash & ((1 << 2) - 1)) >> 4);
-    info.addressU = static_cast<Address>((hash & ((1 << 2) - 1)) >> 6);
-    info.addressV = static_cast<Address>((hash & ((1 << 2) - 1)) >> 8);
-    info.addressW = static_cast<Address>((hash & ((1 << 2) - 1)) >> 10);
-    info.maxAnisotropy = (hash & ((1 << 4) - 1)) >> 12;
-    info.cmpFunc = static_cast<ComparisonFunc>((hash & ((1 << 3) - 1)) >> 16);
-    return info;
+    return uncompressSamplerInfo(hash);
 }
+
+namespace {
+
+constexpr bool testSamplerInfo(const SamplerInfo &info) {
+    const uint32_t packed = compressSamplerInfo(info);
+    const SamplerInfo unpacked = uncompressSamplerInfo(packed);
+
+    return info.minFilter == unpacked.minFilter &&
+           info.magFilter == unpacked.magFilter &&
+           info.mipFilter == unpacked.mipFilter &&
+           info.addressU == unpacked.addressU &&
+           info.addressV == unpacked.addressV &&
+           info.addressW == unpacked.addressW &&
+           info.maxAnisotropy == unpacked.maxAnisotropy &&
+           info.cmpFunc == unpacked.cmpFunc;
+}
+
+static_assert(testSamplerInfo(SamplerInfo{
+    Filter::NONE,
+    Filter::NONE,
+    Filter::NONE,
+    Address::WRAP,
+    Address::WRAP,
+    Address::WRAP,
+    0U,
+    ComparisonFunc::NEVER,
+}));
+
+static_assert(testSamplerInfo(SamplerInfo{
+    Filter::ANISOTROPIC,
+    Filter::ANISOTROPIC,
+    Filter::ANISOTROPIC,
+    Address::BORDER,
+    Address::BORDER,
+    Address::BORDER,
+    16U,
+    ComparisonFunc::ALWAYS,
+}));
+
+static_assert(testSamplerInfo(SamplerInfo{
+    Filter::POINT,
+    Filter::LINEAR,
+    Filter::ANISOTROPIC,
+    Address::MIRROR,
+    Address::CLAMP,
+    Address::BORDER,
+    15U,
+    ComparisonFunc::GREATER_EQUAL,
+}));
+
+} // namespace
 
 } // namespace gfx
 } // namespace cc

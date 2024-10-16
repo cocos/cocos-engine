@@ -1212,6 +1212,7 @@ cocos_source_files(
                  cocos/renderer/gfx-base/GFXQueryPool.h
                  cocos/renderer/gfx-base/GFXRenderPass.cpp
                  cocos/renderer/gfx-base/GFXRenderPass.h
+                 cocos/renderer/gfx-base/GFXSamplerUtils.h
                  cocos/renderer/gfx-base/GFXShader.cpp
                  cocos/renderer/gfx-base/GFXShader.h
                  cocos/renderer/gfx-base/GFXSwapchain.cpp

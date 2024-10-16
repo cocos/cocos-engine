@@ -243,6 +243,7 @@ export class TextureBase extends Asset {
      * @param anisotropy @en The anisotropy to be set. @zh 待设置的各向异性数值。
      */
     public setAnisotropy (anisotropy: number): void {
+        anisotropy = Math.min(anisotropy, 16);
         this._anisotropy = anisotropy;
         this._samplerInfo$.maxAnisotropy = anisotropy;
 
