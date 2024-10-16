@@ -86,6 +86,10 @@ export enum SpineAnimationCacheMode {
 }
 ccenum(SpineAnimationCacheMode);
 
+// To keep the compatibility, don't use it internally, otherwise, enum value may be inlined to wrong value.
+// Use AnimationCacheMode instead.
+export const AnimationCacheMode = SpineAnimationCacheMode;
+
 interface AnimationItem {
     animationName: string;
     loop: boolean;
@@ -107,6 +111,9 @@ export enum SpineDefaultAnimsEnum {
     '<None>' = 0
 }
 ccenum(SpineDefaultAnimsEnum);
+// To keep the compatibility, don't use it internally, otherwise, enum value may be inlined to wrong value.
+// Use SpineDefaultAnimsEnum instead.
+export const DefaultAnimsEnum = SpineDefaultAnimsEnum;
 
 /**
  * @engineInternal
@@ -710,7 +717,7 @@ export class Skeleton extends UIRenderer {
         this._slotTextures = null;
         this._cachedSockets.clear();
         this._socketNodes.clear();
-        //if (this._cacheMode == AnimationCacheMode.PRIVATE_CACHE) this._animCache?.destroy();
+        //if (this._cacheMode == SpineAnimationCacheMode.PRIVATE_CACHE) this._animCache?.destroy();
         this._animCache = null;
         SkeletonSystem.getInstance().remove(this);
         if (!JSB && this._instance) {
