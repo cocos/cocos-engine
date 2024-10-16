@@ -45,7 +45,7 @@ import {
 } from './types';
 import { Vec4, geometry, toRadian, cclegacy } from '../../core';
 import { RenderWindow } from '../../render-scene/core/render-window';
-import { RenderData, RenderGraph } from './render-graph';
+import { RasterPass, RenderData, RenderGraph } from './render-graph';
 import { WebPipeline } from './web-pipeline';
 import { DescriptorSetData, LayoutGraphData } from './layout-graph';
 import { AABB } from '../../core/geometry';
@@ -865,4 +865,47 @@ export function getSubpassOrPassID (sceneId: number, rg: RenderGraph, lg: Layout
         }
     }
     return layoutId;
+}
+
+export function genHashValue (pass: RasterPass): void {
+    let hashCode = '';
+    for (const [name, raster] of pass.rasterViews) {
+        hashCode += hashCombineKey(name);
+        hashCode += hashCombineKey(raster.slotName);
+        hashCode += hashCombineKey(raster.accessType);
+        hashCode += hashCombineKey(raster.attachmentType);
+        hashCode += hashCombineKey(raster.loadOp);
+        hashCode += hashCombineKey(raster.storeOp);
+        hashCode += hashCombineKey(raster.clearFlags);
+        hashCode += hashCombineKey(raster.clearColor.x);
+        hashCode += hashCombineKey(raster.clearColor.y);
+        hashCode += hashCombineKey(raster.clearColor.z);
+        hashCode += hashCombineKey(raster.clearColor.w);
+        hashCode += hashCombineKey(raster.slotID);
+        hashCode += hashCombineKey(raster.shaderStageFlags);
+    }
+    for (const [name, computes] of pass.computeViews) {
+        hashCode += hashCombineKey(name);
+        for (const compute of computes) {
+            hashCode += hashCombineKey(compute.name);
+            hashCode += hashCombineKey(compute.accessType);
+            hashCode += hashCombineKey(compute.clearFlags);
+            hashCode += hashCombineKey(compute.clearValueType);
+            hashCode += hashCombineKey(compute.clearValue.x);
+            hashCode += hashCombineKey(compute.clearValue.y);
+            hashCode += hashCombineKey(compute.clearValue.z);
+            hashCode += hashCombineKey(compute.clearValue.w);
+            hashCode += hashCombineKey(compute.shaderStageFlags);
+        }
+    }
+    hashCode += hashCombineKey(pass.width);
+    hashCode += hashCombineKey(pass.height);
+    hashCode += hashCombineKey(pass.viewport.left);
+    hashCode += hashCombineKey(pass.viewport.top);
+    hashCode += hashCombineKey(pass.viewport.width);
+    hashCode += hashCombineKey(pass.viewport.height);
+    hashCode += hashCombineKey(pass.viewport.minDepth);
+    hashCode += hashCombineKey(pass.viewport.maxDepth);
+    hashCode += hashCombineKey(pass.showStatistics ? 1 : 0);
+    pass.hashValue = hashCombineStr(hashCode);
 }
