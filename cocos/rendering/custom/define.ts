@@ -617,15 +617,12 @@ function updateDefaultConstantBlock (blockId: number, sceneId: number, idxRD: nu
 }
 
 export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number, user: RenderData): void {
-    const constantMap = user.constants;
-    const samplers = user.samplers;
-    const textures = user.textures;
-    const buffers = user.buffers;
+    const { constants, samplers, textures, buffers } = user;
     const webPip = cclegacy.director.root.pipeline as WebPipeline;
     const lg = webPip.layoutGraph;
     const descriptorSetData = getDescriptorSetDataFromLayout(layout)!;
     currBindBuffs.clear();
-    for (const [key, data] of constantMap) {
+    for (const [key, data] of constants) {
         let constantBlock = constantBlockMap.get(key);
         if (!constantBlock) {
             const currMemKey = Array.from(lg.constantIndex).find(([_, v]) => v === key)![0];
@@ -683,7 +680,6 @@ export function updatePerPassUBO (layout: string, sceneId: number, idxRD: number
             bindGlobalDesc(descriptorSet, bindId, value);
         }
     }
-    descriptorSet.update();
 }
 
 export function hashCombineKey (val): string {
