@@ -54,7 +54,8 @@ export enum DragonBonesEventType {
     Sound = 1
 }
 
-// To keep the compatibility
+// To keep the compatibility, don't use it internally, otherwise, enum value may be inlined to wrong value.
+// Use DragonBonesEventType instead.
 export const EventType = DragonBonesEventType;
 
 /**

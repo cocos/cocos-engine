@@ -86,7 +86,8 @@ export enum SpineAnimationCacheMode {
 }
 ccenum(SpineAnimationCacheMode);
 
-// To keep the compatibility
+// To keep the compatibility, don't use it internally, otherwise, enum value may be inlined to wrong value.
+// Use AnimationCacheMode instead.
 export const AnimationCacheMode = SpineAnimationCacheMode;
 
 interface AnimationItem {
@@ -110,7 +111,8 @@ export enum SpineDefaultAnimsEnum {
     '<None>' = 0
 }
 ccenum(SpineDefaultAnimsEnum);
-// To keep the compatibility
+// To keep the compatibility, don't use it internally, otherwise, enum value may be inlined to wrong value.
+// Use SpineDefaultAnimsEnum instead.
 export const DefaultAnimsEnum = SpineDefaultAnimsEnum;
 
 /**
