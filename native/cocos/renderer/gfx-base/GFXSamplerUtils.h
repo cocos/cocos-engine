@@ -28,7 +28,7 @@
 namespace cc {
 namespace gfx {
 
-constexpr uint32_t compressSamplerInfo(const SamplerInfo &info) noexcept {
+constexpr uint32_t packSamplerInfo(const SamplerInfo &info) noexcept {
     CC_ASSERT(static_cast<uint32_t>(info.minFilter) < (1 << 2));
     CC_ASSERT(static_cast<uint32_t>(info.magFilter) < (1 << 2));
     CC_ASSERT(static_cast<uint32_t>(info.mipFilter) < (1 << 2));
@@ -49,7 +49,7 @@ constexpr uint32_t compressSamplerInfo(const SamplerInfo &info) noexcept {
     return packed;
 }
 
-constexpr SamplerInfo uncompressSamplerInfo(const uint32_t packed) noexcept {
+constexpr SamplerInfo unpackSamplerInfo(const uint32_t packed) noexcept {
     SamplerInfo info{};
     info.minFilter = static_cast<Filter>(packed & ((1 << 2) - 1));
     info.magFilter = static_cast<Filter>((packed >> 2) & ((1 << 2) - 1));

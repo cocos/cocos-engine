@@ -39,14 +39,14 @@ ccstd::hash_t Sampler::computeHash(const SamplerInfo &info) {
 }
 
 SamplerInfo Sampler::unpackFromHash(ccstd::hash_t hash) {
-    return uncompressSamplerInfo(hash);
+    return unpackSamplerInfo(hash);
 }
 
 namespace {
 
 constexpr bool testSamplerInfo(const SamplerInfo &info) {
-    const uint32_t packed = compressSamplerInfo(info);
-    const SamplerInfo unpacked = uncompressSamplerInfo(packed);
+    const uint32_t packed = packSamplerInfo(info);
+    const SamplerInfo unpacked = unpackSamplerInfo(packed);
 
     return info.minFilter == unpacked.minFilter &&
            info.magFilter == unpacked.magFilter &&

@@ -204,7 +204,7 @@ bool operator==(const BufferInfo &lhs, const BufferInfo &rhs) {
 
 template <>
 ccstd::hash_t Hasher<SamplerInfo>::operator()(const SamplerInfo &info) const {
-    return static_cast<ccstd::hash_t>(compressSamplerInfo(info));
+    return static_cast<ccstd::hash_t>(packSamplerInfo(info));
 }
 
 bool operator==(const SamplerInfo &lhs, const SamplerInfo &rhs) {
