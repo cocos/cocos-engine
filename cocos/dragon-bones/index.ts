@@ -54,6 +54,9 @@ export enum DragonBonesEventType {
     Sound = 1
 }
 
+// To keep the compatibility
+export const EventType = DragonBonesEventType;
+
 /**
  * @en Animation fade out mode.
  * @zh 动画淡出模式。

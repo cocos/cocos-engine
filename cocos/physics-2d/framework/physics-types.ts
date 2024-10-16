@@ -83,6 +83,9 @@ export enum PhysicsGroup2D {
 }
 Enum(PhysicsGroup2D);
 
+// To keep the compatibility
+export const PhysicsGroup = PhysicsGroup2D;
+
 /**
  * @en Enum for ERaycast2DType.
  * @zh 射线检测类型。

@@ -86,6 +86,9 @@ export enum SpineAnimationCacheMode {
 }
 ccenum(SpineAnimationCacheMode);
 
+// To keep the compatibility
+export const AnimationCacheMode = SpineAnimationCacheMode;
+
 interface AnimationItem {
     animationName: string;
     loop: boolean;
