@@ -27,7 +27,7 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame, SpriteFrameEvent } from '../assets/sprite-frame';
-import { Vec2, cclegacy, ccenum, clamp, warnID } from '../../core';
+import { Vec2, cclegacy, ccenum, clamp, warnID, error } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';
@@ -487,6 +487,7 @@ export class Sprite extends UIRenderer {
 
         if (EDITOR) {
             this._resized();
+            this._applyAtlas(this._spriteFrame);
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
     }
@@ -638,26 +639,24 @@ export class Sprite extends UIRenderer {
     }
 
     private _resized (): void {
-        if (!EDITOR) {
-            return;
-        }
+        if (EDITOR) {
+            if (this._spriteFrame) {
+                const actualSize = this.node._uiProps.uiTransformComp!.contentSize;
+                let expectedW = actualSize.width;
+                let expectedH = actualSize.height;
+                if (this._sizeMode === SizeMode.RAW) {
+                    const size = this._spriteFrame.originalSize;
+                    expectedW = size.width;
+                    expectedH = size.height;
+                } else if (this._sizeMode === SizeMode.TRIMMED) {
+                    const rect = this._spriteFrame.rect;
+                    expectedW = rect.width;
+                    expectedH = rect.height;
+                }
 
-        if (this._spriteFrame) {
-            const actualSize = this.node._uiProps.uiTransformComp!.contentSize;
-            let expectedW = actualSize.width;
-            let expectedH = actualSize.height;
-            if (this._sizeMode === SizeMode.RAW) {
-                const size = this._spriteFrame.originalSize;
-                expectedW = size.width;
-                expectedH = size.height;
-            } else if (this._sizeMode === SizeMode.TRIMMED) {
-                const rect = this._spriteFrame.rect;
-                expectedW = rect.width;
-                expectedH = rect.height;
-            }
-
-            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-                this._sizeMode = SizeMode.CUSTOM;
+                if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
+                    this._sizeMode = SizeMode.CUSTOM;
+                }
             }
         }
     }
@@ -707,6 +706,31 @@ export class Sprite extends UIRenderer {
             this._applySpriteSize();
             if (this._type === SpriteType.SLICED) {
                 spriteFrame.on(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
+            }
+        }
+
+        if (EDITOR) {
+            this._applyAtlas(spriteFrame);
+        }
+    }
+
+    private _applyAtlas (spriteFrame: SpriteFrame | null): void {
+        if (EDITOR) {
+            if (spriteFrame) {
+                if (spriteFrame.atlasUuid.length > 0) {
+                    if (!this.spriteAtlas || this.spriteAtlas.uuid !== spriteFrame.atlasUuid) {
+                        cclegacy.assetManager.loadAny(spriteFrame.atlasUuid, (err: Error, asset: SpriteAtlas) => {
+                            if (err) {
+                                this.spriteAtlas = null;
+                                error(err);
+                            } else {
+                                this.spriteAtlas = asset;
+                            }
+                        });
+                    }
+                } else {
+                    this.spriteAtlas = null;
+                }
             }
         }
     }
