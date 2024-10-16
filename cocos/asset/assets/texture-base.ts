@@ -240,7 +240,7 @@ export class TextureBase extends Asset {
     /**
      * @en Sets the texture's anisotropy.
      * @zh 设置此贴图的各向异性。
-     * @param anisotropy @en The anisotropy to be set. @zh 待设置的各向异性数值。
+     * @param anisotropy @en The anisotropy to be set. Max value is 16. @zh 待设置的各向异性数值。最大值为16
      */
     public setAnisotropy (anisotropy: number): void {
         anisotropy = Math.min(anisotropy, 16);
