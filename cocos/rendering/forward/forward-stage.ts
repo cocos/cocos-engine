@@ -141,6 +141,7 @@ export class ForwardStage extends RenderStage {
                 for (p = 0; p < passes.length; ++p) {
                     const pass = passes[p];
                     if (pass.phase !== this._phaseID) continue;
+                    if (pass.passID !== 0xFFFFFFFF) continue;
                     const batchingScheme = pass.batchingScheme;
                     if (batchingScheme === BatchingSchemes.INSTANCING) {
                         const instancedBuffer = pass.getInstancedBuffer();
