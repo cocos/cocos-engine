@@ -41,8 +41,8 @@ export class Sampler extends GFXObject {
         this._hash$ = hash;
     }
 
-    static computeHash (info: Readonly<SamplerInfo>): Filter {
-        let hash = info.minFilter;
+    static computeHash (info: Readonly<SamplerInfo>): number {
+        let hash = (info.minFilter as number);
         hash |= ((info.magFilter as number) << 2);
         hash |= ((info.mipFilter as number) << 4);
         hash |= ((info.addressU as number) << 6);
