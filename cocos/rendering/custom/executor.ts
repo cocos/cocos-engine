@@ -768,13 +768,7 @@ class DeviceRenderPass implements RecordingInterface {
         let depthTex: Texture | null = null;
         let swapchain: Swapchain | null = null;
         let framebuffer: Framebuffer | null = null;
-        for (const cv of rasterPass.computeViews) {
-            this._applyRenderLayout(cv);
-        }
-        // update the layout descriptorSet
-        if (this.renderLayout && this.renderLayout.descriptorSet) {
-            this.renderLayout.descriptorSet.update();
-        }
+        this._processRenderLayout(rasterPass);
         for (const [resName, rasterV] of rasterPass.rasterViews) {
             let resTex = context.deviceTextures.get(resName);
             if (!resTex) {
@@ -852,11 +846,11 @@ class DeviceRenderPass implements RecordingInterface {
             renderPassInfo.depthStencilAttachment = depthStencilAttachment;
         }
         this._renderPass = device.createRenderPass(renderPassInfo);
-        this._framebuffer = framebuffer || device.createFramebuffer(new FramebufferInfo(
-            this._renderPass,
+        this._createFramebuffer(
+            framebuffer,
             swapchain ? [swapchain.colorTexture] : colorTexs,
             swapchain ? swapchain.depthStencilTexture : depthTex,
-        ));
+        );
     }
     get indexOfRD (): number { return this._idxOfRenderData; }
     get rasterID (): number { return this._rasterID; }
@@ -994,6 +988,27 @@ class DeviceRenderPass implements RecordingInterface {
     postRecord (): void {
         // nothing to do
     }
+
+    private _processRenderLayout (pass: RasterPass): void {
+        for (const cv of pass.computeViews) {
+            this._applyRenderLayout(cv);
+        }
+        // update the layout descriptorSet
+        if (this.renderLayout && this.renderLayout.descriptorSet) {
+            this.renderLayout.descriptorSet.update();
+        }
+    }
+
+    private _createFramebuffer (fbo: Framebuffer | null, cols: Texture[], depthTex: Texture | null): void {
+        if (!fbo && !cols.length) return;
+        if (this._framebuffer && fbo !== this._framebuffer) this._framebuffer.destroy();
+        this._framebuffer = fbo || context.device.createFramebuffer(new FramebufferInfo(
+            this._renderPass,
+            cols,
+            depthTex,
+        ));
+    }
+
     resetResource (id: number, pass: RasterPass): void {
         this._rasterID = id;
         this._rasterPass = pass;
@@ -1006,13 +1021,7 @@ class DeviceRenderPass implements RecordingInterface {
         const currFramebuffer = this._framebuffer;
         const currFBDepthTex = currFramebuffer.depthStencilTexture;
         let depTexture = currFramebuffer ? currFBDepthTex : null;
-        for (const cv of pass.computeViews) {
-            this._applyRenderLayout(cv);
-        }
-        // update the layout descriptorSet
-        if (this.renderLayout && this.renderLayout.descriptorSet) {
-            this.renderLayout.descriptorSet.update();
-        }
+        this._processRenderLayout(pass);
 
         const resGraph = context.resourceGraph;
         const currentWidth = currFramebuffer ? currFramebuffer.width : 0;
@@ -1072,14 +1081,7 @@ class DeviceRenderPass implements RecordingInterface {
                 }
             }
         }
-        if (!framebuffer && colTextures.length) {
-            this._framebuffer.destroy();
-            this._framebuffer = context.device.createFramebuffer(new FramebufferInfo(
-                this._renderPass,
-                colTextures,
-                depTexture,
-            ));
-        }
+        this._createFramebuffer(framebuffer, colTextures, depTexture);
     }
 }
 
