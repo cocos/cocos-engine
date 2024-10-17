@@ -27,7 +27,7 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { BUILD, EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame, SpriteFrameEvent } from '../assets/sprite-frame';
-import { Vec2, cclegacy, ccenum, clamp, warnID } from '../../core';
+import { Vec2, cclegacy, ccenum, clamp, warnID, error } from '../../core';
 import { IBatcher } from '../renderer/i-batcher';
 import { UIRenderer, InstanceMaterialType } from '../framework/ui-renderer';
 import { PixelFormat } from '../../asset/assets/asset-enum';
@@ -487,6 +487,7 @@ export class Sprite extends UIRenderer {
 
         if (EDITOR) {
             this._resized();
+            this._applyAtlas(this._spriteFrame);
             this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
     }
@@ -708,6 +709,32 @@ export class Sprite extends UIRenderer {
             if (this._type === SpriteType.SLICED) {
                 spriteFrame.on(SpriteFrameEvent.UV_UPDATED, this._updateUVs, this);
             }
+        }
+
+        if (EDITOR) {
+            this._applyAtlas(spriteFrame);
+        }
+    }
+
+    private _applyAtlas (spriteFrame: SpriteFrame | null): void {
+        if (!EDITOR) return;
+
+        if (!spriteFrame) return;
+
+        if (spriteFrame.atlasUuid.length === 0) {
+            this.spriteAtlas = null;
+            return;
+        }
+
+        if (!this.spriteAtlas || this.spriteAtlas.uuid !== spriteFrame.atlasUuid) {
+            cclegacy.assetManager.loadAny(spriteFrame.atlasUuid, (err: Error, asset: SpriteAtlas) => {
+                if (err) {
+                    this.spriteAtlas = null;
+                    error(err);
+                } else {
+                    this.spriteAtlas = asset;
+                }
+            });
         }
     }
 }
