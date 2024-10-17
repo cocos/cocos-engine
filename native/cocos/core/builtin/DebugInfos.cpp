@@ -463,6 +463,7 @@ ccstd::unordered_map<uint32_t, ccstd::string> debugInfos = {
 { 12107, "Custom pipeline invalid render pass, program: %s. Please reimport all effects (Menu->Developer->Refresh All Effect) and restart creator." },
 { 12108, "Custom pipeline invalid render phase, program: %s. Please reimport all effects (Menu->Developer->Refresh All Effect) and restart creator." },
 { 12109, "custom-pipeline module not available." },
+{ 12110, "MaterialPass passID in legacy pipeline is wrongly initialized." },
 { 13100, "Incorrect CCON magic." },
 { 13101, "Unknown CCON version number: %d." },
 { 13102, "CCON Format error." },
