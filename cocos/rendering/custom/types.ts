@@ -31,9 +31,9 @@
 import { ResolveMode, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import type { ReflectionProbe } from '../../render-scene/scene/reflection-probe';
 import type { Light } from '../../render-scene/scene';
+import { RecyclePool } from '../../core/memop';
 import type { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock } from './serialization';
-import { RecyclePool } from '../../core/memop';
 
 export enum UpdateFrequency {
     PER_INSTANCE,
