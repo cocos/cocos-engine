@@ -323,19 +323,19 @@ for (const name of Object.keys(structMap)) {
 
     if (name === 'Color') {
         output += `\n`;
-        output += `    public reset (): void {\n`;
-        output += `        this.x = 0;\n`;
-        output += `        this.y = 0;\n`;
-        output += `        this.z = 0;\n`;
-        output += `        this.w = 0;\n`;
-        output += `    }\n`;
-        output += `\n`;
         output += `    public set (x: number, y: number, z: number, w: number): Color {\n`;
         output += `        this.x = x;\n`;
         output += `        this.y = y;\n`;
         output += `        this.z = z;\n`;
         output += `        this.w = w;\n`;
         output += `        return this;\n`;
+        output += `    }\n`;
+        output += `\n`;
+        output += `    public reset (): void {\n`;
+        output += `        this.x = 0;\n`;
+        output += `        this.y = 0;\n`;
+        output += `        this.z = 0;\n`;
+        output += `        this.w = 0;\n`;
         output += `    }\n`;
     }
 

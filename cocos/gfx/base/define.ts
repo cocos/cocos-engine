@@ -1004,19 +1004,19 @@ export class Color {
         return this;
     }
 
-    public reset (): void {
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
-        this.w = 0;
-    }
-
     public set (x: number, y: number, z: number, w: number): Color {
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
         return this;
+    }
+
+    public reset (): void {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.w = 0;
     }
 }
 
