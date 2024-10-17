@@ -3339,6 +3339,10 @@ Custom pipeline invalid render phase, program: %s. Please reimport all effects (
 
 custom-pipeline module not available.
 
+### 12110
+
+MaterialPass passID in legacy pipeline is wrongly initialized.
+
 ### 13100
 
 Incorrect CCON magic.
