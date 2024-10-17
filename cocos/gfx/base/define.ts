@@ -975,6 +975,15 @@ export class Viewport {
         this.maxDepth = info.maxDepth;
         return this;
     }
+
+    public reset (): void {
+        this.left = 0;
+        this.top = 0;
+        this.width = 0;
+        this.height = 0;
+        this.minDepth = 0;
+        this.maxDepth = 1;
+    }
 }
 
 export class Color {
@@ -993,6 +1002,13 @@ export class Color {
         this.z = info.z;
         this.w = info.w;
         return this;
+    }
+
+    public reset (): void {
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
+        this.w = 0;
     }
 
     public set (x: number, y: number, z: number, w: number): Color {

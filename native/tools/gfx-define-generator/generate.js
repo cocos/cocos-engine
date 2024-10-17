@@ -309,7 +309,26 @@ for (const name of Object.keys(structMap)) {
         output += `    }\n`;
     }
 
+    if (name === 'Viewport') {
+        output += `\n`;
+        output += `    public reset (): void {\n`;
+        output += `        this.left = 0;\n`;
+        output += `        this.top = 0;\n`;
+        output += `        this.width = 0;\n`;
+        output += `        this.height = 0;\n`;
+        output += `        this.minDepth = 0;\n`;
+        output += `        this.maxDepth = 1;\n`;
+        output += `    }\n`;
+    }
+
     if (name === 'Color') {
+        output += `\n`;
+        output += `    public reset (): void {\n`;
+        output += `        this.x = 0;\n`;
+        output += `        this.y = 0;\n`;
+        output += `        this.z = 0;\n`;
+        output += `        this.w = 0;\n`;
+        output += `    }\n`;
         output += `\n`;
         output += `    public set (x: number, y: number, z: number, w: number): Color {\n`;
         output += `        this.x = x;\n`;
