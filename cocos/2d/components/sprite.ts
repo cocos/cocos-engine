@@ -639,24 +639,26 @@ export class Sprite extends UIRenderer {
     }
 
     private _resized (): void {
-        if (EDITOR) {
-            if (this._spriteFrame) {
-                const actualSize = this.node._uiProps.uiTransformComp!.contentSize;
-                let expectedW = actualSize.width;
-                let expectedH = actualSize.height;
-                if (this._sizeMode === SizeMode.RAW) {
-                    const size = this._spriteFrame.originalSize;
-                    expectedW = size.width;
-                    expectedH = size.height;
-                } else if (this._sizeMode === SizeMode.TRIMMED) {
-                    const rect = this._spriteFrame.rect;
-                    expectedW = rect.width;
-                    expectedH = rect.height;
-                }
+        if (!EDITOR) {
+            return;
+        }
 
-                if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
-                    this._sizeMode = SizeMode.CUSTOM;
-                }
+        if (this._spriteFrame) {
+            const actualSize = this.node._uiProps.uiTransformComp!.contentSize;
+            let expectedW = actualSize.width;
+            let expectedH = actualSize.height;
+            if (this._sizeMode === SizeMode.RAW) {
+                const size = this._spriteFrame.originalSize;
+                expectedW = size.width;
+                expectedH = size.height;
+            } else if (this._sizeMode === SizeMode.TRIMMED) {
+                const rect = this._spriteFrame.rect;
+                expectedW = rect.width;
+                expectedH = rect.height;
+            }
+
+            if (expectedW !== actualSize.width || expectedH !== actualSize.height) {
+                this._sizeMode = SizeMode.CUSTOM;
             }
         }
     }
@@ -715,23 +717,24 @@ export class Sprite extends UIRenderer {
     }
 
     private _applyAtlas (spriteFrame: SpriteFrame | null): void {
-        if (EDITOR) {
-            if (spriteFrame) {
-                if (spriteFrame.atlasUuid.length > 0) {
-                    if (!this.spriteAtlas || this.spriteAtlas.uuid !== spriteFrame.atlasUuid) {
-                        cclegacy.assetManager.loadAny(spriteFrame.atlasUuid, (err: Error, asset: SpriteAtlas) => {
-                            if (err) {
-                                this.spriteAtlas = null;
-                                error(err);
-                            } else {
-                                this.spriteAtlas = asset;
-                            }
-                        });
-                    }
-                } else {
+        if (!EDITOR) return;
+
+        if (!spriteFrame) return;
+
+        if (spriteFrame.atlasUuid.length === 0) {
+            this.spriteAtlas = null;
+            return;
+        }
+
+        if (!this.spriteAtlas || this.spriteAtlas.uuid !== spriteFrame.atlasUuid) {
+            cclegacy.assetManager.loadAny(spriteFrame.atlasUuid, (err: Error, asset: SpriteAtlas) => {
+                if (err) {
                     this.spriteAtlas = null;
+                    error(err);
+                } else {
+                    this.spriteAtlas = asset;
                 }
-            }
+            });
         }
     }
 }
