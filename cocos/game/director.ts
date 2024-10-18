@@ -561,7 +561,7 @@ export class Director extends EventTarget {
      * @param sceneName @en The name of the scene to load @zh 场景名称。
      * @param onLoaded @en Callback to execute once the scene is loaded @zh 加载回调。
      */
-    public preloadScene (sceneName: string, onLoaded?: Director.OnSceneLoaded): void;
+    public preloadScene (sceneName: string, onLoaded?: Director.OnScenePreloaded): void;
 
     /**
      * @en
@@ -576,12 +576,12 @@ export class Director extends EventTarget {
      * @param onProgress @en Callback to execute when the load progression change.  @zh 加载进度回调。
      * @param onLoaded @en Callback to execute once the scene is loaded @zh 加载回调。
      */
-    public preloadScene (sceneName: string, onProgress: Director.OnLoadSceneProgress, onLoaded: Director.OnSceneLoaded): void;
+    public preloadScene (sceneName: string, onProgress: Director.OnLoadSceneProgress, onLoaded: Director.OnScenePreloaded): void;
 
     public preloadScene (
         sceneName: string,
-        onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
-        onLoaded?: Director.OnSceneLoaded,
+        onProgress?: Director.OnLoadSceneProgress | Director.OnScenePreloaded,
+        onLoaded?: Director.OnScenePreloaded,
     ): void {
         const bundle = assetManager.bundles.find((bundle): boolean => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
@@ -933,6 +933,7 @@ export declare namespace Director {
 
     export type OnUnload = () => void;
 
+    export type OnScenePreloaded = (error?: Error) => void;
     export type OnSceneLoaded = (error: null | Error, sceneAsset?: SceneAsset) => void;
 
     export type OnSceneLaunched = (error: null | Error, scene?: Scene) => void;
