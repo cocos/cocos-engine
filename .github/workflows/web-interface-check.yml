@@ -87,7 +87,7 @@ jobs:
           if [ "$DIFF_SIZE" -gt 0 ]; then
             echo "📈 Package Size increased by $DIFF_SIZE | OLD: $BASE_SIZE, NEW: $HEAD_SIZE" > ./engine/interface-diff.txt
           elif [ "$DIFF_SIZE" -lt 0 ]; then
-            echo "📉 Package Size decreated by $DIFF_SIZE | OLD: $BASE_SIZE, NEW: $HEAD_SIZE" > ./engine/interface-diff.txt
+            echo "📉 Package Size decreased by $DIFF_SIZE | OLD: $BASE_SIZE, NEW: $HEAD_SIZE" > ./engine/interface-diff.txt
           else
             echo "🟢 Package Size is not changed | BASE: $BASE_SIZE, HEAD: $HEAD_SIZE" > ./engine/interface-diff.txt
           fi
