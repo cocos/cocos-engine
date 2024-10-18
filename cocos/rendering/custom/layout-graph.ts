@@ -32,9 +32,13 @@ import { AddressableGraph, AdjI, AdjacencyGraph, BidirectionalGraph, ComponentGr
 import type { DescriptorSet, DescriptorSetLayout, PipelineLayout } from '../../gfx';
 import { DescriptorSetLayoutInfo, ShaderStageFlagBit, Type, UniformBlock } from '../../gfx';
 import { DescriptorBlock, saveDescriptorBlock, loadDescriptorBlock, DescriptorBlockIndex, saveDescriptorBlockIndex, loadDescriptorBlockIndex, DescriptorTypeOrder, UpdateFrequency, RenderCommonObjectPool } from './types';
+import { RecyclePool } from '../../core/memop';
 import type { OutputArchive, InputArchive } from './archive';
 import { saveUniformBlock, loadUniformBlock, saveDescriptorSetLayoutInfo, loadDescriptorSetLayoutInfo } from './serialization';
-import { RecyclePool } from '../../core/memop';
+
+function resetDescriptorSetLayoutInfo (info: DescriptorSetLayoutInfo): void {
+    info.bindings.length = 0;
+}
 
 export class DescriptorDB {
     reset (): void {
@@ -457,7 +461,7 @@ export class DescriptorSetData {
     }
     reset (descriptorSetLayout: DescriptorSetLayout | null, descriptorSet: DescriptorSet | null): void {
         this.descriptorSetLayoutData.reset(0xFFFFFFFF, 0);
-        this.descriptorSetLayoutInfo.reset();
+        resetDescriptorSetLayoutInfo(this.descriptorSetLayoutInfo);
         this.descriptorSetLayout = descriptorSetLayout;
         this.descriptorSet = descriptorSet;
     }

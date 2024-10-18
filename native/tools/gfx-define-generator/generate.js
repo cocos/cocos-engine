@@ -171,7 +171,9 @@ while (structCap) {
     // structRE can not reliably extract the correct member declaration range
     let memberList = getMemberList(header, structCap.index + structCap[1].length);
     // discard pointer signs
-    memberList = memberList.replace(/\*/g, '');
+    const memberList2 = memberList.replace(/\*/g, '');
+    const hasPointer = memberList2 !== memberList;
+    memberList = memberList2;
 
     let memberCap = structMemberRE.exec(memberList);
     while (memberCap) {
@@ -187,7 +189,7 @@ while (structCap) {
             type = type.replace(/(\b)(?:String)(\b)/, '$1string$2');
             type = type.replace(/(\b)(?:ccstd::string)(\b)/, '$1string$2');
             type = type.replace(/(\b)(?:ccstd::hash_t)(\b)/, '$1number$2');
-            if (memberCap[1]) {readonly = true;}
+            if (memberCap[1] && !hasPointer) {readonly = true;}
             const isArray = type.endsWith('[]');
             const decayedType = isArray ? type.slice(0, -2) : type;
 
@@ -304,6 +306,36 @@ for (const name of Object.keys(structMap)) {
             }
         }
         output += `        return this;\n`;
+        output += `    }\n`;
+    }
+
+    if (name === 'Viewport') {
+        output += `\n`;
+        output += `    public reset (): void {\n`;
+        output += `        this.left = 0;\n`;
+        output += `        this.top = 0;\n`;
+        output += `        this.width = 0;\n`;
+        output += `        this.height = 0;\n`;
+        output += `        this.minDepth = 0;\n`;
+        output += `        this.maxDepth = 1;\n`;
+        output += `    }\n`;
+    }
+
+    if (name === 'Color') {
+        output += `\n`;
+        output += `    public set (x: number, y: number, z: number, w: number): Color {\n`;
+        output += `        this.x = x;\n`;
+        output += `        this.y = y;\n`;
+        output += `        this.z = z;\n`;
+        output += `        this.w = w;\n`;
+        output += `        return this;\n`;
+        output += `    }\n`;
+        output += `\n`;
+        output += `    public reset (): void {\n`;
+        output += `        this.x = 0;\n`;
+        output += `        this.y = 0;\n`;
+        output += `        this.z = 0;\n`;
+        output += `        this.w = 0;\n`;
         output += `    }\n`;
     }
 

@@ -67,10 +67,10 @@ class PlistParser extends SAXParser {
     /**
      * @en parse a xml string as plist object.
      * @zh 将xml字符串解析为plist对象。
-     * @param {String} xmlTxt - plist xml contents
+     * @param xmlTxt - plist xml contents
      * @return {*} plist object
      */
-    public parse (xmlTxt): any {
+    public parse (xmlTxt: string): any {
         const xmlDoc = this._parseXML(xmlTxt);
         const plist = xmlDoc.documentElement;
         if (plist.tagName !== 'plist') {
