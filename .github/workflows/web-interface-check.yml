@@ -41,7 +41,9 @@ jobs:
         working-directory: ./engine
         run: |
           npm install
-          node ./.github/workflows/package-size-check.js
+          if [ -e ./.github/workflows/package-size-check.js ]; then
+            node ./.github/workflows/package-size-check.js
+          fi
 
       - name: Clear npm Cache
         run: |
@@ -81,7 +83,10 @@ jobs:
 
       - name: Check package size
         run: |
-          BASE_SIZE=$(du -sk ./engine/build-cc-out | awk '{print $1 * 1024}')
+          BASE_SIZE=0
+          if [ -d ./engine/build-cc-out ]; then
+            BASE_SIZE=$(du -sk ./engine/build-cc-out | awk '{print $1 * 1024}')
+          fi
           HEAD_SIZE=$(du -sk ./engine-HEAD/build-cc-out | awk '{print $1 * 1024}')
           DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
           if [ "$DIFF_SIZE" -gt 0 ]; then
