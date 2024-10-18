@@ -41,6 +41,7 @@ jobs:
         working-directory: ./engine
         run: |
           npm install
+          node ./package-size-check.js
 
       - name: Clear npm Cache
         run: |
@@ -68,6 +69,7 @@ jobs:
         working-directory: ./engine-HEAD
         run: |
           npm install
+          node ./package-size-check.js
 
       - uses: LouisBrunner/diff-action@v2.0.0
         with:
@@ -76,6 +78,19 @@ jobs:
           mode: addition
           tolerance: worse
           output: ./engine/interface-diff.txt
+
+      - name: Check package size
+        run: |
+          BASE_SIZE=$(du -sk ./engine/build-cc-out | awk '{print $1 * 1024}')
+          HEAD_SIZE=$(du -sk ./engine-HEAD/build-cc-out | awk '{print $1 * 1024}')
+          DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
+          if [ "$DIFF_SIZE" -gt 0 ]; then
+            echo "📈 Package Size increased by $DIFF_SIZE | OLD: $BASE_SIZE, NEW: $HEAD_SIZE" > ./engine/interface-diff.txt
+          elif [ "$DIFF_SIZE" -lt 0 ]; then
+            echo "📉 Package Size decreated by $DIFF_SIZE | OLD: $BASE_SIZE, NEW: $HEAD_SIZE" > ./engine/interface-diff.txt
+          else
+            echo "🟢 Package Size is not changed | BASE: $BASE_SIZE, HEAD: $HEAD_SIZE" > ./engine/interface-diff.txt
+          fi
 
       - name: optimize interface check report
         working-directory: ./engine
