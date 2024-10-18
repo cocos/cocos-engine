@@ -97,7 +97,7 @@ jobs:
             PACKAGE_SIZE_INFO="🟢🟢🟢 Package Size is not changed, BASE: $BASE_SIZE, HEAD: $HEAD_SIZE"
           fi
           echo "PACKAGE_SIZE_INFO: ${PACKAGE_SIZE_INFO}"
-          sed -i "1s/^/$PACKAGE_SIZE_INFO\n\n/" ./engine/interface-diff.txt
+          sed -i "1s/^/$PACKAGE_SIZE_INFO\n/" ./engine/interface-diff.txt
 
 
       - name: optimize interface check report
