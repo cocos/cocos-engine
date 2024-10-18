@@ -90,13 +90,15 @@ jobs:
           HEAD_SIZE=$(du -sk ./engine-HEAD/build-cc-out | awk '{print $1 * 1024}')
           DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
           if [ "$DIFF_SIZE" -gt 0 ]; then
-            PACKAGE_SIZE_INFO="📈 Package Size increased by $DIFF_SIZE | OLD: $BASE_SIZE, NEW: $HEAD_SIZE"
+            PACKAGE_SIZE_INFO="📈📈📈 Package Size increased by $DIFF_SIZE bytes, OLD: $BASE_SIZE, NEW: $HEAD_SIZE"
           elif [ "$DIFF_SIZE" -lt 0 ]; then
-            PACKAGE_SIZE_INFO="📉 Package Size decreased by $DIFF_SIZE | OLD: $BASE_SIZE, NEW: $HEAD_SIZE"
+            PACKAGE_SIZE_INFO="📉📉📉 Package Size decreased by $DIFF_SIZE bytes, OLD: $BASE_SIZE, NEW: $HEAD_SIZE"
           else
-            PACKAGE_SIZE_INFO="🟢 Package Size is not changed | BASE: $BASE_SIZE, HEAD: $HEAD_SIZE"
+            PACKAGE_SIZE_INFO="🟢🟢🟢 Package Size is not changed, BASE: $BASE_SIZE, HEAD: $HEAD_SIZE"
           fi
-          sed -i '1s/^/${PACKAGE_SIZE_INFO}\n\n/' ./engine/interface-diff.txt
+          echo "PACKAGE_SIZE_INFO: ${PACKAGE_SIZE_INFO}"
+          sed -i "1s/^/$PACKAGE_SIZE_INFO\n\n/" ./engine/interface-diff.txt
+
 
       - name: optimize interface check report
         working-directory: ./engine
