@@ -83,11 +83,11 @@ export class Sorting extends Component {
     @serializable
     protected _sortingOrder = 0;
 
-    private _modelRenderer$: ModelRenderer | null = null;
+    private _modelRenderer: ModelRenderer | null = null;
 
     protected __preload (): void {
-        this._modelRenderer$ = this.getComponent('cc.ModelRenderer') as ModelRenderer;
-        if (!this._modelRenderer$) {
+        this._modelRenderer = this.getComponent('cc.ModelRenderer') as ModelRenderer;
+        if (!this._modelRenderer) {
             warnID(16301, this.node.name);
         }
         this._updateSortingPriority();
@@ -96,8 +96,8 @@ export class Sorting extends Component {
     protected _updateSortingPriority (): void {
         const sortingLayerValue = SortingLayers.getLayerIndex(this._sortingLayer);
         const sortingPriority = SortingLayers.getSortingPriority(sortingLayerValue, this._sortingOrder);
-        if (this._modelRenderer$ && this._modelRenderer$.isValid) {
-            this._modelRenderer$.priority = sortingPriority;
+        if (this._modelRenderer && this._modelRenderer.isValid) {
+            this._modelRenderer.priority = sortingPriority;
         }
     }
 }
