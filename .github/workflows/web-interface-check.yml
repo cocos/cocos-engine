@@ -101,7 +101,7 @@ jobs:
 
 
       - name: optimize interface check report
-        working-directory: ./engine-HEAD
+        working-directory: ./engine
         run: |
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
