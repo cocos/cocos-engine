@@ -85,23 +85,23 @@ jobs:
         run: |
           BASE_SIZE=0
           if [ -d ./engine/build-cc-out ]; then
-            BASE_SIZE=$(du -sk ./engine/build-cc-out | awk '{print $1 * 1024}')
+            BASE_SIZE=$(du -sk ./engine/build-cc-out | awk '{print $1}')
           fi
-          HEAD_SIZE=$(du -sk ./engine-HEAD/build-cc-out | awk '{print $1 * 1024}')
+          HEAD_SIZE=$(du -sk ./engine-HEAD/build-cc-out | awk '{print $1}')
           DIFF_SIZE=$((HEAD_SIZE - BASE_SIZE))
           if [ "$DIFF_SIZE" -gt 0 ]; then
-            PACKAGE_SIZE_INFO="📈📈📈 Package Size increased by $DIFF_SIZE bytes, OLD: $BASE_SIZE, NEW: $HEAD_SIZE"
+            PACKAGE_SIZE_INFO="⚠️ Package size ⤴ $DIFF_SIZE bytes, old: $BASE_SIZE, new: $HEAD_SIZE"
           elif [ "$DIFF_SIZE" -lt 0 ]; then
-            PACKAGE_SIZE_INFO="📉📉📉 Package Size decreased by $DIFF_SIZE bytes, OLD: $BASE_SIZE, NEW: $HEAD_SIZE"
+            PACKAGE_SIZE_INFO="👍 Package size ⤵ $DIFF_SIZE bytes, old: $BASE_SIZE, new: $HEAD_SIZE"
           else
-            PACKAGE_SIZE_INFO="🟢🟢🟢 Package Size is not changed, BASE: $BASE_SIZE, HEAD: $HEAD_SIZE"
+            PACKAGE_SIZE_INFO="✅ Package size is not changed"
           fi
           echo "PACKAGE_SIZE_INFO: ${PACKAGE_SIZE_INFO}"
           sed -i "1s/^/$PACKAGE_SIZE_INFO\n/" ./engine/interface-diff.txt
 
 
       - name: optimize interface check report
-        working-directory: ./engine
+        working-directory: ./engine-HEAD
         run: |
           cat ./interface-diff.txt
           node ./.github/workflows/interface-check-report.js
