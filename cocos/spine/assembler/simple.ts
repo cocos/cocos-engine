@@ -85,17 +85,6 @@ function _getSlotMaterial (blendMode: number, comp: Skeleton): MaterialInstance 
 }
 
 class Simple implements IAssembler {
-    fillBuffers (comp: Skeleton, renderer: IBatcher): void {
-
-    }
-    updateUVs (comp: Skeleton): void {
-
-    }
-
-    updateColor (comp: Skeleton): void {
-
-    }
-
     vCount = 32767;
     private ensureAccessor (useTint: boolean): StaticVBAccessor {
         let accessor = useTint ? _tintAccessor : _accessor;
