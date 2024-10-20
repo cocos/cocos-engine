@@ -24,7 +24,7 @@
 
 import { JSB } from 'internal:constants';
 import { IConfig, FontAtlas, type BitmapFont } from '../../assets/bitmap-font';
-import type { SpriteFrame } from '../../assets/sprite-frame';
+import { SpriteFrame } from '../../assets/sprite-frame';
 import { Rect, errorID } from '../../../core';
 import { Label, Overflow, CacheMode } from '../../components/label';
 import { UITransform } from '../../framework/ui-transform';
