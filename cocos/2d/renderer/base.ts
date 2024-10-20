@@ -39,7 +39,7 @@ export interface IAssembler {
     fillBuffers? (comp: UIRenderer, renderer: IBatcher): void;
     updateUVs? (comp: UIRenderer, ...args: any[]): void;
     updateColor? (comp: UIRenderer): void;
-    updateRenderData (comp: UIRenderer): void;
+    updateRenderData? (comp: UIRenderer): void;
     update? (comp: UIRenderer, dt: number): void;
     resetAssemblerData? (data: any): void;
     removeData? (data: BaseRenderData): void;

@@ -955,7 +955,7 @@ export class Label extends UIRenderer {
             this._applyFontTexture();
         }
         if (this._assembler) {
-            this._assembler.updateRenderData(this);
+            this._assembler.updateRenderData!(this);
         }
     }
 
@@ -1033,7 +1033,7 @@ export class Label extends UIRenderer {
                 }
                 this.changeMaterialForDefine();
                 if (this._assembler) {
-                    this._assembler.updateRenderData(this);
+                    this._assembler.updateRenderData!(this);
                 }
             }
         } else {

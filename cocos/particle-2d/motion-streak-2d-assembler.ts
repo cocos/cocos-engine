@@ -233,10 +233,6 @@ class MotionStreakAssembler implements IAssembler {
         }
     }
 
-    updateColor (comp: MotionStreak): void {
-        // do nothing
-    }
-
     fillBuffers (comp: MotionStreak, renderer: IBatcher): void {
         const renderData = comp.renderData!;
         const chunk = renderData.chunk;

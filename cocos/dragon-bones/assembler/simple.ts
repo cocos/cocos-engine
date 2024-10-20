@@ -129,13 +129,6 @@ let _accessor: StaticVBAccessor = null!;
  * 可通过 `UI.simple` 获取该组装器。
  */
 class Simple implements IAssembler {
-    fillBuffers (comp: ArmatureDisplay, renderer: IBatcher): void {
-
-    }
-    updateUVs (comp: ArmatureDisplay): void {
-
-    }
-
     private accessor = _accessor;
     private vCount = 32767;
     ensureAccessor (): StaticVBAccessor {

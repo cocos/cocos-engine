@@ -26,19 +26,10 @@
 import type { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { ParticleSystem2D } from './particle-system-2d';
 import { MeshRenderData } from '../2d/renderer/render-data';
-import type { IBatcher } from '../2d/renderer/i-batcher';
 import { cclegacy } from '../core';
 
 export class Particle2DAssembler implements IAssembler {
     maxParticleDeltaTime = 0;
-
-    updateUVs (comp: ParticleSystem2D): void {
-
-    }
-
-    updateColor (comp: ParticleSystem2D): void {
-
-    }
 
     createData (comp: ParticleSystem2D): MeshRenderData {
         return MeshRenderData.add();
@@ -46,12 +37,6 @@ export class Particle2DAssembler implements IAssembler {
 
     removeData (data: MeshRenderData): void {
         MeshRenderData.remove(data);
-    }
-
-    updateRenderData (): void {
-    }
-
-    fillBuffers (comp: ParticleSystem2D, renderer: IBatcher): void {
     }
 }
 

@@ -401,8 +401,9 @@ export class UIRenderer extends Renderer {
      * @deprecated Since v3.7.0, this is an engine private interface that will be removed in the future.
      */
     public updateRenderer (): void {
-        if (this._assembler) {
-            this._assembler.updateRenderData(this);
+        const assembler = this._assembler;
+        if (assembler && assembler.updateRenderData) {
+            assembler.updateRenderData(this);
         }
         this._renderFlag = this._canRender();
         this._renderEntity.enabled = this._renderFlag;

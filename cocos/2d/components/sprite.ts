@@ -34,6 +34,7 @@ import { PixelFormat } from '../../asset/assets/asset-enum';
 import { TextureBase } from '../../asset/assets/texture-base';
 import { Material, RenderTexture } from '../../asset/assets';
 import { NodeEventType } from '../../scene-graph/node-event';
+import { RenderData } from '../renderer/render-data';
 
 /**
  * @en
@@ -604,11 +605,11 @@ export class Sprite extends UIRenderer {
 
         if (!this._renderData) {
             if (this._assembler && this._assembler.createData) {
-                this._renderData = this._assembler.createData(this);
-                this._renderData!.material = this.getRenderMaterial(0);
+                this._renderData = this._assembler.createData(this) as RenderData;
+                this._renderData.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
                 if (this.spriteFrame) {
-                    this._assembler.updateUVs(this);
+                    this._assembler.updateUVs!(this);
                 }
                 this._updateColor();
             }
@@ -679,7 +680,7 @@ export class Sprite extends UIRenderer {
 
     private _updateUVs (): void {
         if (this._assembler) {
-            this._assembler.updateUVs(this);
+            this._assembler.updateUVs!(this);
         }
     }
 
