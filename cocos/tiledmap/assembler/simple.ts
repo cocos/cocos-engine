@@ -68,9 +68,6 @@ let _accessor: StaticVBAccessor = null!;
  * 可通过 `UI.simple` 获取该组装器。
  */
 class Simple implements IAssembler {
-    updateUVs (comp: TiledLayer): void {
-    }
-
     private ensureAccessor (): void {
         if (!_accessor) {
             const device = director.root!.device;
