@@ -23,14 +23,14 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IUV, SpriteFrame } from '../../assets/sprite-frame';
+import type { IUV, SpriteFrame } from '../../assets/sprite-frame';
 import { Mat4, Color, errorID } from '../../../core';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Sprite } from '../../components/sprite';
-import { UIRenderer } from '../../framework/ui-renderer';
-import { IAssembler } from '../../renderer/base';
-import { StaticVBChunk } from '../../renderer/static-vb-accessor';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Sprite } from '../../components/sprite';
+import type { UIRenderer } from '../../framework/ui-renderer';
+import type { IAssembler } from '../../renderer/base';
+import type { StaticVBChunk } from '../../renderer/static-vb-accessor';
 
 const m = new Mat4();
 

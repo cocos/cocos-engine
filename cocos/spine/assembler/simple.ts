@@ -26,16 +26,15 @@ import { IAssembler } from '../../2d/renderer/base';
 
 import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor4B, vfmtPosUvTwoColor4B, getAttributeStride } from '../../2d/renderer/vertex-format';
-import { Skeleton, SpineMaterialType } from '../skeleton';
+import { type Skeleton, SpineMaterialType } from '../skeleton';
 import { BlendFactor } from '../../gfx';
 import { legacyCC } from '../../core/global-exports';
-import { BaseRenderData, RenderData } from '../../2d/renderer/render-data';
+import { RenderData } from '../../2d/renderer/render-data';
 import { director } from '../../game';
 import spine from '../lib/spine-core';
 import { Color, EPSILON, Vec3 } from '../../core';
-import { MaterialInstance } from '../../render-scene';
-import { IBatcher } from '../../2d/renderer/i-batcher';
-import { UIRenderer } from '../../2d';
+import type { MaterialInstance } from '../../render-scene';
+import type { IBatcher } from '../../2d/renderer/i-batcher';
 
 const _slotColor = new Color(0, 0, 255, 255);
 const _boneColor = new Color(255, 0, 0, 255);

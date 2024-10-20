@@ -27,9 +27,9 @@ import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, edit
 import { EDITOR_NOT_IN_PREVIEW } from 'internal:constants';
 import { UIRenderer } from '../2d/framework';
 import { Texture2D } from '../asset/assets/texture-2d';
-import { IBatcher } from '../2d/renderer/i-batcher';
+import type { IBatcher } from '../2d/renderer/i-batcher';
 import { Vec2 } from '../core';
-import { RenderData } from '../2d/renderer/render-data';
+import type { RenderData } from '../2d/renderer/render-data';
 
 export class MotionStreakPoint {
     public point = new Vec2();

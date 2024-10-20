@@ -23,7 +23,7 @@
 */
 
 import { Color } from '../../../core/math/color';
-import { Label } from '../../components';
+import type { Label } from '../../components';
 import { BmfontUtils } from './bmfontUtils';
 import { shareLabelInfo, LetterAtlas, computeHash, LetterRenderTexture } from './font-utils';
 

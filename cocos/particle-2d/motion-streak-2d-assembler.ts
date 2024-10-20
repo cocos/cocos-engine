@@ -24,12 +24,12 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IAssembler, IAssemblerManager } from '../2d/renderer/base';
+import type { IAssembler, IAssemblerManager } from '../2d/renderer/base';
 import { MotionStreak, MotionStreakPoint } from './motion-streak-2d';
 import { Vec2, Color } from '../core';
-import { IBatcher } from '../2d/renderer/i-batcher';
-import { RenderData } from '../2d/renderer/render-data';
-import { UIRenderer } from '../2d';
+import type { IBatcher } from '../2d/renderer/i-batcher';
+import type { RenderData } from '../2d/renderer/render-data';
+import type { UIRenderer } from '../2d';
 
 const _normal = new Vec2();
 const _vec2 = new Vec2();

@@ -22,14 +22,13 @@
  THE SOFTWARE.
 */
 
-import { SpriteFrame } from '../../assets/sprite-frame';
-import { Color, Rect, js } from '../../../core';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Label } from '../../components/label';
-import { IAssembler } from '../../renderer/base';
+import { Color } from '../../../core';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Label } from '../../components/label';
+import type { IAssembler } from '../../renderer/base';
 import { fillMeshVertices3D } from '../utils';
 import { BmfontUtils } from './bmfontUtils';
-import { RenderData } from '../../renderer/render-data';
+import type { RenderData } from '../../renderer/render-data';
 
 const tempColor = new Color(255, 255, 255, 255);
 

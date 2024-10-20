@@ -24,13 +24,11 @@
 import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../../../core';
 import { IAssembler } from '../../../renderer/base';
-import { BaseRenderData, MeshRenderData } from '../../../renderer/render-data';
-import { IBatcher } from '../../../renderer/i-batcher';
+import { MeshRenderData } from '../../../renderer/render-data';
 import { Graphics } from '../../../components';
 import { LineCap, LineJoin, PointFlags } from '../types';
 import { earcut as Earcut } from './earcut';
 import { Impl, Point } from './impl';
-import { UIRenderer } from '../../../framework';
 
 const MAX_VERTEX = 65535;
 const MAX_INDICES = MAX_VERTEX * 2;
@@ -74,31 +72,12 @@ function clamp (v: number, minNum: number, maxNum: number): number {
  * 可通过 `UI.graphicsAssembler` 获取该组装器。
  */
 export class GraphicsAssembler implements IAssembler {
-    createData (comp: UIRenderer): BaseRenderData {
-        return null as unknown as BaseRenderData;
-    }
-
-    updateUVs (comp: UIRenderer, ...args: any[]): void {
-
-    }
-
-    updateColor (comp: UIRenderer): void {
-
-    }
-
     updateRenderData (graphics: Graphics): void {
         if (JSB) {
             if (graphics.renderData) {
                 graphics.renderData.material = graphics.getMaterialInstance(0);
             }
         }
-    }
-
-    fillBuffers (graphics: Graphics, renderer: IBatcher): void {
-        // this.renderIA!(graphics, renderer);
-    }
-
-    renderIA (graphics: Graphics, renderer: IBatcher): void {
     }
 
     private getRenderData (graphics: Graphics, vertexCount: number): MeshRenderData | null {

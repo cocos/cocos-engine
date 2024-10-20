@@ -43,7 +43,7 @@ import { Material, Texture2D } from '../asset/assets';
 import { Node } from '../scene-graph';
 import { builtinResMgr } from '../asset/asset-manager';
 import { setPropertyEnumType } from '../core/internal-index';
-import { RenderData } from '../2d/renderer/render-data';
+import type { RenderData } from '../2d/renderer/render-data';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -1472,7 +1472,7 @@ export class ArmatureDisplay extends UIRenderer {
             this._assembler = assembler;
         }
         if (this._armature && this._assembler) {
-            this._renderData = this._assembler.createData(this) as RenderData;
+            this._renderData = this._assembler.createData!(this) as RenderData;
             if (this._renderData) {
                 this.maxVertexCount = this._renderData.vertexCount;
                 this.maxIndexCount = this._renderData.indexCount;

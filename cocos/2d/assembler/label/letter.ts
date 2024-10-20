@@ -24,13 +24,12 @@
 
 import { JSB } from 'internal:constants';
 import { Color } from '../../../core';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Label } from '../../components/label';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Label } from '../../components/label';
 import { fillMeshVertices3D } from '../utils';
 import { LetterFont } from './letter-font';
 import type { RenderData } from '../../renderer/render-data';
-import { IAssembler } from '../../renderer/base';
-import { UIRenderer } from '../../framework';
+import type { IAssembler } from '../../renderer/base';
 
 const tempColor = new Color(255, 255, 255, 255);
 

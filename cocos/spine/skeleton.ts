@@ -1136,7 +1136,7 @@ export class Skeleton extends UIRenderer {
         if (this._assembler !== assembler) {
             this._assembler = assembler;
         }
-        if (this._skeleton && this._assembler) {
+        if (this._skeleton && this._assembler && this._assembler.createData) {
             this._renderData = this._assembler.createData(this) as RenderData;
             this.markForUpdateRenderData();
             this._updateColor();
@@ -1594,8 +1594,9 @@ export class Skeleton extends UIRenderer {
                 this._instance!.setUseTint(this._useTint);
             }
         }
-        if (this._assembler && this._skeleton) {
-            this._renderData = this._assembler.createData(this) as RenderData;
+        const assembler = this._assembler;
+        if (assembler && assembler.createData && this._skeleton) {
+            this._renderData = assembler.createData(this) as RenderData;
             this.markForUpdateRenderData();
         }
     }

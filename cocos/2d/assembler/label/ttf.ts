@@ -27,13 +27,12 @@
  * @module ui-assembler
  */
 
-import { Color, js } from '../../../core';
-import { IBatcher } from '../../renderer/i-batcher';
-import { Label } from '../../components/label';
-import { IAssembler } from '../../renderer/base';
+import { Color } from '../../../core';
+import type { IBatcher } from '../../renderer/i-batcher';
+import type { Label } from '../../components/label';
+import type { IAssembler } from '../../renderer/base';
 import { TTFUtils } from './ttfUtils';
-import { IRenderData, RenderData } from '../../renderer/render-data';
-import { UIRenderer } from '../../framework';
+import type { IRenderData, RenderData } from '../../renderer/render-data';
 
 const WHITE = Color.WHITE.clone();
 const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
@@ -42,7 +41,7 @@ const QUAD_INDICES = Uint16Array.from([0, 1, 2, 1, 3, 2]);
  * ttf 组装器
  * 可通过 `UI.ttf` 获取该组装器。
  */
-class TTF extends TTFUtils implements IAssembler {
+export class TTF extends TTFUtils implements IAssembler {
     createData (comp: Label): RenderData {
         const renderData = comp.requestRenderData()!;
 

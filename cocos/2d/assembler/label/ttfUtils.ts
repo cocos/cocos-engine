@@ -22,13 +22,13 @@
  THE SOFTWARE.
 */
 import { CacheMode, Label } from '../../components';
-import { ISharedLabelData } from './font-utils';
-import { UITransform } from '../../framework/ui-transform';
+import type { ISharedLabelData } from './font-utils';
+import type { UITransform } from '../../framework/ui-transform';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 import { TextProcessing } from './text-processing';
-import { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
-import { TextStyle } from './text-style';
-import { TextLayout } from './text-layout';
+import type { TextOutputLayoutData, TextOutputRenderData } from './text-output-data';
+import type { TextStyle } from './text-style';
+import type { TextLayout } from './text-layout';
 import { view } from '../../../ui/view';
 import { approx } from '../../../core';
 

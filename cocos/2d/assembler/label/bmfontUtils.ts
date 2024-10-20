@@ -23,7 +23,7 @@
 */
 
 import { JSB } from 'internal:constants';
-import { IConfig, FontAtlas, BitmapFont } from '../../assets/bitmap-font';
+import { IConfig, FontAtlas, type BitmapFont } from '../../assets/bitmap-font';
 import { SpriteFrame } from '../../assets/sprite-frame';
 import { Rect, errorID } from '../../../core';
 import { Label, Overflow, CacheMode } from '../../components/label';

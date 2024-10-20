@@ -24,7 +24,7 @@
 
 import { BitmapFont } from '../../assets';
 import { CacheMode, Label } from '../../components';
-import { IAssembler, IAssemblerManager } from '../../renderer/base';
+import type { IAssembler, IAssemblerManager } from '../../renderer/base';
 import { bmfont } from './bmfont';
 import { letter } from './letter';
 import { ttf } from './ttf';

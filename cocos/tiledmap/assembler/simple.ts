@@ -24,8 +24,8 @@
 
 import { JSB } from 'internal:constants';
 import { Mat4, Size, Vec3 } from '../../core/math';
-import { IAssembler } from '../../2d/renderer/base';
-import { IBatcher } from '../../2d/renderer/i-batcher';
+import type { IAssembler } from '../../2d/renderer/base';
+import type { IBatcher } from '../../2d/renderer/i-batcher';
 import { TiledLayer, TiledRenderData, TiledTile } from '..';
 import { GID, MixedGID, RenderOrder, TiledGrid, TileFlag } from '../tiled-types';
 import { director, DirectorEvent } from '../../game';
@@ -33,9 +33,8 @@ import { StaticVBAccessor } from '../../2d/renderer/static-vb-accessor';
 import { vfmtPosUvColor } from '../../2d/renderer/vertex-format';
 import { BaseRenderData, RenderData } from '../../2d/renderer/render-data';
 import { RenderDrawInfoType } from '../../2d/renderer/render-draw-info';
-import { Texture2D } from '../../asset/assets';
-import { Node } from '../../scene-graph';
-import { UIRenderer } from '../../2d';
+import type { Texture2D } from '../../asset/assets';
+import type { Node } from '../../scene-graph';
 
 const MaxGridsLimit = Math.ceil(65535 / 6);
 
